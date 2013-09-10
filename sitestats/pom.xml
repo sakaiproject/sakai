@@ -1,397 +1,295 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>2.10-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
-    </parent>
+  <name>Sakai SiteStats</name>
+  <groupId>org.sakaiproject.sitestats</groupId>
+  <artifactId>sitestats</artifactId>
+  <version>2.4-SNAPSHOT</version><!-- sitestats.version -->
+  <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
+  <url>http://confluence.sakaiproject.org/confluence/display/STAT</url>
+  <inceptionYear>2006</inceptionYear>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <packaging>pom</packaging>
 
-    <name>Sakai SiteStats</name>
-    <groupId>org.sakaiproject.sitestats</groupId>
-    <artifactId>sitestats</artifactId>
-    <version>2.4-SNAPSHOT</version><!-- sitestats.version -->
-    <description>SiteStats is a tool for Sakai for showing site usage statistics.</description>
-    <url>http://confluence.sakaiproject.org/confluence/display/STAT</url>
-    <inceptionYear>2006</inceptionYear>
-    <organization>
-        <name>Universidade Fernando Pessoa</name>
-        <url>http://www.ufp.pt</url>
-    </organization>
-    <packaging>pom</packaging>
+  <!-- Project versions -->
+  <properties>
+    <commons-digester.version>1.6</commons-digester.version>
+    <commons-betwixt.version>0.8</commons-betwixt.version>
+    <commons-beanutils.version>1.7.0</commons-beanutils.version>
+    <easymock.version>2.4</easymock.version>
+    <h2.version>1.1.111</h2.version>
+    <mysql.version>3.1.14</mysql.version>
+    <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
+    <fop.version>1.0</fop.version>
+    <poi.version>3.7</poi.version>
+    <jfreechart.version>1.0.5</jfreechart.version>
+    <sst.wicket.version>1.4.19</sst.wicket.version>
+    <sst.slf4j.version>1.4.3</sst.slf4j.version>
+  </properties>
 
-    <!-- Project versions -->
-    <properties>
-        <commons-digester.version>1.6</commons-digester.version>
-        <commons-betwixt.version>0.8</commons-betwixt.version>
-        <commons-beanutils.version>1.7.0</commons-beanutils.version>
-        <easymock.version>2.4</easymock.version>
-        <h2.version>1.1.111</h2.version>
-        <mysql.version>3.1.14</mysql.version>
-        <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
-        <fop.version>1.0</fop.version>
-        <poi.version>3.7</poi.version>
-        <jfreechart.version>1.0.5</jfreechart.version>
-        <sst.wicket.version>1.4.19</sst.wicket.version>
-        <sst.slf4j.version>1.4.3</sst.slf4j.version>
-    </properties>
+  <!-- Project modules -->
+  <modules>
+    <module>sitestats-api</module>
+    <module>sitestats-bundle</module>
+    <module>sitestats-impl</module>
+    <module>sitestats-impl-hib</module>
+    <module>sitestats-pack</module>
+    <module>sitestats-tool</module>
+    <module>sitestats-help</module>
+  </modules>
 
-    <!-- Project modules -->
-    <modules>
-        <module>sitestats-api</module>
-        <module>sitestats-bundle</module>
-        <module>sitestats-impl</module>
-        <module>sitestats-impl-hib</module>
-        <module>sitestats-pack</module>
-        <module>sitestats-tool</module>
-        <module>sitestats-help</module>
-        <module>sitestats-assembly</module>
-    </modules>
+  <!-- Profiles -->
+  <profiles>
+    <profile>
+      <!-- Execute performance tests (instead) -->
+      <id>perftests</id>
+      <properties>
+        <perftests.includes>**/*TestPerf.java</perftests.includes>
+      </properties>
+    </profile>
+    <profile>
+      <!-- Generate DB schema (DDL) -->
+      <id>ddl</id>
+      <modules>
+        <module>sitestats-impl-hib/src/ddl</module>
+      </modules>
+    </profile>
+  </profiles>
 
-    <!-- Project developers -->
-    <developers>
-        <developer>
-            <id>nuno</id>
-            <name>Nuno Fernandes</name>
-            <email>nuno@ufp.edu.pt</email>
-            <url>http://confluence.sakaiproject.org/confluence/display/~nfernandes</url>
-            <organization>Universidade Fernando Pessoa</organization>
-            <organizationUrl>http://www.ufp.pt/</organizationUrl>
-            <roles>
-                <role>Project Manager</role>
-                <role>Architect</role>
-                <role>Developer</role>
-            </roles>
-            <timezone>0</timezone>
-        </developer>
-        <developer>
-            <id>jayshao</id>
-            <name>Jason Shao</name>
-            <url>http://confluence.sakaiproject.org/confluence/display/~jayshao</url>
-            <organization>CampusEAI Consortium</organization>
-            <roles>
-                <role>Contributor</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>darolmar</id>
-            <name>David Roldan Martínez</name>
-            <url>http://confluence.sakaiproject.org/confluence/display/~darolmar@abierta.upv.es</url>
-            <organization>Universidad Politecnica de Valencia</organization>
-            <roles>
-                <role>Contributor</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>denny</id>
-            <name>Denny</name>
-            <url>http://confluence.sakaiproject.org/confluence/display/~denny.denny</url>
-            <organization>Wicaksana</organization>
-            <roles>
-                <role>Contributor</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>arwhyte</id>
-            <name>Anthony Whyte</name>
-            <url>http://confluence.sakaiproject.org/confluence/display/~arwhyte</url>
-            <organization>Sakai Foundation / University of Michigan</organization>
-            <roles>
-                <role>POM plumber</role>
-            </roles>
-            <timezone>-5</timezone>
-        </developer>
-         <developer>
-            <id>steve.swinsburg</id>
-            <name>Steve Swinsburg</name>
-            <url>https://confluence.sakaiproject.org/display/~steve.swinsburg</url>
-            <roles>
-                <role>Contributor</role>
-            </roles>
-            <timezone>+10</timezone>
-        </developer>
-    </developers>
-    
-    <!-- Source code repository location -->
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</developerConnection>
-        <url>http://source.sakaiproject.org/viewsvn/sitestats/trunk</url>
-    </scm>
-    
-    <!-- Distribution Management -->
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
-        </site>
-    </distributionManagement>
-    
-    <!-- Project repositories -->
-    <repositories>
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-    </repositories>
+  <!-- Source code repository location -->
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sitestats/trunk</developerConnection>
+    <url>http://source.sakaiproject.org/viewsvn/sitestats/trunk</url>
+  </scm>
 
-    <!-- JIRA -->
-    <issueManagement>
-        <system>JIRA</system>
-        <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
-    </issueManagement>
+  <!-- Distribution Management -->
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/sitestats/${project.version}</url>
+    </site>
+  </distributionManagement>
 
-    <!-- License -->
-    <licenses>
-        <license>
-            <name>Educational Community License, Version 2.0</name>
-            <url>http://www.opensource.org/licenses/ecl2.txt</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    
-    <!-- Profiles -->
-    <profiles>
-      <profile>
-        <!-- Execute performance tests (instead) -->
-        <id>perftests</id>
-        <properties>
-          <perftests.includes>**/*TestPerf.java</perftests.includes>
-        </properties>
-      </profile>
-      <profile>
-        <!-- Generate DB schema (DDL) -->
-        <id>ddl</id>
-        <modules>
-          <module>sitestats-impl-hib/src/ddl</module>
-        </modules>
-      </profile>
-    </profiles>
+  <!-- JIRA -->
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.sakaiproject.org/jira/browse/STAT</url>
+  </issueManagement>
 
-    <!-- Project related dependencies -->
-    <dependencyManagement>
-        <dependencies>
-            <!-- SiteStats -->
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sitestats-api</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sitestats-bundle</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sitestats-impl</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sitestats-impl-hib</artifactId>
-                <version>${project.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
-            
-            <!-- Apache Commons -->
-            <dependency>
-                <groupId>commons-digester</groupId>
-                <artifactId>commons-digester</artifactId>
-                <version>${commons-digester.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-betwixt</groupId>
-                <artifactId>commons-betwixt</artifactId>
-                <version>${commons-betwixt.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils-core</artifactId>
-                <version>${commons-beanutils.version}</version>
-            </dependency>
+  <!-- Project related dependencies -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- SiteStats -->
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sitestats-api</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sitestats-bundle</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sitestats-impl</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sitestats-impl-hib</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+        <scope>provided</scope>
+      </dependency>
+      <!-- Apache Commons -->
+      <dependency>
+        <groupId>commons-digester</groupId>
+        <artifactId>commons-digester</artifactId>
+        <version>${commons-digester.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-betwixt</groupId>
+        <artifactId>commons-betwixt</artifactId>
+        <version>${commons-betwixt.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>commons-beanutils</groupId>
+        <artifactId>commons-beanutils-core</artifactId>
+        <version>${commons-beanutils.version}</version>
+      </dependency>
+      <!-- Apache others -->
+      <dependency>
+        <groupId>org.apache.xmlgraphics</groupId>
+        <artifactId>fop</artifactId>
+        <version>${fop.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>${poi.version}</version>
+      </dependency>
+      <!-- Apache Wicket -->
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-extensions</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-ioc</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-spring</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-spring-annot</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-datetime</artifactId>
+        <version>${sst.wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>${sst.slf4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>${sst.slf4j.version}</version>
+      </dependency>
+      <!-- JFreeChart -->
+      <dependency>
+        <groupId>jfree</groupId>
+        <artifactId>jfreechart</artifactId>
+        <version>${jfreechart.version}</version>
+      </dependency>
+      <!-- Testing dependencies -->
+      <dependency>
+        <groupId>com.h2database</groupId>
+        <artifactId>h2</artifactId>
+        <version>${h2.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${mysql.version}</version>
+      </dependency>
+      <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId> <version>${ojdbc.version}</version> </dependency> -->
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymock</artifactId>
+        <version>${easymock.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.easymock</groupId>
+        <artifactId>easymockclassextension</artifactId>
+        <version>${easymock.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>0.11.6</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-            <!-- Apache others -->
-            <dependency>
-                <groupId>org.apache.xmlgraphics</groupId>
-                <artifactId>fop</artifactId>
-                <version>${fop.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.poi</groupId>
-                <artifactId>poi</artifactId>
-                <version>${poi.version}</version>
-            </dependency>
+  <!-- Build -->
+  <build>
+    <plugins>
+      <!-- maven-surefire-report-plugin 2.8+ requires maven-site-plugin 2.1+ -->
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>2.1</version>
+      </plugin>
+      <!-- Downgrade surefireplugin version due to build error. -->
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <systemPropertyVariables>
+            <!-- Pass through important service-integration test properties. -->
+            <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
+            <test.sakai.home>${test.sakai.home}</test.sakai.home>
+          </systemPropertyVariables>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 
-            <!-- Apache Wicket -->
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-extensions</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-ioc</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-spring</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-spring-annot</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.wicket</groupId>
-                <artifactId>wicket-datetime</artifactId>
-                <version>${sst.wicket.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${sst.slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-log4j12</artifactId>
-                <version>${sst.slf4j.version}</version>
-            </dependency>
+  <!-- Reporting (mvn site) -->
+  <reporting>
+    <plugins>
+      <!-- FindBugs: mvn findbugs:findbugs -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <version>1.2</version>
+        <configuration>
+          <findbugsXmlOutput>true</findbugsXmlOutput>
+          <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
+          <xmlOutput>true</xmlOutput>
+        </configuration>
+      </plugin>
+      <!-- CheckStyle: mvn checkstyle:checkstyle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-checkstyle-plugin</artifactId>
+        <configuration>
+          <outputFileFormat>xml</outputFileFormat>
+        </configuration>
+      </plugin>
+      <!-- Downgrade to address build failure. -->
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>2.6</version>
+      </plugin>
+      <!-- Cobertura: mvn cobertura:cobertura -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <configuration>
+          <formats>
+            <format>html</format>
+            <format>xml</format>
+          </formats>
+        </configuration>
+      </plugin>
+    </plugins>
+  </reporting>
 
-            <!-- JFreeChart -->
-            <dependency>
-                <groupId>jfree</groupId>
-                <artifactId>jfreechart</artifactId>
-                <version>${jfreechart.version}</version>
-            </dependency>
-
-            <!-- Testing dependencies -->
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
-                <version>${mysql.version}</version>
-            </dependency>
-            <!--
-            <dependency> <groupId>com.oracle</groupId>
-                <artifactId>ojdbc14</artifactId>
-                <version>${ojdbc.version}</version> 
-            </dependency>
-            -->
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>${easymock.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymockclassextension</artifactId>
-                <version>${easymock.version}</version>
-            </dependency>
-            
-            <dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>0.11.6</version>
-			</dependency>
-        </dependencies>
-    </dependencyManagement>
-
-    <!-- Build -->
-    <build>
-        <plugins>
-            <!-- maven-surefire-report-plugin 2.8+ requires maven-site-plugin 2.1+ -->
-            <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-site-plugin</artifactId>
-                <version>2.1</version>
-            </plugin>
-            <!-- Downgrade surefireplugin version due to build error. -->
-            <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.6</version>
-                <configuration>
-                    <systemPropertyVariables>
-                        <!-- Pass through important service-integration 
-                            test properties. -->
-						<maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
-						<test.sakai.home>${test.sakai.home}</test.sakai.home>
-                    </systemPropertyVariables>
-                </configuration>
-            </plugin>
-        </plugins>
-        
-    </build>
-
-    <!-- Reporting (mvn site) -->
-    <reporting>
-        <plugins>
-            <!-- FindBugs: mvn findbugs:findbugs -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>findbugs-maven-plugin</artifactId>
-                <version>1.2</version>
-                <configuration>
-                    <findbugsXmlOutput>true</findbugsXmlOutput>
-                    <findbugsXmlWithMessages>true</findbugsXmlWithMessages>
-                    <xmlOutput>true</xmlOutput>
-                </configuration>
-            </plugin>
-            <!-- CheckStyle: mvn checkstyle:checkstyle -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-checkstyle-plugin</artifactId>
-                <configuration>
-                    <outputFileFormat>xml</outputFileFormat>
-                </configuration>
-            </plugin>
-            <!-- Downgrade to address build failure. -->
-            <plugin>
-                <inherited>true</inherited>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-report-plugin</artifactId>
-                <version>2.6</version>
-            </plugin>
-            <!-- Cobertura: mvn cobertura:cobertura -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>cobertura-maven-plugin</artifactId>
-                <configuration>
-                    <formats>
-                        <format>html</format>
-                        <format>xml</format>
-                    </formats>
-                </configuration>
-            </plugin>
-        </plugins>
-    </reporting>
 </project>
