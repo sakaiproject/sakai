@@ -71,18 +71,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-tool-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-user-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-webapp-util-->
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject.portal</groupId>
       <artifactId>sakai-portal-api</artifactId>
@@ -109,16 +97,6 @@
         </exclusion>
       </exclusions>        
     </dependency>
-<!--org.sakaiprojectsakai-user-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}-->
-<!--org.sakaiprojectsakai-tool-util${sakai.version}-->
-<!--org.sakaiprojectsakai-user-util${sakai.version}-->
-<!--org.sakaiprojectsakai-util${sakai.version}-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}-->
-<!--org.sakaiprojectsakai-component${sakai.version}-->
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>sakai-portal-util</artifactId>
@@ -162,7 +140,6 @@
             <artifactId>portlet-api</artifactId>
           </exclusion>
         </exclusions>
-
     </dependency>
     <dependency>
         <groupId>jtidy</groupId>
