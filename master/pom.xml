@@ -119,7 +119,7 @@
     <sakai.jsf.version>2.10-SNAPSHOT</sakai.jsf.version>
     <sakai.lessonbuilder.version>1.5-SNAPSHOT</sakai.lessonbuilder.version>
     <sakai.mailarchive.version>2.10-SNAPSHOT</sakai.mailarchive.version>
-    <sakai.mailsender.version>1.8-SNAPSHOT</sakai.mailsender.version>
+    <sakai.mailsender.version>2.10-SNAPSHOT</sakai.mailsender.version>
     <sakai.message.version>2.10-SNAPSHOT</sakai.message.version>
     <sakai.msgcntr.version>3.0-SNAPSHOT</sakai.msgcntr.version>
     <sakai.portal.version>2.10-SNAPSHOT</sakai.portal.version>
