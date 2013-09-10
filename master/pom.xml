@@ -114,8 +114,8 @@
     <sakai.contentreview.version>2.10-SNAPSHOT</sakai.contentreview.version>
     <sakai.courier.version>2.10-SNAPSHOT</sakai.courier.version>
     <sakai.edu-services.version>1.3-SNAPSHOT</sakai.edu-services.version>
-    <sakai.ets.version>0.7-SNAPSHOT</sakai.ets.version>
-    <sakai.entitybroker.version>1.6-SNAPSHOT</sakai.entitybroker.version>
+    <sakai.ets.version>2.10-SNAPSHOT</sakai.ets.version>
+    <sakai.entitybroker.version>2.10-SNAPSHOT</sakai.entitybroker.version>
     <sakai.jsf.version>2.10-SNAPSHOT</sakai.jsf.version>
     <sakai.lessonbuilder.version>1.5-SNAPSHOT</sakai.lessonbuilder.version>
     <sakai.mailarchive.version>2.10-SNAPSHOT</sakai.mailarchive.version>
