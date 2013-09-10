@@ -64,27 +64,6 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
-        <!-- WAS LOGIN -->
-        <dependency>
-            <groupId>org.sakaiproject.was</groupId>
-            <artifactId>was-login-module</artifactId>
-            <version>1.0</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
-    <repositories>
-      <repository>
-        <id>maven-repo2</id>
-        <name>Maven Repo 1</name>
-        <layout>default</layout>
-        <url>http://repo2.maven.org/maven2</url>
-        <snapshots>
-          <enabled>false</enabled>
-        </snapshots>
-      </repository>
-    </repositories>
 
-    <build>
-        <resources />
-    </build>
 </project>

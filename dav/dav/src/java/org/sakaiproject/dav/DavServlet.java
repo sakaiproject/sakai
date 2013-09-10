@@ -166,7 +166,6 @@ import org.sakaiproject.util.IdPwEvidence;
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.was.login.SakaiWASLoginModule;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -1022,43 +1021,44 @@ public class DavServlet extends HttpServlet
 		//DavServlet is none the wiser. 
 		//The Login Module code can be found at:
 		//https://source.sakaiproject.org/contrib/websphere/was-login-module/
+		/* removed 2013-09-10 -AZ
 		if ("websphere".equals(ServerConfigurationService.getString("servlet.container")))
-		    {
-			//Fetch the credentials collection from the Subject.
-			//A wrapper is used here because we need access to 
-			//com.ibm.ws.security.auth.WSLoginHelperImpl
-			Iterator credItr = null;
-			try {
-			    credItr = SakaiWASLoginModule.getSubject().getPrivateCredentials().iterator();
-			} catch (Exception e) {
-			    M_log.error("SAKAIDAV: Unabled to obtain WAS credentials.", e);
-			}
-			
-			String pw = "";
-			while (credItr != null && credItr.hasNext())
-			    {
-				//look for the Key-Value pair
-				Object cred = credItr.next();
-				if( cred instanceof SakaiWASLoginModule.SakaiWASLoginKeyValue ) 
-				    {
-					SakaiWASLoginModule.SakaiWASLoginKeyValue entry = 
-					    (SakaiWASLoginModule.SakaiWASLoginKeyValue)cred;
-					
-					//extract the password from the Key-Value pair
-					if( "sakai.dav.pw".equals(entry.getKey()) )
-					    {
-						pw = (String)entry.getValue();
-						String eid = prin.getName();
-						
-						//remake the Principal with the user eid 
-						//and the recently fetched password
-						prin = new DavPrincipal(eid,pw);
-						break;
-					    }
-				    }
-			    }
+		{
+		    //Fetch the credentials collection from the Subject.
+		    //A wrapper is used here because we need access to 
+		    //com.ibm.ws.security.auth.WSLoginHelperImpl
+		    Iterator credItr = null;
+		    try {
+		        credItr = SakaiWASLoginModule.getSubject().getPrivateCredentials().iterator();
+		    } catch (Exception e) {
+		        M_log.error("SAKAIDAV: Unabled to obtain WAS credentials.", e);
 		    }
- 
+
+		    String pw = "";
+		    while (credItr != null && credItr.hasNext())
+		    {
+		        //look for the Key-Value pair
+		        Object cred = credItr.next();
+		        if( cred instanceof SakaiWASLoginModule.SakaiWASLoginKeyValue ) 
+		        {
+		            SakaiWASLoginModule.SakaiWASLoginKeyValue entry = 
+		                    (SakaiWASLoginModule.SakaiWASLoginKeyValue)cred;
+
+		            //extract the password from the Key-Value pair
+		            if( "sakai.dav.pw".equals(entry.getKey()) )
+		            {
+		                pw = (String)entry.getValue();
+		                String eid = prin.getName();
+
+		                //remake the Principal with the user eid 
+		                //and the recently fetched password
+		                prin = new DavPrincipal(eid,pw);
+		                break;
+		            }
+		        }
+		    }
+		}
+		*/
 
 		if ((prin != null) && (prin instanceof DavPrincipal))
 		{
