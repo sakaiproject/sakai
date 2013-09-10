@@ -16,7 +16,6 @@
     <packaging>pom</packaging>
     
     <modules>
-        <module>assembly</module>
         <module>tool</module>
         <module>tool-api</module>
     </modules>
@@ -34,19 +33,4 @@
             <url>scpexe://source.sakaiproject.org/var/www/html/release/velocity/${project.version}</url>
         </site>
     </distributionManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-
 </project>
