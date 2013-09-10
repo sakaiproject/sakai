@@ -72,7 +72,7 @@
   <properties>
     <sakai.version>2.10-SNAPSHOT</sakai.version>
     <!-- kernel only versions -->
-    <sakai.kernel.version>1.4.0-SNAPSHOT</sakai.kernel.version>
+    <sakai.kernel.version>2.10-SNAPSHOT</sakai.kernel.version>
     <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
