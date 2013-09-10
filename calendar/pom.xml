@@ -17,7 +17,6 @@
 
     <modules>
         <module>calendar-api/api</module>
-        <module>calendar-assembly</module>
         <module>calendar-bundles</module>
         <module>calendar-help</module>
         <module>calendar-impl/impl</module>
@@ -40,44 +39,6 @@
             <url>scpexe://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url>
         </site>
     </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-    </repositories>
 
     <dependencyManagement>
         <dependencies>
@@ -120,5 +81,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
 </project>
