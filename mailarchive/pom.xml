@@ -17,7 +17,6 @@
 
     <modules>
         <module>mailarchive-api/api</module>
-        <module>mailarchive-assembly</module>
         <module>mailarchive-help</module>
         <module>mailarchive-impl/impl</module>
         <module>mailarchive-impl/pack</module>
@@ -56,19 +55,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-
 </project>
