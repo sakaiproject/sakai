@@ -604,15 +604,6 @@
         <artifactId>test-harness</artifactId>
         <version>${sakai.kernel.version}</version>
       </dependency>
-      <!-- Assemblies -->
-      <!-- TODO delete me -->
-      <dependency>
-        <groupId>org.sakaiproject.entitybroker</groupId>
-        <artifactId>entitybroker-assembly</artifactId>
-        <classifier>tomcat-overlay</classifier>
-        <version>${sakai.entitybroker.version}</version>
-        <type>zip</type>
-      </dependency>
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <!-- common/lib -->
       <dependency>
