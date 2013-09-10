@@ -41,7 +41,7 @@
         <dependency>
             <groupId>org.sakaiproject</groupId>
             <artifactId>generic-dao</artifactId>
-            <version>0.9.18</version>
+            <version>${generic-dao.version}</version>
         </dependency>
         <dependency>
             <groupId>antlr</groupId>
