@@ -131,7 +131,7 @@
     <sakai.sakai-mock.version>2.10-SNAPSHOT</sakai.sakai-mock.version>
     <sakai.samigo.version>2.10-SNAPSHOT</sakai.samigo.version>
     <sakai.scheduler.version>2.10-SNAPSHOT</sakai.scheduler.version>
-    <sakai.search.version>1.5-SNAPSHOT</sakai.search.version>
+    <sakai.search.version>2.10-SNAPSHOT</sakai.search.version>
     <sakai.site.version>2.10-SNAPSHOT</sakai.site.version>
     <sakai.shortenedurl.version>2.10-SNAPSHOT</sakai.shortenedurl.version>
     <sakai.sitestats.version>2.4-SNAPSHOT</sakai.sitestats.version>
