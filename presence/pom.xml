@@ -17,7 +17,6 @@
 
     <modules>
         <module>presence-api/api</module>
-        <module>presence-assembly</module>
         <module>presence-impl/impl</module>
         <module>presence-impl/pack</module>
         <module>presence-tool/tool</module>
@@ -52,19 +51,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-    
 </project>
