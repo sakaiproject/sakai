@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>rwiki-base</artifactId>
@@ -8,6 +7,7 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <name>sakai-rwiki-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-rwiki-tool</artifactId>
@@ -15,6 +15,7 @@
     This project creates a WAR containing the RWiki Tool for Sakai.
   </description>
   <packaging>war</packaging>
+
   <build>
     <resources>
       <resource>
@@ -32,8 +33,7 @@
         <filtering>false</filtering>
       </resource>
     </resources>
-<!--nagEmailAddress: andrew@caret.cam.ac.uk -->
-<!-- java source -->
+    <!-- java source -->
     <testResources>
       <testResource>
         <directory>${basedir}/src/testBundle</directory>
@@ -42,10 +42,11 @@
         </includes>
         <filtering>false</filtering>
       </testResource>
-<!--includes: **/*Test -->
+      <!--includes: **/*Test -->
     </testResources>
-<!-- other resources for the jar - the message bundles -->
+    <!-- other resources for the jar - the message bundles -->
   </build>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -63,9 +64,6 @@
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-component-manager</artifactId>
     </dependency>
-<!--
-      This has been relocated to sakai-kernel-util
-      org.sakaiproject.kernel.utilsakai-util-->
     <dependency>
       <groupId>org.sakaiproject</groupId>
       <artifactId>sakai-rwiki-api</artifactId>
@@ -81,26 +79,13 @@
       <artifactId>sakai-rwiki-diff</artifactId>
       <type>jar</type>
     </dependency>
-<!--org.sakaiprojectsakai-util${sakai.version}jar-->
-<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-component${sakai.version}jar-->
-<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
-<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-api</artifactId>
-      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-utils</artifactId>
-      <version>1.5.0</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
@@ -155,7 +140,6 @@
     <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
-      <version>3.1</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -167,7 +151,6 @@
       <artifactId>lombok</artifactId>
       <version>0.11.6</version>
     </dependency>
-
-    
   </dependencies>
+
 </project>
