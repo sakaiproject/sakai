@@ -613,14 +613,6 @@
         <version>${sakai.entitybroker.version}</version>
         <type>zip</type>
       </dependency>
-      <!-- TODO delete me -->
-      <dependency>
-        <groupId>org.sakaiproject.kernel.deploy</groupId>
-        <artifactId>kernel-assembly</artifactId>
-        <version>${sakai.kernel.version}</version>
-        <classifier>tomcat-overlay</classifier>
-        <type>zip</type>
-      </dependency>
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <!-- common/lib -->
       <dependency>
