@@ -1,158 +1,99 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>2.10-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
 
-    <parent>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-        <relativePath>../master/pom.xml</relativePath>
-    </parent>
+  <name>Sakai Emailtemplateservice Base POM (emailtemplateservice)</name>
+  <groupId>org.sakaiproject.emailtemplateservice</groupId>
+  <artifactId>emailtemplateservice</artifactId>
+  <packaging>pom</packaging>
+  <version>0.7-SNAPSHOT</version>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
 
-    <name>Sakai Emailtemplateservice Base POM (emailtemplateservice)</name>
-    <groupId>org.sakaiproject.emailtemplateservice</groupId>
-    <artifactId>emailtemplateservice</artifactId>
-    <packaging>pom</packaging>
-    <version>0.7-SNAPSHOT</version>
-    <organization>
-        <name>Sakai Project</name>
-        <url>http://sakaiproject.org/</url>
-    </organization>
-    <inceptionYear>2007</inceptionYear>
+  <properties>
+    <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
-    <licenses>
-        <license>
-            <name>ECL-2.0</name>
-            <url>http://www.opensource.org/licenses/ecl2.txt</url>
-            <distribution>repo</distribution>
-            <comments>Copyright 2007-2009 Sakai Foundation</comments>
-        </license>
-    </licenses>
+  <modules>
+    <module>api</module>
+    <module>deploy</module>
+    <module>impl/logic</module>
+    <module>pack</module>
+    <module>tool</module>
+  </modules>
 
-    <developers>
-        <developer>
-            <id>dhorwitz</id>
-            <name>David Horwitz</name>
-            <organization>University of Cape Town</organization>
-            <email>david.horwitz@uct.ac.za</email>
-            <roles>
-                <role>Developer</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>arwhyte</id>
-            <name>Anthony Whyte</name>
-            <organization>Sakai Foundation/University of Michigan</organization>
-            <email>arwhyte@umich.edu</email>
-            <roles>
-                <role>POM plumber</role>
-                <role>Release Manager</role>
-            </roles>
-        </developer>
-    </developers>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
+  </scm>
 
-    <contributors>
-        <contributor>
-            <name>Beth Kirschner</name>
-            <organization>University of Michigan</organization>
-            <email>bkirschn@umich.edu</email>
-            <roles>
-                <role>Language bundles</role>
-            </roles>
-        </contributor>
-    </contributors>
-    
-    <modules>
-        <module>api</module>
-        <module>deploy</module>
-        <module>impl/logic</module>
-        <module>pack</module>
-        <module>tool</module>
-    </modules>
-    
-    <properties>
-        <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
-    	<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    </properties>
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url>
+    </site>
+  </distributionManagement>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
-    </scm>
-    
-    <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url>
-        </site>
-    </distributionManagement>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>emailtemplateservice-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>emailtemplateservice-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.simpleframework</groupId>
+        <artifactId>simple-xml</artifactId>
+        <version>${sakai.simple-xml.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>emailtemplateservice-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>emailtemplateservice-impl</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-    	    <dependency>
-        		<groupId>org.simpleframework</groupId>
-        		<artifactId>simple-xml</artifactId>
-        		<version>${sakai.simple-xml.version}</version>
-        		<scope>provided</scope>
-        	</dependency>
-        </dependencies>
-    </dependencyManagement>
-    
-    <reporting>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <reportSets>
-                  <reportSet>
-                    <id>aggregate</id>
-                    <configuration>
-                      <encoding>UTF-8</encoding>
-                      <links>
-                        <link>http://download.oracle.com/javase/6/docs/api/</link>
-                        <link>http://docs.oracle.com/javaee/5/api/</link>
-                        <link>http://junit.sourceforge.net/javadoc/</link>
-                      </links>
-                      <breakiterator>true</breakiterator>
-                      <verbose>false</verbose>
-                      <maxmemory>512m</maxmemory>
-                      <additionalJOption>
-                        -J-Xms168m -J-Xmx512m -J-XX:PermSize=128m -J-XX:NewSize=64m
-                      </additionalJOption>
-                    </configuration>
-                    <reports>
-                      <report>aggregate</report>
-                    </reports>
-                  </reportSet>
-                </reportSets>   
-            </plugin>
-        </plugins>
-    </reporting>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-	
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <links>
+                <link>http://download.oracle.com/javase/6/docs/api/</link>
+                <link>http://docs.oracle.com/javaee/5/api/</link>
+                <link>http://junit.sourceforge.net/javadoc/</link>
+              </links>
+              <breakiterator>true</breakiterator>
+              <verbose>false</verbose>
+              <maxmemory>512m</maxmemory>
+              <additionalJOption>-J-Xmx512m -J-XX:MaxPermSize=160m</additionalJOption>
+            </configuration>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
 </project>
