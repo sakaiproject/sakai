@@ -81,6 +81,8 @@
 		  
 		  <h:messages styleClass="alertMessage" id="errorMessages" rendered="#{! empty facesContext.maximumSeverity}" /> 
 		  
+		  <h:outputText style="display:block;" styleClass="messageConfirmation" value="#{msgs.pvt_hiddenGroupsBccMsg}" rendered="#{PrivateMessagesTool.displayHiddenGroupsMsg}" />
+		  
 		  <h:panelGrid styleClass="jsfFormTable" columns="2">
 			  <h:panelGroup styleClass="shorttext">
 					<h:outputLabel for="send_to" ><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
@@ -151,7 +153,7 @@
 			  	</h:panelGroup>
 			  	<h:panelGroup styleClass="shorttext bcc" style="display:none">
 					<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 20em;">
-		         		<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
+		         		<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 		       		</h:selectManyListbox>
 		       		<f:verbatim>
 		       			&nbsp;	       		

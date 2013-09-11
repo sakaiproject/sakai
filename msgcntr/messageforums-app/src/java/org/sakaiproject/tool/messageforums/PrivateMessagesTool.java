@@ -258,7 +258,8 @@ public class PrivateMessagesTool
   private String composeSubject ;
   private String composeBody;
   private String selectedLabel="pvt_priority_normal" ;   //defautl set
-  private List totalComposeToList;
+  private List totalComposeToList = null;
+  private List totalComposeToBccList = null;
   private List totalComposeToListRecipients;
   
   //Delete items - Checkbox display and selection - Multiple delete
@@ -344,6 +345,7 @@ public class PrivateMessagesTool
   private String selectedNonHiddenGroup = DEFAULT_NON_HIDDEN_GROUP_ID;
   private static final String PARAM_GROUP_ID = "groupId";
   private boolean currentSiteHasGroups = false;
+  private Boolean displayHiddenGroupsMsg = null;
   
   public PrivateMessagesTool()
   {    
@@ -400,6 +402,11 @@ public class PrivateMessagesTool
     if (! area.getEnabled() && isMessages()) {
     	area.setEnabled(true);
     }
+    
+    // reset these in case the allowed recipients (such as hidden groups) was updated
+    totalComposeToList = null;
+    totalComposeToBccList = null;
+    displayHiddenGroupsMsg = null;
     
     if (getUserId() != null && (getPvtAreaEnabled() || isInstructor() || isEmailPermit())){      
       PrivateForum pf = prtMsgManager.initializePrivateMessageArea(area, aggregateList);
@@ -969,33 +976,68 @@ public class PrivateMessagesTool
   
   public List getTotalComposeToList()
   { 
-      /** just need to refilter */
-      if (totalComposeToList != null) {
-          List<SelectItem> selectItemList = new ArrayList<SelectItem>();
-          for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
-              MembershipItem item = (MembershipItem) i.next();
-              selectItemList.add(new SelectItem(item.getId(), item.getName()));
-          }
-
-          return selectItemList;       
+      if (totalComposeToList == null) {
+          initializeComposeToLists();
       }
-
-      totalComposeToListRecipients = new ArrayList();
-
-      courseMemberMap = membershipManager.getFilteredCourseMembers(true, getHiddenGroupIds(area.getHiddenGroups()));
-      //    courseMemberMap = membershipManager.getAllCourseMembers(true, true, true);
-      List members = membershipManager.convertMemberMapToList(courseMemberMap);
-
-      totalComposeToList = members;
 
       List<SelectItem> selectItemList = new ArrayList<SelectItem>();
-
-      for (Iterator i = members.iterator(); i.hasNext();) {
+      for (Iterator i = totalComposeToList.iterator(); i.hasNext();) {
           MembershipItem item = (MembershipItem) i.next();
-          selectItemList.add(new SelectItem(item.getId(), item.getName()));//51d20a77----, "Maintain Role"
+          selectItemList.add(new SelectItem(item.getId(), item.getName()));
       }
 
-      return selectItemList;       
+      return selectItemList;              
+  }
+
+  public List getTotalComposeToBccList() {
+      if (totalComposeToBccList == null) {
+          initializeComposeToLists();
+      }
+
+      List<SelectItem> selectItemList = new ArrayList<SelectItem>();
+      for (Iterator i = totalComposeToBccList.iterator(); i.hasNext();) {
+          MembershipItem item = (MembershipItem) i.next();
+          selectItemList.add(new SelectItem(item.getId(), item.getName()));
+      }
+
+      return selectItemList;
+  }
+  
+  /**
+   * Since the courseMemberMap generates new uuids each time it is called, and
+   * these uuids are used to identify the recipients of the message when the user
+   * sends the message, we need to do the logic for the "To" and "Bcc" lists together, 
+   * utilizing the same courseMemberMap. This will set the values for the
+   * totalComposeToList and totalComposeToBccList.
+   */
+  private void initializeComposeToLists() {
+      totalComposeToList = new ArrayList();
+      totalComposeToBccList = new ArrayList();
+      
+      List<String> hiddenGroupIds = getHiddenGroupIds(area.getHiddenGroups());
+      courseMemberMap = membershipManager.getFilteredCourseMembers(true, getHiddenGroupIds(area.getHiddenGroups()));
+      List members = membershipManager.convertMemberMapToList(courseMemberMap);
+      
+      List<SelectItem> selectItemList = new ArrayList<SelectItem>();
+      // we need to filter out the hidden groups since they will only appear as recipients in the bcc list
+      for (Iterator i = members.iterator(); i.hasNext();) {
+          MembershipItem item = (MembershipItem) i.next();
+          if (hiddenGroupIds != null && item.getGroup() != null && hiddenGroupIds.contains(item.getGroup().getTitle())) {
+              // hidden groups only appear in the bcc list
+              totalComposeToBccList.add(item);
+          } else {
+              totalComposeToList.add(item);
+              totalComposeToBccList.add(item);
+          }
+      }  
+  }
+
+  public boolean isDisplayHiddenGroupsMsg() {
+      if (displayHiddenGroupsMsg == null) {
+          displayHiddenGroupsMsg = hiddenGroups != null && !hiddenGroups.isEmpty() && prtMsgManager.isAllowToViewHiddenGroups();
+      }
+      
+      return displayHiddenGroupsMsg;
   }
   
   private List<String> getHiddenGroupIds(Set hiddenGroups){
