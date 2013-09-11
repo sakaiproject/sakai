@@ -961,10 +961,6 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 
 		m_storage.commitChannel(edit);
 
-		// don't log any event for channel editing for now, since the event is shared btw channel and message
-		//Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageChannelEdit) edit).getEvent()), edit.getReference(), true,	NotificationService.NOTI_NONE);
-		//m_eventTrackingService.post(event);
-
 		// close the edit object
 		((BaseMessageChannelEdit) edit).closeEdit();
 
@@ -2626,9 +2622,12 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 
 		// clear out any thread local caching of this message, since it has just changed
 		m_threadLocalManager.set(edit.getReference(), null);
-
+		
+		// pick the security function
+		String function = getUpdateFunction(edit);
+		
 		// track event
-		Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
+		Event event = m_eventTrackingService.newEvent(eventId(function), edit.getReference(), true,
 					priority);
 		m_eventTrackingService.post(event);
 
@@ -2636,6 +2635,27 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 		// close the edit object
 		((BaseMessageEdit) edit).closeEdit();
 	}
+
+		/**
+		 * Based on the message creator, find the proper security update function
+		 * @param edit
+		 * @return
+		 */
+		private String getUpdateFunction(MessageEdit edit) {
+			// pick the security function
+			String function = null;
+			if (edit.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
+			{
+				// own or any
+				function = SECURE_UPDATE_OWN;
+			}
+			else
+			{
+				// just any
+				function = SECURE_UPDATE_ANY;
+			}
+			return function;
+		}
 
 		/**
 		 * {@inheritDoc}
@@ -2992,17 +3012,7 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 			}
 
 			// pick the security function
-			String function = null;
-			if (message.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
-			{
-				// own or any
-				function = SECURE_REMOVE_OWN;
-			}
-			else
-			{
-				// just any
-				function = SECURE_REMOVE_ANY;
-			}
+			String function = getUpdateFunction(message);
 
 			// securityCheck
 			if (!allowRemoveMessage(message))
