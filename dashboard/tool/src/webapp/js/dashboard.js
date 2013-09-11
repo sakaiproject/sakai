@@ -38,14 +38,8 @@ var setupLinks = function(){
         var entityReference = $(this).closest('li').find('.entityReference').text();
         var itemCount = $(this).closest('li').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
-        
-        //console.log('callBackUrl: ' + callBackUrl)
-        //console.log('entityReference: ' + entityReference)
-        //console.log('itemType:' + itemType)
-        //console.log('parentCell: ' + parentCell) 
-        //console.log('parentRow: ' + parentRow)
-        //console.log('itemCount:' + itemCount)
-        
+
+
         //if disclosure in DOM, either hide or show, do not request data again
         if ($(parentRow).next('li.newRow').length === 1) {
             $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
@@ -70,8 +64,8 @@ var setupLinks = function(){
                     contentType: 'application/json',
                     dataType: 'json',
                     success: function(json){
-                        delimitLeft = "{";
-                        delimitRight = "}";
+                        var delimitLeft = "{";
+                        var delimitRight = "}";
                         
                         var results = '<div class=\"results\" tabindex=\"-1\" style=\"display:none\">';
                         if (json.order.length !== 0) {
@@ -153,11 +147,12 @@ var setupLinks = function(){
                             results = results + 'This item type has not specified an order :( </div>';
                         }
                         
-                        if (isMobile && $(parentRow).closest('#itemHolder').length !== 1) {
+                        if (isMobile) {
                             $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
                             $('#itemEvent #itemHolder .results').fadeIn('fast');
                         }
                         else {
+                            
                             $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
                             $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
                                 resizeFrame('grow');
@@ -260,7 +255,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                 '</span>\n' +
                 '</div>\n' +
                 '<div class="tab three span6">\n' +
-                '<a href="#" class="itemLink" target="_top">' +
+                '<a href="#" class="itemLink">' +
                 icon +
                 ' ' +
                 this.title +
@@ -312,7 +307,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                     $('<li class=\"newRow\"><div class=\"results newList\"><ul class=\"itemCollection\">' + results + '</ul></div></li>').insertAfter(parentRow);
                 }
                 else {
-                    $(results).insertAfter((parentRow).next('li').find('ul').find('li:last')).fadeIn('slow');
+                    $(results).insertAfter((parentRow).next('li').find('ul.itemCollection').find('li:last')).fadeIn('slow');
                     //$(parentRow).next('li').find('ul').find('li').eq(params.offset).attr('tabindex', '-1').focus();
                 }
             }
@@ -336,7 +331,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
                     if ($(parentRow).next('li.newRow').find('.getMore').length === 0) {
                         $('<div class="getMore"><a class=\"btn btn-small\" href="#">' + json['more-link'] + '</a>&nbsp;&nbsp;&nbsp;<span class=\"showingCount instruction textPanelFooter"></span></div>').insertAfter((parentRow).next('li.newRow').find('.itemCollection'));
                     }
-                    $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text('bbbb ' + updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
+                    $(parentRow).next('li.newRow').find('.getMore').find('.showingCount').text(updateCount(json['more-status-last'], showingRows, totalCount, parentRow))
                 }
                 
             }

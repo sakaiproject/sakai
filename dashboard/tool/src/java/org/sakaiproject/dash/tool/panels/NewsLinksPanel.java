@@ -259,7 +259,7 @@ public class NewsLinksPanel extends Panel {
 					logger.warn("Error(s) encountered while processing newsItem title:\n" + errorMessages);
 				}
 				
-				ExternalLink itemLink = new ExternalLink("itemLink", "#");
+				ExternalLink itemLink = new ExternalLink("itemLink", "#itemEvent");
 				itemLink.add(new Label("itemTitle",title));
 				itemLink.add(new Label("itemClick",rl.getString("dash.details")));
 				item.add(itemLink);
