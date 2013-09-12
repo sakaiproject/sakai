@@ -74,9 +74,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+	    <!-- TODO why is this needed by LB? -AZ - this will break shortly -->
             <groupId>org.sakaiproject.msgcntr</groupId>
             <artifactId>messageforums-hbm</artifactId>
-            <!--version>${sakai.msgcntr.version}</version-->
+            <version>${sakai.msgcntr.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
