@@ -7,6 +7,7 @@
         <version>2.10-SNAPSHOT</version><!-- KernelVersion -->
         <relativePath>../../pom.xml</relativePath>
     </parent>
+
     <description>Kernel Direct Shared Deployer</description>
     <name>Kernel Direct Shared Deployer</name>
     <groupId>org.sakaiproject.kernel.deploy</groupId>
@@ -16,17 +17,32 @@
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2003</inceptionYear>
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
-    </scm>
-
     <packaging>pom</packaging>
+
     <properties>
         <deploy.target>shared</deploy.target>
     </properties>
+
     <dependencies>
+      <dependency>
+	<groupId>org.sakaiproject.kernel</groupId>
+	<artifactId>sakai-kernel-api</artifactId>
+	<version>${project.version}</version>
+	<scope>compile</scope>
+      </dependency>      
+      <dependency>
+	<groupId>org.sakaiproject.kernel</groupId>
+	<artifactId>sakai-component-manager</artifactId>
+	<version>${project.version}</version>
+	<scope>compile</scope>
+      </dependency>
+      <dependency>
+	<groupId>org.sakaiproject.kernel</groupId>
+	<artifactId>sakai-kernel-private</artifactId>
+	<version>${project.version}</version>
+	<scope>compile</scope>
+      </dependency>
+        <!-- needed by kernel -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -206,4 +222,11 @@
             <scope>compile</scope>
         </dependency>
     </dependencies>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</developerConnection>
+        <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
+    </scm>
+
 </project>
