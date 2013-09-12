@@ -7,16 +7,13 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Content Project</name>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/content/trunk</url>
-  </scm>
+
   <profiles>
     <profile>
       <id>framework</id>
@@ -64,22 +61,30 @@
       </modules>
     </profile>
   </profiles>
+
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/content/trunk</url>
+  </scm>
+
   <dependencyManagement>
     <dependencies>
-        <dependency>
+      <dependency>
+  	<groupId>org.sakaiproject.content</groupId>
+  	<artifactId>content-copyright-api</artifactId>
+	<version>${project.version}</version>
+      </dependency>
+      <dependency>
   	<groupId>org.sakaiproject.content</groupId>
   	<artifactId>content-bundles</artifactId>
-	<version>2.10-SNAPSHOT</version>
-  </dependency>
+	<version>${project.version}</version>
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.content</groupId>
         <artifactId>content-providers-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.velocity</groupId>
-        <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
