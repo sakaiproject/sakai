@@ -1,41 +1,28 @@
-# Indie services
+# Sakai CLE Externals
+# Updating: svn propset svn:externals -F .externals .
+# Corporate POM
+master https://source.sakaiproject.org/svn/master/trunk
+
+# Core services
 kernel https://source.sakaiproject.org/svn/kernel/trunk
 common https://source.sakaiproject.org/svn/common/trunk
 content-review https://source.sakaiproject.org/svn/content-review/trunk
 edu-services https://source.sakaiproject.org/svn/edu-services/trunk
 emailtemplateservice https://source.sakaiproject.org/svn/emailtemplateservice/trunk
 entitybroker https://source.sakaiproject.org/svn/entitybroker/trunk
+jobscheduler https://source.sakaiproject.org/svn/jobscheduler/trunk
 jsf https://source.sakaiproject.org/svn/jsf/trunk
 sakai-mock https://source.sakaiproject.org/svn/sakai-mock/trunk
 webservices https://source.sakaiproject.org/svn/webservices/trunk
 
-# Indie tools
-basiclti https://source.sakaiproject.org/svn/basiclti/trunk
-jobscheduler https://source.sakaiproject.org/svn/jobscheduler/trunk
-lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk/
-mailsender https://source.sakaiproject.org/svn/mailsender/trunk
-msgcntr https://source.sakaiproject.org/svn/msgcntr/trunk
-polls https://source.sakaiproject.org/svn/polls/trunk
-profile https://source.sakaiproject.org/svn/profile/trunk
-profile2 https://source.sakaiproject.org/svn/profile2/trunk
-reset-pass https://source.sakaiproject.org/svn/reset-pass/trunk
-samigo https://source.sakaiproject.org/svn/sam/trunk
-search https://source.sakaiproject.org/svn/search/trunk
-shortenedurl https://source.sakaiproject.org/svn/shortenedurl/trunk
-sitestats https://source.sakaiproject.org/svn/sitestats/trunk
-
-# Indie experimental
-#assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
-hybrid https://source.sakaiproject.org/svn/hybrid/trunk
-#roster2 https://source.sakaiproject.org/contrib/roster2/trunk
-
-# Monolithic Sakai
+# Core Sakai Tools
 access https://source.sakaiproject.org/svn/access/trunk
 alias https://source.sakaiproject.org/svn/alias/trunk
 announcement https://source.sakaiproject.org/svn/announcement/trunk
 archive https://source.sakaiproject.org/svn/archive/trunk
 assignment https://source.sakaiproject.org/svn/assignment/trunk
 authz https://source.sakaiproject.org/svn/authz/trunk
+basiclti https://source.sakaiproject.org/svn/basiclti/trunk
 calendar https://source.sakaiproject.org/svn/calendar/trunk
 chat https://source.sakaiproject.org/svn/chat/trunk
 citations https://source.sakaiproject.org/svn/citations/trunk
@@ -45,27 +32,37 @@ courier https://source.sakaiproject.org/svn/courier/trunk
 dav https://source.sakaiproject.org/svn/dav/trunk
 gradebook https://source.sakaiproject.org/svn/gradebook/trunk
 help https://source.sakaiproject.org/svn/help/trunk
+lessonbuilder https://source.sakaiproject.org/svn/lessonbuilder/trunk/
 linktool https://source.sakaiproject.org/svn/linktool/trunk
 login https://source.sakaiproject.org/svn/login/trunk
 mailarchive https://source.sakaiproject.org/svn/mailarchive/trunk
-master https://source.sakaiproject.org/svn/master/trunk
+mailsender https://source.sakaiproject.org/svn/mailsender/trunk
 memory https://source.sakaiproject.org/svn/memory/trunk
 message https://source.sakaiproject.org/svn/message/trunk
 metaobj https://source.sakaiproject.org/svn/metaobj/trunk
+msgcntr https://source.sakaiproject.org/svn/msgcntr/trunk
 osp https://source.sakaiproject.org/svn/osp/trunk
 pack https://source.sakaiproject.org/svn/pack/trunk
 podcasts https://source.sakaiproject.org/svn/podcasts/trunk
+polls https://source.sakaiproject.org/svn/polls/trunk
 portal https://source.sakaiproject.org/svn/portal/trunk
 postem https://source.sakaiproject.org/svn/postem/trunk
 presence https://source.sakaiproject.org/svn/presence/trunk
+profile https://source.sakaiproject.org/svn/profile/trunk
+profile2 https://source.sakaiproject.org/svn/profile2/trunk
 providers https://source.sakaiproject.org/svn/providers/trunk
 reference https://source.sakaiproject.org/svn/reference/trunk
+reset-pass https://source.sakaiproject.org/svn/reset-pass/trunk
 rights https://source.sakaiproject.org/svn/rights/trunk
 roster https://source.sakaiproject.org/svn/roster/trunk
 rwiki https://source.sakaiproject.org/svn/rwiki/trunk
+samigo https://source.sakaiproject.org/svn/sam/trunk
+search https://source.sakaiproject.org/svn/search/trunk
 sections https://source.sakaiproject.org/svn/sections/trunk
+shortenedurl https://source.sakaiproject.org/svn/shortenedurl/trunk
 site https://source.sakaiproject.org/svn/site/trunk
 site-manage https://source.sakaiproject.org/svn/site-manage/trunk
+sitestats https://source.sakaiproject.org/svn/sitestats/trunk
 syllabus https://source.sakaiproject.org/svn/syllabus/trunk
 taggable https://source.sakaiproject.org/svn/taggable/trunk
 textarea https://source.sakaiproject.org/svn/textarea/trunk
@@ -75,6 +72,11 @@ usermembership https://source.sakaiproject.org/svn/usermembership/trunk
 velocity https://source.sakaiproject.org/svn/velocity/trunk
 warehouse https://source.sakaiproject.org/svn/warehouse/trunk
 web https://source.sakaiproject.org/svn/web/trunk
+
+# Experimental
+#assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
+#roster2 https://source.sakaiproject.org/contrib/roster2/trunk
+
 
 # Zeckoski projects
 #genericdao http://genericdao.googlecode.com/svn/trunk/
