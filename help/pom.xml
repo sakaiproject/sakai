@@ -7,16 +7,13 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Help Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>help-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/help/trunk</url>
-  </scm>
+
   <modules>
     <module>help</module>
     <module>help-api</module>
@@ -24,14 +21,10 @@
     <module>help-component-shared</module>
     <module>help-tool</module>
   </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.jsf.version}</version>
-        <type>pom</type>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/help/trunk</url>
+  </scm>
 </project>
