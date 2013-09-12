@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.sakaiproject.basiclti</groupId>
             <artifactId>basiclti-api</artifactId>
-            <version>${sakai.basiclti.version}</version>
+            <!--version>${sakai.basiclti.version}</version-->
             <scope>provided</scope>
         </dependency>
 
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>${sakai.assignment.groupId}</groupId>
             <artifactId>sakai-assignment-api</artifactId>
-            <version>${sakai.assignment.version}</version>
+            <!--version>${sakai.assignment.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -56,7 +56,7 @@
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
-            <version>${sakai.entitybroker.version}</version>
+            <!--version>${sakai.entitybroker.version}</version-->
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -70,36 +70,36 @@
         <dependency>
             <groupId>org.sakaiproject.msgcntr</groupId>
             <artifactId>messageforums-api</artifactId>
-            <version>${sakai.msgcntr.version}</version>
+            <!--version>${sakai.msgcntr.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.msgcntr</groupId>
             <artifactId>messageforums-hbm</artifactId>
-            <version>${sakai.msgcntr.version}</version>
+            <!--version>${sakai.msgcntr.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-api</artifactId>
-            <version>${sakai.samigo.version}</version>
+            <!--version>${sakai.samigo.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-hibernate</artifactId>
-            <version>${sakai.samigo.version}</version>
+            <!--version>${sakai.samigo.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-qti</artifactId>
-            <version>${sakai.samigo.version}</version>
+            <!--version>${sakai.samigo.version}</version-->
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.samigo</groupId>
             <artifactId>samigo-services</artifactId>
-            <version>${sakai.samigo.version}</version>
+            <!--version>${sakai.samigo.version}</version-->
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -126,7 +126,7 @@
         <dependency>
             <groupId>org.hibernate</groupId>
 	    <artifactId>${sakai.hibernate.artifactId}</artifactId>
-	    <version>${sakai.hibernate.version}</version>
+	    <!--version>${sakai.hibernate.version}</version-->
 	    <scope>provided</scope>
         </dependency>
         <!-- Required for hibernate 3 HQL queries -->
@@ -138,7 +138,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>${sakai.spring.artifactId}</artifactId>
-            <version>${sakai.spring.version}</version> 
+            <!--version>${sakai.spring.version}</version--> 
         </dependency>      
         <dependency>
             <groupId>org.springframework</groupId>
