@@ -33,15 +33,13 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-	       <groupId>org.sakaiproject.kernel</groupId>
-	       <artifactId>sakai-component-manager</artifactId>
-	    </dependency>
+		  <groupId>org.sakaiproject.kernel</groupId>
+		  <artifactId>sakai-component-manager</artifactId>
+		</dependency>
 		<dependency>
-            <groupId>org.sakaiproject.scheduler</groupId>
-            <artifactId>scheduler-api</artifactId>
-            <version>${sakai.scheduler.version}</version>
-            <scope>provided</scope>
-      </dependency>
+		  <groupId>org.sakaiproject.scheduler</groupId>
+		  <artifactId>scheduler-api</artifactId>
+		</dependency>
 	</dependencies>
 	<build>
 		<resources />

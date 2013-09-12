@@ -105,10 +105,9 @@
        <version>1.6.6</version>
        <scope>provided</scope>
     </dependency>
-	<dependency>
+    <dependency>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler-api</artifactId>
-        <version>${sakai.scheduler.version}</version>
         <scope>provided</scope>
     </dependency>
   </dependencies>
