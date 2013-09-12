@@ -32,7 +32,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-      <version>${sakai.commons-logging.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.velocity</groupId>

@@ -7,11 +7,13 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Alias Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>alias-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/alias/trunk</developerConnection>
@@ -20,13 +22,4 @@
   <modules>
     <module>alias-tool/tool</module>
   </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.velocity</groupId>
-        <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 </project>
