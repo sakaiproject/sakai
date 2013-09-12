@@ -14,6 +14,12 @@
 	<artifactId>samigo</artifactId>
 	<version>2.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<!-- If you are doing development on this jar you need to set this to ${project.version} or use the samigo-audio profile.
+		 It has to use a released signed version otherwise it doesn't work.
+    -->
+	<properties>
+		<samigo.audio.version>2.9.3</samigo.audio.version>
+	</properties>
     
 	<modules>
 		<module>samigo-api</module>
@@ -50,7 +56,24 @@
 			<modules>
 				<module>samigo-audio</module>
 			</modules>
+			<properties>
+				<samigo.audio.version>${project.version}</samigo.audio.version>
+			</properties>
 		</profile>
+		<!-- Use this profile if you want to develop on samigo audio -->
+		<profile>
+			<id>samigo-audio</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<modules>
+				<module>samigo-audio</module>
+			</modules>
+			<properties>
+				<samigo.audio.version>${project.version}</samigo.audio.version>
+			</properties>
+		</profile>
+
 	</profiles>
         
 	
@@ -73,7 +96,7 @@
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-audio</artifactId>
-                <version>2.9.3</version><!-- see https://jira.sakaiproject.org/browse/SAM-1997 -->
+                <version>${samigo.audio.version}</version>
                 <type>jar</type>
                 <scope>provided</scope>
             </dependency>

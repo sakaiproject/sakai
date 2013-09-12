@@ -282,7 +282,8 @@
                             <tasks>
                                 <property name="basedir" value="${project.basedir}" />
                                 <property name="build.directory" value="${project.build.directory}" />
-                                <property name="version" value="${project.version}" />
+                                <property name="version" value="${samigo.audio.version}" />
+                                <property name="projectversion" value="${project.version}" />
                                 <property name="localRepo" value="${settings.localRepository}" />
                                 <ant antfile="${project.basedir}/build.xml" />
                             </tasks>
