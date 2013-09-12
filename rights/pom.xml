@@ -12,39 +12,18 @@
   <artifactId>rights-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/rights/trunk</url>
-  </scm>
+
   <modules>
     <module>rights-api/api</module>
     <module>rights-impl/impl</module>
     <module>rights-impl/pack</module>
     <module>rights-tool/tool</module>
   </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.velocity</groupId>
-        <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.site</groupId>
-        <artifactId>sakai-mergedlist-util</artifactId>
-        <version>${sakai.site.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.presence</groupId>
-        <artifactId>sakai-presence-util</artifactId>
-        <version>${sakai.presence.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.courier</groupId>
-        <artifactId>sakai-courier-util</artifactId>
-        <version>${sakai.courier.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rights/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/rights/trunk</url>
+  </scm>
+
 </project>
