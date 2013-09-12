@@ -12,11 +12,7 @@
   <artifactId>syllabus-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/syllabus/trunk</url>
-  </scm>
+
   <modules>
     <module>components</module>
     <module>help</module>
@@ -25,6 +21,7 @@
     <module>syllabus-hbm</module>
     <module>syllabus-impl</module>
   </modules>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -35,14 +32,15 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-syllabus-hbm</artifactId>
-        <version>2.10-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.jsf.version}</version>
-        <type>pom</type>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/syllabus/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/syllabus/trunk</url>
+  </scm>
+
 </project>

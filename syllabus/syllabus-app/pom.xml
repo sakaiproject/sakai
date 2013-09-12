@@ -16,6 +16,7 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -63,7 +64,6 @@
     <dependency>
       <groupId>org.sakaiproject.calendar</groupId>
       <artifactId>sakai-calendar-api</artifactId>
-      <version>${sakai.calendar.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
@@ -72,7 +72,6 @@
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-utils</artifactId>
-      <version>${sakai.entitybroker.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
@@ -87,8 +86,8 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
-
   </dependencies>
+
   <build>
     <resources>
       <resource>
