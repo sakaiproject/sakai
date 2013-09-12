@@ -7,6 +7,7 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <name>sakai-chat-impl</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-chat-impl</artifactId>
@@ -19,6 +20,7 @@
   <properties>
     <deploy.target />
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -69,6 +71,7 @@
       <artifactId>entitybroker-api</artifactId>
     </dependency>
     <dependency>
+      <!-- remove this - https://jira.sakaiproject.org/browse/SAK-23916 -->
       <groupId>org.sakaiproject.message</groupId>
       <artifactId>sakai-message-impl</artifactId>
     </dependency>
