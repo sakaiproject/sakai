@@ -12,7 +12,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Sakai Master</name>
-  <description>Institutional POM for the Sakai CLE</description>
+  <description>Corporate POM for the Sakai CLE</description>
   <version>2.10-SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
