@@ -14,40 +14,18 @@
   <version>2.10-SNAPSHOT</version><!-- ProjectVersion -->
   <packaging>pom</packaging>
 
-  <profiles>
-    <profile>
-      <id>full</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-        <module>search-api/api</module>
-        <module>search-help</module>
-        <module>search-test</module>
-        <module>search-impl/impl</module>
-        <module>search-impl/pack</module>
-        <module>search-integration-test</module>
-        <module>search-model</module>
-        <module>search-util</module>
-        <module>search-tool/tool</module>
-        <module>elasticsearch</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>framework</id>
-      <modules>
-        <module>search-api/api</module>
-        <module>search-help</module>
-        <module>search-test</module>
-        <module>search-impl/impl</module>
-        <module>search-impl/pack</module>
-        <module>search-integration-test</module>
-        <module>search-model</module>
-        <module>search-util</module>
-        <module>search-tool/tool</module>
-      </modules>
-    </profile>
-  </profiles>
+  <modules>
+    <module>search-api/api</module>
+    <module>search-help</module>
+    <module>search-test</module>
+    <module>search-impl/impl</module>
+    <module>search-impl/pack</module>
+    <module>search-integration-test</module>
+    <module>search-model</module>
+    <module>search-util</module>
+    <module>search-tool/tool</module>
+    <module>elasticsearch</module>
+  </modules>
 
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
@@ -66,12 +44,6 @@
       <dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>search-impl</artifactId>
-        <version>${project.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
-        <artifactId>search-util</artifactId>
         <version>${project.version}</version>
         <type>jar</type>
       </dependency>

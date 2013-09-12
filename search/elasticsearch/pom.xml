@@ -51,100 +51,13 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-            <!-- Dependencies -->
-
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-core</artifactId>
-                <version>${sakai.spring.version}</version>
-            </dependency>
-
-
-
-            <!-- Sakai dependencies -->
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>search-api</artifactId>
-                <version>${sakai.search.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.search</groupId>
-                <artifactId>sakai-search-tool</artifactId>
-                <version>${sakai.search.version}</version>
-                <type>war</type>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.kernel</groupId>
-                <artifactId>sakai-kernel-api</artifactId>
-                <version>${sakai.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.kernel</groupId>
-                <artifactId>sakai-component-manager</artifactId>
-                <version>${sakai.kernel.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-api</artifactId>
-                <version>${sakai.entitybroker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.entitybroker</groupId>
-                <artifactId>entitybroker-utils</artifactId>
-                <version>${sakai.entitybroker.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.kernel</groupId>
-                <artifactId>sakai-kernel-component</artifactId>
-                <version>${sakai.kernel.version}</version>
-                <type>sakai-component</type>
-            </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>1.9.5</version>
                 <scope>test</scope>
             </dependency>
-            <dependency>
-              <groupId>junit</groupId>
-              <artifactId>junit</artifactId>
-              <version>4.10</version>
-              <type>jar</type>
-              <scope>test</scope>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
-
-
-    <repositories>
-        <repository>
-            <id>sakai.maven2</id>
-            <name>Sakai Maven2 Repo</name>
-            <url>https://source.sakaiproject.org/maven2</url>
-        </repository>
-        <repository>
-            <id>sakai.maven2-snapshot</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-
-    </repositories>
-
-
-
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-        </pluginRepository>
-
-    </pluginRepositories>
 </project>

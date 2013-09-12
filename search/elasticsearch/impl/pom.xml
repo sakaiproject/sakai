@@ -32,18 +32,15 @@
         <dependency>
           <groupId>org.sakaiproject.search</groupId>
           <artifactId>search-util</artifactId>
-          <version>${project.version}</version>
           <type>jar</type>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>

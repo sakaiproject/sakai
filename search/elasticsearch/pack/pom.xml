@@ -23,7 +23,7 @@
         <dependency>
             <groupId>org.sakaiproject.search.elasticsearch</groupId>
             <artifactId>elasticsearch-impl</artifactId>
-            <version>${sakai.search.version}</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.elasticsearch</groupId>
