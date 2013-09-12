@@ -17,7 +17,7 @@
 	<target name="copy-target" if="target.jar.exists">
 		<echo message="COPY AUDIO JAR FROM TARGET" />	
 		<copy file="${basedir}/../samigo-audio/target/samigo-audio-${version}.jar"
-			tofile="${build.directory}/samigo-app-${projectversion}/applets/samigo-audio-${version}.jar" />
+			tofile="${build.directory}/samigo-app-${projectversion}/applets/samigo-audio-dev.jar" />
 	</target>
 
 	<!-- Warning. Release plugin checks out tag into samigo-[version]/target/checkout before deploying it to repo -->
@@ -36,7 +36,7 @@
 	<target name="copy-local" if="local.jar.exists">
 		<echo message="COPY AUDIO JAR FROM LOCAL REPO" />
 		<copy file="${localRepo}/org/sakaiproject/samigo/samigo-audio/${version}/samigo-audio-${version}.jar"
-			tofile="${build.directory}/samigo-app-${projectversion}/applets/samigo-audio-${version}.jar" />	
+			tofile="${build.directory}/samigo-app-${projectversion}/applets/samigo-audio-dev.jar" />	
 		<!--
 		<copy type="file" file="${basedir}/../../../samigo-audio/target/samigo-audio-${version}.jar"
 					tofile="${build.directory}/samigo-app-${version}/applets/samigo-audio-dev.jar" />
