@@ -35,6 +35,7 @@
         <activeByDefault>true</activeByDefault>
       </activation>
       <properties>
+	<sakai.mailarchive.version>${sakai.version}</sakai.mailarchive.version><!-- needed to work with older versions -->
         <!-- Versions for these are inherited from master -->
         <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
         <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
