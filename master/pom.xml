@@ -1149,12 +1149,6 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.version}</version>
-        <!-- duplicate with no type -->
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf-widgets-sun</artifactId>
         <version>${sakai.version}</version>
         <!-- type>pom</type -->
