@@ -35,6 +35,7 @@
 		<dependency>
 			<groupId>org.sakaiproject.jsf</groupId>
 			<artifactId>jsf-tool-sun</artifactId>
+			<type>pom</type>
 		</dependency>
 		<dependency>
 		  <groupId>javax.servlet</groupId>
