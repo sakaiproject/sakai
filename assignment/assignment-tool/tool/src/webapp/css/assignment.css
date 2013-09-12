@@ -60,3 +60,10 @@
             white-space: nowrap;
             background: url(/library/image/silk/group_key.png) center no-repeat;
 }
+
+.popupMessage{
+	background-color: #ffe !important;
+	position: absolute;
+	z-index: 1000;
+	width: auto !important;
+}
