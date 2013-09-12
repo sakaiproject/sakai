@@ -7,71 +7,49 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Sections Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sections-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/sections/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sections/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/sections/trunk</url>
   </scm>
+
   <modules>
     <module>help</module>
     <module>sections-app-util</module>
     <module>sections-app</module>
   </modules>
+
   <dependencyManagement>
     <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-impl-standalone</artifactId>
-        <version>${sakai.edu-services.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-model</artifactId>
-        <version>${sakai.edu-services.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-impl</artifactId>
-        <version>${sakai.edu-services.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.edu-services.sections</groupId>
-        <artifactId>sections-integrationsupport</artifactId>
-        <version>${sakai.edu-services.version}</version>
-        <scope>provided</scope>
-      </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-sections-app-util</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <!-- TODO fix IMPL dependency - https://jira.sakaiproject.org/browse/SAK-23918 -->
       <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-impl-standalone</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-spreadsheet</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-impl</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-app</artifactId>
-        <version>${sakai.jsf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-widgets-depend</artifactId>
-        <version>${sakai.jsf.version}</version>
-        <type>pom</type>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-integrationsupport</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
