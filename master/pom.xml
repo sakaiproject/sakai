@@ -106,38 +106,8 @@
     <generic-dao.version>0.9.18</generic-dao.version>
     <reflectutils.version>0.9.19</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
-    <sakai.announcement.version>2.10-SNAPSHOT</sakai.announcement.version>
-    <sakai.assignment.version>2.10-SNAPSHOT</sakai.assignment.version>
-    <sakai.basiclti.version>2.10-SNAPSHOT</sakai.basiclti.version>
-    <sakai.calendar.version>2.10-SNAPSHOT</sakai.calendar.version>
-    <sakai.common.version>2.10-SNAPSHOT</sakai.common.version>
-    <sakai.contentreview.version>2.10-SNAPSHOT</sakai.contentreview.version>
-    <sakai.courier.version>2.10-SNAPSHOT</sakai.courier.version>
-    <sakai.edu-services.version>2.10-SNAPSHOT</sakai.edu-services.version>
-    <sakai.ets.version>2.10-SNAPSHOT</sakai.ets.version>
-    <sakai.entitybroker.version>2.10-SNAPSHOT</sakai.entitybroker.version>
-    <sakai.jsf.version>2.10-SNAPSHOT</sakai.jsf.version>
     <sakai.lessonbuilder.version>1.5-SNAPSHOT</sakai.lessonbuilder.version>
-    <sakai.mailarchive.version>2.10-SNAPSHOT</sakai.mailarchive.version>
-    <sakai.mailsender.version>2.10-SNAPSHOT</sakai.mailsender.version>
-    <sakai.message.version>2.10-SNAPSHOT</sakai.message.version>
     <sakai.msgcntr.version>3.0-SNAPSHOT</sakai.msgcntr.version>
-    <sakai.portal.version>2.10-SNAPSHOT</sakai.portal.version>
-    <sakai.polls.version>2.10-SNAPSHOT</sakai.polls.version>
-    <sakai.presence.version>2.10-SNAPSHOT</sakai.presence.version>
-    <sakai.profile.version>2.10-SNAPSHOT</sakai.profile.version>
-    <sakai.profile2.version>2.10-SNAPSHOT</sakai.profile2.version>
-    <sakai.resetpass.version>2.10-SNAPSHOT</sakai.resetpass.version>
-    <sakai.samigo.version>2.10-SNAPSHOT</sakai.samigo.version>
-    <sakai.scheduler.version>2.10-SNAPSHOT</sakai.scheduler.version>
-    <sakai.search.version>2.10-SNAPSHOT</sakai.search.version>
-    <sakai.shortenedurl.version>2.10-SNAPSHOT</sakai.shortenedurl.version>
-    <sakai.site.version>2.10-SNAPSHOT</sakai.site.version>
-    <sakai.sitestats.version>2.10-SNAPSHOT</sakai.sitestats.version>
-    <sakai.taggable.version>2.10-SNAPSHOT</sakai.taggable.version>
-    <sakai.velocity-tool.version>2.10-SNAPSHOT</sakai.velocity-tool.version>
-    <sakai.warehouse.version>2.10-SNAPSHOT</sakai.warehouse.version>
-    <sakai.webservices.version>2.10-SNAPSHOT</sakai.webservices.version>
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.6</sakai.jdk.version>
@@ -575,35 +545,35 @@
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-component-manager</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-api</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel.component.api</groupId>
         <artifactId>sakai-component-manager</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-storage-util</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>test-harness</artifactId>
-        <version>${sakai.kernel.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <!-- common/lib -->
@@ -678,15 +648,27 @@
       </dependency>
       <!-- Sakai apis -->
       <dependency>
-        <groupId>org.sakaiproject.common</groupId>
-        <artifactId>archive-api</artifactId>
-        <version>${sakai.common.version}</version>
+        <groupId>org.sakaiproject.accountvalidator</groupId>
+        <artifactId>accountvalidator-api</artifactId>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
+        <artifactId>archive-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <!-- TODO - remove this from DM - nothing should use the import-impl -->
+        <groupId>org.sakaiproject.common</groupId>
         <artifactId>import-impl</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>sakai-import-util</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
@@ -703,13 +685,13 @@
       <dependency>
         <groupId>org.sakaiproject.courier</groupId>
         <artifactId>sakai-courier-api</artifactId>
-        <version>${sakai.courier.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.courier</groupId>
         <artifactId>sakai-courier-util</artifactId>
-        <version>${sakai.courier.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
@@ -726,19 +708,30 @@
       <dependency>
         <groupId>org.sakaiproject.portal</groupId>
         <artifactId>sakai-portal-api</artifactId>
-        <version>${sakai.portal.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.portal</groupId>
         <artifactId>sakai-portal-render-api</artifactId>
-        <version>${sakai.portal.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.portal</groupId>
+        <artifactId>sakai-portal-util</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
         <artifactId>sections-api</artifactId>
-        <version>${sakai.edu-services.version}</version>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-model</artifactId>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -792,25 +785,31 @@
       <dependency>
         <groupId>org.sakaiproject.announcement</groupId>
         <artifactId>sakai-announcement-api</artifactId>
-        <version>${sakai.announcement.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.assignment</groupId>
         <artifactId>sakai-assignment-api</artifactId>
-        <version>${sakai.assignment.version}</version>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.basiclti</groupId>
+        <artifactId>basiclti-api</artifactId>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.taggable</groupId>
         <artifactId>sakai-taggable-api</artifactId>
-        <version>${sakai.taggable.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-api</artifactId>
-        <version>${sakai.calendar.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -822,43 +821,43 @@
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-composite-component-data</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-manager-api</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-type-api</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.contentreview</groupId>
         <artifactId>contentreview-model-api</artifactId>
-        <version>${sakai.contentreview.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.contentreview</groupId>
         <artifactId>contentreview-service-api</artifactId>
-        <version>${sakai.contentreview.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.edu-services.course-management</groupId>
         <artifactId>coursemanagement-api</artifactId>
-        <version>${sakai.edu-services.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -870,19 +869,19 @@
       <dependency>
         <groupId>org.sakaiproject.emailtemplateservice</groupId>
         <artifactId>emailtemplateservice-api</artifactId>
-        <version>${sakai.ets.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-api</artifactId>
-        <version>${sakai.entitybroker.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.entitybroker</groupId>
         <artifactId>entitybroker-utils</artifactId>
-        <version>${sakai.entitybroker.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
@@ -893,30 +892,41 @@
       <dependency>
         <groupId>org.sakaiproject.edu-services.gradebook</groupId>
         <artifactId>gradebook-service-api</artifactId>
-        <version>${sakai.edu-services.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
-      <!--org.sakaiprojectsakai-jcr-api${sakai.version}provided -->
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-hibernate</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <dependency>
         <groupId>org.sakaiproject.mailarchive</groupId>
         <artifactId>sakai-mailarchive-api</artifactId>
-        <version>${sakai.mailarchive.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-api</artifactId>
-        <version>${sakai.message.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
-        <version>${sakai.message.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.msgcntr</groupId>
         <artifactId>messageforums-api</artifactId>
+        <version>${sakai.msgcntr.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.msgcntr</groupId>
+        <artifactId>messageforums-hbm</artifactId>
         <version>${sakai.msgcntr.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -946,7 +956,7 @@
       <dependency>
         <groupId>org.sakaiproject.polls</groupId>
         <artifactId>polls-api</artifactId>
-        <version>${sakai.polls.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -958,31 +968,36 @@
       <dependency>
         <groupId>org.sakaiproject.presence</groupId>
         <artifactId>sakai-presence-api</artifactId>
-        <version>${sakai.presence.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.presence</groupId>
+        <artifactId>sakai-presence-util</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-privacy-api</artifactId>
-        <version>${sakai.common.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.profile</groupId>
         <artifactId>profile-api</artifactId>
-        <version>${sakai.profile.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.profile</groupId>
         <artifactId>profile-component-shared</artifactId>
-        <version>${sakai.profile.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.profile2</groupId>
         <artifactId>profile2-api</artifactId>
-        <version>${sakai.profile2.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1006,47 +1021,69 @@
       <dependency>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo-api</artifactId>
-        <version>${sakai.samigo.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.samigo</groupId>
         <artifactId>samigo-services</artifactId>
-        <version>${sakai.samigo.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.samigo</groupId>
+        <artifactId>samigo-hibernate</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.samigo</groupId>
+        <artifactId>samigo-qti</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler-api</artifactId>
-        <version>${sakai.scheduler.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.scheduler</groupId>
         <artifactId>scheduler-component-shared</artifactId>
-        <version>${sakai.scheduler.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.search</groupId>
         <artifactId>search-api</artifactId>
-        <version>${sakai.search.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.search</groupId>
         <artifactId>search-util</artifactId>
-        <version>${sakai.search.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.site</groupId>
         <artifactId>sakai-mergedlist-util</artifactId>
-        <version>${sakai.site.version}</version>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>sakai-siteassociation-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.sitemanage</groupId>
+        <artifactId>sakai-site-manage-util</artifactId>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.sitestats</groupId>
         <artifactId>sitestats-api</artifactId>
-        <version>${sakai.sitestats.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1064,7 +1101,7 @@
       <dependency>
         <groupId>org.sakaiproject.warehouse</groupId>
         <artifactId>sakai-warehouse-api</artifactId>
-        <version>${sakai.warehouse.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1078,46 +1115,91 @@
       <dependency>
         <groupId>org.sakaiproject.velocity</groupId>
         <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
+        <version>${sakai.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.velocity</groupId>
         <artifactId>sakai-velocity-tool-api</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
+        <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <artifactId>jsf-app</artifactId>
+        <version>${sakai.version}</version>
+        <!-- type>pom</type -->
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-app</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <artifactId>jsf-spreadsheet</artifactId>
+        <version>${sakai.version}</version>
+        <!-- type>pom</type -->
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-tool</artifactId>
+        <version>${sakai.version}</version>
+        <!-- type>pom</type -->
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-tool-sun</artifactId>
+        <version>${sakai.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-tool-sun</artifactId>
+        <version>${sakai.version}</version>
+        <!-- duplicate with no type -->
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>jsf-widgets-sun</artifactId>
+        <version>${sakai.version}</version>
+        <!-- type>pom</type -->
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
         <artifactId>jsf-widgets-sun-depend</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-widgets-depend</artifactId>
-        <version>${sakai.jsf.version}</version>
+        <artifactId>myfaces-tool</artifactId>
+        <version>${sakai.version}</version>
         <type>pom</type>
+        <exclusions>
+          <!-- exclude this to avoid the collision btw RI and tomahawk -->
+          <exclusion>
+            <groupId>javax.faces</groupId>
+            <artifactId>jsf-api</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>javax.faces</groupId>
+            <artifactId>jsf-impl</artifactId>
+          </exclusion>
+        </exclusions>
       </dependency>
       <dependency>
-        <groupId>javax.servlet</groupId>
-        <artifactId>jstl</artifactId>
-        <version>${sakai.jstl.version}</version>
+        <groupId>org.sakaiproject.jsf</groupId>
+        <artifactId>myfaces-widgets-depend</artifactId>
+        <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
+      <!--  TODO REMOVE THIS
       <dependency>
         <groupId>org.sakaiproject.osp</groupId>
         <artifactId>osp-depend-jsf-widgets-sun</artifactId>
-        <version>${sakai.osp.version}</version>
+        <version>${sakai.version}</version>
+        <type>pom</type>
+      </dependency>
+       -->
+      <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>jstl</artifactId>
+        <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
       <!-- JUNIT -->
