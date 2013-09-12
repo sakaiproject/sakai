@@ -28,19 +28,18 @@
                 <dependency>
                   <groupId>org.sakaiproject.jsf</groupId>
                   <artifactId>myfaces-tool</artifactId>
-                  <version>${sakai.jsf.version}</version>
-                  <exclusions>
-                  <!-- exclude this to avoid the collision btw RI and tomahawk -->
-                  <exclusion>
-                        <groupId>javax.faces</groupId>
-                        <artifactId>jsf-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.faces</groupId>
-                        <artifactId>jsf-impl</artifactId>
-                    </exclusion>
-                  </exclusions>
                   <type>pom</type>
+		  <exclusions>
+		    <!-- exclude this to avoid the collision btw RI and tomahawk -->
+		    <exclusion>
+		      <groupId>javax.faces</groupId>
+		      <artifactId>jsf-api</artifactId>
+		    </exclusion>
+		    <exclusion>
+		      <groupId>javax.faces</groupId>
+		      <artifactId>jsf-impl</artifactId>
+		    </exclusion>
+		  </exclusions>
                 </dependency>
             </dependencies>
         </profile>
@@ -51,18 +50,18 @@
                 <dependency>
                   <groupId>org.sakaiproject.jsf</groupId>
                   <artifactId>myfaces-tool</artifactId>
-                  <version>${sakai.jsf.version}</version>
-                  <exclusions>
-                    <exclusion>
-                        <groupId>javax.faces</groupId>
-                        <artifactId>jsf-api</artifactId>
-                    </exclusion>
-                    <exclusion>
-                        <groupId>javax.faces</groupId>
-                        <artifactId>jsf-impl</artifactId>
-                    </exclusion>
-                  </exclusions>
                   <type>pom</type>
+		  <exclusions>
+		    <!-- exclude this to avoid the collision btw RI and tomahawk -->
+		    <exclusion>
+		      <groupId>javax.faces</groupId>
+		      <artifactId>jsf-api</artifactId>
+		    </exclusion>
+		    <exclusion>
+		      <groupId>javax.faces</groupId>
+		      <artifactId>jsf-impl</artifactId>
+		    </exclusion>
+		  </exclusions>
                 </dependency>
             </dependencies>
         </profile>

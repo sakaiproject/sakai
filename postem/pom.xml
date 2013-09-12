@@ -7,16 +7,13 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Postem Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>postem-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/postem/trunk</url>
-  </scm>
+
   <modules>
     <module>components</module>
     <module>postem-api</module>
@@ -25,6 +22,7 @@
     <module>postem-impl</module>
     <module>postem-help</module>
   </modules>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -39,4 +37,9 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/postem/trunk</url>
+  </scm>
 </project>
