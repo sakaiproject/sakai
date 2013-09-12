@@ -1,13 +1,21 @@
 /*
  * HANDLERS
  */
+var isMobile = "";
+
+if ($('.mobilePage').length === 0) {
+    isMobile = false;
+}
+else {
+    isMobile = true;
+}
 var setupLinks = function(){
     /*
-    need to make the whole row clickable and send a trigger to the link
-    but since it is a live action cannot escape propagation
-    $('.row-fluid').click(function(){});
-    */
-    
+     need to make the whole row clickable and send a trigger to the link
+     but since it is a live action cannot escape propagation
+     $('.row-fluid').click(function(){});
+     */
+  
     /*
      * go to site link handler (used only to report event)
      */
@@ -21,15 +29,7 @@ var setupLinks = function(){
      * expand an item's contents
      */
     $(".itemLink").live("click", function(e){
-        var isMobile = "";
-        if ($('.mobilePage').length === 0) {
-            //console.log('is not mobile') //desktop version
-            isMobile = false;
-        }
-        else {
-            //console.log('is mobile')
-            isMobile = true;
-        };
+        ;
         
         var parentRow = $(this).closest('li');
         var colCount = $(parentRow).find('div').length;
@@ -38,8 +38,8 @@ var setupLinks = function(){
         var entityReference = $(this).closest('li').find('.entityReference').text();
         var itemCount = $(this).closest('li').find('.itemCount').text();
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
-
-
+        
+        
         //if disclosure in DOM, either hide or show, do not request data again
         if ($(parentRow).next('li.newRow').length === 1) {
             $(parentRow).next('li.newRow').find('.results').fadeToggle('fast', '', function(){
@@ -148,11 +148,18 @@ var setupLinks = function(){
                         }
                         
                         if (isMobile) {
-                            $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
-                            $('#itemEvent #itemHolder .results').fadeIn('fast');
+                            if ($(parentRow).closest('ul.itemCollection').length) {
+                                $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
+                                $(parentRow).next('li.newRow').find('.results').fadeIn('fast');
+                                resizeFrame('grow');
+                            }
+                            else {
+                                $('#itemEvent #itemHolder').html('<div>' + results + '</div>');
+                                $('#itemEvent #itemHolder .results').fadeIn('fast');
+                            }
                         }
                         else {
-                            
+                        
                             $('<li class=\"newRow\"><div>' + results + '</div></li>').insertAfter(parentRow);
                             $(parentRow).next('li.newRow').find('.results').fadeIn('slow', function(){
                                 resizeFrame('grow');
@@ -188,7 +195,7 @@ var setupLinks = function(){
         var colCount = '0';
         var callBackUrl = $(this).closest('body').find('.callBackUrl').text();
         var paramContainer = $(parentRow).find('.one');
-            $(paramContainer).css('border','1px solid blue')
+        $(paramContainer).css('border', '1px solid blue')
         
         params = {
             'entityType': $(paramContainer).find('.itemType').text(),
@@ -291,12 +298,17 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             
             if (isMobile) {
                 if (initChunk) {
-                    $('#itemEvent #itemHolder').html('<div class=\"newList\"><div id=\"paramContainer\" style=\"display:none\"><div class=\"one\"><span class=\"itemType\">' + $(parentRow).find('.itemType').text()  +
+                    $('#itemEvent #itemHolder').html('<div class=\"newList\"><div id=\"paramContainer\" style=\"display:none\"><div class=\"one\"><span class=\"itemType\">' + $(parentRow).find('.itemType').text() +
                     
-                    '</span>  | <span class=\"itemCount\">' + $(parentRow).find('.itemCount').text()  +
-                    '</span>  | <span class=\"entityReference\">' + $(parentRow).find('.entityReference').text()  +
-                    '</span>  | <span class=\"offset\">' + $(parentRow).find('.offset').text()  +
-                    '</span></div></div><ul class=\"itemCollection\">' + results + '</ul></div>');
+                    '</span>  | <span class=\"itemCount\">' +
+                    $(parentRow).find('.itemCount').text() +
+                    '</span>  | <span class=\"entityReference\">' +
+                    $(parentRow).find('.entityReference').text() +
+                    '</span>  | <span class=\"offset\">' +
+                    $(parentRow).find('.offset').text() +
+                    '</span></div></div><ul class=\"itemCollection\">' +
+                    results +
+                    '</ul></div>');
                 }
                 else {
                     $(results).appendTo('.itemCollection')
@@ -319,7 +331,7 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             else {
                 showingRows = $(parentRow).next('li.newRow').find('li').length
             }
-
+            
             if (showingRows < totalCount) {
                 if (isMobile) {
                     if ($('#itemHolder').find('.getMore').length === 0) {
@@ -392,7 +404,9 @@ function updateItemStatus(element, dashAction, itemId){
                 $(element).attr('src', json.newIcon);
                 if (dashAction === 'unstar') {
                     $(element).parent('a').attr('class', 'starThis');
-                    $(element).closest('li').find('.hideThis').show();
+                    if (!isMobile) {
+                        $(element).closest('li').find('.hideThis').show();
+                    }
                 }
                 else {
                     $(element).closest('li').find('.hideThis').hide();
