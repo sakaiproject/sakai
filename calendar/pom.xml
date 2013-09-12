@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
         <version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
+	<relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>sakai-calendar base pom</name>
@@ -44,12 +44,6 @@
         <dependencies>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-calendar-bundles</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -57,27 +51,6 @@
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-calendar-util</artifactId>
                 <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-tool</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-app</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>myfaces-widgets-depend</artifactId>
-                <version>${sakai.jsf.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.site</groupId>
-                <artifactId>sakai-mergedlist-util</artifactId>
-                <version>${sakai.site.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
