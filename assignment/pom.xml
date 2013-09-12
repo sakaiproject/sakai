@@ -41,12 +41,6 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>sakai-assignment-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>sakai-assignment-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
@@ -54,12 +48,6 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>sakai-assignment-bundles</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.scheduler</groupId>
-        <artifactId>scheduler-api</artifactId>
-        <version>${sakai.scheduler.version}</version>
-        <scope>provided</scope>
       </dependency>
     </dependencies>
   </dependencyManagement>
