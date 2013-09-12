@@ -11,12 +11,8 @@
   <artifactId>usermembership-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <name>Sakai User Membership  Project</name>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/usermembership/trunk</url>
-  </scm>
   <packaging>pom</packaging>
+
   <modules>
     <module>api</module>
     <module>help</module>
@@ -24,29 +20,21 @@
     <module>pack</module>
     <module>tool</module>
   </modules>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-usermembership-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool</artifactId>
-        <version>${sakai.jsf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-app</artifactId>
-        <version>${sakai.jsf.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>myfaces-widgets-depend</artifactId>
-        <version>${sakai.jsf.version}</version>
-        <type>pom</type>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/usermembership/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/usermembership/trunk</url>
+  </scm>
+
 </project>
