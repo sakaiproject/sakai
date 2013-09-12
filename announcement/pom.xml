@@ -40,24 +40,13 @@
     <dependencies>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>sakai-announcement-api</artifactId>
-        <version>${project.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>${project.groupId}</groupId>
         <artifactId>sakai-announcement-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
-        <version>${sakai.message.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.site</groupId>
-        <artifactId>sakai-mergedlist-util</artifactId>
-        <version>${sakai.site.version}</version>
+        <version>2.10-SNAPSHOT</version><!-- temporary workaround - https://jira.sakaiproject.org/browse/SAK-23915 -->
       </dependency>
     </dependencies>
   </dependencyManagement>
