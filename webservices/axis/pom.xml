@@ -35,24 +35,22 @@
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-component-manager</artifactId>
 	    </dependency>
-        <dependency> 
-            <groupId>org.sakaiproject.samigo</groupId> 
-            <artifactId>samigo-qti</artifactId> 
-            <version>${sakai.samigo.version}</version> 
-        </dependency>
-        <dependency>
-			<groupId>org.sakaiproject.scheduler</groupId>
-			<artifactId>scheduler-api</artifactId>
-			<version>${sakai.scheduler.version}</version>
-			<scope>provided</scope>
-		</dependency>
-        
-		<!--  external dependencies -->
-    	<dependency>
+            <dependency> 
+              <groupId>org.sakaiproject.samigo</groupId> 
+              <artifactId>samigo-qti</artifactId>
+            </dependency>
+            <dependency>
+	      <groupId>org.sakaiproject.scheduler</groupId>
+	      <artifactId>scheduler-api</artifactId>
+	      <scope>provided</scope>
+	    </dependency>
+
+	    <!--  external dependencies -->
+    	    <dependency>
       		<groupId>org.apache.axis</groupId>
       		<artifactId>axis</artifactId>
       		<version>1.4</version>
-    	</dependency>
+    	    </dependency>
 	    <dependency>
 	      	<groupId>org.apache.axis</groupId>
 	      	<artifactId>axis-jaxrpc</artifactId>
@@ -81,19 +79,18 @@
 	    <dependency>
 	      	<groupId>commons-logging</groupId>
 	      	<artifactId>commons-logging</artifactId>
-	      	<version>${sakai.commons-logging.version}</version>
 	    </dependency>
 	    <dependency>
 	      	<groupId>commons-discovery</groupId>
 	      	<artifactId>commons-discovery</artifactId>
 	      	<version>0.5</version>
 	    </dependency> 
-		<dependency>
-			<groupId>org.quartz-scheduler</groupId>
-			<artifactId>quartz</artifactId>
-			<version>${sakai.quartz.version}</version>
-			<scope>provided</scope>
-		</dependency> 
+	    <dependency>
+	      <groupId>org.quartz-scheduler</groupId>
+	      <artifactId>quartz</artifactId>
+	      <version>${sakai.quartz.version}</version>
+	      <scope>provided</scope>
+	    </dependency> 
 	</dependencies>
   
   	<build>
