@@ -7,16 +7,19 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai Web Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>web-base</artifactId>
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/web/trunk</url>
   </scm>
+
   <profiles>
     <profile>
       <id>framework</id>
@@ -53,17 +56,12 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-news-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-web-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.velocity</groupId>
-        <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>
