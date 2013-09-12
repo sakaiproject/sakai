@@ -30,13 +30,7 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-podcasts-impl</artifactId>
-        <version>2.10-SNAPSHOT</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.jsf</groupId>
-        <artifactId>jsf-tool-sun</artifactId>
-        <version>${sakai.jsf.version}</version>
-        <type>pom</type>
+        <version>${project.version}</version>
       </dependency>
     </dependencies>
   </dependencyManagement>

@@ -69,7 +69,6 @@
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-utils</artifactId>
-      <version>${sakai.entitybroker.version}</version>
     </dependency>
     <dependency>
       <groupId>org.springframework</groupId>
