@@ -56,7 +56,6 @@
         <dependency>
             <groupId>org.sakaiproject.common</groupId>
             <artifactId>sakai-import-util</artifactId>
-            <version>${sakai.common.version}</version>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.edu-services.course-management</groupId>

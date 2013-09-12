@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
         <version>2.10-SNAPSHOT</version>
-		<relativePath>../master/pom.xml</relativePath>
+	<relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>sakai-site-manage base pom</name>
@@ -88,12 +88,6 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.sakaiproject.basiclti</groupId>
-                <artifactId>basiclti-api</artifactId>
-                <version>${sakai.basiclti.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-site-manage-api</artifactId>
                 <version>${project.version}</version>
@@ -143,53 +137,18 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.velocity</groupId>
-                <artifactId>sakai-velocity-tool-api</artifactId>
-                <version>${sakai.velocity-tool.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.velocity</groupId>
-                <artifactId>sakai-velocity-tool</artifactId>
-                <version>${sakai.velocity-tool.version}</version>
-            </dependency>
-            <!--
-            <dependency>
-                <groupId>commons-lang</groupId>
-                <artifactId>commons-lang</artifactId>
-                <version>2.6</version>
-                <scope>provided</scope>
-            </dependency>
-            -->
-            
-            <dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>0.10.6</version>
-				<scope>provided</scope>
-			</dependency>
-			
-			<dependency>
-				<groupId>net.sf.opencsv</groupId>
-				<artifactId>opencsv</artifactId>
-				<version>2.3</version>
-				<scope>compile</scope>
-			</dependency>
-            
+	      <groupId>org.projectlombok</groupId>
+	      <artifactId>lombok</artifactId>
+	      <version>0.10.6</version>
+	      <scope>provided</scope>
+	    </dependency>
+	    <dependency>
+	      <groupId>net.sf.opencsv</groupId>
+	      <artifactId>opencsv</artifactId>
+	      <version>2.3</version>
+	      <scope>compile</scope>
+	    </dependency>
         </dependencies>
     </dependencyManagement>
-    
-    <repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
     
 </project>
