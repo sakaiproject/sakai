@@ -31,14 +31,10 @@
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>archive-api</artifactId>
-            <version>${sakai.common.version}</version>
-            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>import-impl</artifactId>
-            <version>${sakai.common.version}</version>
-            <scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
