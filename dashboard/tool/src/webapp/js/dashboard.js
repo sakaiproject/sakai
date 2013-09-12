@@ -10,6 +10,29 @@ else {
     isMobile = true;
 }
 var setupLinks = function(){
+    $('.tabnav a').click(function(){
+        if ($(this).attr('href') !=='#'){
+             $(this).closest('div[data-role="page"]').find('.nav-tabs li:nth-child(1)').find('a').trigger('click');
+        }
+    })
+
+
+    $('#normalEvents').click(function(){
+        $('#events').find('.nav-tabs li:nth-child(1)').find('a').trigger('click');
+    })
+    $('#normalActiv').click(function(){
+        $('#activ').find('.nav-tabs li:nth-child(1)').find('a').trigger('click');
+    })
+
+    
+    $('#starredEvents').click(function(){
+        $('#events').find('.nav-tabs li:nth-child(2)').find('a').trigger('click')
+    })
+    $('#starredActiv').click(function(){
+        $('#activ').find('.nav-tabs li:nth-child(2)').find('a').trigger('click')
+    })
+
+    
     /*
      need to make the whole row clickable and send a trigger to the link
      but since it is a live action cannot escape propagation
@@ -514,6 +537,7 @@ function dismissMessage(target, msgId){
     // report that MOTD has been hidden
     reportEvent(target, '/dashboard/MOTD', 'MOTD', 'dash.hide.motd');
 }
+
 
 /*
  * UTILS

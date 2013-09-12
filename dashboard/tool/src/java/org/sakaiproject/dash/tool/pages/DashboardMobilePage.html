@@ -29,9 +29,8 @@
                     <div data-role="page" id="events">
                         <div data-role="popup" id="dashMenuEvents" class="slideMenuPanel" data-corners="false" data-theme="a" data-shadow="true" data-tolerance="0,15,30,15">
                             <div data-role="" data-theme="a" data-corners="false" class="slideMenu">
-                                <a href="#events" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All</a>
-                                <a href="#starred" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Starred</a>
-                                <a href="#" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Logout</a>
+                                <a href="#events" id="normalEvents" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All Events</a>
+                                <a href="#events" id="starredEvents" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Show Starred Events</a>
                             </div>
                         </div>
                         <header data-role="header" class="ctheader">
@@ -63,9 +62,8 @@
                     <div data-role="page" id="activ">
                         <div data-role="popup" id="dashMenuActiv" class="slideMenuPanel" data-corners="false" data-theme="a" data-shadow="true" data-tolerance="0,15,30,15">
                             <div data-role="" data-theme="a" data-corners="false" class="slideMenu">
-                                <a href="#events" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All</a>
-                                <a href="#starred" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Starred</a>
-                                <a href="#" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Logout</a>
+                                <a href="#activ" id="normalActiv" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All Activity</a>
+                                <a href="#activ" id="starredActiv" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Show Starred Activity</a>
                             </div>
                         </div>
                         <header data-role="header" class="ctheader">
@@ -98,9 +96,9 @@
                     <div data-role="page" id="itemEvent">
                         <div data-role="popup" id="dashMenuItemEvent" class="slideMenuPanel" data-corners="false" data-theme="a" data-shadow="true" data-tolerance="0,15,30,15">
                             <div data-role="" data-theme="a" data-corners="false" class="slideMenu">
-                                <a href="#events" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All</a>
-                                <a href="#starred" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Starred</a>
-                                <a href="#" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Logout</a>
+                                <a href="#events" id="normalEvents" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-theme="x">Show All</a>
+                                <a href="#events" id="starredEvents" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Starred Events</a>
+                                <a href="#activ" id="starredActiv" data-role="button" data-mini="true" data-corners="false" data-shadows="false" data-transition="fade" data-theme="x">Starred Activity</a>
                             </div>
                         </div>
                         <header data-role="header" class="ctheader itemHeader">
@@ -128,8 +126,8 @@
                         $(document).ready(function(){
                             if ($('.mobilePage').length) {
                                 $('.itemLink').attr('href', '#itemEvent');
-                                //$('#activ .nav-tabs a').attr('href', '#activ');
-                                //$('#events .nav-tabs a').attr('href', '#events');
+                                $('#activ .nav-tabs a').attr('href', '#activ');
+                                $('#events .nav-tabs a').attr('href', '#events');
                             }
                             setupTableStriping()
                             $('.pager').htmlClean();
