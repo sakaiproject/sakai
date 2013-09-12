@@ -7,6 +7,7 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
+
   <name>sakai-web-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-web-tool</artifactId>
@@ -16,6 +17,7 @@
   </organization>
   <inceptionYear>2003</inceptionYear>
   <packaging>war</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -40,7 +42,6 @@
     <dependency>
       <groupId>org.sakaiproject.entitybroker</groupId>
       <artifactId>entitybroker-utils</artifactId>
-      <version>${sakai.entitybroker.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
@@ -70,6 +71,7 @@
       <version>0.11.6</version>
     </dependency>  
   </dependencies>
+
   <build>
     <resources>
       <resource>
