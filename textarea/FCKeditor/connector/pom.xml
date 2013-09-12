@@ -58,24 +58,20 @@
     <dependency>
       <groupId>org.sakaiproject.msgcntr</groupId>
       <artifactId>messageforums-api</artifactId>
-      <version>${sakai.msgcntr.version}</version>
       <scope>provided</scope>
     </dependency>            
     <dependency>
       <groupId>org.sakaiproject.samigo</groupId>
       <artifactId>samigo-services</artifactId>
-      <version>${sakai.samigo.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.sakaiproject.samigo</groupId>
       <artifactId>samigo-api</artifactId>
-      <version>${sakai.samigo.version}</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.assignment</groupId>
       <artifactId>sakai-assignment-api</artifactId>
-      <version>${sakai.assignment.version}</version>
     </dependency>
     
     
