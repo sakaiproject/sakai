@@ -7,6 +7,7 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>sakai-usermembership-tool</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>sakai-usermembership-tool</artifactId>
@@ -14,6 +15,7 @@
     This project creates a WAR containing the usermembership Tool for Sakai.
   </description>
   <packaging>war</packaging>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -62,7 +64,6 @@
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
       <artifactId>jsf-spreadsheet</artifactId>
-      <version>${sakai.jsf.version}</version>
     </dependency>
     <!-- Apache Commons -->
     <dependency>
