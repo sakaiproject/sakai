@@ -7,6 +7,7 @@
     <version>2.10-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
+
   <name>Sakai AuthZ Project</name>
   <groupId>org.sakaiproject</groupId>
   <artifactId>authz-base</artifactId>
@@ -20,13 +21,4 @@
   <modules>
     <module>authz-tool/tool</module>
   </modules>
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.sakaiproject.velocity</groupId>
-        <artifactId>sakai-velocity-tool</artifactId>
-        <version>${sakai.velocity-tool.version}</version>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
 </project>
