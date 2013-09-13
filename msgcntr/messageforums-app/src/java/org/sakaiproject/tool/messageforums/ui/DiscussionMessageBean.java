@@ -60,6 +60,9 @@ public class DiscussionMessageBean
   private boolean revise;
   private boolean userCanDelete;
   private boolean userCanEmail;
+  //Move Threads
+  private boolean selected_move;
+  private boolean moved;
   private int authorPostCount;
   private Rank authorRank = null;
 
@@ -88,7 +91,14 @@ public class DiscussionMessageBean
     this.messageManager = messageManager; 
   }
 
+  public void setMoved(boolean b) {
+    moved = b;
+  }
  
+  public boolean isMoved() {
+    return moved;
+  }
+
 
   /**
    * @return Returns the selected.
@@ -108,7 +118,21 @@ public class DiscussionMessageBean
     this.selected = selected;
   }
 
+  /**
+   * @return Returns the selected threads to move.
+   */
+  public boolean isSelected_move()
+  {
+    return selected_move;
+  }
 
+  /**
+   * @param selected_move:  The selected threads to set.
+   */
+  public void setSelected_move(boolean selected)
+  {
+    this.selected_move = selected;
+  }
 
   /**
    * @return Returns the msg.

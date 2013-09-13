@@ -19,6 +19,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/EmailNotification.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/SynopticMsgcntrItem.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/HiddenGroupImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageMoveHistory.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Rank.hbm.xml</value>                  
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/RankImage.hbm.xml</value>
             </list>

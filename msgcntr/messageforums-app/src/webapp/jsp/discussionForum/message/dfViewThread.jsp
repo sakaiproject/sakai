@@ -66,7 +66,7 @@
 				}
 			});
 </script>		
-		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
+		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{!ForumTool.threadMoved}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
 		  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" />
 		  		
@@ -134,7 +134,19 @@
 				 <%@ include file="dfViewSearchBarThread.jsp"%>
 		
 		<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
-		<h:outputText value="#{msgs.cdfm_no_unread_messages}" rendered="#{empty ForumTool.selectedThread && !ForumTool.needToPostFirst}" styleClass="instruction" style="display:block;"/>
+        <%-- a moved message --%>
+        <h:panelGroup rendered="#{ForumTool.threadMoved}" >
+          <f:verbatim><span></f:verbatim>
+            <h:outputText styleClass="threadMovedMsg" value="<b>#{ForumTool.selectedThreadHead.message.title}</b> " escape="false"/>
+            <h:outputText styleClass="threadMovedMsg" value="#{msgs.hasBeen} " />
+            <h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" styleClass="threadMovedMsg">
+              <h:outputText value="#{msgs.moved}" />
+                                                    <f:param value="#{ForumTool.selectedThreadHead.message.topic.id}" name="topicId"/>
+                                                    <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+                                            </h:commandLink>
+            <h:outputText styleClass="threadMovedMsg"  value=" #{msgs.anotherTopic}" />
+          <f:verbatim></span></f:verbatim>
+        </h:panelGroup>
 		<div id="messNavHolder" style="clear:both;"></div>
 		<%--rjlowe: Expanded View to show the message bodies, but not threaded --%>
 		<h:dataTable id="expandedMessages" value="#{ForumTool.selectedThread}" var="message" rendered="#{!ForumTool.threaded}"

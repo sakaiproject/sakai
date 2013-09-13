@@ -545,6 +545,10 @@ form{margin-bottom:0;}
 }
 .messageCommentBody{
 }
+.threadMovedMsg{
+    font-size:1em;
+    color:#555555; 
+}
 .calWidget{
     vertical-align:middle;
 }

@@ -279,6 +279,11 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
+            <from-outcome>dfMoveThreads</from-outcome>
+            <to-view-id>/jsp/dfMoveThreads.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
             <from-outcome>dfViewMessage</from-outcome>
             <to-view-id>/jsp/discussionForum/message/dfViewMessage.jsp</to-view-id>
             <redirect/>

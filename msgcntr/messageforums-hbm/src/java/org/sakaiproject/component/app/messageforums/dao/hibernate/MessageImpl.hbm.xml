@@ -718,7 +718,22 @@
              message.deleted = false]]>
   </query>
   
+  <!-- return all moved messages that need to be displayed as reminders -->
+<query name="findMovedMessagesByTopicId">
+    <![CDATA[select message from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message ,     
+    				 org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as mhist      
+             where mhist.fromTopicId = :topicId and
+             message.id = mhist.messageId and
+             mhist.reminder = 1
+    ]]>    
+  </query>  
   
+  <query name="findMovedHistoryByMessageId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as mhist      
+             where mhist.messageId = :messageId
+   	]]>    
+  </query>
+    
 </hibernate-mapping>
 
 

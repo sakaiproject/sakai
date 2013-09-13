@@ -8,6 +8,7 @@
 			.getValue(context);
 
 	String target = "";
+	forumTool.setThreadMoved(false);
     String portalPath = ServerConfigurationService.getString("portalPath");
 	if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() == null) {
 

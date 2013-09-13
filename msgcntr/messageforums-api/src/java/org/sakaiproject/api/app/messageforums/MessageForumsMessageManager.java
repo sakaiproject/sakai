@@ -241,4 +241,8 @@ public interface MessageForumsMessageManager {
 	 * @return a list of messages
 	 */
 	public List<Message> getAllMessagesInSite(String siteId);
+
+	public void saveMessageMoveHistory(Long msgid, Long desttopicId,Long sourceTopicId, boolean checkreminder);
+	  
+	public List findMovedMessagesByTopicId(Long id); 
 }

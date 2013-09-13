@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -51,6 +52,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import net.sf.json.JSON;
@@ -75,6 +77,7 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
@@ -97,6 +100,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
+import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -172,6 +176,7 @@ public class DiscussionForumTool
   private static final String TOPIC_SETTING = "dfTopicSettings";
   private static final String TOPIC_SETTING_REVISE = "dfReviseTopicSettings";
   private static final String MESSAGE_COMPOSE = "dfCompose";
+  private static final String MESSAGE_MOVE_THREADS= "dfMoveThreads";
   private static final String MESSAGE_VIEW = "dfViewMessage";
   private static final String THREAD_VIEW = "dfViewThread";
   private static final String ALL_MESSAGES = "dfAllMessages";
@@ -418,6 +423,16 @@ public class DiscussionForumTool
 	}
 
   private String editorRows;
+  
+  private boolean threadMoved;
+
+  public boolean isThreadMoved() {
+      return threadMoved;
+  }
+    
+  public void setThreadMoved(boolean threadMoved) {
+      this.threadMoved = threadMoved;
+  }
   
    /**
    * 
@@ -2484,6 +2499,7 @@ public class DiscussionForumTool
 	    
 	    Boolean foundHead = false;
 	    Boolean foundAfterHead = false;
+        threadMoved = didThreadMove();
 	    
 	    //determine to make sure that selectedThreadHead does exist!
 	    if(selectedThreadHead == null){
@@ -2507,8 +2523,10 @@ public class DiscussionForumTool
 	    	}
 	    }
 	    formatMessagesByRemovelastEmptyLines(msgsList);
+	    if (!threadMoved) {
 	    recursiveGetThreadedMsgsFromList(msgsList, orderedList, selectedThreadHead);
 	    selectedThread.addAll(orderedList);
+	    }
 	    
 	    // now process the complete list of messages in the selected thread to possibly flag as read
 	    // if this topic is flagged to autoMarkThreadsRead, mark each message in the thread as read
@@ -2527,6 +2545,22 @@ public class DiscussionForumTool
 	    
 	    return THREAD_VIEW;
   }
+
+    private boolean didThreadMove() {
+        threadMoved = false;
+        String message = selectedThreadHead.getMessage().toString();
+        List msgsList = selectedTopic.getMessages();
+        boolean listHasMessage = false;
+        for (int i = 0; i < msgsList.size(); i++) {
+            listHasMessage = message.equals(((DiscussionMessageBean) msgsList.get(i)).getMessage().toString());
+            if (listHasMessage) {
+                break;
+            }
+        }
+        threadMoved = !listHasMessage;
+        return threadMoved;
+    }
+
 /**
  *  remove last empty lines of every massage in thread view
  */ 
@@ -3178,14 +3212,30 @@ public class DiscussionForumTool
     		temp_messages = forumManager.getTopicByIdWithMessagesAndAttachments(topic.getId())
     		.getMessages();
     	}
+
+		  // Now get messages moved from this topic
+
+		  List moved_messages = null;
+		  if(uiPermissionsManager.isRead(topic, selectedForum.getForum())){
+			  moved_messages = messageManager.findMovedMessagesByTopicId(topic.getId());
+		  }
+
+		  if (LOG.isDebugEnabled())
+		  {
+			  LOG.debug("getDecoratedTopic(moved_messages size  " + moved_messages.size()  );
+			  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
+				  Message msg = (Message) msgIter.next();
+				  LOG.debug("moved message ids = " +  msg.getId()  + "  title : " + msg.getTitle()  + " moved to topic : " +  msg.getTopic().getId() );
+			  }
+		  }
+
+		  List msgIdList = new ArrayList();
     	if (temp_messages == null || temp_messages.size() < 1)
     	{
     		decoTopic.setTotalNoMessages(0);
     		decoTopic.setUnreadNoMessages(0);
-    		return decoTopic;
     	}
-
-    	List msgIdList = new ArrayList();
+		  else {
     	for (Iterator msgIter = temp_messages.iterator(); msgIter.hasNext();) {
     		Message msg = (Message) msgIter.next();
     		if(msg != null && !msg.getDraft().booleanValue() && !msg.getDeleted()) {
@@ -3196,10 +3246,10 @@ public class DiscussionForumTool
     	// retrieve read status for all of the messages in this topic
     	Map messageReadStatusMap=null;
     	if(getUserId()!= null){
-    		LOG.debug("getting unread counts for " + getUserId());
+				  if (LOG.isDebugEnabled()) LOG.debug("getting unread counts for " + getUserId());
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, getUserId());
     	}else if(getUserId() == null && this.forumManager.getAnonRole()==true){
-    		LOG.debug("getting unread counts for anon user");
+				  if (LOG.isDebugEnabled()) LOG.debug("getting unread counts for anon user");
     		messageReadStatusMap = forumManager.getReadStatusForMessagesWithId(msgIdList, ".anon");
     	}
 
@@ -3274,6 +3324,26 @@ public class DiscussionForumTool
     		}
     	}
     }
+		  //  now add moved messages to decoTopic
+		  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
+			  Message message = (Message) msgIter.next();
+			  if (message != null)
+			  {
+				  // load topic, it was not fully loaded.
+				  Topic desttopic = message.getTopic();
+				  Topic fulltopic = forumManager.getTopicById(message.getTopic().getId());
+				  message.setTopic(fulltopic);
+				  if (LOG.isDebugEnabled()) LOG.debug("message.getTopic() id " + message.getTopic().getId());
+				  if (LOG.isDebugEnabled()) LOG.debug("message.getTopic() title" + message.getTopic().getTitle());
+
+				  DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
+						  messageManager);
+				  decoMsg.setMoved(true);
+				  decoTopic.addMessage(decoMsg);
+			  }
+		  }
+
+	  }
     return decoTopic;
   }
 
@@ -8899,6 +8969,167 @@ public class DiscussionForumTool
 	
 	public String getDefaultAvailabilityTime(){
 		return ServerConfigurationService.getString("msgcntr.forums.defaultAvailabilityTime", "").toLowerCase();
+	}
+	
+	// MSGCNTR-241 move threads
+	public String processMoveMessage() {
+		return MESSAGE_MOVE_THREADS;
+	}
+
+	public String getMoveThreadJSON() {
+		List allItemsList = new ArrayList();
+
+		Map<String, List<JSONObject>> topicMap = null;
+		Map<String, List<JSONObject>> forumMap = null;
+		List allforums = forumManager.getDiscussionForumsWithTopics(this.getSiteId());
+		if (allforums != null) {
+			Iterator iter = allforums.iterator();
+			if (allforums == null || allforums.size() < 1) {
+				return null;
+			}
+			topicMap = new HashMap<String, List<JSONObject>>();
+			forumMap = new HashMap<String, List<JSONObject>>();
+			topicMap.put("topics", new ArrayList<JSONObject>());
+			forumMap.put("forums", new ArrayList<JSONObject>());
+			while (iter.hasNext()) {
+				DiscussionForum tmpforum = (DiscussionForum) iter.next();
+				parseForums(tmpforum, forumMap);
+				if (tmpforum != null) {
+					for (Iterator itor = tmpforum.getTopicsSet().iterator(); itor.hasNext();) {
+						DiscussionTopic topic = (DiscussionTopic) itor.next();
+						if (tmpforum.getLocked() == null || tmpforum.getLocked().equals(Boolean.TRUE)) {
+							// do nothing. Skip forums that are locked. topics in locked forums should not show in the dialog
+						} else if (topic.getLocked() == null || topic.getLocked().equals(Boolean.TRUE)) {
+							// do nothing, skip locked topics. do not show them in move thread dialog
+						} else {
+							parseTopics(topic, topicMap, tmpforum);
+						}
+					}
+				}
+
+			}
+			allItemsList.add(topicMap);
+			allItemsList.add(forumMap);
+		}
+
+		JsonConfig config = new JsonConfig();
+		JSON json = JSONSerializer.toJSON(allItemsList);
+		if (LOG.isDebugEnabled())
+			LOG.debug("converted getTotalTopicsJSON to json : " + json.toString(4, 0));
+		return json.toString(4, 0);
+	}
+
+	private void parseForums(DiscussionForum forum, Map<String, List<JSONObject>> forumMap) {
+		Long forumId = forum.getId();
+		String forumtitle = forum.getTitle();
+		Long forumid = forum.getId();
+		List<JSONObject> forumList = forumMap.get("forums");
+		if (forumList == null) {
+			forumList = new ArrayList<JSONObject>();
+		}
+
+		JSONObject forumJSON = new JSONObject();
+		forumJSON.element("forumid", forumId).element("forumtitle", forumtitle);
+		forumList.add(forumJSON);
+	}
+
+	private void parseTopics(DiscussionTopic topic, Map<String, List<JSONObject>> topicMap, DiscussionForum tmpforum) {
+		Long topicId = topic.getId();
+		String forumtitle = tmpforum.getTitle();
+		Long forumid = tmpforum.getId();
+		List<JSONObject> topiclist = topicMap.get("topics");
+		if (topiclist == null) {
+			topiclist = new ArrayList<JSONObject>();
+		}
+		String title = topic.getTitle();
+		JSONObject topicJSON = new JSONObject();
+		topicJSON.element("topicid", topic.getId()).element("topictitle", title).element("forumid", forumid)
+		.element("forumtitle", forumtitle);
+		topiclist.add(topicJSON);
+	}
+
+	public List getRequestParamArray(String paramPart) {
+		// FacesContext context = FacesContext.getCurrentInstance();
+		// Map requestParams = context.getExternalContext().getRequestParameterMap();
+
+		HttpServletRequest req = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+		Map requestParams = req.getParameterMap();
+		String[] result = (String[]) requestParams.get(paramPart);
+		return Arrays.asList(result);
+	}
+
+	public String processMoveThread() {
+		Long sourceTopicId = this.selectedTopic.getTopic().getId();
+		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread source topic is " + sourceTopicId);
+		List checkedThreads = getRequestParamArray("moveCheckbox");
+		List destTopicList = getRequestParamArray("selectedTopicid");
+
+		String desttopicIdstr = null;
+
+		if (destTopicList.size() != 1) {
+			// do nothing, there should be one and only one destination.
+			return gotoMain();
+		} else {
+			desttopicIdstr = (String) destTopicList.get(0);
+		}
+		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread dest topic is " + desttopicIdstr);
+
+		List checkbox_reminder = getRequestParamArray("moveReminder");
+		boolean checkReminder = false;
+		if (checkbox_reminder.size() != 1) {
+			// do nothing, there should be one and only one destination.
+			return gotoMain();
+		} else {
+			checkReminder = Boolean.parseBoolean((String) checkbox_reminder.get(0));
+			// reminderVal = Boolean.parseBoolean(checkReminder);
+		}
+
+		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread checkReminder is " + checkReminder);
+
+		Long desttopicId = Long.parseLong(desttopicIdstr);
+		DiscussionTopic desttopic = forumManager.getTopicById(desttopicId);
+		// now update topic id in mfr_message_t table, including all childrens (direct and indirect),
+		// For each move, also add a row to the mfr_move_history_t table.
+
+		Message mes = null;
+		Iterator mesiter = checkedThreads.iterator();
+		if (LOG.isDebugEnabled()) LOG.debug("processMoveThread checkedThreads size = " + checkedThreads.size());
+		while (mesiter.hasNext()) {
+			Long messageId = new Long((String) mesiter.next());
+			mes = messageManager.getMessageById(messageId);
+			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread messageId = " + mes.getId());
+			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread message title = " + mes.getTitle());
+			mes.setTopic(desttopic);
+			messageManager.saveMessage(mes);
+
+			// mfr_move_history_t stores only records that are used to display reminder links. Not all moves are recorded in this
+			// table.
+			messageManager.saveMessageMoveHistory(mes.getId(), desttopicId, sourceTopicId, checkReminder);
+
+			String eventmsg = "Moving message " + mes.getId() + " from topic " + sourceTopicId + " to topic " + desttopicId;
+			EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_MOVE_THREAD, eventmsg, true));
+
+			List childrenMsg = new ArrayList(); // will store a list of child messages
+			messageManager.getChildMsgs(messageId, childrenMsg);
+			if (LOG.isDebugEnabled()) LOG.debug("processMoveThread childrenMsg for  " + messageId + "   size = " + childrenMsg.size());
+			Iterator childiter = childrenMsg.iterator();
+
+			// update topic id for each child msg.
+			while (childiter.hasNext()) {
+				Message childMsg = (Message) childiter.next();
+				if (LOG.isDebugEnabled()) LOG.debug("processMoveThread messageId = " + childMsg.getId());
+				if (LOG.isDebugEnabled()) LOG.debug("processMoveThread message title = " + childMsg.getTitle());
+				childMsg.setTopic(desttopic);
+				messageManager.saveMessage(childMsg);
+				messageManager.saveMessageMoveHistory(childMsg.getId(), desttopicId, sourceTopicId, checkReminder);
+				eventmsg = "Moving message " + childMsg.getId() + " from topic " + sourceTopicId + " to topic " + desttopicId;
+				EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_MOVE_THREAD, eventmsg, true));
+			}
+		}
+
+		setSelectedForumForCurrentTopic(desttopic);
+		selectedTopic = getDecoratedTopic(desttopic);
+		return ALL_MESSAGES;
 	}
 
 	/**

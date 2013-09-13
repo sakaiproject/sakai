@@ -75,6 +75,8 @@ public interface DiscussionForumService extends EntityProducer
 
 	public static final String EVENT_FORUMS_GRADE = "forums.grade";
 
+	public static final String EVENT_FORUMS_MOVE_THREAD = "forums.movethread";
+
 	/** Used to determine if MessageCenter tool part of site */
 	public static final String MESSAGE_CENTER_ID = "sakai.messagecenter";
 	

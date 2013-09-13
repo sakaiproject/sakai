@@ -254,16 +254,19 @@ public class HierDataTableRender extends HtmlBasicRenderer
 
 			writer.startElement("tr", data);
 
+			boolean display_moveCheckbox  = false;
 			// if this row should be hidden initially, setup those styles/classes
 			if (currentThread == null || !tmpMsg.getId().equals(currentThread.getId())) {
 				writer.writeAttribute("class", "hierItemBlock", null);
 				currentThread = tmpMsg;
 				displayToggle = !noArrows && dmb.getChildCount() > 0;
+				display_moveCheckbox  = true;
 				dmb.setDepth(0);
 			} else if (!noArrows) {
 				writer.writeAttribute("style", "display: none", null);
 				writer.writeAttribute("id", "_id_" + dmb.getMessage().getId() + "__hide_division_", null);
 				checkExpanded = true;
+				display_moveCheckbox  = false;
 			}
 
 			if (!noArrows && dmb.getMessage().getInReplyTo() != null) {
@@ -288,6 +291,26 @@ public class HierDataTableRender extends HtmlBasicRenderer
 				if (columnClasses.length > 0) {
 					writer.writeAttribute("class", columnClasses[currColumnClass++], "columnClasses");
 					if (currColumnClass >= columnClasses.length) currColumnClass = 0;
+				}
+
+				// if hierItemBlock
+				if ((display_moveCheckbox) && (column.getId().endsWith("_checkbox")) && 
+						(dmb.getRevise()) && (!dmb.getDeleted())) {
+				writer.startElement("input", null);
+                                writer.writeAttribute("id", "moveCheckbox", null);
+                                writer.writeAttribute("type", "checkbox", null);
+                                writer.writeAttribute("name", "moveCheckbox", null);
+                                writer.writeAttribute("onclick", "enableDisableMoveThreadLink();", null);
+                                writer.writeAttribute("value", dmb.getMessage().getId(), null);
+                                writer.endElement("input");
+				writer.endElement("td");
+				continue;
+				}
+				else {
+					if (column.getId().endsWith("_checkbox")) {
+						writer.endElement("td");
+						continue;
+					}
 				}
 
 				if (displayToggle) {
