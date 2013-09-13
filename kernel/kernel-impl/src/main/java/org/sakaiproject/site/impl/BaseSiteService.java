@@ -130,6 +130,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
 	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
 	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
+	private static final String ORIGINAL_SITE_ID_PROPERTY = "original-site-id";
+
 	private static String portalSkinPrefix;
 
 	private ResourceLoader rb = null;
@@ -1343,6 +1345,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		// clear the site's notification id in properties
 		site.getPropertiesEdit().removeProperty(ResourceProperties.PROP_SITE_EMAIL_NOTIFICATION_ID);
+
+		// KNL-1103, store the site we are copying from
+		site.getPropertiesEdit().addProperty(ORIGINAL_SITE_ID_PROPERTY, other.getId());
 
 		((BaseSite) site).setEvent(SECURE_ADD_SITE);
 
