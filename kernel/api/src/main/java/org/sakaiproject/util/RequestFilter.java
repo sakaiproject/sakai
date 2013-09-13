@@ -906,20 +906,20 @@ public class RequestFilter implements Filter
 		// is not defined.
 		if (System.getProperty(SYSTEM_UPLOAD_MAX) != null)
 		{
-			m_uploadMaxSize = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_MAX)).longValue() * 1024L * 1024L;
+			m_uploadMaxSize = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_MAX).trim()).longValue() * 1024L * 1024L;
 			m_uploadCeiling = m_uploadMaxSize;
 		}
 
 		// if the maximum allowed upload size is configured on the filter, it overrides the system property
 		if (filterConfig.getInitParameter(CONFIG_UPLOAD_MAX) != null)
 		{
-			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX)).longValue() * 1024L * 1024L;
+			m_uploadMaxSize = Long.valueOf(filterConfig.getInitParameter(CONFIG_UPLOAD_MAX).trim()).longValue() * 1024L * 1024L;
 		}
 
 		// get the upload max ceiling that limits any other upload max, if defined
 		if (System.getProperty(SYSTEM_UPLOAD_CEILING) != null)
 		{
-			m_uploadCeiling = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_CEILING)).longValue() * 1024L * 1024L;
+			m_uploadCeiling = Long.valueOf(System.getProperty(SYSTEM_UPLOAD_CEILING).trim()).longValue() * 1024L * 1024L;
 		}
 
 		// get the system wide settin, if present, for the temp dir
