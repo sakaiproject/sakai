@@ -53,6 +53,11 @@ public interface PrivacyManager
 	
 	public static final String USER_RECORD_TYPE = "user_record";
 	
+	public static final String VISIBLE = "privacy_visible";
+	public static final String HIDDEN = "privacy_hidden";
+	public static final String PRIVACY_PREFS = "sakai:pref:privacy";
+	public static final String DEFAULT_PRIVACY_KEY = "default";
+	
 	// Tool methods ------------------------------------------------------
 	
 	/**
@@ -124,5 +129,9 @@ public interface PrivacyManager
 	 * @param recordType is a UUID i.e. (getSystemRecordType(), getUserRecordType())
 	 */
 	void setViewableState(String contextId, Map userViewableState, String recordType);
+
+	String getDefaultPrivacyState(String userId);
+
+	void setDefaultPrivacyState(String userId, String visibility);
 	
 }
