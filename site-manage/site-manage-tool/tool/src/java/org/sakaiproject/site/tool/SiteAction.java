@@ -8298,11 +8298,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST), state);
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
 							final Session session = SessionManager.getCurrentSession();
+							final ToolSession toolSession = SessionManager.getCurrentToolSession();
 							Thread siteImportThread = new Thread(){
 								public void run() {
 									Site existingSite = getStateSite(state);
 									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 									SessionManager.setCurrentSession(session);
+									SessionManager.setCurrentToolSession(toolSession);
 									importToolIntoSite(selectedTools, importTools,
 											existingSite);
 									existingSite = getStateSite(state); // refresh site for
@@ -8362,11 +8364,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
 							final Session session = SessionManager.getCurrentSession();
+							final ToolSession toolSession = SessionManager.getCurrentToolSession();
 							Thread siteImportThread = new Thread(){
 								public void run() {
 									Site existingSite = getStateSite(state);
 									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 									SessionManager.setCurrentSession(session);
+									SessionManager.setCurrentToolSession(toolSession);
 									// Remove all old contents before importing contents from new site
 									importToolIntoSiteMigrate(selectedTools, importTools,
 											existingSite);
