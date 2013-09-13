@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,6 +35,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupAdvisor;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.FunctionManager;
@@ -247,6 +249,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	protected abstract UserDirectoryService userDirectoryService();
 
+	protected List<AuthzGroupAdvisor> authzGroupAdvisors;
 	
 	protected SiteService siteService;
 	public void setSiteService(SiteService siteService) {
@@ -263,6 +266,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	 */
 	public void init()
 	{
+		authzGroupAdvisors = new ArrayList<AuthzGroupAdvisor>();
+		
 		try
 		{
 			m_relativeAccessPoint = REFERENCE_ROOT;
@@ -611,6 +616,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// update the properties
 		addLiveUpdateProperties((BaseAuthzGroup) azGroup);
 
+		// allow any advisors to make last minute changes 
+		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
+			authzGroupAdvisor.update(azGroup);
+		}
 		// complete the azGroup
 		m_storage.save(azGroup);
 
@@ -640,6 +649,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 // update the properties (sets last modified time and modified-by)
         addLiveUpdateProperties((BaseAuthzGroup) azGroup);
 
+		// allow any advisors to make last minute changes 
+		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
+			authzGroupAdvisor.groupUpdate(azGroup, userId, roleId);
+		}
+		
 		// add user to the azGroup
 		m_storage.addNewUser(azGroup, userId, roleId, maxSize);
 
@@ -671,6 +685,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 // update the properties (sets last modified time and modified-by)
         addLiveUpdateProperties((BaseAuthzGroup) azGroup);
 
+		// allow any advisors to make last minute changes 
+		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
+			authzGroupAdvisor.groupUpdate(azGroup, userId, azGroup.getMember(userId).getRole().getId());
+		}
 		// remove user from the azGroup
 		m_storage.removeUser(azGroup, userId);
 
@@ -811,6 +829,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// check security (throws if not permitted)
 		unlock(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference());
 
+		// allow any advisors to make last minute changes 
+		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
+			authzGroupAdvisor.remove(azGroup);
+		}
+		
 		// complete the azGroup
 		m_storage.remove(azGroup);
 
@@ -841,6 +864,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// check security (throws if not permitted)
 		unlock(SECURE_REMOVE_AUTHZ_GROUP, authzGroupReference(azGroupId));
 
+		// allow any advisors to make last minute changes 
+		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
+			authzGroupAdvisor.remove(azGroup);
+		}
+		
 		// complete the azGroup
 		m_storage.remove(azGroup);
 
@@ -1569,5 +1597,25 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		{
 			return m_wrapper.values();
 		}		
+	}
+
+	@Override
+	public void addAuthzGroupAdvisor(AuthzGroupAdvisor advisor) {
+		if (advisor != null) {
+			authzGroupAdvisors.add(advisor);
+		}
+	}
+
+	@Override
+	public boolean removeAuthzGroupAdvisor(AuthzGroupAdvisor advisor) {
+		if (advisor != null) {
+			return authzGroupAdvisors.remove(advisor);
+		}
+		return false;
+	}
+
+	@Override
+	public List<AuthzGroupAdvisor> getAuthzGroupAdvisors() {
+		return Collections.unmodifiableList(authzGroupAdvisors);
 	}
 }

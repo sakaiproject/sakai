@@ -464,4 +464,25 @@ public interface AuthzGroupService extends EntityProducer
      */
     public Collection<String> getAuthzUsersInGroups(Set<String> groupIds);
 
-}
+    /**
+     * Registers a AuthzGroupAdvisor with the AuthzGroupService. Each advisor will be
+     * called during save(AuthzGroup).
+     * 
+     * @param advisor The AuthzGroupAdvisor to add 
+     */
+    public void addAuthzGroupAdvisor(AuthzGroupAdvisor advisor);
+    
+    /**
+     * Removes an AuthzGroupAdvisor
+     * 
+     * @param advisor The AuthzGroupAdvisor to remove
+     * @return Whether a AuthzGroupAdvisor was previously registered and hence removed
+     */
+    public boolean removeAuthzGroupAdvisor(AuthzGroupAdvisor advisor);
+    
+    /**
+     * List of the current AuthzGroupAdvisors registered with the AuthzGroupService
+     * 
+     * @return List containing the currently registered AuthzGroupAdvisors
+     */
+    public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();}
