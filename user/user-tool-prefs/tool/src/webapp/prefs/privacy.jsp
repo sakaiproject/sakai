@@ -6,7 +6,9 @@
 <% response.setContentType("text/html; charset=UTF-8"); %>
 
 <f:view> 
-  <sakai:view> 
+	<sakai:view_container title="#{msgs.privacy_title}">
+    <sakai:stylesheet path="/css/prefs.css"/>
+	<sakai:view_content>
     <h:form>
       <!--SAK-18566 -->
      <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
@@ -64,14 +66,26 @@
 		 </h:panelGroup>
 	   </h3>
 
-        <f:verbatim></h3></div><br /></f:verbatim>
-	  
+		<f:verbatim></h3></div></f:verbatim>
 	 	<%--  Message if Show All or Hide All has been clicked --%>
 	 	<f:verbatim><div></f:verbatim>
 	 	<h:outputText value="#{privacyBean.changeAllMsg}" styleClass="success" rendered="#{privacyBean.allChanged}" />
-	 	<f:verbatim></div><br /></f:verbatim>
+		<f:verbatim></div></f:verbatim>
 			  
+	<f:verbatim><br /><h4></f:verbatim>
+	<h:outputText value="#{msgs.privacy_default}" />
+	<f:verbatim></h4><br /></f:verbatim>
+	<h:selectOneRadio value="#{privacyBean.defaultPrivacyStatus}" layout="pageDirection">
+		<f:selectItem itemLabel="#{msgs.privacy_item_visible}" itemValue="#{privacyBean.visibleValue}" />
+		<f:selectItem itemLabel="#{msgs.privacy_item_hidden}" itemValue="#{privacyBean.hiddenValue}" />
+	</h:selectOneRadio>
+	<f:verbatim><br /></f:verbatim>
+
         <h:outputText value="#{msgs.privacy_no_choices}" rendered="#{privacyBean.sitesEmpty}" />
+        <f:verbatim><h4></f:verbatim>
+		<h:outputText value="#{msgs.privacy_specific_site}" />
+		<f:verbatim></h4></f:verbatim>
+		<f:verbatim><br /></f:verbatim>
 	 	<h:outputText value="#{msgs.privacy_choose}" rendered="#{not privacyBean.sitesEmpty}" />
 
    		<h:selectOneMenu value="#{privacyBean.selectedSite}" immediate="true" onchange="this.form.submit( );"
@@ -142,11 +156,15 @@
 	  	value="<script type=\"text/javascript\">parent.privacy_show_popup();</script>" />
 
   	</h:panelGroup>
-         
    		<h:panelGroup rendered="#{privacyBean.myWorkspace && not privacyBean.sitesEmpty}" >
  	  	  <sakai:button_bar>
         	<sakai:button_bar_item action="#{privacyBean.processUpdate}" value="#{msgs.privacy_update}"
                 accesskey="u" title="#{msgs.privacy_update_title}" styleClass="active" />
+	  	  </sakai:button_bar>
+	  	  <f:verbatim><h4></f:verbatim>
+		  <h:outputText value="#{msgs.privacy_all_sites}" />
+		  <f:verbatim></h4></f:verbatim>
+		<sakai:button_bar>
    			<sakai:button_bar_item action="#{privacyBean.processShowAll}" value="#{msgs.privacy_show_all}"
    				accesskey="s" title="#{msgs.privacy_show_title}" styleClass="active" />
    			<sakai:button_bar_item action="#{privacyBean.processHideAll}" value="#{msgs.privacy_hide_all}"
@@ -155,7 +173,8 @@
 	   	</h:panelGroup>
 
     </h:form>
-  </sakai:view>
+    </sakai:view_content>
+    </sakai:view_container>
 </f:view>  
 
 <%

@@ -59,6 +59,7 @@ public class PrivacyBean {
 	private String checkboxText;
 	private boolean changeStatus;
 	private String privacyStatus;
+	private String defaultPrivacyStatus;
 	private Boolean displayPopup;	
 	private String selectedSite;
 	private boolean siteSelected = false;
@@ -275,19 +276,21 @@ public class PrivacyBean {
 	 * Determines if ready to change status and calls method to do so
 	 */
 	public String processUpdate() {
-		if (isMyWorkspace() && ! siteSelected) {
-			noSiteProcessErr = true;
-			//setUpdateMessage(true);
-			return "main";
-		}
+//		if (isMyWorkspace() && ! siteSelected) {
+//			noSiteProcessErr = true;
+//			//setUpdateMessage(true);
+//			return "main";
+//		}
 		
+		if (isMyWorkspace() && siteSelected) {
 		if (!privacyStatus.equals("")){
 			processChoice(isMyWorkspace() ? curSite : getContextId(), privacyStatus.equals(HIDDEN) ? false : true);
-            setUpdateMessage(true);
 		}
 		displayPopup = false;
-
-
+		}
+		
+		privacyManager.setDefaultPrivacyState(getUserId(), defaultPrivacyStatus);
+		setUpdateMessage(true);
 
 		/**
 		// if user checked the checkbox
@@ -421,4 +424,16 @@ public class PrivacyBean {
     public void setUpdateMessage(boolean updateMessage) {
         this.updateMessage = updateMessage;
     }
+
+	public String getDefaultPrivacyStatus() {
+		if (defaultPrivacyStatus == null) {
+			defaultPrivacyStatus = privacyManager.getDefaultPrivacyState(getUserId());
+		}
+		
+		return defaultPrivacyStatus;
+	}
+
+	public void setDefaultPrivacyStatus(String defaultPrivacyStatus) {
+		this.defaultPrivacyStatus = defaultPrivacyStatus;
+	}
 }
