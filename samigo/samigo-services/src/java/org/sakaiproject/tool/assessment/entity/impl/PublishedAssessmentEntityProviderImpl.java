@@ -180,12 +180,15 @@ public class PublishedAssessmentEntityProviderImpl implements PublishedAssessmen
 	      assessments = publishedAssessmentFacadeQueries
 	        .getBasicInfoOfAllActivePublishedAssessments(orderBy, siteId, true);
 	    }
-	    Iterator assessmentIterator = assessments.iterator();
-	    while(assessmentIterator.hasNext()){
-	    	PublishedAssessmentFacade pub = (PublishedAssessmentFacade) assessmentIterator.next();
-	    	results.add(pub);
-	    	
-	    }
+
+		if (assessments != null) {
+			Iterator assessmentIterator = assessments.iterator();
+			while(assessmentIterator.hasNext()){
+				PublishedAssessmentFacade pub = (PublishedAssessmentFacade) assessmentIterator.next();
+				results.add(pub);
+
+			}
+		}
 	  return results;
   }
   
