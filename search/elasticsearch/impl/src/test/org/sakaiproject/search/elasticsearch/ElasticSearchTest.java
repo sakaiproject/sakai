@@ -330,7 +330,8 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.addResource(notification, event);
         addResources();
         elasticSearchIndexBuilder.refreshIndex();
-        assertTrue(elasticSearchService.getNDocs() == 106);
+        assertTrue("the number of docs is " + elasticSearchService.getNDocs() + " expecting 106.",
+                elasticSearchService.getNDocs() == 106);
     }
 
     @Test
