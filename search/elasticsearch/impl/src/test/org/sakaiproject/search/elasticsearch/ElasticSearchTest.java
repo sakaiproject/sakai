@@ -290,6 +290,7 @@ public class ElasticSearchTest {
         elasticSearchIndexBuilder.setOnlyIndexSearchToolSites(false);
         filter.setSearchIndexBuilder(elasticSearchIndexBuilder);
         elasticSearchService.setFilter(filter);
+        elasticSearchService.setLocalNode(true);
         elasticSearchIndexBuilder.setIgnoredSites("!admin,~admin");
         elasticSearchService.init();
 
