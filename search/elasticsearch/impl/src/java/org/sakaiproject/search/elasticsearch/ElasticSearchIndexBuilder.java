@@ -168,6 +168,12 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      */
     private List<String> ignoredSitesList = new ArrayList();
 
+    /**
+     * this turns off the threads and does indexing inline.  DO NOT enable this in prod.
+     * It is meant for testing, especially unit tests only.
+     */
+    private boolean testMode = false;
+
     private Map<String, String> settings = new HashMap();
 
     static {
@@ -242,7 +248,13 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
         }
 
-        bulkContentIndexTimer.schedule(new BulkContentIndexerTask(), (delay * 1000), (period * 1000));
+        if (!testMode) {
+            bulkContentIndexTimer.schedule(new BulkContentIndexerTask(), (delay * 1000), (period * 1000));
+        } else {
+            log.warn("IN TEST MODE. DO NOT enable this in production !!!");
+        }
+
+
     }
 
     /**
@@ -379,6 +391,10 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * @return
      */
     protected void scheduleIndexAdd(String resourceName, EntityContentProducer ecp) {
+        if (testMode) {
+            indexContent(ecp, resourceName);
+            return;
+        }
         contentIndexTimer.schedule(new ContentIndexerTask( resourceName,  ecp), 0);
     }
 
@@ -492,15 +508,20 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         public void run() {
             // let's not hog the whole CPU just in case you have lots of sites with lots of data this could take a bit
             Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
+            rebuildIndexForAllIndexableSites();
 
-             // rebuild index
-            for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
-                if (isSiteIndexable(s)) {
-                    rebuildSiteIndex(s.getId());
-                }
-            }
+
         }
 
+    }
+
+    protected void rebuildIndexForAllIndexableSites() {
+        // rebuild index
+        for (Site s : siteService.getSites(SiteService.SelectionType.ANY, null, null, null, SiteService.SortType.NONE, null)) {
+            if (isSiteIndexable(s)) {
+                rebuildSiteIndex(s.getId());
+            }
+        }
     }
 
 
@@ -527,6 +548,17 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
     }
 
+    protected void indexContent(EntityContentProducer ecp, String reference){
+        try {
+            //updating was causing issues, so doing delete and re-add
+            deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
+            prepareIndexAdd(reference, ecp, true);
+        } catch (NoContentException e) {
+            deleteDocument(e);
+        } catch (Exception e) {
+            log.error("problem updating content indexing for entity: " + reference + " error: " + e.getMessage());
+        }
+    }
 
 
     protected class ContentIndexerTask extends TimerTask {
@@ -542,13 +574,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             log.debug("running content indexing task");
             enableAzgSecurityAdvisor();
             try {
-                //updating was causing issues, so doing delete and re-add
-                deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
-                prepareIndexAdd(reference, ecp, true);
-            } catch (NoContentException e) {
-                deleteDocument(e);
-            } catch (Exception e) {
-                log.error("problem updating content indexing for entity: " + reference + " error: " + e.getMessage());
+                indexContent(ecp, reference);
             } finally {
                 disableAzgSecurityAdvisor();
             }
@@ -839,6 +865,11 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     public void rebuildIndex() {
         recreateIndex();
 
+        if (testMode) {
+            rebuildIndexForAllIndexableSites();
+            return;
+        }
+
         bulkContentIndexTimer.schedule(new RebuildIndexTask(), 0);
     }
 
@@ -957,6 +988,10 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * the supplied siteId
      */
     public void rebuildIndex(String siteId) {
+        if (testMode) {
+            rebuildSiteIndex(siteId);
+            return;
+        }
         bulkContentIndexTimer.schedule(new RebuildSiteTask(siteId), 0);
     }
 
@@ -1209,5 +1244,9 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
     public void setIndexSettings(String indexSettings) {
         this.indexSettings = indexSettings;
+    }
+
+    public void setTestMode(boolean testMode) {
+        this.testMode = testMode;
     }
 }
