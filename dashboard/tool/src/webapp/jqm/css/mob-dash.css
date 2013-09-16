@@ -180,6 +180,9 @@ components of an item in the schedule view
     position:absolute;
     top:10px;
     left:10px;
+    padding:0 25px 0 30px;
+    text-indent:-25px
+
 }
 /* title label*/
 #schedPanel .row-fluid .two .itemLabel, #schedPanel .row-fluid .activeCell .itemLabel{
@@ -237,6 +240,8 @@ components of an item in the event view
     position:absolute;
     top:10px;
     left:10px;
+    padding:0 25px 0 30px;
+    text-indent:-25px
 }
 #newsPanel .row-fluid .four {
     position:absolute;
@@ -339,7 +344,7 @@ components of an item in the event view
 }
 .results .block +.metadataLine, .results .attachList +.metadataLine {
     border-top:1px solid #ccc;
-    padding:15px 0 3px 4px;
+    padding:15px 0 3px 44px;
     text-align:center;
     margin:0 -10px
 }
@@ -348,3 +353,55 @@ components of an item in the event view
     display:none
 }
 
+/*file exensions to match*/
+ul.attachList li {
+    background: none;
+    line-height:135%;
+    margin: 5px 0;
+    padding: 0 15px;
+}
+ul.attachList li a{
+    padding:7px 0 0 25px;
+    line-height:200%;
+    background: url(/library/image/silk/page.png) left center no-repeat
+}
+
+.attachList a[href$=".doc"], .attachList a[href$=".rtf"], .attachList a[href$=".docx"], .attachList a[href$=".docm"], .attachList a[href$=".dotx"], .attachList a[href$=".dotm"] {
+    background: url(/library/image/silk/page_white_word.png) center left no-repeat !important
+}
+
+.attachList a[href$=".ppt"], .attachList a[href$=".pps"], .attachList a[href$=".pptx"], .attachList a[href$=".pptm"], .attachList a[href$=".ppsx"], .attachList a[href$=".potx"], .attachList a[href$=".potm"], .attachList a[href$=".ppam"]{
+    background: url(/library/image/silk/page_white_powerpoint.png) left center no-repeat !important
+}
+
+.attachList a[href$=".xls"], .attachList a[href$=".xlsx"], .attachList a[href$=".csv"], .attachList a[href$=".xlsx"], .attachList a[href$=".xlsm"], .attachList a[href$=".xltx"], .attachList a[href$=".xltm"], .attachList a[href$=".xlsb"], .attachList a[href$=".xlam"] {
+    background: url(/library/image/silk/page_white_excel.png) center left no-repeat !important
+}
+
+.attachList a[href$=".gif"], .attachList a[href$=".jpg"], .attachList a[href$=".jpeg"], .attachList a[href$=".png"] {
+    background: url(/library/image/silk/page_white_picture.png) center left no-repeat !important
+}
+
+.attachList a[href$=".pdf"] {
+    background: url(/library/image/sakai/pdf.gif) center left no-repeat !important
+}
+
+.attachList a[href$=".html"], .attachList a[href$=".htm"] {
+    background: url(/library/image/silk/page_code.png) center left no-repeat !important
+}
+
+.attachList a[href$=".txt"], .attachList a[href$=".java"] {
+    background: url(/library/image/sakai/text.gif) center left no-repeat !important
+}
+
+.attachList a[href$=".zip"], .attachList a[href$=".tar"], .attachList a[href$=".sit"], .attachList a[href$=".hqx"] {
+    background: url(/library/image/silk/page_white_zip.png) center left no-repeat !important
+}
+
+.attachList a[href$=".mov"], .attachList a[href$=".mpeg"], .attachList a[href$=".avi"] {
+    background: url(/library/image/sakai/movie.gif) center left no-repeat !important
+}
+
+.attachList a[href$=".mp3"], .attachList a[href$=".wav"], .attachList a[href$=".aiff"] {
+    background: url(/library/image/sakai/audio.gif) center left no-repeat !important
+}
