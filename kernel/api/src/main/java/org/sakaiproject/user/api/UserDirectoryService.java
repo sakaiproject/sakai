@@ -72,6 +72,14 @@ public interface UserDirectoryService extends EntityProducer
 
 	/** User eid for the admin user. */
 	static final String ADMIN_EID = "admin";
+	
+	/**
+	 * This function returns the PasswordPolicyProvider object (which defines the password policies for this installation)
+	 * 
+	 * @return a PasswordPolicyProvider object
+	 * @throws IllegalStateException if the system does not have a PasswordPolicyProvider
+	 */
+	public PasswordPolicyProvider getPasswordPolicy();
 
 	/**
 	 * Add a new user to the directory. Must commitEdit() to make official, or cancelEdit() when done! Id is auto-generated.

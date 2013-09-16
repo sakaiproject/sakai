@@ -67,6 +67,7 @@ import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
 import org.sakaiproject.user.api.DisplaySortAdvisorUPD;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
+import org.sakaiproject.user.api.PasswordPolicyProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -130,6 +131,12 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	
 	/** Collaborator for doing passwords. */
 	protected PasswordService m_pwdService = null;
+	
+	/** For validating passwords */
+	protected PasswordPolicyProvider m_passwordPolicyProvider = null;
+	
+	/** Component ID used to find the password policy provider */
+	protected String m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -139,6 +146,33 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 * Construct storage for this service.
 	 */
 	protected abstract Storage newStorage();
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.user.api.UserDirectoryService#getPasswordPolicy()
+	 */
+	public PasswordPolicyProvider getPasswordPolicy() {
+	    // https://jira.sakaiproject.org/browse/KNL-1123
+		// If the password policy object is not null, return it to the caller
+		if ( m_passwordPolicyProvider == null ) {
+		    // Otherwise, try to get the (default) password policy object before returning it
+			// Try getting it by the configured name
+			if ( m_passwordPolicyProviderName != null ) {
+				m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get( m_passwordPolicyProviderName );
+			}
+			// Try getting the default impl via ComponentManager
+			if ( m_passwordPolicyProvider == null ) {
+				m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get(PasswordPolicyProvider.class);
+			}
+			// If all else failed, manually instantiate default implementation
+			if ( m_passwordPolicyProvider == null ) {
+				m_passwordPolicyProvider = new PasswordPolicyProviderDefaultImpl(serverConfigurationService());
+			}
+		}
+		if ( m_passwordPolicyProvider == null ) {
+		    throw new IllegalStateException("unable to find the password policy provider by name: "+m_passwordPolicyProviderName);
+		}
+		return m_passwordPolicyProvider;
+	}
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
@@ -380,6 +414,14 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_contextualUserDisplayService = contextualUserDisplayService;
 	}
 
+	public void setPasswordPolicyProvider( PasswordPolicyProvider passwordPolicyProvider ) {
+		m_passwordPolicyProvider = passwordPolicyProvider;
+	}
+
+	public void setPasswordPolicyProviderName( String passwordPolicyProviderName ) {
+		m_passwordPolicyProviderName = StringUtils.trimToNull( passwordPolicyProviderName );
+	}
+
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
 
@@ -572,6 +614,16 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 				m_pwdService = new PasswordService();
 			}
 
+			m_passwordPolicyProviderName = serverConfigurationService().getString(PasswordPolicyProvider.SAK_PROP_PROVIDER_NAME, PasswordPolicyProvider.class.getName());
+			if (StringUtils.isEmpty(m_passwordPolicyProviderName)) {
+			    m_passwordPolicyProviderName = PasswordPolicyProvider.class.getName();
+			    M_log.warn("init(): Empty name for passwordPolicyProvider: Using the default name instead: "+m_passwordPolicyProviderName);
+			}
+			if (m_passwordPolicyProvider == null) {
+				m_passwordPolicyProvider = getPasswordPolicy(); // this will load the PasswordPolicy provider bean or instantiate the default
+			}
+			M_log.info("init(): PasswordPolicyProvider ("+m_passwordPolicyProviderName+"): " + ((m_passwordPolicyProvider == null) ? "none" : m_passwordPolicyProvider.getClass().getName()));
+
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName())
 					+ " separateIdEid: " + m_separateIdEid);
 		}
@@ -590,6 +642,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_storage = null;
 		m_provider = null;
 		m_anon = null;
+		m_passwordPolicyProvider = null;
 
 		M_log.info("destroy()");
 	}
