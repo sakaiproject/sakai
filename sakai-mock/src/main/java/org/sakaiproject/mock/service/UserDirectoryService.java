@@ -41,6 +41,7 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.PasswordPolicyProvider;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -258,6 +259,10 @@ public class UserDirectoryService implements
 	}
 
 	public List<User> searchExternalUsers(String criteria, int first, int last) {
+		return null;
+	}
+
+	public PasswordPolicyProvider getPasswordPolicy() {
 		return null;
 	}
 }
