@@ -782,7 +782,9 @@ div[role="dialog"] {
 .mainList .edit-colHidden {
     display:none;
 }
-
+#hide-items {
+    display: none;
+}
 .pageList {
     padding: 0 10px;
     list-style:none;
@@ -792,6 +794,13 @@ div[role="dialog"] {
 }
 .pageList img {
     vertical-align:middle;   
+}
+.itemList {
+    display: none;
+    list-style:none;
+}
+.text-item-placeholder {
+	font-style: italic;
 }
 /* neeeded by LB for skinning - goes in tool.css so that the
  * portlet title looks like the rest in the system.

@@ -41,6 +41,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
@@ -87,6 +88,14 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
         private boolean somePagesHavePrerequisites = false;
         private long currentPageId = -1;
+
+	private Map<String,String> imageToMimeMap;
+	public void setImageToMimeMap(Map<String,String> map) {
+		this.imageToMimeMap = map;
+	}
+    public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
+
+    public boolean enableShowItems = ServerConfigurationService.getBoolean("lessonbuilder.enable-show-items", true);
 
 	public class PageEntry {
 		Long pageId;
@@ -397,6 +406,35 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	if (note != null)
 		    		UIOutput.make(row, "link-note", note + " ");
 		    	UIOutput.make(row, "link-text", entry.title);
+
+                if(enableShowItems) {
+		    	    UIOutput.make(row, "item-list-toggle");
+                    for(SimplePageItem pageItem : simplePageToolDao.findItemsOnPage(entry.pageId)) {
+
+                        UIBranchContainer itemListItem = UIBranchContainer.make(row, "item:");
+                        itemListItem.decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (3*level) + "em"));
+
+                        if (pageItem.isRequired()) {
+                            UIOutput.make(itemListItem, "required-image");
+                        } else {
+                            UIOutput.make(itemListItem, "not-required-image");
+                        }
+
+                        UIOutput.make(itemListItem,"item-icon")
+                            .decorate(getImageSourceDecorator(pageItem));
+
+                        if (pageItem.isPrerequisite()) {
+                            itemListItem.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
+                        }
+
+                        if(SimplePageItem.TEXT == pageItem.getType()) {
+                            UIOutput.make(itemListItem, "name",  messageLocator.getMessage("simplepage.chooser.textitemplaceholder"))
+                                .decorate(new UIFreeAttributeDecorator("class", "text-item-placeholder"));
+                        } else {
+                            UIOutput.make(itemListItem, "name", pageItem.getName());
+                        }
+                    }
+                }
 		    	index++;
 
 		    	// for pagepicker or summary if canEdit and page doesn't have an item
@@ -470,6 +508,74 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    UICommand.make(form, "submit", messageLocator.getMessage("simplepage.delete-selected"), "#{simplePageBean.deletePages}");
 		}		
 	}
+
+    private UIFreeAttributeDecorator getImageSourceDecorator(SimplePageItem pageItem) {
+
+        switch (pageItem.getType()) {
+            case SimplePageItem.FORUM:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+            case SimplePageItem.ASSIGNMENT:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/page_edit.png");
+            case SimplePageItem.ASSESSMENT:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+            case SimplePageItem.QUESTION:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/pencil.png");
+            case SimplePageItem.COMMENTS:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/comments.png");
+            case SimplePageItem.BLTI:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/application_go.png");
+            case SimplePageItem.PAGE:
+                return new UIFreeAttributeDecorator("src", "/library/image/silk/book_open.png");
+            case SimplePageItem.RESOURCE:
+                return getImageSourceDecoratorFromMimeType(pageItem);
+            case SimplePageItem.MULTIMEDIA:
+                return getImageSourceDecoratorFromMimeType(pageItem);
+            case SimplePageItem.TEXT:
+                return getImageSourceDecoratorFromMimeType(pageItem);
+            default:
+                return new UIFreeAttributeDecorator("src", "");
+        } 
+    }
+
+    private UIFreeAttributeDecorator getImageSourceDecoratorFromMimeType(SimplePageItem pageItem) {
+
+        String mimeType = pageItem.getHtml();
+
+        if(SimplePageItem.TEXT == pageItem.getType()) {
+            mimeType = "text/html";
+        } else if("application/octet-stream".equals(mimeType)) {
+            // OS X reports octet stream for things like MS Excel documents.
+            // Force a mimeType lookup so we get a decent icon.
+            mimeType = null;
+        }
+
+        if (mimeType == null || mimeType.equals("")) {
+            String s = pageItem.getSakaiId();
+            int j = s.lastIndexOf(".");
+            if (j >= 0)
+            s = s.substring(j+1);
+            mimeType = ContentTypeImageService.getContentType(s);
+        }
+
+        String src = null;
+
+        if (!useSakaiIcons) {
+            src = imageToMimeMap.get(mimeType);
+        }
+
+        if (src == null) {
+            String image = ContentTypeImageService.getContentTypeImage(mimeType);
+            if (image != null) {
+                src = "/library/image/" + image;
+            }
+        }
+        
+        if(src != null) {
+            return new UIFreeAttributeDecorator("src", src);
+        } else {
+            return new UIFreeAttributeDecorator("src", "");
+        }
+    }
 
 	public ViewParameters getViewParameters() {
 		return new GeneralViewParameters();

@@ -281,6 +281,7 @@ simplePageBean.peerEvalAllowSelfGrade
 				<entry key="application/pdf" value="/library/image/silk/page_white_acrobat.png"/>
 				<entry key="application/x-shockwave-flash" value="/library/image/silk/page_white_flash.png"/>
 				<entry key="video/x-flv" value="/library/image/silk/page_white_flash.png"/>
+                <entry key="video/mp4" value="/library/image/silk/film.png"/>
 				<entry key="text/plain" value="/library/image/silk/page_white_text.png"/>
 				<entry key="text/rtf" value="/library/image/silk/page_white_text.png"/>
 				<entry key="LBWEBSITE" value="/library/image/silk/page_white_world.png"/>

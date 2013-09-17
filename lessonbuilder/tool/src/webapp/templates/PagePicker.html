@@ -5,6 +5,7 @@
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
 <script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script type="text/javascript" src="$context/js/jquery-1.8.3.min.js"></script>
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
@@ -28,8 +29,10 @@
 			</div>
 		</div>
 
-		<h2 rsf:id="title"></h2>
+        <h2 rsf:id="title"></h2>
 
+        <a href="#" id="show-items"><span rsf:id="msg=simplepage.page.showitems"></span></a>
+        <a href="#" id="hide-items"><span rsf:id="msg=simplepage.page.hideitems"></span></a>
 		
 		<form action="#" rsf:id="page-picker">
 		<span rsf:id="page-span"/>
@@ -40,6 +43,19 @@
                 <input type="checkbox" rsf:id="select-for-deletion" />
                 <img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="" />
                 <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a> <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+                <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle"><img src="/library/image/sakai/icon-dropdn.gif" height="15"/></a></span>
+                <ul class="itemList" role="menu">
+                    <li rsf:id="item:">
+                        <div class="statusCol">
+                            <img rsf:id="required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px"/>
+                            <img rsf:id="not-required-image" src="/lessonbuilder-tool/images/not-required.png" class="status-image icon-image" style="margin-right:3px"/>
+                        </div>
+                        <div class="contentCol">
+                            <img rsf:id="item-icon" class="item-image" alt="" style="position:relative; top:3px; margin-right:2px" />
+                            <span rsf:id="name"></span>
+                        </div>
+                    </li>
+		        </ul>
 			</li>
 		</ul>
 		
@@ -58,5 +74,6 @@
 		</p>
 		</form>
 	</div>
+    <script type="text/javascript" src="/lessonbuilder-tool/js/page-picker.js"></script>
 </body>
 </html>

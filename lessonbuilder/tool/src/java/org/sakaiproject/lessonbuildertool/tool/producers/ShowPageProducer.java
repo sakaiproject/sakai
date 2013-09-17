@@ -1084,6 +1084,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    case SimplePageItem.RESOURCE:
 						String mimeType = i.getHtml();
 
+                        if("application/octet-stream".equals(mimeType)) {
+                            // OS X reports octet stream for things like MS Excel documents.
+                            // Force a mimeType lookup so we get a decent icon.
+                            mimeType = null;
+                        }
+
 						if (mimeType == null || mimeType.equals("")) {
 						    String s = i.getSakaiId();
 						    int j = s.lastIndexOf(".");
