@@ -1512,6 +1512,8 @@ public class AssignmentAction extends PagedResourceActionII
 		if (AssignmentService.getAllowSubmitByInstructor() && student != null) {
 			List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, currentAssignmentReference, contextString);
 			if (submitterIds != null && !submitterIds.isEmpty() && submitterIds.contains(student.getId())) {
+				// we want to come back to the instructor view page
+				state.setAttribute(FROM_VIEW, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
 				context.put("student",student);
 			}
 		}
@@ -4732,9 +4734,16 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// reset the view assignment
 		state.setAttribute(VIEW_ASSIGNMENT_ID, "");
-
-		// back to the student list view of assignments
-		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		
+		String fromView = (String) state.getAttribute(FROM_VIEW);
+		if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(fromView)) {
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+		}
+		else {
+			// back to the student list view of assignments
+			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		}
+		
 
 	} // doCancel_show_submission
 
@@ -5267,6 +5276,8 @@ public class AssignmentAction extends PagedResourceActionII
 			User submitter = null;
 			String studentId = params.get("submit_on_behalf_of");
 			if (studentId != null && !studentId.equals("-1")) {
+				// SAK-23817: return to the Assignments List by Student
+				state.setAttribute(FROM_VIEW, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
 				try {
 					submitter = u;
 					u = UserDirectoryService.getUser(studentId);
@@ -5667,7 +5678,14 @@ public class AssignmentAction extends PagedResourceActionII
 	public void doConfirm_assignment_submission(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		// SAK-23817 if the instructor submitted on behalf of the student, go back to Assignment List by Student
+		String fromView = (String) state.getAttribute(FROM_VIEW);
+		if (MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(fromView)) {
+			state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
+		}
+		else {
+			state.setAttribute(STATE_MODE, MODE_LIST_ASSIGNMENTS);
+		}
 		state.setAttribute(ATTACHMENTS, EntityManager.newReferenceList());
 	}
 	/**
