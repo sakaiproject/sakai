@@ -159,7 +159,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	
 	private boolean mandatorySendEmail = NEW_MEETING_SEND_EMAIL;
 	
-	private String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;
+	private String sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
 	
 	private boolean publishToCalendar = DEFAULT_EXPORT_TO_CALENDAR_TOOL;
 	
@@ -413,7 +413,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		if(NEW_MEETING_SEND_EMAIL){
 			sendEmail = NEW_MEETING_SEND_EMAIL;
 		}
-		sendEmailToSelectedPeopleOnly=SEND_EMAIL_ALL_PARTICIPANTS;
+		sendEmailToSelectedPeopleOnly=SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;
 		receiveEmail = false;
 		sendEmailByOwner= DEFAULT_SEND_EMAIL; /*will be inherited per meeting basis*/
 		allowComment = DEFAULT_ALLOW_COMMENT;
@@ -791,9 +791,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			setEndTimeAutoAdjusted(false);
 			//reset who should receive emails
 			//setSendEmailAttendeeOnly(false);
-			if(this.sendEmailToSelectedPeopleOnly.equals(SEND_EMAIL_ONLY_SIGNED_UP_ATTENDEES)){
-				sendEmailToSelectedPeopleOnly = SEND_EMAIL_ALL_PARTICIPANTS;//reset
-			}
+			sendEmailToSelectedPeopleOnly = SEND_EMAIL_ONLY_ORGANIZER_COORDINATORS;//reset
+
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
