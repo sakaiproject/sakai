@@ -351,6 +351,18 @@ simplePageBean.peerEvalAllowSelfGrade
           <property name="viewParamsClass"
 		    value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
 	</bean>
+	
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider">
+		
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+	</bean>
 
 	<bean id="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
 	class="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
