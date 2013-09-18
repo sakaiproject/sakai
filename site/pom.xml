@@ -14,26 +14,12 @@
   <version>2.10-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <profiles>
-    <profile>
-      <id>full</id>
-      <activation>
-        <activeByDefault>true</activeByDefault>
-      </activation>
-      <modules>
-        <module>site-help</module>
-        <module>site-tool/tool</module>
-        <module>mergedlist-util/util</module>
-      </modules>
-    </profile>
-    <profile>
-      <id>framework</id>
-      <modules>
-        <module>site-help</module>
-        <module>site-tool/tool</module>
-      </modules>
-    </profile>
-  </profiles>
+  <modules>
+    <module>admin-perms-tool</module>
+    <module>site-help</module>
+    <module>site-tool/tool</module>
+    <module>mergedlist-util/util</module>
+  </modules>
 
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</connection>
