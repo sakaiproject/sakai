@@ -62,8 +62,10 @@
 }
 
 .popupMessage{
-	background-color: #ffe !important;
+	background-color: #ffffcb !important;
+	border: 1px solid lightgray;
+	padding: 0.4em;
+	width: 475px;
 	position: absolute;
 	z-index: 1000;
-	width: auto !important;
 }
