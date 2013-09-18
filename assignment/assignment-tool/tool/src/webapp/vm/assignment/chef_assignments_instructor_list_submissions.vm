@@ -662,6 +662,8 @@
 											#end
 											$validator.escapeHtml($submitterName)
 										</a>
+									#else
+										$validator.escapeHtml($submitterName)
 									#end
 								#end
 							</td>

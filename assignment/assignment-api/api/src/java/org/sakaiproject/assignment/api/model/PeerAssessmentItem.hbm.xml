@@ -24,6 +24,9 @@
 		<property name="removed" type="java.lang.Boolean" not-null="true">
 			<column name="REMOVED" />
 		</property>
+		<property name="submitted" type="java.lang.Boolean" not-null="true">
+			<column name="SUBMITTED" />
+		</property>
     </class>
     <query name = "findPeerAssessmentItemsBySubmissions">
 			<![CDATA[

@@ -524,9 +524,18 @@ function allowClick(object)
 										#if($assignment.isPeerAssessmentOpen())
 											##student has submitted, check if the assignment is peer assessment
 											##and if the time is available
-											<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">
-												$tlang.getString("gen.review")
-											</a>
+											#set($totalReviews = $peerAssessmentItemsMap.get($assignment.id))
+											#if($totalReviews == -1)
+												##something is wrong here, don't show anything to the user, just show the peer review start date (could be waiting for the job to run)
+												$tlang.getString("peerassessment.reviewStarts") $!assignment.closeTime.toStringLocalFull()
+											#elseif($totalReviews == 0)
+												##user has submitted every review already
+												$tlang.getString("gen.peerreview") ($tlang.getString("gen.subm4"))
+											#else
+												##user still has at least one review to submit
+												<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">$tlang.getString("gen.peerreview") ($totalReviews)</a>
+												&nbsp;($tlang.getString("gen.due")&nbsp;$!assignment.peerAssessmentPeriod.toStringLocalFull())
+											#end
 										#elseif ($assignment.isPeerAssessmentPending() && $submission.getSubmitted())
 											##student has submitted but the review period hasn't started
 											$tlang.getString("peerassessment.reviewStarts") $!assignment.closeTime.toStringLocalFull()

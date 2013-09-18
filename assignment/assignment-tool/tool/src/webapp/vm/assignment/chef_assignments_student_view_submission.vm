@@ -572,6 +572,14 @@ function submitform(id)
 #end
 
 
+			## We are allowing the instructor to submit as long as assignment is not non-electronic and not deleted
+			#if (!$submissionType != 4 && !$!deleted.equalsIgnoreCase("true") && $!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
+				<h4>$tlang.getString("submitforstudent")</h4>
+				<p class="instruction">
+					$student.getDisplayName()
+					<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
+				</p>
+			#end
 
 			#if (($submissionType==1) || ($submissionType==3))
 				#if ($!deleted.equalsIgnoreCase("true"))
@@ -579,21 +587,6 @@ function submitform(id)
 					##if the assignment has been deleted, disable the action button
 					$validator.escapeHtmlFormattedText($!value_submission_text)
 				#else
-					#*
-					#if (!$submitted || ($submitted && !$timeSubmitted))
-						## for draft submission
-						#if ($!closeTime && $currentTime.after($closeTime))
-							##disable input for submitted and not returned submission or when later than assignment close date
-							##<h4>$tlang.getString("gen.yousub")</h4>
-							$validator.escapeHtmlFormattedText($!value_submission_text)
-						#else*#
-							#if ($!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
-							<h4>$tlang.getString("submitforstudent")</h4>
-							<p class="instruction">
-								$student.getDisplayName()
-								<input type="hidden" name="submit_on_behalf_of" id="submit_on_behalf_of" value="$student.id" />		
-							</p>
-							#end
 							<h4>$tlang.getString("assignmenttext")</h4>
 							<p class="instruction">
 							#if ($returned)
