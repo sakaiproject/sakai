@@ -28,6 +28,7 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.user.api.PasswordPolicyProvider;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserAlreadyDefinedException;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -250,5 +251,10 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 	public List<User> searchExternalUsers(String criteria, int first, int last){
 		return null;
 	}
+
+    public PasswordPolicyProvider getPasswordPolicy() {
+        // TODO Auto-generated method stub
+        return null;
+    }
 
 }
