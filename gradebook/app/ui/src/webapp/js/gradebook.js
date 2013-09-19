@@ -290,12 +290,14 @@ function reEnableCategoryDropInputs(component) {
         var allElements = document.forms[0].elements;
         for(i=0; i < allElements.length; i++) {
                 var currentElement = allElements[i];
-                if(currentElement.name.indexOf(":pointValue") != -1
-                        || currentElement.name.indexOf(":relativeWeight") != -1
-                        || currentElement.name.indexOf(":dropHighest") != -1
-                        || currentElement.name.indexOf(":dropLowest") != -1
-                        || currentElement.name.indexOf(":keepHighest") != -1
-                   ) {
+                var currentElementName = currentElement.getAttribute('name');
+
+                if(currentElementName !== null && (currentElementName.indexOf(":pointValue") != -1
+                        || currentElementName.indexOf(":relativeWeight") != -1
+                        || currentElementName.indexOf(":dropHighest") != -1
+                        || currentElementName.indexOf(":dropLowest") != -1
+                        || currentElementName.indexOf(":keepHighest") != -1
+					)) {
                         // Recursive function call
                     reEnableCategoryDropInputs(currentElement);
                 }
