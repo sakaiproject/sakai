@@ -611,7 +611,7 @@ public class CCExport {
 	pagesDone.add(pageId);
 
 	outputIndent(out, indent); out.println("<item identifier=\"page_" + pageId + "\">");
-	outputIndent(out, indent + 2); out.println("<title>" + StringEscapeUtils.escapeHtml(title) + "</title>");
+	outputIndent(out, indent + 2); out.println("<title>" + StringEscapeUtils.escapeXml(title) + "</title>");
 
 	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId.longValue());
 	for (SimplePageItem item : items) {
@@ -706,7 +706,7 @@ public class CCExport {
 		
 		if ((ititle == null) || (ititle.equals("")))
 		    ititle = messageLocator.getMessage("simplepage.importcc-texttitle");
-		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeHtml(ititle) + "</title>");
+		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeXml(ititle) + "</title>");
 		outputIndent(out, indent + 2); out.println("</item>"); 
 	    }
 	}
