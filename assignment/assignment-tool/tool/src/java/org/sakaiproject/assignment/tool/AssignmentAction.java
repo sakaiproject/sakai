@@ -3373,7 +3373,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			context.put("view", view);
-			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
+			
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+
 			
 			// access point url for zip file download
 			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -4017,6 +4019,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("assignmentService", AssignmentService.getInstance());
 		context.put("userService", UserDirectoryService.getInstance());
 		
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		
+		
 		HashMap showStudentAssignments = new HashMap();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
 		{
@@ -4080,10 +4085,29 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sortedBy_released", SORTED_GRADE_SUBMISSION_BY_RELEASED);
 		//context.put("sortedBy_assignment", SORTED_GRADE_SUBMISSION_BY_ASSIGNMENT);
 		//context.put("sortedBy_maxGrade", SORTED_GRADE_SUBMISSION_BY_MAX_GRADE);
+		
+		// get current site
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
+		if (AssignmentService.getAllowGroupAssignments())
+		{
+			try {
+				Site site;
+				site = SiteService.getSite(contextString);
+				context.put("site", site);
+				// any group in the site?
+				Collection groups = site.getGroups();
+				context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
+			} catch (IdUnusedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		 
 		add2ndToolbarFields(data, context);
 
-		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
 				+ AssignmentService.gradesSpreadsheetReference(contextString, null));
 
