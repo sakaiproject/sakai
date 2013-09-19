@@ -2110,7 +2110,8 @@ public class AssignmentAction extends PagedResourceActionII
 			Site site = SiteService.getSite(contextString);
 			context.put("site", site);
 			// any group in the site?
-			Collection groups = site.getGroups();
+			Collection groups = getAllGroupsInSite(contextString);
+			
 			context.put("groups", (groups != null && groups.size()>0)?Boolean.TRUE:Boolean.FALSE);
 
 			// add active user list
@@ -4021,6 +4022,10 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 		
+		if (AssignmentService.getAllowGroupAssignments()) {
+			Collection groups = getAllGroupsInSite(contextString);
+			context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
+		}
 		
 		HashMap showStudentAssignments = new HashMap();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
@@ -4088,23 +4093,13 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// get current site
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 
-		if (AssignmentService.getAllowGroupAssignments())
-		{
-			try {
-				Site site;
-				site = SiteService.getSite(contextString);
-				context.put("site", site);
-				// any group in the site?
-				Collection groups = site.getGroups();
-				context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
-			} catch (IdUnusedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+		if (AssignmentService.getAllowGroupAssignments()) {
+			Collection groups = getAllGroupsInSite(contextString);
+			context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
 		}
 		
-		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 		 
 		add2ndToolbarFields(data, context);
 
@@ -13384,6 +13379,25 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
+	}
+	/**
+	 * return returns all groups in a site
+	 * @param contextString
+	 * @param aRef
+	 * @return
+	 */
+	protected Collection getAllGroupsInSite(String contextString) 
+	{
+		Collection groups = new ArrayList();
+		try {
+			Site site = SiteService.getSite(contextString);
+			// any group in the site?
+			groups = site.getGroups();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			M_log.info("Problem getting groups for site:"+e.getMessage());
+		}
+		return groups;
 	}
 	
 	/**

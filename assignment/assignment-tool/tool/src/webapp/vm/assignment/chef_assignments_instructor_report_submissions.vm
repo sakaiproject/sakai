@@ -57,12 +57,9 @@
 				<div class="instruction">
 					$tlang.getString("view_instruction") 
 				</div>
-				<label for="view">
-					$tlang.getString("gen.view2")
-				</label>
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
-				<select id="view" name="view" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+				<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
 
 					#if (!$showSubmissionByFilterSearchOnly)
 						<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
