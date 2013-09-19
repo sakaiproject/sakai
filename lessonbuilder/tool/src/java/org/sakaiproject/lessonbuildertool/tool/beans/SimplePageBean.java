@@ -1576,7 +1576,7 @@ public class SimplePageBean {
 	    				lessonEntity = assignmentEntity.getEntity(nextItem.getSakaiId()); break;
 	    			case SimplePageItem.ASSESSMENT:
 	    				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId()); break;
+	    				lessonEntity = quizEntity.getEntity(nextItem.getSakaiId(),this); break;
 	    			case SimplePageItem.FORUM:
 	    				lessonEntity = forumEntity.getEntity(nextItem.getSakaiId()); break;
 	    			case SimplePageItem.BLTI:
@@ -1660,7 +1660,7 @@ public class SimplePageBean {
 				lessonEntity = assignmentEntity.getEntity(prevItem.getSakaiId()); break;
 			case SimplePageItem.ASSESSMENT:
 				view.setClearAttr("LESSONBUILDER_RETURNURL_SAMIGO");
-				lessonEntity = quizEntity.getEntity(prevItem.getSakaiId()); break;
+				lessonEntity = quizEntity.getEntity(prevItem.getSakaiId(),this); break;
 			case SimplePageItem.FORUM:
 				lessonEntity = forumEntity.getEntity(prevItem.getSakaiId()); break;
 			case SimplePageItem.BLTI:
@@ -2347,7 +2347,7 @@ public class SimplePageBean {
     // because we call it when deleting or updating items, before saving them to the database.
     // The caller will update the item in the database, typically after this call
     //    correct is correct value, i.e whether it hsould be there or not
-	private void checkControlGroup(SimplePageItem i, boolean correct) {
+	public void checkControlGroup(SimplePageItem i, boolean correct) {
 		if (i.getType() == SimplePageItem.RESOURCE) {
 		    checkControlResource(i, correct);
 		    return;
@@ -2377,7 +2377,7 @@ public class SimplePageBean {
 					case SimplePageItem.ASSIGNMENT:
 					    lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
 					case SimplePageItem.ASSESSMENT:
-					    lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+					    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 					case SimplePageItem.FORUM:
 					    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 					}
@@ -2403,7 +2403,7 @@ public class SimplePageBean {
 				case SimplePageItem.ASSIGNMENT:
 				    lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
 				case SimplePageItem.ASSESSMENT:
-				    lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+				    lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 				case SimplePageItem.FORUM:
 				    lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 				}
@@ -2825,7 +2825,7 @@ public class SimplePageBean {
 	       case SimplePageItem.ASSIGNMENT:
 		   entity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.ASSESSMENT:
-		   entity = quizEntity.getEntity(i.getSakaiId()); break;
+		   entity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
 	       case SimplePageItem.RESOURCE:
@@ -3001,7 +3001,7 @@ public class SimplePageBean {
 	   case SimplePageItem.ASSIGNMENT:
 	       lessonEntity = assignmentEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.ASSESSMENT:
-	       lessonEntity = quizEntity.getEntity(i.getSakaiId()); break;
+	       lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
 	   case SimplePageItem.RESOURCE:
@@ -3195,7 +3195,7 @@ public class SimplePageBean {
 			return "failure";
 		} else {
 			try {
-			    LessonEntity selectedObject = quizEntity.getEntity(selectedQuiz);
+			    LessonEntity selectedObject = quizEntity.getEntity(selectedQuiz,this);
 			    if (selectedObject == null)
 				return "failure";
 
@@ -3204,7 +3204,7 @@ public class SimplePageBean {
 			    if (itemId != null && itemId != -1) {
 				i = findItem(itemId);
 				// do getEntity/getreference to normalize, in case sakaiid is old format
-				LessonEntity existing = quizEntity.getEntity(i.getSakaiId());
+				LessonEntity existing = quizEntity.getEntity(i.getSakaiId(),this);
 				String ref = existing.getReference();
 				// if same quiz, nothing to do
 				if (!ref.equals(selectedQuiz)) {
@@ -4210,7 +4210,7 @@ public class SimplePageBean {
 			    completeCache.put(itemId, false);
 			    return false;
 			}
-			LessonEntity quiz = quizEntity.getEntity(item.getSakaiId());
+			LessonEntity quiz = quizEntity.getEntity(item.getSakaiId(),this);
 			if (quiz == null) {
 			    completeCache.put(itemId, false);
 			    return false;
@@ -4573,7 +4573,7 @@ public class SimplePageBean {
 				return null;
 			return forum.getTitle();
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
-			LessonEntity quiz = quizEntity.getEntity(i.getSakaiId());
+		LessonEntity quiz = quizEntity.getEntity(i.getSakaiId(),this);
 			if (quiz == null)
 				return null;
 			return quiz.getTitle();

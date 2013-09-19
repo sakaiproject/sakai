@@ -331,16 +331,16 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return ret;
     }
 
-    public LessonEntity getEntity(String ref, SimplePageBean o) {
-	return getEntity(ref);
+    public LessonEntity getEntity(String ref) {
+	return getEntity(ref, null);
     }
 
-    public LessonEntity getEntity(String ref) {
+    public LessonEntity getEntity(String ref, SimplePageBean o) {
 	// if the site was copied, all sakaiids for tests are set to something like /sam_core/NNN
 	// the problem is that published asessments aren't copied. So all we can do is poitn to
 	// the core assessment. Of course you can't really take that, so we try to find a published
 	// assessment based on that core. If we find one, we fix up the sakaiids, and we're ok.
-	if (ref.startsWith("/sam_core/")) {
+	if (o != null && ref.startsWith("/sam_core/")) {
 	    Object fields[] = new Object[1];
 	    fields[0] = new Long(ref.substring("/sam_core/".length()));
 
@@ -354,6 +354,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		for (SimplePageItem item: items) {
 		    item.setSakaiId(ref);
 		    simplePageToolDao.quickUpdate(item);
+		    o.checkControlGroup(item, item.isPrerequisite());
 		}
 	    } else
 		return null;
