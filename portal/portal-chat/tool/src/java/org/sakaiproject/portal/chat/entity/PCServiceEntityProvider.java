@@ -142,7 +142,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 
         showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
         
-        isVideoEnabled = serverConfigurationService.getBoolean("portal.neochat.video", false);
+        isVideoEnabled = serverConfigurationService.getBoolean("portal.chat.video", false);
 
         try {
             String channelId = serverConfigurationService.getString("portalchat.cluster.channel");
@@ -656,7 +656,7 @@ public class PCServiceEntityProvider extends AbstractEntityProvider implements R
 		
 		String userId = ref.getId();
 		
-		String [] servers = serverConfigurationService.getStrings("portal.neochat.video.servers");
+		String [] servers = serverConfigurationService.getStrings("portal.chat.video.servers");
 		if (servers==null) {
 			servers = new String[]{"stun:stun.l.google.com:19302"};
 		}
