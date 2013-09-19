@@ -745,6 +745,13 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	return assessment != null;
     }
 
+    public boolean notPublished(String ref) {
+	System.out.println("notpub " + ref);
+	if (ref.startsWith("/sam_core/"))
+	    return true;
+	else
+	    return false;
+    }
 
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.  Update the data in the cache

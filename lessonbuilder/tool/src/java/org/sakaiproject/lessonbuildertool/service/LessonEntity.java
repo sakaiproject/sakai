@@ -153,6 +153,11 @@ public interface LessonEntity {
     // checks to see if the underlying assignment, etc, actually exists
     public boolean objectExists();
 
+    // currently used only for Samigo. What's different about Samigo's
+    // unpublished items is that they don't exist as published assessments
+    // at all, so we can't produce a reference to it.
+    public boolean notPublished(String ref);
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache);

@@ -618,6 +618,10 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
        return assignment != null;
    }
 
+    public boolean notPublished(String ref) {
+	return false;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {
