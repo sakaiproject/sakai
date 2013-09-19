@@ -41,6 +41,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.FlushMode;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -3514,6 +3515,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			HibernateCallback hcb = new HibernateCallback() {
 				public Object doInHibernate(Session session) throws HibernateException, SQLException {
 					Query q = session.createQuery(hql);
+					q.setFlushMode(FlushMode.NEVER);
 					q.setString("siteid", siteId);
 					if(events != null && events.size() > 0)
 						q.setParameterList("eventlist", events);
