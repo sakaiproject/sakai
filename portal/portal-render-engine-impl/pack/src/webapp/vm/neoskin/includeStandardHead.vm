@@ -103,6 +103,7 @@ ${sakai_html_head_js}
 #if ( $neoChatVideo )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/webrtc-adapter.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/videocall.js"></script>
+<link href="${pageSkinRepo}/${pageSkin}/portalvideo.css" type="text/css" rel="stylesheet" media="all" />
 
 <script type="text/javascript">
 	var portalVideoChatTimeout = ${portalVideoChatTimeout};
