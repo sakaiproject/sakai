@@ -303,7 +303,7 @@ function reEnableCategoryDropInputs(component) {
                 }
         }
     } else {
-        var dropElement = getTheElement(component.name);
+		var dropElement = getTheElement(component.getAttribute('name'));
         dropElement.disabled = false;
     }
 }
