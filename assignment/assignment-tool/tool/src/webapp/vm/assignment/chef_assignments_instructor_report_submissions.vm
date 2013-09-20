@@ -42,24 +42,21 @@
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		$!tlang.getString('gen.grarep')
 	</h3>
-	#if ($!submissions.size() == 0)
-		<p class="instruction">
-			$tlang.getString("gen.theare2")
-		</p>
-	#else
+
 		<div class="navPanel">
 			<div class="viewNav">
 			<br />
 			#if ($!groups.hasNext())
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-			<input type="hidden" name="eventSubmit_doView" value="view" />
+		    <input type="hidden" name="option" id="option" value="x" />
+			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 				<div class="instruction">
 					$tlang.getString("view_instruction") 
 				</div>
 				<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 
-				<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+				<select id="view" name="viewgroup" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
 
 					#if (!$showSubmissionByFilterSearchOnly)
 						<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
@@ -82,6 +79,11 @@
 			</form>
 			
 			#end
+			#if ($!submissions.size() == 0)
+				<p class="instruction">
+					$tlang.getString("gen.theare2")
+				</p>
+			#else
 			<br />
 			<a href="$accessPointUrl" title="$!tlang.getString('downspr')">$!tlang.getString('downspr')</a>
 				
