@@ -281,4 +281,17 @@
     -khtml-border-radius: 3px;
     border-radius: 3px;
 }
+/* Scrolling methods */
+
+#pc_chat_scroll_bar {
+	display: none;
+	float: right;
+	margin-top: 6px;
+}
+
+.goclass {
+	display: inline;
+	margin-left: 2px;
+	margin-right: 4px;
+}
 
