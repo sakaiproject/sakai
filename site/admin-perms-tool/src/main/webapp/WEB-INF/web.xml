@@ -35,14 +35,7 @@
 
   <filter-mapping>
     <filter-name>sakai.request</filter-name>
-    <servlet-name>sakai.kaltura</servlet-name>
-    <dispatcher>REQUEST</dispatcher>
-    <dispatcher>FORWARD</dispatcher>
-    <dispatcher>INCLUDE</dispatcher>
-  </filter-mapping>
-  <filter-mapping>
-    <filter-name>sakai.request</filter-name>
-    <url-pattern>/service/*</url-pattern>
+    <servlet-name>sakai.adminsiteperms</servlet-name>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
