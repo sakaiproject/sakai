@@ -12449,6 +12449,11 @@ public class AssignmentAction extends PagedResourceActionII
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			String view = "";
+            initViewSubmissionListOption(state);
+            String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+            String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+            Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+	            
 			if (state.getAttribute(STATE_SELECTED_VIEW) != null)
 			{
 				view = (String) state.getAttribute(STATE_SELECTED_VIEW);
@@ -12514,12 +12519,7 @@ public class AssignmentAction extends PagedResourceActionII
             initViewSubmissionListOption(state);
             String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
             String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-            String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
             Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
-                        
-            //If all groups, no filtering, if select groups filter by members, if search term, only that term
-            Group g = SiteService.findGroup(allOrOneGroup);
-            Collection<Member> groupMembers = g != null ? g.getMembers(): new ArrayList<Member>();
             
 		    Boolean has_multiple_groups_for_user = false;
 		    List submissions = new ArrayList();
@@ -12533,6 +12533,7 @@ public class AssignmentAction extends PagedResourceActionII
 				for (int j = 0; j < assignments.size(); j++)
 				{
 					Assignment a = (Assignment) assignments.get(j);
+					List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, a.getReference(), contextString);
 					Collection<String> _dupUsers = new ArrayList<String>();
 					if (a.isGroup()) {
 					    _dupUsers = usersInMultipleGroups(a, true);
@@ -12552,9 +12553,8 @@ public class AssignmentAction extends PagedResourceActionII
 								if (s != null && (s.getSubmitted() 
 								        || (s.getReturned() && (s.getTimeLastModified().before(s.getTimeReturned())))))
 								{
-
 							    	//If the group search is null or if it contains the group
-									if (allOrOneGroup == null || groupMembers.contains(s.getSubmitterId())) {
+									if (submitterIds.contains(s.getSubmitterId())){
 										if (a.isGroup()) {
 											User[] _users = s.getSubmitters();
 											for (int m=0; _users != null && m < _users.length; m++) {
