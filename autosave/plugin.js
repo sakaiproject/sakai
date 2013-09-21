@@ -12,7 +12,7 @@
         lang: ['de', 'en', 'jp', 'pt-BR', 'zh', 'zh-cn'],
         init: function (editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
-            var notOlderThen = editor.config.autosave_NotOlderThen != null ? editor.config.NotOlderThen : 1440;
+            var notOlderThen = editor.config.autosave_NotOlderThen != null ? editor.autosave_NotOlderThen : 1440;
 
             CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
 

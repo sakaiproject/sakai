@@ -36,5 +36,5 @@ config.autosave_SaveKey = 'autosaveKey';
 The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can beoveridden from the config ...
 
 ````
-config.config.NotOlderThen = 1440;
+config.autosave_NotOlderThen = 1440;
 ````
