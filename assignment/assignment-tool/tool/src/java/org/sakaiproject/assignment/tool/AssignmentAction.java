@@ -3998,9 +3998,23 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
+        initViewSubmissionListOption(state);
+        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+        String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+
 		// get the realm and its member
 		List studentMembers = new ArrayList();
-		List allowSubmitMembers = AssignmentService.allowAddAnySubmissionUsers(contextString);
+	    Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
+	    
+	    //No duplicates
+	    Set allowSubmitMembers = new HashSet();
+		while (assignments.hasNext())
+		{
+			Assignment a = (Assignment) assignments.next();
+			List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, a.getReference(), contextString);
+			allowSubmitMembers.addAll(submitterIds);
+		}
 		for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
 		{
 			// get user
@@ -4019,7 +4033,8 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
 		context.put("assignmentService", AssignmentService.getInstance());
 		context.put("userService", UserDirectoryService.getInstance());
-		
+		context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 		
 		if (AssignmentService.getAllowGroupAssignments()) {
@@ -4637,10 +4652,10 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-		String view = params.getString("view");
+		String view = params.getString("viewgroup");
 		//Case where two dropdowns on same page
 		if (view == null) {
-			view = params.getString("viewgroup");
+			view = params.getString("view");
 		}
 		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
 
@@ -12449,10 +12464,6 @@ public class AssignmentAction extends PagedResourceActionII
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			String view = "";
-            initViewSubmissionListOption(state);
-            String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-            String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-            Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 	            
 			if (state.getAttribute(STATE_SELECTED_VIEW) != null)
 			{
@@ -12481,12 +12492,12 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// show not deleted assignments
 						Time openTime = a.getOpenTime();
-                                                Time visibleTime = a.getVisibleTime();
-                                                if (
-							(
-								(openTime != null && currentTime.after(openTime))||
-                                                        	(visibleTime != null && currentTime.after(visibleTime))
-							) && !a.getDraft())
+						Time visibleTime = a.getVisibleTime();
+						if (
+								(
+										(openTime != null && currentTime.after(openTime))||
+										(visibleTime != null && currentTime.after(visibleTime))
+										) && !a.getDraft())
 						{
 							returnResources.add(a);
 						}
