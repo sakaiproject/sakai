@@ -10,6 +10,9 @@ The Plugin saves the content every 25 seconds (can be defined in the Config - au
 
 And when the Editor Page is reloaded and auto saved content is found and its different from the content loaded with the editor the user will be asked if the auto saved content should be loaded instead.
 
+
+![Screenshot](http://www.watchersnet.de/Portals/0/screenshots/dnn/AutoSaveDiffDialog.png)
+
 ####License
 
 Licensed under the terms of the MIT License.
@@ -28,4 +31,10 @@ The Default autosavekey can be overidden from the config ...
 
 ````
 config.autosave_SaveKey = 'autosaveKey';
+````
+
+The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can beoveridden from the config ...
+
+````
+config.config.NotOlderThen = 'autosaveKey';
 ````
