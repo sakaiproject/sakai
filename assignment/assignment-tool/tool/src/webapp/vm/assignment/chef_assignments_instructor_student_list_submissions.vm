@@ -88,10 +88,10 @@
 					<label for="$form_search" class="skip">$tlang.getString("search")</label>
 					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
 					<input type="button" value="$tlang.getString('search')" 
-						onclick="blur();document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+						onclick="blur();document.getElementById('option').value='search';document.viewFormGroup.submit();return false;" />
 					#if (($!searchString) && (!$searchString.equals("")))
 						<input type="button" class="button" value="$tlang.getString("search_clear")" 
-							onclick="blur();document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+							onclick="blur();document.getElementById('option').value='clearSearch';document.viewFormGroup.submit();return false;" />
 					#end
 					#end
 
