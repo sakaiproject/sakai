@@ -54,13 +54,48 @@
 		<div class="navPanel">
 			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView" value="view" />
+					<input type="hidden" name="eventSubmit_doView" value="x" />
 					<label for="view">$tlang.getString("gen.view2")</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 					<select name="view" id="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
 						<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
 						<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
 					</select>
+					
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+					#if ($!groups.hasNext())
+					<form name="viewFormGroup" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+	                    <input type="hidden" name="option" id="option" value="x" />
+	i					<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
+						<div class="instruction">
+							$tlang.getString("view_instruction") 
+						</div>
+ 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+
+ 						<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewFormGroup.submit();return false;">
+
+							#if (!$showSubmissionByFilterSearchOnly)
+								<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+							#else
+								<option value="" >$tlang.getString('please_select_group')</option>
+							#end
+ 							#foreach($aGroup in $groups)
+ 								<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+ 							#end
+ 						</select>
+ 						<p />
+					<label for="$form_search" class="skip">$tlang.getString("search")</label>
+					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+					<input type="button" value="$tlang.getString('search')" 
+						onclick="blur();document.getElementById('option').value='search';document.viewFormGroup.submit();return false;" />
+					#if (($!searchString) && (!$searchString.equals("")))
+						<input type="button" class="button" value="$tlang.getString("search_clear")" 
+							onclick="blur();document.getElementById('option').value='clearSearch';document.viewFormGroup.submit();return false;" />
+					#end
+					#end
+
+									
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>

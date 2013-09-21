@@ -2110,7 +2110,8 @@ public class AssignmentAction extends PagedResourceActionII
 			Site site = SiteService.getSite(contextString);
 			context.put("site", site);
 			// any group in the site?
-			Collection groups = site.getGroups();
+			Collection groups = getAllGroupsInSite(contextString);
+			
 			context.put("groups", (groups != null && groups.size()>0)?Boolean.TRUE:Boolean.FALSE);
 
 			// add active user list
@@ -3373,7 +3374,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 			context.put("view", view);
-			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH));
+			
+			context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+
 			
 			// access point url for zip file download
 			String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
@@ -3995,9 +3998,23 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
+        initViewSubmissionListOption(state);
+        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+        String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+
 		// get the realm and its member
 		List studentMembers = new ArrayList();
-		List allowSubmitMembers = AssignmentService.allowAddAnySubmissionUsers(contextString);
+	    Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
+	    
+	    //No duplicates
+	    Set allowSubmitMembers = new HashSet();
+		while (assignments.hasNext())
+		{
+			Assignment a = (Assignment) assignments.next();
+			List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, a.getReference(), contextString);
+			allowSubmitMembers.addAll(submitterIds);
+		}
 		for (Iterator allowSubmitMembersIterator=allowSubmitMembers.iterator(); allowSubmitMembersIterator.hasNext();)
 		{
 			// get user
@@ -4016,6 +4033,14 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("studentMembers", new SortedIterator(studentMembers.iterator(), new AssignmentComparator(state, SORTED_USER_BY_SORTNAME, Boolean.TRUE.toString())));
 		context.put("assignmentService", AssignmentService.getInstance());
 		context.put("userService", UserDirectoryService.getInstance());
+		context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		
+		if (AssignmentService.getAllowGroupAssignments()) {
+			Collection groups = getAllGroupsInSite(contextString);
+			context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
+		}
 		
 		HashMap showStudentAssignments = new HashMap();
 		if (state.getAttribute(STUDENT_LIST_SHOW_TABLE) != null)
@@ -4080,10 +4105,25 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("sortedBy_released", SORTED_GRADE_SUBMISSION_BY_RELEASED);
 		//context.put("sortedBy_assignment", SORTED_GRADE_SUBMISSION_BY_ASSIGNMENT);
 		//context.put("sortedBy_maxGrade", SORTED_GRADE_SUBMISSION_BY_MAX_GRADE);
+		
+		// get current site
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 
+		context.put("view", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
+		context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION)!=null?state.getAttribute(VIEW_SUBMISSION_LIST_OPTION):"");
+		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
+		                        
+		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+
+		if (AssignmentService.getAllowGroupAssignments()) {
+			Collection groups = getAllGroupsInSite(contextString);
+			context.put("groups", new SortedIterator(groups.iterator(), new AssignmentComparator(state, SORTED_BY_GROUP_TITLE, Boolean.TRUE.toString() )));
+		}
+		
+		 
 		add2ndToolbarFields(data, context);
 
-		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
 				+ AssignmentService.gradesSpreadsheetReference(contextString, null));
 
@@ -4612,7 +4652,11 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
-		String view = params.getString("view");
+		String view = params.getString("viewgroup");
+		//Case where two dropdowns on same page
+		if (view == null) {
+			view = params.getString("view");
+		}
 		state.setAttribute(VIEW_SUBMISSION_LIST_OPTION, view);
 
 	} // doView_submission_list_option
@@ -12420,6 +12464,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (MODE_LIST_ASSIGNMENTS.equals(mode))
 		{
 			String view = "";
+	            
 			if (state.getAttribute(STATE_SELECTED_VIEW) != null)
 			{
 				view = (String) state.getAttribute(STATE_SELECTED_VIEW);
@@ -12447,12 +12492,12 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						// show not deleted assignments
 						Time openTime = a.getOpenTime();
-                                                Time visibleTime = a.getVisibleTime();
-                                                if (
-							(
-								(openTime != null && currentTime.after(openTime))||
-                                                        	(visibleTime != null && currentTime.after(visibleTime))
-							) && !a.getDraft())
+						Time visibleTime = a.getVisibleTime();
+						if (
+								(
+										(openTime != null && currentTime.after(openTime))||
+										(visibleTime != null && currentTime.after(visibleTime))
+										) && !a.getDraft())
 						{
 							returnResources.add(a);
 						}
@@ -12481,6 +12526,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode))
 		{
+			
+            initViewSubmissionListOption(state);
+            String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+            String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+            Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+            
 		    Boolean has_multiple_groups_for_user = false;
 		    List submissions = new ArrayList();
 
@@ -12493,6 +12544,7 @@ public class AssignmentAction extends PagedResourceActionII
 				for (int j = 0; j < assignments.size(); j++)
 				{
 					Assignment a = (Assignment) assignments.get(j);
+					List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, a.getReference(), contextString);
 					Collection<String> _dupUsers = new ArrayList<String>();
 					if (a.isGroup()) {
 					    _dupUsers = usersInMultipleGroups(a, true);
@@ -12512,40 +12564,43 @@ public class AssignmentAction extends PagedResourceActionII
 								if (s != null && (s.getSubmitted() 
 								        || (s.getReturned() && (s.getTimeLastModified().before(s.getTimeReturned())))))
 								{
-								    if (a.isGroup()) {
-								        User[] _users = s.getSubmitters();
-								        for (int m=0; _users != null && m < _users.length; m++) {
-								            Member member = site.getMember(_users[m].getId());
-								            if (member != null && member.isActive()) {
-								                // only include the active student submission
-								                // conder TODO create temporary submissions
-								                SubmitterSubmission _new_sub = new SubmitterSubmission(_users[m], s);
-								                _new_sub.setGroup(site.getGroup(s.getSubmitterId()));
-								                if (_dupUsers.size() > 0 && _dupUsers.contains(_users[m].getId())) {
-								                    _new_sub.setMultiGroup(true);
-								                    has_multiple_groups_for_user = true;
-								                }
-								                submissions.add(_new_sub);
-								            }
-								        }
-								    } else {
-								        if (s.getSubmitterId() != null && !allowGradeAssignmentUsers.contains(s.getSubmitterId())) {
-								            // find whether the submitter is still an active member of the site
-								            Member member = site.getMember(s.getSubmitterId());
-								            if(member != null && member.isActive()) {
-								                // only include the active student submission
-								                try
-								                {
-								                    SubmitterSubmission _new_sub = new SubmitterSubmission(UserDirectoryService.getUser(s.getSubmitterId()), s);
-								                    submissions.add(_new_sub);
-								                }
-								                catch (UserNotDefinedException e)
-								                {
-								                    M_log.warn(this + ":sizeResources cannot find user id=" + s.getSubmitterId() + e.getMessage() + "");
-								                }
-								            }
-								        }
-								    }
+							    	//If the group search is null or if it contains the group
+									if (submitterIds.contains(s.getSubmitterId())){
+										if (a.isGroup()) {
+											User[] _users = s.getSubmitters();
+											for (int m=0; _users != null && m < _users.length; m++) {
+												Member member = site.getMember(_users[m].getId());
+												if (member != null && member.isActive()) {
+													// only include the active student submission
+													// conder TODO create temporary submissions
+													SubmitterSubmission _new_sub = new SubmitterSubmission(_users[m], s);
+													_new_sub.setGroup(site.getGroup(s.getSubmitterId()));
+													if (_dupUsers.size() > 0 && _dupUsers.contains(_users[m].getId())) {
+														_new_sub.setMultiGroup(true);
+														has_multiple_groups_for_user = true;
+													}
+													submissions.add(_new_sub);
+												}
+											}
+										} else {
+											if (s.getSubmitterId() != null && !allowGradeAssignmentUsers.contains(s.getSubmitterId())) {
+												// find whether the submitter is still an active member of the site
+												Member member = site.getMember(s.getSubmitterId());
+												if(member != null && member.isActive()) {
+													// only include the active student submission
+													try
+													{
+														SubmitterSubmission _new_sub = new SubmitterSubmission(UserDirectoryService.getUser(s.getSubmitterId()), s);
+														submissions.add(_new_sub);
+													}
+													catch (UserNotDefinedException e)
+													{
+														M_log.warn(this + ":sizeResources cannot find user id=" + s.getSubmitterId() + e.getMessage() + "");
+													}
+												}
+											}
+										}
+									}
 								} // if-else
 							}
 						}
@@ -13360,6 +13415,25 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 		}
 		
+	}
+	/**
+	 * return returns all groups in a site
+	 * @param contextString
+	 * @param aRef
+	 * @return
+	 */
+	protected Collection getAllGroupsInSite(String contextString) 
+	{
+		Collection groups = new ArrayList();
+		try {
+			Site site = SiteService.getSite(contextString);
+			// any group in the site?
+			groups = site.getGroups();
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			M_log.info("Problem getting groups for site:"+e.getMessage());
+		}
+		return groups;
 	}
 	
 	/**
