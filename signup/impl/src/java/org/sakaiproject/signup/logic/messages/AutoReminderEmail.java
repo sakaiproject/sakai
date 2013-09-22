@@ -141,7 +141,7 @@ public class AutoReminderEmail extends SignupEmailBase {
 	@Override
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.auto.reminder.appointment.field"), new Object[] {getShortWeekDayName(meeting.getStartTime()), getTime(meeting.getStartTime()).toStringLocalDate(),
-					getTime(item.getStartTime()).toStringLocalTime() });
+					getTime(item.getStartTime()).toStringLocalTime(), getAbbreviatedMeetingTitle() });
 	}
 
 }

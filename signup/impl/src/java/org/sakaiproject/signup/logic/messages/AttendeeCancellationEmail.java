@@ -137,7 +137,7 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 	@Override
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.Cancel.appointment.field"), new Object[] {
-			getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName() });
+			getTime(meeting.getStartTime()).toStringLocalDate(), initiator.getDisplayName(), getAbbreviatedMeetingTitle() });
 	}
 
 }

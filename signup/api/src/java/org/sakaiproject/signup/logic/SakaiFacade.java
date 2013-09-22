@@ -240,7 +240,7 @@ public interface SakaiFacade {
 	 *            a SignupMeeting object
 	 * @return a list of SignupMeeting objects
 	 */
-	public List<SignupUser> getAllPossbileCoordinators(SignupMeeting meeting);
+	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting);
 	
 	/**
 	 * test whether a user has permission to create a meeting in a meeting

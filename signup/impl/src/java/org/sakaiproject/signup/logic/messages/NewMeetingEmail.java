@@ -198,6 +198,6 @@ public class NewMeetingEmail extends SignupEmailBase {
 	@Override
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.newMeeting.field"), new Object[] {
-			creator.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate() });
+			creator.getDisplayName(), getTime(meeting.getStartTime()).toStringLocalDate(), getAbbreviatedMeetingTitle() });
 	}
 }

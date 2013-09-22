@@ -138,6 +138,6 @@ public class ModifyMeetingEmail extends SignupEmailBase {
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.meeting.modification.field"), new Object[] {
 			organizer.getDisplayName(), getShortSiteTitleWithQuote(emailReturnSiteId), getTime(meeting.getStartTime()).toStringLocalDate(),
-			getTime(meeting.getStartTime()).toStringLocalTime() });
+			getTime(meeting.getStartTime()).toStringLocalTime(), getAbbreviatedMeetingTitle() });
 	}
 }

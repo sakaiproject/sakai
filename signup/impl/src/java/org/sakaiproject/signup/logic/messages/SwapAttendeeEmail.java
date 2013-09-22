@@ -162,7 +162,8 @@ public class SwapAttendeeEmail extends SignupEmailBase implements SignupTimeslot
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.organizer.change.appointment.field"), new Object[] {
 			getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate(),
-			getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime() });
+			getTime(item.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
+			getAbbreviatedMeetingTitle() });
 	}
 	
 	@Override

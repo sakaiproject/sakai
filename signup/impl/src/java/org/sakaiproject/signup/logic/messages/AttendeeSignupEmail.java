@@ -124,7 +124,7 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 	@Override
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.attendee.signup.field"), new Object[] {
-			getTime(meeting.getStartTime()).toStringLocalDate(), currentUser.getDisplayName(), getSiteTitle()});
+			getTime(meeting.getStartTime()).toStringLocalDate(), currentUser.getDisplayName(), getSiteTitle(), getAbbreviatedMeetingTitle()});
 	}
 	
 }

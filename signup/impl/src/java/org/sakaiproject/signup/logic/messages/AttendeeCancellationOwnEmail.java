@@ -124,7 +124,7 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 
 	@Override
 	public String getSubject() {
-		return MessageFormat.format(rb.getString("subject.attendee.cancel.own.field"), new Object[] { meeting.getTitle(), getSiteTitle()});
+		return MessageFormat.format(rb.getString("subject.attendee.cancel.own.field"), new Object[] { getAbbreviatedMeetingTitle(), getSiteTitle()});
 	}
 	
 	@Override

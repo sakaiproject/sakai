@@ -557,7 +557,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	 * {@inheritDoc}
 	 */
 	@SuppressWarnings("unchecked")
-	public List<SignupUser> getAllPossbileCoordinators(SignupMeeting meeting) {
+	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting) {
 		List<SignupUser> coordinators = new ArrayList<SignupUser>();
 		List<SignupUser> signUpUsers = getAllUsers(meeting);
 		for (SignupUser u : signUpUsers) {

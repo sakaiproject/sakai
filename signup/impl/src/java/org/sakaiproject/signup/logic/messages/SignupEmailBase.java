@@ -185,6 +185,11 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 				+ "/page/" + getSakaiFacade().getSiteSignupPageId(targetSiteId);
 		return siteUrl;
 	}
+	
+	/* Get the meeting title, max length of 30 chars (with ellipsis where required) */
+	protected String getAbbreviatedMeetingTitle(){
+		return StringUtils.abbreviate(meeting.getTitle(), 30);
+	}
 
 	/**
 	 * This will convert the Java date object to a Sakai's Time object, which

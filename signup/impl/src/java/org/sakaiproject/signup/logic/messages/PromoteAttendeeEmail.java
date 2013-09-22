@@ -153,7 +153,7 @@ public class PromoteAttendeeEmail extends SignupEmailBase {
 	@Override
 	public String getSubject() {
 		return MessageFormat.format(rb.getString("subject.promote.appointment.field"), new Object[] { getTime(
-				meeting.getStartTime()).toStringLocalDate() });
+				meeting.getStartTime()).toStringLocalDate(), getAbbreviatedMeetingTitle() });
 	}
 
 }
