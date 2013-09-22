@@ -478,17 +478,27 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return true;
 	}
 	
+	/**
+	 * Turn list of signup users into list of ids for storage into db. 
+	 * SIGNUP-216 removed the restriction that an organizer cannot be in this list (unsure why they couldnt since they have the option of being chosen but are then removed?)
+	 * @param coordinators
+	 * @param organizerId
+	 * @return
+	 */
 	public static String getSelectedCoordinators(List<SignupUser> coordinators, String organizerId){
 		StringBuilder sb = new StringBuilder();
 		boolean isFirst = true;
 		for (SignupUser co : coordinators) {
-			if(co.isChecked() && !co.getInternalUserId().equals(organizerId)){
+			if(co.isChecked()){
 				if(isFirst){
 					sb.append(co.getInternalUserId());
 					isFirst = false;
 				}else{
 					//safeguard -db column max size, hardly have over 10 coordinators per meeting
-					if(sb.length() < 1000)
+					//SS note, this would still blow the DB limit since the check was for up to 1000, and then adding text to that
+					//and the limit is 1000 (why was this number chosen and why wasn't this list normalised?)
+					//so the limit has been lowered to 950 to be safer.
+					if(sb.length() < 950)
 						sb.append("|" + co.getInternalUserId());
 				}
 			}

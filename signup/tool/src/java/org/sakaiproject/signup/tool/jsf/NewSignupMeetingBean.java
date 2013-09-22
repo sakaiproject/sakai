@@ -725,7 +725,14 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			
 			/*pre-load all possible coordinators for step2*/
 			signupMeeting.setSignupSites(CreateSitesGroups.getSelectedSignupSites(getCurrentSite(), getOtherSites()));
-			this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);			
+			this.allPossibleCoordinators = this.sakaiFacade.getAllPossibleCoordinators(this.signupMeeting);
+			
+			// tick the creator by default (SIGNUP-216)
+			for(SignupUser u: this.allPossibleCoordinators) {
+				if(StringUtils.equals(u.getInternalUserId(), this.creatorUserId)) {
+					u.setChecked(true);
+				}
+			}
 
 		}
 	}

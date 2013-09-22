@@ -218,7 +218,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.customCategory="";
 		
 		/*pre-load all possible coordinators for step2*/
-		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinators(this.signupMeeting);
+		this.allPossibleCoordinators = this.sakaiFacade.getAllPossibleCoordinators(this.signupMeeting);
 		populateExistingCoordinators();
 
 	}
@@ -1082,17 +1082,14 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.allPossibleCoordinators = allPossibleCoordinators;
 	}
 	
+	/* 
+	 * get the list of coords and check the appropriate ones.
+	 */
 	private void populateExistingCoordinators(){
 		List<String> existingCoUserIds = getExistingCoordinatorIds(this.signupMeeting);
-		if(!existingCoUserIds.isEmpty() && this.allPossibleCoordinators !=null){
-			for (SignupUser cou : allPossibleCoordinators) {
-				for (String existId : existingCoUserIds) {
-					if(existId.equals(cou.getInternalUserId())){
-						cou.setChecked(true);
-						break;
-					}
-				}
-				
+		for (SignupUser coord : allPossibleCoordinators) {
+			if(existingCoUserIds.contains(coord.getInternalUserId())) {
+				coord.setChecked(true);
 			}
 		}
 	}

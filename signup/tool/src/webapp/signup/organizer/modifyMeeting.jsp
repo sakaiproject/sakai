@@ -344,6 +344,14 @@
 								<h:outputText value="#{msgs.event_yes_receive_notification}" escape="false"/>
 							</h:panelGroup>
 							
+							<h:outputText value="#{msgs.event_select_coordinators}" escape="false"  styleClass="titleText"/>
+							<h:dataTable id="meeting_coordinators" value="#{EditMeetingSignupMBean.allPossibleCoordinators}" var="coUser">
+								<h:column>
+									<h:selectBooleanCheckbox value="#{coUser.checked}"/>
+								    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
+								</h:column>
+							</h:dataTable>	
+							
 							<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 							<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{EditMeetingSignupMBean.publishedSite}">
 								<h:panelGroup styleClass="editText" >
@@ -363,28 +371,7 @@
 								<h:selectBooleanCheckbox value="#{EditMeetingSignupMBean.sendEmail}" disabled="true"/>
 								<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 							</h:panelGroup>
-							
-							<h:outputText value="#{msgs.event_select_coordinators}" escape="false"  styleClass="titleText"/>
-							<h:panelGroup>	
-			   	    				<h:outputLabel  id="imageOpen_editCoordinators" style="display:none" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
-				   	    				<h:graphicImage value="/images/open.gif"  alt="open" title="Click to hide details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
-				   	    				<h:outputText value="#{msgs.event_hide_coordinators}" escape="false" style="vertical-align: middle;"/>
-			   	    				</h:outputLabel>
-			   	    				<h:outputLabel id="imageClose_hideCordinators" styleClass="activeTag" onclick="showDetails('meeting:imageOpen_editCoordinators','meeting:imageClose_hideCordinators','meeting:coordinators');">
-			   	    					<h:graphicImage value="/images/closed.gif" alt="close" title="Click to show details." style="border:none;vertical-align:middle;" styleClass="openCloseImageIcon"/>
-			   	    					<h:outputText value="#{msgs.event_addedit_Coordinators}" escape="false" style="vertical-align: middle;"/>
-			   	    				</h:outputLabel>
-			   	    				<h:outputText value="&nbsp;#{msgs.event_select_coordinators_instruction}" escape="false"  styleClass="longtext"/>
-						   </h:panelGroup>
-							
-							<h:outputText id="coordinators_1" value="" escape="false" style="display:none"/>
-							<h:dataTable id="coordinators_2" value="#{EditMeetingSignupMBean.allPossibleCoordinators}" var="coUser"  
-							            styleClass="coordinatorTab" style="display:none">
-								<h:column>
-									<h:selectBooleanCheckbox value="#{coUser.checked}"/>
-								    <h:outputText value="&nbsp;#{coUser.displayName}" escape="false" styleClass="longtext"/>				
-								</h:column>
-							</h:dataTable>		
+								
 												
 							<h:outputText value="&nbsp;" escape="false"/>
 							<h:outputText value="&nbsp;" escape="false"/>
