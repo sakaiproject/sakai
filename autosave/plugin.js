@@ -12,20 +12,20 @@
         lang: ['de', 'en', 'jp', 'pt-BR', 'zh', 'zh-cn'],
         init: function (editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
-            var notOlderThen = editor.config.autosave_NotOlderThen != null ? editor.autosave_NotOlderThen : 1440;
+            var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
 
             CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
 
             CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
                 GenerateAutoSaveDialog(editor, autoSaveKey);
 
-                CheckForAutoSavedContent(editor, autoSaveKey, notOlderThen);
+                CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
             });
 
             editor.on('key', startTimer);
 
             editor.on('destroy', function () {
-                localStorage.setItem(autoSaveKey, editor.getData());
+                SaveData(autoSaveKey, editor.getData());
             });
         }
     });
@@ -48,8 +48,7 @@
             var editor = event.editor,
                 autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
 
-            // save content
-            localStorage.setItem(autoSaveKey, JSON.stringify({ data: editor.getData(), saveTime: new Date() }));
+            SaveData(autoSaveKey, editor.getData());
 
             savingActive = false;
         } 
@@ -129,7 +128,7 @@
         });
     }
     
-    function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThen) {
+    function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan) {
         // Checks If there is data available and load it
         if (localStorage.getItem(autoSaveKey)) {
 
@@ -147,7 +146,7 @@
             }
 
             // Ignore if autosaved content is older then x minutes
-            if (moment(new Date()).diff(autoSavedContentDate, 'minutes') > notOlderThen) {
+            if (moment(new Date()).diff(autoSavedContentDate, 'minutes') > notOlderThan) {
                 RemoveStorage(autoSaveKey);
 
                 return;
@@ -161,6 +160,10 @@
                 RemoveStorage(autoSaveKey);
             }
         }
+    }
+    
+    function SaveData(autoSaveKey, data) {
+        localStorage.setItem(autoSaveKey, JSON.stringify({ data: data, saveTime: new Date() }));
     }
     
     function RemoveStorage(autoSaveKey) {
