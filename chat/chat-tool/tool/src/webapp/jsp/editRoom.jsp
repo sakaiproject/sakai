@@ -1,4 +1,6 @@
 <f:view>
+    <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
+
 	<sakai:view>
 	
 		<sakai:view_title value="#{msgs.edit_channel_title}" rendered="#{!ChatTool.currentChannelEdit.newChannel}" />
@@ -73,6 +75,28 @@
 					</h:panelGrid>
 
 				</sakai:group_box>
+
+        <sakai:group_box title="#{msgs.custom_date_heading}">
+          <t:div styleClass="chat-date-controls indnt1">
+            <h:panelGroup styleClass="chat-date-instructions">
+              <sakai:instruction_message value="#{msgs.custom_date_instructions}" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="chat-select-date longtext indnt1">
+              <h:outputLabel value="#{msgs.custom_date_start} #{msgs.custom_date_entry_format_description}" for="startDate" styleClass="chat-date-label"/>
+              <t:inputCalendar id="startDate" value="#{ChatTool.currentChannelEdit.startDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+                popupTodayString="#{msgs.custom_date_entry_today_is}" popupWeekString="#{msgs.custom_date_entry_week_header}"
+                popupDateFormat="#{msgs.custom_date_entry_format}" popupGotoString="#{msgs.custom_date_entry_goto}" />
+              <h:message for="startDate" styleClass="alertMessageInline" />
+            </h:panelGroup>
+            <h:panelGroup styleClass="chat-select-date longtext indnt1">
+              <h:outputLabel value="#{msgs.custom_date_end} #{msgs.custom_date_entry_format_description}" for="endDate" styleClass="chat-date-label"/>
+              <t:inputCalendar id="endDate" value="#{ChatTool.currentChannelEdit.endDate}" renderAsPopup="true" renderPopupButtonAsImage="true"
+                popupTodayString="#{msgs.custom_date_entry_today_is}" popupWeekString="#{msgs.custom_date_entry_week_header}"
+                popupDateFormat="#{msgs.custom_date_entry_format}" popupGotoString="#{msgs.custom_date_entry_goto}" />
+              <h:message for="endDate" styleClass="alertMessageInline" />
+            </h:panelGroup>
+          </t:div>
+        </sakai:group_box>
 
 			</h:panelGrid>
 

@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -517,7 +518,34 @@ public class ChatManagerImpl extends HibernateDaoSupport implements ChatManager,
         if (SessionManager.getCurrentSessionUserId() == null)
             return false;
 
-        return channel == null ? false : can(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+        boolean allowed = false;
+        if (channel != null) {
+            allowed = can(ChatFunctions.CHAT_FUNCTION_NEW, channel.getContext());
+            if (allowed) {
+                // check the dates if they are set (https://jira.sakaiproject.org/browse/SAK-24207)
+                Date today = new Date();
+                Date start = channel.getStartDate();
+                if (start == null) {
+                    start = today;
+                } else {
+                    // fix up the date to shift to be beginning or end of the day (drop any time component)
+                    start = DateUtils.truncate(start, Calendar.DATE);
+                }
+                Date end = channel.getEndDate();
+                if (end == null) {
+                    end = today;
+                } else {
+                    // fix up the date to shift to be beginning or end of the day (drop any time component)
+                    end = DateUtils.truncate(end, Calendar.DATE);
+                    end = DateUtils.addSeconds(end, 86398); // just short of a full day in seconds
+                }
+                if ( today.before(start) || today.after(end) ) {
+                    // today is outside the configured dates so no posting allowed
+                    allowed = false;
+                }
+            }
+        }
+        return allowed;
     }
 
 

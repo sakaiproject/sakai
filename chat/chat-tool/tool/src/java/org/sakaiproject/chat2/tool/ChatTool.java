@@ -22,8 +22,11 @@
 package org.sakaiproject.chat2.tool;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,6 +43,7 @@ import javax.faces.model.SelectItem;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.PermissionsHelper;
@@ -458,7 +462,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     * @param channel
     * @return Returns if the channel validates
     */
-   protected boolean validateChannel(ChatChannel channel) {      
+   protected boolean validateChannel(ChatChannel channel) {
       boolean validates = true;
       if (channel.getTitle() == null || channel.getTitle().length() == 0) {
          
@@ -475,7 +479,17 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          setErrorMessage("editRoomForm:desc", "desc_too_long", new String[] {Integer.toString(255)});
          validates = false;
       }
-      
+
+      if (logger.isDebugEnabled()) logger.debug("chat start ("+channel.getStartDate()+") and end ("+channel.getEndDate()+") dates");
+      // validate the dates
+      if (channel.getStartDate() != null && channel.getEndDate() != null) {
+          // check the dates are valid
+          if (channel.getStartDate().after(channel.getEndDate())) {
+              setErrorMessage("editRoomForm:startDate", "custom_date_error_order", new Object[] {channel.getStartDate(), channel.getEndDate()});
+              validates = false;
+          }
+      }
+
       if (!validates)
          setErrorMessage("validation_error", new String[] {});
       
@@ -613,6 +627,53 @@ public class ChatTool implements RoomObserver, PresenceObserver {
             getToolManager().getCurrentTool().getTitle(), getWorksite().getTitle()});
   }
 
+   /**
+    * @return the translated message based on the current date settings for this channel
+    */
+   public String getDatesMessage() {
+       String msg = null;
+       if (this.currentChannel != null) {
+           DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
+           if (this.currentChannel.getStartDate() != null && this.currentChannel.getEndDate() != null) {
+               msg = getMessageFromBundle("custom_date_display", 
+                       new Object[] {df.format(this.currentChannel.getStartDate()), df.format(this.currentChannel.getEndDate())}
+               );
+           } else if (this.currentChannel.getStartDate() != null) {
+               msg = getMessageFromBundle("custom_date_display_start", 
+                       new Object[] {df.format(this.currentChannel.getStartDate()), ""}
+               );
+           } else if (this.currentChannel.getEndDate() != null) {
+               msg = getMessageFromBundle("custom_date_display_end", 
+                       new Object[] {"", df.format(this.currentChannel.getEndDate())}
+               );
+           }
+       }
+       return msg;
+   }
+
+   /**
+    * @return true if chat posting is restricted by configured dates or false otherwise
+    */
+   public boolean isDatesRestricted() {
+       boolean restricted = false;
+       if (this.currentChannel != null) {
+           Date today = new Date();
+           Date start = this.currentChannel.getStartDate();
+           if (start == null) {
+               start = today;
+           }
+           Date end = this.currentChannel.getEndDate();
+           if (end == null) {
+               end = today;
+           }
+           if ( today.before(start) || today.after(end) ) {
+               // today is outside the configured dates so posting restricted by dates
+               restricted = true;
+           }
+       }
+       return restricted;
+   }
+
    public Site getWorksite() {
        if (worksite == null) {
            try {
@@ -706,6 +767,10 @@ public class ChatTool implements RoomObserver, PresenceObserver {
                retView = PAGE_ENTER_ROOM;
            else
                retView = PAGE_LIST_ROOMS;
+
+           // copy the dates into the channel for saving
+           channel.setStartDate(dChannel.getStartDate());
+           channel.setEndDate(dChannel.getEndDate());
 
            if (validateChannel(channel))
                try {

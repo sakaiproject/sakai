@@ -86,6 +86,11 @@
       <version>1.1.10</version>
       <scope>compile</scope>
     </dependency>
+    <!-- Needed by MyFaces ExtensionsFilter -->
+    <dependency>
+      <groupId>commons-fileupload</groupId>
+      <artifactId>commons-fileupload</artifactId>
+    </dependency>
     <dependency>
       <groupId>commons-digester</groupId>
       <artifactId>commons-digester</artifactId>

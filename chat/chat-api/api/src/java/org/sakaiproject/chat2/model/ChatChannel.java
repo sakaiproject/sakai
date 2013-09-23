@@ -55,8 +55,10 @@ public class ChatChannel implements Entity {
    private boolean enableUserOverride = true;
    private Set<ChatMessage> messages = new HashSet<ChatMessage>();
    private String migratedChannelId;
-   
-   
+   private Date startDate;
+   private Date endDate;
+
+
    public ChatChannel() {
    }
 
@@ -131,6 +133,18 @@ public class ChatChannel implements Entity {
    }
    public void setEnableUserOverride(boolean enableUserOverride) {
       this.enableUserOverride = enableUserOverride;
+   }
+   public Date getStartDate() {
+       return startDate;
+   }
+   public void setStartDate(Date startDate) {
+       this.startDate = startDate;
+   }
+   public Date getEndDate() {
+       return endDate;
+   }
+   public void setEndDate(Date endDate) {
+       this.endDate = endDate;
    }
 
    /**

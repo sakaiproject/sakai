@@ -21,6 +21,10 @@
  
 package org.sakaiproject.chat2.tool;
 
+import java.util.Calendar;
+import java.util.Date;
+
+import org.apache.commons.lang.time.DateUtils;
 import org.sakaiproject.chat2.model.ChatChannel;
 
 public class DecoratedChatChannel {
@@ -32,17 +36,23 @@ public class DecoratedChatChannel {
    private int filterParamNone = 0;
    private boolean directEdit = false;
    private boolean newChannel = false;
+   private Date startDate = null;
+   private Date endDate = null;
 
    public DecoratedChatChannel(ChatTool chatTool, ChatChannel chatChannel)
    {
       this.chatTool = chatTool;
       this.chatChannel = chatChannel;
+      // populate the chat channel dates
+      if (chatChannel != null) {
+          setStartDate(chatChannel.getStartDate());
+          setEndDate(chatChannel.getEndDate());
+      }
    }
    
    public DecoratedChatChannel(ChatTool chatTool, ChatChannel chatChannel, boolean newChannel)
    {
-      this.chatTool = chatTool;
-      this.chatChannel = chatChannel;
+      this(chatTool, chatChannel);
       this.newChannel = newChannel;
    }
    
@@ -53,7 +63,7 @@ public class DecoratedChatChannel {
    
    /**
     * This method will edit the room from the page listing all the rooms
-    * @return
+    * @return string to navigate
     */
    public String processActionEditRoom()
    {
@@ -63,7 +73,7 @@ public class DecoratedChatChannel {
 
    /**
     * This method will edit the room directly from the main chat page
-    * @return
+    * @return string to navigate
     */
    public String processActionEditRoomDirect()
    {
@@ -115,7 +125,7 @@ public class DecoratedChatChannel {
    
    /**
     * Returns the bundle message with key "enter_the_chat_room", inserting the chat channel's title
-    * @return
+    * @return message
     */
    public String getEnterChatText() {
       return chatTool.getMessageFromBundle("enter_the_chat_room", new Object[]{chatChannel.getTitle()});
@@ -168,5 +178,34 @@ public class DecoratedChatChannel {
    public int getNumberChannelMessages() {
       return chatTool.countChannelMessages(chatChannel);
    }
-   
+
+   public Date getStartDate() {
+       return startDate;
+   }
+
+   public void setStartDate(Date startDate) {
+       if (startDate != null) {
+           // fix up the date to shift to be beginning or end of the day (drop any time component)
+           startDate = DateUtils.truncate(startDate, Calendar.DATE);
+       }
+       this.startDate = startDate;
+   }
+
+   public Date getEndDate() {
+       if (endDate != null) {
+           // fix up the date to drop any time component
+           endDate = DateUtils.truncate(endDate, Calendar.DATE);
+       }
+       return endDate;
+   }
+
+   public void setEndDate(Date endDate) {
+       if (endDate != null) {
+           // fix up the date to shift to be beginning or end of the day (drop any time component)
+           endDate = DateUtils.truncate(endDate, Calendar.DATE);
+           endDate = DateUtils.addSeconds(endDate, 86398); // just short of a full day in seconds
+       }
+       this.endDate = endDate;
+   }
+
 }

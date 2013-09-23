@@ -1,0 +1,14 @@
+/* sakai chat tool CSS */
+.chat-post-warning {
+    max-height: 2em;
+    width: 80%;
+}
+.chat-block,.chat-select-date {
+    display: block;
+}
+LABEL.chat-date-label {
+    width: 10em;
+    text-align: right;
+    display: inline-block;
+    padding-right: 1em;
+}

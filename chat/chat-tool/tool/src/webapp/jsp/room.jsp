@@ -1,4 +1,6 @@
 <f:view>
+   <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
+
    <sakai:view title="#{msgs['custom.chatroom']}">
      <script type="text/javascript">
 	focus_path = ["controlPanel:message"];
@@ -26,28 +28,23 @@
                     value="#{msgs.permis}" />
             </h:commandLink>
          </sakai:tool_bar>
-            	
+
          <sakai:view_title value="#{ChatTool.viewingChatRoomText}"/>
-			<h:panelGrid styleClass="navPanel" columns="1" border="0" columnClasses="viewNav">
-				<h:column> 
-					<h:outputLabel for="viewOptions"	value="#{msgs.view}" />
-					<h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" 
-							onchange="this.form.submit();">
-						<f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
-						<f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
-						<f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
-						<f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
-						<f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
-					</h:selectOneMenu> 
-					<h:outputLabel for="messageOptions"	value="#{msgs['combox.viewfrom']}" />
-					<h:selectOneMenu id="messageOptions"
-							value="#{ChatTool.messageOptions}" 
-							onchange="this.form.submit();">
-					   	<f:selectItems value="#{ChatTool.messageOptionsList}" />
-					</h:selectOneMenu>
-					      				      
-				</h:column> 
-			</h:panelGrid> 
+           <sakai:instruction_message value="#{ChatTool.datesMessage}" rendered="#{ChatTool.datesMessage ne null}" />
+           <h:panelGroup styleClass="chat-block">
+              <h:outputLabel for="viewOptions" value="#{msgs.view}" />
+              <h:selectOneMenu id="viewOptions" value="#{ChatTool.viewOptions}" onchange="this.form.submit();">
+                  <f:selectItem itemValue="1" itemLabel="#{msgs.timeOnly}" />
+                  <f:selectItem itemValue="3" itemLabel="#{msgs.timeAndDate}" />
+                  <f:selectItem itemValue="2" itemLabel="#{msgs.dateOnly}" />
+                  <f:selectItem itemValue="0" itemLabel="#{msgs.neitherDateOrTime}" />
+                  <f:selectItem itemValue="4" itemLabel="#{msgs.uniqueid}" />
+              </h:selectOneMenu> 
+              <h:outputLabel for="messageOptions" value="#{msgs['combox.viewfrom']}" />
+              <h:selectOneMenu id="messageOptions" value="#{ChatTool.messageOptions}" onchange="this.form.submit();">
+                  <f:selectItems value="#{ChatTool.messageOptionsList}" />
+              </h:selectOneMenu>
+           </h:panelGroup>
 			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" rendered="#{ChatTool.canRenderAllMessages}" />
@@ -105,6 +102,10 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 	     	</p>
 	    </div>
 		</f:subview>
+        <t:div styleClass="messageInformation chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
+            <h:outputText value="#{msgs.custom_date_restricted}" />
+            <h:outputText value="#{ChatTool.datesMessage}" />
+        </t:div>
 	<p style="clear:both;display:block;"></p>
 			
 	<script type="text/javascript" language="JavaScript">

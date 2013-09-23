@@ -30,6 +30,8 @@
 		<property name="placementDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
 		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
 		<property name="migratedChannelId" type="string" length="99" />
+        <property name="startDate" column="START_DATE" type="java.util.Date" />
+        <property name="endDate" column="END_DATE" type="java.util.Date" />
 
 		<set name="messages" cascade="all-delete-orphan" inverse="false"
 			lazy="true" fetch="join" batch-size="50">
