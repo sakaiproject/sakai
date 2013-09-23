@@ -893,3 +893,7 @@ create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSE
 -- END SAK-23812 Peer Review feature for Assignments
 --
 ----------------------
+
+-- https://jira.sakaiproject.org/browse/SAK-24207
+ALTER TABLE chat2_channel ADD COLUMN START_DATE TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE chat2_channel ADD COLUMN END_DATE TIMESTAMP NULL DEFAULT NULL;
