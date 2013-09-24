@@ -26,6 +26,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.signup.logic.SakaiFacade;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.user.api.User;
@@ -88,7 +89,7 @@ public class CancelMeetingEmail extends SignupEmailBase {
 	
 	@Override
 	public String getFromAddress() {
-		return organizer.getEmail();
+		return StringUtils.defaultIfEmpty(organizer.getEmail(), getServerFromAddress());
 	}
 	
 	@Override
