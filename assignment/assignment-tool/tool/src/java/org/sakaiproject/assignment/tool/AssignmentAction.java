@@ -10040,8 +10040,12 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					//Submitted
 					if("submit".equals(gradeOption)){
-						item.setSubmitted(true);
-						changed = true;
+						if(item.getScore() != null){
+							item.setSubmitted(true);
+							changed = true;
+						}else{
+							addAlert(state, rb.getString("peerassessment.alert.savenoscore"));
+						}
 					}
 					if(("submit".equals(gradeOption) || "save".equals(gradeOption)) && state.getAttribute(STATE_MESSAGE) == null){					
 						if(changed){
