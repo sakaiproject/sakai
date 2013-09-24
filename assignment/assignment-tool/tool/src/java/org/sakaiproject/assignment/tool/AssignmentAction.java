@@ -3998,17 +3998,17 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 
-        initViewSubmissionListOption(state);
-        String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-        String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-        Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+		initViewSubmissionListOption(state);
+		String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+		String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+		Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 
 		// get the realm and its member
 		List studentMembers = new ArrayList();
-	    Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
+		Iterator assignments = AssignmentService.getAssignmentsForContext(contextString);
 	    
-	    //No duplicates
-	    Set allowSubmitMembers = new HashSet();
+		//No duplicates
+		Set allowSubmitMembers = new HashSet();
 		while (assignments.hasNext())
 		{
 			Assignment a = (Assignment) assignments.next();
@@ -12531,10 +12531,10 @@ public class AssignmentAction extends PagedResourceActionII
 		else if (MODE_INSTRUCTOR_REPORT_SUBMISSIONS.equals(mode))
 		{
 			
-            initViewSubmissionListOption(state);
-            String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
-            String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
-            Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+			initViewSubmissionListOption(state);
+			String allOrOneGroup = (String) state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
+			String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
+			Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
             
 		    Boolean has_multiple_groups_for_user = false;
 		    List submissions = new ArrayList();
@@ -12568,7 +12568,7 @@ public class AssignmentAction extends PagedResourceActionII
 								if (s != null && (s.getSubmitted() 
 								        || (s.getReturned() && (s.getTimeLastModified().before(s.getTimeReturned())))))
 								{
-							    	//If the group search is null or if it contains the group
+									//If the group search is null or if it contains the group
 									if (submitterIds.contains(s.getSubmitterId())){
 										if (a.isGroup()) {
 											User[] _users = s.getSubmitters();

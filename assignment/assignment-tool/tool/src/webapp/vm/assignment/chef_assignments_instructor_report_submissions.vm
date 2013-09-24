@@ -48,7 +48,7 @@
 			<br />
 			#if ($!groups.hasNext())
 			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-		    <input type="hidden" name="option" id="option" value="x" />
+			<input type="hidden" name="option" id="option" value="x" />
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 				<div class="instruction">

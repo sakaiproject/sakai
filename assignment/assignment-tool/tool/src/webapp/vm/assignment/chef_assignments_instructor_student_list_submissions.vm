@@ -54,7 +54,7 @@
 		<div class="navPanel">
 			<div class="viewNav">
 				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-					<input type="hidden" name="eventSubmit_doView" value="x" />
+					<input type="hidden" name="eventSubmit_doView" value="view" />
 					<label for="view">$tlang.getString("gen.view2")</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
 					<select name="view" id="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
@@ -66,8 +66,8 @@
 				</form>
 					#if ($!groups.hasNext())
 					<form name="viewFormGroup" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
-	                    <input type="hidden" name="option" id="option" value="x" />
-	i					<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
+						<input type="hidden" name="option" id="option" value="x" />
+						<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 						<div class="instruction">
 							$tlang.getString("view_instruction") 
 						</div>
