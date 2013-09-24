@@ -136,6 +136,7 @@
 	<property name="securityService">
            <ref bean="org.sakaiproject.authz.api.SecurityService" />
         </property>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 
     </bean>  
 </beans>

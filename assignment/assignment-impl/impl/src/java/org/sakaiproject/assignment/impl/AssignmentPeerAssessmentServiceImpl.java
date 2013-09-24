@@ -32,6 +32,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -42,7 +43,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	private TimeService timeService;
 	protected AssignmentService assignmentService;
 	private SecurityService securityService = null;
-
+	private SessionManager sessionManager;
+	
 	public void init(){
 		
 	}
@@ -97,6 +99,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	 */
 	public void execute(String opaqueContext){
 		try {
+			//for group assignments, we need to have a user ID, otherwise, an exception is thrown:
+			sessionManager.getCurrentSession().setUserEid("admin");
+			sessionManager.getCurrentSession().setUserId("admin");
 			Assignment assignment = assignmentService.getAssignment(opaqueContext);
 			if(assignment.getAllowPeerAssessment() && !assignment.getDraft()){
 				int numOfReviews = assignment.getPeerAssessmentNumReviews();
@@ -214,6 +219,9 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			log.error(e.getMessage(), e);
 		} catch (PermissionException e) {
 			log.error(e.getMessage(), e);
+		}finally{
+			sessionManager.getCurrentSession().setUserEid(null);
+			sessionManager.getCurrentSession().setUserId(null);
 		}
 	}
 	
@@ -422,6 +430,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
+	}
+
+	public SessionManager getSessionManager() {
+		return sessionManager;
+	}
+
+	public void setSessionManager(SessionManager sessionManager) {
+		this.sessionManager = sessionManager;
 	}
 	
 }
