@@ -344,12 +344,12 @@ public class PortletIFrame extends GenericPortlet {
 					String rv = StringUtils.trimToNull(s.getInfoUrlFull());
 					if (rv == null)
 					{
-						// The description is already escaped in the database...
 						String siteInfo = StringUtils.trimToNull(s.getDescription());
 						if ( siteInfo == null ) {
 							siteInfo = StringUtils.trimToNull(s.getTitle());
-							if ( siteInfo != null ) siteInfo = validator.escapeHtml(siteInfo, false);
 						}
+						StringBuilder alertMsg = new StringBuilder();
+						if ( siteInfo != null ) siteInfo = validator.processFormattedText(siteInfo, alertMsg);
 						context.put("siteInfo", siteInfo);
 						vHelper.doTemplate(vengine, "/vm/info.vm", context, out);
 						return;
@@ -877,7 +877,6 @@ public class PortletIFrame extends GenericPortlet {
                     infoUrl = "http://" + infoUrl;
                 }
                 String description = StringUtils.trimToNull(request.getParameter("description"));
-                description = FormattedText.processEscapedHtml(description);
     
                 // update the site info
                 try
