@@ -14,12 +14,8 @@
 .activeCell, .results {
     margin-bottom:5px
 }
-.results {
- }
-.results:focus {
-    outline:none
-}
 .newRow .results {
+    margin-top:-5px;
 }
 
 
@@ -37,7 +33,8 @@
     border:1px solid #ddd;
     margin-top:-5px;
     background:#fff;
-    
+    width:97%;
+    margin-top:0;
 }
 
 .results hr {
@@ -483,3 +480,4 @@ wrappers for all panels - receive the focus after a tab click
 .itemList div.newRow > div.span12 .results{
     border:2px solid #ACD0F5;
 }
+
