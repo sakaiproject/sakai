@@ -326,10 +326,10 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("gen.duedat")
 			</label>
-			#chef_dateselectionwidgetwithtitles($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
+			#chef_dateselectionwidgetwithtitles($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "dueDateChange(this)")
 				&nbsp;$tlang.getString("gen.at")&nbsp; 
             <label class="skip" for="$name_DueHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_DueHour" id="$name_DueHour" title="$tlang.getString("dateselectionwidget.hour")">
+			<select name="$name_DueHour" id="$name_DueHour" title="$tlang.getString("dateselectionwidget.hour")" onchange="dueDateChange(this)">
 				#foreach ($i in [1..12])
 					#if ($i == $value_DueHour)
 						<option value="$i" selected="selected">$i</option>
@@ -339,13 +339,13 @@ $(document).ready(function() {
 				#end
 			</select>
             <label class="skip" for="$name_DueMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_DueMin" id="$name_DueMin" title="$tlang.getString("dateselectionwidget.minute")">
+			<select name="$name_DueMin" id="$name_DueMin" title="$tlang.getString("dateselectionwidget.minute")" onchange="dueDateChange(this)">
 				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 					<option value="$i" #if($i == $value_DueMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 				#end
 			</select>
             <label class="skip" for="$name_DueAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_DueAMPM" id="$name_DueAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
+			<select name="$name_DueAMPM" id="$name_DueAMPM" title="$tlang.getString("dateselectionwidget.ampm")" onchange="dueDateChange(this)">
 				#foreach ($i in ["AM", "PM"])
 					#if ($i == $value_DueAMPM)
 						<option value="$i" selected="selected">$i</option>
@@ -572,6 +572,16 @@ $(document).ready(function() {
 					#chef_setupformattedtextarea($name_Description)
 					</td></tr></table>
 			</div>
+		<p class="checkbox  indnt2">
+			#if ($value_CheckHideDueDate.equals("true"))
+				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true" checked="checked" />
+			#else
+				<input id="$name_CheckHideDueDate" name="$name_CheckHideDueDate" type="checkbox" value="true" />
+			#end
+			<label for="$name_CheckHideDueDate">
+				$tlang.getString("gen.hideduedate")
+			</label>
+		</p>
 		#if ($!name_CheckAddDueDate)
 			<p class="checkbox indnt2">
 				#if ($value_CheckAddDueDate.equals("true"))

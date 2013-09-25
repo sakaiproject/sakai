@@ -2103,6 +2103,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				retVal.setTitle(existingContent.getTitle() + " - " + rb.getString("assignment.copy"));
 				retVal.setInstructions(existingContent.getInstructions());
 				retVal.setHonorPledge(existingContent.getHonorPledge());
+				retVal.setHideDueDate(existingContent.getHideDueDate());
 				retVal.setTypeOfSubmission(existingContent.getTypeOfSubmission());
 				retVal.setTypeOfGrade(existingContent.getTypeOfGrade());
 				retVal.setMaxGradePoint(existingContent.getMaxGradePoint());
@@ -6797,6 +6798,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nContent.setContext(toContext);
 							nContent.setGroupProject(oContent.getGroupProject());
 							nContent.setHonorPledge(oContent.getHonorPledge());
+							nContent.setHideDueDate(oContent.getHideDueDate());
 							nContent.setIndividuallyGraded(oContent.individuallyGraded());
 							// replace all occurrence of old context with new context inside instruction text
 							String instructions = oContent.getInstructions();
@@ -7250,6 +7252,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected List m_authors;
 
 		protected boolean m_draft;
+
+		protected boolean m_hideDueDate;
 		
                 protected boolean m_group;
                 
@@ -7303,6 +7307,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_section = "";
 			m_authors = new ArrayList();
 			m_draft = true;
+			m_hideDueDate = false;
 			m_groups = new ArrayList();
 			m_position_order = 0;
 			m_allowPeerAssessment = false;
@@ -7336,6 +7341,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_title = el.getAttribute("title");
 			m_section = el.getAttribute("section");
 			m_draft = getBool(el.getAttribute("draft"));
+			m_hideDueDate = getBool(el.getAttribute("hideduedate"));
 			
 			m_group = getBool(el.getAttribute("group"));
 
@@ -7474,6 +7480,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_title = attributes.getValue("title");
 							m_section = attributes.getValue("section");
 							m_draft = getBool(attributes.getValue("draft"));
+							m_hideDueDate = getBool(attributes.getValue("hideduedate"));
 							
                                                         m_group = getBool(attributes.getValue("group"));
                                                         
@@ -7602,6 +7609,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			assignment.setAttribute("assignmentcontent", m_assignmentContent == null ? "" : m_assignmentContent);
 			assignment.setAttribute("draft", getBoolString(m_draft));
                         assignment.setAttribute("group", getBoolString(m_group));
+			assignment.setAttribute("hideduedate", getBoolString(m_hideDueDate));
 			assignment.setAttribute("opendate", getTimeString(m_openTime));
 			assignment.setAttribute("duedate", getTimeString(m_dueTime));
 			assignment.setAttribute("visibledate", getTimeString(m_visibleTime));
@@ -8114,7 +8122,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_draft;
 		}
-		
+	
+		public boolean getHideDueDate()
+		{
+			return m_hideDueDate;
+		}
+	
                 public boolean isGroup()
                 {
                         return m_group;
@@ -8409,6 +8422,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			m_draft = draft;
 		}
+
+        public void setHideDueDate (boolean hide)
+        {
+            m_hideDueDate = hide;
+        }
 		
                 public void setGroup(boolean group) {
                         m_group = group;
@@ -8666,7 +8684,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		protected boolean m_releaseGrades;
 
-		
+		protected boolean m_hideDueDate;
 		
 		protected boolean m_allowAttachments;
 
@@ -8748,6 +8766,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_individuallyGraded = getBool(el.getAttribute("indivgraded"));
 			m_releaseGrades = getBool(el.getAttribute("releasegrades"));
 			m_allowAttachments = getBool(el.getAttribute("allowattach"));
+			m_hideDueDate = getBool(el.getAttribute("hideduedate"));
 			m_allowReviewService = getBool(el.getAttribute("allowreview"));
 			m_allowStudentViewReport = getBool(el.getAttribute("allowstudentview"));
 			m_submitReviewRepo = el.getAttribute("submitReviewRepo");
@@ -8953,6 +8972,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_individuallyGraded = getBool(attributes.getValue("indivgraded"));
 							m_releaseGrades = getBool(attributes.getValue("releasegrades"));
 							m_allowAttachments = getBool(attributes.getValue("allowattach"));
+							m_hideDueDate = getBool(attributes.getValue("hideduedate"));
 							m_allowReviewService = getBool(attributes.getValue("allowreview"));
 							m_allowStudentViewReport = getBool(attributes.getValue("allowstudentview"));
 							m_submitReviewRepo = attributes.getValue("submitReviewRepo");
@@ -9126,6 +9146,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("indivgraded", getBoolString(m_individuallyGraded));
 			content.setAttribute("releasegrades", getBoolString(m_releaseGrades));
 			content.setAttribute("allowattach", getBoolString(m_allowAttachments));
+			content.setAttribute("hideduedate", getBoolString(m_hideDueDate));
 		
 			content.setAttribute("allowreview", getBoolString(m_allowReviewService));
 			content.setAttribute("allowstudentview", getBoolString(m_allowStudentViewReport));
@@ -9204,6 +9225,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_individuallyGraded = content.individuallyGraded();
 				m_releaseGrades = content.releaseGrades();
 				m_allowAttachments = content.getAllowAttachments();
+				m_hideDueDate = content.getHideDueDate();
 				//Uct
 				m_allowReviewService = content.getAllowReviewService();
 				m_allowStudentViewReport = content.getAllowStudentViewReport();
@@ -9505,7 +9527,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_allowAttachments;
 		}
-		
+	
+		/**
+		 * Does this Assignment have a hidden due date
+		 * 
+		 * @return true if the Assignment due date hidden, false otherwise?
+		 */
+		public boolean getHideDueDate()
+		{
+			return m_hideDueDate;
+		}
+	
 		/**
 		 * Does this Assignment allow review service?
 		 * 
@@ -9904,6 +9936,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_releaseGrades = release;
 		}
 
+		public void setHideDueDate(boolean hide)
+		{	
+			m_hideDueDate = hide;
+		}
+
 		/**
 		 * Set the Honor Pledge type; values are NONE and ENGINEERING_HONOR_PLEDGE.
 		 * 
@@ -10133,6 +10170,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected boolean m_gradeReleased;
 
 		protected boolean m_honorPledgeFlag;
+
+		protected boolean m_hideDueDate;
 
 		
 		//The score given by the review service
@@ -10470,6 +10509,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_graded = getBool(el.getAttribute("graded"));
 			m_gradeReleased = getBool(el.getAttribute("gradereleased"));
 			m_honorPledgeFlag = getBool(el.getAttribute("pledgeflag"));
+			m_hideDueDate = getBool(el.getAttribute("hideduedate"));
 
 			m_submittedText = FormattedText.decodeFormattedTextAttribute(el, "submittedtext");
 			m_feedbackComment = FormattedText.decodeFormattedTextAttribute(el, "feedbackcomment");
@@ -10800,6 +10840,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_graded = getBool(attributes.getValue("graded"));
 							m_gradeReleased = getBool(attributes.getValue("gradereleased"));
 							m_honorPledgeFlag = getBool(attributes.getValue("pledgeflag"));
+							m_hideDueDate = getBool(attributes.getValue("hideduedate"));
 
 							m_submittedText = formattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
 							m_feedbackComment = formattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
@@ -10973,6 +11014,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			submission.setAttribute("graded", getBoolString(m_graded));
 			submission.setAttribute("gradereleased", getBoolString(m_gradeReleased));
 			submission.setAttribute("pledgeflag", getBoolString(m_honorPledgeFlag));
+			submission.setAttribute("hideduedate", getBoolString(m_hideDueDate));
 
 			if (M_log.isDebugEnabled()) M_log.debug(this + " BaseAssignmentSubmission: SAVED REGULAR PROPERTIES");
 

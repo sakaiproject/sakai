@@ -122,6 +122,14 @@ public interface AssignmentContentEdit extends AssignmentContent, AttachmentCont
 	public void setAllowAttachments(boolean allow);
 
 	/**
+	 * Does this Assignment hide due date?
+	 * 
+	 * @param allow -
+	 *        true if the Assignment hides the due date, false otherwise?
+	 */
+	public void setHideDueDate(boolean hide);
+
+	/**
 	 * Does this Assignment allow using the review service?
 	 * 
 	 * @param allow -

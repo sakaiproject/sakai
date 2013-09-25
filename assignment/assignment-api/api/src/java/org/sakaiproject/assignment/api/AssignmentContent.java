@@ -208,6 +208,8 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 
 	public boolean isCheckInstitution();
 
+	public boolean getHideDueDate();
+
 	public void setCheckInstitution(boolean m_checkInstitution);
 	
 	public boolean isExcludeBibliographic();

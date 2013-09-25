@@ -543,6 +543,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private static final String NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE = "new_assignment_check_add_honor_pledge";
 
+	private static final String NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE = "new_assignment_check_hide_due_date";
+
 	private static final String NEW_ASSIGNMENT_FOCUS = "new_assignment_focus";
 
 	private static final String NEW_ASSIGNMENT_DESCRIPTION_EMPTY = "new_assignment_description_empty";
@@ -2260,6 +2262,8 @@ public class AssignmentAction extends PagedResourceActionII
 		// do not show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
 			context.put("name_CheckAddDueDate", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
+
+		context.put("name_CheckHideDueDate", NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
 		//don't show the choice when there is no Announcement tool yet
 		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
 			context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
@@ -2356,7 +2360,9 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// don't show the choice when there is no Schedule tool yet
 		if (state.getAttribute(CALENDAR) != null)
-		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
+			context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
+		
+		context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 		
 		// don't show the choice when there is no Announcement tool yet
 		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
@@ -2784,6 +2790,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_GradePoints", displayGrade(state, maxGrade));
 		context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
 		context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
+		context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 		context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 		context.put("honor_pledge_text", ServerConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
@@ -6088,6 +6095,17 @@ public class AssignmentAction extends PagedResourceActionII
 			state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, Boolean.FALSE.toString());
 		}
 
+		if (params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE) != null
+				&& params.getString(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE)
+						.equalsIgnoreCase(Boolean.TRUE.toString()))
+		{
+			state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, Boolean.TRUE.toString());
+		}
+		else
+		{
+			state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, Boolean.FALSE.toString());
+		}
+
 		String s = params.getString(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
 
 		// set the honor pledge to be "no honor pledge"
@@ -6874,6 +6892,7 @@ public class AssignmentAction extends PagedResourceActionII
 			String description = (String) state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION);
 
 			String checkAddDueTime = state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE)!=null?(String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE):null;
+			boolean hideDueDate = "true".equals((String) state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
 
 			String checkAutoAnnounce = (String) state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 
@@ -6991,15 +7010,16 @@ public class AssignmentAction extends PagedResourceActionII
 				oldVisibleTime = a.getVisibleTime();
 				// old close time
 				oldCloseTime = a.getCloseTime();
-				
+
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime);
+				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
 				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 				Time resubmitCloseTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN, ALLOW_RESUBMIT_CLOSEAMPM);
 				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit, post, resubmitCloseTime);
+                //TODO: ADD_DUE_DATE
 				// the notification option
 				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
 				{
@@ -8027,12 +8047,12 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, 
-			String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
 		ac.setHonorPledge(Integer.parseInt(checkAddHonorPledge));
+		ac.setHideDueDate(hideDueDate);
 		ac.setTypeOfSubmission(submissionType);
 		ac.setAllowReviewService(useReviewService);
 		ac.setAllowStudentViewReport(allowStudentViewReport);
@@ -8547,7 +8567,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(NEW_ASSIGNMENT_GRADE_POINTS, a.getContent().getMaxGradePointDisplay());
 				}
 				state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, a.getContent().getInstructions());
-				
+                state.setAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE, Boolean.valueOf(a.getContent().getHideDueDate()).toString());
 				ResourceProperties properties = a.getProperties();
 				state.setAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE, properties.getProperty(
 						ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
@@ -10964,6 +10984,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 		state.removeAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+		state.removeAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
 		state.removeAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
 		state.removeAttribute(NEW_ASSIGNMENT_ATTACHMENT);
 		state.removeAttribute(NEW_ASSIGNMENT_FOCUS);

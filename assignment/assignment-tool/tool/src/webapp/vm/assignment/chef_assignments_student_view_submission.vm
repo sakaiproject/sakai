@@ -172,8 +172,11 @@ function submitform(id)
 					<th>
 						$tlang.getString("gen.due")
 					</th>
+					#set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
 					<td>
-						$!assignment.getDueTime().toStringLocalFull()
+					#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
+						$!assignment.dueTime.toStringLocalFull()
+					#end
 					</td>
 				</tr>
 				##resubmit number

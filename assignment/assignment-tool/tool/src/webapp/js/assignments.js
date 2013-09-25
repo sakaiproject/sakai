@@ -1,3 +1,63 @@
+function getSelect(selectBox) {
+    if (selectBox && selectBox instanceof HTMLSelectElement) { 
+        return selectBox.options[selectBox.selectedIndex].value;
+    }
+}
+
+function setSelect(selectBox,index) {
+    if (selectBox && selectBox instanceof HTMLSelectElement) { 
+        selectBox.value = index;
+    }
+}
+
+// Parses select fields on a form and returns the date object for a specific prefix
+function getSelectDate (prefix) {
+  var sMonth = parseInt(getSelect(document.getElementById(prefix+"month")));
+  var sDay = parseInt(getSelect(document.getElementById(prefix+"day")));
+  var sYear = parseInt(getSelect(document.getElementById(prefix+"year")));
+  var sHour = parseInt(getSelect(document.getElementById(prefix+"hour")));
+  var sMinute = parseInt(getSelect(document.getElementById(prefix+"min")));
+  var sAmpm = getSelect(document.getElementById(prefix+"ampm"));
+  if (sAmpm == "PM") {
+      sHour += 12;
+  }
+  else if (sHour == 12) {
+      sHour = 0;
+  }
+  return new Date(sYear,sMonth-1,sDay,sHour,sMinute,0,0);
+}
+
+// Sets a various fields of a select date with a prefix to the date field
+function setSelectDate (prefix,dateval) {
+    if (dateval && dateval instanceof Date) {
+        setSelect(document.getElementById(prefix+"year"),dateval.getFullYear());
+        setSelect(document.getElementById(prefix+"month"),dateval.getMonth()+1);
+        setSelect(document.getElementById(prefix+"day"),dateval.getDate());
+        var sHour = dateval.getHours();
+        var sAmpm = sHour >= 12 ? 'PM' : 'AM';
+        sHour = sHour % 12;
+        if (sHour == 0) {
+           sHour = 12; 
+        }
+        setSelect(document.getElementById(prefix+"hour"),sHour);
+        setSelect(document.getElementById(prefix+"ampm"),sAmpm);
+        setSelect(document.getElementById(prefix+"min"),dateval.getMinutes());
+    }
+}
+
+function dueDateChange(field) {
+  var dueprefix = "new_assignment_due";
+  var acceptprefix = "new_assignment_close";
+
+  var dueDate = getSelectDate(dueprefix);
+  var acceptDate = getSelectDate(acceptprefix);
+
+  if (dueDate.getTime() > acceptDate.getTime()) {
+    //Due date > accept date, update acceptDate field to match
+    setSelectDate(acceptprefix,dueDate); 
+  }
+
+}
 function setupAssignNew(){
     // show the previously opened field
     $('.extraNode').hide();

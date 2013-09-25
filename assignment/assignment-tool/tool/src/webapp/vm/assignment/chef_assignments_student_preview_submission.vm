@@ -6,6 +6,7 @@
 		$tlang.getString("gen.assig")<span class="highlight"> - $tlang.getString("gen.pre")</span>
 	</h3>	
 
+    #set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 	<table class="itemSummary" summary="$tlang.getString("gen.assdet")" border="0">
 		 <tr>
@@ -22,7 +23,10 @@
 				$tlang.getString("gen.due"):
 			</th>
 			<td>
-				$!assignment.getDueTime().toStringLocalFull()
+
+                #if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
+                    $!assignment.dueTime.toStringLocalFull()
+                #end
 			</td>
 		</tr>
 		##resubmit number
