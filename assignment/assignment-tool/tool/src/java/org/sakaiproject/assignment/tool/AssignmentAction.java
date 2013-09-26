@@ -4043,6 +4043,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("viewGroup", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
 
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
+		context.put("showSubmissionByFilterSearchOnly", state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 		
 		if (AssignmentService.getAllowGroupAssignments()) {
 			Collection groups = getAllGroupsInSite(contextString);
