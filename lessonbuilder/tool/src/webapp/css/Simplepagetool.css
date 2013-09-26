@@ -795,9 +795,15 @@ div[role="dialog"] {
 .pageList img {
     vertical-align:middle;   
 }
+.itemListContainer {
+    padding-top: 5px;
+}
 .itemList {
+    padding-left: 0px;
+    margin-left: 20px;
     display: none;
     list-style:none;
+    background-color: #F3F3F3;
 }
 .text-item-placeholder {
 	font-style: italic;

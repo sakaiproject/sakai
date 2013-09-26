@@ -44,18 +44,20 @@
                 <img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="" />
                 <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a> <span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
                 <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle"><img src="/library/image/sakai/icon-dropdn.gif" height="15"/></a></span>
-                <ul class="itemList" role="menu">
-                    <li rsf:id="item:">
-                        <div class="statusCol">
-                            <img rsf:id="required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px"/>
-                            <img rsf:id="not-required-image" src="/lessonbuilder-tool/images/not-required.png" class="status-image icon-image" style="margin-right:3px"/>
-                        </div>
-                        <div class="contentCol">
-                            <img rsf:id="item-icon" class="item-image" alt="" style="position:relative; top:3px; margin-right:2px" />
-                            <span rsf:id="name"></span>
-                        </div>
-                    </li>
-		        </ul>
+                <div rsf:id="itemListContainer" class="itemListContainer">
+                    <ul rsf:id="itemList" class="itemList" role="menu">
+                        <li rsf:id="item:">
+                            <div class="statusCol">
+                                <img rsf:id="required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px"/>
+                                <img rsf:id="not-required-image" src="/lessonbuilder-tool/images/not-required.png" class="status-image icon-image" style="margin-right:3px"/>
+                            </div>
+                            <div class="contentCol">
+                                <img rsf:id="item-icon" class="item-image" alt="" style="position:relative; top:3px; margin-right:2px" />
+                                <span rsf:id="name"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div> <!-- /itemListContainer -->
 			</li>
 		</ul>
 		

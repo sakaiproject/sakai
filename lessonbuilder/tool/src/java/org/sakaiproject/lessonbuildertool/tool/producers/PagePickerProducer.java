@@ -409,10 +409,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
                 if(enableShowItems) {
 		    	    UIOutput.make(row, "item-list-toggle");
+		    	    UIOutput.make(row, "itemListContainer").decorate(new UIFreeAttributeDecorator("style", "margin-left: " + (3*level) + "em"));
+		    	    UIOutput.make(row, "itemList");
                     for(SimplePageItem pageItem : simplePageToolDao.findItemsOnPage(entry.pageId)) {
 
                         UIBranchContainer itemListItem = UIBranchContainer.make(row, "item:");
-                        itemListItem.decorate(new UIFreeAttributeDecorator("style", "padding-left: " + (3*level) + "em"));
 
                         if (pageItem.isRequired()) {
                             UIOutput.make(itemListItem, "required-image");
