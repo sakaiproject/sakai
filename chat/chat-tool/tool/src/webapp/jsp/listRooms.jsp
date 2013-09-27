@@ -43,12 +43,6 @@
 							<h:outputText value="#{msgs['gen.delete']}" />
 						</h:commandLink>
 					</f:subview>
-					<f:subview id="viewLink" rendered="#{channel.canDeleteMessages}">
-							<h:outputLink value="chatlog.jsf">
-							<f:param name="channelId" value="#{channel.chatChannel.id}"/>
-							<h:outputText value="#{msgs['gen.view']}" />
-						</h:outputLink>
-					</f:subview>
 					<f:subview id="clearMessages" rendered="#{channel.canDeleteMessages && channel.numberChannelMessages > 0}">
 						<h:commandLink action="#{channel.processActionDeleteRoomMessages}" 
 							title="#{msgs.delete_room_messages}">
