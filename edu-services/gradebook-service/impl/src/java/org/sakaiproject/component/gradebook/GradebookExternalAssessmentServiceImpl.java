@@ -46,6 +46,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
@@ -300,6 +301,63 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     }
 
 	
+    public void updateExternalAssessmentComments(final String gradebookUid, final String externalId, final Map<String, String> studentUidsToComments)
+    		throws GradebookNotFoundException, AssessmentNotFoundException {
+    	//TODO DO	
+    	final Assignment asn = getExternalAssignment(gradebookUid, externalId);
+    	if (asn == null) {
+    		throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+    	}
+    	final Set studentIds = studentUidsToComments.keySet();
+    	if (studentIds.isEmpty()) {
+    		return;
+    	}
+    	final Date now = new Date();
+    	final String graderId = getUserUid();
+
+    	getHibernateTemplate().execute(new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			List existingScores;
+    			if (studentIds.size() <= MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST) {
+    				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go and gr.studentId in (:studentIds)");
+    				q.setParameter("go", asn);
+    				q.setParameterList("studentIds", studentIds);
+    				existingScores = q.list();
+    			} else {
+    				Query q = session.createQuery("from AssignmentGradeRecord as gr where gr.gradableObject=:go");
+    				q.setParameter("go", asn);
+    				existingScores = filterGradeRecordsByStudents(q.list(), studentIds);
+    			}
+
+    			Set changedStudents = new HashSet();
+    			for (Iterator iter = existingScores.iterator(); iter.hasNext(); ) {
+    				AssignmentGradeRecord agr = (AssignmentGradeRecord)iter.next();
+    				String studentUid = agr.getStudentId();
+
+    				// Try to reduce data contention by only updating when a score
+    				// has changed or property has been set forcing a db update every time.
+    				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+
+    				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+    				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
+    				String newComment = (String) studentUidsToComments.get(studentUid);
+
+    				if ( alwaysUpdate || (newComment != null && !newComment.equals(oldComment)) || (newComment == null && oldComment != null) ) {
+    					changedStudents.add(studentUid);
+    					setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, newComment);
+    				}
+    			}
+
+    			if (log.isDebugEnabled()) log.debug("updateExternalAssessmentScores sent " + studentIds.size() + " records, actually changed " + changedStudents.size());
+
+    			// Sync database.
+    			session.flush();
+    			session.clear();
+    			return null;
+    		}
+    	});
+    }
+
 	public void updateExternalAssessmentScores(final String gradebookUid, final String externalId, final Map<String, Double> studentUidsToScores)
 	throws GradebookNotFoundException, AssessmentNotFoundException {
 
@@ -769,6 +827,43 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     getHibernateTemplate().execute(hc);
 	}
 
+	
+	public void updateExternalAssessmentComment(final String gradebookUid, final String externalId, final String studentUid, final String comment) 
+	throws GradebookNotFoundException, AssessmentNotFoundException {
+		final Assignment asn = getExternalAssignment(gradebookUid, externalId);
+
+		if(asn == null) {
+			throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUid);
+		}
+
+		if (logData.isDebugEnabled()) logData.debug("BEGIN: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
+
+		HibernateCallback hc = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				Date now = new Date();
+
+				// Try to reduce data contention by only updating when the
+				// score has actually changed or property has been set forcing a db update every time.
+				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
+
+				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
+
+				if ( alwaysUpdate || (comment != null && !comment.equals(oldComment)) ||
+						(comment == null && oldComment != null) ) {
+					if(comment != null)
+						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, comment);
+					else
+						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, null);
+				}
+				return null;
+			}
+		};
+		getHibernateTemplate().execute(hc);
+		if (logData.isDebugEnabled()) logData.debug("END: Update 1 score for gradebookUid=" + gradebookUid + ", external assessment=" + externalId + " from " + asn.getExternalAppName());
+		if (log.isDebugEnabled()) log.debug("External assessment comment updated in gradebookUid=" + gradebookUid + ", externalId=" + externalId + " by userUid=" + getUserUid() + ", new score=" + comment);
+	}
+	
 	public void updateExternalAssessmentScore(final String gradebookUid, final String externalId, final String studentUid, final String points) 
 	throws GradebookNotFoundException, AssessmentNotFoundException
 	{
