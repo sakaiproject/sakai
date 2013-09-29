@@ -68,7 +68,7 @@
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
                 onOk: function () {
-                    var jsonSavedContent = JSON.parse(localStorage.getItem(autoSaveKey));
+                    var jsonSavedContent = LoadData(autoSaveKey);
                     
                     if (editorInstance.plugins.bbcode) {
                         editorInstance._.data = jsonSavedContent.data;
@@ -131,8 +131,7 @@
     function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan) {
         // Checks If there is data available and load it
         if (localStorage.getItem(autoSaveKey)) {
-
-            var jsonSavedContent = JSON.parse(localStorage.getItem(autoSaveKey));
+            var jsonSavedContent = LoadData(autoSaveKey);
 
             var autoSavedContent = jsonSavedContent.data;
             var autoSavedContentDate = jsonSavedContent.saveTime;
@@ -162,8 +161,14 @@
         }
     }
     
+    function LoadData(autoSaveKey) {
+        var compressedJSON = LZString.decompressFromUTF16(localStorage.getItem(autoSaveKey));
+        return JSON.parse(compressedJSON);
+    }
+    
     function SaveData(autoSaveKey, data) {
-        localStorage.setItem(autoSaveKey, JSON.stringify({ data: data, saveTime: new Date() }));
+        var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: data, saveTime: new Date() }));
+        localStorage.setItem(autoSaveKey, compressedJSON);
     }
     
     function RemoveStorage(autoSaveKey) {
@@ -171,7 +176,7 @@
     }
     
     function RenderDiff(dialog, editorInstance, autoSaveKey) {
-        var jsonSavedContent = JSON.parse(localStorage.getItem(autoSaveKey));
+        var jsonSavedContent = LoadData(autoSaveKey);
 
         var base = difflib.stringAsLines(editorInstance.getData());
         var newtxt = difflib.stringAsLines(jsonSavedContent.data);
