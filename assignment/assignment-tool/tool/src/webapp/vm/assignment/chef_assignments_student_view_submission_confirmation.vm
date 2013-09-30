@@ -116,7 +116,7 @@
 			#end
                                 #if ($!submission && $!submission.getSubmissionLog().size() > 0)
                                         <tr>
-                                                <th>History</th>
+                                                <th>$tlang.getString('gen.history')</th>
                                                 <td>
                                                         #foreach ($entry in $submission.getSubmissionLog())
                                                                 $entry<br>
