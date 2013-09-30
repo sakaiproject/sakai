@@ -115,7 +115,6 @@ public class SuTool
 			}
 		}catch(Exception e){
 			M_log.info("Could not inject Delegated Access logic bean, either doesn't exist or there is a bigger problem");
-			M_log.info(e.getMessage(), e);
 		}
 	}
 
