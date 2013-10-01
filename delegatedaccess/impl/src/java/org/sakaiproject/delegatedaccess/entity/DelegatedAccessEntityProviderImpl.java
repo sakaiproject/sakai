@@ -121,7 +121,9 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
-		if(!(sakaiProxy.isSuperUser() || (sakaiProxy.isUserInstructor(sakaiProxy.getCurrentUserId(), ref.getId())) && sakaiProxy.isShoppingPeriodInstructorEditable())){
+		boolean isSuperUser = sakaiProxy.isSuperUser();
+		boolean isInstructor = sakaiProxy.isUserInstructor(sakaiProxy.getCurrentUserId(), ref.getId());
+		if(!(isSuperUser || (isInstructor && sakaiProxy.isShoppingPeriodInstructorEditable()))){
 			//we only want to allow user's who are either an admin or is an actual member of the site and has "instructor" permsission (site.upd)
 			//otherwise, they can just use the Delegated Access interface to make modifications
 			throw new IllegalArgumentException("User: " + sakaiProxy.getCurrentUserId() + " is not a member of the site with site.upd permission or an admin");
@@ -202,11 +204,13 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		String roleOrig = node.getRole();
 		String[] authToolsOrig = node.convertListToArray(node.getSelectedRestrictedAuthTools());
 		String[] publicToolsOrig = node.convertListToArray(node.getSelectedRestrictedPublicTools());
+		boolean instructorEditedOrig = node.isInstructorEdited();
 		//modify the setting to the new settings
 		node.setShoppingPeriodStartDate(shoppingStartDate);
 		node.setShoppingPeriodEndDate(shoppingEndDate);
 		node.setRealm(realm);
 		node.setRole(role);
+		node.setInstructorEdited(isInstructor);
 		node.setRestrictedAuthTools(projectLogic.getEntireToolsList());
 		if(authTools != null){
 			for(String toolId : authTools){
@@ -252,7 +256,8 @@ public class DelegatedAccessEntityProviderImpl implements DelegatedAccessEntityP
 		
 		//only update if there were true modifications
 		if(directAccessOrig != directAccess || node.isModified(startDateOrig, startDateNew, endDateOrig, endDateNew,
-				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false, node.isAllowBecomeUser(), node.isAllowBecomeUser())){
+				realmOrig, realmNew, roleOrig, roleNew, authToolsOrig, authToolsNew, publicToolsOrig, publicToolsNew, false, false, false, false, node.isAllowBecomeUser(), node.isAllowBecomeUser(),
+				node.isInstructorEdited(), instructorEditedOrig)){
 			DefaultMutableTreeNode treeNode = new DelegatedAccessMutableTreeNode();
 			treeNode.setUserObject(node);
 			projectLogic.updateNodePermissionsForUser(treeNode, DelegatedAccessConstants.SHOPPING_PERIOD_USER);

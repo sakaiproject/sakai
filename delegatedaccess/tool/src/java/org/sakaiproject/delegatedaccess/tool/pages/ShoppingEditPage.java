@@ -14,6 +14,7 @@ import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.extensions.markup.html.tree.DefaultAbstractTree;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Alignment;
 import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
@@ -120,6 +121,7 @@ public class ShoppingEditPage extends BaseTreePage{
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		final boolean activeSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();
 		final ResourceReference inactiveWarningIcon = new CompressedResourceReference(ShoppingEditPage.class, "images/bullet_error.png");
+		final ResourceReference instructorEditedIcon = new CompressedResourceReference(ShoppingEditPage.class, "images/bullet_red.png");
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -161,12 +163,10 @@ public class ShoppingEditPage extends BaseTreePage{
 			};
 			
 			protected org.apache.wicket.ResourceReference getNodeIcon(TreeNode node) {
-				if(activeSiteFlagEnabled){
-					if(!((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isActive()){
-						return inactiveWarningIcon;
-					}else{
-						return super.getNodeIcon(node);
-					}
+				if(activeSiteFlagEnabled && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isActive()){
+					return inactiveWarningIcon;
+				}else if(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isInstructorEdited()){
+					return instructorEditedIcon;
 				}else{
 					return super.getNodeIcon(node);
 				}
@@ -244,6 +244,20 @@ public class ShoppingEditPage extends BaseTreePage{
 				return activeSiteFlagEnabled;
 			}
 		});
+		
+		//setup legend:
+		final ResourceReference nodeIcon = new CompressedResourceReference(DefaultAbstractTree.class, "res/folder-closed.gif");
+		final ResourceReference siteIcon = new CompressedResourceReference(DefaultAbstractTree.class, "res/item.gif");
+		add(new Label("legend", new StringResourceModel("legend", null)));
+		add(new Image("legendNode", nodeIcon));
+		add(new Label("legendNodeDesc", new StringResourceModel("legendNodeDesc", null)));
+		add(new Image("legendSite", siteIcon));
+		add(new Label("legendSiteDesc", new StringResourceModel("legendSiteDesc", null)));
+		add(new Image("legendInactive",inactiveWarningIcon));
+		add(new Label("legendInactiveDesc", new StringResourceModel("legendInactiveDesc", null)));
+		add(new Image("legendInstructorEdited", instructorEditedIcon));
+		add(new Label("legendInstructorEditedDesc", new StringResourceModel("legendInstructorEditedDesc", null)));
+		
 	}
 
 

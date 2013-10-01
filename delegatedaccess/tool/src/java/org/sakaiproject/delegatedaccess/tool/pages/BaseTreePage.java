@@ -65,6 +65,8 @@ public abstract class BaseTreePage extends BasePage
 				nodeModel.setRole(defaultRole[1]);
 			}
 			if(nodeModel.isModified()){
+				//since this is the DA UI, we need to set instructorEdit to false
+				((NodeModel) node.getUserObject()).setInstructorEdited(false);
 				projectLogic.updateNodePermissionsForUser(node, userId);
 				//now reset the node's "original" values to ensure the next save will check against
 				//the newly saved settings

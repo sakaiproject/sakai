@@ -56,7 +56,9 @@ public class NodeModel implements Serializable {
 	private boolean isActive = true;
 	private boolean allowBecomeUser = false;
 	private boolean allowBecomeUserOrig = false;
-	
+	//flag to keep track of nodes that were edited by the instructor
+	private boolean instructorEdited = false;
+	private boolean instructorEditedOrig = false;
 	/**
 	 * this function should be called after a save in order to reset the original values to their current value.
 	 * By doing this, you allow the next save the check against the new values
@@ -74,6 +76,7 @@ public class NodeModel implements Serializable {
 		shoppingPeriodRevokeInstructorEditableOrig = shoppingPeriodRevokeInstructorEditable;
 		shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 		allowBecomeUserOrig = allowBecomeUser;
+		instructorEditedOrig = instructorEdited;
 	}
 	
 	public NodeModel(String nodeId, HierarchyNodeSerialized node,
@@ -82,7 +85,7 @@ public class NodeModel implements Serializable {
 			Date shoppingPeriodEndDate, boolean addedDirectChildrenFlag, boolean shoppingPeriodAdmin,
 			String modifiedBy, Date modified,
 			Date shoppingAdminModified, String shoppingAdminModifiedBy, boolean accessAdmin, boolean shoppingPeriodRevokeInstructorEditable,
-			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean allowBecomeUser){
+			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean allowBecomeUser, boolean instructorEdited){
 
 		this.nodeId = nodeId;
 		this.node = node;
@@ -116,6 +119,7 @@ public class NodeModel implements Serializable {
 		this.shoppingPeriodRevokeInstructorPublicOptOrig = shoppingPeriodRevokeInstructorPublicOpt;
 		this.allowBecomeUser = allowBecomeUser;
 		this.allowBecomeUserOrig = allowBecomeUser;
+		this.instructorEdited = instructorEdited;
 	}
 
 	private List<ListOptionSerialized> copyListOptions(List<ListOptionSerialized> tools){
@@ -177,7 +181,7 @@ public class NodeModel implements Serializable {
 			return isModified(shoppingPeriodStartDate, shoppingPeriodStartDateOrig, shoppingPeriodEndDate, shoppingPeriodEndDateOrig,
 					realm, realmOrig, role, roleOrig, convertListToArray(getSelectedRestrictedAuthTools()), convertListToArray(getSelectedRestrictedAuthToolsOrig()), 
 					convertListToArray(getSelectedRestrictedPublicTools()), convertListToArray(getSelectedRestrictedPublicToolsOrig()), shoppingPeriodRevokeInstructorEditable, shoppingPeriodRevokeInstructorEditableOrig,
-					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig, allowBecomeUser, allowBecomeUserOrig);
+					shoppingPeriodRevokeInstructorPublicOpt, shoppingPeriodRevokeInstructorPublicOptOrig, allowBecomeUser, allowBecomeUserOrig, instructorEdited, instructorEditedOrig);
 		}
 
 		return false;
@@ -186,7 +190,8 @@ public class NodeModel implements Serializable {
 	public boolean isModified(Date shoppingStartDateOld, Date shoppingStartDateNew,
 			Date shoppingEndDateOld, Date shoppingEndDateNew, String realmOld, String realmNew, String roleOld, String roleNew,
 			String[] authToolsOld, String[] authToolsNew, String[] publicToolsOld, String[] publicToolsNew, boolean shoppingPeriodRevokeInstructorEditable, boolean shoppingPeriodRevokeInstructorEditableOrig,
-			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig, boolean allowBeomeUser, boolean allowBecomeUserOrig){
+			boolean shoppingPeriodRevokeInstructorPublicOpt, boolean shoppingPeriodRevokeInstructorPublicOptOrig, boolean allowBeomeUser, boolean allowBecomeUserOrig,
+			boolean instructorEdited, boolean instructorEditedOrig){
 		if(realmOld != null && realmNew != null){
 			if(!realmOld.equals(realmNew))
 				return true;
@@ -265,6 +270,9 @@ public class NodeModel implements Serializable {
 			return true;
 		}
 		
+		if(instructorEdited != instructorEditedOrig){
+			return true;
+		}
 		
 		return false;
 	}
@@ -908,5 +916,13 @@ public class NodeModel implements Serializable {
 		}else{
 			return getInheritedAllowBecomeUserHelper(parent.getParentNode());
 		}
+	}
+
+	public boolean isInstructorEdited() {
+		return instructorEdited;
+	}
+
+	public void setInstructorEdited(boolean instructorEdited) {
+		this.instructorEdited = instructorEdited;
 	}
 }

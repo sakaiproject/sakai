@@ -66,6 +66,19 @@
 		div.header div span.b_{
         	height: auto !important;
         }
+        
+        .fieldsetVis{
+        	border: 1px solid #ccc;
+			padding: 1em;
+			width: 200px;
+        }
+        
+        .fieldsetVis legend{
+        	border: 1px solid #ccc;
+			font-size: 120%;
+			color: gray;
+			padding: .3em;
+        }
     </style>
 </wicket:head>
 
@@ -99,7 +112,13 @@
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
     </form>
 	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>
-
+	<fieldset class="fieldsetVis">
+		<legend><span wicket:id="legend"/></legend>
+		<img wicket:id="legendNode"/>&nbsp;<span wicket:id="legendNodeDesc"/><br/>
+		<img wicket:id="legendSite"/>&nbsp;<span wicket:id="legendSiteDesc"/><br/>
+		<img wicket:id="legendInactive"/>&nbsp;<span wicket:id="legendInactiveDesc"/><br/>
+		<img wicket:id="legendInstructorEdited"/>&nbsp;<span wicket:id="legendInstructorEditedDesc"/><br/>
+	</fieldset>
 	
 </wicket:extend>
 </body>
