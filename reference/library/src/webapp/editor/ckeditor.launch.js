@@ -131,6 +131,14 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
             ckconfig.toolbar = config.toolbarSet;
         }
+
+		if (config.disableBrowseServer)
+		{
+			ckconfig.filebrowserBrowseUrl = null;
+			ckconfig.filebrowserImageBrowseUrl = null;
+			ckconfig.filebrowserFlashBrowseUrl = null;
+			ckconfig.filebrowserLinkBrowseUrl = null;
+		}
     }
 
 		//get path of directory ckeditor 
