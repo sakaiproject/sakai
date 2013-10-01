@@ -556,7 +556,8 @@ function allowClick(object)
 								$!assignment.openTime.toStringLocalFull()
 							</td>
 							<td headers="dueDate">
-                            #if ($assignment.getContent().getHideDueDate() == "true" || $!allowUpdateAssignment)
+							#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
+
                                 ##Instructors can still see the due date
                                 <span class="highlight">$!assignment.dueTime.toStringLocalFull()</span>
                             #end
