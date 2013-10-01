@@ -163,6 +163,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+
+import au.com.bytecode.opencsv.CSVReader;
 /**
  * <p>
  * AssignmentAction is the action class for the assignment tool.
@@ -8648,7 +8650,7 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				state.setAttribute(NEW_ASSIGNMENT_GROUPS, a.getGroups());
 				
-                                state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, a.isGroup() ? "1": "0");
+				state.setAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT, a.isGroup() ? "1": "0");
                                 
 				// get all supplement item info into state
 				setAssignmentSupplementItemInState(state, a);
@@ -14081,21 +14083,16 @@ public class AssignmentAction extends PagedResourceActionII
 						if (hasGradeFile)
 						{
 							// read grades.cvs from zip
-							String result = StringUtils.trimToEmpty(readIntoString(zipFile.getInputStream(entry)));
-					        String[] lines=null;
-					        if (result.indexOf("\r\n") != -1)
-					        	lines = result.split("\r\n");
-					        else if (result.indexOf("\r") != -1)
-					        		lines = result.split("\r");
-					        else if (result.indexOf("\n") != -1)
-				        			lines = result.split("\n");
+							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)));
+
+							List <String[]> lines = reader.readAll();
+
 					        if (lines != null )
 					        {
-						        for (int i = 3; i<lines.length; i++)
+						        for (int i = 3; i<lines.size(); i++)
 						        {
-					        		// escape the first three header lines
-					        		String[] items = lines[i].split(",");
-					        		if ((assignment.isGroup() && items.length > 3) || items.length > 4)
+									String[] items = lines.get(i);
+									if ((assignment.isGroup() && items.length > 3) || items.length > 4)
 					        		{
 					        			// has grade information
 						        		try
@@ -14285,12 +14282,32 @@ public class AssignmentAction extends PagedResourceActionII
 			
 		}
 		
-		if ((!zipHasGradeFile && !zipHasFolder)					// generate error when there is no grade file and no folder structure
-				|| (zipHasFolder && !zipHasFolderValidUserId) 	// generate error when there is folder structure but not matching one user id
-				|| !validZipFormat)								// should have right structure of zip file
-		{
+		//This is used so that the "Zip Error" message is only printed once
+
+		boolean zipError = false;
+
+		// generate error when there is no grade file and no folder structure
+		if (!zipHasGradeFile && !zipHasFolder) {
+			addAlert(state, rb.getString("uploadall.alert.incorrectFormat"));
+			addAlert(state, rb.getString("uploadall.alert.noGradeFile"));
+			zipError = true;
+		}
+		// generate error when there is folder structure but not matching one user id
+		if(zipHasFolder && !zipHasFolderValidUserId) {
+			if (zipError == false)
+				addAlert(state, rb.getString("uploadall.alert.incorrectFormat"));
+			addAlert(state, rb.getString("uploadall.alert.invalidUserId"));
+			zipError = true;
+		}
+		// should have right structure of zip file
+		if (!validZipFormat) {
+			if (zipError == false)
+				addAlert(state, rb.getString("uploadall.alert.incorrectFormat"));
+
 			// alert if the zip is of wrong format
 			addAlert(state, rb.getString("uploadall.alert.wrongZipFormat"));
+			zipError = true;
+
 		}
 		return submissionTable;
 	}

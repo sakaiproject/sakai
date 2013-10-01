@@ -22,9 +22,12 @@
 package org.sakaiproject.assignment.impl;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.text.NumberFormat;
 import java.text.Normalizer;
 import java.util.ArrayList;
@@ -172,6 +175,8 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import au.com.bytecode.opencsv.CSVWriter;
 
 /**
  * <p>
@@ -5622,8 +5627,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
 			// the buffer used to store grade information
-			StringBuilder gradesBuffer = new StringBuilder(assignmentTitle + "," + gradeTypeString + "\n\n");
-			gradesBuffer.append(rb.getString("grades.id") + "\t" + rb.getString("grades.eid") + "\t" + rb.getString("grades.lastname") + "\t" + rb.getString("grades.firstname") + "\t" + rb.getString("grades.grade") + "\n");
+			ByteArrayOutputStream gradesBAOS = new ByteArrayOutputStream();
+			CSVWriter gradesBuffer = new CSVWriter(new OutputStreamWriter(gradesBAOS));
+
+			String [] values = {assignmentTitle,gradeTypeString};
+			gradesBuffer.writeNext(values);
+			//Blank line was in original gradefile
+			values = new String[] {""};
+			gradesBuffer.writeNext(values);
+			values = new String[] {rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),rb.getString("grades.firstname"),rb.getString("grades.grade")};
+			gradesBuffer.writeNext(values);
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -5674,7 +5687,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								}
 								submittersString = escapeInvalidCharsEntry(submittersString);
 								// in grades file, Eid is used
-								gradesBuffer.append(submitters[i].getDisplayId() + "\t" + submitters[i].getEid() + "\t" + submitters[i].getLastName() + "\t" + submitters[i].getFirstName() + "\t" + s.getGradeDisplay() + "\n");
+								values = new String [] {submitters[i].getDisplayId(), submitters[i].getEid(), submitters[i].getLastName(), submitters[i].getFirstName(), s.getGradeDisplay()};
+								gradesBuffer.writeNext(values);
 							}
 							
 							if (StringUtils.trimToNull(submittersString) != null)
@@ -5781,9 +5795,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					// create a grades.csv file into zip
 					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
 					out.putNextEntry(gradesCSVEntry);
-					byte[] grades = gradesBuffer.toString().getBytes();
-					out.write(grades);
-					gradesCSVEntry.setSize(grades.length);
+
+					gradesBuffer.close();
+					out.write(gradesBAOS.toByteArray());
+					gradesCSVEntry.setSize(gradesBAOS.size());
+
 					out.closeEntry();
 				}
 			}
