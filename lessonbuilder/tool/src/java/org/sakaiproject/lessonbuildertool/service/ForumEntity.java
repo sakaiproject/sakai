@@ -342,7 +342,16 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
     public Topic getTopicById(boolean flag, Long id) {
 	try {
-	    return forumManager.getTopicById(flag, id);
+	    Topic topic = forumManager.getTopicById(flag, id);
+	    if (topic == null)
+		return null;
+	    // the purpose of this is to trigger a null pointer error if the forum doesn't exist
+	    // if you delete the forum, it doesn't delete the topics, but showing a topic without
+	    // its forum causes confusion. The /direct code does the following, so it will give
+	    // an error. 
+	    if (topic.getOpenForum().getArea() == null)
+		return null;
+	    return topic;
 	} catch (Exception e) {
 	    return null;
 	}
@@ -397,7 +406,9 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	String placement = tool.getId();
 
 	if (type == TYPE_FORUM_TOPIC)
-	    return "/messageforums-tool/jsp/discussionForum/message/dfAllMessagesDirect.jsf?topicId=" + id + "&placementId=" + placement;
+	    // if /direct doesn't work, but that was only in one beta release
+	    //  return "/messageforums-tool/jsp/discussionForum/message/dfAllMessagesDirect.jsf?topicId=" + id + "&placementId=" + placement;
+	    return "/direct/forum_topic/" + id;
 	else
 	    return "/direct/forum/" + id;
     }
