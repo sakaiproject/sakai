@@ -83,3 +83,19 @@ $(document).ready(function(){
 		loadUI();  
 	  }
 });
+
+//This is the profile display on user's names.
+$(document).ready(function() {			
+	$('.authorProfile').each(function() {
+		$(this).qtip({ 
+			content: {text: msgs_js.loading_wait,
+				url: $(this).attr('href'), title: {	text: msgs_js.cdfm_profile_information,button: '[ X ]' }
+			},
+			position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
+			show: { when: 'click', solo: true, effect: {length:0} },
+			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
+			style: { tip: true, border: {color:'#687E9C'}, name: 'light', width: 570 }
+		});
+		$(this).attr('href', 'javascript:;');
+	});
+});	

@@ -350,8 +350,13 @@ public class PrivateMessagesTool
   private boolean currentSiteHasGroups = false;
   private Boolean displayHiddenGroupsMsg = null;
   
+  private boolean showProfileInfoMsg = false;
+  private boolean showProfileLink = false;
+  
   public PrivateMessagesTool()
   {    
+	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", false);
+	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
   
   /**
@@ -1203,6 +1208,14 @@ public boolean isFromMain() {
 public String getServerUrl() {
     return ServerConfigurationService.getServerUrl();
  }
+
+public boolean getShowProfileInfoMsg() {
+    return showProfileInfoMsg;
+}
+
+public boolean getShowProfileLink() {
+	return showProfileLink;
+}
 
 public void processChangeSelectView(ValueChangeEvent eve)
   {
