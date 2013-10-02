@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>portal-base</artifactId>
+        <artifactId>portal</artifactId>
         <groupId>org.sakaiproject.portal</groupId>
         <version>2.10-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
@@ -11,7 +11,7 @@
 
     <name>sakai-portal (charon)</name>
     <groupId>org.sakaiproject.portal</groupId>
-    <artifactId>portal</artifactId>
+    <artifactId>portal-charon</artifactId>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -27,6 +27,17 @@
     </dependencies>
 
     <build>
+		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>sakai</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<deployId>portal</deployId>
+				</configuration>
+			</plugin>
+		</plugins>
         <resources />
         <sourceDirectory>src/java</sourceDirectory>
         <finalName>portal</finalName>
