@@ -1527,7 +1527,20 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 	  }
 	}
 
+	public void markMessageAsRepliedForUser(final PrivateMessage message) {				
   
+		PrivateMessage pvtMessage = getPrivateMessageWithRecipients(message);
+		List recipientList = pvtMessage.getRecipients();
+
+		if (recipientList != null) {
+			String userId = getCurrentUser();
+			for (Object r : recipientList) {
+				if (((PrivateMessageRecipientImpl) r).getUserId().equals(userId)) {
+					((PrivateMessageRecipientImpl) r).setReplied(true);
+				}
+			}
+		}		
+	} 
 
   private PrivateMessage getPrivateMessageWithRecipients(
       final PrivateMessage message)

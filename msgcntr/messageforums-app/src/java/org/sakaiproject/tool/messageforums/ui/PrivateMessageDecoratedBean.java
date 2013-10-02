@@ -58,6 +58,8 @@ public class PrivateMessageDecoratedBean
   private boolean isPreviewForward = false;
   private PrivateMessageDecoratedBean previewReplyTmpMsg;
   
+  private boolean isReplied = false;
+  
   public PrivateMessage getMsg()
   {
     return msg;
@@ -220,6 +222,15 @@ public class PrivateMessageDecoratedBean
   public void setIsPreviewForward(boolean isPreviewForward) {
 	  this.isPreviewForward = isPreviewForward;
   }
+  
+  public boolean isReplied() {
+	  return isReplied;
+}
+
+  public void setReplied(boolean isReplied) {
+	  this.isReplied = isReplied;
+  }
+
 }
 
 

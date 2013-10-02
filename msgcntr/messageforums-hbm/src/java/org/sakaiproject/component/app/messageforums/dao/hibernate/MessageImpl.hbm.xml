@@ -121,6 +121,9 @@
           <property name="bcc">
             <column name="BCC" not-null="true"  default="0"/>
           </property>
+		  <property name="replied">
+            <column name="REPLIED" not-null="true"/>
+          </property>
   	    </composite-element>  	      	    
   	  </list>
   	  

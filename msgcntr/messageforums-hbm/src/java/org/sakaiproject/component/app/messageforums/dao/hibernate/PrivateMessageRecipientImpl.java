@@ -30,6 +30,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   private String contextId;
   private Boolean read;
   private Boolean bcc;
+  private Boolean replied;
   
   /**
    * default constructor
@@ -49,6 +50,7 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
     this.contextId = contextId;
     this.read = read;
     this.bcc = bcc;
+    this.replied = false;
   }
   
   /**
@@ -106,6 +108,16 @@ public class PrivateMessageRecipientImpl implements PrivateMessageRecipient{
   public void setRead(Boolean read)
   {
     this.read = read;
+  }
+  
+  public Boolean getReplied()
+  {
+    return replied;
+  }
+  
+  public void setReplied(Boolean replied)
+  {
+    this.replied = replied;
   }
   
   /**

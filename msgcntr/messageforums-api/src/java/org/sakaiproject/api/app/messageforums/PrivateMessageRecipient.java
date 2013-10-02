@@ -43,5 +43,9 @@ public interface PrivateMessageRecipient
   
   public void setBcc(Boolean bcc);
 
+  public Boolean getReplied();
+
+  public void setReplied(Boolean replied);
+
 }
 

@@ -305,6 +305,9 @@ public class PrivateMessagesTool
   // for compose, are we coming from main page?
   private boolean fromMain;
   
+  // Message which will be marked as replied
+  private PrivateMessage replyingMessage;
+  
   //////////////////////
   
   //=====================need to be modified to support internationalization - by huxt
@@ -891,6 +894,14 @@ public class PrivateMessagesTool
   
   public void setBooleanEmailOut(boolean booleanEmailOut) {
 	  this.booleanEmailOut= booleanEmailOut;
+  }
+  
+  public PrivateMessage getReplyingMessage() {
+	  return replyingMessage;
+  }
+  
+  public void setReplyingMessage(PrivateMessage replyingMessage) {
+	  this.replyingMessage = replyingMessage;
   }
   
   /**
@@ -1588,6 +1599,9 @@ public void processChangeSelectView(ValueChangeEvent eve)
     
     PrivateMessage pm = getDetailMsg().getMsg();
     
+    // To mark as replied when user send the reply
+    this.setReplyingMessage(pm);
+    
     String title = pm.getTitle();
 	if(title != null && !title.startsWith(getResourceBundleString(REPLY_SUBJECT_PREFIX)))
 		replyToSubject = getResourceBundleString(REPLY_SUBJECT_PREFIX) + ' ' + title;
@@ -1755,6 +1769,9 @@ private   int   getNum(char letter,   String   a)
 	    	return null;
 	    
 	    PrivateMessage pm = getDetailMsg().getMsg();
+	    
+	    // To mark as replied when user send the reply
+	    this.setReplyingMessage(pm);
 	    
 	    String title = pm.getTitle();
     	if(title != null && !title.startsWith(getResourceBundleString(ReplyAll_SUBJECT_PREFIX)))
@@ -2050,6 +2067,14 @@ private   int   getNum(char letter,   String   a)
     Map<User, Boolean> recipients = getRecipients();
     
     prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail()); 
+    // if you are sending a reply 
+    Message replying = pMsg.getInReplyTo();
+    if (replying!=null) {
+    	replying = prtMsgManager.getMessageById(replying.getId());
+    	if (replying!=null) {
+    		prtMsgManager.markMessageAsRepliedForUser((PrivateMessage)replying);
+    	}
+    }
     
     //update synopticLite tool information:
     
@@ -2671,6 +2696,7 @@ private   int   getNum(char letter,   String   a)
     	prtMsgManager.sendPrivateMessage(rrepMsg, recipients, isSendEmail());
     	
     	if(!rrepMsg.getDraft()){
+    		prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
     		incrementSynopticToolInfo(recipients.keySet(), false);
     	    LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
     	            .get("org.sakaiproject.event.api.LearningResourceStoreService");
@@ -3281,6 +3307,7 @@ private   int   getNum(char letter,   String   a)
 	          prtMsgManager.sendPrivateMessage(rrepMsg, returnSet, isSendEmail());
 
 		  if(!rrepMsg.getDraft()){
+			  prtMsgManager.markMessageAsRepliedForUser(getReplyingMessage());
 			  //update Synoptic tool info
 			  incrementSynopticToolInfo(returnSet.keySet(), false);
 	          LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
@@ -4473,6 +4500,7 @@ private   int   getNum(char letter,   String   a)
         PrivateMessageRecipient el = (PrivateMessageRecipient) iterator.next();
         if (el != null){
           dbean.setHasRead(el.getRead().booleanValue());
+          dbean.setReplied(el.getReplied().booleanValue());
         }
       }
       //Add decorate 'TO' String for sent message

@@ -68,6 +68,8 @@ public interface PrivateMessageManager {
     public void markMessageAsUnreadForUser(final PrivateMessage message);
     public void markMessageAsUnreadForUser(final PrivateMessage message, final String contextId);
     
+    public void markMessageAsRepliedForUser(final PrivateMessage message);
+    
     public List getMessagesByType(final String typeUuid, final String orderField,
         final String order);
     

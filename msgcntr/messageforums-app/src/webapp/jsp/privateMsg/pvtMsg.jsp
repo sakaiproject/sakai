@@ -52,7 +52,7 @@
 	  <h:dataTable styleClass="listHier lines nolines" cellpadding="0" cellspacing="0"  id="pvtmsgs" width="100%" value="#{PrivateMessagesTool.decoratedPvtMsgs}" var="rcvdItems" 
 	  	             rendered="#{PrivateMessagesTool.selectView != 'threaded'}"
 	  	             summary="#{msgs.pvtMsgListSummary}"
-					 columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
+					 columnClasses="attach,attach,attach,specialLink,bogus,bogus,bogus">
 	  	                
 		  <h:column>
 		    <f:facet name="header">
@@ -78,6 +78,16 @@
     	      </h:commandLink>
 			</f:facet>
 			<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
+		  </h:column>
+		  <h:column>
+		    <f:facet name="header">
+	        	<h:graphicImage value="/images/replied_menu.png"
+		                        title="#{msgs.pvt_msgs_replied}" 
+		                        alt="#{msgs.pvt_msgs_replied}" />
+			</f:facet>
+			<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
+								title="#{msgs.pvt_replied}"
+								alt="#{msgs.pvt_replied}" />			 
 		  </h:column>
 		  <h:column>
 		    <f:facet name="header">
@@ -177,7 +187,7 @@
 	  	                        var="rcvdItems" 
 	  	                        rendered="#{PrivateMessagesTool.selectView == 'threaded'}"
 	                        	 expanded="true"
-								 columnClasses="attach,attach,specialLink,bogus,bogus,bogus">
+								 columnClasses="attach,attach,attack,specialLink,bogus,bogus,bogus">
 		 	<h:column>
 		    <f:facet name="header">
  					<h:commandLink action="#{PrivateMessagesTool.processCheckAll}" value="#{msgs.cdfm_checkall}" 
@@ -192,6 +202,16 @@
 				</f:facet>
 				<h:graphicImage value="/images/attachment.gif" rendered="#{rcvdItems.msg.hasAttachments}" alt="#{msgs.msg_has_attach}" />			 
 			</h:column>
+			<h:column>
+				<f:facet name="header">					
+		        	<h:graphicImage value="/images/replied_menu.png"
+			                        title="#{msgs.pvt_msgs_replied}" 
+			                        alt="#{msgs.pvt_msgs_replied}" />
+				</f:facet>
+				<h:graphicImage value="/images/replied_flag.png" rendered="#{rcvdItems.replied}"
+									title="#{msgs.pvt_replied}"
+									alt="#{msgs.pvt_replied}" />			 
+		  	</h:column>
 			<h:column id="_msg_subject">
 		    <f:facet name="header">
 		       <h:outputText value="#{msgs.pvt_subject}"/>
