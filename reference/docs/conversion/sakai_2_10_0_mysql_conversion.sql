@@ -916,3 +916,18 @@ create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSE
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN START_DATE DATETIME NULL DEFAULT NULL;
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN END_DATE DATETIME NULL DEFAULT NULL;
 
+
+---------------
+--
+-- MSGCNTR-830 Mark replied messages on the "Received" folder.
+--
+---------------
+
+alter table MFR_PVT_MSG_USR_T add REPLIED bit not null default false; 
+
+--------------
+--
+-- END MSGCNTR-830 Mark replied messages on the "Received" folder.
+--
+--------------
+
