@@ -100,6 +100,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		actions.put(REORDER, new FolderReorderAction(REORDER, ActionType.REVISE_ORDER, typeId, false, localizer("action.reorder")));
 		actions.put(PERMISSIONS, new FolderPermissionsAction(PERMISSIONS, ActionType.REVISE_PERMISSIONS, typeId, "sakai.permissions.helper", localizer("action.permissions")));
 		actions.put(EXPAND, new BaseServiceLevelAction(EXPAND, ActionType.EXPAND_FOLDER, typeId, false, localizer("expand.item")));
+		actions.put(RESTORE, new FolderRestoreAction(RESTORE, ActionType.RESTORE, typeId, false, localizer("restore.item")));
 		actions.put(COLLAPSE, new BaseServiceLevelAction(COLLAPSE, ActionType.COLLAPSE_FOLDER, typeId, false, localizer("collapse.item")));
 		actions.put(COMPRESS_ZIP_FOLDER, new FolderCompressAction(COMPRESS_ZIP_FOLDER, ActionType.COMPRESS_ZIP_FOLDER, typeId, false, localizer("action.compresszipfolder")));
 		actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId, helperId, localizer("action.makesitepage")));
@@ -128,6 +129,13 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 
 	}
 
+	protected ContentHostingService getContentService() {
+		if(contentService == null)
+		{
+			contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
+		}
+		return contentService;
+	}
 
 	public class FolderPermissionsAction extends BaseInteractionAction
 	{
@@ -270,11 +278,7 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 							String siteId = ref.getContext();
 							if(siteId != null)
 							{
-								if(contentService == null)
-								{
-									contentService = (ContentHostingService) ComponentManager.get(ContentHostingService.class);
-								}
-								String dropboxId = contentService.getDropboxCollection(siteId);
+								String dropboxId = getContentService().getDropboxCollection(siteId);
 								if(entity.getId().equals(dropboxId))
 								{
 									ok = false;
@@ -320,6 +324,53 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 			return ok;
 		}
 	}
+	
+
+
+	public class FolderRestoreAction extends BaseServiceLevelAction {
+
+		public FolderRestoreAction(String id, ActionType actionType,
+				String typeId, boolean multipleItemAction, Localizer localizer) {
+			super(id, actionType, typeId, multipleItemAction, localizer);
+		}
+
+		public void cancelAction(Reference reference) {
+			// TODO Auto-generated method stub
+		}
+
+		public void finalizeAction(Reference reference) {
+			// TODO Auto-generated method stub      
+		}
+
+		public void initializeAction(Reference reference) {
+		}
+
+		public boolean isMultipleItemAction() {
+			// TODO Auto-generated method stub
+			return false;
+		}
+
+		public boolean available(ContentEntity entity) {
+			return !getContentService().getAllDeletedResources(entity.getId()).isEmpty();
+		}
+
+		public ActionType getActionType() {
+			return ResourceToolAction.ActionType.RESTORE;
+		}
+
+		public String getId() {
+			return ResourceToolAction.RESTORE;
+		}
+
+		public String getLabel() {
+			return rb.getString("action.restore"); 
+		}
+
+		public String getTypeId() {
+			return typeId;
+		}
+	}
+
 	
 	
 	public class FolderCompressAction extends BaseServiceLevelAction {

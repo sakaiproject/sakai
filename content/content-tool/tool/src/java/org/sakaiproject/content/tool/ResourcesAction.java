@@ -531,6 +531,8 @@ public class ResourcesAction
 	private static final String MODE_PROPERTIES = "properties";
 	
 	private static final String MODE_REORDER = "reorder";
+
+	private static final String MODE_RESTORE = "restore";
 	
 	protected static final String MODE_REVISE_METADATA = "revise_metadata";
 
@@ -785,6 +787,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	private static final String TEMPLATE_REORDER = "content/chef_resources_reorder";
 
+	private static final String TEMPLATE_RESTORE = "content/sakai_resources_restore";
+
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
@@ -825,6 +829,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.COMPRESS_ZIP_FOLDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.EXPAND_ZIP_ARCHIVE);
+		CONTENT_MODIFY_ACTIONS.add(ActionType.RESTORE);
 		
 		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
 		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
@@ -1316,7 +1321,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    	resource.setContent(content);
 	    }
     }
-	
+
 	/**
 	* Paste the item(s) selected to be moved
 	*/
@@ -4758,6 +4763,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildDropboxMultipleFoldersUploadPanelContext (portlet, context, data, state);
 		}
+		else if (mode.equals (MODE_RESTORE))
+		{
+			template = buildRestoreContext (portlet, context, data, state);
+		}
 		else if (mode.equals (MODE_REORDER))
 		{
 			template = buildReorderContext (portlet, context, data, state);
@@ -4933,6 +4942,78 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 	}
 	
+	/**
+	 * Build the context to establish restoring of resources/folders.
+	 */
+	public String buildRestoreContext(VelocityPortlet portlet, Context context, RunData data, SessionState state) 
+	{
+		context.put("tlang",rb);
+		
+		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
+		context.put("folderId", folderId);
+
+		List cPath = getCollectionPath(state);
+		context.put ("collectionPath", cPath);
+		
+		// save expanded folder lists
+		SortedSet<String> expandedCollections = (SortedSet<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
+		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
+
+		Set highlightedItems = new TreeSet();
+		List all_roots = new ArrayList();
+		List this_site = new ArrayList();
+
+		// find the ContentHosting service
+		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		List<ContentResource> members = contentService.getAllDeletedResources(folderId);
+		
+		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
+		
+		if(members != null && members.size() > 0)
+		{
+			ResourcesBrowseItem root = new ResourcesBrowseItem("ID",folderId,"");
+			List items = new LinkedList();
+			for(ContentResource resource: members) {   
+				ResourceProperties props = resource.getProperties();
+				String itemType = ((ContentResource)resource).getContentType();
+				String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+				ResourcesBrowseItem newItem = new ResourcesBrowseItem(resource.getId(), itemName, itemType);
+				try
+				{
+					Time modTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+					String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
+					newItem.setModifiedTime(modifiedTime);
+				}
+				catch(Exception e)
+				{
+					String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+					newItem.setModifiedTime(modifiedTimeString);
+				}
+				try
+				{
+					String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+					newItem.setModifiedBy(modifiedBy);
+				}
+				catch(Exception e)
+				{
+					String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+					newItem.setModifiedBy(modifiedBy);
+				}
+
+				items.add(newItem);
+			}
+			root.setName(rootTitle);
+			root.addMembers(items);
+			this_site.add(root);
+			all_roots.add(root);
+		}
+		context.put ("this_site", this_site);
+		
+
+		return TEMPLATE_RESTORE;
+	}
+
 	/**
 	 * Build the context to establish a custom-ordering of resources/folders within a folder.
 	 */
@@ -6260,6 +6341,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					pasteItem(state, selectedItemId);
 					//sAction.finalizeAction(reference);
 					break;
+				case RESTORE:
+					sAction.initializeAction(reference);
+					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
+					state.setAttribute(STATE_MODE, MODE_RESTORE);
+					sAction.finalizeAction(reference);
+					break;
 				case REVISE_ORDER:
 					sAction.initializeAction(reference);
 					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
@@ -7159,6 +7246,55 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			state.setAttribute(STATE_MODE, MODE_LIST);
 		}
+	}
+
+	/**
+	* Restore the files based on the selection
+	*/
+	public void doRestore( RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+
+		//get the ParameterParser from RunData
+		ParameterParser params = data.getParameters ();
+
+		String flow = params.getString("flow");
+		
+		if (!"cancel".equalsIgnoreCase("flow")) {
+			String[] selectedItems = params.getStrings("selectedMembers");	
+			if ("restore".equalsIgnoreCase(flow))
+			{
+				for (String selectedItem : selectedItems) {
+					try {
+						ContentHostingService.restoreResource(selectedItem);
+					} catch (Exception e) {
+						String[] args = { e.getClass().getName(), selectedItem, e.getMessage()};
+						addAlert(state, trb.getFormattedMessage("action.exception", args));					
+						logger.fatal("Unable to restore recourse with ID " + selectedItem ,e);
+					}
+				}
+			} 
+			else if ("remove".equalsIgnoreCase(flow))
+			{
+				for (String selectedItem : selectedItems) {
+					try {
+						ContentHostingService.removeDeletedResource(selectedItem);
+					} catch (Exception ex) {
+						String[] args = {ex.getClass().getName(),selectedItem, ex.getMessage() };
+						addAlert(state, trb.getFormattedMessage("action.exception", args));					
+						logger.fatal("Unable to permanently remove recourse with ID " + selectedItem ,ex);
+					}
+				}				
+			}
+		}
+
+		
+		if (state.getAttribute(STATE_MESSAGE) == null)
+		{
+			state.setAttribute (STATE_MODE, MODE_LIST);
+
+		}	// if-else
+
 	}
 
 	/**
