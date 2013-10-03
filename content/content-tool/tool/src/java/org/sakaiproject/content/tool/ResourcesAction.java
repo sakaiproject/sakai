@@ -5266,7 +5266,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("server_url", ServerConfigurationService.getServerUrl());
 		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
-		context.put("user_id", UserDirectoryService.getCurrentUser().getEid());
+		context.put("user_id", UserDirectoryService.getCurrentUser().getEid().matches(".*(;|/|\\?|:|@|&|=|\\+).*")?UserDirectoryService.getCurrentUser().getId():UserDirectoryService.getCurrentUser().getEid());
 		
 		if (ContentHostingService.isShortRefs())
 		{
