@@ -1,0 +1,347 @@
+## version: $Id$
+<!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<!-- this is the reorder template -->
+
+<div class="portletBody specialLink">
+	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
+		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
+		<input name="sakai_action" id="sakai_action" value="doRestore" type="hidden" />
+		<input name="flow" id="flow" value="save" type="hidden" />
+		<div class ="breadCrumb specialLink">
+			<h3>
+				$tlang.getString("restore.title")
+				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+				#foreach ($item in $collectionPath)
+					$validator.escapeHtml("$item.name")
+				#end
+			</h3>
+		</div>
+			<div class="navPanel">
+				<div class="navIntraToolLink viewNav">
+						<span>
+								<input id="restore-button" type="button" value="$tlang.getString("restore.restore")"
+									onclick="submitThis('restoreForm','restore')"
+									disabled="disabled" alt="$tlang.getString("restore.restore")" />
+								<input id="remove-button" type="button" value="$tlang.getString("restore.remove")"
+									onclick="submitThis('restoreForm','remove')"
+									disabled="disabled" alt="$tlang.getString("restore.remove")" />
+								<input id="cancel-button" type="button" value="$tlang.getString("restore.cancel")"
+									onclick="submitThis('restoreForm','cancel');" class="enabled"
+									alt="$tlang.getString("restore.cancel")" />
+						</span>
+				</div>
+			</div>	
+
+		<table class="listHier lines nolines" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
+			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
+			<tbody>
+			<tr>
+				<th id="checkboxes" >
+						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
+							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
+				</th>
+				<th id="title">
+					$tlang.getString("gen.title")
+				</th>
+				<th id="creator">
+					$tlang.getString("gen.lastby")
+				</th>
+				<th id="modified">
+					$tlang.getString("gen.last")
+				</th>
+			</tr>
+			#foreach($root in $this_site)
+
+				#set($collectionMembers = $root.members)
+				#set($count = 1)
+				#foreach($member in $collectionMembers)
+					<tr class="sortable">
+						<td headers="checkboxes">
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/>						
+						</td>
+						<td headers="title" style="text-indent: 1em;" class="specialLink">
+							<h4>
+								#if($member.isFolder())
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+								#else
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+								#end
+								$member.name
+							</h4>	
+						</td>
+						<td headers="creator">
+							$member.modifiedBy
+						</td>
+						<td headers="modified">
+							$member.ModifiedTime
+						</td>
+					</tr>
+					#set($count = $count + 1)
+				#end
+			#end
+			</tbody>
+		</table>
+		<input type="hidden" id="selectAll-count" value="0" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>						
+
+</div>
+<script language="JavaScript" type="text/javascript">
+	<!--
+		function submitform(id)
+		{
+			var theForm = document.getElementById(id);
+			if(theForm && theForm.onsubmit)
+			{
+				theForm.onsubmit();
+			}
+			if(theForm && theForm.submit)
+			{
+				theForm.submit();
+			}
+		}
+		function submitThis(id, flow)
+		{
+			document.getElementById("flow").value = flow;
+			submitform(id);
+		}
+		
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+
+			var restoreButton = document.getElementById("restore-button");
+			var removeButton = document.getElementById("remove-button");
+			var counter = document.getElementById("selectAll-count");
+
+			if(newValue == true)
+			{
+				caller.title = "Uncheck All";
+				if (counter) {
+					counter.value = elements.length;
+				}
+				
+				if(restoreButton)
+				{
+					restoreButton.disabled = false;
+					restoreButton.className='enabled';
+				}
+				if(removeButton)
+				{
+					removeButton.disabled = false;
+					removeButton.className='enabled';
+				}
+			} else {
+				caller.title = "Check All";
+
+				if (counter) {
+					counter.value = 0;
+				}
+
+				if(restoreButton)
+				{
+					restoreButton.disabled = true;
+					restoreButton.className='disabled';
+				}
+				if(removeButton)
+				{
+					removeButton.disabled = true;
+					removeButton.className='disabled';
+				}
+			}			
+		}
+		
+		function adjustCount(caller) {
+			var counter = document.getElementById("selectAll-count");
+			var restoreButton = document.getElementById("restore-button");
+			var removeButton = document.getElementById("remove-button");
+			if(caller && caller.checked && caller.checked == true)
+			{
+				counter.value = parseInt(counter.value) + 1;
+			}
+			else
+			{
+				counter.value = parseInt(counter.value) - 1;
+			}
+			
+			if(counter.value > 0)
+			{
+				if(restoreButton)
+				{
+					restoreButton.disabled = false;
+					restoreButton.className='enabled';
+				}
+				if(removeButton)
+				{
+					removeButton.disabled = false;
+					removeButton.className='enabled';
+				}
+			}
+			else
+			{
+				if(restoreButton)
+				{
+					restoreButton.disabled = true;
+					restoreButton.className='disabled';
+				}
+				if(removeButton)
+				{
+					removeButton.disabled = true;
+					removeButton.className='disabled';
+				}
+			}
+		}
+		
+		
+		
+		
+#*	gsilver - comment this out - leave here for later (makes reference to elements that do not exist in this context)
+		function setVisibility(thisInt) {
+			var radioElements = document.getElementsByName("selectedMembers");
+			
+			for(var i = 0; i < radioElements.length; i++) {
+				if (i != thisInt) {
+					document.getElementById("buttons"+i).style.display="none";
+					document.getElementById("radio"+i).style.display="block";
+				} else {
+					document.getElementById("buttons"+i).style.display="block";
+				    document.getElementById("radio"+i).style.display="none";
+					if (i == 0) {
+					  document.getElementById("upbutton"+i).disabled=true;
+					}
+					if (i == radioElements.length-1) {
+					  document.getElementById("downbutton"+i).disabled=true;
+					}
+					
+				}
+			}
+		}
+				document.getElementById("selectall").disabled = false;			
+				function openCopyrightWindow(theURL,winName,winSettings) 
+		{ 
+		  window.open(theURL,winName,winSettings);
+		  return false;
+		}
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+			
+			if(newValue == true)
+			{
+				caller.title = "Uncheck All";
+				var copyButton = document.getElementById("copyButton");
+				if(copyButton)
+				{
+					copyButton.disabled = false;
+					copyButton.className='enabled';
+				}
+				var moveButton = document.getElementById("moveButton");
+				if(moveButton)
+				{
+					moveButton.disabled = false;
+					moveButton.className = 'enabled';
+				}
+				var removeButton = document.getElementById("removeButton");
+				if(removeButton)
+				{
+					removeButton.disabled = false;
+					removeButton.className = 'enabled';
+				}
+				document.getElementById("copyCount").value = "3";
+				document.getElementById("moveCount").value = "0";
+				document.getElementById("removeCount").value = "0";
+			}
+			else
+			{
+				caller.title = "Check All";
+				var copyButton = document.getElementById("copyButton");
+				if(copyButton)
+				{
+					copyButton.disabled = true;
+					copyButton.className='disabled';
+				}
+				var moveButton = document.getElementById("moveButton");
+				if(moveButton)
+				{
+					moveButton.disabled = true;
+					moveButton.className = 'disabled';
+				}
+				var removeButton = document.getElementById("removeButton");
+				if(removeButton)
+				{
+					removeButton.disabled = true;
+					removeButton.className = 'disabled';
+				}
+				document.getElementById("removeCount").value = "0";
+				document.getElementById("moveCount").value = "0";
+				document.getElementById("copyCount").value = "0";
+			}
+		}
+		
+		function adjustCount(caller, countName, buttonName)
+		{
+			var counter = document.getElementById(countName);
+			var button = document.getElementById(buttonName);
+			
+			if(caller && caller.checked && caller.checked == true)
+			{
+				counter.value = parseInt(counter.value) + 1;
+			}
+			else
+			{
+				counter.value = parseInt(counter.value) - 1;
+			}
+	
+			if(button)
+			{
+				if(counter.value > 0)
+				{
+					button.disabled = false;
+					button.className='enabled';
+				}
+				else
+				{
+					button.disabled = true;
+					button.className='disabled';
+				}
+			}
+		}
+		
+		function disableLinks()
+		{
+			if(document.getElementsByName)
+			{
+				var enabledLinks = document.getElementsByName("enabledActionLinks");
+				var disabledLinks = document.getElementsByName("disabledActionLinks");
+				if(enabledLinks)
+				{
+					for(var i = 0; i < enabledLinks.length; i++)
+					{
+						//enabledLinks[i].innerHTML = disabledLinks[i].innerHTML;
+						enabledLinks[i].style.display="none";
+						disabledLinks[i].style.display="block";
+					}
+				}			
+			}
+		}
+	*#	
+	//-->
+</script>
