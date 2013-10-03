@@ -140,7 +140,7 @@ public interface ContentHostingHandlerResolver
 	 * @param edit
 	 * @param uuid
 	 */
-	void commitDeleteResource(ContentResourceEdit edit, String uuid);
+	void commitDeletedResource(ContentResourceEdit edit, String uuid)  throws ServerOverloadException;
 
 	/**
 	 * @param edit

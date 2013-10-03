@@ -27,10 +27,18 @@ import java.util.Set;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.content.api.ContentResourceFilter;
 import org.sakaiproject.content.api.GroupAwareEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.ServerOverloadException;
+
 import org.sakaiproject.exception.TypeException;
 
 /**
@@ -1113,6 +1121,24 @@ public class ContentHostingService
 		if (service == null) return null;
 		
 		return service.getResourcesOfType(resourceType, pageSize, page);
+	}
+
+	public static void restoreResource(String resourceId) throws PermissionException, IdUsedException, IdUnusedException, 
+		IdInvalidException, InconsistentException, OverQuotaException, ServerOverloadException, TypeException, InUseException 
+	{
+    	org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return ;
+		
+		service.restoreResource(resourceId);
+	}
+
+	public static void removeDeletedResource(String resourceId) throws PermissionException, 
+			IdUnusedException, TypeException, InUseException 
+	{
+    	org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return ;
+		
+		service.removeDeletedResource(resourceId);
 	}
 
 	/**

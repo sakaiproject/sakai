@@ -305,7 +305,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 	 * {@inheritDoc}
 	 */
 
-	public void commitDeleteResource( ContentResourceEdit edit, String uuid)
+	public void commitDeletedResource( ContentResourceEdit edit, String uuid) throws ServerOverloadException
 	{
 		ContentHostingHandler chh = edit.getContentHandler();
 		if (chh != null)
@@ -314,7 +314,7 @@ public class ContentHostingHandlerResolverImpl implements ContentHostingHandlerR
 		}
 		else
 		{
-			storage.commitDeleteResource(edit, uuid);
+			storage.commitDeletedResource(edit, uuid);
 		}
 	}
 

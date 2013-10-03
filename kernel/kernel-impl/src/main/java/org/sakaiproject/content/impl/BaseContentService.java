@@ -23,6 +23,7 @@ package org.sakaiproject.content.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -57,6 +58,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -237,6 +239,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Optional path to external file system file store for body binary. */
 	protected String m_bodyPath = null;
+	protected String m_bodyPathDeleted = null;
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
@@ -501,6 +504,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void setBodyPath(String value)
 	{
 		m_bodyPath = value;
+	}
+
+	/**
+	 * Configuration: set the external file system path for body storage for deleted files. 
+	 * 
+	 * @param value
+	 *        The complete path to the root of the external file system storage area for resource body bytes of deleted resources.
+	 */
+	public void setBodyPathDeleted(String value)
+	{
+		m_bodyPathDeleted = value;
 	}
 
 	/**
@@ -815,6 +829,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					userDirectoryService, m_serverConfigurationService);
 			dbNoti.setAction(dropboxNotification);
 
+			if (m_bodyPathDeleted != null) {
+				File deletedFolder = new File(m_bodyPathDeleted);
+				if (!deletedFolder.exists()) {
+					if (!deletedFolder.mkdirs()) {
+						M_log.error("failed to create bodyPathDeleted " + m_bodyPathDeleted + ". Resource backup to file system has been disabled! Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService");
+						m_bodyPathDeleted = null;
+					}
+				}
+			}
 
 			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)
@@ -1843,7 +1866,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 	} // addProperties
-
+	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Collections
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -2232,6 +2255,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 	} // getAllEntities
+
+	/**
+	 * Access a List of all the deleted ContentResource objects in this path (and below) which the current user has access.
+	 * 
+	 * @param id
+	 *        A collection id.
+	 * @return a List of the ContentResource objects.
+	 * @throws PermissionException 
+	 * @throws TypeException 
+	 * @throws IdUnusedException 
+	 */
+	public List getAllDeletedResources(String id)
+	{
+		try {
+			ContentCollection collection = getCollection(id);
+			return m_storage.getDeletedResources(collection);
+		} catch (IdUnusedException iue) {
+			M_log.warn("getAllDeletedResources: cannot retrieve collection for : " + id);
+		} catch (TypeException te) {
+			M_log.warn("getAllDeletedResources: resource with id: " + id + " not a collection");
+		} catch (PermissionException pe) {
+			M_log.warn("getAllDeletedResources: access to resource with id: " + id + " failed : " + pe);
+		}
+		return new ArrayList(0);
+	} // getAllDeletedResources
 
 
 	/**
@@ -4022,6 +4070,38 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *            if the resource is locked by someone else.
 	 * @return the ContentResource object found.
 	 */
+	public ContentResourceEdit editDeletedResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	{
+	  // check security 
+//      if ( ! allowUpdateResource(id) )
+//		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+//                                       AUTH_RESOURCE_WRITE_ANY, getReference(id));
+
+		// ignore the cache - get the collection with a lock from the info store
+		BaseResourceEdit resource = (BaseResourceEdit) m_storage.editDeletedResource(id);
+		if (resource == null) throw new InUseException(id);
+
+		resource.setEvent(EVENT_RESOURCE_WRITE);
+
+		return resource;
+
+	} // editResource
+
+	/**
+	 * Access the resource with this resource id, locked for update. For non-collection resources only. Must commitEdit() to make official, or cancelEdit() when done! The resource content and properties are accessible from the returned Resource object.
+	 * 
+	 * @param id
+	 *        The id of the resource.
+	 * @exception PermissionException
+	 *            if the user does not have permissions to read the resource or read through any containing collection.
+	 * @exception IdUnusedException
+	 *            if the resource id is not found.
+	 * @exception TypeException
+	 *            if the resource is a collection.
+	 * @exception InUseException
+	 *            if the resource is locked by someone else.
+	 * @return the ContentResource object found.
+	 */
 	protected ContentResourceEdit editResourceForDelete(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
 	{
 		// check security (throws if not permitted)
@@ -4240,7 +4320,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @exception InUseException
 	 *            if the resource is locked by someone else.
 	 */
-	public void removeResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	public void removeResource(String id) throws PermissionException, IdUnusedException, 
+		TypeException, InUseException
+	
 	{
 		BaseResourceEdit edit = (BaseResourceEdit) editResourceForDelete(id);
 		removeResource(edit);
@@ -4291,9 +4373,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		// htripath -store the metadata information into a delete table
 		// assumed uuid is not null as checkExplicitLock(id) throws exception when null
-		String uuid = this.getUuid(id);
-		String userId = sessionManager.getCurrentSessionUserId().trim();
-		addResourceToDeleteTable(edit, uuid, userId);
+
+		try {
+			String uuid = this.getUuid(id);
+			String userId = sessionManager.getCurrentSessionUserId().trim();
+			addResourceToDeleteTable(edit, uuid, userId);
+			edit.setContentLength(0);  // we stop removing it entry from the DB 
+		} catch (ServerOverloadException soe) {
+			M_log.debug("removeResource: could not save deleted resource, restore for this resource is not possible " + soe );  
+		}
 
 		// complete the edit
 		m_storage.removeResource(edit, removeContent);
@@ -4333,7 +4421,145 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	} // removeResource
 
+	public void removeDeletedResource(String id) throws PermissionException, IdUnusedException, TypeException, InUseException
+	{
+		BaseResourceEdit edit = (BaseResourceEdit) editDeletedResource(id); 
+		removeDeletedResource(edit);
+	
+	} // removeResource
+	
+	/**
+	 * Remove a resource from the deleted table.
+	 * 
+	 * @param edit
+	 *        The ContentResourceEdit object to remove.
+	 * @exception PermissionException
+	 *            if the user does not have permissions to read a containing collection, or to remove this resource.
+	 */
+	public void removeDeletedResource(ContentResourceEdit edit) throws PermissionException
+	{
+		// check for closed edit
+		if (!edit.isActiveEdit())
+		{
+			Exception e = new Exception();
+			M_log.warn("removeDeletedResource(): closed ContentResourceEdit", e);
+			return;
+		}
 
+		// check security (throws if not permitted)
+//		if ( ! allowRemoveResource(edit.getId()) )
+//		   throw new PermissionException(SessionManager.getCurrentSessionUserId(), 
+//                                       AUTH_RESOURCE_REMOVE_ANY, edit.getReference());
+//
+
+		// complete the edit
+		m_storage.removeDeletedResource(edit);
+
+		// close the edit object
+		((BaseResourceEdit) edit).closeEdit();
+		
+		((BaseResourceEdit) edit).setRemoved();
+
+		// remove old version of this edit from thread-local cache
+		threadLocalManager.set("findResource@" + edit.getId(), null);
+
+		// remove any realm defined for this resource
+		try
+		{
+			m_authzGroupService.removeAuthzGroup(m_authzGroupService.getAuthzGroup(edit.getReference()));
+		}
+		catch (AuthzPermissionException e)
+		{
+			M_log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + e);
+		}
+		catch (GroupNotDefinedException ignore)
+		{
+			M_log.debug("removeResource: removing realm for : " + edit.getReference() + " : " + ignore);
+		}
+
+	} // removeDeletedResource
+
+	public void restoreResource(String id) throws PermissionException, IdUsedException, IdUnusedException,
+		IdInvalidException,	InconsistentException, OverQuotaException, ServerOverloadException, 
+		TypeException, InUseException
+	{
+		ContentResourceEdit deleResource;
+		try {
+			deleResource = editDeletedResource(id);
+		} catch (IdUnusedException iue) {
+			M_log.error("restoreResource: cannot locate deleted resource " + id, iue);
+			throw iue;
+		} catch (TypeException te) {
+			M_log.error("restoreResource: invalid type " + id, te);
+			throw te;
+		} catch (InUseException ie) {
+			M_log.error("restoreResource: resource in use " + id, ie);
+			throw ie;
+		} catch (PermissionException pe) {
+			M_log.error("restoreResource: access to resource not permitted" + id, pe);
+			throw pe;			
+		}
+		ContentResourceEdit newResource;
+		try {
+			newResource = addResource(id);
+		} catch (IdUsedException iue) {
+			M_log.error("restoreResource: cannot restore resource " + id, iue);
+			throw iue;
+		}
+		newResource.setContentType(deleResource.getContentType());
+		newResource.setContentLength(deleResource.getContentLength());
+		newResource.setResourceType(deleResource.getResourceType());
+		newResource.setAvailability(deleResource.isHidden(), deleResource.getReleaseDate(),deleResource.getRetractDate());
+		newResource.setContent(m_storage.streamDeletedResourceBody(deleResource));
+		try {
+			addProperties(newResource.getPropertiesEdit(), deleResource.getProperties());
+			commitResource(newResource);
+			
+		} catch (ServerOverloadException e) {
+			M_log.debug("ServerOverloadException " + e);
+			try
+			{
+				removeResource(newResource.getId());
+			}
+			catch(Exception e1)
+			{
+				// ignore -- no need to remove the resource if it doesn't exist
+				M_log.debug("Unable to remove partially completed resource: " + newResource.getId() + "\n" + e1); 
+			}
+			throw e;
+		} catch (OverQuotaException e) {
+			M_log.debug("OverQuotaException " + e);
+			try
+			{
+				removeResource(newResource.getId());
+			}
+			catch(Exception e1)
+			{
+				// ignore -- no need to remove the resource if it doesn't exist
+				M_log.debug("Unable to remove partially completed resource: " + newResource.getId() + "\n" + e1); 
+			}
+			throw e;
+		} 
+		try {
+			// If you're storing the file in DB this breaks as it removes the restored file.
+			removeDeletedResource(deleResource);
+			// close the edit object
+			((BaseResourceEdit) deleResource).closeEdit();
+		} catch (PermissionException pe) {
+			M_log.error("restoreResource: access to resource not permitted" + id, pe);
+			try
+			{
+				removeResource(newResource.getId());
+			}
+			catch(Exception e1)
+			{
+				// ignore -- no need to remove the resource if it doesn't exist
+				M_log.debug("Unable to remove partially completed resource: " + deleResource.getId() + "\n" + e1); 
+			}
+			throw pe;			
+		} 
+	}
+	
 	/**
 	 * Store the resource in a separate delete table
 	 * 
@@ -4344,22 +4570,43 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @exception ServerOverloadException
 	 *            if server is configured to save resource body in filesystem and attempt to read from filesystem fails.
 	 */
-	public void addResourceToDeleteTable(ContentResourceEdit edit, String uuid, String userId) throws PermissionException
+	public void addResourceToDeleteTable(ContentResourceEdit edit, String uuid, String userId) throws PermissionException, ServerOverloadException
 	{
 		String id = edit.getId();
 		String content_type = edit.getContentType();
 
+		String resource_type = edit.getResourceType();
 
 		// KNL-245 do not read the resource body, as this is not subsequently written out
 		
 		ResourceProperties properties = edit.getProperties();
 
-		addDeleteResource(id, content_type, null, properties, uuid, userId,
+		InputStream content = null;
+		try
+		{
+			content = edit.streamContent();
+			addDeleteResource(id, 
+				content_type, content, resource_type, edit.getReleaseDate(), edit.getRetractDate(), 
+				properties, uuid, userId,
 				NotificationService.NOTI_OPTIONAL);
+		}
+		finally
+		{
+			if (content != null)
+			{
+				try
+				{
+					content.close();
+				}
+				catch (IOException e)
+				{
+					M_log.warn("Failed to close when saving deleted content stream.", e);
+				}
+			}
+		}
 	}
 
-	public ContentResource addDeleteResource(String id, String type, byte[] content, ResourceProperties properties, String uuid,
-			String userId, int priority) throws PermissionException
+	public ContentResource addDeleteResource(String id, String type, InputStream inputStream, String resourceType, Time releaseDate, Time retractDate, ResourceProperties properties, String uuid, String userId, int priority) throws PermissionException, ServerOverloadException
 			{
 		id = (String) fixTypeAndId(id, type).get("id");
 		// resource must also NOT end with a separator characters (fix it)
@@ -4384,14 +4631,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		edit.setEvent(EVENT_RESOURCE_ADD);
 
 		edit.setContentType(type);
-		if (content != null)
+		edit.setResourceType(resourceType);
+		edit.setReleaseDate(releaseDate);
+		edit.setRetractDate(retractDate);
+		if (inputStream != null)
 		{
-			edit.setContent(content);
+			edit.setContent(inputStream);
 		}
 		addProperties(edit.getPropertiesEdit(), properties);
 
 		// complete the edit - update xml which contains properties xml and store the file content
-		m_storage.commitDeleteResource(edit, uuid);
+		m_storage.commitDeletedResource(edit, uuid);
 
 		// close the edit object
 		((BaseResourceEdit) edit).closeEdit();
@@ -12945,6 +13195,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		public byte[] getResourceBody(ContentResource resource) throws ServerOverloadException;
 
+		/*
+		 * Stream the resource's body for deleted resource.
+		 * 
+		 * @exception ServerOverloadException
+		 *            if server is configured to save resource body in filesystem and an error occurs while trying to access the filesystem.
+		 */
+		public InputStream streamDeletedResourceBody(ContentResource resource) throws ServerOverloadException;
+
 		/**
 		 * Stream the resource's body.
 		 * 
@@ -12957,13 +13215,19 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 * Return a single character representing the access mode of the resource or collection identified by the parameter, or null if not found.
 		 * @param id
 		 * @return A character identifying the access mode for the content entity, one of 's' for site, 'p' for public or 'g' for group.
+		 * @throws ServerOverloadException 
+
 		 */
 		//public char getAccessMode(String id);
 
 		// htripath-storing into shadow table before deleting the resource
-		public void commitDeleteResource(ContentResourceEdit edit, String uuid);
+		public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException;
 
 		public ContentResourceEdit putDeleteResource(String resourceId, String uuid, String userId);
+
+		public List getDeletedResources(ContentCollection collection);      
+		public ContentResourceEdit editDeletedResource(String resourceId);      
+		public void removeDeletedResource(ContentResourceEdit edit); 
 
 		/**
 		 * Retrieve a collection of ContentResource objects pf a particular resource-type.  The collection will 
