@@ -57,7 +57,7 @@ public class UserEditPage  extends BaseTreePage{
 		return  tree;
 	}
 
-	public UserEditPage(final SearchResult searchResult){
+	public UserEditPage(final String userId, final String displayName){
 
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
@@ -71,7 +71,7 @@ public class UserEditPage  extends BaseTreePage{
 		add(formFeedback2);
 
 		//USER NAME & IMAGE:
-		add(new Label("userName", searchResult.getDisplayName()));
+		add(new Label("userName", displayName));
 		//FORM:
 		Form form = new Form("form");
 		add(form);
@@ -139,7 +139,7 @@ public class UserEditPage  extends BaseTreePage{
 			}
 		}
 		
-		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(searchResult.getId(), true, false);
+		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(userId, true, false);
 		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
@@ -155,7 +155,7 @@ public class UserEditPage  extends BaseTreePage{
 				
 				boolean anyAdded = false;
 				if(!tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, false, accessAdminNodeIds, false, false);
+					anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, false, accessAdminNodeIds, false, false);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 				}
 				if(anyAdded){
@@ -171,7 +171,7 @@ public class UserEditPage  extends BaseTreePage{
 				//the nodes are generated on the fly with ajax.  This will add any child nodes that 
 				//are missing in the tree.  Expanding and collapsing will refresh the tree node
 				if(tree.getTreeState().isNodeExpanded(node) && !((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).isAddedDirectChildrenFlag()){
-					boolean anyAdded = projectLogic.addChildrenNodes(node, searchResult.getId(), blankRestrictedTools, false, accessAdminNodeIds, false, false);
+					boolean anyAdded = projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, false, accessAdminNodeIds, false, false);
 					((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).setAddedDirectChildrenFlag(true);
 					if(anyAdded){
 						collapseEmptyFoldersHelper((DefaultMutableTreeNode) node);
@@ -194,7 +194,7 @@ public class UserEditPage  extends BaseTreePage{
 			protected void onSubmit(AjaxRequestTarget target, Form arg1) {
 				try{
 					//save node access and roll information:
-					updateNodeAccess(searchResult.getId(), defaultRole);
+					updateNodeAccess(userId, defaultRole);
 
 					//display a "saved" message
 					formFeedback.setDefaultModel(new ResourceModel("success.save"));

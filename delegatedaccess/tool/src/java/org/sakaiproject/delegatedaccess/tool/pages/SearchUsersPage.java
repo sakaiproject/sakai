@@ -124,14 +124,21 @@ public class SearchUsersPage extends BasePage {
 			@Override
 			public void populateItem(final Item item) {
 				final SearchResult searchResult = (SearchResult) item.getModelObject();
-				Link<Void> userIdLink = new Link("userIdLink"){
+				item.add(new Label("userId", searchResult.getEid()));
+				Link<Void> userEditLink = new Link("editLink"){
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
-						setResponsePage(new UserEditPage(searchResult));
+						setResponsePage(new UserEditPage(searchResult.getId(), searchResult.getDisplayName()));
 					}
 				};
-				userIdLink.add(new Label("userId", searchResult.getEid()));
-				item.add(userIdLink);
+				item.add(userEditLink);
+				Link<Void> userViewLink = new Link("viewLink"){
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						setResponsePage(new SearchAccessPage(false, searchResult.getEid()));
+					}
+				};
+				item.add(userViewLink);
 				item.add(new Label("name", searchResult.getSortName()));
 				item.add(new Label("email", searchResult.getEmail()));
 				item.add(new Label("type", searchResult.getType()));

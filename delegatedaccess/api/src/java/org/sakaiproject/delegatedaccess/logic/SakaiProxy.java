@@ -412,4 +412,11 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public boolean allowAccessAdminsSetBecomeUserPerm();
+	
+	/**
+	 * returns user by eid
+	 * @param eid
+	 * @return
+	 */
+	public User getUserByEid(String eid);
 }

@@ -3,7 +3,6 @@ package org.sakaiproject.delegatedaccess.logic;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,18 +21,15 @@ import javax.swing.tree.TreeModel;
 
 import lombok.Getter;
 import lombok.Setter;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.app.scheduler.DelayedInvocation;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.model.AccessNode;
+import org.sakaiproject.delegatedaccess.model.AccessSearchResult;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -46,8 +42,8 @@ import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -2426,5 +2422,154 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}else{
 			return false;
 		}
+	}
+	
+	public HierarchyNodeSerialized getRootNodeId(){
+		return new HierarchyNodeSerialized(hierarchyService.getRootNode(DelegatedAccessConstants.HIERARCHY_ID));
+	}
+	
+	public Set<HierarchyNodeSerialized> getDirectNodes(String nodeId){
+		HierarchyNodeSerialized node = getCachedNode(nodeId);
+		Set<HierarchyNodeSerialized> returnSet = new HashSet<HierarchyNodeSerialized>();
+		if(node != null && node.directChildNodeIds != null){
+			for(String id : node.directChildNodeIds){
+				returnSet.add(getCachedNode(id));
+			}
+		}
+		return returnSet;
+	}
+	
+	public List<AccessSearchResult> getAccessForUser(User user){
+		List<AccessSearchResult> returnSet = new ArrayList<AccessSearchResult>();
+		if(user != null){
+			//Access Nodes
+			Set<HierarchyNodeSerialized> accessNodes = getAccessNodesForUser(user.getId());
+			for(HierarchyNodeSerialized n : accessNodes){
+				AccessSearchResult r = new AccessSearchResult();
+				r.setId(user.getId());
+				r.setEid(user.getEid());
+				r.setSortName(user.getDisplayName());
+				r.setType(DelegatedAccessConstants.TYPE_ACCESS);
+				int level = 0;
+				if(n.parentNodeIds != null){
+					level = n.parentNodeIds.size();
+				}
+				r.setLevel(level);
+				r.setHierarchyNodes(getHierarchyForNode(n));
+				returnSet.add(r);
+			}
+			//Shoppinger period nodes
+			Set<HierarchyNodeSerialized> shoppingAdminNodes = getShoppingPeriodAdminNodesForUser(user.getId());
+			for(HierarchyNodeSerialized n : shoppingAdminNodes){
+				AccessSearchResult r = new AccessSearchResult();
+				r.setId(user.getId());
+				r.setEid(user.getEid());
+				r.setSortName(user.getDisplayName());
+				r.setType(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER);
+				int level = 0;
+				if(n.parentNodeIds != null){
+					level = n.parentNodeIds.size();
+				}
+				r.setLevel(level);
+				r.setHierarchyNodes(getHierarchyForNode(n));
+				returnSet.add(r);
+			}
+			//Access Admin nodes
+			Set<HierarchyNodeSerialized> accessAdminNodes = getAccessAdminNodesForUser(user.getId());
+			for(HierarchyNodeSerialized n : accessAdminNodes){
+				AccessSearchResult r = new AccessSearchResult();
+				r.setId(user.getId());
+				r.setEid(user.getEid());
+				r.setDisplayName(user.getDisplayName());
+				r.setSortName(user.getSortName());
+				r.setType(DelegatedAccessConstants.TYPE_ACCESS_ADMIN);
+				int level = 0;
+				if(n.parentNodeIds != null){
+					level = n.parentNodeIds.size();
+				}
+				r.setLevel(level);
+				r.setHierarchyNodes(getHierarchyForNode(n));
+				returnSet.add(r);
+			}
+		}
+				
+		return returnSet;
+	}
+	
+	private List<String> getHierarchyForNode(HierarchyNodeSerialized node){
+		List<String> returnList = new ArrayList<String>();
+		for(String parentId : getOrderedParentsList(node)){
+			HierarchyNodeSerialized parentNode = getCachedNode(parentId);
+			returnList.add(parentNode.description);
+		}
+		returnList.add(node.description);
+		return returnList;
+	}
+
+	@Override
+	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder) {
+		List<AccessSearchResult> returnSet = new ArrayList<AccessSearchResult>();
+		Map<String, Map<String, Set<String>>> usersAndPerms = hierarchyService.getUsersAndPermsForNodes(nodeSelectOrder.toArray(new String[nodeSelectOrder.size()]));
+		if(usersAndPerms != null){
+			for(Entry<String, Map<String, Set<String>>> usersAndPermsForNode : usersAndPerms.entrySet()){
+				String nodeId = usersAndPermsForNode.getKey();
+				for(Entry<String, Set<String>> userAndPerms : usersAndPermsForNode.getValue().entrySet()){
+					User u = sakaiProxy.getUser(userAndPerms.getKey());
+					if(u != null){
+						boolean hasAccess = getIsDirectAccess(userAndPerms.getValue());
+						boolean hasShoppingAdmin = isShoppingPeriodAdmin(userAndPerms.getValue());
+						boolean hasAccessAdmin = getIsAccessAdmin(userAndPerms.getValue());
+						if(hasAccess || hasShoppingAdmin || hasAccessAdmin){
+							String id = u.getId();
+							String eid = u.getEid();
+							String displayName = u.getDisplayName();
+							String sortName = u.getSortName();
+							HierarchyNodeSerialized node = getCachedNode(nodeId);
+							int level = 0;
+							if(node.parentNodeIds != null){
+								level = node.parentNodeIds.size();
+							}
+							List<String> hierarchy = getHierarchyForNode(node);
+
+							if(hasAccess){
+								AccessSearchResult r = new AccessSearchResult();
+								r.setId(id);
+								r.setEid(eid);
+								r.setDisplayName(displayName);
+								r.setSortName(sortName);
+								r.setType(DelegatedAccessConstants.TYPE_ACCESS);
+								r.setLevel(level);
+								r.setHierarchyNodes(hierarchy);
+								returnSet.add(r);
+							}
+							if(hasShoppingAdmin){
+								AccessSearchResult r = new AccessSearchResult();
+								r.setId(id);
+								r.setEid(eid);
+								r.setDisplayName(displayName);
+								r.setSortName(sortName);
+								r.setType(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER);
+								r.setLevel(level);
+								r.setHierarchyNodes(hierarchy);
+								returnSet.add(r);
+							}
+							if(hasShoppingAdmin){
+								AccessSearchResult r = new AccessSearchResult();
+								r.setId(id);
+								r.setEid(eid);
+								r.setDisplayName(displayName);
+								r.setSortName(sortName);
+								r.setType(DelegatedAccessConstants.TYPE_ACCESS_ADMIN);
+								r.setLevel(level);
+								r.setHierarchyNodes(hierarchy);
+								returnSet.add(r);
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		return returnSet;
 	}
 }

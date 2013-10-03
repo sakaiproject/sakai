@@ -45,6 +45,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> shoppingAdminLink;
 	Link<Void> shoppingStatsLink;
 	Link<Void> searchUsersLink;
+	Link<Void> searchAccessLink;
 	Link<Void> administrateLink;
 	boolean hasShoppingAdmin;
 	boolean hasDelegatedAccess;
@@ -129,6 +130,21 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		searchUsersLink.add(new Label("thirdLinkLabel",new ResourceModel("link.third")).setRenderBodyOnly(true));
 		searchUsersLink.add(new AttributeModifier("title", true, new ResourceModel("link.third.tooltip")));
 		add(searchUsersLink);
+		
+		//search access link
+		searchAccessLink = new Link<Void>("searchAccessLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new SearchAccessPage());
+			}
+			@Override
+			public boolean isVisible() {
+				return (sakaiProxy.isSuperUser() || hasAccessAdmin) && !shoppingPeriodTool;
+			}
+		};
+		searchAccessLink.add(new Label("searchAccessLinkLabel",new ResourceModel("searchAccessLinkLabel")).setRenderBodyOnly(true));
+		searchAccessLink.add(new AttributeModifier("title", true, new ResourceModel("searchAccessLinkLabel.tooltip")));
+		add(searchAccessLink);
 		
 		//administrate link
 		administrateLink = new Link<Void>("administrateLink") {

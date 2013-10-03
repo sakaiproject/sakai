@@ -227,6 +227,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public User getUserByEid(String eid){
+		try {
+			return userDirectoryService.getUserByEid(eid);
+		} catch (UserNotDefinedException e) {
+			return null;
+		}
+	}
 	/**
 	 * {@inheritDoc}
 	 */

@@ -1,13 +1,29 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
-
+<wicket:head>
+    <style>
+    	.headerText{
+			font-weight: bold;
+		}
+		
+		.inputForm{
+			-webkit-border-radius: 5px;
+			-moz-border-radius: 5px;
+			border-radius: 5px;
+			background: none repeat scroll 0 0 #ddd;
+			padding: 0.3em;
+		}
+    </style>
+</wicket:head>
 <body>
 <wicket:extend>
-	
-	<h3>Search for users:</h3>
+	<br/>
 	<form wicket:id="form">
-		<input type="text" wicket:id="search" />
-		<input type="submit"/>
+		<span class="inputForm" style="display:inline-block">
+			<span class="headerText">Search for users:</span>
+			<input type="text" wicket:id="search" />
+			<input type="submit"/>
+		</span>
 	</form>	
 	<br/>	
 	<span wicket:id="searchResultsTitle">Results for: </span><span wicket:id="searchString" style="font-weight: bold">user search string</span>
@@ -18,12 +34,14 @@
     <tbody>
     	<tr>
     	<th><a wicket:id="userIdSortLink"><wicket:message key="userIdHeader"/></a></th>
+    	<th></th>
     	<th><a wicket:id="nameSortLink"><wicket:message key="nameHeader"/></a></th>
     	<th><a wicket:id="emailSortLink"><wicket:message key="emailHeader"/></a></th>
     	<th><a wicket:id="typeSortLink"><wicket:message key="typeHeader"/></a></th>
     	</tr>
        <tr wicket:id="searchResult">
-       	 <td><a wicket:id="userIdLink"><span wicket:id="userId">test</span></a></td>
+       	 <td><span wicket:id="userId">test</span></td>
+       	 <td><a wicket:id="editLink"><wicket:message key="edit"/></a> &nbsp; <a wicket:id="viewLink"><wicket:message key="viewAccess"/></a></td>
        	 <td><span wicket:id="name">Last, First</span></td>
          <td><span wicket:id="email">test@test.com</span></td>
          <td><span wicket:id="type">Student</span></td>

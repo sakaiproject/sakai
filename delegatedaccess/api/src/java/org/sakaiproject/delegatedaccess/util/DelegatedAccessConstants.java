@@ -25,6 +25,7 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_SHOW_TOOLS = 9;
 	public static final int SEARCH_COMPARE_ACCESS_MODIFIED = 10;
 	public static final int SEARCH_COMPARE_ACCESS_MODIFIED_BY = 11;
+	public static final int SEARCH_COMPARE_LEVEL = 12;
 	public static final String SCHOOL_PROPERTY = "School";
 	public static final String DEPEARTMENT_PROPERTY = "Department";
 	public static final String SUBJECT_PROPERTY = "Subject";

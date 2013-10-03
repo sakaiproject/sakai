@@ -9,12 +9,14 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 import org.sakaiproject.delegatedaccess.model.AccessNode;
+import org.sakaiproject.delegatedaccess.model.AccessSearchResult;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
-import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.sakaiproject.user.api.User;
 
 
 
@@ -307,4 +309,33 @@ public interface ProjectLogic {
 	 * @return
 	 */
 	public boolean isUserAllowBecomeUser(String userId, String siteRef);
+	
+	/**
+	 * returns the root node for DA
+	 * 
+	 * @return
+	 */
+	public HierarchyNodeSerialized getRootNodeId();
+	
+	/**
+	 * returns a set of direct children nodes for passed in node id
+	 * @param nodeId
+	 * @return
+	 */
+	public Set<HierarchyNodeSerialized> getDirectNodes(String nodeId);
+	
+	/**
+	 * returns a list of AccessSearchResult based on the user id
+	 * @param userId
+	 * @return
+	 */
+	public List<AccessSearchResult> getAccessForUser(User user);
+
+	/**
+	 * returns a list of results for every level that is passed in.
+	 * expects a list of ordered node ids 
+	 * @param nodeSelectOrder
+	 * @return
+	 */
+	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder);
 }
