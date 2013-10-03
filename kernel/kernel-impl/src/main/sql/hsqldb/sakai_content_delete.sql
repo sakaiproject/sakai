@@ -1,6 +1,5 @@
 -----------------------------------------------------------------------------
 -- CONTENT_RESOURCE_BODY_BINARY_DELETE
--- TODO: add CONTENT_RESOURCE_BODY_BINARY_DELETE table if required
 -----------------------------------------------------------------------------
 
 CREATE TABLE CONTENT_RESOURCE_DELETE
@@ -22,5 +21,16 @@ CREATE TABLE CONTENT_RESOURCE_DELETE
 CREATE INDEX CONTENT_RESOURCE_DELETE_INDEX ON CONTENT_RESOURCE_DELETE
 (
 	RESOURCE_ID
+);
+
+-----------------------------------------------------------------------------
+-- CONTENT_RESOURCE_BODY_BINARY
+-----------------------------------------------------------------------------
+
+CREATE TABLE CONTENT_RESOURCE_BODY_BINARY_DELETE
+(
+    RESOURCE_ID VARCHAR (255) NOT NULL,
+    BODY BINARY,
+    CONSTRAINT CONTENT_RESOURCE_BB_INDEX UNIQUE (RESOURCE_ID)
 );
 
