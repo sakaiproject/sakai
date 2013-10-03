@@ -112,50 +112,63 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	@EntityCustomAction(action="image",viewKey=EntityView.VIEW_SHOW)
 	public Object getProfileImage(OutputStream out, EntityView view, Map<String,Object> params, EntityReference ref) {
 		
-		//convert input to uuid
-		String uuid = sakaiProxy.ensureUuid(ref.getId());
-		if(StringUtils.isBlank(uuid)) {
-			throw new EntityNotFoundException("Invalid user.", ref.getId());
-		}
+		final String id = ref.getId();
+
+        final boolean wantsBlank = id.equals(ProfileConstants.BLANK);
+
+        String uuid = "";
+
+        if(!wantsBlank) {
+		    //convert input to uuid
+		    uuid = sakaiProxy.ensureUuid(ref.getId());
+            if(StringUtils.isBlank(uuid)) {
+                throw new EntityNotFoundException("Invalid user.", ref.getId());
+            }
+        }
 		
 		ProfileImage image = null;
-		boolean wantsThumbnail = StringUtils.equals("thumb", view.getPathSegment(3)) ? true : false;
+		final boolean wantsThumbnail = StringUtils.equals("thumb", view.getPathSegment(3)) ? true : false;
 		
 		boolean wantsAvatar = false;
 		if(!wantsThumbnail) {
 			wantsAvatar = StringUtils.equals("avatar", view.getPathSegment(3)) ? true : false;
 		}
 		
-		boolean wantsOfficial = StringUtils.equals("official", view.getPathSegment(3)) ? true : false;
-		
+		final boolean wantsOfficial = StringUtils.equals("official", view.getPathSegment(3)) ? true : false;
+
 		if(log.isDebugEnabled()) {
 			log.debug("wantsThumbnail:" + wantsThumbnail);
 			log.debug("wantsAvatar:" + wantsAvatar);
 			log.debug("wantsOfficial:" + wantsOfficial);
+			log.debug("wantsBlank:" + wantsBlank);
 		}
 		
 		//optional siteid
-		String siteId = (String)params.get("siteId");
+		final String siteId = (String)params.get("siteId");
 		if(StringUtils.isNotBlank(siteId) && !sakaiProxy.checkForSite(siteId)){
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, ref.getReference());
 		}
 		
-		//get thumb or avatar if requested - or fallback
-		if(wantsThumbnail) {
-			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
-		} 
-		if(!wantsThumbnail && wantsAvatar) {
-			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_AVATAR, siteId);
-		}
-		if(!wantsThumbnail && !wantsAvatar) {
-			image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
-		}
-		if(wantsOfficial) {
-			image = imageLogic.getOfficialProfileImage(uuid, siteId);
-		}
+        if(wantsBlank) {
+            image = imageLogic.getBlankProfileImage();
+        } else {
+		    //get thumb or avatar if requested - or fallback
+            if(wantsThumbnail) {
+                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, siteId);
+            } 
+            if(!wantsThumbnail && wantsAvatar) {
+                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_AVATAR, siteId);
+            }
+            if(!wantsThumbnail && !wantsAvatar) {
+                image = imageLogic.getProfileImage(uuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN, siteId);
+            }
+            if(wantsOfficial) {
+			    image = imageLogic.getOfficialProfileImage(uuid, siteId);
+		    }
+        }
 		
 		if(image == null) {
-			throw new EntityNotFoundException("No profile image for " + ref.getId(), ref.getReference());
+			throw new EntityNotFoundException("No profile image for " + id, ref.getReference());
 		}
 		
 		//check for binary
@@ -166,17 +179,16 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 				ActionReturn actionReturn = new ActionReturn("BASE64", image.getMimeType(), out);
 				return actionReturn;
 			} catch (IOException e) {
-				throw new EntityException("Error retrieving profile image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+				throw new EntityException("Error retrieving profile image for " + id + " : " + e.getMessage(), ref.getReference());
 			}
 		}
 		
-		
-		String url = image.getUrl();
+		final String url = image.getUrl();
 		if(StringUtils.isNotBlank(url)) {
 			try {
 				requestGetter.getResponse().sendRedirect(url);
 			} catch (IOException e) {
-				throw new EntityException("Error redirecting to external image for " + ref.getId() + " : " + e.getMessage(), ref.getReference());
+				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());
 			}
 		}
 		

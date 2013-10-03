@@ -54,6 +54,15 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 
 	private static final Logger log = Logger.getLogger(ProfileImageLogicImpl.class);
 
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public ProfileImage getBlankProfileImage() {
+
+		ProfileImage profileImage = new ProfileImage();
+        profileImage.setExternalImageUrl(getUnavailableImageURL());
+        return profileImage;
+    }
 	
 	/**
  	 * {@inheritDoc}

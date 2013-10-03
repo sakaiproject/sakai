@@ -33,6 +33,12 @@ import org.sakaiproject.profile2.model.ProfilePrivacy;
  */
 public interface ProfileImageLogic {
 
+    /**
+     * Get the blank profile image, the one a user sees if there is
+     * no other image available.
+     */
+	public ProfileImage getBlankProfileImage();
+
 	/**
 	 * Get the profile image for a user. Takes into account all global settings, user preferences and privacy.
 	 * 
