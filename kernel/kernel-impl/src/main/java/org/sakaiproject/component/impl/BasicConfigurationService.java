@@ -1130,8 +1130,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
          *        (obj1 charge is less than, equal to, or greater than the obj2 charge)
          */
         public int compare(Locale localeOne, Locale localeTwo) {
-            String displayNameOne = localeOne.getDisplayName();
-            String displayNameTwo = localeTwo.getDisplayName();
+            String displayNameOne = localeOne.getDisplayName(localeOne).toLowerCase();
+            String displayNameTwo = localeTwo.getDisplayName(localeTwo).toLowerCase();
             return displayNameOne.compareTo(displayNameTwo);
         }
 

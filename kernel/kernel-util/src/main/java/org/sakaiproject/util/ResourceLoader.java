@@ -32,6 +32,7 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -209,6 +210,36 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 			// ignore
 			return dflt;
 		}
+	}
+   
+	/**
+	** Return a locale's display Name
+	**
+	** @return String used to display Locale
+	**
+	** @author Jean-Francois Leveque (Universite Pierre et Marie Curie - Paris 6)
+	**/
+	public String getLocaleDisplayName(Locale loc) {
+		Locale preferedLoc = getLocale();
+		String languageInLoc = loc.getDisplayLanguage(loc);
+		String countryInLoc = loc.getDisplayCountry(loc);
+		String locCode = loc.toString();
+		String languageInPrefLoc = loc.getDisplayLanguage(preferedLoc);
+		String countryInPrefLoc = loc.getDisplayCountry(preferedLoc);
+
+		StringBuilder displayName = new StringBuilder(languageInLoc + " - " + countryInLoc);
+
+		if (StringUtils.isNotBlank(loc.getVariant())) {
+			displayName.append(" (" + loc.getDisplayVariant(loc) + ")");
+		}
+
+		displayName.append(" [" + locCode + "] " + languageInPrefLoc);
+
+		if (StringUtils.isNotBlank(countryInPrefLoc)) {
+ 			displayName.append(" - " + countryInPrefLoc);
+		}
+
+		return displayName.toString();
 	}
    
 	/**
