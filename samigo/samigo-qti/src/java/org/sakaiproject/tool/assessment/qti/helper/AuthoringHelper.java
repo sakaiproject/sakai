@@ -41,6 +41,8 @@ import javax.xml.transform.Source;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.*;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.xml.sax.SAXException;
 
 
@@ -720,6 +722,11 @@ public class AuthoringHelper
       
       // Assessment Attachment
       exHelper.makeAssessmentAttachmentSet(assessment);
+
+      String siteTitle = SiteService.getSite(ToolManager.getCurrentPlacement().getContext()).getTitle();
+      if(siteTitle != null && !siteTitle.equals(assessment.getAssessmentAccessControl().getReleaseTo())){
+          assessment.getAssessmentAccessControl().setReleaseTo(siteTitle);
+      }
 
       assessmentService.saveAssessment(assessment);
       return assessment;
