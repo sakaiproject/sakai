@@ -49,6 +49,7 @@
 						<wicket:component wicket:id="hierarchyDropdowns">
 							<select wicket:id="hierarchyLevel" onchange=" this.form.submit();"/>
 						</wicket:component>
+						<input type="checkbox" wicket:id="includeLowerPerms" id="includeLowerPerms"/><label for="includeLowerPerms" wicket:id="includeLowerPermsLabel"><span class="headerText" wicket:id="includeLowerPermsLabelText"/></label>
 				</div>
 				<div class="eidFields" wicket:id="eidFields">
 						<input type="text" name="eid" id="eid" wicket:id="eid" />
@@ -65,6 +66,9 @@
 		<span>
 			<span wicket:id="userName" style="font-size: 150%">User Name</span>
 			&nbsp;<a wicket:id="editUserLink"><wicket:message key="edit"/></a>
+			<wicket:enclosure child="removeAllPerms">
+				&nbsp;|&nbsp;<a wicket:id="removeAllPerms"><wicket:message key="removeAllPerms"/></a>
+			</wicket:enclosure>
 		</span>
 		<br/>
 		<br/>
@@ -82,10 +86,11 @@
     	<th><a wicket:id="typeSortLink"><wicket:message key="typeHeader"/></a></th>
     	<th><a wicket:id="levelSortLink"><wicket:message key="levelHeader"/></a></th>
     	<th><span wicket:id="hierarchyHeader">Hierarchy</span></th>
+    	<th></th>
     	</tr>
        <tr wicket:id="searchResult">
-       	 <wicket:enclosure child="userIdLink">
-       	 	<td><a wicket:id="userIdLink"><span wicket:id="userId">test</span></a></td>
+       	 <wicket:enclosure child="userId">
+       	 	<td><span wicket:id="userId">test</span></td>
        	 	<td><span wicket:id="name">Last, First</span></td>
        	 </wicket:enclosure>
        	 <td><span wicket:id="type">Access</span></td>
@@ -94,6 +99,15 @@
 		      <span wicket:id="hierarchy">
 		        <span wicket:id="hierarchyTitle"/><br/>
 		      </span>
+         </td>
+         <td>
+         	 <wicket:enclosure child="view">
+         		<a wicket:id="view"><wicket:message key="viewAccess"/></a>&nbsp;|&nbsp;
+         	 </wicket:enclosure>
+         	 <wicket:enclosure child="edit">
+         	 	<a wicket:id="edit"><wicket:message key="edit"/></a>&nbsp;|&nbsp;
+         	 </wicket:enclosure>
+         	 <a wicket:id="remove"><wicket:message key="remove"/></a>
          </td>
        </tr>
     </tbody>

@@ -13,7 +13,15 @@ public class AccessSearchResult implements Serializable{
 	private int level;
 	private int type;
 	private List<String> hierarchyNodes;
+	private String nodeId;
+	private boolean canEdit = false;
 	
+	public String getNodeId() {
+		return nodeId;
+	}
+	public void setNodeId(String nodeId) {
+		this.nodeId = nodeId;
+	}
 	public String getId() {
 		return id;
 	}
@@ -56,5 +64,11 @@ public class AccessSearchResult implements Serializable{
 	}
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
+	}
+	public boolean isCanEdit() {
+		return canEdit;
+	}
+	public void setCanEdit(boolean canEdit) {
+		this.canEdit = canEdit;
 	}
 }

@@ -99,7 +99,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * {@inheritDoc}
 	 */
 	public void updateNodePermissionsForUser(DefaultMutableTreeNode node, String userId){
-		NodeModel nodeModel = (NodeModel) node.getUserObject();
+		updateNodePermissionsForUser((NodeModel) node.getUserObject(), userId);
+	}
+	
+	private void updateNodePermissionsForUser(NodeModel nodeModel, String userId){
+		
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);
 
@@ -973,7 +977,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	private boolean isShoppingPeriodAdmin(Set<String> perms){
 		for(String perm : perms){
-			if(perm.startsWith(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN)){
+			if(perm.equals(DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN)){
 				return true;
 			}
 		}
@@ -2442,9 +2446,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public List<AccessSearchResult> getAccessForUser(User user){
 		List<AccessSearchResult> returnSet = new ArrayList<AccessSearchResult>();
 		if(user != null){
+			boolean isAdmin = sakaiProxy.isSuperUser();
+			Set<String> accessAdminNodesArr = new HashSet<String>();
+			if(!isAdmin){
+				Set<HierarchyNodeSerialized> accessAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+				for(HierarchyNodeSerialized n : accessAdminNodes){
+					accessAdminNodesArr.add(n.id);
+					accessAdminNodesArr.addAll(n.childNodeIds);
+				}
+			}
+			
 			//Access Nodes
 			Set<HierarchyNodeSerialized> accessNodes = getAccessNodesForUser(user.getId());
 			for(HierarchyNodeSerialized n : accessNodes){
+				boolean canEdit = false;
+				if(isAdmin || accessAdminNodesArr.contains(n.id)){
+					canEdit = true;
+				}
 				AccessSearchResult r = new AccessSearchResult();
 				r.setId(user.getId());
 				r.setEid(user.getEid());
@@ -2456,11 +2474,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 				r.setLevel(level);
 				r.setHierarchyNodes(getHierarchyForNode(n));
+				r.setNodeId(n.id);
+				r.setCanEdit(canEdit);
 				returnSet.add(r);
 			}
 			//Shoppinger period nodes
 			Set<HierarchyNodeSerialized> shoppingAdminNodes = getShoppingPeriodAdminNodesForUser(user.getId());
 			for(HierarchyNodeSerialized n : shoppingAdminNodes){
+				boolean canEdit = false;
+				if(isAdmin || accessAdminNodesArr.contains(n.id)){
+					canEdit = true;
+				}
 				AccessSearchResult r = new AccessSearchResult();
 				r.setId(user.getId());
 				r.setEid(user.getEid());
@@ -2472,11 +2496,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 				r.setLevel(level);
 				r.setHierarchyNodes(getHierarchyForNode(n));
+				r.setNodeId(n.id);
+				r.setCanEdit(canEdit);
 				returnSet.add(r);
 			}
 			//Access Admin nodes
 			Set<HierarchyNodeSerialized> accessAdminNodes = getAccessAdminNodesForUser(user.getId());
 			for(HierarchyNodeSerialized n : accessAdminNodes){
+				boolean canEdit = false;
+				if(isAdmin || accessAdminNodesArr.contains(n.id)){
+					canEdit = true;
+				}
 				AccessSearchResult r = new AccessSearchResult();
 				r.setId(user.getId());
 				r.setEid(user.getEid());
@@ -2489,6 +2519,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 				}
 				r.setLevel(level);
 				r.setHierarchyNodes(getHierarchyForNode(n));
+				r.setNodeId(n.id);
+				r.setCanEdit(canEdit);
 				returnSet.add(r);
 			}
 		}
@@ -2507,63 +2539,96 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 
 	@Override
-	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder) {
+	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder, boolean includeLowerPerms) {
+		boolean isAdmin = sakaiProxy.isSuperUser();
+		Set<String> accessAdminNodesArr = new HashSet<String>();
+		if(!isAdmin){
+			Set<HierarchyNodeSerialized> accessAdminNodes = getAccessAdminNodesForUser(sakaiProxy.getCurrentUserId());
+			for(HierarchyNodeSerialized n : accessAdminNodes){
+				accessAdminNodesArr.add(n.id);
+				accessAdminNodesArr.addAll(n.childNodeIds);
+			}
+		}
 		List<AccessSearchResult> returnSet = new ArrayList<AccessSearchResult>();
-		Map<String, Map<String, Set<String>>> usersAndPerms = hierarchyService.getUsersAndPermsForNodes(nodeSelectOrder.toArray(new String[nodeSelectOrder.size()]));
-		if(usersAndPerms != null){
-			for(Entry<String, Map<String, Set<String>>> usersAndPermsForNode : usersAndPerms.entrySet()){
-				String nodeId = usersAndPermsForNode.getKey();
-				for(Entry<String, Set<String>> userAndPerms : usersAndPermsForNode.getValue().entrySet()){
-					User u = sakaiProxy.getUser(userAndPerms.getKey());
-					if(u != null){
-						boolean hasAccess = getIsDirectAccess(userAndPerms.getValue());
-						boolean hasShoppingAdmin = isShoppingPeriodAdmin(userAndPerms.getValue());
-						boolean hasAccessAdmin = getIsAccessAdmin(userAndPerms.getValue());
-						if(hasAccess || hasShoppingAdmin || hasAccessAdmin){
-							String id = u.getId();
-							String eid = u.getEid();
-							String displayName = u.getDisplayName();
-							String sortName = u.getSortName();
-							HierarchyNodeSerialized node = getCachedNode(nodeId);
-							int level = 0;
-							if(node.parentNodeIds != null){
-								level = node.parentNodeIds.size();
-							}
-							List<String> hierarchy = getHierarchyForNode(node);
+		
+		if((isAdmin || accessAdminNodesArr.size() > 0) && nodeSelectOrder != null && nodeSelectOrder.size() > 0){
+			Set<String> searchNodes = new HashSet<String>();
+			if(includeLowerPerms){
+				//we want to look at the lowest level and find all users who have access at that level or below
+				HierarchyNode searchNode = hierarchyService.getNodeById(nodeSelectOrder.get(nodeSelectOrder.size() - 1));
+				searchNodes.add(searchNode.id);
+				searchNodes.addAll(searchNode.childNodeIds);
+			}
+			//we also want to audit as well, so include the hierarchy node ids above the last 
+			searchNodes.addAll(nodeSelectOrder);
 
-							if(hasAccess){
-								AccessSearchResult r = new AccessSearchResult();
-								r.setId(id);
-								r.setEid(eid);
-								r.setDisplayName(displayName);
-								r.setSortName(sortName);
-								r.setType(DelegatedAccessConstants.TYPE_ACCESS);
-								r.setLevel(level);
-								r.setHierarchyNodes(hierarchy);
-								returnSet.add(r);
+			Map<String, Map<String, Set<String>>> usersAndPerms = hierarchyService.getUsersAndPermsForNodes(searchNodes.toArray(new String[searchNodes.size()]));
+			if(usersAndPerms != null){
+				for(Entry<String, Map<String, Set<String>>> usersAndPermsForNode : usersAndPerms.entrySet()){
+					String nodeId = usersAndPermsForNode.getKey();
+					boolean canEdit = false;
+					if(isAdmin || accessAdminNodesArr.contains(nodeId)){
+						canEdit = true;
+					}
+					for(Entry<String, Set<String>> userAndPerms : usersAndPermsForNode.getValue().entrySet()){
+						User u = sakaiProxy.getUser(userAndPerms.getKey());
+						if(u != null){
+							boolean hasAccess = getIsDirectAccess(userAndPerms.getValue());
+							boolean hasShoppingAdmin = isShoppingPeriodAdmin(userAndPerms.getValue());
+							boolean hasAccessAdmin = getIsAccessAdmin(userAndPerms.getValue());
+							if(hasAccess || hasShoppingAdmin || hasAccessAdmin){
+								String id = u.getId();
+								String eid = u.getEid();
+								String displayName = u.getDisplayName();
+								String sortName = u.getSortName();
+								HierarchyNodeSerialized node = getCachedNode(nodeId);
+								int level = 0;
+								if(node.parentNodeIds != null){
+									level = node.parentNodeIds.size();
+								}
+								List<String> hierarchy = getHierarchyForNode(node);
+
+								if(hasAccess){
+									AccessSearchResult r = new AccessSearchResult();
+									r.setId(id);
+									r.setEid(eid);
+									r.setDisplayName(displayName);
+									r.setSortName(sortName);
+									r.setType(DelegatedAccessConstants.TYPE_ACCESS);
+									r.setLevel(level);
+									r.setHierarchyNodes(hierarchy);
+									r.setNodeId(nodeId);
+									r.setCanEdit(canEdit);
+									returnSet.add(r);
+								}
+								if(hasShoppingAdmin){
+									AccessSearchResult r = new AccessSearchResult();
+									r.setId(id);
+									r.setEid(eid);
+									r.setDisplayName(displayName);
+									r.setSortName(sortName);
+									r.setType(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER);
+									r.setLevel(level);
+									r.setHierarchyNodes(hierarchy);
+									r.setNodeId(nodeId);
+									r.setCanEdit(canEdit);
+									returnSet.add(r);
+								}
+								if(hasAccessAdmin){
+									AccessSearchResult r = new AccessSearchResult();
+									r.setId(id);
+									r.setEid(eid);
+									r.setDisplayName(displayName);
+									r.setSortName(sortName);
+									r.setType(DelegatedAccessConstants.TYPE_ACCESS_ADMIN);
+									r.setLevel(level);
+									r.setHierarchyNodes(hierarchy);
+									r.setNodeId(nodeId);
+									r.setCanEdit(canEdit);
+									returnSet.add(r);
+								}
 							}
-							if(hasShoppingAdmin){
-								AccessSearchResult r = new AccessSearchResult();
-								r.setId(id);
-								r.setEid(eid);
-								r.setDisplayName(displayName);
-								r.setSortName(sortName);
-								r.setType(DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER);
-								r.setLevel(level);
-								r.setHierarchyNodes(hierarchy);
-								returnSet.add(r);
-							}
-							if(hasShoppingAdmin){
-								AccessSearchResult r = new AccessSearchResult();
-								r.setId(id);
-								r.setEid(eid);
-								r.setDisplayName(displayName);
-								r.setSortName(sortName);
-								r.setType(DelegatedAccessConstants.TYPE_ACCESS_ADMIN);
-								r.setLevel(level);
-								r.setHierarchyNodes(hierarchy);
-								returnSet.add(r);
-							}
+
 						}
 					}
 				}
@@ -2571,5 +2636,40 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 		
 		return returnSet;
+	}
+	
+	public void removeAccess(String nodeId, String userId, int accessType){
+		NodeModel model = getNodeModel(nodeId, userId);
+		if(model != null){
+			switch (accessType) {
+			case DelegatedAccessConstants.TYPE_ACCESS:
+				model.setDirectAccess(false);
+				break;
+			case DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER:
+				model.setShoppingPeriodAdmin(false);
+				break;
+				
+			case DelegatedAccessConstants.TYPE_ACCESS_ADMIN:
+				model.setAccessAdmin(false);
+				break;
+			}
+			updateNodePermissionsForUser(model, userId);
+			syncMyworkspaceToolForUser(userId);
+		}
+	}
+	
+	public void removeAllPermsForUser(String userId){
+		boolean updated = false;
+		for(HierarchyNodeSerialized n : getAllNodesForUser(userId)){
+			NodeModel model = getNodeModel(n.id, userId);
+			if(model != null){
+				model.setDirectAccess(false);
+				model.setShoppingPeriodAdmin(false);
+				model.setAccessAdmin(false);
+				updateNodePermissionsForUser(model, userId);
+				updated = true;
+			}
+		}
+		syncMyworkspaceToolForUser(userId);
 	}
 }

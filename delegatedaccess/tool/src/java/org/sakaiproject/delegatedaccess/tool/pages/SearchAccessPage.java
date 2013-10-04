@@ -14,9 +14,11 @@ import org.apache.wicket.ajax.AjaxEventBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -59,6 +61,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 	private DataView<AccessSearchResult> dataView;
 	private int rowIndex = 0; 
 	private boolean firstLoad = true;
+	private boolean includeLowerPerms = true;
 	
 	public SearchAccessPage(){
 		main();
@@ -267,6 +270,13 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		};
 		hierarchyDiv.add(dropdowns);
 		
+		//include lower perms checkbox:
+		CheckBox checkbox = new CheckBox("includeLowerPerms", new PropertyModel(this, "includeLowerPerms"));
+		FormComponentLabel checkboxLabel = new FormComponentLabel("includeLowerPermsLabel", checkbox);
+		checkboxLabel.add(new Label("includeLowerPermsLabelText", new StringResourceModel("includeLowerPermsLabel", null)));
+		hierarchyDiv.add(checkboxLabel);
+		hierarchyDiv.add(checkbox);
+		
 		form.add(hierarchyDiv);
 		
 		
@@ -380,7 +390,23 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			}
 		});
 		
-		
+		Link removeAllPermsLink = new Link("removeAllPerms"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				User u = sakaiProxy.getUserByEid(eid);
+				if(u != null){
+					projectLogic.removeAllPermsForUser(u.getId());
+					provider.detachManually();
+				}
+			}
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser();
+			}
+		};
+		String confirm = new StringResourceModel("confirmRemoveAll", null).getObject();
+		removeAllPermsLink.add( new SimpleAttributeModifier("onclick", "return confirm('" + confirm + "');"));
+		add(removeAllPermsLink);
 		
 		//Data
 		String[] tmpHierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
@@ -395,19 +421,12 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			@Override
 			public void populateItem(final Item item) {
 				final AccessSearchResult searchResult = (AccessSearchResult) item.getModelObject();
-				Link<Void> userIdLink = new Link("userIdLink"){
-					private static final long serialVersionUID = 1L;
-					public void onClick() {
-						setResponsePage(new UserEditPage(searchResult.getId(), searchResult.getDisplayName()));
-					}
-					
+				item.add(new Label("userId", searchResult.getEid()){
 					@Override
 					public boolean isVisible() {
 						return searchTypeHierarchy.equals(selectedSearchType);
 					}
-				};
-				userIdLink.add(new Label("userId", searchResult.getEid()));
-				item.add(userIdLink);
+				});
 				item.add(new Label("name", searchResult.getSortName()));
 				item.add(new Label("type", new StringResourceModel("accessType" + searchResult.getType(), null)));
 				String level = "";
@@ -433,6 +452,47 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 					
 				});
+				Link<Void> viewLink = new Link("view"){
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						setResponsePage(new SearchAccessPage(false, searchResult.getEid()));
+					}
+					
+					@Override
+					public boolean isVisible() {
+						return searchTypeHierarchy.equals(selectedSearchType);
+					}
+				};
+				item.add(viewLink);
+				Link<Void> userIdLink = new Link("edit"){
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						setResponsePage(new UserEditPage(searchResult.getId(), searchResult.getDisplayName()));
+					}
+					
+					@Override
+					public boolean isVisible() {
+						return searchTypeHierarchy.equals(selectedSearchType);
+					}
+				};
+				item.add(userIdLink);
+				Link<Void> removeLink = new Link("remove"){
+					@Override
+					public void onClick() {
+						projectLogic.removeAccess(searchResult.getNodeId(), searchResult.getId(), searchResult.getType());
+						provider.detachManually();
+					}
+					
+					@Override
+					public boolean isVisible() {
+						return searchResult.isCanEdit();
+					}
+				};
+				String confirm = new StringResourceModel("confirmRemove", null).getObject();
+				removeLink.add( new SimpleAttributeModifier("onclick", "return confirm('" + confirm + "');"));
+				item.add(removeLink);
+				
+				
 				//add css class
 				if(rowIndex == 100){
 					rowIndex = 0;
@@ -586,7 +646,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 						list = projectLogic.getAccessForUser(u);
 					}
 				}else if(selectedSearchType.equals(searchTypeHierarchy) && nodeSelectOrder != null && nodeSelectOrder.size() > 0){
-					list = projectLogic.getAccessAtLevel(nodeSelectOrder);
+					list = projectLogic.getAccessAtLevel(nodeSelectOrder, includeLowerPerms);
 				}
 			}else if(lastOrderAsc != orderAsc || lastOrderBy != orderBy){
 				sortList();

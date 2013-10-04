@@ -15,6 +15,7 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
 import org.sakaiproject.user.api.User;
 
@@ -335,7 +336,27 @@ public interface ProjectLogic {
 	 * returns a list of results for every level that is passed in.
 	 * expects a list of ordered node ids 
 	 * @param nodeSelectOrder
+	 * @param includeLowerPerms
 	 * @return
 	 */
-	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder);
+	public List<AccessSearchResult> getAccessAtLevel(List<String> nodeSelectOrder, boolean includeLowerPerms);
+	
+	/**
+	 * This will remove access at the node id passed in.  The types are:
+	 * DelegatedAccessConstants.TYPE_ACCESS
+	 * DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER
+	 * DelegatedAccessConstants.TYPE_ACCESS_ADMIN
+	 * 
+	 * 
+	 * @param nodeId
+	 * @param userId
+	 * @param accessType
+	 */
+	public void removeAccess(String nodeId, String userId, int accessType);
+	
+	/**
+	 * Removes all permissions for a user
+	 * @param userId
+	 */
+	public void removeAllPermsForUser(String userId);
 }
