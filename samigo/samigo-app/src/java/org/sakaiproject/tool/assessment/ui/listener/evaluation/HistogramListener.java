@@ -541,7 +541,13 @@ public class HistogramListener
 				  if (questionScores.getQuestionType().equals("1") 
 						  || questionScores.getQuestionType().equals("2")
 						  || questionScores.getQuestionType().equals("3")
-						  || questionScores.getQuestionType().equals("4")) {
+						  || questionScores.getQuestionType().equals("4")
+						  || questionScores.getQuestionType().equals("8")
+						  || questionScores.getQuestionType().equals("9")
+						  || questionScores.getQuestionType().equals("11")
+						  || questionScores.getQuestionType().equals("12")
+						  || questionScores.getQuestionType().equals("15")
+						) {
 					  detailedStatistics.add(questionScores);
 					  if (questionScores.getHistogramBars() != null) {
 						  maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
@@ -1237,7 +1243,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         int correct = qbean.getNumResponses() - assessmentQuestionIncorrect.size();
         int total = qbean.getNumResponses();
         double percentCorrect = ((double) correct / (double) total) * 100;
-        String percentCorrectStr = Double.toString(percentCorrect);
+        String percentCorrectStr = Integer.toString((int)percentCorrect);
         qbean.setPercentCorrect(percentCorrectStr);
     }
 }
