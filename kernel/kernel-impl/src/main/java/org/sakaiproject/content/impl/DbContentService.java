@@ -155,8 +155,8 @@ public class DbContentService extends BaseContentService
     /** Table name for resources delete. */
     protected String m_resourceDeleteTableName = "CONTENT_RESOURCE_DELETE";
 
-    /** Table name for resources delete. */
-    protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BODY_BINARY_DELETE";
+    /** Table name for resources delete. Has to be less than 30 characters */
+    protected String m_resourceBodyDeleteTableName = "CONTENT_RESOURCE_BB_DELETE";
 
     /** The chunk size used when streaming (100k). */
     protected static final int STREAM_BUFFER_SIZE = 102400;
