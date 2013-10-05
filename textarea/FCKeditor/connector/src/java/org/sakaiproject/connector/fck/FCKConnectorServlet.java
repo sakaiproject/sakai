@@ -101,10 +101,6 @@ import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
  * 
  */
 
-/**
- * @author corley
- *
- */
 public class FCKConnectorServlet extends HttpServlet {
 
 	 private static Log M_log = LogFactory.getLog(FCKConnectorServlet.class);
