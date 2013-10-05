@@ -46,6 +46,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
@@ -64,6 +66,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 import org.w3c.dom.Document;
@@ -98,7 +101,13 @@ import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
  * 
  */
 
+/**
+ * @author corley
+ *
+ */
 public class FCKConnectorServlet extends HttpServlet {
+
+	 private static Log M_log = LogFactory.getLog(FCKConnectorServlet.class);
 
      private static final long serialVersionUID = 1L;
 
@@ -106,7 +115,6 @@ public class FCKConnectorServlet extends HttpServlet {
      private static final String MFORUM_TOPIC_PREFIX = "/direct/forum_topic/";
      private static final String MFORUM_MESSAGE_PREFIX = "/direct/forum_message/";
      
-
      private static final String FCK_ADVISOR_BASE = "fck.security.advisor.";
      private static final String CK_ADVISOR_BASE = "ck.security.advisor.";
      private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
@@ -119,6 +127,8 @@ public class FCKConnectorServlet extends HttpServlet {
      private NotificationService notificationService = null;
      private SiteService siteService = null;
      private SecurityAdvisor contentNewAdvisor = null;
+
+	 private ResourceLoader resourceBundle;
 
      /**
       * Injects dependencies using the ComponentManager cover.
@@ -154,6 +164,10 @@ public class FCKConnectorServlet extends HttpServlet {
           if (siteService == null) {
               siteService = (SiteService) inject("org.sakaiproject.site.api.SiteService");
      }
+
+          if (resourceBundle == null) {
+        	  resourceBundle = new ResourceLoader("org.sakaiproject.connector.fck.Messages");
+          }
           if (contentNewAdvisor == null) {
         	  contentNewAdvisor = new SecurityAdvisor(){
         		  	public SecurityAdvice isAllowed(String userId, String function, String reference){
@@ -175,7 +189,42 @@ public class FCKConnectorServlet extends HttpServlet {
           super.init();
           initialize();
      }
+     
+     /**
+     * pops a special private advisor when necessary
+     * @param thisDir Directory where this is referencing
+     * @param collectionBase base of the collection
+     */
+    private void popPrivateAdvisor(String thisDir, String collectionBase) {
+    	 if (thisDir.startsWith("/private/")) {
+    		 SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession().getAttribute(FCK_ADVISOR_BASE + collectionBase);
+    		 if (advisor != null) {
+    			 securityService.popAdvisor(advisor);
+    		 }
+    		 advisor = (SecurityAdvisor) sessionManager.getCurrentSession().getAttribute(CK_ADVISOR_BASE + collectionBase);
+    		 if (advisor != null) {
+    			 securityService.popAdvisor(advisor);
+    		 }
+    	 }
+     }
 
+    /**
+     * pushes a special private advisor when necessary
+     * @param thisDir Directory where this is referencing
+     * @param collectionBase base of the collection
+     */
+     private void pushPrivateAdvisor(String thisDir, String collectionBase) {
+    	 if (thisDir.startsWith("/private/")) {
+    		 SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession().getAttribute(FCK_ADVISOR_BASE + collectionBase);
+    		 if (advisor != null) {
+    			 securityService.pushAdvisor(advisor);
+    		 }
+    		 advisor = (SecurityAdvisor) sessionManager.getCurrentSession().getAttribute(CK_ADVISOR_BASE + collectionBase);
+    		 if (advisor != null) {
+    			 securityService.pushAdvisor(advisor);
+    		 }
+    	 }
+     }
      /**
       * Manage the Get requests (GetFolders, GetFoldersAndFiles, CreateFolder).<br>
       *
@@ -200,19 +249,6 @@ public class FCKConnectorServlet extends HttpServlet {
 
           String collectionBase = request.getPathInfo();
 
-          SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
-               .getAttribute(FCK_ADVISOR_BASE + collectionBase);
-          if (advisor != null) {
-               securityService.pushAdvisor(advisor);
-          }
-
-	  advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
-               .getAttribute(CK_ADVISOR_BASE + collectionBase);
-          if (advisor != null) {
-               securityService.pushAdvisor(advisor);
-          }
-
-          
           Document document = null;
           try {
                DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -226,18 +262,27 @@ public class FCKConnectorServlet extends HttpServlet {
           Node root = createCommonXml(document, commandStr, type, currentFolder, 
                contentHostingService.getUrl(currentFolder));
           
+          //To support meletedocs, the call to getFolders has to be able to retrieve all folders that are part of melete private (which will be passed in) as 
+          //well as ones that are not. This is why the advisor is being manipulated inside the getfolders method.
+          
           if ("GetFolders".equals(commandStr)) {
                getFolders(currentFolder, root, document, collectionBase);
           }
           else if ("GetFoldersAndFiles".equals(commandStr)) {
                getFolders(currentFolder, root, document, collectionBase);
+               //Might need this advisor for files
+               pushPrivateAdvisor(currentFolder,collectionBase);
                getFiles(currentFolder, root, document, type);
+               popPrivateAdvisor(currentFolder,collectionBase);
           }
           else if ("GetFoldersFilesAssignsTestsTopics".equals(commandStr)) {
              ConnectorHelper thisConnectorHelper = new ConnectorHelper();
              thisConnectorHelper.init();
              getFolders(currentFolder, root, document, collectionBase);
+             //Might need this advisor for files
+             pushPrivateAdvisor(currentFolder,collectionBase);
              getFilesOnly(currentFolder, root, document, type);
+             popPrivateAdvisor(currentFolder,collectionBase);
              getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
              getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
 
@@ -246,20 +291,25 @@ public class FCKConnectorServlet extends HttpServlet {
           else if ("GetResourcesAssignsTestsTopics".equals(commandStr)) {
              ConnectorHelper thisConnectorHelper = new ConnectorHelper();
              thisConnectorHelper.init();
+             pushPrivateAdvisor(currentFolder,collectionBase);
              getResources(currentFolder, root, document, collectionBase, type);
+             popPrivateAdvisor(currentFolder,collectionBase);
              getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
              getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
 
              getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
           }
           else if ("GetResources".equals(commandStr)) {
+        	  pushPrivateAdvisor(currentFolder,collectionBase);
               getResources(currentFolder, root, document, collectionBase, type);
+        	  popPrivateAdvisor(currentFolder,collectionBase);
           }          
           
           
           else if ("CreateFolder".equals(commandStr)) {
                String newFolderStr = request.getParameter("NewFolderName");
                String status = "110";
+               pushPrivateAdvisor(currentFolder,collectionBase);
                
                try {
                     ContentCollectionEdit edit = contentHostingService
@@ -284,6 +334,7 @@ public class FCKConnectorServlet extends HttpServlet {
                     status = "102";               
                }
                setCreateFolderResponse(status, root, document);
+               popPrivateAdvisor(currentFolder,collectionBase);
           }          
           
           document.getDocumentElement().normalize();
@@ -307,9 +358,8 @@ public class FCKConnectorServlet extends HttpServlet {
                }
           }
           
-          if (advisor != null) {
-               securityService.popAdvisor();
-          }
+          //Clear all advisors
+ 	  	  securityService.clearAdvisors();
      }
      
 
@@ -333,11 +383,7 @@ public class FCKConnectorServlet extends HttpServlet {
           String currentFolder = request.getParameter("CurrentFolder");
           String collectionBase = request.getPathInfo();
           
-          SecurityAdvisor advisor = (SecurityAdvisor) sessionManager.getCurrentSession()
-               .getAttribute(FCK_ADVISOR_BASE + collectionBase);
-          if (advisor != null) {
-               securityService.pushAdvisor(advisor);
-          }
+          pushPrivateAdvisor(currentFolder,collectionBase);
           
           String fileName = "";
           String errorMessage = "";
@@ -481,9 +527,7 @@ public class FCKConnectorServlet extends HttpServlet {
                }
           }
           
-          if (advisor != null) {
-               securityService.popAdvisor();
-          }
+          popPrivateAdvisor(currentFolder,collectionBase);
      }
 
      private void setCreateFolderResponse(String status, Node root, Document doc) {
@@ -500,12 +544,13 @@ public class FCKConnectorServlet extends HttpServlet {
           ContentCollection collection = null;
          
           Map<String, String> map = null; 
-          Iterator foldersIterator = null;
+          List <Iterator> foldersIterator = new ArrayList <Iterator> ();
    
           try {
                //hides the real root level stuff and just shows the users the
                //the root folders of all the top collections they actually have access to.
-               if (dir.split("/").length == 2) {
+        	   int dirlength = dir.split("/").length;
+               if (dirlength == 2 || dir.startsWith("/private/")) {
                     List<String> collections = new ArrayList<String>();
                     map = contentHostingService.getCollectionMap();
                     for (String key : map.keySet()) {
@@ -520,45 +565,58 @@ public class FCKConnectorServlet extends HttpServlet {
                          collections.addAll(extras);
                     }
 
-                    foldersIterator = collections.iterator();
+                    foldersIterator.add(collections.iterator());
                }
-               else if (dir.split("/").length > 2) {
-                    collection = contentHostingService.getCollection(dir);
-                    if (collection != null && collection.getMembers() != null) {
-                         foldersIterator = collection.getMembers().iterator();
-                    }
+               if (dirlength > 2) {
+            	   pushPrivateAdvisor(dir,collectionBase);
+            	   collection = contentHostingService.getCollection(dir);
+            	   if (collection != null && collection.getMembers() != null) {
+            		   foldersIterator.add(collection.getMembers().iterator());
+            	   }
+            	   popPrivateAdvisor(dir,collectionBase);
                }          
           }
           catch (Exception e) {    
                e.printStackTrace();
                //not a valid collection? file list will be empty and so will the doc
           }
-          if (foldersIterator != null) {
-               String current = null;
-               
-               // create a SortedSet using the elements that are going to be added to the XML doc
-               SortedSet<Element> sortedFolders = new TreeSet<Element>(new SortElementsForDisplay());
-               
-               while (foldersIterator.hasNext()) {
-                    try {
-                         current = (String) foldersIterator.next();
-                         ContentCollection myCollection = contentHostingService.getCollection(current);
-                         Element element=doc.createElement("Folder");
-                         element.setAttribute("url", current);
-                         element.setAttribute("name", myCollection.getProperties().getProperty(
-                                              myCollection.getProperties().getNamePropDisplayName()));
-                         // by adding the folders to this collection, they will be sorted for display
-                         sortedFolders.add(element);
-                    }
-                    catch (Exception e) {    
-                         //do nothing, we either don't have access to the collction or it's a resource
-                    }
-               }      
-               
-               // now append the folderse to the parent document in sorted order
-               for (Element folder: sortedFolders) {
-                  folders.appendChild(folder);
-               }
+          for (Iterator folderIterator : foldersIterator ) {
+        	  if (folderIterator != null) {
+        		  String current = null;
+
+        		  // create a SortedSet using the elements that are going to be added to the XML doc
+        		  SortedSet<Element> sortedFolders = new TreeSet<Element>(new SortElementsForDisplay());
+
+        		  while (folderIterator.hasNext()) {
+        			  try {
+        				  current = (String) folderIterator.next();
+       					  pushPrivateAdvisor(current,collectionBase);
+        				  ContentCollection myCollection = contentHostingService.getCollection(current);
+        				  Element element=doc.createElement("Folder");
+        				  element.setAttribute("url", current);
+        				  String collectionName =  myCollection.getProperties().getProperty(myCollection.getProperties().getNamePropDisplayName());
+        				  if (current.contains("/meleteDocs/")) {
+        					  if (resourceBundle != null)
+        						  collectionName =  resourceBundle.getString("melete_collectionname");
+        					  else
+        						  collectionName = "Melete Files";
+        				  }
+        				  element.setAttribute("name",collectionName); 
+        				  // by adding the folders to this collection, they will be sorted for display
+        				  sortedFolders.add(element);
+       					  popPrivateAdvisor(current,collectionBase);
+        			  }
+        			  catch (Exception e) {    
+        				  //do nothing, we either don't have access to the collction or it's a resource
+        				  M_log.debug("No access to display collection" + e.getMessage());
+        			  }
+        		  }      
+
+        		  // now append the folderse to the parent document in sorted order
+        		  for (Element folder: sortedFolders) {
+        			  folders.appendChild(folder);
+        		  }
+        	  }
           }
      }
 
