@@ -31,6 +31,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -53,8 +54,13 @@ public class SitePermsService {
 
     private static final String STATUS_COMPLETE = "COMPLETE";
 
-    private static int PAUSE_TIME_MS = 500;
-    private static long MAX_UPDATE_TIME = 1000*60*15; // 15 minutes
+    private static int DEFAULT_PAUSE_TIME_MS = 1001; // just over 1 second
+    private static int DEFAULT_MAX_UPDATE_TIME_SECS = 60*60; // 1 hour
+    private static int DEFAULT_SITES_BEFORE_PAUSE = 10;
+
+    private int pauseTimeMS = DEFAULT_PAUSE_TIME_MS;
+    private long maxUpdateTimeMS = DEFAULT_MAX_UPDATE_TIME_SECS * 1000l;
+    private int sitesUntilPause = DEFAULT_SITES_BEFORE_PAUSE;
 
     public static String[] templates = {
         "!site.template",
@@ -92,6 +98,12 @@ public class SitePermsService {
         if (isLockedForUpdates()) {
             throw new IllegalStateException("Cannot start new perms update, one is already in progress");
         }
+        // get the configurable values
+        pauseTimeMS = serverConfigurationService.getConfig("site.adminperms.pause.ms", pauseTimeMS);
+        int maxUpdateTimeS = serverConfigurationService.getConfig("site.adminperms.maxrun.secs", DEFAULT_MAX_UPDATE_TIME_SECS);
+        maxUpdateTimeMS = 1000l * maxUpdateTimeS; // covert to milliseconds
+        sitesUntilPause = serverConfigurationService.getConfig("site.adminperms.sitesuntilpause", sitesUntilPause);
+        // get the current state
         final User currentUser = userDirectoryService.getCurrentUser();
         final Session currentSession = sessionManager.getCurrentSession();
         // run this in a new thread
@@ -131,7 +143,7 @@ public class SitePermsService {
     public synchronized boolean isLockedForUpdates() {
         boolean locked = false;
         if (updateStarted > 0) {
-            if (System.currentTimeMillis() > (updateStarted + MAX_UPDATE_TIME)) {
+            if (System.currentTimeMillis() > (updateStarted + maxUpdateTimeMS)) {
                 // max time reached for this update so reset
                 updateStarted = 0;
                 updateStatus = STATUS_COMPLETE;
@@ -155,7 +167,7 @@ public class SitePermsService {
         // update the session with a status message
         String msg = getMessage("siterole.message.processing."+(add?"add":"remove"), 
                 new Object[] {permsString, typesString, rolesString, 0});
-        log.info("STARTED: "+msg);
+        log.info("STARTED: "+msg+" :: pauseTimeMS="+pauseTimeMS+", sitesUntilPause="+sitesUntilPause+", maxUpdateTimeMS="+maxUpdateTimeMS);
         updateStatus = "RUNNING";
         updateMessage = msg;
         // set the current user in this thread so they can perform the operations
@@ -209,10 +221,10 @@ public class SitePermsService {
                             log.info("Added Permissions ("+permsString+") for roles ("+rolesString+") to group:" + siteRef);
                         }
                         successCount++;
-                        if (updatesCount > 0 && updatesCount % 10 == 0) {
-                            // pause every 10 sites updated or so for about 1/2 second
-                            Thread.sleep(PAUSE_TIME_MS);
-                            pauseTime += PAUSE_TIME_MS;
+                        if (updatesCount > 0 && updatesCount % sitesUntilPause == 0) {
+                            // pause every 10 (default) sites updated or so for about 1 second (default)
+                            Thread.sleep(pauseTimeMS);
+                            pauseTime += pauseTimeMS;
                             // make sure the sessions do not timeout
                             threadSession.setActive();
                             currentSession.setActive();
@@ -371,6 +383,11 @@ public class SitePermsService {
     private SecurityService securityService;
     public void setSecurityService(SecurityService securityService) {
         this.securityService = securityService;
+    }
+
+    private ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     private SiteService siteService;
