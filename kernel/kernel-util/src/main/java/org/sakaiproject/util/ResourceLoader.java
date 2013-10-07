@@ -221,22 +221,22 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	**/
 	public String getLocaleDisplayName(Locale loc) {
 		Locale preferedLoc = getLocale();
-		String languageInLoc = loc.getDisplayLanguage(loc);
-		String countryInLoc = loc.getDisplayCountry(loc);
-		String locCode = loc.toString();
-		String languageInPrefLoc = loc.getDisplayLanguage(preferedLoc);
-		String countryInPrefLoc = loc.getDisplayCountry(preferedLoc);
 
-		StringBuilder displayName = new StringBuilder(languageInLoc + " - " + countryInLoc);
+		StringBuilder displayName = new StringBuilder(loc.getDisplayLanguage(loc));
 
-		if (StringUtils.isNotBlank(loc.getVariant())) {
-			displayName.append(" (" + loc.getDisplayVariant(loc) + ")");
+		if (StringUtils.isNotBlank(loc.getDisplayCountry(loc))) {
+			displayName.append(" - ").append(loc.getDisplayCountry(loc));
 		}
 
-		displayName.append(" [" + locCode + "] " + languageInPrefLoc);
+		if (StringUtils.isNotBlank(loc.getVariant())) {
+			displayName.append(" (").append(loc.getDisplayVariant(loc)).append(")");
+		}
 
-		if (StringUtils.isNotBlank(countryInPrefLoc)) {
- 			displayName.append(" - " + countryInPrefLoc);
+		displayName.append(" [").append(loc.toString()).append("] ");
+		displayName.append(loc.getDisplayLanguage(preferedLoc));
+
+		if (StringUtils.isNotBlank(loc.getDisplayCountry(preferedLoc))) {
+ 			displayName.append(" - ").append(loc.getDisplayCountry(preferedLoc));
 		}
 
 		return displayName.toString();
