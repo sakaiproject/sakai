@@ -951,13 +951,9 @@ public abstract class DbSiteService extends BaseSiteService
 		}
 
 		/**
-		 * Get the Site IDs for all sites matching criteria.
-		 *
-		 * All parameters are the same as {@link #getSites(org.sakaiproject.site.api.SiteService.SelectionType, Object, String, Map, org.sakaiproject.site.api.SiteService.SortType, PagingPosition)}
-		 * @return a List of the Site IDs for the sites matching the criteria.
+		 * {@inheritDoc}
 		 */
-		@SuppressWarnings("unchecked")
-		protected List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page)
+		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page)
 		{
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
@@ -977,6 +973,7 @@ public abstract class DbSiteService extends BaseSiteService
 				sql = getResourceSql(fieldList(m_siteIdFieldArray, null), where, order, values, join);
 			}
 
+			@SuppressWarnings("unchecked")
 			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
 			return siteIds;
 		}

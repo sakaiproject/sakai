@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -161,4 +162,11 @@ public class SiteServiceTest extends DbSiteService
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort,
+	        PagingPosition page) {
+	    return new ArrayList<String>(0);
+	}
+
 }
