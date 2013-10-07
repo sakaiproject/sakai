@@ -70,7 +70,7 @@ function handleEnterKeyPress(ev)
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div style="display:block;clear:both"></div>#end
 	
 	## the form
-	<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
+	<form name="gradeForm" id="gradeForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;" autocomplete="off">
 		<input type="hidden" name="eventSubmit_doAssignment_form" value="" />
 		<input type="hidden" name="option" id="option" value="" />
 		<input type="hidden" name="view" id="view" value="" />
