@@ -277,5 +277,17 @@
       <version>2.5.1</version>
       <scope>test</scope>
     </dependency>
+   <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-all</artifactId>
+      <version>1.9.5</version>
+      <scope>test</scope>
+   </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.kernel</groupId>
+        <artifactId>sakai-kernel-util</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+
   </dependencies>
 </project>

@@ -43,12 +43,15 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
@@ -65,6 +68,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
+import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
 import org.sakaiproject.antivirus.api.VirusScanner;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -73,6 +77,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
@@ -144,6 +149,7 @@ import org.sakaiproject.thread_local.api.ThreadBound;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
@@ -206,6 +212,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
     protected static final String DEFAULT_RESOURCE_QUOTA = "content.quota.";
     protected static final String DEFAULT_DROPBOX_QUOTA = "content.dropbox.quota.";
 
+    /**
+     * This is the name of the sakai.properties property for the VIRUS_SCAN_PERIOD,
+     * this is how long (in seconds) the virus scan service will wait between checking to see if there
+     * is new content that need to be scanned, default=3600
+     */
+    public static final String VIRUS_SCAN_CHECK_PERIOD_PROPERTY = "virus.scan.check.period";
+
+    /**
+     * This is the name of the sakai.properties property for the VIRUS_SCAN_DELAY,
+     * this is how long (in seconds) the virus scan service will wait after starting up
+     * before it does the first check for scanning, default=300
+     */
+    public static final String VIRUS_SCAN_START_DELAY_PROPERTY = "virus.scan.start.delay";
+
+
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -252,6 +273,39 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Dependency: MemoryService. */
 	protected MemoryService m_memoryService = null;
+
+    	/**
+	 * Use a timer for repeating actions
+	 */
+	private Timer virusScanTimer = new Timer(true);
+
+    /** How long to wait between virus scan checks (seconds) */
+    private int VIRUS_SCAN_PERIOD = 300;
+
+    /** How long to wait between virus scan checks (seconds) */
+    public void setVIRUS_SCAN_PERIOD(int scan_period) {
+        VIRUS_SCAN_PERIOD = scan_period;
+    }
+
+    /** How long to wait before the first virus scan check (seconds) */
+    private int VIRUS_SCAN_DELAY = 300;
+    /** How long to wait before the first virus scan check (seconds) */
+    public void setVIRUS_SCAN_DELAY(int virus_scan_delay) {
+        VIRUS_SCAN_DELAY = virus_scan_delay;
+    }
+
+    private List<String> virusScanQueue = new Vector();
+
+    private final static SecurityAdvisor ALLOW_ADVISOR;
+
+	static {
+		ALLOW_ADVISOR = new SecurityAdvisor(){
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				return SecurityAdvice.ALLOWED;
+			}
+		};
+	}
 
 	/**
 	 * Dependency: MemoryService.
@@ -872,6 +926,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             m_dropBoxQuota = Long.parseLong(m_serverConfigurationService.getString("content.dropbox.quota", Long.toString(m_dropBoxQuota)));
 
 			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
+
+            int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
+            int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
+
+            virusScanDelay += new Random().nextInt(60); // add some random delay to get the servers out of sync
+            virusScanTimer.schedule(new VirusTimerTask(), (virusScanDelay * 1000), (virusScanPeriod * 1000) );
+
 		}
 		catch (Exception t)
 		{
@@ -5762,34 +5823,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		commitResourceEdit(edit, priority);
 
-		if (virusScanner.getEnabled()) {
-			try {
-				virusScanner.scanContent(edit.getId());
-			}
-			catch (VirusFoundException e) {
-				//this file is infected we need to remove if
-				try {
-					//the edit is closed so we need to refetch it
-					ContentResourceEdit edit2 = editResource(edit.getId());
-					removeResource(edit2);
-				} catch (PermissionException e1) {
-					// we're unlikely to see this at this point
-					e1.printStackTrace();
-				} catch (IdUnusedException e1) {
-					// we're unlikely to see this at this point
-					e1.printStackTrace();
-				} catch (TypeException e1) {
-					// we're unlikely to see this at this point
-					e1.printStackTrace();
-				} catch (InUseException e1) {
-					// we're unlikely to see this at this point
-					e1.printStackTrace();
-				}
-				throw e;
-			}
-		}
+        // Queue up content for virus scanning
+        if (virusScanner.getEnabled()) {
+            virusScanQueue.add(edit.getId());
+        }
 
-		/**
+        /**
 		 *  check for over quota.
 		 *  We do this after the commit so we can actual tell its size
 		 */
@@ -5823,6 +5862,69 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	} // commitResource
 
+    /**
+	 * This timer task is run by the timer thread based on the period set above
+	 */
+	protected class VirusTimerTask extends TimerTask {
+		public void run() {
+			try {
+				M_log.debug("running timer task");
+                enableAzgSecurityAdvisor();
+                processVirusQueue();
+            } catch (Exception e) {
+				M_log.error("Virus scan failure: " + e.getMessage(), e);
+			} finally {
+                disableAzgSecurityAdvisor();
+            }
+		}
+    }
+
+    public void processVirusQueue() {
+        // grab the queue - any new stuff will be processed next time
+		List<String> queue = new Vector();
+		synchronized (virusScanQueue)
+		{
+			queue.addAll(virusScanQueue);
+			virusScanQueue.clear();
+		}
+
+        Session session = sessionManager.getCurrentSession();
+
+        for (String contentId : queue) {
+            // process the queue of digest requests
+            try {
+                virusScanner.scanContent(contentId);
+            } catch (VirusFoundException e) {
+                //this file is infected we need to remove if
+                try {
+                    //the edit is closed so we need to refetch it
+                    ContentResourceEdit edit2 = editResource(contentId);
+                    ResourceProperties props = edit2.getProperties();
+                    // we need to set the session userId or removeResource fails
+			        String owner = props.getProperty(ResourceProperties.PROP_CREATOR);
+                    User user = userDirectoryService.getUser(owner);
+                    session.setUserEid(user.getEid());
+                    session.setUserId(user.getId());
+                    removeResource(edit2);
+                } catch (PermissionException e1) {
+                    M_log.error(e1.getMessage(), e1);
+                } catch (IdUnusedException e1) {
+                    M_log.error(e1.getMessage(), e1);
+                } catch (TypeException e1) {
+                    M_log.error(e1.getMessage(), e1);
+                } catch (InUseException e1) {
+                    M_log.error(e1.getMessage(), e1);
+                } catch (UserNotDefinedException e1) {
+                    M_log.error(e1.getMessage(), e1);
+                }
+            } catch (VirusScanIncompleteException e1) {
+                M_log.info("virus scanning did not complete adding resource: " + contentId + " back to queue");
+                virusScanQueue.add(contentId);
+            }
+        }
+
+
+    }
 	private boolean checkUpdateContentEncoding(ContentResourceEdit edit) {
 		if (edit == null) {
 			return false;
@@ -13731,6 +13833,35 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             throw exception;
         }
     }
+
+	/**
+	 * Establish a security advisor to allow the "embedded" azg work to occur with no need for additional security permissions.
+	 */
+	protected void enableAzgSecurityAdvisor()
+	{
+		// put in a security advisor so we can do our azg work without need of further permissions
+		// TODO: could make this more specific to the AuthzGroupService.SECURE_UPDATE_AUTHZ_GROUP permission -ggolden
+		m_securityService.pushAdvisor(ALLOW_ADVISOR);
+	}
+
+    	/**
+	 * Disabled the security advisor.
+	 */
+	protected void disableAzgSecurityAdvisor()
+	{
+        SecurityAdvisor popped = m_securityService.popAdvisor(ALLOW_ADVISOR);
+		if (!ALLOW_ADVISOR.equals(popped)) {
+			if (popped == null)
+			{
+				M_log.warn("Someone has removed our advisor.");
+			}
+			else
+			{
+				M_log.warn("Removed someone elses advisor, adding it back.");
+				m_securityService.pushAdvisor(popped);
+			}
+		}
+	}
     
     /**
      * Expand the supplied resource under its parent collection.
