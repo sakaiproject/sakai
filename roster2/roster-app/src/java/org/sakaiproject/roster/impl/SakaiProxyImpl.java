@@ -382,8 +382,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		Set<Member> membership = new HashSet<Member>();
 
-		if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL,
-				site)) {
+		if (isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
 
 			if (null == groupId) {
 				// get all members
@@ -405,7 +404,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				for (Group group : site.getGroups()) {
 
 					if (isAllowed(currentUserId,
-							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group)) {
+							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
 
 						membership.addAll(filterHiddenMembers(group
 								.getMembers(), currentUserId, site.getId(),
@@ -417,7 +416,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				// member
 				if (isAllowed(currentUserId,
 						RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, site
-								.getGroup(groupId))) {
+								.getGroup(groupId).getReference())) {
 
 					membership.addAll(filterHiddenMembers(site
 							.getGroup(groupId).getMembers(), currentUserId,
@@ -452,7 +451,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		log.debug("filterHiddenMembers");
 		
 		if (isAllowed(currentUserId,
-				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup)) {
+				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
 
 			log.debug("permission to view all, including hidden");
 
@@ -576,7 +575,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 
 		if (!isAllowed(getCurrentUserId(),
-				RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, site)) {
+				RosterFunctions.ROSTER_FUNCTION_VIEWENROLLMENTSTATUS, site.getReference())) {
 
 			return null;
 		}
@@ -621,19 +620,46 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		String currentUserId = getCurrentUserId();
 		if (null == currentUserId) {
+			log.debug("No currentUserId. Returning null");
 			return null;
 		}
+		
+		log.debug("currentUserId: " + currentUserId);
+
 
 		Site site = getSite(siteId);
 		if (null == site) {
+			log.debug("No site. Returning null");
 			return null;
 		}
+		
+		log.debug("site: " + site.getId());
 
+
+		/*
 		// return null if user is not a site member and not an admin user
 		if (null == site.getMember(currentUserId) && !isSuperUser()) {
+			log.debug("Not a member. Returning null");
 			return null;
 		}
+		*/
+		
+		log.debug("Checking permissions for site: " +  site.getReference());
+		// for DelegatedAccess to work, you must use the SecurityService.unlock method of checking permissions.
+		if(!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
+			log.debug("roster.viewallmembers = false");
 
+			if(!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, site.getReference())) {
+				log.debug("roster.viewgroup = false");
+				return null;
+			} else {
+				log.debug("roster.viewgroup = true. Access ok.");
+			}
+		} else {
+			log.debug("roster.viewallmembers = true. Access ok.");
+		}
+
+		
 		RosterSite rosterSite = new RosterSite(site.getId());
 
 		rosterSite.setTitle(site.getTitle());
@@ -702,7 +728,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			if (viewAll
 					|| isAllowed(currentUserId,
-							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group)) {
+							RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, group.getReference())) {
 
 				RosterGroup rosterGroup = new RosterGroup(group.getId());
 				rosterGroup.setTitle(group.getTitle());
@@ -766,6 +792,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	/**
+	 * Calls the SecurityService unlock method. This is the method you must use in order for Delegated Access to work.
+	 * Note that the SecurityService automatically handles super users.
+	 * 
+	 * @param userId		user uuid
+	 * @param permission	permission to check for
+	 * @param reference		reference to entity. The getReference() method should get you out of trouble.
+	 * @return				true if user has permission, false otherwise
+	 */
+	private boolean isAllowed(String userId, String permission, String reference) {
+		return securityService.unlock(userId, permission, reference);
+	}
+	
+	
+	/**
 	 * {@inheritDoc}
 	 */
 	public Boolean hasUserSitePermission(String userId, String permission, String siteId) {
@@ -774,7 +814,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		if (null == site) {
 			return false;
 		} else {
-			return isAllowed(userId, permission, site);
+			return isAllowed(userId, permission, site.getReference());
 		}
 	}
 	
@@ -791,7 +831,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			if (null == site.getGroup(groupId)) {
 				return false;
 			} else {
-				return isAllowed(userId, permission, site.getGroup(groupId));
+				return isAllowed(userId, permission, site.getGroup(groupId).getReference());
 			}
 		}
 	}
