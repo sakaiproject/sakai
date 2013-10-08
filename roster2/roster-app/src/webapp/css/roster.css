@@ -103,11 +103,6 @@ table.rosterPicturesSingleColumn td {
 	word-wrap:break-word;
 }
 
-table.rosterPermissions {
-	table-layout:fixed;
-	width:100%;
-}
-
 .rosterPicture {
 	border:1px solid #bbb;
 	width:expression(160 + "px"); /* used for IE */
