@@ -43,5 +43,9 @@
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
     </bean>
-    
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+            class="org.sakaiproject.entitybroker.providers.ToolEntityProvider">
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    </bean>
 </beans>
