@@ -1,6 +1,6 @@
 /**
- * $Id: SiteEntityProvider.java 52667 2008-09-25 16:00:21Z aaronz@vt.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/SiteEntityProvider.java $
+ * $Id$
+ * $URL$
  * SiteEntityProvider.java - entity-broker - Jun 29, 2008 8:35:55 AM - azeckoski
  **************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation

@@ -1,6 +1,6 @@
 /**
- * $Id: SessionEntityProvider.java 51318 2008-08-24 05:28:47Z csev@umich.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/SessionEntityProvider.java $
+ * $Id$
+ * $URL$
  * SessionEntityProvider.java - entity-broker - Jul 15, 2008 4:03:52 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation

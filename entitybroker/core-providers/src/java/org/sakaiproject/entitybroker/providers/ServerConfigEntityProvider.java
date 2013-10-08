@@ -1,6 +1,6 @@
 /**
- * $Id: ServerConfigEntityProvider.java 52527 2008-09-20 20:23:54Z aaronz@vt.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/ServerConfigEntityProvider.java $
+ * $Id$
+ * $URL$
  * ServerConfigEntityProvider.java - entity-broker - Jul 17, 2008 2:19:03 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation

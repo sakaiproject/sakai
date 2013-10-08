@@ -1,6 +1,6 @@
 /**
- * $Id: EntityMember.java 51323 2008-08-24 07:24:19Z csev@umich.edu $
- * $URL: https://source.sakaiproject.org/svn/entitybroker/trunk/impl/src/java/org/sakaiproject/entitybroker/providers/EntityMember.java $
+ * $Id$
+ * $URL$
  * EntityMember.java - entity-broker - Aug 15, 2008 2:02:20 PM - azeckoski
  **************************************************************************
  * Copyright (c) 2008, 2009 The Sakai Foundation
