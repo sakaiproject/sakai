@@ -354,8 +354,8 @@ public class FCKConnectorServlet extends HttpServlet {
                }
           }
           
-          //Clear all advisors
- 	  	  securityService.clearAdvisors();
+		  //Pop the advisor if we need to
+		  popPrivateAdvisor(currentFolder,collectionBase);
      }
      
 
