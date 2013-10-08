@@ -32,7 +32,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
@@ -175,13 +174,14 @@ public class SitePermsService {
         try {
             List<String> permsList = Arrays.asList(perms);
             // now add the perms to all matching roles in all matching sites
-            List<Site> sites = siteService.getSites(SelectionType.ANY, types, null, null, SortType.NONE, null);
+            // switched site listing to using ids only - KNL-1125
+            List<String> siteIds = siteService.getSiteIds(SelectionType.ANY, types, null, null, SortType.NONE, null);
             int pauseTime = 0;
             int sitesCounter = 0;
             int updatesCount = 0;
             int successCount = 0;
-            for (Site site : sites) {
-                String siteRef = site.getReference();
+            for (String siteId : siteIds) {
+                String siteRef = siteService.siteReference(siteId);
                 try {
                     AuthzGroup ag = authzGroupService.getAuthzGroup(siteRef);
                     if (authzGroupService.allowUpdate(ag.getId())) {
@@ -243,18 +243,18 @@ public class SitePermsService {
                     throw new RuntimeException("Timeout occurred while running site permissions update");
                 } else if (sitesCounter % 4 == 0) {
                     // update the processor status every few sites processed
-                    int percentComplete = (int) (sitesCounter * 100) / sites.size();
+                    int percentComplete = (int) (sitesCounter * 100) / siteIds.size();
                     msg = getMessage("siterole.message.processing."+(add?"add":"remove"), 
                             new Object[] {permsString, typesString, rolesString, percentComplete});
                     updateMessage = msg;
                 }
             }
-            int failureCount = sites.size() - successCount;
+            int failureCount = siteIds.size() - successCount;
             long totalTime = System.currentTimeMillis() - updateStarted;
             int totalSecs = totalTime > 0 ? (int)(totalTime/1000) : 0;
             int pauseSecs = pauseTime > 0 ? (int)(pauseTime/1000) : 0;
             msg = getMessage("siterole.message.permissions."+(add ? "added" : "removed"), 
-                    new Object[] {permsString, typesString, rolesString, sites.size(), updatesCount, successCount, failureCount, totalSecs, pauseSecs});
+                    new Object[] {permsString, typesString, rolesString, siteIds.size(), updatesCount, successCount, failureCount, totalSecs, pauseSecs});
             log.info(msg);
             updateMessage = msg;
         } finally {
