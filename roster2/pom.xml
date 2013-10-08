@@ -26,7 +26,7 @@
     </modules>
 
     <properties>
-        <lombok.version>0.10.8</lombok.version>
+        <lombok.version>0.12.0</lombok.version>
         <poi.version>3.6</poi.version>
         <yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
         <coursemanagement.version>1.3-SNAPSHOT</coursemanagement.version>
@@ -62,9 +62,9 @@
         <developer>
             <id>steve.swinsburg</id>
             <name>Steve Swinsburg</name>
-            <organization>The Australian National University</organization>
             <email>steve.swinsburg@gmail.com</email>
             <roles>
+            	<role>developer</role>
                 <role>POM plumber</role>
                 <role>release manager</role>
             </roles>
@@ -77,7 +77,7 @@
             <email>arwhyte@umich.edu</email>
             <roles>
                 <role>Past POM plumber</role>
-                <role>Past elease manager</role>
+                <role>Past release manager</role>
             </roles>
             <timezone>-5</timezone>
         </developer>
