@@ -236,7 +236,16 @@ public class QuestionPoolBean implements Serializable
 		  }
 		  if (i2 == null && i1 == null) {
 			  return 0;
-		  }		  
+		  }
+		  if (i1.getTitle() == null && i2.getTitle() != null) {
+			  return 1;
+		  }
+		  if (i2.getTitle() == null && i1.getTitle() != null) {
+			  return -1;
+		  }
+		  if (i2.getTitle() == null && i1.getTitle() == null) {
+			  return 0;
+		  }
 		  RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
 		  try {
 			RuleBasedCollator collator= new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
