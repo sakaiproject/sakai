@@ -37,7 +37,8 @@
     	hideSingleGroupFilter:'$!{hideSingleGroupFilter}',
     	viewUserDisplayId:'$!{viewUserDisplayId}',
     	viewEmail:'$!{viewEmail}',
-    	superUser:'$!{superUser}'
+    	superUser:'$!{superUser}',
+    	siteMaintainer:'$!{siteMaintainer}'
     };
     
 </script>

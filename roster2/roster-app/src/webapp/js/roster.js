@@ -49,6 +49,7 @@ var rosterSiteId = null;
 var rosterCurrentUserPermissions = null;
 var rosterCurrentUser = null;
 var rosterSuperUser = false;
+var rosterSiteMaintainer = false;
 var site = null;
 
 // so we can return to the previous state after viewing permissions
@@ -109,6 +110,12 @@ var rosterOfficialPictureMode = false;
 		rosterSuperUser = true;
 	} else {
 		rosterSuperUser = false;
+	}
+	
+	if (startupArgs.siteMaintainer && 'true' == startupArgs.siteMaintainer) {
+		rosterSiteMaintainer = true;
+	} else {
+		rosterSiteMaintainer = false;
 	}
 
 	rosterCurrentUser = SakaiUtils.getCurrentUser();
@@ -240,7 +247,7 @@ function switchState(state, arg, searchQuery) {
 	setColumnSortFields(state);
 			
 	// permissions
-    if (true === rosterSuperUser) {
+    if (true === rosterSiteMaintainer) {
         $('#navbar_permissions_link').show();
     } else {
         $('#navbar_permissions_link').hide();

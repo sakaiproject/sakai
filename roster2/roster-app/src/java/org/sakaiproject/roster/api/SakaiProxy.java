@@ -194,4 +194,9 @@ public interface SakaiProxy {
 	 *         returns <code>false</code.
 	 */
 	public boolean isSuperUser();
+	
+	/**
+	 * Checks if the user has site.upd in the given site
+	 */
+	public boolean isSiteMaintainer(String siteId);
 }

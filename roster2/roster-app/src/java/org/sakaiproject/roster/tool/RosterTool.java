@@ -103,7 +103,8 @@ public class RosterTool extends HttpServlet {
         ctx.put("viewUserDisplayId", sakaiProxy.getViewUserDisplayId());
         ctx.put("viewEmail", sakaiProxy.getViewEmail());
 		ctx.put("superUser", sakaiProxy.isSuperUser());
-
+		ctx.put("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
+		
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("text/html");
         Writer writer = new BufferedWriter(response.getWriter());

@@ -862,5 +862,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String siteSkin = siteService.getSiteSkin(getCurrentSiteId());
 		return siteSkin != null ? siteSkin : (skin != null ? skin : "default");
 	}
-		
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean isSiteMaintainer(String siteId) {
+		return hasUserSitePermission(getCurrentUserId(), SiteService.SECURE_UPDATE_SITE, siteId);
+	}
+
 }
