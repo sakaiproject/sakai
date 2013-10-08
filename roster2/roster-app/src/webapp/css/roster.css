@@ -142,3 +142,39 @@ table.rosterPermissions {
 #roster_type_selector {
     margin-bottom: 15px;
 }
+
+.cluetip-roster {
+    padding: 10px;
+    border: black solid 1px;
+    background-color: white;
+}
+
+.clue-right-roster .cluetip-arrows {
+  background-image: url(../images/darrowleft.gif);
+}
+.clue-left-roster .cluetip-arrows {
+  background-image: url(../images/darrowright.gif);
+  left: 100%;
+  margin-right: -11px;
+}
+.clue-top-roster .cluetip-arrows {
+  background-image: url(../images/darrowdown.gif);
+  top: 100%;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;
+}
+.clue-bottom-roster .cluetip-arrows {
+  background-image: url(../images/darrowup.gif);
+  top: -11px;
+  left: 50%;
+  margin-left: -11px;
+  height: 11px;
+  width: 22px;
+}
+.cluetip-roster div#cluetip-close {
+    text-align: right;
+    margin: 0 5px 5px;
+    color: #900;
+}

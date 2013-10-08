@@ -45,14 +45,11 @@ var columnSortFields = [];
 
 /* Stuff that we always expect to be setup */
 var language = null;
-var skin = DEFAULT_SKIN;
 var rosterSiteId = null;
 var rosterCurrentUserPermissions = null;
 var rosterCurrentUser = null;
 var rosterSuperUser = false;
 var site = null;
-
-var rosterProfileUrl = null;
 
 // so we can return to the previous state after viewing permissions
 var rosterLastStateNotPermissions = null;
@@ -102,15 +99,13 @@ var rosterOfficialPictureMode = false;
 /* New Roster2 functions */
 (function() {
 	
-	var arg = SakaiUtils.getParameters();
-	
-	if (!arg || !arg.siteId) {
-		alert('The site id  MUST be supplied as a page parameter');
+	if (!startupArgs || !startupArgs.siteId) {
+		alert('The site id  MUST be supplied as a bootstrap parameter.');
 		return;
 	}
-	rosterSiteId = arg.siteId;
+	rosterSiteId = startupArgs.siteId;
 	
-	if (arg.superUser && 'true' == arg.superUser) {
+	if (startupArgs.superUser && 'true' == startupArgs.superUser) {
 		rosterSuperUser = true;
 	} else {
 		rosterSuperUser = false;
@@ -123,12 +118,8 @@ var rosterOfficialPictureMode = false;
 		return;
 	}
 	
-	setLanguage(arg.language);
+	setLanguage(startupArgs.language);
 
-	if (arg.skin) {
-		skin = arg.skin;
-	}
-	
 	getRosterSite();
 	getRosterCurrentUserPermissions();
 	
@@ -173,8 +164,8 @@ var rosterOfficialPictureMode = false;
     });
         	
 	// process sakai.properties
-	if (arg.firstNameLastName) {
-		if ('true' == arg.firstNameLastName) {
+	if (startupArgs.firstNameLastName) {
+		if ('true' == startupArgs.firstNameLastName) {
 			firstNameLastName = true;
 		} else {
 			// default = false
@@ -182,8 +173,8 @@ var rosterOfficialPictureMode = false;
 		}
 	}
 			
-	if (arg.hideSingleGroupFilter) {
-		if ('true' == arg.hideSingleGroupFilter) {
+	if (startupArgs.hideSingleGroupFilter) {
+		if ('true' == startupArgs.hideSingleGroupFilter) {
 			hideSingleGroupFilter = true;
 		} else {
 			// default = false
@@ -191,8 +182,8 @@ var rosterOfficialPictureMode = false;
 		}
 	}
 	
-	if (arg.viewEmail) {
-		if ('false' == arg.viewEmail) {
+	if (startupArgs.viewEmail) {
+		if ('false' == startupArgs.viewEmail) {
 			viewEmail = false;
 		} else {
 			// default = true
@@ -200,8 +191,8 @@ var rosterOfficialPictureMode = false;
 		}
 	}
 	
-	if (arg.viewUserDisplayId) {
-		if ('false' == arg.viewUserDisplayId) {
+	if (startupArgs.viewUserDisplayId) {
+		if ('false' == startupArgs.viewUserDisplayId) {
 			viewUserDisplayId = false;
 		} else {
 			// default = true
@@ -209,40 +200,30 @@ var rosterOfficialPictureMode = false;
 		}
 	}
 	
-	if (arg.defaultSortColumn) {
+	if (startupArgs.defaultSortColumn) {
 		
-		if (SORT_NAME == arg.defaultSortColumn ||
-				SORT_DISPLAY_ID == arg.defaultSortColumn ||
-				SORT_ROLE == arg.defaultSortColumn ||
-				SORT_STATUS == arg.defaultSortColumn ||
-				SORT_CREDITS == arg.defaultSortColumn) {
+		if (SORT_NAME == startupArgs.defaultSortColumn ||
+				SORT_DISPLAY_ID == startupArgs.defaultSortColumn ||
+				SORT_ROLE == startupArgs.defaultSortColumn ||
+				SORT_STATUS == startupArgs.defaultSortColumn ||
+				SORT_CREDITS == startupArgs.defaultSortColumn) {
 			
-			defaultSortColumn = arg.defaultSortColumn;
-		} else if (SORT_EMAIL == arg.defaultSortColumn && true == viewEmail) {
+			defaultSortColumn = startupArgs.defaultSortColumn;
+		} else if (SORT_EMAIL == startupArgs.defaultSortColumn && true == viewEmail) {
 			// if chosen sort is email, check that email column is viewable
-			defaultSortColumn = arg.defaultSortColumn;
+			defaultSortColumn = startupArgs.defaultSortColumn;
 		}
 	}
 	
 	sortColumn = defaultSortColumn;
 	// end of sakai.properties
 	
-	// build root profile URL (the user ID is appended later for each user)
-	rosterProfileUrl = "/sakai-roster2-tool/roster.html?state=profile&siteId=" +
-		rosterSiteId + "&language="  + language +
-		"&skin=" + skin +
-		"&defaultSortColumn=" + defaultSortColumn +
-		"&firstNameLastName=" + firstNameLastName +
-		"&hideSingleGroupFilter=" + hideSingleGroupFilter +
-		"&viewUserDisplayId=" + viewUserDisplayId +
-		"&viewEmail=" + viewEmail + "&userId=";
-
 	if (window.frameElement) {
 		window.frameElement.style.minHeight = '600px';
 	}
 		
 	// Now switch into the requested state
-	switchState(arg.state, arg);
+	switchState(startupArgs.state, startupArgs);
 
 })();
 
@@ -342,6 +323,8 @@ function switchState(state, arg, searchQuery) {
 				currentSortColumn = this.config.sortList[0][0];
 				currentSortDirection = this.config.sortList[0][1];
 		    });
+
+            addProfilePopups();
 			
 			if(window.frameElement) {
 				setMainFrameHeight(window.frameElement.id);
@@ -405,6 +388,8 @@ function switchState(state, arg, searchQuery) {
 				    'roster_pics');
 			    setupHideNamesAndSingleColumnButtons(state,searchQuery);
 
+                addProfilePopups();
+
                 rosterOfficialPictureMode = true;
 	        });
 	
@@ -423,6 +408,8 @@ function switchState(state, arg, searchQuery) {
 				    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
 				    'roster_pics');
 			    setupHideNamesAndSingleColumnButtons(state,searchQuery);
+
+                addProfilePopups();
 
                 rosterOfficialPictureMode = false;
 	        });
@@ -445,7 +432,9 @@ function switchState(state, arg, searchQuery) {
 				'roster_pics');
 			
 			setupHideNamesAndSingleColumnButtons(state,searchQuery);
-			
+
+            addProfilePopups();
+
 			if(window.frameElement) {
 				setMainFrameHeight(window.frameElement.id);
 			}
@@ -509,6 +498,8 @@ function switchState(state, arg, searchQuery) {
 			});
 			
 			$('table').tablesorter(groupSortParams);
+
+            addProfilePopups();
 			
 			if(window.frameElement) {
 				setMainFrameHeight(window.frameElement.id);
@@ -518,8 +509,6 @@ function switchState(state, arg, searchQuery) {
 	} else if (STATE_VIEW_PROFILE === state) {
 		
 		var profileMarkup = SakaiUtils.getProfileMarkup(arg.userId);
-		
-		$('head').append('<style type="text/css" rel="stylesheet">' + '/library/skin/' + skin + '/tool.css' + '</style>');
 		
 		$('#roster_content').html(profileMarkup);
 		
@@ -576,7 +565,9 @@ function switchState(state, arg, searchQuery) {
 				currentSortColumn = this.config.sortList[0][0];
 				currentSortDirection = this.config.sortList[0][1];
 		    });
-			
+
+            addProfilePopups();
+
 			if(window.frameElement) {
 				setMainFrameHeight(window.frameElement.id);
 			}
@@ -671,11 +662,6 @@ function getRosterMembership(groupId, sorted, sortField, sortDirection, state, f
 		}
 	});
 	
-	// set the profile URLs for each user
-	for (var i = 0, j = membership.length; i < j; i++) {
-		membership[i].profileUrl = rosterProfileUrl + membership[i].userId
-	}
-	
 	if (STATE_PICTURES === state) {
 		for (var i = 0, j = membership.length; i < j; i++) {
 		 membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
@@ -705,11 +691,6 @@ function getRosterEnrollment() {
 			enrollment = new Array();
 		}
 	});
-	
-	// set the profile URLs for each user
-	for (var i = 0, j = enrollment.length; i < j; i++) {
-		enrollment[i].profileUrl = rosterProfileUrl + enrollment[i].userId
-	}
 	
 	return enrollment;
 	
@@ -1309,4 +1290,21 @@ function handleEnterKey(field, event) {
 		//return false;
 	}
 	return true;
+}
+
+function addProfilePopups() {
+
+    $('a.profile').cluetip({
+        width: '620px',
+        cluetipClass: 'roster',
+        sticky: true,
+        dropShadow: false,
+        arrows: true,
+        mouseOutClose: true,
+        closeText: '<img src="/library/image/silk/cross.png" alt="close" />',
+        closePosition: 'top',
+        showTitle: false,
+        hoverIntent: true,
+        ajaxSettings: {type: 'GET'}
+    });
 }
