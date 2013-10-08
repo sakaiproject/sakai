@@ -302,8 +302,10 @@ public class EntityReference implements Cloneable, Serializable {
         if (spos != -1) {
             int spos2 = getSeparatorPos(reference, 2);
             if (spos2 == -1) {
-                // trim off the extension from the end
-                spos2 = reference.lastIndexOf(PERIOD);
+                // trim off the extension from the end if it seems valid
+                if (TemplateParseUtil.findExtension(reference)[2] != null) {
+                    spos2 = reference.lastIndexOf(PERIOD);
+                }
             }
             id = spos2 == -1 ? reference.substring(spos + 1) : reference.substring(spos + 1, spos2);
         }
