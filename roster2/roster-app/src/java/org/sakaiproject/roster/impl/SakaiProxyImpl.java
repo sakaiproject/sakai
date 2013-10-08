@@ -428,7 +428,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 				return null;
 			}
 		}
-		return membership;
+		
+		log.debug("membership.size(): " + membership.size());
+		
+		//remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
+		Set<String> check = new HashSet<String>();
+		Set<Member> cleanedMembers = new HashSet<Member>();
+		for (Member m : membership) {
+			if(check.add(m.getUserId())) {
+				cleanedMembers.add(m);
+			}
+		}
+		
+		log.debug("cleanedMembers.size(): " + cleanedMembers.size());
+
+		return cleanedMembers;
 	}
 	
 	@SuppressWarnings("unchecked")
