@@ -168,6 +168,10 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, true);
         }
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
+        }
+        
         
 	}
 	

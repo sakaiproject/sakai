@@ -666,7 +666,7 @@ function getRosterMembership(groupId, sorted, sortField, sortDirection, state, f
 		for (var i = 0, j = membership.length; i < j; i++) {
 		 membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
             if(forceOfficialPicture == true) {
-			    membership[i].profileImageUrl += "/official";
+			    membership[i].profileImageUrl += "/official?siteId=" + rosterSiteId;
             }
 		}
 	}
