@@ -104,7 +104,7 @@
 				<sakai:button_bar_item id="submit"
 					action="#{ChatTool.processActionEditRoomSave}"
 					value="#{msgs['gen.save']}" />
-				<sakai:button_bar_item id="cancel"
+				<sakai:button_bar_item id="cancel" immediate="true"
 					action="#{ChatTool.processActionEditRoomCancel}"
 					value="#{msgs['gen.cancel']}" />
 			</sakai:button_bar>
