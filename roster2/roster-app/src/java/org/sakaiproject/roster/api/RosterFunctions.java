@@ -51,5 +51,6 @@ public interface RosterFunctions {
 	public static final String ROSTER_FUNCTION_VIEWGROUP = ROSTER_FUNCTION_PREFIX + "viewgroup";
 	public static final String ROSTER_FUNCTION_VIEWENROLLMENTSTATUS = ROSTER_FUNCTION_PREFIX + "viewenrollmentstatus";
 	public static final String ROSTER_FUNCTION_VIEWPROFILE = ROSTER_FUNCTION_PREFIX + "viewprofile";
+	public static final String ROSTER_FUNCTION_VIEWEMAIL = ROSTER_FUNCTION_PREFIX + "viewemail";
 	
 }

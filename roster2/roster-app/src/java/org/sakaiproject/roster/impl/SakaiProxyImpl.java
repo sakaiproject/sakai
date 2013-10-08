@@ -165,6 +165,10 @@ public class SakaiProxyImpl implements SakaiProxy {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWPROFILE, true);
         }
         
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, true);
+        }
+        
 	}
 	
 	/**
@@ -253,9 +257,19 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	public Boolean getViewEmail() {
+		return getViewEmail(getCurrentSiteId());
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Boolean getViewEmail(String siteId) {
 
-		return serverConfigurationService.getBoolean("roster_view_email",
-				DEFAULT_VIEW_EMAIL);
+		//To view emails it first needs to be enabled in sakai.properties and the user must have the permission.
+		if(serverConfigurationService.getBoolean("roster_view_email",DEFAULT_VIEW_EMAIL)) {
+			return hasUserSitePermission(getCurrentUserId(), RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, siteId);
+		}
+		return false;		
 	}
 	
 	/**

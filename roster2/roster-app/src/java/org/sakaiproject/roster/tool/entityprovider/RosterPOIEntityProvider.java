@@ -264,7 +264,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		createSpreadsheetTitle(dataInRows, site, groupId, viewType,
 				enrollmentSetTitle);
 
-		List<String> header = createColumnHeader(parameters, viewType);
+		List<String> header = createColumnHeader(parameters, viewType, site.getId());
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
@@ -272,7 +272,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 					groupId, sortDirection, sortField);
 
 			if (null != rosterMembers) {
-				addOverviewRows(dataInRows, rosterMembers, header);
+				addOverviewRows(dataInRows, rosterMembers, header, site.getId());
 			}
 
 		} else if (VIEW_GROUP_MEMBERSHIP.equals(viewType)) {
@@ -297,7 +297,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 			if (null != rosterMembers) {
 				addEnrollmentStatusRows(dataInRows, rosterMembers, header,
-						enrollmentSetTitle, enrollmentStatus);
+						enrollmentSetTitle, enrollmentStatus, site.getId());
 			}
 		}
 
@@ -367,7 +367,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	}
 
 	private void addOverviewRows(List<List<String>> dataInRows,
-			List<RosterMember> rosterMembers, List<String> header) {
+			List<RosterMember> rosterMembers, List<String> header, String siteId) {
 		
 		dataInRows.add(header);
 		// blank line
@@ -387,7 +387,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getDisplayId());
 			}
 
-			if (sakaiProxy.getViewEmail()) {
+			if (sakaiProxy.getViewEmail(siteId)) {
 				row.add(member.getEmail());
 			}
 
@@ -469,7 +469,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	private void addEnrollmentStatusRows(List<List<String>> dataInRows,
 			List<RosterMember> enrollmentSet, /* RosterSite site, */
 			List<String> header, String enrollmentSetTitle,
-			String enrollmentStatus) {
+			String enrollmentStatus, String siteId) {
 
 		List<String> enrollmentSetTitleRow = new ArrayList<String>();
 		enrollmentSetTitleRow.add(enrollmentSetTitle);
@@ -504,7 +504,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				row.add(member.getDisplayId());
 			}
 
-			if (sakaiProxy.getViewEmail()) {
+			if (sakaiProxy.getViewEmail(siteId)) {
 				row.add(member.getEmail());
 			}
 			
@@ -579,7 +579,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	}
 
 	private List<String> createColumnHeader(Map<String, Object> parameters,
-			String viewType) {
+			String viewType, String siteId) {
 		
 		List<String> header = new ArrayList<String>();
 		header.add(parameters.get(KEY_FACET_NAME) != null ? parameters.get(
@@ -592,7 +592,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
-			if (sakaiProxy.getViewEmail()) {
+			if (sakaiProxy.getViewEmail(siteId)) {
 
 				header.add(parameters.get(KEY_FACET_EMAIL) != null ? parameters
 						.get(KEY_FACET_EMAIL).toString() : DEFAULT_FACET_EMAIL);
@@ -610,7 +610,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 		} else if (VIEW_ENROLLMENT_STATUS.equals(viewType)) {
 
-			if (sakaiProxy.getViewEmail()) {
+			if (sakaiProxy.getViewEmail(siteId)) {
 
 				header.add(parameters.get(KEY_FACET_EMAIL) != null ? parameters
 						.get(KEY_FACET_EMAIL).toString() : DEFAULT_FACET_EMAIL);

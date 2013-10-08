@@ -95,10 +95,17 @@ public interface SakaiProxy {
 		
 	/**
 	 * Returns the value of the <code>roster_view_email</code> Sakai property.
-	 * 
+	 * Also checks user has permission in the site.
 	 * @return the value of the <code>roster_view_email</code> Sakai property.
 	 */
 	public Boolean getViewEmail();
+	
+	/**
+	 * Returns the value of the <code>roster_view_email</code> Sakai property.
+	 * Also checks user has permission in the site.
+	 * @return the value of the <code>roster_view_email</code> Sakai property.
+	 */
+	public Boolean getViewEmail(String siteId);
 	
 	/**
 	 * Returns the value of the <code>roster.display.userDisplayId</code> Sakai property.
