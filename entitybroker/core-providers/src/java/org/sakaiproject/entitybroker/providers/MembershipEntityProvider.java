@@ -67,7 +67,7 @@ import org.sakaiproject.site.api.SiteService.SelectionType;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 public class MembershipEntityProvider extends AbstractEntityProvider implements CoreEntityProvider,
-        RESTful, ActionsExecutable {
+RESTful, ActionsExecutable {
 
     private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
 
@@ -404,7 +404,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             } catch (PermissionException e) {
                 throw new SecurityException(
                         "Current user does not have permission to save this group:" + groupId
-                                + " to site:" + site.getId());
+                        + " to site:" + site.getId());
             }
             return null;
         }
@@ -462,7 +462,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         if (!search.isEmpty()) {
             // process the search
             roleId = (String) search.getRestrictionValueByProperties(new String[] { "role",
-                    "roleId" });
+            "roleId" });
             Restriction userRes = search
                     .getRestrictionByProperty(CollectionResolvable.SEARCH_USER_REFERENCE);
             if (userRes != null) {
@@ -484,7 +484,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             }
         }
         if (locationReference == null && userId == null) {
-            // if these are both nul then we default to getting memberships for the current user
+            // if these are both null then we default to getting memberships for the current user
             if (currentUserId != null) {
                 userId = currentUserId;
             }
@@ -512,9 +512,9 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             userId = userEntityProvider.findAndCheckUserId(userId, null);
             //SAK-22396 if the user is unknown this will be null
             if (userId == null) {
-            	throw new IllegalArgumentException("unable to find user");
+                throw new IllegalArgumentException("unable to find user with id ("+userId+")");
             }
-            
+
             boolean userCurrent = userId.equals(currentUserId);
             if (!userCurrent && !developerHelperService.isUserAdmin(currentUserId)) {
                 throw new SecurityException(
@@ -581,7 +581,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         }
         // handle the sorting
         Comparator<EntityMember> memberComparator = new EntityMember.MemberSortName(); // default by
-                                                                                       // sortname
+        // sortname
         if (search.getOrders().length > 0) {
             Order order = search.getOrders()[0]; // only one sort allowed
             if ("email".equals(order.getProperty())) {
@@ -778,18 +778,14 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
             // group and site
             members = sg.group.getMembers();
         }
-       
+        // filter out possible invalid/orphaned users (SAK-22396, SAK-17498, SAK-23863)
         for (Member member : members) {
-        	//The id passed may not be a valid user
-        	EntityUser eu = userEntityProvider.getUserById(member.getUserId());
-        	if (eu != null) {
-        		EntityMember em = new EntityMember(member, sg.locationReference, eu);
-        		l.add(em);
-        	}
-
-
+            EntityUser eu = userEntityProvider.getUserById(member.getUserId());
+            if (eu != null) {
+                EntityMember em = new EntityMember(member, sg.locationReference, eu);
+                l.add(em);
+            }
         }
-        
         return l;
     }
 
@@ -829,7 +825,7 @@ public class MembershipEntityProvider extends AbstractEntityProvider implements 
         } else {
             throw new IllegalArgumentException(
                     "Do not know how to handle this location reference (" + locationReference
-                            + "), only can handle site and group references");
+                    + "), only can handle site and group references");
         }
         if (holder.site == null) {
             throw new IllegalArgumentException(
