@@ -730,6 +730,15 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SORT_ORDER_COURSE_OFFERING = "worksitesetup.sort.order.courseOffering";
 	private final static String SORT_KEY_SECTION = "worksitesetup.sort.key.section";
 	private final static String SORT_ORDER_SECTION = "worksitesetup.sort.order.section";
+	
+	// bjones86 - SAK-23255
+	private final static String CONTEXT_IS_ADMIN = "isAdmin";
+	private final static String CONTEXT_SKIP_MANUAL_COURSE_CREATION = "skipManualCourseCreation";
+	private final static String CONTEXT_SKIP_COURSE_SECTION_SELECTION = "skipCourseSectionSelection";
+	private final static String CONTEXT_FILTER_TERMS = "filterTerms";
+	private final static String SAK_PROP_SKIP_MANUAL_COURSE_CREATION = "wsetup.skipManualCourseCreation";
+	private final static String SAK_PROP_SKIP_COURSE_SECTION_SELECTION = "wsetup.skipCourseSectionSelection";
+	private static final String SAK_PROP_FILTER_TERMS = "worksitesetup.filtertermdropdowns";
 
 	private List prefLocales = new ArrayList();
 	
@@ -2929,10 +2938,11 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			
-			context.put("skipCourseSectionSelection", ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE));
-			
-			// Added by bjones86 - determine to skip manual course site create link in worksite setup
-			context.put( "skipManualCourseCreation", ServerConfigurationService.getBoolean( "wsetup.skipManualCourseCreation", Boolean.FALSE));
+			// bjones86 - SAK-21706
+			context.put( CONTEXT_SKIP_COURSE_SECTION_SELECTION, 
+					ServerConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
+			context.put( CONTEXT_SKIP_MANUAL_COURSE_CREATION, 
+					ServerConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
 			
 			context.put("siteType", state.getAttribute(STATE_TYPE_SELECTED));
 			
@@ -3001,6 +3011,11 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			
 			context.put("requireAuthorizer", ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
+			
+			// bjones86 - SAK-21706/SAK-23255
+			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
+			context.put( CONTEXT_SKIP_COURSE_SECTION_SELECTION, ServerConfigurationService.getBoolean( SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE ) );
+			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[37];
 		case 42:
@@ -3248,9 +3263,11 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("value_uniqname", state.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
-
-			// Added by bjones86 - determine to skip manual course site create link in worksite setup
-			context.put( "skipManualCourseCreation", Boolean.valueOf(ServerConfigurationService.getBoolean( "wsetup.skipManualCourseCreation", false)));
+			
+			// bjones86 - SAK-21706/SAK-23255
+			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
+			context.put( CONTEXT_SKIP_MANUAL_COURSE_CREATION, ServerConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
+			context.put( CONTEXT_FILTER_TERMS, ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS, Boolean.FALSE ) );
 			
 			return (String) getContext(data).get("template") + TEMPLATE[53];
 		}
@@ -13220,7 +13237,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	private void prepFindPage(SessionState state) {
 		// check the configuration setting for choosing next screen
-		Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+		Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
 		if (!skipCourseSectionSelection.booleanValue())
 		{
 			// go to the course/section selection page
@@ -13873,7 +13890,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				} else {
 					state.removeAttribute(STATE_TERM_COURSE_LIST);
 					
-					Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean("wsetup.skipCourseSectionSelection", Boolean.FALSE);
+					Boolean skipCourseSectionSelection = ServerConfigurationService.getBoolean(SAK_PROP_SKIP_COURSE_SECTION_SELECTION, Boolean.FALSE);
 					if (!skipCourseSectionSelection.booleanValue() && courseManagementIsImplemented())
 					{
 						state.setAttribute(STATE_TEMPLATE_INDEX, "53");

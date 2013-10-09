@@ -24,6 +24,10 @@
 </script>
 
 <div class="portletBody">
+
+	## bjones86 - SAK-23255
+	#if( $isAdmin || !$skipCourseSectionSelection )
+
 	#if (!$!site)
 		<h3>$tlang.getString("nscourse.creating")</h3>
 	#else
@@ -248,4 +252,30 @@
 
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
+	
+	## bjones86 - SAK-23255
+	#else
+		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
+		#if( filterTerms )
+			<h3>$tlang.getString( 'nscourse.no_sections_in_term' )</h3>
+		## Otherwise, show the user a message indicating that the manual course site pages have been disabled globally
+		#else
+			<h3>$tlang.getString( 'nscourse.manual_disabled' )</h3>
+		#end
+		
+		## Provide the back and cancel buttons
+		<form name="findCourseForm" method="post" action="#toolForm($action)">
+		
+			<input type="hidden" name="back" value="$!backIndex" />
+			<input id="index" type="hidden" name="templateIndex" value="$!templateIndex" />
+			<input type="hidden" name="eventSubmit_doFind_course" value="x" />
+			<input type="hidden" name="option" value="find"/>
+			<p class="act">
+				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString('gen.back')" 
+					onclick="resetOption('back');" class="active" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
+					onclick="resetOption('cancel');" />
+ 			</p>
+		</form>
+	#end
 </div>
