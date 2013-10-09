@@ -4425,7 +4425,7 @@ public class AssignmentAction extends PagedResourceActionII
 											//Gradebook only supports plaintext strings
 											String commentString = FormattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
 											gExternal.updateExternalAssessmentComment(gradebookUid, associateGradebookAssignment, submitters[i].getId(),
-													commentString);
+													(commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
 										}
 										else if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 										{
