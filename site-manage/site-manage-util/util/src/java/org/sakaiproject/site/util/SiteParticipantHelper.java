@@ -1,5 +1,7 @@
 package org.sakaiproject.site.util;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -10,11 +12,13 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
@@ -46,6 +50,15 @@ public class SiteParticipantHelper {
 	
 	private static org.sakaiproject.user.api.ContextualUserDisplayService cus = (org.sakaiproject.user.api.ContextualUserDisplayService) ComponentManager
 	.get(org.sakaiproject.user.api.ContextualUserDisplayService.class);
+
+	private static org.sakaiproject.authz.api.SecurityService securityService = (org.sakaiproject.authz.api.SecurityService) ComponentManager
+	.get(org.sakaiproject.authz.api.SecurityService.class );
+
+	private static org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager
+	.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+
+	// SAK-23257: restrict the roles available for participants
+	private static final String	SAK_PROP_RESTRICTED_ROLES 	= "sitemanage.addParticipants.restrictedRoles";
 	
 	/**
 	 * Add participant from provider-defined enrollment set
@@ -517,4 +530,55 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
+
+	/**
+	 * Get a list of the 'allowed roles', taking into account the current site type
+	 * and the list of restricted roles defined in sakai.properties.
+	 * If the properties are not found, just return all the roles.
+	 * If the user is an admin, return all the roles.
+	 * 
+	 * @author bjones86 - SAK-23257
+	 * 
+	 * @param siteType
+	 * 				the current site's type
+	 * @return A list of 'allowed' role objects for the given site type
+	 */
+	public static List<Role> getAllowedRoles( String siteType, List<Role> allRolesForSiteType )
+	{
+		List<Role> retVal = new ArrayList<Role>();
+		
+		// Get all the restricted roles for this site type, as well as all restricted roles at the top level (restricted for all site types)
+		Set<String> restrictedRoles = new HashSet<String>();
+		restrictedRoles.addAll( Arrays.asList( ArrayUtils.nullToEmpty( scs.getStrings( SAK_PROP_RESTRICTED_ROLES + "." + siteType ) ) ) );
+		restrictedRoles.addAll( Arrays.asList( ArrayUtils.nullToEmpty( scs.getStrings( SAK_PROP_RESTRICTED_ROLES ) ) ) );
+				
+		// Loop through all the roles for this site type
+		for( Role role : allRolesForSiteType )
+		{
+			// If the user is an admin, or if the properties weren't found (empty set), just add the role to the list
+			if( securityService.isSuperUser() || restrictedRoles.isEmpty() )
+			{
+				retVal.add( role );
+			}
+        	
+        	// Otherwise, only add the role to the list of 'allowed' roles if it's not present in the set of 'restricted' roles
+         	else
+         	{
+        		if( !restrictedRoles.contains( role.getId() ) && !restrictedRoles.contains( role.getId().toLowerCase() ) )
+        		{
+        			retVal.add( role );
+        		}
+         	}
+        }
+		
+		return retVal;
+	}
+
+	public static List<Role> getAllowedRoles( String siteType, Set<Role> allRolesForSiteType )
+	{
+		List<Role> list = new ArrayList<Role>(allRolesForSiteType.size());
+		list.addAll(allRolesForSiteType);
+		return getAllowedRoles( siteType, list );
+	}
+	
 }
