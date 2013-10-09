@@ -227,7 +227,7 @@
 			<!-- end include Bottom -->
 				</div>
 				<div class="sakaiCopyrightInfo">${bottomNavCopyright} 
-					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}
 				</div>
 				#if ($showServerTime == "true")
 			 	<div class="server-time-container">

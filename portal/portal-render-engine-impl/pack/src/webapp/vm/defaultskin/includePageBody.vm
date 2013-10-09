@@ -267,7 +267,7 @@
 			<!-- end include Bottom -->
 				</div>
 				<div class="sakaiCopyrightInfo">${bottomNavCopyright}<br />
-					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion})- Server ${bottomNavServer}
+					${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}
 				</div>
 			</div>
 #else
