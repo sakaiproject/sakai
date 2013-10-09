@@ -23,6 +23,7 @@ package org.sakaiproject.connector.fck;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.UUID;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,6 +48,8 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.fileupload.DiskFileUpload;
 import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.fileupload.disk.DiskFileItemFactory;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
@@ -387,13 +391,14 @@ public class FCKConnectorServlet extends HttpServlet {
           String status="0";
           ContentResource attachment = null;
 
-          if (!"FileUpload".equals(command) && !"QuickUpload".equals(command) && !("QuickUploadEquation").equals(command)) {
+          if (!"FileUpload".equals(command) && !"QuickUpload".equals(command) && !("QuickUploadEquation").equals(command) && !("QuickUploadAttachment").equals(command)) {
                status = "203";
           }
           else {
                DiskFileUpload upload = new DiskFileUpload();
-               String mime;
-               byte [] bytes;
+               String mime="";
+               InputStream requestStream = null;
+               byte [] bytes=null;
                try {
                    //Special case for uploading fmath equations
                    if (("QuickUploadEquation").equals(command)) {
@@ -417,31 +422,41 @@ public class FCKConnectorServlet extends HttpServlet {
                        }
                    }
                    else {
-                       List items = upload.parseRequest(request);
-
-                       Map fields = new HashMap();
-
-                       Iterator iter = items.iterator();
-                       while (iter.hasNext()) {
-                           FileItem item = (FileItem) iter.next();
-                           if (item.isFormField()) {
-                               fields.put(item.getFieldName(), item.getString());
+                	   //If this is a multipart request
+                	   if (ServletFileUpload.isMultipartContent(request)) {
+	                       List items = upload.parseRequest(request);
+	
+	                       Map fields = new HashMap();
+	
+	                       Iterator iter = items.iterator();
+	                       while (iter.hasNext()) {
+	                           FileItem item = (FileItem) iter.next();
+	                           if (item.isFormField()) {
+	                               fields.put(item.getFieldName(), item.getString());
+	                           }
+	                           else {
+	                               fields.put(item.getFieldName(), item);
+	                           }
+	                       }
+	                       FileItem uplFile = (FileItem)fields.get("NewFile");
+	
+	                       String filePath = uplFile.getName();
+	                       filePath = filePath.replace('\\','/');
+	                       String[] pathParts = filePath.split("/");
+	                       fileName = pathParts[pathParts.length-1];
+	                       mime = uplFile.getContentType();
+	                       requestStream = uplFile.getInputStream();
+	                   }
+                	   else {
+                		   requestStream = request.getInputStream();
+                		   mime = request.getHeader("Content-Type");
                            }
-                           else {
-                               fields.put(item.getFieldName(), item);
-                           }
-                       }
-                       FileItem uplFile = (FileItem)fields.get("NewFile");
-
-                       String filePath = uplFile.getName();
-                       filePath = filePath.replace('\\','/');
-                       String[] pathParts = filePath.split("/");
-                       fileName = pathParts[pathParts.length-1];
-                       mime = uplFile.getContentType();
-                       bytes = uplFile.get();
-                   }
-
-                    
+                	   }
+                		   
+                    //If there's no filename, make a guid name with the mime extension?
+                    if ("".equals (fileName)) {
+                    	fileName = UUID.randomUUID().toString();
+                    }
                     String nameWithoutExt = fileName; 
                     String ext = ""; 
 
@@ -459,17 +474,24 @@ public class FCKConnectorServlet extends HttpServlet {
                              ResourcePropertiesEdit resourceProperties = contentHostingService.newResourceProperties();
                              resourceProperties.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
 
-                             if ("QuickUploadEquation".equals(command)) {
-                            	 attachment = bypassAddAttachment(request,fileName,mime,bytes,resourceProperties);
+                             if ("QuickUploadEquation".equals(command) || "QuickUploadAttachment".equals(command)) {
+                            	 attachment = bypassAddAttachment(request,fileName,mime,bytes,requestStream,resourceProperties);
                              } else {
-                             String altRoot = getAltReferenceRoot(currentFolder);
-                             if (altRoot != null)
-                                  resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
-
-                             int noti = NotificationService.NOTI_NONE;
-
-                             contentHostingService.addResource(currentFolder+fileName, mime, bytes, 
-                                    resourceProperties, noti);
+	                             String altRoot = getAltReferenceRoot(currentFolder);
+	                             if (altRoot != null)
+	                                  resourceProperties.addProperty (ContentHostingService.PROP_ALTERNATE_REFERENCE, altRoot);
+	
+	                             int noti = NotificationService.NOTI_NONE;
+	                             if (bytes != null) {
+	                            	 contentHostingService.addResource(currentFolder+fileName, mime, bytes, resourceProperties, noti);
+	                             }
+	                             else if (requestStream != null) {
+	                            	 contentHostingService.addResource(currentFolder+fileName, mime, requestStream, resourceProperties, noti);
+	                             }
+	                             else {
+	                            	 //Nothing to do
+	                            	 
+	                             }
                              }
 
                              done = true;
@@ -497,7 +519,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
           try {
                out = response.getWriter();
-               if ("QuickUploadEquation".equals(command)) {
+               if ("QuickUploadEquation".equals(command) || "QuickUploadAttachment".equals(command)) {
                    out.println(attachment!=null?attachment.getUrl():"");
                }
                else {
@@ -988,7 +1010,7 @@ public class FCKConnectorServlet extends HttpServlet {
                return null;
      }
 
-     private ContentResource bypassAddAttachment(HttpServletRequest request, String fileName, String mimeType, byte[] bytes, ResourceProperties props) throws Exception {
+     private ContentResource bypassAddAttachment(HttpServletRequest request, String fileName, String mimeType, byte[] bytes, InputStream requestStream, ResourceProperties props) throws Exception {
     	 try {
     		 
              securityService.pushAdvisor(contentNewAdvisor);
@@ -1002,12 +1024,18 @@ public class FCKConnectorServlet extends HttpServlet {
 }
 			 String toolName = "fckeditor";
 	    	 
-			 return contentHostingService.addAttachmentResource(resourceId, siteId, toolName, mimeType, new ByteArrayInputStream(bytes), props);
+             if (bytes != null) {
+            	 return contentHostingService.addAttachmentResource(resourceId, siteId, toolName, mimeType, new ByteArrayInputStream(bytes), props);
+             }
+             else if (requestStream != null) {
+            	 return contentHostingService.addAttachmentResource(resourceId, siteId, toolName, mimeType, requestStream, props);
+             }
 			 
     	 } catch (Exception ex) {
     		 throw ex;
     	 } finally {
              securityService.popAdvisor(contentNewAdvisor);
     	 }
+    	 return null;
      }
 }
