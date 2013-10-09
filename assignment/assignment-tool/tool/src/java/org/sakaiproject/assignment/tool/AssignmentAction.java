@@ -13797,7 +13797,15 @@ public class AssignmentAction extends PagedResourceActionII
 	            if (_count > 1) {
 	                try {
 	                    User _the_user = UserDirectoryService.getUser(_userRef);
-	                    retVal.add(populate_ids ? _the_user.getId(): _the_user.getDisplayName() + " (" + _sb.toString() + ")");
+			   /*          
+			    * SAK-23697 Allow user to be in multiple groups if
+		            * no SECURE_ADD_ASSIGNMENT_SUBMISSION permission or 
+			    * if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
+			    * and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
+		            */
+			    if (m_securityService.unlock(_the_user,AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION,s.getId()) && !m_securityService.unlock(_the_user,AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,s.getId())) {
+	                      retVal.add(populate_ids ? _the_user.getId(): _the_user.getDisplayName() + " (" + _sb.toString() + ")");
+			    };
 	                } catch (UserNotDefinedException _unde) {
 	                    retVal.add("UNKNOWN USER (" + _sb.toString() + ")");
 	                }
