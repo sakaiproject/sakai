@@ -48,6 +48,12 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
     var country = sakai.locale && sakai.locale.userCountry || null;
 
     var ckconfig = {
+	//Some defaults for audio recorder
+        audiorecorder : {
+            "maxSeconds" : 180,
+            "attemptAllowed" : Number.MAX_VALUE,
+            "attemptsRemaining": Number.MAX_VALUE
+        },
         skin: 'moono',
         defaultLanguage: 'en',
         allowedContent: true, // http://docs.ckeditor.com/#!/guide/dev_advanced_content_filter-section-3
@@ -88,8 +94,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
+                : ['AudioRecorder','Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -130,7 +136,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
         if (config && config.toolbarSet && ckconfig['toolbar_' + config.toolbarSet]) {
             ckconfig.toolbar = config.toolbarSet;
-        }
+		}
+
+		if (config.audiorecorder) {
+			ckconfig.audiorecorder = config.audiorecorder;
+		}
 
 		if (config.disableBrowseServer)
 		{
@@ -139,7 +149,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			ckconfig.filebrowserFlashBrowseUrl = null;
 			ckconfig.filebrowserLinkBrowseUrl = null;
 		}
-    }
+	}
 
 		//get path of directory ckeditor 
 		//
@@ -150,6 +160,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js'); 
 			 /*
 			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
 			  and to extraPlugins. This also needs extra stylesheets.
@@ -162,7 +173,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-			 ckconfig.extraPlugins+="movieplayer,wordcount,fmath_formula";
+			 ckconfig.extraPlugins+="audiorecorder,movieplayer,wordcount,fmath_formula";
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);

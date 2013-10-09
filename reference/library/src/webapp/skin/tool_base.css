@@ -1078,3 +1078,14 @@ span.nil a{
 .fl-ProgEnhance-enhanced,.fl-progEnhance-enhanced{display:none;}
 .fl-offScreen-hidden{position:absolute;left:-10000px;top:auto;width:1px;height:1px;overflow:hidden;}
 .recentMove { background: #def !important;border:1px solid #7bf !important}
+
+.audioaudio {
+    visibility: hidden\9;
+    visibility: hidden\10;
+}
+
+.audioobject {
+    visibility: hidden;
+    visibility: visible\9;
+    visibility: visible\10;
+}
