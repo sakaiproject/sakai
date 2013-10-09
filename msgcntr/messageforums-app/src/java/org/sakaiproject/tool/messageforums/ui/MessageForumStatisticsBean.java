@@ -51,6 +51,7 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.UserStatistics;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.Member;
@@ -59,13 +60,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -170,137 +170,6 @@ public class MessageForumStatisticsBean {
 		}
 	}
 	/* === End DecoratedCompiledMessageStatistics === */
-	
-	public class DecoratedCompiledUserStatistics {
-		private String siteName;
-		private String siteId;
-		private String siteUser;
-		private String siteUserId;
-		private String forumTitle;
-		private String topicTitle;
-		private Date forumDate;
-		private String forumSubject;
-		private String message;
-		private String msgId;
-		private String topicId;
-		private Boolean msgDeleted;
-		private String forumId;
-		private List decoAttachmentsList;
-	
-		
-		public String getSiteName(){
-			return this.siteName;
-		}
-		
-		public void setSiteName(String newValue){
-			this.siteName = newValue;
-		}
-		
-		public String getSiteId(){
-			return this.siteId;
-		}
-		
-		public void setSiteId(String newValue){
-			this.siteId = newValue;
-		}
-		
-		public String getSiteUser(){
-			return this.siteUser;
-		}
-		
-		public void setSiteUser(String newValue){
-			this.siteUser = newValue;
-		}
-		
-		public String getSiteUserId(){
-			return this.siteUserId;
-		}
-		
-		public void setSiteUserId(String newValue){
-			this.siteUserId = newValue;
-		}
-		
-		public String getForumTitle(){
-			return this.forumTitle;
-		}
-		
-		public void setForumTitle(String newValue){
-			this.forumTitle = newValue;
-		}
-		
-		public Date getForumDate(){
-			return forumDate;
-		}
-		
-		public void setForumDate(Date newValue){
-			this.forumDate = newValue;
-		}
-		
-		public String getForumSubject(){
-			return forumSubject;
-		}
-		
-		public void setForumSubject(String newValue){
-			this.forumSubject = newValue;
-		}
-
-		public String getTopicTitle() {
-			return topicTitle;
-		}
-
-		public void setTopicTitle(String topicTitle) {
-			this.topicTitle = topicTitle;
-		}
-
-		public String getMessage() {
-			return message;
-		}
-
-		public void setMessage(String message) {
-			this.message = message;
-		}
-
-		public String getMsgId() {
-			return msgId;
-		}
-
-		public void setMsgId(String msgId) {
-			this.msgId = msgId;
-		}
-
-		public String getTopicId() {
-			return topicId;
-		}
-
-		public void setTopicId(String topicId) {
-			this.topicId = topicId;
-		}
-
-		public Boolean getMsgDeleted() {
-			return msgDeleted;
-		}
-
-		public void setMsgDeleted(Boolean msgDeleted) {
-			this.msgDeleted = msgDeleted;
-		}
-
-		public String getForumId() {
-			return forumId;
-		}
-
-		public void setForumId(String forumId) {
-			this.forumId = forumId;
-		}
-
-		public List getDecoAttachmentsList() {
-			return decoAttachmentsList;
-		}
-
-		public void setDecoAttachmentsList(List decoAttachmentsList) {
-			this.decoAttachmentsList = decoAttachmentsList;
-		}
-	}
-	/* === End DecoratedCompiledUserStatistics == */
 	
 	public class DecoratedGradebookAssignment{
 		private String userUuid;
@@ -432,7 +301,7 @@ public class MessageForumStatisticsBean {
 	
 	/** Decorated Bean to store stats for user **/
 	public DecoratedCompiledMessageStatistics userInfo = null;
-	public DecoratedCompiledUserStatistics userAuthoredInfo = null;
+	public UserStatistics userAuthoredInfo = null;
 	
 	private Map courseMemberMap;
 	protected boolean ascending = true;
@@ -703,38 +572,21 @@ public class MessageForumStatisticsBean {
 	Map<String, List> userAuthoredStatisticsCache = new HashMap<String, List>();
 	public List getUserAuthoredStatistics(){
 		if(!userAuthoredStatisticsCache.containsKey(selectedSiteUserId)){
-			final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
+			final List<UserStatistics> statistics = new ArrayList<UserStatistics>();
 
-			List<Message> messages;
 			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
 					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-				messages = messageManager.findAuthoredMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+				statistics.addAll(messageManager.findAuthoredStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId)));
 			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-				messages = messageManager.findAuthoredMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
+				statistics.addAll(messageManager.findAuthoredStatsForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId)));
 			}else{
-				messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);	
+				statistics.addAll(messageManager.findAuthoredStatsForStudent(selectedSiteUserId));
 			}
-			if (messages != null){
-				for (Message msg: messages) {
-					userAuthoredInfo = new DecoratedCompiledUserStatistics();
-					userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-					userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
-					userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
-					userAuthoredInfo.setForumDate(msg.getCreated());
-					userAuthoredInfo.setForumSubject(msg.getTitle());
-					userAuthoredInfo.setMsgId(Long.toString(msg.getId()));
-					userAuthoredInfo.setTopicId(Long.toString(msg.getTopic().getId()));
-					userAuthoredInfo.setForumId(Long.toString(msg.getTopic().getOpenForum().getId()));
-					userAuthoredInfo.setMessage(msg.getBody());
-					statistics.add(userAuthoredInfo);
-				}
-
-				sortStatisticsByUser(statistics);
-			}
+			sortStatisticsByUser(statistics);
 			userAuthoredStatisticsCache.put(selectedSiteUserId, statistics);
 		} else {
 		    // sort the statistics
-		    List<DecoratedCompiledUserStatistics> statistics = userAuthoredStatisticsCache.get(selectedSiteUserId);
+		    List<UserStatistics> statistics = userAuthoredStatisticsCache.get(selectedSiteUserId);
 		    sortStatisticsByUser(statistics);
 		    userAuthoredStatisticsCache.put(selectedSiteUserId, statistics);
 		}
@@ -929,7 +781,7 @@ public class MessageForumStatisticsBean {
 	}
 		
 	public List getUserAuthoredStatistics2(){
-		final List<DecoratedCompiledUserStatistics> statistics = new ArrayList<DecoratedCompiledUserStatistics>();
+		final List<UserStatistics> statistics = new ArrayList<UserStatistics>();
 
 		List<Message> messages;
 		if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
@@ -938,7 +790,7 @@ public class MessageForumStatisticsBean {
 		}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
 			messages = messageManager.findAuthoredMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
 		}else{
-			messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);	
+			messages = messageManager.findAuthoredMessagesForStudent(selectedSiteUserId);
 		}
 		 
 		if (messages == null) return statistics;
@@ -955,7 +807,7 @@ public class MessageForumStatisticsBean {
 				}
 			}
 			
-			userAuthoredInfo = new DecoratedCompiledUserStatistics();
+			userAuthoredInfo = new UserStatistics();
 			userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 			userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
 			userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
@@ -1003,7 +855,7 @@ public class MessageForumStatisticsBean {
 						decoAttachList.add(decoAttach);
 					}
 				}							
-				userAuthoredInfo = new DecoratedCompiledUserStatistics();
+				userAuthoredInfo = new UserStatistics();
 				userAuthoredInfo.setSiteUserId(selectedSiteUserId);
 				userAuthoredInfo.setForumTitle(d.getTitle());
 				userAuthoredInfo.setTopicTitle(t.getTitle());
@@ -1029,36 +881,25 @@ public class MessageForumStatisticsBean {
 	Map<String, List> userReadStatisticsCache = new HashMap<String, List>();
 	public List getUserReadStatistics(){
 		if(!userReadStatisticsCache.containsKey(selectedSiteUserId)){
-			final List<DecoratedCompiledUserStatistics> statistics = new ArrayList();
+			final List<UserStatistics> statistics = new ArrayList();
 
 			List<Message> messages;
 
 			if((selectedAllTopicsTopicId == null || "".equals(selectedAllTopicsTopicId))
 					&& (selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId))){
-				messages = messageManager.findReadMessagesForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId));
+				statistics.addAll(messageManager.findReadStatsForStudentByForumId(selectedSiteUserId, Long.parseLong(selectedAllTopicsForumId)));
 			}else if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-				messages = messageManager.findReadMessagesForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId));
+				statistics.addAll(messageManager.findReadStatsForStudentByTopicId(selectedSiteUserId, Long.parseLong(selectedAllTopicsTopicId)));
 			}else{
-				messages = messageManager.findReadMessagesForStudent(selectedSiteUserId);	
+				statistics.addAll(messageManager.findReadStatsForStudent(selectedSiteUserId));	
 			}
-			if (messages != null){
-				for (Message msg: messages) {
-					userAuthoredInfo = new DecoratedCompiledUserStatistics();
-					userAuthoredInfo.setSiteUserId(selectedSiteUserId);
-					userAuthoredInfo.setForumTitle(msg.getTopic().getOpenForum().getTitle());
-					userAuthoredInfo.setTopicTitle(msg.getTopic().getTitle());
-					userAuthoredInfo.setForumDate(msg.getCreated());
-					userAuthoredInfo.setForumSubject(msg.getTitle());
-					statistics.add(userAuthoredInfo);
-				}
 
-				sortStatisticsByUser2(statistics);
-			}
+			sortStatisticsByUser2(statistics);	
 
 			userReadStatisticsCache.put(selectedSiteUserId, statistics);
 		} else {
 		    // sort the statistics
-		    List<DecoratedCompiledUserStatistics> statistics = userReadStatisticsCache.get(selectedSiteUserId);
+		    List<UserStatistics> statistics = userReadStatisticsCache.get(selectedSiteUserId);
 		    sortStatisticsByUser2(statistics);
 		    userReadStatisticsCache.put(selectedSiteUserId, statistics);
 		}
@@ -1692,32 +1533,32 @@ public class MessageForumStatisticsBean {
 		
 		forumTitleComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
-				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
+				String title1 = ((UserStatistics) item).getForumTitle().toUpperCase();
+				String title2 = ((UserStatistics) anotherItem).getForumTitle().toUpperCase();
 				return title1.compareTo(title2);
 			}
 		};
 		
 		topicTitleComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
-				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
+				String title1 = ((UserStatistics) item).getTopicTitle().toUpperCase();
+				String title2 = ((UserStatistics) anotherItem).getTopicTitle().toUpperCase();
 				return title1.compareTo(title2);
 			}
 		};
 		
 		forumDateComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
-				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				Date date1 = ((UserStatistics) item).getForumDate();
+				Date date2 = ((UserStatistics) anotherItem).getForumDate();
 				return date1.compareTo(date2);
 			}
 		};
 		
 		forumSubjectComparatorAsc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
-				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
+				String subject1 = ((UserStatistics) item).getForumSubject().toUpperCase();
+				String subject2 = ((UserStatistics) anotherItem).getForumSubject().toUpperCase();
 				return subject1.compareTo(subject2);
 			}
 		};
@@ -1792,40 +1633,40 @@ public class MessageForumStatisticsBean {
 		
 		dateComparaterDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
-				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				Date date1 = ((UserStatistics) item).getForumDate();
+				Date date2 = ((UserStatistics) anotherItem).getForumDate();
 				return date2.compareTo(date1);
 			}
 		};
 		
 		forumTitleComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String title1 = ((DecoratedCompiledUserStatistics) item).getForumTitle().toUpperCase();
-				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumTitle().toUpperCase();
+				String title1 = ((UserStatistics) item).getForumTitle().toUpperCase();
+				String title2 = ((UserStatistics) anotherItem).getForumTitle().toUpperCase();
 				return title2.compareTo(title1);
 			}
 		};
 		
 		topicTitleComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String title1 = ((DecoratedCompiledUserStatistics) item).getTopicTitle().toUpperCase();
-				String title2 = ((DecoratedCompiledUserStatistics) anotherItem).getTopicTitle().toUpperCase();
+				String title1 = ((UserStatistics) item).getTopicTitle().toUpperCase();
+				String title2 = ((UserStatistics) anotherItem).getTopicTitle().toUpperCase();
 				return title2.compareTo(title1);
 			}
 		};
 		
 		forumDateComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				Date date1 = ((DecoratedCompiledUserStatistics) item).getForumDate();
-				Date date2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumDate();
+				Date date1 = ((UserStatistics) item).getForumDate();
+				Date date2 = ((UserStatistics) anotherItem).getForumDate();
 				return date2.compareTo(date1);
 			}
 		};
 		
 		forumSubjectComparatorDesc = new Comparator(){
 			public int compare(Object item, Object anotherItem){
-				String subject1 = ((DecoratedCompiledUserStatistics) item).getForumSubject().toUpperCase();
-				String subject2 = ((DecoratedCompiledUserStatistics) anotherItem).getForumSubject().toUpperCase();
+				String subject1 = ((UserStatistics) item).getForumSubject().toUpperCase();
+				String subject2 = ((UserStatistics) anotherItem).getForumSubject().toUpperCase();
 				return subject2.compareTo(subject1);
 			}
 		};

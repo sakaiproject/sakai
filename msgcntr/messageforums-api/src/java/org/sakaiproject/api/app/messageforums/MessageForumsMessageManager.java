@@ -92,8 +92,11 @@ public interface MessageForumsMessageManager {
      * as DRAFT or DELETED.
      */
     public List<Message> findAuthoredMessagesForStudent(String studentId);
+    public List<UserStatistics> findAuthoredStatsForStudent(String studentId);
     public List<Message> findAuthoredMessagesForStudentByTopicId(String studentId, final Long topicId);
+    public List<UserStatistics> findAuthoredStatsForStudentByTopicId(String studentId, final Long topicId);
     public List<Message> findAuthoredMessagesForStudentByForumId(String studentId, final Long forumId);
+    public List<UserStatistics> findAuthoredStatsForStudentByForumId(String studentId, final Long forumId);
     
     /**
      * @return Each item in the list will be an array consisting of two elements.  The element
@@ -134,9 +137,9 @@ public interface MessageForumsMessageManager {
      * @return A list of all of the messages that the student has read and are not flagged
      * as DRAFT or DELETED.
      */
-    public List<Message> findReadMessagesForStudent(String studentId);
-    public List<Message> findReadMessagesForStudentByTopicId(String studentId, final Long topicId);
-    public List<Message> findReadMessagesForStudentByForumId(String studentId, final Long forumId);
+    public List<UserStatistics> findReadStatsForStudent(String studentId);
+    public List<UserStatistics> findReadStatsForStudentByTopicId(String studentId, final Long topicId);
+    public List<UserStatistics> findReadStatsForStudentByForumId(String studentId, final Long forumId);
     
     public int findReadViewableMessageCountByTopicId(Long topicId);
 

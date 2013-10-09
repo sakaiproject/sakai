@@ -236,20 +236,7 @@
   							<f:param value="#{stat.msgId}" name="msgId"/> 				  			
   				 </h:commandLink>
   				 </h:column>
-  			<h:column>
-  				<f:facet name="header">
-  					<h:outputText value="#{msgs.stat_forum_word_count}"  />				   
-  				</f:facet>
-  				<f:verbatim>
-  					<span id="messageBody</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>" style="display: none" class="messageBody">
-  				</f:verbatim>
-  					<h:outputText escape="false" value="#{stat.message}"/>
-				<f:verbatim>  					
-  					</span>  				
-	  				<span id="wordCountSpan</f:verbatim><h:outputText value="#{stat.msgId}"/><f:verbatim>">
-	  				</span>	  				
-	  			</f:verbatim>
-  			</h:column>  			
+
   				 <h:column>
   					<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
 						onclick="dialogLinkClick(this);">

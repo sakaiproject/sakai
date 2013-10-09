@@ -216,34 +216,66 @@
     where message.id = us.messageId and area.contextId = :contextId and us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
   ]]></query>
   
-  <query name="findReadMessagesForStudent"><![CDATA[
-    select message
-    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
-      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
-      us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
-  ]]></query>
+  <sql-query name="findReadStatsForStudent">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		inner join MFR_AREA_T mat on mat.ID = moft.surrogateKey
+		where mat.CONTEXT_ID=:contextId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
   
-  <query name="findReadMessagesForStudentByTopicId"><![CDATA[
-    select message
-    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
-      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
-      us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
-      and message.topic.id = :topicId
-  ]]></query>
+  <sql-query name="findReadStatsForStudentByTopicId">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		where mtt.ID=:topicId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
   
-  <query name="findReadMessagesForStudentByForumId"><![CDATA[
-    select message
-    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
-      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
-      join fetch message.topic topic join fetch topic.openForum openForum
-    where message.id = us.messageId and openForum.area.contextId = :contextId and 
-      us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
-      and openForum.id = :forumId
-  ]]></query>
+  <sql-query name="findReadStatsForStudentByForumId">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		where moft.ID=:forumId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
   
   <query name="findReadMessageCountForAllStudents"><![CDATA[
     select us.userId, count(*)
@@ -320,6 +352,26 @@
     order by message.created desc
   ]]></query>
   
+  <sql-query name="findAuthoredStatsForStudent"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_AREA_T mat on moft.surrogateKey = mat.ID
+		where moft.surrogateKey=mat.ID 
+		and mat.CONTEXT_ID=:contextId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
+  
   <query name="findAuthoredMessagesForStudentByTopicId"><![CDATA[
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
@@ -330,6 +382,24 @@
     order by message.created desc
   ]]></query>
   
+   <sql-query name="findAuthoredStatsForStudentByTopicId"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		where mtt.ID=:topicId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
+  
   <query name="findAuthoredMessagesForStudentByForumId"><![CDATA[
     select message
     from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
@@ -339,6 +409,24 @@
       and openForum.id = :forumId
     order by message.created desc
   ]]></query>
+  
+   <sql-query name="findAuthoredStatsForStudentByForumId"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		where moft.ID=:forumId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
 
   <query name="findAuthoredMessageCountForAllStudents"><![CDATA[
     select message.createdBy, count(*) 
