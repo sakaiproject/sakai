@@ -234,7 +234,7 @@
 	## bjones86 - SAK-23255
 	#else
 		## If the filter terms feature is enabled, show the user a message indicating they don't have any sections in the selected term
-		#if( filterTerms )
+		#if( $filterTerms )
 			<h3>$tlang.getString( 'nscourse.no_sections_in_term' )</h3>
 		## Otherwise, show the user a message indicating that the manual course site pages have been disabled globally
 		#else
