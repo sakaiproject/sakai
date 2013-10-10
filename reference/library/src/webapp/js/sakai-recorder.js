@@ -56,7 +56,7 @@ function audioAnalyzer(time) {
     }
   }
 
-  animationId = window.webkitRequestAnimationFrame(audioAnalyzer);
+  animationId = window.requestAnimationFrame(audioAnalyzer);
 }
 
   function enableRecording(stream) {
@@ -374,8 +374,8 @@ $(document).ready(function() {
       window.AudioContext = window.AudioContext || window.webkitAudioContext;
 
       //navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
-      //Mozilla and IE don't support everything needed yet, use flash fallback
-      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+      // IE doesn't support everything needed yet, use flash fallback
+      navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
       window.URL = window.URL || window.webkitURL;
       
