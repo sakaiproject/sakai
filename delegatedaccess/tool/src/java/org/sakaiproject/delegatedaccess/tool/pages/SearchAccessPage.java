@@ -89,7 +89,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 							if(eid == null || "".equals(eid.trim())){
 								return new StringResourceModel("noEidEntered", null).getObject();
 							}else{
-								User u = sakaiProxy.getUserByEid(eid);
+								User u = getUser();
 								if(u == null){
 									return new StringResourceModel("eidDoesNotExist", null).getObject();
 								}else{
@@ -351,6 +351,13 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			}
 		};
 		add(levelSort);
+		Link<Void> accessSort = new Link<Void>("accessSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
+			}
+		};
+		add(accessSort);
 		Label hierarchyHeader = new Label("hierarchyHeader", new StringResourceModel("hierarchyHeader", null)){
 			@Override
 			public boolean isVisible() {
@@ -364,7 +371,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			@Override
 			public Object getObject() {
 				if(searchTypeEid.equals(selectedSearchType) && eid != null && !"".equals(eid.trim())){
-					User u = sakaiProxy.getUserByEid(eid);
+					User u = getUser();
 					if(u != null){
 						return u.getDisplayName();
 					}
@@ -383,7 +390,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		add(new Link("editUserLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				User u = sakaiProxy.getUserByEid(eid);
+				User u = getUser();
 				if(u != null){
 					setResponsePage(new UserEditPage(u.getId(), u.getDisplayName()));
 				}
@@ -393,7 +400,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		Link removeAllPermsLink = new Link("removeAllPerms"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				User u = sakaiProxy.getUserByEid(eid);
+				User u = getUser();
 				if(u != null){
 					projectLogic.removeAllPermsForUser(u.getId());
 					provider.detachManually();
@@ -436,6 +443,20 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					level = new StringResourceModel("site", null).getObject();
 				}
 				item.add(new Label("level", level));
+				AbstractReadOnlyModel<String> accessModel = new AbstractReadOnlyModel<String>(){
+					@Override
+					public String getObject() {
+						String returnVal = "";
+						if(searchResult.getAccess() != null && searchResult.getAccess().length == 2){
+							returnVal = searchResult.getAccess()[0] + ":" + searchResult.getAccess()[1];
+							if(":".equals(returnVal)){
+								returnVal = "";
+							}
+						}
+						return returnVal;
+					}
+				};
+				item.add(new Label("access", accessModel));
 				item.add(new ListView<String>("hierarchy", searchResult.getHierarchyNodes()) {
 
 					@Override
@@ -641,7 +662,7 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			if(list == null){
 				list = new ArrayList<AccessSearchResult>();
 				if(eid != null && !"".equals(eid.trim()) && selectedSearchType.equals(searchTypeEid)){
-					User u = sakaiProxy.getUserByEid(eid);
+					User u = getUser();
 					if(u != null){
 						list = projectLogic.getAccessForUser(u);
 					}
@@ -666,4 +687,12 @@ public class SearchAccessPage extends BasePage implements Serializable {
 
 	}
 
+	public User getUser(){
+		User u = sakaiProxy.getUserByEid(eid);
+		if(u == null){
+			//couldn't find the user by eid, try internal id
+			u = sakaiProxy.getUser(eid);
+		}
+		return u;
+	}
 }

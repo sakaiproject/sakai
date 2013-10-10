@@ -15,6 +15,7 @@ public class AccessSearchResult implements Serializable{
 	private List<String> hierarchyNodes;
 	private String nodeId;
 	private boolean canEdit = false;
+	private String[] access = null;
 	
 	public String getNodeId() {
 		return nodeId;
@@ -70,5 +71,11 @@ public class AccessSearchResult implements Serializable{
 	}
 	public void setCanEdit(boolean canEdit) {
 		this.canEdit = canEdit;
+	}
+	public String[] getAccess() {
+		return access;
+	}
+	public void setAccess(String[] access) {
+		this.access = access;
 	}
 }

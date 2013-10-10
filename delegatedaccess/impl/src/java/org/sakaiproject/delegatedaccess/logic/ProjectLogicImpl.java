@@ -2476,6 +2476,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 				r.setHierarchyNodes(getHierarchyForNode(n));
 				r.setNodeId(n.id);
 				r.setCanEdit(canEdit);
+				Set<String> perms = getPermsForUserNodes(user.getId(), n.id);
+				r.setAccess(getAccessRealmRole(perms));
 				returnSet.add(r);
 			}
 			//Shoppinger period nodes
@@ -2599,6 +2601,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 									r.setHierarchyNodes(hierarchy);
 									r.setNodeId(nodeId);
 									r.setCanEdit(canEdit);
+									r.setAccess(getAccessRealmRole(userAndPerms.getValue()));
 									returnSet.add(r);
 								}
 								if(hasShoppingAdmin){
