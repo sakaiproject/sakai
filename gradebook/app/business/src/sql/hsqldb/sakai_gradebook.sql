@@ -56,6 +56,8 @@ create table GB_GRADEBOOK_T (
 	SELECTED_GRADE_MAPPING_ID bigint,
 	ASSIGNMENTS_DISPLAYED bit not null,
 	COURSE_GRADE_DISPLAYED bit not null,
+	TOTAL_POINTS_DISPLAYED bit not null,
+	COURSE_AVERAGE_DISPLAYED bit not null,
 	ALL_ASSIGNMENTS_ENTERED bit not null,
 	LOCKED bit not null,
 	primary key (ID),

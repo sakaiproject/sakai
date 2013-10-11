@@ -54,6 +54,8 @@ create table GB_GRADEBOOK_T (
 	SELECTED_GRADE_MAPPING_ID number(19,0),
 	ASSIGNMENTS_DISPLAYED number(1,0) not null,
 	COURSE_GRADE_DISPLAYED number(1,0) not null,
+	TOTAL_POINTS_DISPLAYED number(1,0) not null,
+	COURSE_AVERAGE_DISPLAYED number(1,0) not null,
 	ALL_ASSIGNMENTS_ENTERED number(1,0) not null,
 	LOCKED number(1,0) not null,
 	primary key (ID));
