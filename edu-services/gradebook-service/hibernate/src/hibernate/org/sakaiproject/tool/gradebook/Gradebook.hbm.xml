@@ -28,6 +28,10 @@
 
 		<property name="courseGradeDisplayed" column="COURSE_GRADE_DISPLAYED" type="boolean" not-null="true"/>
 
+		<property name="totalPointsDisplayed" column="TOTAL_POINTS_DISPLAYED" type="boolean" not-null="true" />
+
+		<property name="courseAverageDisplayed" column="COURSE_AVERAGE_DISPLAYED" type="boolean" not-null="true" />
+
 		<property name="allAssignmentsEntered" column="ALL_ASSIGNMENTS_ENTERED" type="boolean" not-null="true"/>
 
 		<property name="locked" column="LOCKED" type="boolean" not-null="true"/>

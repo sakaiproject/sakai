@@ -202,6 +202,11 @@ public class CourseGradeRecord extends AbstractGradeRecord {
 		}
 		autoCalculatedGrade = percentageEarned;
 	}
+	
+	//Added by -Qu for totalPoints implementation in GB2 bugid:4371 9/2011
+	public void setCalculatedPointsEarned(double literalTotalPointsEarned){
+		this.calculatedPointsEarned = literalTotalPointsEarned;
+	}
 
 	public void initNonpersistentFields(double totalPointsPossible, double totalPointsEarned, double literalTotalPointsEarned) {
 		Double percentageEarned;
