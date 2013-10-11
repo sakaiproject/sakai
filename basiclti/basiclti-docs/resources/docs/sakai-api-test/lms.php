@@ -10,9 +10,12 @@ session_start();
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 </head>
 <body style="font-family:sans-serif;">
+<p><b>IMS LTI 1.1 Consumer Launch</b></p>
+<p>This is a very simple reference implementation of the
+LMS side (i.e. consumer) for
+<a href="http://developers.imsglobal.org/" target="_blank">IMS Learning 
+Tools Interoperability</a>.</p>
 <?php
-echo("<p><b>Sakai Unit Tests for IMS LTI 1.1 Consumer Launch</b></p>\n");
-echo("<p>This is a very simple reference implementaton of the LMS side (i.e. consumer) for IMS LTI 1.1.</p>\n");
 
 require_once("util/lti_util.php");
 require_once("cert.php");
@@ -21,12 +24,12 @@ $cert_num = 0;
 if ( isset($_REQUEST['cert_num']) ) $cert_num = $_REQUEST['cert_num'] + 0;
 
 $cur_url = curPageURL();
-echo("<p>Certification launch data sets: ");
+echo("<p>Pre-configured certification launch data sets: ");
 for ( $i=0; $i < count($lmsdata_cert); $i++) {
    echo('<a href="'.$curPageUrl.'?cert_num='.$i.'">'.$i."</a>\n");
 }
 if ( isset($_REQUEST['cert_num']) ) {
-    echo('<br/>Before running the certification tests, you must first <a href="http://www.imsglobal.org/developers/alliance/LTI/cert/index.php" target="_blank">Login</a> and set up the tests using your IMS membership credentials.'."\n");
+    echo('Before running the certification tests, you must first <a href="http://www.imsglobal.org/developers/alliance/LTI/cert/index.php" target="_blank">Login</a> and set up the tests using your IMS membership credentials.'."\n");
 }
 echo("</p>");
 
@@ -79,16 +82,17 @@ function lmsdataToggle() {
 } 
   //]]> 
 </script>
-<a id="displayText" href="javascript:lmsdataToggle();">Toggle Resource and Launch Data</a>
 <?php
-  if ( isset($_REQUEST["cert_num"]) && $secret != "secret" ) {
-      echo("<div id=\"lmsDataForm\" style=\"display:none\">\n");
-  } else {
-      echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
-  }
   echo("<form method=\"post\">\n");
-  echo("<input type=\"submit\" value=\"Recompute Launch Data\">\n");
-  echo("<input type=\"submit\" name=\"reset\" value=\"Reset\">\n");
+  echo("<input type=\"submit\" name=\"launch\" value=\"Launch\">\n");
+  echo("<input type=\"submit\" name=\"debug\" value=\"Debug Launch\">\n");
+echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" value="Toggle Input Data">');
+  if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) || 
+        isset($_POST['launch']) || isset($_POST['debug']) ) {
+    echo("<div id=\"lmsDataForm\" style=\"display:none\">\n");
+  } else {
+    echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
+  }
   echo("<fieldset><legend>LTI Resource</legend>\n");
   $disabled = '';
   echo("Launch URL: <input size=\"120\" type=\"text\" $disabled name=\"endpoint\" value=\"$endpoint\">\n");
@@ -126,11 +130,16 @@ addCustom($parms, array(
     "Complex!@#$^*(){}[]KEY" => "Complex!@#$^*(){}[]½Value"
 ));
 
-$parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
-"Press to Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
+if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) || 
+      isset($_POST['launch']) || isset($_POST['debug']) ) {
 
-  $content = postLaunchHTML($parms, $endpoint, true, 
+$parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
+"Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
+
+  $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
      "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
   print($content);
+
+}
 
 ?>
