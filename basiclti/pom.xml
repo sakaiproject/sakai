@@ -13,7 +13,7 @@
     <name>BasicLTI base pom (basiclti)</name>
     <groupId>org.sakaiproject.basiclti</groupId>
     <artifactId>basiclti</artifactId>
-    <version>2.2-SNAPSHOT</version>
+    <version>2.10-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
@@ -24,7 +24,6 @@
     <modules>
         <module>basiclti-common</module>
         <module>basiclti-api</module>
-        <module>basiclti-assembly</module>
         <module>basiclti-docs</module>
         <module>basiclti-help</module>
         <module>basiclti-impl</module>
@@ -34,7 +33,7 @@
         <module>basiclti-util</module>
         <module>basiclti-tool</module>
         <module>portlet-util</module>
-	<module>web-ifp</module>
+        <module>web-ifp</module>
     </modules>
     
     <profiles>
@@ -186,11 +185,6 @@
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-assembly-plugin</artifactId>
-                    <version>2.2.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
@@ -253,28 +247,5 @@
                 -->
             </plugin>
         </plugins>
-        <extensions>
-            <!-- Enabling the use of external ssh -->
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-external</artifactId>
-                <version>2.0</version>
-            </extension>
-        </extensions>
     </build>
-    
-	<repositories> 
-		<repository> 
-			<id>sonatype-nexus-snapshots</id> 
-			<name>Sonatype Nexus Snapshots</name> 
-			<url> https://oss.sonatype.org/content/repositories/snapshots </url> 
-			<releases> 
-				<enabled>false</enabled> 
-			</releases> 
-			<snapshots> 
-				<enabled>true</enabled> 
-			</snapshots> 
-		</repository> 
-	</repositories>
-
 </project>

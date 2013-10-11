@@ -46,7 +46,7 @@ require_once("util/lti_util.php");
 
   $cur_url = curPageURL();
   $cur_url = str_replace("index.php","lms.php",$cur_url);
-echo("URL: ".$cur_url."\n");
+echo('URL: <a href="'.$cur_url.'">'.$cur_url."</a>\n");
 ?>
 </pre>
 <h1>Using This Code</h1>
