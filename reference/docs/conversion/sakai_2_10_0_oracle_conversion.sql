@@ -912,3 +912,10 @@ alter table MFR_PVT_MSG_USR_T add REPLIED number(1, 0) default 0 not null;
 --
 --------------
 
+-- https://jira.sakaiproject.org/browse/SAK-24337
+alter table GB_GRADEBOOK_T add TOTAL_POINTS_DISPLAYED number(1, 0) not null;
+alter table GB_GRADEBOOK_T add COURSE_AVERAGE_DISPLAYED number(1, 0) not null;
+
+update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=1, COURSE_AVERAGE_DISPLAYED=1 where COURSE_GRADE_DISPLAYED=1;
+update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=0, COURSE_AVERAGE_DISPLAYED=0 where COURSE_GRADE_DISPLAYED=0;
+-- END SAK-24337 Gradebook edu service features
