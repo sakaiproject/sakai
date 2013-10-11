@@ -288,35 +288,29 @@ li.last {
 }
 
 #samigo-create-container {
-	width: 100%;
-	overflow: hidden;
 	margin-bottom: 20px;
-	height: 180px;
 }
 #samigo-create-new {
+	display: table-cell;
 	background-color: #F0F0F0;
-	float: left;
 	width: 40%;
 	padding: 12px;
-	height: 180px;
 }
 #samigo-create-new h4 {
 	margin: 0 0 8px;
 }
 #samigo-create-or {
-	float: left;
+	display: table-cell;
 	width: 10%;
 	text-align: center;
 	vertical-align: middle;
-	height: 180px;
 	line-height: 140px;
 }
 #samigo-create-import {
+	display: table-cell;
 	background-color: #F3F3F3;
-	float: left;
 	width: 40%;
 	padding: 20px;
-	height: 180px;
 }
 #tabs {
 	padding: 0;
