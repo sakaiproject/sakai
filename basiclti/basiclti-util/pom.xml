@@ -27,6 +27,13 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.5</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
