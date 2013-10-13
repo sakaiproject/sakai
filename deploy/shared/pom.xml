@@ -86,6 +86,12 @@
             <version>2.1_3</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.3</version>
+			<scope>compile</scope>
+		</dependency>
         
     </dependencies>
 </project>
