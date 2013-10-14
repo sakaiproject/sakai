@@ -80,7 +80,7 @@ public class CleanupDeletedContent implements Job {
 
 		List<ContentResource> deleted = (List<ContentResource>) chs
 				.getAllDeletedResources("/");
-		long daysToKeep = scs.getInt("keep.deleted.files.days", 30);
+		long daysToKeep = scs.getInt("content.keep.deleted.files.days", 30);
 		Time oldest = ts.newTime(System.currentTimeMillis()
 				- (daysToKeep * 1000 * 60 * 60 * 24));
 		log.info("Looking at " + deleted.size()
