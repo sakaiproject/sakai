@@ -953,7 +953,12 @@ function submitform(id)
 								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
 							/>
 							#end
-							<span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
+
+                            #if ($submissionType==5)
+                                <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>
+                            #else
+                                <span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
+                            #end
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 			</div>
