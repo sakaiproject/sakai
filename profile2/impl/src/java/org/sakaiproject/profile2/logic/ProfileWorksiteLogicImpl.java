@@ -177,7 +177,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 			User owner = sakaiProxy.getUserById(ownerId);
 			if (null != owner) {
 				// false == provided
-				site.addMember(ownerId, ROLE_MAINTAIN, true, false);					
+				site.addMember(ownerId, site.getMaintainRole(), true, false);
 			} else {
 				log.warn("unknown user " + ownerId + " tried to create worksite");
 				return false;
