@@ -757,6 +757,13 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				loopTimerEnabled = enabled != null && enabled.intValue() > 0;
 			}
 			
+			// set the loopTimerEnabledLocal property to false if it's not already set
+			Integer enabledLocal = dao.getConfigProperty(propLoopTimerEnabledLocally);
+			if(enabledLocal == null) {
+				dao.setConfigProperty(propLoopTimerEnabledLocally, 0);
+			}
+
+			
 			// TODO: move other admin checks here
 		}
 
