@@ -43,6 +43,7 @@ public class SyllabusItemImpl implements SyllabusItem
   private String contextId;
   private String redirectURL;
   private Integer lockId; // optimistic lock
+  private Boolean openInNewWindow = Boolean.FALSE;
   
   private Set syllabi = new TreeSet();
   
@@ -207,16 +208,29 @@ public class SyllabusItemImpl implements SyllabusItem
     sb.append("{surrogateKey=");
     sb.append(surrogateKey);
     sb.append(", userId=");
-    sb.append(userId);    
+    sb.append(userId);
     sb.append(", contextId=");
     sb.append(contextId);
     sb.append(", redirectURL=");
-    sb.append(redirectURL);    
+    sb.append(redirectURL);
     sb.append(", lockId=");
     sb.append(lockId);
+    sb.append(", openInNewWindow=");
+    sb.append(openInNewWindow);
     sb.append("}");
     return sb.toString();
-  }   
+  }
+
+    public Boolean isOpenInNewWindow() {
+        if (openInNewWindow == null) {
+            return Boolean.FALSE;
+        }
+        return openInNewWindow;
+    }
+
+    public void setOpenInNewWindow(Boolean openInNewWindow) {
+        this.openInNewWindow = openInNewWindow;
+    }
 }
 
 

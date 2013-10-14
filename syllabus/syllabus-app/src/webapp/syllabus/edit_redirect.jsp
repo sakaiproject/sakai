@@ -20,6 +20,10 @@
 						<h:outputLabel for="urlValue"><h:outputText value="#{msgs.syllabus_url}"/></h:outputLabel>
 						<h:inputText id="urlValue" value="#{SyllabusTool.currentRediredUrl}" size="65"/>
 					</h:panelGroup>
+                    <h:panelGroup styleClass="shorttext required">
+                        <h:outputLabel for="openInNewWindow"><h:outputText value="#{msgs.openLinkNewWindow}"/></h:outputLabel>
+                        <h:selectBooleanCheckbox id="openInNewWindow" value="#{SyllabusTool.openInNewWindow}"/>
+                    </h:panelGroup>
 				</h:panelGrid>
 				<sakai:button_bar>
 					<sakai:button_bar_item

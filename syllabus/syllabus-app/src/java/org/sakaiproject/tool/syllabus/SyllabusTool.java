@@ -380,7 +380,9 @@ public class SyllabusTool
   private final String httpPrefix = "http://";
   
   private final String httpsPrefix = "https://";
-  
+
+  private boolean openInNewWindow = false;
+
   private ContentHostingService contentHostingService;
   
   private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.syllabus.bundle.Messages");
@@ -664,6 +666,10 @@ public class SyllabusTool
     }
 
     return syllabusItem;
+  }
+
+  public String getOpenInNewWindowAsString () throws PermissionException {
+      return (getSyllabusItem().isOpenInNewWindow()) ? "true" : null;
   }
 
   public void setSyllabusItem(SyllabusItem syllabusItem)
@@ -1855,7 +1861,7 @@ public class SyllabusTool
       else
       {
     	currentRediredUrl = syllabusItem.getRedirectURL();
-    	
+    	openInNewWindow = syllabusItem.isOpenInNewWindow();
         return "edit_redirect";
       }
     }
@@ -1907,6 +1913,7 @@ public class SyllabusTool
       			}
       			String origURL = syllabusItem.getRedirectURL();
     	    	syllabusItem.setRedirectURL(currentRediredUrl.trim());
+                syllabusItem.setOpenInNewWindow(openInNewWindow);
     	        syllabusManager.saveSyllabusItem(syllabusItem);
     	        if(((origURL == null || origURL.isEmpty())
     	    			&& !currentRediredUrl.trim().isEmpty())
@@ -3128,4 +3135,12 @@ public String getOpenDataId() {
 public void setOpenDataId(String openDataId) {
 	this.openDataId = openDataId;
 }
+
+    public boolean isOpenInNewWindow() {
+        return openInNewWindow;
+    }
+
+    public void setOpenInNewWindow(boolean openInNewWindow) {
+        this.openInNewWindow = openInNewWindow;
+    }
 }

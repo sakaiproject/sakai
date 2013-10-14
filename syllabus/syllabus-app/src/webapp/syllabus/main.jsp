@@ -332,7 +332,12 @@
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				
 			<syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-  			<syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500"/>
+               <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
+  			     <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500"/>
+               </syllabus:syllabus_if>
+                <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
+                    <h:outputText escape="false" value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>" />
+                </syllabus:syllabus_ifnot>
 			</syllabus:syllabus_ifnot>
 			<f:verbatim>
 				<div id="confirmDelete" style="display:none">
@@ -347,6 +352,7 @@
 					</p>
 				</div>
 			</f:verbatim>
+
 		</h:form>
 	</sakai:view_content>
 	</sakai:view_container>

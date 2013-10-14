@@ -143,6 +143,19 @@
 </div>
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
+        <script language="JavaScript">
+        	// if redirected, just open in another window else
+        	// open with size approx what actual print out will look like
+        	function printFriendly(url) {
+        		if (url.indexOf("printFriendly") == -1) {
+        			window.open(url,"mywindow");
+        		}
+        		else {
+        			window.open(url,"mywindow","width=960,height=1100,scrollbars=yes");
+        		}
+        	}
+        </script>
+
 		<h:form>
 		  <sakai:tool_bar>
 		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
@@ -273,11 +286,21 @@
 					 accesskey="r" 	/>
 			<f:verbatim></p></f:verbatim>		  
 		  </syllabus:syllabus_if>
-	      <syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
-		    <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
-		    <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%" height="500" />
-		  </syllabus:syllabus_ifnot>
-		</h:form>
+
+          <syllabus:syllabus_ifnot test="#{SyllabusTool.syllabusItem.redirectURL}">
+            <sakai:tool_bar_message value="#{msgs.redirect_sylla}" />
+
+            <syllabus:syllabus_if test="#{SyllabusTool.openInNewWindowAsString}">
+                <syllabus:syllabus_iframe redirectUrl="#{SyllabusTool.syllabusItem.redirectURL}" width="100%"
+                                          height="500"/>
+            </syllabus:syllabus_if>
+            <syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
+                <h:outputText escape="false"
+                              value="<script>javascript:printFriendly('#{SyllabusTool.syllabusItem.redirectURL}');</script>"/>
+            </syllabus:syllabus_ifnot>
+          </syllabus:syllabus_ifnot>
+
+        </h:form>
 	</sakai:view_content>
 	</sakai:view_container>
 </f:view>
