@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="org.sakaiproject.content.CleanupDeletedContent"
+    class="org.sakaiproject.content.CleanupDeletedContent">
+    <property name="contentHostingService">
+      <ref bean="org.sakaiproject.content.api.ContentHostingService" />
+    </property>
+    <property name="serverConfigurationService">
+      <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+    </property>
+    <property name="timeService">
+      <ref bean="org.sakaiproject.time.api.TimeService"/>
+    </property>
+    <property name="sessionManager">
+      <ref bean="org.sakaiproject.tool.api.SessionManager"/>
+    </property>
+  </bean>
+
+  <bean
+    id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.cleanupDeletedContent"
+    class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+    singleton="true" init-method="init">
+    <property name="beanId">
+      <value>org.sakaiproject.content.CleanupDeletedContent</value>
+    </property>
+    <property name="jobName">
+      <value>Content Cleanup of deleted files</value>
+    </property>
+    <property name="schedulerManager">
+      <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+    </property>
+  </bean>
+</beans> 
