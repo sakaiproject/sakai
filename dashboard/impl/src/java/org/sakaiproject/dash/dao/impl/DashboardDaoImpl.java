@@ -2204,6 +2204,9 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		JdbcTemplate jdbcTemplate = getJdbcTemplate();
 		try {
 			value = jdbcTemplate.queryForInt(sql, params);
+		} catch (EmptyResultDataAccessException ex) {
+			// do nothing.  This means no value is set for this property, an expected condition in some cases.
+			// log.warn("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		} catch (DataAccessException ex) {
             log.warn("getConfigProperty: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
 		} catch (Exception ex) {
