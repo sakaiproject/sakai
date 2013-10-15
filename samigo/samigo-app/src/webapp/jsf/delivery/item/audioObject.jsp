@@ -3,7 +3,7 @@
 <%--
 ***********************************************************************************
 *
-* Copyright (c) 2005, 2006 The Sakai Foundation.
+* Copyright (c) 2005, 2006, 2013 The Sakai Foundation.
 *
 * Licensed under the Educational Community License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,71 +20,49 @@
 ***********************************************************************************/
 --%>
 -->
-<h:panelGroup rendered="#{!person.isMacNetscapeBrowser && delivery.actionString != 'reviewAssessment'}">
-<f:verbatim>
-<object
-  classid = "clsid:8AD9C840-044E-11D1-B3E9-00805F499D93"
-  codebase = "http://java.sun.com/update/1.5.0/jinstall-1_5-windows-i586.cab#Version=1,5,0,0"
-  WIDTH = "570" HEIGHT = "400" NAME = "Test Audio Applet" ALIGN = "middle" VSPACE = "2" HSPACE = "2" >
-  <PARAM NAME = CODE VALUE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" >
-  <PARAM NAME = ARCHIVE VALUE = "samigo-audio-dev.jar" >
-  <PARAM NAME = CODEBASE VALUE = "/samigo-app/applets/" >
-</f:verbatim>
+<h:panelGroup rendered="#{delivery.actionString != 'reviewAssessment'}">
 
-  <%@ include file="/jsf/delivery/item/audioSettings.jsp" %>
-<f:verbatim>
-  <comment>
-   <embed
-      type = "application/x-java-applet;version=1.5" \
-      CODE = "org.sakaiproject.tool.assessment.audio.AudioRecorderApplet.class" \
-      JAVA_CODEBASE = "/samigo-app/applets/" \
-      ARCHIVE = "samigo-audio-dev.jar"
-      NAME = "Record Audio" \
-      WIDTH = "570" \
-      HEIGHT = "400" \
-      ALIGN = "middle" \
-      VSPACE = "2" \
-      HSPACE = "2" \
-      saveAu ="true" \
-      saveWave ="false" \
-      saveAiff ="false" \
-      saveToUrl ="</f:verbatim><h:outputText value="true" rendered="#{delivery.actionString=='takeAssessment' || delivery.actionString=='takeAssessmentViaUrl'}"/><h:outputText value="false" rendered="#{delivery.actionString!='takeAssessment' && delivery.actionString!='takeAssessmentViaUrl'}"/><f:verbatim>" \
-      fileName ="audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" \
-      url ="</f:verbatim><h:outputText
-     value="#{delivery.protocol}/samigo-app/servlet/UploadAudio?media=jsf/upload_tmp/assessment#{delivery.assessmentId}/question#{param.questionId}/#{person.eid}/audio_#{delivery.assessmentGrading.assessmentGradingId}_#{param.questionId}" /><f:verbatim>" \
-      imageUrl ="</f:verbatim><h:outputText value="#{delivery.protocol}/samigo-app/images/" /><f:verbatim>" \
-      compression ="linear" \
-      frequency ="44100" \
-      bits ="16" \
-      signed ="true" \
-      bigendian ="true" \
-      stereo ="false" \
-      localeLanguage ="</f:verbatim><h:outputText
-         value="#{person.localeLanguage}" escape="false"/><f:verbatim>" \
-      localeCountry ="</f:verbatim><h:outputText
-         value="#{person.localeCountry}" escape="false"/><f:verbatim>" \
-      agentId ="</f:verbatim><h:outputText
-         value="#{person.id}" escape="false"/><f:verbatim>" \
-      maxSeconds ="</f:verbatim><h:outputText
-         value="#{param.duration}" escape="false"/><f:verbatim>" \
-      attemptsAllowed ="</f:verbatim><h:outputText
-         value="#{param.triesAllowed}" escape="false"/><f:verbatim>" \
-      attemptsRemaining ="</f:verbatim><h:outputText
-         value="#{param.attemptsRemaining}" escape="false"/><f:verbatim>" \
-      questionId ="</f:verbatim><h:outputText
-	     value="#{param.questionId}" escape="false"/><f:verbatim>" \
-      aassessmentGrading ="</f:verbatim><h:outputText
-         value="#{delivery.assessmentGrading.assessmentGradingId}" escape="false"/><f:verbatim>" \
-      scriptable=true 
-      pluginspage = "http://java.sun.com/products/plugin/index.html#download" MAYSCRIPT=true>
-      <noembed>
+<f:verbatim><div id="audio-recorder-header"></f:verbatim> <h:outputFormat value="#{deliveryMessages.audio_recorder_header}" escape="false" /> <f:verbatim></div></f:verbatim>
 
-      </noembed>
-   </embed>
-  </comment>
-</f:verbatim>
+<f:verbatim><div id="audio-popup-question"></f:verbatim>
+  <h:outputFormat value="#{deliveryMessages.q} " />
+  <f:verbatim> <span id="audio-popup-question-number">1</span> </f:verbatim> 
+  <h:outputFormat value=" #{deliveryMessages.of} " /> 
+  <f:verbatim> <span id="audio-popup-question-total">100</span> </f:verbatim>
+<f:verbatim></div></f:verbatim>
+
+<f:verbatim><div id="audio-recorder-intro"></f:verbatim>
+  <f:verbatim><div class="time-allowed"></f:verbatim>
+    <h:outputFormat value=" #{deliveryMessages.audio_recorder_timelimit}" escape="false"> <f:param value="<span id=\"audio-time-allowed\"> </span>" /> </h:outputFormat>
+  <f:verbatim></div></f:verbatim>
+  <f:verbatim><div class="attempts-allowed"></f:verbatim>
+    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_allowed}" escape="false"/> <f:verbatim><span id="audio-attempts-allowed"> </span></f:verbatim>
+  <f:verbatim></div></f:verbatim>
+  <f:verbatim><div class="attempts-remaining"></f:verbatim>
+    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_remaining}" escape="false"/> <f:verbatim><span id="audio-attempts"> </span></f:verbatim>
+  <f:verbatim></div></f:verbatim>
+<f:verbatim></div></f:verbatim>
 
 <f:verbatim>
-</object>
+  <div id="flashrecarea"> </div>
+  <div id="audio-controls">
+    <div id="audio-timer-wrapper"><span id="audio-timer">00</span> / <span id="audio-max-time">30</span></div>
+    <button id="audio-record" onclick="startRecording(this);"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
+    <button id="audio-stop"   onclick="stopRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
+    <button id="audio-play" onclick="playRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
+    <button id="audio-upload" onclick="postDataToServer(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
+    <div id="audio-posting" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_posting}" /><f:verbatim></div>
+    <div id="audio-finished" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_complete}" /><f:verbatim></div>
+    <div id="audio-statusbar" style="display:none"> </div>
+    <div id="audio-levelbar"> </div>
+    <canvas id="audio-analyzer" style="display:none"></canvas>
+  </div>
+
+  <audio id="audio-html5" style="display:none"> </audio>
+  <div id="audio-debug-log" style="display:none">
+    <h2>Log</h2>
+    <pre id="log"></pre>
+  </div>
+
 </f:verbatim>
 </h:panelGroup>

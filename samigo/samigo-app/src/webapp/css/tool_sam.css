@@ -495,6 +495,23 @@ table.listHierEventLog {
 #timer-expired-warning{
 	text-align: center;	
 }
+
+#audio-recorder-header {
+    text-align: center;
+    border-bottom: 1px solid black;
+    font-size: 1.1em;
+    padding: 4px 0;
+    margin-bottom: 8px;
+}
+#audio-popup-question {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-bottom: 12px;
+}
+#audio-recorder-intro div {
+    padding-bottom: 12px;
+}
+
 #squaresWaveG{
 position:relative;
 width:124px;
