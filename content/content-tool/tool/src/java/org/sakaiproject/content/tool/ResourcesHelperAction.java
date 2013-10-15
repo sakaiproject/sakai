@@ -36,9 +36,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -49,21 +51,18 @@ import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.content.api.MultiFileUploadPipe;
-import org.sakaiproject.content.api.ResourceToolAction;
-import org.sakaiproject.content.api.ResourceToolActionPipe;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -691,6 +690,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String uploadMax = ServerConfigurationService.getString("content.upload.max");
 		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
 		context.put("instr_uploads", instr_uploads);
+
+        Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", false);
+        context.put("dragAndDrop", dragAndDrop);
 
 //		int max_bytes = 1024 * 1024;
 //		try
@@ -1862,4 +1864,101 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		super.toolModeDispatch(methodBase, methodExt, req, res);
 	}
 
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException {
+        String dragDropFile = request.getHeader("x-file-name");
+
+        if(dragDropFile != null){
+            String uploadMax = ServerConfigurationService.getString("content.upload.max");
+            String siteQuota = ServerConfigurationService.getString("siteQuota@org.sakaiproject.content.api.ContentHostingService");
+            Long fileSize = Long.parseLong(request.getHeader("content-length"));
+            if((uploadMax != null && !"".equals(uploadMax)) &&   (fileSize /1024L / 1024L) > Long.parseLong(uploadMax)){
+                addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
+            } else if ((siteQuota != null && !"".equals(siteQuota)) && (fileSize /1024L / 1024L)  > Long.parseLong(siteQuota)) {
+                addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
+            } else {
+                doDragDropUpload(request, response);
+            }
+        } else{
+            super.doPost(request, response);
+        }
+    }
+
+    private void doDragDropUpload(HttpServletRequest request, HttpServletResponse response) {
+        String uploadFileName = request.getHeader("x-file-name");
+        SessionState state = getState(request);
+        ToolSession toolSession = SessionManager.getCurrentToolSession();
+        if (uploadFileName != null && !uploadFileName.isEmpty()) {
+            InputStream is = null;
+            ContentResourceEdit resource = null;
+            try {
+                String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
+                String resourceName = getUniqueFileName(uploadFileName, resourceGroup);
+                resource = ContentHostingService.addResource(resourceGroup + resourceName);
+                if (resource != null) {
+                    ResourcePropertiesEdit resourceProps = resource.getPropertiesEdit();
+                    resourceProps.addProperty(ResourcePropertiesEdit.PROP_DISPLAY_NAME, resourceName);
+
+                    DiskFileItem uploadFile = (DiskFileItem) request.getAttribute("file");
+                    if(uploadFile != null){
+                        resource.setContent(uploadFile.getInputStream());
+                        ContentHostingService.commitResource(resource, NotificationService.NOTI_NONE);
+                    }
+                    if (uploadFileName.contains(".zip")) {
+                        ZipContentUtil zipContentUtil = new ZipContentUtil();
+                        zipContentUtil.extractArchive(EntityManager.newReference(resource.getReference()));
+                    }
+                }
+            } catch (OverQuotaException e) {
+                addAlert(state, rb.getString("alert.over-site-upload-quota"));
+                logger.warn("Drag and drop upload failed: " + e, e);
+            } catch (Exception e) {
+                logger.warn("Drag and drop upload failed: " + e, e);
+            } finally {
+                try {
+                    if (is != null) {
+                        is.close();
+                    }
+                    if (uploadFileName.contains(".zip")) {
+                        //remove the zip file after unpacking it
+                        try {
+                            ContentHostingService.removeResource(resource.getId());
+                        } catch (Exception e) {
+                            logger.warn("Unable to remove zip file: " + e, e);
+                        }
+                    }
+                } catch (IOException e) {
+                    logger.warn("Caught exception: " + e, e);
+                }
+            }
+        }
+    }
+
+    private String getUniqueFileName(String uploadFileName, String resourceGroup) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.TypeException {
+        String resourceId = "";
+        boolean isNameUnique = false;
+        String fileName = uploadFileName;
+        int attempt = 0;
+        while (!isNameUnique) {
+            try {
+                resourceId = resourceGroup + fileName;
+                ContentResource tempEdit = ContentHostingService.getResource(resourceId);
+                if(tempEdit != null){
+                    attempt++;
+                    StringBuffer fileNameBuffer = new StringBuffer();
+                    if(attempt > 1){
+                        fileNameBuffer.append(fileName.substring(0, fileName.lastIndexOf("-")));
+                    } else{
+                        fileNameBuffer.append(fileName.substring(0, fileName.lastIndexOf(".")));
+                    }
+                    fileNameBuffer.append("-");
+                    fileNameBuffer.append(attempt);
+                    fileNameBuffer.append(fileName.substring(fileName.lastIndexOf("."), fileName.length()));
+                    fileName = fileNameBuffer.toString();
+                }
+            } catch (IdUnusedException e) {
+                isNameUnique = true;
+            }
+        }
+        return fileName;
+    }
 }
