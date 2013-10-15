@@ -14,16 +14,9 @@
 	<artifactId>samigo</artifactId>
 	<version>2.10-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<!-- If you are doing development on this jar you need to set this to ${project.version} or use the samigo-audio profile.
-		 It has to use a released signed version otherwise it doesn't work.
-    -->
-	<properties>
-		<samigo.audio.version>2.9.3</samigo.audio.version>
-	</properties>
     
 	<modules>
 		<module>samigo-api</module>
-		<!--module>samigo-audio</module--><!-- see https://jira.sakaiproject.org/browse/SAM-1997 -->
 		<module>samigo-app</module>
 		<module>samigo-deploy</module>
 		<module>samigo-help</module>
@@ -35,47 +28,6 @@
 		<module>samigo-archive/sam-handlers</module>
 		<module>samlite-impl</module>
 	</modules>
-	
-	<profiles>
-		<profile>
-			<!-- 
-			* This profile is activated by the Sakai CLE release team when releases are being created, 
-			and will build/sign the jar if you have the correct keystore and credentials.
-			* See the samigo-audio/pom.xml for the information that is required to sign it.
-			* For all other builds, the jar will be downloaded from the remote Maven repo, 
-			where it is already signed by the Sakai Foundation.
-			* If you build this jar yourself without supplying the keystore and credentials,
-			the signing will fail and users may get Java prompts when using the audio module.
-			* See: https://jira.sakaiproject.org/browse/SAM-1837
-			* To verify the jar once it is signed, find the jar and run: 'jarsigner -verify samigo-audio-VERSION.jar'
-			-->
-			<id>jarsign</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<modules>
-				<module>samigo-audio</module>
-			</modules>
-			<properties>
-				<samigo.audio.version>${project.version}</samigo.audio.version>
-			</properties>
-		</profile>
-		<!-- Use this profile if you want to develop on samigo audio -->
-		<profile>
-			<id>samigo-audio</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<modules>
-				<module>samigo-audio</module>
-			</modules>
-			<properties>
-				<samigo.audio.version>${project.version}</samigo.audio.version>
-			</properties>
-		</profile>
-
-	</profiles>
-        
 	
 	<scm>
 		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
@@ -93,13 +45,6 @@
     
 	<dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>org.sakaiproject.samigo</groupId>
-                <artifactId>samigo-audio</artifactId>
-                <version>${samigo.audio.version}</version>
-                <type>jar</type>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-cp</artifactId>
