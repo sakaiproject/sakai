@@ -7,6 +7,7 @@
     <artifactId>content-cleanup</artifactId>
     <groupId>org.sakaiproject.content</groupId>
     <version>2.10-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
   </parent>
   <groupId>org.sakaiproject.content</groupId>
   <artifactId>content-cleanup-pack</artifactId>
