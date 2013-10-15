@@ -361,4 +361,19 @@ public class AgentHelperImpl implements AgentHelper
   {
     return true;//always, in standalone
   }
+
+    public String getDisplayId(String agentId) {
+        if (AgentHelper.UNASSIGNED_AGENT_STRING.equals(agentString)) {
+            return "";
+        }
+        try {
+            if (!agentString.startsWith("anonymous_")) {
+                return UserDirectoryService.getUser(agentString).getDisplayId();
+            }
+
+        } catch (Exception e) {
+            log.warn("getDisplayId: " + e.getMessage());
+        }
+        return "";
+    }
 }

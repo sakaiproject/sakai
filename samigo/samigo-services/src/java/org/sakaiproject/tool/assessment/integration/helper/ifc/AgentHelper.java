@@ -95,4 +95,5 @@ public interface AgentHelper extends Serializable
    */
   public boolean isFileUploadAvailable();
 
+  public String getDisplayId(String agentId);
 }

@@ -512,20 +512,20 @@ function disableIt()
  
 
    <!-- STUDENT ID -->
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='agentEid'}" >
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType!='agentDisplayId'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="totalScores" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentDisplayId" action="totalScores" >
           <h:outputText value="#{evaluationMessages.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
-        <f:param name="sortBy" value="agentEid" />
+        <f:param name="sortBy" value="agentDisplayId" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
 
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentEid' && totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentDisplayId' && totalScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -535,10 +535,10 @@ function disableIt()
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
     
-    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentEid' && !totalScores.sortAscending}">
+    <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType eq 'agentDisplayId' && !totalScores.sortAscending}">
       <f:facet name="header">
       <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="totalScores">
         <h:outputText value="#{evaluationMessages.uid}" />
@@ -548,7 +548,7 @@ function disableIt()
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       </h:commandLink> 
       </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
  
 

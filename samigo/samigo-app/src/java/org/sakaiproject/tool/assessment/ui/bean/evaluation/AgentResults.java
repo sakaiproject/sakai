@@ -61,6 +61,7 @@ public class AgentResults
   private Long itemGradingId;
   private String agentId;
   private String agentEid;
+  private String agentDisplayId;
   private String firstName;
   private String lastName;
   private String lastInitial;
@@ -470,5 +471,13 @@ public class AgentResults
 	      if (sec > 0) timeElapsedInString = timeElapsedInString + sec + " sec ";
 	    }
 	    return timeElapsedInString;	
-	}	
+	}
+
+    public String getAgentDisplayId() {
+        return agentDisplayId;
+    }
+
+    public void setAgentDisplayId(String agentDisplayId) {
+        this.agentDisplayId = agentDisplayId;
+    }
 }

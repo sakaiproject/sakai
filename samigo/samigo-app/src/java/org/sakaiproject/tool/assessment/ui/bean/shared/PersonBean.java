@@ -85,6 +85,11 @@ private static Log log = LogFactory.getLog(PersonBean.class);
     return AgentFacade.getEid();
   }
 
+  public String getDisplayId()
+  {
+      return AgentFacade.getDisplayId();
+  }
+
   public void setAnonymousId(String anonymousId)
   {
     this.anonymousId=anonymousId;

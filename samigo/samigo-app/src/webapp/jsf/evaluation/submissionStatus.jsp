@@ -330,20 +330,20 @@ function escapeApostrophe(name) {
 
 
    <!-- STUDENT ID -->
-    <h:column  rendered="#{submissionStatus.sortType ne 'agentEid'}" >
+    <h:column  rendered="#{submissionStatus.sortType ne 'agentDisplayId'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="submissionStatus" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentDisplayId" action="submissionStatus" >
           <h:outputText value="#{evaluationMessages.uid}" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
-        <f:param name="sortBy" value="agentEid" />
+        <f:param name="sortBy" value="agentDisplayId" />
         <f:param name="sortAscending" value="true"/>
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
 
-	<h:column rendered="#{submissionStatus.sortType eq 'agentEid' && submissionStatus.sortAscending}">
+	<h:column rendered="#{submissionStatus.sortType eq 'agentDisplayId' && submissionStatus.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -353,10 +353,10 @@ function escapeApostrophe(name) {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
-       <h:outputText value="#{description.agentEid}" />
+       <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
 
-	<h:column rendered="#{submissionStatus.sortType eq 'agentEid' && !submissionStatus.sortAscending}">
+	<h:column rendered="#{submissionStatus.sortType eq 'agentDisplayId' && !submissionStatus.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="submissionStatus">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -366,7 +366,7 @@ function escapeApostrophe(name) {
              type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
           </h:commandLink>    
       </f:facet>
-       <h:outputText value="#{description.agentEid}" />
+       <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
 
 

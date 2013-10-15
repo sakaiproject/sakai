@@ -616,22 +616,22 @@ function toPoint(id)
 
 
    <!-- STUDENT ID -->
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType!='agentEid'}" >
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType!='agentDisplayId'}" >
      <f:facet name="header">
-       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentEid" action="questionScores" >
+       <h:commandLink title="#{evaluationMessages.t_sortUserId}" id="agentDisplayId" action="questionScores" >
           <h:outputText value="#{evaluationMessages.uid}" />
       <f:actionListener
          type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreUpdateListener" />
         <f:actionListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
-        <f:param name="sortBy" value="agentEid" />
+        <f:param name="sortBy" value="agentDisplayId" />
         <f:param name="sortAscending" value="true" />
         </h:commandLink>
      </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>
 
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentEid' && questionScores.sortAscending}">
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentDisplayId' && questionScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="questionScores">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -643,10 +643,10 @@ function toPoint(id)
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>    
     
-    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentEid' && !questionScores.sortAscending}">
+    <h:column rendered="#{questionScores.anonymous eq 'false' && questionScores.sortType eq 'agentDisplayId' && !questionScores.sortAscending}">
       <f:facet name="header">
         <h:commandLink title="#{evaluationMessages.t_sortUserId}" action="questionScores">
           <h:outputText value="#{evaluationMessages.uid}" />
@@ -658,7 +658,7 @@ function toPoint(id)
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
           </h:commandLink>    
       </f:facet>
-        <h:outputText value="#{description.agentEid}" />
+        <h:outputText value="#{description.agentDisplayId}" />
     </h:column>      
 
 

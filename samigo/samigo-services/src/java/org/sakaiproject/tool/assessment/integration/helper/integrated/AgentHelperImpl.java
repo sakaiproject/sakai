@@ -481,4 +481,27 @@ log.debug("getEidById agentString s = " + s);
 
     return !commentOutFileUpload.equalsIgnoreCase("true");
   }
+
+    /**
+     * Get the Agent DisplayId given an Id String.
+     *
+     * @param agentString the Agent Id string.
+     * @return the Agent Eid.
+     */
+    public String getDisplayId(String agentString) {
+        if (AgentHelper.UNASSIGNED_AGENT_STRING.equals(agentString)) {
+            return "";
+        }
+        try {
+            if (!agentString.startsWith("anonymous_"))  {
+                return UserDirectoryService.getUser(agentString).getDisplayId();
+            }
+
+        } catch (Exception e) {
+            log.warn("getDisplayId: " + e.getMessage());
+        }
+        return "";
+    }
+
+
 }

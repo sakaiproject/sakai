@@ -778,12 +778,16 @@ public class QuestionScoreListener implements ActionListener,
 							results.setLastInitial("Anonymous");
 						results.setIdString(agent.getIdString());
 						results.setAgentEid(agent.getEidString());
+                        results.setAgentDisplayId(agent.getDisplayIdString());
 						log.debug("testing agent getEid agent.getFirstname= "
-								+ agent.getFirstName());
+                                + agent.getFirstName());
 						log.debug("testing agent getEid agent.getid= "
 								+ agent.getIdString());
 						log.debug("testing agent getEid agent.geteid = "
 								+ agent.getEidString());
+                        log.debug("testing agent getDisplayId agent.getdisplayid = "
+                                + agent.getDisplayIdString());
+
 						results.setRole(agent.getRole());
 						results.setItemGradingAttachmentList(itemGradingAttachmentList);
 						agents.add(results);

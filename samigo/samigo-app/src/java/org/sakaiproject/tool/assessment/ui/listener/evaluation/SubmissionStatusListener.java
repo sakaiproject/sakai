@@ -240,6 +240,7 @@ public class SubmissionStatusListener
           results.setLastInitial("A");
         results.setIdString(agent.getIdString());
         results.setAgentEid(agent.getEidString());
+        results.setAgentDisplayId(agent.getDisplayIdString());
         results.setRole((String)userRoles.get(agentid));
         results.setRetakeAllowed(getRetakeAllowed(agent.getIdString(), studentGradingSummaryDataMap, retakeAssessment));
         if (useridMap.containsKey(agentid) ) {
@@ -324,6 +325,7 @@ public class SubmissionStatusListener
       }
       results.setIdString(agent.getIdString());
       results.setAgentEid(agent.getEidString());
+      results.setAgentDisplayId(agent.getDisplayIdString());
       results.setRole((String)userRoles.get(studentid));
       results.setRetakeAllowed(getRetakeAllowed(agent.getIdString(), studentGradingSummaryDataMap, retakeAssessment));
       retakeAssessment.setStudentGradingSummaryDataMap(studentGradingSummaryDataMap);

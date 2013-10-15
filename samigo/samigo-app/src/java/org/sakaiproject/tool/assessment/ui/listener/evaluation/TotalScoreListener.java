@@ -695,9 +695,12 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     	  results.setLastInitial("Anonymous");
       results.setIdString(agent.getIdString());
       results.setAgentEid(agent.getEidString());
+      results.setAgentDisplayId(agent.getDisplayIdString());
       log.debug("testing agent getEid agent.getFirstname= " + agent.getFirstName());
       log.debug("testing agent getEid agent.getid= " + agent.getIdString());
       log.debug("testing agent getEid agent.geteid = " + agent.getEidString());
+      log.debug("testing agent getDisplayId agent.getdisplayid = " + agent.getDisplayIdString());
+
       results.setRole((String)userRoles.get(gdata.getAgentId()));
 
 
@@ -776,6 +779,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     bs = new BeanSort(agents, sortProperty);
 
     if ((sortProperty).equals("lastName")) bs.toStringSort();
+    if ((sortProperty).equals("agentDisplayId")) bs.toStringSort();
     if ((sortProperty).equals("idString")) bs.toStringSort();
     if ((sortProperty).equals("agentEid")) bs.toStringSort();
     if ((sortProperty).equals("role")) bs.toStringSort();
@@ -849,6 +853,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       //results.setIdString(agent.getEidString());
       results.setIdString(agent.getIdString());
       results.setAgentEid(agent.getEidString());
+      results.setAgentDisplayId(agent.getDisplayIdString());
       results.setRole((String)userRoles.get(studentid));
       // use -1 to indicate this is an unsubmitted agent
       results.setAssessmentGradingId(Long.valueOf(-1));

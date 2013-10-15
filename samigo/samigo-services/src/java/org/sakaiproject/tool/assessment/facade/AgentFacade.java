@@ -61,8 +61,10 @@ private static Log log = LogFactory.getLog(AgentFacade.class);
   private String agentString;
   private String eid;
   private boolean accessViaUrl;
+  private String displayId;
+    private String displayIdString;
 
-  /**
+    /**
    * Create AgentFacade for agent Id
    * @param agentId the agent Id
    */
@@ -71,6 +73,7 @@ private static Log log = LogFactory.getLog(AgentFacade.class);
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
     eid = helper.getEid(agentId);
+    displayId = helper.getDisplayId(agentId);
   }
 
   /**
@@ -82,7 +85,7 @@ private static Log log = LogFactory.getLog(AgentFacade.class);
     String agentId = helper.getAgentString(AgentHelper.UNASSIGNED_AGENT_STRING);
     agent = new AgentImpl(agentId, null, new IdImpl(agentId));
     agentString = agentId;
-    eid = helper.getEid(AgentHelper.UNASSIGNED_AGENT_STRING); 
+    eid = helper.getEid(AgentHelper.UNASSIGNED_AGENT_STRING);
   }
 
   /**
@@ -399,4 +402,12 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
 	  return true;
   }
 
+    public static String getDisplayId() {
+        AgentFacade facade =new AgentFacade();
+        return facade.displayId;
+    }
+
+    public String getDisplayIdString() {
+        return helper.getDisplayId(agentString);
+    }
 }
