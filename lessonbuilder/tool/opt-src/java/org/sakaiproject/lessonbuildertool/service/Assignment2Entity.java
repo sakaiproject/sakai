@@ -530,7 +530,6 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    log.warn("can't find assignment " + id);
 	    return null;
 	}
-
 	Connection connection = null;
 	try {
 	    connection = SqlService.borrowConnection();
@@ -539,8 +538,10 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    fields[0] = id;
 	    fields[1] = userId;
 	    List<String>submissions = SqlService.dbRead(connection, sql, fields, null);
-
-	    if (submissions != null && submissions.size() > 0 && "1".equals(submissions.get(0))) {
+	    if (submissions != null && submissions.size() > 0) {
+		String completed = submissions.get(0);
+		if (!("1".equals(completed) || "true".equals(completed)))
+		    return null;
 		if (assignment.gradebookitem == null)
 		    return new LessonSubmission(null);
 		// following will give a security error if assignment not released. I think that's better than
