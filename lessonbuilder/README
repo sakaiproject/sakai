@@ -291,6 +291,13 @@ comply with Sakai rules about contrib tools. To enable them, look in
 tool/pom.xml, find the "optional" profile, and change
 "activebydefault" to "true".
 
+If you enable the optional profile, check in the main pom.xml, looking
+for <sakai.yaft.version>, <sakai.yaft.scope>, <sakai.mneme.version>,
+<sakai.mneme.scope>, <sakai.assignment2.version>, and
+<sakai.assignment2.scope>. For tools you have, change the version to
+match the version you have. For tools you don't have, change the scope
+from "provided" to "compile".
+
 The Mneme, Jforum, Assignment 2, YAFT and BLTI code starts by checking
 whether those modules are actually present. If not, it disables
 itself. Thus there's no obvious reason to remove any of it, although
