@@ -184,13 +184,20 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				List<String> randomSubmissionIds = new ArrayList<String>(submissionIdMap.keySet());
 				Collections.shuffle(randomSubmissionIds);
 				List<PeerAssessmentItem> newItems = new ArrayList<PeerAssessmentItem>();
+				int i = 0;
 				for(String submissionId : randomSubmissionIds){
 					AssignmentSubmission s = submissionIdMap.get(submissionId);
 					//first find out how many existing items exist for this user:
 					Integer assignedCount = studentAssessorsMap.get(s.getSubmitterId());
+					//by creating a tailing list (snake style), we eliminate the issue where you can be stuck with
+					//a submission and the same submission user left, making for uneven distributions of submission reviews
+					List<String> snakeSubmissionList = new ArrayList<String>(randomSubmissionIds.subList(i, randomSubmissionIds.size()));
+					if(i > 0){
+						snakeSubmissionList.addAll(new ArrayList<String>(randomSubmissionIds.subList(0, i)));
+					}
 					while(assignedCount < numOfReviews){
 						//we need to add more reviewers for this user's submission
-						String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap,s.getSubmitterId(), submissionId);
+						String lowestAssignedAssessor = findLowestAssignedAssessor(assignedAssessmentsMap,s.getSubmitterId(), submissionId, snakeSubmissionList, submissionIdMap);
 						if(lowestAssignedAssessor != null){
 							Map<String, PeerAssessmentItem> assessorsAssessmentMap = assignedAssessmentsMap.get(lowestAssignedAssessor);
 							if(assessorsAssessmentMap == null){
@@ -210,6 +217,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 							break;
 						}
 					}
+					i++;
 				}
 				if(newItems.size() > 0){
 					getHibernateTemplate().saveOrUpdateAll(newItems);
@@ -225,24 +233,26 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 		}
 	}
 	
-	private String findLowestAssignedAssessor(Map<String, Map<String, PeerAssessmentItem>> peerAssessments, String assesseeId, String assesseeSubmissionId){//find the lowest count of assigned submissions
+	private String findLowestAssignedAssessor(Map<String, Map<String, PeerAssessmentItem>> peerAssessments, String assesseeId, String assesseeSubmissionId, List<String> snakeSubmissionList,
+			Map<String, AssignmentSubmission> submissionIdMap){//find the lowest count of assigned submissions
 		String lowestAssignedAssessor = null;
 		Integer lowestAssignedAssessorCount = null;
-		for(Entry<String, Map<String, PeerAssessmentItem>> e : peerAssessments.entrySet()){
+		for(String sId : snakeSubmissionList){
+			AssignmentSubmission s = submissionIdMap.get(sId);
 			//do not include assesseeId (aka the user being assessed)
-			if(!assesseeId.equals(e.getKey()) && 
-					(lowestAssignedAssessorCount == null || e.getValue().keySet().size() < lowestAssignedAssessorCount)){
+			if(!assesseeId.equals(s.getSubmitterId()) && 
+					(lowestAssignedAssessorCount == null || peerAssessments.get(s.getSubmitterId()).keySet().size() < lowestAssignedAssessorCount)){
 				//check if this user already has a peer assessment for this assessee
 				boolean found = false;
-				for(PeerAssessmentItem p : e.getValue().values()){
+				for(PeerAssessmentItem p : peerAssessments.get(s.getSubmitterId()).values()){
 					if(p.getSubmissionId().equals(assesseeSubmissionId)){
 						found = true;
 						break;
 					}
 				}
 				if(!found){
-					lowestAssignedAssessorCount = e.getValue().keySet().size();
-					lowestAssignedAssessor = e.getKey();
+					lowestAssignedAssessorCount = peerAssessments.get(s.getSubmitterId()).keySet().size();
+					lowestAssignedAssessor = s.getSubmitterId();
 				}
 			}
 		}
