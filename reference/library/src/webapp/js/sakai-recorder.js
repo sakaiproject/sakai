@@ -414,6 +414,7 @@ $(document).ready(function() {
     timeRemaining = maxSeconds;
     $('#audio-time-allowed').text(timeRemaining);
     $('#audio-max-time').text(maxSeconds);
+    $('#audio-attempts-allowed').text(attemptsRemaining);
     $('#audio-attempts').text(attemptsRemaining);
 
     maxWidth = $('#audio-controls').width();
