@@ -841,10 +841,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		 * 
 		 */
 		protected void updateRepeatingEvents() {
-			logger.info("DashboardCommonLogicImpl.updateRepeatingEvents start");
-			long startTime = System.currentTimeMillis();
-
 			if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
+				if(loopTimerEnabled) {
+					logger.info("DashboardCommonLogicImpl.updateRepeatingEvents start");
+				}
+				long startTime = System.currentTimeMillis();
+
 				// time to update
 				Date oldHorizon = dashboardLogic.getRepeatingEventHorizon();
 				Integer weeksToHorizon = dashboardConfig.getConfigValue(DashboardConfig.PROP_WEEKS_TO_HORIZON, new Integer(4));
@@ -864,9 +866,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates.longValue() * DashboardLogic.ONE_DAY);
 				
 				dashboardLogic.updateTaskLock(TaskLock.UPDATE_REPEATING_EVENTS);
+				
+				if (loopTimerEnabled) {
+					long elapsedTime = System.currentTimeMillis() - startTime;
+					logger.info("DashboardCommonLogicImpl.updateRepeatingEvents done. Elapsed Time (ms): " + elapsedTime);
+				}
 			}
-			long elapsedTime = System.currentTimeMillis() - startTime;
-			logger.info("DashboardCommonLogicImpl.updateRepeatingEvents done. Elapsed Time (ms): " + elapsedTime);
 		}
 
 	}
