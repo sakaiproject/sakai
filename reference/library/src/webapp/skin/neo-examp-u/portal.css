@@ -1049,6 +1049,10 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     margin-top: .5em;
     margin-bottom: .5em;
 }
+.serviceInfo {
+    font-size:.9em;
+    color:#333;    
+}
 /* a third wrapper - reserved for copyright blurbs  */
 .sakaiCopyrightInfo {
     padding: 5px 0;
