@@ -32,21 +32,31 @@ import java.util.List;
  */
 public interface TriggerEventManager
 {
-	/**
-	 * 
-	 * @param type
-	 * @param jobName
-	 * @param triggerName
-	 * @param time
-	 * @param message
-	 * @param serverId the id of the server the job runs on
-	 * @return
-	 */
-    public TriggerEvent createTriggerEvent (TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String ServerId);
 
     /**
-     * 
-     * @return
+     * @param type
+     * @param jobName
+     * @param triggerName
+     * @param time
+     * @param message
+     * @return a TriggerEvent object
+     * @deprecated use {@link #createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, String, String, Date, String, String)} instead
+     */
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message);
+
+    /**
+     * @param type
+     * @param jobName
+     * @param triggerName
+     * @param time
+     * @param message
+     * @param serverId the id of the server the job runs on
+     * @return a TriggerEvent object
+     */
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String ServerId);
+
+    /**
+     * @return list of all TriggerEvent
      */
     public List<TriggerEvent> getTriggerEvents ();
 
@@ -57,7 +67,7 @@ public interface TriggerEventManager
      * @param jobs
      * @param triggerName
      * @param types
-     * @return
+     * @return list of all TriggerEvent
      */
     public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types);
     
@@ -70,8 +80,8 @@ public interface TriggerEventManager
     public List<TriggerEvent> getTriggerEvents (Date after, Date before, List<String> jobs, String triggerName, TriggerEvent.TRIGGER_EVENT_TYPE[] types, int first, int size);
 
     /**
-     * 
      * @param before
      */
     public void purgeEvents (Date before);
+
 }

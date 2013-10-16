@@ -20,10 +20,19 @@ public class TriggerEventManagerImpl implements TriggerEventManager
     private LinkedList<TriggerEvent>
         events = new LinkedList<TriggerEvent> ();
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String)
+     */
+    public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message) {
+        return createTriggerEvent(type, jobName, triggerName, time, message, null);
+    }
+
+    /* (non-Javadoc)
+     * @see org.sakaiproject.api.app.scheduler.events.TriggerEventManager#createTriggerEvent(org.sakaiproject.api.app.scheduler.events.TriggerEvent.TRIGGER_EVENT_TYPE, java.lang.String, java.lang.String, java.util.Date, java.lang.String, java.lang.String)
+     */
     public TriggerEvent createTriggerEvent(TriggerEvent.TRIGGER_EVENT_TYPE type, String jobName, String triggerName, Date time, String message, String serverId)
     {
-        TriggerEventImpl
-            event = new TriggerEventImpl();
+        TriggerEventImpl event = new TriggerEventImpl();
 
         event.setEventType(type);
         event.setJobName(jobName);
@@ -120,4 +129,5 @@ public class TriggerEventManagerImpl implements TriggerEventManager
            events.remove(i); 
         }
     }
+
 }
