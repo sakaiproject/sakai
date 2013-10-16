@@ -24,12 +24,10 @@ package org.sakaiproject.util.impl;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
-import java.util.HashSet;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -43,8 +41,6 @@ import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -61,28 +57,6 @@ public class FormattedTextImpl implements FormattedText
         this.serverConfigurationService = serverConfigurationService;
     }
 
-    /** Resource bundle and class for retrieving good and bad html tags, attributes and values */
-    private String RESOURCE_BUNDLE = "org.sakaiproject.localization.bundle.content_type.formattedtext";
-    private String RESOURCE_CLASS  = "org.sakaiproject.localization.util.ContentTypeProperties"; 
-
-    /** Our ResourceLoader that we can use throughout this class */
-    private ResourceLoader resourceLoader = null;
-
-    /** An array of regular expression pattern-matchers, that will match the tags given in M_evilTags */
-    private Pattern[] M_evilTagsPatterns;
-
-    /** An array of regular expression pattern-matchers, that will match the tags given in M_goodTags */
-    private Pattern[] M_goodTagsPatterns;
-
-    /** An array of regular expression pattern-matchers, that will match the tags given in M_goodCloseTags */
-    private Pattern[] M_goodCloseTagsPatterns;
-
-    /** An array of regular expression pattern-matchers, that will match the attributes given in M_goodAttributeTags */
-    private Pattern[] M_goodAttributePatterns;
-
-    /** An array of regular expression pattern-matchers, that will match the attributes given in M_evilValues */
-    private Pattern[] M_evilValuePatterns;
-
     /**
      * This is the high level html cleaner object
      */
@@ -93,129 +67,52 @@ public class FormattedTextImpl implements FormattedText
     private AntiSamy antiSamyLow = null;
 
     public void init() {
-        boolean useLegacyCleaner = useLegacyCleaner();
-
-        if (!useLegacyCleaner) {
-            // INIT Antisamy
-            // added in support for antisamy html cleaner - KNL-1015
-            // https://www.owasp.org/index.php/Category:OWASP_AntiSamy_Project
-            try {
-                ClassLoader current = FormattedTextImpl.class.getClassLoader();
-                URL lowPolicyURL = current.getResource("antisamy/low-security-policy.xml");
-                URL highPolicyURL = current.getResource("antisamy/high-security-policy.xml");
-                // Allow lookup of the policy files in sakai home - KNL-1047
-                String sakaiHomePath = getSakaiHomeDir();
-                File lowFile = new File(sakaiHomePath, "antisamy"+File.separator+"low-security-policy.xml");
-                if (lowFile.canRead()) {
-                    lowPolicyURL = lowFile.toURI().toURL();
-                    M_log.info("AntiSamy found override for low policy file at: "+lowPolicyURL);
-                }
-                File highFile = new File(sakaiHomePath, "antisamy"+File.separator+"high-security-policy.xml");
-                if (highFile.canRead()) {
-                    highPolicyURL = highFile.toURI().toURL();
-                    M_log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
-                }
-                Policy policyHigh = Policy.getInstance(highPolicyURL);
-                antiSamyHigh = new AntiSamy(policyHigh);
-                Policy policyLow = Policy.getInstance(lowPolicyURL);
-                antiSamyLow = new AntiSamy(policyLow);
-                // TODO should we attempt to fallback to internal files if the parsing/init fails of external ones?
-                M_log.info("AntiSamy INIT default security level ("+(defaultLowSecurity()?"LOW":"high")+"), policy files: high="+highPolicyURL+", low="+lowPolicyURL);
-            } catch (Exception e) {
-                useLegacyCleaner = true;
-                antiSamyHigh = null;
-                antiSamyLow = null;
-                M_log.warn("Unable to startup the antisamy html code cleanup handler (using the legacy cleaner): " + e, e);
-            }
-        }
-
-        // INIT for the non-antisamy code
-        // DEFAULT values to allow for testing and in case the resource loader values do not exist
-        M_evilTags = "applet,base,body,bgsound,button,col,colgroup,comment, dfn,fieldset,form,frame,frameset,head,html,iframe,ilayer,inlineinput,isindex,input,keygen,label,layer,legend,link,listing,map,meta,multicol,nextid,noframes,nolayer,noscript,optgroup,option,plaintext,script,select,sound,spacer,spell,submit,textarea,title,wbr".split(",");
-        M_goodTags = "a,abbr,acronym,address,b,big,blockquote,br,center,cite,code,dd,del,dir,div,dl,dt,em,font,hr,h1,h2,h3,h4,h5,h6,i,ins,kbd,li,marquee,menu,nobr,noembed,ol,p,pre,q,rt,ruby,rbc,rb,rtc,rp,s,samp,small,span,strike,strong,sub,sup,tt,u,ul,var,xmp,img,embed,object,table,tr,td,th,tbody,caption,thead,tfoot,colgroup,col,param".split(",");
-        M_goodAttributes = "abbr,accept,accesskey,align,alink,alt,axis,background,bgcolor,border,cellpadding,cellspacing,char,charoff,charset,checked,cite,class,classid,clear,color,cols,colspan,compact,content,coords,datetime,dir,disabled,enctype,face,for,header,height,href,hreflang,hspace,id,ismap,label,lang,longdesc,maxlength,multiple,name,noshade,nowrap,profile,readonly,rel,rev,rows,rowspan,rules,scope,selected,shape,size,span,src,start,style,summary,tabindex,target,text,title,type,usemap,valign,value,vlink,vspace,width,pluginspage,play,loop,menu,codebase,data,pluginspace,wmode,allowscriptaccess,allowfullscreen,data(?:-[A-Za-z]+)+".split(",");
-        M_evilValues = "javascript:,behavior:,vbscript:,mocha:,livescript:,expression".split(",");
-
-        try {
-            ClassLoader cl = ComponentManager.get(RESOURCE_CLASS).getClass().getClassLoader();
-            resourceLoader = new ResourceLoader(RESOURCE_BUNDLE, cl);
-            M_evilTags = getResourceLoader().getString("evilTags").split(",");
-            M_goodTags = getResourceLoader().getString("goodTags").split(",");
-            M_goodAttributes = getResourceLoader().getString("goodAttributes").split(",");
-            M_evilValues = getResourceLoader().getString("evilValues").split(",");
-        } catch (Exception e) {
-            // this is a failure and cannot really be recovered from
-            M_log.warn("Error collecting formattedtext.properties (using defaults instead) - if this is a test then everything is OK, if this is live then there is a problem BUT things will probably still work OK if you are english speaking");
-        }
-
-        M_evilTagsPatterns = new Pattern[M_evilTags.length];
-        for (int i = 0; i < M_evilTags.length; i++)
-        {
-            // matches the start of the particular evil tag "<" followed by whitespace,
-            // followed by the tag name, followed by anything, followed by ">", case insensitive,
-            // allowed to match over multiple lines.
-            M_evilTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_evilTags[i] + ".*>.*", Pattern.CASE_INSENSITIVE
-                    | Pattern.UNICODE_CASE | Pattern.DOTALL);
-        }
-
-        M_goodTagsPatterns = new Pattern[M_goodTags.length];
-        M_goodCloseTagsPatterns = new Pattern[M_goodTags.length];
-        for (int i = 0; i < M_goodTags.length; i++)
-        {
-            // matches the start of the particular good tag "<" followed by whitespace,
-            // followed by the tag name, followed by anything, followed by ">", case insensitive,
-            // allowed to match over multiple lines.
-            M_goodTagsPatterns[i] = Pattern.compile(".*<\\s*" + M_goodTags[i] + "(\\s+.*>|>|/>).*", Pattern.CASE_INSENSITIVE
-                    | Pattern.UNICODE_CASE | Pattern.DOTALL);
-            M_goodCloseTagsPatterns[i] = Pattern.compile("<\\s*/\\s*" + M_goodTags[i] + "(\\s.*>|>)", Pattern.CASE_INSENSITIVE
-                    | Pattern.UNICODE_CASE | Pattern.DOTALL);
-        }
-
-        M_goodAttributePatterns = new Pattern[M_goodAttributes.length];
-        for (int i = 0; i < M_goodAttributes.length; i++) 
-        {
-            M_goodAttributePatterns[i] = Pattern.compile("(\\s+" + M_goodAttributes[i] + ")" +
-                    "(?:(\\s*=\\s*(?:\".*?\"|'.*?'|[^'\">\\s]+))|(?=(\\s+|$)))", 
-                    Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE | Pattern.DOTALL);
-        }
-
-        M_evilValuePatterns = new Pattern[M_evilValues.length];
-        String pads = "(\\s)*?(?:/\\*.*\\*/|<!--.*-->|\0|)*?(\\s)*?";
-        for (int i = 0; i < M_evilValues.length; i++)
-        {
-            StringBuilder complexPattern = new StringBuilder();
-            complexPattern.append("\\s*");
-            String value = M_evilValues[i];
-            for (int j = 0; j < value.length(); j++)
-            {
-                complexPattern.append(value.charAt(j));
-                complexPattern.append(pads);
-            }
-            M_evilValuePatterns[i] = Pattern.compile(complexPattern.toString(), Pattern.CASE_INSENSITIVE | 
-                    Pattern.UNICODE_CASE | Pattern.DOTALL);
-        }
-
-    }
-
-    boolean defaultUseLegacyCleaner = false;
-    /**
-     * For TESTING
-     * Sets the default - if not set, this will be "false"
-     * @param defaultUseLegacyCleaner if true, use the old legacy security cleaner (no longer supported), if false use the new antisamy based cleaner
-     */
-    void setDefaultUseLegacyCleaner(boolean defaultUseLegacyCleaner) {
-        this.defaultUseLegacyCleaner = defaultUseLegacyCleaner;
-    }
-    /**
-     * Asks SCS for the value of the "content.cleaner.use.legacy.html", DEFAULT is false
-     * @return true if the legacy HTML cleaner is used OR false use the antiSamy html cleaner
-     */
-    private boolean useLegacyCleaner() {
-        boolean useLegacy = this.defaultUseLegacyCleaner;
+        boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
             useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
         }
-        return useLegacy;
+        if (useLegacy) {
+            M_log.error(
+                     "**************************************************\n"
+                    +"* -----------<<<   WARNING   >>>---------------- *\n"
+                    +"* The LEGACY Sakai content scanner is no longer  *\n"
+                    +"* available. It has been deprecated and removed. *\n"
+                    +"* Content scanning uses AntiSamy scanner now.    *\n"
+                    +"* https://jira.sakaiproject.org/browse/KNL-1127  *\n"
+                    +"**************************************************\n"
+                    );
+        }
+
+        /* INIT Antisamy
+         * added in support for antisamy html cleaner - KNL-1015
+         * https://www.owasp.org/index.php/Category:OWASP_AntiSamy_Project
+         */
+        try {
+            ClassLoader current = FormattedTextImpl.class.getClassLoader();
+            URL lowPolicyURL = current.getResource("antisamy/low-security-policy.xml");
+            URL highPolicyURL = current.getResource("antisamy/high-security-policy.xml");
+            // Allow lookup of the policy files in sakai home - KNL-1047
+            String sakaiHomePath = getSakaiHomeDir();
+            File lowFile = new File(sakaiHomePath, "antisamy"+File.separator+"low-security-policy.xml");
+            if (lowFile.canRead()) {
+                lowPolicyURL = lowFile.toURI().toURL();
+                M_log.info("AntiSamy found override for low policy file at: "+lowPolicyURL);
+            }
+            File highFile = new File(sakaiHomePath, "antisamy"+File.separator+"high-security-policy.xml");
+            if (highFile.canRead()) {
+                highPolicyURL = highFile.toURI().toURL();
+                M_log.info("AntiSamy found override for high policy file at: "+highPolicyURL);
+            }
+            Policy policyHigh = Policy.getInstance(highPolicyURL);
+            antiSamyHigh = new AntiSamy(policyHigh);
+            Policy policyLow = Policy.getInstance(lowPolicyURL);
+            antiSamyLow = new AntiSamy(policyLow);
+            // TODO should we attempt to fallback to internal files if the parsing/init fails of external ones?
+            M_log.info("AntiSamy INIT default security level ("+(defaultLowSecurity()?"LOW":"high")+"), policy files: high="+highPolicyURL+", low="+lowPolicyURL);
+        } catch (Exception e) {
+            throw new IllegalStateException("Unable to startup the antisamy html code cleanup handler (cannot complete startup): " + e, e);
+        }
+
     }
 
     boolean defaultAddBlankTargetToLinks = true;
@@ -272,23 +169,8 @@ public class FormattedTextImpl implements FormattedText
     /** Matches any HTML-style tag, like &lt;anything&gt; */
     private Pattern M_patternTag = Pattern.compile("<.*?>", Pattern.DOTALL);
 
-    /** Matches the 3 main pieces of any HTML tag */
-    private Pattern M_patternTagPieces = Pattern.compile("((?:<|</)\\w+)(\\s[^>]*?)?(/>|>)", Pattern.DOTALL);
-
     /** Matches newlines */
     private Pattern M_patternNewline = Pattern.compile("\\n");
-
-    /**
-     * Matches anchor tags so that a target can be added to them. This ensures that links in formatted text are forced to open up in a new window. This pattern matches as follows: "<a " followed by (string not containing characters "<>") possibly
-     * followed by "target=something" (which is ignored), followed by "href" followed by (string not containing characters "<>") possibly followed by "target=something" (which is ignored), followed by ">". This should match all anchor tags that have an
-     * href attribute. See escapeHtmlFormattedText()
-     */
-    private Pattern M_patternAnchorTag = Pattern.compile("([<]a\\s[^<>]*?)(\\s+href[^<>\\s]*=[^<>\\s]*?)?+([^<>]*?)[>]",
-            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
-
-    /** Matches all close anchor tags. */
-    private Pattern M_patternCloseAnchorTag = Pattern.compile("[<]\\s[^<>]*?/\\s[^<>]*?a\\s[^<>]*?[>]",
-            Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /** Matches all anchor tags that have a target attribute. */
     public final Pattern M_patternAnchorTagWithTarget = Pattern.compile("([<]a\\s[^<>]*?)target=[^<>\\s]*([^<>]*?)[>]",
@@ -324,7 +206,7 @@ public class FormattedTextImpl implements FormattedText
     {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
     /* (non-Javadoc)
@@ -333,7 +215,7 @@ public class FormattedTextImpl implements FormattedText
     public String processFormattedText(String strFromBrowser, StringBuilder errorMessages, Level level) {
         boolean checkForEvilTags = true;
         boolean replaceWhitespaceTags = true;
-        return processFormattedText(strFromBrowser, errorMessages, level, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+        return processFormattedText(strFromBrowser, errorMessages, level, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
     /* (non-Javadoc)
@@ -361,23 +243,19 @@ public class FormattedTextImpl implements FormattedText
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, boolean checkForEvilTags,
             boolean replaceWhitespaceTags)
     {
-        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, useLegacyCleaner());
+        return processFormattedText(strFromBrowser, errorMessages, null, checkForEvilTags, replaceWhitespaceTags, false);
     }
 
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#processFormattedText(java.lang.String, java.lang.StringBuilder, org.sakaiproject.util.api.FormattedText.Level, boolean, boolean, boolean)
      */
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level,
-            boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean useLegacySakaiCleaner) {
+            boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean doNotUseLegacySakaiCleaner) {
         if (level == null || Level.DEFAULT.equals(level)) {
             // Select the default policy as high or low - KNL-1015
             level = defaultLowSecurity() ? Level.LOW : Level.HIGH; // default to system setting
         } else if (Level.NONE.equals(level)) {
             checkForEvilTags = false; // disable scan
-        }
-        if (!useLegacySakaiCleaner && antiSamyHigh == null) {
-            useLegacySakaiCleaner = false;
-            M_log.warn("Cannot use the new html cleaner (useLegacySakaiCleaner=false), Antisamy cleaner not available, falling back to the legacy cleaner");
         }
 
         String val = strFromBrowser;
@@ -397,39 +275,35 @@ public class FormattedTextImpl implements FormattedText
             }
 
             if (checkForEvilTags) {
-                if (useLegacySakaiCleaner || antiSamyHigh == null) {
-                    val = processHtml(strFromBrowser, errorMessages);
-                } else {
-                    // use the owasp antisamy processor
-                    AntiSamy as = antiSamyHigh;
-                    if (Level.LOW.equals(level)) {
-                        as = antiSamyLow;
-                    }
-                    try {
-                        CleanResults cr = as.scan(strFromBrowser);
-                        if (cr.getNumberOfErrors() > 0) {
-                            // TODO currently no way to get internationalized versions of error messages
-                            for (Object errorMsg : cr.getErrorMessages()) {
-                                errorMessages.append(errorMsg.toString()+"\n\r");
-                            }
+                // use the owasp antisamy processor
+                AntiSamy as = antiSamyHigh;
+                if (Level.LOW.equals(level)) {
+                    as = antiSamyLow;
+                }
+                try {
+                    CleanResults cr = as.scan(strFromBrowser);
+                    if (cr.getNumberOfErrors() > 0) {
+                        // TODO currently no way to get internationalized versions of error messages
+                        for (Object errorMsg : cr.getErrorMessages()) {
+                            errorMessages.append(errorMsg.toString()+"\n\r");
                         }
-                        val = cr.getCleanHTML();
+                    }
+                    val = cr.getCleanHTML();
 
-                        // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
-                        if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
-                            Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
-                            if (m.find()) {
-                                val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
-                            }
+                    // now replace all the A tags WITHOUT a target with _blank (to match the old functionality)
+                    if (addBlankTargetToLinks() && StringUtils.isNotBlank(val)) {
+                        Matcher m = M_patternAnchorTagWithOutTarget.matcher(val);
+                        if (m.find()) {
+                            val = m.replaceAll("$1$2 target=\"_blank\">"); // adds a target to A tags without one
                         }
-                    } catch (ScanException e) {
-                        // this will match the legacy behavior
-                        val = "";
-                        M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
-                    } catch (PolicyException e) {
-                        // this is an unrecoverable failure
-                        throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
                     }
+                } catch (ScanException e) {
+                    // this will match the legacy behavior
+                    val = "";
+                    M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
+                } catch (PolicyException e) {
+                    // this is an unrecoverable failure
+                    throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
                 }
             }
 
@@ -438,18 +312,13 @@ public class FormattedTextImpl implements FormattedText
                 val = "";
             }
 
-            if (useLegacySakaiCleaner || antiSamyHigh == null) {
-                // close any open HTML tags (that the user may have accidentally left open)
-                StringBuilder buf = new StringBuilder();
-                trimFormattedText(val, Integer.MAX_VALUE, buf);
-                val = buf.toString();
-            }
         } catch (Exception e) {
             // We catch all exceptions here because doing so will usually give the user the
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             M_log.warn("Unexpected error processing text", e);
-            errorMessages.append(getResourceLoader().getString("unknown_error_markup"));
+            // TODO no i18n for now since the other strings are also untranslated
+            errorMessages.append("Unknown error processing text markup\n");//getResourceLoader().getString("unknown_error_markup"));
             val = null;
         }
 
@@ -696,275 +565,29 @@ public class FormattedTextImpl implements FormattedText
     }
 
     /* (non-Javadoc)
-     * @see org.sakaiproject.utils.impl.FormattedText#processEscapedHtml(java.lang.String)
+     * @see org.sakaiproject.util.api.FormattedText#processEscapedHtml(java.lang.String)
      */
-    public String processEscapedHtml(final String source)
-    {
-        if (source == null) return "";
-        if (source.equals("")) return "";
-
-        String Html = null;
-        try
-        {
-            // TODO call encodeUnicode in other process routine
-            Html = encodeUnicode(source);
-        }
-        catch (Exception e)
-        {
-            M_log.warn("FormattedText.processEscapedHtml encodeUnicode(source):", e);
-        }
-        try
-        {
-            // to use the FormattedText functions
-            Html = unEscapeHtml(Html);
-        }
-        catch (Exception e)
-        {
-            M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):", e);
-        }
-
-        return processHtml(Html, new StringBuilder());
-    }
-
-    private String processHtml(final String source, StringBuilder errorMessages)
-    {
-        if ( M_evilTags == null )
-            init();
-
-        // normalize all variants of the "<br>" HTML tag to be "<br />\n"
-        // TODO call a method to do this in each process routine
-        String Html = M_patternTagBr.matcher(source).replaceAll("<br />");
-
-        // process text and tags
-        StringBuilder buf = new StringBuilder();
-        if (Html != null)
-        {
-            try
-            {
-                int start = 0;
-                Matcher m = M_patternTag.matcher(Html);
-
-                // if there are no tags, return as is
-                if (!m.find()) return Html;
-                m.reset(Html);
-
-                // if there are tags, make sure they are safe
-                while (m.find())
-                {
-                    // append text that isn't part of a tag
-                    if (m.start() > start) buf.append(Html.substring(start, m.start()));
-                    start = m.end();
-
-                    buf.append(checkTag(m.group(), errorMessages));
-                }
-
-                // tail
-                if (Html.length() > start) buf.append(Html.substring((start)));
-            }
-            catch (Exception e)
-            {
-                M_log.warn("FormattedText.processEscapedHtml M_patternTag.matcher(Html):", e);
-            }
-        }
-        return String.valueOf(buf.toString());
-    }
-
-    private String checkTag (final String tag, StringBuilder errorMessages)
-    {
-        if ( M_goodTags == null )
-            init();
-
-        StringBuilder buf = new StringBuilder();
-        boolean escape = true;
-
-        // Fix up tags that look like: <<<tag>
-        String realTag = tag;
-        while (realTag.startsWith("<<")) {
-            // chop off one char until we get down to a real tag
-            realTag = realTag.substring(1);
-        }
-
-        // if it's a good open tag, don't escape the HTML
-        for (int i = 0; i < M_goodTags.length; i++)
-        {
-            if (M_goodTagsPatterns[i].matcher(realTag).matches())
-            {
-                if (M_patternAnchorTag.matcher(realTag).matches()
-                        && !M_patternCloseAnchorTag.matcher(realTag).matches())
-                {
-                    // if it's an anchor tag, sanitize it
-                    buf.append(checkAttributes(processAnchor(realTag), errorMessages));
-                    escape = false;
-                }
-                else
-                {
-                    // otherwise just include it
-                    buf.append(checkAttributes(realTag, errorMessages));
-                    escape = false;
-                }
-            }
-            else if (M_goodCloseTagsPatterns[i].matcher(realTag).matches())
-            {
-                // if it's a good close tag, don't escape the HTML
-                buf.append(checkAttributes(realTag, errorMessages));
-                escape = false;
-            }
-        }
-
-        // otherwise escape tag
-        if (escape)
-        {
-            buf.append((String) escapeHtml(tag, false));
-
-            Matcher fullTag = M_patternTagPieces.matcher(realTag);
-            if (fullTag.matches() && fullTag.groupCount() > 2)
-            {
-                errorMessages.append(getResourceLoader().getFormattedMessage("html_tag_is_not_allowed", new Object[]{fullTag.group(1) + fullTag.group(fullTag.groupCount())}));
-            }
-        }
-
-        return buf.toString();
-    }
-
-    private String checkAttributes(final String tag, StringBuilder errorMessages)
-    {
-        if ( M_goodAttributes == null )
-            init();
-
-        Matcher fullTag = M_patternTagPieces.matcher(tag);
-        String close = "";
-        StringBuilder buf = new StringBuilder();
-        String leftOvers = "";
-
-        String tagOpen;
-        String tagName;
-        if (fullTag.matches() && fullTag.groupCount() > 2)
-        {
-            tagOpen = fullTag.group(1);
-            leftOvers = fullTag.group(2);
-            close = fullTag.group(fullTag.groupCount());
-            tagName = tagOpen.substring(1); 
-            buf.append(tagOpen);
-        }
-        else
-        {
-            if (M_log.isDebugEnabled()) M_log.debug("Could not parse " + tag);
+    public String processEscapedHtml(final String source) {
+        if (source == null)
             return "";
+        if (source.equals(""))
+            return "";
+
+        String html = null;
+        try {
+            // TODO call encodeUnicode in other process routine
+            html = encodeUnicode(source);
+        } catch (Exception e) {
+            M_log.warn("FormattedText.processEscapedHtml encodeUnicode(source):"+e, e);
         }
-        Matcher matcher;
-        HashSet<String> usedAttributes = new HashSet<String>();
-        if (leftOvers != null)
-        {
-            for (int i = 0; i < M_goodAttributePatterns.length; i++)
-            {
-                matcher = M_goodAttributePatterns[i].matcher(leftOvers);
-                while (matcher.find())
-                {
-                    String attr = matcher.group(1);
-                    String cleanedAttr = attr.trim().toLowerCase();
-                    // Disallow multiple uses of the same attribute on an element.
-                    // This functionality was implicit in the one-shot match before
-                    // changing this to a find() loop.
-                    if (usedAttributes.contains(cleanedAttr)) {
-                        errorMessages.append(getResourceLoader().getFormattedMessage("html_duplicate_attribute_not_allowed", new Object[]{attr.trim()}));
-                        continue;
-                    }
-                    usedAttributes.add(cleanedAttr);
-                    buf.append(attr);
-
-                    // We were checking [0..1) (the entire attribute match only)
-                    // in a pseudo-loop, since there was only one capturing group.
-                    // This is the simpler form of the same behavior and allows
-                    // us to have a capturing group for the attribute name above.
-                    if (matcher.groupCount() < 3) {
-                        M_log.warn("Attribute cleaning failed; regex improperly modified.");
-                        break;
-                    }
-                    // Group 2 is for regular attribute values, including = and quotes
-                    // Group 3 is for valueless attributes, capturing either whitespace or tag-end
-                    // These are mutually exclusive and one is guaranteed because of the regex construction
-                    String value = matcher.group(2);
-                    if (matcher.group(3) != null) {
-                        // Discard the look-ahead whitespace since it will be included by the next
-                        // attribute if there is one, or stripped if this is the end of the tag.
-                        value = "";
-                    }
-
-                    if (checkValue(tagName, cleanedAttr, value, errorMessages))
-                    {
-                        buf.append(value);
-
-                        try {
-                            leftOvers = leftOvers.replace(attr + value, "");
-                        }
-                        catch (Exception e)
-                        {
-                            M_log.warn(attr + value);
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+        try {
+            // to use the FormattedText functions
+            html = unEscapeHtml(html);
+        } catch (Exception e) {
+            M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):"+e, e);
         }
 
-        if (leftOvers != null && leftOvers.trim().length() > 1)
-        {
-            errorMessages.append(getResourceLoader().getFormattedMessage("html_attribute_pattern_not_allowed", new Object[]{leftOvers}));
-        }
-
-        buf.append(close);
-        return buf.toString();
-    }
-
-    private boolean checkValue(final String tag, final String attr, final String value, StringBuilder errorMessages)
-    {
-        if ( M_evilValues == null )
-            init();
-
-        boolean pass = true;
-        Matcher matcher;
-        for (int i = 0; i < M_evilValuePatterns.length; i++)
-        {
-            matcher = M_evilValuePatterns[i].matcher(value);
-
-            if (matcher.find())
-            {
-                pass = false;
-                //errorMessages.append("The attribute value '" + value + "' is not allowed\n");
-            }
-        }
-        if (pass) {
-            // Special check for src="data:image/svg+xml;base64,.... : http://jira.sakaiproject.org/browse/SAK-18269
-            if ("embed".equalsIgnoreCase(tag) 
-                    && attr.equalsIgnoreCase("src")
-                    && value != null 
-                    && value.toLowerCase().indexOf("data:image/svg") > 0
-            ) {
-                int pos = value.toLowerCase().indexOf(";base64,");
-                if (pos > 0) {
-                    pos = pos + 8;
-                    String b64text = value.substring(pos);
-                    if (! StringUtils.isBlank(b64text)) {
-                        String content = new String(Base64.decodeBase64(b64text));
-                        if (! StringUtils.isBlank(content)) {
-                            boolean foundEvil = false;
-                            for (int i = 0; i < M_evilTags.length; i++) {
-                                if (M_evilTagsPatterns[i].matcher(content).matches()) {
-                                    foundEvil = true;
-                                    break;
-                                }
-                            }
-                            if (foundEvil) {
-                                //System.err.println("AZ: tag="+tag+",content="+content);
-                                errorMessages.append(getResourceLoader().getFormattedMessage("embed_tag_contains_dangerous_content", new Object[]{content}));
-                                pass = false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return pass;
+        return processFormattedText(html, new StringBuilder());
     }
 
     /* (non-Javadoc)
@@ -1273,9 +896,11 @@ public class FormattedTextImpl implements FormattedText
         }
     }
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#escapeJsQuoted(java.lang.String)
+     */
     public String escapeJsQuoted(String value) {
-        // TODO Auto-generated method stub
-        return null;
+        return StringEscapeUtils.escapeJavaScript(value);
     }
 
     /** These characters are escaped when making a URL */
@@ -1472,17 +1097,5 @@ public class FormattedTextImpl implements FormattedText
             8773, 8776, 8800, 8801, 8804, 8805, 8834, 8835, 8836, 8838, 8839, 8853, 8855, 8869, 8901, 8968, 8969, 8970, 8971, 9001,
             9002, 9674, 9824, 9827, 9829, 9830, 34, 38, 60, 62, 338, 339, 352, 353, 376, 710, 732, 8194, 8195, 8201, 8204, 8205,
             8206, 8207, 8211, 8212, 8216, 8217, 8218, 8220, 8221, 8222, 8224, 8225, 8240, 8249, 8250, 8364 };
-
-    private String[] M_goodTags = null;
-    private String[] M_goodAttributes = null;
-    private String[] M_evilValues =  null;
-    private String[] M_evilTags = null;
-
-    private ResourceLoader getResourceLoader() {
-        if (resourceLoader == null) {
-            resourceLoader = new ResourceLoader(RESOURCE_BUNDLE);
-        }
-        return resourceLoader;
-    }
 
 }
