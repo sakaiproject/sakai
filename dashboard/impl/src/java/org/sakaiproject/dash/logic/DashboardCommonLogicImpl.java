@@ -707,15 +707,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 							checkForAdminChanges();
 							timeToHandleAvailabilityChecks= true;
 							timeToCheckForAdminChanges = false;
-						}
-						
-						if(eventQueue == null || eventQueue.isEmpty()) {
-							try {
-								Thread.sleep(sleepTime * 1000L);
-							} catch (InterruptedException e) {
-								logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
-							}
-						}
+						}						
 					} else {
 						if(loopTimerEnabled) {
 							loopActivity = "processingEvents";
@@ -736,6 +728,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 							sakaiProxy.clearThreadLocalCache();
 						}
 					}
+					
 					if(loopTimerEnabled) {
 						long elapsedTime = System.currentTimeMillis() - loopTimer;
 						StringBuilder buf = new StringBuilder("DashboardEventProcessingThread.activityTimer\t");
@@ -746,6 +739,15 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 						buf.append(loopActivity);
 						logger.info(buf.toString());
 					}
+					
+					if(eventQueue == null || eventQueue.isEmpty()) {
+						try {
+							Thread.sleep(sleepTime * 1000L);
+						} catch (InterruptedException e) {
+							logger.warn("InterruptedException in Dashboard Event Processing Thread: " + e);
+						}
+					}
+
 				}
 				
 				logger.warn(EVENT_PROCESSING_THREAD_SHUT_DOWN_MESSAGE);
