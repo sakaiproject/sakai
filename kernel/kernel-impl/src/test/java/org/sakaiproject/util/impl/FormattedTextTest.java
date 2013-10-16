@@ -215,13 +215,9 @@ public class FormattedTextTest extends TestCase {
         String result;
         StringBuilder errors;
 
-        String oneK       = "<span class></span>"; // technically invalid
         String oneKV      = "<span class=\"one\"></span>";
-        String twoK       = "<span class id></span>"; // technically invalid
         String twoKV      = "<span class=\"one\" id=\"two\"></span>";
-        String mixed      = "<span class id=\"two\"></span>"; // technically invalid
         String selfClose  = "<hr class=\"section\" title=\"Contents\" />";
-        String selfCloseL = "<hr class=\"section\" title=\"Contents\"/>";
         String subAttr    = "<span id=\"name\" title=\"http://example.com/data-src\"></span>";
         String subAttrs   = "<span class=\"data-name\" id=\"name\" title=\"http://example.com/\"></span>";
 
@@ -233,9 +229,7 @@ public class FormattedTextTest extends TestCase {
         String badKV      = "<span class=\"foo\" class-=\"one\"></span>";
 
         String resultRepeatK    = "<span></span>";
-        String resultRepeatKL   = "<span class></span>";
         String resultRepeatKV   = "<span class=\"two\"></span>";
-        String resultRepeatKVL  = "<span class=\"one\"></span>"; // antisamy does not report duplicate attributes as errors
         String resultBadK       = "<span class=\"foo\"></span>";
         String resultBadKV      = "<span class=\"foo\"></span>";
 
