@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -168,7 +169,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private PortalService portalService;
 	
 	private SecurityService securityService = null;
-	
+        
+	/**
+	 * Keyword to look for in sakai.properties copyright message to replace
+	 * for the server's time's year for auto-update of Copyright end date
+	 */
+	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
+
 	/**
 	 * Chat helper.
 	 */
@@ -1640,6 +1647,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			String copyright = ServerConfigurationService
 			.getString("bottom.copyrighttext");
+
+			/**
+			 * Replace keyword in copyright message from sakai.properties 
+			 * with the server's current year to auto-update of Copyright end date 
+			 */
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+			String currentServerYear = simpleDateFormat.format(new Date());
+			copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
+
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
 			String serviceVersion = ServerConfigurationService.getString(
 					"version.service", "?");
