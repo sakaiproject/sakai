@@ -1346,7 +1346,10 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             } else {
                 // update the access log
                 ci.requested();
-                if (defaultValue != null) {
+                // https://jira.sakaiproject.org/browse/KNL-1130 - assume string has no default in cases where it is "" or null
+                if (ServerConfigurationService.TYPE_STRING.equals(ci.type)) {
+                    ci.defaulted = !(defaultValue == null || "".equals(defaultValue));
+                } else if (defaultValue != null) {
                     ci.defaulted = true;
                 }
                 if (!ci.isRegistered()) {
