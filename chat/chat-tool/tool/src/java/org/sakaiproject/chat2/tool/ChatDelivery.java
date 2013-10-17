@@ -29,6 +29,8 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.chat2.model.ChatChannel;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.courier.api.Expirable;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -42,7 +44,7 @@ import org.sakaiproject.util.Web;
  * ChatDelivery is a Delivery that causes a chat message to be appended to a table of chat messages in the HTML element identified by the address and elementID.
  * </p>
  */
-public class ChatDelivery extends BaseDelivery
+public class ChatDelivery extends BaseDelivery implements Expirable
 {
 	/** Our logger. */
 	private static Log logger = LogFactory.getLog(ChatDelivery.class);
@@ -57,6 +59,10 @@ public class ChatDelivery extends BaseDelivery
    protected String placementId = "";
    
    private ContextualUserDisplayService contextualUserDisplayService;
+   
+   private long created;
+   
+   private int ttl;
    
 	/**
 	 * Construct.
@@ -73,6 +79,8 @@ public class ChatDelivery extends BaseDelivery
 		m_beepOnDelivery = beepOnDelivery;
       this.chatManager = chatManager;
       this.placementId = placementId;
+      this.created = System.currentTimeMillis();
+      this.ttl = ServerConfigurationService.getInt("chat.delivery.ttl", 300);
 	} // ChatDelivery
 
 	public ChatMessage getMessage() {
@@ -216,4 +224,19 @@ public class ChatDelivery extends BaseDelivery
 	      
 		}
 	}
+
+	@Override
+	public long getCreated() {
+		return created;
+	}
+	
+	public void setCreated(long created) {
+		this.created = created;
+	}
+
+	@Override
+	public int getTtl() {
+		return ttl;
+	}
+
 }
