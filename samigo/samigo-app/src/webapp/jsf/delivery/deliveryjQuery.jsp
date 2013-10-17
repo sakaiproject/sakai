@@ -34,6 +34,7 @@
 							backgroundColor: '#ff0',
 							opacity: 0}
 			}); 
+			setTimeout($.unblockUI, 2000); 
 		}); 
 			
 		$('#timer-warning').dialog({
