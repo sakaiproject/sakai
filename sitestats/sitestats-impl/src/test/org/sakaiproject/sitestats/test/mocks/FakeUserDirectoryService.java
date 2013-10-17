@@ -252,9 +252,8 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 		return null;
 	}
 
-    public PasswordPolicyProvider getPasswordPolicy() {
-        // TODO Auto-generated method stub
-        return null;
+    public boolean validatePassword(String password) {
+	return true;
     }
 
 }
