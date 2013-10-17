@@ -58,7 +58,7 @@ $oauth_consumer_key = '98765';
 $oauth_consumer_secret = 'secret';
 
 $response = '{
-  "@context": "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId",
+  "@context": "http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId",
   "@type": "ToolProxy",
   "@id": "http://localhost:4000/toolproxies/0df4b410-9e38-0130-4f3c-406c8f217861",
   "tool_proxy_guid": "0df4b410-9e38-0130-4f3c-406c8f217861"
@@ -66,15 +66,15 @@ $response = '{
 
 $json_response = json_decode($response);
 $json_response->{'@id'} = $cur_base . uniqid();
-$json_response->tool_proxy_guid = $cur_base . uniqid();
+$json_response->tool_proxy_guid = uniqid();
 
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);
     $json = json_decode($body);
-    $json_response->ext_debug = "This is awesome!";
+    // $json_response->ext_debug = "This is awesome!";
     $json = json_encode($json_response);
 } catch (Exception $e) {
-    header("HTTP/1.1 403 Failure");
+    http_response_code(400);
     echo(json_encode(array("ext_status" => "failure", "ext_detail" => $e->getMessage())));
     exit();
 }

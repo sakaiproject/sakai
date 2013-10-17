@@ -10,7 +10,7 @@ public class SakaiLTI2Services {
 		ret.setEndpoint(endpoint);
 		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat("application/vnd.sakai.lti.v1.Outcome+form");
+		ret.setFormat("application/vnd.sakai.lti.v1.outcome+form");
 		ret.setAction("POST");
 		return ret;
     }
@@ -20,7 +20,7 @@ public class SakaiLTI2Services {
 		ret.setEndpoint(endpoint);
 		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat("application/vnd.sakai.lti.v1.Roster+form");
+		ret.setFormat("application/vnd.sakai.lti.v1.roster+form");
 		return ret;
     }
 
@@ -29,7 +29,7 @@ public class SakaiLTI2Services {
 		ret.setEndpoint(endpoint);
 		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat("application/vnd.sakai.lti.v1.Settings+form");
+		ret.setFormat("application/vnd.sakai.lti.v1.settings+form");
 		return ret;
     }
 
@@ -38,7 +38,7 @@ public class SakaiLTI2Services {
 		ret.setEndpoint(endpoint);
 		ret.set_id(endpoint);    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat("application/vnd.sakai.lti.v1.LORI+xml");
+		ret.setFormat("application/vnd.sakai.lti.v1.lori+xml");
 		return ret;
     }
 

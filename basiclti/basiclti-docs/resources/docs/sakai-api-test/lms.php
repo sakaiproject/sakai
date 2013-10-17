@@ -137,7 +137,8 @@ $parms = signParameters($parms, $endpoint, "POST", $key, $secret,
 "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
 
   $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
-     "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
+    "_blank");
+     // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
   print($content);
 
 }

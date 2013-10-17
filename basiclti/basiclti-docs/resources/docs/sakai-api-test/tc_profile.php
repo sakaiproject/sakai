@@ -12,9 +12,9 @@ $cur_url = str_replace("/tc_profile.php","",curPageURL());
 echo <<< EOF
 {
   "@context": [
-    "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolConsumerProfile",
+    "http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile",
     {
-      "ltitcp": "$cur_url/106aff6"
+      "tcp": "$cur_url/106aff6"
     }
   ],
   "@type": "ToolConsumerProfile",
@@ -41,12 +41,12 @@ echo <<< EOF
         "code": "SakaiTestOs",
         "vendor": {
           "code": "www.sakaiproject.org",
-          "name": {
+          "vendor_name": {
             "default_value": "Sakai",
             "key": "product.vendor.name"
           },
           "description": {
-            "default_value": "Sakai is an Open Source Collaboration and Learning Environment",
+            "default_value": "Sakai is an Open Source Learning Environment",
             "key": "product.vendor.description"
           },
           "website": "http://www.sakaiproject.org/",
@@ -59,30 +59,102 @@ echo <<< EOF
     },
     "support": {
       "email": "drchuck@gmail.com"
+    },
+    "service_owner" : {
+      "@id" : "http://state.university.edu/",
+      "timestamp" : "2012-03-28T09:08:16-04:00",
+      "service_owner_name" : {
+        "default_value" : "State University",
+        "key" : "service_owner.name"
+      },
+      "description" : {
+        "default_value" : "A fictitious university.",
+        "key" : "service_owner.description"
+      },
+      "support" : {
+        "email" : "techsupport@university.edu"
+      }
+    },
+    "service_provider" : {
+      "@id" : "http://yasp.example.com/ServiceProvider",
+      "guid" : "yasp.example.com",
+      "timestamp" : "2012-03-28T09:08:16-04:00",
+      "service_provider_name" : {
+        "default_value" : "Your Application Service Provider",
+        "key" : "service_provider.name"
+      },
+      "description" : {
+        "default_value" : "YASP is a fictitious application service provider",
+        "key" : "service_provider.description"
+      },
+      "support" : {
+        "email" : "support@yasp.example.com"
+      }
     }
   },
-  "capability_enabled": [
+  "capability_offered": [
+        "User.id",
+        "User.username",
+        "CourseSection.sourcedId",
+        "Person.sourcedId",
+        "Person.name.full",
+        "Membership.role",
        "Person.name.given" ,
        "Person.name.family" ,
        "Person.email.primary" ,
        "User.image" ,
        "Result.sourcedId" ,
        "Result.autocreate",
-       "basic-lti-launch-request"
+       "Result.sourcedId"
   ],
   "service_offered": [
     {
       "@type": "RestService",
-      "@id": "$cur_url/tc_register.php",
+      "@id": "tcp:ToolProxy.collection",
       "endpoint": "$cur_url/tc_register.php",
-      "format": "application/vnd.ims.lti.v2.ToolProxy+json",
+      "format": ["application/vnd.ims.lti.v2.toolproxy+json"],
       "action": [ "POST" ]
+    },
+    {
+      "@type" : "RestService",
+      "@id" : "tcp:ToolProxy.item",
+      "endpoint" : "http://lms.example.com/resources/ToolProxy/{tool_proxy_guid}",
+      "format" : ["application/vnd.ims.lti.v2.toolproxy+json"],
+      "action" : ["GET", "PUT"]
+    },
+    {
+      "@type" : "RestService",
+      "@id" : "tcp:Result.item",
+      "endpoint" : "http://lms.example.com/resources/Result/{sourcedId}",
+      "format" : ["application/vnd.ims.lis.v2.result+json"],
+      "action" : ["GET", "PUT"]
+    },
+    {
+      "@type" : "RestService",
+      "@id" : "tcp:LtiLinkSettings",
+      "endpoint" : "http://lms.example.com/resources/links/{link_id}/custom",
+      "format" : ["application/vnd.ims.lti.v2.toolsettings+json", "application/vnd.ims.lti.v2.toolsettings.simple+json"],
+      "action" : ["GET", "PUT"]
+    },
+    {
+      "@type" : "RestService",
+      "@id" : "tcp:ToolProxyBindingSettings",
+      "endpoint" : "http://lms.example.com/resources/lis/{context_type}/{context_id}/bindings/{vendor_code}/{product_code}/custom",
+      "format" : ["application/vnd.ims.lti.v2.toolsettings+json", "application/vnd.ims.lti.v2.toolsettings.simple+json"],
+      "action" : ["GET", "PUT"]
+    },
+    {
+      "@type":"RestService",
+      "@id" : "tcp:ToolProxySettings",
+      "endpoint" : "http://lms.example.com/resources/ToolProxy/{tool_proxy_guid}/custom",
+      "format" : ["application/vnd.ims.lti.v2.toolsettings+json", "application/vnd.ims.lti.v2.toolsettings.simple+json"],
+      "action" : ["GET", "PUT"]
     },
     {
       "@type": "RestService",
       "@id": "$cur_url/common/tool_consumer_outcome.php",
       "endpoint": "$cur_url/common/tool_consumer_outcome.php",
-      "format": "application/vnd.ims.lti.v1.Outcome+xml",
+      "format": ["application/vnd.ims.lti.v1.outcome+xml"],
       "action": [ "POST" ]
     }
   ]

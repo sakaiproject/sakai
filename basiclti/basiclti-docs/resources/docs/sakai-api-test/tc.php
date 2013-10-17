@@ -50,13 +50,18 @@ function lmsdataToggle() {
 } 
   //]]> 
 </script>
-<a id="displayText" href="javascript:lmsdataToggle();">Toggle Resource and Launch Data</a>
 <?php
-  echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
+  echo("<div style=\"display:block\">\n");
   echo("<form method=\"post\">\n");
-  echo("<input type=\"submit\" value=\"Recompute Launch Data\">\n");
-  echo("<input type=\"submit\" name=\"reset\" value=\"Reset\">\n");
-  echo("<fieldset><legend>LTI I</legend>\n");
+  echo("<input type=\"submit\" name=\"launch\" value=\"Launch\">\n");
+  echo("<input type=\"submit\" name=\"debug\" value=\"Debug Launch\">\n");
+echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" value="Toggle Input Data">');
+  if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
+    echo("<div id=\"lmsDataForm\" style=\"display:none\">\n");
+  } else {
+    echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
+  }
+  echo("<fieldset id=\"lmsDataForm\"><legend>LTI I</legend>\n");
   $disabled = '';
   echo("Launch URL: <input size=\"60\" type=\"text\" $disabled size=\"60\" name=\"endpoint\" value=\"$endpoint\">\n");
   echo("</fieldset><p>");
@@ -84,12 +89,15 @@ function lmsdataToggle() {
     
   // $parms['launch_presentation_css_url'] = $cssurl;
 
+  if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
   $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
-"Press to Launch", "", "");
+"Finish Launch", "", "");
 
 
-  $content = postLaunchHTML($parms, $endpoint, true, 
-     "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
+  $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
+    "_blank");
+     // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
   print($content);
+}
 
 ?>

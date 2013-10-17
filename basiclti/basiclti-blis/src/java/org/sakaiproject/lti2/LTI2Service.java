@@ -127,12 +127,19 @@ System.out.println("deploy="+deploy);
 		List<String> capabilities = consumer.getCapability_enabled();
 		capabilities.add("basic-lti-launch-request");
 		capabilities.add("ToolProxyReregistrationRequest");
+        capabilities.add("User.id");
+        capabilities.add("User.username");
+        capabilities.add("CourseSection.sourcedId");
+        capabilities.add("Person.sourcedId");
+        capabilities.add("Person.name.full");
+        capabilities.add("Membership.role");
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			capabilities.add("Person.email.primary");
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
+			capabilities.add("Person.name.fullname");
 			capabilities.add("Person.name.given");
 			capabilities.add("Person.name.family");
 		}
@@ -141,6 +148,7 @@ System.out.println("deploy="+deploy);
 		services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+			services.add(StandardServices.LTI2ResultItem(serverUrl+"/imsblis/lti2/ResultItem"));
 			services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+"/imsblis/service/"));
 			capabilities.add("Result.sourcedId");

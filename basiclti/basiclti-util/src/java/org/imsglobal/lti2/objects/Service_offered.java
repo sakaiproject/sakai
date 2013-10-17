@@ -31,7 +31,7 @@ public class Service_offered {
     @JsonProperty("endpoint")
     private String endpoint;
     @JsonProperty("format")
-    private String format;
+    private List<String> format = new ArrayList<String>();
     @JsonProperty("action")
     private List<String> action = new ArrayList<String>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -42,15 +42,15 @@ public class Service_offered {
         this.endpoint = endpoint;
         this._id = id;
         this._type = type;
-        this.format = format;
+        this.format.add(format);
         this.action.add(action);
     }
 
-    public Service_offered(String endpoint, String id, String type, String format, String[] action) {
+    public Service_offered(String endpoint, String id, String type, String[] format, String[] action) {
         this.endpoint = endpoint;
         this._id = id;
         this._type = type;
-        this.format = format;
+        Collections.addAll(this.format, format);
         Collections.addAll(this.action, action);
     }
     
@@ -85,12 +85,12 @@ public class Service_offered {
     }
 
     @JsonProperty("format")
-    public String getFormat() {
+    public List<String> getFormat() {
         return format;
     }
 
     @JsonProperty("format")
-    public void setFormat(String format) {
+    public void setFormat(List<String> format) {
         this.format = format;
     }
 
@@ -113,6 +113,16 @@ public class Service_offered {
     public void setAction(String [] actions) {
 		this.action = new ArrayList<String>();
         Collections.addAll(this.action, actions);
+    }
+
+    public void setFormat(String format) {
+		this.format = new ArrayList<String>();
+        this.format.add(format);
+    }
+
+    public void setFormat(String [] format) {
+		this.format = new ArrayList<String>();
+        Collections.addAll(this.format, format);
     }
 
     @JsonAnyGetter
