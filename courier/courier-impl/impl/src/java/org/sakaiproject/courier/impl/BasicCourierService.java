@@ -26,14 +26,19 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.CourierService;
 import org.sakaiproject.courier.api.Delivery;
 import org.sakaiproject.courier.api.DeliveryProvider;
+import org.sakaiproject.courier.api.Expirable;
 import org.sakaiproject.util.StringUtil;
 
 /**
@@ -73,6 +78,32 @@ public class BasicCourierService implements CourierService
         protected Object[] locks;
 
 	private List<DeliveryProvider> deliveryProviders = new Vector<DeliveryProvider>();
+	
+	/** Configuration: how often to check for inactive deliveries (seconds).  0 means no checking*/
+	protected int m_checkEvery = 300;
+	
+	/** The maintenance. */
+	protected Maintenance m_maintenance = null;
+	
+	/** Maintenance Timer object */
+	protected Timer m_maintenanceTimer = new Timer(true);
+	
+	/** 
+	 * Configuration: do maintenance cleanup aggressively 
+	 * True indicates that the entire address will be removed from the m_addresses map, false means that only the expired delivery will be removed
+	**/
+	protected boolean m_aggressiveCleanup = false;
+
+	/**
+	 * Configuration: set how often to check for inactive deliveries (seconds).
+	 * 
+	 * @param value
+	 *        The how often to check for inactive deliveries (seconds) value.
+	 */
+	public void setCheckEvery(int value)
+	{
+		m_checkEvery = value;
+	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -92,6 +123,17 @@ public class BasicCourierService implements CourierService
 		locks = new Object[nLocks];
 		for (int i = 0; i < nLocks; i++)
 		    locks[i] = new Object();
+		
+		m_checkEvery = ServerConfigurationService.getInt("courier.maintThreadChecks", 300);
+		m_aggressiveCleanup = ServerConfigurationService.getBoolean("courier.aggressiveCleanup", false);
+		
+		// start the maintenance thread
+		if (m_checkEvery > 0)
+		{
+			m_maintenance = new Maintenance();
+			m_maintenanceTimer.schedule(m_maintenance, 0, (m_checkEvery * 1000) );
+			m_maintenance.start();
+		}
 	}
 
 	/**
@@ -102,6 +144,12 @@ public class BasicCourierService implements CourierService
 		M_log.info("destroy()");
 		m_addresses.clear();
 		locks = null;
+		
+		if (m_maintenance != null)
+		{
+			m_maintenance.stop();
+			m_maintenance = null;
+		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -283,6 +331,108 @@ public class BasicCourierService implements CourierService
 			return null;
 		}
 		return new ArrayList<DeliveryProvider>(deliveryProviders );
+	}
+	
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Maintenance
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	protected class Maintenance extends TimerTask
+	{
+		/** My thread running my timeout checker. */
+		protected Thread m_maintenanceChecker = null;
+
+		/** Signal to the timeout checker to stop. */
+		protected boolean m_maintenanceCheckerStop = false;
+
+		/**
+		 * Construct.
+		 */
+		public Maintenance()
+		{
+			M_log.info("Maintenance()");
+		}
+
+		/**
+		 * Start the maintenance thread.
+		 */
+		public void start()
+		{
+			if (m_maintenanceChecker != null) return;
+
+			m_maintenanceChecker = new Thread("Sakai.BasicCourierService.Maintenance");
+			m_maintenanceCheckerStop = false;
+			m_maintenanceChecker.setDaemon(true);
+			m_maintenanceChecker.start();
+		}
+
+		/**
+		 * Stop the maintenance thread.
+		 */
+		public void stop()
+		{
+			if (m_maintenanceChecker != null)
+			{
+				m_maintenanceCheckerStop = true;
+				m_maintenanceChecker.interrupt();
+				try
+				{
+					// wait for it to die
+					m_maintenanceChecker.join();
+				}
+				catch (InterruptedException ignore)
+				{
+				}
+				m_maintenanceChecker = null;
+			}
+		}
+
+		/**
+		 * Run the maintenance thread. Every m_checkEvery seconds, check for expired deliveries.
+		 */
+		public void run()
+		{
+			// since we might be running while the component manager is still being created and populated, such as at server
+			// startup, wait here for a complete component manager
+			ComponentManager.waitTillConfigured();
+			
+			M_log.debug("Maintenance thread running...");
+			try
+			{
+				long now = System.currentTimeMillis();
+				for (List<Delivery> deliveries : m_addresses.values()) {
+					for (Iterator<Delivery> iter = deliveries.iterator(); iter.hasNext();) {
+						Delivery delivery = iter.next();
+						if (delivery instanceof Expirable) {
+							Expirable expDelivery = (Expirable)delivery;
+							long created = expDelivery.getCreated();
+							int ttl = expDelivery.getTtl();
+							//Don't need to worry about it if ttl is not set.
+							if (ttl > 0) {
+								long sDiff = (now - created) / 1000;
+								// If the time since creation is larger than the ttl, remove it
+								if (sDiff > ttl) {
+									if (m_aggressiveCleanup) {
+										M_log.debug("Removing all (" + deliveries.size() + ") expired deliveries for address: " + delivery.getAddress());
+										clear(delivery.getAddress());
+										break;
+									}  
+									else {
+										M_log.debug("Removing a single expired delivery for address: " + delivery.getAddress());
+										iter.remove();
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+			catch (Exception e)
+			{
+				M_log.warn("run(): exception: " + e);
+			}
+    	}
 	}
 
 	/*
