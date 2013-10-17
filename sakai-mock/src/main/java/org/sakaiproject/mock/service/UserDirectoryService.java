@@ -262,7 +262,8 @@ public class UserDirectoryService implements
 		return null;
 	}
 
-	public PasswordPolicyProvider getPasswordPolicy() {
-		return null;
-	}
+    public boolean validatePassword(String password) {
+	return true;
+    }
+
 }
