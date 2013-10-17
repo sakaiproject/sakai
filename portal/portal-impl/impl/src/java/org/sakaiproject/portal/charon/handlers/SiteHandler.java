@@ -706,6 +706,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
 			int tabsToDisplay = configuredTabsToDisplay;
+			int tabDisplayLabel = 1;
 
 			if (!loggedIn)
 			{
@@ -719,13 +720,15 @@ public class SiteHandler extends WorksiteHandler
 				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 				try
 				{
-					tabsToDisplay = (int) props.getLongProperty("tabs");
+					tabsToDisplay = (int) props.getLongProperty("tabs");					 
+					tabDisplayLabel = (int) props.getLongProperty("tab:label");
 				}
 				catch (Exception any)
 				{
 				}
 			}
 
+			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("useDHTMLMore", useDHTMLMore);
 			rcontext.put("showSearchWhen", showSearchWhen);
 			if (useDHTMLMore)

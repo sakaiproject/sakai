@@ -111,13 +111,21 @@
 								#if (${site.isMyWorkspace})
 <li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
+									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+									#else
 <li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+									#end
 								#end
 							#else
 								#if (${site.isMyWorkspace})
 <li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
+									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>										
+									#else	
 <li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}: ${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+									#end
 								#end
 							#end
 
@@ -206,7 +214,11 @@
 						</li>
 					#else
 						<li>
-							<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+								<a href="${site.siteUrl}" title="${site.shortDescription}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#else
+								<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#end
 						</li>
 					#end
 				#end
