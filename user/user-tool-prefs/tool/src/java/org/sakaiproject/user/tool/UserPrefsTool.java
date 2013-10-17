@@ -237,6 +237,10 @@ public class UserPrefsTool
 
 	private String prefTabCount = null;
 
+	// SAK-23895
+       	private String prefTabLabel = null;
+       	private int DEFAULT_TAB_LABEL = 1;
+
 	private String[] selectedExcludeItems;
 
 	private String[] selectedOrderItems;
@@ -286,8 +290,20 @@ public class UserPrefsTool
 	private Map<String, Integer> m_sortedTypes = new HashMap<String, Integer>();
 	private List<DecoratedNotificationPreference> m_registereddNotificationItems = new ArrayList<DecoratedNotificationPreference>();	
 	private List<Site> m_sites = new ArrayList<Site>();
+
+	// SAK-23895
+	private boolean prefShowTabLabelOption = true;
 	
 	// //////////////////////////////// PROPERTY GETTER AND SETTER ////////////////////////////////////////////
+
+	public boolean isPrefShowTabLabelOption() {
+	    return prefShowTabLabelOption;
+	}
+
+	public void setPrefShowTabLabelOption(boolean prefShowTabLabelOption) {
+	    this.prefShowTabLabelOption = prefShowTabLabelOption;
+	}
+
 	/**
 	 * @return Returns the prefExcludeItems.
 	 */
@@ -786,6 +802,10 @@ public class UserPrefsTool
 		else
 			m_TabOutcome = "tabDHTMLMoreSites";
 
+		// do we show the option to display by site title or short description?
+		boolean show_tab_label_option = ServerConfigurationService.getBoolean("preference.show.tab.label.option", true);
+		setPrefShowTabLabelOption(show_tab_label_option);
+
 		//Tab order configuration
 		String defaultPreference="prefs_tab_title, prefs_noti_title, prefs_timezone_title, prefs_lang_title";
 
@@ -1160,17 +1180,45 @@ public class UserPrefsTool
 		ordered.addAll(mySites);
 
 		// Now convert to SelectItem for display in JSF
+                String sitetablabel = getPrefTabLabel();
 		for (Iterator iter = excluded.iterator(); iter.hasNext();)
 		{
 			Site element = (Site) iter.next();
-			SelectItem excludeItem = new SelectItem(element.getId(), element.getTitle());
+			// some short descriptins are empty or null
+			String shortdesc = element.getShortDescription();
+			if ((shortdesc == null) || ("".equals(shortdesc))){
+			    shortdesc = element.getTitle();
+			}
+
+			SelectItem excludeItem = null;
+
+			if ("1".equals(sitetablabel)) {
+			    excludeItem = new SelectItem(element.getId(), element.getTitle());
+			}
+			else {
+			    excludeItem = new SelectItem(element.getId(), shortdesc);
+			}
 			prefExcludeItems.add(excludeItem);
 		}
 
 		for (Iterator iter = ordered.iterator(); iter.hasNext();)
 		{
 			Site element = (Site) iter.next();
-			SelectItem orderItem = new SelectItem(element.getId(), element.getTitle());
+
+			// some short descriptins are empty or null
+			String shortdesc = element.getShortDescription();
+			if ((shortdesc == null) || ("".equals(shortdesc))){
+			    shortdesc = element.getTitle();
+			}
+
+			SelectItem orderItem = null;
+			if ("1".equals(sitetablabel)) {
+			    orderItem = new SelectItem(element.getId(), element.getTitle());
+			}
+			else {
+			    orderItem = new SelectItem(element.getId(), shortdesc);
+			}
+
 			prefOrderItems.add(orderItem);
 		}
 
@@ -1215,6 +1263,7 @@ public class UserPrefsTool
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
 
 		// save
 		saveEdit();
@@ -1240,6 +1289,20 @@ public class UserPrefsTool
 
 		// No tabs, nothing to do 
 		if ( prefTabString == null && prefDrawerString == null && prefHiddenString == null ) {
+
+			// SAK-23895 , we need to save the tab label preference even though there is no drag-drop actions. 
+			// Lydia: I hate to duplicate updatePrefs() code here. Can we call something like updatePrefs(null, null, null)? 
+			m_stuff = new Vector();
+			m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
+			// save
+			saveEdit();
+			// release lock and clear session variables
+			cancelEdit();
+			// To stay on the same page - load the page data
+			processActionEdit();
+			tabUpdated = true; // set for display of text message on JSP
+			m_reloadTop = Boolean.TRUE;
+
 			return m_TabOutcome;
 		}
 
@@ -1286,6 +1349,7 @@ public class UserPrefsTool
 		if ( excludes != null && excludes.length() > 0 ) 
 			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs",  String.valueOf(tabcount), false));
+		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
 
 		// save
 		saveEdit();
@@ -1308,6 +1372,7 @@ public class UserPrefsTool
 		LOG.debug("processActionCancel()");
 
 		prefTabCount = null; // reset to retrieve original prefs
+		prefTabLabel = null; // reset to retrieve original prefs
 
 		// remove session variables
 		cancelEdit();
@@ -1944,6 +2009,44 @@ public class UserPrefsTool
 		
 		return result;
 	}
+
+	// SAK-23895
+	private String selectedTabLabel = "";
+
+
+	private String getPrefTabLabel(){
+	    if ( prefTabLabel != null )
+	        return prefTabLabel;
+
+	    Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
+	    ResourceProperties props = prefs.getProperties(CHARON_PREFS);
+	    prefTabLabel = props.getProperty("tab:label");
+
+	    if ( prefTabLabel == null )
+	        prefTabLabel = String.valueOf(DEFAULT_TAB_LABEL);
+
+	    return prefTabLabel;
+	}
+	/**
+	 * @return Returns the getSelectedTabLabel.
+	 */
+	public String getSelectedTabLabel()
+	{
+	    this.selectedTabLabel= getPrefTabLabel();
+	    return this.selectedTabLabel;
+
+	}
+
+	/**
+	 * @param label
+	 *        The tab label to set.
+	 */
+	public void setSelectedTabLabel(String label)
+	{
+	    this.prefTabLabel = label;
+	    this.selectedTabLabel = label;
+	}
+
 
 	// ////////////////////////////////////// REFRESH //////////////////////////////////////////
 	private String selectedRefreshItem = "";

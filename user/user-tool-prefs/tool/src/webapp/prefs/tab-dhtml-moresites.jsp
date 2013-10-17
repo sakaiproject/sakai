@@ -125,6 +125,16 @@
             </td>
         </tr>
     </table>
+
+<%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
+<div id="top-text">
+<h:outputText value="#{msgs.tabDisplay_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
+<h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                        <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
+                        <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
+</h:selectOneRadio>
+</div>
+
                 <p class="act">
                     <h:commandButton accesskey="s" id="submit" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSave}"></h:commandButton>
                      <h:commandButton accesskey="x" id="cancel" styleClass="formButton" value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}"></h:commandButton>

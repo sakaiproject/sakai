@@ -210,6 +210,20 @@ jQuery(document).ready(function () {
 <div style="float:none;clear:both;margin:2em 0">
 </f:verbatim>
 
+<%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
+<f:verbatim>
+<div id="top-text">
+</f:verbatim>
+<h:outputText value="#{msgs.tabDisplay_prompt}"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}"/>
+<h:selectOneRadio value="#{UserPrefsTool.selectedTabLabel}" layout="pageDirection"  rendered="#{UserPrefsTool.prefShowTabLabelOption==true}">
+                        <f:selectItem itemValue="1" itemLabel="#{msgs.tabDisplay_coursecode}"/>
+                        <f:selectItem itemValue="2" itemLabel="#{msgs.tabDisplay_coursename}"/>
+</h:selectOneRadio>
+<f:verbatim>
+</div>
+</f:verbatim>
+
+
 	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSaveOrder}"></h:commandButton>
 		 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
 		<h:inputHidden id="prefTabString" value="#{UserPrefsTool.prefTabString}" />
