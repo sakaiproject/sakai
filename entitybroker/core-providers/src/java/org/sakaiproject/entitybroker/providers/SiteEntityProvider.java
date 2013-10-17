@@ -35,11 +35,12 @@ import org.azeckoski.reflectutils.ReflectUtils;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -121,6 +122,11 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
     private ServerConfigurationService serverConfigurationService;
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
+    }
+
+    private SecurityService securityService;
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
     public static String PREFIX = "site";
@@ -426,52 +432,33 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
     @EntityCustomAction(action = "userPerms", viewKey = EntityView.VIEW_SHOW)
     public Set<String> handleUserPerms(EntityView view) {
+
         // expects site/siteId/userPerms[/:PREFIX:]
         String prefix = view.getPathSegment(3);
+
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException("This action (userPerms) is not accessible to anon and there is no current user.");
         }
-        Set<String> filteredFunctions = new TreeSet<String>();
-        if (developerHelperService.isUserAdmin("/user/" + userId)) {
-            // Special case for the super admin
-            if(prefix != null) {
-                filteredFunctions.addAll(functionManager.getRegisteredFunctions(prefix));
-            } else {
-                filteredFunctions.addAll(functionManager.getRegisteredFunctions());
-            }
+
+        String siteId = view.getEntityReference().getId();
+        String siteReference = siteService.siteReference(siteId);
+
+        List<String> functions = null;
+        if (prefix != null) {
+            functions = functionManager.getRegisteredFunctions(prefix);
         } else {
-            String siteId = view.getEntityReference().getId();
-            Site site = getSiteById(siteId);
-            AuthzGroup siteHelperRealm = null;
-            try {
-                siteHelperRealm = authzGroupService.getAuthzGroup("!site.helper");
-            } catch(GroupNotDefinedException gnde) {
-                // This should probably be logged but not rethrown.
-                log.warn("Failure: could not find !site.helper: " + gnde);
-            }
-
-            if (siteHelperRealm != null) {
-                Role currentUserRole = site.getUserRole(userId);
-                Role siteHelperRole = siteHelperRealm.getRole(currentUserRole.getId());
-                Set<String> functions = currentUserRole.getAllowedFunctions();
-
-                if (siteHelperRole != null) {
-                    // Merge in all the functions from the same role in !site.helper
-                    functions.addAll(siteHelperRole.getAllowedFunctions());
-                }
-                if (prefix != null) {
-                    for (String function : functions) {
-                        if (function.startsWith(prefix)) {
-                            filteredFunctions.add(function);
-                        }
-                    }
-                } else {
-                    filteredFunctions = functions;
-                }
-            }
-
+            functions = functionManager.getRegisteredFunctions();
         }
+
+        Set<String> filteredFunctions = new TreeSet<String>();
+
+        for (String function : functions) {
+            if(securityService.unlock(userId,function,siteReference)) {
+                filteredFunctions.add(function);
+            }
+        }
+
         return filteredFunctions;
     }
 
