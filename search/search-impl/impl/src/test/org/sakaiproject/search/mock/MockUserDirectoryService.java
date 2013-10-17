@@ -441,8 +441,8 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return false;
 	}
 
-    public PasswordPolicyProvider getPasswordPolicy() {
-        return null;
+    public boolean validatePassword(String password) {
+	return true;
     }
 
 }
