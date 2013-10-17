@@ -153,6 +153,7 @@ disabled@org.sakaiproject.lessonbuildertool.service.LessonsGradeInfoProvider.cac
     </property>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
     <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+    <property name="sqlService" ref="org.sakaiproject.db.api.SqlService" />
   </bean>
 
 <!-- here's the version our code will access -->

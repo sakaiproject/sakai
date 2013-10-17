@@ -4504,19 +4504,33 @@ public class SimplePageBean {
 
     // maybeUpdateLinks checks to see if this page was copied from another
     // site and needs an update
+    // only works if you have lessons write permission. Caller shold check
 	public void maybeUpdateLinks() {
 	    String needsFixup = getCurrentSite().getProperties().getProperty("lessonbuilder-needsfixup");
 	    if (needsFixup == null || !needsFixup.equals("true"))
-		return;
-	    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
-	    Site site = getCurrentSite();
-	    ResourcePropertiesEdit rp = site.getPropertiesEdit();
-	    rp.removeProperty("lessonbuilder-needsfixup");
+	    	return;
+
+	    // it's important for only one process to do the update. So instead of depending upon something
+	    // that can be cached and is not synced across sites, do this directly in the DB with somehting
+	    // atomic. Also site save is veyr heavy weight, and not well interlocked. Much better just
+	    // to remove the property. This should only be needed for 10 min (cache lifetime), after which
+	    // the test above will show that it's not needed
+	    //   Permission note: this should work for a student. A full site save won't. However this
+	    // code only gets called for people with lessons.write. Normally lessons.write is also people
+	    // with site.upd, but maybe not always. It should be OK for anyone to clear this flag in this code
+
+	    int updated = 0;
 	    try {
-		siteService.save(site);
+		updated = simplePageToolDao.clearNeedsFixup(getCurrentSiteId());
 	    } catch (Exception e) {
-		log.warn("site save in maybeUpdateLinks " + e);
+		// should get here if the flag has been removed already by another process
+		log.warn("clearneedsfixup " + e);
 	    }
+	    // only do this if there was a flag to delete
+	    if (updated == 0)
+		return;
+
+	    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
 	    currentSite = null;  // force refetch next time
 	}
 

@@ -41,7 +41,7 @@ import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
@@ -84,6 +84,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	private ToolManager toolManager;
 	private SecurityService securityService;
+	private SqlService sqlService;
 	private static String SITE_UPD = "site.upd";
 
         // part of HibernateDaoSupport; this is the only context in which it is OK
@@ -159,6 +160,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		securityService = service;
 	}
 
+	public void setSqlService(SqlService service) {
+		sqlService = service;
+	}
+
 	public void setToolManager(ToolManager service) {
 		toolManager = service;
 	}
@@ -183,7 +188,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public List<SimplePageItem> findItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
-	    List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b,SAKAI_SITE_PAGE c where a.siteId = ? and a.parent is null and a.pageId = b.sakaiId and b.type = 2 and b.pageId = 0 and a.toolId = c.PAGE_ID order by c.SITE_ORDER", fields, null);
+	    List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b,SAKAI_SITE_PAGE c where a.siteId = ? and a.parent is null and a.pageId = b.sakaiId and b.type = 2 and b.pageId = 0 and a.toolId = c.PAGE_ID order by c.SITE_ORDER", fields, null);
 
 	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
 	    
@@ -199,7 +204,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public List<SimplePageItem> findDummyItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
-	    List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
+	    List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
 
 	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
 	    
@@ -216,7 +221,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	public List<SimplePageItem> findTextItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
-	    List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 5", fields, null);
+	    List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 5", fields, null);
 
 	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
 	    
@@ -236,7 +241,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
     	fields[2] = userId;
     	fields[3] = toolId;
     	
-    	List<PageData> rv = SqlService.dbRead("select a.itemId, a.id, b.sakaiId, b.name from lesson_builder_log a, lesson_builder_items b where a.userId=? and a.toolId=? and a.lastViewed = (select max(lastViewed) from lesson_builder_log where userId=? and toolId = ?) and a.itemId = b.id", fields, new SqlReader() {
+    	List<PageData> rv = sqlService.dbRead("select a.itemId, a.id, b.sakaiId, b.name from lesson_builder_log a, lesson_builder_items b where a.userId=? and a.toolId=? and a.lastViewed = (select max(lastViewed) from lesson_builder_log where userId=? and toolId = ?) and a.itemId = b.id", fields, new SqlReader() {
     		public Object readSqlResultRecord(ResultSet result) {
     			try {
     				PageData ret = new PageData();
@@ -486,7 +491,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[2];
 	    fields[0] = id;
 	    fields[1] = siteId;
-	    List ids = SqlService.dbRead("select a.id from lesson_builder_items a, lesson_builder_pages b where a.sakaiId = ? and ( a.type=1 or a.type=7) and a.prerequisite = 1 and a.pageId = b.pageId and b.siteId = ?", fields, null);
+	    List ids = sqlService.dbRead("select a.id from lesson_builder_items a, lesson_builder_pages b where a.sakaiId = ? and ( a.type=1 or a.type=7) and a.prerequisite = 1 and a.pageId = b.pageId and b.siteId = ?", fields, null);
 	    return ids;
 
 	}
@@ -841,7 +846,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		fields[0] = pageId;
 		fields[1] = pageId;
 		fields[2] = userId;
-		List<String> ones = SqlService.dbRead("select 1 from lesson_builder_student_pages a, lesson_builder_log b where a.pageId=? and a.itemId = b.itemId and b.studentPageId=? and b.userId=?", fields, null);
+		List<String> ones = sqlService.dbRead("select 1 from lesson_builder_student_pages a, lesson_builder_log b where a.pageId=? and a.itemId = b.itemId and b.studentPageId=? and b.userId=?", fields, null);
 		if (ones != null && ones.size() > 0)
 		    return true;
 	    }
@@ -849,7 +854,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[2];
 	    fields[0] = Long.toString(pageId);
 	    fields[1] = userId;
-	    List<String> ones = SqlService.dbRead("select 1 from lesson_builder_items a, lesson_builder_log b where a.sakaiId=? and a.type=2 and a.id=b.itemId and b.userId=?", fields, null);
+	    List<String> ones = sqlService.dbRead("select 1 from lesson_builder_items a, lesson_builder_log b where a.sakaiId=? and a.type=2 and a.id=b.itemId and b.userId=?", fields, null);
 	    if (ones != null && ones.size() > 0)
 		return true;
 	    else
@@ -870,7 +875,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		Object [] fields = new Object[1];
 		fields[0] = itemId;
 
-		List<String> users = SqlService.dbRead("select a.userId from lesson_builder_log a where a.itemId = ? and a.complete = true", fields, null);
+		List<String> users = sqlService.dbRead("select a.userId from lesson_builder_log a where a.itemId = ? and a.complete = true", fields, null);
 
 		return users;
 	}
@@ -1142,7 +1147,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    Object [] fields = new Object[2];
 	    fields[0] = questionId;
 	    fields[1] = responseId;
-	    SqlService.dbWrite("update lesson_builder_qr_totals set respcount = respcount + 1 where questionId = ? and responseId = ?", fields);
+	    sqlService.dbWrite("update lesson_builder_qr_totals set respcount = respcount + 1 where questionId = ? and responseId = ?", fields);
 	}
 
 	public void syncQRTotals(SimplePageItem item) {
@@ -1184,7 +1189,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 	public List<SimplePagePeerEvalResult> findPeerEvalResult(long pageId,String userId,String gradee) 
-	 //List<String> ids = SqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
+	 //List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.sakaiId = '/dummy'", fields, null);
 	{
 		DetachedCriteria d = DetachedCriteria.forClass(SimplePagePeerEvalResult.class)
 			    .add(Restrictions.eq("pageId", pageId))
@@ -1243,6 +1248,16 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	    return ret;
 	    
+	}
+    
+    // should throw an error if the property isn't there
+
+	public int clearNeedsFixup(String siteId) {
+	    Object [] fields = new Object[1];
+	    fields[0] = siteId;
+
+	    return sqlService.dbWriteCount("delete from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields, 
+					null, null, false);
 	}
 
 }

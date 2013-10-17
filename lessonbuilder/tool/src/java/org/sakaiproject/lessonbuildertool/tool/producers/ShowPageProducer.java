@@ -471,7 +471,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		SimplePageToolDao.PageData lastPage = simplePageBean.toolWasReset();
 
 		// if this page was copied from another site we may have to update links
-		simplePageBean.maybeUpdateLinks();
+		// can only do the fixups if you can write. We could hack permissions, but
+		// I assume a site owner will access the site first
+		if (canEditPage)
+		    simplePageBean.maybeUpdateLinks();
 
 		// if starting the tool, sendingpage isn't set. the following call
 		// will give us the top page.

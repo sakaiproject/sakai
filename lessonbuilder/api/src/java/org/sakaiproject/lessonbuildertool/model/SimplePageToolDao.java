@@ -265,5 +265,6 @@ public interface SimplePageToolDao {
     // items in lesson_builder_groups for specified site, map of itemId to groups
     public Map<String,String> getExternalAssigns(String siteId);
 
+    public int clearNeedsFixup(String siteId);
 
 }
