@@ -460,7 +460,9 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
   function postLaunchHTML($newparms, $endpoint, $debug=false, $iframeattr=false) {
     global $LastOAuthBodyBaseString;
     $r = "<div id=\"ltiLaunchFormSubmitArea\">\n";
-    if ( $iframeattr ) {
+    if ( $iframeattr =="_blank" ) {
+        $r = "<form action=\"".$endpoint."\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" target=\"_blank\" encType=\"application/x-www-form-urlencoded\">\n" ;
+    } else if ( $iframeattr ) {
         $r = "<form action=\"".$endpoint."\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" target=\"basicltiLaunchFrame\" encType=\"application/x-www-form-urlencoded\">\n" ;
     } else {
         $r = "<form action=\"".$endpoint."\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n" ;

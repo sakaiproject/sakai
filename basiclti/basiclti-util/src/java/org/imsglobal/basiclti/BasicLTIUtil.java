@@ -49,6 +49,9 @@ import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
+import javax.servlet.http.HttpServletRequest;
 
 /* Leave out until we have JTidy 0.8 in the repository 
  import org.w3c.tidy.Tidy;
@@ -919,6 +922,40 @@ public class BasicLTIUtil {
 		retval = retval.replace("=", "&#61;");
 		return retval;
 	}
+
+	/**
+	 * Simple utility method deal with a request that has the wrong URL when behind 
+     * a proxy.
+	 * 
+	 * @param request
+     * @param extUrl
+     *   The url that the external world sees us as responding to.  This needs to be
+     *   up to but not including the last slash like and not include any path information
+     *   http://www.sakaiproject.org - although we do compensate for extra stuff at the end.
+	 * @return
+     *   The full path of the request with extUrl in place of whatever the request
+     *   thinks is the current URL.
+	 */
+    static public String getRealPath(String servletUrl, String extUrl)
+    {
+        Pattern pat = Pattern.compile("^https??://[^/]*");
+        // Deal with potential bad extUrl formats
+        Matcher m = pat.matcher(extUrl);
+        if (m.find()) {
+            extUrl = m.group(0);
+        }
+
+        String retval = pat.matcher(servletUrl).replaceFirst(extUrl);
+        return retval;
+    }
+
+	@SuppressWarnings("unchecked")
+    static public String getRealPath(HttpServletRequest request, String extUrl)
+    {
+        String URLstr = request.getRequestURL().toString();
+        String retval = getRealPath(URLstr, extUrl);
+        return retval;
+    }
 
 	/**
 	 * Simple utility method to help with the migration from Properties to
