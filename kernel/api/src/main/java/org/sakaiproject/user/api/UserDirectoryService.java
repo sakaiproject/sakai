@@ -72,14 +72,20 @@ public interface UserDirectoryService extends EntityProducer
 
 	/** User eid for the admin user. */
 	static final String ADMIN_EID = "admin";
-	
+
 	/**
-	 * This function returns the PasswordPolicyProvider object (which defines the password policies for this installation)
+	 * This function returns a boolean value of true/false, 
+	 * depending on if the given password meets the validation criteria.
 	 * 
-	 * @return a PasswordPolicyProvider object
-	 * @throws IllegalStateException if the system does not have a PasswordPolicyProvider
+	 * This is controlled by a {@link PasswordPolicyProvider} and 
+	 * enabled via sakai config properties (user.password.policy=true), Default: false
+	 * 
+	 * See default.sakai.properties or KNL-1123 for more details
+	 * 
+	 * @param password the password to be validated
+	 * @return true/false (password is valid/invalid)
 	 */
-	public PasswordPolicyProvider getPasswordPolicy();
+	public boolean validatePassword(String password);
 
 	/**
 	 * Add a new user to the directory. Must commitEdit() to make official, or cancelEdit() when done! Id is auto-generated.

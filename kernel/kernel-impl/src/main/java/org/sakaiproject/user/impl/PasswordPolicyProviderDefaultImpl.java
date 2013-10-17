@@ -28,28 +28,29 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.PasswordPolicyProvider;
+import org.sakaiproject.user.api.User;
 
 /**
  * This is the default implementation of the Password policy provider.
  * 
- * @author bjones86 - OWL-831/RES-54
  * https://jira.sakaiproject.org/browse/KNL-1123
  */
 public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider {
+
     /** Our log (commons). */
     private static Log logger = LogFactory.getLog(PasswordPolicyProviderDefaultImpl.class);
 
-    /** ServerConfigurationService */
-    private ServerConfigurationService serverConfigurationService;
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
     /** value for minimum password entropy */
-    private int minEntropy = DEFAULT_MIN_ENTROPY;
+    private static final int DEFAULT_MIN_ENTROPY = 16;
 
     /** value for maximum password sequence length */
-    private int maxSequenceLength = DEFAULT_MAX_SEQ_LENGTH;
+    private static final int DEFAULT_MAX_SEQ_LENGTH = 3;
+
+    /** sakai.property for minimum password entropy */
+    private static final String SAK_PROP_MIN_PASSWORD_ENTROPY = "user.password.minimum.entropy";
+
+    /** sakai.property for maximum password sequence length */
+    private static final String SAK_PROP_MAX_PASSWORD_SEQ_LENGTH = "user.password.maximum.sequence.length";
 
     /** array of all lower case characters (used for calculating password entropy) */
     private static final char[] CHARS_LOWER = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
@@ -62,6 +63,13 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
 
     /** array of all special characters (used for calculating password entropy) */
     private static final char[] CHARS_SPECIAL = { '!', '$', '*', '+', '-', '.', '=', '?', '@', '^', '_', '|', '~' };
+
+    /** value for minimum password entropy */
+    private int minEntropy = DEFAULT_MIN_ENTROPY;
+
+    /** value for maximum password sequence length */
+    private int maxSequenceLength = DEFAULT_MAX_SEQ_LENGTH;
+
 
     /**
      * Default zero-arg constructor
@@ -106,7 +114,7 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
     /**
      * {@inheritDoc}
      */
-    public boolean validatePassword(String password, String userDisplayID) {
+    public boolean validatePassword(String password, User user) {
         if (logger.isDebugEnabled())
             logger.debug("PasswordPolicyProviderDefaultImpl.validatePassword( " + password + " )");
 
@@ -115,14 +123,18 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
             return false; // SHORT CIRCUIT
         }
 
-        // If the password contains X number of characters from their display ID, it's invalid
-        // (where X is the maximum password sequence length defined in sakai.properties)
-        if (userDisplayID != null) {
-            int length = userDisplayID.length();
-            for (int i = 0; i < length - (maxSequenceLength - 1); i++) {
-                String sub = userDisplayID.substring(i, i + maxSequenceLength);
-                if (password.indexOf(sub) > -1) {
-                    return false; // SHORT CIRCUIT
+        /* If the password contains X number of characters from their display ID, it's invalid
+         * (where X is the maximum password sequence length defined in sakai.properties)
+         */
+        if (user != null) {
+            String userDisplayID = user.getDisplayId();
+            if (userDisplayID != null) {
+                int length = userDisplayID.length();
+                for (int i = 0; i < length - (maxSequenceLength - 1); i++) {
+                    String sub = userDisplayID.substring(i, i + maxSequenceLength);
+                    if (password.indexOf(sub) > -1) {
+                        return false; // SHORT CIRCUIT
+                    }
                 }
             }
         }
@@ -162,14 +174,10 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public String getClientValidatePasswordFunction() {
-        if (logger.isDebugEnabled())
-            logger.debug("PasswordPolicyProviderDefaultImpl.getClientValidatePasswordFunction()");
-        String javaScript = "";
-        return javaScript;
+
+    private ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
 }

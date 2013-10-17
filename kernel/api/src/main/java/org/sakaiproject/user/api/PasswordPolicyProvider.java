@@ -29,36 +29,16 @@ package org.sakaiproject.user.api;
  */
 public interface PasswordPolicyProvider {
 
-    /** value for minimum password entropy */
-    public static final int DEFAULT_MIN_ENTROPY = 16;
-
-    /** value for maximum password sequence length */
-    public static final int DEFAULT_MAX_SEQ_LENGTH = 3;
-
-    /** sakai.property for minimum password entropy */
-    public static final String SAK_PROP_MIN_PASSWORD_ENTROPY = "user.password.minimum.entropy";
-
-    /** sakai.property for maximum password sequence length */
-    public static final String SAK_PROP_MAX_PASSWORD_SEQ_LENGTH = "user.password.maximum.sequence.length";
-
     /** sakai.property for minimum password entropy */
     public static final String SAK_PROP_PROVIDER_NAME = "user.password.policy.provider.name";
 
     /**
      * This function returns a boolean value of true/false, depending on if the given password meets the validation criteria.
      * 
-     * Based on verifyPasswordStrength() in http://grepcode.com/file/repo1.maven.org/maven2/org.owasp.esapi/esapi/2.0_rc10/org/owasp/esapi/reference/FileBasedAuthenticator.java
-     * 
      * @param password the password to be validated
-     * @param userDisplayID the user's login ID
+     * @param user the user who this password belongs to (may be null if no user associated)
      * @return true/false (password is valid/invalid)
      */
-    public boolean validatePassword(String password, String userDisplayID);
+    public boolean validatePassword(String password, User user);
 
-    /**
-     * This method is called to retrieve the JavaScript validation function to be used client-side.
-     * 
-     * @return the JavaScript function to be used client-side
-     */
-    public String getClientValidatePasswordFunction();
 }

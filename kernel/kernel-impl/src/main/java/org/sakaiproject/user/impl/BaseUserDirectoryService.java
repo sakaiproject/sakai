@@ -148,30 +148,49 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected abstract Storage newStorage();
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.user.api.UserDirectoryService#getPasswordPolicy()
+	 * @see org.sakaiproject.user.api.UserDirectoryService#validatePassword(java.lang.String)
+	 */
+	public boolean validatePassword(String password) {
+	    boolean valid = true;
+	    PasswordPolicyProvider ppp = getPasswordPolicy();
+	    // NOTE: all passwords are valid by default
+	    if (ppp != null) {
+	        User user = getCurrentUser();
+	        if (user == m_anon) {
+	            user = null; // no user available
+	        }
+	        valid = ppp.validatePassword(password, user);
+	    }
+	    return valid;
+	}
+
+	/**
+	 * @return the current password policy provider 
+	 *     OR null if there is not one OR null if the password policy is disabled
 	 */
 	public PasswordPolicyProvider getPasswordPolicy() {
 	    // https://jira.sakaiproject.org/browse/KNL-1123
-		// If the password policy object is not null, return it to the caller
-		if ( m_passwordPolicyProvider == null ) {
-		    // Otherwise, try to get the (default) password policy object before returning it
-			// Try getting it by the configured name
-			if ( m_passwordPolicyProviderName != null ) {
-				m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get( m_passwordPolicyProviderName );
-			}
-			// Try getting the default impl via ComponentManager
-			if ( m_passwordPolicyProvider == null ) {
-				m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get(PasswordPolicyProvider.class);
-			}
-			// If all else failed, manually instantiate default implementation
-			if ( m_passwordPolicyProvider == null ) {
-				m_passwordPolicyProvider = new PasswordPolicyProviderDefaultImpl(serverConfigurationService());
-			}
-		}
-		if ( m_passwordPolicyProvider == null ) {
-		    throw new IllegalStateException("unable to find the password policy provider by name: "+m_passwordPolicyProviderName);
-		}
-		return m_passwordPolicyProvider;
+	    // If the password policy object is not null, return it to the caller
+	    if ( m_passwordPolicyProvider == null ) {
+	        // Otherwise, try to get the (default) password policy object before returning it
+	        // Try getting it by the configured name
+	        if ( m_passwordPolicyProviderName != null ) {
+	            m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get( m_passwordPolicyProviderName );
+	        }
+	        // Try getting the default impl via ComponentManager
+	        if ( m_passwordPolicyProvider == null ) {
+	            m_passwordPolicyProvider = (PasswordPolicyProvider) ComponentManager.get(PasswordPolicyProvider.class);
+	        }
+	        // If all else failed, manually instantiate default implementation
+	        if ( m_passwordPolicyProvider == null ) {
+	            m_passwordPolicyProvider = new PasswordPolicyProviderDefaultImpl(serverConfigurationService());
+	        }
+	    }
+	    PasswordPolicyProvider ppp = m_passwordPolicyProvider;
+	    if (serverConfigurationService().getBoolean("user.password.policy", false)) {
+	        ppp = null; // don't send back a policy if disabled
+	    }
+	    return ppp;
 	}
 
 	/**
