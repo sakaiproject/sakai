@@ -29,6 +29,8 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.taggable.api.Evaluation;
+import org.sakaiproject.taggable.api.EvaluationContainer;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
 import org.sakaiproject.taggable.api.Tag;
@@ -40,8 +42,9 @@ import org.sakaiproject.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.taggable.api.TaggingProvider;
+import org.sakaiproject.taggable.api.URLBuilder;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 public class TaggingManagerImpl implements TaggingManager {
 
@@ -53,6 +56,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	protected List<TaggingProvider> taggingProviders = new ArrayList<TaggingProvider>();
 	
 	private LinkManager linkManager;
+	private UserDirectoryService userDirectoryService;
 
 	public void init() {
 		logger.info("init()");
@@ -236,7 +240,29 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	protected User getUser() {
-		return UserDirectoryService.getCurrentUser();
+		return getUserDirectoryService().getCurrentUser();
+	}
+	
+	public URLBuilder createURLBuilder(String base, String view, Map<String, String> params) {
+		return new URLBuilderImpl(base, view, params);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public EvaluationContainer createEvaluationContainer() {
+		return new EvaluationContainerImpl();
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public EvaluationContainer createEvaluationContainer(URLBuilder addUrlBuilder) {
+		return new EvaluationContainerImpl(addUrlBuilder);
+	}
+	
+	public Evaluation createEvaluation(URLBuilder editUrlBuilder, URLBuilder removeUrlBuilder) {
+		return new EvaluationImpl(editUrlBuilder, removeUrlBuilder);
 	}
 
 	public LinkManager getLinkManager()
@@ -247,6 +273,14 @@ public class TaggingManagerImpl implements TaggingManager {
 	public void setLinkManager(LinkManager linkManager)
 	{
 		this.linkManager = linkManager;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	public UserDirectoryService getUserDirectoryService() {
+		return userDirectoryService;
 	}
 	
 }

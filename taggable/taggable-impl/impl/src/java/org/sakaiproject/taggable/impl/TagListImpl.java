@@ -57,28 +57,8 @@ public class TagListImpl extends ArrayList<Tag> implements TagList {
 
 	public static final String NA = messages.getString("na");
 
-	protected static List<TagColumn> columns;
+	protected List<TagColumn> columns;
 
-	static {
-		columns = new ArrayList<TagColumn>();
-		columns.add(new TagColumnImpl(CRITERIA, CRITERIA_NAME, CRITERIA_DESC, true));
-		columns.add(new TagColumnImpl(PARENT, PARENT_NAME, PARENT_DESC,
-				true));
-		columns.add(new TagColumnImpl(WORKSITE, WORKSITE_NAME,
-				WORKSITE_DESC, true));
-		
-		/*
-		columns.add(new TagColumnImpl(RUBRIC, RUBRIC_NAME, RUBRIC_DESC,
-				false));
-		columns.add(new TagColumnImpl(RATIONALE, RATIONALE_NAME,
-				RATIONALE_DESC, false));
-		columns.add(new TagColumnImpl(VISIBLE, VISIBLE_NAME, VISIBLE_DESC,
-				true));
-		columns.add(new TagColumnImpl(EXPORTABLE, EXPORTABLE_NAME,
-				EXPORTABLE_DESC, true));
-		*/
-	}
-	
 	public TagListImpl() {
 		columns = new ArrayList<TagColumn>();
 		columns.add(new TagColumnImpl(CRITERIA, CRITERIA_NAME, CRITERIA_DESC, true));

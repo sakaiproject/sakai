@@ -283,4 +283,22 @@ public interface TaggingManager {
 	
 	public TagColumn createTagColumn(String name, String displayName,
 			String description, boolean sortable);
+	
+	public URLBuilder createURLBuilder(String base, String view, Map<String, String> params);
+	
+	/**
+	 * Create a new (empty) EvaluationContainer
+	 * @return
+	 */
+	public EvaluationContainer createEvaluationContainer();
+	
+	/**
+	 * Create a new EvaluationContainer
+	 * @param addUrlBuilder
+	 * @return
+	 */
+	public EvaluationContainer createEvaluationContainer(URLBuilder addUrlBuilder);
+	
+	public Evaluation createEvaluation(URLBuilder editUrlBuilder, URLBuilder removeUrlBuilder);
+
 }

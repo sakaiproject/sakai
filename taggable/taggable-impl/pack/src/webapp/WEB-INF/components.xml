@@ -21,7 +21,10 @@
 	      
 		<property name="linkManager">
 	      <ref bean="org.sakaiproject.taggable.api.LinkManager" />
-	    </property>
+		</property>
+	  <property name="userDirectoryService">
+	    <ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+	  </property>
     </bean>
 	      
 	<bean id="org.sakaiproject.taggable.api.LinkManager"
