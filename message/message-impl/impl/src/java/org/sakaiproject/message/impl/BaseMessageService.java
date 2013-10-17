@@ -2624,7 +2624,7 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 		m_threadLocalManager.set(edit.getReference(), null);
 		
 		// pick the security function
-		String function = getUpdateFunction(edit);
+		String function = getUpdateFunction(edit, SECURE_UPDATE_OWN, SECURE_UPDATE_ANY);
 		
 		// track event
 		Event event = m_eventTrackingService.newEvent(eventId(function), edit.getReference(), true,
@@ -2641,18 +2641,18 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 		 * @param edit
 		 * @return
 		 */
-		private String getUpdateFunction(MessageEdit edit) {
+		private String getUpdateFunction(MessageEdit edit, String ownFunction, String anyFunction) {
 			// pick the security function
 			String function = null;
 			if (edit.getHeader().getFrom().getId().equals(m_sessionManager.getCurrentSessionUserId()))
 			{
 				// own or any
-				function = SECURE_UPDATE_OWN;
+				function = ownFunction;
 			}
 			else
 			{
 				// just any
-				function = SECURE_UPDATE_ANY;
+				function = anyFunction;
 			}
 			return function;
 		}
@@ -3012,7 +3012,7 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 			}
 
 			// pick the security function
-			String function = getUpdateFunction(message);
+			String function = getUpdateFunction(message, SECURE_REMOVE_OWN, SECURE_REMOVE_ANY);
 
 			// securityCheck
 			if (!allowRemoveMessage(message))
