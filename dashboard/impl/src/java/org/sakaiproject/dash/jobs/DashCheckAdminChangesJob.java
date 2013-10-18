@@ -18,38 +18,10 @@
  */
 package org.sakaiproject.dash.jobs;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.quartz.Job;
-import org.quartz.JobDetail;
-import org.quartz.CronTrigger;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.sakaiproject.api.app.scheduler.SchedulerManager;
-
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper;
-import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.dash.listener.EventProcessor;
-import org.sakaiproject.dash.app.DashboardCommonLogic;
-import org.sakaiproject.dash.model.JobRun;
-import org.sakaiproject.dash.app.SakaiProxy;
-import org.sakaiproject.dash.dao.JobRunImpl;
-import org.sakaiproject.dash.dao.DashHibernateDao;
-import org.sakaiproject.dash.logic.EventCopy;
-import org.sakaiproject.dash.logic.DashboardCommonLogicImpl.DashboardLogicSecurityAdvisor;
 
 //TODO: Find all statsUpdateManager and replace with this dashboard job
 
