@@ -31,14 +31,16 @@ public class ToolConsumerTest {
             "http://www.sakaiproject.org", "support@sakaiproject.org");
 
         Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
+        Service_owner sowner = new Service_owner("https://ctools.umich.edu/", "CTools", "Desc", "support@ctools.umich.edu");
+        Service_provider powner = new Service_provider("https://ctools.umich.edu/", "CTools", "Desc", "support@ctools.umich.edu");
 
-        Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
+        Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
 
         ToolConsumer consumer = new ToolConsumer("00292902192", instance);
         List<Service_offered> services = consumer.getService_offered();
         services.add(StandardServices.LTI2Registration("about:blank"));
         services.add(StandardServices.LTI1Outcomes("about:blank"));
-        List<String> capabilities = consumer.getCapability_enabled();
+        List<String> capabilities = consumer.getCapability_offered();
         Collections.addAll(capabilities,ToolConsumer.STANDARD_CAPABILITIES);
 
         ObjectMapper mapper = new ObjectMapper();

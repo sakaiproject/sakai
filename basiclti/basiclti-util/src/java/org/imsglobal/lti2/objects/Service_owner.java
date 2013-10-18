@@ -13,12 +13,11 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
-    "code",
-    "name",
+    "@id",
+    "service_owner_name",
     "description",
-    "website",
     "timestamp",
-    "contact"
+    "support"
 })
 public class Service_owner {
 
@@ -33,6 +32,13 @@ public class Service_owner {
     @JsonProperty("support")
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Service_owner(String _id, String owner_name, String desc, String support_email) {
+        this._id = _id;
+        this.name = new Service_owner_name(owner_name);
+        this.description = new Description(desc);
+        this.support = new Support(support_email);
+    }
 
     @JsonProperty("@id")
     public String get_id() {

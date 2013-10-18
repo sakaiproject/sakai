@@ -31,9 +31,12 @@ public class Product_instance {
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Product_instance(String guid, Product_info info, String support_email) {
+    public Product_instance(String guid, Product_info info, Service_owner owner, Service_provider provider,
+        String support_email) {
         this.guid = guid;
         this.product_info = info;
+        this.service_owner = owner;
+        this.service_provider = provider;
         this.support = new Support(support_email);
     }
 

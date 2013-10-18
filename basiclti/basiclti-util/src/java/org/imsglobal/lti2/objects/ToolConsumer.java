@@ -21,7 +21,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
     "lti_version",
     "guid",
     "product_instance",
-    "capability_enabled",
+    "capability_offered",
     "service_offered"
 })
 public class ToolConsumer {
@@ -38,8 +38,8 @@ public class ToolConsumer {
     private String guid;
     @JsonProperty("product_instance")
     private Product_instance product_instance;
-    @JsonProperty("capability_enabled")
-    private List<String> capability_enabled = new ArrayList<String>();
+    @JsonProperty("capability_offered")
+    private List<String> capability_offered = new ArrayList<String>();
     @JsonProperty("service_offered")
     private List<Service_offered> service_offered = new ArrayList<Service_offered>();
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -52,7 +52,8 @@ public class ToolConsumer {
 
     // Constructor
     public ToolConsumer(String guid, Product_instance product_instance) {
-        this._context.add("http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolConsumerProfile");
+        this._context.add("http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
+        this._context.add("  { \"tcp\" : \"http://lms.example.com/profile/b6ffa601-ce1d-4549-9ccf-145670a964d4#\" }");
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
         this.product_instance = product_instance;
@@ -118,14 +119,14 @@ public class ToolConsumer {
         this.product_instance = product_instance;
     }
 
-    @JsonProperty("capability_enabled")
-    public List<String> getCapability_enabled() {
-        return capability_enabled;
+    @JsonProperty("capability_offered")
+    public List<String> getCapability_offered() {
+        return capability_offered;
     }
 
-    @JsonProperty("capability_enabled")
-    public void setCapability_enabled(List<String> capability_enabled) {
-        this.capability_enabled = capability_enabled;
+    @JsonProperty("capability_offered")
+    public void setCapability_offered(List<String> capability_offered) {
+        this.capability_offered = capability_offered;
     }
 
     @JsonProperty("service_offered")

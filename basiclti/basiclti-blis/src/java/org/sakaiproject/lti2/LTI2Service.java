@@ -114,23 +114,27 @@ System.out.println("profile_id="+profile_id);
 		}
 System.out.println("deploy="+deploy);
 
-		String serverUrl = ServerConfigurationService.getServerUrl();
+		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 		Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
 				"Amazing open source Collaboration and Learning Environment.", 
 				"http://www.sakaiproject.org", "support@sakaiproject.org");
 
 		Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
+		Service_owner sowner = new Service_owner("https://ctools.umich.edu/", "CTools", "Description", "support@ctools.umich.edu");
+		Service_provider powner = new Service_provider("https://ctools.umich.edu/", "CTools", "Description", "support@ctools.umich.edu");
 
-		Product_instance instance = new Product_instance("ctools-001", info, "support@ctools.umich.edu");
+		Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
 
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
-		List<String> capabilities = consumer.getCapability_enabled();
+		List<String> capabilities = consumer.getCapability_offered();
 		capabilities.add("basic-lti-launch-request");
-		capabilities.add("ToolProxyReregistrationRequest");
         capabilities.add("User.id");
         capabilities.add("User.username");
         capabilities.add("CourseSection.sourcedId");
         capabilities.add("Person.sourcedId");
+        capabilities.add("Person.email.primary");
+        capabilities.add("Person.name.given");
+        capabilities.add("Person.name.family");
         capabilities.add("Person.name.full");
         capabilities.add("Membership.role");
 
@@ -158,8 +162,9 @@ System.out.println("deploy="+deploy);
 			services.add(SakaiLTI2Services.BasicRoster(serverUrl+"/imsblis/service/"));
 		}
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
-			// TODO: What about settings when I do the LTI 2.x settings.
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+"/imsblis/service/"));
+			services.add(StandardServices.LTI2LtiLinkSettings(serverUrl+"/imsblis/lti2/settings"));
+			services.add(StandardServices.LTI2ToolProxySettings(serverUrl+"/imsblis/lti2/settings"));
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
@@ -209,6 +214,13 @@ System.out.println("deploy="+deploy);
 			registerToolProviderProfile(request, response, profile_id);
 			return;
 		}
+
+System.out.println("Controller="+controller);
+		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
+		if ( jsonRequest.valid ) {
+		    System.out.println(jsonRequest.getPostBody());
+		}
+
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
 		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
 	}
@@ -329,7 +341,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 
 		Map jsonResponse = new TreeMap();
-		jsonResponse.put("@context","http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxyId");
+		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
 		jsonResponse.put("@type", "ToolProxy");
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
