@@ -116,18 +116,20 @@ if ( count($tc_services) < 1 ) die("At a minimum, we need the service to registe
 $endpoint = false;
 $formats = Array();
 foreach ($tc_services as $tc_service) {
-   $format = $tc_service->{'format'};
+   $formatlist = $tc_service->{'format'};
     echo("Service: ".$format."\n");
-   if ( in_array($format, $formats) ) die("Format=".$format." cannot occur multiple times in the service list");
-   $formats[] = $format;
-   if ( $format != "application/vnd.ims.lti.v2.ToolProxy+json" ) continue;
-   // var_dump($tc_service);
-   $endpoint = $tc_service->endpoint;
+    foreach($formatlist as $format) {
+        if ( in_array($format, $formats) ) die("Format=".$format." cannot occur multiple times in the service list");
+        $formats[] = $format;
+        if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
+        // var_dump($tc_service);
+        $endpoint = $tc_service->endpoint;
+    }
 }
 
-if ( $endpoint == false ) die("Must have an application/vnd.ims.lti.v2.ToolProxy+json service available.");
+if ( $endpoint == false ) die("Must have an application/vnd.ims.lti.v2.toolproxy+json service available.");
 
-echo("\nFound an application/vnd.ims.lti.v2.ToolProxy+json service - nice for us...\n");
+echo("\nFound an application/vnd.ims.lti.v2.toolproxy+json service - nice for us...\n");
 echo("Optional money collection phase complete...\n");
 echo("<hr/>");
 
@@ -180,7 +182,7 @@ if ( strlen($endpoint) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.ToolProxy+json", $body);
+$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
 
