@@ -107,4 +107,9 @@ public interface DashboardCommonLogic extends DashboardLogic, DashboardUserLogic
 	 * Handle the availability checks of dashboard items
 	 */
 	public void handleAvailabilityChecks();
+	
+	/**
+	 * Check for admin dashboard configuration changes
+	 */
+	public void checkForAdminChanges();
 }
