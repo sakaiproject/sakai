@@ -66,6 +66,11 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
+// UVa: add ability to get the site information for site property query per SAK-2438
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.entity.api.ResourceProperties;
+
 /**
  * <p>Title: Samigo</p>2
  * <p>Description: Sakai Assessment Manager</p>
@@ -83,6 +88,9 @@ public class AuthorActionListener
   private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private TimeUtil tu = new TimeUtil();
 
+  // UVa, per SAK-2438 
+  private ResourceProperties siteProperties = null;
+  
   public AuthorActionListener()
   {
   }
@@ -121,14 +129,61 @@ public class AuthorActionListener
 
     author.setAssessCreationMode("1");
     prepareAssessmentsList(author, assessmentService, gradingService, publishedAssessmentService);
-    
-    String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");
+   
+    // UVa: per SAK-2438, add a check for the site property 'samigo.editPubAssessment.restricted'.
+    //      If this site property exists (Admin user adds it per site), obey it.
+    //      Otherwise, use the global sakai-wide property by the same name. 
+    //
+    String editPubAssessmentSiteProperty = "true";
+
+    // First, get the site object
+    Site site = null;
+    try {
+	site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+    }
+    catch (IdUnusedException ex) {
+	// No site available
+    }
+
+    // Does a site property 'samigo.editPubAssessment.restricted' exist?
+    boolean sitePropertyExists = false;
+    if (site != null) {
+        try {
+            // get the site properties
+            siteProperties = site.getProperties();
+        } catch (Exception e) {
+        }
+            
+        if (siteProperties != null) {
+            // get this property for this site
+            String prop = siteProperties.getProperty("samigo.editPubAssessment.restricted");
+            if (prop != null) {
+                sitePropertyExists = true;
+
+                if (prop.toLowerCase().equals("false")) {
+                    // published assessment editting is not restricted
+                    author.setEditPubAssessmentRestricted(false);
+                } else {
+                    // published assessment editting is restricted
+                    author.setEditPubAssessmentRestricted(true);
+                }
+            } else {
+                sitePropertyExists = false;
+            }
+        }
+    }
+
+    // If a site property does not exist, go ahead and evaluate the global property
+    if (!sitePropertyExists) {
+
+        String s = ServerConfigurationService.getString("samigo.editPubAssessment.restricted");
 	if (s != null && s.toLowerCase().equals("false")) {
 		author.setEditPubAssessmentRestricted(false);
 	}
 	else {
 		author.setEditPubAssessmentRestricted(true);
 	}
+    } 
 	
 	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
