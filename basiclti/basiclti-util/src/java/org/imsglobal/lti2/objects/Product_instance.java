@@ -23,6 +23,10 @@ public class Product_instance {
     private String guid;
     @JsonProperty("product_info")
     private Product_info product_info;
+    @JsonProperty("service_owner")
+    private Service_owner service_owner;
+    @JsonProperty("service_provider")
+    private Service_provider service_provider;
     @JsonProperty("support")
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -51,6 +55,26 @@ public class Product_instance {
     @JsonProperty("product_info")
     public void setProduct_info(Product_info product_info) {
         this.product_info = product_info;
+    }
+
+    @JsonProperty("service_owner")
+    public Service_owner getService_owner() {
+        return service_owner;
+    }
+
+    @JsonProperty("service_owner")
+    public void setService_owner(Service_owner service_owner) {
+        this.service_owner = service_owner;
+    }
+
+    @JsonProperty("service_provider")
+    public Service_provider getService_provider() {
+        return service_provider;
+    }
+
+    @JsonProperty("service_provider")
+    public void setService_provider(Service_provider service_provider) {
+        this.service_provider = service_provider;
     }
 
     @JsonProperty("support")
