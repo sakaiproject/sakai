@@ -231,14 +231,14 @@ public class EntityUser implements User {
         if (user != null) {
             return user.getCreatedDate();
         }
-        throw new UnsupportedOperationException();
+        return new Date(lastModified);
     }
 
     public String getDisplayId() {
         if (user != null) {
             return user.getDisplayId();
         }
-        throw new UnsupportedOperationException();
+        return eid;
     }
 
     public User getModifiedBy() {
@@ -259,7 +259,7 @@ public class EntityUser implements User {
         if (user != null) {
             return user.getModifiedDate();
         }
-        throw new UnsupportedOperationException();
+        return new Date(lastModified);
     }
     
     public String getSortName() {
