@@ -126,11 +126,6 @@ public interface UserDirectoryService extends EntityProducer
 	 * See default.sakai.properties or KNL-1123 for more details
 	 * 
 	 * @param password the password to be validated
-	 * @return true/false (password is valid/invalid)
-	 */
-	/**
-	 * 
-     * @param password the password to be validated
 	 * @param user [OPTIONAL] the user this password check is related to (will use current user if this is null and it can be found)
 	 * @return the password rating enum
 	 */
