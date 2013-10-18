@@ -21,6 +21,8 @@
 
 package org.sakaiproject.user.api;
 
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
+
 /**
  * This interface provides the method stubs needed for any password policy object. 
  * All password policy implementations need to implement this interface.
@@ -37,8 +39,8 @@ public interface PasswordPolicyProvider {
      * 
      * @param password the password to be validated
      * @param user the user who this password belongs to (may be null if no user associated)
-     * @return true/false (password is valid/invalid)
+     * @return the password rating enum
      */
-    public boolean validatePassword(String password, User user);
+    public PasswordRating validatePassword(String password, User user);
 
 }

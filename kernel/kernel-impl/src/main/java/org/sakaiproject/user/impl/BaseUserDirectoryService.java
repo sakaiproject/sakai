@@ -79,6 +79,7 @@ import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.user.api.UsersShareEmailUDP;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
@@ -148,20 +149,22 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected abstract Storage newStorage();
 
 	/* (non-Javadoc)
-	 * @see org.sakaiproject.user.api.UserDirectoryService#validatePassword(java.lang.String)
+	 * @see org.sakaiproject.user.api.UserDirectoryService#validatePassword(java.lang.String, org.sakaiproject.user.api.User)
 	 */
-	public boolean validatePassword(String password) {
-	    boolean valid = true;
-	    PasswordPolicyProvider ppp = getPasswordPolicy();
+	public PasswordRating validatePassword(String password, User user) {
 	    // NOTE: all passwords are valid by default
+	    PasswordRating rating = PasswordRating.PASSED_DEFAULT;
+	    PasswordPolicyProvider ppp = getPasswordPolicy();
 	    if (ppp != null) {
-	        User user = getCurrentUser();
-	        if (user == m_anon) {
-	            user = null; // no user available
+	        if (user == null) {
+	            user = getCurrentUser();
+	            if (user == m_anon) {
+	                user = null; // no user available
+	            }
 	        }
-	        valid = ppp.validatePassword(password, user);
+	        rating = ppp.validatePassword(password, user);
 	    }
-	    return valid;
+	    return rating;
 	}
 
 	/**

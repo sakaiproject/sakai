@@ -29,6 +29,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.user.api.PasswordPolicyProvider;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 
 /**
  * This is the default implementation of the Password policy provider.
@@ -111,16 +112,13 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
             logger.debug("PasswordPolicyProviderDefaultImpl.destroy()");
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public boolean validatePassword(String password, User user) {
+    public PasswordRating validatePassword(String password, User user) {
         if (logger.isDebugEnabled())
             logger.debug("PasswordPolicyProviderDefaultImpl.validatePassword( " + password + " )");
 
         // If the password is null, it's invalid
         if (password == null) {
-            return false; // SHORT CIRCUIT
+            return PasswordRating.FAILED; // SHORT CIRCUIT
         }
 
         /* If the password contains X number of characters from their display ID, it's invalid
@@ -133,7 +131,7 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
                 for (int i = 0; i < length - (maxSequenceLength - 1); i++) {
                     String sub = userDisplayID.substring(i, i + maxSequenceLength);
                     if (password.indexOf(sub) > -1) {
-                        return false; // SHORT CIRCUIT
+                        return PasswordRating.FAILED; // SHORT CIRCUIT
                     }
                 }
             }
@@ -149,11 +147,11 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         // Calculate and verify the password strength
         int strength = password.length() * characterSets;
         if (strength < minEntropy) {
-            return false; // SHORT CIRCUIT
+            return PasswordRating.FAILED; // SHORT CIRCUIT
         }
 
         // The password has passed all requirements, therefore the password is valid
-        return true;
+        return PasswordRating.PASSED_UNRATED;
     }
 
     /**

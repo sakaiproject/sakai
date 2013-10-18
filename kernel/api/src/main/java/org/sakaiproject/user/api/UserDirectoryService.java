@@ -65,13 +65,56 @@ public interface UserDirectoryService extends EntityProducer
 	/** Name for the ability for updating one's own type. */
 	static final String SECURE_UPDATE_USER_OWN_TYPE = "user.upd.own.type";
 
-	
-	
 	/** User id for the admin user. */
 	static final String ADMIN_ID = "admin";
 
 	/** User eid for the admin user. */
 	static final String ADMIN_EID = "admin";
+
+
+	/**
+	 * Indicates if a password is valid and if it has passed the validation check
+	 * Use the {@link #passed()} method for a boolean check if the password passed or failed
+	 */
+	public static enum PasswordRating {
+	    /**
+	     * Failed the password validation
+	     */
+	    FAILED,
+	    /**
+	     * Passed the validation because it was not checked (default pass)
+	     */
+	    PASSED_DEFAULT,
+	    /**
+	     * Passed the validation (but was not rated)
+	     */
+	    PASSED_UNRATED,
+	    /**
+	     * Passed validation with weak rating
+	     */
+	    WEAK,
+	    /**
+	     * Passed validation with moderate rating (a.k.a. reasonable)
+	     */
+	    MODERATE,
+	    /**
+	     * Passed validation with strong rating (a.k.a. very strong)
+	     */
+	    STRONG;
+
+	    /**
+	     * @return true if the password has passed validation
+	     */
+	    public boolean passed() {
+	        return !this.equals(FAILED);
+	    }
+	    /**
+	     * @return true if the password was checked at all
+	     */
+	    public boolean checked() {
+	        return !this.equals(PASSED_DEFAULT);
+	    }
+	}
 
 	/**
 	 * This function returns a boolean value of true/false, 
@@ -85,7 +128,13 @@ public interface UserDirectoryService extends EntityProducer
 	 * @param password the password to be validated
 	 * @return true/false (password is valid/invalid)
 	 */
-	public boolean validatePassword(String password);
+	/**
+	 * 
+     * @param password the password to be validated
+	 * @param user [OPTIONAL] the user this password check is related to (will use current user if this is null and it can be found)
+	 * @return the password rating enum
+	 */
+	public PasswordRating validatePassword(String password, User user);
 
 	/**
 	 * Add a new user to the directory. Must commitEdit() to make official, or cancelEdit() when done! Id is auto-generated.
