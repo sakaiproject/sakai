@@ -36,7 +36,7 @@ public class ToolConsumerTest {
 
         Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
 
-        ToolConsumer consumer = new ToolConsumer("00292902192", instance);
+        ToolConsumer consumer = new ToolConsumer("00292902192", "http://localhost/", instance);
         List<Service_offered> services = consumer.getService_offered();
         services.add(StandardServices.LTI2Registration("about:blank"));
         services.add(StandardServices.LTI1Outcomes("about:blank"));

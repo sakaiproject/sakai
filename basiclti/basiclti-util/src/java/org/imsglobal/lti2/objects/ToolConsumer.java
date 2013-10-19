@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
+
 import javax.annotation.Generated;
 import org.codehaus.jackson.annotate.JsonAnyGetter;
 import org.codehaus.jackson.annotate.JsonAnySetter;
@@ -45,18 +47,19 @@ public class ToolConsumer {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public static String[] STANDARD_CAPABILITIES = {
-        "Person.name.given" , "Person.name.family" , "Person.email.primary" ,
-        "User.image" , "Result.sourcedId" , "basic-lti-launch-request" , 
-        "Result.autocreate"
+        "basic-lti-launch-request" , "User.id", "User.image" , 
+        "CourseSection.sourcedId", "Person.sourcedId", "Membership.role"
     } ;
 
     // Constructor
-    public ToolConsumer(String guid, Product_instance product_instance) {
+    public ToolConsumer(String guid, String tcp, Product_instance product_instance) {
         this._context.add("http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
-        this._context.add("  { \"tcp\" : \"http://lms.example.com/profile/b6ffa601-ce1d-4549-9ccf-145670a964d4#\" }");
+        // TODO: Figure out TCP - sheesh
+        // this._context.add("  { \"tcp\" : \""+tcp+"\" }");
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
         this.product_instance = product_instance;
+        addCapabilites(STANDARD_CAPABILITIES);
     }
 
     @JsonProperty("@context")
@@ -147,6 +150,11 @@ public class ToolConsumer {
     @JsonAnySetter
     public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
+    }
+
+    // Convienence method
+    public void addCapabilites(String [] capabilities) {
+        Collections.addAll(this.capability_offered, capabilities);
     }
 
 }

@@ -93,10 +93,20 @@ public class LTI2Service extends HttpServlet {
 
 	protected static LTIService ltiService = null;
 
+    protected String resourceUrl = null;
+    protected Service_offered LTI2ResultItem = null;
+    protected Service_offered LTI2LtiLinkSettings = null;
+    protected Service_offered LTI2ToolProxySettings = null;
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
+
+		resourceUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2";
+        LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl);
+        LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl);
+        LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl);
 	}
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -125,34 +135,29 @@ System.out.println("deploy="+deploy);
 
 		Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
 
-		ToolConsumer consumer = new ToolConsumer(profile_id+"", instance);
+		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, instance);
 		List<String> capabilities = consumer.getCapability_offered();
-		capabilities.add("basic-lti-launch-request");
-        capabilities.add("User.id");
         capabilities.add("User.username");
-        capabilities.add("CourseSection.sourcedId");
-        capabilities.add("Person.sourcedId");
         capabilities.add("Person.email.primary");
         capabilities.add("Person.name.given");
         capabilities.add("Person.name.family");
-        capabilities.add("Person.name.full");
-        capabilities.add("Membership.role");
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			capabilities.add("Person.email.primary");
 		}
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
+		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
 			capabilities.add("Person.name.fullname");
 			capabilities.add("Person.name.given");
 			capabilities.add("Person.name.family");
+            capabilities.add("Person.name.full");
 		}
 
 		List<Service_offered> services = consumer.getService_offered();
 		services.add(StandardServices.LTI2Registration(serverUrl+"/imsblis/lti2/tc_registration/"+profile_id));
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-			services.add(StandardServices.LTI2ResultItem(serverUrl+"/imsblis/lti2/ResultItem"));
+			services.add(LTI2ResultItem);
 			services.add(StandardServices.LTI1Outcomes(serverUrl+"/imsblis/service/"));
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+"/imsblis/service/"));
 			capabilities.add("Result.sourcedId");
@@ -163,8 +168,8 @@ System.out.println("deploy="+deploy);
 		}
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+"/imsblis/service/"));
-			services.add(StandardServices.LTI2LtiLinkSettings(serverUrl+"/imsblis/lti2/settings"));
-			services.add(StandardServices.LTI2ToolProxySettings(serverUrl+"/imsblis/lti2/settings"));
+			services.add(LTI2LtiLinkSettings);
+			services.add(LTI2ToolProxySettings);
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
@@ -346,7 +351,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
 		jsonResponse.put("tool_proxy_guid", profile_id);
-		response.setContentType("application/vnd.ims.lti.v2.toolproxy.id+json");
+		response.setContentType(StandardServices.FORMAT_TOOLPROXY_ID);
 		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
 		String jsonText = JSONValue.toJSONString(jsonResponse);
 		M_log.debug(jsonText);
