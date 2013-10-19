@@ -341,12 +341,12 @@ System.out.println("deployUpdate="+deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 
 		Map jsonResponse = new TreeMap();
-		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
+		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId");
 		jsonResponse.put("@type", "ToolProxy");
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
 		jsonResponse.put("tool_proxy_guid", profile_id);
-		response.setContentType("application/vnd.ims.lti.v2.ToolProxy.id+json");
+		response.setContentType("application/vnd.ims.lti.v2.toolproxy.id+json");
 		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
 		String jsonText = JSONValue.toJSONString(jsonResponse);
 		M_log.debug(jsonText);
