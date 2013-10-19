@@ -114,13 +114,10 @@ if ( count($tc_services) < 1 ) die("At a minimum, we need the service to registe
 
 // var_dump($tc_services);
 $endpoint = false;
-$formats = Array();
 foreach ($tc_services as $tc_service) {
-   $formatlist = $tc_service->{'format'};
+   $formats = $tc_service->{'format'};
     echo("Service: ".$format."\n");
-    foreach($formatlist as $format) {
-        if ( in_array($format, $formats) ) die("Format=".$format." cannot occur multiple times in the service list");
-        $formats[] = $format;
+    foreach($formats as $format) {
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
         // var_dump($tc_service);
         $endpoint = $tc_service->endpoint;
