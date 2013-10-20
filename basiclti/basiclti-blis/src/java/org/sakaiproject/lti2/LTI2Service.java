@@ -137,16 +137,13 @@ System.out.println("deploy="+deploy);
 
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, instance);
 		List<String> capabilities = consumer.getCapability_offered();
-        capabilities.add("User.username");
-        capabilities.add("Person.email.primary");
-        capabilities.add("Person.name.given");
-        capabilities.add("Person.name.family");
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			capabilities.add("Person.email.primary");
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
+            capabilities.add("User.username");
 			capabilities.add("Person.name.fullname");
 			capabilities.add("Person.name.given");
 			capabilities.add("Person.name.family");
@@ -217,6 +214,10 @@ System.out.println("deploy="+deploy);
 		} else if ( "tc_registration".equals(controller) && parts.length == 5 ) {
 			String profile_id = parts[4];
 			registerToolProviderProfile(request, response, profile_id);
+			return;
+		} else if ( "Result".equals(controller) && parts.length == 5 ) {
+			String sourcedid = parts[4];
+			handleResultRequest(request, response, sourcedid);
 			return;
 		}
 
@@ -357,6 +358,29 @@ System.out.println("deployUpdate="+deployUpdate);
 		M_log.debug(jsonText);
 		PrintWriter out = response.getWriter();
 		out.println(jsonText);
+	}
+
+	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
+			String sourcedid) throws java.io.IOException
+	{
+System.out.println("sourcedid="+sourcedid);
+
+		Object retval = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+System.out.println("retval="+retval);
+/*
+		Map jsonResponse = new TreeMap();
+		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId");
+		jsonResponse.put("@type", "ToolProxy");
+		String serverUrl = ServerConfigurationService.getServerUrl();
+		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
+		jsonResponse.put("tool_proxy_guid", profile_id);
+		response.setContentType(StandardServices.FORMAT_TOOLPROXY_ID);
+		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
+		String jsonText = JSONValue.toJSONString(jsonResponse);
+		M_log.debug(jsonText);
+		PrintWriter out = response.getWriter();
+		out.println(jsonText);
+*/
 	}
 
 	/* IMS JSON version of Errors */

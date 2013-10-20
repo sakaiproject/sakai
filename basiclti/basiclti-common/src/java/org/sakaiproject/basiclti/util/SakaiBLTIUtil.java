@@ -21,9 +21,14 @@ package org.sakaiproject.basiclti.util;
 
 import java.util.Properties;
 import java.util.Map;
+import java.util.List;
+import java.util.Iterator;
 import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
@@ -54,6 +59,23 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.linktool.LinkToolUtil;
 
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthValidator;
+import net.oauth.SimpleOAuthValidator;
+import net.oauth.server.OAuthServlet;
+import net.oauth.signature.OAuthSignatureMethod;
+
 /**
  * Some Sakai Utility code for IMS Basic LTI
  * This is mostly code to support the Sakai conventions for 
@@ -61,6 +83,8 @@ import org.sakaiproject.linktool.LinkToolUtil;
  */
 @SuppressWarnings("deprecation")
 public class SakaiBLTIUtil {
+
+    private static Log M_log = LogFactory.getLog(SakaiBLTIUtil.class);
 
 	public static final boolean verbosePrint = false;
 
@@ -331,7 +355,7 @@ public class SakaiBLTIUtil {
 
 			setProperty(props,BasicLTIConstants.USER_ID,user.getId());
 
-			if(ServerConfigurationService.getBoolean(SakaiBLTIUtil.BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
+			if(ServerConfigurationService.getBoolean(BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
                 String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";                     
                 setProperty(props,BasicLTIConstants.USER_IMAGE,imageUrl);
             }
@@ -357,7 +381,7 @@ public class SakaiBLTIUtil {
 			if ( ! "off".equals(allowOutcomes) ) {
 				assignment = toNull(getCorrectProperty(config,"assignment", placement));
 				allowOutcomes = ServerConfigurationService.getString(
-						SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+						BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 				if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 			}
 
@@ -927,11 +951,275 @@ public class SakaiBLTIUtil {
 		return default_secret;
 	}
 
+
+    public static Object checkSourceDid(String sourcedid, HttpServletRequest request, LTIService ltiService)
+    {
+        // Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+			int pos = sourcedid.indexOf(":::");
+			if ( pos > 0 ) {
+				signature = sourcedid.substring(0, pos);
+				String dec2 = sourcedid.substring(pos+3);
+				pos = dec2.indexOf(":::");
+				user_id = dec2.substring(0,pos);
+				placement_id = dec2.substring(pos+3);
+			}
+		} catch (Exception e) {
+			return "Unable to decrypt result_sourcedid=" + sourcedid;
+		}
+
+		M_log.debug("signature="+signature);
+		M_log.debug("user_id="+user_id);
+		M_log.debug("placement_id="+placement_id);
+
+		Properties pitch = getPropertiesFromPlacement(placement_id, ltiService);
+		if ( pitch == null ) {
+			return "Error retrieving result_sourcedid information";
+		}
+
+		String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
+		Site site = null;
+		try { 
+			site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+            return "Error retrieving result_sourcedid site: "+e.getLocalizedMessage();
+		}
+
+		// Check the message signature using OAuth
+		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
+		M_log.debug("oauth_secret: "+oauth_secret);
+		oauth_secret = decryptSecret(oauth_secret);
+		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+
+		String URL = getOurServletPath(request);
+
+		// Validate the incoming message
+		Object retval = validateMessage(request, URL, oauth_secret);
+		if ( retval instanceof String ) return retval;
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+		if ( placement_secret == null ) {
+			return "Could not find placement secret";
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = ShaUtil.sha256Hash(pre_hash);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+		if ( old_placement_secret != null && ! matched ) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = ShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		return new Boolean(matched);
+    }
+
+	public static Object validateMessage(HttpServletRequest request, String URL, 
+		String oauth_secret)
+	{
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
+		String oauth_consumer_key = null;
+		try {
+			oauth_consumer_key = oam.getConsumerKey();
+		} catch (Exception e) {
+            return "Unable to find consumer key";
+		}
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
+
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+            return "Unable to find base string";
+		}
+
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			if (base_string != null) {
+				M_log.warn("Failed to validate: "+e.getLocalizedMessage());
+				M_log.warn(base_string);
+			}
+			return "Failed to validate: "+e.getLocalizedMessage();
+		}
+		return Boolean.TRUE;
+	}
+
+	public static Assignment getOrMakeAssignment(String assignment, String siteId, 
+		GradebookService g)
+	{
+		Assignment assignmentObject = null;
+
+		try {
+			List gradebookAssignments = g.getAssignments(siteId);
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if ( gAssignment.isExternallyMaintained() ) continue;
+				if ( assignment.equals(gAssignment.getName()) ) { 
+					assignmentObject = gAssignment;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			assignmentObject = null; // Just to make double sure
+		}
+
+		// Attempt to add assignment to grade book
+		if ( assignmentObject == null && g.isGradebookDefined(siteId) ) {
+			try {
+				assignmentObject = new Assignment();
+				assignmentObject.setPoints(Double.valueOf(100));
+				assignmentObject.setExternallyMaintained(false);
+				assignmentObject.setName(assignment);
+				assignmentObject.setReleased(true);
+				assignmentObject.setUngraded(false);
+				g.addAssignment(siteId, assignmentObject);
+				M_log.info("Added assignment: "+assignment);
+			}
+			catch (ConflictingAssignmentNameException e) {
+				M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
+				assignmentObject = null; // Just to make double sure
+			}
+			catch (Exception e) {
+				M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+			}
+		}
+		return assignmentObject;
+	}
+
+	// Extract the necessary properties from a placement
+	public static Properties getPropertiesFromPlacement(String placement_id, LTIService ltiService)
+	{
+		// These are the fields from a placement - they are not an exact match
+		// for the fields in tool/content
+		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
+				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
+				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
+				"toolsetting", "allowlori"};
+
+		Properties retval = new Properties();
+
+		String siteId = null;
+		if ( isPlacement(placement_id) ) {
+			ToolConfiguration placement = null;
+			Properties config = null;
+			try {
+				placement = SiteService.findTool(placement_id);
+				config = placement.getConfig();
+				siteId = placement.getSiteId();
+			} catch (Exception e) {
+				M_log.debug("Error getPropertiesFromPlacement: "+e.getLocalizedMessage(), e);
+				return null;
+			}
+			retval.setProperty("placementId",placement_id);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+			for ( String field : fieldList ) {
+				String value = toNull(getCorrectProperty(config,field, placement));
+				if ( field.equals("toolsetting") ) {
+                    value = config.getProperty("toolsetting", null);
+					field = LTIService.LTI_SETTINGS;
+				}
+				if ( value == null ) continue;
+				if ( field.equals("releasename") ) field = LTIService.LTI_SENDNAME;
+				if ( field.equals("releaseemail") ) field = LTIService.LTI_SENDEMAILADDR;
+				if ( field.equals("key") ) field = LTIService.LTI_CONSUMERKEY;
+				retval.setProperty(field, value);
+			}
+		} else { // Get information from content item
+			Map<String,Object> content = null;
+			Map<String,Object> tool = null;
+
+			String contentStr = placement_id.substring(8);
+			Long contentKey = getLongKey(contentStr);
+			if ( contentKey < 0 ) return null;
+
+			// Leave off the siteId - bypass all checking - because we need to 
+			// finde the siteId from the content item
+			content = ltiService.getContentDao(contentKey);
+			if ( content == null ) return null;
+			siteId = (String) content.get(LTIService.LTI_SITE_ID);
+			if ( siteId == null ) return null;
+
+			retval.setProperty("contentKey",contentStr);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+			Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			if ( toolKey < 0 ) return null;
+			tool = ltiService.getToolDao(toolKey, siteId);
+			if ( tool == null ) return null;
+
+			// Adjust the content items based on the tool items
+			if ( tool != null || content != null )
+			{
+				ltiService.filterContent(content, tool);
+			}
+
+			for (String formInput : LTIService.TOOL_MODEL) {
+				Properties info = parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = tool.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+
+			for (String formInput : LTIService.CONTENT_MODEL) {
+				Properties info = parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = content.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+			retval.setProperty("assignment",(String)content.get("title"));
+		}
+		return retval;
+	}
+
+	public static boolean isPlacement(String placement_id) {
+		if ( placement_id == null ) return false;
+		return ! (placement_id.startsWith("content:") && placement_id.length() > 8) ;
+	}
+
 	// Since ServerConfigurationService.getServerUrl() is wonky because it sometimes looks
 	// at request.getServerName() instead of the serverUrl property we have our own 
 	// priority to determine our current url.
 	// BLTI-273
-	static public String getOurServerUrl() {
+	public static String getOurServerUrl() {
 		String ourUrl = ServerConfigurationService.getString("sakai.lti.serverUrl");
 		if (ourUrl == null || ourUrl.equals(""))
 			ourUrl = ServerConfigurationService.getString("serverUrl");
@@ -946,7 +1234,7 @@ public class SakaiBLTIUtil {
 		return ourUrl;
 	}
 
-	static public String getOurServletPath(HttpServletRequest request)
+	public static String getOurServletPath(HttpServletRequest request)
 	{
 		String URLstr = request.getRequestURL().toString();
 		String retval = URLstr.replaceFirst("^https??://[^/]*",getOurServerUrl());
@@ -960,6 +1248,7 @@ public class SakaiBLTIUtil {
 		return str;
 	}
 
+	// Pull in a few things to avoid circular dependency
 	public static int getInt(Object o)
 	{
 		if ( o instanceof String ) {
@@ -972,4 +1261,49 @@ public class SakaiBLTIUtil {
 		if ( o instanceof Number ) return ( (Number) o).intValue();
 		return -1;
 	}
+
+    public static String[] positional = { "field", "type" };
+    public static Properties parseFormString(String str) {
+        Properties op = new Properties();
+        String[] pairs = str.split(":");
+        int i = 0;
+        for (String s : pairs) {
+            String[] kv = s.split("=");
+            if (kv.length == 2) {
+                op.setProperty(kv[0], kv[1]);
+            } else if (kv.length == 1 && i < positional.length) {
+                op.setProperty(positional[i++], kv[0]);
+            } else {
+                // TODO : Log something here
+            }
+        }
+        return op;
+    }
+
+    public static Long getLongKey(Object key) {
+        return getLong(key);
+    }
+
+    public static Long getLong(Object key) {
+        Long retval = getLongNull(key);
+        if (retval != null)
+            return retval;
+        return new Long(-1);
+    }
+
+    public static Long getLongNull(Object key) {
+        if (key == null)
+            return null;
+        if (key instanceof Number)
+            return new Long(((Number) key).longValue());
+        if (key instanceof String) {
+            try {
+                return new Long((String) key);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
 }
