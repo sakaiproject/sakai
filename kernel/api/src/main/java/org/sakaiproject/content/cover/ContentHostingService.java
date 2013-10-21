@@ -840,7 +840,7 @@ public class ContentHostingService
 		org.sakaiproject.content.api.ContentHostingService service = getInstance();
 		if (service == null) return null;
 
-		return service.findResources(type, primaryMimeType, subMimeType);
+		return service.findResources(type, primaryMimeType, subMimeType, contextIds);
 	}
   
 	public static java.util.List findResources(String type, String primaryMimeType, String subMimeType)
