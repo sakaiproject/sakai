@@ -202,13 +202,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
       try {
 	  linkMigrationHelper = RequestFilter.class.getClassLoader().loadClass("org.sakaiproject.util.api.LinkMigrationHelper");
-	  System.out.println("linkMigrationHelper " + linkMigrationHelper);
 	  // this is in the kernel, so it should already be loaded
 	  linkMigrationHelperInstance = ComponentManager.get(linkMigrationHelper);
-	  System.out.println("linkMigrationHelper instance " + linkMigrationHelperInstance);
 	  if (linkMigrationHelper != null)
 	      migrateAllLinks = linkMigrationHelper.getMethod("migrateAllLinks", new Class[] { Set.class, String.class });
-	  System.out.println("migrateAllLinks " + linkMigrationHelper);
       } catch (Exception e) {
 	  System.out.println("Exception in introspection " + e);
 	  System.out.println("loader " + RequestFilter.class.getClassLoader());
@@ -979,12 +976,17 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     Long oldPageId = Long.valueOf(oldPageIdString);
 		     SimplePage page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
 		     String gradebookPoints = pageElement.getAttribute("gradebookpoints");
-		     if (gradebookPoints != null && !gradebookPoints.equals(""))
+		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
 			 page.setGradebookPoints(Double.valueOf(gradebookPoints));
+		     }
 		     String cssSheet = pageElement.getAttribute("csssheet");
 		     if (cssSheet != null && !cssSheet.equals(""))
 			 page.setCssSheet(cssSheet.replaceFirst("^/group/" + fromSiteId, "/group/" + siteId));
 		     simplePageToolDao.quickSaveItem(page);
+		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
+			 gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
+							    title, Double.valueOf(gradebookPoints), null, "Lesson Builder");
+		     }
 		     pageMap.put(oldPageId, page.getPageId());
 		 }
 	     }

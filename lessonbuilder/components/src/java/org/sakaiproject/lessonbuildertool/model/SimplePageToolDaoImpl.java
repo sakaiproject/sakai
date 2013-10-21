@@ -1234,6 +1234,12 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    return getHibernateTemplate().findByNamedParam(hql, "site", gradebookUid);
 	}
 	    
+	public List<SimplePage>findGradebookPages(final String gradebookUid) {
+
+	    String hql = "select page from org.sakaiproject.lessonbuildertool.SimplePage page where page.siteId = :site and (page.gradebookPoints is not null)";
+	    return getHibernateTemplate().findByNamedParam(hql, "site", gradebookUid);
+	}
+
 	// items in lesson_builder_groups for specified site, map of itemId to groups
 	public Map<String,String> getExternalAssigns(String siteId) {
 

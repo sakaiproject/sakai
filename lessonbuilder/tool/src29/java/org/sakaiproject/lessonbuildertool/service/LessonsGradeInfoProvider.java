@@ -112,7 +112,23 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	int i = id.lastIndexOf(":");
 	if (i < 0)
 	    return false;
+	String prefix = id.substring(0, i);
 	String itemNum = id.substring(i+1);
+
+	if ("lesson-builder".equals(prefix)) {
+	    SimplePage page = null;
+	    long pageId = 0;
+	    try {
+		pageId = Long.parseLong(itemNum);
+		page = dao.getPage(pageId);
+		if (page == null)
+		    return false;
+	    } catch (Exception e){
+		return false;
+	    }
+	    return true;
+	}
+
 	long itemId = 0;
 	try {
 	    itemId = Long.parseLong(itemNum);
@@ -131,7 +147,27 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	int i = id.lastIndexOf(":");
 	if (i < 0)
 	    return false;
+	String prefix = id.substring(0, i);
 	String itemNum = id.substring(i+1);
+
+	if ("lesson-builder".equals(prefix)) {
+	    SimplePage page = null;
+	    long pageId = 0;
+	    try {
+		pageId = Long.parseLong(itemNum);
+		page = dao.getPage(pageId);
+		if (page == null)
+		    return false;
+	    } catch (Exception e){
+		return false;
+	    }
+	    Set<String> groupIds = getPageGroups(pageId, new HashSet<Long>());
+	    if (groupIds == null)
+		return false;
+
+	    return true;
+	}
+
 	SimplePageItem item = null;
 	long itemId = 0;
 	try {
@@ -253,7 +289,13 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	int i = id.lastIndexOf(":");
 	if (i < 0)
 	    return false;
+	String prefix = id.substring(0, i);
 	String itemNum = id.substring(i+1);
+
+	// if it's a page rather than an item
+	if ("lesson-builder".equals(prefix))
+	    return isAssignmentPageVisible(itemNum, userId);
+
 	SimplePageItem item = null;
 	long itemId = 0;
 	try {
@@ -271,13 +313,47 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	SimplePage page = dao.getPage(item.getPageId());
 	String siteId = page.getSiteId();
 	String ref = "/site/" + siteId;
-	boolean visible = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
+	boolean visible = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
 	if (!visible)
 	    return false;
 
 	// can access the site. If not grouped, we're done.
 
 	Set<String> groupIds = getItemGroups(item);
+	if (groupIds == null)
+	    return true;
+
+	ArrayList<String> groups = new ArrayList<String>();
+	for (String groupId: groupIds)
+	    groups.add("/site/" + siteId + "/group/" + groupId);
+	List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
+	return (matched.size() > 0);
+    }
+
+    public boolean isAssignmentPageVisible(String pageNum, String userId) {
+	SimplePage page = null;
+	long pageId = 0;
+	try {
+	    pageId = Long.parseLong(pageNum);
+	    page = dao.getPage(pageId);
+	    if (page == null)
+		return false;
+	} catch (Exception e){
+	    return false;
+	}
+
+	// there are two things to check. One is whether the user is in the site.
+	// the other is whether the item is grouped. If so, is the user in that group
+
+	String siteId = page.getSiteId();
+	String ref = "/site/" + siteId;
+	boolean visible = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
+	if (!visible)
+	    return false;
+
+	// can access the site. If not grouped, we're done.
+
+	Set<String> groupIds = getPageGroups(pageId, new HashSet<Long>());
 	if (groupIds == null)
 	    return true;
 
@@ -312,7 +388,6 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    } else {
 		ArrayList<String> groups = new ArrayList<String>();
 		for (String groupId: groupIds) {
-		    System.out.println("groups " + groups);
 		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
 		}
 		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
@@ -325,6 +400,27 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    }
 	}
 				       
+	List<SimplePage> externalPages = dao.findGradebookPages(gradebookUid);
+	for (SimplePage page : externalPages) {
+
+	    Set<String> groupIds = getPageGroups(page.getPageId(), new HashSet<Long>());
+	    /// System.out.println("item " + item.getId() + " " + groupIds);
+	    if (groupIds ==  null) {
+		if (page.getGradebookPoints() != null)
+		    ret.add("lesson-builder:" + page.getPageId());
+	    } else {
+		ArrayList<String> groups = new ArrayList<String>();
+		for (String groupId: groupIds) {
+		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+		}
+		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
+		if (matched.size() > 0) {
+		    if (page.getGradebookPoints() != null)
+			ret.add("lesson-builder:" + page.getPageId());
+		}
+	    }
+	}
+
 	// list of items we have modified the group membership for. We have to override the
 	// value returned by the tool itself
 	Map<String, ArrayList<String>> otherTools = getExternalAssigns(gradebookUid);
@@ -389,6 +485,36 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		    }
 	    }
 	}
+
+	List<SimplePage> externalPages = dao.findGradebookPages(gradebookUid);
+	for (SimplePage page: externalPages) {
+
+	    Set<String> groupIds = getPageGroups(page.getPageId(),new HashSet<Long>());
+	    if (groupIds == null) {
+		// no restriction add to all users
+		for (String userId : studentIds)
+		    if (allExternals.containsKey(userId)) {
+			if (page.getGradebookPoints() != null)
+			    allExternals.get(userId).add("lesson-builder:" + page.getPageId());
+		    }
+	    } else {
+		// restricted to group
+		Set<String> groups = new HashSet<String>();
+		for (String groupId: groupIds)
+		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+
+		// see if anyone on our list is in one of the groups
+		// this call is new, but this code is only needed for 2.9.1 and later
+		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(groups));
+		okUsers.retainAll(studentIds);
+		for (String userId : okUsers)
+		    if (allExternals.containsKey(userId)) {
+			if (page.getGradebookPoints() != null)
+			    allExternals.get(userId).add("lesson-builder:" + page.getPageId());
+		    }
+	    }
+	}
+
 
 	// now handle other tools. If we modified their groups, we need to find the original groups
 	// and return the users that match those groups
