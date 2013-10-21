@@ -689,18 +689,59 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     return $postdata;
 }
 
+function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $accept_type)
+{
+    $test_token = '';
+    $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
+    $test_consumer = new OAuthConsumer($oauth_consumer_key, $oauth_consumer_secret, NULL);
+    $parms = array();
+
+    $acc_req = OAuthRequest::from_consumer_and_token($test_consumer, $test_token, "GET", $endpoint, $parms);
+    $acc_req->sign_request($hmac_method, $test_consumer, $test_token);
+
+    // Pass this back up "out of band" for debugging
+    global $LastOAuthBodyBaseString;
+    $LastOAuthBodyBaseString = $acc_req->get_signature_base_string();
+
+    $header = $acc_req->to_header();
+    $header = $header . "\r\nAccept: " . $accept_type . "\r\n";
+
+    global $LastGETHeader;
+    $LastGETHeader = $header;
+
+    return do_get($endpoint,$header);
+}
+
 function do_get($url, $header = false) {
-    $response = get_stream($url, $header);
-    if ( $response !== false ) return $response;
+    global $LastGETURL;
+    global $LastGETMethod;
+    global $LastHeadersSent;
+    global $last_http_response;
+    global $LastHeadersReceived;
+    global $LastPostResponse;
+
+	$LastGETURL = $url;
+    $LastGETMethod = false;
+    $LastHeadersSent = false;
+    $last_http_response = false;
+    $LastHeadersReceived = false;
+    $lastGETResponse = false;
+
+    $LastGETMethod = "CURL";
+    $lastGETResponse = get_curl($url, $header);
+    if ( $lastGETResponse !== false ) return $lastGETResponse;
+    $LastGETMethod = "Stream";
+    $lastGETResponse = get_stream($url, $header);
+    if ( $lastGETResponse !== false ) return $lastGETResponse;
 /*
-    $response = get_socket($url, $header);
-    if ( $response !== false ) return $response;
-    $response = get_curl($url, $header);
-    if ( $response !== false ) return $response;
+    $LastGETMethod = "Socket";
+    $lastGETResponse = get_socket($url, $header);
+    if ( $lastGETResponse !== false ) return $response;
 */
+    $LastGETMethod = "Error";
     echo("Unable to GET<br/>\n");
     echo("Url=$url <br/>\n");
-    echo("Headers:<br/>\n$headers<br/>\n");
+    echo("Header:<br/>\n$header<br/>\n");
     throw new Exception("Unable to get");
 }
 
@@ -712,12 +753,44 @@ function get_stream($url, $header) {
 
     $ctx = stream_context_create($params);
     try {
-        $fp = @fopen($url, 'r', false, $ctx);
-        $response = @stream_get_contents($fp);
+        $response = file_get_contents($url, false, $ctx);
     } catch (Exception $e) {
         return false;
     }
     return $response;
+}
+
+function get_curl($url, $header) {
+  if ( ! function_exists('curl_init') ) return false;
+  global $last_http_response;
+  global $LastHeadersSent;
+  global $LastHeadersReceived;
+
+  $ch = curl_init();
+  curl_setopt($ch, CURLOPT_URL, $url);
+
+  // Make sure that the header is an array and pitch white space
+  $LastHeadersSent = trim($header);
+  $header = explode("\n", trim($header));
+  $htrim = Array();
+  foreach ( $header as $h ) {
+    $htrim[] = trim($h);
+  }
+  curl_setopt ($ch, CURLOPT_HTTPHEADER, $htrim);
+
+  curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // ask for results to be returned
+  curl_setopt($ch, CURLOPT_HEADER, 1);
+
+  // Send to remote and return data to caller.
+  $result = curl_exec($ch);
+  $info = curl_getinfo($ch);
+  $last_http_response = $info['http_code'];
+  $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
+  $LastHeadersReceived = substr($result, 0, $header_size);
+  $body = substr($result, $header_size);
+  if ( $body === false ) $body = "";
+  curl_close($ch);
+  return $body;
 }
 
 function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
@@ -745,6 +818,8 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
 
     return do_post($endpoint,$body,$header);
 }
+
+
 function get_post_sent_debug() {
     global $LastPOSTMethod;
     global $LastPOSTURL;
@@ -917,6 +992,7 @@ function post_curl($url, $body, $header) {
   $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
   $LastHeadersReceived = substr($result, 0, $header_size);
   $body = substr($result, $header_size);
+  if ( $body === false ) $body = ''; // Handle empty body
   curl_close($ch);
   return $body;
 }
