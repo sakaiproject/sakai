@@ -46,6 +46,14 @@ if ( $context->valid ) {
 		$found = true;
     }
 
+    if ( isset($_POST['lis_result_sourcedid']) && isset($_SESSION['result_url']) &&
+        isset($_SESSION['reg_key']) && isset($_SESSION['reg_password']) ) {
+        print "<p>\n";
+        print '<a href="json/result_json.php?sourcedid='.urlencode($sourcedid).'">';
+        print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
+		$found = true;
+    }
+
     if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
         print "<p>\n";
         print '<a href="ext/lori_xml.php?context_id='.htmlent_utf8($_POST['context_id']);
@@ -82,6 +90,7 @@ if ( $context->valid ) {
         print 'Test Sakai Settings API</a>.</p>'."\n";
 		$found = true;
     }
+
     if ( ! $found ) {
 		echo("<p>No Services are available for this launch.</p>\n");
 	}

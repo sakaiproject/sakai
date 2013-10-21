@@ -113,18 +113,27 @@ echo("Found ".count($tc_services)." services profile..\n");
 if ( count($tc_services) < 1 ) die("At a minimum, we need the service to register ourself - doh!\n");
 
 // var_dump($tc_services);
-$endpoint = false;
+$register_url = false;
+$result_url = false;
 foreach ($tc_services as $tc_service) {
-   $formats = $tc_service->{'format'};
-    echo("Service: ".$format."\n");
+    $formats = $tc_service->{'format'};
+    $type = $tc_service->{'@type'};
+    $id = $tc_service->{'@id'};
+    if ( strpos($id,"Result.item") > 0 ) {
+        $result_url = $tc_service->endpoint;
+    }
+    echo("Service: ".$format." id=".$id."\n");
     foreach($formats as $format) {
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
         // var_dump($tc_service);
-        $endpoint = $tc_service->endpoint;
+        $register_url = $tc_service->endpoint;
     }
 }
 
-if ( $endpoint == false ) die("Must have an application/vnd.ims.lti.v2.toolproxy+json service available.");
+if ( $register_url == false ) die("Must have an application/vnd.ims.lti.v2.toolproxy+json service available in order to do tool_registration.");
+
+unset($_SESSION['result_url']);
+if ( $result !== false ) $_SESSION['result_url'] = $result_url;
 
 echo("\nFound an application/vnd.ims.lti.v2.toolproxy+json service - nice for us...\n");
 echo("Optional money collection phase complete...\n");
@@ -170,16 +179,22 @@ $body = json_encode($tp_profile);
 $body = json_indent($body);
 
 echo("Registering....\n");
-echo("Endpoint=".$endpoint."\n");
+echo("Register Endpoint=".$register_url."\n");
+echo("Result Endpoint=".$result_url."\n");
 echo("Key=".$reg_key."\n");
 echo("Secret=".$reg_password."\n");
 echo("</pre>\n");
 
-if ( strlen($endpoint) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 ) die("Cannot call endpoint - insufficient data...\n");
+if ( strlen($register_url) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 ) die("Cannot call register_url - insufficient data...\n");
+
+unset($_SESSION['reg_key']);
+unset($_SESSION['reg_password']);
+$_SESSION['reg_key'] = $reg_key;
+$_SESSION['reg_password'] = $reg_password;
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-$response = sendOAuthBodyPOST("POST", $endpoint, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
+$response = sendOAuthBodyPOST("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
 
