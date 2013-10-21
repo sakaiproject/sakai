@@ -59,6 +59,8 @@ public class BasicConfigurationServiceTest extends TestCase {
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test5", "test5"), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test6", "test6"), SOURCE);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("test7", "${AZ}"), SOURCE);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal", 11), SOURCE);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal", true), SOURCE);
         log.info(basicConfigurationService.getConfigData());
     }
 
@@ -98,7 +100,7 @@ public class BasicConfigurationServiceTest extends TestCase {
         // https://jira.sakaiproject.org/browse/SAK-22148
         int changed = basicConfigurationService.dereferenceConfig();
         ConfigData cd = basicConfigurationService.getConfigData();
-        assertEquals(14, cd.getTotalConfigItems());
+        assertEquals(16, cd.getTotalConfigItems());
         assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
         assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
         assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );
@@ -230,6 +232,25 @@ public class BasicConfigurationServiceTest extends TestCase {
             }
         }
         return false;
+    }
+
+    public void testKNL_1132() {
+        // testing integer and boolean handling
+        int intVal = basicConfigurationService.getInt("intVal", -1);
+        assertEquals(11, intVal);
+        intVal = basicConfigurationService.getInt("intVal2", 12); // doesn't exist
+        assertEquals(12, intVal);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal3", null), SOURCE);
+        intVal = basicConfigurationService.getInt("intVal3", 13); // value is null
+        assertEquals(13, intVal);
+
+        boolean booleanValue = basicConfigurationService.getBoolean("booleanVal", false);
+        assertEquals(true, booleanValue);
+        booleanValue = basicConfigurationService.getBoolean("booleanVal2", true); // doesn't exist
+        assertEquals(true, booleanValue);
+        basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal3", null), SOURCE);
+        booleanValue = basicConfigurationService.getBoolean("booleanVal2", true); // value is null
+        assertEquals(true, booleanValue);
     }
 
 }
