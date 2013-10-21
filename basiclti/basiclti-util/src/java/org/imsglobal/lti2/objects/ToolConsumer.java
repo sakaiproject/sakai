@@ -29,7 +29,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 public class ToolConsumer {
 
     @JsonProperty("@context")
-    private List<String> _context = new ArrayList<String>();
+    private List<Object> _context = new ArrayList<Object>();
     @JsonProperty("@type")
     private String _type;
     @JsonProperty("@id")
@@ -54,8 +54,9 @@ public class ToolConsumer {
     // Constructor
     public ToolConsumer(String guid, String tcp, Product_instance product_instance) {
         this._context.add("http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
-        // TODO: Figure out TCP - sheesh
-        // this._context.add("  { \"tcp\" : \""+tcp+"\" }");
+		NamedContext nc = new NamedContext();
+		nc.setAdditionalProperties("tcp", tcp);
+        this._context.add(nc);
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
         this.product_instance = product_instance;
@@ -63,12 +64,12 @@ public class ToolConsumer {
     }
 
     @JsonProperty("@context")
-    public List<String> get_context() {
+    public List<Object> get_context() {
         return _context;
     }
 
     @JsonProperty("@context")
-    public void set_context(List<String> _context) {
+    public void set_context(List<Object> _context) {
         this._context = _context;
     }
 
