@@ -249,7 +249,7 @@ public class BasicConfigurationServiceTest extends TestCase {
         booleanValue = basicConfigurationService.getBoolean("booleanVal2", true); // doesn't exist
         assertEquals(true, booleanValue);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal3", null), SOURCE);
-        booleanValue = basicConfigurationService.getBoolean("booleanVal2", true); // value is null
+        booleanValue = basicConfigurationService.getBoolean("booleanVal3", true); // value is null
         assertEquals(true, booleanValue);
     }
 
