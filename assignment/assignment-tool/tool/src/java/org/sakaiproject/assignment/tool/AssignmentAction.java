@@ -5952,7 +5952,13 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 
 			Time peerPeriodTime = putTimeInputInState(params, state, NEW_ASSIGNMENT_PEERPERIODMONTH, NEW_ASSIGNMENT_PEERPERIODDAY, NEW_ASSIGNMENT_PEERPERIODYEAR, NEW_ASSIGNMENT_PEERPERIODHOUR, NEW_ASSIGNMENT_PEERPERIODMIN, NEW_ASSIGNMENT_PEERPERIODAMPM, "newassig.opedat");
-			if(peerPeriodTime != null && closeTime != null && peerPeriodTime.before(closeTime)){
+			GregorianCalendar peerPeriodMinTimeCal = new GregorianCalendar();
+			peerPeriodMinTimeCal.setTimeInMillis(closeTime.getTime());
+			peerPeriodMinTimeCal.add(GregorianCalendar.MINUTE, 10);
+			GregorianCalendar peerPeriodTimeCal = new GregorianCalendar();
+			peerPeriodTimeCal.setTimeInMillis(peerPeriodTime.getTime());
+			//peer assessment must complete at a minimum of 10 mins after close time
+			if(peerPeriodTimeCal.before(peerPeriodMinTimeCal)){
 				addAlert(state, rb.getString("peerassessment.invliadPeriodTime"));
 			}
 		}
@@ -10875,12 +10881,12 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(0));
 		state.setAttribute(ALLPURPOSE_RETRACT_AMPM, "PM");
 
-		// set the peer period time to be 5 mins after accept until date
+		// set the peer period time to be 10 mins after accept until date
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, Integer.valueOf(year));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(5));
-		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(5));
+		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(10));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODAMPM, "PM");
 		
 		state.setAttribute(NEW_ASSIGNMENT_PEER_ASSESSMENT_ANON_EVAL, Boolean.TRUE.toString());
