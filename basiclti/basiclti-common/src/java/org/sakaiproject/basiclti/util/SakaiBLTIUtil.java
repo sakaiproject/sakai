@@ -21,6 +21,7 @@ package org.sakaiproject.basiclti.util;
 
 import java.util.Properties;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.List;
 import java.util.Iterator;
 import java.net.URL;
@@ -70,6 +71,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -349,7 +351,7 @@ public class SakaiBLTIUtil {
         PrivacyManager pm = (PrivacyManager) 
                 ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
 
-		// TODO: Think about anonymus
+		// TODO: Think about anonymous
 		if ( user != null )
 		{
 		    String context = placement.getContext();
@@ -988,10 +990,43 @@ public class SakaiBLTIUtil {
 		return Boolean.TRUE;
 	}
 
+	// Returns:
+	// String implies error
+	// Boolean.TRUE - Sourcedid checks out
+	// Boolean.FALSE - Sourcedid or secret fail
     public static Object checkSourceDid(String sourcedid, HttpServletRequest request, 
-		LTIService ltiService, GradebookService g)
+		LTIService ltiService)
     {
-        // Truncate this to the maximum length to insure no cruft at the end
+		return handleGradebook(sourcedid, request, ltiService, false, false, null, null);
+	}
+
+	// Grade retrieval Map<String, Object> with "grade" => Double  and "comment" => String
+    public static Object getGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService)
+	{
+		return handleGradebook(sourcedid, request, ltiService, true, false, null, null);
+	}
+
+	// Boolean.TRUE - Grade updated
+    public static Object setGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, Double grade, String comment)
+	{
+		return handleGradebook(sourcedid, request, ltiService, false, false, grade, comment);
+	}
+
+	// Boolean.TRUE - Grade deleted
+    public static Object deleteGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, Double grade, String comment)
+	{
+		return handleGradebook(sourcedid, request, ltiService, false, true, null, null);
+	}
+
+	// Quite a long bit of code
+	private static Object handleGradebook(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, boolean isRead, boolean isDelete, 
+		Double theGrade, String comment)
+	{
+		// Truncate this to the maximum length to insure no cruft at the end
 		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
 
 		// Attempt to parse the sourcedid, any failure is fatal
@@ -1025,7 +1060,7 @@ public class SakaiBLTIUtil {
 		try { 
 			site = SiteService.getSite(siteId);
 		} catch (Exception e) {
-            return "Error retrieving result_sourcedid site: "+e.getLocalizedMessage();
+			return "Error retrieving result_sourcedid site: "+e.getLocalizedMessage();
 		}
 
 		// Check the message signature using OAuth
@@ -1059,8 +1094,15 @@ public class SakaiBLTIUtil {
 			matched = signature.equals(received_signature);
 		}
 
-		// If we are not supposed to lookup the assignment, we are done
-		if ( g == null ) return new Boolean(matched);
+		if ( !matched ) return "Sourcedid signature did not match";
+
+		// If we are not supposed to lookup or set the grade, we are done
+		if ( isRead == false && isDelete == false && theGrade == null ) return new Boolean(matched);
+
+		// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService)  ComponentManager
+			.get("org.sakaiproject.service.gradebook.GradebookService");
+
 
 		// Make sure the user exists in the site
 		boolean userExistsInSite = false;
@@ -1077,7 +1119,7 @@ public class SakaiBLTIUtil {
 		M_log.debug("ASSN="+assignment);
 		if ( assignment == null ) {
 			return "Assignment not set in placement";
-	    }
+		}
 
 		Assignment assignmentObject = null;
 
@@ -1094,8 +1136,6 @@ public class SakaiBLTIUtil {
 			}
 		} catch (Exception e) {
 			assignmentObject = null; // Just to make double sure
-		} finally {
-			assignmentObject = null; // Just to make triple sure
 		}
 
 		// Attempt to add assignment to grade book
@@ -1117,12 +1157,59 @@ public class SakaiBLTIUtil {
 			catch (Exception e) {
 				M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
 				assignmentObject = null; // Just to make double sure
-			} finally {
-				assignmentObject = null; // Just to make triple sure
 			}
 		}
-		popAdvisor();
-		return assignmentObject;
+
+		// Now read, set, or delete the grade...
+		Session sess = SessionManager.getCurrentSession();
+		String message = null;
+
+		try {
+			// Indicate "who" is setting this grade - needs to be a real user account
+			String gb_user_id = ServerConfigurationService.getString(
+					"basiclti.outcomes.userid", "admin");
+			String gb_user_eid = ServerConfigurationService.getString(
+					"basiclti.outcomes.usereid", gb_user_id);
+			sess.setUserId(gb_user_id);
+			sess.setUserEid(gb_user_eid);
+			if ( isRead ) {
+				String actualGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+				Double dGrade = null;
+				if ( actualGrade != null && actualGrade.length() > 0 ) {
+					dGrade = new Double(actualGrade);
+					dGrade = dGrade / assignmentObject.getPoints();
+				}
+				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignment, user_id);
+				message = "Result read";
+				Map<String, Object> retMap = new TreeMap<String, Object> ();
+				retMap.put("grade",dGrade);
+				retMap.put("comment",commentDef.getCommentText());
+				retval = retMap;
+			} else if ( isDelete ) {
+				g.setAssignmentScore(siteId, assignment, user_id, null, "External Outcome");
+				M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
+				message = "Result deleted";
+				retval = Boolean.TRUE;
+			} else {
+				if ( theGrade < 0.0 || theGrade > 1.0 ) {
+					throw new Exception("Grade out of range");
+				}
+				theGrade = theGrade * assignmentObject.getPoints();
+				g.setAssignmentScore(siteId, assignment, user_id, theGrade, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignment, user_id, comment);
+
+				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ theGrade);
+				message = "Result replaced";
+				retval = Boolean.TRUE;
+			}
+		} catch (Exception e) {
+			retval = "Grade failure "+e.getMessage()+" siteId="+siteId;
+		} finally {
+			sess.invalidate(); // Make sure to leave no traces
+			popAdvisor();
+		}
+
+		return retval;
 	}
 
 	// Extract the necessary properties from a placement
@@ -1154,7 +1241,7 @@ public class SakaiBLTIUtil {
 			for ( String field : fieldList ) {
 				String value = toNull(getCorrectProperty(config,field, placement));
 				if ( field.equals("toolsetting") ) {
-                    value = config.getProperty("toolsetting", null);
+					value = config.getProperty("toolsetting", null);
 					field = LTIService.LTI_SETTINGS;
 				}
 				if ( value == null ) continue;

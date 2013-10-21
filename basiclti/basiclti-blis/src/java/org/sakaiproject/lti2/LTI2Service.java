@@ -50,7 +50,6 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
@@ -366,26 +365,39 @@ System.out.println("deployUpdate="+deployUpdate);
 	{
 System.out.println("sourcedid="+sourcedid);
 
-		// Look up the assignment so we can find the max points
-		GradebookService g = (GradebookService)  ComponentManager
-			.get("org.sakaiproject.service.gradebook.GradebookService");
-
-		Object retval = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService, g);
+		Object retval = null;
+		IMSJSONRequest jsonRequest = null;
+		if ( "GET".equals(request.getMethod()) ) { 
+			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
 System.out.println("retval="+retval);
-/*
-		Map jsonResponse = new TreeMap();
-		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId");
-		jsonResponse.put("@type", "ToolProxy");
-		String serverUrl = ServerConfigurationService.getServerUrl();
-		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
-		jsonResponse.put("tool_proxy_guid", profile_id);
-		response.setContentType(StandardServices.FORMAT_TOOLPROXY_ID);
-		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
-		String jsonText = JSONValue.toJSONString(jsonResponse);
-		M_log.debug(jsonText);
-		PrintWriter out = response.getWriter();
-		out.println(jsonText);
-*/
+		} else if ( "POST".equals(request.getMethod()) ) { 
+			retval = "Error parsing input data";
+			try {
+				jsonRequest = new IMSJSONRequest(request);
+				// System.out.println(jsonRequest.getPostBody());
+				JSONObject requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
+				String comment = (String) requestData.get("comment");
+				JSONObject resultScore = (JSONObject) requestData.get("resultScore");
+				String sGrade = (String) resultScore.get("@value");
+				Double dGrade = new Double(sGrade);
+				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, comment);
+			} catch (Exception e) {
+				retval = "Error: "+ e.getMessage();
+			}
+			if ( retval instanceof Boolean && (Boolean) retval ) {
+				response.setStatus(HttpServletResponse.SC_CREATED);
+			} else {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			}
+		} else {
+			retval = "Unsupported operation:" + request.getMethod();
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		}
+	
+		if ( retval instanceof String ) {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+			return;
+		}
 	}
 
 	/* IMS JSON version of Errors */
