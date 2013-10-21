@@ -1282,11 +1282,13 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
             if (!haltProcessing) {
                 // update the config item
+                boolean changed = false;
                 if (currentCI != null) {
                     // update it
                     if (!SOURCE_GET_STRINGS.equals(source)) {
                         // only update if the source is not the getStrings() method
                         currentCI.changed(configItem.getValue(), source);
+                        changed = true;
                         if (!currentCI.isRegistered() && configItem.isRegistered()) {
                             // need to force items which are not yet registered to be registered
                             currentCI.registered = true;
@@ -1301,22 +1303,25 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     }
                     configurationItems.put(configItem.getName(), configItem);
                     ci = configItem;
+                    changed = true;
                 }
 
-                // notify the after listeners
-                if (this.listeners != null && !this.listeners.isEmpty()) {
-                    for (Entry<String, WeakReference<ConfigurationListener>> entry : this.listeners.entrySet()) {
-                        // check if any listener refs are no longer valid
-                        ConfigurationListener listener = entry.getValue().get();
-                        if (listener != null) {
-                            try {
-                                listener.changed(ci, currentCI);
-                            } catch (Exception e) {
-                                M_log.warn("Exception when calling listener ("+listener+"): "+e);
+                // notify the after listeners (only if something changed)
+                if (changed) {
+                    if (this.listeners != null && !this.listeners.isEmpty()) {
+                        for (Entry<String, WeakReference<ConfigurationListener>> entry : this.listeners.entrySet()) {
+                            // check if any listener refs are no longer valid
+                            ConfigurationListener listener = entry.getValue().get();
+                            if (listener != null) {
+                                try {
+                                    listener.changed(ci, currentCI);
+                                } catch (Exception e) {
+                                    M_log.warn("Exception when calling listener ("+listener+"): "+e);
+                                }
+                            } else {
+                                // cleanup bad listener ref
+                                this.listeners.remove(entry.getKey());
                             }
-                        } else {
-                            // cleanup bad listener ref
-                            this.listeners.remove(entry.getKey());
                         }
                     }
                 }
