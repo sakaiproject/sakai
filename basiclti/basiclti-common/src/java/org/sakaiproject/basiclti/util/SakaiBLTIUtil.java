@@ -50,6 +50,7 @@ import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -58,6 +59,8 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.linktool.LinkToolUtil;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -951,8 +954,42 @@ public class SakaiBLTIUtil {
 		return default_secret;
 	}
 
+	public static Object validateMessage(HttpServletRequest request, String URL, 
+		String oauth_secret)
+	{
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
+		String oauth_consumer_key = null;
+		try {
+			oauth_consumer_key = oam.getConsumerKey();
+		} catch (Exception e) {
+            return "Unable to find consumer key";
+		}
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 
-    public static Object checkSourceDid(String sourcedid, HttpServletRequest request, LTIService ltiService)
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+            return "Unable to find base string";
+		}
+
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			if (base_string != null) {
+				M_log.warn("Failed to validate: "+e.getLocalizedMessage());
+				M_log.warn(base_string);
+			}
+			return "Failed to validate: "+e.getLocalizedMessage();
+		}
+		return Boolean.TRUE;
+	}
+
+    public static Object checkSourceDid(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, GradebookService g)
     {
         // Truncate this to the maximum length to insure no cruft at the end
 		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
@@ -1022,48 +1059,29 @@ public class SakaiBLTIUtil {
 			matched = signature.equals(received_signature);
 		}
 
-		return new Boolean(matched);
-    }
+		// If we are not supposed to lookup the assignment, we are done
+		if ( g == null ) return new Boolean(matched);
 
-	public static Object validateMessage(HttpServletRequest request, String URL, 
-		String oauth_secret)
-	{
-		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
-		String oauth_consumer_key = null;
+		// Make sure the user exists in the site
+		boolean userExistsInSite = false;
 		try {
-			oauth_consumer_key = oam.getConsumerKey();
+			Member member = site.getMember(user_id);
+			if(member != null ) userExistsInSite = true;
 		} catch (Exception e) {
-            return "Unable to find consumer key";
-		}
-		OAuthValidator oav = new SimpleOAuthValidator();
-		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
-
-		OAuthAccessor acc = new OAuthAccessor(cons);
-
-		String base_string = null;
-		try {
-			base_string = OAuthSignatureMethod.getBaseString(oam);
-		} catch (Exception e) {
-            return "Unable to find base string";
+			M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
+			return "User not found in site";
 		}
 
-		try {
-			oav.validateMessage(oam, acc);
-		} catch (Exception e) {
-			if (base_string != null) {
-				M_log.warn("Failed to validate: "+e.getLocalizedMessage());
-				M_log.warn(base_string);
-			}
-			return "Failed to validate: "+e.getLocalizedMessage();
-		}
-		return Boolean.TRUE;
-	}
+		// Make sure the placement is configured to receive grades
+		String assignment = pitch.getProperty("assignment");
+		M_log.debug("ASSN="+assignment);
+		if ( assignment == null ) {
+			return "Assignment not set in placement";
+	    }
 
-	public static Assignment getOrMakeAssignment(String assignment, String siteId, 
-		GradebookService g)
-	{
 		Assignment assignmentObject = null;
 
+		pushAdvisor();
 		try {
 			List gradebookAssignments = g.getAssignments(siteId);
 			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
@@ -1076,6 +1094,8 @@ public class SakaiBLTIUtil {
 			}
 		} catch (Exception e) {
 			assignmentObject = null; // Just to make double sure
+		} finally {
+			assignmentObject = null; // Just to make triple sure
 		}
 
 		// Attempt to add assignment to grade book
@@ -1092,12 +1112,16 @@ public class SakaiBLTIUtil {
 			}
 			catch (ConflictingAssignmentNameException e) {
 				M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
-				assignmentObject = null; // Just to make double sure
+				assignmentObject = null; // Just to make sure
 			}
 			catch (Exception e) {
 				M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+				assignmentObject = null; // Just to make double sure
+			} finally {
+				assignmentObject = null; // Just to make triple sure
 			}
 		}
+		popAdvisor();
 		return assignmentObject;
 	}
 
@@ -1305,5 +1329,26 @@ public class SakaiBLTIUtil {
         }
         return null;
     }
+
+    /**
+     * Setup a security advisor.
+     */
+    public static void pushAdvisor() {
+        // setup a security advisor
+        SecurityService.pushAdvisor(new SecurityAdvisor() {
+                public SecurityAdvice isAllowed(String userId, String function,
+                    String reference) {
+                return SecurityAdvice.ALLOWED;
+                }
+                });
+    }
+
+    /**
+     * Remove our security advisor.
+     */
+    public static void popAdvisor() {
+        SecurityService.popAdvisor();
+    }
+
 
 }

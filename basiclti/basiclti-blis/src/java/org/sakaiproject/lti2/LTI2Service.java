@@ -50,6 +50,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
@@ -365,7 +366,11 @@ System.out.println("deployUpdate="+deployUpdate);
 	{
 System.out.println("sourcedid="+sourcedid);
 
-		Object retval = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService);
+		// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService)  ComponentManager
+			.get("org.sakaiproject.service.gradebook.GradebookService");
+
+		Object retval = SakaiBLTIUtil.checkSourceDid(sourcedid, request, ltiService, g);
 System.out.println("retval="+retval);
 /*
 		Map jsonResponse = new TreeMap();

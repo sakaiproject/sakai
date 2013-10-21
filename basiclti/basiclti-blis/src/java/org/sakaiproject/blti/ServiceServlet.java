@@ -65,8 +65,6 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
@@ -169,26 +167,6 @@ public class ServiceServlet extends HttpServlet {
 		"</script>\n" + 
 		"</div></body>\n" + 
 		"</html>\n";
-
-	/**
-	 * Setup a security advisor.
-	 */
-	public void pushAdvisor() {
-		// setup a security advisor
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
-				public SecurityAdvice isAllowed(String userId, String function,
-					String reference) {
-				return SecurityAdvice.ALLOWED;
-				}
-				});
-	}
-
-	/**
-	 * Remove our security advisor.
-	 */
-	public void popAdvisor() {
-		SecurityService.popAdvisor();
-	}
 
 	public void doError(HttpServletRequest request,HttpServletResponse response, 
 			Map<String, Object> theMap, String s, String message, Exception e) 
@@ -529,7 +507,7 @@ public class ServiceServlet extends HttpServlet {
 				return;
 			}
 
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 			try { 
 				if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
@@ -593,7 +571,7 @@ public class ServiceServlet extends HttpServlet {
 			} catch (Exception e) {
 				doError(request, response, theMap, "setting.fail", "", e);
 			} finally {
-				popAdvisor();
+				SakaiBLTIUtil.popAdvisor();
 			}
 
 			if ( ! success ) return;
@@ -635,9 +613,9 @@ public class ServiceServlet extends HttpServlet {
 			GradebookService g = (GradebookService)  ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
-			popAdvisor();
+			SakaiBLTIUtil.popAdvisor();
 
 			if ( assignmentObject == null ) {
 				doError(request, response, theMap, "outcome.no.assignment", "", null);
@@ -661,7 +639,7 @@ public class ServiceServlet extends HttpServlet {
 			// Lets store or retrieve the grade using the securityadvisor
 			Session sess = SessionManager.getCurrentSession();
 			String theGrade = null;
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 
 			try {
@@ -693,7 +671,7 @@ public class ServiceServlet extends HttpServlet {
 				doError(request, response, theMap, "outcome.grade.fail", "siteId="+siteId, e);
 			} finally {
 				sess.invalidate(); // Make sure to leave no traces
-				popAdvisor();
+				SakaiBLTIUtil.popAdvisor();
 			}
 
 			if ( ! success ) return;
@@ -725,7 +703,7 @@ public class ServiceServlet extends HttpServlet {
 
 			String maintainRole = site.getMaintainRole();
 
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 			try { 
 				List<Map<String,String>> lm = new ArrayList<Map<String,String>>();
@@ -765,7 +743,7 @@ public class ServiceServlet extends HttpServlet {
 			} catch (Exception e) {
 				doError(request, response, theMap, "memberships.fail", "", e);
 			} finally {
-				popAdvisor();
+				SakaiBLTIUtil.popAdvisor();
 			}
 
 			if ( ! success ) return;
@@ -1352,9 +1330,9 @@ public class ServiceServlet extends HttpServlet {
 			GradebookService g = (GradebookService)  ComponentManager
 				.get("org.sakaiproject.service.gradebook.GradebookService");
 
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
-			popAdvisor();
+			SakaiBLTIUtil.popAdvisor();
 
 			if ( assignmentObject == null ) {
 				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
@@ -1385,7 +1363,7 @@ public class ServiceServlet extends HttpServlet {
 			// Lets store or retrieve the grade using the securityadvisor
 			Session sess = SessionManager.getCurrentSession();
 			String theGrade = null;
-			pushAdvisor();
+			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 			String message = null;
 
@@ -1433,7 +1411,7 @@ public class ServiceServlet extends HttpServlet {
 				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
 			} finally {
 				sess.invalidate(); // Make sure to leave no traces
-				popAdvisor();
+				SakaiBLTIUtil.popAdvisor();
 			}
 
 			if ( !success ) return;
