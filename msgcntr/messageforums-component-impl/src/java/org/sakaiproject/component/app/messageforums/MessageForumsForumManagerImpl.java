@@ -1111,6 +1111,11 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         // re-retrieve the forum with the area populated so we don't have to
         // rely on "current context"
         forum = (DiscussionForum)getForumById(true, id);
+        List<Topic> topics = getTopicsByIdWithMessages(id);
+        for (Topic topic : topics) {
+            forum.removeTopic(topic);
+        }
+        
         //Area area = getAreaByContextIdAndTypeId(typeManager.getDiscussionForumType());
         Area area = forum.getArea();
         area.removeDiscussionForum(forum);
