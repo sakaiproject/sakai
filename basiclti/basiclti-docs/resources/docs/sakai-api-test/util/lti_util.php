@@ -23,6 +23,35 @@ function htmlent_utf8($string) {
 	return htmlentities($string,ENT_QUOTES,$encoding = 'UTF-8');
 }
 
+$ltiUtilTogglePre_div_id = 1;
+// Useful for debugging
+function ltiUtilTogglePre($title, $content) {
+	global $ltiUtilTogglePre_div_id;
+    echo('<b>'.$title);
+    echo(' (<a href="#" onclick="dataToggle('.
+		"'ltiUtilTogglePre_".$ltiUtilTogglePre_div_id."'".');return false;">Toggle</a>)</b><br/>'."\n");
+    echo('<pre id="ltiUtilTogglePre_'.$ltiUtilTogglePre_div_id.'" style="display:none; border: solid 1px">'."\n");
+    echo($content);
+    echo("</pre>\n");
+    $ltiUtilTogglePre_div_id = $ltiUtilTogglePre_div_id + 1;
+}
+
+function ltiUtilToggleHead() {
+   return '<script language="javascript"> 
+function dataToggle(divName) {
+    var ele = document.getElementById(divName);
+    if(ele.style.display == "block") {
+        ele.style.display = "none";
+    }
+    else {
+        ele.style.display = "block";
+    }
+} 
+  //]]> 
+</script>
+';
+}
+
 // Basic LTI Class that does the setup and provides utility
 // functions
 class BLTI {
@@ -840,6 +869,30 @@ function get_post_received_debug() {
     $ret = "POST Used: " . $LastPOSTMethod . "\n" .
 		 "HTTP Response: " . $last_http_response . "\n" .
 	     $LastPOSTURL . "\n" .
+		 $LastHeadersReceived . "\n";
+	return $ret;
+}
+
+function get_get_sent_debug() {
+    global $LastGETMethod;
+    global $LastGETURL;
+    global $LastHeadersSent;
+
+    $ret = "GET Used: " . $LastGETMethod . "\n" . 
+	     $LastGETURL . "\n\n" .
+		 $LastHeadersSent . "\n";
+	return $ret;
+}
+
+function get_get_received_debug() {
+    global $LastGETURL;
+    global $last_http_response;
+    global $LastGETMethod;
+    global $LastHeadersReceived;
+
+    $ret = "GET Used: " . $LastGETMethod . "\n" .
+		 "HTTP Response: " . $last_http_response . "\n" .
+	     $LastGETURL . "\n" .
 		 $LastHeadersReceived . "\n";
 	return $ret;
 }
