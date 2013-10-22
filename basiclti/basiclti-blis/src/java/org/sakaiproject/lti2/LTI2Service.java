@@ -159,6 +159,7 @@ System.out.println("deploy="+deploy);
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+"/imsblis/service/"));
 			capabilities.add("Result.sourcedId");
 			capabilities.add("Result.autocreate");
+			capabilities.add("Result.url");
 		}
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
 			services.add(SakaiLTI2Services.BasicRoster(serverUrl+"/imsblis/service/"));
@@ -167,6 +168,9 @@ System.out.println("deploy="+deploy);
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+"/imsblis/service/"));
 			services.add(LTI2LtiLinkSettings);
 			services.add(LTI2ToolProxySettings);
+			capabilities.add("LtiLink.custom.url");
+			capabilities.add("ToolProxy.custom.url");
+			capabilities.add("ToolProxyBinding.custom.url");
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
@@ -287,21 +291,21 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 
-		JSONObject security_contract = (JSONObject) providerProfile.get("security_contract");
+		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing security_contract", null);
 			return;
 		}
 
-		String shared_secret = (String) security_contract.get("shared_secret");
+		String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 		if ( shared_secret == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing shared_secret", null);
 			return;
 		}
 		// Blank out the new shared secret
-		security_contract.put("shared_secret", "*********");
+		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
 
 		// Parse the tool profile bit and extract the tools with error checking
 		List<Properties> theTools = new ArrayList<Properties> ();
@@ -350,8 +354,9 @@ System.out.println("deployUpdate="+deployUpdate);
 		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId");
 		jsonResponse.put("@type", "ToolProxy");
 		String serverUrl = ServerConfigurationService.getServerUrl();
-		jsonResponse.put("@id", serverUrl+"/imsblis/lti2/tc_registration/"+profile_id);
-		jsonResponse.put("tool_proxy_guid", profile_id);
+		jsonResponse.put("@id", resourceUrl+"/tc_registration/"+profile_id);
+		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
+		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl+"/Settings/ToolProxy/"+profile_id);
 		response.setContentType(StandardServices.FORMAT_TOOLPROXY_ID);
 		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
 		String jsonText = JSONValue.toJSONString(jsonResponse);
