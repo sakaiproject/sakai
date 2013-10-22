@@ -252,8 +252,8 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 		return null;
 	}
 
-    public boolean validatePassword(String password) {
-	return true;
+    public UserDirectoryService.PasswordRating validatePassword(String password, User user) {
+	return UserDirectoryService.PasswordRating.PASSED_DEFAULT;
     }
 
 }
