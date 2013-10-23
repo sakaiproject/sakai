@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.roster2</groupId>
 		<artifactId>roster2</artifactId>
-		<version>1.0.3-SNAPSHOT</version>
+		<version>2.10-SNAPSHOT</version>
 	</parent>
 
 	<name>Sakai Roster2 tool module</name>
@@ -34,31 +34,22 @@
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-privacy-api</artifactId>
-			<version>${sakai.common.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.course-management</groupId>
 			<artifactId>coursemanagement-api</artifactId>
-			<version>${coursemanagement.version}</version>
-			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-api</artifactId>
-			<scope>provided</scope>
-			<version>${entitybroker.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.sakaiproject.entitybroker</groupId>
 			<artifactId>entitybroker-utils</artifactId>
-			<version>${entitybroker.version}</version>
 		</dependency>
 		<dependency>
 	   		<groupId>org.sakaiproject.profile2</groupId>
       		<artifactId>profile2-api</artifactId>
-      		<version>${profile2.api.version}</version>
-      		<scope>provided</scope>
     	</dependency>
 		<dependency>
 			<groupId>commons-lang</groupId>
@@ -74,24 +65,35 @@
 			<artifactId>servlet-api</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>
 			<version>${poi.version}</version>
 		</dependency>
-		<dependency>
+        <dependency>
+        	<groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity.version}</version>
+        </dependency>
+        <dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<version>${lombok.version}</version>
 		</dependency>
         <dependency>
-        	<groupId>org.apache.velocity</groupId>
-            <artifactId>velocity</artifactId>
-            <version>1.7</version>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+        <!--
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		-->
 	</dependencies>
 
 	<build>
