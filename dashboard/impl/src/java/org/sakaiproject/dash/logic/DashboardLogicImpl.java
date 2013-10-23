@@ -1170,7 +1170,9 @@ public class DashboardLogicImpl implements DashboardLogic {
 			calendarItem.setCalendarTimeLabelKey(repeatingEvent.getCalendarTimeLabelKey());
 			saveChanges = true;
 		}
-		if(repeatingEvent.getContext() != null && repeatingEvent.getContext() != null && repeatingEvent.getContext().getId().equals(calendarItem.getContext().getId())) {
+		if(repeatingEvent.getContext() != null && repeatingEvent.getContext().getId() != null 
+			&& calendarItem.getContext() != null && calendarItem.getContext().getId() != null
+			&& repeatingEvent.getContext().getId().equals(calendarItem.getContext().getId())) {
 			// do nothing if both have same context id
 		} else {
 			calendarItem.setContext(repeatingEvent.getContext());
@@ -1183,8 +1185,8 @@ public class DashboardLogicImpl implements DashboardLogic {
 			calendarItem.setSourceType(repeatingEvent.getSourceType());
 			saveChanges = true;
 		}
-		if((repeatingEvent.getSubtype() != null && repeatingEvent.getSubtype() != null && repeatingEvent.getSubtype().equals(calendarItem.getSubtype()))
-			|| (repeatingEvent.getSubtype() == null && repeatingEvent.getSubtype() == null))
+		if((repeatingEvent.getSubtype() != null && calendarItem.getSubtype() != null && repeatingEvent.getSubtype().equals(calendarItem.getSubtype()))
+			|| (repeatingEvent.getSubtype() == null && calendarItem.getSubtype() == null))
 		{
 			// do nothing if both have null subtype or both have not-null subtype and subtypes equal to each other
 		} else {
