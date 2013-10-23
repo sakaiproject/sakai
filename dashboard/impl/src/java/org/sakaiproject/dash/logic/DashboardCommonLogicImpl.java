@@ -323,12 +323,21 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	}
 	
 	/*
-	 * 
+	 * This is to be called from Quartz job
 	 */
 	public void handleAvailabilityChecks() {
+		handleAvailabilityChecks(false);
+	}
+	
+	/*
+	 * 
+	 */
+	public void handleAvailabilityChecks(boolean taskLockApproach) {
 		Date currentTime = new Date();
-		if(currentTime.getTime() > nextTimeToQueryAvailabilityChecks ) {
-			SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+		if((taskLockApproach && currentTime.getTime() > nextTimeToQueryAvailabilityChecks )
+			|| !taskLockApproach)
+		{
+			SecurityAdvisor advisor = getDashboardSecurityAdvisor();
 			sakaiProxy.pushSecurityAdvisor(advisor);
 			try {
 				long startTime = System.currentTimeMillis();
@@ -366,7 +375,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 					}
 					removeAvailabilityChecksBeforeTime(currentTime);
 				}
-				dashboardLogic.updateTaskLock(TaskLock.CHECK_AVAILABILITY_OF_HIDDEN_ITEMS);
+				
+				if (taskLockApproach)
+				{
+					dashboardLogic.updateTaskLock(TaskLock.CHECK_AVAILABILITY_OF_HIDDEN_ITEMS);
+				}
 				
 				if(loopTimerEnabled) {
 					long elapsedTime = System.currentTimeMillis() - startTime;
@@ -643,7 +656,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 									if(loopTimerEnabled) {
 										loopActivity = "checkingTimeForAvailabilityChecks";
 									}
-									handleAvailabilityChecks();
+									handleAvailabilityChecks(true);
 								} else {
 									// TODO: move to checkForAdminUpdates
 									if(loopTimerEnabled) {
@@ -658,7 +671,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 									if(loopTimerEnabled) {
 										loopActivity = "checkingTimeForRepeatedEvents";
 									}
-									updateRepeatingEvents();	
+									updateRepeatingEvents(true);	
 								} else {
 									// TODO: move to checkForAdminUpdates
 									if(loopTimerEnabled) {
@@ -673,7 +686,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 									if(loopTimerEnabled) {
 										loopActivity = "checkingTimeForExpirationAndPurging";
 									}
-									expireAndPurge();
+									expireAndPurge(true);
 								} else {
 									// TODO: move to checkForAdminUpdates
 									if(loopTimerEnabled) {
@@ -1423,9 +1436,17 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		this.dashboardLogic.removeTaskLocks(task);
 	}
 
+	/**
+	 * this is to be called from Quartz job
+	 */
 	public void expireAndPurge() {
-		if(System.currentTimeMillis() > nextTimeToExpireAndPurge ) {
-			SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+		expireAndPurge(false);
+	}
+	
+	public void expireAndPurge(boolean taskLockApproach) {
+		if((taskLockApproach && System.currentTimeMillis() > nextTimeToExpireAndPurge)
+			|| !taskLockApproach) {
+			SecurityAdvisor advisor = getDashboardSecurityAdvisor();
 			sakaiProxy.pushSecurityAdvisor(advisor);
 			try {
 				long startTime = System.currentTimeMillis();
@@ -1437,7 +1458,10 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				
 				nextTimeToExpireAndPurge = System.currentTimeMillis() + TIME_BETWEEN_EXPIRING_AND_PURGING;
 	
-				dashboardLogic.updateTaskLock(TaskLock.EXPIRE_AND_PURGE_OLD_DASHBOARD_ITEMS);
+				if (taskLockApproach)
+				{
+					dashboardLogic.updateTaskLock(TaskLock.EXPIRE_AND_PURGE_OLD_DASHBOARD_ITEMS);
+				}
 	
 				if(loopTimerEnabled) {
 					long elapsedTime = System.currentTimeMillis() - startTime;
@@ -1517,9 +1541,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	/**
 	 * 
 	 */
-	public void updateRepeatingEvents() {
-		if(nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime()) {
-			SecurityAdvisor advisor = new DashboardLogicSecurityAdvisor();
+	public void updateRepeatingEvents(boolean taskLockApproach) {
+		if((taskLockApproach && nextHorizonUpdate != null && System.currentTimeMillis() > nextHorizonUpdate.getTime())
+			|| !taskLockApproach)
+		{
+			SecurityAdvisor advisor = getDashboardSecurityAdvisor();
 			sakaiProxy.pushSecurityAdvisor(advisor);
 			try {
 				long startTime = System.currentTimeMillis();
@@ -1545,8 +1571,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				Integer daysBetweenHorizonUpdates = dashboardConfig.getConfigValue(DashboardConfig.PROP_DAYS_BETWEEN_HORIZ0N_UPDATES, new Integer(1));
 				nextHorizonUpdate = new Date(nextHorizonUpdate.getTime() + daysBetweenHorizonUpdates.longValue() * DashboardLogic.ONE_DAY);
 				
-				dashboardLogic.updateTaskLock(TaskLock.UPDATE_REPEATING_EVENTS);
-	
+				if (taskLockApproach)
+				{
+					dashboardLogic.updateTaskLock(TaskLock.UPDATE_REPEATING_EVENTS);
+				}
+				
 				if(loopTimerEnabled) {
 					long elapsedTime = System.currentTimeMillis() - startTime;
 					StringBuilder buf = new StringBuilder("DashboardCommonLogicImpl.updateRepeatingEvents done. ");
@@ -1561,6 +1590,13 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				sakaiProxy.popSecurityAdvisor(advisor);
 			}
 		}
+	}
+	
+	/**
+	 * This is to be called from Quartz Job
+	 */
+	public void updateRepeatingEvents() {
+		updateRepeatingEvents(false);
 	}
 	
 	public void checkForAdminChanges() {
@@ -1594,5 +1630,31 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 
 		
 		// TODO: move other admin checks here
+	}
+	
+	private SecurityAdvisor getDashboardSecurityAdvisor()
+	{
+		return new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference) {
+				long threadId = Thread.currentThread().getId();
+
+				if(threadId == dashboardEventProcessorThreadId) {
+					// calling from the dashboard thread
+					return SecurityAdvice.ALLOWED;
+				}
+				else
+				{
+					// calling from Quartz Job
+					if (sakaiProxy.isOfDashboardRelatedPermissions(function))
+					{
+						return SecurityAdvice.ALLOWED;
+					}
+					else
+					{
+						return SecurityAdvice.PASS;
+					}
+				}
+			}
+		};
 	}
 }

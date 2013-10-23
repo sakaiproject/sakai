@@ -237,5 +237,10 @@ public class SakaiProxyMock implements SakaiProxy {
 	public void setServerId(String serverId) {
 		this.serverId = serverId;
 	}
+	
+	public boolean isOfDashboardRelatedPermissions(String function)
+	{
+		return false;
+	}
 
 }

@@ -22,11 +22,13 @@
 
 package org.sakaiproject.dash.logic;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Observer;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 import org.sakaiproject.assignment.api.AssignmentService;
@@ -397,6 +399,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public List<User> unlockUsers(String lock, String reference)
 	{
 		return securityService.unlockUsers(lock, reference);
+	}
+	
+	public boolean isOfDashboardRelatedPermissions(String function)
+	{
+		boolean rv = false;
+		
+		ArrayList<String> permissionPrefixes = new ArrayList<String>(Arrays.asList(PERMIT_PREFIX));
+		if (permissionPrefixes != null)
+		{
+			for (String prefix : permissionPrefixes)
+			{
+				if (function.startsWith(prefix))
+				{
+					// returns true if the function begins with know prefix
+					rv = true;
+				}
+			}
+		}
+		return rv;
 	}
 
 	/************************************************************************
