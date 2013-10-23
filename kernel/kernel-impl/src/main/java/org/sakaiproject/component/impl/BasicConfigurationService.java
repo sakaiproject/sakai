@@ -692,7 +692,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         String value = getString(name);
 
-        if (value.length() == 0) return dflt;
+        if (StringUtils.isEmpty(value)) return dflt;
 
         return Integer.parseInt(value);
     }
@@ -704,7 +704,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         String value = getString(name);
 
-        if (value.length() == 0) return dflt;
+        if (StringUtils.isEmpty(value)) return dflt;
 
         return Boolean.valueOf(value).booleanValue();
     }

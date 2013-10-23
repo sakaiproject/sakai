@@ -251,6 +251,13 @@ public class BasicConfigurationServiceTest extends TestCase {
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal3", null), SOURCE);
         booleanValue = basicConfigurationService.getBoolean("booleanVal3", true); // value is null
         assertEquals(true, booleanValue);
+
+        // NOTE: this is internal only (i.e. no one outside the kernel could encounter this)
+        ConfigItemImpl booleanVal4 = new ConfigItemImpl("booleanVal4", null);
+        booleanVal4.setDefaultValue(""); // causes an NPE
+        basicConfigurationService.addConfigItem( booleanVal4, SOURCE);
+        boolean booleanValue4 = basicConfigurationService.getBoolean("booleanVal4", false);
+        assertEquals(false, booleanValue4);    
     }
 
 }
