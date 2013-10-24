@@ -572,9 +572,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteCalendarItemsWithoutLinks()
 	 */
 	public boolean deleteCalendarItemsWithoutLinks() {
-		if(log.isDebugEnabled()) {
-			log.debug("deleteCalendarItemsWithoutLinks()");
-		}
+		log.info("deleteCalendarItemsWithoutLinks()");
 		
 		try {
 			getJdbcTemplate().update(getStatement("delete.CalendarItems.no.links"));
@@ -666,9 +664,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 */
 	public boolean deleteCalendarLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden) {
-		if(log.isDebugEnabled()) {
-			log.debug("deleteCalendarLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
-		}
+		log.info("deleteCalendarLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
 		
 		try {
 			getJdbcTemplate().update(getStatement("delete.CalendarLinks.by.item_calendarTime.starred.hidden"),
@@ -685,9 +681,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteNewsItemsWithoutLinks()
 	 */
 	public boolean deleteNewsItemsWithoutLinks() {
-		if(log.isDebugEnabled()) {
-			log.debug("deleteNewsItemsWithoutLinks()");
-		}
+		log.info("deleteNewsItemsWithoutLinks()");
 		
 		try {
 			getJdbcTemplate().update(getStatement("delete.NewsItems.no.links"));
@@ -760,9 +754,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 */
 	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden) {
-		if(log.isDebugEnabled()) {
-			log.debug("deleteNewsLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
-		}
+		log.info("deleteNewsLinksBefore( " + expireBefore + "," + starred + "," + hidden + ")");
 		
 		try {
 			getJdbcTemplate().update(getStatement("delete.NewsLinks.by.item_newsTime.starred.hidden"),

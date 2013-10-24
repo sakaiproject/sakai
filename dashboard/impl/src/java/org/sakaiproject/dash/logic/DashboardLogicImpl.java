@@ -1194,6 +1194,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 			saveChanges = true;
 		}
 		if(saveChanges) {
+			logger.info(this + " verifyCalendarItem about to update CalendarItem with reference " + calendarItem.getEntityReference());
 			dao.updateCalendarItem(calendarItem);
 		}
 		return saveChanges;
