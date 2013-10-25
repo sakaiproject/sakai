@@ -447,6 +447,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String GRADE_SUBMISSION_ALLOW_RESUBMIT = "grade_submission_allow_resubmit";
 	
 	private static final String GRADE_SUBMISSION_DONE = "grade_submission_done";
+	private static final String GRADE_SUBMISSION_SUBMIT = "grade_submission_submit";
 	
 	/** ******************* instructor's export assignment ***************************** */
 	private static final String EXPORT_ASSIGNMENT_REF = "export_assignment_ref";
@@ -1934,7 +1935,8 @@ public class AssignmentAction extends PagedResourceActionII
 				if(reviews != null){
 					List<PeerAssessmentItem> completedReviews = new ArrayList<PeerAssessmentItem>();
 					for(PeerAssessmentItem review : reviews){
-						if(!review.isRemoved() && review.getScore() != null){
+						if(!review.isRemoved() && (review.getScore() != null || (review.getComment() != null && !"".equals(review.getComment().trim())))){
+							//only show peer reviews that have either a score or a comment saved
 							if(assignment.getPeerAssessmentAnonEval()){
 								//annonymous eval
 								review.setAssessorDisplayName(rb.get("gen.reviewer").toString() + " " + (completedReviews.size() + 1));
@@ -3078,6 +3080,13 @@ public class AssignmentAction extends PagedResourceActionII
 			state.removeAttribute(GRADE_SUBMISSION_DONE);
 		}
 		
+		// put the grade confirmation message if applicable
+		if (state.getAttribute(GRADE_SUBMISSION_SUBMIT) != null)
+		{
+			context.put("gradingSubmit", Boolean.TRUE);
+			state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
+		}
+		
 		// letter grading
 		letterGradeOptionsIntoContext(context);
 		
@@ -3990,7 +3999,12 @@ public class AssignmentAction extends PagedResourceActionII
 				state.removeAttribute(PEER_ASSESSMENT_REMOVED_STATUS);
 			}
 		}
-
+		// put the grade confirmation message if applicable
+		if (state.getAttribute(GRADE_SUBMISSION_SUBMIT) != null)
+		{
+			context.put("gradingSubmit", Boolean.TRUE);
+			state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
+		}
 
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_STUDENT_REVIEW_EDIT;
@@ -4904,6 +4918,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(GRADE_SUBMISSION_SUBMISSION_ID);
 		state.removeAttribute(GRADE_GREATER_THAN_MAX_ALERT);
 		state.removeAttribute(GRADE_SUBMISSION_DONE);
+		state.removeAttribute(GRADE_SUBMISSION_SUBMIT);
 		state.removeAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
 		resetAllowResubmitParams(state);
 	}
@@ -10081,11 +10096,11 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					//Submitted
 					if("submit".equals(gradeOption)){
-						if(item.getScore() != null){
+						if(item.getScore() != null || (item.getComment() != null && !"".equals(item.getComment().trim()))){
 							item.setSubmitted(true);
 							changed = true;
 						}else{
-							addAlert(state, rb.getString("peerassessment.alert.savenoscore"));
+							addAlert(state, rb.getString("peerassessment.alert.savenoscorecomment"));
 						}
 					}
 					if(("submit".equals(gradeOption) || "save".equals(gradeOption)) && state.getAttribute(STATE_MESSAGE) == null){					
@@ -10097,6 +10112,9 @@ public class AssignmentAction extends PagedResourceActionII
 								assignmentPeerAssessmentService.updateScore(submissionId);
 							}
 							state.setAttribute(GRADE_SUBMISSION_DONE, Boolean.TRUE);
+							if("submit".equals(gradeOption)){
+								state.setAttribute(GRADE_SUBMISSION_SUBMIT, Boolean.TRUE);
+							}
 						}
 					}
 					

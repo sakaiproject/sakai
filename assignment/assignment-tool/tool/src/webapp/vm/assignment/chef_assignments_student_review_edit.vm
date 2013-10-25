@@ -66,7 +66,11 @@ function handleEnterKeyPress(ev)
 					$!tlang.getString("peerassessment.restored")
 				#end
 			#else
-				$!tlang.getString("saved_grading")
+				#if($gradingSubmit)
+					$!tlang.getString("peerAssessmentSavedSubmission")
+				#else
+					$!tlang.getString("peerAssessmentSavedGrading")
+				#end
 			#end
 		</div>
 	#end
