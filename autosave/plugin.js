@@ -71,11 +71,13 @@
                 onOk: function () {
                     var jsonSavedContent = LoadData(autoSaveKey);
                     
-                    if (editorInstance.plugins.bbcode) {
+                    /*if (editorInstance.plugins.bbcode) {
                         editorInstance._.data = jsonSavedContent.data;
                     } else {
                         editorInstance.setData(jsonSavedContent.data);
-                    }
+                    }*/
+                    
+                    editorInstance.setData(jsonSavedContent.data);
                     
                     RemoveStorage(autoSaveKey);
                 },
