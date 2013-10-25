@@ -10040,7 +10040,7 @@ public class AssignmentAction extends PagedResourceActionII
 						&& assessorUserId.equals(item.getAssessorUserId())){
 					//Grade
 					String g = StringUtils.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE));
-					Integer score = null;
+					Integer score = item.getScore();
 					if(g != null && !"".equals(g)){
 						try{
 							Double dScore = Double.parseDouble(g);
@@ -10057,20 +10057,16 @@ public class AssignmentAction extends PagedResourceActionII
 											score = (int) Math.round(dScore * 10);
 										}else{
 											addAlert(state, rb.getFormattedMessage("plesuse4", new Object[]{g, a.getContent().getMaxGradePoint()/10.0}));
-											return false;
 										}
 									}else{
 										addAlert(state, rb.getString("peerassessment.alert.saveerrorunkown"));
-										return false;
 									}
 								}else{
 									addAlert(state, rb.getString("peerassessment.alert.saveerrorunkown"));
-									return false;
 								}
 							}
 						}catch(Exception e){
 							addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
-							return false;
 						}
 					}
 					boolean scoreChanged = false;
@@ -10119,21 +10115,20 @@ public class AssignmentAction extends PagedResourceActionII
 					}
 					
 					//update session state:
-					if(changed){
-						List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) state.getAttribute(PEER_ASSESSMENT_ITEMS);
-						if(peerAssessmentItems != null){
-							for(int i = 0; i < peerAssessmentItems.size(); i++) {
-								PeerAssessmentItem sItem = peerAssessmentItems.get(i);
-								if(sItem.getSubmissionId().equals(item.getSubmissionId())
-										&& sItem.getAssessorUserId().equals(item.getAssessorUserId())){
-									//found it, just update it
-									peerAssessmentItems.set(i, item);
-									state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
-									break;
-								}
+					List<PeerAssessmentItem> peerAssessmentItems = (List<PeerAssessmentItem>) state.getAttribute(PEER_ASSESSMENT_ITEMS);
+					if(peerAssessmentItems != null){
+						for(int i = 0; i < peerAssessmentItems.size(); i++) {
+							PeerAssessmentItem sItem = peerAssessmentItems.get(i);
+							if(sItem.getSubmissionId().equals(item.getSubmissionId())
+									&& sItem.getAssessorUserId().equals(item.getAssessorUserId())){
+								//found it, just update it
+								peerAssessmentItems.set(i, item);
+								state.setAttribute(PEER_ASSESSMENT_ITEMS, peerAssessmentItems);
+								break;
 							}
 						}
 					}
+					
 				}
 				
 				return changed;
