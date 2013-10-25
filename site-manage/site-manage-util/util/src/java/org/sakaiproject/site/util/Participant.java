@@ -13,6 +13,8 @@ public class Participant {
 	
 	public String name = NULL_STRING;
 
+	public String displayName = NULL_STRING;
+
 	// Note: uniqname is really a user ID
 	public String uniqname = NULL_STRING;
 
@@ -40,6 +42,20 @@ public class Participant {
 
 	public String getName() {
 		return name;
+	}
+
+	public String getDisplayName() {
+		if (NULL_STRING.equals(displayName)) {
+			displayName = name;
+		} else {
+			try {
+				User user = UserDirectoryService.getUser(uniqname);
+				displayName = user.getDisplayName();
+			} catch (UserNotDefinedException e) {
+				displayName = uniqname;
+			}
+		}
+		return displayName;
 	}
 
 	public String getUniqname() {

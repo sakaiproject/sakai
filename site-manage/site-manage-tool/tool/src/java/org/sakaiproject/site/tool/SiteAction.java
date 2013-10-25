@@ -177,6 +177,8 @@ public class SiteAction extends PagedResourceActionII {
 	private ImportService importService = org.sakaiproject.importer.cover.ImportService
 			.getInstance();
 
+	private static String showOrphanedMembers = ServerConfigurationService.getString("site.setup.showOrphanedMembers", "admins");
+
 	/** portlet configuration parameter values* */
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("sitesetupgeneric");
@@ -7861,6 +7863,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						} catch (UserNotDefinedException e) {
 							M_log.warn(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
+							if (("admins".equals(showOrphanedMembers) && SecurityService.isSuperUser()) || ("maintainers".equals(showOrphanedMembers))) {
+								Member userMember = realmEdit.getMember(rId);
+								if (userMember != null) {
+									Role role = userMember.getRole();
+									if (role != null) {
+										roles.add(role.getId());
+									}
+									realmEdit.removeMember(rId);
+								}
+							}
 						}
 					}
 				}

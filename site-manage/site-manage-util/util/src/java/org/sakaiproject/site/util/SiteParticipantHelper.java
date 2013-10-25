@@ -32,6 +32,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.ResourceLoader;
 
 public class SiteParticipantHelper {
 	/** Our log (commons). */
@@ -56,6 +57,10 @@ public class SiteParticipantHelper {
 
 	private static org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager
 	.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+
+	private static String showOrphanedMembers = scs.getString("site.setup.showOrphanedMembers", "admins");
+
+	private static ResourceLoader rb = new ResourceLoader("UserDirectoryProvider");
 
 	// SAK-23257: restrict the roles available for participants
 	private static final String	SAK_PROP_RESTRICTED_ROLES 	= "sitemanage.addParticipants.restrictedRoles";
@@ -336,9 +341,22 @@ public class SiteParticipantHelper {
 					participantsMap.put(userId, participant);
 				}
 			} catch (UserNotDefinedException e) {
-				// deal with missing user quietly without throwing a
-				// warning message
-				M_log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
+
+				if (("admins".equals(showOrphanedMembers) && securityService.isSuperUser()) || ("maintainers".equals(showOrphanedMembers))) {
+					// add non-registered participant
+					String userId = g.getUserId();
+					Participant participant = new Participant();
+					participant.name = makeUserDisplayName(userId);
+					participant.uniqname = userId;
+					participant.role = g.getRole() != null ? g.getRole().getId() :"";
+					participant.removeable = true;
+					participant.active = g.isActive();
+					participantsMap.put(userId, participant);
+				}
+
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("SiteParticipantHelper:addParticipantsFromMembers: user not defined "+ g.getUserEid());
+				}
 			}
 		}
 	}
@@ -581,4 +599,13 @@ public class SiteParticipantHelper {
 		return getAllowedRoles( siteType, list );
 	}
 	
+	public static String makeUserDisplayName( String userId ) 
+	{
+		String userDisplayName = NULL_STRING;
+
+		userDisplayName = rb.getFormattedMessage("udp.unregistered", userId);
+
+		return userDisplayName;
+	}
+
 }
