@@ -1510,7 +1510,7 @@ public class DeliveryBean
 	  // finish within time limit, clean timedAssessment from queue
 	  removeTimedAssessmentFromQueue();
 	  
-	  // finsih secure delivery
+	  // finish secure delivery
 	  setSecureDeliveryHTMLFragment( "" );
 	  setBlockDelivery( false );
 	  SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
@@ -2071,6 +2071,29 @@ public class DeliveryBean
          
       }
 
+      // secure delivery START phase
+      // should occur before timer check, so that timer will be stopped if access is denied
+      setSecureDeliveryHTMLFragment( "" );
+      setBlockDelivery( false );
+      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
+      if ( "takeAssessment".equals(results) && secureDelivery.isSecureDeliveryAvaliable() ) {
+   
+    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+    		  setSecureDeliveryHTMLFragment( 
+    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
+    		  setBlockDelivery( PhaseStatus.FAILURE == status );
+    		  if ( PhaseStatus.SUCCESS == status ) {
+    			  results = "takeAssessment";
+              }
+    		  else {
+    			  results = "secureDeliveryError";
+              }
+    	  }    	  
+      }
+
       // if results != "takeAssessment", stop the clock if it is a timed assessment
       // Trouble was the timer was started by DeliveryActionListener before validate() is being run.
       // So, we need to remove the timer thread as soon as we realized that the validation fails.
@@ -2099,27 +2122,6 @@ public class DeliveryBean
         return nextAction;
       }
       
-      // secure delivery START phase
-      setSecureDeliveryHTMLFragment( "" );
-      setBlockDelivery( false );
-      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
-      if ( ("takeAssessment".equals(results) || "".equals(results)) && secureDelivery.isSecureDeliveryAvaliable() ) {
-   
-    	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
-    	  if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
-    		  HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
-    		  PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
-    		  setSecureDeliveryHTMLFragment( 
-    		  			secureDelivery.getHTMLFragment(moduleId, publishedAssessment, request, Phase.ASSESSMENT_START, status, new ResourceLoader().getLocale() ) );
-    		  setBlockDelivery( PhaseStatus.FAILURE == status );
-    		  if ( PhaseStatus.SUCCESS == status )
-    			  results = "takeAssessment";
-    		  else
-    			  results = "secureDeliveryError";
-    	  }    	  
-    	  return results;
-      }
-
       // #3. results="" => no security checking required
       if ("".equals(results))
       {

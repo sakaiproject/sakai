@@ -211,6 +211,7 @@ public class DeliveryActionListener
       GradingService service = new GradingService();
       PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
+      SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
       boolean isFirstTimeBegin = false;
       
       switch (action){
@@ -257,7 +258,6 @@ public class DeliveryActionListener
               delivery.setSecureDeliveryHTMLFragment( "" );
               delivery.setBlockDelivery( false );
               
-              SecureDeliveryServiceAPI secureDelivery = SamigoApiFactory.getInstance().getSecureDeliveryServiceAPI();
               if ( secureDelivery.isSecureDeliveryAvaliable() ) {
             	  
             	  String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
@@ -307,6 +307,18 @@ public class DeliveryActionListener
             			  return;
             		  }
             	  }
+                  
+                  // #3. secure delivery START phase
+                  if ( secureDelivery.isSecureDeliveryAvaliable() ) {
+                      String moduleId = publishedAssessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.MODULE_KEY );
+                      if ( moduleId != null && ! SecureDeliveryServiceAPI.NONE_ID.equals( moduleId ) ) {
+                          HttpServletRequest request = (HttpServletRequest) FacesContext.getCurrentInstance().getExternalContext().getRequest();
+                          PhaseStatus status = secureDelivery.validatePhase(moduleId, Phase.ASSESSMENT_START, publishedAssessment, request );
+                          if ( PhaseStatus.FAILURE == status ) {
+                              return;
+                          }
+                      }    	  
+                  }
               }
               
               // If this is a linear access and user clicks on Show Feedback, we do not
