@@ -72,6 +72,22 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+	<!--
+        <dependency>
+            <groupId>oracle.jdbc.driver.OracleDriver</groupId>
+            <artifactId>ojdbc6</artifactId>
+            <version>11.2.0.2.0</version>
+            <scope>test</scope>
+        </dependency>
+	-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.5</version>
+            <type>jar</type>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
