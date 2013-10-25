@@ -28,6 +28,7 @@ import java.util.SortedMap;
 import java.util.Properties;
 import java.util.logging.Logger;
 
+import java.lang.Number;
 import java.sql.ResultSetMetaData;
 
 /**
@@ -432,8 +433,6 @@ public class Foorm {
 		sb.append(getI18N(label, loader));
 		sb.append("</h4>\n");
 		int val = 0;
-		if (value != null && value instanceof Integer)
-			val = ((Integer) value).intValue();
 		if (value != null && value instanceof Number)
 			val = ((Number) value).intValue();
 		if (value != null && value instanceof String) {
@@ -1027,7 +1026,6 @@ public class Foorm {
 				continue;
 
 			Object dataField = getField(parms, field);
-			// System.out.println("field="+field+" data="+dataField);
 			String sdf = null;
 			if (dataField instanceof String)
 				sdf = (String) dataField;
@@ -1066,9 +1064,9 @@ public class Foorm {
 				if (dataField == null) {
 					if (dataMap != null)
 						dataMap.put(field, null);
-				} else if (dataField instanceof Integer) {
-					if (dataMap != null)
-						dataMap.put(field, dataField);
+				} else if (dataField instanceof Number) {
+						if (dataMap != null)
+						    dataMap.put(field, ((Number) dataField).intValue());
 				} else {
 					try {
 						Integer ival = new Integer(sdf);
@@ -1549,11 +1547,9 @@ public class Foorm {
 	// to simplify casting
 	public static String getSuperType(String className)
 	{
-		// System.out.println("Incoming="+className);
 		try {
 			Class c = Class.forName(className);
 			while ( c != null ) {
-				// System.out.println("NNN="+c.getName());
 				if ( STRING_TYPE.equals(c.getName()) ) return STRING_TYPE;
 				if ( NUMBER_TYPE.equals(c.getName()) ) return NUMBER_TYPE;
 				c = c.getSuperclass();

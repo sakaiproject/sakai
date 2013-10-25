@@ -560,7 +560,7 @@ public class ServiceServlet extends HttpServlet {
 							if ( success ) {
 								Object result = ltiService.updateContentDao(contentKey,content, siteId);
 								if ( result instanceof String ) {
-									M_log.warn("Setting update failed");
+									M_log.warn("Setting update failed: "+result);
 									doError(request, response, theMap, "setting.fail", "", null);
 									success = false;
 								}

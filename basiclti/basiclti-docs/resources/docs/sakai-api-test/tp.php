@@ -119,9 +119,11 @@ foreach ($tc_services as $tc_service) {
     $formats = $tc_service->{'format'};
     $type = $tc_service->{'@type'};
     $id = $tc_service->{'@id'};
+/*  Sheesh - pivot toward capabilities
     if ( strpos($id,"Result.item") > 0 ) {
         $result_url = $tc_service->endpoint;
     }
+*/
     echo("Service: ".$format." id=".$id."\n");
     foreach($formats as $format) {
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
@@ -132,10 +134,15 @@ foreach ($tc_services as $tc_service) {
 
 if ( $register_url == false ) die("Must have an application/vnd.ims.lti.v2.toolproxy+json service available in order to do tool_registration.");
 
-unset($_SESSION['result_url']);
-if ( $result !== false ) $_SESSION['result_url'] = $result_url;
+// unset($_SESSION['result_url']);
+// if ( $result_url !== false ) $_SESSION['result_url'] = $result_url;
 
 echo("\nFound an application/vnd.ims.lti.v2.toolproxy+json service - nice for us...\n");
+
+// Check for capabilities
+$tc_capabilities = $tc_profile->capability_offered;
+echo("Found ".count($tc_capabilities)." capabilities..\n");
+if ( count($tc_capabilities) < 1 ) die("No capabilities found!\n");
 echo("Optional money collection phase complete...\n");
 echo("<hr/>");
 
@@ -167,6 +174,13 @@ $tp_profile->tool_profile->product_instance->service_provider->guid = "http://ww
 // Launch Request
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
 $tp_profile->tool_profile->resource_handler[0]->resource_type = "sakai-api-test-01";
+
+// Ask for the kitchen sink...
+foreach($tc_capabilities as $capability) {
+	if ( "basic-lti-launch-request" == $capability ) continue;
+	if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
+	$tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
+}
 
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;

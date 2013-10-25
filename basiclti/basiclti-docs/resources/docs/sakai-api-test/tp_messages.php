@@ -88,15 +88,56 @@ $tool_proxy = <<< EOF
             "path": "__LAUNCH_PATH__",
             "parameter": [
               {
-                "fixed": "3.14159",
-                "name": "pi"
+                "name": "theanswer",
+                "fixed": "42"
               },
               {
-                "variable": "Person.email.primary",
-                "name": "user_primary_email"
+                "name": "ltiLink_custom_url",
+                "variable": "LtiLink.custom.url"
+              },
+              {
+                "name": "toolproxy_custom_url",
+                "variable": "ToolProxy.custom.url"
+              },
+              {
+                "name": "toolproxybinding_custom_url",
+                "variable": "ToolProxyBinding.custom.url"
+              },
+              {
+                "name": "result_url",
+                "variable": "Result.url"
+              },
+              {
+                "name": "person_email_primary",
+                "variable": "Person.email.primary"
+              },
+              {
+                "name": "person_name_full",
+                "variable": "Person.name.full"
+              },
+              {
+                "name": "person_name_given",
+                "variable": "Person.name.given"
+              },
+              {
+                "name": "person_name_family",
+                "variable": "Person.name.family"
+              },
+              {
+                "name": "user_id",
+                "variable": "User.id"
+              },
+              {
+                "name": "user_image",
+                "variable": "User.image"
+              },
+              {
+                "name": "membership_role",
+                "variable": "Membership.role"
               }
             ],
-            "message_type": "basic-lti-launch-request"
+            "message_type": "basic-lti-launch-request",
+            "enabled_capability" : [ "User.id" ]
           }
         ],
         "name": {
