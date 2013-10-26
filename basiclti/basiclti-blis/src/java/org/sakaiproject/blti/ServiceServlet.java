@@ -402,7 +402,7 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("user_id="+user_id);
 			M_log.debug("placement_id="+placement_id);
 
-			Properties pitch = getPropertiesFromPlacement(placement_id);
+			Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
 			if ( pitch == null ) {
 				M_log.debug("Error retrieving result_sourcedid information");
 				doError(request, response, theMap, "outcomes.sourcedid", "sourcedid", null);
@@ -517,7 +517,7 @@ public class ServiceServlet extends HttpServlet {
 					}
 					success = true;
 				} else {
-					if ( isPlacement(placement_id) ) {
+					if ( SakaiBLTIUtil.isPlacement(placement_id) ) {
 						ToolConfiguration placement = SiteService.findTool(placement_id);
 						if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 							setting = request.getParameter("setting");
@@ -888,7 +888,7 @@ public class ServiceServlet extends HttpServlet {
 			M_log.debug("user_id="+user_id);
 			M_log.debug("placement_id="+placement_id);
 
-			Properties pitch = getPropertiesFromPlacement(placement_id);
+			Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
 			if ( pitch == null ) {
 				M_log.debug("Error retrieving result_sourcedid information");
 				doError(request, response, null, "outcomes.sourcedid", "sourcedid", null);
@@ -1467,126 +1467,6 @@ public class ServiceServlet extends HttpServlet {
 			}
 			return assignmentObject;
 		}
-
-	// Extract the necessary properties from a placement
-	protected Properties getPropertiesFromPlacement(String placement_id)
-	{
-		// These are the fields from a placement - they are not an exact match
-		// for the fields in tool/content
-		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
-				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
-				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
-				"toolsetting", "allowlori"};
-
-		Properties retval = new Properties();
-
-		String siteId = null;
-		if ( isPlacement(placement_id) ) {
-			ToolConfiguration placement = null;
-			Properties config = null;
-			try {
-				placement = SiteService.findTool(placement_id);
-				config = placement.getConfig();
-				siteId = placement.getSiteId();
-			} catch (Exception e) {
-				M_log.debug("Error getPropertiesFromPlacement: "+e.getLocalizedMessage(), e);
-				return null;
-			}
-			retval.setProperty("placementId",placement_id);
-			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
-			for ( String field : fieldList ) {
-				String value = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,field, placement));
-				if ( field.equals("toolsetting") ) {
-                    value = config.getProperty("toolsetting", null);
-					field = LTIService.LTI_SETTINGS;
-				}
-				if ( value == null ) continue;
-				if ( field.equals("releasename") ) field = LTIService.LTI_SENDNAME;
-				if ( field.equals("releaseemail") ) field = LTIService.LTI_SENDEMAILADDR;
-				if ( field.equals("key") ) field = LTIService.LTI_CONSUMERKEY;
-				retval.setProperty(field, value);
-			}
-		} else { // Get information from content item
-			Map<String,Object> content = null;
-			Map<String,Object> tool = null;
-
-			String contentStr = placement_id.substring(8);
-			Long contentKey = foorm.getLongKey(contentStr);
-			if ( contentKey < 0 ) return null;
-
-			// Leave off the siteId - bypass all checking - because we need to 
-			// finde the siteId from the content item
-			content = ltiService.getContentDao(contentKey);
-			if ( content == null ) return null;
-			siteId = (String) content.get(LTIService.LTI_SITE_ID);
-			if ( siteId == null ) return null;
-
-			retval.setProperty("contentKey",contentStr);
-			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
-
-			Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-			if ( toolKey < 0 ) return null;
-			tool = ltiService.getToolDao(toolKey, siteId);
-			if ( tool == null ) return null;
-
-			// Adjust the content items based on the tool items
-			if ( tool != null || content != null )
-			{
-				ltiService.filterContent(content, tool);
-			}
-
-			for (String formInput : LTIService.TOOL_MODEL) {
-				Properties info = foorm.parseFormString(formInput);
-				String field = info.getProperty("field", null);
-				String type = info.getProperty("type", null);
-				Object o = tool.get(field);
-				if ( o instanceof String ) {
-					retval.setProperty(field,(String) o);
-					continue;
-				}
-				if ( "checkbox".equals(type) ) {
-					int check = getInt(o);
-					if ( check == 1 ) {	
-						retval.setProperty(field,"on");
-					} else {
-						retval.setProperty(field,"off");
-					}
-				}
-			}
-
-			for (String formInput : LTIService.CONTENT_MODEL) {
-				Properties info = foorm.parseFormString(formInput);
-				String field = info.getProperty("field", null);
-				String type = info.getProperty("type", null);
-				Object o = content.get(field);
-				if ( o instanceof String ) {
-					retval.setProperty(field,(String) o);
-					continue;
-				}
-				if ( "checkbox".equals(type) ) {
-					int check = getInt(o);
-					if ( check == 1 ) {	
-						retval.setProperty(field,"on");
-					} else {
-						retval.setProperty(field,"off");
-					}
-				}
-			}
-			retval.setProperty("assignment",(String)content.get("title"));
-		}
-		return retval;
-	}
-
-	boolean isPlacement(String placement_id) {
-		if ( placement_id == null ) return false;
-		return ! (placement_id.startsWith("content:") && placement_id.length() > 8) ;
-	}
-
-	// Convienence
-    public static int getInt(Object o)
-    {
-		return FoormUtil.getInt(o);
-    }
 
 	public void destroy() {
 

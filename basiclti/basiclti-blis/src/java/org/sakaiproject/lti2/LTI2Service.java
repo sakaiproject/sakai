@@ -223,6 +223,9 @@ System.out.println("deploy="+deploy);
 			String sourcedid = parts[4];
 			handleResultRequest(request, response, sourcedid);
 			return;
+		} else if ( "Settings".equals(controller) && parts.length >= 6 ) {
+			handleSettingsRequest(request, response, parts);
+			return;
 		}
 
 System.out.println("Controller="+controller);
@@ -402,6 +405,138 @@ System.out.println("retval="+retval);
 		if ( retval instanceof String ) {
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
 			return;
+		}
+	}
+
+	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
+			String[] parts) throws java.io.IOException
+	{
+        String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String scope = parts[4];
+		String placement_id = parts[5];
+System.out.println("Scope="+scope+" placement_id="+placement_id);
+
+		// Check the JSON on POST and check the oauth_body_hash
+		IMSJSONRequest jsonRequest = null;
+		JSONObject requestData = null;
+		if ( "POST".equals(request.getMethod()) ) {
+			try {
+				jsonRequest = new IMSJSONRequest(request);
+System.out.println(jsonRequest.getPostBody());
+				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
+			} catch (Exception e) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", null);
+				return;
+			}
+		}
+
+		Map<String,Object> content = null;
+		Map<String,Object> tool = null;
+		Map<String,Object> deploy = null;
+		String siteId = null;
+
+		String contentStr = placement_id.substring(8);
+		Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
+		if ( contentKey  >= 0 ) {
+			// Leave off the siteId - bypass all checking - because we need to 
+			// find the siteId from the content item
+			content = ltiService.getContentDao(contentKey);
+			if ( content != null ) siteId = (String) content.get(LTIService.LTI_SITE_ID);
+		}
+
+		if ( content == null || siteId == null ) {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad content item", null);
+			return;
+		}
+
+		Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+		if ( toolKey >= 0 ) {
+			tool = ltiService.getToolDao(toolKey, siteId);
+		}
+	
+		if ( tool == null ) {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad tool item", null);
+			return;
+		}
+
+		// TODO: Check signature and permission to do settings :)
+System.out.println("tool="+tool);
+System.out.println("content="+content);
+
+		// Adjust the content items based on the tool items
+		ltiService.filterContent(content, tool);
+
+		// Retrieve the deployment if needed
+		Long deployKey = null;
+		if ( "ToolProxy".equals(scope) ) {
+			deployKey = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
+			if ( deployKey >= 0 ) {
+				deploy = ltiService.getDeployDao(deployKey);
+			}
+			if ( deploy == null ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
+				return;
+			}
+		}
+System.out.println("Deploy="+deploy);
+
+		// Get the old settings and secret
+		String settings = null;
+		String oauth_secret = null;
+		if ( "LtiLink".equals(scope) ) {
+			settings = (String) content.get(LTIService.LTI_SETTINGS);
+			oauth_secret = (String) content.get(LTIService.LTI_SECRET);
+			if ( oauth_secret == null || oauth_secret.length() < 1 ) {
+				oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+			}
+		} else if ( "ToolProxyBinding".equals(scope) ) {
+			settings = (String) tool.get(LTIService.LTI_SETTINGS);
+			oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+		} else if ( "ToolProxy".equals(scope) ) {
+			settings = (String) deploy.get(LTIService.LTI_SETTINGS);
+			oauth_secret = (String) deploy.get(LTIService.LTI_SECRET);
+		} else {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad Setttings Scope="+scope, null);
+			return;
+		}
+
+        // Validate the incoming message
+        Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret);
+        if ( retval instanceof String ) {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+		}
+
+		if ( "GET".equals(request.getMethod()) ) { 
+			if ( settings == null || settings.length() < 1 ) {
+				settings = "{\n}\n";
+			}
+			response.setContentType(StandardServices.FORMAT_TOOLSETTINGS_SIMPLE);
+			response.setStatus(HttpServletResponse.SC_CREATED); 
+			PrintWriter out = response.getWriter();
+			out.println(settings);
+			return;
+		} if ( "POST".equals(request.getMethod()) ) {
+			settings = jsonRequest.getPostBody();
+			retval = null;
+			if ( "LtiLink".equals(scope) ) {
+				content.put(LTIService.LTI_SETTINGS, settings);
+				retval = ltiService.updateContentDao(contentKey,content,siteId);
+			} else if ( "ToolProxyBinding".equals(scope) ) {
+				tool.put(LTIService.LTI_SETTINGS, settings);
+				retval = ltiService.updateToolDao(toolKey,tool,(String)tool.get(LTIService.LTI_SITE_ID));
+			} else if ( "ToolProxy".equals(scope) ) {
+				deploy.put(LTIService.LTI_SETTINGS, settings);
+				retval = ltiService.updateDeployDao(deployKey,deploy);
+			}
+System.out.println("retval="+retval);
+			if ( retval instanceof String || 
+				( retval instanceof Boolean && ((Boolean) retval != Boolean.TRUE) ) ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+				return;
+			}
+			response.setStatus(HttpServletResponse.SC_CREATED);
+		} else {
+			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Method not handled="+request.getMethod(), null);
 		}
 	}
 

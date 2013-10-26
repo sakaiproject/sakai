@@ -484,6 +484,8 @@ public interface LTIService {
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024:only=lti1",
+		// TODO: Deal with parameter versus settings
+		"settings:text:hidden=true:maxlength=8096",
 		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
 		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=1024:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",
@@ -519,7 +521,16 @@ public interface LTIService {
 		"consumerkey:text:label=bl_consumerkey:maxlength=255:hide=insert",
 		"secret:text:label=bl_secret:maxlength=255:hide=insert",
 		"reg_profile:textarea:label=bl_reg_profile:maxlength=10000:hide=insert:role=admin",
+		"settings:text:hidden=true:maxlength=8096",
 		"created_at:autodate", 
+		"updated_at:autodate" };
+
+	static String[] SETTINGS_MODEL = { 
+		"id:key", 
+		"tool_id:integer:hidden=true",
+		"SITE_ID:text:maxlength=99:role=admin",
+		"settings:text:hidden=true:maxlength=8096",
+		"created_at:autodate",
 		"updated_at:autodate" };
 
 	/** Static constants for data fields */
