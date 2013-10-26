@@ -4,13 +4,18 @@
   <title>Sakai Basic Outcome Service</title>
 </head>
 <body style="font-family:sans-serif; background-color: pink">
-<p><b>Sakai Basic Outcome API</b></p>
+<p><b>Sakai Basic Outcome API (deprecated)</b></p>
 <p>
 This should not be used if your version of Sakai supports
 <a href="http://www.imsglobal.org/developers/LTI/test/v1p1/index.php" target="_new">IMS LTI 1.1</a>.
-LTI 1.1. includes an equivalent outcome service and is a formal standard
+LTI 1.1 or LTI 2.0 as they include an equivalent outcome service and is a formal standard
 and as such will be far more broadly implemented.
 This older service is included in Sakai to allow older External Tools to continue to work.
+</p>
+<p>
+This service sets and reads the same grade as the LTI 1.1 and LTI 2.0 service sets.  There is only
+one grade.  So if you set the grade using LTI 1.1, and read the grade using tis service, you will 
+see the grade that was stored by LTI 1.1.
 </p>
 <?php
 // Load up the LTI 1.0 Support code
@@ -125,7 +130,7 @@ echo "\nBase String:\n</pre><p>\n";
 echo $LastOAuthBodyBaseString;
 echo "\n</p>\n<pre>\n";
 
-$retval = do_post_request($url, http_build_query($newdata));
+$retval = do_body_request($url, "POST", http_build_query($newdata));
 
 $retval = str_replace("<","&lt;",$retval);
 $retval = str_replace(">","&gt;",$retval);

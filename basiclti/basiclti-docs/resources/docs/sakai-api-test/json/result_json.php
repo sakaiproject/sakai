@@ -46,13 +46,15 @@ $postBody = false;
 if ( isset($_REQUEST['get']) ){
     $response = sendOAuthGET($result_url, $oauth_consumer_key, $oauth_consumer_secret, 
         "application/vnd.ims.lis.v2.result+json");
+	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['set']) ) {
     $addStructureRequest = getResultJSON($_REQUEST['grade'], $_REQUEST['comment']);
     $postBody = indent(json_encode($addStructureRequest));
-	$response = sendOAuthBodyPOST("POST", $result_url, $oauth_consumer_key, 
+	$response = sendOAuthBody("PUT", $result_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $postBody);
-	$debugout = get_post_received_debug();
+	$debugin = get_body_sent_debug();
+	$debugout = get_body_received_debug();
 } else {
     exit();
 }
@@ -60,13 +62,15 @@ if ( isset($_REQUEST['get']) ){
 global $LastOAuthBodyBaseString;
 $lbs = $LastOAuthBodyBaseString;
 
+ltiUtilTogglePre("Headers sent", $debugin);
+
 if ( $postBody !== false ) {
-	ltiUtilTogglePre("Our POST Data", indent($postBody));
+	ltiUtilTogglePre("Our Body Data", indent($postBody));
 }
 
 ltiUtilTogglePre("Our Base String", $lbs);
 
-ltiUtilTogglePre("Results and Headers", $debug);
+ltiUtilTogglePre("Results and Headers", $debugout);
 
 if ( strlen($response) < 1 ) {
    echo("<p>HTTP Response Body empty.</p>\n");

@@ -78,20 +78,20 @@ if ( isset($_REQUEST['get_link']) ){
 	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['set_link']) ) {
-	$response = sendOAuthBodyPOST("POST", $link_url, $oauth_consumer_key, 
+	$response = sendOAuthBody("PUT", $link_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
-	$debugin = get_post_sent_debug();
-	$debugout = get_post_received_debug();
+	$debugin = get_body_sent_debug();
+	$debugout = get_body_received_debug();
 } else if ( isset($_REQUEST['set_tool']) ) {
-	$response = sendOAuthBodyPOST("POST", $tool_url, $oauth_consumer_key, 
+	$response = sendOAuthBody("PUT", $tool_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
-	$debugin = get_post_sent_debug();
-	$debugout = get_post_received_debug();
+	$debugin = get_body_sent_debug();
+	$debugout = get_body_received_debug();
 } else if ( isset($_REQUEST['set_proxy']) ) {
-	$response = sendOAuthBodyPOST("POST", $proxy_url, $oauth_consumer_key, 
+	$response = sendOAuthBody("PUT", $proxy_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
-	$debugin = get_post_sent_debug();
-	$debugout = get_post_received_debug();
+	$debugin = get_body_sent_debug();
+	$debugout = get_body_received_debug();
 } else {
     exit();
 }
@@ -102,7 +102,7 @@ $lbs = $LastOAuthBodyBaseString;
 ltiUtilTogglePre("Sent Headers", $debugin);
 
 if ( $postBody !== false ) {
-	ltiUtilTogglePre("Our POST Data", indent($postBody));
+	ltiUtilTogglePre("Our Body Data", indent($postBody));
 }
 
 ltiUtilTogglePre("Our Base String", $lbs);

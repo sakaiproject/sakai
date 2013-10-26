@@ -87,7 +87,7 @@ if ( $_REQUEST['submit'] == "Send Grade" && isset($_REQUEST['grade'] ) ) {
     exit();
 }
 
-$response = sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
+$response = sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
 global $LastOAuthBodyBaseString;
 $lbs = $LastOAuthBodyBaseString;
 
@@ -103,6 +103,7 @@ try {
 echo("\n<pre>\n");
 echo("Service Url:\n");
 echo(htmlent_utf8($endpoint)."\n\n");
+echo(get_body_sent_debug());
 print_r($retval);
 echo("\n");
 echo("------------ POST RETURNS ------------\n");
@@ -112,9 +113,7 @@ $response = str_replace(">","&gt;",$response);
 echo($response);
 
 echo("\n\n------------ WE SENT ------------\n");
-global $LastPOSTMethod;
-echo("Post implementation:".$LastPOSTMethod."\n");
-print_r($lph);
+echo(get_body_received_debug());
 echo("\n");
 $postBody = str_replace("<","&lt;",$postBody);
 $postBody = str_replace(">","&gt;",$postBody);
