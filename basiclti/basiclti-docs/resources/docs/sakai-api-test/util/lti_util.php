@@ -31,7 +31,7 @@ function ltiUtilTogglePre($title, $content) {
     echo(' (<a href="#" onclick="dataToggle('.
 		"'ltiUtilTogglePre_".$ltiUtilTogglePre_div_id."'".');return false;">Toggle</a>)</b><br/>'."\n");
     echo('<pre id="ltiUtilTogglePre_'.$ltiUtilTogglePre_div_id.'" style="display:none; border: solid 1px">'."\n");
-    echo($content);
+    echo(htmlent_utf8($content));
     echo("</pre>\n");
     $ltiUtilTogglePre_div_id = $ltiUtilTogglePre_div_id + 1;
 }
