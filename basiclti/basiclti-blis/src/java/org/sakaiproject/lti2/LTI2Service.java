@@ -109,6 +109,10 @@ public class LTI2Service extends HttpServlet {
         LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl);
 	}
 
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		doPost(request,response);
+	}
+
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request,response);
 	}
@@ -378,7 +382,7 @@ System.out.println("sourcedid="+sourcedid);
 		if ( "GET".equals(request.getMethod()) ) { 
 			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
 System.out.println("retval="+retval);
-		} else if ( "POST".equals(request.getMethod()) ) { 
+		} else if ( "PUT".equals(request.getMethod()) ) { 
 			retval = "Error parsing input data";
 			try {
 				jsonRequest = new IMSJSONRequest(request);
@@ -416,10 +420,10 @@ System.out.println("retval="+retval);
 		String placement_id = parts[5];
 System.out.println("Scope="+scope+" placement_id="+placement_id);
 
-		// Check the JSON on POST and check the oauth_body_hash
+		// Check the JSON on PUT and check the oauth_body_hash
 		IMSJSONRequest jsonRequest = null;
 		JSONObject requestData = null;
-		if ( "POST".equals(request.getMethod()) ) {
+		if ( "PUT".equals(request.getMethod()) ) {
 			try {
 				jsonRequest = new IMSJSONRequest(request);
 System.out.println(jsonRequest.getPostBody());
@@ -515,7 +519,7 @@ System.out.println("Deploy="+deploy);
 			PrintWriter out = response.getWriter();
 			out.println(settings);
 			return;
-		} if ( "POST".equals(request.getMethod()) ) {
+		} if ( "PUT".equals(request.getMethod()) ) {
 			settings = jsonRequest.getPostBody();
 			retval = null;
 			if ( "LtiLink".equals(scope) ) {
