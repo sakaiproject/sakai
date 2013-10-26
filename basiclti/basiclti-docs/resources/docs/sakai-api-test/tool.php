@@ -44,20 +44,43 @@ if ( $context->valid ) {
         print '&url='.urlencode($_POST['lis_outcome_service_url']).'">';
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
 		$found = true;
+    }
+
+    if ( isset($_POST['ext_lti2_result_url']) ) {
+        print "<p>\n";
+        print '<a href="json/result_json.php?url='.urlencode($_POST['ext_lti2_result_url']).'">';
+        print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
 		// In case we just did not do a registration.
 		if ( !isset($_SESSION['reg_key']) ) {
 			$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
 			$_SESSION['reg_password'] = "secret";
 		}
-    }
-
-    if ( isset($_POST['ext_lti2_result_url']) &&
-        isset($_SESSION['reg_key']) && isset($_SESSION['reg_password']) ) {
-        print "<p>\n";
-        print '<a href="json/result_json.php?url='.urlencode($_POST['ext_lti2_result_url']).'">';
-        print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
 		$found = true;
     }
+
+    if ( isset($_POST['ext_lti2_ltilink_custom_url']) || isset($_POST['ext_lti2_toolproxy_custom_url']) ||
+		isset($_POST['ext_lti2_toolproxybinding_custom_url']) ) {
+        print "<p>\n";
+        print '<a href="json/settings_json.php?';
+		if ( isset($_POST['ext_lti2_ltilink_custom_url']) ) { 
+			print 'link='.urlencode($_POST['ext_lti2_ltilink_custom_url'])."&";
+		}
+		if ( isset($_POST['ext_lti2_toolproxy_custom_url']) ) { 
+			print 'proxy='.urlencode($_POST['ext_lti2_toolproxy_custom_url'])."&";
+		}
+		if ( isset($_POST['ext_lti2_toolproxybinding_custom_url']) ) { 
+			print 'tool='.urlencode($_POST['ext_lti2_toolproxybinding_custom_url'])."&";
+		}
+		print 'x=24">';
+        print 'Test LTI 2.0 Settings Service</a>.</p>'."\n";
+		// In case we just did not do a registration.
+		if ( !isset($_SESSION['reg_key']) ) {
+			$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
+			$_SESSION['reg_password'] = "secret";
+		}
+		$found = true;
+    }
+
 
     if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
         print "<p>\n";
