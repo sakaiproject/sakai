@@ -3,11 +3,17 @@ package org.imsglobal.lti2.objects;
 
 public class StandardServices {
 
-    public static final String FORMAT_TOOLPROXY = "application/vnd.ims.lti.v2.toolproxy+json";
-    public static final String FORMAT_TOOLPROXY_ID = "application/vnd.ims.lti.v2.toolproxy.id+json";
-    public static final String FORMAT_TOOLSETTINGS = "application/vnd.ims.lti.v2.toolsettings+json";
-    public static final String FORMAT_TOOLSETTINGS_SIMPLE = "application/vnd.ims.lti.v2.toolsettings.simple+json";
-    public static final String FORMAT_RESULT = "application/vnd.ims.lis.v2.result+json";
+    public static final String TOOLPROXY_FORMAT = "application/vnd.ims.lti.v2.toolproxy+json";
+    public static final String TOOLSETTINGS_FORMAT = "application/vnd.ims.lti.v2.toolsettings+json";
+    public static final String TOOLSETTINGS_SIMPLE_FORMAT = "application/vnd.ims.lti.v2.toolsettings.simple+json";
+
+    public static final String TOOLPROXY_ID_CONTEXT = "http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId";
+    public static final String TOOLPROXY_ID_FORMAT = "application/vnd.ims.lti.v2.toolproxy.id+json";
+    public static final String TOOLPROXY_ID_TYPE = "ToolProxy";
+
+	public static final String RESULT_FORMAT = "application/vnd.ims.lis.v2.result+json";
+	public static final String RESULT_CONTEXT = "http://purl.imsglobal.org/ctx/lis/v2/Result";
+	public static final String RESULT_TYPE = "Result";
 
     public static final String TOOL_PROXY_GUID = "{tool_proxy_guid}";
     public static final String LINK_ID = "{link_id}";
@@ -18,7 +24,7 @@ public class StandardServices {
 		ret.setEndpoint(endpoint);
 		ret.set_id("tcp:ToolProxy.collection");    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat(FORMAT_TOOLPROXY);
+		ret.setFormat(TOOLPROXY_FORMAT);
 		ret.setAction("POST");
 		return ret;
     }
@@ -29,7 +35,7 @@ public class StandardServices {
 		ret.setEndpoint(resources+"/ToolProxy/{tool_proxy_guid}");
 		ret.set_id("tcp:ToolProxy.item");
 		ret.set_type("RestService");
-		ret.setFormat(FORMAT_TOOLPROXY);
+		ret.setFormat(TOOLPROXY_FORMAT);
 		ret.setAction(new String[] {"GET", "PUT"});
 		return ret;
     }
@@ -40,7 +46,7 @@ public class StandardServices {
 		ret.setEndpoint(resources+"/Result/{sourcedId}");
 		ret.set_id("tcp:Result.item");    // TODO: Is this right see 5.6 in the docs
 		ret.set_type("RestService");
-		ret.setFormat(FORMAT_RESULT);
+		ret.setFormat(RESULT_FORMAT);
 		ret.setAction(new String[] {"GET", "PUT"});
 		return ret;
     }
@@ -51,7 +57,7 @@ public class StandardServices {
 		ret.setEndpoint(resources+"/ToolProxy/{tool_proxy_guid}/custom");
 		ret.set_id("tcp:ToolProxySettings");    
 		ret.set_type("RestService");
-		ret.setFormat(new String[] {FORMAT_TOOLSETTINGS, FORMAT_TOOLSETTINGS_SIMPLE});
+		ret.setFormat(new String[] {TOOLSETTINGS_FORMAT, TOOLSETTINGS_SIMPLE_FORMAT});
 		ret.setAction(new String[] {"GET", "PUT"});
 		return ret;
     }
@@ -62,7 +68,7 @@ public class StandardServices {
 		ret.setEndpoint(resources+"/links/{link_id}/custom");
 		ret.set_id("tcp:LtiLinkSettings");    
 		ret.set_type("RestService");
-		ret.setFormat(new String[] {FORMAT_TOOLSETTINGS, FORMAT_TOOLSETTINGS_SIMPLE});
+		ret.setFormat(new String[] {TOOLSETTINGS_FORMAT, TOOLSETTINGS_SIMPLE_FORMAT});
 		ret.setAction(new String[] {"GET", "PUT"});
 		return ret;
     }

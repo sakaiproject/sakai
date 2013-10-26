@@ -251,7 +251,6 @@ System.out.println("profile_id="+profile_id);
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
 			return;
 		}
-System.out.println("deploy="+deploy);
 		Long deployKey = foorm.getLong(deploy.get(LTIService.LTI_ID));
 System.out.println("deployKey="+deployKey);
 
@@ -358,13 +357,13 @@ System.out.println("deployUpdate="+deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
 
 		Map jsonResponse = new TreeMap();
-		jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId");
-		jsonResponse.put("@type", "ToolProxy");
+		jsonResponse.put("@context",StandardServices.TOOLPROXY_ID_CONTEXT);
+		jsonResponse.put("@type", StandardServices.TOOLPROXY_ID_TYPE);
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		jsonResponse.put("@id", resourceUrl+"/tc_registration/"+profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
 		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl+"/Settings/ToolProxy/"+profile_id);
-		response.setContentType(StandardServices.FORMAT_TOOLPROXY_ID);
+		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
 		String jsonText = JSONValue.toJSONString(jsonResponse);
 		M_log.debug(jsonText);
@@ -381,7 +380,26 @@ System.out.println("sourcedid="+sourcedid);
 		IMSJSONRequest jsonRequest = null;
 		if ( "GET".equals(request.getMethod()) ) { 
 			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-System.out.println("retval="+retval);
+			if ( ! (retval instanceof Map) ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+				return;
+			}
+			Map grade = (Map) retval;
+			Map jsonResponse = new TreeMap();
+			Map resultScore = new TreeMap();
+	
+			jsonResponse.put("@context",StandardServices.RESULT_CONTEXT);
+			jsonResponse.put("@type", StandardServices.RESULT_TYPE);
+			jsonResponse.put("comment", grade.get("comment"));
+			resultScore.put("@type", "decimal");
+			resultScore.put("@value", grade.get("grade"));
+			jsonResponse.put("resultScore",resultScore);
+			response.setContentType(StandardServices.RESULT_FORMAT);
+			response.setStatus(HttpServletResponse.SC_OK);
+			String jsonText = JSONValue.toJSONString(jsonResponse);
+			M_log.debug(jsonText);
+			PrintWriter out = response.getWriter();
+			out.println(jsonText);
 		} else if ( "PUT".equals(request.getMethod()) ) { 
 			retval = "Error parsing input data";
 			try {
@@ -426,7 +444,6 @@ System.out.println("Scope="+scope+" placement_id="+placement_id);
 		if ( "PUT".equals(request.getMethod()) ) {
 			try {
 				jsonRequest = new IMSJSONRequest(request);
-System.out.println(jsonRequest.getPostBody());
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", null);
@@ -463,9 +480,7 @@ System.out.println(jsonRequest.getPostBody());
 			return;
 		}
 
-		// TODO: Check signature and permission to do settings :)
-System.out.println("tool="+tool);
-System.out.println("content="+content);
+		// TODO: Check settings to see if we are allowed to do this :)
 
 		// Adjust the content items based on the tool items
 		ltiService.filterContent(content, tool);
@@ -482,7 +497,6 @@ System.out.println("content="+content);
 				return;
 			}
 		}
-System.out.println("Deploy="+deploy);
 
 		// Get the old settings and secret
 		String settings = null;
@@ -514,7 +528,7 @@ System.out.println("Deploy="+deploy);
 			if ( settings == null || settings.length() < 1 ) {
 				settings = "{\n}\n";
 			}
-			response.setContentType(StandardServices.FORMAT_TOOLSETTINGS_SIMPLE);
+			response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
 			response.setStatus(HttpServletResponse.SC_CREATED); 
 			PrintWriter out = response.getWriter();
 			out.println(settings);
@@ -532,7 +546,6 @@ System.out.println("Deploy="+deploy);
 				deploy.put(LTIService.LTI_SETTINGS, settings);
 				retval = ltiService.updateDeployDao(deployKey,deploy);
 			}
-System.out.println("retval="+retval);
 			if ( retval instanceof String || 
 				( retval instanceof Boolean && ((Boolean) retval != Boolean.TRUE) ) ) {
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
