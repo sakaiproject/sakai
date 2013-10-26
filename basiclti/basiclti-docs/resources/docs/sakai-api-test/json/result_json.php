@@ -73,9 +73,12 @@ ltiUtilTogglePre("Our Base String", $lbs);
 ltiUtilTogglePre("Results and Headers", $debugout);
 
 if ( strlen($response) < 1 ) {
-   echo("<p>HTTP Response Body empty.</p>\n");
+	echo("<p>HTTP Response Body empty.</p>\n");
 } else {
-	ltiUtilTogglePre("Returned Data", indent($response));
+	echo("<p>HTTP Response:</p>\n");
+	echo("<pre>\n");
+	echo(indent($response));
+	echo("\n</pre>\n");
 }
 
 ?>
