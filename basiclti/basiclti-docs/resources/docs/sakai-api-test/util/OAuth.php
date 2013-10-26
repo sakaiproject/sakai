@@ -397,6 +397,10 @@ class OAuthRequest {
     // Hack for RoR implementations that do not handle realm properly
     // $out ='Authorization: OAuth ';
     // $comma = '';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
     $total = array();
     $comma = '';
     foreach ($this->parameters as $k => $v) {
