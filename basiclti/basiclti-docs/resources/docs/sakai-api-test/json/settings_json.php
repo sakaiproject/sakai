@@ -61,29 +61,36 @@ Settings to Send to Sakai: <br/>
 <?php 
 
 $postBody = false;
+$content_type = "application/vnd.ims.lis.v2.result+json";
 if ( isset($_REQUEST['get_link']) ){
     $response = sendOAuthGET($link_url, $oauth_consumer_key, $oauth_consumer_secret, 
-        "application/vnd.ims.lis.v2.result+json");
+		$content_type);
+	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['get_tool']) ){
     $response = sendOAuthGET($tool_url, $oauth_consumer_key, $oauth_consumer_secret, 
-        "application/vnd.ims.lis.v2.result+json");
+		$content_type);
+	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['get_proxy']) ){
     $response = sendOAuthGET($proxy_url, $oauth_consumer_key, $oauth_consumer_secret, 
-        "application/vnd.ims.lis.v2.result+json");
+		$content_type);
+	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['set_link']) ) {
 	$response = sendOAuthBodyPOST("POST", $link_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
+	$debugin = get_post_sent_debug();
 	$debugout = get_post_received_debug();
 } else if ( isset($_REQUEST['set_tool']) ) {
 	$response = sendOAuthBodyPOST("POST", $tool_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
+	$debugin = get_post_sent_debug();
 	$debugout = get_post_received_debug();
 } else if ( isset($_REQUEST['set_proxy']) ) {
 	$response = sendOAuthBodyPOST("POST", $proxy_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
+	$debugin = get_post_sent_debug();
 	$debugout = get_post_received_debug();
 } else {
     exit();
@@ -92,13 +99,15 @@ if ( isset($_REQUEST['get_link']) ){
 global $LastOAuthBodyBaseString;
 $lbs = $LastOAuthBodyBaseString;
 
+ltiUtilTogglePre("Sent Headers", $debugin);
+
 if ( $postBody !== false ) {
 	ltiUtilTogglePre("Our POST Data", indent($postBody));
 }
 
 ltiUtilTogglePre("Our Base String", $lbs);
 
-ltiUtilTogglePre("Results and Headers", $debug);
+ltiUtilTogglePre("Results and Headers", $debugout);
 
 if ( strlen($response) < 1 ) {
    echo("<p>HTTP Response Body empty.</p>\n");
