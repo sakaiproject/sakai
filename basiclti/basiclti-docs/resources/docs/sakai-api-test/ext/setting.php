@@ -3,11 +3,19 @@
   <title>Sakai Setting API</title>
 </head>
 <body style="font-family:sans-serif; background-color: pink">
-<p><b>Sakai Setting API</b></p>
+<p><b>Sakai Setting API Extension (Deprecated)</b></p>
 <p>
 This setting allows an External Tool to 
 store up to 4K of data  within the tool placement in Sakai to be included on every launch.
 There is one setting per <b>resource_link_id</b> across all values for <b>user_id</b>.
+</p>
+<p>
+<b>WARNING:</b> This extension service uses the same data element as the LTI 2.0 LtiLink
+settings service.   So you should only use one of the two settings services for link
+level settings in Sakai.  For example, if you set the LtiLink settings using the LTI 2.0
+API and then set the settings using this API, you will have overwritten the LTI 2.0
+settings.  And since the LTI 2.0 settings service has a particular JSON format for settings,
+you may break an LTI 2.0 tool by overwriting its settings using this service.
 </p>
 <?php
 // Load up the LTI 1.0 Support code
@@ -69,7 +77,7 @@ $url = $_REQUEST['url'];
 $data = array(
   'lti_message_type' => $message,
   'id' => $_REQUEST['id'],
-  'setting' => $_REQUEST['setting']);
+  'setting' => stripslashes($_REQUEST['setting']));
 
 $oauth_consumer_key = $_REQUEST['key'];
 
@@ -88,7 +96,7 @@ global $LastOAuthBodyBaseString;
 echo "\nBase String:\n</pre><p>\n";
 echo $LastOAuthBodyBaseString;
 echo "\n</p>\n<pre>\n";
-$retval = do_post_request($url, http_build_query($newdata));
+$retval = do_body_request($url, "POST", http_build_query($newdata));
 
 $retval = str_replace("<","&lt;",$retval);
 $retval = str_replace(">","&gt;",$retval);

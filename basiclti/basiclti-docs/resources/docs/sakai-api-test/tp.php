@@ -208,7 +208,7 @@ $_SESSION['reg_password'] = $reg_password;
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-$response = sendOAuthBodyPOST("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
+$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
 

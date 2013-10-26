@@ -568,14 +568,14 @@ function get_string($key,$bundle) {
     return $key;
 }
 
-function do_post_request($url, $data, $optional_headers = null)
+function do_body_request($url, $method, $data, $optional_headers = null)
 {
   if ($optional_headers !== null) {
      $header = $optional_headers . "\r\n";
   }
   $header = $header . "Content-Type: application/x-www-form-urlencoded\r\n";
 
-  return do_post($url,$data,$header);
+  return do_body($url,$method,$data,$header);
 }
 
 
@@ -747,7 +747,6 @@ function do_get($url, $header = false) {
     global $LastHeadersSent;
     global $last_http_response;
     global $LastHeadersReceived;
-    global $LastPostResponse;
 
 	$LastGETURL = $url;
     $LastGETMethod = false;
@@ -822,7 +821,7 @@ function get_curl($url, $header) {
   return $body;
 }
 
-function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
+function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
 {
     $hash = base64_encode(sha1($body, TRUE));
 
@@ -842,33 +841,32 @@ function sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consu
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
 
-    global $LastPOSTHeader;
-    $LastPOSTHeader = $header;
-
-    return do_post($endpoint,$body,$header);
+    return do_body($endpoint, $method, $body,$header);
 }
 
 
-function get_post_sent_debug() {
-    global $LastPOSTMethod;
-    global $LastPOSTURL;
+function get_body_sent_debug() {
+    global $LastBODYURL;
+    global $LastBODYMethod;
+    global $LastBODYImpl;
     global $LastHeadersSent;
 
-    $ret = "POST Used: " . $LastPOSTMethod . "\n" . 
-	     $LastPOSTURL . "\n\n" .
+    $ret = $LastBODYMethod . " Used: " . $LastBODYImpl . "\n" . 
+	     $LastBODYURL . "\n\n" .
 		 $LastHeadersSent . "\n";
 	return $ret;
 }
 
-function get_post_received_debug() {
-    global $LastPOSTURL;
-    global $last_http_response;
-    global $LastPOSTMethod;
+function get_body_received_debug() {
+    global $LastBODYURL;
+    global $LastBODYMethod;
+    global $LastBODYImpl;
     global $LastHeadersReceived;
+    global $last_http_response;
 
-    $ret = "POST Used: " . $LastPOSTMethod . "\n" .
-		 "HTTP Response: " . $last_http_response . "\n" .
-	     $LastPOSTURL . "\n" .
+    $ret = $LastBODYMethod . " Used: " . $LastBODYImpl . "\n" . 
+		 "HTTP Response Code: " . $last_http_response . "\n" .
+	     $LastBODYURL . "\n" .
 		 $LastHeadersReceived . "\n";
 	return $ret;
 }
@@ -901,32 +899,34 @@ function get_get_received_debug() {
 // the PHP version and configuration.  You can use only one
 // if you know what version of PHP is working and how it will be 
 // configured...
-function do_post($url, $body, $header) {
-    global $LastPOSTURL;
-    global $LastPOSTMethod;
+function do_body($url, $method, $body, $header) {
+    global $LastBODYURL;
+    global $LastBODYMethod;
+    global $LastBODYImpl;
     global $LastHeadersSent;
     global $last_http_response;
     global $LastHeadersReceived;
-    global $LastPostResponse;
+    global $LastBODYResponse;
 
-	$LastPOSTURL = $url;
-    $LastPOSTMethod = false;
+	$LastBODYURL = $url;
+    $LastBODYMethod = $method;
+    $LastBODYImpl = false;
     $LastHeadersSent = false;
     $last_http_response = false;
     $LastHeadersReceived = false;
-    $lastPOSTResponse = false;
+    $LastBODYResponse = false;
 
     // Prefer curl because it checks if it works before trying
-    $lastPOSTResponse = post_curl($url, $body, $header);
-    $LastPOSTMethod = "CURL";
-    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
-    $lastPOSTResponse = post_socket($url, $body, $header);
-    $LastPOSTMethod = "Socket";
-    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
-    $lastPOSTResponse = post_stream($url, $body, $header);
-    $LastPOSTMethod = "Stream";
-    if ( $lastPOSTResponse !== false ) return $lastPOSTResponse;
-    $LastPOSTMethod = "Error";
+    $LastBODYResponse = body_curl($url, $method, $body, $header);
+    $LastBODYImpl = "CURL";
+    if ( $LastBODYResponse !== false ) return $LastBODYResponse;
+    $LastBODYResponse = body_socket($url, $method, $body, $header);
+    $LastBODYImpl = "Socket";
+    if ( $LastBODYResponse !== false ) return $LastBODYResponse;
+    $LastBODYResponse = body_stream($url, $method, $body, $header);
+    $LastBODYImpl = "Stream";
+    if ( $LastBODYResponse !== false ) return $LastBODYResponse;
+    $LastBODYImpl = "Error";
     echo("Unable to post<br/>\n");
     echo("Url=$url <br/>\n");
     echo("Headers:<br/>\n$header<br/>\n");
@@ -935,7 +935,7 @@ function do_post($url, $body, $header) {
 }
 
 // From: http://php.net/manual/en/function.file-get-contents.php
-function post_socket($endpoint, $data, $moreheaders=false) {
+function body_socket($endpoint, $method, $data, $moreheaders=false) {
   if ( ! function_exists('fsockopen') ) return false;
   if ( ! function_exists('stream_get_transports') ) return false;
     $url = parse_url($endpoint);
@@ -959,7 +959,7 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     if ( strlen($url['query']) > 0 ) $uri .= '?'.$url['query'];
     if ( strlen($url['fragment']) > 0 ) $uri .= '#'.$url['fragment'];
 
-    $headers =  "POST ".$uri." HTTP/1.0".$eol.
+    $headers =  $method." ".$uri." HTTP/1.0".$eol.
                 "Host: ".$url['host'].$hostport.$eol.
                 "Referer: ".$url['protocol'].$url['host'].$url['path'].$eol.
                 "Content-Length: ".strlen($data).$eol;
@@ -991,9 +991,9 @@ function post_socket($endpoint, $data, $moreheaders=false) {
     return false;
 }
 
-function post_stream($url, $body, $header) {
+function body_stream($url, $method, $body, $header) {
     $params = array('http' => array(
-        'method' => 'POST',
+        'method' => $method,
         'content' => $body,
         'header' => $header
         ));
@@ -1008,7 +1008,7 @@ function post_stream($url, $body, $header) {
     return $response;
 }
 
-function post_curl($url, $body, $header) {
+function body_curl($url, $method, $body, $header) {
   if ( ! function_exists('curl_init') ) return false;
   global $last_http_response;
   global $LastHeadersSent;
@@ -1026,7 +1026,12 @@ function post_curl($url, $body, $header) {
   }
   curl_setopt ($ch, CURLOPT_HTTPHEADER, $htrim);
 
-  curl_setopt($ch, CURLOPT_POST, 1);
+  if ( $method == "POST" ) {
+    curl_setopt($ch, CURLOPT_POST, 1);
+  } else { 
+    curl_setopt($ch, CURLOPT_CUSTOMREQUEST, $method);
+  }
+
   curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
 
   curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // ask for results to be returned
@@ -1142,7 +1147,7 @@ function replaceResultRequest($grade, $sourcedid, $endpoint, $oauth_consumer_key
         array($sourcedid, $grade, $operation, uniqid()),
         getPOXGradeRequest());
 
-    $response = sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
+    $response = sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
     return parseResponse($response);
 }
 

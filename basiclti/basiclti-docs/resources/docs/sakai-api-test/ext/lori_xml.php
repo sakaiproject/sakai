@@ -73,7 +73,7 @@ if ( $_REQUEST['submit'] == "Get Course Structure" && isset($_REQUEST['context_i
     exit();
 }
 
-$response = sendOAuthBodyPOST($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
+$response = sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $postBody);
 global $LastOAuthBodyBaseString;
 $lbs = $LastOAuthBodyBaseString;
 
