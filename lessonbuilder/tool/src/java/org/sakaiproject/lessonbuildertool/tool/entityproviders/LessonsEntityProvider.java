@@ -1,4 +1,4 @@
- /**********************************************************************************
+/**********************************************************************************
  * $URL: https://source.sakaiproject.org/svn/lessonbuilder/trunk/tool/src/java/org/sakaiproject/lessonbuildertool/tool/entityproviders/LessonbuilderEntityProvider.java $
  * $Id: LessonbuilderEntityProvider.java $
  ***********************************************************************************
@@ -54,6 +54,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -66,7 +67,12 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.api.Placement;
 
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
@@ -86,6 +92,15 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	public final static String TOOL_COMMON_ID = "sakai.lessonbuildertool";
 	public static final String REFERENCE_ROOT = "/lessons";
 	
+    // from ToolComponent, which is part of kernel-impl, so we can't get to it.
+
+	/** Key in the ThreadLocalManager for binding our current placement. */
+	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
+
+	/** Key in the ThreadLocalManager for binding our current tool. */
+	protected final static String CURRENT_TOOL = "sakai:ToolComponent:current.tool";
+
+
 	private static final Log log = LogFactory.getLog(LessonsEntityProvider.class);
 	
 	@Override
@@ -98,10 +113,26 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		return null;
 	}
 	
+    /* 
+     * security model. Need the following
+     * 
+     * setToolSession - creates a tool session and sets current site in ThreadLocal.
+     *   needed because some tools for which we do group checks use this info 
+     *   in their services. (in fact Lessons code current does, though that could be fixed.)
+     * checkReadPermission in site
+     * isItemAccessible
+     *   These are combined by checkItemPermissions, but in loops it is probaby better to
+     *   do checkReadPermission once and checkItemPermission for the items
+     *   In a loop it's also best to do an explicitly creation of a SimplePageBean and
+     *   pass it to each call to checkItemPermission
+     * checkUpdatePermission in site
+     *   if user has update you don't need to check for read or item permission
+     */
+
 	@Override
 	public Object getEntity(EntityReference ref) {
 	
-		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", false))
+		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", true))
 		    return null;
 
 		//get user uuid
@@ -137,11 +168,19 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			//check if given site contains the lessonbuilder tool
 			//checkTool(site);
 			
+			setToolSession(site);
+
 			//check if current user has permission to access to the lessonbuilder tool
-			checkItemPermission(siteId, item.getId());
+			// checks tool read and item perm
+			if (!checkUpdatePermission(siteId))
+			    checkItemPermission(siteId, item.getId());
 			
-		
-			ret = new DecoratedItem(item.getId(), item.getName(), item.getType(), siteId, site.getTitle());
+			if (item.getType() == SimplePageItem.PAGE) {
+			    String baseURL = developerHelperService.getEntityURL(REFERENCE_ROOT, EntityView.VIEW_LIST, null);   //   /direct/lessons
+			    baseURL = baseURL + "/lesson/";
+			    ret = new DecoratedPageItem(item.getId(), item.getName(), item.getType(), siteId, site.getTitle(), baseURL + item.getId());
+			} else
+			    ret = new DecoratedItem(item.getId(), item.getName(), item.getType(), siteId, site.getTitle());
 		}
 		else
 			throw new EntityNotFoundException("Invalid id", id);
@@ -157,7 +196,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	@EntityCustomAction(action="site",viewKey=EntityView.VIEW_LIST)
 	public List<?> getLessonsInSite(EntityView view, Map<String, Object> params) {
 	
-		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", false))
+		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", true))
 		    return null;
 
 		String siteId = view.getPathSegment(2);
@@ -178,6 +217,8 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		
 		//check if given site contains the lessonbuilder tool
 		//checkTool(site);
+
+		setToolSession(site);
 		
 		//check if current user has permission to access to the lessonbuilder tool
 		checkReadPermission(siteId);
@@ -189,12 +230,16 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		// best to do this once so each call to isItemAccessible doesn't have to
 		SimplePageBean simplePageBean = null;
 		String currentUserId = sessionManager.getCurrentSessionUserId();
+		String baseURL = developerHelperService.getEntityURL(REFERENCE_ROOT, EntityView.VIEW_LIST, null);   //   /direct/lessons
+		baseURL = baseURL + "/lesson/";
 
+		boolean hasUpdatePermission = checkUpdatePermission(siteId);
+		
 		for(SimplePageItem item : list)
 		{
 		    simplePageBean = makeSimplePageBean(simplePageBean, siteId, item);
-		    if (lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean))
-			ret.add(new DecoratedSiteItem(item.getId(), item.getName()));
+		    if (hasUpdatePermission || lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean)) 
+			ret.add(new DecoratedSiteItem(item.getId(), item.getName(), baseURL + item.getId()));
 		}
 		
 		return ret;
@@ -207,12 +252,14 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	@EntityCustomAction(action="user",viewKey=EntityView.VIEW_LIST)
 	public List<?> getLessonsForUser(EntityView view, Map<String, Object> params) {
 		
-		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", false))
+		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", true))
 		    return null;
 
 		List<DecoratedUserItem> ret = new ArrayList<DecoratedUserItem>();
 		
 		String currentUserId = sessionManager.getCurrentSessionUserId();
+		String baseURL = developerHelperService.getEntityURL(REFERENCE_ROOT, EntityView.VIEW_LIST, null);   //   /direct/lessons
+		baseURL = baseURL + "/lesson/";
 
 		//first of all, we get a list with all sites that the user can access
 		List<Site> siteList = getUserSites();
@@ -222,16 +269,20 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 				//check if given site contains the lessonbuilder tool
 				//checkTool(s);
 				
+				setToolSession(s);
+
 				//check if current user has permission to access to the lessonbuilder tool
 				checkReadPermission(s.getId());
 				
 				List<SimplePageItem> list = simplePageToolDao.findItemsInSite(s.getId());
 							
+				boolean hasUpdatePermission = checkUpdatePermission(s.getId());
+
 				for(SimplePageItem item : list)
 				{
 				    simplePageBean = makeSimplePageBean(simplePageBean, s.getId(), item);
-				    if (lessonsAccess.isItemAccessible(item.getId(), s.getId(), currentUserId, simplePageBean))
-					ret.add(new DecoratedUserItem(item.getId(), item.getName(), s.getId(), s.getTitle()));
+				    if (hasUpdatePermission || lessonsAccess.isItemAccessible(item.getId(), s.getId(), currentUserId, simplePageBean))
+					ret.add(new DecoratedUserItem(item.getId(), item.getName(), s.getId(), s.getTitle(), baseURL + item.getId()));
 				}
 
 			}catch(EntityNotFoundException e) { //if there is no lessonbuilder tool in that site, just skip it		
@@ -247,9 +298,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	 * example: /direct/lessons/lesson/LESSONID.xml
 	 */
 	@EntityCustomAction(action="lesson",viewKey=EntityView.VIEW_LIST)
-	public List<?> getLesson(EntityView view, Map<String, Object> params) {
+	public Object getLesson(EntityView view, Map<String, Object> params) {
 	
-		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", false))
+		if (!ServerConfigurationService.getBoolean("lessonbuilder.keitai", true))
 		    return null;
 
 		String id = view.getPathSegment(2);
@@ -307,10 +358,19 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			//check if given site contains the lessonbuilder tool
 			//checkTool(site);
 			
-			//check if current user has permission to access to the lessonbuilder tool
-			checkItemPermission(siteId, item.getId());
+			setToolSession(site);
 
+			//check if current user has permission to access to the lessonbuilder tool
+			//checks tool read and item permission
 			boolean hasUpdatePermission = checkUpdatePermission(siteId);
+
+			if (!hasUpdatePermission)
+			    checkItemPermission(siteId, item.getId());
+
+			// remove after testing
+			// hasUpdatePermission = false;
+
+			String currentUserId = sessionManager.getCurrentSessionUserId();
 			
 			//if required item is not a page or we just want a single item
 			if (item.getType() != SimplePageItem.PAGE || !fullTree)
@@ -319,7 +379,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 					ret.add(new DecoratedItem(item.getId(), item.getName(), item.getType(), site.getId(), site.getTitle()));
 				else
 					addItem(item, ret, hasUpdatePermission);
-				return ret;
+				return ret.get(0);
 			}
 			
 			// build map of all pages, so we can check if any is repeated
@@ -331,17 +391,19 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 				pageMap.put(p.getPageId(), p);
 			
 			if(simpleType)
-				findAllSimplePages(item, ret, pageMap, site);
+				findAllSimplePages(item, ret, pageMap, hasUpdatePermission, site, currentUserId);
 			else
-				findAllPages(item, ret, pageMap, hasUpdatePermission);	
+				findAllPages(item, ret, pageMap, hasUpdatePermission, siteId, currentUserId);	
 		}
 		else
 		{
 			throw new EntityNotFoundException("Given id does not pertain to any page", id);
 		}
 		
+		if (ret != null && ret.size() > 0)
+		    return ret.get(0);
 		return ret;
-    }
+	}
 	
 	
 	@Override
@@ -364,7 +426,18 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		private String siteId;
 		private String siteTitle;
 	}
-	
+
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Data
+	public class DecoratedPageItem extends DecoratedItem {
+		private String contentsURL;
+		public DecoratedPageItem(long id, String title, int type, String siteId, String siteTitle, String contentsURL) {
+		    super(id, title, type, siteId, siteTitle);
+		    this.contentsURL = contentsURL;
+		}		    
+	}
+
 	// for action=site
 	@NoArgsConstructor
 	@AllArgsConstructor
@@ -372,6 +445,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	public class DecoratedSiteItem {
 		private long id;
 		private String lessonTitle;
+		private String contentsURL;
 	}
 	
 	//for action=user
@@ -383,6 +457,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		private String lessonTitle;
 		private String siteId;
 		private String siteTitle;
+		private String contentsURL;
 	}
 	
 	// simplified version of SimplePageItem (base object) for action=lesson & type!=simple(default)
@@ -436,6 +511,24 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		}
 	}
 	
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Data
+	public class DecoratedLessonPage extends DecoratedLesson {
+		private String contentsURL;
+		private List<LessonBase> contentsList;
+		public void setContentsList(List<LessonBase> list) {
+		    contentsList = list;
+		}
+		public DecoratedLessonPage(SimplePageItem item) {
+		    super(item);
+		    String baseURL = developerHelperService.getEntityURL(REFERENCE_ROOT, EntityView.VIEW_LIST, null);   //   /direct/lessons
+		    baseURL = baseURL + "/lesson/";
+		    this.contentsURL = baseURL + item.getId();
+		    this.contentsList = null;
+		}		    
+	}
+
 	//for question items (base)
 	@NoArgsConstructor
 	@Data
@@ -550,6 +643,22 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 			throw new EntityNotFoundException("Invalid site", "-null-");
 	}	
 	
+    // Some of the tools (e.g. Formums) require a valid session in order to do permission
+    // checking. So if we don't already have a session with the right site, set one up.
+
+	private void setToolSession(Site site) {
+	    Placement p = toolManager.getCurrentPlacement();
+	    if (p == null || !site.getId().equals(p.getContext())) {
+		ToolConfiguration siteTool = site.getToolForCommonId(TOOL_COMMON_ID);
+		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
+		Session ses = sessionManager.getCurrentSession();
+		ToolSession toolSession = ses.getToolSession(siteTool.getId());
+		sessionManager.setCurrentToolSession(toolSession);
+		ThreadLocalManager.set(CURRENT_PLACEMENT, siteTool);
+		ThreadLocalManager.set(CURRENT_TOOL, tool);
+	    }
+
+	}
 	private void checkReadPermission(String siteId) {
 		checkReadPermission(siteId, sessionManager.getCurrentSessionUserId());
 	}
@@ -557,8 +666,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	private void checkItemPermission(String siteId, long itemId) {
 	    String currentUserId = sessionManager.getCurrentSessionUserId();
 	    checkReadPermission(siteId, currentUserId);
-	    if (!lessonsAccess.isItemAccessible(itemId, siteId, currentUserId, null))
+	    if (!lessonsAccess.isItemAccessible(itemId, siteId, currentUserId, null)) {
 		throw new SecurityException("User "+currentUserId+" does not have permission to read lessons on site " + siteId);
+	    }
 	}
 
 	private void checkReadPermission(String siteId, String userId) {
@@ -611,6 +721,10 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		return siteList;
 	}
 	
+    // caller has done checkItemPermissions for the page. We have to check it
+    // for all items on the page. Since caller has checked site read we
+    // only have to check isItemAccessible.
+
 	/**
 	 * findAllPages : explores lessonbuilder tree from a base pageItem and fills a list of LessonBase items
 	 * 
@@ -619,7 +733,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	 * @param pageMap
 	 * @param hasUpdatePermission
 	 */
-	private void findAllPages(SimplePageItem pageItem, List<LessonBase> entries, Map<Long,SimplePage> pageMap, boolean hasUpdatePermission) {
+    private void findAllPages(SimplePageItem pageItem, List<LessonBase> entries, Map<Long,SimplePage> pageMap, boolean hasUpdatePermission, String siteId, String currentUserId) {
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    	    
 	    // already done if page is null
 	    if (pageMap.get(pageId) == null)
@@ -627,20 +741,40 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
 	    // say done
 	    pageMap.remove(pageId);
-		addItem(pageItem, entries, hasUpdatePermission);
+	    LessonBase lessonPage = addItem(pageItem, entries, hasUpdatePermission);
 
 	    // now recursively do subpages
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+
+	    if (items != null && items.size() > 0) {
+				if (lessonPage instanceof DecoratedLessonPage) {
+				    entries = new ArrayList<LessonBase>();
+				    ((DecoratedLessonPage)lessonPage).setContentsList(entries);
+				}
+
+	    SimplePageBean simplePageBean = null;
+
 	    // subpages done in place
 	    for (SimplePageItem item: items) {
 			
+		simplePageBean = makeSimplePageBean(simplePageBean, siteId, item);
+
+		// skip if don't have permission
+		if (!hasUpdatePermission && !lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean))
+		    continue;
+
 	    	if (item.getType() == SimplePageItem.PAGE)
-				findAllPages(item, entries, pageMap, hasUpdatePermission);
-			else
-				addItem(item, entries, hasUpdatePermission);
+		    findAllPages(item, entries, pageMap, hasUpdatePermission, siteId, currentUserId );
+		else
+		    addItem(item, entries, hasUpdatePermission);
+	    }
 	    }
 	}
 	
+    // caller has done checkItemPermissions for the page. We have to check it
+    // for all items on the page. Since caller has checked site read we
+    // only have to check isItemAccessible.
+
 	/**
 	 * findAllPages : explores lessonbuilder tree from a base pageItem and fills a list of DecoratedItem items
 	 * 
@@ -649,7 +783,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	 * @param pageMap
 	 * @param site
 	 */
-	private void findAllSimplePages(SimplePageItem pageItem, List<DecoratedItem> entries, Map<Long,SimplePage> pageMap, Site site) {
+	private void findAllSimplePages(SimplePageItem pageItem, List<DecoratedItem> entries, Map<Long,SimplePage> pageMap, boolean hasUpdatePermission, Site site, String currentUserId) {
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	
 	    // already done if page is null
 	    if (pageMap.get(pageId) == null)
@@ -661,13 +795,22 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
 	    // now recursively do subpages
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
+	    
+	    SimplePageBean simplePageBean = null;
+	    
 	    // subpages done in place
 	    for (SimplePageItem item: items) {
 			
+		simplePageBean = makeSimplePageBean(simplePageBean, site.getId(), item);
+
+		// skip if don't have permission
+		if (!hasUpdatePermission && !lessonsAccess.isItemAccessible(item.getId(), site.getId(), currentUserId, simplePageBean))
+		    continue;
+
 	    	if (item.getType() == SimplePageItem.PAGE)
-				findAllSimplePages(item, entries, pageMap, site);
-			else
-				entries.add(new DecoratedItem(item.getId(), item.getName(), item.getType(), site.getId(), site.getTitle()));
+		    findAllSimplePages(item, entries, pageMap, hasUpdatePermission, site, currentUserId);
+		else
+		    entries.add(new DecoratedItem(item.getId(), item.getName(), item.getType(), site.getId(), site.getTitle()));
 	    }
 	}	
 	
@@ -683,7 +826,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	 * @param list
 	 * @param hasUpdatePermission
 	 */
-	private void addItem(SimplePageItem item, List<LessonBase> list, boolean hasUpdatePermission)
+	private LessonBase addItem(SimplePageItem item, List<LessonBase> list, boolean hasUpdatePermission)
 	{
 		if(list == null)
 			list = new ArrayList<LessonBase>();
@@ -725,13 +868,18 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 																	item.getAttribute("questionAnswer"));
 					}
 					break;
+			        case SimplePageItem.PAGE:
+					lesson = new DecoratedLessonPage(item);
+					break;
 				default:
-						lesson = new DecoratedLesson(item);					
+					lesson = new DecoratedLesson(item);
 					break;
 			}
 			
 			list.add(lesson);
+			return lesson;
 		}
+		return null;
 	}
 	
 	@Setter
@@ -751,5 +899,8 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
 	@Setter
 	private LessonsAccess lessonsAccess;
+
+        @Setter
+        private DeveloperHelperService developerHelperService;
 
 }

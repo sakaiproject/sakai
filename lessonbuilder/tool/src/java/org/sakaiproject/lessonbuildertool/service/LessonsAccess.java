@@ -340,6 +340,7 @@ public class LessonsAccess {
 	    simplePageBean.setCurrentSiteId(siteId);
 	    simplePageBean.setCurrentPage(currentPage);
 	    simplePageBean.setCurrentPageId(currentPage.getPageId());
+	    simplePageBean.init();
 	}
 
 	return simplePageBean;
@@ -353,8 +354,9 @@ public class LessonsAccess {
     public boolean isItemAccessible(long itemId, String siteId, String currentUserId, SimplePageBean simplePageBean) {
 	
 	SimplePageItem item = dao.findItem(itemId);
-	if (item == null)
+	if (item == null) {
 	    return false;
+	}
 	// top-level pseudo-item is special, as there is no containing page
 	// just test the page it points to
 	if (item.getPageId() == 0L && item.getType() == SimplePageItem.PAGE) {
@@ -368,20 +370,28 @@ public class LessonsAccess {
 	    return isPageAccessible(pageNum, siteId, currentUserId, simplePageBean);
 	}
 	SimplePage currentPage = dao.getPage(item.getPageId());
-	if (currentPage == null)
+	if (currentPage == null) {
 	    return false;
+	}
 
 	simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
 
 	// containing page must be accessible.
-	if (!isPageAccessible(currentPage.getPageId(), siteId, currentUserId, simplePageBean))
+	if (!isPageAccessible(currentPage.getPageId(), siteId, currentUserId, simplePageBean)) {
 	    return false;
+	}
 
-	if (!simplePageBean.isItemAvailable(item, item.getPageId()))
+	if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 	    return false;
+	}
 
-	if (!simplePageBean.isItemVisible(item, null, false))
+	try {
+	if (!simplePageBean.isItemVisible(item, null, false)) {
 	    return false;
+	}
+	} catch (Exception e) {
+	    return false;
+	}
 
 	return true;
     }

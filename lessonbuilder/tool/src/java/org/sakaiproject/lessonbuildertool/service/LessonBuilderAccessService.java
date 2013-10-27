@@ -517,6 +517,7 @@ public class LessonBuilderAccessService {
 						simplePageBean.setCurrentSiteId(currentPage.getSiteId());
 						simplePageBean.setCurrentPage(currentPage);
 						simplePageBean.setCurrentPageId(currentPage.getPageId());
+						simplePageBean.init();
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);
