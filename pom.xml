@@ -96,7 +96,6 @@
                 <module>dav</module>
                 <module>gradebook</module>
                 <module>help</module>
-                <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>memory</module>
@@ -181,7 +180,6 @@
                 <module>dav</module>
                 <module>gradebook</module>
                 <module>help</module>
-                <module>linktool</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>memory</module>
