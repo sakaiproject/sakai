@@ -74,7 +74,7 @@ web https://source.sakaiproject.org/svn/web/trunk
 
 # Experimental
 #assignment2 https://source.sakaiproject.org/contrib/assignment2/trunk
-#roster2 https://source.sakaiproject.org/contrib/roster2/trunk
+roster2 https://source.sakaiproject.org/contrib/roster2/trunk
 
 
 # Zeckoski projects
