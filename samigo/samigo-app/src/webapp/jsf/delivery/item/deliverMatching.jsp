@@ -34,7 +34,7 @@ should be included in file importing DeliveryMessages
      <h:outputText value="#{answer}" escape="false" />
    </h:column>
   </h:dataTable>
-  <h:outputText escape="false" value="<hr style='border:none;border-top:solid black 1px'/>" />
+
   <h:dataTable value="#{question.matchingArray}" var="matching">
     <h:column rendered="#{delivery.feedback eq 'true' &&
        delivery.feedbackComponent.showCorrectResponse && !delivery.noFeedback=='true'}">
