@@ -85,6 +85,7 @@
 	    </wicket:enclosure>
     	<th><a wicket:id="typeSortLink"><wicket:message key="typeHeader"/></a></th>
     	<th><a wicket:id="accessSortLink"><wicket:message key="accessHeader"/></a></th>
+    	<th><span wicket:id="restrictedToolsHeader">Restricted Tools</span></th>
     	<th><a wicket:id="levelSortLink"><wicket:message key="levelHeader"/></a></th>
     	<th><span wicket:id="hierarchyHeader">Hierarchy</span></th>
     	<th></th>
@@ -96,6 +97,11 @@
        	 </wicket:enclosure>
        	 <td><span wicket:id="type">Access</span></td>
        	 <td><span wicket:id="access">instructor</span></td>
+       	 <td>
+       	 	<span wicket:id="restrictedTools">
+       	 		<span wicket:id="restrictedTool"/><br/>
+       	 	</span>
+       	 </td>
          <td><span wicket:id="level">Department</span></td>
          <td>
 		      <span wicket:id="hierarchy">

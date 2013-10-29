@@ -2478,6 +2478,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 				r.setCanEdit(canEdit);
 				Set<String> perms = getPermsForUserNodes(user.getId(), n.id);
 				r.setAccess(getAccessRealmRole(perms));
+				r.setRestrictedTools(getRestrictedAuthToolsForUser(perms));
 				returnSet.add(r);
 			}
 			//Shoppinger period nodes
@@ -2602,6 +2603,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 									r.setNodeId(nodeId);
 									r.setCanEdit(canEdit);
 									r.setAccess(getAccessRealmRole(userAndPerms.getValue()));
+									r.setRestrictedTools(getRestrictedAuthToolsForUser(userAndPerms.getValue()));
 									returnSet.add(r);
 								}
 								if(hasShoppingAdmin){

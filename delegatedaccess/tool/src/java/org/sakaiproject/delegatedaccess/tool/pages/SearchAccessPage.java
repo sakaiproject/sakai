@@ -41,6 +41,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.AccessSearchResult;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
+import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.AccessSearchResultComparator;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
@@ -358,6 +359,13 @@ public class SearchAccessPage extends BasePage implements Serializable {
 			}
 		};
 		add(accessSort);
+		Label restrictedToolsHeader = new Label("restrictedToolsHeader", new StringResourceModel("restrictedToolsHeader", null)){
+			@Override
+			public boolean isVisible() {
+				return provider.size() > 0;
+			}
+		};
+		add(restrictedToolsHeader);
 		Label hierarchyHeader = new Label("hierarchyHeader", new StringResourceModel("hierarchyHeader", null)){
 			@Override
 			public boolean isVisible() {
@@ -415,6 +423,13 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		removeAllPermsLink.add( new SimpleAttributeModifier("onclick", "return confirm('" + confirm + "');"));
 		add(removeAllPermsLink);
 		
+		//tool id=>title map:
+		final Map<String, String> toolTitleMap = new HashMap<String, String>();
+		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		for(ListOptionSerialized opt : blankRestrictedTools){
+			toolTitleMap.put(opt.getId(), opt.getName());
+		}
+		
 		//Data
 		String[] tmpHierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
 		final String[] hierarchy = new String[tmpHierarchy.length + 1];
@@ -457,6 +472,17 @@ public class SearchAccessPage extends BasePage implements Serializable {
 					}
 				};
 				item.add(new Label("access", accessModel));
+				item.add(new ListView<String>("restrictedTools", searchResult.getRestrictedTools()){
+
+					@Override
+					protected void populateItem(ListItem<String> arg0) {
+						String toolTitle = arg0.getDefaultModelObject().toString();
+						if(toolTitleMap.containsKey(toolTitle)){
+							toolTitle = toolTitleMap.get(toolTitle);
+						}
+						arg0.add(new Label("restrictedTool", toolTitle));
+					}
+				});
 				item.add(new ListView<String>("hierarchy", searchResult.getHierarchyNodes()) {
 
 					@Override

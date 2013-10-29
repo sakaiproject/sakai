@@ -1,6 +1,8 @@
 package org.sakaiproject.delegatedaccess.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AccessSearchResult implements Serializable{
@@ -12,6 +14,7 @@ public class AccessSearchResult implements Serializable{
 	private String sortName;
 	private int level;
 	private int type;
+	private List<String> restrictedTools = new ArrayList<String>();
 	private List<String> hierarchyNodes;
 	private String nodeId;
 	private boolean canEdit = false;
@@ -77,5 +80,12 @@ public class AccessSearchResult implements Serializable{
 	}
 	public void setAccess(String[] access) {
 		this.access = access;
+	}
+	public List<String> getRestrictedTools() {
+		Collections.sort(restrictedTools);
+		return restrictedTools;
+	}
+	public void setRestrictedTools(List<String> restrictedTools) {
+		this.restrictedTools = restrictedTools;
 	}
 }
