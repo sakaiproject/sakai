@@ -178,7 +178,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    // other tools don't copy group access restrictions, so I think we probably shouldn't. The data is
    // there in the archive
-   public final boolean RESTORE_GROUPS = false;
+   public final boolean RESTORE_GROUPS = true;
 
    private ToolManager toolManager;
    private SecurityService securityService;
