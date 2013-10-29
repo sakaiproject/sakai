@@ -1508,8 +1508,24 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 				  AnswerIfc answer1 = (AnswerIfc)publishedAnswerHash.get(id1);
 				  //log.info("kim debug:answer1.getText()  + ifc.getText()" + 
 				  //answer1.getText() + answer1.getItemText().getText() + ifc.getText() + answer1.getId());
-				  if ((answer1.getText()).equals((String)answerTextList.get(i)) && 
-						  ((answer1.getItemText()).getText()).equals(ifc.getText())){
+				  
+				  // bjones86 - SAM-2232 - null checks
+				  if( answer1 == null ) {
+					  continue;
+				  }
+				  ItemTextIfc answer1ItemText = answer1.getItemText();
+				  if( answer1ItemText == null ) {
+					  continue;
+				  }
+				  String answer1Text = answer1.getText();
+				  String answer1ItemTextText = answer1ItemText.getText();
+				  if( answer1Text == null || answer1ItemTextText == null ) {
+					  continue;
+				  }
+				  
+				  String answerText = (String) answerTextList.get( i );
+ 				  String ifcText = ifc.getText();
+ 				  if(answer1Text.equals(answerText) && answer1ItemTextText.equals(ifcText)) {
 					  //2. then get the count from HashMap
 					  if(answers.containsKey(answer1.getId()))
 						  count =((Integer) answers.get(answer1.getId())).intValue();
