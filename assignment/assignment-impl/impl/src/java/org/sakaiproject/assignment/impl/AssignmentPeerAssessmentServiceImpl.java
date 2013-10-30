@@ -121,7 +121,10 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				}
 				//loop through the assignment submissions and setup the maps and lists
 				for(AssignmentSubmission s : submissions){
-					if(s.getTimeSubmitted() != null && s.getSubmitted() && submitterIdsList.contains(s.getSubmitterId()) && !"admin".equals(s.getSubmitterId())){
+					if(s.getTimeSubmitted() != null 
+							//check if the submission is submitted, if not, see if there is any submission data to review (i.e. draft was auto submitted)
+							&& (s.getSubmitted() || ((s.getSubmittedText() != null && !"".equals(s.getSubmittedText().trim()) || (s.getSubmittedAttachments() != null && s.getSubmittedAttachments().size() > 0)))) 
+							&& submitterIdsList.contains(s.getSubmitterId()) && !"admin".equals(s.getSubmitterId())){
 						//only deal with users in the submitter's list
 						submissionIdMap.put(s.getId(), s);
 						assignedAssessmentsMap.put(s.getSubmitterId(), new HashMap<String, PeerAssessmentItem>());

@@ -288,7 +288,7 @@ function handleEnterKeyPress(ev)
 			#end
 			
 			<h3>$tlang.getString("gen.subm")</h3>
-				#if(($submission.submitted) && $!value_feedback_text.length() >0 )
+				#if($!value_feedback_text.length() >0 )
 					<table border="0"><tr><td>
 					$value_feedback_text
 					</td></tr></table>
@@ -308,13 +308,11 @@ function handleEnterKeyPress(ev)
 			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
 					<h3>$tlang.getString("gen.stuatt")</h3>
 					#set ($size = 0)
-					#if ($!submission.submitted)
-						#set ($props = false)
-						#foreach ($attachment in $submission.SubmittedAttachments) 
-							#set ($props = $attachment.Properties) 
-							#if ($!props)
-								#set ($size = $size + 1)
-							#end
+					#set ($props = false)
+					#foreach ($attachment in $submission.SubmittedAttachments) 
+						#set ($props = $attachment.Properties) 
+						#if ($!props)
+							#set ($size = $size + 1)
 						#end
 					#end
 					#if ($size == 0)
