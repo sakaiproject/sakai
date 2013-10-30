@@ -1,16 +1,16 @@
 // ONC-4633
 // Handles the hover event for the small "i" on the event log
-$j(document).ready(
+$(document).ready(
   function()
   {
-    $j("span.info").hover(
+    $("span.info").hover(
     function()
     {
-      $j(this).find("span.makeLogInfo").show();
+      $(this).find("span.makeLogInfo").show();
     },
     function()
     {
-      $j(this).find("span.makeLogInfo").hide();
+      $(this).find("span.makeLogInfo").hide();
     });
   }
 );

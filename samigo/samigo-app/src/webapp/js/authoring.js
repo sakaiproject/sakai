@@ -285,7 +285,7 @@ function toPoint(id)
  * @param pulldown
  */
 function applyMenuListener(pulldown) {
-	var $pulldownHolder = $("[id=itemForm:" + pulldown + "]");	
+	var $pulldownHolder = $("[id='itemForm:" + pulldown + "']");	
 	$pulldownHolder.change( function() {
 		var $editor = $(this).parent("div").find("div.toggle_link_container").parent("td:last");
 		if (this.value === "*new*") {

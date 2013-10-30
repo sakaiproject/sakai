@@ -79,6 +79,6 @@ function noop(delay)
 function setFocus(ta)
 {
    var element = document.getElementById(ta);
-   element.focus();
+   if (typeof element !== "undefined") element.focus();
    return false;
 }

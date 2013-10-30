@@ -49,12 +49,11 @@ remove the javascript onclick stuff.
       <head><%= request.getAttribute("html.head") %>
       <title> <h:outputText value="#{delivery.assessmentTitle}"/>
       </title>
+      <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       </head>
        <body onload="<%= request.getAttribute("html.body.onload") %>; ">
 
       <h:outputText value="<a name='top'></a>" escape="false" />
- 
- <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
  
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 

@@ -10,10 +10,7 @@
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="EventLog"/></title>
-      <script type="text/javascript" language="JavaScript" src="/library/js/jquery-1.1.2.js"></script>
-      <script type="text/javascript">jQuery.noConflict();</script>
-      <script type="text/javascript" language="JavaScript" src="/samigo-app/js/jquery-1.7.2.min.js"></script>
-      <script type="text/javascript">var $j = jQuery.noConflict(true);</script>
+      <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
       <script type="text/javascript" language="JavaScript" src="/samigo-app/js/eventInfo.js"></script>
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>;initHelpValue('<h:outputText value="#{eventLogMessages.search_hint}"/>', 'eventLogId:filteredUser');">

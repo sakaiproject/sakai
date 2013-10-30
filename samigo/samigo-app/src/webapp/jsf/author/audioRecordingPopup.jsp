@@ -30,7 +30,7 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 		<head><%= request.getAttribute("html.head") %>
 			<title><h:outputText value="#{assessmentSettingsMessages.audio_recording}" /></title>
-			<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+			<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 			<script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
 			<script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
 			<script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
