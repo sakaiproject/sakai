@@ -817,6 +817,7 @@ function resizeFrame(){
 			#end
 		</p>
 		#foreach ($addfield in $addFieldsCalendarsCollection)
+			#set ($addfield = $validator.escapeHtml($addfield))
 			<p class="shorttext">
 				<label for="$addfield">
 					$addfield

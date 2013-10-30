@@ -36,6 +36,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Maintains user interface state for the MyCalendar action class.
@@ -554,6 +555,7 @@ public class CalendarActionState
 		 */
 		public String getAddfieldValue(String fieldname)
 		{
+			fieldname = FormattedText.unEscapeHtml(fieldname);
 			Set addfieldsKey = addFieldsMap.keySet();
 
 			Iterator it = addfieldsKey.iterator();

@@ -4483,6 +4483,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 */
 		public String getField(String name)
 		{
+			name = FormattedText.unEscapeHtml(name);
 			// names are prefixed to form a namespace
 			name = ResourceProperties.PROP_CALENDAR_EVENT_FIELDS + "." + name;
 
