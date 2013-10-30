@@ -919,7 +919,7 @@ $(document).ready(function() {
 								#elseif($!gradebookAssignmentsSelectedDisabled.get($gaId).equals("selected")) 
 									selected="selected"
 								#end>
-									$!gradebookAssignmentsLabel.get($gaId)
+									$validator.escapeHtml($!gradebookAssignmentsLabel.get($gaId))
 							</option>
 						#end
 					</select>
