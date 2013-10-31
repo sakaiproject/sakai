@@ -467,6 +467,7 @@ public class ExternalLogicImpl implements ExternalLogic {
 				replacementValues.put("localSakaiName",
 						developerHelperService.getConfigurationSetting("ui.service", "Sakai"));
 				replacementValues.put("recipientFirstName",user.getFirstName());
+				replacementValues.put("recipientDisplayName", user.getDisplayName());
 				replacementValues.put("pollQuestion", pollQuestion);
 				replacementValues.put("siteTitle", siteTitle); 
 
