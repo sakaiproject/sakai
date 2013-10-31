@@ -3,9 +3,9 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
-<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery.js"></script>
-<script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
-<link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
 <f:view>
