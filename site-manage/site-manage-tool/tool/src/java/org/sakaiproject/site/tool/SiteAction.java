@@ -2115,6 +2115,7 @@ public class SiteAction extends PagedResourceActionII {
 				{
 					// filter out only those groups that are manageable by site-info
 					Collection<Group> filteredGroups = new ArrayList<Group>();
+					Collection<Group> filteredSections = new ArrayList<Group>();
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2122,8 +2123,13 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							filteredGroups.add(g);
 						}
+						else
+						{
+							filteredSections.add(g);
+					}
 					}
 					context.put("groups", filteredGroups);
+					context.put("sections", filteredSections);
 				}
 				
 				//joinable groups:

@@ -272,8 +272,28 @@ function printPreview(target){
 				<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
 			</div>
 		#end
-		#if ($!groups.size() > 0 || $!joinableGroups.size() > 0)
+		#if ($!groups.size() > 0 || $!joinableGroups.size() > 0 || $!sections.size() > 0)
 		<div id="accordion">
+			#if ($!sections.size() > 0)
+			<h4 class="toggleAnchor specialLink">
+				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.sections")#else $tlang.getString("sinfo.list.sections.student") #end</span>
+			</h4>		
+			<div class="toggledContent">
+			<dl class="defList" id="accordion">
+				#foreach ($g in $!sections)
+					#set ($gdesc = "")
+					<dt>
+						<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>#if ($!viewRoster) <span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>#end
+					</dt>
+					<dd class="textPanelFooter instruction">
+						#if ($g.Description)
+							$validator.escapeHtml($g.Description)
+						#end					
+					</dd>				
+				#end
+			</dl>
+			</div>
+			#end
 			#if ($!groups.size() > 0)
 			
 			<h4 class="toggleAnchor specialLink">
