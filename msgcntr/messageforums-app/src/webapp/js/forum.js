@@ -879,7 +879,7 @@ $(document).ready(function(){
                 'height': blockerHeight,
                 'top': pos.top,
                 'left': pos.left,
-                'display': 'block',
+                'display': 'block'
             });
         });
         $buttonContainer.find('.messageProgress').fadeIn('slow')

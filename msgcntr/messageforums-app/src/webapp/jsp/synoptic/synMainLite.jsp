@@ -13,8 +13,8 @@
 
 <f:view>
   <sakai:view id="synopticView">
-<script type="text/javascript" src="/library/js/jquery.js"></script>
-<sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
 <f:verbatim>
  <%
   	String thisId = request.getParameter("panel");

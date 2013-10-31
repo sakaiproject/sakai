@@ -14,15 +14,11 @@
 
 <!-- messageforums-app/src/webapp/jsp/discussionForum/message-->
 
-<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/jquery.bgiframe.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/ui.dialog.js"></script>
-<script type="text/javascript" src="/messageforums-tool/js/ui.draggable.js"></script>
-
 <script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/frameAdjust.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/forum_movethread.js"></script>
@@ -31,10 +27,9 @@
 
 <!--jsp/discussionForum/message/dfAllMessages.jsp-->
 		<link rel="stylesheet" type="text/css" href="../../css/TableSorter.css" />
-  		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
- 		<sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
+ 		<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
  		<sakai:script contextBase="/messageforums-tool" path="/js/forumTopicThreadsSorter.js"/>
- 		<script language="JavaScript">
+ 		<script type="text/javascript">
  		jQuery(document).ready(function(){
  			//sort forum threads
  			$('#msgForum\\:messagesInHierDataTable').threadsSorter();

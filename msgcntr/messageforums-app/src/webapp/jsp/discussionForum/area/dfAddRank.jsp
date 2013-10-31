@@ -12,30 +12,25 @@
 <f:view>
     <sakai:view title="Forums">
         <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-        <link rel="stylesheet" href="/messageforums-tool/css/jquery-ui-1.7.2.custom.css" type="text/css" />
+        <link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
         <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
         
-        <script type="text/javascript" src="/library/js/jquery.js"></script>
-        <script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
-        <script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js"></script>
+        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+        <script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
         <script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
         <script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
-        <script type="text/javascript" src="/messageforums-tool/js/jquery.bgiframe.js"></script>
-        <script type="text/javascript" src="/messageforums-tool/js/ui.dialog.js"></script>
-        <script type="text/javascript" src="/messageforums-tool/js/ui.draggable.js"></script>
         <script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
         <script type="text/javascript" src="/messageforums-tool/js/forum_rank.js"></script>
         
         
-        <script language="javascript" type="text/JavaScript">
-        <!--
+        <script type="text/JavaScript">
         // resetMinPost
             function resetMinPost(){
                     var minpost= document.getElementById("addRank:minpost");  // input field for min. post threshold.
                 minpost.value="0";
                 return true;
             }
-        -->
         </script>
 
         <h:form enctype="multipart/form-data" id="addRank">

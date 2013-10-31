@@ -309,7 +309,6 @@ Licenses.
     };
     
     var initDialog = function () {
-        $.ui.dialog.defaults.bgiframe = true;
         $(".topic-picker").dialog({ autoOpen: false, width: 660, modal: true, position: 'top'});
     };
  

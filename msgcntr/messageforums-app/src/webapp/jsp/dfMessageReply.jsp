@@ -10,7 +10,7 @@
 	<sakai:view title="#{msgs.cdfm_reply_tool_bar_message}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<!--jsp/dfMessageReplyThread.jsp-->    
 		<h:form id="dfCompose" styleClass="specialLink">
-             		<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+             		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 			<script type="text/javascript">
 				$(document).ready(function() {
 					$('#openLinkBlock').hide();

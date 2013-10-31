@@ -20,11 +20,11 @@
 
 <head>
 <script src="js/frameAdjust.js" type="text/javascript"></script>
-<script type="text/javascript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 
 
 
-<script language="Javascript"><!--
+<script type="text/javascript"><!--
 	/*
 	 *	To use this, call this page with a GET parameter of "url"
 	 *	with the urlencoded destination page that takes a while to load
@@ -172,7 +172,7 @@
 
 <f:view>
   <sakai:view>
-  	  <sakai:script contextBase="/messageforums-tool" path="/js/jquery.tablesorter.js"/>
+  	  <script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
 	  <sakai:script contextBase="/messageforums-tool" path="/js/synopticLite.js"/>
   	  <sakai:script contextBase="/messageforums-tool" path="/js/popupscripts.js"/>
   	  <script type="text/javascript">
@@ -369,7 +369,7 @@ function mySetMainFrameHeightViewCell(id)
 	}else{
 %>
 	
-	<script language="JavaScript"> 
+	<script type="text/javascript"> 
 	// Call javascript function to grab actual long loading page
 	load();
 	</script>

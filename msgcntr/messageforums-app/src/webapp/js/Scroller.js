@@ -74,10 +74,7 @@ fluid_1_0 = fluid_1_0 || {};
             });
         }
         
-        // set the height of the scroller unless this is IE6
-        if (!$.browser.msie || $.browser.version > 6) {
             that.scrollingElm.css("max-height", that.options.maxHeight);
-        }
     };
     
     /**
@@ -110,9 +107,6 @@ fluid_1_0 = fluid_1_0 || {};
          * Refreshes the scroller's appearance based on any changes to the document.
          */
         that.refreshView = function () {
-            if ($.browser.msie && $.browser.version < 7) {
-                refreshView(that);
-            }
         };
         
         that.refreshView();

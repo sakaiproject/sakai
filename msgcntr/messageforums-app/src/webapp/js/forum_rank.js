@@ -205,7 +205,7 @@ Licenses.
 
         var users = getJSONData("users").users;
         var totalUsers = users.length;
-        var memberitemidlist_raw = $('input[id=addRank:selected_indiv_ids]').val();
+        var memberitemidlist_raw = $('input[id="addRank:selected_indiv_ids"]').val();
 	if (!memberitemidlist_raw) {
 		return;
 	}
@@ -245,9 +245,9 @@ Licenses.
     		aggregate += aggregateDelimiter; 
     	});
     	aggregate = aggregate.substring(0, aggregate.length - 1);
-    	$('input[id=addRank:aggregate_assign_to_item_ids]').val(aggregate);
-    	$('input[id=pvtMsgReply:aggregate_assign_to_item_ids]').val(aggregate);
-    	$('input[id=pvtMsgForward:aggregate_assign_to_item_ids]').val(aggregate);
+    	$('input[id="addRank:aggregate_assign_to_item_ids"]').val(aggregate);
+    	$('input[id="pvtMsgReply:aggregate_assign_to_item_ids"]').val(aggregate);
+    	$('input[id="pvtMsgForward:aggregate_assign_to_item_ids"]').val(aggregate);
     };
     
     var filterList = function () {
@@ -594,7 +594,7 @@ String.prototype.hashCode = function() {
             displayDirections();
         });
         
-        $(".ppkr-remove").live('click', function () {
+        $(".ppkr-remove").on('click', function () {
             var itemElm = $(this).parent();
             var userID = itemElm.attr("id").replace(/sakai-ppkr-to-/, "");
             if (itemElm.hasClass("token-all")) {
@@ -649,8 +649,7 @@ String.prototype.hashCode = function() {
     };
     
     var initDialog = function () {
-        $.ui.dialog.defaults.bgiframe = true;
-        $(".sakai-ppkr").dialog({ autoOpen: false, width: 560, modal: true, position: 'top'});
+        $(".sakai-ppkr").dialog({ autoOpen: false, width: 680, height: 500, modal: true, position: 'top'});
     };
  
     $(function () {
@@ -671,5 +670,5 @@ String.prototype.hashCode = function() {
         stripeList(sourceList);
     });
         
-})(jQuery, fluid_1_1);
+})(jQuery, fluid_1_0);
 

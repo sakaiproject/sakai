@@ -13,7 +13,7 @@
 			<style type="text/css">
 				@import url("/messageforums-tool/css/msgcntr.css");
 			</style>
-            <script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+            <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
