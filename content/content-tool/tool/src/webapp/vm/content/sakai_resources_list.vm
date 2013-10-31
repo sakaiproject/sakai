@@ -30,10 +30,10 @@ ul.makeMenu li {
 <![endif]><![endif]-->
 
 #**#
-<script type ="text/javascript" src ="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 <!-- // -->
 </script>
-<script  type ="text/javascript">
+<script type="text/javascript">
 $(document).ready(function() {
 	jQuery('.portletBody').click(function(e) { 
 			
@@ -774,7 +774,7 @@ $(document).ready(function() {
 		<input type="hidden" id="copy-count-other" value="0" />
 	</form>						
 </div>
-<script language="JavaScript" type="text/JavaScript">
+<script type="text/JavaScript">
 	<!--
 		#foreach($key in $listActions.keySet())
 			#if($counter.getValue("${key}selected") > 0)

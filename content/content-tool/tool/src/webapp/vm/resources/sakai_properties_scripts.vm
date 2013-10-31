@@ -1,7 +1,7 @@
 ##<textarea id="debugger" rows="50" cols="100"></textarea>
-<script type="text/javascript" src="#libraryLink('js/jquery.js')"></script>
+<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')"></script>
 <script type="text/javascript" src="#libraryLink('js/jquery/cookie/jquery.cookie.js')"></script>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	<!--
 	var DOT = "$DOT";
 	var defaultMimeCategory = "$!model.mimeCategory";

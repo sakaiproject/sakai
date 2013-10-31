@@ -32,8 +32,7 @@ ul.makeMenu li {
 </style>
 <![endif]><![endif]-->
 
-<script language="JavaScript" type="text/JavaScript">
-	<!--
+<script type="text/JavaScript">
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
 		  window.open(theURL,winName,winSettings);
@@ -51,10 +50,9 @@ ul.makeMenu li {
 				theForm.submit();
 			}
 		}
-	//-->
 </script>
-<script type ="text/javascript" src ="/library/js/jquery.js"> </script>
-<script  type ="text/javascript">
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"> </script>
+<script  type="text/javascript">
 $(document).ready(function() {
 	jQuery('.portletBody').click(function(e) { 
 			
