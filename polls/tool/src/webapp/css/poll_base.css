@@ -1,5 +1,6 @@
 .pollEditorSmall{
-	width:50em
+	width: 60em;;
+    min-height: 35em;
 }
 
 /*skinned sortable header - sort icons*/
