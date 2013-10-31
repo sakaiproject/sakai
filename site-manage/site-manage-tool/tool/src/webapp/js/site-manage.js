@@ -111,21 +111,21 @@ sakai.setupMessageListener = function(messageHolder, messageMode){
 sakai.setupSelectList = function(list, allcontrol, highlightClass){
     $('#' + list + ' :checked').parent("td").parent("tr").addClass(highlightClass);
     
-    if ($('#' + list + ' td :checkbox').length === 0) {
+    if ($('#' + list + ' td input:checkbox').length === 0) {
         $('#' + allcontrol).hide();
     }
     $('#' + allcontrol).click(function(){
         if (this.checked) {
-            $('#' + list + ' :checkbox').attr('checked', 'checked');
-            $('#' + list + ' :checkbox').parent('td').parent('tr').addClass(highlightClass);
+            $('#' + list + ' input:checkbox').prop('checked', true);
+            $('#' + list + ' input:checkbox').parent('td').parent('tr').addClass(highlightClass);
         }
         else {
-            $('#' + list + ' :checkbox').attr('checked', '');
+            $('#' + list + ' input:checkbox').prop('checked', false);
             $('#' + list + ' tbody tr').removeClass(highlightClass);
         }
     });
     
-    $('#' + list + ' :checkbox').click(function(){
+    $('#' + list + ' input:checkbox').click(function(){
         var someChecked = false;
         if (this.checked) {
             $(this).parents('tr').addClass(highlightClass);
@@ -133,20 +133,20 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
         else {
             $(this).parents('tr').removeClass(highlightClass);
         }
-        $('#' + list + ' :checkbox').each(function(){
+        $('#' + list + ' input:checkbox').each(function(){
             if (this.checked) {
                 someChecked = true;
             }
         });
         if (!someChecked) {
-            $('#' + allcontrol).attr('checked', '');
+            $('#' + allcontrol).prop('checked', false);
         }
-        if ($('#' + list + ' :checked').length !== $('#' + list + ' :checkbox').length) {
-            $('#' + allcontrol).attr('checked', '');
+        if ($('#' + list + ' :checked').length !== $('#' + list + ' input:checkbox').length) {
+            $('#' + allcontrol).prop('checked', false);
         }
         
-        if ($('#' + list + '  :checked').length === $('#' + list + '  :checkbox').length) {
-            $('#' + allcontrol).attr('checked', 'checked');
+        if ($('#' + list + '  :checked').length === $('#' + list + '  input:checkbox').length) {
+            $('#' + allcontrol).prop('checked', true);
         }
     });
 };
@@ -165,14 +165,14 @@ sakai.siteTypeSetup = function(){
      var courseSiteTypes = $('#courseSiteTypes').val().replace('[','').replace(']','').replace(/ /gi, '').split(',');
      
     //uncheck site type radio
-    $('input[name="itemType"]').attr('checked', '');
+    $('input[name="itemType"]').prop('checked', false);
     
     // handles clicking in "Build site from template"
     $('#copy').click(function(e){
         //open template picker
         $('#templateSettings').show();
         //uncheck build own option
-        $('#buildOwn').attr('checked', '');
+        $('#buildOwn').prop('checked', false);
         //hide the list of sites availabel when building own
         $('#siteTypeList').hide();
         //hide the term select used when selecting a course when building own
@@ -182,29 +182,29 @@ sakai.siteTypeSetup = function(){
         $('#submitFromTemplate').show();
         //show submit button used when building own, disable it
         $('#submitBuildOwn').hide();
-        $('#submitBuildOwn').attr('disabled', 'disabled');
+        $('#submitBuildOwn').prop('disabled', true);
         //TODO: why? commenting out for now
-        //$('#copyContent').attr('checked', 'checked');
+        //$('#copyContent').prop('checked', true);
     });
     
     $('#buildOwn').click(function(e){
         //hide template picker
         $('#templateSettings').hide();
         //uncheck any checked inputs in the template picker
-        $('#templateSettings input:checked').attr('checked', '');
+        $('#templateSettings input:checked').prop('checked', false);
         //hide template inner container for title/term selection, "copy users" etc.
         $('#allTemplateSettings').hide();
         //void the template title and reset the term selection
         $('#siteTitleField').attr('value', '');
-        $('#templateSettings select').attr('selectedIndex', 0);
+        $('#templateSettings select').prop('selectedIndex', 0);
         //hide the template containers for both title and term selection
         $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
         //uncheck the "Create site from template" radio
-        $('input[id="copy"]').attr('checked', '');
+        $('input[id="copy"]').prop('checked', false);
         // show the build own choices
         $('#siteTypeList').show();
         //hide the submit for creating from template and disable it
-        $('#submitFromTemplate').hide().attr('disabled', 'disabled');
+        $('#submitFromTemplate').hide().prop('disabled', true);
         // hide the submit for creating a course from template, in case it was showing
         $('#submitFromTemplateCourse').hide();
         //show the submit for build own
@@ -215,18 +215,18 @@ sakai.siteTypeSetup = function(){
     // field and either enable or disable the submit, also check onblur below
     $('#siteTitleField').keyup(function(e){
         if ($(this).attr('value').length >= 1) {
-            $('#submitFromTemplate').attr('disabled', '');
+            $('#submitFromTemplate').prop('disabled', false);
         }
         else {
-            $('#submitFromTemplate').attr('disabled', 'disabled');
+            $('#submitFromTemplate').prop('disabled', true);
         }
     });
     $('#siteTitleField').blur(function(){
         if ($(this).attr('value').length >= 1) {
-            $('#submitFromTemplate').attr('disabled', '');
+            $('#submitFromTemplate').prop('disabled', false);
         }
         else {
-            $('#submitFromTemplate').attr('disabled', 'disabled');
+            $('#submitFromTemplate').prop('disabled', true);
         }
     });
     
@@ -234,10 +234,10 @@ sakai.siteTypeSetup = function(){
     //to enable or disable submits for create course from template
     $('#selectTermTemplate').change(function(){
         if (this.selectedIndex === 0) {
-            $('#submitFromTemplateCourse').attr('disabled', 'disabled');
+            $('#submitFromTemplateCourse').prop('disabled', true);
         }
         else {
-            $('#submitFromTemplateCourse').attr('disabled', '');
+            $('#submitFromTemplateCourse').prop('disabled', false);
             
         }
     });
@@ -261,9 +261,9 @@ sakai.siteTypeSetup = function(){
 
         if (!selectedTemplateId){  // how likely is this? 
             $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites
-            $('#submitFromTemplateCourse, #submitFromTemplateCourse ').attr('disabled', 'disabled'); //disable submit to create from templates
+            $('#submitFromTemplateCourse, #submitFromTemplateCourse ').prop('disabled', true); //disable submit to create from templates
             $('#siteTitleField').attr('value', ''); // empty title input
-            $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
+            $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
         }
         else {
             // what is the site type of the template site
@@ -276,7 +276,7 @@ sakai.siteTypeSetup = function(){
             $('#templateList #row' + selectedTemplateId  + ' .templateSettingsPlaceholder').append($('#allTemplateSettings'));
             // hide instructions for settings
             $('#fromTemplateSettingsContainer_instruction_body').hide();
-            $('#publishSiteWrapper input').attr('checked', '');
+            $('#publishSiteWrapper input').prop('checked', false);
 
             //templateControls is a json that comes from a sakai.property
             //it identifies for each site type, whether to show a control, and what attrs it has. 
@@ -292,16 +292,16 @@ sakai.siteTypeSetup = function(){
                             $('#fromTemplateSettingsContainer_instruction_body_copyUsers').hide();
                         }
                         if (this.copyContentChecked === true) {
-                            $('#copyContentWrapper input').attr('checked', 'checked');
+                            $('#copyContentWrapper input').prop('checked', true);
                         }
                         else {
-                            $('#copyContentWrapper input').attr('checked', '')
+                            $('#copyContentWrapper input').prop('checked', false)
                         }
                         if (this.copyContentLocked === true) {
-                            $('#copyContentWrapper input').attr('disabled', 'disabled');
+                            $('#copyContentWrapper input').prop('disabled', true);
                         }
                         else {
-                            $('#copyContentWrapper input').attr('disabled', '');
+                            $('#copyContentWrapper input').prop('disabled', false);
                         }
                         if (this.copyUsersVis === true) {
                             $('#copyUsersWrapper').show();
@@ -312,24 +312,24 @@ sakai.siteTypeSetup = function(){
                             $('#fromTemplateSettingsContainer_instruction_body_copyContent').hide();
                         }
                         if (this.copyUsersChecked === true) {
-                            $('#copyUsersWrapper input').attr('checked', 'checked');
+                            $('#copyUsersWrapper input').prop('checked', true);
                         }
                         else {
-                            $('#copyUsersWrapper input').attr('checked', '')
+                            $('#copyUsersWrapper input').prop('checked', false)
                         }
                         if (this.copyUsersLocked === true) {
-                            $('#copyUsersWrapper input').attr('disabled', 'disabled');
+                            $('#copyUsersWrapper input').prop('disabled', true);
                         }
                         else {
-                            $('#copyUsersWrapper input').attr('disabled', '');
+                            $('#copyUsersWrapper input').prop('disabled', false);
                         }
                     }
                 });
             }
             else {
                 //show all the controls, unchecked, unlocked, since there are no settings
-                $('#copyContentWrapper').show().find('input').attr('disabled', '').attr('checked','');
-                $('#copyUsersWrapper').show().find('input').attr('disabled', '').attr('checked','');
+                $('#copyContentWrapper').show().find('input').prop('disabled', false).prop('checked',false);
+                $('#copyUsersWrapper').show().find('input').prop('disabled', false).prop('checked',false);
                 $('#fromTemplateSettingsContainer_instruction_body_copyUsers').show();
                 $('#fromTemplateSettingsContainer_instruction_body_copyContent').show();
             }
@@ -351,7 +351,7 @@ sakai.siteTypeSetup = function(){
                 $('#submitFromTemplateCourse').hide(); // hide the course submit button
                 $('#siteTitle').show(); //show title input
                 $('#siteTerms').hide();//hide the container that holds the site terms
-                $('#siteTerms select').attr('selectedIndex', 0); // zero out the term select
+                $('#siteTerms select').prop('selectedIndex', 0); // zero out the term select
                 $('#siteTitle input[type="text"]').focus(); // focus the title input
             }
       }
@@ -371,7 +371,7 @@ sakai.siteTypeSetup = function(){
         // hide the submit for a course creation via template
        $('#submitFromTemplateCourse').hide();
        //disable and show the generic submit for creating from template
-       $('#submitFromTemplate').attr('disabled','disabled').show();
+       $('#submitFromTemplate').prop('disabled', true).show();
        // clean up - hide all rows
        $('li[class^=row]').hide();
        // toggle the UI of all the category links
@@ -396,7 +396,7 @@ sakai.siteTypeSetup = function(){
         else {
             $('#termList').hide();
         }
-        $('#submitBuildOwn').attr('disabled', '');
+        $('#submitBuildOwn').prop('disabled', false);
         
     });
 };
@@ -541,11 +541,11 @@ var setupCategTools = function(){
             'top': pos.top - 14,
             'left': pos.left - 150
         });
-        $('#alertBox a#alertBoxYes').live('click', function(){
+        $('#alertBox a#alertBoxYes').on('click', function(){
             $(this).parent('div').prev('a').removeClass('toolInstance').click();
             $('#alertBox').remove();
         });
-        $('#alertBox a#alertBoxNo').live('click', function(){
+        $('#alertBox a#alertBoxNo').on('click', function(){
             $(this).closest('li').removeClass('highlightTool');
             $('#alertBox').remove();
         });
@@ -601,21 +601,21 @@ var setupCategTools = function(){
     function setChecked(myId,checkVal){
     	//var selSet = $('#toolSelectionList ul').find('#selected_' + normalizedId(myId));	
     	var myId = normalizedId(myId);
-    	var item = $('#toolHolder').find('input[:checkbox][id=' + myId + ']');
+    	var item = $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]');
     	// ignore if item is disabled
     	if (!item.is(':disabled')) {
     	
     		if (checkVal== true){
              	sorttoolSelectionList();
              	showToolSelection(myId,1500);
-                $('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr('checked', checkVal).next('label').css('font-weight', 'bold');
+                $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop('checked', checkVal).next('label').css('font-weight', 'bold');
     		
     		} else {
     			hideToolSelection(myId,1000);
-    			$('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').next('label').css('font-weight', 'normal');
+    			$('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').next('label').css('font-weight', 'normal');
     		}
     		// toggle checked
-    		$('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr("checked",checkVal);
+    		$('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop("checked",checkVal);
     		//setupCategTools();
     	}
 
@@ -648,7 +648,7 @@ var setupCategTools = function(){
         	selTools.push(thisToolId);
 
         	// selectedTools with disable checkboxes don't have the red [X] remove link
-        	if ($(this).attr('disabled') !== true) {
+        	if ($(this).prop('disabled') !== true) {
         		removeLink = '<a href="#" class=\"removeTool ' + toolInstance + '\">x</a>';
         	}
 
@@ -656,7 +656,7 @@ var setupCategTools = function(){
             var iconId = iconizedId($(this).attr('id'));
             $('#toolSelectionList ul').append('<li class=\"icon-' + iconId + '\" id=\"' + thisToolId + '\">' + $(this).next('label').text() + removeLink + '</li>');
         	// append to selected tool list
-        	if ($(this).attr('checked')) {
+        	if ($(this).prop('checked')) {
         		// make the selectiion visible
         		//var selId = normalizedId($(this).attr('id'));
         		var iconId = iconizedId($(this).attr('id'));
@@ -724,7 +724,7 @@ var setupCategTools = function(){
         else {
             thisIdClass = $(this).attr('id') + '';
         }
-        var chkVal = $(this).attr('checked');
+        var chkVal = $(this).prop('checked');
         var myId = $(this).attr('id');
         setChecked(myId, chkVal);
         utils.resizeFrame('grow');
@@ -773,10 +773,10 @@ var setupCategTools = function(){
     });
     
     
-    $('.removeTool').live('click', function(e){
+    $('.removeTool').on('click', function(e){
         e.preventDefault();
         var myId = $(this).closest('li').attr('id').replace(/_/g, '.').replace('selected.','');
-        if ($('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr('disabled') == 'disabled') {
+        if ($('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop('disabled') == 'disabled') {
             // there should be no instances of a "required" tool having a control to remove it.
         }
         else {
@@ -794,8 +794,8 @@ var setupCategTools = function(){
         //$(this).closest('li').addClass('highlightTool').fadeOut('slow', function(){
         //    $(this).closest('li').remove();
         //});
-        var countSelected = $('#toolHolder').find('input[type="checkbox"][value=' + myId + ']').closest('ul').find(':checked').length;               
-        $('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').closest('ul').closest('li').find('.checkedCount').text(countSelected);
+        var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + myId + '"]').closest('ul').find(':checked').length;               
+        $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
         noTools();
     });
  

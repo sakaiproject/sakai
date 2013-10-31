@@ -9,7 +9,7 @@ function setStateValue(){
 }
 
 setupAutoCreate = function(){
-    $('#save').attr('disabled', 'disabled');
+    $('#save').prop('disabled', true);
     // on page open: paint the row if the checkbox is checked
     $('tbody :checkbox').each(function(){
         if (this.checked) {
@@ -27,11 +27,11 @@ setupAutoCreate = function(){
     $('thead th :checkbox').click(function(){
         var myList = $(this).parents('table').find('tbody');
         if (this.checked) {
-            $(myList).find(':checkbox').attr('checked', 'checked');
+            $(myList).find(':checkbox').prop('checked', true);
             $(myList).find('tr').addClass('selectedSelected');
         }
         else {
-            $(myList).find(':checkbox').attr('checked', '');
+            $(myList).find(':checkbox').prop('checked', false);
             $(myList).find('tr').removeClass('selectedSelected');
         }
         checkEnableSave();
@@ -73,10 +73,10 @@ setupAutoCreate = function(){
 };
 checkEnableSave = function(){
     if ($('tbody :checked').length === 0) {
-        $('#save').attr('disabled', 'disabled').addClass('disabled');
+        $('#save').prop('disabled', true).addClass('disabled');
     }
     else {
-        $('#save').attr('disabled', '').removeClass('disabled');
+        $('#save').prop('disabled', false).removeClass('disabled');
     }
     if ($('#roleList tbody :checked').length === 0) {
         $('#roleOptionsFieldset').fadeOut('fast');
@@ -87,7 +87,7 @@ checkEnableSave = function(){
             resizeFrame('grow');
         }
         else {
-            $('#roleOption').attr('checked', true);
+            $('#roleOption').prop('checked', true);
             $('#roleOptionsFieldset').fadeOut('slow');
             $('#randomGroupCreateDiv').fadeOut('slow');
             resizeFrame('grow');
@@ -99,8 +99,8 @@ setupValidation = function(){
 
     $('#save').click(function(e){
         var validForm = true;
-        if ($("#randomOption").attr('checked') !== undefined) {
-            if ($("#groupSplit").attr('checked') !== undefined) {
+        if ($("#randomOption").prop('checked') == true) {
+            if ($("#groupSplit").prop('checked') == true) {
                 if ($('#groupTitle-group').val() === '') {
                     $('#groupTitle-group').parent('p').addClass('validationFail');
                     validForm = false;
@@ -117,7 +117,7 @@ setupValidation = function(){
                 }
                 
             }
-            if ($("#userSplit").attr('checked') !== undefined) {
+            if ($("#userSplit").prop('checked') == true) {
                 if ($('#groupTitle-user').val() === '') {
                     $('#groupTitle-user').parent('p').addClass('validationFail');
                     validForm = false;
