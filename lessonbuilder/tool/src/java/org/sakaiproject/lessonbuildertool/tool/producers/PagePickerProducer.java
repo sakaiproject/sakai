@@ -133,7 +133,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //   pageMap - a map that starts out having all pages in the site, we remove entries as we show them
     //      that lets us find at the end anything that hasn't been shown
 
-    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, int level, boolean toplevel) {
+    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, Set<Long>sharedPages, int level, boolean toplevel) {
 	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
@@ -174,8 +174,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    // already done if removed from map.
 	    // however for top level pages, expand them for their primary entry,
 	    // i.e. when toplevel is set.
-	    if (pageMap.get(pageId) == null || (topLevelPages.contains(pageId) && !toplevel))
+	    if (pageMap.get(pageId) == null || (topLevelPages.contains(pageId) && !toplevel)) {
+		sharedPages.add(pageId);
 	    	return;
+	    }
 
 	    // say done
 	    pageMap.remove(pageId);
@@ -198,7 +200,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    nexts.add(item);
 			else  {
 			    // System.out.println("call for subpage " + item.getName() + " " + false);
-			    findAllPages(item, entries, pageMap, topLevelPages, level +1, false);
+			    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level +1, false);
 			}
 	    	}
 	    }
@@ -206,7 +208,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    for (SimplePageItem item: nexts) {
 	    	if (item.getType() == SimplePageItem.PAGE) {
 		    // System.out.println("calling findallpage " + item.getName() + " " + false);
-		    findAllPages(item, entries, pageMap, topLevelPages, level, false);
+		    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level, false);
 	    	}
 	    }
 	}
@@ -288,6 +290,8 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		// build map of all pages, so we can see if any are left over
 		Map<Long,SimplePage> pageMap = new HashMap<Long,SimplePage>();
 			
+		Set<Long> sharedPages = new HashSet<Long>();
+
 		// all pages
 		List<SimplePage> pages = simplePageToolDao.getSitePages(simplePageBean.getCurrentSiteId());
 		for (SimplePage p: pages)
@@ -302,7 +306,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		// this adds everything you can find from top level pages to entries
 		for (SimplePageItem sitePageItem : sitePages) {
 		    // System.out.println("findallpages " + sitePageItem.getName() + " " + true);
-		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, 0, true);
+		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true);
 		}
 
 		// warn students if we aren't showing all the pages
@@ -467,6 +471,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	index++;
 
 		    }
+
+		    if (entry != null && entry.pageId != null && sharedPages.contains(entry.pageId)) {
+			UIOutput.make(row, "shared");
+		    }
+
 		    // debug code for development. this will be removed at some point
 		    if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
 			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
@@ -482,6 +491,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    UIOutput.make(row, "item2");
 			} 
 		    }
+
 		}
 
 		if (!summaryPage) {

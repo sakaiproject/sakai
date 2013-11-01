@@ -3,9 +3,12 @@
 var showItems = $('#show-items');
 var hideItems = $('#hide-items');
 
-$('.pageList > li > span > a.itemListToggle').on('click', function () {
+$(function() {
 
-    $(this).parent().next().toggle();
+$('a.itemListToggle').on('click', function () {
+
+    $(this).parents('li').find('.itemList').toggle();
+
 
     if(typeof window.frameElement !== 'undefined') {
         setMainFrameHeight(window.frameElement.id);
@@ -34,4 +37,6 @@ $('#hide-items').on('click', function (e) {
         setMainFrameHeight(window.frameElement.id);
     }
     return false;
+});
+
 });

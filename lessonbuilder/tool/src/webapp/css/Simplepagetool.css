@@ -499,6 +499,12 @@ h3.author {
 	color: #930;
 	padding-left: 1em;
 }
+.page-picker-note {
+	font-style: italic;
+	color: #930;
+	padding-left: 0.5em;
+	padding-right: 0.25em;
+}
 .returnwarning {
 	font-size: 110%
 }
