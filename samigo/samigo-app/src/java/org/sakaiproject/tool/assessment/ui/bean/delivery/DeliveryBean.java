@@ -1940,17 +1940,9 @@ public class DeliveryBean
     log.debug("**** password=" + password);
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
-    EventLogService eventService = new EventLogService();
-    EventLogFacade eventLogFacade = new EventLogFacade();
-    
-    List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
-    EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-    
+     
     if (password == null || username == null)
     {
-    	eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
-    	eventLogFacade.setData(eventLogData);    
-    	eventService.saveOrUpdateEventLog(eventLogFacade);
     	return "passwordAccessError";
     }
     if (password.equals(getSettings().getPassword()) &&
@@ -1962,9 +1954,6 @@ public class DeliveryBean
     }
     else
     {
-    	eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
-    	eventLogFacade.setData(eventLogData);    
-    	eventService.saveOrUpdateEventLog(eventLogFacade);
     	return "passwordAccessError";
     }
   }
