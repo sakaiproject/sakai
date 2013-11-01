@@ -361,7 +361,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    
 		    UIBranchContainer row = UIBranchContainer.make(form, "page:");
 		    if (entry.toplevel)
-			row.decorate(new UIFreeAttributeDecorator("style", "list-style-type:none; margin-top:1em"));
+			row.decorate(new UIFreeAttributeDecorator("style", "list-style-type:none; margin-top:0.5em"));
 		    
 		    if (entry.level < 0)
 		    	UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));

@@ -796,7 +796,7 @@ div[role="dialog"] {
     list-style:none;
 }
 .pageList li {
-    padding:5px;
+    padding-left:5px;
 }
 .pageList img {
     vertical-align:middle;   
@@ -810,6 +810,8 @@ div[role="dialog"] {
     display: none;
     list-style:none;
     background-color: #F3F3F3;
+    padding-bottom: 1.0em;
+    margin-bottom: 0.5em;
 }
 .text-item-placeholder {
 	font-style: italic;
