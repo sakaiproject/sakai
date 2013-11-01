@@ -1940,7 +1940,7 @@ public class DeliveryBean
     log.debug("**** password=" + password);
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
-     
+    
     if (password == null || username == null)
     {
     	return "passwordAccessError";
@@ -2000,28 +2000,7 @@ public class DeliveryBean
         log.debug("*** checked password="+results);
         
         if("passwordAccessError".equals(results)) {
-        	eventLogData.setAssessmentId(publishedAssessment.getPublishedAssessmentId());
-        	eventLogData.setStartDate(new Date());
-        	String agentEid = AgentFacade.getEid();
-            //ONC-3500
-            if(agentEid == null || "".equals(agentEid)){
-          	  agentEid= "N/A";
-            }
-            eventLogData.setUserEid(agentEid);
-            eventLogData.setTitle(publishedAssessment.getTitle());
-            String site_id= AgentFacade.getCurrentSiteId();
-            if(site_id == null) {
-          	  //take assessment via url
-          	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-      		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessment.getPublishedAssessmentId());
-            }
-            eventLogData.setSiteId(site_id);
-            eventLogData.setProcessId(null);
-            eventLogData.setEndDate(null);
-            eventLogData.setEclipseTime(null);
-            eventLogData.setErrorMsg(eventLogMessages.getString("error_pw_access"));
-        	eventLogFacade.setData(eventLogData);    
-        	eventService.saveOrUpdateEventLog(eventLogFacade);        	
+        	updatEventLog("error_pw_access");   	
         }
       }
 
@@ -2034,28 +2013,7 @@ public class DeliveryBean
          log.debug("*** checked password & IP="+results);
          
          if(("ipAccessError").equals(results)) {
-         	eventLogData.setAssessmentId(publishedAssessment.getPublishedAssessmentId());
-         	eventLogData.setStartDate(new Date());
-         	String agentEid = AgentFacade.getEid();
-             //ONC-3500
-             if(agentEid == null || ("").equals(agentEid)){
-           	  agentEid= "N/A";
-             }
-             eventLogData.setUserEid(agentEid);
-             eventLogData.setTitle(publishedAssessment.getTitle());
-             String site_id= AgentFacade.getCurrentSiteId();
-             if(site_id == null) {
-           	  //take assessment via url
-           	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-       		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessment.getPublishedAssessmentId());
-             }
-             eventLogData.setSiteId(site_id);
-             eventLogData.setProcessId(null);
-             eventLogData.setEndDate(null);
-             eventLogData.setEclipseTime(null);
-             eventLogData.setErrorMsg(eventLogMessages.getString("error_ip_access"));
-         	eventLogFacade.setData(eventLogData);    
-         	eventService.saveOrUpdateEventLog(eventLogFacade);        	
+        	updatEventLog("error_ip_access");
          }
          
       }
@@ -2079,6 +2037,7 @@ public class DeliveryBean
               }
     		  else {
     			  results = "secureDeliveryError";
+    			  updatEventLog("error_secure_delivery");
               }
     	  }    	  
       }
@@ -2137,6 +2096,36 @@ public class DeliveryBean
     }
   }
 
+  public void updatEventLog(String errorMsg)
+  {
+	  EventLogService eventService = new EventLogService();
+      EventLogFacade eventLogFacade = new EventLogFacade();
+      EventLogData eventLogData = new EventLogData();
+      
+	  eventLogData.setAssessmentId(publishedAssessment.getPublishedAssessmentId());
+	  eventLogData.setStartDate(new Date());
+	  String agentEid = AgentFacade.getEid();
+	  //ONC-3500
+	  if(agentEid == null || "".equals(agentEid)){
+		  agentEid= "N/A";
+	  }
+	  eventLogData.setUserEid(agentEid);
+	  eventLogData.setTitle(publishedAssessment.getTitle());
+	  String site_id= AgentFacade.getCurrentSiteId();
+	  if(site_id == null) {
+		  //take assessment via url
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  site_id = publishedAssessmentService.getPublishedAssessmentOwner(publishedAssessment.getPublishedAssessmentId());
+	  }
+	  eventLogData.setSiteId(site_id);
+	  eventLogData.setProcessId(null);
+	  eventLogData.setEndDate(null);
+	  eventLogData.setEclipseTime(null);
+	  eventLogData.setErrorMsg(eventLogMessages.getString(errorMsg));
+	  eventLogFacade.setData(eventLogData);    
+	  eventService.saveOrUpdateEventLog(eventLogFacade);        	
+  }
+  
   public String pvalidate()
   {
     // in post 2.1, clicking at Begin Assessment takes users to the
