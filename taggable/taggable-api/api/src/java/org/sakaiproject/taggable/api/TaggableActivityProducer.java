@@ -154,11 +154,10 @@ public interface TaggableActivityProducer {
 	 *            The provider that is getting the activity. This allows the
 	 *            producer to selectively return an activity, or none at all,
 	 *            depending on the given provider.
-	 * @param taggedItem Reference to an item that can be used for additional permission lookups
 	 * @return The taggable activity, or null if no such activity exists or the
 	 *         provider cannot access it.
 	 */
-	TaggableActivity getActivity(String activityRef, TaggingProvider provider, String taggedItem);
+	TaggableActivity getActivity(String activityRef, TaggingProvider provider);
 
 	/**
 	 * Method to get a list of items for an activity.

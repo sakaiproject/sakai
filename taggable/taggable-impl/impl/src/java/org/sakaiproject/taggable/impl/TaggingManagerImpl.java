@@ -108,11 +108,11 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	public TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider, String taggedItem) {
+			TaggingProvider provider) {
 		TaggableActivity activity = null;
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
-			activity = producer.getActivity(activityRef, provider, taggedItem);
+			activity = producer.getActivity(activityRef, provider);
 		}
 		return activity;
 	}
@@ -134,7 +134,7 @@ public class TaggingManagerImpl implements TaggingManager {
 		List<TaggableItem> items = new ArrayList<TaggableItem>();
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
-			items = producer.getItems(getActivity(activityRef, provider, taggedItem),
+			items = producer.getItems(getActivity(activityRef, provider),
 					provider, getMyItemsOnly, taggedItem);
 		}
 		return items;
