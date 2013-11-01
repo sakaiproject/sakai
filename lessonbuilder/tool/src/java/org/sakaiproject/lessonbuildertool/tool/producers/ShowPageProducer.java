@@ -192,8 +192,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	public MessageLocator messageLocator;
 	private LocaleGetter localegetter;
 	public static final String VIEW_ID = "ShowPage";
-	private static final String DEFAULT_TYPES = "mp4,mov,m2v,3gp,3g2,avi,m4v,mpg,rm,vob,wmv,mp3,swf,wav,aif,m4a,mid,mpa,ra,wma";
-	private static String[] multimediaTypes = null;
+	private static final String DEFAULT_HTML_TYPES = "html,xhtml,htm,xht";
+	private static String[] htmlTypes = null;
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
@@ -269,7 +269,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	// created style arguments. This was done at the time when i thought
 	// the OBJECT tag actually paid attention to the CSS size. it doesn't.
 	public String getStyle(Length w, Length h) {
-		return "width: " + w.getNew() + ", height: " + h.getNew();
+	    String ret = null;
+	    if (lengthOk(w))
+		ret = "width:" + w.getNew();
+	    if (lengthOk(h)) {
+		if (ret != null)
+		    ret = ret + ";";
+		ret = ret + "height:" + h.getNew();
+	    }
+	    return ret;
 	}
 
 	// produce abbreviated versions of URLs, for use in constructing titles
@@ -439,13 +447,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 		}
 
-		if (multimediaTypes == null) {
-			String mmTypes = ServerConfigurationService.getString("lessonbuilder.multimedia.types", DEFAULT_TYPES);
-			multimediaTypes = mmTypes.split(",");
-			for (int i = 0; i < multimediaTypes.length; i++) {
-				multimediaTypes[i] = multimediaTypes[i].trim().toLowerCase();
+		if (htmlTypes == null) {
+			String mmTypes = ServerConfigurationService.getString("lessonbuilder.html.types", DEFAULT_HTML_TYPES);
+			htmlTypes = mmTypes.split(",");
+			for (int i = 0; i < htmlTypes.length; i++) {
+				htmlTypes[i] = htmlTypes[i].trim().toLowerCase();
 			}
-			Arrays.sort(multimediaTypes);
+			Arrays.sort(htmlTypes);
 		}
 
 		if (mp4Types == null) {
@@ -1332,6 +1340,32 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// separately
 
 				} else if (i.getType() == SimplePageItem.MULTIMEDIA) {
+				    // This code should be read together with the code in SimplePageBean
+				    // that sets up this data, method addMultimedia.  Most display is set
+				    // up here, but note that show-page.js invokes the jquery oembed on all
+				    // <A> items with class="oembed".
+
+				    // historically this code was to display files ,and urls leading to things
+				    // like MP4. as backup if we couldn't figure out what to do we'd put something
+				    // in an iframe. The one exception is youtube, which we supposed explicitly.
+				    //   However we now support several ways to embed content. We use the
+				    // multimediaDisplayType code to indicate which. The codes are
+				    // 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
+				    // 2 is the original code: MP4, image, and as a special case youtube urls
+				    // since we have old entries with no type code, and that behave the same as
+				    // 2, we start by converting 2 to null.
+				    //  then the logic is
+				    //  if type == null & youtube, do youtube
+				    //  if type == null & image, do iamge
+				    //  if type == null & not HTML do MP4 or other player for file 
+				    //  final fallthrough to handel the new types, with IFRAME if all else fails
+				    // the old code creates ojbects in ContentHosting for both files and URLs.
+				    // The new code saves the embed code or URL itself as an atteibute of the item
+				    // If I were doing it again, I wouldn't create the ContebtHosting item
+				    //   Note that IFRAME is only used for something where the far end claims the MIME
+				    // type is HTML. For weird stuff like MS Word files I use the file display code, which
+				    // will end up producing <OBJECT>.
+
 					// the reason this code is complex is that we try to choose
 					// the best
 					// HTML for displaying the particular type of object. We've
@@ -1342,6 +1376,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				 	String itemGroupString = null;
 					String itemGroupTitles = null;
 					boolean entityDeleted = false;
+					// new format explicit display indication
+					String mmDisplayType = i.getAttribute("multimediaDisplayType");
+					// 2 is the generic "use old display" so treat it as null
+					if ("".equals(mmDisplayType) || "2".equals(mmDisplayType))
+					    mmDisplayType = null;
 					if (canEditPage) {
 					    try {
 						itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
@@ -1363,7 +1402,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if (entityDeleted)
 					    continue;
 					
-					UIVerbatim.make(tableRow, "item-path", getItemPath(i));
+					if (!"1".equals(mmDisplayType) && !"3".equals(mmDisplayType))
+					    UIVerbatim.make(tableRow, "item-path", getItemPath(i));
 
 					// the reason this code is complex is that we try to choose
 					// the best
@@ -1408,7 +1448,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// type,
 					// followed by the hidden INPUT tags with information for the
 					// edit dialog
-					if (simplePageBean.isImageType(i)) {
+					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 
 					    if(canEditPage || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "imageSpan");
@@ -1449,7 +1489,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						UIOutput.make(tableRow, "description2", i.getDescription());
 
-					} else if ((youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
+					} else if (mmDisplayType == null && (youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = "https://www.youtube.com/embed/" + youtubeKey + "?wmode=opaque";
 
 						if(canEditPage || simplePageBean.isItemAvailable(i)) {
@@ -1532,13 +1572,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// use EMBED. OBJECT does work with Flash.
 						// application/xhtml+xml is XHTML.
 
-					} else if ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || (mimeType == null && Arrays.binarySearch(multimediaTypes, extension) >= 0)) {
+					} else if (mmDisplayType == null && 
+						   ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || 
+						    (mimeType == null && !(Arrays.binarySearch(htmlTypes, extension) >= 0)))) {
 
-                        // this code is used for everything that isn't an image,
-                        // Youtube, or HTML. Typically
-                        // this is a flash presentation or a movie. Try to be
-                        // smart about how we show movies.
+                        // except where explicit display is set,
+			// this code is used for everything that isn't an image,
+                        // Youtube, or HTML
+			// This could be audio, video, flash, or something random like MS word.
+                        // Random stuff will turn into an object.
                         // HTML is done with an IFRAME in the next "if" case
+		        // The explicit display types are handled there as well
+
+					    // in theory the things that fall through to iframe are
+					    // html and random stuff without a defined mime type
+					    // random stuff with mime type is displayed with object
 
 						if (mimeType == null) {
 						    mimeType = "";
@@ -1702,7 +1750,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						
 						UIOutput.make(tableRow, "description3", i.getDescription());
 					} else {
-						// finally, HTML. Use an iframe
+					    // this is fallthrough for html or an explicit mm display type (i.e. embed code)
+					    // odd types such as MS word will be handled by the AV code, and presented as <OBJECT>
+
 						// definition of resizeiframe, at top of page
 						if (!iframeJavascriptDone && getOrig(height).equals("auto")) {
 							UIOutput.make(tofill, "iframeJavascript");
@@ -1717,23 +1767,38 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						}
 
 						String itemUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
-						item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", itemUrl));
-						// if user specifies auto, use Javascript to resize the
-						// iframe when the
-						// content changes. This only works for URLs with the
-						// same origin, i.e.
-						// URLs in this sakai system
-						if (getOrig(height).equals("auto")) {
+						if ("1".equals(mmDisplayType)) {
+						    // embed
+						    item = UIVerbatim.make(tableRow, "mm-embed", i.getAttribute("multimediaEmbedCode"));
+						    //String style = getStyle(width, height);
+						    //if (style != null)
+						    //item.decorate(new UIFreeAttributeDecorator("style", style));
+						} else if ("3".equals(mmDisplayType)) {
+						    item = UILink.make(tableRow, "mm-oembed", i.getAttribute("multimediaUrl"), i.getAttribute("multimediaUrl"));
+						    if (lengthOk(width))
+							item.decorate(new UIFreeAttributeDecorator("maxWidth", width.getOld()));
+						    if (lengthOk(height))
+							item.decorate(new UIFreeAttributeDecorator("maxHeight", height.getOld()));
+						    // oembed
+						} else  {
+						    item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", itemUrl));
+						    // if user specifies auto, use Javascript to resize the
+						    // iframe when the
+						    // content changes. This only works for URLs with the
+						    // same origin, i.e.
+						    // URLs in this sakai system
+						    if (getOrig(height).equals("auto")) {
 							item.decorate(new UIFreeAttributeDecorator("onload", "resizeiframe('" + item.getFullID() + "')"));
 							if (lengthOk(width)) {
-								item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
+							    item.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
 							}
 							item.decorate(new UIFreeAttributeDecorator("height", "300"));
-						} else {
+						    } else {
 							// we seem OK without a spec
 							if (lengthOk(height) && lengthOk(width)) {
 								item.decorate(new UIFreeAttributeDecorator("height", height.getOld())).decorate(new UIFreeAttributeDecorator("width", width.getOld()));
 							}
+						    }
 						}
 						item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.web_content").replace("{}", abbrevUrl(i.getURL()))));
 
@@ -3155,6 +3220,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
+		UIInput.make(form, "mm-display-type", "#{simplePageBean.multimediaDisplayType}");
 		UIInput.make(form, "mm-is-website", "#{simplePageBean.isWebsite}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}

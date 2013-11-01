@@ -46,6 +46,8 @@ function resizeiframe(id) {
 <script type="text/javascript" src="$context/js/jquery-1.8.3.min.js"></script>
 <script type="text/javascript" src="$context/js/jquery-ui-1.9.2.custom.min.js"></script>
 <script type="text/javascript" src="$context/js/jqBarGraph.1.1.customized.js"></script>
+<script type="text/javascript" src="$context/js/jquery.oembed.js"></script>
+<link rel="stylesheet" href="$context/js/jquery.oembed.css" type="text/css" />
 <script type="text/javascript" src="$context/js/peer-eval.js"></script>
 <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
 <script type="text/javascript" src="$context/js/show-page.js"></script>
@@ -303,6 +305,10 @@ function resizeiframe(id) {
                          rsf:id="iframe"
                              id="iframe"
                          ></iframe>
+                      <div rsf:id="mm-embed" class="multimedia"></div>
+		      <script rsf:id="mm-embed-script" type="text/javascript"></script>
+                      <a rsf:id="mm-oembed" href="#" class="oembed multimedia">Preview</a>
+
                       <div style="display:none" rsf:id="iframeHeight" class="mm-height"></div>
                       <div style="display:none" rsf:id="iframeWidth" class="mm-width"></div>
                       <div class="description" rsf:id="description5"></div>
@@ -877,10 +883,35 @@ function resizeiframe(id) {
                             <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" style="width:99%" class="edit-multimedia-input" />
                         </p>
 
+			<div id="mm-test-embed-results" class="mm-test-text">
+			  <div id="mm-test-embed-contents" rsf:id="msg=simplepage.mm-test-embed"></div>
+			</div>
+
+			<div id="mm-test-addedhttps" class="mm-test-text">
+			  <span rsf:id="msg=simplepage.mm-test-addedhttp-1"></span><span id='mm-test-added-url'></span><span rsf:id="simplepage.mm-test-addedhttp-2"></span>
+			</div>
+
+			<div id="mm-test-oembed-results" class="mm-test-text">
+			  <p class="mm-test-text-p" rsf:id="msg=simplepage.mm-test-oembed">
+			  </p>
+			  <a id="mm-test-prototype" href="#"> test image </a>
+			</div>
+
+			<div id="mm-test-iframe-results" class="mm-test-text">
+			  <p class="mm-test-text-p" rsf:id="msg=simplepage.mm-test-iframe">
+			  </p>
+			  <iframe id="mm-test-iframe-iframe"></iframe>
+			</div>
+
+			<input type="button" class="bold" id="mm-test-tryother" value="Try other alternative"/>
+                        <input class="bold" type="submit" id="mm-test" rsf:id="mm-test" />
                         <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
+			<input type="button" class="bold mm-test-reset" value="Start over"/>
                         <input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
                         <input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
                         <input type="hidden" rsf:id="mm-is-mm" id="mm-is-mm" />
+                        <input type="hidden" rsf:id="mm-display-type" id="mm-display-type" />
+                        <input type="hidden" rsf:id="mm-mime-type" id="mm-mime-type" />
                         <input type="hidden" rsf:id="mm-is-website" id="mm-is-website" />
 		        <p id="checkingwithhost" rsf:id="msg=simplepage.checkingwithhost"></p>
                     </div>
@@ -908,7 +939,7 @@ function resizeiframe(id) {
                             <input type="text" name="alt" rsf:id="alt" id="alt" class="edit-multimedia-input wideinput" /><br />
                         </p>
                         
-                        <p class="shorttext required">
+                        <p class="shorttext required mm-path">
                             <label rsf:id="msg=simplepage.path" for="path">Path</label>
                             <span id="mm-path" class="instruction"></span><br />
                         </p>
@@ -932,6 +963,7 @@ function resizeiframe(id) {
                         <input type="submit" class="deleteButton" rsf:id="delete-multimedia-item" />
                     </div>
                         
+<!--
                     <div class="expert" id="expert-multimedia-toggle-div">
                       <p style="margin-top:0px; margin-bottom:0px">
                         <a href="#" id="expert-multimedia-toggle" rsf:id="msg=simplepage.expert_toggle"></a>
@@ -946,6 +978,7 @@ function resizeiframe(id) {
                       <label rsf:id="msg=simplepage.mimetype_label" for="mimetype"></label><br />
                       <input type="text" name="mimetype" rsf:id="mimetype" id="mimetype" class="edit-multimedia-input wideinput" /><br />
                     </div>
+-->
                 </form>
 			</div>
 			

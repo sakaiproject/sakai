@@ -134,4 +134,22 @@
 	    <dispatcher>INCLUDE</dispatcher>
 	</filter-mapping>
 
+	<servlet>
+		<!-- servlet name must match tool.id in tools xml file -->
+		<servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+		<servlet-class>org.sakaiproject.lessonbuildertool.service.AjaxServer</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+		<url-pattern>/ajax</url-pattern>
+	</servlet-mapping>  
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+
 </web-app>

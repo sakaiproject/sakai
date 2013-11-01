@@ -105,6 +105,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
+import org.sakaiproject.lessonbuildertool.service.AjaxServer;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -222,6 +223,8 @@ public class SimplePageBean {
 
 	public Long itemId = null;
 	public boolean isMultimedia = false;
+	public int multimediaDisplayType = 0;
+	public String multimediaMimeType = null;
 
 	public String commentsId;
 	public boolean anonymous;
@@ -408,7 +411,7 @@ public class SimplePageBean {
 
     // Image types
 
-	private static ArrayList<String> imageTypes;
+	public static ArrayList<String> imageTypes;
 
 	static {
 		imageTypes = new ArrayList<String>();
@@ -750,6 +753,18 @@ public class SimplePageBean {
 	    isMultimedia = isMm;
 	}
 	
+	public void setMultimediaDisplayType(String type) {
+	    if (type != null && !type.trim().equals("")) {
+		try {
+		    multimediaDisplayType = Integer.valueOf(type);
+		} catch (Exception e) {}
+	    }
+	}
+
+	public void setMultimediaMimeType(String type) {
+	    multimediaMimeType = type;
+	}
+
 	public void setWebsite(boolean isWebsite) {
 	    this.isWebsite = isWebsite;
 	}
@@ -848,6 +863,8 @@ public class SimplePageBean {
 		if (canEditPage()) {
 			Placement placement = toolManager.getCurrentPlacement();
 
+// WARNING: keep in sync with code in AjaxFilter.java
+
 			StringBuilder error = new StringBuilder();
 
 			// there's an issue with HTML security in the Sakai community.
@@ -920,6 +937,8 @@ public class SimplePageBean {
 				html = FormattedText.processHtmlDocument(contents, error);
 
 			}
+
+// WARNING: keep in sync with code in AjaxFilter.java
 
 			// if (getCurrentPage().getOwner() != null || filterHtml 
 			//		&& !"false".equals(placement.getPlacementConfig().getProperty("filterHtml")) ||
@@ -2828,11 +2847,15 @@ public class SimplePageBean {
 		   entity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	       case SimplePageItem.FORUM:
 		   entity = forumEntity.getEntity(i.getSakaiId()); break;
-	       case SimplePageItem.RESOURCE:
 	       case SimplePageItem.MULTIMEDIA:
+		   String displayType = i.getAttribute("multimediaDisplayType");
+		   if ("1".equals(displayType) || "3".equals(displayType))
+		       return getLBItemGroups(i); // for all native LB objects
+		   else
+		       return getResourceGroups(i, nocache);  // responsible for caching the result
+	       case SimplePageItem.RESOURCE:
 		   return getResourceGroups(i, nocache);  // responsible for caching the result
 		   // throws IdUnusedException if necessary
-
 	       case SimplePageItem.BLTI:
 		   entity = bltiEntity.getEntity(i.getSakaiId());
 		   if (entity == null || !entity.objectExists())
@@ -3004,8 +3027,13 @@ public class SimplePageBean {
 	       lessonEntity = quizEntity.getEntity(i.getSakaiId(),this); break;
 	   case SimplePageItem.FORUM:
 	       lessonEntity = forumEntity.getEntity(i.getSakaiId()); break;
-	   case SimplePageItem.RESOURCE:
 	   case SimplePageItem.MULTIMEDIA:
+	       String displayType = i.getAttribute("multimediaDisplayType");
+	       if ("1".equals(displayType) || "3".equals(displayType))
+		   return setLBItemGroups(i, groups);
+	       else
+		   return setResourceGroups (i, groups);
+	   case SimplePageItem.RESOURCE:
 	       return setResourceGroups (i, groups);
 	   case SimplePageItem.TEXT:
 	   case SimplePageItem.PAGE:
@@ -4608,12 +4636,12 @@ public class SimplePageBean {
     // as HTML is an SGML dialect.
     // If you run into trouble with &amp;, you can use ; in the following. Google seems to 
     // process it correctly. ; is a little-known alterantive to & that the RFCs do permit
-       private String normalizeParams(String URL) {
+       private static String normalizeParams(String URL) {
 	   URL = URL.replaceAll("[\\?\\&\\;]", "&");
 	   return URL.replaceFirst("\\&", "?");
        }
 
-       private String getYoutubeKeyFromUrl(String URL) {
+       public static String getYoutubeKeyFromUrl(String URL) {
 	   // 	see if it has a Youtube ID
 	   int offset = 0;
 	   if (URL.startsWith("http:"))
@@ -4924,6 +4952,29 @@ public class SimplePageBean {
     // of the current user. That's the only consistent approach I could come up with
     // this function uses a security advicor, so that will work.
 	public void addMultimedia() {
+
+	    // This code must be read together with the SimplePageItem.MULTIMEDIA
+	    // display code in ShowPageProducer.java (To find it search for
+	    // multimediaDisplayType) and with the code in show-page.js that
+	    // handles the add multimedia dialog (look for #mm-add-item)
+
+				    // historically this code was to display files ,and urls leading to things
+				    // like MP4. as backup if we couldn't figure out what to do we'd put something
+				    // in an iframe. The one exception is youtube, which we supposed explicitly.
+				    //   However we now support several ways to embed content. We use the
+				    // multimediaDisplayType code to indicate which. The codes are
+				    // 	 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
+				    // 2 is the original code: MP4, image, and as a special case youtube urls
+				    // For all practical purposes type 2 is the same as the old items that don't
+	                            // have type codes (although iframes are also handled by the old code)
+				    //    the old code creates ojbects in ContentHosting for both files and URLs.
+				    // The new code saves the embed code or URL itself as an atteibute of the item
+				    // If I were doing it again, I wouldn't create the ContebtHosting item
+				    //   Note that IFRAME is only used for something where the far end claims the MIME
+				    // type is HTML. For weird stuff like MS Word files I use the file display code, which
+	                            //   ShowPageProducer figures out how to display type 2 (or default) items 
+	                            // on the fly, so we don't have to known here what they are.
+
 		SecurityAdvisor advisor = null;
 		try {
 			if(getCurrentPage().getOwner() != null) {
@@ -5006,7 +5057,7 @@ public class SimplePageBean {
 					log.error("addMultimedia error 1 " + e);
 					return;
 				};
-			} else if (mmUrl != null && !mmUrl.trim().equals("")) {
+			} else if (mmUrl != null && !mmUrl.trim().equals("") && multimediaDisplayType != 1 && multimediaDisplayType != 3) {
 				// 	user specified a URL, create the item
 				String url = mmUrl.trim();
 				// if user gives a plain hostname, make it a URL.
@@ -5061,10 +5112,16 @@ public class SimplePageBean {
 					setErrMessage(messageLocator.getMessage("simplepage.resourceerror").replace("{}", e.toString()));
 					log.error("addMultimedia error 2 " + e);
 					return;
-				};
+				}
 				// 	connect to url and get mime type
-				mimeType = getTypeOfUrl(url);
+				// new dialog passes the mime type
+				if (multimediaMimeType != null && ! "".equals(multimediaMimeType))
+				    mimeType = multimediaMimeType;
+				else
+				    mimeType = getTypeOfUrl(url);
 				
+			} else if (mmUrl != null && !mmUrl.trim().equals("") && (multimediaDisplayType == 1 || multimediaDisplayType == 3)) {
+			    // fall through. we have an embed code, don't need file
 			} else
 				// 	nothing to do
 				return;
@@ -5104,6 +5161,17 @@ public class SimplePageBean {
 				item.setHtml(null);
 			}
 			
+			if (mmUrl != null && !mmUrl.trim().equals("") && isMultimedia) {
+			    if (multimediaDisplayType == 1)
+				// the code is filtered by the UI, so the user can see the effect.
+				// This protects against someone handcrafting a post.
+				// The code is similar to that in submit, but currently doesn't
+				// have folder-specific override (because there are no folders involved)
+				item.setAttribute("multimediaEmbedCode", AjaxServer.filterHtml(mmUrl.trim()));
+			    else if (multimediaDisplayType == 3)
+				item.setAttribute("multimediaUrl", mmUrl.trim());
+			    item.setAttribute("multimediaDisplayType", Integer.toString(multimediaDisplayType));
+			}
 			// 	if this is an existing item and a resource, leave it alone
 			// 	otherwise initialize to false
 			if (isMultimedia || itemId == -1)
@@ -5116,6 +5184,7 @@ public class SimplePageBean {
 				else
 					update(item);
 			} catch (Exception e) {
+			    System.out.println("save error " + e);
 				// 	saveItem and update produce the errors
 			}
 		}catch(Exception ex) {

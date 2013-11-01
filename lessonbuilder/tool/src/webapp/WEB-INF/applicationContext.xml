@@ -86,6 +86,8 @@ simplePageBean.itemId,
 simplePageBean.maxPoints,
 simplePageBean.mimetype,
 simplePageBean.mmUrl,
+simplePageBean.multimediaDisplayType,
+simplePageBean.multimediaMimeType,
 simplePageBean.name,
 simplePageBean.newPageTitle,
 simplePageBean.newWindow,
@@ -386,5 +388,13 @@ simplePageBean.peerEvalAllowSelfGrade
 	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
 
 	</bean>
+
+    <bean id="org.sakaiproject.lessonbuildertool.service.AjaxServer"
+        class="org.sakaiproject.lessonbuildertool.service.AjaxServer"
+        init-method="init"
+        destroy-method="destroy"
+        singleton="true">
+      <property name="messageSource"><ref bean="messageSource"/></property>
+    </bean>
 
  </beans>

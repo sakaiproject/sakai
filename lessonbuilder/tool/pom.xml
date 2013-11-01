@@ -243,7 +243,6 @@
 
       <profile>
         <id>optional</id>
-
 <!-- NOTE: If you enable optional modules, please look at the <properties> section of the main
  pom file for the settings for yaft, mneme, and assignment2. For the tools you use, make sure
  to adjust the versions to match the version you are using. For the tools that are not in your
@@ -251,6 +250,7 @@
  lessons. Without that, the system won't start. For modules you use the API jar files will be
  in shared/lib, so you want the scope to be "provided".
 -->
+
         <repositories>
           <!-- 
                To enable YAFT, MNEME, and Assignments 2, uncomment the repository, dependencies and plugin below.

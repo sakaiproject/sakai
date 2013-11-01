@@ -557,13 +557,13 @@ a.peer-eval-stats {
 }
 .studentContentTable {
 	border: none;
-#	background-color: #e4edff;
+/*	background-color: #e4edff; */
 	padding: 4px;
 	padding-top: 0.0em;
 	padding-left: 8px;
 }
 .studentContentTable .studentRow{
-#    padding:5px 0;
+/*    padding:5px 0; */
 }
 
 .duecol {
@@ -769,7 +769,7 @@ div[role="dialog"] {
 }
 
 .controlsPanel fieldset {
-    margin 10px 0 
+    margin: 10px 0 
 }
 
 .deleteCandidate td:first-child {
@@ -808,6 +808,16 @@ div[role="dialog"] {
 .text-item-placeholder {
 	font-style: italic;
 }
+.mm-test-text {
+    margin-top:0.5em;
+    margin-bottom:1.0em;
+}
+
+.mm-test-text-p {
+    margin-top:0.5em;
+    margin-bottom:1.0em;
+}
+
 /* neeeded by LB for skinning - goes in tool.css so that the
  * portlet title looks like the rest in the system.
  * 
@@ -1000,6 +1010,7 @@ div[role="dialog"] {
 .editInProgress * {
     opacity:.50;    
 }
+
 */
  /*
 end alternate treatment for list

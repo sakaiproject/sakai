@@ -4,6 +4,7 @@ var oldloc;
 var requirementType = 0;
 var importccactive = false;
 var insist = false;
+var mm_testing = 0;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -49,6 +50,12 @@ $(function() {
 //	}else {
 		//$(".evolved-box").hide();
 	//}
+
+        $("a.oembed").each(function(){
+                var width = $(this).attr("maxWidth");
+                var height = $(this).attr("maxHeight");
+                $(this).oembed(null, {maxWidth: width, maxHeight: height});
+            });
 
 	// We don't need to run all of this javascript if the user isn't an admin
 	if($("#subpage-dialog").length > 0) {
@@ -267,29 +274,119 @@ $(function() {
 			return true;
 	    	});
 
+	    // This code must be read together with the SimplePageItem.MULTIMEDIA
+	    // display code in ShowPageProducer.java (To find it search for
+	    // multimediaDisplayType) and with the code in SimplePageBean that
+	    // handles the submit from this dialog, addMultimedia.
+
+
 		$('#mm-add-item').click(function() {
+			// mm-display-type is 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
+			
 			var url = $('#mm-url').val();
 			if (url != '' && $('#mm-is-mm').val() == 'true') {
-			    // if http on an https page, give a warning
-			    // we only check explicit http because relative protocols will do the right thing
-			    // this is an approximation. probably should check against serverurl, not current page
-			    // but this should normally be right
-			    if (document.URL.indexOf("https:") == 0 && url.indexOf("http:") == 0) {
-				$('#mm-error').text(msg("simplepage.httphttps"));
-				$('#mm-error-container').show();
-				if (!insist) {
-				    insist = true;
+			    if (mm_testing == 0) {
+				// initial submit for URL. see what we've got
+				if (url.indexOf('<') >= 0) {
+				    // < in the field, it's embed. just show it after filtering
+				    $('#mm-test-embed-results').show();
+				    $('#mm-test-embed-contents').html(filterHtml(url));
+				    mm_testing = 3;
+				    $('.mm-test-reset').show();
+				    $('#mm-display-type').val(1);
 				    return false;
+				}				
+				// not embed. Treat as a url
+				// first normalize it
+
+				if (document.URL.indexOf("https:") == 0 && url.trim().match('^http:')) {
+				    // using https: to display and URL starts with http, use warning
+				    alert('Please use URLs starting with https:. URLs starting with http: will not work with some browsers, e.g. Firefox.');
 				}
+				url = url.trim();
+				if (!url.match('^http:') && !url.match('^https:') && !url.match('^/')) {
+				    // assume it's a hostname or hostname/path
+				    url = 'https://' + url;
+				    $('#mm-url').val(url);
+				    $('#mm-test-addedhttps').show();
+				    $('#mm-test-added-url').text(url);
+				}
+
+				// see what we've got
+				mimeType = getMimeType(url);
+				$('#mm-mime-type').val(mimeType);
+
+				// for video or audio MIME types, the normal ShowPage code can handle it.
+
+				// youtube returns application/youtube, so it gets handled here
+				if (!mimeType.match('^text/html') && !mimeType.match('^application/xhtml+xml')) {
+				    $('#mm-display-type').val(2);
+				    // just submit
+				    return true;
+				}
+
+				// not video or audio, try oembed. If that doesn't work, IFRAME
+				
+				// create the test link from prototype, because oembed will remove it
+				var testlink = $('#mm-test-prototype').clone();
+				$('#mm-test-prototype').after(testlink);
+				testlink.attr('href', url);
+				$('#mm-test-oembed-results').show();
+				testlink.show();
+				testlink.oembed(null, {maxWidth:300});
+	   
+				mm_testing = 1;
+				$('#mm-display-type').val(3);
+				$('.mm-test-reset').show();
+				$('#mm-test-tryother').show();
+				return false;
 			    }
+			    // for a URL we always return when mm_testing = 0
+			    // with mm_testing = 3, we handle submit normally
+			    // with mm_testing = 1, we handle submit normally, but
+			    //  there's another button to try the other alterantive
+
 			}
-			if ($('#mm-url').val() != '') {
-			    $('#checkingwithhost').show();
-			}
+			// actually do the submit
 			return true;
 	    	});
 
+		// for a normal url, after we show oembed, this
+		// button lets us try an iframe
+		$('#mm-test-tryother').click(function() {
+			var url = $('#mm-url').val();
+			if (mm_testing == 1) {
+			    $('#mm-test-oembed-results').hide();
+			    $('#mm-test-iframe-results').show();
+			    $('#mm-test-iframe-iframe').attr('src', url);
+			    mm_testing = 3;
+			    $('#mm-display-type').val(4);
+			    // try other already shown
+			    // start over already shown
+			} else {
+			    // go back to oembed
+			    var testlink = $('#mm-test-prototype').clone();
+			    $('#mm-test-oembed-results .oembedall-container').remove();
+			    $('#mm-test-iframe-results').hide();
+			    $('#mm-test-prototype').after(testlink);
+			    testlink.attr('href', url);
+			    $('#mm-test-oembed-results').show();
+			    testlink.show();
+			    testlink.oembed(null, {maxWidth:300});
+			    $('#mm-display-type').val(3);
+	   
+			    mm_testing = 1;
+			    // try other and start over already shown
+			}
+			return false;
+		    });
 		
+		$('.mm-test-reset').click(function() {
+			mm_test_reset();
+			return false;
+		    });
+		
+
 		$('#releaseDiv').click(function(){
 			$('#edit-title-dialog').height(550);
 	    	});
@@ -397,7 +494,7 @@ $(function() {
 
 		$('.edit-movie').click(function(){
 			closeDropdown();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
 			$("#expert-movie").hide();
 			$("#expert-movie-toggle-div").show();
@@ -428,14 +525,14 @@ $(function() {
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
 			if(row.find(".movie-prerequisite").text() === 'true') {
-                $('#question-prerequisite').attr('checked','checked');
-            } else {
-                $('#question-prerequisite').removeAttr('checked');
-            }
+			    $('#question-prerequisite').attr('checked','checked');
+			} else {
+			    $('#question-prerequisite').removeAttr('checked');
+			}
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
 			$("#movie-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
 			$("#movie-dialog").dialog('open');
@@ -446,7 +543,7 @@ $(function() {
 		
 		$(".edit-comments").click(function(){
 			closeDropdown();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-comments").hide();
@@ -1294,6 +1391,9 @@ $(function() {
 
 		$(".add-multimedia").click(function(){
 			closeDropdown();
+
+			mm_test_reset();
+
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('true');
 			$("#mm-is-website").val('false');
@@ -1369,7 +1469,8 @@ $(function() {
 
 		$(".multimedia-edit").click(function(){
 			closeDropdown();
-            $('li').removeClass('editInProgress');
+			mm_test_reset();
+			$('li').removeClass('editInProgress');
 			$("#expert-multimedia").hide();
 			$("#expert-multimedia-toggle-div").show();
 			$("#editgroups-mm").after($("#grouplist"));
@@ -1378,9 +1479,15 @@ $(function() {
 
 			var row = $(this).parent().parent().parent();
 
-			row.find(".path-url").attr("href", row.find(".multimedia").attr("src"));
-			$("#mm-path").html(row.find(".item-path").html());
-			
+			var itemPath = row.find(".item-path");
+			if (itemPath != null && itemPath.size() > 0) {
+			    row.find(".path-url").attr("href", row.find(".multimedia").attr("src"));
+			    $("#mm-path").html(itemPath.html());
+			    $(".mm-path").show();
+			} else {
+			    $(".mm-path").hide();
+			}
+
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
 			if ($('#grouplist input').size() > 0) {
@@ -1395,16 +1502,26 @@ $(function() {
 			$("#width").val(row.find(".mm-width").text());
 			$("#description2").val(row.find(".description").text());
 			$("#mimetype").val(row.find(".mm-type").text());
-			if (row.find(".multimedia").get(0).nodeName.toLowerCase() == "img") {
+			var tagname = row.find(".multimedia").get(0).nodeName.toLowerCase();
+			if (tagname == "img") {
 			    $("#alt").val(row.find(".multimedia").attr("alt"));
 			    $("#alt").parent().show();
-			    $("#tagnameused").html(msg("simplepage.tag_img"));
+			    // $("#tagnameused").html(msg("simplepage.tag_img"));
 			    $("#iframe-note").hide();
-		        } else {
+			    //		        } else {
+			    //			    $("#alt").parent().hide();
+			    //			    $("#tagnameused").html(msg("simplepage.tag_iframe"));
+			    //			    $("#iframe-note").show();
+			    //}
+			} else if (tagname == "iframe") {
 			    $("#alt").parent().hide();
-			    $("#tagnameused").html(msg("simplepage.tag_iframe"));
+			    // $("#tagnameused").html(msg("simplepage.tag_iframe"));
 			    $("#iframe-note").show();
+			} else {
+			    $("#alt").parent().hide();
+			    $("#iframe-note").hide();
 			}
+
 			$("#change-resource-mm").attr("href", 
 			     $("#change-resource-mm").attr("href").replace("pageItemId=-1", 
 				   "pageItemId=" + row.find(".mm-itemid").text()));
@@ -1564,8 +1681,8 @@ $(function() {
 			
 			$(this).find("span").text($(this).parent().find(".show-poll").text());
 		}
-		
-        resizeFrame('grow')
+
+        resizeFrame('grow');
 	});
 	
 	function submitgrading(item) {
@@ -2263,6 +2380,47 @@ function resetShortanswers() {
 	$("#extraShortanswers").empty();
 }
 
+
+var mimeMime = "";
+
+function getMimeType(url) {
+     var mime = "";
+     // Access-Control-Allow-Origin: *
+     var base = location.protocol + '//' + location.host;
+     $.ajax({type: "GET",
+	     async: false,
+	      url: base + '/lessonbuilder-tool/ajax?op=getmimetype&url=' + encodeURIComponent(url),
+	     success: function(data, status, hdr) { 
+		 mime = data.trim();
+	    }});
+     return mime;
+ }
+
+function filterHtml(html) {
+     var ret = '';
+     var base = location.protocol + '//' + location.host;
+     $.ajax({type: "GET",
+	     async: false,
+	      url: base + '/lessonbuilder-tool/ajax?op=filterhtml&html=' + encodeURIComponent(html),
+	     success: function(data, status, hdr) { 
+		 ret = data.trim();
+	    }});
+     return ret;
+ }
+
+function mm_test_reset() {
+    mm_testing = 0;
+   $('#mm-test-embed-results').hide();
+   $('#mm-test-addedhttps').hide();
+   $('#mm-test-oembed-results').hide();
+   $('#mm-test-iframe-results').hide();
+   $('#mm-explain-video').hide();
+   $('#mm-test-mime').hide();
+   $('#mm-test-tryother').hide();
+   $('.mm-test-reset').hide();
+   $('#mm-test-prototype').hide();
+   $('#mm-test-oembed-results .oembedall-container').remove();
+}
 
 resizeFrame = function (updown) {
       var frame = parent.document.getElementById( window.name );
