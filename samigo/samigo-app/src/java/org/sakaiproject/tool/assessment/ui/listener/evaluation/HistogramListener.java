@@ -1527,10 +1527,11 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
  				  String ifcText = ifc.getText();
  				  if(answer1Text.equals(answerText) && answer1ItemTextText.equals(ifcText)) {
 					  //2. then get the count from HashMap
-					  if(answers.containsKey(answer1.getId()))
+					  if(answers.containsKey(answer1.getId())) {
 						  count =((Integer) answers.get(answer1.getId())).intValue();
-					  //log.info("kim debug: count " + count);
-					  break;
+						  //log.info("kim debug: count " + count);
+						  break;
+					  }
 				  }
 			  }
 			  if (count > 1)
