@@ -10,7 +10,7 @@
    
     CKEDITOR.plugins.add("autosave", {
         lang: ['de', 'en', 'jp', 'pl', 'pt-BR', 'zh', 'zh-cn'],
-        version: 0.5,
+        version: 0.6,
         init: function (editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
             var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
@@ -26,10 +26,22 @@
             editor.on('key', startTimer);
 
             editor.on('destroy', function () {
-                SaveData(autoSaveKey, editor.getData());
+                SaveData(autoSaveKey, editor);
             });
+            
+            editor.on('uiSpace', function (event) {
+                if (event.data.space == 'bottom') {
+                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="' + autoSaveMessageId(event.editor) + '"class="hidden"' + '>Auto Saved</div></div>';
+                }
+            }, editor, null, 100);
+            
+            
         }
     });
+    
+    function autoSaveMessageId(editorInstance) {
+        return 'cke_autoSaveMessage_' + editorInstance.name;
+    }
 
     var timeOutId = 0,
         savingActive = false;
@@ -49,7 +61,7 @@
             var editor = event.editor,
                 autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
 
-            SaveData(autoSaveKey, editor.getData());
+            SaveData(autoSaveKey, editor);
 
             savingActive = false;
         } 
@@ -65,17 +77,12 @@
             return {
                 title: editorInstance.lang.autosave.title,
                 minHeight: 155,
+                width: 750,
                 onShow: function () {
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
                 onOk: function () {
                     var jsonSavedContent = LoadData(autoSaveKey);
-                    
-                    /*if (editorInstance.plugins.bbcode) {
-                        editorInstance._.data = jsonSavedContent.data;
-                    } else {
-                        editorInstance.setData(jsonSavedContent.data);
-                    }*/
                     
                     editorInstance.setData(jsonSavedContent.data);
                     
@@ -97,7 +104,7 @@
                         id: 'diffType',
                         label: editorInstance.lang.autosave.diffType,
                         items: [[editorInstance.lang.autosave.sideBySide, 'sideBySide'], [editorInstance.lang.autosave.inline, 'inline']],
-                        'default': 'inline',
+                        'default': 'sideBySide',
                         onClick: function () {
                             RenderDiff(this._.dialog, editorInstance, autoSaveKey);
                         }
@@ -169,9 +176,19 @@
         return JSON.parse(compressedJSON);
     }
     
-    function SaveData(autoSaveKey, data) {
-        var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: data, saveTime: new Date() }));
+    function SaveData(autoSaveKey, editorInstance) {
+        var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getData(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
+
+        var autoSaveMessage = document.getElementById(autoSaveMessageId(editorInstance));
+
+        if (autoSaveMessage) {
+            autoSaveMessage.className = "show";
+
+            setTimeout(function() {
+                autoSaveMessage.className = "hidden";
+            }, 2000);
+        }
     }
     
     function RemoveStorage(autoSaveKey) {
@@ -192,7 +209,7 @@
             opcodes: opcodes,
             baseTextName: editorInstance.lang.autosave.loadedContent,
             newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format('LLL')) + '\')',
-            contextSize: null,
+            contextSize: 3,
             viewType: dialog.getContentElement('general', 'diffType').getValue() == "inline" ? 1 : 0
         }).outerHTML);
     }

@@ -27,10 +27,10 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of Chas Emerick.
 */
+.diff * {white-space:pre-wrap!important}
 table.diff {
 	border-collapse:collapse;
-	border:1px solid darkgray;
-	white-space:pre-wrap
+	border:1px solid darkgray
 }
 table.diff tbody { 
 	font-family:Courier, monospace
@@ -56,17 +56,16 @@ table.diff thead th.texttitle {
 }
 table.diff tbody td {
 	padding:0px .4em;
-	padding-top:.4em;
 	vertical-align:top;
 }
 table.diff .empty {
 	background-color:#DDD;
 }
 table.diff .replace {
-	background-color:#FD8
+	background-color:#FFC
 }
 table.diff .delete {
-	background-color:#E99;
+	background-color:#FCC;
 }
 table.diff .skip {
 	background-color:#EFEFEF;
@@ -74,10 +73,28 @@ table.diff .skip {
 	border-right:1px solid #BBC;
 }
 table.diff .insert {
-	background-color:#9E9
+	background-color:#CFC
 }
 table.diff th.author {
 	text-align:right;
 	border-top:1px solid #BBC;
 	background:#EFEFEF
+}
+del{background-color:#EE9999 !important;text-decoration: underline !important}
+ins{background-color:#99EE99 !important;text-decoration: underline !important}
+
+div.autoSaveMessage div{left:42%;position:absolute;padding:2px;top:4px;font-weight:bold}
+
+.hidden {
+	opacity: 0; 
+	visibility: hidden;
+}
+
+.show { 
+	opacity: 1; 
+	visibility: visible;
+	-webkit-transition: visibility 0.2s linear, opacity 0.2s linear;
+	-moz-transition: visibility 0.2s linear, opacity 0.2s linear; 
+	-o-transition: visibility 0.2s linear, opacity 0.2s linear; 
+	transition: visibility 0.2s linear, opacity 0.2s linear; 
 }
