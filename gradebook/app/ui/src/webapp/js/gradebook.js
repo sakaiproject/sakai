@@ -204,14 +204,8 @@ function showHideDiv(hideDivisionNo, context, expandAlt, collapseAlt, expandTitl
     }
     else
     {
-      if(navigator.product == "Gecko")
-      {
-        divisionNo.style.display="table-row";
-      }
-      else
-      {
-        divisionNo.style.display="block";
-      }
+      divisionNo.style.display="table-row";
+
       if(imgNo)
       {
         imgNo.src = context + "/images/expand.gif";
