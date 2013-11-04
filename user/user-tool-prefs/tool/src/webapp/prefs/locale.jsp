@@ -10,9 +10,9 @@
 	<sakai:stylesheet path="/css/prefs.css"/>
 	<sakai:view_content>
 		<h:form id="locale_form">
-		<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
-        <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
-		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
+		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				setupPrefsGen();

@@ -11,9 +11,9 @@
 	<sakai:view_content>
     <h:form>
       <!--SAK-18566 -->
-     <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
-        <script type="text/javascript" language="JavaScript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
-		<script type="text/javascript" language="JavaScript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
+     <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+        <script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
+		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){
 				setupPrefsGen();

@@ -4,9 +4,9 @@
 	focus_path = [#if(!$user)"id"#else"first-name"#end];
 </script>
 
-<script language="javascript" type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
 
 function addOptionalAttributeBlock() {
 	

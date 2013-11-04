@@ -4,7 +4,7 @@ var setupMultipleSelect = function(){
             var thisCol = $(this).closest('.flc-reorderer-column').attr('id');
             var thisEl = $(this).closest('.flc-reorderer-module');
 
-        if($(this).attr('checked')) {
+        if($(this).prop('checked')) {
             //only show actions that are germane to this specific column
             if(thisCol ==="reorderCol1") {
                 // moving left disabled
@@ -46,7 +46,7 @@ var setupMultipleSelect = function(){
             // move the move panel down here 
             $('#movePanel').css({'top' : pos.top, 'left' : pos.left + 40,'display': 'block'});
             // uncheck the cbxs in the other 2 cols
-            $('#layoutReorderer .selectSiteCheck').not('#' + thisCol + ' .selectSiteCheck').attr('checked',false);
+            $('#layoutReorderer .selectSiteCheck').not('#' + thisCol + ' .selectSiteCheck').prop('checked',false);
             $('#layoutReorderer .last-login').not('#' + thisCol + ' .last-login').removeClass('siteSelected');
             $(thisEl).addClass('siteSelected');
         } 
@@ -130,7 +130,7 @@ var postMoveCleanUp = function(selectedItems) {
     $(selectedItems).fadeIn(1500, function(){ 
     $(selectedItems).removeClass('siteSelected');
     })    
-     $('#layoutReorderer :checked').attr('checked',false);
+     $('#layoutReorderer :checked').prop('checked',false);
      $('#movePanel').css('display','none');
      resizeFrame('grow');
 }
@@ -320,7 +320,7 @@ resizeFrame = function (updown) {
 					//resize iframe in case one of the lists made the doc higher
 					resizeFrame('grow');
 					// uncheck any selection that was checked and then moved via mouse or kbd 
-					$(args).find('.selectSiteCheck').attr('checked',false)
+					$(args).find('.selectSiteCheck').prop('checked',false)
     		    var ids = '';  
 		    jQuery('.col1 .last-login').each(function(idx, item) {  
 			// alert(item.id);
