@@ -204,18 +204,18 @@ if ( strlen($register_url) < 1 || strlen($reg_key) < 1 || strlen($reg_password) 
 unset($_SESSION['reg_key']);
 unset($_SESSION['reg_password']);
 $_SESSION['reg_key'] = $reg_key;
-$_SESSION['reg_password'] = $reg_password;
+$_SESSION['reg_password'] = 'secret';
 
 togglePre("Registration Request",htmlent_utf8($body));
 
 $response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
 
-togglePre("Registration Request Headers",htmlent_utf8(get_post_sent_debug()));
+togglePre("Registration Request Headers",htmlent_utf8(get_body_sent_debug()));
 
 global $LastOAuthBodyBaseString;
 togglePre("Registration Request Base String",$LastOAuthBodyBaseString);
 
-togglePre("Registration Response Headers",htmlent_utf8(get_post_received_debug()));
+togglePre("Registration Response Headers",htmlent_utf8(get_body_received_debug()));
 
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 

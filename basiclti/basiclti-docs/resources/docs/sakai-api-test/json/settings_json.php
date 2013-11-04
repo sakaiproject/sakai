@@ -38,6 +38,8 @@ if ( strlen($settings) < 1 ) {
 	$settings = "{\n  ".'"pi" : "3.14"'."\n}\n";
 }
 
+$format = isset($_REQUEST['format']) ? $_REQUEST['format']+0 : 1;
+
 ?>
 <p>
 <form method="post">
@@ -46,6 +48,15 @@ Tool URL: <input type="text" name="tool_url" size="120" value="<?php echo(htmlen
 Proxy URL: <input type="text" name="proxy_url" size="120" value="<?php echo(htmlentities($proxy_url));?>"/></br>
 OAuth Consumer Key: <input type="text" name="key" size="80" value="<?php echo(htmlentities($oauth_consumer_key));?>"/></br>
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo(htmlentities($oauth_consumer_secret));?>"/></br>
+Settings format:
+<select name="format">
+  <option value="1" <?php if ( $format == 1 ) echo("selected");?> >application/vnd.ims.lti.v2.toolsettings.simple+json</option>
+  <option value="2" <?php if ( $format == 2 ) echo("selected");?> >application/vnd.ims.lti.v2.toolsettings+json</option>
+</select>
+<br/>
+<input type="checkbox" name="bubble" value="all" 
+<?php if ( isset($_POST['bubble']) && $_POST['bubble'] == 'all' ) echo(" checked "); ?>
+>Request bubble="all"
 </p><p>
 Settings to Send to Sakai: <br/>
 <textarea name="settings" cols="60" rows="10">
@@ -61,33 +72,77 @@ Settings to Send to Sakai: <br/>
 <?php 
 
 $postBody = false;
-$content_type = "application/vnd.ims.lis.v2.result+json";
+$content_type = "application/vnd.ims.lti.v2.toolsettings.simple+json";
+if ( $format == 2 ) {
+	$content_type = "application/vnd.ims.lti.v2.toolsettings+json";
+
+	$type = "";
+    $endpoint = "";
+	if ( isset($_REQUEST['set_link']) ) {
+		$type = "LtiLink";
+		$endpoint = $link_url;
+	} else if ( isset($_REQUEST['set_tool']) ) {
+		$type = "ToolProxyBinding";
+		$endpoint = $tool_url;
+	} else if ( isset($_REQUEST['set_proxy']) ) {
+		$type = "ToolProxy";
+		$endpoint = $proxy_url;
+	}
+
+	if ( $type != "" ) {
+		$settings = '{
+  "@context" : "http://purl.imsglobal.org/ctx/lti/v2/ToolSettings",
+  "@graph" : [ 
+    { "@type" : "'.$type.'",
+      "@id" : "'.$endpoint.'",
+      "custom" : '.$settings.'
+    }
+  ]
+}
+';
+	}
+}
+
+function doBubble($url) {
+    if ( !isset($_POST['bubble']) || $_POST['bubble'] != "all" ) return $url;
+	if ( strpos($url,'?') > 0 ) {
+		$url .= '&';
+	} else {
+		$url .= '?';
+	}
+	$url .= "bubble=all";
+	return $url;
+}
+
 if ( isset($_REQUEST['get_link']) ){
-    $response = sendOAuthGET($link_url, $oauth_consumer_key, $oauth_consumer_secret, 
+    $response = sendOAuthGET(doBubble($link_url), $oauth_consumer_key, $oauth_consumer_secret, 
 		$content_type);
 	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['get_tool']) ){
-    $response = sendOAuthGET($tool_url, $oauth_consumer_key, $oauth_consumer_secret, 
+    $response = sendOAuthGET(doBubble($tool_url), $oauth_consumer_key, $oauth_consumer_secret, 
 		$content_type);
 	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['get_proxy']) ){
-    $response = sendOAuthGET($proxy_url, $oauth_consumer_key, $oauth_consumer_secret, 
+    $response = sendOAuthGET(doBubble($proxy_url), $oauth_consumer_key, $oauth_consumer_secret, 
 		$content_type);
 	$debugin = get_get_sent_debug();
 	$debugout = get_get_received_debug();
 } else if ( isset($_REQUEST['set_link']) ) {
+	$postBody = true;
 	$response = sendOAuthBody("PUT", $link_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
 	$debugin = get_body_sent_debug();
 	$debugout = get_body_received_debug();
 } else if ( isset($_REQUEST['set_tool']) ) {
+	$postBody = true;
 	$response = sendOAuthBody("PUT", $tool_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
 	$debugin = get_body_sent_debug();
 	$debugout = get_body_received_debug();
 } else if ( isset($_REQUEST['set_proxy']) ) {
+	$postBody = true;
 	$response = sendOAuthBody("PUT", $proxy_url, $oauth_consumer_key, 
 			$oauth_consumer_secret, $content_type, $settings);
 	$debugin = get_body_sent_debug();
@@ -102,10 +157,11 @@ $lbs = $LastOAuthBodyBaseString;
 ltiUtilTogglePre("Sent Headers", $debugin);
 
 if ( $postBody !== false ) {
-	ltiUtilTogglePre("Our Body Data", indent($postBody));
+	ltiUtilTogglePre("Our Body Data", indent($settings));
 }
 
 ltiUtilTogglePre("Our Base String", $lbs);
+
 
 ltiUtilTogglePre("Results and Headers", $debugout);
 
