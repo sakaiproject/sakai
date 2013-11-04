@@ -46,9 +46,9 @@ if ( $context->valid ) {
 		$found = true;
     }
 
-    if ( isset($_POST['ext_lti2_result_url']) ) {
+    if ( isset($_POST['custom_result_url']) ) {
         print "<p>\n";
-        print '<a href="json/result_json.php?url='.urlencode($_POST['ext_lti2_result_url']).'">';
+        print '<a href="json/result_json.php?url='.urlencode($_POST['custom_result_url']).'">';
         print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
 		// In case we just did not do a registration.
 		if ( !isset($_SESSION['reg_key']) ) {
@@ -58,18 +58,18 @@ if ( $context->valid ) {
 		$found = true;
     }
 
-    if ( isset($_POST['ext_lti2_ltilink_custom_url']) || isset($_POST['ext_lti2_toolproxy_custom_url']) ||
-		isset($_POST['ext_lti2_toolproxybinding_custom_url']) ) {
+    if ( isset($_POST['custom_ltilink_custom_url']) || isset($_POST['custom_toolproxy_custom_url']) ||
+		isset($_POST['custom_toolproxybinding_custom_url']) ) {
         print "<p>\n";
         print '<a href="json/settings_json.php?';
-		if ( isset($_POST['ext_lti2_ltilink_custom_url']) ) { 
-			print 'link='.urlencode($_POST['ext_lti2_ltilink_custom_url'])."&";
+		if ( isset($_POST['custom_ltilink_custom_url']) ) { 
+			print 'link='.urlencode($_POST['custom_ltilink_custom_url'])."&";
 		}
-		if ( isset($_POST['ext_lti2_toolproxy_custom_url']) ) { 
-			print 'proxy='.urlencode($_POST['ext_lti2_toolproxy_custom_url'])."&";
+		if ( isset($_POST['custom_toolproxy_custom_url']) ) { 
+			print 'proxy='.urlencode($_POST['custom_toolproxy_custom_url'])."&";
 		}
-		if ( isset($_POST['ext_lti2_toolproxybinding_custom_url']) ) { 
-			print 'tool='.urlencode($_POST['ext_lti2_toolproxybinding_custom_url'])."&";
+		if ( isset($_POST['custom_toolproxybinding_custom_url']) ) { 
+			print 'tool='.urlencode($_POST['custom_toolproxybinding_custom_url'])."&";
 		}
 		print 'x=24">';
         print 'Test LTI 2.0 Settings Service</a>.</p>'."\n";

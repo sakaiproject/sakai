@@ -92,7 +92,7 @@ $tool_proxy = <<< EOF
                 "fixed": "42"
               },
               {
-                "name": "ltiLink_custom_url",
+                "name": "ltilink_custom_url",
                 "variable": "LtiLink.custom.url"
               },
               {
