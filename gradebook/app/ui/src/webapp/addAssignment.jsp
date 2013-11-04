@@ -13,7 +13,7 @@
 	<script type="text/javascript" src="${pageContext.request.contextPath}/js/multiItemAdd.js"></script>
 <%--  Commented out due to prototype already being embedded
 		so including will break calendar widget
-  	<script type="text/javascript" src="/library/js/jquery.js"></script> --%>
+  	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script> --%>
 
    <div class="portletBody">
 	<h:form id="gbForm">

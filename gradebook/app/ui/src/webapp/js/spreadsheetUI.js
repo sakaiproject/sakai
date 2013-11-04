@@ -5,7 +5,6 @@ adjustScrolls = function(){
 }
 
 function gethandles(){
-   ie = $.browser.msie;
    q2_div_ul = $("#q2 div ul");
    q4s = $("#q4");
    q3_div = $("#q3 div");
@@ -14,7 +13,6 @@ function gethandles(){
    q2_ul_li = $("#q2 div ul li");
    q3_top_row = $("#q3 tr:first td");
    q4_top_row = $("#q4 tr:first td");
-   if ( ie && $.browser.version < 7){ q2_div_ul.css("position", "absolute"); $(q4s).css("left", "-3px"); }
    $(q3_div).width(10000);
    $("#q1 div").width(10000);
 
@@ -65,11 +63,9 @@ function gethandles(){
       thisHeight = $(this).height();
       thatHeight = $("#q4 tr:eq(" + i + ")").height();
       if(thisHeight > thatHeight){
-         (ie && $.browser.version < 7) ? $("#q4 tr:eq(" + i + ")").height(thisHeight - 12) 
-            : $("#q4 tr:eq(" + i + ")").height(thisHeight);
+         $("#q4 tr:eq(" + i + ")").height(thisHeight);
       } else {
-         (ie && $.browser.version < 7) ? $(this).css("height", thatHeight - 12 + "px") 
-            :$(this).css("height",thatHeight + "px");
+         $(this).css("height",thatHeight + "px");
       }
    });
    
@@ -80,7 +76,7 @@ function gethandles(){
    var q4s_width = $(q4s).width();
    if (q4s_width > q4_table_width) {
       var mainwrap = $("#mainwrap");
-      maxwidth = $(mainwrap).width() - (q4s_width - q4_table_width) + 15 + (ie?2:0);
+      maxwidth = $(mainwrap).width() - (q4s_width - q4_table_width) + 15;
         if(maxwidth < $("body").width() - 2) 
       $(mainwrap).css("max-width", maxwidth);
    }
@@ -89,8 +85,8 @@ function gethandles(){
    var q4_table_height = $(q4_table).height();
    if(q4_table_height < q4s_height){  
       q3s = $("#q3");   
-      $(q3s).height($(q3s).height() - (q4s_height - q4_table_height) + 15 + (ie?2:0));
-      $(q4_div).height($(q4_div).height() - (q4s_height - q4_table_height) + 15 + (ie?2:0));
+      $(q3s).height($(q3s).height() - (q4s_height - q4_table_height) + 15);
+      $(q4_div).height($(q4_div).height() - (q4s_height - q4_table_height) + 15);
    }
    //end check if we need scrollbars - SAK-9969
    el1 = $(q2_div_ul).get(0);
