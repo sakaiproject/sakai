@@ -100,11 +100,11 @@ function setupAssignNew(){
                 $('#' + nodeType + '_title').val('');
                 $('#' + nodeType + '_title_holder').val('');
                 // uncheck all checkboxes 
-                $('#allPurposeGroupLists input[type=checkbox]').attr('checked', '');
+                $('#allPurposeGroupLists input[type=checkbox]').prop('checked', '');
                 $('#allPurposeGroupLists label').removeClass('selectedItem');
-                $('#allPurposeAttachShowWhen input[type=checkbox]').attr('checked', '');
-                $('#allPurposeAttachShowWhen #allPurposeHide1').attr('checked', 'checked');
-                $('#allPurposeAttachShowWhen #allPurposeHide2').attr('checked', '');
+                $('#allPurposeAttachShowWhen input[type=checkbox]').prop('checked', '');
+                $('#allPurposeAttachShowWhen #allPurposeHide1').prop('checked', 'checked');
+                $('#allPurposeAttachShowWhen #allPurposeHide2').prop('checked', '');
                 $('#allPurposeAttachShowWhen select').val('1');
                 $('.countDisplay').text('0');
             }
@@ -244,7 +244,7 @@ function setupAssignNew(){
     });
     $(".userList input").click(function(){
         var thisCount = Number($(this).parents('.groupCell').children('.countDisplay').text());
-        $(this).parents('.groupCell').find('.selectAllMembers').attr('checked', '');
+        $(this).parents('.groupCell').find('.selectAllMembers').prop('checked', '');
         if (this.checked) {
             $(this).parent('label').addClass('selectedItem');
             ($(this).parents('.groupCell').children('.countDisplay').text(thisCount + 1));
@@ -258,20 +258,20 @@ function setupAssignNew(){
     $(".selectAllMembers").click(function(){
         if (this.checked) {
         	// need to minus the "select all" input box itself when counting the total user selected
-            $(this).parents('.groupCell').children('.countDisplay').text($(this).parents('.groupCell').find('input').attr('checked', 'checked').length-1);
-            $(this).parents('.groupCell').find('input').attr('checked', 'checked');
+            $(this).parents('.groupCell').children('.countDisplay').text($(this).parents('.groupCell').find('input').prop('checked', 'checked').length-1);
+            $(this).parents('.groupCell').find('input').prop('checked', 'checked');
             
             $(this).parents('.groupCell').find('li label').addClass('selectedItem');
         }
         else {
             $(this).parents('.groupCell').children('.countDisplay').text('0');
-            $(this).parents('.groupCell').find('input').attr('checked', '');
+            $(this).parents('.groupCell').find('input').prop('checked', '');
             $(this).parents('.groupCell').find('li label').removeClass('selectedItem');
         }
     });
     $(".groupCell").each(function(){
         if ($(this).find('input.selectAllMembers:checked').length) {
-            $(this).children('.countDisplay').text($(this).find('input').attr('checked', 'checked').length);
+            $(this).children('.countDisplay').text($(this).find('input').prop('checked', 'checked').length);
         }
         else {
             $(this).children('.countDisplay').text($(this).find('.countHolder').text());
@@ -334,7 +334,7 @@ function setupItemNavigator(){
     $('.itemNav input').click(function(){
         var what = $(this).attr('class');
         
-        $('.' + what).attr('disabled','disabled').addClass('disabled');
+        $('.' + what).prop('disabled','disabled').addClass('disabled');
         $('.messageProgress').css('visibility','visible');
         
     })

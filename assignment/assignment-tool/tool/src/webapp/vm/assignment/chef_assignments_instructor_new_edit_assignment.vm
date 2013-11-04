@@ -14,10 +14,10 @@ $(document).ready(function() {
 	 		$("#subType > option").each(function(){
 	 			if(checked){
 	 				if($(this).val() != 5){
-	 					$(this).attr('disabled', 'disabled');
+	 					$(this).prop('disabled', 'disabled');
 	 				}
 	 			}else{
-	 				$(this).removeAttr('disabled');
+	 				$(this).removeProp('disabled');
 	 			
 	 			}
 	 		});
@@ -821,7 +821,7 @@ $(document).ready(function() {
 						## hide the assignment list from Gradebook when clicked
 						<input type="radio" name="$!name_Addtogradebook" id="$!gradebookChoice_add" value="$!gradebookChoice_add" #if($!gradebookChoice.equals("$!gradebookChoice_add"))checked#end 
 							onclick="
-							if ($('#new_assignment_grade_points').attr('value'))
+							if ($('#new_assignment_grade_points').prop('value'))
 							{
 								if (document.getElementById('categoryList')) 
 								{
@@ -836,19 +836,19 @@ $(document).ready(function() {
 									if (document.getElementById('gradebookList'))
 										$('#gradebookList').fadeOut('slow');
 									if (document.getElementById('associate'))
-										$('#associate').attr('checked',false);
+										$('#associate').prop('checked',false);
 								}
 							}
 							else
 							{
 								## show alert since gradebook integration is only allowed for point-based assignment
-								$('#no').attr('checked',true);
+								$('#no').prop('checked',true);
 								if (document.getElementById('categoryList'))
 									$('#categoryList').fadeOut('slow');
 								if (document.getElementById('gradebookList'))
 									$('#gradebookList').fadeOut('slow');
 								if (document.getElementById('associate'))
-									$('#associate').attr('checked',false);
+									$('#associate').prop('checked',false);
 								if (document.getElementById('gradebookListWarnAssoc'))
 								{
 					       	 		$('#gradebookListWarnAssoc' ).fadeIn('slow');
@@ -874,7 +874,7 @@ $(document).ready(function() {
 								#if($!gradebookChoice.equals("$!gradebookChoice_associate"))checked#end 
 								onclick="if( document.getElementById('gradebookList') )
 								{
-									if ($('#new_assignment_grade_points').attr('value')) 
+									if ($('#new_assignment_grade_points').prop('value')) 
 									{
 										## show the gradebook assignment list
 										$('#categoryList').fadeOut('slow');
@@ -883,10 +883,10 @@ $(document).ready(function() {
 									else
 									{
 										## show alert since gradebook integration is only allowed for point-based assignment
-										$('#no').attr('checked',true);
+										$('#no').prop('checked',true);
 										$('#categoryList').fadeOut('slow');
 										$('#gradebookList').fadeOut('slow');
-										$('#associate').attr('checked',false);
+										$('#associate').prop('checked',false);
 						       	 		$('#gradebookListWarn' ).fadeIn('slow');
 						        		$('#gradebookListWarn').animate({opacity: 1.0}, 2500)
 						  				$('#gradebookListWarn' ).fadeOut('slow',function () 
