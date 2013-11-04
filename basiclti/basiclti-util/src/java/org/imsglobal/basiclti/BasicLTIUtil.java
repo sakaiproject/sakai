@@ -45,6 +45,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Iterator;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -59,7 +60,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 
 /**
- * Some Utility code for IMS Basic LTI
+ * Some Utility code for IMS LTI
  * http://www.anyexample.com/programming/java
  * /java_simple_class_to_compute_sha_1_hash.xml
  * <p>
@@ -706,6 +707,120 @@ public class BasicLTIUtil {
 			theTools.add(theTool);
 		}
 		return null;  // All good
+	}
+
+	/* Two possible formats:
+
+		key=val;key2=val2;
+		
+		key=val
+		key2=val2
+	*/
+	public static boolean mergeLTI1Custom(Properties custom, String customstr) 
+	{
+		if ( customstr == null || customstr.length() < 1 ) return true;
+        if ( customstr != null ) {
+            String [] params = customstr.split("[\n;]");
+            for (int i = 0 ; i < params.length; i++ ) {
+                String param = params[i];
+                if ( param == null ) continue;
+                if ( param.length() < 1 ) continue;
+
+                int pos = param.indexOf("=");
+                if ( pos < 1 ) continue;
+                if ( pos+1 > param.length() ) continue;
+                String key = mapKeyName(param.substring(0,pos));
+                if ( key == null ) continue;
+				if ( custom.containsKey(key) ) continue;
+
+                String value = param.substring(pos+1);
+                if ( value == null ) continue;
+                value = value.trim();
+                if ( value.length() < 1 ) continue;
+                setProperty(custom, key, value);
+            }
+        }
+		return true;
+	}
+
+	/*
+      "custom" : 
+	  {
+        "isbn" : "978-0321558145",
+        "style" : "jazzy"
+      }
+	*/
+	public static boolean mergeLTI2Custom(Properties custom, String customstr) 
+	{
+		if ( customstr == null || customstr.length() < 1 ) return true;
+		JSONObject json = null;
+		try {
+			json = (JSONObject) JSONValue.parse(customstr.trim());
+		} catch(Exception e) {
+			M_log.warning("mergeLTI2Custom could not parse\n"+customstr);
+			M_log.warning(e.getLocalizedMessage());
+			return false;
+		}
+        Iterator<?> keys = json.keySet().iterator();
+        while( keys.hasNext() ){
+            String key = (String)keys.next();
+			if ( custom.containsKey(key) ) continue;
+			Object value = json.get(key);
+			if ( value instanceof String ){
+                setProperty(custom, key, (String) value);
+            }
+        }
+		return true;
+	}
+
+	/*
+      "parameter" : 
+      [
+        { "name" : "result_url",
+          "variable" : "Result.url"
+        },
+        { "name" : "discipline",
+          "fixed" : "chemistry"
+        }
+      ]
+	*/
+	public static boolean mergeLTI2Parameters(Properties custom, String customstr) {
+		if ( customstr == null || customstr.length() < 1 ) return true;
+		JSONArray json = null;
+		try {
+			json = (JSONArray) JSONValue.parse(customstr.trim());
+		} catch(Exception e) {
+			M_log.warning("mergeLTI2Parameters could not parse\n"+customstr);
+			M_log.warning(e.getLocalizedMessage());
+			return false;
+		}
+        Iterator<?> parameters = json.iterator();
+        while( parameters.hasNext() ){
+            Object o = parameters.next();
+            JSONObject parameter = null;
+			try {
+				parameter = (JSONObject) o;
+			} catch(Exception e) {
+				M_log.warning("mergeLTI2Parameters did not find list of objects\n"+customstr);
+				M_log.warning(e.getLocalizedMessage());
+				return false;
+			}
+
+			String name = (String) parameter.get("name");
+
+			if ( name == null ) continue;
+			if ( custom.containsKey(name) ) continue;
+			String fixed = (String) parameter.get("fixed");
+			String variable = (String) parameter.get("variable");
+			if ( variable != null ) {
+                setProperty(custom, name, "$"+variable);
+				continue;
+            }
+			if ( fixed != null ) {
+                setProperty(custom, name, fixed);
+            }
+        }
+		return true;
 	}
 
 	/**
