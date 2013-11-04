@@ -21,6 +21,7 @@ public class SakaiLTI2Services {
 		ret.set_id("tcp:SakaiRosterForm");
 		ret.set_type("RestService");
 		ret.setFormat("application/vnd.sakai.lti.v1.roster+form");
+		ret.setAction("POST");
 		return ret;
     }
 
@@ -30,6 +31,7 @@ public class SakaiLTI2Services {
 		ret.set_id("tcp:SakaiSettingsForm");
 		ret.set_type("RestService");
 		ret.setFormat("application/vnd.sakai.lti.v1.settings+form");
+		ret.setAction("POST");
 		return ret;
     }
 
@@ -39,6 +41,7 @@ public class SakaiLTI2Services {
 		ret.set_id("tcp:SakaiLORIXml");
 		ret.set_type("RestService");
 		ret.setFormat("application/vnd.sakai.lti.v1.lori+xml");
+		ret.setAction("POST");
 		return ret;
     }
 

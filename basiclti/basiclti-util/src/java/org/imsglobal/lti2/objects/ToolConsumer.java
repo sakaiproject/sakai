@@ -59,6 +59,7 @@ public class ToolConsumer {
         this._context.add(nc);
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
+        this.guid = guid;
         this.product_instance = product_instance;
         addCapabilites(STANDARD_CAPABILITIES);
     }
