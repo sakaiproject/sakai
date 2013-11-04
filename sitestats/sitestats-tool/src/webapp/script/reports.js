@@ -29,26 +29,26 @@ function checkHowTotalsBySelection() {
 	var what = jQuery('#what').val();
 	// disable invalid options in howTotalsBy
 	jQuery('#howTotalsBy option').each(function(i){
-		jQuery(this).removeAttr('disabled');
+		jQuery(this).removeProp('disabled');
 	    if(what == 'what-resources'){
 	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_EVENT) {
 	    		// disable Tool and Event selection
-	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    		jQuery(this).removeProp('selected').prop('disabled', true);
 	    	}
 	    }else if(what == 'what-visits') {
 	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
 	    		// disable Tool, Resource and Resource Action selection
-	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    		jQuery(this).removeProp('selected').prop('disabled', true);
 	    	}
 	    }else if(what == 'what-events') {
 	    	if(i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
 	    		// disable Resource and Resource Action selection
-	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    		jQuery(this).removeProp('selected').prop('disabled', true);
 	    	}
 	    }else if(what == 'what-presences') {
 	    	if(i == TOTALSBY_IX_TOOL || i == TOTALSBY_IX_EVENT || i == TOTALSBY_IX_RESOURCE || i == TOTALSBY_IX_RESOURCEACTION) {
 	    		// disable Resource and Resource Action selection
-	    		jQuery(this).removeAttr('selected').attr('disabled','disabled');
+	    		jQuery(this).removeProp('selected').prop('disabled', true);
 	    	}
 	    }
 	});
@@ -63,12 +63,12 @@ function checkHowChartSelection() {
 	}else{
 		jQuery('#chartTypeTr').show();
 	    var chartType = jQuery('#howChartType').val();
-	    var howTotalsByUserSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_USER]).attr('selected');
-	    var howTotalsByToolSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_TOOL]).attr('selected');
-	    var howTotalsByEventSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_EVENT]).attr('selected');
-	    var howTotalsByResourceSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCE]).attr('selected');
-	    var howTotalsByResourceActionSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCEACTION]).attr('selected');
-	    var howTotalsByDateSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected');
+	    var howTotalsByUserSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_USER]).prop('selected');
+	    var howTotalsByToolSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_TOOL]).prop('selected');
+	    var howTotalsByEventSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_EVENT]).prop('selected');
+	    var howTotalsByResourceSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCE]).prop('selected');
+	    var howTotalsByResourceActionSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_RESOURCEACTION]).prop('selected');
+	    var howTotalsByDateSelected = jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).prop('selected');
 	    
 	    if(chartType == 'bar' || chartType == 'pie') {
 			jQuery('#chartDataSourceTr').show();
@@ -80,66 +80,66 @@ function checkHowChartSelection() {
 		    }
 	    	// disable invalid options in chart data source options
 		    jQuery('#howChartSource option, #howChartCategorySource option').each(function(i){
-				jQuery(this).removeAttr('disabled');
+				jQuery(this).removeProp('disabled');
 				var value = jQuery(this).val();
 				if(value == 'user') {
 					if(!howTotalsByUserSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'tool') {
 					if(!howTotalsByToolSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'event') {
 					if(!howTotalsByEventSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'resource') {
 					if(!howTotalsByResourceSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'resource-action') {
 					if(!howTotalsByResourceActionSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'date') {
 					if(!howTotalsByDateSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}				
 			});
@@ -149,63 +149,63 @@ function checkHowChartSelection() {
 			jQuery('#chartSeriesSourceTr').show();
 	    	jQuery('#howChartSource option').each(function(i){
 	    		if(jQuery(this).val() == 'date') {
-	    			jQuery(this).attr('selected','selected');
+	    			jQuery(this).prop('selected','selected');
 	    		}
 	    	});
 	    	// select Date if chart is TimeSeries based
-    	    jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).attr('selected','selected');
+    	    jQuery(jQuery('#howTotalsBy').children()[TOTALSBY_IX_DATE]).prop('selected','selected');
     		// disable invalid options in chart series source options
 		    jQuery('#howChartSeriesSource option').each(function(i){
-				jQuery(this).removeAttr('disabled');
+				jQuery(this).removeProp('disabled');
 				var value = jQuery(this).val();
 				if(value == 'user') {
 					if(!howTotalsByUserSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'tool') {
 					if(!howTotalsByToolSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'event') {
 					if(!howTotalsByEventSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'resource') {
 					if(!howTotalsByResourceSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 				if(value == 'resource-action') {
 					if(!howTotalsByResourceActionSelected) {
-						jQuery(this).attr('disabled','disabled');
-						if(jQuery(this).attr('selected')) {
-							jQuery(this).removeAttr('selected');
+						jQuery(this).prop('disabled', true);
+						if(jQuery(this).prop('selected')) {
+							jQuery(this).removeProp('selected');
 						}
 					}else{
-						jQuery(this).removeAttr('disabled');
+						jQuery(this).removeProp('disabled');
 					}
 				}
 			});
@@ -246,16 +246,16 @@ function checkWhatSelection() {
 		jQuery('#whatEventSelType').hide();
 		jQuery('#what-tools-select').hide();
 		jQuery('#what-events-select').hide();
-		if(jQuery('#whatLimitedAction').attr('checked')) {
-			jQuery('#whatResourceAction').removeAttr('disabled');
+		if(jQuery('#whatLimitedAction').prop('checked')) {
+			jQuery('#whatResourceAction').removeProp('disabled');
 		}else{
-			jQuery('#whatResourceAction').attr('disabled','disabled');
+			jQuery('#whatResourceAction').prop('disabled', true);
 		}
-		if(jQuery('#whatLimitedResourceIds').attr('checked')) {
-			jQuery('#whatResourceIds').removeAttr('disabled');
+		if(jQuery('#whatLimitedResourceIds').prop('checked')) {
+			jQuery('#whatResourceIds').removeProp('disabled');
 			jQuery('.containerHover').hide();
 		}else{
-			jQuery('#whatResourceIds').attr('disabled','disabled');
+			jQuery('#whatResourceIds').prop('disabled', true);
 			jQuery('.containerHover').show();
 		}
 		jQuery('#what-resources-options').show();
@@ -306,18 +306,18 @@ function checkWhoSelection() {
 
 function checkHowSelection() {	
 	// sorting
-	if(jQuery('#howSortCheck').attr('checked')) {
-		jQuery('#howSortBy').removeAttr('disabled');
-		jQuery('#howSortAscending').removeAttr('disabled');
+	if(jQuery('#howSortCheck').prop('checked')) {
+		jQuery('#howSortBy').removeProp('disabled');
+		jQuery('#howSortAscending').removeProp('disabled');
 	}else{
-		jQuery('#howSortBy').attr('disabled','disabled');
-		jQuery('#howSortAscending').attr('disabled','disabled');
+		jQuery('#howSortBy').prop('disabled', true);
+		jQuery('#howSortAscending').prop('disabled', true);
 	}
 	// max results
-	if(jQuery('#howMaxResultsCheck').attr('checked')){
-		jQuery('#howMaxResults').removeAttr('disabled');
+	if(jQuery('#howMaxResultsCheck').prop('checked')){
+		jQuery('#howMaxResults').removeProp('disabled');
 	}else{
-		jQuery('#howMaxResults').attr('disabled','disabled');
+		jQuery('#howMaxResults').prop('disabled', true);
 		jQuery('#howMaxResults').val('0');
 	}
 }

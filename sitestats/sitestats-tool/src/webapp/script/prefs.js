@@ -23,21 +23,21 @@ function updateToolSelection(selector) {
 		// tool class
 		if(jQuery(this).find('ul li :checkbox').length == jQuery(this).find('ul li :checked').length) {
 			jQuery(this).children('span').addClass('nodeToolSelected');
-			jQuery(this).children(':checkbox').attr('checked','checked');
+			jQuery(this).children(':checkbox').prop('checked','checked');
 			  
 		}else if(jQuery(this).find('ul li :checked').length === 0) {
 			jQuery(this).children('span').addClass('nodeToolUnselected');
-			jQuery(this).children(':checkbox').removeAttr('checked');
+			jQuery(this).children(':checkbox').removeProp('checked');
 			
 		}else{
 			jQuery(this).children('span').addClass('nodeToolPartialSelected');
-			jQuery(this).children(':checkbox').attr('checked','checked');
+			jQuery(this).children(':checkbox').prop('checked','checked');
 		}
 		
 		// event class
 		jQuery(this).find('ul li').each(function(i){
 			jQuery(this).find('span').removeClass();
-			if(jQuery(this).find(':checkbox').attr('checked')) {
+			if(jQuery(this).find(':checkbox').prop('checked')) {
 				jQuery(this).find('span').addClass('nodeEventSelected');
 			}else{
 				jQuery(this).find('span').addClass('nodeEventUnselected');
@@ -47,7 +47,7 @@ function updateToolSelection(selector) {
 }
 
 function toggleCheckboxAll() {
-	if(jQuery('#useAllTools').attr('checked')) {
+	if(jQuery('#useAllTools').prop('checked')) {
 		jQuery('.eventTree').hide();
 	}else{
 		jQuery('.eventTree').show();
@@ -57,9 +57,9 @@ function toggleCheckboxAll() {
 
 function selectUnselectEvents(obj) {
 	if(obj.checked) {
-		jQuery(obj).parent().find('ul li :checkbox').attr('checked','checked');
+		jQuery(obj).parent().find('ul li :checkbox').prop('checked','checked');
 	}else{
-		jQuery(obj).parent().find('ul li :checkbox').removeAttr('checked');
+		jQuery(obj).parent().find('ul li :checkbox').removeProp('checked');
 	}
 }
 

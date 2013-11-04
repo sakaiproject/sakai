@@ -35,7 +35,7 @@
 
                jQuery(more).hide();
                jQuery(less).show();
-               if(jQuery.browser.msie && jQuery.browser.version == '8.0') {
+               if (navigator.userAgent.match(/MSIE 8/) !== null) {
                     // as usual, MS IE is buggy...
             	    jQuery(middle).show();
                }else{
@@ -51,9 +51,6 @@
             });
         }
     }
-    jQuery(document).ready(function(){
-        jQuery('.alpha').ifixpng();
-    });
     </script>
 </wicket:head>
 <wicket:panel>

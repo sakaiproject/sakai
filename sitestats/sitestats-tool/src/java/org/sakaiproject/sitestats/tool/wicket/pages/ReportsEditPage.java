@@ -185,7 +185,6 @@ public class ReportsEditPage extends BasePage {
 		super.renderHead(response);
 		response.renderJavascriptReference(JQUERYSCRIPT);
 		response.renderJavascriptReference(StatsManager.SITESTATS_WEBAPP + "/script/reports.js");
-		response.renderJavascriptReference(StatsManager.SITESTATS_WEBAPP + "/script/jquery.ifixpng2.js");
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("checkWhatSelection();");
 		onDomReady.append("checkWhenSelection();");
@@ -193,8 +192,6 @@ public class ReportsEditPage extends BasePage {
         onDomReady.append("checkHowSelection();");
         onDomReady.append("checkReportDetails();");
         onDomReady.append("checkHowChartSelection();");
-		onDomReady.append("jQuery.ifixpng('"+StatsManager.SITESTATS_WEBAPP+"images/transparent.gif'); ");
-		onDomReady.append("jQuery('img').ifixpng();");
 		response.renderOnDomReadyJavascript(onDomReady.toString());
 	}
 	

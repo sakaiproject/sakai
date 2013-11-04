@@ -38,7 +38,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	private static final long		serialVersionUID	= 1L;
 	public static final String		COMMONSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/common.js";
-	public static final String		JQUERYSCRIPT		= StatsManager.SITESTATS_WEBAPP+"/script/jquery-1.3.2.min.js";
+	public static final String		JQUERYSCRIPT		= "/library/js/jquery/jquery-1.9.1.min.js";
 	public static final String		BODY_ONLOAD_ADDTL	= "setMainFrameHeightNoScroll(window.name, 0, 400)";
 	public static final String		LAST_PAGE			= "lastSiteStatsPage";
 
