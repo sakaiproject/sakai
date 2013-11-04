@@ -3549,7 +3549,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		GeneralViewParameters view = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		view.setSendingPage(-1L);
 		view.newTopLevel = true;
-		UIInternalLink.make(tofill, "new-page-choose", messageLocator.getMessage("simplepage.choose_existing_page"), view);
+		UIInternalLink.make(tofill, "new-page-choose", messageLocator.getMessage("simplepage.lm_existing_page"), view);
 
 		UICommand.make(form, "new-page-submit", messageLocator.getMessage("simplepage.save"), "#{simplePageBean.addPages}");
 		UICommand.make(form, "new-page-cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");

@@ -337,6 +337,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 		}
 
+		if (canEditPage && sharedPages.size() > 0)
+		    UIOutput.make(tofill, "sharedpageexplanation");
+
 		UIForm form = UIForm.make(tofill, "page-picker");
 
 		ArrayList<String> values = new ArrayList<String>();
@@ -415,6 +418,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	    UIOutput.make(row, "item-list-toggle");
 		    	    UIOutput.make(row, "itemListContainer").decorate(new UIFreeAttributeDecorator("style", "margin-left: " + (3*level) + "em"));
 		    	    UIOutput.make(row, "itemList");
+			    
                     for(SimplePageItem pageItem : simplePageToolDao.findItemsOnPage(entry.pageId)) {
 
                         UIBranchContainer itemListItem = UIBranchContainer.make(row, "item:");
@@ -472,7 +476,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 
 		    }
 
-		    if (entry != null && entry.pageId != null && sharedPages.contains(entry.pageId)) {
+		    if (canEditPage && entry != null && entry.pageId != null && sharedPages.contains(entry.pageId)) {
 			UIOutput.make(row, "shared");
 		    }
 
