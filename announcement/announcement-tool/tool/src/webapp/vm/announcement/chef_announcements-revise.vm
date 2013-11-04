@@ -114,7 +114,7 @@ function resizeFrame(){
     }
 }
 </script>
-<script type="text/javascript" src="/library/js/jquery.js">
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 </script>
 <script type="text/javascript">
 	$(document).ready(function() {
@@ -147,8 +147,8 @@ function resizeFrame(){
 		$('.beginEnd').click(function(){
 			if ($('.beginEnd:checked')){
 				//uncheck show hide radios
-				$('.showHide').attr({checked:''});
-				$('#hidden_specify').attr({checked:'checked'});
+				$('.showHide').prop({checked:''});
+				$('#hidden_specify').prop({checked:'checked'});
 				
 
 			}
