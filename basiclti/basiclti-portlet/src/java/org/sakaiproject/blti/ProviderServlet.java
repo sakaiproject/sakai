@@ -267,6 +267,9 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
             loginUser(ipAddress, user);
+
+            // This needs to happen after login, when we have a session for the user.
+            setupUserLocale(payload, user, isTrustedConsumer);
             
             setupUserPicture(payload, user, isTrustedConsumer);
             
@@ -963,26 +966,6 @@ public class ProviderServlet extends HttpServlet {
                     throw new LTIException("launch.create.user", "user_id=" + user_id, e);
                 }
             }
-            
-            // BLTI-153. Set up user's language.
-            String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
-            if(locale != null && locale.length() > 0) {
-                try {
-                    PreferencesEdit pe = null;
-                    try {
-                    	pe = PreferencesService.edit(user.getId());
-                    } catch(IdUnusedException idue) {
-                        pe = PreferencesService.add(user.getId());
-                    }
-                    
-                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
-                    propsEdit.removeProperty(Preferences.FIELD_LOCALE);
-                    propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
-                    PreferencesService.commit(pe);
-                } catch(Exception e) {
-                    M_log.error("Failed to setup launcher's locale",e);
-                }
-            }
 
             // post the login event
             // eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN,
@@ -1026,6 +1009,31 @@ public class ProviderServlet extends HttpServlet {
     			}
     		}
     	}
+    }
+
+    private void setupUserLocale(Map payload, User user, boolean isTrustedConsumer) {
+
+    	if(isTrustedConsumer) return;
+
+        // BLTI-153. Set up user's language.
+        String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+        if(locale != null && locale.length() > 0) {
+            try {
+                PreferencesEdit pe = null;
+                try {
+                    pe = PreferencesService.edit(user.getId());
+                } catch(IdUnusedException idue) {
+                    pe = PreferencesService.add(user.getId());
+                }
+                
+                ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
+                propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
+                PreferencesService.commit(pe);
+            } catch(Exception e) {
+                M_log.error("Failed to setup launcher's locale",e);
+            }
+        }
     }
 
     protected boolean isTrustedConsumer(Map payload) {
