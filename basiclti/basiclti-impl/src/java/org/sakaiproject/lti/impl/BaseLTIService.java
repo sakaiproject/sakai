@@ -884,4 +884,10 @@ public abstract class BaseLTIService implements LTIService {
 
 	protected abstract List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
+	public abstract Object insertProxyBindingDao(Properties newProps);
+	public abstract Object updateProxyBindingDao(Long key, Object newProps);
+	public abstract boolean deleteProxyBindingDao(Long key);
+	public abstract Map<String, Object> getProxyBindingDao(Long key);
+	public abstract Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
+
 }

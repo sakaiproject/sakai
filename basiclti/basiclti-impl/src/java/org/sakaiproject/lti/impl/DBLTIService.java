@@ -116,7 +116,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			foorm.autoDDL("lti_content", LTIService.CONTENT_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset, M_log);
-			foorm.autoDDL("lti_settings", LTIService.SETTINGS_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_binding", LTIService.BINDING_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			super.init();
 		} catch (Exception t) {
 			M_log.warn("init(): ", t);
@@ -409,8 +409,65 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, search, order, first, last, siteId, isAdminRole);
 	}
 
+	public Object insertProxyBindingDao(Properties newProps) {
+		return insertThingDao("lti_binding", LTIService.BINDING_MODEL, null, newProps, null, true, true);
+	}
+
+	public Object updateProxyBindingDao(Long key, Object newProps) {
+		return updateThingDao("lti_binding", LTIService.BINDING_MODEL, null, key, newProps, null, true, true);
+	}
+	public boolean deleteProxyBindingDao(Long key) {
+		return deleteThingDao("lti_binding", LTIService.BINDING_MODEL, key, null, true, true);
+	}
+	public Map<String, Object> getProxyBindingDao(Long key) {
+		return getThingDao("lti_binding", LTIService.BINDING_MODEL, key, null, true);
+	}
+
+	public Map<String, Object> getProxyBindingDao(Long tool_id, String siteId) {
+		if (tool_id == null || siteId == null) {
+			throw new IllegalArgumentException("tool_id and siteId must be non-null");
+		}
+
+		String[] model = LTIService.BINDING_MODEL;
+		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_binding WHERE " + 
+			LTIService.LTI_SITE_ID + " = ? AND " + LTIService.LTI_TOOL_ID + " = ?";
+
+		Object [] fields = new Object[2];
+		fields[0] = siteId;
+		fields[1] = tool_id;
+
+		M_log.debug(statement);
+		List rv = getResultSet(statement, fields);
+
+		if ((rv != null) && (rv.size() > 0)) {
+			if ( rv.size() > 1 ) {
+				M_log.warn("Warning more than one row returned: "+statement);
+			}
+			return (Map<String, Object>) rv.get(0);
+		}
+		return null;
+	}
+
+
 	/**
-	 * @return Returns String (falure) or Long (key on success)
+	 * @param table
+	 *		The name of the table to use
+	 * @param formModel
+	 *		The filtered model(required)
+	 * @param fullModel
+	 *		The full model (or null)
+	 * @param newProps
+	 *		The key/value pairs for this object.
+	 * @param siteId
+	 *		The siteId that this item is being inserted into.  If isAdmin is true,
+	 *		this should be null and the siteId is expected be in the newProps variable.
+	 * @param isAdminRole
+	 *		This is true if we are doing this as an administrator (i.e. we can bypass
+	 *		rules about SITE_ID being null in the inserted object.
+	 * @param isMaintainRole
+	 *		This is true if we are doing this as a site maintainer.  This will return
+	 *		null if we are not the site maintainer.
+	 * @return Returns String (failure) or Long (key on success)
 	 */
 	public Object insertThingDao(String table, String[] formModel, String[] fullModel,
 			Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole) {
@@ -427,6 +484,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			throw new IllegalArgumentException("newProps must Properties or Map<String, Object>");
 		}
 
+		// TODO: Remove this as a parameter
 		if (!isMaintainRole) return null;
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
@@ -738,7 +796,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] model = LTIService.DEPLOY_MODEL;
-		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_DEPLOY WHERE " + 
+		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_deploy WHERE " + 
 			LTIService.LTI_CONSUMERKEY + " = ? ";
 
 		Object [] fields = new Object[1];

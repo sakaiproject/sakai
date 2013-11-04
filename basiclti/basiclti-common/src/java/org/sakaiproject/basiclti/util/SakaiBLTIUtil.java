@@ -634,6 +634,7 @@ public class SakaiBLTIUtil {
 		int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
 		int allowlori = getInt(tool.get(LTIService.LTI_ALLOWLORI));
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		// int tool_id = getInt(tool.get(LTIService.LTI_ID));
 
 		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
 		if ( result_sourcedid != null ) {
@@ -667,7 +668,9 @@ public class SakaiBLTIUtil {
 				String settings_url = getOurServerUrl() + "/imsblis/lti2/Settings/";
 				setProperty(ltiProps,"ext_lti2_ltilink_custom_url", settings_url + "LtiLink/" + resource_link_id);
 				setProperty(ltiProps,"ext_lti2_toolproxybinding_custom_url", settings_url + "ToolProxyBinding/" + resource_link_id);
-				setProperty(ltiProps,"ext_lti2_toolproxy_custom_url", settings_url + "ToolProxy/" + resource_link_id);
+				// setProperty(ltiProps,"ext_lti2_toolproxybinding_custom_url", settings_url + "ToolProxyBinding/" + tool_id + "/" + context);
+				// setProperty(ltiProps,"ext_lti2_toolproxy_custom_url", settings_url + "ToolProxy/" + resource_link_id);
+				setProperty(ltiProps,"ext_lti2_toolproxy_custom_url", settings_url + "ToolProxy/" + key);
 			}
 
 			if ( allowroster == 1 ) {

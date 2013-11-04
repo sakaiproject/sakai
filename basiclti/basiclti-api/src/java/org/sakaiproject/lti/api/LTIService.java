@@ -389,6 +389,52 @@ public interface LTIService {
 	 */
 	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last);
 
+
+
+
+
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertProxyBindingDao(Properties newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+	public Object updateProxyBindingDao(Long key, Object newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean deleteProxyBindingDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Map<String, Object> getProxyBindingDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param tool_id
+	 * @param siteId
+	 * @return
+	 */
+	public Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
+
+
 	/**
 	 * 
 	 * @param row
@@ -525,7 +571,8 @@ public interface LTIService {
 		"created_at:autodate", 
 		"updated_at:autodate" };
 
-	static String[] SETTINGS_MODEL = { 
+	// The model for the ToolProxy Binding (LTI 2.0)
+	static String[] BINDING_MODEL = { 
 		"id:key", 
 		"tool_id:integer:hidden=true",
 		"SITE_ID:text:maxlength=99:role=admin",

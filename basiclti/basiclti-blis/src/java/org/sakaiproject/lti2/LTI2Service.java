@@ -435,12 +435,11 @@ System.out.println("sourcedid="+sourcedid);
 	{
         String URL = SakaiBLTIUtil.getOurServletPath(request);
 		String scope = parts[4];
-		String placement_id = parts[5];
-System.out.println("Scope="+scope+" placement_id="+placement_id);
+System.out.println("Scope="+scope);
 
 		// Check to see if we are doing the bubble
 		String bubbleStr = request.getParameter("bubble");
-		boolean bubble = bubbleStr != null && "all".equals(bubbleStr);
+		boolean bubble = bubbleStr != null && "all".equals(bubbleStr) && "GET".equals(request.getMethod());;
 System.out.println("bubble="+bubble);
 
 		// Check our input and output formats
@@ -466,43 +465,76 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 			}
 		}
 
-		Map<String,Object> content = null;
-		Map<String,Object> tool = null;
-		Map<String,Object> deploy = null;
+		String consumer_key = null;
 		String siteId = null;
+		String placement_id = null;
 
-		String contentStr = placement_id.substring(8);
-		Long contentKey = SakaiBLTIUtil.getLongKey(contentStr);
-		if ( contentKey  >= 0 ) {
-			// Leave off the siteId - bypass all checking - because we need to 
-			// find the siteId from the content item
-			content = ltiService.getContentDao(contentKey);
-			if ( content != null ) siteId = (String) content.get(LTIService.LTI_SITE_ID);
-		}
+		Map<String,Object> content = null;
+		Long contentKey = null;
+		Map<String,Object> tool = null;
+		Long toolKey = null;
+		Map<String,Object> proxyBinding = null;
+		Long proxyBindingKey = null;
+		Map<String,Object> deploy = null;
+		Long deployKey = null;
 
-		if ( content == null || siteId == null ) {
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad content item", null);
-			return;
-		}
-
-		Long toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-		if ( toolKey >= 0 ) {
-			tool = ltiService.getToolDao(toolKey, siteId);
-		}
+		if ( "LtiLink".equals(scope) || "ToolProxyBinding".equals(scope) ) {
+			placement_id = parts[5];
+System.out.println("placement_id="+placement_id);
+			String contentStr = placement_id.substring(8);
+			contentKey = SakaiBLTIUtil.getLongKey(contentStr);
+			if ( contentKey  >= 0 ) {
+				// Leave off the siteId - bypass all checking - because we need to 
+				// find the siteId from the content item
+				content = ltiService.getContentDao(contentKey);
+				if ( content != null ) siteId = (String) content.get(LTIService.LTI_SITE_ID);
+			}
 	
-		if ( tool == null ) {
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad tool item", null);
-			return;
+			if ( content == null || siteId == null ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad content item", null);
+				return;
+			}
+	
+			toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			if ( toolKey >= 0 ) {
+				tool = ltiService.getToolDao(toolKey, siteId);
+			}
+		
+			if ( tool == null ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad tool item", null);
+				return;
+			}
+	
+			// TODO: Check settings to see if we are allowed to do this :)
+	
+			// Adjust the content items based on the tool items
+			ltiService.filterContent(content, tool);
+
 		}
 
-		// TODO: Check settings to see if we are allowed to do this :)
+		if ( "ToolProxyBinding".equals(scope) || ( "LtiLink".equals(scope) && bubble ) ) {
+System.out.println("ToolProxyBinding toolKey="+toolKey+" siteId="+siteId);
+			proxyBinding = ltiService.getProxyBindingDao(toolKey,siteId);
+			if ( proxyBinding != null ) {
+				proxyBindingKey = SakaiBLTIUtil.getLongKey(proxyBinding.get(LTIService.LTI_ID));
+			}
+System.out.println("proxyBindingKey="+proxyBindingKey);
+System.out.println("proxyBinding="+proxyBinding);
+		}
 
-		// Adjust the content items based on the tool items
-		ltiService.filterContent(content, tool);
 
 		// Retrieve the deployment if needed
-		Long deployKey = null;
-		if ( "ToolProxy".equals(scope) || bubble ) {
+		if ( "ToolProxy".equals(scope) ) {
+			consumer_key = parts[5];
+System.out.println("consumer_key="+consumer_key);
+			deploy = ltiService.getDeployForConsumerKeyDao(consumer_key);
+			if ( deploy == null ) {
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
+				return;
+			}
+			deployKey = SakaiBLTIUtil.getLongKey(deploy.get(LTIService.LTI_ID));
+System.out.println("deployKey="+deployKey);
+		} else if ( bubble ) {
 			deployKey = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
 			if ( deployKey >= 0 ) {
 				deploy = ltiService.getDeployDao(deployKey);
@@ -511,6 +543,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
 				return;
 			}
+			consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		}
 
 		// Get the old settings and secret
@@ -523,7 +556,9 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
 			}
 		} else if ( "ToolProxyBinding".equals(scope) ) {
-			settings = (String) tool.get(LTIService.LTI_SETTINGS);
+			if ( proxyBinding != null ) {
+				settings = (String) proxyBinding.get(LTIService.LTI_SETTINGS);
+			}
 			oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
 		} else if ( "ToolProxy".equals(scope) ) {
 			settings = (String) deploy.get(LTIService.LTI_SETTINGS);
@@ -555,7 +590,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 			JSONArray graph = new JSONArray();
 			JSONObject sjson = null;
 			JSONObject cjson = null;
-			String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2i/Settings";
+			String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2/Settings";
 			String endpoint = null;
 			boolean bubbled = false;
 			if ( "LtiLink".equals(scope) ) {
@@ -575,7 +610,10 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				if ( bubble ) bubbled = true;
 			} 
 			if ( bubbled || "ToolProxyBinding".equals(scope) ) {
-				settings = (String) tool.get(LTIService.LTI_SETTINGS);
+				settings = null;
+				if ( proxyBinding != null ) {
+					settings = (String) proxyBinding.get(LTIService.LTI_SETTINGS);
+				}
 				if ( settings == null || settings.length() < 1 ) {
 					settings = "{\n}\n";
 				}
@@ -597,7 +635,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				}
 				sjson = (JSONObject) JSONValue.parse(settings);
 				if ( sjson != null ) {
-					endpoint = settingsUrl + "/ToolProxy/" + placement_id;
+					endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
 					cjson = new JSONObject();
 					cjson.put("@id",endpoint);
 					cjson.put("@type","ToolProxy");
@@ -629,8 +667,19 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				content.put(LTIService.LTI_SETTINGS, settings);
 				retval = ltiService.updateContentDao(contentKey,content,siteId);
 			} else if ( "ToolProxyBinding".equals(scope) ) {
-				tool.put(LTIService.LTI_SETTINGS, settings);
-				retval = ltiService.updateToolDao(toolKey,tool,(String)tool.get(LTIService.LTI_SITE_ID));
+				if ( proxyBinding != null ) {
+					proxyBinding.put(LTIService.LTI_SETTINGS, settings);
+					retval = ltiService.updateProxyBindingDao(proxyBindingKey,proxyBinding);
+				} else { 
+					Properties proxyBindingNew = new Properties();
+					proxyBindingNew.setProperty(LTIService.LTI_SITE_ID, siteId);
+					proxyBindingNew.setProperty(LTIService.LTI_TOOL_ID, toolKey+"");
+					proxyBindingNew.setProperty(LTIService.LTI_SETTINGS, settings);
+System.out.println("proxyBindingNew="+proxyBindingNew);
+					retval = ltiService.insertProxyBindingDao(proxyBindingNew);
+System.out.println("retval="+retval);
+					M_log.info("inserted ProxyBinding setting="+proxyBindingNew);
+				}
 			} else if ( "ToolProxy".equals(scope) ) {
 				deploy.put(LTIService.LTI_SETTINGS, settings);
 				retval = ltiService.updateDeployDao(deployKey,deploy);
