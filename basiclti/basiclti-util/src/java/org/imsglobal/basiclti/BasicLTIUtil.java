@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
@@ -681,6 +682,7 @@ public class BasicLTIUtil {
 					return new String[]{"deploy.register.nopath", "A basic-lti-launch-request message must have a path RT="+resource_type};
 				} 
 				parameter = (JSONArray) message.get("parameter");
+System.out.println("parameter="+parameter);
 				enabled_capability = (JSONArray) message.get("enabled_capability");
 			}
 
@@ -697,6 +699,7 @@ public class BasicLTIUtil {
 			if ( resourceDescription == null ) resourceDescription = productDescription;
 			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
 			if ( parameter != null ) theTool.put("parameter", parameter.toString());
+System.out.println("X parameter="+parameter);
 			if ( enabled_capability != null ) theTool.put("enabled_capability", parameter.toString());
 
 			// Someone above us should validate the URL...
@@ -719,26 +722,26 @@ public class BasicLTIUtil {
 	public static boolean mergeLTI1Custom(Properties custom, String customstr) 
 	{
 		if ( customstr == null || customstr.length() < 1 ) return true;
-        if ( customstr != null ) {
-            String [] params = customstr.split("[\n;]");
-            for (int i = 0 ; i < params.length; i++ ) {
-                String param = params[i];
-                if ( param == null ) continue;
-                if ( param.length() < 1 ) continue;
 
-                int pos = param.indexOf("=");
-                if ( pos < 1 ) continue;
-                if ( pos+1 > param.length() ) continue;
-                String key = mapKeyName(param.substring(0,pos));
-                if ( key == null ) continue;
-				if ( custom.containsKey(key) ) continue;
+        String [] params = customstr.split("[\n;]");
+        for (int i = 0 ; i < params.length; i++ ) {
+            String param = params[i];
+            if ( param == null ) continue;
+            if ( param.length() < 1 ) continue;
 
-                String value = param.substring(pos+1);
-                if ( value == null ) continue;
-                value = value.trim();
-                if ( value.length() < 1 ) continue;
-                setProperty(custom, key, value);
-            }
+			int pos = param.indexOf("=");
+            if ( pos < 1 ) continue;
+            if ( pos+1 > param.length() ) continue;
+            String key = mapKeyName(param.substring(0,pos));
+            if ( key == null ) continue;
+
+			if ( custom.containsKey(key) ) continue;
+
+            String value = param.substring(pos+1);
+            if ( value == null ) continue;
+            value = value.trim();
+            if ( value.length() < 1 ) continue;
+            setProperty(custom, key, value);
         }
 		return true;
 	}
@@ -821,6 +824,21 @@ public class BasicLTIUtil {
             }
         }
 		return true;
+	}
+
+	public static void substituteCustom(Properties custom, Properties lti2subst) 
+	{
+		if ( custom == null || lti2subst == null ) return;	
+		Enumeration e = custom.propertyNames();
+		while (e.hasMoreElements()) {
+			String key = (String) e.nextElement();
+			String value =  custom.getProperty(key);
+			if ( value == null || (! value.startsWith("$")) || value.length() < 1 ) continue;
+			String subst = value.trim().substring(1);
+			String newValue = lti2subst.getProperty(subst);
+			if ( newValue == null ||  newValue.length() < 1 ) continue;
+            setProperty(custom, key, (String) newValue);
+		}
 	}
 
 	/**

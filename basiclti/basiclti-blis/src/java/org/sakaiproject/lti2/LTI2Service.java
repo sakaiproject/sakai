@@ -374,8 +374,6 @@ System.out.println("deployUpdate="+deployUpdate);
 	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
 			String sourcedid) throws java.io.IOException
 	{
-System.out.println("sourcedid="+sourcedid);
-
 		Object retval = null;
 		IMSJSONRequest jsonRequest = null;
 		if ( "GET".equals(request.getMethod()) ) { 
@@ -435,12 +433,10 @@ System.out.println("sourcedid="+sourcedid);
 	{
         String URL = SakaiBLTIUtil.getOurServletPath(request);
 		String scope = parts[4];
-System.out.println("Scope="+scope);
 
 		// Check to see if we are doing the bubble
 		String bubbleStr = request.getParameter("bubble");
-		boolean bubble = bubbleStr != null && "all".equals(bubbleStr) && "GET".equals(request.getMethod());;
-System.out.println("bubble="+bubble);
+		boolean bubble = bubbleStr != null && "all".equals(bubbleStr) && "GET".equals(request.getMethod());
 
 		// Check our input and output formats
 		String acceptHdr = request.getHeader("Accept");
@@ -572,6 +568,7 @@ System.out.println("deployKey="+deployKey);
         Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret);
         if ( retval instanceof String ) {
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+			return;
 		}
 
 		if ( "GET".equals(request.getMethod()) && acceptSimple ) { 

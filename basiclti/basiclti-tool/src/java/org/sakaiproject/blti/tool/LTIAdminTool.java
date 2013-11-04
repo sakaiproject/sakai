@@ -987,6 +987,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
+System.out.println("profileTool="+profileTool);
 			String resource_type = (String) profileTool.get(LTIService.LTI_RESOURCE_TYPE);
 			String resource_full = instance_guid;
 			if ( ! resource_full.endsWith("/") && ! resource_type.startsWith("/") ) resource_full = resource_full + "/" ;
@@ -1014,6 +1015,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
 			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
 
+System.out.println("newTool="+newTool);
 			theTools.add(newTool); 
 		}
 		return null; // Success

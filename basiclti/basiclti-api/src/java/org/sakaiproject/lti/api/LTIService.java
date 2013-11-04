@@ -529,9 +529,11 @@ public interface LTIService {
 		"allowlori:checkbox:label=bl_allowlori",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
+		// LTI 1.x user-entered custom
 		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024:only=lti1",
-		// TODO: Deal with parameter versus settings
+		// LTI 2.x settings from web services
 		"settings:text:hidden=true:maxlength=8096",
+		// LTI 2.x tool-registration time parameters
 		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
 		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=1024:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",

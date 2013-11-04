@@ -351,7 +351,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 									doSplash(req, res, splash, rb);
 									return;
 							   }
-							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
+							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, ltiService, rb);
 						   }
 						   else
 						   {
