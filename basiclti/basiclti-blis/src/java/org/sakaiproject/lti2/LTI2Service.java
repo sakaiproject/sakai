@@ -438,6 +438,21 @@ System.out.println("sourcedid="+sourcedid);
 		String placement_id = parts[5];
 System.out.println("Scope="+scope+" placement_id="+placement_id);
 
+		// Check to see if we are doing the bubble
+		String bubbleStr = request.getParameter("bubble");
+		boolean bubble = bubbleStr != null && "all".equals(bubbleStr);
+System.out.println("bubble="+bubble);
+
+		// Check our input and output formats
+		String acceptHdr = request.getHeader("Accept");
+		String contentHdr = request.getHeader("Content-type");
+		boolean acceptSimple = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
+		boolean acceptComplex = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
+		if ( contentHdr == null ) contentHdr = request.getHeader("Content-Type");
+		boolean inputSimple = contentHdr == null || contentHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
+		boolean inputComplex = contentHdr != null && contentHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
+System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" ic="+inputComplex);
+
 		// Check the JSON on PUT and check the oauth_body_hash
 		IMSJSONRequest jsonRequest = null;
 		JSONObject requestData = null;
@@ -446,7 +461,7 @@ System.out.println("Scope="+scope+" placement_id="+placement_id);
 				jsonRequest = new IMSJSONRequest(request);
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", null);
+				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", e);
 				return;
 			}
 		}
@@ -487,7 +502,7 @@ System.out.println("Scope="+scope+" placement_id="+placement_id);
 
 		// Retrieve the deployment if needed
 		Long deployKey = null;
-		if ( "ToolProxy".equals(scope) ) {
+		if ( "ToolProxy".equals(scope) || bubble ) {
 			deployKey = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
 			if ( deployKey >= 0 ) {
 				deploy = ltiService.getDeployDao(deployKey);
@@ -524,17 +539,91 @@ System.out.println("Scope="+scope+" placement_id="+placement_id);
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
 		}
 
-		if ( "GET".equals(request.getMethod()) ) { 
+		if ( "GET".equals(request.getMethod()) && acceptSimple ) { 
 			if ( settings == null || settings.length() < 1 ) {
 				settings = "{\n}\n";
 			}
 			response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
-			response.setStatus(HttpServletResponse.SC_CREATED); 
+			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
 			out.println(settings);
 			return;
+		// Complex format
+		} else if ( "GET".equals(request.getMethod()) ) {
+			JSONObject jsonResponse = new JSONObject();
+			jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
+			JSONArray graph = new JSONArray();
+			JSONObject sjson = null;
+			JSONObject cjson = null;
+			String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2i/Settings";
+			String endpoint = null;
+			boolean bubbled = false;
+			if ( "LtiLink".equals(scope) ) {
+				settings = (String) content.get(LTIService.LTI_SETTINGS);
+				if ( settings == null || settings.length() < 1 ) {
+					settings = "{\n}\n";
+				}
+				sjson = (JSONObject) JSONValue.parse(settings);
+				if ( sjson != null ) {
+					endpoint = settingsUrl + "/LtiLink/" + placement_id;
+					cjson = new JSONObject();
+					cjson.put("@id",endpoint);
+					cjson.put("@type",scope);
+					cjson.put("custom",sjson);
+					graph.add(cjson);
+				}
+				if ( bubble ) bubbled = true;
+			} 
+			if ( bubbled || "ToolProxyBinding".equals(scope) ) {
+				settings = (String) tool.get(LTIService.LTI_SETTINGS);
+				if ( settings == null || settings.length() < 1 ) {
+					settings = "{\n}\n";
+				}
+				sjson = (JSONObject) JSONValue.parse(settings);
+				if ( sjson != null ) {
+					endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
+					cjson = new JSONObject();
+					cjson.put("@id",endpoint);
+					cjson.put("@type","ToolProxyBinding");
+					cjson.put("custom",sjson);
+					graph.add(cjson);
+				}
+				if ( bubble ) bubbled = true;
+			} 
+			if ( deploy != null && ( bubbled || "ToolProxy".equals(scope) ) ) {
+				settings = (String) deploy.get(LTIService.LTI_SETTINGS);
+				if ( settings == null || settings.length() < 1 ) {
+					settings = "{\n}\n";
+				}
+				sjson = (JSONObject) JSONValue.parse(settings);
+				if ( sjson != null ) {
+					endpoint = settingsUrl + "/ToolProxy/" + placement_id;
+					cjson = new JSONObject();
+					cjson.put("@id",endpoint);
+					cjson.put("@type","ToolProxy");
+					cjson.put("custom",sjson);
+					graph.add(cjson);
+				}
+			}
+			jsonResponse.put("graph",graph);
+			response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
+			response.setStatus(HttpServletResponse.SC_OK); 
+			PrintWriter out = response.getWriter();
+			out.println(jsonResponse.toString());
+			return;
 		} if ( "PUT".equals(request.getMethod()) ) {
-			settings = jsonRequest.getPostBody();
+			// This is assuming the rule that a PUT of the complex settings
+			// format that there is only one entry in the graph and it is
+			// the same as our current URL.  We parse without much checking.
+			try {
+				JSONArray graph = (JSONArray) requestData.get("@graph");
+				JSONObject firstChild = (JSONObject) graph.get(0);
+				JSONObject custom = (JSONObject) firstChild.get("custom");
+				settings = custom.toString();
+			} catch (Exception e) {
+				settings = jsonRequest.getPostBody();
+			}
+
 			retval = null;
 			if ( "LtiLink".equals(scope) ) {
 				content.put(LTIService.LTI_SETTINGS, settings);
