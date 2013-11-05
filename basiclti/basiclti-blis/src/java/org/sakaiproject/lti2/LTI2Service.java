@@ -289,8 +289,9 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 
+System.out.println("YO");
 		JSONObject providerProfile = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
-		// System.out.println("OBJ:"+providerProfile);
+		System.out.println("OBJ:"+providerProfile);
 		if ( providerProfile == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON parse failed", null);

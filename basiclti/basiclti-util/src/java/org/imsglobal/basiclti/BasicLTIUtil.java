@@ -647,7 +647,8 @@ public class BasicLTIUtil {
 		// Loop through resource handlers, read, and check for errors
 		for(Object o : resource_handlers ) {
 			JSONObject resource_handler = (JSONObject) o;
-			String resource_type = (String) resource_handler.get("resource_type");
+			JSONObject resource_type_json = (JSONObject) resource_handler.get("resource_type");
+			String resource_type = (String) resource_type_json.get("code");
 			if ( resource_type == null ) {
 				return new String[]{"deploy.register.parse", "JSON missing resource_type"};
 			}

@@ -14,7 +14,7 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
 @Generated("com.googlecode.jsonschema2pojo")
 @JsonPropertyOrder({
     "code",
-    "name",
+    "vendor_name",
     "description",
     "website",
     "timestamp",
@@ -24,8 +24,8 @@ public class Vendor {
 
     @JsonProperty("code")
     private String code;
-    @JsonProperty("name")
-    private Name name;
+    @JsonProperty("vendor_name")
+    private Name vendor_name;
     @JsonProperty("description")
     private Description description;
     @JsonProperty("website")
@@ -36,9 +36,9 @@ public class Vendor {
     private Contact contact;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Vendor(String code, String name, String description, String website, String contact) {
+    public Vendor(String code, String vendor_name, String description, String website, String contact) {
         this.code = code;
-        this.name = new Name(name);
+        this.vendor_name = new Name(vendor_name);
         this.description = new Description(description);
         this.website = website;
         this.contact = new Contact(contact);
@@ -53,14 +53,14 @@ public class Vendor {
         this.code = code;
     }
 
-    @JsonProperty("name")
-    public Name getName() {
-        return name;
+    @JsonProperty("vendor_name")
+    public Name getVendor_name() {
+        return vendor_name;
     }
 
     @JsonProperty("name")
-    public void setName(Name name) {
-        this.name = name;
+    public void setVendor_ame(Name name) {
+        this.vendor_name = vendor_name;
     }
 
     @JsonProperty("description")

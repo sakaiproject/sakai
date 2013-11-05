@@ -146,7 +146,7 @@ public class IMSJSONRequest {
 			md.update(bytes); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
-			System.out.println("HASH="+hash+" byts="+bytes.length);
+			System.out.println("HASH="+hash+" bytes="+bytes.length);
 			if ( ! hash.equals(oauth_body_hash) ) {
 				errorMessage = "Body hash does not match. bytes="+bytes.length;
 				System.out.println(postBody);

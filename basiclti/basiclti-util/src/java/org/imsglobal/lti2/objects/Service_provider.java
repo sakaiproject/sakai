@@ -24,7 +24,7 @@ public class Service_provider {
     @JsonProperty("@id")
     private String _id;
     @JsonProperty("service_provider_name")
-    private Service_provider_name name;
+    private Service_provider_name service_provider_name;
     @JsonProperty("description")
     private Description description;
     @JsonProperty("timestamp")
@@ -35,7 +35,7 @@ public class Service_provider {
 
     public Service_provider(String _id, String provider, String desc, String support_email) {
         this._id = _id;
-        this.name = new Service_provider_name(provider);
+        this.service_provider_name = new Service_provider_name(provider);
         this.description = new Description(desc);
         this.support = new Support(support_email);
     }
@@ -50,14 +50,14 @@ public class Service_provider {
         this._id = _id;
     }
 
-    @JsonProperty("name")
+    @JsonProperty("service_provider_name")
     public Service_provider_name getService_provider_name() {
-        return name;
+        return service_provider_name;
     }
 
-    @JsonProperty("name")
-    public void setService_name(Service_provider_name name) {
-        this.name = name;
+    @JsonProperty("service_provider_name")
+    public void setService_name(Service_provider_name service_provider_name) {
+        this.service_provider_name = service_provider_name;
     }
 
     @JsonProperty("description")

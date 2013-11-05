@@ -692,8 +692,6 @@ System.out.println("proxyBinding="+proxyBinding);
 				String settings_url = getOurServerUrl() + "/imsblis/lti2/Settings/";
 				setProperty(lti2subst,"LtiLink.custom.url", settings_url + "LtiLink/" + resource_link_id);
 				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + "ToolProxyBinding/" + resource_link_id);
-				// setProperty(ltiProps,"ext_lti2_toolproxybinding_custom_url", settings_url + "ToolProxyBinding/" + tool_id + "/" + context);
-				// setProperty(ltiProps,"ext_lti2_toolproxy_custom_url", settings_url + "ToolProxy/" + resource_link_id);
 				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + "ToolProxy/" + key);
 			}
 
