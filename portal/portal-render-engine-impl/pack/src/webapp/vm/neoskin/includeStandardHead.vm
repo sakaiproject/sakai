@@ -89,6 +89,7 @@ ${sakai_html_head_js}
 #end
 
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"></script>
+<script type="text/javascript" src="/library/js/jquery/notify/1.2.2/jquery.pnotify.min.js"></script>
 <script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
 <script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/tutorial.js"></script>
 #if ( $tutorial && $loggedIn )

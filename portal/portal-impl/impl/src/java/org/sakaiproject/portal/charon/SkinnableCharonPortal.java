@@ -1448,7 +1448,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append(preloadScript);
 		headJs.append(editorScript);
 		headJs.append(launchScript);
-		
+
+		Session s = SessionManager.getCurrentSession();
+		String userWarning = (String) s.getAttribute("userWarning");
+		if (StringUtils.isNotEmpty(userWarning)) {
+			headJs.append("<script type=\"text/javascript\">window.parent.jQuery.pnotify({pnotify_title: '");
+			headJs.append(rloader.getString("pnotify_notice"));
+			headJs.append("', pnotify_text: '");
+			headJs.append(userWarning);
+			headJs.append("', type: 'error' });</script>");
+			s.removeAttribute("userWarning");
+		}
+
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
 		String head = headCss + headJs.toString();
 
