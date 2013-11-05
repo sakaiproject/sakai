@@ -661,6 +661,11 @@ System.out.println("deployKey="+deployKey);
 			// the same as our current URL.  We parse without much checking.
 			try {
 				JSONArray graph = (JSONArray) requestData.get("@graph");
+				if ( graph.size() != 1 ) {
+					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+					doErrorJSON(request,response, jsonRequest, "outcomes.error", "Only one graph entry allowed", null);
+					return;
+				}
 				JSONObject firstChild = (JSONObject) graph.get(0);
 				JSONObject custom = (JSONObject) firstChild.get("custom");
 				settings = custom.toString();

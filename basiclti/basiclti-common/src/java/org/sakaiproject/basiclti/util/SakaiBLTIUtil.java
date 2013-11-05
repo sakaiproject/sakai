@@ -499,7 +499,6 @@ public class SakaiBLTIUtil {
 		}
 		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
 
-
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
 		setProperty(props,"ext_lms", "sakai-"+sakaiVersion);  
@@ -594,6 +593,11 @@ System.out.println("proxyBinding="+proxyBinding);
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context);
 
+		if ( deploy != null ) {
+			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+				"/imsblis/lti2/tc_profile/" + (String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
+		}
+
 		String resource_link_id = "content:"+content.get(LTIService.LTI_ID);
 		setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,resource_link_id);
 		setProperty(lti2subst,"ResourceLink.id",resource_link_id);
@@ -640,7 +644,7 @@ System.out.println("proxyBinding="+proxyBinding);
 			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
 			setProperty(lti2subst,"User.id",user.getId());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
-			setProperty(ltiProps,"User.username",user.getEid());
+			setProperty(lti2subst,"User.username",user.getEid());
 			if ( releasename == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
