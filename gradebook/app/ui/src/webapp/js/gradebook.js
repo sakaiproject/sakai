@@ -250,15 +250,9 @@ function showHideAll(numToggles, context, expandAlt, collapseAlt, expandTitle, c
 		    }
 		  }
 		  else {
-		    if(navigator.product == "Gecko")
-      	{
-        	divisionNo.style.display="table-row";
-      	}
-      	else
-      	{
-        	divisionNo.style.display="block";
-     	 	}
-		    
+			  //Gecko specific fix no longer needed
+			  divisionNo.style.display="table-row";
+
 		    if (imgNo) {
 		      imgNo.src = context + "/images/expand.gif";
 		      imgNo.alt =  expandAlt;
