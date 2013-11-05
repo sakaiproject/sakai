@@ -22,8 +22,19 @@
 package org.sakaiproject.util.impl;
 
 import java.util.regex.Pattern;
+
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.impl.BasicConfigurationService;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.id.impl.UuidV4IdComponent;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.impl.SessionComponent;
 import org.sakaiproject.util.api.FormattedText.Level;
+import org.sakaiproject.util.BasicConfigItem;
 
 import junit.framework.TestCase;
 
@@ -31,10 +42,38 @@ public class FormattedTextTest extends TestCase {
 
     FormattedTextImpl formattedText;
 
+    private SessionManager sessionManager;
+    private ServerConfigurationService serverConfigurationService;
+
     @Override
     protected void setUp() throws Exception {
+        // instantiate the services we need for our test
+        final IdManager idManager = new UuidV4IdComponent();
+        final ThreadLocalManager threadLocalManager = new ThreadLocalComponent();
+        serverConfigurationService = new BasicConfigurationService(); // cannot use home or server methods
+        sessionManager = new SessionComponent() {
+            @Override
+            protected ToolManager toolManager() {
+                return null; // not needed for this test
+            }
+            @Override
+            protected ThreadLocalManager threadLocalManager() {
+                return threadLocalManager;
+            }
+            @Override
+            protected IdManager idManager() {
+                return idManager;
+            }
+        };
+
+        // add in the config so we can test it
+        serverConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("content.cleaner.errors.handling", "return", "FormattedTextTest"));
+
         ComponentManager.testingMode = true;
+        // instantiate what we are testing
         formattedText = new FormattedTextImpl();
+        formattedText.setServerConfigurationService(serverConfigurationService);
+        formattedText.setSessionManager(sessionManager);
         formattedText.init();
     }
 
@@ -204,7 +243,7 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("src="));
         assertFalse( result.contains("data:image/svg+xml;base64"));
         assertFalse( result.contains("<script"));
-        */
+         */
 
     }
 
@@ -274,7 +313,7 @@ public class FormattedTextTest extends TestCase {
             assertEquals(failResults[i], result);
             assertTrue(result, errors.length() > 10);
         }
-        */
+         */
     }
 
     public void testKNL_528() {
@@ -286,7 +325,7 @@ public class FormattedTextTest extends TestCase {
         String strFromBrowser = null;
         String result = null;
         StringBuilder errorMessages = null;
-        
+
         strFromBrowser = SVG_BAD;
         errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, true);
@@ -309,7 +348,7 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("data:image/svg+xml;base64"));
         assertFalse( result.contains("<script"));
 
-/* CDATA is ignored so it will not be cleaned
+        /* CDATA is ignored so it will not be cleaned
         String TRICKY = "<div><![CDATA[<EMBED SRC=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></EMBED>]]></div>";
         String CDATA_TRICKY = "<div><![CDATA[<embed src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\" type=\"image/svg+xml\" AllowScriptAccess=\"always\"></embed>]]></div>";
 
@@ -334,7 +373,7 @@ public class FormattedTextTest extends TestCase {
         assertFalse( result.contains("SRC="));
         assertFalse( result.contains("data:image/svg+xml;base64"));
         assertFalse( result.contains("<script"));
-*/
+         */
     }
 
     public void testUnbalancedMarkup() {
@@ -357,7 +396,7 @@ public class FormattedTextTest extends TestCase {
         String strFromBrowser = null;
         String result = null;
         StringBuilder errorMessages = null;
-        
+
         strFromBrowser = SCRIPT1;
         errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, true);
@@ -593,12 +632,12 @@ public class FormattedTextTest extends TestCase {
     }
 
     public void testNullParams() {
-    	//KNL-862 test we don't NPE if a null string is passed with Newlines == true - DH
-    	try {
-    		formattedText.escapeHtml(null, true);
-    	} catch (Exception e) {
-    		fail();
-    	}
+        //KNL-862 test we don't NPE if a null string is passed with Newlines == true - DH
+        try {
+            formattedText.escapeHtml(null, true);
+        } catch (Exception e) {
+            fail();
+        }
     }
 
     public void testKNL_1065() {
@@ -703,35 +742,35 @@ public class FormattedTextTest extends TestCase {
     public void testBasicUrlMatch() {
         assertEquals("I like <a href=\"http://www.apple.com\">http://www.apple.com</a> and stuff", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("I like http://www.apple.com and stuff")));
     }
-    
+
     public void testCanDoSsl() {
         assertEquals("<a href=\"https://sakaiproject.org\">https://sakaiproject.org</a>", formattedText.encodeUrlsAsHtml("https://sakaiproject.org"));
     }
-    
+
     public void testCanIgnoreTrailingExclamation() {
         assertEquals("Hey, it's <a href=\"http://sakaiproject.org\">http://sakaiproject.org</a>!", formattedText.encodeUrlsAsHtml("Hey, it's http://sakaiproject.org!"));
     }
-    
+
     public void testCanIgnoreTrailingQuestion() {
         assertEquals("Have you ever seen <a href=\"http://sakaiproject.org\">http://sakaiproject.org</a>? Just wondering.", formattedText.encodeUrlsAsHtml("Have you ever seen http://sakaiproject.org? Just wondering."));
     }
-    
+
     public void testCanEncodeQueryString() {
         assertEquals("See <a href=\"http://sakaiproject.org/index.php?task=blogcategory&id=181\">http://sakaiproject.org/index.php?task=blogcategory&amp;id=181</a> for more info.", formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("See http://sakaiproject.org/index.php?task=blogcategory&id=181 for more info.")));
     }
-    
+
     public void testCanTakePortNumber() {
         assertEquals("<a href=\"http://localhost:8080/portal\">http://localhost:8080/portal</a>", formattedText.encodeUrlsAsHtml("http://localhost:8080/portal"));
     }
-    
+
     public void testCanTakePortNumberAndQueryString() {
         assertEquals("<a href=\"http://www.loco.com:3000/portal?person=224\">http://www.loco.com:3000/portal?person=224</a>", formattedText.encodeUrlsAsHtml("http://www.loco.com:3000/portal?person=224"));
     }
-    
+
     public void testCanIgnoreExistingHref() {
         assertEquals("<a href=\"http://sakaiproject.org\">Sakai Project</a>", formattedText.encodeUrlsAsHtml("<a href=\"http://sakaiproject.org\">Sakai Project</a>"));
     }
-    
+
     public void testALongUrlFromNyTimes() {
         assertEquals("<a href=\"http://www.nytimes.com/mem/MWredirect.html?MW=http://custom.marketwatch.com/custom/nyt-com/html-companyprofile.asp&symb=LLNW\">http://www.nytimes.com/mem/MWredirect.html?MW=http://custom.marketwatch.com/custom/nyt-com/html-companyprofile.asp&amp;symb=LLNW</a>",
                 formattedText.encodeUrlsAsHtml(formattedText.escapeHtml("http://www.nytimes.com/mem/MWredirect.html?MW=http://custom.marketwatch.com/custom/nyt-com/html-companyprofile.asp&symb=LLNW")));

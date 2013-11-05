@@ -41,6 +41,10 @@ import org.owasp.validator.html.Policy;
 import org.owasp.validator.html.PolicyException;
 import org.owasp.validator.html.ScanException;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -57,6 +61,11 @@ public class FormattedTextImpl implements FormattedText
         this.serverConfigurationService = serverConfigurationService;
     }
 
+    private SessionManager sessionManager = null;
+    public void setSessionManager(SessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }   
+
     /**
      * This is the high level html cleaner object
      */
@@ -66,10 +75,59 @@ public class FormattedTextImpl implements FormattedText
      */
     private AntiSamy antiSamyLow = null;
 
+    /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
+     * - none - errors are completely ignored and not even stored at all
+     * - logged - errors are output in the logs only
+     * - return - errors are returned to the tool (legacy behavior)
+     * - notify - user notified about errors using a non-blocking JS popup
+     * - display - errors are displayed to the user using the new and fancy JS popup
+     */
+    private String errorsHandling = "notify"; // set this to the default
+    private boolean showErrorToUser = false;
+    private boolean showDetailedErrorToUser = false;
+    private boolean returnErrorToTool = false;
+    private boolean logErrors = false;
+
+    private final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
+    protected final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
+    private final String RESOURCECLASS = "resource.class.content";
+    protected final String RESOURCEBUNDLE = "resource.bundle.content";
+
     public void init() {
         boolean useLegacy = false;
         if (serverConfigurationService != null) { // this keeps the tests from dying
             useLegacy = serverConfigurationService.getBoolean("content.cleaner.use.legacy.html", useLegacy);
+
+            /* KNL-1075 - content.cleaner.errors.handling = none|logged|return|notify|display
+             * - none - errors are completely ignored and not even stored at all
+             * - logged - errors are output in the logs only
+             * - return - errors are returned to the tool (legacy behavior)
+             * - notify - user notified about errors using a non-blocking JS popup
+             * - display - errors are displayed to the user using the new and fancy JS popup
+             */
+            errorsHandling = serverConfigurationService.getString("content.cleaner.errors.handling", errorsHandling);
+            // NONE is the case when the string is not matched as well
+            if ("logged".equalsIgnoreCase(errorsHandling)) {
+                logErrors = true;
+            } else if ("return".equalsIgnoreCase(errorsHandling)) {
+                returnErrorToTool = true;
+            } else if ("notify".equalsIgnoreCase(errorsHandling)) {
+                showErrorToUser = true;
+            } else if ("display".equalsIgnoreCase(errorsHandling)) {
+                showDetailedErrorToUser = true;
+            } else {
+                // probably the none case, but maybe also a case of invalid config....
+                if (!"none".equalsIgnoreCase(errorsHandling)) {
+                    M_log.warn("FormattedText error handling option invalid: "+errorsHandling+", defaulting to 'none'");
+                }
+            }
+            // allow one extra option to control logging if desired
+            logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
+            M_log.info("FormattedText error handling: "+errorsHandling+
+                    "; log errors=" + logErrors + 
+                    "; return to tool=" + returnErrorToTool + 
+                    "; notify user=" + showErrorToUser + 
+                    "; details to user=" + showDetailedErrorToUser);
         }
         if (useLegacy) {
             M_log.error(
@@ -80,7 +138,7 @@ public class FormattedTextImpl implements FormattedText
                     +"* Content scanning uses AntiSamy scanner now.    *\n"
                     +"* https://jira.sakaiproject.org/browse/KNL-1127  *\n"
                     +"**************************************************\n"
-                    );
+            );
         }
 
         /* INIT Antisamy
@@ -148,6 +206,13 @@ public class FormattedTextImpl implements FormattedText
         return defaultLowSecurity;
     }
 
+    public ResourceLoader getResourceLoader() {
+        String resourceClass = serverConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+        String resourceBundle = serverConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+        ResourceLoader loader = new Resource().getLoader(resourceClass, resourceBundle);
+        return loader;
+    }   
+
     /**
      * @return the path to the sakai home directory on the server
      */
@@ -177,8 +242,8 @@ public class FormattedTextImpl implements FormattedText
             Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
     /** Matches all anchor tags that do not have a target attribute. */
     public final Pattern M_patternAnchorTagWithOutTarget = 
-        Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
-                Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            Pattern.compile("([<]a\\s)(?![^>]*target=)([^>]*?)[>]",
+                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     /** Matches href attribute */
     private Pattern M_patternHref = Pattern.compile("\\shref\\s*=\\s*(\".*?\"|'.*?')",
@@ -251,6 +316,10 @@ public class FormattedTextImpl implements FormattedText
      */
     public String processFormattedText(final String strFromBrowser, StringBuilder errorMessages, Level level,
             boolean checkForEvilTags, boolean replaceWhitespaceTags, boolean doNotUseLegacySakaiCleaner) {
+
+        // KNL-1075: bypass the old error system and present our formatted text errors using growl notification
+        StringBuilder formattedTextErrors = new StringBuilder();
+
         if (level == null || Level.DEFAULT.equals(level)) {
             // Select the default policy as high or low - KNL-1015
             level = defaultLowSecurity() ? Level.LOW : Level.HIGH; // default to system setting
@@ -285,7 +354,7 @@ public class FormattedTextImpl implements FormattedText
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
                         for (Object errorMsg : cr.getErrorMessages()) {
-                            errorMessages.append(errorMsg.toString()+"\n\r");
+                            formattedTextErrors.append(errorMsg.toString() + "<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
@@ -317,9 +386,42 @@ public class FormattedTextImpl implements FormattedText
             // opportunity to work around the issue, rather than causing a tool stack trace
 
             M_log.warn("Unexpected error processing text", e);
-            // TODO no i18n for now since the other strings are also untranslated
-            errorMessages.append("Unknown error processing text markup\n");//getResourceLoader().getString("unknown_error_markup"));
+            formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
             val = null;
+        }
+
+        // KNL-1075: re-do the way error messages are handled
+        if (formattedTextErrors.length() > 0) {
+            // allow one extra option to control logging in real time if desired
+            logErrors = serverConfigurationService.getBoolean("content.cleaner.errors.logged", logErrors);
+            if (showErrorToUser || showDetailedErrorToUser) {
+                Session session = sessionManager.getCurrentSession();
+                if (showDetailedErrorToUser) {
+                    session.setAttribute("userWarning", formattedTextErrors.toString());
+                } else {
+                    session.setAttribute("userWarning", getResourceLoader().getString("content_has_been_cleaned"));
+                }
+            } else if (logErrors && M_log.isInfoEnabled()) {
+                // KNL-1075 - Log errors if desired so they can be easily found
+                String user = "UNKNOWN";
+                try {
+                    user = sessionManager.getCurrentSession().getUserEid();
+                } catch (Exception e) {
+                    try {
+                        user = "id="+sessionManager.getCurrentSessionUserId();
+                    } catch (Exception e1) {
+                        // nothing to do in this case
+                    }
+                }
+                M_log.info("FormattedText Error: user=" + user + " : " + formattedTextErrors.toString()
+                        +"\n  -- processing input:\n"+strFromBrowser
+                        +"\n  -- resulting output:\n"+val
+                        );
+            }
+            // KNL-1075 - Allows passing kernel tests and preserving legacy behavior
+            if (returnErrorToTool) {
+                errorMessages.append(formattedTextErrors);
+            }
         }
 
         return val;
