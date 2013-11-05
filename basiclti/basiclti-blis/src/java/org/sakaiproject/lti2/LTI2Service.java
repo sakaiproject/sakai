@@ -128,6 +128,30 @@ System.out.println("profile_id="+profile_id);
 		}
 System.out.println("deploy="+deploy);
 
+		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
+
+		ObjectMapper mapper = new ObjectMapper();
+		try {
+			// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
+			ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
+			// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
+			// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
+			// System.out.println(mapper.writeValueAsString(consumer));
+			response.setContentType("application/json");
+			PrintWriter out = response.getWriter();
+			out.println(writer.writeValueAsString(consumer));
+			// System.out.println(writer.writeValueAsString(consumer));
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+
+	protected ToolConsumer getToolConsumerProfile(Map<String, Object> deploy, String profile_id)
+	{
+System.out.println("deploy="+deploy);
+
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 		Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
 				"Amazing open source Collaboration and Learning Environment.", 
@@ -180,23 +204,9 @@ System.out.println("deploy="+deploy);
 		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
 			services.add(SakaiLTI2Services.LORI_XML(serverUrl+"/imsblis/service/"));
 		}
-
-		ObjectMapper mapper = new ObjectMapper();
-		try {
-			// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
-			ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
-			// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
-			// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
-			// System.out.println(mapper.writeValueAsString(consumer));
-			response.setContentType("application/json");
-			PrintWriter out = response.getWriter();
-			out.println(writer.writeValueAsString(consumer));
-			// System.out.println(writer.writeValueAsString(consumer));
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-		}
+		return consumer;
 	}
+
 
 	@SuppressWarnings("unchecked")
 	// /imsblis/lti2/part3/part4
@@ -289,9 +299,8 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 
-System.out.println("YO");
 		JSONObject providerProfile = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
-		System.out.println("OBJ:"+providerProfile);
+		// System.out.println("OBJ:"+providerProfile);
 		if ( providerProfile == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON parse failed", null);
@@ -313,6 +322,31 @@ System.out.println("YO");
 		}
 		// Blank out the new shared secret
 		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
+
+		// Make sure that the requested services are a subset of the offered services
+		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
+
+		JSONArray tool_services = (JSONArray) security_contract.get("tool_service");
+		List<Service_offered> services_offered = consumer.getService_offered();
+
+		for (Object o : tool_services) {
+			JSONObject tool_service = (JSONObject) o;
+			String json_service = (String) tool_service.get("service");
+
+			boolean found = false;
+			for (Service_offered service : services_offered ) {
+				String service_endpoint = service.getEndpoint();
+				if ( service_endpoint.equals(json_service) ) {
+					found = true;
+					break;
+				}
+			}
+			if ( ! found ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request, response, jsonRequest, "register.error", "Service not allowed: "+json_service, null);
+				return;
+			}
+		}
 
 		// Parse the tool profile bit and extract the tools with error checking
 		List<Properties> theTools = new ArrayList<Properties> ();
@@ -339,8 +373,7 @@ System.out.println("info = " + info);
 		}
 
 		// TODO: Loop through and validate all of the launch urls in the tools
-
-		// TODO: Check all the services to make sure we like them ....
+		// TODO: Check all the capabilities requested by all the tools compating against consumer
 
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
@@ -365,7 +398,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
 		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl+"/Settings/ToolProxy/"+profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
-		response.setStatus(HttpServletResponse.SC_CREATED); // TODO: Get this right
+		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
 		M_log.debug(jsonText);
 		PrintWriter out = response.getWriter();
