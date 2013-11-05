@@ -242,7 +242,8 @@ public class BasicLTIConstants {
 	 * particular message. This parameter is required.
 	 */
 	public static final String LTI_VERSION = "lti_version";
-	// launch settings per spec - computed not stored
+	public static final String LTI_VERSION_1 = "LTI-1p0";
+	public static final String LTI_VERSION_2 = "LTI-2p0";
 
    /** 
     * tool_consumer_info_product_family_code=desire2learn

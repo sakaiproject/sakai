@@ -585,6 +585,11 @@ System.out.println("proxyBinding="+proxyBinding);
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
 		Properties lti2subst = new Properties();
+		if ( deploy == null ) {
+			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_1);
+		} else {
+			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
+		}
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context);

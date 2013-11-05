@@ -45,8 +45,7 @@ public class LTI2Constants {
 	 */
 	public static final String TC_PROFILE_URL = "tc_profile_url";
 
-	// TODO: Fix this
-	public static final String CUSTOM_URL = "custom_uri";
+	public static final String CUSTOM_URL = "custom_url";
 	public static final String TOOL_PROXY_GUID = "tool_proxy_guid";
 	public static final String SHARED_SECRET = "shared_secret";
 	public static final String SECURITY_CONTRACT = "security_contract";

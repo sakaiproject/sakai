@@ -380,6 +380,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		if ( "GET".equals(request.getMethod()) ) { 
 			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
 			if ( ! (retval instanceof Map) ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
 				return;
 			}
@@ -457,6 +458,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				jsonRequest = new IMSJSONRequest(request);
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", e);
 				return;
 			}
@@ -488,6 +490,7 @@ System.out.println("placement_id="+placement_id);
 			}
 	
 			if ( content == null || siteId == null ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad content item", null);
 				return;
 			}
@@ -498,6 +501,7 @@ System.out.println("placement_id="+placement_id);
 			}
 		
 			if ( tool == null ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad tool item", null);
 				return;
 			}
@@ -526,6 +530,7 @@ System.out.println("proxyBinding="+proxyBinding);
 System.out.println("consumer_key="+consumer_key);
 			deploy = ltiService.getDeployForConsumerKeyDao(consumer_key);
 			if ( deploy == null ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
 				return;
 			}
@@ -537,6 +542,7 @@ System.out.println("deployKey="+deployKey);
 				deploy = ltiService.getDeployDao(deployKey);
 			}
 			if ( deploy == null ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
 				return;
 			}
@@ -561,6 +567,7 @@ System.out.println("deployKey="+deployKey);
 			settings = (String) deploy.get(LTIService.LTI_SETTINGS);
 			oauth_secret = (String) deploy.get(LTIService.LTI_SECRET);
 		} else {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad Setttings Scope="+scope, null);
 			return;
 		}
@@ -568,6 +575,7 @@ System.out.println("deployKey="+deployKey);
         // Validate the incoming message
         Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret);
         if ( retval instanceof String ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
 			return;
 		}
@@ -641,7 +649,7 @@ System.out.println("deployKey="+deployKey);
 					graph.add(cjson);
 				}
 			}
-			jsonResponse.put("graph",graph);
+			jsonResponse.put("@graph",graph);
 			response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
 			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
@@ -684,11 +692,13 @@ System.out.println("retval="+retval);
 			}
 			if ( retval instanceof String || 
 				( retval instanceof Boolean && ((Boolean) retval != Boolean.TRUE) ) ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
 				return;
 			}
 			response.setStatus(HttpServletResponse.SC_CREATED);
 		} else {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Method not handled="+request.getMethod(), null);
 		}
 	}
