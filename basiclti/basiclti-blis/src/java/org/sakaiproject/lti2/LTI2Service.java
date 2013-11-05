@@ -307,6 +307,14 @@ System.out.println("deployKey="+deployKey);
 			return;
 		}
 
+		JSONObject default_custom = (JSONObject) providerProfile.get(LTI2Constants.CUSTOM);
+		if ( default_custom == null  ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing custom", null);
+			return;
+		}
+System.out.println("default_custom="+default_custom.toString());
+
 		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -385,6 +393,8 @@ System.out.println("info = " + info);
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
 System.out.println("deployUpdate="+deployUpdate);
+
+		deployUpdate.put(LTIService.LTI_CUSTOM, default_custom.toString());
 
 		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
 		Object obj = ltiService.updateDeployDao(deployKey, deployUpdate);
