@@ -298,3 +298,85 @@ function applyMenuListener(pulldown) {
 	// hide the match if needed
 	$pulldownHolder.change();
 };
+
+//consolidate common used functions here for assessment settings
+//improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013
+
+// If we select "No Feedback will be displayed to the student"
+// it will disable and uncheck feedback as well as blank out text, otherwise,
+// if a different radio button is selected, we reenable feedback checkboxes & text.
+function disableAllFeedbackCheck(feedbackType)
+{
+  // By convention we start all feedback JSF ids with "feedback".
+  var feedbackIdFlag = "assessmentSettingsAction:feedback";
+  var feedbackComponentOptionFlag = "assessmentSettingsAction:feedbackComponentOption";
+  var noFeedback = "3";
+  var feedbacks = document.getElementsByTagName('INPUT');
+  var feedbackComponentOptions =document.getElementsByName(feedbackComponentOptionFlag);
+
+  for (i=0; i<feedbacks.length; i++)
+  {
+    if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
+    {
+      if (feedbackType == noFeedback)
+      {
+        if (feedbacks[i].type == 'checkbox')
+        {
+          feedbacks[i].checked = false;
+          feedbacks[i].disabled = true;
+        }
+        else if (feedbacks[i].type == 'text')
+        {
+          feedbacks[i].value = "";
+          feedbacks[i].disabled = true;
+        }
+        else if ((feedbacks[i].type == 'radio') && (feedbacks[i].name.indexOf(feedbackComponentOptionFlag)==0))
+        {
+            if(feedbacks[i].value == 2) {
+                feedbacks[i].checked = true;
+            }
+            if(feedbacks[i].value == 1) {
+                feedbacks[i].checked = false;
+                feedbacks[i].disabled = true;
+            }
+        }
+      }
+      else
+      {
+         if(feedbackComponentOptions[0].value==1 && feedbackComponentOptions[0].checked == true && feedbacks[i].type=='checkbox')
+         {
+            feedbacks[i].disabled = true;
+         }
+         if(feedbackComponentOptions[1].value==2 && feedbackComponentOptions[1].checked == true){
+            feedbacks[i].disabled = false;
+         }
+      }
+	}
+  }
+}
+
+
+function disableOtherFeedbackComponentOption(field)
+{
+  var fieldValue = field.getAttribute("value");
+  var feedbacks = document.getElementsByTagName('INPUT');
+  var feedbackComponentIdFlag = "assessmentSettingsAction:feedbackCheckbox";
+
+  for (i=0; i<feedbacks.length; i++)
+  {
+    if (feedbacks[i].name.indexOf(feedbackComponentIdFlag)==0)
+
+    {
+         if (feedbacks[i].type == 'checkbox')
+        {
+             if(fieldValue ==1 ){
+                  feedbacks[i].checked = false;
+                  feedbacks[i].disabled = true;
+             }
+             if(fieldValue == 2){
+	              feedbacks[i].disabled = false;
+             }
+        }
+     }
+  }
+}
