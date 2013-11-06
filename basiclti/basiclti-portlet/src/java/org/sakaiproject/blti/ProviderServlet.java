@@ -50,6 +50,7 @@ import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
@@ -276,6 +277,8 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             Site site = findOrCreateSite(payload, isTrustedConsumer);
+
+            setupUserEmailPreferenceForSite(payload, user, site, isTrustedConsumer);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteCreation, user, site);
 
@@ -1032,6 +1035,52 @@ public class ProviderServlet extends HttpServlet {
                 PreferencesService.commit(pe);
             } catch(Exception e) {
                 M_log.error("Failed to setup launcher's locale",e);
+            }
+        }
+    }
+    
+    /**
+     * Picks up the ext_email_delivery_preference parameter, if supplied, and reflects it in the user's preferences
+     * as a site override for the tool being launched. This is *not* an official part of the LTI 1.1 spec; this
+     * functionality will probably become part of a LTI 2.0 consumer preferences service.
+     */
+    private void setupUserEmailPreferenceForSite(Map payload, User user, Site site, boolean isTrustedConsumer) {
+
+    	if(isTrustedConsumer) return;
+
+        // Set up user's email preference.
+        String emailDeliveryPreference = (String) payload.get("ext_email_delivery_preference");
+        if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+
+            try {
+
+                PreferencesEdit pe = null;
+                try {
+                    pe = PreferencesService.edit(user.getId());
+                } catch(IdUnusedException idue) {
+                    pe = PreferencesService.add(user.getId());
+                }
+                
+                if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+
+                    int notificationPref = NotificationService.PREF_IMMEDIATE;
+
+                    if(emailDeliveryPreference.equals("none")) {
+                        notificationPref = NotificationService.PREF_NONE;
+                    } else if(emailDeliveryPreference.equals("digest")) {
+                        notificationPref = NotificationService.PREF_DIGEST;
+                    }
+
+                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.",":");
+
+                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
+                    propsEdit.removeProperty(site.getId());
+                    propsEdit.addProperty(site.getId(), Integer.toString(notificationPref));
+                }
+
+                PreferencesService.commit(pe);
+            } catch(Exception e) {
+                M_log.error("Failed to setup launcher's locale and/or email preference.",e);
             }
         }
     }
