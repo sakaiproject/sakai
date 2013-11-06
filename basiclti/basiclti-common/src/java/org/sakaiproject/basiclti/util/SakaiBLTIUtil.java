@@ -1031,8 +1031,9 @@ System.out.println("after custom="+custom);
 		return default_secret;
 	}
 
+	// expected_oauth_key can be null - if it is non-null it must match the key in the request
 	public static Object validateMessage(HttpServletRequest request, String URL, 
-		String oauth_secret)
+		String oauth_secret, String expected_oauth_key)
 	{
 		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
 		String oauth_consumer_key = null;
@@ -1041,6 +1042,11 @@ System.out.println("after custom="+custom);
 		} catch (Exception e) {
             return "Unable to find consumer key";
 		}
+
+		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
+            return "Incorrect consumer key";
+		}
+
 		OAuthValidator oav = new SimpleOAuthValidator();
 		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 
@@ -1144,10 +1150,13 @@ System.out.println("after custom="+custom);
 		oauth_secret = decryptSecret(oauth_secret);
 		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
 
+		String oauth_consumer_key = pitch.getProperty(LTIService.LTI_CONSUMERKEY);
+		M_log.debug("oauth_consumer_key: "+oauth_consumer_key);
+
 		String URL = getOurServletPath(request);
 
 		// Validate the incoming message
-		Object retval = validateMessage(request, URL, oauth_secret);
+		Object retval = validateMessage(request, URL, oauth_secret, oauth_consumer_key);
 		if ( retval instanceof String ) return retval;
 
 		// Check the signature of the sourcedid to make sure it was not altered

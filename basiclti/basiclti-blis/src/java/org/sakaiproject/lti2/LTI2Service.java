@@ -620,7 +620,7 @@ System.out.println("placement_id="+placement_id);
 		}
 
         // Validate the incoming message
-        Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret);
+        Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
         if ( retval instanceof String ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
