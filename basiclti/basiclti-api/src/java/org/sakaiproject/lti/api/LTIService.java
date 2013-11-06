@@ -569,7 +569,7 @@ public interface LTIService {
 		"consumerkey:text:label=bl_consumerkey:maxlength=255:hide=insert",
 		"secret:text:label=bl_secret:maxlength=255:hide=insert",
 		"reg_profile:textarea:label=bl_reg_profile:maxlength=10000:hide=insert:role=admin",
-		"settings:text:hidden=true:maxlength=8096",
+		"settings:text:hidden=true:maxlength=8096",   // This is "custom" in the JSON
 		"created_at:autodate", 
 		"updated_at:autodate" };
 
