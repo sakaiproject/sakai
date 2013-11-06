@@ -189,15 +189,13 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 		Map<String, String> studentToPoints = gradebookService
 				.getFixedPoint(gbID);
 		ArrayList<String> eids = new ArrayList<String>(studentToPoints.keySet());
-		Collections.sort(eids);
-		for (String eid : eids) {
-			try {
-				User user = userDirectoryService.getUserByEid(eid);
-				result.add(user.getId());
-			} catch (UserNotDefinedException e) {
-				log.warn("Undefined user eid (" + eid + ")");
-			}
+				
+		List<User> users = userDirectoryService.getUsersByEids(eids);
+		for(User u: users) {
+			result.add(u.getId());
 		}
+		
+		Collections.sort(result);
 
 		return result;
 	}
