@@ -57,8 +57,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-// import org.sakaiproject.tool.api.Tool;
-// import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
@@ -486,15 +484,18 @@ System.out.println("deployUpdate="+deployUpdate);
 		String bubbleStr = request.getParameter("bubble");
 		String acceptHdr = request.getHeader("Accept");
 		String contentHdr = request.getHeader("Content-type");
+System.out.println("accept="+acceptHdr+" bubble="+bubbleStr);
 
-		if ( bubbleStr != null && acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
+		if ( bubbleStr != null && bubbleStr.equals("all") &&
+			acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, null, "outcomes.error", "simple format does not allow bubble", null);
+			doErrorJSON(request, response, null, "outcomes.error", "simple format does not allow bubble=all", null);
 			return;
 		}
 
 		boolean bubble = bubbleStr != null && "GET".equals(request.getMethod());
 		boolean distinct = bubbleStr != null && "distinct".equals(bubbleStr) && "GET".equals(request.getMethod());
+		boolean bubbleAll = bubbleStr != null && "all".equals(bubbleStr) && "GET".equals(request.getMethod());
 
 		// Check our input and output formats
 		boolean acceptSimple = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
@@ -502,6 +503,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		if ( contentHdr == null ) contentHdr = request.getHeader("Content-Type");
 		boolean inputSimple = contentHdr == null || contentHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
 		boolean inputComplex = contentHdr != null && contentHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
+System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" ic="+inputComplex);
 
 		// Check the JSON on PUT and check the oauth_body_hash
 		IMSJSONRequest jsonRequest = null;
@@ -566,7 +568,7 @@ System.out.println("placement_id="+placement_id);
 
 		}
 
-		if ( "ToolProxyBinding".equals(scope) || ( "LtiLink".equals(scope) && bubble ) ) {
+		if ( "ToolProxyBinding".equals(scope) || "LtiLink".equals(scope) ) {
 			proxyBinding = ltiService.getProxyBindingDao(toolKey,siteId);
 			if ( proxyBinding != null ) {
 				proxyBindingKey = SakaiBLTIUtil.getLongKey(proxyBinding.get(LTIService.LTI_ID));
@@ -596,23 +598,39 @@ System.out.println("placement_id="+placement_id);
 			consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		}
 
-		// Get the old settings and secret
-		String settings = null;
+		// Load and parse the old settings...
+		JSONObject link_settings = null;
+		JSONObject binding_settings = null;
+		JSONObject proxy_settings = null;
+		if ( content != null ) {
+			link_settings = parseSettings((String) content.get(LTIService.LTI_SETTINGS));
+		}
+		if ( proxyBinding != null ) {
+			binding_settings = parseSettings((String) proxyBinding.get(LTIService.LTI_SETTINGS));
+		}
+		if ( deploy != null ) {
+			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
+		}
+System.out.println("link_settings="+link_settings);
+System.out.println("binding_settings="+binding_settings);
+System.out.println("proxy_settings="+proxy_settings);
+
+		// Get the secret for the request...
 		String oauth_secret = null;
+		String endpoint = null;
+		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2/Settings";
 		if ( "LtiLink".equals(scope) ) {
-			settings = (String) content.get(LTIService.LTI_SETTINGS);
 			oauth_secret = (String) content.get(LTIService.LTI_SECRET);
 			if ( oauth_secret == null || oauth_secret.length() < 1 ) {
 				oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
 			}
+			endpoint = settingsUrl + "/LtiLink/" + placement_id;
 		} else if ( "ToolProxyBinding".equals(scope) ) {
-			if ( proxyBinding != null ) {
-				settings = (String) proxyBinding.get(LTIService.LTI_SETTINGS);
-			}
 			oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+			endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
 		} else if ( "ToolProxy".equals(scope) ) {
-			settings = (String) deploy.get(LTIService.LTI_SETTINGS);
 			oauth_secret = (String) deploy.get(LTIService.LTI_SECRET);
+			endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad Setttings Scope="+scope, null);
@@ -627,41 +645,24 @@ System.out.println("placement_id="+placement_id);
 			return;
 		}
 
-		if ( "GET".equals(request.getMethod()) && acceptSimple ) { 
-			if ( settings == null || settings.length() < 1 ) {
-				settings = "{\n}\n";
-			}
-			response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
-			response.setStatus(HttpServletResponse.SC_OK); 
-			PrintWriter out = response.getWriter();
-			out.println(settings);
-			return;
-		// Complex format
-		} else if ( "GET".equals(request.getMethod()) ) {
+		if ( "GET".equals(request.getMethod()) && bubbleAll ) { 
 			JSONObject jsonResponse = new JSONObject();
 			jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
 			JSONArray graph = new JSONArray();
-			JSONObject sjson = null;
 			JSONObject cjson = null;
-			String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + "/imsblis/lti2/Settings";
-			String endpoint = null;
 			Set<String> seen = new HashSet<String> ();
 			boolean bubbled = false;
+			String settings = null;
 			if ( "LtiLink".equals(scope) ) {
-				settings = (String) content.get(LTIService.LTI_SETTINGS);
-				if ( settings == null || settings.length() < 1 ) {
-					settings = "{\n}\n";
-				}
-				sjson = (JSONObject) JSONValue.parse(settings);
-				if ( sjson != null ) {
+				if ( link_settings != null ) {
 					JSONObject njson = new JSONObject ();
-					Iterator i = sjson.keySet().iterator();
+					Iterator i = link_settings.keySet().iterator();
 					while ( i.hasNext() ) {
 						String key = (String) i.next();
 System.out.println("key="+key);
 						if ( distinct && seen.contains(key) ) continue;
 						seen.add(key);
-						njson.put(key, sjson.get(key));
+						njson.put(key, link_settings.get(key));
 					}
 					endpoint = settingsUrl + "/LtiLink/" + placement_id;
 					cjson = new JSONObject();
@@ -674,22 +675,15 @@ System.out.println("key="+key);
 			} 
 			if ( bubbled || "ToolProxyBinding".equals(scope) ) {
 				settings = null;
-				if ( proxyBinding != null ) {
-					settings = (String) proxyBinding.get(LTIService.LTI_SETTINGS);
-				}
-				if ( settings == null || settings.length() < 1 ) {
-					settings = "{\n}\n";
-				}
-				sjson = (JSONObject) JSONValue.parse(settings);
-				if ( sjson != null ) {
+				if ( binding_settings != null ) {
 					JSONObject njson = new JSONObject ();
-					Iterator i = sjson.keySet().iterator();
+					Iterator i = binding_settings.keySet().iterator();
 					while ( i.hasNext() ) {
 						String key = (String) i.next();
 System.out.println("key="+key);
 						if ( distinct && seen.contains(key) ) continue;
 						seen.add(key);
-						njson.put(key, sjson.get(key));
+						njson.put(key, binding_settings.get(key));
 					}
 					endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
 					cjson = new JSONObject();
@@ -701,20 +695,15 @@ System.out.println("key="+key);
 				if ( bubble ) bubbled = true;
 			} 
 			if ( deploy != null && ( bubbled || "ToolProxy".equals(scope) ) ) {
-				settings = (String) deploy.get(LTIService.LTI_SETTINGS);
-				if ( settings == null || settings.length() < 1 ) {
-					settings = "{\n}\n";
-				}
-				sjson = (JSONObject) JSONValue.parse(settings);
-				if ( sjson != null ) {
+				if ( proxy_settings != null ) {
 					JSONObject njson = new JSONObject ();
-					Iterator i = sjson.keySet().iterator();
+					Iterator i = proxy_settings.keySet().iterator();
 					while ( i.hasNext() ) {
 						String key = (String) i.next();
 System.out.println("key="+key);
 						if ( distinct && seen.contains(key) ) continue;
 						seen.add(key);
-						njson.put(key, sjson.get(key));
+						njson.put(key, proxy_settings.get(key));
 					}
 					endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
 					cjson = new JSONObject();
@@ -730,10 +719,57 @@ System.out.println("key="+key);
 			PrintWriter out = response.getWriter();
 			out.println(jsonResponse.toString());
 			return;
+		} else if ( "GET".equals(request.getMethod()) ) { 
+			JSONObject theSettings = new JSONObject();
+			if ( "LtiLink".equals(scope) ) {
+				if ( distinct && proxy_settings != null ) {
+					theSettings.putAll(proxy_settings);
+				}
+				if ( distinct && binding_settings != null ) {
+					theSettings.putAll(binding_settings);
+				}
+				theSettings.putAll(link_settings);
+			} else if ( "ToolProxyBinding".equals(scope) ) {
+System.out.println("theSettings="+theSettings);
+				if ( distinct && proxy_settings != null ) {
+					theSettings.putAll(proxy_settings);
+				}
+System.out.println("theSettings="+theSettings);
+				if ( binding_settings != null ) {
+					theSettings.putAll(binding_settings);
+				}
+System.out.println("theSettings="+theSettings);
+			} else if ( "ToolProxy".equals(scope) ) {
+				theSettings = proxy_settings;
+			}
+			
+			JSONObject jsonResponse = theSettings;
+			if ( acceptSimple ) {
+				response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
+			} else {
+				jsonResponse = new JSONObject();	
+				jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
+				JSONArray graph = new JSONArray();
+				JSONObject cjson = null;
+				cjson = new JSONObject();
+				cjson.put("@id",endpoint);
+				cjson.put("@type",scope);
+				cjson.put("custom",theSettings);
+				graph.add(cjson);
+				jsonResponse.put("@graph",graph);
+				response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
+			}
+			response.setStatus(HttpServletResponse.SC_OK); 
+			PrintWriter out = response.getWriter();
+System.out.println("jsonResponse="+jsonResponse);
+			out.println(jsonResponse.toString());
+			return;
+		// Complex format
 		} if ( "PUT".equals(request.getMethod()) ) {
 			// This is assuming the rule that a PUT of the complex settings
 			// format that there is only one entry in the graph and it is
 			// the same as our current URL.  We parse without much checking.
+			String settings = null;
 			try {
 				JSONArray graph = (JSONArray) requestData.get("@graph");
 				if ( graph.size() != 1 ) {
@@ -779,6 +815,14 @@ System.out.println("key="+key);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Method not handled="+request.getMethod(), null);
 		}
+	}
+
+	public JSONObject parseSettings(String settings)
+	{
+		if ( settings == null || settings.length() < 1 ) {
+			settings = "{\n}\n";
+		}
+		return (JSONObject) JSONValue.parse(settings);
 	}
 
 	/* IMS JSON version of Errors */
