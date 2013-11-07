@@ -422,11 +422,13 @@ public class CKEditorTextArea extends TextArea<String> {
 			configBuilder.append(CKEditorTextArea.NEW_LINE_STRING);
 		}
 
+		/*
 		if (config.get(CKEditorTextArea.SKIN) == null) {
 			configBuilder.append(CKEditorTextArea.SKIN).append(CKEditorTextArea.PROPERTY_SEPARATOR)
 					.append(CKEditorTextArea.SKIN_V2).append(CKEditorTextArea.COMMA_STRING);
 			configBuilder.append(CKEditorTextArea.NEW_LINE_STRING);
 		}
+		*/
 
 		final int lastCommaIndex = configBuilder.lastIndexOf(CKEditorTextArea.COMMA_STRING);
 		configBuilder.replace(lastCommaIndex, lastCommaIndex + 1, "");
