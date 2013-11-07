@@ -56,7 +56,7 @@ import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageChannelEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
-import org.sakaiproject.message.impl.BaseMessageService;
+import org.sakaiproject.message.util.BaseMessage;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -73,10 +73,10 @@ import org.w3c.dom.NodeList;
 
 /**
  * <p>
- * BaseMailArchiveService extends the BaseMessageService for the specifics of MailArchive.
+ * BaseMailArchiveService extends the BaseMessage for the specifics of MailArchive.
  * </p>
  */
-public abstract class BaseMailArchiveService extends BaseMessageService implements MailArchiveService, ContextObserver
+public abstract class BaseMailArchiveService extends BaseMessage implements MailArchiveService, ContextObserver
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseMailArchiveService.class);

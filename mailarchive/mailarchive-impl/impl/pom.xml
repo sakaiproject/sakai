@@ -50,7 +50,7 @@
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.message</groupId>
-            <artifactId>sakai-message-impl</artifactId>
+            <artifactId>sakai-message-util</artifactId>
         </dependency>
         <dependency>
             <groupId>commons-logging</groupId>
