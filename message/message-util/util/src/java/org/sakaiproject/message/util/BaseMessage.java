@@ -19,7 +19,7 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.message.impl;
+package org.sakaiproject.message.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
@@ -107,12 +107,12 @@ import org.w3c.dom.NodeList;
 
 
 /**
- * BaseMessageService is...
+ * BaseMessage is...
  */
-public abstract class BaseMessageService implements MessageService, DoubleStorageUser, CacheRefresher
+public abstract class BaseMessage implements MessageService, DoubleStorageUser, CacheRefresher
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BaseMessageService.class);
+	private static Log M_log = LogFactory.getLog(BaseMessage.class);
 
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
@@ -139,7 +139,7 @@ public abstract class BaseMessageService implements MessageService, DoubleStorag
 	/**
 	 * Access this service from the inner classes.
 	 */
-	protected BaseMessageService service()
+	protected BaseMessage service()
 	{
 		return this;
 	}

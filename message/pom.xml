@@ -17,7 +17,7 @@
 
     <modules>
         <module>message-api/api</module>
-        <module>message-impl/impl</module>
+        <module>message-util/util</module>
         <module>message-tool/tool</module>
     </modules>
     

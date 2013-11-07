@@ -9,9 +9,9 @@
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <name>sakai-message-impl</name>
+    <name>sakai-message-util</name>
     <groupId>org.sakaiproject.message</groupId>
-    <artifactId>sakai-message-impl</artifactId>
+    <artifactId>sakai-message-util</artifactId>
     <organization>
         <name>University of Michigan</name>
         <url>http://sakaiproject.org/</url>
