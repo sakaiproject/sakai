@@ -57,7 +57,7 @@
 #end
 
 ############################################# chef_announcements-revise.vm start
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
   focus_path = ["subject"];
   
   function hourChange(FieldName)
@@ -547,7 +547,7 @@ function resizeFrame(){
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-<script language="JavaScript" type="text/JavaScript">
+<script type="text/JavaScript">
 	<!--
 		function toggleSelectAll(caller, elementName)
 		{
