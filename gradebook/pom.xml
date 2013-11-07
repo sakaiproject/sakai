@@ -18,6 +18,7 @@
     <module>help</module>
     <module>testservice-tool</module>
     <module>app</module>
+    <module>grades-rest</module>
     <module>sample-course-grade-converter</module>
   </modules>
 
