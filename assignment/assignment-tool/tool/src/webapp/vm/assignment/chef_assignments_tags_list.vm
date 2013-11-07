@@ -1,6 +1,6 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_tags_list.vm  -->
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 
 function saveChanges(formName, textAreaId) {
 	var _textArea = document.getElementById(textAreaId);

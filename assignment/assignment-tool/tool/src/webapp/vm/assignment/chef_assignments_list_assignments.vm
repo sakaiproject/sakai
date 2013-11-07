@@ -4,7 +4,7 @@
 ## Assignments - list view
 #parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
   focus_path = ["search"];
 </script>
 <script type='text/javascript'>

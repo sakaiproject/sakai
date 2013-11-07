@@ -1731,7 +1731,7 @@ $(document).ready(function() {
 			</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
-	<script language="JavaScript" type="text/JavaScript">
+	<script type="text/JavaScript">
 		<!--
 			function toggleSelectAll(caller, elementName)
 			{
