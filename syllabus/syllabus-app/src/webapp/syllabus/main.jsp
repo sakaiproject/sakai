@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <sakai:stylesheet path="/syllabus/css/syllabus.css" />
 
-<script language="JavaScript">
+<script type="text/javascript">
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
 	function printFriendly(url) {

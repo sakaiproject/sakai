@@ -10,7 +10,7 @@
 <script type="text/javascript" src="js/syllabus.js"></script>
 <link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
  <f:view>
-<script>
+<script type="text/javascript">
   var startDateValues = new Array();
   var dateFormat = '<h:outputText value="#{msgs.jqueryDatePickerDateFormat}"/>';
   var timeFormat = '<h:outputText value="#{msgs.jqueryDatePickerTimeFormat}"/>';
@@ -143,7 +143,7 @@
 </div>
 	<sakai:view_container title="#{msgs.title_list}">
 	<sakai:view_content>
-        <script language="JavaScript">
+        <script type="text/javascript">
         	// if redirected, just open in another window else
         	// open with size approx what actual print out will look like
         	function printFriendly(url) {

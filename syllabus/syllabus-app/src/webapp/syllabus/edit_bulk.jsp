@@ -9,7 +9,7 @@
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
 <f:view>
-	<script>
+	<script type="text/javascript">
 		$(function() {
 			$(".dateInput").datepicker({
 				beforeShow: function (textbox, instance) {

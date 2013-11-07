@@ -14,7 +14,7 @@
 	}
 </style>
 <f:view>
-<script>
+<script type="text/javascript">
   $(function() {
     $('.dateInput').datetimepicker({
     	hour: 8,
