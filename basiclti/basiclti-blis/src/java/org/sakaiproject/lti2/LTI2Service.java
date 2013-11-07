@@ -599,9 +599,9 @@ System.out.println("placement_id="+placement_id);
 		}
 
 		// Load and parse the old settings...
-		JSONObject link_settings = null;
-		JSONObject binding_settings = null;
-		JSONObject proxy_settings = null;
+		JSONObject link_settings = new JSONObject ();
+		JSONObject binding_settings = new JSONObject ();
+		JSONObject proxy_settings = new JSONObject();
 		if ( content != null ) {
 			link_settings = parseSettings((String) content.get(LTIService.LTI_SETTINGS));
 		}
@@ -611,9 +611,23 @@ System.out.println("placement_id="+placement_id);
 		if ( deploy != null ) {
 			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
 		}
-System.out.println("link_settings="+link_settings);
-System.out.println("binding_settings="+binding_settings);
-System.out.println("proxy_settings="+proxy_settings);
+
+		if ( distinct && link_settings != null && scope.equals("LtiLink") ) {
+			Iterator i = link_settings.keySet().iterator();
+			while ( i.hasNext() ) {
+				String key = (String) i.next();
+				if ( binding_settings != null ) binding_settings.remove(key);
+				if ( proxy_settings != null ) proxy_settings.remove(key);
+			}
+		}
+
+		if ( distinct && binding_settings != null && scope.equals("ToolProxyBinding") ) {
+			Iterator i = binding_settings.keySet().iterator();
+			while ( i.hasNext() ) {
+				String key = (String) i.next();
+				if ( proxy_settings != null ) proxy_settings.remove(key);
+			}
+		}
 
 		// Get the secret for the request...
 		String oauth_secret = null;
@@ -645,127 +659,93 @@ System.out.println("proxy_settings="+proxy_settings);
 			return;
 		}
 
-		if ( "GET".equals(request.getMethod()) && bubbleAll ) { 
-			JSONObject jsonResponse = new JSONObject();
+		if ( "GET".equals(request.getMethod()) && (distinct || bubbleAll) && acceptComplex ) { 
+			JSONObject jsonResponse = new JSONObject();	
 			jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
 			JSONArray graph = new JSONArray();
-			JSONObject cjson = null;
-			Set<String> seen = new HashSet<String> ();
-			boolean bubbled = false;
-			String settings = null;
-			if ( "LtiLink".equals(scope) ) {
-				if ( link_settings != null ) {
-					JSONObject njson = new JSONObject ();
-					Iterator i = link_settings.keySet().iterator();
-					while ( i.hasNext() ) {
-						String key = (String) i.next();
-System.out.println("key="+key);
-						if ( distinct && seen.contains(key) ) continue;
-						seen.add(key);
-						njson.put(key, link_settings.get(key));
-					}
-					endpoint = settingsUrl + "/LtiLink/" + placement_id;
-					cjson = new JSONObject();
-					cjson.put("@id",endpoint);
-					cjson.put("@type",scope);
-					cjson.put("custom",njson);
-					graph.add(cjson);
-				}
-				if ( bubble ) bubbled = true;
+			boolean started = false;
+			if ( link_settings != null && "LtiLink".equals(scope) ) {
+				endpoint = settingsUrl + "/LtiLink/" + placement_id;
+				JSONObject cjson = new JSONObject();
+				cjson.put("@id",endpoint);
+				cjson.put("@type","LtiLink");
+				cjson.put("custom",link_settings);
+				graph.add(cjson);
+				started = true;
 			} 
-			if ( bubbled || "ToolProxyBinding".equals(scope) ) {
-				settings = null;
-				if ( binding_settings != null ) {
-					JSONObject njson = new JSONObject ();
-					Iterator i = binding_settings.keySet().iterator();
-					while ( i.hasNext() ) {
-						String key = (String) i.next();
-System.out.println("key="+key);
-						if ( distinct && seen.contains(key) ) continue;
-						seen.add(key);
-						njson.put(key, binding_settings.get(key));
-					}
-					endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
-					cjson = new JSONObject();
-					cjson.put("@id",endpoint);
-					cjson.put("@type","ToolProxyBinding");
-					cjson.put("custom",njson);
-					graph.add(cjson);
-				}
-				if ( bubble ) bubbled = true;
+			if ( binding_settings != null && ( started || "ToolProxyBinding".equals(scope) ) ) {
+				endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
+				JSONObject cjson = new JSONObject();
+				cjson.put("@id",endpoint);
+				cjson.put("@type","ToolProxyBinding");
+				cjson.put("custom",binding_settings);
+				graph.add(cjson);
+				started = true;
 			} 
-			if ( deploy != null && ( bubbled || "ToolProxy".equals(scope) ) ) {
-				if ( proxy_settings != null ) {
-					JSONObject njson = new JSONObject ();
-					Iterator i = proxy_settings.keySet().iterator();
-					while ( i.hasNext() ) {
-						String key = (String) i.next();
-System.out.println("key="+key);
-						if ( distinct && seen.contains(key) ) continue;
-						seen.add(key);
-						njson.put(key, proxy_settings.get(key));
-					}
-					endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
-					cjson = new JSONObject();
-					cjson.put("@id",endpoint);
-					cjson.put("@type","ToolProxy");
-					cjson.put("custom",njson);
-					graph.add(cjson);
-				}
+			if ( proxy_settings != null && ( started || "ToolProxy".equals(scope) ) ) {
+				endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
+				JSONObject cjson = new JSONObject();
+				cjson.put("@id",endpoint);
+				cjson.put("@type","ToolProxy");
+				cjson.put("custom",proxy_settings);
+				graph.add(cjson);
 			}
 			jsonResponse.put("@graph",graph);
 			response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
 			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
+System.out.println("jsonResponse="+jsonResponse);
 			out.println(jsonResponse.toString());
 			return;
-		} else if ( "GET".equals(request.getMethod()) ) { 
-			JSONObject theSettings = new JSONObject();
+		} else if ( "GET".equals(request.getMethod()) && distinct ) {  // acceptSimple
+			JSONObject jsonResponse = proxy_settings;
 			if ( "LtiLink".equals(scope) ) {
-				if ( distinct && proxy_settings != null ) {
-					theSettings.putAll(proxy_settings);
-				}
-				if ( distinct && binding_settings != null ) {
-					theSettings.putAll(binding_settings);
-				}
-				theSettings.putAll(link_settings);
+				jsonResponse.putAll(binding_settings);
+				jsonResponse.putAll(link_settings);
 			} else if ( "ToolProxyBinding".equals(scope) ) {
-System.out.println("theSettings="+theSettings);
-				if ( distinct && proxy_settings != null ) {
-					theSettings.putAll(proxy_settings);
-				}
-System.out.println("theSettings="+theSettings);
-				if ( binding_settings != null ) {
-					theSettings.putAll(binding_settings);
-				}
-System.out.println("theSettings="+theSettings);
-			} else if ( "ToolProxy".equals(scope) ) {
+				jsonResponse.putAll(binding_settings);
+			}
+			response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
+			response.setStatus(HttpServletResponse.SC_OK); 
+			PrintWriter out = response.getWriter();
+System.out.println("jsonResponse="+jsonResponse);
+			out.println(jsonResponse.toString());
+			return;
+		} else if ( "GET".equals(request.getMethod()) ) { // bubble == none
+System.out.println("bubble=none");
+			JSONObject jsonResponse = new JSONObject();	
+			jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
+			JSONObject theSettings = null;
+			if ( "LtiLink".equals(scope) ) {
+				endpoint = settingsUrl + "/LtiLink/" + placement_id;
+				theSettings = link_settings;
+			} else if ( "ToolProxyBinding".equals(scope) ) {
+				endpoint = settingsUrl + "/ToolProxyBinding/" + placement_id;
+				theSettings = binding_settings;
+			} 
+			if ( "ToolProxy".equals(scope) ) {
+				endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
 				theSettings = proxy_settings;
 			}
-			
-			JSONObject jsonResponse = theSettings;
-			if ( acceptSimple ) {
-				response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
-			} else {
-				jsonResponse = new JSONObject();	
-				jsonResponse.put("@context","http://purl.imsglobal.org/ctx/lti/v2/ToolSettings");
+			if ( acceptComplex ) {
 				JSONArray graph = new JSONArray();
-				JSONObject cjson = null;
-				cjson = new JSONObject();
+				JSONObject cjson = new JSONObject();
 				cjson.put("@id",endpoint);
 				cjson.put("@type",scope);
 				cjson.put("custom",theSettings);
 				graph.add(cjson);
 				jsonResponse.put("@graph",graph);
 				response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
+			} else {
+				jsonResponse = theSettings;
+				response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
 			}
 			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
 System.out.println("jsonResponse="+jsonResponse);
 			out.println(jsonResponse.toString());
 			return;
-		// Complex format
-		} if ( "PUT".equals(request.getMethod()) ) {
+		} else if ( "PUT".equals(request.getMethod()) ) {
 			// This is assuming the rule that a PUT of the complex settings
 			// format that there is only one entry in the graph and it is
 			// the same as our current URL.  We parse without much checking.
