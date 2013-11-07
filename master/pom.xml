@@ -919,6 +919,11 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
+	  <dependency>
+		  <groupId>org.sakaiproject.message</groupId>
+		  <artifactId>sakai-message-util</artifactId>
+		  <version>${project.version}</version>
+	  </dependency>
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
         <artifactId>sakai-message-impl</artifactId>
