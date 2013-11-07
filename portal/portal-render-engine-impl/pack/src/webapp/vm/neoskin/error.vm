@@ -40,26 +40,26 @@ ${tool.toolRenderResult.getTitle()}
 	#end
 #else 
     <title>${pageTitle}</title>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}jquery.js"></script>
 #end
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+<script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
 
 #if ( ${styleable} )
 <script type="text/javascript" 
-    	language="JavaScript" 
+    	
     	src="/sakai-preferable-tool/js/styleable.js" >
     </script>
     
     <script type="text/javascript" 
-            language="JavaScript">
+           >
     window.onload = insertStyleAbleStyles;
     </script>
     #if ( ${styleableStyleSheet} )
 	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
     #end
     #if ( ${styleableJS} )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	${styleableJS} 
 	</script>
     #end
@@ -67,7 +67,7 @@ ${tool.toolRenderResult.getTitle()}
 </head>
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	var sakaiPortalWindow = "";
 	</script>
 #end

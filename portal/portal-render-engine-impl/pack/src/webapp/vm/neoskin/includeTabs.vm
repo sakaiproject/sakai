@@ -237,7 +237,7 @@
 	</div>
 #end
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
     jQuery(document).ready(function() {
         setupSiteNav();
         // sakai_portal_ie_detected should have been set above

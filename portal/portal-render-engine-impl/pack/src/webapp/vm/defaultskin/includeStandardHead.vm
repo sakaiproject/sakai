@@ -48,17 +48,17 @@ ${tool.toolRenderResult.getTitle()}
 #else 
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-     ##<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery.js"></script>
-	 <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
+     ##<script type="text/javascript" src="${pageScriptPath}jquery.js"></script>
+	 <script type="text/javascript" src="${pageScriptPath}/jquery/1.4.2/jquery-1.4.2.min.js"></script>
 
 #end
 
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+<script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
 
 ## SAK-20576 Moved declaration of the javascript variable 'portal' into the script that uses it (portalscripts.js) to
 ##   so that this velocity macro is not a dependency for using that script
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
     setLoginStatus ($!{loggedIn}, "$!{portalPath}", "$!{loggedOutUrl}", "$!{userId}", "$!{userEid}");
     setTimeoutInfo ($!{timeoutDialogEnabled}, $!{timeoutDialogWarningSeconds});
     setUIToggleState ($!{portal_allow_auto_minimize}, $!{portal_allow_minimize_tools}, $!{portal_allow_minimize_navigation});
@@ -66,24 +66,24 @@ ${sakai_html_head_css}
     
 #if ( ${styleable} )
 <script type="text/javascript" 
-    	language="JavaScript" 
+    	
     	src="/sakai-preferable-tool/js/styleable.js" >
     </script>
     
     <script type="text/javascript" 
-            language="JavaScript">
+           >
     window.onload = insertStyleAbleStyles;
     </script>
     #if ( ${styleableStyleSheet} )
 	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
     #end
     #if ( ${styleableJS} )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	${styleableJS} 
 	</script>
     #end
 #end
-<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
 
 ## required CSS for cluetip, bundled with the release
 <link href="${pageScriptPath}jquery/cluetip/1.2.5/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />

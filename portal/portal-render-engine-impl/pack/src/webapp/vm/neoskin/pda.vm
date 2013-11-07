@@ -36,8 +36,8 @@ ${sakai_html_head_css}
 ## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
 ## It depends on jquery - so we either have to include both jquery and portalscripts or neither
 ## and since we don't use any of this in pda.vm - we don't include either one
-   <script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery-latest.min.js"></script>
-## <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js"></script>
+   <script type="text/javascript" src="${pageScriptPath}jquery-latest.min.js"></script>
+## <script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
 ## These may someday be needed for styleable - if so - move them into styleable below
 #if ( ${bufferedResponse} && ${responseHead} ) 
 <!-- Head material from Tool (will include title and headscripts) -->
@@ -45,13 +45,13 @@ ${responseHead}
 <!-- End of Head material from Tool -->
 #else 
     <title>${pageTitle}</title>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
 #end
 
 </head>
 <body class="portalBodyPDA">
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	var sakaiPortalWindow = "";
 	</script>
 #end
@@ -265,7 +265,7 @@ ${responseBody}
 #if ($currentSite )
 #if ( ! ${mobileSmallDisplay} ) 
     #if (${currentSite.sitePages.pageNavShowPresenceLoggedIn})
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 		$(document).ready(function(){
 			$('#usersPresentLink').click(function(e){
 				e.preventDefault();

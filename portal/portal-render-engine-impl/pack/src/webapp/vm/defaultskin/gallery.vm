@@ -12,7 +12,7 @@
 #parse("/vm/defaultskin/includeStandardHead.vm")
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	var sakaiPortalWindow = "";
 	</script>
 #end

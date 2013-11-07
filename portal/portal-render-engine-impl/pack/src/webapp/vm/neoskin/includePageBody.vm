@@ -237,7 +237,7 @@
 					${rloader.site_servertime_label}
 					<span id="serverTime" class="server-time"></span>
 				</div>
-				<script type="text/javascript" language="JavaScript">
+				<script type="text/javascript">
 					// <!--
 					updateFooterTime = (function() {
 							#if ($showPreferredTzTime == "true")
