@@ -86,7 +86,7 @@ import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
-import org.sakaiproject.message.impl.BaseMessageService;
+import org.sakaiproject.message.util.BaseMessage;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -103,11 +103,11 @@ import org.w3c.dom.Element;
 
 /**
  * <p>
- * BaseAnnouncementService extends the BaseMessageService for the specifics of Announcement.
+ * BaseAnnouncementService extends the BaseMessage for the specifics of Announcement.
  * </p>
  */
 
-public abstract class BaseAnnouncementService extends BaseMessageService implements AnnouncementService, ContextObserver,
+public abstract class BaseAnnouncementService extends BaseMessage implements AnnouncementService, ContextObserver,
 		EntityTransferrer, EntityTransferrerRefMigrator
 {
 	/** Our logger. */

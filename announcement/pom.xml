@@ -43,11 +43,6 @@
         <artifactId>sakai-announcement-impl</artifactId>
         <version>${project.version}</version>
       </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.message</groupId>
-        <artifactId>sakai-message-impl</artifactId>
-        <version>2.10-SNAPSHOT</version><!-- temporary workaround - https://jira.sakaiproject.org/browse/SAK-23915 -->
-      </dependency>
     </dependencies>
   </dependencyManagement>
 

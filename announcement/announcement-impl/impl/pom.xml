@@ -30,9 +30,8 @@
             <artifactId>sakai-announcement-api</artifactId>
         </dependency>
         <dependency>
-	    <!-- TODO this should not depend on another implementation -AZ must removed before release - https://jira.sakaiproject.org/browse/SAK-23915 -->
             <groupId>org.sakaiproject.message</groupId>
-            <artifactId>sakai-message-impl</artifactId>
+            <artifactId>sakai-message-util</artifactId>
         </dependency>
         <dependency>
             <groupId>org.sakaiproject.scheduler</groupId>
