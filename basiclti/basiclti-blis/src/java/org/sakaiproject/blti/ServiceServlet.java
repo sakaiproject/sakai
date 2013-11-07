@@ -183,6 +183,7 @@ public class ServiceServlet extends HttpServlet {
 			String theXml = XMLMap.getXML(theMap, true);
 			PrintWriter out = response.getWriter();
 			out.println(theXml);
+System.out.println("doError="+theXml);
 		}
 
 	@Override
@@ -772,15 +773,16 @@ public class ServiceServlet extends HttpServlet {
             if ( pox == null ) {
                 output = IMSPOXRequest.getFatalResponse(msg);
             } else {
-		String body = null;
-		String operation = pox.getOperation();
-		if ( operation != null ) {
-			body = "<"+operation.replace("Request", "Response")+"/>";
-		}
+				String body = null;
+				String operation = pox.getOperation();
+				if ( operation != null ) {
+					body = "<"+operation.replace("Request", "Response")+"/>";
+				}
                 output = pox.getResponseFailure(msg, null, body);
             }
 			out.println(output);
 			M_log.debug(output);
+System.out.println("doErrorXML="+output);
 		}
 
 
@@ -880,7 +882,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a more generic message back to the caller
 			if ( placement_id == null || user_id == null ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "missing user_id or placement_id", null);
 				return;
 			}
 
@@ -891,7 +893,7 @@ public class ServiceServlet extends HttpServlet {
 			Properties pitch = SakaiBLTIUtil.getPropertiesFromPlacement(placement_id, ltiService);
 			if ( pitch == null ) {
 				M_log.debug("Error retrieving result_sourcedid information");
-				doError(request, response, null, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 	
@@ -905,7 +907,7 @@ public class ServiceServlet extends HttpServlet {
 
 			// Send a more generic message back to the caller
 			if (  site == null ) {
-				doError(request, response, null, "outcomes.sourcedid", "sourcedid", null);
+				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
 				return;
 			}
 

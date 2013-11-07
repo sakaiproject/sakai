@@ -821,7 +821,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state,rb.getString("error.id.not.found"));
 			return "lti_error";
 		}
-		Long key = new Long(id);
+		Long key = null;
+		try { 
+			key = new Long(id);
+		} catch(Exception e) {
+			return "Non-numeric id value "+id;
+		}
 		Map<String,Object> deploy = ltiService.getDeployDao(key);
 		if ( deploy == null ) return "lti_error";	
 
