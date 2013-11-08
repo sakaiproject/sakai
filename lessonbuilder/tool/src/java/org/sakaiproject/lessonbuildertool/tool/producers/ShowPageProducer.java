@@ -676,8 +676,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "edit-title-text", label);
 			UIOutput.make(tofill, "title-descrip-text", descrip);
 
-			if (pageItem.getPageId() == 0) { // top level page
-				UIOutput.make(tofill, "toppage-descrip");
+			if (pageItem.getPageId() == 0 && currentPage.getOwner() == null) { // top level page
+			    // need dropdown 
+				UIOutput.make(tofill, "dropdown");
+				UIOutput.make(tofill, "moreDiv");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc.tooltip")));
 				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
@@ -686,15 +688,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// Checks to see that user can edit and that this is either a top level page,
 			// or a top level student page (not a subpage to a student page)
 			if(simplePageBean.getEditPrivs() == 0 && (pageItem.getPageId() == 0)) {
-				UIOutput.make(tofill, "remove-descrip");
+				UIOutput.make(tofill, "remove-li");
 				UIOutput.make(tofill, "remove-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
 			} else if (simplePageBean.getEditPrivs() == 0 && currentPage.getOwner() != null) {
 			    // getEditPrivs < 2 if we want to let the student delete. Currently we don't. There can be comments
 			    // from other students and the page can be shared
 				SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(currentPage.getTopParent());
 				if (studentPage != null && studentPage.getPageId() == currentPage.getPageId()) {
-					UIOutput.make(tofill, "remove-descrip");
-					UIOutput.make(tofill, "remove-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
+				    System.out.println("is student page 2");
+					UIOutput.make(tofill, "remove-student");
+					UIOutput.make(tofill, "remove-page-student").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
 				}
 			}
 
@@ -2918,74 +2921,75 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
+		boolean studentPage = currentPage.getOwner() != null;
 
-		// decided not to use long tooltips. with screen reader they're too
-		// verbose. We now have good help
-		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
+		// toolbar
 
-		createToolBarLink(EditPageProducer.VIEW_ID, toolBar, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
-		
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-
-		UILink subpagelink = UIInternalLink.makeURL(toolBar, "subpage-link", "#");
-		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
-		subpagelink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.subpage"));
-
-		UILink questionlink = UIInternalLink.makeURL(toolBar, "question-link", "#");
-		questionlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.questionDescription")));
-		questionlink.linktext = new UIBoundString(messageLocator.getMessage("simplepage.questionLinkText"));
-		
-		//createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
-		//createToolBarLink(QuizPickerProducer.VIEW_ID, toolBar, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
-		//createToolBarLink(ForumPickerProducer.VIEW_ID, toolBar, "add-forum", "simplepage.forum", currentPage, "simplepage.forum");
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, toolBar, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
-
-		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
-			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
+		// dropdowns
+		UIOutput.make(toolBar, "icondropc");
 		UIOutput.make(toolBar, "icondrop");
 
-		// Don't show these tools on a student page.
-		if(currentPage.getOwner() == null) {
-			// Q: Are we running a kernel with KNL-273?
-			Class contentHostingInterface = ContentHostingService.class;
-			try {
-				Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
-				
-				UIOutput.make(tofill, "addwebsite-descrip");
-				createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
-			} catch (NoSuchMethodException nsme) {
-				// A: No
-			} catch (Exception e) {
-				// A: Not sure
-				log.warn("SecurityException thrown by expandZippedResource method lookup", e);
-			}
-			
-			createToolBarLink(AssignmentPickerProducer.VIEW_ID, toolBar, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
-			
-			// dropdown
+		// right side
+		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
+		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
+			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
+		if (!studentPage)
+		    createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 
-			createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+		// add content menu
+		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
+		UILink subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
+
+		// content menu not on students
+		if (!studentPage) {
+
+		    // add website.
+		    // Are we running a kernel with KNL-273?
+		    Class contentHostingInterface = ContentHostingService.class;
+		    try {
+			Method expandMethod = contentHostingInterface.getMethod("expandZippedResource", new Class[] { String.class });
 			
-			UIOutput.make(tofill, "forum-descrip");
-			createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum.tooltip");
-			// in case we're on an old system without current BLTI
-			if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
-			    UIOutput.make(tofill, "blti-descrip");
-			    createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
-			}
-			UIOutput.make(tofill, "permissions-descrip");
-			createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
+			UIOutput.make(tofill, "addwebsite-li");
+			createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-website", "simplepage.website", false, true, currentPage, "simplepage.website.tooltip");
+		    } catch (NoSuchMethodException nsme) {
+			// A: No
+		    } catch (Exception e) {
+			// A: Not sure
+			log.warn("SecurityException thrown by expandZippedResource method lookup", e);
+		    }
 			
-			GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
-			eParams.addTool = GeneralViewParameters.COMMENTS;
-			UIOutput.make(tofill, "student-descrip");
-			UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams).
-			    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.comments.tooltip")));
+		    UIOutput.make(tofill, "assignment-li");
+		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
+
+		    UIOutput.make(tofill, "quiz-li");
+		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+
+		    UIOutput.make(tofill, "forum-li");
+		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum.tooltip");
+
+		    UIOutput.make(tofill, "question-li");
+		    UILink questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
+
+		    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
+		    eParams.addTool = GeneralViewParameters.COMMENTS;
+		    UIOutput.make(tofill, "student-li");
+		    UIInternalLink.make(tofill, "add-comments", messageLocator.getMessage("simplepage.comments"), eParams).
+			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.comments.tooltip")));
 			
-			eParams = new GeneralViewParameters(VIEW_ID);
-			eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
-			UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams).
-			    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
+		    eParams = new GeneralViewParameters(VIEW_ID);
+		    eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
+		    UIOutput.make(tofill, "studentcontent-li");
+		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams).
+			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
+
+		    // in case we're on an old system without current BLTI
+		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+			UIOutput.make(tofill, "blti-li");
+			createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
+		    }
+			
 		}
 	}
 

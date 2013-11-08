@@ -197,7 +197,7 @@ $(function() {
 		$("#select-resource-group").hide();
 
 		$('.subpage-link').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			var position =  $(this).position();
 			$("#subpage-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(this);
@@ -207,7 +207,7 @@ $(function() {
 		});
 
 		$('#edit-title').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$('#edit-title-error-container').hide();
 			var position =  $(this).position();
 			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
@@ -228,7 +228,7 @@ $(function() {
 		    });
 
 		$('#import-cc').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			var position =  $(this).position();
 			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
@@ -239,7 +239,7 @@ $(function() {
 		});
 		
 		$('#export-cc').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			var position =  $(this).position();
 			$("#export-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
@@ -403,7 +403,7 @@ $(function() {
 	    });
 
 		$('#new-page').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			var position =  $(this).position();
 			$("#new-page-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
@@ -412,8 +412,8 @@ $(function() {
 			return false;
 		});
 
-		$('#remove-page').click(function(){
-			closeDropdown();
+		$('.remove-page').click(function(){
+			closeDropdowns();
 			var position =  $(this).position();
 			$("#remove-page-dialog").dialog("option", "position", [position.left, position.top]);
 			// rsf puts the URL on the non-existent src attribute
@@ -451,7 +451,7 @@ $(function() {
 		}
 		
 		$(".edit-youtube").click(function(){
-			closeDropdown();
+			closeDropdowns();
             $('li').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
 			$("#grouplist").hide();
@@ -493,7 +493,7 @@ $(function() {
 		    });
 
 		$('.edit-movie').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$('li').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
 			$("#expert-movie").hide();
@@ -542,7 +542,7 @@ $(function() {
 		});
 		
 		$(".edit-comments").click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
 			$("#grouplist").hide();
@@ -616,7 +616,7 @@ $(function() {
 		    });
 
 		$(".edit-student").click(function(){
-			closeDropdown();
+			closeDropdowns();
             $('li').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
@@ -880,7 +880,7 @@ $(function() {
 		});
 		
 		$('.question-link').click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			var position =  $(this).position();
 
@@ -915,7 +915,7 @@ $(function() {
 		$("#question-graded").click(checkQuestionGradedForm);
 		
 		$(".edit-question").click(function(){
-			closeDropdown();
+			closeDropdowns();
 			
 			var row = $(this).parent().parent().parent();
 			
@@ -1080,7 +1080,7 @@ $(function() {
 		});
 		
 		$(".edit-link").click(function(){
-			closeDropdown();
+			closeDropdowns();
             $('li').removeClass('editInProgress');
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
@@ -1390,7 +1390,7 @@ $(function() {
 		});
 
 		$(".add-multimedia").click(function(){
-			closeDropdown();
+			closeDropdowns();
 
 			mm_test_reset();
 
@@ -1419,7 +1419,7 @@ $(function() {
 		});
 
 		$(".add-resource").click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('false');
@@ -1443,7 +1443,7 @@ $(function() {
 		});
 
 		$(".add-website").click(function(){
-			closeDropdown();
+			closeDropdowns();
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('true');
@@ -1468,7 +1468,7 @@ $(function() {
 		});
 
 		$(".multimedia-edit").click(function(){
-			closeDropdown();
+			closeDropdowns();
 			mm_test_reset();
 			$('li').removeClass('editInProgress');
 			$("#expert-multimedia").hide();
@@ -1756,17 +1756,33 @@ $(function() {
 	var megaConfig = {	
 			interval: 200,
 			sensitivity: 7,
-			over: addHighlight,
+			over: buttonAddHighlight,
 			timeout: 700,
 			out: buttonRemoveHighlight
 	};
 	
+	var megaConfigc = {	
+			interval: 200,
+			sensitivity: 7,
+			over: buttonAddHighlightc,
+			timeout: 700,
+			out: buttonRemoveHighlightc
+	};
+
 	var dropdownConfig = {	
 			interval: 0,
 			sensitivity: 7,
 			over: menuAddHighlight,
 			timeout: 700,
-			out: removeHighlight
+			out: menuRemoveHighlight
+	};
+
+	var dropdowncConfig = {	
+			interval: 0,
+			sensitivity: 7,
+			over: menuAddHighlightc,
+			timeout: 700,
+			out: menuRemoveHighlightc
 	};
 
 	// where html5 might work we have an html5 player followed by the ususal object or embed
@@ -1794,10 +1810,14 @@ $(function() {
 	     }
             });
 
-	$("li.dropdown").hoverIntent(megaConfig);
-	$("#dropDownDiv").hide();
-	$("#dropDownDiv").hoverIntent(dropdownConfig);
-	$("li.dropdown").click(toggleDropdown);
+	$("#dropdown").hoverIntent(megaConfig);
+	$("#dropdownc").hoverIntent(megaConfigc);
+	$("#moreDiv").hide();
+	$("#addContentDiv").hide();
+	$("#moreDiv").hoverIntent(dropdownConfig);
+	$("#addContentDiv").hoverIntent(dropdowncConfig);
+	$("#dropdown").click(buttonToggleDropdown);
+	$("#dropdownc").click(buttonToggleDropdownc);
 	dropDownViaClick = false;
 	return false;
 });
@@ -2121,97 +2141,134 @@ $(function() {
 
 var hasBeenInMenu = false;
 
+function buttonAddHighlight() {
+    if (!$("#addContentDiv").is(":visible"))
+	addHighlight($("#moreDiv"));
+    return false;
+}
+
+function buttonAddHighlightc() {
+    if (!$("#moreDiv").is(":visible"))
+	addHighlight($("#addContentDiv"));
+    return false;
+}
+
 function menuAddHighlight() {
     hasBeenInMenu = true;
-    addHighlight();
-	return false;
+    addHighlight($("#moreDiv"));
+    return false;
+}
+
+function menuAddHighlightc() {
+    hasBeenInMenu = true;
+    addHighlight($("#addContentDiv"));
+    return false;
+}
+
+function menuRemoveHighlight() {
+    removeHighlight($("#moreDiv"), $("#dropdown a"));
+    return false;
+}
+
+function menuRemoveHighlightc() {
+    removeHighlight($("#addContentDiv"), $("#dropdownc a"));
+    return false;
 }
 
 function buttonRemoveHighlight() {
     if (!hasBeenInMenu)
-	removeHighlight();
+	removeHighlight($("#moreDiv"), $("#dropdown a"));
 	return false;
 }
 
-function addHighlight() {
+function buttonRemoveHighlightc() {
+    if (!hasBeenInMenu)
+	removeHighlight($("#addContentDiv"), $("#dropdownc a"));
+	return false;
+}
+
+function addHighlight(dropDiv) {
 	if(!lessonBuilderAnimationLocked) {
-		if(!$("#dropDownDiv").is(":visible")) {
+		if(!dropDiv.is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			hideMultimedia();
 			reposition();
-			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
-			$(".add-forum-link").focus();
-			checksize($('#dropDownDiv'));
+			$(dropDiv).show("slide", {direction: "up"}, 300, unlockAnimation);
+			dropDiv.find(".firstDropItem").focus();
+			checksize(dropDiv);
 		}
 	}
 	//$(this).addClass("hovering");
 	return false;
 }
 
-function removeHighlight() {
+function removeHighlight(dropDiv, button) {
 	if(!lessonBuilderAnimationLocked) {
-		if($("#dropDownDiv").is(":visible") && !dropdownViaClick) {
+		if(dropDiv.is(":visible") && !dropdownViaClick) {
 			hasBeenInMenu = false;
 			lessonBuilderAnimationLocked = true;
-			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
+			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
 			unhideMultimedia();
-			$(".dropdown a").focus();
+			button.focus();
 		}
 	}
 	//$(this).removeClass("hovering");
 	return false;
 }
 
-function toggleDropdown() {
+function buttonToggleDropdown() {
+    toggleDropdown($("#moreDiv"), ("#dropdown a"));
+}
+
+function buttonToggleDropdownc() {
+    toggleDropdown($("#addContentDiv"), ("#dropdownc a"));
+}
+
+function toggleDropdown(dropDiv, button) {
 	if(!lessonBuilderAnimationLocked) {
-		if($("#dropDownDiv").is(":visible")) {
+		if(dropDiv.is(":visible")) {
 			lessonBuilderAnimationLocked = true;
 			hasBeenInMenu = false;
-			$("#dropDownDiv").hide("slide", {direction: "up"}, 300, unlockAnimation);
+			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
 			unhideMultimedia();
 			dropdownViaClick = false;
-			$(".dropdown a").focus();
+			button.focus();
 		}else {
 			lessonBuilderAnimationLocked = true;
 			hideMultimedia();
 			reposition();
-			$("#dropDownDiv").show("slide", {direction: "up"}, 300, unlockAnimation);
-			$(".add-forum-link").focus();
-			checksize($('#dropDownDiv'));
+			dropDiv.show("slide", {direction: "up"}, 300, unlockAnimation);
+			dropDiv.find(".firstDropItem").focus();
+			checksize(dropDiv);
 			dropdownViaClick = true;
 		}
 	}
 	return false;
 }
 
-function closeDropdown() {
+function closeDropdowns() {
+    closeDropdown($("#addContentDiv"), $("#dropdownc a"));
+    closeDropdown($("#moreDiv"), $("#dropdown a"));
+}
+
+
+function closeDropdown(dropDiv, button) {
 
 	if(!lessonBuilderAnimationLocked) {
-		if($("#dropDownDiv").is(":visible")) {
+		if(dropDiv.is(":visible")) {
 			hasBeenInMenu = false;
-			$("#dropDownDiv").hide();
+			dropDiv.hide();
 			unhideMultimedia();
 			dropdownViaClick = false;
-			$(".dropdown a").focus();
+			button.focus();
 		}
 	}
 	return false;
 }
 
 function reposition() {
-	var dropX = $(".dropdown a").offset().left;
-	var dropdown = $("#dropDownDiv");
-	//alert("DropX: " + dropX);
-	//alert("Width: " + window.innerWidth);
-	//alert("Width2: " + dropdown.width());
-	if(dropX + dropdown.width() > ($(window).width()-30)) {
-	    dropdown.css("left", Math.max(0,($(window).width() - dropdown.width() - 30)) + "px");
-	} else {
-	    // in case user changes zoom and then tries again, we could end up
-            // with a value from the case above that is now incorrect                        	    
-            dropdown.css("left", dropX);
-	}
-
+    // seems not needed now
+    //    dropdown.css("left", "0x");
 }
 
 // Keeps JQuery from getting confused mid-animation

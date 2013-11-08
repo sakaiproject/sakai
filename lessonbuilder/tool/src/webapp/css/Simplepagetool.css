@@ -586,7 +586,7 @@ ul#toolbar li.dropdown a {
 ul#toolbar li em {
     font-style:normal;
 }
-#dropDownDiv {
+.dropDownDiv {
 	position: absolute;
 	width: 350px;
 	margin-top: 0;
@@ -605,25 +605,25 @@ ul#toolbar li em {
     -webkit-box-shadow: 1px 1px 3px 2px #eeeeee;
     box-shadow: 1px 1px 3px 2px #eeeeee;
 }
-#dropDownDiv  ul {
+.dropDownDiv  ul {
     margin:0;
     padding: 0;
 }
-#dropDownDiv li {
+.dropDownDiv li {
     border-top:1px solid #ccc !important;
     background: #fff !important;
     padding:5px !important;
     margin:0;
     display:block;
 }
-#dropDownDiv li:first-child {
+.dropDownDiv li:first-child {
     border-top:none !important;
 }
-#dropDownDiv li a {
+.dropDownDiv li a {
     display:block;
     padding: 5px 0 !important;
 }
-#dropDownDiv li div {
+.dropDownDiv li div {
     font-size: .85em !important
 }
 span.nextprev {
