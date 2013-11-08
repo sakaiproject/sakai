@@ -2,12 +2,6 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
-<style>
-	.modified { 
-	  color: red;
-	}
-</style>
-
 <f:view>
 
 <jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
@@ -16,6 +10,13 @@
 
 	<sakai:view_container title="#{msgs.title_list}">
 		<sakai:view_content>
+
+<style>
+	.modified { 
+	  color: red;
+	}
+</style>
+
 			<h:form>
 		  	<h3>
 					<h:outputText  value="#{msgs.delConfNotice}" />

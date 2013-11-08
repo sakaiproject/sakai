@@ -4,6 +4,14 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
 <f:view>
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
+</jsp:useBean>
+
+	<sakai:view_container title="#{SyllabusTool.siteTitle}">
+	<sakai:stylesheet path="/syllabus/css/syllabus.css" />
+	<sakai:view_content>
+
 
 <script type="text/javascript">
 	// SAK-12177: If i'm being loaded into the iframe upon redirect
@@ -13,13 +21,6 @@
 	    window.location.href = '<h:outputText value="#{SyllabusTool.resetUrl}" />';
 </script>
 
-<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
-</jsp:useBean>
-
-	<sakai:view_container title="#{SyllabusTool.siteTitle}">
-	<sakai:stylesheet path="/syllabus/css/syllabus.css" />
-	<sakai:view_content>
 
 <%-- gsilver: global things about syllabus tool:
 1 ) what happens to empty lists - still generate a table?

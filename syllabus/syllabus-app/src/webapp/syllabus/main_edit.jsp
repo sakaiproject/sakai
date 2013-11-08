@@ -3,13 +3,19 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
+<f:view>
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
+</jsp:useBean>
+	<sakai:view_container title="#{msgs.title_list}">
+	<sakai:view_content>
+
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
 <link type="text/css" href="syllabus/css/syllabus.css" rel="stylesheet" media="screen" />
- <f:view>
 <script type="text/javascript">
   var startDateValues = new Array();
   var dateFormat = '<h:outputText value="#{msgs.jqueryDatePickerDateFormat}"/>';
@@ -134,15 +140,10 @@
 		}
 	}
  </script>
-<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
-</jsp:useBean>
 <div>
 	<span id="successInfo" class="success popupMessage" style="display:none; float: left;"></span>
 	<span id="warningInfo" class="alertMessage popupMessage" style="display:none; float: left;"></span>
 </div>
-	<sakai:view_container title="#{msgs.title_list}">
-	<sakai:view_content>
         <script type="text/javascript">
         	// if redirected, just open in another window else
         	// open with size approx what actual print out will look like

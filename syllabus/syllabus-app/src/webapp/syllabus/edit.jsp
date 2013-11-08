@@ -3,12 +3,20 @@
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/syllabus" prefix="syllabus" %>
 <% response.setContentType("text/html; charset=UTF-8"); %>
+<f:view>
+<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
+</jsp:useBean>
+
+	<sakai:view_container title="#{msgs.title_edit}">
+		<sakai:view_content>
+
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
-<f:view>
+
 <script type="text/javascript">
   $(function() {
     $('.dateInput').datetimepicker({
@@ -56,12 +64,6 @@
 	});
   });
  </script>
-<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-	<jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.syllabus.bundle.Messages"/>
-</jsp:useBean>
-
-	<sakai:view_container title="#{msgs.title_edit}">
-		<sakai:view_content>
 			<h:outputText value="#{SyllabusTool.alertMessage}" styleClass="alertMessage" rendered="#{SyllabusTool.alertMessage != null}" />
 			<h:messages styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 			<h:form>
