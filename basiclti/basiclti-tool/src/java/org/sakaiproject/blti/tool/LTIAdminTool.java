@@ -954,9 +954,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		List<Properties> profileTools = new ArrayList<Properties> ();
         try {
-            String [] retval = BasicLTIUtil.parseToolProfile(profileTools, info, providerProfile);
+            String retval = BasicLTIUtil.parseToolProfile(profileTools, info, providerProfile);
             if ( retval != null ) {
-				addAlert(state,rb.getString(retval[0])+" "+retval[1]);
+				addAlert(state,rb.getString("deploy.parse.error")+" "+retval);
 				return "lti_error";
             }
 		}

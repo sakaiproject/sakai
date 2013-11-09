@@ -129,7 +129,7 @@ public class LTI2Service extends HttpServlet {
 			M_log.warn("General LTI2 Failure URI="+uri+" IP=" + ipAddress);
 			e.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
-			doErrorJSON(request, response, null, "request.bad.url", "General failure", e);
+			doErrorJSON(request, response, null, "General failure", e);
 		}
 	}
 
@@ -146,7 +146,7 @@ public class LTI2Service extends HttpServlet {
 		String [] parts = uri.split("/");
 		if ( parts.length < 4 ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
-			doErrorJSON(request, response, null, "request.bad.url", "Incorrect url format", null);
+			doErrorJSON(request, response, null, "Incorrect url format", null);
 			return;
 		}
 		String controller = parts[3];
@@ -174,7 +174,7 @@ System.out.println("Controller="+controller);
 		}
 
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
-		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
+		doErrorJSON(request, response, null, "Unknown request", null);
 	}
 
 	protected void getToolConsumerProfile(HttpServletRequest request, 
@@ -296,7 +296,7 @@ System.out.println("deployKey="+deployKey);
 
 		if ( ! jsonRequest.valid ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.valid", "Request is not in a valid format", null);
+			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format", null);
 			return;
 		}
 		// System.out.println(jsonRequest.getPostBody());
@@ -304,14 +304,14 @@ System.out.println("deployKey="+deployKey);
 		// Lets check the signature
 		if ( key == null || secret == null ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request, response, jsonRequest, "deploy.register.credentials", "Deployment is missing credentials", null);
+			doErrorJSON(request, response, jsonRequest, "Deployment is missing credentials", null);
 			return;
 		}
 
 		jsonRequest.validateRequest(key, secret, request);
 		if ( !jsonRequest.valid ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request, response, jsonRequest, "deploy.register.signature", "OAuth signature failure", null);
+			doErrorJSON(request, response, jsonRequest, "OAuth signature failure", null);
 			return;
 		}
 
@@ -319,7 +319,7 @@ System.out.println("deployKey="+deployKey);
 		// System.out.println("OBJ:"+providerProfile);
 		if ( providerProfile == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON parse failed", null);
+			doErrorJSON(request, response, jsonRequest, "JSON parse failed", null);
 			return;
 		}
 
@@ -329,14 +329,14 @@ System.out.println("default_custom="+default_custom);
 		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing security_contract", null);
+			doErrorJSON(request, response, jsonRequest, "JSON missing security_contract", null);
 			return;
 		}
 
 		String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 		if ( shared_secret == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.parse", "JSON missing shared_secret", null);
+			doErrorJSON(request, response, jsonRequest, "JSON missing shared_secret", null);
 			return;
 		}
 		// Blank out the new shared secret
@@ -362,7 +362,7 @@ System.out.println("default_custom="+default_custom);
 			}
 			if ( ! found ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "register.error", "Service not allowed: "+json_service, null);
+				doErrorJSON(request, response, jsonRequest, "Service not allowed: "+json_service, null);
 				return;
 			}
 		}
@@ -371,23 +371,23 @@ System.out.println("default_custom="+default_custom);
 		List<Properties> theTools = new ArrayList<Properties> ();
 		Properties info = new Properties();
 		try {
-			String [] retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
+			String retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
 System.out.println("info = " + info);
 			if ( retval != null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, retval[0], retval[1], null);
+				doErrorJSON(request, response, jsonRequest, retval, null);
 				return;
 			}
 		}
 		catch (Exception e ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.parse.exception", "Exception:"+ e.getLocalizedMessage(), e);
+			doErrorJSON(request, response, jsonRequest, "Exception:"+ e.getLocalizedMessage(), e);
 			return;
 		}
 
 		if ( theTools.size() < 1 ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "deploy.register.notools", "No tools found in profile", null);
+			doErrorJSON(request, response, jsonRequest, "No tools found in profile", null);
 			return;
 		}
 
@@ -434,7 +434,7 @@ System.out.println("deployUpdate="+deployUpdate);
 			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
 			if ( ! (retval instanceof Map) ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+				doErrorJSON(request,response, jsonRequest, (String) retval, null);
 				return;
 			}
 			Map grade = (Map) retval;
@@ -478,7 +478,7 @@ System.out.println("deployUpdate="+deployUpdate);
 		}
 	
 		if ( retval instanceof String ) {
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+			doErrorJSON(request,response, jsonRequest, (String) retval, null);
 			return;
 		}
 	}
@@ -498,7 +498,7 @@ System.out.println("accept="+acceptHdr+" bubble="+bubbleStr);
 		if ( bubbleStr != null && bubbleStr.equals("all") &&
 			acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, null, "outcomes.error", "simple format does not allow bubble=all", null);
+			doErrorJSON(request, response, null, "Simple format does not allow bubble=all", null);
 			return;
 		}
 
@@ -523,7 +523,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 				requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 			} catch (Exception e) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Could not parse JSON", e);
+				doErrorJSON(request,response, jsonRequest, "Could not parse JSON", e);
 				return;
 			}
 		}
@@ -555,7 +555,7 @@ System.out.println("placement_id="+placement_id);
 	
 			if ( content == null || siteId == null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad content item", null);
+				doErrorJSON(request,response, jsonRequest, "Bad content item", null);
 				return;
 			}
 	
@@ -566,7 +566,7 @@ System.out.println("placement_id="+placement_id);
 		
 			if ( tool == null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad tool item", null);
+				doErrorJSON(request,response, jsonRequest, "Bad tool item", null);
 				return;
 			}
 	
@@ -590,7 +590,7 @@ System.out.println("placement_id="+placement_id);
 			deploy = ltiService.getDeployForConsumerKeyDao(consumer_key);
 			if ( deploy == null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
+				doErrorJSON(request,response, jsonRequest, "Bad deploy item", null);
 				return;
 			}
 			deployKey = SakaiBLTIUtil.getLongKey(deploy.get(LTIService.LTI_ID));
@@ -601,7 +601,7 @@ System.out.println("placement_id="+placement_id);
 			}
 			if ( deploy == null ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad deploy item", null);
+				doErrorJSON(request,response, jsonRequest, "Bad deploy item", null);
 				return;
 			}
 			consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
@@ -656,7 +656,7 @@ System.out.println("placement_id="+placement_id);
 			endpoint = settingsUrl + "/ToolProxy/" + consumer_key;
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Bad Setttings Scope="+scope, null);
+			doErrorJSON(request,response, jsonRequest, "Bad Setttings Scope="+scope, null);
 			return;
 		}
 
@@ -664,7 +664,7 @@ System.out.println("placement_id="+placement_id);
         Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
         if ( retval instanceof String ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+			doErrorJSON(request,response, jsonRequest, (String) retval, null);
 			return;
 		}
 
@@ -763,7 +763,7 @@ System.out.println("jsonResponse="+jsonResponse);
 				JSONArray graph = (JSONArray) requestData.get("@graph");
 				if ( graph.size() != 1 ) {
 					response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-					doErrorJSON(request,response, jsonRequest, "outcomes.error", "Only one graph entry allowed", null);
+					doErrorJSON(request,response, jsonRequest, "Only one graph entry allowed", null);
 					return;
 				}
 				JSONObject firstChild = (JSONObject) graph.get(0);
@@ -796,13 +796,13 @@ System.out.println("jsonResponse="+jsonResponse);
 			if ( retval instanceof String || 
 				( retval instanceof Boolean && ((Boolean) retval != Boolean.TRUE) ) ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "outcomes.error", (String) retval, null);
+				doErrorJSON(request,response, jsonRequest, (String) retval, null);
 				return;
 			}
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request,response, jsonRequest, "outcomes.error", "Method not handled="+request.getMethod(), null);
+			doErrorJSON(request,response, jsonRequest, "Method not handled="+request.getMethod(), null);
 		}
 	}
 
@@ -816,7 +816,7 @@ System.out.println("jsonResponse="+jsonResponse);
 
 	/* IMS JSON version of Errors */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
-			IMSJSONRequest json, String s, String message, Exception e) 
+			IMSJSONRequest json, String message, Exception e) 
 		throws java.io.IOException 
 		{
 			if (e != null) {
@@ -825,8 +825,6 @@ System.out.println("jsonResponse="+jsonResponse);
 			M_log.info(message);
 			response.setContentType("application/json");
 			Map jsonResponse = new TreeMap();
-			jsonResponse.put("ext_sakai_code", s);
-			jsonResponse.put("ext_sakai_code_text", rb.getString(s));
 
 			Map status = null;
 			if ( json == null ) {

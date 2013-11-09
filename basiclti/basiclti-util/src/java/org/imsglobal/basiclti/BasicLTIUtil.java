@@ -587,40 +587,39 @@ public class BasicLTIUtil {
 	}
 
 	// Parse a provider profile with lots of error checking...
-	public static String []  parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
+	public static String parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
 		try {
 			return parseToolProfileInternal(theTools, info, jsonObject);
 		} catch (Exception e) {
             M_log.warning("Internal error parsing tool proxy\n"+jsonObject.toString());
             e.printStackTrace();
-			return new String[]{"deploy.register.parse", 
-				"Internal error parsing tool proxy:"+e.getLocalizedMessage()};
+			return "Internal error parsing tool proxy:"+e.getLocalizedMessage();
 		}
 	}
 
 	// Parse a provider profile with lots of error checking...
-	private static String []  parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
+	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
 		Object o = null;
 		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
 		if ( tool_profile == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing tool_profile"};
+			return "JSON missing tool_profile";
 		}
 		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
 		if ( product_instance == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing product_instance"};
+			return "JSON missing product_instance";
 		}
 
 		String instance_guid = (String) product_instance.get("guid");
 		if ( instance_guid == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing product_info / guid"};
+			return "JSON missing product_info / guid";
 		}
 		info.put("instance_guid",instance_guid);
 
 		JSONObject product_info = (JSONObject) product_instance.get("product_info");
 		if ( product_info == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing product_info"};
+			return "JSON missing product_info";
 		}
 
 		// We want a name, but don't (yet) demand it
@@ -629,7 +628,7 @@ public class BasicLTIUtil {
 		JSONObject description = product_info == null ? null : (JSONObject) product_info.get("description");
 		String productDescription = product_name == null ? null : (String) description.get("default_value");
 		if ( productTitle == null || productDescription == null ) {
-			return new String[]{"deploy.register.parse", "JSON missing product_name or description "};
+			return "JSON missing product_name or description ";
 		}
 
 		info.put("product_name", productTitle);
@@ -637,7 +636,7 @@ public class BasicLTIUtil {
 
 		o = tool_profile.get("base_url_choice");
 		if ( ! (o instanceof JSONArray)|| o == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing base_url_choices"};
+			return "JSON missing base_url_choices";
 		}
 		JSONArray base_url_choices = (JSONArray) o;
 
@@ -652,12 +651,12 @@ public class BasicLTIUtil {
 		String launch_url = secure_base_url;
 		if ( launch_url == null ) launch_url = default_base_url;
 		if ( launch_url == null ) {
-			return new String[]{"deploy.register.launch", "Unable to determine launch URL"};
+			return "Unable to determine launch URL";
 		}
 
 		o = (JSONArray) tool_profile.get("resource_handler");
 		if ( ! (o instanceof JSONArray)|| o == null  ) {
-			return new String[]{"deploy.register.parse", "JSON missing resource_handlers"};
+			return "JSON missing resource_handlers";
 		}
 		JSONArray resource_handlers = (JSONArray) o;
 
@@ -667,18 +666,18 @@ public class BasicLTIUtil {
 			JSONObject resource_type_json = (JSONObject) resource_handler.get("resource_type");
 			String resource_type = (String) resource_type_json.get("code");
 			if ( resource_type == null ) {
-				return new String[]{"deploy.register.parse", "JSON missing resource_type"};
+				return "JSON missing resource_type";
 			}
 			o = (JSONArray) resource_handler.get("message");
 			if ( ! (o instanceof JSONArray)|| o == null ) {
-				return new String[]{"deploy.register.parse", "JSON missing resource_handler / message"};
+				return "JSON missing resource_handler / message";
 			}
 			JSONArray messages = (JSONArray) o;
 
 			JSONObject titleObject = (JSONObject) resource_handler.get("name");
 			String title = titleObject == null ? null : (String) titleObject.get("default_value");
 			if ( title == null || titleObject == null ) {
-				return new String[]{"deploy.register.parse", "JSON missing resource_handler / name / default_value"};
+				return "JSON missing resource_handler / name / default_value";
 			}
 
 			JSONObject buttonObject = (JSONObject) resource_handler.get("short_name");
@@ -695,21 +694,21 @@ public class BasicLTIUtil {
 				String message_type = (String) message.get("message_type");
 				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
 				if ( path != null ) {
-					return new String[]{"deploy.register.messages", "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type};
+					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type;
 				}
 				path = (String) message.get("path");
 				if ( path == null ) {
-					return new String[]{"deploy.register.nopath", "A basic-lti-launch-request message must have a path RT="+resource_type};
+					return "A basic-lti-launch-request message must have a path RT="+resource_type;
 				} 
 				o = (JSONArray) message.get("parameter");
 				if ( ! (o instanceof JSONArray)) {
-					return new String[]{"deploy.register.nopath", "Must be an array: parameter RT="+resource_type};
+					return "Must be an array: parameter RT="+resource_type;
 				}
 				parameter = (JSONArray) o;
 
 				o = (JSONArray) message.get("enabled_capability");
 				if ( ! (o instanceof JSONArray)) {
-					return new String[]{"deploy.register.nopath", "Must be an array: enabled_capability RT="+resource_type};
+					return "Must be an array: enabled_capability RT="+resource_type;
 				}
 				enabled_capability = (JSONArray) o;
 			}
@@ -724,7 +723,7 @@ public class BasicLTIUtil {
 			try {
 				URL url = new URL(thisLaunch);
 			} catch ( Exception e ) {
-				return new String[]{"deploy.register.nopath", "Bad launch URL="+thisLaunch};
+				return "Bad launch URL="+thisLaunch;
 			}
 
 			// Passed all the tests...  Lets keep it...
