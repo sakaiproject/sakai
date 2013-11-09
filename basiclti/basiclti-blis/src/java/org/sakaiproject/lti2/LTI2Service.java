@@ -355,7 +355,7 @@ System.out.println("Controller="+controller);
 		JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
 		List<Service_offered> services_offered = consumer.getService_offered();
 
-		for (Object o : tool_services) {
+		if ( tool_services != null ) for (Object o : tool_services) {
 			JSONObject tool_service = (JSONObject) o;
 			String json_service = (String) tool_service.get(LTI2Constants.SERVICE);
 
@@ -397,7 +397,19 @@ System.out.println("Controller="+controller);
 			return;
 		}
 
-		// TODO: Check all the capabilities requested by all the tools compating against consumer
+		// Check all the capabilities requested by all the tools comparing against consumer
+		List<String> capabilities = consumer.getCapability_offered();
+		for ( Properties theTool : theTools ) {
+			String ec = (String) theTool.get("enabled_capability");
+			JSONArray enabled_capability = (JSONArray) JSONValue.parse(ec);
+			if ( enabled_capability != null ) for (Object o : enabled_capability) {
+				ec = (String) o;
+				if ( capabilities.contains(ec) ) continue;
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request, response, jsonRequest, "Capability not permitted="+ec, null);
+				return;
+			}
+		}
 
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
@@ -408,14 +420,21 @@ System.out.println("Controller="+controller);
 		deployUpdate.put(LTIService.LTI_REG_STATE, LTIService.LTI_REG_STATE_REGISTERED);
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
-System.out.println("deployUpdate="+deployUpdate);
-
 		if ( default_custom != null ) deployUpdate.put(LTIService.LTI_SETTINGS, default_custom.toString());
-
 		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
+
+		M_log.debug("deployUpdate="+deployUpdate);
+
 		Object obj = ltiService.updateDeployDao(deployKey, deployUpdate);
 		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+		if ( ! success ) {
+			M_log.warn("updateDeployDao fail deployKey="+deployKey+"\nretval="+obj+"\ndata="+deployUpdate);
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "Failed update of deployment="+deployKey, null);
+			return;
+		}
 
+		// Share our happiness with the Tool Provider
 		Map jsonResponse = new TreeMap();
 		jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLPROXY_ID_CONTEXT);
 		jsonResponse.put(LTI2Constants.TYPE, StandardServices.TOOLPROXY_ID_TYPE);
