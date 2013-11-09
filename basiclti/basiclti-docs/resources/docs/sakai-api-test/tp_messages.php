@@ -82,7 +82,9 @@ $tool_proxy = <<< EOF
     ],
     "resource_handler": [
       {
-        "resource_type": "__REPLACE__urn:lti:ResourceType:acme.example.com/nitrolab/homework",
+        "resource_type": {
+			"code" : "__REPLACE__urn:lti:ResourceType:acme.example.com/nitrolab/homework"
+		},
         "message": [
           {
             "path": "__LAUNCH_PATH__",
@@ -166,6 +168,9 @@ $tool_proxy = <<< EOF
         "default_base_url": "http://localhost:5000"
       }
     ]
+  },
+  "custom" : {
+     "id" : "xkcd123"
   },
   "security_contract": {
     "shared_secret": "__SECRET__",

@@ -173,7 +173,7 @@ $tp_profile->tool_profile->product_instance->service_provider->guid = "http://ww
 
 // Launch Request
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
-$tp_profile->tool_profile->resource_handler[0]->resource_type = "sakai-api-test-01";
+$tp_profile->tool_profile->resource_handler[0]->resource_type->code = "sakai-api-test-01";
 
 // Ask for the kitchen sink...
 foreach($tc_capabilities as $capability) {
@@ -186,7 +186,19 @@ $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
 $tp_profile->security_contract->shared_secret = 'secret';
-$tp_profile->security_contract->tool_service = $tc_services;
+$tp_services = array();
+foreach($tc_services as $tc_service) {
+	// var_dump($tc_service);
+	$tp_service = new stdClass;
+	$tp_service->{'@id'} = $tc_service->{'@id'};
+	$tp_service->{'@type'} = $tc_service->{'@type'};
+	$tp_service->format = $tc_service->format;
+	$tp_service->action = $tc_service->action;
+	$tp_service->service = $tc_service->endpoint;
+	$tp_services[] = $tp_service;
+}
+// var_dump($tp_services);
+$tp_profile->security_contract->tool_service = $tp_services;
 // print_r($tp_profile);
 
 $body = json_encode($tp_profile);

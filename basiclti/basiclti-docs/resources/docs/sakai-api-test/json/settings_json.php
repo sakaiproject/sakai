@@ -39,6 +39,7 @@ if ( strlen($settings) < 1 ) {
 }
 
 $format = isset($_REQUEST['format']) ? $_REQUEST['format']+0 : 1;
+$bubble = isset($_REQUEST['bubble']) ? $_REQUEST['bubble']+0 : 0;
 
 ?>
 <p>
@@ -54,9 +55,12 @@ Settings format:
   <option value="2" <?php if ( $format == 2 ) echo("selected");?> >application/vnd.ims.lti.v2.toolsettings+json</option>
 </select>
 <br/>
-<input type="checkbox" name="bubble" value="all" 
-<?php if ( isset($_POST['bubble']) && $_POST['bubble'] == 'all' ) echo(" checked "); ?>
->Request bubble="all"
+Bubble option:
+<select name="bubble">
+  <option value="0" <?php if ( $bubble == 0 ) echo("selected");?> >None</option>
+  <option value="1" <?php if ( $bubble == 1 ) echo("selected");?> >All</option>
+  <option value="2" <?php if ( $bubble == 2 ) echo("selected");?> >Distinct</option>
+</select>
 </p><p>
 Settings to Send to Sakai: <br/>
 <textarea name="settings" cols="60" rows="10">
@@ -104,13 +108,17 @@ if ( $format == 2 ) {
 }
 
 function doBubble($url) {
-    if ( !isset($_POST['bubble']) || $_POST['bubble'] != "all" ) return $url;
+    if ( !isset($_POST['bubble']) || $_POST['bubble'] == 0 ) return $url;
 	if ( strpos($url,'?') > 0 ) {
 		$url .= '&';
 	} else {
 		$url .= '?';
 	}
-	$url .= "bubble=all";
+	if ( $_POST['bubble'] == 1 ) {
+		$url .= "bubble=all";
+	} else {
+		$url .= "bubble=distinct";
+	}
 	return $url;
 }
 
