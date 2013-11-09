@@ -100,17 +100,18 @@ public class LTI2Service extends HttpServlet {
 	protected Service_offered LTI2ToolProxyBindingSettings = null;
 	protected Service_offered LTI2ToolProxySettings = null;
 
-	private static final String SVC_tc_profile = "tc_profile";
-	private static final String SVC_tc_registration = "tc_registration";
-	private static final String SVC_Settings = "Settings";
-	private static final String SVC_Result = "Result";
+	// Copy these in...
+	private static final String SVC_tc_profile = SakaiBLTIUtil.SVC_tc_profile;
+	private static final String SVC_tc_registration = SakaiBLTIUtil.SVC_tc_registration;
+	private static final String SVC_Settings = SakaiBLTIUtil.SVC_Settings;
+	private static final String SVC_Result = SakaiBLTIUtil.SVC_Result;
 
-	private static final String SET_LtiLink = "LtiLink";
-	private static final String SET_ToolProxyBinding = "ToolProxyBinding";
-	private static final String SET_ToolProxy = "ToolProxy";
+	private static final String SET_LtiLink = SakaiBLTIUtil.SET_LtiLink;
+	private static final String SET_ToolProxyBinding = SakaiBLTIUtil.SET_ToolProxyBinding;
+	private static final String SET_ToolProxy = SakaiBLTIUtil.SET_ToolProxy;
 
-	private static final String LTI1_PATH = "/imsblis/service/";
-	private static final String LTI2_PATH = "/imsblis/lti2/";
+	private static final String LTI1_PATH = SakaiBLTIUtil.LTI1_PATH;
+	private static final String LTI2_PATH = SakaiBLTIUtil.LTI2_PATH;
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 

@@ -107,6 +107,18 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 
+	public static final String SVC_tc_profile = "tc_profile";
+	public static final String SVC_tc_registration = "tc_registration";
+	public static final String SVC_Settings = "Settings";
+	public static final String SVC_Result = "Result";
+
+	public static final String SET_LtiLink = "LtiLink";
+	public static final String SET_ToolProxyBinding = "ToolProxyBinding";
+	public static final String SET_ToolProxy = "ToolProxy";
+
+	public static final String LTI1_PATH = "/imsblis/service/";
+	public static final String LTI2_PATH = "/imsblis/lti2/";
+
 	public static void dPrint(String str)
 	{
 		if ( verbosePrint ) System.out.println(str);
@@ -267,7 +279,7 @@ public class SakaiBLTIUtil {
 		// Fix up the return Url
 		String returnUrl =	ServerConfigurationService.getString("basiclti.consumer_return_url",null);
 		if ( returnUrl == null ) {
-			returnUrl = getOurServerUrl() + "/imsblis/service/return-url";  
+			returnUrl = getOurServerUrl() + LTI1_PATH + "return-url";  
 			Session s = SessionManager.getCurrentSession();
 			if (s != null) {
 				String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
@@ -413,10 +425,10 @@ public class SakaiBLTIUtil {
 
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
-					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
 					outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
-					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
 				}
 
@@ -428,7 +440,7 @@ public class SakaiBLTIUtil {
 						setProperty(props,"ext_ims_lti_tool_setting", setting);  
 					}
 					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-					if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
 				}
 
@@ -436,7 +448,7 @@ public class SakaiBLTIUtil {
 					setProperty(props,"ext_ims_lis_memberships_id", result_sourcedid);  
 
 					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
-					if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( roster_url == null ) roster_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lis_memberships_url", roster_url);  
 				}
 
@@ -444,9 +456,9 @@ public class SakaiBLTIUtil {
 					setProperty(props,"ext_lori_api_token", result_sourcedid);  
 					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 					String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-					if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
 					String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-					if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + "/imsblis/service/";  
+					if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_lori_api_url", lori_url);  
 					setProperty(props,"ext_lori_api_url_xml", lori_url_xml);  
 				}
@@ -569,16 +581,12 @@ public class SakaiBLTIUtil {
 		Map<String, Object> deploy = null; 
 
 		Long deployKey = getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
-System.out.println("deployKey="+deployKey);
         if ( deployKey >= 0 ) {
             deploy = ltiService.getDeployDao(deployKey);
         }
 
 		Long toolKey = getLongKey(tool.get(LTIService.LTI_ID));
-
-System.out.println("ToolProxyBinding toolKey="+toolKey+" context="+context);
         proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
-System.out.println("proxyBinding="+proxyBinding);
 
 		// Start building up the properties
 		Properties ltiProps = new Properties();
@@ -595,7 +603,8 @@ System.out.println("proxyBinding="+proxyBinding);
 
 		if ( deploy != null ) {
 			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
-				"/imsblis/lti2/tc_profile/" + (String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
+				LTI2_PATH + SVC_tc_profile + "/" + 
+				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
 		}
 
 		String resource_link_id = "content:"+content.get(LTIService.LTI_ID);
@@ -678,12 +687,12 @@ System.out.println("proxyBinding="+proxyBinding);
 
 				// New Basic Outcomes URL
 				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
-				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lis_basic_outcome_url", outcome_url);  
 				outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
-				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
-				String result_url = getOurServerUrl() + "/imsblis/lti2/Result/" + result_sourcedid;
+				String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
 				setProperty(lti2subst, "Result.url", result_url);
 			}
 
@@ -695,20 +704,20 @@ System.out.println("proxyBinding="+proxyBinding);
 					setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
 				}
 				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-				if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
 
-				String settings_url = getOurServerUrl() + "/imsblis/lti2/Settings/";
-				setProperty(lti2subst,"LtiLink.custom.url", settings_url + "LtiLink/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + "ToolProxyBinding/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + "ToolProxy/" + key);
+				String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
+				setProperty(lti2subst,"LtiLink.custom.url", settings_url + SET_LtiLink + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + SET_ToolProxyBinding + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + SET_ToolProxy + "/" + key);
 			}
 
 			if ( allowroster == 1 ) {
 				setProperty(ltiProps,"ext_ims_lis_memberships_id", result_sourcedid);  
 
 				String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
-				if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( roster_url == null ) roster_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lis_memberships_url", roster_url);  
 			}
 
@@ -716,9 +725,9 @@ System.out.println("proxyBinding="+proxyBinding);
 				setProperty(ltiProps,"ext_lori_api_token", result_sourcedid);  
 				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 				String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-				if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
 				String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + "/imsblis/service/";  
+				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_lori_api_url", lori_url);  
 				setProperty(ltiProps,"ext_lori_api_url_xml", lori_url_xml);  
 			}
@@ -796,7 +805,7 @@ System.out.println("after custom="+custom);
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+LTI2_PATH+"/"+SVC_tc_profile+"/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
@@ -841,7 +850,7 @@ System.out.println("after custom="+custom);
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+"/imsblis/lti2/tc_profile/"+consumerkey);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+LTI2_PATH+SVC_tc_profile+"/"+consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
