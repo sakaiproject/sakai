@@ -119,11 +119,6 @@ foreach ($tc_services as $tc_service) {
     $formats = $tc_service->{'format'};
     $type = $tc_service->{'@type'};
     $id = $tc_service->{'@id'};
-/*  Sheesh - pivot toward capabilities
-    if ( strpos($id,"Result.item") > 0 ) {
-        $result_url = $tc_service->endpoint;
-    }
-*/
     echo("Service: ".$format." id=".$id."\n");
     foreach($formats as $format) {
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
@@ -181,6 +176,9 @@ foreach($tc_capabilities as $capability) {
 	if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
 	$tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
 }
+
+// Cause an error on registration
+// $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = "Give.me.the.database.password";
 
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
