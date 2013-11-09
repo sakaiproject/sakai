@@ -121,9 +121,9 @@ public class LTI2Service extends HttpServlet {
 		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 
 		resourceUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH;
-        LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl);
-        LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl);
-        LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl);
+		LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl);
+		LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl);
+		LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl);
 	}
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -185,7 +185,7 @@ public class LTI2Service extends HttpServlet {
 System.out.println("Controller="+controller);
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 		if ( jsonRequest.valid ) {
-		    System.out.println(jsonRequest.getPostBody());
+			System.out.println(jsonRequest.getPostBody());
 		}
 
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
@@ -242,11 +242,11 @@ System.out.println("Controller="+controller);
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
-            capabilities.add("User.username");
+			capabilities.add("User.username");
 			capabilities.add("Person.name.fullname");
 			capabilities.add("Person.name.given");
 			capabilities.add("Person.name.family");
-            capabilities.add("Person.name.full");
+			capabilities.add("Person.name.full");
 		}
 
 		List<Service_offered> services = consumer.getService_offered();
@@ -727,7 +727,7 @@ System.out.println("placement_id="+placement_id);
 
 		// Validate the incoming message
 		Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
-        if ( retval instanceof String ) {
+		if ( retval instanceof String ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request,response, jsonRequest, (String) retval, null);
 			return;
