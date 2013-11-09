@@ -114,7 +114,7 @@ public class LTI2Service extends HttpServlet {
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
-	private static final String APPLICATION_JSON = "application/jsonx";
+	private static final String APPLICATION_JSON = "application/json";
 
 	@Override
 	public void init(ServletConfig config) throws ServletException {
