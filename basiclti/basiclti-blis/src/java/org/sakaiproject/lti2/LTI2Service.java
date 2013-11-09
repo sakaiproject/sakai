@@ -195,8 +195,8 @@ public class LTI2Service extends HttpServlet {
 		}
 
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
-		M_log.warn("Unknown request="+controller);
-		doErrorJSON(request, response, null, "Unknown request="+controller, null);
+		M_log.warn("Unknown request="+uri);
+		doErrorJSON(request, response, null, "Unknown request="+uri, null);
 	}
 
 	protected void getToolConsumerProfile(HttpServletRequest request, 
@@ -796,7 +796,7 @@ System.out.println("jsonResponse="+jsonResponse);
 		} else if ( "GET".equals(request.getMethod()) ) { // bubble == none
 System.out.println("bubble=none");
 			JSONObject jsonResponse = new JSONObject();	
-			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLPROXY_ID_CONTEXT);
+			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
 			JSONObject theSettings = null;
 			if ( SET_LtiLink.equals(scope) ) {
 				endpoint = settingsUrl + "/" + SET_LtiLink + "/" + placement_id;

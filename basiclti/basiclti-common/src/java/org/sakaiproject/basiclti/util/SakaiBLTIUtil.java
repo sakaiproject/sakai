@@ -805,7 +805,7 @@ System.out.println("after custom="+custom);
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+LTI2_PATH+"/"+SVC_tc_profile+"/"+consumerkey);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
@@ -850,7 +850,7 @@ System.out.println("after custom="+custom);
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
 
 		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl+LTI2_PATH+SVC_tc_profile+"/"+consumerkey);
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
