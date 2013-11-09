@@ -188,14 +188,14 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 
-System.out.println("Controller="+controller);
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 		if ( jsonRequest.valid ) {
 			System.out.println(jsonRequest.getPostBody());
 		}
 
 		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
-		doErrorJSON(request, response, null, "Unknown request", null);
+		M_log.warn("Unknown request="+controller);
+		doErrorJSON(request, response, null, "Unknown request="+controller, null);
 	}
 
 	protected void getToolConsumerProfile(HttpServletRequest request, 
