@@ -4,6 +4,7 @@ package org.imsglobal.lti2.objects;
 public class StandardServices {
 
     public static final String TOOLPROXY_FORMAT = "application/vnd.ims.lti.v2.toolproxy+json";
+    public static final String TOOLSETTINGS_CONTEXT = "http://purl.imsglobal.org/ctx/lti/v2/ToolSettings";
     public static final String TOOLSETTINGS_FORMAT = "application/vnd.ims.lti.v2.toolsettings+json";
     public static final String TOOLSETTINGS_SIMPLE_FORMAT = "application/vnd.ims.lti.v2.toolsettings.simple+json";
 

@@ -45,11 +45,23 @@ public class LTI2Constants {
 	 */
 	public static final String TC_PROFILE_URL = "tc_profile_url";
 
+	public static final String JSONLD_ID = "@id";
+	public static final String CONTEXT = "@context";
+	public static final String TYPE = "@type";
+	public static final String VALUE = "@value";
+	public static final String GRAPH = "@graph";
+
 	public static final String CUSTOM_URL = "custom_url";
 	public static final String TOOL_PROXY_GUID = "tool_proxy_guid";
 	public static final String SHARED_SECRET = "shared_secret";
 	public static final String CUSTOM = "custom";
 	public static final String SECURITY_CONTRACT = "security_contract";
+	public static final String SERVICE = "service";
+	public static final String TOOL_SERVICE = "tool_service";
+	public static final String GRADE = "grade";
+	public static final String GRADE_TYPE_DECIMAL = "decimal";
+	public static final String COMMENT = "comment";
+	public static final String RESULTSCORE = "resultScore";
 
 	/**
 	 * Utility array useful for validating property names when building launch

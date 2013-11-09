@@ -630,6 +630,7 @@ public interface LTIService {
 	static final Long LTI_VERSION_2 = new Long(1);
 	static final String LTI_RESOURCE_TYPE = "resource_type";
 	static final String LTI_REG_STATE = "reg_state";
+	static final String LTI_REG_STATE_REGISTERED = "1";
 	static final String LTI_REG_LAUNCH = "reg_launch";
 	static final String LTI_REG_KEY = "reg_key";
 	static final String LTI_REG_PASSWORD = "reg_password";
