@@ -1047,6 +1047,8 @@ System.out.println("after custom="+custom);
             return "Incorrect consumer key";
 		}
 
+		oauth_secret = decryptSecret(oauth_secret);
+
 		OAuthValidator oav = new SimpleOAuthValidator();
 		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
 

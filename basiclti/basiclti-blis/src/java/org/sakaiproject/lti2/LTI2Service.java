@@ -94,10 +94,10 @@ public class LTI2Service extends HttpServlet {
 
 	protected static LTIService ltiService = null;
 
-    protected String resourceUrl = null;
-    protected Service_offered LTI2ResultItem = null;
-    protected Service_offered LTI2LtiLinkSettings = null;
-    protected Service_offered LTI2ToolProxySettings = null;
+	protected String resourceUrl = null;
+	protected Service_offered LTI2ResultItem = null;
+	protected Service_offered LTI2LtiLinkSettings = null;
+	protected Service_offered LTI2ToolProxySettings = null;
 
 	private static final String SVC_tc_profile = "tc_profile";
 	private static final String SVC_tc_registration = "tc_registration";
@@ -252,7 +252,8 @@ System.out.println("Controller="+controller);
 		List<Service_offered> services = consumer.getService_offered();
 		services.add(StandardServices.LTI2Registration(serverUrl + LTI2_PATH + SVC_tc_registration + "/" + profile_id));
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ("true".equals(allowOutcomes) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
 			services.add(LTI2ResultItem);
 			services.add(StandardServices.LTI1Outcomes(serverUrl+LTI1_PATH));
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+LTI1_PATH));
@@ -260,10 +261,14 @@ System.out.println("Controller="+controller);
 			capabilities.add("Result.autocreate");
 			capabilities.add("Result.url");
 		}
-		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
+
+		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
+		if ("true".equals(allowRoster) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
 			services.add(SakaiLTI2Services.BasicRoster(serverUrl+LTI1_PATH));
 		}
-		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
+
+		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
+		if ("true".equals(allowSettings) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
 			services.add(LTI2LtiLinkSettings);
 			services.add(LTI2ToolProxySettings);
@@ -272,7 +277,8 @@ System.out.println("Controller="+controller);
 			capabilities.add("ToolProxyBinding.custom.url");
 		}
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
+		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
+		if ("true".equals(allowLori) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
 			services.add(SakaiLTI2Services.LORI_XML(serverUrl+LTI1_PATH));
 		}
 		return consumer;
@@ -346,6 +352,7 @@ System.out.println("Controller="+controller);
 			doErrorJSON(request, response, jsonRequest, "JSON missing shared_secret", null);
 			return;
 		}
+
 		// Blank out the new shared secret
 		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
 
@@ -413,7 +420,7 @@ System.out.println("Controller="+controller);
 
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 
-		// TODO: Make sure to encrypt that password...
+		shared_secret = SakaiBLTIUtil.encryptSecret(shared_secret);
 		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
 
 		// Indicate ready to validate and kill the interim info
@@ -453,6 +460,13 @@ System.out.println("Controller="+controller);
 	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
 			String sourcedid) throws java.io.IOException
 	{
+		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowOutcomes) ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			doErrorJSON(request,response, null, "Result resources not available", null);
+			return;
+		}
+
 		Object retval = null;
 		IMSJSONRequest jsonRequest = null;
 		if ( "GET".equals(request.getMethod()) ) { 
@@ -511,7 +525,14 @@ System.out.println("Controller="+controller);
 	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
 			String[] parts) throws java.io.IOException
 	{
-        String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
+		if ( ! "true".equals(allowSettings) ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			doErrorJSON(request,response, null, "Tool settings not available", null);
+			return;
+		}
+
+		String URL = SakaiBLTIUtil.getOurServletPath(request);
 		String scope = parts[4];
 
 		// Check to see if we are doing the bubble
@@ -594,12 +615,21 @@ System.out.println("placement_id="+placement_id);
 				return;
 			}
 	
-			// TODO: Check settings to see if we are allowed to do this :)
-	
 			// Adjust the content items based on the tool items
 			ltiService.filterContent(content, tool);
 
+			// Check settings to see if we are allowed to do this 
+			if (foorm.getLong(content.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ||
+				foorm.getLong(tool.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+				// Good news 
+			} else {
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				doErrorJSON(request,response, jsonRequest, "Item does not allow tool settings", null);
+				return;
+			}
+
 		}
+
 
 		if ( SET_ToolProxyBinding.equals(scope) || SET_LtiLink.equals(scope) ) {
 			proxyBinding = ltiService.getProxyBindingDao(toolKey,siteId);
@@ -629,6 +659,17 @@ System.out.println("placement_id="+placement_id);
 				return;
 			}
 			consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		}
+
+		// Check settings to see if we are allowed to do this 
+		if ( deploy != null ) {
+			if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+				// Good news 
+			} else {
+				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+				doErrorJSON(request,response, jsonRequest, "Deployment does not allow tool settings", null);
+				return;
+			}
 		}
 
 		// Load and parse the old settings...
@@ -684,8 +725,8 @@ System.out.println("placement_id="+placement_id);
 			return;
 		}
 
-        // Validate the incoming message
-        Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
+		// Validate the incoming message
+		Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
         if ( retval instanceof String ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request,response, jsonRequest, (String) retval, null);
