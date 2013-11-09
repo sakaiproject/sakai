@@ -97,6 +97,7 @@ public class LTI2Service extends HttpServlet {
 	protected String resourceUrl = null;
 	protected Service_offered LTI2ResultItem = null;
 	protected Service_offered LTI2LtiLinkSettings = null;
+	protected Service_offered LTI2ToolProxyBindingSettings = null;
 	protected Service_offered LTI2ToolProxySettings = null;
 
 	private static final String SVC_tc_profile = "tc_profile";
@@ -121,9 +122,14 @@ public class LTI2Service extends HttpServlet {
 		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
 
 		resourceUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH;
-		LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl);
-		LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl);
-		LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl);
+		LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl 
+			+ SVC_Result + "/{" + BasicLTIConstants.LIS_RESULT_SOURCEDID + "}");
+		LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl 
+			+ SVC_Settings + "/" + SET_LtiLink + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
+		LTI2ToolProxyBindingSettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
+			+ SVC_Settings + "/" + SET_ToolProxyBinding + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
+		LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
+			+ SVC_Settings + "/" + SET_ToolProxy + "/{" + LTI2Constants.TOOL_PROXY_GUID + "}");
 	}
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -272,6 +278,7 @@ System.out.println("Controller="+controller);
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
 			services.add(LTI2LtiLinkSettings);
 			services.add(LTI2ToolProxySettings);
+			services.add(LTI2ToolProxyBindingSettings);
 			capabilities.add("LtiLink.custom.url");
 			capabilities.add("ToolProxy.custom.url");
 			capabilities.add("ToolProxyBinding.custom.url");
@@ -446,9 +453,9 @@ System.out.println("Controller="+controller);
 		jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLPROXY_ID_CONTEXT);
 		jsonResponse.put(LTI2Constants.TYPE, StandardServices.TOOLPROXY_ID_TYPE);
 		String serverUrl = ServerConfigurationService.getServerUrl();
-		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl +"/" + SVC_tc_registration + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl+ "/" + SVC_Settings + "/" + SET_ToolProxy + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + SET_ToolProxy + "/" +profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
@@ -706,7 +713,7 @@ System.out.println("placement_id="+placement_id);
 		// Get the secret for the request...
 		String oauth_secret = null;
 		String endpoint = null;
-		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH + "/" + SVC_Settings;
+		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH + SVC_Settings;
 		if ( SET_LtiLink.equals(scope) ) {
 			oauth_secret = (String) content.get(LTIService.LTI_SECRET);
 			if ( oauth_secret == null || oauth_secret.length() < 1 ) {
