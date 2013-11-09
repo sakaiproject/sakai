@@ -27,10 +27,13 @@ The views and conclusions contained in the software and documentation are those 
 authors and should not be interpreted as representing official policies, either expressed
 or implied, of Chas Emerick.
 */
+.diffContent {
+	height: 300px
+}
 .diff * {white-space:pre-wrap!important}
 table.diff {
 	border-collapse:collapse;
-	border:1px solid darkgray
+	border: 1px solid darkgray
 }
 table.diff tbody { 
 	font-family:Courier, monospace
@@ -55,7 +58,7 @@ table.diff thead th.texttitle {
 	text-align:left
 }
 table.diff tbody td {
-	padding:0px .4em;
+	padding:0 .4em;
 	vertical-align:top;
 }
 table.diff .empty {

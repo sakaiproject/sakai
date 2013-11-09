@@ -77,6 +77,7 @@
             return {
                 title: editorInstance.lang.autosave.title,
                 minHeight: 155,
+                height: 300,
                 width: 750,
                 onShow: function () {
                     RenderDiff(this, editorInstance, autoSaveKey);
@@ -95,11 +96,6 @@
                     label: '',
                     id: 'general',
                     elements: [{
-                        type: 'html',
-                        id: 'diffContent',
-                        html: ''
-                    },
-                    {
                         type: 'radio',
                         id: 'diffType',
                         label: editorInstance.lang.autosave.diffType,
@@ -108,6 +104,10 @@
                         onClick: function () {
                             RenderDiff(this._.dialog, editorInstance, autoSaveKey);
                         }
+                    },{
+                        type: 'html',
+                        id: 'diffContent',
+                        html: ''
                     }]
                 }],
                 buttons: [
@@ -192,7 +192,7 @@
     }
     
     function RemoveStorage(autoSaveKey) {
-        localStorage.removeItem(autoSaveKey);
+       // localStorage.removeItem(autoSaveKey);
     }
     
     function RenderDiff(dialog, editorInstance, autoSaveKey) {
@@ -203,7 +203,7 @@
         var sm = new difflib.SequenceMatcher(base, newtxt);
         var opcodes = sm.get_opcodes();
 
-        dialog.getContentElement('general', 'diffContent').getElement().setHtml(diffview.buildView({
+        dialog.getContentElement('general', 'diffContent').getElement().setHtml('<div class="diffContent">' + diffview.buildView({
             baseTextLines: base,
             newTextLines: newtxt,
             opcodes: opcodes,
@@ -211,7 +211,7 @@
             newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format('LLL')) + '\')',
             contextSize: 3,
             viewType: dialog.getContentElement('general', 'diffType').getValue() == "inline" ? 1 : 0
-        }).outerHTML);
+        }).outerHTML + '</div>');
     }
 
 })();
