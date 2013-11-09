@@ -118,6 +118,65 @@ public class LTI2Service extends HttpServlet {
 		doPost(request,response);
 	}
 
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+		throws ServletException, IOException 
+	{
+		try { 
+			doRequest(request, response);
+		} catch (Exception e) {
+			String ipAddress = request.getRemoteAddr();
+			String uri = request.getRequestURI();
+			M_log.warn("General LTI2 Failure URI="+uri+" IP=" + ipAddress);
+			e.printStackTrace();
+			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR); 
+			doErrorJSON(request, response, null, "request.bad.url", "General failure", e);
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	// /imsblis/lti2/part3/part4
+	protected void doRequest(HttpServletRequest request, HttpServletResponse response) 
+		throws ServletException, IOException 
+	{
+		String ipAddress = request.getRemoteAddr();
+		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
+
+		String rpi = request.getPathInfo();
+		String uri = request.getRequestURI();
+		String [] parts = uri.split("/");
+		if ( parts.length < 4 ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
+			doErrorJSON(request, response, null, "request.bad.url", "Incorrect url format", null);
+			return;
+		}
+		String controller = parts[3];
+		if ( "tc_profile".equals(controller) && parts.length == 5 ) {
+			String profile_id = parts[4];
+			getToolConsumerProfile(request,response,profile_id);
+			return;
+		} else if ( "tc_registration".equals(controller) && parts.length == 5 ) {
+			String profile_id = parts[4];
+			registerToolProviderProfile(request, response, profile_id);
+			return;
+		} else if ( "Result".equals(controller) && parts.length == 5 ) {
+			String sourcedid = parts[4];
+			handleResultRequest(request, response, sourcedid);
+			return;
+		} else if ( "Settings".equals(controller) && parts.length >= 6 ) {
+			handleSettingsRequest(request, response, parts);
+			return;
+		}
+
+System.out.println("Controller="+controller);
+		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
+		if ( jsonRequest.valid ) {
+		    System.out.println(jsonRequest.getPostBody());
+		}
+
+		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
+		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
+	}
+
 	protected void getToolConsumerProfile(HttpServletRequest request, 
 			HttpServletResponse response,String profile_id)
 	{
@@ -208,50 +267,6 @@ System.out.println("deploy="+deploy);
 		return consumer;
 	}
 
-
-	@SuppressWarnings("unchecked")
-	// /imsblis/lti2/part3/part4
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) 
-		throws ServletException, IOException 
-	{
-		String ipAddress = request.getRemoteAddr();
-		M_log.debug("Basic LTI Service request from IP=" + ipAddress);
-
-		String rpi = request.getPathInfo();
-		String uri = request.getRequestURI();
-		String [] parts = uri.split("/");
-		if ( parts.length < 4 ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST); 
-			doErrorJSON(request, response, null, "request.bad.url", "Incorrect url format", null);
-			return;
-		}
-		String controller = parts[3];
-		if ( "tc_profile".equals(controller) && parts.length == 5 ) {
-			String profile_id = parts[4];
-			getToolConsumerProfile(request,response,profile_id);
-			return;
-		} else if ( "tc_registration".equals(controller) && parts.length == 5 ) {
-			String profile_id = parts[4];
-			registerToolProviderProfile(request, response, profile_id);
-			return;
-		} else if ( "Result".equals(controller) && parts.length == 5 ) {
-			String sourcedid = parts[4];
-			handleResultRequest(request, response, sourcedid);
-			return;
-		} else if ( "Settings".equals(controller) && parts.length >= 6 ) {
-			handleSettingsRequest(request, response, parts);
-			return;
-		}
-
-System.out.println("Controller="+controller);
-		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
-		if ( jsonRequest.valid ) {
-		    System.out.println(jsonRequest.getPostBody());
-		}
-
-		response.setStatus(HttpServletResponse.SC_NOT_IMPLEMENTED); 
-		doErrorJSON(request, response, null, "request.not.implemented", "Unknown request", null);
-	}
 
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 			String profile_id) throws java.io.IOException
