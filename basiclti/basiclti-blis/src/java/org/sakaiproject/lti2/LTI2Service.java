@@ -391,7 +391,6 @@ System.out.println("info = " + info);
 			return;
 		}
 
-		// TODO: Loop through and validate all of the launch urls in the tools
 		// TODO: Check all the capabilities requested by all the tools compating against consumer
 
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();

@@ -52,6 +52,7 @@ import java.util.Map.Entry;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -588,7 +589,20 @@ public class BasicLTIUtil {
 	// Parse a provider profile with lots of error checking...
 	public static String []  parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
+		try {
+			return parseToolProfileInternal(theTools, info, jsonObject);
+		} catch (Exception e) {
+            M_log.warning("Internal error parsing tool proxy\n"+jsonObject.toString());
+            e.printStackTrace();
+			return new String[]{"deploy.register.parse", 
+				"Internal error parsing tool proxy:"+e.getLocalizedMessage()};
+		}
+	}
 
+	// Parse a provider profile with lots of error checking...
+	private static String []  parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
+	{
+		Object o = null;
 		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
 		if ( tool_profile == null  ) {
 			return new String[]{"deploy.register.parse", "JSON missing tool_profile"};
@@ -621,14 +635,16 @@ public class BasicLTIUtil {
 		info.put("product_name", productTitle);
 		info.put("description", productDescription);
 
-		JSONArray base_url_choices = (JSONArray) tool_profile.get("base_url_choice");
-		if ( base_url_choices == null  ) {
+		o = tool_profile.get("base_url_choice");
+		if ( ! (o instanceof JSONArray)|| o == null  ) {
 			return new String[]{"deploy.register.parse", "JSON missing base_url_choices"};
 		}
+		JSONArray base_url_choices = (JSONArray) o;
+
 		String secure_base_url = null;
 		String default_base_url = null;
-		for ( Object o : base_url_choices ) {
-			JSONObject url_choice = (JSONObject) o;
+		for ( Object i : base_url_choices ) {
+			JSONObject url_choice = (JSONObject) i;
 			secure_base_url = (String) url_choice.get("secure_base_url");
 			default_base_url = (String) url_choice.get("default_base_url");
 		}
@@ -639,23 +655,26 @@ public class BasicLTIUtil {
 			return new String[]{"deploy.register.launch", "Unable to determine launch URL"};
 		}
 
-		JSONArray resource_handlers = (JSONArray) tool_profile.get("resource_handler");
-		if ( resource_handlers == null  ) {
+		o = (JSONArray) tool_profile.get("resource_handler");
+		if ( ! (o instanceof JSONArray)|| o == null  ) {
 			return new String[]{"deploy.register.parse", "JSON missing resource_handlers"};
 		}
+		JSONArray resource_handlers = (JSONArray) o;
 
 		// Loop through resource handlers, read, and check for errors
-		for(Object o : resource_handlers ) {
-			JSONObject resource_handler = (JSONObject) o;
+		for(Object i : resource_handlers ) {
+			JSONObject resource_handler = (JSONObject) i;
 			JSONObject resource_type_json = (JSONObject) resource_handler.get("resource_type");
 			String resource_type = (String) resource_type_json.get("code");
 			if ( resource_type == null ) {
 				return new String[]{"deploy.register.parse", "JSON missing resource_type"};
 			}
-			JSONArray messages = (JSONArray) resource_handler.get("message");
-			if ( messages == null ) {
+			o = (JSONArray) resource_handler.get("message");
+			if ( ! (o instanceof JSONArray)|| o == null ) {
 				return new String[]{"deploy.register.parse", "JSON missing resource_handler / message"};
 			}
+			JSONArray messages = (JSONArray) o;
+
 			JSONObject titleObject = (JSONObject) resource_handler.get("name");
 			String title = titleObject == null ? null : (String) titleObject.get("default_value");
 			if ( title == null || titleObject == null ) {
@@ -682,13 +701,31 @@ public class BasicLTIUtil {
 				if ( path == null ) {
 					return new String[]{"deploy.register.nopath", "A basic-lti-launch-request message must have a path RT="+resource_type};
 				} 
-				parameter = (JSONArray) message.get("parameter");
-System.out.println("parameter="+parameter);
-				enabled_capability = (JSONArray) message.get("enabled_capability");
+				o = (JSONArray) message.get("parameter");
+				if ( ! (o instanceof JSONArray)) {
+					return new String[]{"deploy.register.nopath", "Must be an array: parameter RT="+resource_type};
+				}
+				parameter = (JSONArray) o;
+
+				o = (JSONArray) message.get("enabled_capability");
+				if ( ! (o instanceof JSONArray)) {
+					return new String[]{"deploy.register.nopath", "Must be an array: enabled_capability RT="+resource_type};
+				}
+				enabled_capability = (JSONArray) o;
 			}
 
 			// Ignore everything except launch handlers
 			if ( path == null ) continue;
+
+			// Check the URI
+			String thisLaunch = launch_url;
+			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
+			thisLaunch = thisLaunch + path;
+			try {
+				URL url = new URL(thisLaunch);
+			} catch ( Exception e ) {
+				return new String[]{"deploy.register.nopath", "Bad launch URL="+thisLaunch};
+			}
 
 			// Passed all the tests...  Lets keep it...
 			Properties theTool = new Properties();
@@ -700,13 +737,7 @@ System.out.println("parameter="+parameter);
 			if ( resourceDescription == null ) resourceDescription = productDescription;
 			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
 			if ( parameter != null ) theTool.put("parameter", parameter.toString());
-System.out.println("X parameter="+parameter);
-			if ( enabled_capability != null ) theTool.put("enabled_capability", parameter.toString());
-
-			// Someone above us should validate the URL...
-			String thisLaunch = launch_url;
-			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
-			thisLaunch = thisLaunch + path;
+			if ( enabled_capability != null ) theTool.put("enabled_capability", enabled_capability.toString());
 			theTool.put("launch", thisLaunch);
 			theTools.add(theTool);
 		}
