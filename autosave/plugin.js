@@ -190,11 +190,11 @@
             }, 2000);
         }
     }
-    
+
     function RemoveStorage(autoSaveKey) {
-       // localStorage.removeItem(autoSaveKey);
+        localStorage.removeItem(autoSaveKey);
     }
-    
+
     function RenderDiff(dialog, editorInstance, autoSaveKey) {
         var jsonSavedContent = LoadData(autoSaveKey);
 
