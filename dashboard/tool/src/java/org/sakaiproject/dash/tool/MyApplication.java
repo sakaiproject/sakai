@@ -29,6 +29,7 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.protocol.http.WebRequest;
 import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.protocol.http.RequestUtils;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 
 import org.sakaiproject.dash.tool.pages.DashboardPage;
@@ -36,6 +37,9 @@ import org.sakaiproject.dash.tool.pages.DashboardMobilePage;
 import org.sakaiproject.dash.tool.pages.OptionsPage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Enumeration;
 
 /**
  * Main application class for our app
@@ -92,10 +96,11 @@ public class MyApplication extends WebApplication {
 	 * 
 	 * @see org.apache.wicket.Application#getHomePage()
 	 */
-	public Class getHomePage() {
-		Session session = SessionManager.getCurrentSession();
-		Boolean mobileDeviceParam = (Boolean)session.getAttribute("is_mobile_device");
-		if (mobileDeviceParam)
+	public Class getHomePage() {	
+		String fullUrl = RequestUtils.toAbsolutePath(RequestCycle.get().getRequest().
+				  getRelativePathPrefixToWicketHandler());
+		// detect the pda url path and determine the dashboard home page accordingly 
+		if (fullUrl.contains("/pda/"))
 		{
 			// mobile view
 			return DashboardMobilePage.class;
