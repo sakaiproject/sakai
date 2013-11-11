@@ -773,6 +773,9 @@ public class ProviderServlet extends HttpServlet {
             M_log.debug("siteId=" + siteId);
         }
 
+        final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
+        final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
+
         Site site = null;
 
         // Get the site if it exists
@@ -780,6 +783,7 @@ public class ProviderServlet extends HttpServlet {
             try {
                 site = findSiteByLTIContextId(context_id);
                 if (site != null) {
+                    updateSiteDetailsIfChanged(site, context_title, context_label);
                     return site;
                 }
             } catch (Exception e) {
@@ -790,6 +794,7 @@ public class ProviderServlet extends HttpServlet {
         } else {
             try {
                 site = SiteService.getSite(siteId);
+                updateSiteDetailsIfChanged(site, context_title, context_label);
                 return site;
             } catch (Exception e) {
                 if (M_log.isDebugEnabled()) {
@@ -803,8 +808,6 @@ public class ProviderServlet extends HttpServlet {
             throw new LTIException("launch.site.invalid", "siteId=" + siteId, null);
         } else {
 
-            final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
-            final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
             pushAdvisor();
             try {
                 String sakai_type = "project";
@@ -870,6 +873,30 @@ public class ProviderServlet extends HttpServlet {
 			throw new LTIException( "launch.site.invalid", "siteId="+siteId, e);
 
 		}
+    }
+
+    private final void updateSiteDetailsIfChanged(Site site, String context_title, String context_label) {
+
+        boolean changed = false;
+
+        if (BasicLTIUtil.isNotBlank(context_title) && !context_title.equals(site.getTitle())) {
+            site.setTitle(context_title);
+            changed = true;
+        }
+
+        if (BasicLTIUtil.isNotBlank(context_label) && !context_label.equals(site.getShortDescription())) {
+            site.setShortDescription(context_label);
+            changed = true;
+        }
+
+        if(changed) {
+            try {
+                SiteService.save(site);
+                M_log.info("Updated  site=" + site.getId() + " title=" + context_title + " label=" + context_label);
+            } catch (Exception e) {
+                M_log.warn("Failed to update site title and/or label");
+            }
+        }
     }
 
     protected String getEid(Map payload, boolean trustedConsumer, String user_id) throws LTIException {
