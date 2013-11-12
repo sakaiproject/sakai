@@ -38,7 +38,6 @@
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
       <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-	  <!-- AUTHORING -->
       <samigo:script path="/js/authoring.js"/>
       <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 
@@ -50,151 +49,11 @@
           $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
           // adjust the height of the iframe to accomodate the expansion from the accordion
           $("body").height($("body").outerHeight() + 800);
+
+          // This function is in js/authoring.js
+          showHideReleaseGroups();
         });
       </script>
-
-<script type="text/JavaScript">
-function validateUrl(){
-  var list =document.getElementsByTagName("input");
-  for (var i=0; i<list.length; i++){
-    if (list[i].id.indexOf("finalPageUrl") >=0){			
-      var finalPageUrl = list[i].value;
-	  if (finalPageUrl.substring(0,4).toLowerCase().indexOf("http") == -1)
-	  {
-		finalPageUrl = "http://" + finalPageUrl;
-	  }
-	  //alert(finalPageUrl);
-      window.open(finalPageUrl,'validateUrl');
-    }
-  }
-}
-
-function updateItemNavigation(isFromItemNavigation)
-{
-  var inputhidden = document.getElementById("assessmentSettingsAction:itemNavigationUpdated");
-  inputhidden.value = isFromItemNavigation;
-}
-
-function submitForm()
-{
-  document.forms[0].onsubmit();
-  document.forms[0].submit();
-}
-
-
-function checkUncheckTimeBox(){
-  var inputList= document.getElementsByTagName("INPUT");
-  var timedCheckBoxId;
-  var timedHourId;
-  var timedMinuteId;
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].type=='checkbox')
-    {
-      if(inputList[i].id.indexOf("selTimeAssess")>=0)
-        timedCheckBoxId = inputList[i].id;
-    }
-  }
-  inputList= document.getElementsByTagName("select");
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].id.indexOf("timedHours")>=0)
-      timedHourId =inputList[i].id;
-    if(inputList[i].id.indexOf("timedMinutes")>=0)
-      timedMinuteId =inputList[i].id;
-  }
-  if(document.getElementById(timedCheckBoxId) != null)
-  {
-    if(!document.getElementById(timedCheckBoxId).checked)
-    {
-      if(document.getElementById(timedHourId) != null)
-      {
-        for(i=0; i<document.getElementById(timedHourId).options.length; i++)
-        {
-          if(i==0)
-            document.getElementById(timedHourId).options[i].selected = true;
-          else
-            document.getElementById(timedHourId).options[i].selected = false;
-        }
-      }
-      if(document.getElementById(timedMinuteId) != null)
-      {
-        for(i=0; i<document.getElementById(timedMinuteId).options.length; i++)
-        {
-          if(i==0)
-            document.getElementById(timedMinuteId).options[i].selected = true;
-          else
-            document.getElementById(timedMinuteId).options[i].selected = false;
-        }
-      }
-    }
-  }
-}
-
-function uncheckOther(field){
- var fieldname = field.getAttribute("name");
- var inputList = document.getElementsByTagName("INPUT");
-
- for(i = 0; i < inputList.length; i++){
-    if((inputList[i].name.indexOf("background")>=0)&&(inputList[i].name != fieldname))
-         inputList[i].checked=false;
-      
- }
-}
-
-function showHideReleaseGroups(){
-  var showGroups;
-  var inputList= document.getElementsByTagName("INPUT");
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].type=='radio')
-    {
-      if(inputList[i].value.indexOf("Selected Groups")>=0) {
-        showGroups=inputList[i].checked;
-        break;
-      }  
-    }
-  }
-  if(showGroups) {
-	document.getElementById("groupDiv").style.display = "block";
-	document.getElementById("groupDiv").style.width = "80%";
-  }
-  else {
-	document.getElementById("groupDiv").style.display = "none";
-  }
-}
-
-function setBlockDivs()
-{  
-   //alert("setBlockDivs()");
-   var divisionNo = ""; 
-   var blockDivs = ""; 
-   blockElements = document.getElementsByTagName("div");
-   //alert("blockElements.length" + blockElements.length);
-   for (i=0 ; i < blockElements.length; i++)
-   {
-      divisionNo = "" + blockElements[i].id;
-	  //alert("divisionNo=" + divisionNo);
-	  //alert("display=" + blockElements[i].style.display);
-      if(divisionNo.indexOf("__hide_division_assessmentSettingsAction") >=0 && blockElements[i].style.display == "block")
-      { 
-         //alert("divisionNo=" + divisionNo);
-         var id = divisionNo.substring(41);
-		 if (blockDivs == "") {
-            blockDivs = id;
-         }
-		 else {
-			 blockDivs = blockDivs + ";" + id; 
-		 }
-		 //alert("blockDivs=" + blockDivs);
-	  }
-   }
-   //document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = "_id224";
-   document.forms[0].elements['assessmentSettingsAction:blockDivs'].value = blockDivs;
-}
-</script>
-
-
 
       </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
@@ -861,8 +720,6 @@ function setBlockDivs()
 </h:form>
 <!-- end content -->
 </div>
-        <script type="text/JavaScript">showHideReleaseGroups();</script>
-        
       </body>
     </html>
   </f:view>
