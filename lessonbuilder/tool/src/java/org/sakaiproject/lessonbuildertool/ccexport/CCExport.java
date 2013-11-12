@@ -49,6 +49,8 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.cover.SiteService;
 
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.ccexport.SamigoExport;
@@ -718,6 +720,16 @@ public class CCExport {
     }
 
     public boolean outputManifest(ZipPrintStream out) {
+	    
+	String title = "Sakai";  // should never be used
+	try {
+	    Site site = null;
+	    site = SiteService.getSite(siteId);
+	    title = site.getTitle();
+	} catch (Exception impossible) {
+	    // impossible, one hopes
+	}
+
 	try {
 	    ZipEntry zipEntry = new ZipEntry("imsmanifest.xml");
 	    out.putNextEntry(zipEntry);
@@ -739,14 +751,14 @@ public class CCExport {
 		out.println("    <lomimscc:lom>");
 		out.println("      <lomimscc:general>");
 		out.println("        <lomimscc:title>");
-		out.println("          <lomimscc:string language=\"en-US\">Sakai Export</lomimscc:string>");
+		out.println("          <lomimscc:string>" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>");
 		out.println("        </lomimscc:title>");
-		out.println("        <lomimscc:description>");
-		out.println("          <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>");
-		out.println("        </lomimscc:description>");
-		out.println("        <lomimscc:keyword>");
-		out.println("          <lomimscc:string language=\"en-US\">Export</lomimscc:string>");
-		out.println("        </lomimscc:keyword>");
+//		out.println("        <lomimscc:description>");
+//		out.println("          <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>");
+//		out.println("        </lomimscc:description>");
+//		out.println("        <lomimscc:keyword>");
+//		out.println("          <lomimscc:string language=\"en-US\">Export</lomimscc:string>");
+//		out.println("        </lomimscc:keyword>");
 		out.println("      </lomimscc:general>");
 		out.println("    </lomimscc:lom>");
 		out.println("  </metadata>");
@@ -754,7 +766,7 @@ public class CCExport {
 
 	    default:
 	    out.print(
-		      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string language=\"en-US\">Sakai Export</lomimscc:string>\n	</lomimscc:title>\n	<lomimscc:description>\n	  <lomimscc:string language=\"en-US\">Sakai Export, including only files from site</lomimscc:string>\n	</lomimscc:description>\n	<lomimscc:keyword>\n	  <lomimscc:string language=\"en-US\">Export</lomimscc:string>\n	</lomimscc:keyword>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n ");
+		      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string>" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>\n	</lomimscc:title>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n ");
 	    }
 
 	    out.println("  <organizations>");
