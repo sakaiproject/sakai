@@ -325,6 +325,8 @@ li.last {
 }
 #tabs {
 	padding: 0;
+	min-height: 300px;
+	overflow: auto;
 }
 ul.ui-tabs-nav {
 	border-bottom: 2px solid #828282;

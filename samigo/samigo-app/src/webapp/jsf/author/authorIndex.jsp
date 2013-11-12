@@ -94,6 +94,11 @@ $(document).ready(function() {
 
 	$("#tabs").tabs({ selected: selectedTab });
 
+	// SET THE HEIGHT ON TABS CONTAINER IF PUBLISHED IS LARGER THAN WORKING COPIES
+	if ($('#tabs-2').height() > $('#tabs-1').height()) {
+		$("#tabs").height($('#tabs-2').height() + 170);
+	}
+
 	// ALLOW ACTIVE, ALL, INACTIVE LINKS FOR PUBLISHED ITEMS
 	$("#assessment-link-status-all").click(
 		function() {
