@@ -1,3 +1,14 @@
+.samigo-subheading {
+  font-weight: 400;
+  border-bottom: 1px solid #999;
+  font-size: 1.1em;
+  margin: 8px 0;
+}
+h4.samigo-category-subhead {
+  font-weight: bold;
+  padding-bottom: 8px;
+  color: black;
+}
 
 .treefolder {
  background-repeat: no-repeat;
