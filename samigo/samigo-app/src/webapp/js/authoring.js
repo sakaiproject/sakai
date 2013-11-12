@@ -402,12 +402,6 @@ function updateItemNavigation(isFromItemNavigation)
   inputhidden.value = isFromItemNavigation;
 }
     
-function submitForm()
-{  
-  document.forms[0].onsubmit();
-  document.forms[0].submit();
-}
-
 function uncheckOther(field){
  var fieldname = field.getAttribute("name");
  var inputList = document.getElementsByTagName("INPUT");
@@ -516,6 +510,13 @@ function checkUncheckTimeBox(){
         }
       }
     }
+    else 
+    { // SAM-2121: now the "Timed Assessment" box is checked"
+      // I wish we didn't have to submit this form now, but I could not get it to work properly without submitting.
+      //document.getElementById(timedHourId).disabled = false;
+      //document.getElementById(timedMinuteId).disabled = false;
+      document.forms[0].submit();
+    }    
   }
 }
 
@@ -559,5 +560,25 @@ function checkTimeSelect(){
   else if((document.getElementById(autoSubmitId) != null) && (document.getElementById(autoSubmitId).disabled != null))
   {
     document.getElementById(autoSubmitId).disabled=false;
+  }
+}
+
+function lockdownQuestionLayout(value) {
+  if (value == 1) {
+    $('#assessmentSettingsAction\\:assessmentFormat input[value=1]').prop('checked', 'checked');
+    $('#assessmentSettingsAction\\:assessmentFormat input').prop('disabled', 'disabled');
+  } 
+  else {
+    $('#assessmentSettingsAction\\:assessmentFormat input').prop('disabled', '');
+  }
+}
+
+function lockdownMarkForReview(value) {
+  if (value == 1) {
+    $('#assessmentSettingsAction\\:markForReview1').prop('checked', '');
+    $('#assessmentSettingsAction\\:markForReview1').prop('disabled', 'disabled');
+  } 
+  else {
+    $('#assessmentSettingsAction\\:markForReview1').prop('disabled', '');
   }
 }

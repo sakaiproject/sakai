@@ -50,7 +50,10 @@
           // adjust the height of the iframe to accomodate the expansion from the accordion
           $("body").height($("body").outerHeight() + 800);
 
-          // This function is in js/authoring.js
+          // SAM-2121: Lockdown the question layout and mark for review if necessary
+          var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
+          lockdownQuestionLayout(navVal);
+          lockdownMarkForReview(navVal);
           showHideReleaseGroups();
         });
       </script>
@@ -234,8 +237,7 @@
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid summary="#{templateMessages.timed_assmt_sec}">
 	  <h:panelGroup>
-        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();"
-         value="#{publishedSettings.valueMap.hasTimeAssessment}">
+        <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();" value="#{publishedSettings.valueMap.hasTimeAssessment}">
 		</h:selectBooleanCheckbox>
         <h:outputText value="#{assessmentSettingsMessages.timed_assessment} " />
 		<h:selectOneMenu id="timedHours" value="#{publishedSettings.timedHours}" disabled="#{!publishedSettings.valueMap.hasTimeAssessment}" >
@@ -311,7 +313,7 @@
 
 	  <h:outputText value="#{assessmentSettingsMessages.require_secure_delivery}" rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}"/>
 	  <h:panelGrid border="0" columns="1"  columnClasses="samigo-security" rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">
-	    <h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();document.forms[0].onsubmit();document.forms[0].submit();">
+	    <h:selectOneRadio id="secureDeliveryModule" value="#{publishedSettings.secureDeliveryModule}"  layout="pageDirection" onclick="setBlockDivs();">
 			<f:selectItems value="#{publishedSettings.secureDeliveryModuleSelections}" />
 		</h:selectOneRadio>
 		<h:panelGrid border="0" columns="2"  columnClasses="samigo-security" rendered="#{publishedSettings.valueMap.lockedBrowser_isInstructorEditable==true && publishedSettings.secureDeliveryAvailable}">	
@@ -608,8 +610,7 @@
   <h:panelGroup rendered="#{publishedSettings.valueMap.itemAccessType_isInstructorEditable==true}">
   <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel for="itemNavigation" value="#{assessmentSettingsMessages.navigation}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
     <h:panelGrid columns="1">
-      <h:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="pageDirection" 
-		onclick="setBlockDivs();updateItemNavigation(true);submitForm();">
+      <h:selectOneRadio id="itemNavigation" value="#{publishedSettings.itemNavigation}"  layout="pageDirection" onclick="setBlockDivs();updateItemNavigation(true);lockdownQuestionLayout(this.value);lockdownMarkForReview(this.value);">
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.linear_access}"/>
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.random_access}"/>
       </h:selectOneRadio>
@@ -626,21 +627,12 @@
   <h:panelGroup rendered="#{publishedSettings.valueMap.displayChunking_isInstructorEditable==true}">
     <f:verbatim><h4 class="samigo-category-subhead"></f:verbatim><h:outputLabel for="assessmentFormat" value="#{assessmentSettingsMessages.question_layout}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
       <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="assessmentFormat" value="#{publishedSettings.assessmentFormat}"  layout="pageDirection"  rendered="#{publishedSettings.itemNavigation!=1}">
+        <h:selectOneRadio id="assessmentFormat" value="#{publishedSettings.assessmentFormat}"  layout="pageDirection">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.layout_by_question}"/>
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.layout_by_part}"/>
           <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}"/>
         </h:selectOneRadio>
 	 </h:panelGrid>
-	 <!-- If "linear access" is selected, checked layout by question radio button and then disable all three radio buttons -->
-	 <!-- Here we just manipulate the displayed value. The value of assessmentFormat is updated in SaveAssessmentSeetings.java -->
-	 <h:panelGrid columns="2"  >
-        <h:selectOneRadio id="assessmentFormat2" disabled="true" value="#{publishedSettings.assessmentFormat}"  layout="pageDirection" rendered="#{publishedSettings.itemNavigation == 1}">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.layout_by_question}"/>
-          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.layout_by_part}"/>
-          <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.layout_by_assessment}"/>
-        </h:selectOneRadio>
-      </h:panelGrid>
     <f:verbatim></div></f:verbatim>
   </h:panelGroup>
 
@@ -663,14 +655,8 @@
 <h:panelGroup rendered="#{publishedSettings.valueMap.markForReview_isInstructorEditable==true}">
     <f:verbatim><div class="tier2"></f:verbatim>
     <h:panelGrid columns="1">
-	  <!-- random navigation -->
-      <h:panelGroup rendered="#{publishedSettings.itemNavigation != 1}">
-        <h:selectBooleanCheckbox id="markForReview1" value="#{assessmentSettings.isMarkForReview}"/>
-        <h:outputLabel value="#{assessmentSettingsMessages.mark_for_review_label}"/>
-      </h:panelGroup>
-  	  <!-- linear navigation -->
-	  <h:panelGroup rendered="#{publishedSettings.itemNavigation == 1}">
-        <h:selectBooleanCheckbox id="markForReview2" value="false" disabled="true"/>
+      <h:panelGroup>
+        <h:selectBooleanCheckbox id="markForReview1" value="#{publishedSettings.isMarkForReview}"/>
         <h:outputLabel value="#{assessmentSettingsMessages.mark_for_review_label}"/>
       </h:panelGroup>
     </h:panelGrid>
