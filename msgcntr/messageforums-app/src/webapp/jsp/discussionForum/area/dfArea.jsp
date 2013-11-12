@@ -1,5 +1,5 @@
 
-  <mf:forum_bar_link id="create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>    
+  <mf:forum_bar_link id="tpl_create_forum" title="#{msgs.cdfm_new_forum}" value=" #{msgs.cdfm_new_forum}" action="#{ForumTool.processActionNewForum}" rendered="#{ForumTool.newForum}"/>    
    
   <h:outputText id="draft_space2" value="  &nbsp;  " escape="false" />
   <mf:forum_bar_link id="template_setting" title="#{msgs.cdfm_template_setting}" value="#{msgs.cdfm_template_setting} " action="#{ForumTool.processActionTemplateSettings}" rendered="#{ForumTool.instructor}"/>    
