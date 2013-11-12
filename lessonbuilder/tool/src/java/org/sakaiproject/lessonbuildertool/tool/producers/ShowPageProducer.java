@@ -2981,7 +2981,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    eParams = new GeneralViewParameters(VIEW_ID);
 		    eParams.addTool = GeneralViewParameters.STUDENT_CONTENT;
 		    UIOutput.make(tofill, "studentcontent-li");
-		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-content"), eParams).
+		    UIInternalLink.make(tofill, "add-content", messageLocator.getMessage("simplepage.add-student-content"), eParams).
 			decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.student-descrip")));
 
 		    // in case we're on an old system without current BLTI
