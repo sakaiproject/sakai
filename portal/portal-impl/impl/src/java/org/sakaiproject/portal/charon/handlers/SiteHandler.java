@@ -90,8 +90,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private boolean useDHTMLMore = false;
 	
-	private int showSearchWhen = 2; 
-
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
 	private String mutableSitename ="-";
@@ -105,8 +103,6 @@ public class SiteHandler extends WorksiteHandler
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
 				"portal.use.dhtml.more", false));
-		showSearchWhen = Integer.valueOf(ServerConfigurationService.getInt(
-				"portal.show.search.when", 2));
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -730,7 +726,6 @@ public class SiteHandler extends WorksiteHandler
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("useDHTMLMore", useDHTMLMore);
-			rcontext.put("showSearchWhen", showSearchWhen);
 			if (useDHTMLMore)
 			{
 				SiteView siteView = portal.getSiteHelper().getSitesView(
