@@ -50,6 +50,7 @@ import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
@@ -276,6 +277,8 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             Site site = findOrCreateSite(payload, isTrustedConsumer);
+
+            setupUserEmailPreferenceForSite(payload, user, site, isTrustedConsumer);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteCreation, user, site);
 
@@ -770,6 +773,9 @@ public class ProviderServlet extends HttpServlet {
             M_log.debug("siteId=" + siteId);
         }
 
+        final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
+        final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
+
         Site site = null;
 
         // Get the site if it exists
@@ -777,6 +783,7 @@ public class ProviderServlet extends HttpServlet {
             try {
                 site = findSiteByLTIContextId(context_id);
                 if (site != null) {
+                    updateSiteDetailsIfChanged(site, context_title, context_label);
                     return site;
                 }
             } catch (Exception e) {
@@ -787,6 +794,7 @@ public class ProviderServlet extends HttpServlet {
         } else {
             try {
                 site = SiteService.getSite(siteId);
+                updateSiteDetailsIfChanged(site, context_title, context_label);
                 return site;
             } catch (Exception e) {
                 if (M_log.isDebugEnabled()) {
@@ -800,8 +808,6 @@ public class ProviderServlet extends HttpServlet {
             throw new LTIException("launch.site.invalid", "siteId=" + siteId, null);
         } else {
 
-            final String context_title = (String) payload.get(BasicLTIConstants.CONTEXT_TITLE);
-            final String context_label = (String) payload.get(BasicLTIConstants.CONTEXT_LABEL);
             pushAdvisor();
             try {
                 String sakai_type = "project";
@@ -867,6 +873,30 @@ public class ProviderServlet extends HttpServlet {
 			throw new LTIException( "launch.site.invalid", "siteId="+siteId, e);
 
 		}
+    }
+
+    private final void updateSiteDetailsIfChanged(Site site, String context_title, String context_label) {
+
+        boolean changed = false;
+
+        if (BasicLTIUtil.isNotBlank(context_title) && !context_title.equals(site.getTitle())) {
+            site.setTitle(context_title);
+            changed = true;
+        }
+
+        if (BasicLTIUtil.isNotBlank(context_label) && !context_label.equals(site.getShortDescription())) {
+            site.setShortDescription(context_label);
+            changed = true;
+        }
+
+        if(changed) {
+            try {
+                SiteService.save(site);
+                M_log.info("Updated  site=" + site.getId() + " title=" + context_title + " label=" + context_label);
+            } catch (Exception e) {
+                M_log.warn("Failed to update site title and/or label");
+            }
+        }
     }
 
     protected String getEid(Map payload, boolean trustedConsumer, String user_id) throws LTIException {
@@ -1032,6 +1062,52 @@ public class ProviderServlet extends HttpServlet {
                 PreferencesService.commit(pe);
             } catch(Exception e) {
                 M_log.error("Failed to setup launcher's locale",e);
+            }
+        }
+    }
+    
+    /**
+     * Picks up the ext_email_delivery_preference parameter, if supplied, and reflects it in the user's preferences
+     * as a site override for the tool being launched. This is *not* an official part of the LTI 1.1 spec; this
+     * functionality will probably become part of a LTI 2.0 consumer preferences service.
+     */
+    private void setupUserEmailPreferenceForSite(Map payload, User user, Site site, boolean isTrustedConsumer) {
+
+    	if(isTrustedConsumer) return;
+
+        // Set up user's email preference.
+        String emailDeliveryPreference = (String) payload.get("ext_email_delivery_preference");
+        if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+
+            try {
+
+                PreferencesEdit pe = null;
+                try {
+                    pe = PreferencesService.edit(user.getId());
+                } catch(IdUnusedException idue) {
+                    pe = PreferencesService.add(user.getId());
+                }
+                
+                if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
+
+                    int notificationPref = NotificationService.PREF_IMMEDIATE;
+
+                    if(emailDeliveryPreference.equals("none")) {
+                        notificationPref = NotificationService.PREF_NONE;
+                    } else if(emailDeliveryPreference.equals("digest")) {
+                        notificationPref = NotificationService.PREF_DIGEST;
+                    }
+
+                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.",":");
+
+                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
+                    propsEdit.removeProperty(site.getId());
+                    propsEdit.addProperty(site.getId(), Integer.toString(notificationPref));
+                }
+
+                PreferencesService.commit(pe);
+            } catch(Exception e) {
+                M_log.error("Failed to setup launcher's locale and/or email preference.",e);
             }
         }
     }

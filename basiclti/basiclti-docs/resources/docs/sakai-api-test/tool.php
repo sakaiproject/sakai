@@ -50,11 +50,8 @@ if ( $context->valid ) {
         print "<p>\n";
         print '<a href="json/result_json.php?url='.urlencode($_POST['custom_result_url']).'">';
         print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
-		// In case we just did not do a registration.
-		if ( !isset($_SESSION['reg_key']) ) {
-			$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-			$_SESSION['reg_password'] = "secret";
-		}
+		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
+		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 
@@ -73,11 +70,8 @@ if ( $context->valid ) {
 		}
 		print 'x=24">';
         print 'Test LTI 2.0 Settings Service</a>.</p>'."\n";
-		// In case we just did not do a registration.
-		if ( !isset($_SESSION['reg_key']) ) {
-			$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-			$_SESSION['reg_password'] = "secret";
-		}
+		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
+		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 
