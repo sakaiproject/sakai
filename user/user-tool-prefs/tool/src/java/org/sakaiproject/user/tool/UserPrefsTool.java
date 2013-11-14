@@ -2601,9 +2601,12 @@ public class UserPrefsTool
 				}
 			}
 			
-			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded");
+			String expandTypeString = ServerConfigurationService.getString("prefs.type.autoExpanded", "portfolio");
 			
 			String[] sortedTypeList = ServerConfigurationService.getStrings("prefs.type.order");
+            if(sortedTypeList == null) {
+                sortedTypeList = new String[] {"portfolio","course","project"};
+            }
 			String[] termOrder = ServerConfigurationService.getStrings("portal.term.order");
 			List<String> myTermOrder = new ArrayList<String>();
 					
