@@ -93,15 +93,15 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 		        "#{siteAddParticipantHandler.sameRoleChoice}", handler.sameRoleChoice);
 	    String selectID = roleSelect.getFullID();
 	    List<Role> roles = handler.getRoles();
-	    for (int i = 0; i < roles.size(); ++i) {
-	    	Role r = roles.get(i);
+		int j=0;
+		for (Role r: roles) {
 	    	if (!r.isProviderOnly())
 	    	{
-			    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(i));
+			    UIBranchContainer roleRow = UIBranchContainer.make(sameRoleForm,"role-row:", Integer.toString(j));
 	            
 			    // make radio button and assign role name label to it
-	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, i);
-	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, i);
+	            UISelectChoice choice =UISelectChoice.make(roleRow, "role-select", selectID, j);
+	            UISelectLabel lb = UISelectLabel.make(roleRow, "role-label", selectID, j);
 	            UILabelTargetDecorator.targetLabel(lb, choice);
 	            
 	            // add role description
@@ -112,6 +112,7 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
 	            roleItems.add(r.getId());
 	            String label = r.getId();
 	            roleDescriptions.add(label);
+				j++;
 	    	}
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray()); 
