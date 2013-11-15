@@ -75,7 +75,10 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	public String getContext(String ref) {
-		return findProducerByRef(ref).getContext(ref);
+		TaggableActivityProducer producer = findProducerByRef(ref);
+		if (producer != null)
+			return producer.getContext(ref);
+		return null;
 	}
 
 	public TaggableActivityProducer findProducerById(String id) {
