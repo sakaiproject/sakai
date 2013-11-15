@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 /**
  * Utility methods for helping with persistence
  * @author dhorwitz
- * @since 2.10
+ * @since 10.0
  */
 public class PersistenceHelper {
 	
