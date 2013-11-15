@@ -167,13 +167,13 @@ languages, as follows:
     Local ID: eu
  
 27) English (Australian)
-    Status: Underway for 2.10
+    Status: Underway for 10.0
     Translated by: Steve Swinsburg
     Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
     Local ID: en_AU
     
 28) English (British)
-    Status: Underway for 2.10
+    Status: Underway for 10.0
     Translated by: Steve Swinsburg
     Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
     Local ID: en_GB
