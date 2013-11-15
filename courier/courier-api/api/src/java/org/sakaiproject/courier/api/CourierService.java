@@ -36,7 +36,7 @@ import java.util.List;
  * </p>
  * 
  * @deprecated The CourierService is no longer a preferred way to communicate with clients.
- * 		It will be removed in a future release of Sakai (after 2.10)
+ * 		It will be removed in a future release of Sakai (after 10.0)
  * 		There are better technologies to use, please do not use.
  *      <a href="https://jira.sakaiproject.org/browse/SAK-22053">SAK-22053</a>
  */
