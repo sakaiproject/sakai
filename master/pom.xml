@@ -13,7 +13,7 @@
   <packaging>pom</packaging>
   <name>Sakai Master</name>
   <description>Corporate POM for the Sakai CLE</description>
-  <version>2.10-SNAPSHOT</version>
+  <version>10.0-SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
     <url>http://sakaiproject.org/</url>
@@ -70,9 +70,9 @@
   </scm>
 
   <properties>
-    <sakai.version>2.10-SNAPSHOT</sakai.version>
+    <sakai.version>10.0-SNAPSHOT</sakai.version>
     <!-- kernel only versions -->
-    <sakai.kernel.version>2.10-SNAPSHOT</sakai.kernel.version>
+    <sakai.kernel.version>10.0-SNAPSHOT</sakai.kernel.version>
     <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
@@ -106,8 +106,8 @@
     <generic-dao.version>0.9.18</generic-dao.version>
     <reflectutils.version>0.9.19</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
-    <sakai.lessonbuilder.version>1.5-SNAPSHOT</sakai.lessonbuilder.version>
-    <sakai.msgcntr.version>3.0-SNAPSHOT</sakai.msgcntr.version>
+    <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
+    <sakai.msgcntr.version>10.0-SNAPSHOT</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.6</sakai.jdk.version>
