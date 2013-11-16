@@ -4,7 +4,7 @@
     <parent>
         <artifactId>basiclti</artifactId>
         <groupId>org.sakaiproject.basiclti</groupId>
-        <version>2.10-SNAPSHOT</version>
+        <version>10.0-SNAPSHOT</version>
     </parent>
   <name>sakai-web-portlet-basiclti</name>
   <groupId>org.sakaiproject.basiclti</groupId>
