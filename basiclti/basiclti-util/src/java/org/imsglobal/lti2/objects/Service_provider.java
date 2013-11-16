@@ -33,10 +33,10 @@ public class Service_provider {
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Service_provider(String _id, String provider, String desc, String support_email) {
+    public Service_provider(String _id, String provider_name, String provider_description, String support_email) {
         this._id = _id;
-        this.service_provider_name = new Service_provider_name(provider);
-        this.description = new Description(desc);
+        this.service_provider_name = new Service_provider_name(provider_name);
+        this.description = new Description(provider_description);
         this.support = new Support(support_email);
     }
 

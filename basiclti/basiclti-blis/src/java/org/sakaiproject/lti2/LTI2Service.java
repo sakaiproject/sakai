@@ -63,6 +63,8 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.objects.*;
 import org.sakaiproject.lti2.SakaiLTI2Services;
+import org.sakaiproject.lti2.SakaiLTI2Config;
+
 
 import org.imsglobal.json.IMSJSONRequest;
 
@@ -230,16 +232,28 @@ public class LTI2Service extends HttpServlet {
 
 	protected ToolConsumer getToolConsumerProfile(Map<String, Object> deploy, String profile_id)
 	{
+		// Load the configuration data
+		SakaiLTI2Config cnf = new SakaiLTI2Config();
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
-		Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
-				"Amazing open source Collaboration and Learning Environment.", 
-				"http://www.sakaiproject.org", "support@sakaiproject.org");
 
-		Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
-		Service_owner sowner = new Service_owner("https://ctools.umich.edu/", "CTools", "Description", "support@ctools.umich.edu");
-		Service_provider powner = new Service_provider("https://ctools.umich.edu/", "CTools", "Description", "support@ctools.umich.edu");
+		Product_family fam = new Product_family(cnf.product_family_product_code, 
+				cnf.product_family_vendor_code, cnf.product_family_vendor_name, 
+				cnf.product_family_vendor_description, cnf.product_family_vendor_website,
+				cnf.product_family_vendor_contact);
 
-		Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
+		Product_info info = new Product_info(cnf.product_info_product_name, 
+			cnf.product_info_product_version, cnf.product_info_product_description, fam);
+
+		Service_owner sowner = new Service_owner(cnf.service_owner_id,
+			cnf.service_owner_owner_name, cnf.service_owner_description, 
+			cnf.service_owner_support_email);
+
+		Service_provider powner = new Service_provider(cnf.service_provider_id,
+			cnf.service_provider_provider_name, cnf.service_provider_description, 
+			cnf.service_provider_support_email);
+
+		Product_instance instance = new Product_instance(cnf.guid, 
+			info, sowner, powner, cnf.support_email);
 
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, instance);
 		List<String> capabilities = consumer.getCapability_offered();

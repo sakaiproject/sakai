@@ -33,11 +33,11 @@ public class Product_info {
     private Product_family product_family;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Product_info(String instance_name, String instance_version, String instance_description, 
+    public Product_info(String product_name, String product_version, String product_description, 
         Product_family product_family) {
-        this.product_name = new Product_name(instance_name);
-        this.product_version = instance_version;
-        this.description = new Description(instance_description);
+        this.product_name = new Product_name(product_name);
+        this.product_version = product_version;
+        this.description = new Description(product_description);
         this.product_family = product_family;
     }
 
