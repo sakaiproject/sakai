@@ -1,6 +1,8 @@
 
 package org.imsglobal.lti2.objects;
 
+import org.imsglobal.lti2.LTI2Config;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
@@ -33,12 +35,11 @@ public class Product_info {
     private Product_family product_family;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Product_info(String product_name, String product_version, String product_description, 
-        Product_family product_family) {
-        this.product_name = new Product_name(product_name);
-        this.product_version = product_version;
-        this.description = new Description(product_description);
-        this.product_family = product_family;
+    public Product_info(LTI2Config cnf) {
+        this.product_name = new Product_name(cnf.getProduct_info_product_name());
+        this.product_version = cnf.getProduct_info_product_version();
+        this.description = new Description(cnf.getProduct_info_product_description());
+        this.product_family = new Product_family(cnf);
     }
 
     @JsonProperty("product_name")

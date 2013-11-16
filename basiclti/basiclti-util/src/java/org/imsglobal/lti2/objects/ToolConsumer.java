@@ -1,6 +1,8 @@
 
 package org.imsglobal.lti2.objects;
 
+import org.imsglobal.lti2.LTI2Config;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,7 +54,7 @@ public class ToolConsumer {
     } ;
 
     // Constructor
-    public ToolConsumer(String guid, String tcp, Product_instance product_instance) {
+    public ToolConsumer(String guid, String tcp, LTI2Config cnf) {
         this._context.add("http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
 		NamedContext nc = new NamedContext();
 		nc.setAdditionalProperties("tcp", tcp);
@@ -60,7 +62,7 @@ public class ToolConsumer {
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
         this.guid = guid;
-        this.product_instance = product_instance;
+        this.product_instance = new Product_instance(cnf);
         addCapabilites(STANDARD_CAPABILITIES);
     }
 

@@ -1,5 +1,6 @@
-
 package org.imsglobal.lti2.objects;
+
+import org.imsglobal.lti2.LTI2Config;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -33,11 +34,11 @@ public class Service_owner {
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Service_owner(String _id, String owner_name, String desc, String support_email) {
-        this._id = _id;
-        this.service_owner_name = new Service_owner_name(owner_name);
-        this.description = new Description(desc);
-        this.support = new Support(support_email);
+    public Service_owner(LTI2Config cnf) {
+        this._id = cnf.getService_owner_id();
+        this.service_owner_name = new Service_owner_name(cnf.getService_owner_owner_name());
+        this.description = new Description(cnf.getService_owner_description());
+        this.support = new Support(cnf.getService_owner_support_email());
     }
 
     @JsonProperty("@id")

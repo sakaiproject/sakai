@@ -15,6 +15,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 
 import org.imsglobal.lti2.objects.*;
+import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2ConfigSample;
 
 public class ToolConsumerTest {
 
@@ -26,17 +28,8 @@ public class ToolConsumerTest {
     public void helloWorld() {
         System.out.println("Hello world");
 
-        Product_family fam = new Product_family("SakaiCLE", "CLE", "Sakai Project",
-            "Amazing open source Collaboration and Learning Environment.", 
-            "http://www.sakaiproject.org", "support@sakaiproject.org");
-
-        Product_info info = new Product_info("CTools", "4.0", "The Sakai installation for UMich", fam);
-        Service_owner sowner = new Service_owner("https://ctools.umich.edu/", "CTools", "Desc", "support@ctools.umich.edu");
-        Service_provider powner = new Service_provider("https://ctools.umich.edu/", "CTools", "Desc", "support@ctools.umich.edu");
-
-        Product_instance instance = new Product_instance("ctools-001", info, sowner, powner, "support@ctools.umich.edu");
-
-        ToolConsumer consumer = new ToolConsumer("00292902192", "http://localhost/", instance);
+		LTI2Config cnf = new LTI2ConfigSample();
+        ToolConsumer consumer = new ToolConsumer("00292902192", "http://localhost/", cnf);
         List<Service_offered> services = consumer.getService_offered();
         services.add(StandardServices.LTI2Registration("about:blank"));
         services.add(StandardServices.LTI1Outcomes("about:blank"));

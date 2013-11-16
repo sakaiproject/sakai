@@ -1,6 +1,8 @@
 
 package org.imsglobal.lti2.objects;
 
+import org.imsglobal.lti2.LTI2Config;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
@@ -31,13 +33,12 @@ public class Product_instance {
     private Support support;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Product_instance(String guid, Product_info info, Service_owner owner, Service_provider provider,
-        String support_email) {
-        this.guid = guid;
-        this.product_info = info;
-        this.service_owner = owner;
-        this.service_provider = provider;
-        this.support = new Support(support_email);
+    public Product_instance(LTI2Config cnf) {
+        this.guid = cnf.getGuid();
+        this.product_info = new Product_info(cnf);
+        this.service_owner = new Service_owner(cnf);
+        this.service_provider = new Service_provider(cnf);
+        this.support = new Support(cnf.getSupport_email());
     }
 
     @JsonProperty("guid")

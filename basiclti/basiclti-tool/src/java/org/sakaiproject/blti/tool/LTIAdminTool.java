@@ -74,6 +74,8 @@ import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.lti2.LTI2Config;
+import org.sakaiproject.lti2.SakaiLTI2Config;
 
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 
@@ -1045,6 +1047,16 @@ System.out.println("newTool="+newTool);
 		
 		List<Map<String,Object>> deploys = ltiService.getDeploysDao(null,null,0,5000);
 	    context.put("deploys", deploys);
+
+		// Check if we are configured
+        LTI2Config cnf = new SakaiLTI2Config();
+        if ( cnf.getGuid() == null ) {
+			context.put("alertMessage",rb.getString("error.deploy.not.config"));
+            M_log.error("*********************************************");
+            M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
+            M_log.error("* Do not use this in production.  Test only *");
+            M_log.error("*********************************************");
+        }
 		
 		return "lti_deploy_system";
 	}

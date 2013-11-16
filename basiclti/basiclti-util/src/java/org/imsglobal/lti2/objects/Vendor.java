@@ -1,6 +1,8 @@
 
 package org.imsglobal.lti2.objects;
 
+import org.imsglobal.lti2.LTI2Config;
+
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Generated;
@@ -36,12 +38,12 @@ public class Vendor {
     private Contact contact;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Vendor(String code, String vendor_name, String description, String website, String contact) {
-        this.code = code;
-        this.vendor_name = new Name(vendor_name);
-        this.description = new Description(description);
-        this.website = website;
-        this.contact = new Contact(contact);
+    public Vendor(LTI2Config cnf) {
+        this.code = cnf.getProduct_family_vendor_code();
+        this.vendor_name = new Name(cnf.getProduct_family_vendor_name());
+        this.description = new Description(cnf.getProduct_family_vendor_description());
+        this.website = cnf.getProduct_family_vendor_website();
+        this.contact = new Contact(cnf.getProduct_family_vendor_contact());
     }
     @JsonProperty("code")
     public String getCode() {
