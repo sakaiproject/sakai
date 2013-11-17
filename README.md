@@ -11,7 +11,7 @@ The Plugin saves the content every 25 seconds (can be defined in the Config - au
 And when the Editor Page is reloaded and auto saved content is found and its different from the content loaded with the editor the user will be asked if the auto saved content should be loaded instead.
 
 
-![Screenshot](http://www.watchersnet.de/Portals/0/screenshots/dnn/AutoSaveDiffDialog.png)
+![Screenshot](http://www.watchersnet.de/Portals/0/screenshots/dnn/AutoSaveDiffDialog2.png)
 
 ####License
 
