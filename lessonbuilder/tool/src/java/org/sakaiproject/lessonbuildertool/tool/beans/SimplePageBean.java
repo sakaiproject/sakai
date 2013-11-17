@@ -4732,6 +4732,12 @@ public class SimplePageBean {
 		return null;
 	}
 
+    // current recommended best URL for youtube. Put here because the same code is
+    // used a couple of different places
+        public static String getYoutubeUrlFromKey(String key) {
+	    return "https://www.youtube.com/embed/" + key + "?wmode=opaque";
+	}
+
 	public String[] split(String s, String p) {
 	    if (s == null || s.equals(""))
 		return new String[0];

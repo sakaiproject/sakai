@@ -1493,7 +1493,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "description2", i.getDescription());
 
 					} else if (mmDisplayType == null && (youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
-						String youtubeUrl = "https://www.youtube.com/embed/" + youtubeKey + "?wmode=opaque";
+						String youtubeUrl = SimplePageBean.getYoutubeUrlFromKey(youtubeKey);
 
 						if(canEditPage || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "youtubeSpan");

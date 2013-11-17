@@ -48,6 +48,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -59,6 +60,7 @@ import org.sakaiproject.lessonbuildertool.ccexport.ForumsExport;
 import org.sakaiproject.lessonbuildertool.ccexport.ZipPrintStream;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.ToolSession;
@@ -120,6 +122,9 @@ public class CCExport {
 	String resourceId;
 	String location;
 	String use;
+	String title;
+	String url;
+	boolean islink;
 	List<String> dependencies;
     }
 
@@ -138,6 +143,12 @@ public class CCExport {
     // to prevent pages from being output more than once
     Set<Long> pagesDone = new HashSet();
 
+    // list of item ID's that use embed code. Need to output
+    // an HTML page with the embed code. The string is the embed code,
+    // with fixups done
+    Map<Long, String> embedMap = new HashMap<Long,String>();
+    // itemID's that are links. Need to output the link XML file
+    Set<Resource> linkSet = new HashSet<Resource>();
 
     // the error messages are a problem. They won't show until the next page display
     // however errrors at this level are unusual, and we interrupt the download, so the
@@ -228,6 +239,10 @@ public class CCExport {
        	return "res" + (nextid++);
     }
 
+    String getResourceIdPeek () {
+       	return "res" + nextid;
+    }
+
     public void setIntendeduse (String sakaiId, String intendeduse) {
 	Resource ref = fileMap.get(sakaiId);
 	if (ref == null)
@@ -242,20 +257,20 @@ public class CCExport {
 	return ref.location;
     }
 
-    public void addFile(String sakaiId, String location) {
-	addFile(sakaiId, location, null);
+    public Resource addFile(String sakaiId, String location) {
+	return addFile(sakaiId, location, null);
     }
 
-    public void addFile(String sakaiId, String location, String use) {
+    public Resource addFile(String sakaiId, String location, String use) {
 	Resource res = new Resource();
 	res.sakaiId = sakaiId;
 	res.resourceId = getResourceId();
 	res.location = location;
 	res.dependencies = new ArrayList<String>();
 	res.use = use;
-
+	res.islink = false;
 	fileMap.put(sakaiId, res);
-
+	return res;
     }
 
     public boolean addAllFiles(String siteId) {
@@ -286,7 +301,29 @@ public class CCExport {
 		    continue;
 
 		if (e instanceof ContentResource) {
-		    addFile(e.getId(), e.getId().substring(baselen));
+		    boolean islink = ((ContentResource)e).getContentType().equals("text/url");
+		    String location = null;
+		    if (islink) {
+			location = "attachments/" + getResourceIdPeek() + ".xml";
+			String url = new String(((ContentResource)e).getContent());
+			// see if Youtube. If so, use the current recommended URL
+			String youtubeKey = SimplePageBean.getYoutubeKeyFromUrl(url);
+			if (youtubeKey != null)
+			    // code is also in ShowPageProducer. keep in sync
+			    url = SimplePageBean.getYoutubeUrlFromKey(youtubeKey);
+			Resource res = addFile(e.getId(), location);
+			res.islink = true;
+			res.url = url;
+			// try to get title from resource. Will normally be the URL
+			res.title = ((ContentResource)e).getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+			if (res.title == null)
+			    res.title = url;
+			// queue this so we output the XML file
+			linkSet.add(res);
+		    } else {
+			location = e.getId().substring(baselen);
+			Resource res = addFile(e.getId(), location);
+		    }
 		} else 
 		    addAllFiles((ContentCollection)e, baselen);
 	    }
@@ -316,7 +353,12 @@ public class CCExport {
 		InputStream instream = null;
 		if (inSakai) {
 		    resource = contentHostingService.getResource(entry.getKey());
-		    zipEntry.setSize(resource.getContentLength());
+		    // if URL there's no file to output. The link XML file will
+		    // be done at the end, since some links are discovered while outputting manifest
+		    if (((Resource)entry.getValue()).islink) {
+			continue;
+		    } else
+			zipEntry.setSize(resource.getContentLength());
 		} else {
 		    infile = new File(entry.getKey().substring(3));
 		    instream = new FileInputStream(infile);
@@ -399,6 +441,7 @@ public class CCExport {
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList<String>();
 	    res.use = null;
+	    res.islink = false;
 	    samigoMap.put(res.sakaiId, res);
 	}
 	if (doBank && samigoExport.havePoolItems()) {
@@ -408,6 +451,7 @@ public class CCExport {
 	    res.sakaiId = null;
 	    res.dependencies = new ArrayList<String>();
 	    res.use = null;
+	    res.islink = false;
 	    samigoBank = res;
 	}
 	return true;
@@ -454,6 +498,7 @@ public class CCExport {
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList<String>();
 	    res.use = null;
+	    res.islink = false;
 	    assignmentMap.put(res.sakaiId, res);
 	}
 
@@ -492,6 +537,7 @@ public class CCExport {
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList<String>();
 	    res.use = null;
+	    res.islink = false;
 	    forumsMap.put(res.sakaiId, res);
 	}
 	return true;
@@ -529,6 +575,7 @@ public class CCExport {
 	    res.sakaiId = sakaiId;
 	    res.dependencies = new ArrayList();
 	    res.use = null;
+	    res.islink = false;
 	    bltiMap.put(res.sakaiId, res);
 	}
 	return true;
@@ -575,7 +622,7 @@ public class CCExport {
 		res.location = location;
 		res.dependencies = new ArrayList();
 		res.use = null;
-		
+		res.islink = false;
 		fileMap.put(res.sakaiId, res);
 	    }
 	} catch (Exception e) {
@@ -632,6 +679,7 @@ public class CCExport {
 	    Resource res = null;
 	    String sakaiId = null;
 	    String itemString = null;
+	    String urlTitle = null;
 
 	    switch (item.getType()) {
 	    case SimplePageItem.PAGE:
@@ -652,8 +700,43 @@ public class CCExport {
 		    outputLessonPage(out, pId, item.getName(), indent + 2, true);
 		}
 		break;
-	    case SimplePageItem.RESOURCE:
 	    case SimplePageItem.MULTIMEDIA:
+		String embedCode = item.getAttribute("multimediaEmbedCode");
+		if (embedCode != null && embedCode.length() > 0) {
+		    String location = "attachments/item-" + item.getId() + ".html";
+		    res = new Resource();
+		    res.sakaiId = ("/text/" + item.getId());
+		    res.resourceId = getResourceId();
+		    res.location = location;
+		    res.dependencies = new ArrayList();
+		    res.use = null;
+		    res.islink = false;
+		    fileMap.put(res.sakaiId, res);
+		    embedMap.put(item.getId(), relFixup(embedCode, res));
+		    // item won't have a title, so we have to specify one. But with an embed code
+		    // there's no useful title. So just use generic text.
+		    urlTitle = messageLocator.getMessage("simplepage.importcc-embedtitle");
+		    break;
+		}
+		String oembed = item.getAttribute("multimediaUrl");
+		if (oembed != null && oembed.length() > 0) {
+		    // we've already done outputAllFiles, so this code is simply
+		    // to get the <resource> output.
+		    String location = "attachments/item-" + item.getId() + ".xml";
+		    // first argument is dummy in this case, since it's not in the file system
+		    res = addFile(oembed, location);
+		    res.islink = true;
+		    res.url = oembed;
+		    res.title = item.getName();
+		    if (res.title == null || res.title.length() == 0)
+			res.title = oembed;
+		    // queue this to output the XML link file
+		    linkSet.add(res);
+		    // no actual item, so we need to supply a title. Use the URL
+		    urlTitle = oembed;
+		    break;
+		}
+	    case SimplePageItem.RESOURCE:
 		res = (Resource)this.fileMap.get(item.getSakaiId());
 		break;
 	    case SimplePageItem.ASSIGNMENT:
@@ -706,8 +789,12 @@ public class CCExport {
 		outputIndent(out, indent + 2); out.println("<item identifier=\"item_" + item.getId() + "\" identifierref=\"" + res.resourceId + "\">");
 		String ititle = item.getName();
 		
-		if ((ititle == null) || (ititle.equals("")))
-		    ititle = messageLocator.getMessage("simplepage.importcc-texttitle");
+		if ((ititle == null) || (ititle.equals(""))) {
+		    if (urlTitle != null)
+			ititle = urlTitle;
+		    else
+			ititle = messageLocator.getMessage("simplepage.importcc-texttitle");
+		}
 		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeXml(ititle) + "</title>");
 		outputIndent(out, indent + 2); out.println("</item>"); 
 	    }
@@ -776,18 +863,21 @@ public class CCExport {
 	    String qtiid = null;
 	    String bankid = null;
 	    String topicid = null;
+	    String linkid = null;
 	    String usestr = "";
 	    switch (version) {
 	    case V11:
 		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
 		bankid = "imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
 		topicid = "imsdt_xmlv1p1";
+		linkid = "imswl_xmlv1p1";
 		usestr = "";
 		break;
 	    default:
 		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
 		bankid = "imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
 		topicid = "imsdt_xmlv1p2";
+		linkid = "imswl_xmlv1p2";
 		usestr = " intendeduse=\"assignment\"";
 	    }
 
@@ -798,7 +888,10 @@ public class CCExport {
 		    if (entry.getValue().use != null)
 			use = " intendeduse=\"" + entry.getValue().use + "\"";
 		}
-		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + use + ">");
+		String type = "webcontent";
+		if (((Resource)entry.getValue()).islink)
+		    type = linkid;
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"" + type + "\"" + use + ">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
 		out.println("    </resource>");
 	    }
@@ -850,6 +943,47 @@ public class CCExport {
 			   "\" type=\"webcontent\">\n      <file href=\"cc-objects/export-errors\"/>\n    </resource>"));
 	    
 	    out.println("  </resources>\n</manifest>");
+
+	    // items with embed code. need to put out the HTML page
+	    for (Map.Entry entry : this.embedMap.entrySet()) {
+		Long itemId = (Long)entry.getKey();
+		String location = "attachments/item-" + itemId + ".html";
+		
+		ZipEntry ze = new ZipEntry(location);
+		out.putNextEntry(ze);
+
+		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+		out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+		out.println("<body>");
+		out.print((String)entry.getValue());
+		out.println("</body>");
+		out.println("</html>");
+	    }		
+
+	    // links. need to put out the XML file defining the link
+	    for (Resource res: linkSet) {
+		ZipEntry ze = new ZipEntry(res.location);
+		out.putNextEntry(ze);
+		switch (version) {
+		case V11:
+		    out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		    out.println("<webLink xmlns=\"http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1\"");
+		    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+		    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1 http://www.imsglobal.org/profile/cc/ccv1p1/ccv1p1_imswl_v1p1.xsd\">");
+		    out.println("  <title>" + StringEscapeUtils.escapeXml(res.title) + "</title>");
+		    out.println("  <url href=\"" + StringEscapeUtils.escapeXml(res.url) + "\"/>");
+		    out.println("</webLink>");
+		    break;
+		default:
+		    out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		    out.println("<webLink xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imswl_v1p2\"");
+		    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+		    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p2/imswl_v1p2 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imswl_v1p2.xsd\">");
+		    out.println("  <title>" + StringEscapeUtils.escapeXml(res.title) + "</title>");
+		    out.println("  <url href=\"" + StringEscapeUtils.escapeXml(res.url) + "\"/>");
+		    out.println("</webLink>");
+		}
+	    }
 
 	    errStream.close();
 	    zipEntry = new ZipEntry("cc-objects/export-errors");
