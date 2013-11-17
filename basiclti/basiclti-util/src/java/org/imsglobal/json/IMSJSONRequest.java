@@ -2,6 +2,7 @@ package org.imsglobal.json;
 
 import java.io.Reader;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 
 import java.net.URLDecoder;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.logging.Logger;
 
 import java.lang.IllegalArgumentException;
 
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 
 import net.oauth.OAuth;
@@ -87,13 +89,6 @@ public class IMSJSONRequest {
 	// Load but do not check the authentication
 	public void loadFromRequest(HttpServletRequest request) 
 	{
-		String contentType = request.getContentType();
-		if ( ! "application/json".equals(contentType) ) {
-			errorMessage = "Content Type must be application/json";
-			Log.info(errorMessage+"\n"+contentType);
-			return;
-		}
-
 		header = request.getHeader("Authorization");
 		System.out.println("Header: "+header);
 		oauth_body_hash = null;
@@ -104,11 +99,11 @@ public class IMSJSONRequest {
 				parm = parm.trim();
 				if ( parm.startsWith("oauth_body_hash=") ) {
 					String [] pieces = parm.split("\"");
-					oauth_body_hash = URLDecoder.decode(pieces[1]);
+					if ( pieces.length == 2 ) oauth_body_hash = URLDecoder.decode(pieces[1]);
 				}
 				if ( parm.startsWith("oauth_consumer_key=") ) {
 					String [] pieces = parm.split("\"");
-					oauth_consumer_key = URLDecoder.decode(pieces[1]);
+					if ( pieces.length == 2 ) oauth_consumer_key = URLDecoder.decode(pieces[1]);
 				}
 			}
 		}		
@@ -120,35 +115,45 @@ public class IMSJSONRequest {
 		}
 
 		System.out.println("OBH="+oauth_body_hash);
-		final char[] buffer = new char[0x10000];
+        byte[] buf = new byte[1024];
+		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+		int chars = 0;
 		try {
-			StringBuilder out = new StringBuilder();
-			Reader in = request.getReader();
-			int read;
+			ServletInputStream is = request.getInputStream();
+			int readNum;
 			do {
-				read = in.read(buffer, 0, buffer.length);
-				if (read>0) {
-					out.append(buffer, 0, read);
+				readNum = is.read(buf);
+				if (readNum>0) {
+					bos.write(buf, 0, readNum); 
+					chars = chars + readNum;
+					// We dont' want a DOS
+					if ( chars > 10000000 ) {
+						errorMessage = "Message body size exceeded";
+						return;
+					}
 				}
-			} while (read>=0);
-			postBody = out.toString();
+			} while (readNum>=0);
 		} catch(Exception e) {
 			errorMessage = "Could not read message body:"+e.getMessage();
 			return;
 		}
 
+        byte[] bytes = bos.toByteArray();
+
 		try {
+			postBody = new String(bytes, "UTF-8");
 			MessageDigest md = MessageDigest.getInstance("SHA1");
-			md.update(postBody.getBytes()); 
+			md.update(bytes); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
-			System.out.println("HASH="+hash);
+			System.out.println("HASH="+hash+" bytes="+bytes.length);
 			if ( ! hash.equals(oauth_body_hash) ) {
-				errorMessage = "Body hash does not match header";
+				errorMessage = "Body hash does not match. bytes="+bytes.length;
+				System.out.println(postBody);
 				return;
 			}
 		} catch (Exception e) {
-			errorMessage = "Could not compute body hash";
+			errorMessage = "Could not compute body hash.  bytes="+bytes.length;
 			return;
 		}
 		valid = true;  // So far we are valid

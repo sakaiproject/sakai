@@ -71,11 +71,18 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param newProps
+	 * @return
+	 */
+	public Object insertTool(Map<String,Object> newProps);
+
+	/**
+	 * 
+	 * @param newProps
 	 * @param siteId
 	 * @return
 	 */
 	public Object insertToolDao(Properties newProps, String siteId);
-		
+
 	/**
 	 * insert lti tool content
 	 * @param id
@@ -129,6 +136,13 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param resourceType
+	 * @return
+	 */
+	public Map<String, Object> getToolForResourceTypeDao(String resourceType);
+
+	/**
+	 * 
 	 * @param url
 	 * @return
 	 */
@@ -156,6 +170,15 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object updateTool(Long key, Map<String, Object> newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object updateToolDao(Long key, Map<String, Object> newProps, String siteId);
 
 	/**
 	 * 
@@ -312,6 +335,108 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @return
+	 */
+	public String[] getDeployModel();
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertDeployDao(Properties newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+	public Object updateDeployDao(Long key, Object newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean deleteDeployDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Map<String, Object> getDeployDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param consumerKey
+	 * @return
+	 */
+	public Map<String, Object> getDeployForConsumerKeyDao(String consumerKey);
+
+	/**
+	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param siteId
+	 * @return
+	 */
+	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last);
+
+
+
+
+
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @return
+	 */
+	public Object insertProxyBindingDao(Properties newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @param newProps
+	 * @return
+	 */
+	public Object updateProxyBindingDao(Long key, Object newProps);
+
+	/**
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public boolean deleteProxyBindingDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param key
+	 * @return
+	 */
+	public Map<String, Object> getProxyBindingDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param tool_id
+	 * @param siteId
+	 * @return
+	 */
+	public Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
+
+
+	/**
+	 * 
 	 * @param row
 	 * @param fieldInfo
 	 * @return
@@ -354,13 +479,13 @@ public interface LTIService {
 		"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:allowed=true:maxlength=255",
 		"pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=255",
-		"frameheight:integer:label=bl_frameheight",
+		"frameheight:integer:label=bl_frameheight:allowed=true",
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
-		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
-		"launch:url:allowed=true:maxlength=1024",
-		"consumerkey:text:allowed=true:maxlength=255",
-		"secret:text:allowed=true:maxlength=255",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=1024",
+		"launch:url:label=bl_launch:maxlength=1024:allowed=true",
+		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=255",
+		"secret:text:label=bl_secret:allowed=true:maxlength=255",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"settings:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
@@ -374,37 +499,87 @@ public interface LTIService {
 	 */
 	static String[] TOOL_MODEL = { 
 		"id:key",
+		"version:radio:label=bl_version:choices=lti1,lti2:hidden=true",
 		"SITE_ID:text:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:maxlength=255",
-		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
+		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow:only=lti1",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=255",
-		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
-		"description:textarea:label=bl_description:maxlength=4096:",
+		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow:only=lti1",
+		"description:textarea:label=bl_description:maxlength=4096",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
+		"resource_type:text:label=bl_resource_type:maxlength=1024:only=lti2",
+		"deployment_id:integer:hidden=true",
+		"lti2_launch:header:fields=launch,consumerkey,secret:only=lti2",
 		"launch:url:label=bl_launch:maxlength=1024",
-		"allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow",
-		"domain:text:label=bl_domain:hidden=true:maxlength=255",
+		"allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow:only=lti1",
 		"consumerkey:text:label=bl_consumerkey:maxlength=255",
-		"allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow",
+		"allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow:only=lti1",
 		"secret:text:label=bl_secret:maxlength=255",
-		"allowsecret:radio:label=bl_allowsecret:choices=disallow,allow",
+		"allowsecret:radio:label=bl_allowsecret:choices=disallow,allow:only=lti1",
 		"frameheight:integer:label=bl_frameheight",
 		"allowframeheight:radio:label=bl_allowframeheight:choices=disallow,allow",
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
 		"allowlori:checkbox:label=bl_allowlori",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
-		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
+		// LTI 1.x user-entered custom
+		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024:only=lti1",
+		// LTI 2.x settings from web services
+		"settings:text:hidden=true:maxlength=8096",
+		// LTI 2.x tool-registration time parameters
+		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
+		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=1024:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",
 		"created_at:autodate", 
+		"updated_at:autodate" };
+
+	/**
+	 * 
+	 */
+	static String[] DEPLOY_MODEL = { 
+		"id:key",
+		"reg_state:radio:label=bl_reg_state:choices=lti2_ready,lti2_received,lti2_complete:hidden=true",
+		"title:text:label=bl_title:required=true:maxlength=255",
+		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=255",
+		"description:textarea:label=bl_description:maxlength=4096",
+		"lti2_status:header:fields=status,visible",
+		"status:radio:label=bl_status:choices=enable,disable",
+		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
+		"privacy:header:fields=sendname,sendemailaddr",
+		"sendname:checkbox:label=bl_sendname",
+		"sendemailaddr:checkbox:label=bl_sendemailaddr",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
+		"allowoutcomes:checkbox:label=bl_allowoutcomes",
+		"allowroster:checkbox:label=bl_allowroster",
+		"allowsettings:checkbox:label=bl_allowsettings",
+		"allowlori:checkbox:label=bl_allowlori",
+		"lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
+		"reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
+		"reg_key:text:label=bl_reg_key:maxlength=255:hide=insert:role=admin",
+		"reg_password:text:label=bl_reg_password:maxlength=255:hide=insert:role=admin",
+		"consumerkey:text:label=bl_consumerkey:maxlength=255:hide=insert",
+		"secret:text:label=bl_secret:maxlength=255:hide=insert",
+		"reg_profile:textarea:label=bl_reg_profile:maxlength=10000:hide=insert:role=admin",
+		"settings:text:hidden=true:maxlength=8096",   // This is "custom" in the JSON
+		"created_at:autodate", 
+		"updated_at:autodate" };
+
+	// The model for the ToolProxy Binding (LTI 2.0)
+	static String[] BINDING_MODEL = { 
+		"id:key", 
+		"tool_id:integer:hidden=true",
+		"SITE_ID:text:maxlength=99:role=admin",
+		"settings:text:hidden=true:maxlength=8096",
+		"created_at:autodate",
 		"updated_at:autodate" };
 
 	/** Static constants for data fields */
@@ -443,10 +618,25 @@ public interface LTIService {
 	static final String LTI_ALLOWCUSTOM = "allowcustom";
 	static final String LTI_XMLIMPORT = 	"xmlimport";
 	static final String LTI_CREATED_AT =  "created_at"; 
-	static final String LTI_UPATED_AT = 	"updated_at";
+	static final String LTI_UPDATED_AT = 	"updated_at";
 	static final String LTI_MATCHPATTERN = "matchpattern";
 	static final String LTI_NOTE = 	"note";
 	static final String LTI_PLACEMENTSECRET = 	"placementsecret";
 	static final String LTI_OLDPLACEMENTSECRET = 	"oldplacementsecret";
+	static final String LTI_DEPLOYMENT_ID = 	"deployment_id";
+	// BLTI-230 - LTI 2.0
+	static final String LTI_VERSION = "version";
+	static final Long LTI_VERSION_1 = new Long(0);
+	static final Long LTI_VERSION_2 = new Long(1);
+	static final String LTI_RESOURCE_TYPE = "resource_type";
+	static final String LTI_REG_STATE = "reg_state";
+	static final String LTI_REG_STATE_REGISTERED = "1";
+	static final String LTI_REG_LAUNCH = "reg_launch";
+	static final String LTI_REG_KEY = "reg_key";
+	static final String LTI_REG_PASSWORD = "reg_password";
+	static final String LTI_PARAMETER = "parameter";
+	static final String LTI_REG_PROFILE = "reg_profile";
+	static final String LTI_ENABLED_CAPABILITY = "enabled_capability";
+	// End of BLTI-230 - LTI 2.0
 
 }

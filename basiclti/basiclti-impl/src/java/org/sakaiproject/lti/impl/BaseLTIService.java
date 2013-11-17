@@ -176,6 +176,10 @@ public abstract class BaseLTIService implements LTIService {
 			M_log.warn(str + "=Missing LTIService Translation");
 		}
 
+		strings = foorm.checkI18NStrings(LTIService.DEPLOY_MODEL, rb);
+		for (String str : strings) {
+			M_log.warn(str + "=Missing LTIService Translation");
+		}
 	}
 
 	/**
@@ -528,11 +532,15 @@ public abstract class BaseLTIService implements LTIService {
 		return insertToolDao(newProps, getContext(), isAdmin(), isMaintain());
 	}
 
+	public Object insertTool(Map<String,Object> newProps) {
+		return insertToolDao(newProps, getContext(), isAdmin(), isMaintain());
+	}
+
 	public Object insertToolDao(Properties newProps, String siteId) {
 		return insertToolDao(newProps, siteId, true, true);
 	}
 
-	protected abstract Object insertToolDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+	protected abstract Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public boolean deleteTool(Long key) {
 		return deleteToolDao(key, getContext(), isAdmin(), isMaintain());
@@ -841,5 +849,45 @@ public abstract class BaseLTIService implements LTIService {
 			return new String(rb.getFormattedMessage("error.link.placement.update", new Object[]{key.toString()}));
 		}
 	}
+
+	// The methods for deployment objects
+	public String[] getDeployModel() {
+		return DEPLOY_MODEL;
+	}
+
+	protected abstract Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public Object insertDeployDao(Properties newProps) {
+		return insertDeployDao(newProps, null, true, true);
+	}
+
+	protected abstract Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public Object updateDeployDao(Long key, Object newProps) {
+		return updateDeployDao(key, newProps, null, true, true);
+	}
+
+	abstract boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	public boolean deleteDeployDao(Long key) {
+		return deleteDeployDao(key, null, true, true);
+	}
+
+	protected abstract Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
+	public Map<String, Object> getDeployDao(Long key) {
+		return getDeployDao(key, null, true);
+	}
+
+	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last) {
+		return getDeploysDao(search, order, first, last, null, true);
+	}
+
+	protected abstract List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
+
+	public abstract Object insertProxyBindingDao(Properties newProps);
+	public abstract Object updateProxyBindingDao(Long key, Object newProps);
+	public abstract boolean deleteProxyBindingDao(Long key);
+	public abstract Map<String, Object> getProxyBindingDao(Long key);
+	public abstract Map<String, Object> getProxyBindingDao(Long tool_id, String siteId);
 
 }

@@ -232,6 +232,9 @@ public class BasicLTIConstants {
 	 * parameter is required.
 	 */
 	public static final String LTI_MESSAGE_TYPE = "lti_message_type";
+	public static final String LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST = "ToolProxyRegistrationRequest";
+	public static final String LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST = "ToolProxyReregistrationRequest";
+	public static final String LTI_MESSAGE_TYPE_BASICLTILAUNCHREQUEST = "basic-lti-launch-request";
 	/**
 	 * lti_version=LTI-1p0
 	 * <p>
@@ -239,7 +242,8 @@ public class BasicLTIConstants {
 	 * particular message. This parameter is required.
 	 */
 	public static final String LTI_VERSION = "lti_version";
-	// launch settings per spec - computed not stored
+	public static final String LTI_VERSION_1 = "LTI-1p0";
+	public static final String LTI_VERSION_2 = "LTI-2p0";
 
    /** 
     * tool_consumer_info_product_family_code=desire2learn
@@ -316,6 +320,21 @@ public class BasicLTIConstants {
 	 * parameter is recommended.
 	 */
 	public static final String ROLES = "roles";
+
+	/**
+	 * tc_profile_url=http://...
+	 * <p>
+	 * This URL specifies the address where the Tool Provider can retrieve 
+	 * the Tool Consumer Profile.   This URL must be retrievable by a GET 
+	 * request by the Tool Provider.  If the URL is protected from retrieval 
+	 * in general, the Tool Consumer must append the necessary parameters to 
+	 * allow the Tool Provider to retrieve the URL with nothing more than 
+	 * a GET request.  It is legal for this URL to contain a security token 
+	 * that is changed for each ToolProxyRegistrationRequest so the Tool 
+	 * Provider must retrieve the tc_profile_url on each request.
+	 */
+	public static final String TC_PROFILE_URL = "tc_profile_url";
+
 	/**
 	 * tool_consumer_instance_contact_email=System.Admin@school.edu
 	 * <p>
@@ -410,6 +429,7 @@ public class BasicLTIConstants {
         LIS_OUTCOME_SERVICE_URL, LIS_RESULT_SOURCEDID,
 		LTI_MESSAGE_TYPE, LTI_VERSION, RESOURCE_LINK_ID, 
 		RESOURCE_LINK_TITLE, RESOURCE_LINK_DESCRIPTION, ROLES,
+		TC_PROFILE_URL,
 		TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, TOOL_CONSUMER_INSTANCE_DESCRIPTION,
 		TOOL_CONSUMER_INSTANCE_GUID, TOOL_CONSUMER_INSTANCE_NAME,
 		TOOL_CONSUMER_INSTANCE_URL, USER_ID, USER_IMAGE };

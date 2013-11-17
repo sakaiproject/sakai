@@ -354,6 +354,7 @@ public class IMSPOXRequest {
 		"                <imsx_codeMajor>failure</imsx_codeMajor>\n" +
 		"                <imsx_severity>error</imsx_severity>\n" +
 		"                <imsx_description>%s</imsx_description>\n" +
+		"                <imsx_operationRefIdentifier>%s</imsx_operationRefIdentifier>" + 
 		"            </imsx_statusInfo>\n" +
 		"        </imsx_POXResponseHeaderInfo>\n" + 
 		"    </imsx_POXHeader>\n" +
@@ -362,12 +363,18 @@ public class IMSPOXRequest {
 
 	public static String getFatalResponse(String description)
 	{
+		return getFatalResponse(description, "unknown");
+	}
+
+	public static String getFatalResponse(String description, String message_id)
+	{
 		Date dt = new Date();
 		String messageId = ""+dt.getTime();
 
 		return String.format(fatalMessage, 
 				StringEscapeUtils.escapeXml(messageId), 
-				StringEscapeUtils.escapeXml(description)); 
+				StringEscapeUtils.escapeXml(description),
+				StringEscapeUtils.escapeXml(message_id)); 
 	}
 
 	static final String responseMessage = 

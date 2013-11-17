@@ -277,7 +277,30 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 
 						   String refId = ref.getId();
 						   String [] retval = null;
-						   if ( refId.startsWith("content:") && refId.length() > 8 ) 
+						   if ( refId.startsWith("deploy:") && refId.length() > 7 )  
+						   {
+						       if ("!admin".equals(ref.getContext()) ) 
+						       {
+							       throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+						       }
+							   Map<String,Object> deploy = null;
+							   String deployStr = refId.substring(7);
+							   Long deployKey = foorm.getLongKey(deployStr);
+							   if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
+                               String placementId = req.getParameter("placement");
+                               // System.out.println("deployStr="+deployStr+" deployKey="+deployKey+" placementId="+placementId);
+                               // System.out.println(deploy);
+                               Long reg_state = foorm.getLongKey(deploy.get(LTIService.LTI_REG_STATE));
+                               if ( reg_state == 0 ) 
+                               { 
+                                   retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
+                               } 
+                               else
+                               { 
+                                   retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
+                               } 
+						   } 
+						   else if ( refId.startsWith("content:") && refId.length() > 8 ) 
 						   {
 							   Map<String,Object> content = null;
 							   Map<String,Object> tool = null;
@@ -328,7 +351,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 									doSplash(req, res, splash, rb);
 									return;
 							   }
-							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, rb);
+							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, ltiService, rb);
 						   }
 						   else
 						   {

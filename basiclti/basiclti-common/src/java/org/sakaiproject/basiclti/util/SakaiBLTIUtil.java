@@ -21,13 +21,23 @@ package org.sakaiproject.basiclti.util;
 
 import java.util.Properties;
 import java.util.Map;
+import java.util.TreeMap;
+import java.util.List;
+import java.util.Iterator;
+import java.util.Enumeration;
 import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
-import org.sakaiproject.linktool.LinkToolUtil;
+
+import org.imsglobal.lti2.LTI2Constants;
+
+import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -42,6 +52,7 @@ import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -49,7 +60,27 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.linktool.LinkToolUtil;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 
+import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
+import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthValidator;
+import net.oauth.SimpleOAuthValidator;
+import net.oauth.server.OAuthServlet;
+import net.oauth.signature.OAuthSignatureMethod;
 
 /**
  * Some Sakai Utility code for IMS Basic LTI
@@ -58,6 +89,8 @@ import org.sakaiproject.portal.util.CSSUtils;
  */
 @SuppressWarnings("deprecation")
 public class SakaiBLTIUtil {
+
+    private static Log M_log = LogFactory.getLog(SakaiBLTIUtil.class);
 
 	public static final boolean verbosePrint = false;
 
@@ -74,6 +107,18 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 
+	public static final String SVC_tc_profile = "tc_profile";
+	public static final String SVC_tc_registration = "tc_registration";
+	public static final String SVC_Settings = "Settings";
+	public static final String SVC_Result = "Result";
+
+	public static final String SET_LtiLink = "LtiLink";
+	public static final String SET_ToolProxyBinding = "ToolProxyBinding";
+	public static final String SET_ToolProxy = "ToolProxy";
+
+	public static final String LTI1_PATH = "/imsblis/service/";
+	public static final String LTI2_PATH = "/imsblis/lti2/";
+
 	public static void dPrint(String str)
 	{
 		if ( verbosePrint ) System.out.println(str);
@@ -86,13 +131,13 @@ public class SakaiBLTIUtil {
 	{
 		// Check for global overrides in properties
 		String allowSettings = ServerConfigurationService.getString(BASICLTI_SETTINGS_ENABLED, BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if ( "allowsettings".equals(propName) && ! "true".equals(allowSettings) ) return "false";
+		if ( LTIService.LTI_ALLOWSETTINGS.equals(propName) && ! "true".equals(allowSettings) ) return "false";
 
 		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
-		if ( "allowroster".equals(propName) && ! "true".equals(allowRoster) ) return "false";
+		if ( LTIService.LTI_ALLOWROSTER.equals(propName) && ! "true".equals(allowRoster) ) return "false";
 
 		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, BASICLTI_LORI_ENABLED_DEFAULT);
-		if ( "allowlori".equals(propName) && ! "true".equals(allowLori) ) return "false";
+		if ( LTIService.LTI_ALLOWLORI.equals(propName) && ! "true".equals(allowLori) ) return "false";
 
 		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
@@ -115,7 +160,7 @@ public class SakaiBLTIUtil {
 	{
 		Properties config = placement.getConfig();
 		dPrint("Sakai properties=" + config);
-		String launch_url = toNull(getCorrectProperty(config,"launch", placement));
+		String launch_url = toNull(getCorrectProperty(config,LTIService.LTI_LAUNCH, placement));
 		setProperty(info, "launch_url", launch_url);
 		if ( launch_url == null ) {
 			String xml = toNull(getCorrectProperty(config,"xml", placement));
@@ -123,7 +168,7 @@ public class SakaiBLTIUtil {
 			BasicLTIUtil.parseDescriptor(info, launch, xml);
 		}
 
-		String secret = getCorrectProperty(config,"secret", placement);
+		String secret = getCorrectProperty(config,LTIService.LTI_SECRET, placement);
 
 		// BLTI-195 - Compatibility mode for old-style encrypted secrets
 		if ( secret == null || secret.trim().length() < 1 ) {
@@ -133,16 +178,17 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		setProperty(info, "secret", secret );
+		setProperty(info, LTIService.LTI_SECRET, secret );
 
+		// This is not "consumerkey" on purpose - we are mimicking the old placement model
 		setProperty(info, "key", getCorrectProperty(config,"key", placement) );
-		setProperty(info, "debug", getCorrectProperty(config,"debug", placement) );
-		setProperty(info, "frameheight", getCorrectProperty(config,"frameheight", placement) );
-		setProperty(info, "newpage", getCorrectProperty(config,"newpage", placement) );
-		setProperty(info, "title", getCorrectProperty(config,"tooltitle", placement) );
+		setProperty(info, LTIService.LTI_DEBUG, getCorrectProperty(config,LTIService.LTI_DEBUG, placement) );
+		setProperty(info, LTIService.LTI_FRAMEHEIGHT, getCorrectProperty(config,LTIService.LTI_FRAMEHEIGHT, placement) );
+		setProperty(info, LTIService.LTI_NEWPAGE, getCorrectProperty(config,LTIService.LTI_NEWPAGE, placement) );
+		setProperty(info, LTIService.LTI_TITLE, getCorrectProperty(config,"tooltitle", placement) );
 
 		// Pull in and parse the custom parameters
-		String customstr = toNull(getCorrectProperty(config,"custom", placement) );
+		String customstr = toNull(getCorrectProperty(config,LTIService.LTI_CUSTOM, placement) );
 		parseCustom(info, customstr);
 
 		if ( info.getProperty("launch_url", null) != null || 
@@ -209,7 +255,7 @@ public class SakaiBLTIUtil {
 		return sakaiInfo(props, context, placement.getId(), rb);
 	}
 
-	public static void addSiteInfo(Properties props, Site site)
+	public static void addSiteInfo(Properties props, Properties lti2subst, Site site)
 	{
 		if ( site != null ) {
 			String context_type = site.getType();
@@ -217,19 +263,23 @@ public class SakaiBLTIUtil {
 				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
 			}
 			setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
+			setProperty(lti2subst,"CourseOffering.id",site.getId());
 			setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
+			setProperty(lti2subst,"CourseOffering.label",site.getTitle());
 			setProperty(props,BasicLTIConstants.CONTEXT_TITLE,site.getTitle());
+			setProperty(lti2subst,"CourseOffering.title",site.getTitle());
 			String courseRoster = getExternalRealmId(site.getId());
 			if ( courseRoster != null ) 
 			{
 				setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
+				setProperty(lti2subst,"CourseOffering.sourcedId",courseRoster);
 			}
 		}
 
 		// Fix up the return Url
 		String returnUrl =	ServerConfigurationService.getString("basiclti.consumer_return_url",null);
 		if ( returnUrl == null ) {
-			returnUrl = getOurServerUrl() + "/imsblis/service/return-url";  
+			returnUrl = getOurServerUrl() + LTI1_PATH + "return-url";  
 			Session s = SessionManager.getCurrentSession();
 			if (s != null) {
 				String controllingPortal = (String) s.getAttribute("sakai-controlling-portal");
@@ -245,7 +295,7 @@ public class SakaiBLTIUtil {
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
 	}
 
-	public static void addRoleInfo(Properties props, String context)
+	public static void addRoleInfo(Properties props, Properties lti2subst, String context)
 	{
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
@@ -257,6 +307,7 @@ public class SakaiBLTIUtil {
 			theRole = "Instructor";
 		}
 		setProperty(props,BasicLTIConstants.ROLES,theRole);
+		setProperty(lti2subst,"Membership.role",theRole);
 
 		String realmId = SiteService.siteReference(context);
 		try {
@@ -287,9 +338,9 @@ public class SakaiBLTIUtil {
 		}
 
 		// Add the generic information
-		addGlobalData(site, props, rb);
-		addRoleInfo(props, context);
-		addSiteInfo(props, site);
+		addGlobalData(site, props, null, rb);
+		addRoleInfo(props, null, context);
+		addSiteInfo(props, null, site);
 
 		// Add Placement Information
 		addPlacementInfo(props, placementId);
@@ -305,7 +356,7 @@ public class SakaiBLTIUtil {
 
 		// Start setting the Basici LTI parameters
 		setProperty(props,BasicLTIConstants.RESOURCE_LINK_ID,placementId);
-		String pagetitle = toNull(getCorrectProperty(config,"pagetitle", placement));
+		String pagetitle = toNull(getCorrectProperty(config,LTIService.LTI_PAGETITLE, placement));
 		if ( pagetitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_TITLE,pagetitle);
 		String tooltitle = toNull(getCorrectProperty(config,"tooltitle", placement));
 		if ( tooltitle != null ) setProperty(props,BasicLTIConstants.RESOURCE_LINK_DESCRIPTION,tooltitle);
@@ -318,7 +369,7 @@ public class SakaiBLTIUtil {
         PrivacyManager pm = (PrivacyManager) 
                 ComponentManager.get("org.sakaiproject.api.privacy.PrivacyManager");
 
-		// TODO: Think about anonymus
+		// TODO: Think about anonymous
 		if ( user != null )
 		{
 		    String context = placement.getContext();
@@ -327,7 +378,7 @@ public class SakaiBLTIUtil {
 
 			setProperty(props,BasicLTIConstants.USER_ID,user.getId());
 
-			if(ServerConfigurationService.getBoolean(SakaiBLTIUtil.BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
+			if(ServerConfigurationService.getBoolean(BASICLTI_CONSUMER_USERIMAGE_ENABLED, true)) {
                 String imageUrl = getOurServerUrl() + "/direct/profile/" + user.getId() + "/image";                     
                 setProperty(props,BasicLTIConstants.USER_IMAGE,imageUrl);
             }
@@ -349,35 +400,35 @@ public class SakaiBLTIUtil {
 			// We use the tool configuration to force outcomes off regardless of
 			// server settings (i.e. an external tool never wants the outcomes
 			// UI shown because it simply does not handle outcomes).
-			String allowOutcomes = toNull(getCorrectProperty(config,"allowoutcomes", placement));
+			String allowOutcomes = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWOUTCOMES, placement));
 			if ( ! "off".equals(allowOutcomes) ) {
 				assignment = toNull(getCorrectProperty(config,"assignment", placement));
 				allowOutcomes = ServerConfigurationService.getString(
-						SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+						BASICLTI_OUTCOMES_ENABLED, BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 				if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 			}
 
-			String allowSettings = toNull(getCorrectProperty(config,"allowsettings", placement));
+			String allowSettings = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWSETTINGS, placement));
 			if ( ! "on".equals(allowSettings) ) allowSettings = null;
 
-			String allowRoster = toNull(getCorrectProperty(config,"allowroster", placement));
+			String allowRoster = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWROSTER, placement));
 			if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
-			String allowLori = toNull(getCorrectProperty(config,"allowlori", placement));
+			String allowLori = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWLORI, placement));
 			if ( ! "on".equals(allowLori) ) allowLori = null;
 
 			String result_sourcedid = getSourceDID(user, placement, config);
 			if ( result_sourcedid != null ) {
 
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
-					setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
-					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lis_basic_outcome_url", outcome_url);  
 					outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
-					if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
 				}
 
@@ -389,7 +440,7 @@ public class SakaiBLTIUtil {
 						setProperty(props,"ext_ims_lti_tool_setting", setting);  
 					}
 					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-					if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
 				}
 
@@ -397,17 +448,17 @@ public class SakaiBLTIUtil {
 					setProperty(props,"ext_ims_lis_memberships_id", result_sourcedid);  
 
 					String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
-					if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( roster_url == null ) roster_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lis_memberships_url", roster_url);  
 				}
 
 				if ( "on".equals(allowLori) ) {
 					setProperty(props,"ext_lori_api_token", result_sourcedid);  
-					setProperty(props,"lis_result_sourcedid", result_sourcedid);  
+					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 					String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-					if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
+					if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
 					String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-					if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + "/imsblis/service/";  
+					if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_lori_api_url", lori_url);  
 					setProperty(props,"ext_lori_api_url_xml", lori_url_xml);  
 				}
@@ -432,9 +483,8 @@ public class SakaiBLTIUtil {
 		}
 	} 
 
-	public static void addGlobalData(Site site, Properties props, ResourceLoader rb)
+	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb)
 	{
-
 		if ( rb != null ) setProperty(props,BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE,rb.getLocale().toString()); 
 
 		// Get the organizational information
@@ -461,7 +511,6 @@ public class SakaiBLTIUtil {
 		}
 		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
 
-
 		// Let tools know we are coming from Sakai
 		String sakaiVersion = ServerConfigurationService.getString("version.sakai","2");
 		setProperty(props,"ext_lms", "sakai-"+sakaiVersion);  
@@ -474,8 +523,8 @@ public class SakaiBLTIUtil {
 		String serverId = ServerConfigurationService.getServerId();
 		setProperty(props,"ext_sakai_serverid",serverId);
 		setProperty(props,"ext_sakai_server",getOurServerUrl());
-
 	}
+
 	// getProperty(String name);
 	// Gnerate HTML from a descriptor and properties from 
 	public static String[] postLaunchHTML(String descriptor, String contextId, String resourceId, ResourceProperties props, ResourceLoader rb)
@@ -501,7 +550,7 @@ public class SakaiBLTIUtil {
 
 	// This must return an HTML message as the [0] in the array
 	// If things are successful - the launch URL is in [1]
-	public static String[] postLaunchHTML(Map<String, Object> content, Map<String,Object> tool, ResourceLoader rb)
+	public static String[] postLaunchHTML(Map<String, Object> content, Map<String,Object> tool, LTIService ltiService, ResourceLoader rb)
 	{
 		if ( content == null ) {
 			return postError("<p>" + getRB(rb, "error.content.missing" ,"Content item is missing or improperly configured.")+"</p>" ); 
@@ -510,15 +559,15 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
 		}
 
-		int status = getInt(tool.get("status"));
+		int status = getInt(tool.get(LTIService.LTI_STATUS));
 		if ( status == 1 ) return postError("<p>" + getRB(rb, "tool.disabled" ,"Tool is currently disabled")+"</p>" ); 
 
 		// Go with the content url first
-		String launch_url = (String) content.get("launch");
-		if ( launch_url == null ) launch_url = (String) tool.get("launch");
+		String launch_url = (String) content.get(LTIService.LTI_LAUNCH);
+		if ( launch_url == null ) launch_url = (String) tool.get(LTIService.LTI_LAUNCH);
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.nolaunch" ,"This tool is not yet configured.")+"</p>" );
 
-		String context = (String) content.get("SITE_ID");
+		String context = (String) content.get(LTIService.LTI_SITE_ID);
 		Site site = null;
 		try {
 			site = SiteService.getSite(context);
@@ -527,68 +576,95 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" ); 
 		}
 
+		// Percolate up to get the other objects...
+		Map<String, Object> proxyBinding = null;
+		Map<String, Object> deploy = null; 
+
+		Long deployKey = getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
+        if ( deployKey >= 0 ) {
+            deploy = ltiService.getDeployDao(deployKey);
+        }
+
+		Long toolKey = getLongKey(tool.get(LTIService.LTI_ID));
+        proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
+
 		// Start building up the properties
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
-		addGlobalData(site, ltiProps, rb);
-		addSiteInfo(ltiProps, site);
-		addRoleInfo(ltiProps, context);
+		Properties lti2subst = new Properties();
+		if ( deploy == null ) {
+			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_1);
+		} else {
+			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
+		}
+		addGlobalData(site, ltiProps, lti2subst, rb);
+		addSiteInfo(ltiProps, lti2subst, site);
+		addRoleInfo(ltiProps, lti2subst,  context);
 
-		String resource_link_id = "content:"+content.get("id");
+		if ( deploy != null ) {
+			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+				LTI2_PATH + SVC_tc_profile + "/" + 
+				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
+		}
+
+		String resource_link_id = "content:"+content.get(LTIService.LTI_ID);
 		setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_ID,resource_link_id);
+		setProperty(lti2subst,"ResourceLink.id",resource_link_id);
 
 		setProperty(toolProps, "launch_url", launch_url);
 
-		String secret = (String) content.get("secret");
-		if ( secret == null ) secret = (String) tool.get("secret");
-		String key = (String) content.get("consumerkey");
-		if ( key == null ) key = (String) tool.get("consumerkey");
+		String secret = (String) content.get(LTIService.LTI_SECRET);
+		if ( secret == null ) secret = (String) tool.get(LTIService.LTI_SECRET);
+		String key = (String) content.get(LTIService.LTI_CONSUMERKEY);
+		if ( key == null ) key = (String) tool.get(LTIService.LTI_CONSUMERKEY);
 
-		if ( "-----".equals(key) && "-----".equals(secret) ) {
+		if ( LTIService.LTI_SECRET_INCOMPLETE.equals(key) && LTIService.LTI_SECRET_INCOMPLETE.equals(secret) ) {
 			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool item is incomplete, missing a key and secret.")+"</p>" ); 
 		}
 
-		setProperty(toolProps, "secret", secret );
+		setProperty(toolProps, LTIService.LTI_SECRET, secret );
 		setProperty(toolProps, "key", key );
 
-		int debug = getInt(tool.get("debug"));
-		if ( debug == 2 ) debug = getInt(content.get("debug"));
-		setProperty(toolProps, "debug", debug+"");
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+		if ( debug == 2 ) debug = getInt(content.get(LTIService.LTI_DEBUG));
+		setProperty(toolProps, LTIService.LTI_DEBUG, debug+"");
 
-		int frameheight = getInt(tool.get("frameheight"));
-		if ( frameheight == 2 ) frameheight = getInt(content.get("frameheight"));
-		setProperty(toolProps, "frameheight", frameheight+"" );
+		int frameheight = getInt(tool.get(LTIService.LTI_FRAMEHEIGHT));
+		if ( frameheight == 2 ) frameheight = getInt(content.get(LTIService.LTI_FRAMEHEIGHT));
+		setProperty(toolProps, LTIService.LTI_FRAMEHEIGHT, frameheight+"" );
 
-		int newpage = getInt(tool.get("newpage"));
-		if ( newpage == 2 ) newpage = getInt(content.get("newpage"));
-		setProperty(toolProps, "newpage", newpage+"" );
+		int newpage = getInt(tool.get(LTIService.LTI_NEWPAGE));
+		if ( newpage == 2 ) newpage = getInt(content.get(LTIService.LTI_NEWPAGE));
+		setProperty(toolProps, LTIService.LTI_NEWPAGE, newpage+"" );
 
-		String title = (String) content.get("title");
-		if ( title == null ) title = (String) tool.get("title");
-		if ( title != null ) setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
+		String title = (String) content.get(LTIService.LTI_TITLE);
+		if ( title == null ) title = (String) tool.get(LTIService.LTI_TITLE);
+		if ( title != null ) {
+			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
+			setProperty(lti2subst,"ResourceLink.title",title);
+		}
 
-		// Pull in and parse the custom parameters
-		int allowCustom = getInt(tool.get("allowcustom"));
-		if ( allowCustom == 1 ) parseCustom(ltiProps, (String) content.get("custom"));
-
-		// Tool custom parameters override content parameters
-		parseCustom(ltiProps, (String) tool.get("custom"));
-
-		int releasename = getInt(tool.get("sendname"));
-		int releaseemail = getInt(tool.get("sendemailaddr"));
+		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
 
 		User user = UserDirectoryService.getCurrentUser();
 		if ( user != null )
 		{
 			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
+			setProperty(lti2subst,"User.id",user.getId());
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+			setProperty(lti2subst,"User.username",user.getEid());
 			if ( releasename == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
+				setProperty(lti2subst,"Person.name.given",user.getFirstName());
+				setProperty(lti2subst,"Person.name.family",user.getLastName());
+				setProperty(lti2subst,"Person.name.full",user.getDisplayName());
 			}
 			if ( releaseemail == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
-				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+				setProperty(lti2subst,"Person.email.primary",user.getEmail());
 				// Only send the display ID if it's different to the EID.
 				if (!user.getEid().equals(user.getDisplayId())) {
 					setProperty(ltiProps,BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID,user.getDisplayId());
@@ -596,63 +672,200 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		int allowoutcomes = getInt(tool.get("allowoutcomes"));
-		int allowroster = getInt(tool.get("allowroster"));
-		int allowsettings = getInt(tool.get("allowsettings"));
-		int allowlori = getInt(tool.get("allowlori"));
-		String placement_secret = (String) content.get("placementsecret");
+		int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
+		int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
+		int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
+		int allowlori = getInt(tool.get(LTIService.LTI_ALLOWLORI));
+		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
+		// int tool_id = getInt(tool.get(LTIService.LTI_ID));
 
 		String result_sourcedid = getSourceDID(user, resource_link_id, placement_secret);
 		if ( result_sourcedid != null ) {
 
 			if ( allowoutcomes == 1 ) {
-				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 
 				// New Basic Outcomes URL
 				String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
-				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lis_basic_outcome_url", outcome_url);  
 				outcome_url = ServerConfigurationService.getString("basiclti.consumer."+BasicLTIConstants.LIS_OUTCOME_SERVICE_URL,null);
-				if ( outcome_url == null ) outcome_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
+				String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
+				setProperty(lti2subst, "Result.url", result_url);
 			}
 
 			if ( allowsettings == 1 ) {
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
 
-				String setting = (String) content.get("settings");
+				String setting = (String) content.get(LTIService.LTI_SETTINGS);
 				if ( setting != null ) {
 					setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
 				}
 				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-				if ( service_url == null ) service_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
+
+				String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
+				setProperty(lti2subst,"LtiLink.custom.url", settings_url + SET_LtiLink + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + SET_ToolProxyBinding + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + SET_ToolProxy + "/" + key);
 			}
 
 			if ( allowroster == 1 ) {
 				setProperty(ltiProps,"ext_ims_lis_memberships_id", result_sourcedid);  
 
 				String roster_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_memberships_url",null);
-				if ( roster_url == null ) roster_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( roster_url == null ) roster_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_ims_lis_memberships_url", roster_url);  
 			}
 
 			if ( allowlori == 1 ) {
 				setProperty(ltiProps,"ext_lori_api_token", result_sourcedid);  
-				setProperty(ltiProps,"lis_result_sourcedid", result_sourcedid);  
+				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
 				String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-				if ( lori_url == null ) lori_url = getOurServerUrl() + "/imsblis/service/";  
+				if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
 				String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + "/imsblis/service/";  
+				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,"ext_lori_api_url", lori_url);  
 				setProperty(ltiProps,"ext_lori_api_url_xml", lori_url_xml);  
 			}
 		}
 
+		// Merge all the sources of properties
+		Properties custom = new Properties();
+
+		BasicLTIUtil.mergeLTI2Custom(custom, (String) content.get(LTIService.LTI_SETTINGS));
+		BasicLTIUtil.mergeLTI2Custom(custom, (String) tool.get(LTIService.LTI_SETTINGS));
+		BasicLTIUtil.mergeLTI2Parameters(custom, (String) tool.get(LTIService.LTI_PARAMETER));
+		if ( proxyBinding != null ) {
+			BasicLTIUtil.mergeLTI2Custom(custom, (String) proxyBinding.get(LTIService.LTI_SETTINGS));
+		}
+		if ( deploy != null ) {
+			BasicLTIUtil.mergeLTI2Custom(custom, (String) deploy.get(LTIService.LTI_SETTINGS));
+		}
+
+		int allowCustom = getInt(tool.get(LTIService.LTI_ALLOWCUSTOM));
+		if ( allowCustom == 1 ) 
+			BasicLTIUtil.mergeLTI1Custom(custom, (String) content.get(LTIService.LTI_CUSTOM));
+
+		BasicLTIUtil.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
+
 		// System.out.println("ltiProps="+ltiProps);
 		// System.out.println("toolProps="+toolProps);
+System.out.println("lti2subst="+lti2subst);
+
+System.out.println("before custom="+custom);
+		BasicLTIUtil.substituteCustom(custom, lti2subst);
+System.out.println("after custom="+custom);
+
+		// Place the custom values into the launch
+        Enumeration e = custom.propertyNames();
+        while (e.hasMoreElements()) {
+            String keyStr = (String) e.nextElement();
+            String value =  custom.getProperty(keyStr);
+			setProperty(ltiProps,"custom_"+keyStr,value);
+		}
 
 		return postLaunchHTML(toolProps, ltiProps, rb);
+	}
+
+    // An LTI 2.0 Registration launch
+	// This must return an HTML message as the [0] in the array
+	// If things are successful - the launch URL is in [1]
+	public static String[] postRegisterHTML(Long deployKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
+	{
+		if ( tool == null ) {
+			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool item is missing or improperly configured.")+"</p>" ); 
+		}
+
+		int status = getInt(tool.get(LTIService.LTI_REG_STATE));
+		if ( status != 0 ) return postError("<p>" + getRB(rb, "error.lti2.badstate" ,"Tool is in the wrong state to register")+"</p>" ); 
+
+		String launch_url = (String) tool.get(LTIService.LTI_REG_LAUNCH);
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.lti2.noreg" ,"This tool is has no registration url.")+"</p>" );
+
+		String password = (String) tool.get(LTIService.LTI_REG_PASSWORD);
+		String key = (String) tool.get(LTIService.LTI_REG_KEY);
+		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+
+		if ( password == null || key == null || consumerkey == null) {
+			return postError("<p>" + getRB(rb, "error.lti2.partial" ,"Tool item is incomplete, missing a key and password.")+"</p>" ); 
+		}
+
+		// Start building up the properties
+		Properties ltiProps = new Properties();
+
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
+		setProperty(ltiProps, LTI2Constants.REG_KEY,key);
+		// TODO: Lets show off and encrypt this secret too...
+		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
+		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
+
+		String serverUrl = getOurServerUrl();
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
+
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+		debug = 1;
+
+		System.out.println("ltiProps="+ltiProps);
+
+		boolean dodebug = debug == 1;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
+
+		String [] retval = { postData, launch_url };
+		return retval;
+	}
+
+    // An LTI 2.0 ReRegistration launch
+	// This must return an HTML message as the [0] in the array
+	// If things are successful - the launch URL is in [1]
+	public static String[] postReRegisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
+	{
+		if ( deploy == null ) {
+			return postError("<p>" + getRB(rb, "error.deploy.missing" ,"Deployment is missing or improperly configured.")+"</p>" ); 
+		}
+
+		int status = getInt(deploy.get("reg_state"));
+		if ( status == 0 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
+
+		String launch_url = (String) deploy.get("reg_launch");
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );
+
+		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		String secret = (String) deploy.get(LTIService.LTI_SECRET);
+
+		if ( secret == null || consumerkey == null) {
+			return postError("<p>" + getRB(rb, "error.deploy.partial" ,"Deployment is incomplete, missing a key and secret.")+"</p>" ); 
+		}
+
+		// Start building up the properties
+		Properties ltiProps = new Properties();
+
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
+		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXY_RE_REGISTRATIONREQUEST);
+
+		String serverUrl = getOurServerUrl();
+		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
+
+		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
+		debug = 1;
+
+		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
+				consumerkey, secret, null, null, null);
+
+		System.out.println("signed ltiProps="+ltiProps);
+
+		boolean dodebug = debug == 1;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
+
+		String [] retval = { postData, launch_url };
+		return retval;
 	}
 
 	// This must return an HTML message as the [0] in the array
@@ -692,7 +905,7 @@ public class SakaiBLTIUtil {
 		// Look up the LMS-wide secret and key - default key is guid
 		String key = getToolConsumerInfo(launch_url,"key");
 		if ( key == null ) key = org_guid;
-		String secret = getToolConsumerInfo(launch_url,"secret");
+		String secret = getToolConsumerInfo(launch_url,LTIService.LTI_SECRET);
 
 		// Demand key/secret in a pair
 		if ( key == null || secret == null ) {
@@ -702,7 +915,7 @@ public class SakaiBLTIUtil {
 
 		// If we do not have LMS-wide info, use the local key/secret
 		if ( secret == null ) {
-			secret = toNull(toolProps.getProperty("secret"));
+			secret = toNull(toolProps.getProperty(LTIService.LTI_SECRET));
 			key = toNull(toolProps.getProperty("key"));
 		}
 
@@ -740,7 +953,7 @@ public class SakaiBLTIUtil {
 		if ( ltiProps == null ) return postError("<p>" + getRB(rb, "error.sign", "Error signing message.")+"</p>");
 		dPrint("LAUNCH III="+ltiProps);
 
-		String debugProperty = toolProps.getProperty("debug");
+		String debugProperty = toolProps.getProperty(LTIService.LTI_DEBUG);
 		boolean dodebug = "on".equals(debugProperty) || "1".equals(debugProperty);
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
 
@@ -779,6 +992,7 @@ public class SakaiBLTIUtil {
 	public static void setProperty(Properties props, String key, String value)
 	{
 		if ( value == null ) return;
+		if ( props == null ) return;
 		value = Web.cleanHtml(value);
 		if ( value.trim().length() < 1 ) return;
 		props.setProperty(key, value);
@@ -826,11 +1040,392 @@ public class SakaiBLTIUtil {
 		return default_secret;
 	}
 
+	// expected_oauth_key can be null - if it is non-null it must match the key in the request
+	public static Object validateMessage(HttpServletRequest request, String URL, 
+		String oauth_secret, String expected_oauth_key)
+	{
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
+		String oauth_consumer_key = null;
+		try {
+			oauth_consumer_key = oam.getConsumerKey();
+		} catch (Exception e) {
+            return "Unable to find consumer key";
+		}
+
+		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
+            return "Incorrect consumer key";
+		}
+
+		oauth_secret = decryptSecret(oauth_secret);
+
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
+
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+            return "Unable to find base string";
+		}
+
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			if (base_string != null) {
+				M_log.warn("Failed to validate: "+e.getLocalizedMessage());
+				M_log.warn(base_string);
+			}
+			return "Failed to validate: "+e.getLocalizedMessage();
+		}
+		return Boolean.TRUE;
+	}
+
+	// Returns:
+	// String implies error
+	// Boolean.TRUE - Sourcedid checks out
+	// Boolean.FALSE - Sourcedid or secret fail
+    public static Object checkSourceDid(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService)
+    {
+		return handleGradebook(sourcedid, request, ltiService, false, false, null, null);
+	}
+
+	// Grade retrieval Map<String, Object> with "grade" => Double  and "comment" => String
+    public static Object getGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService)
+	{
+		return handleGradebook(sourcedid, request, ltiService, true, false, null, null);
+	}
+
+	// Boolean.TRUE - Grade updated
+    public static Object setGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, Double grade, String comment)
+	{
+		return handleGradebook(sourcedid, request, ltiService, false, false, grade, comment);
+	}
+
+	// Boolean.TRUE - Grade deleted
+    public static Object deleteGrade(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, Double grade, String comment)
+	{
+		return handleGradebook(sourcedid, request, ltiService, false, true, null, null);
+	}
+
+	// Quite a long bit of code
+	private static Object handleGradebook(String sourcedid, HttpServletRequest request, 
+		LTIService ltiService, boolean isRead, boolean isDelete, 
+		Double theGrade, String comment)
+	{
+		// Truncate this to the maximum length to insure no cruft at the end
+		if ( sourcedid.length() > 2048) sourcedid = sourcedid.substring(0,2048);
+
+		// Attempt to parse the sourcedid, any failure is fatal
+		String placement_id = null;
+		String signature = null;
+		String user_id = null;
+		try {
+			int pos = sourcedid.indexOf(":::");
+			if ( pos > 0 ) {
+				signature = sourcedid.substring(0, pos);
+				String dec2 = sourcedid.substring(pos+3);
+				pos = dec2.indexOf(":::");
+				user_id = dec2.substring(0,pos);
+				placement_id = dec2.substring(pos+3);
+			}
+		} catch (Exception e) {
+			return "Unable to decrypt result_sourcedid=" + sourcedid;
+		}
+
+		M_log.debug("signature="+signature);
+		M_log.debug("user_id="+user_id);
+		M_log.debug("placement_id="+placement_id);
+
+		Properties pitch = getPropertiesFromPlacement(placement_id, ltiService);
+		if ( pitch == null ) {
+			return "Error retrieving result_sourcedid information";
+		}
+
+		String siteId = pitch.getProperty(LTIService.LTI_SITE_ID);
+		Site site = null;
+		try { 
+			site = SiteService.getSite(siteId);
+		} catch (Exception e) {
+			return "Error retrieving result_sourcedid site: "+e.getLocalizedMessage();
+		}
+
+		// Check the message signature using OAuth
+		String oauth_secret = pitch.getProperty(LTIService.LTI_SECRET);
+		M_log.debug("oauth_secret: "+oauth_secret);
+		oauth_secret = decryptSecret(oauth_secret);
+		M_log.debug("oauth_secret (decrypted): "+oauth_secret);
+
+		String oauth_consumer_key = pitch.getProperty(LTIService.LTI_CONSUMERKEY);
+		M_log.debug("oauth_consumer_key: "+oauth_consumer_key);
+
+		String URL = getOurServletPath(request);
+
+		// Validate the incoming message
+		Object retval = validateMessage(request, URL, oauth_secret, oauth_consumer_key);
+		if ( retval instanceof String ) return retval;
+
+		// Check the signature of the sourcedid to make sure it was not altered
+		String placement_secret  = pitch.getProperty(LTIService.LTI_PLACEMENTSECRET);
+		if ( placement_secret == null ) {
+			return "Could not find placement secret";
+		}
+
+		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+		String received_signature = ShaUtil.sha256Hash(pre_hash);
+		M_log.debug("Received signature="+signature+" received="+received_signature);
+		boolean matched = signature.equals(received_signature);
+
+		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
+		if ( old_placement_secret != null && ! matched ) {
+			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
+			received_signature = ShaUtil.sha256Hash(pre_hash);
+			M_log.debug("Received signature II="+signature+" received="+received_signature);
+			matched = signature.equals(received_signature);
+		}
+
+		if ( !matched ) return "Sourcedid signature did not match";
+
+		// If we are not supposed to lookup or set the grade, we are done
+		if ( isRead == false && isDelete == false && theGrade == null ) return new Boolean(matched);
+
+		// Look up the assignment so we can find the max points
+		GradebookService g = (GradebookService)  ComponentManager
+			.get("org.sakaiproject.service.gradebook.GradebookService");
+
+
+		// Make sure the user exists in the site
+		boolean userExistsInSite = false;
+		try {
+			Member member = site.getMember(user_id);
+			if(member != null ) userExistsInSite = true;
+		} catch (Exception e) {
+			M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
+			return "User not found in site";
+		}
+
+		// Make sure the placement is configured to receive grades
+		String assignment = pitch.getProperty("assignment");
+		M_log.debug("ASSN="+assignment);
+		if ( assignment == null ) {
+			return "Assignment not set in placement";
+		}
+
+		Assignment assignmentObject = null;
+
+		pushAdvisor();
+		try {
+			List gradebookAssignments = g.getAssignments(siteId);
+			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
+				Assignment gAssignment = (Assignment) i.next();
+				if ( gAssignment.isExternallyMaintained() ) continue;
+				if ( assignment.equals(gAssignment.getName()) ) { 
+					assignmentObject = gAssignment;
+					break;
+				}
+			}
+		} catch (Exception e) {
+			assignmentObject = null; // Just to make double sure
+		}
+
+		// Attempt to add assignment to grade book
+		if ( assignmentObject == null && g.isGradebookDefined(siteId) ) {
+			try {
+				assignmentObject = new Assignment();
+				assignmentObject.setPoints(Double.valueOf(100));
+				assignmentObject.setExternallyMaintained(false);
+				assignmentObject.setName(assignment);
+				assignmentObject.setReleased(true);
+				assignmentObject.setUngraded(false);
+				g.addAssignment(siteId, assignmentObject);
+				M_log.info("Added assignment: "+assignment);
+			}
+			catch (ConflictingAssignmentNameException e) {
+				M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
+				assignmentObject = null; // Just to make sure
+			}
+			catch (Exception e) {
+				M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
+				assignmentObject = null; // Just to make double sure
+			}
+		}
+
+		// Now read, set, or delete the grade...
+		Session sess = SessionManager.getCurrentSession();
+		String message = null;
+
+		try {
+			// Indicate "who" is setting this grade - needs to be a real user account
+			String gb_user_id = ServerConfigurationService.getString(
+					"basiclti.outcomes.userid", "admin");
+			String gb_user_eid = ServerConfigurationService.getString(
+					"basiclti.outcomes.usereid", gb_user_id);
+			sess.setUserId(gb_user_id);
+			sess.setUserEid(gb_user_eid);
+			if ( isRead ) {
+				String actualGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+				Double dGrade = null;
+				if ( actualGrade != null && actualGrade.length() > 0 ) {
+					dGrade = new Double(actualGrade);
+					dGrade = dGrade / assignmentObject.getPoints();
+				}
+				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignment, user_id);
+				message = "Result read";
+				Map<String, Object> retMap = new TreeMap<String, Object> ();
+				retMap.put("grade",dGrade);
+				retMap.put("comment",commentDef.getCommentText());
+				retval = retMap;
+			} else if ( isDelete ) {
+				g.setAssignmentScore(siteId, assignment, user_id, null, "External Outcome");
+				M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
+				message = "Result deleted";
+				retval = Boolean.TRUE;
+			} else {
+				if ( theGrade < 0.0 || theGrade > 1.0 ) {
+					throw new Exception("Grade out of range");
+				}
+				theGrade = theGrade * assignmentObject.getPoints();
+				g.setAssignmentScore(siteId, assignment, user_id, theGrade, "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignment, user_id, comment);
+
+				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ theGrade);
+				message = "Result replaced";
+				retval = Boolean.TRUE;
+			}
+		} catch (Exception e) {
+			retval = "Grade failure "+e.getMessage()+" siteId="+siteId;
+		} finally {
+			sess.invalidate(); // Make sure to leave no traces
+			popAdvisor();
+		}
+
+		return retval;
+	}
+
+	// Extract the necessary properties from a placement
+	public static Properties getPropertiesFromPlacement(String placement_id, LTIService ltiService)
+	{
+		// These are the fields from a placement - they are not an exact match
+		// for the fields in tool/content
+		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
+				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
+				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
+				"toolsetting", "allowlori"};
+
+		Properties retval = new Properties();
+
+		String siteId = null;
+		if ( isPlacement(placement_id) ) {
+			ToolConfiguration placement = null;
+			Properties config = null;
+			try {
+				placement = SiteService.findTool(placement_id);
+				config = placement.getConfig();
+				siteId = placement.getSiteId();
+			} catch (Exception e) {
+				M_log.debug("Error getPropertiesFromPlacement: "+e.getLocalizedMessage(), e);
+				return null;
+			}
+			retval.setProperty("placementId",placement_id);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+			for ( String field : fieldList ) {
+				String value = toNull(getCorrectProperty(config,field, placement));
+				if ( field.equals("toolsetting") ) {
+					value = config.getProperty("toolsetting", null);
+					field = LTIService.LTI_SETTINGS;
+				}
+				if ( value == null ) continue;
+				if ( field.equals("releasename") ) field = LTIService.LTI_SENDNAME;
+				if ( field.equals("releaseemail") ) field = LTIService.LTI_SENDEMAILADDR;
+				if ( field.equals("key") ) field = LTIService.LTI_CONSUMERKEY;
+				retval.setProperty(field, value);
+			}
+		} else { // Get information from content item
+			Map<String,Object> content = null;
+			Map<String,Object> tool = null;
+
+			String contentStr = placement_id.substring(8);
+			Long contentKey = getLongKey(contentStr);
+			if ( contentKey < 0 ) return null;
+
+			// Leave off the siteId - bypass all checking - because we need to 
+			// finde the siteId from the content item
+			content = ltiService.getContentDao(contentKey);
+			if ( content == null ) return null;
+			siteId = (String) content.get(LTIService.LTI_SITE_ID);
+			if ( siteId == null ) return null;
+
+			retval.setProperty("contentKey",contentStr);
+			retval.setProperty(LTIService.LTI_SITE_ID,siteId);
+
+			Long toolKey = getLongKey(content.get(LTIService.LTI_TOOL_ID));
+			if ( toolKey < 0 ) return null;
+			tool = ltiService.getToolDao(toolKey, siteId);
+			if ( tool == null ) return null;
+
+			// Adjust the content items based on the tool items
+			if ( tool != null || content != null )
+			{
+				ltiService.filterContent(content, tool);
+			}
+
+			for (String formInput : LTIService.TOOL_MODEL) {
+				Properties info = parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = tool.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+
+			for (String formInput : LTIService.CONTENT_MODEL) {
+				Properties info = parseFormString(formInput);
+				String field = info.getProperty("field", null);
+				String type = info.getProperty("type", null);
+				Object o = content.get(field);
+				if ( o instanceof String ) {
+					retval.setProperty(field,(String) o);
+					continue;
+				}
+				if ( "checkbox".equals(type) ) {
+					int check = getInt(o);
+					if ( check == 1 ) {	
+						retval.setProperty(field,"on");
+					} else {
+						retval.setProperty(field,"off");
+					}
+				}
+			}
+			retval.setProperty("assignment",(String)content.get("title"));
+		}
+		return retval;
+	}
+
+	public static boolean isPlacement(String placement_id) {
+		if ( placement_id == null ) return false;
+		return ! (placement_id.startsWith("content:") && placement_id.length() > 8) ;
+	}
+
 	// Since ServerConfigurationService.getServerUrl() is wonky because it sometimes looks
 	// at request.getServerName() instead of the serverUrl property we have our own 
 	// priority to determine our current url.
 	// BLTI-273
-	static public String getOurServerUrl() {
+	public static String getOurServerUrl() {
 		String ourUrl = ServerConfigurationService.getString("sakai.lti.serverUrl");
 		if (ourUrl == null || ourUrl.equals(""))
 			ourUrl = ServerConfigurationService.getString("serverUrl");
@@ -845,7 +1440,7 @@ public class SakaiBLTIUtil {
 		return ourUrl;
 	}
 
-	static public String getOurServletPath(HttpServletRequest request)
+	public static String getOurServletPath(HttpServletRequest request)
 	{
 		String URLstr = request.getRequestURL().toString();
 		String retval = URLstr.replaceFirst("^https??://[^/]*",getOurServerUrl());
@@ -859,6 +1454,7 @@ public class SakaiBLTIUtil {
 		return str;
 	}
 
+	// Pull in a few things to avoid circular dependency
 	public static int getInt(Object o)
 	{
 		if ( o instanceof String ) {
@@ -871,4 +1467,70 @@ public class SakaiBLTIUtil {
 		if ( o instanceof Number ) return ( (Number) o).intValue();
 		return -1;
 	}
+
+    public static String[] positional = { "field", "type" };
+    public static Properties parseFormString(String str) {
+        Properties op = new Properties();
+        String[] pairs = str.split(":");
+        int i = 0;
+        for (String s : pairs) {
+            String[] kv = s.split("=");
+            if (kv.length == 2) {
+                op.setProperty(kv[0], kv[1]);
+            } else if (kv.length == 1 && i < positional.length) {
+                op.setProperty(positional[i++], kv[0]);
+            } else {
+                // TODO : Log something here
+            }
+        }
+        return op;
+    }
+
+    public static Long getLongKey(Object key) {
+        return getLong(key);
+    }
+
+    public static Long getLong(Object key) {
+        Long retval = getLongNull(key);
+        if (retval != null)
+            return retval;
+        return new Long(-1);
+    }
+
+    public static Long getLongNull(Object key) {
+        if (key == null)
+            return null;
+        if (key instanceof Number)
+            return new Long(((Number) key).longValue());
+        if (key instanceof String) {
+            try {
+                return new Long((String) key);
+            } catch (Exception e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Setup a security advisor.
+     */
+    public static void pushAdvisor() {
+        // setup a security advisor
+        SecurityService.pushAdvisor(new SecurityAdvisor() {
+                public SecurityAdvice isAllowed(String userId, String function,
+                    String reference) {
+                return SecurityAdvice.ALLOWED;
+                }
+                });
+    }
+
+    /**
+     * Remove our security advisor.
+     */
+    public static void popAdvisor() {
+        SecurityService.popAdvisor();
+    }
+
+
 }

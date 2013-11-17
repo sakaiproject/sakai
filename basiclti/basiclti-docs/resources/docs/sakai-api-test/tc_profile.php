@@ -104,14 +104,13 @@ echo <<< EOF
        "Person.email.primary" ,
        "User.image" ,
        "Result.sourcedId" ,
-       "basic-lti-launch-request",
        "Result.autocreate",
        "Result.sourcedId"
   ],
   "service_offered": [
     {
       "@type": "RestService",
-      "@id": "$cur_url/tc_register.php",
+      "@id": "tcp:ToolProxy.collection",
       "endpoint": "$cur_url/tc_register.php",
       "format": ["application/vnd.ims.lti.v2.toolproxy+json"],
       "action": [ "POST" ]

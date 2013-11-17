@@ -2,7 +2,7 @@
 	<title>jQuery plugin: Tablesorter 2.0 - Pager plugin</title>
 
 	<!-- jQuery -->
-	<script src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 
 <script type="text/javascript" src="/library/js/jquery/jquery-ui/js/jquery-ui.js"></script>
 <link type="text/css" href="/library/js/jquery/jquery-ui/css/smoothness/jquery-ui.css" rel="stylesheet" media="screen" />
@@ -111,15 +111,15 @@
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
 		<li class="firstToolBarItem"><span><a href="" title="$tlang.getString("tool.in.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;"> $tlang.getString("tool.in.site")</a></span></li>
-		<li><span class="current">$tlang.getString("tool.in.system")</span></li>
-		#if ( $isAdmin)<li><span><a href="" title="$tlang.getString("deploy.in.system")" onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;"> $tlang.getString("deploy.in.system")</a></span></li>#end
+		<li><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
+		<li><span class="current">$tlang.getString("deploy.in.system")</span></li>
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
-	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
+	<div align="right"><a href="" title="$tlang.getString("add.deploy")" onclick="location = '$sakai_ActionURL.setPanel("DeployInsert")';return false;"> $tlang.getString("add.deploy")</a></div>
 	<br/>
-	#if ($!systemLtiToolsMap && !$systemLtiToolsMap.isEmpty())
-		$tlang.getString("tool.description.system")
+	#if ($!deploys && !$deploys.isEmpty())
+		$tlang.getString("deploy.description.system")
 		<br/>
 		<div id="tools_system_pager" class="pager">
 			<img src="/basiclti-admin-tool/addons/pager/icons/first.png" class="first" alt="First" />
@@ -134,48 +134,54 @@
 				<option value="40">40</option>
 			</select>
 		</div>
-		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("tool.table")">
+		<table id="tools_system" class="tablesorter" cellspacing="0" summary ="$tlang.getString("deploy.table")">
 			<thead>
 	        <tr>
                 <th id="title" data-placeholder="$tlang.getString('search.title')">$tlang.getString("bl_title")</th>
                 <th id="launch" data-placeholder="$tlang.getString('search.url')">$tlang.getString("bl_launch")</th>
                 <th id="site_id" data-placeholder="$tlang.getString('search.siteid')">$tlang.getString("bl_site")</th>
-                #if ($isAdmin) <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> #end
-                #if ($isAdmin || $allowMaintainerAddSystemTool) <th id="action" class="filter-false">$tlang.getString("bl_action")</th>#end
+                <th id="use" data-placeholder="$tlang.getString('search.uses')">$tlang.getString("bl_use")</th> 
+                <th id="action" class="filter-false">$tlang.getString("bl_action")</th>
 	        </tr>
 	        </thead>
 	        <tbody>
-            #foreach($tool in $systemLtiToolsMap.entrySet())
+            #foreach($deploy in $deploys)
             	
-				#set($toolId=$tool.getKey())
-				#set($toolValues=$tool.getValue())
+				#set($deployId=$deploy.getKey())
 				<tr>
-	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$validator.escapeHtml($toolValues.get("title"))</td>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("DeployView")&id=$deploy.get("id")">$validator.escapeHtml($deploy.get("title"))</td>
 	                <td headers="launch">
 						#set($launch="")
-						#set($launch=$toolValues.get("launch"))
+						#set($launch=$deploy.get("reg_launch"))
 						$!launch
 	                </td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")
-	                	#set($siteId=$toolValues.get("site_id"))
+	                	#set($siteId=$deploy.get("site_id"))
 	                	$!siteId
 	                </td>
-	                #if ($isAdmin) <td headers="use">$toolValues.get("tool_count")</td> #end
-	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
+	                <td headers="use">$deploy.get("tool_count")</td> 
 		                <td headers="action">
-		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolValues.get("SITE_ID")))
-	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolValues.get("id")">$tlang.getString("gen.edit")</a> / 
-	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolValues.get("id")">$tlang.getString("gen.delete")</a>
-	                        #end
+	                        	<a href="$sakai_ActionURL.setPanel("DeployEdit")&id=$deploy.get("id")">$tlang.getString("gen.edit")</a> / 
+								#if ($deploy.get("reg_state") == "1" || $deploy.get("reg_state") == "2")
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.reregister")</a> /
+								#else
+	                        	<a href="$sakai_ActionURL.setPanel("DeployRegister")&id=$deploy.get("id")">$tlang.getString("gen.register")</a> /
+								#end
+								#if ($deploy.get("reg_state") == "1")
+	                        	<a href="$sakai_ActionURL.setPanel("Activate")&id=$deploy.get("id")">$tlang.getString("gen.activate")</a> /
+								#end
+								#if ($deploy.get("reg_state") == "2")
+	                        	<a href="$sakai_ActionURL.setPanel("Activate")&id=$deploy.get("id")">$tlang.getString("gen.reactivate")</a> /
+								#end
+	                        	<a href="$sakai_ActionURL.setPanel("DeployDelete")&id=$deploy.get("id")">$tlang.getString("gen.delete")</a>
 		                </td>
-	                 #end
                 </tr>
 			#end
 			</tbody>
 		</table>
 	#else
-		<p>$tlang.getString("tool.none")</p>
+		<p>$tlang.getString("deploy.none")</p>
 	#end
-	$tlang.getString("tool.note")
+	$tlang.getString("deploy.note")
 </div>

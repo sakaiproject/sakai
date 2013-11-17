@@ -9,9 +9,19 @@
     <servlet-class>org.sakaiproject.blti.ServiceServlet</servlet-class>
   </servlet>
 
+  <servlet>
+    <servlet-name>LTI2Service</servlet-name>
+    <servlet-class>org.sakaiproject.lti2.LTI2Service</servlet-class>
+  </servlet>
+
   <servlet-mapping>
     <servlet-name>ServiceServlet</servlet-name>
     <url-pattern>/service/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>LTI2Service</servlet-name>
+    <url-pattern>/lti2/*</url-pattern>
   </servlet-mapping>
   
   <listener>

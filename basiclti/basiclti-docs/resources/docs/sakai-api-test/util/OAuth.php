@@ -392,6 +392,18 @@ class OAuthRequest {
     // Hack for RoR implementations that do not handle realm properly
     // $out ='Authorization: OAuth ';
     // $comma = '';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
+    $comma = ',';
+    // Hack for RoR implementations that do not handle realm properly
+    // $out ='Authorization: OAuth ';
+    // $comma = '';
     $total = array();
     foreach ($this->parameters as $k => $v) {
       if (substr($k, 0, 5) != "oauth") continue;

@@ -1303,11 +1303,15 @@ public class Foorm {
 				// Field = Always Off (0), Always On (1), or Delegate(2)
 				int value = getInt(getField(controlRow, field));
 				if ( value == 2 || ! isFieldSet(controlRow, field) ) ret.add(line);
-			//  For allowed fields, allow = 0ff (0) or On (1)
+			// When there is an allow field in the control row, check it
+			} else if ( isFieldSet(controlRow, "allow" + field) && ! "false".equals(allowed) ) {
+				Object allowRow = getField(controlRow, "allow" + field);
+				int value = getInt(allowRow);
+				if ( value == 1 ) ret.add(line);
 			} else {
-				int value = getInt(getField(controlRow, "allow" + field));
-				if ( value == 1 || ! isFieldSet(controlRow, field) ) ret.add(line);
+				ret.add(line);
 			}
+
 		}
 		return ret.toArray(new String[ret.size()]);
 	}
@@ -1388,6 +1392,16 @@ public class Foorm {
 		//if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
 			//schema += " NOT NULL";
 		return "    " + field + " " + schema;
+	}
+
+	public String getFormField(String [] formDefinition, String fieldName)
+	{
+		for (String formField : formDefinition) {
+			Properties info = parseFormString(formField);
+			String field = info.getProperty("field", null);
+			if ( fieldName.equals(field) ) return formField;
+		}
+		return null;
 	}
 
 	/**
