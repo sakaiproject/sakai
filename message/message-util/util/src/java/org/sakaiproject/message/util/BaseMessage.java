@@ -2615,7 +2615,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 			}
 			*/
 			
-			int priority=NotificationService.NOTI_OPTIONAL;
+			int priority=NotificationService.NONE;
 			
 			// complete the edit
 		m_storage.commitMessage(this, edit);
