@@ -11,7 +11,7 @@
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta http-equiv="Content-Language" content="$!{locale}" />
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	## SAK-16484 Allow Javascript to easily get at user details.
         ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
 	var portal = { 
@@ -39,7 +39,7 @@
 </script>
 
 #if ( $loggedIn )
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/sessionstoragemanager.js"></script>
+<script type="text/javascript" src="/portal/scripts/sessionstoragemanager.js"></script>
 #end
 
 <!-- this causes problems for layout needs investigating -->
@@ -84,22 +84,23 @@ ${tool.toolRenderResult.getTitle()}
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
 ${sakai_html_head_js}
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js"></script>
-     <script type="text/javascript" language="JavaScript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
 #end
 
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"></script>
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/tutorial.js"></script>
+<script type="text/javascript" src="/portal/scripts/neoscripts.js"></script>
+<script type="text/javascript" src="/library/js/jquery/notify/1.2.2/jquery.pnotify.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/qtip/tutorial.js"></script>
 #if ( $tutorial && $loggedIn )
-	<script type="text/javascript" language="JavaScript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 #if ( $neoChat && $loggedIn )
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/jquery.idle-timer.js"></script>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript" src="/portal/scripts/jquery.idle-timer.js"></script>
+<script type="text/javascript">
 	var portalChatPollInterval = ${portalChatPollInterval};
 </script>
-<script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"></script>
+<script type="text/javascript" src="/portal/scripts/chat.js"></script>
 #if ( $neoChatVideo )
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/webrtc-adapter.js"></script>
 <script type="text/javascript" language="JavaScript" src="/portal/scripts/videocall.js"></script>
@@ -130,24 +131,22 @@ ${sakai_html_head_js}
 #end
 #if ( ${styleable} )
 <script type="text/javascript" 
-    	language="JavaScript" 
     	src="/sakai-preferable-tool/js/styleable.js" >
     </script>
     
-    <script type="text/javascript" 
-            language="JavaScript">
+    <script type="text/javascript">
     window.onload = insertStyleAbleStyles;
     </script>
     #if ( ${styleableStyleSheet} )
 	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
     #end
     #if ( ${styleableJS} )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	${styleableJS} 
 	</script>
     #end
 #end
-<script type="text/javascript" language="JavaScript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
 
 ## required CSS for cluetip, bundled with the release
 <link href="${pageScriptPath}jquery/cluetip/1.2.5/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />

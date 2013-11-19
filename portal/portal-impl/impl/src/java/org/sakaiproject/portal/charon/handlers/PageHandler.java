@@ -22,7 +22,9 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -46,6 +48,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * @author ieb
@@ -60,6 +63,12 @@ public class PageHandler extends BasePortalHandler
 	private static final Log log = LogFactory.getLog(PageHandler.class);
 
 	private static final String URL_FRAGMENT = "page";
+        
+	/**
+	 * Keyword to look for in sakai.properties copyright message to replace
+	 * for the server's time's year for auto-update of Copyright end date
+	 */
+	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
 
 	public PageHandler()
 	{
@@ -138,7 +147,7 @@ public class PageHandler extends BasePortalHandler
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -264,7 +273,15 @@ public class PageHandler extends BasePortalHandler
 			{
 
 				String copyright = ServerConfigurationService
-						.getString("bottom.copyrighttext");
+					.getString("bottom.copyrighttext");
+				/**
+				 * Replace keyword in copyright message from sakai.properties 
+				 * with the server's current year to auto-update of Copyright end date 
+				 */
+				SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+				String currentServerYear = simpleDateFormat.format(new Date());
+				copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
+
 				String service = ServerConfigurationService.getString("ui.service",
 						"Sakai");
 				String serviceVersion = ServerConfigurationService.getString(

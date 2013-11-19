@@ -14,7 +14,7 @@
         <noscript>
           <div id="portal_js_warn">Sakai works much better when JavaScript is enabled. Please enable JavaScript in your Browser.</div>
         </noscript>
-        <script type="text/javascript" language="JavaScript">
+        <script type="text/javascript">
 		var sakaiPortalWindow = "";
 		$(document).ready(function() {
 			setupSkipNav();
@@ -103,7 +103,7 @@
     <head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
       <meta http-equiv="Content-Style-Type" content="text/css"/>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
 	var portal = { 
 		"loggedIn": <xsl:choose><xsl:when test="currentUser">true</xsl:when><xsl:otherwise>false</xsl:otherwise></xsl:choose>,
 		"portalPath": "<xsl:value-of select="$config/portalPath"/>",
@@ -153,34 +153,34 @@
       <title>
         <xsl:value-of disable-output-escaping="yes" select="pageTitle"/>
       </title>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
         <xsl:attribute name="src">
           <xsl:value-of select="concat(config/extra/pageScriptPath, 'headscripts.js')"/>
         </xsl:attribute>
       </script>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
         <xsl:attribute name="src">
           <xsl:value-of select="concat(config/extra/pageScriptPath, 'jquery/1.7.1/jquery-1.7.1.min.js')"/>
         </xsl:attribute>
       </script>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
         <xsl:attribute name="src">
           <xsl:value-of select="concat(config/extra/pageScriptPath, 'trimpath-template-latest.js')"/>
         </xsl:attribute>
       </script>
-      <script type="text/javascript" language="JavaScript" src="/portal/scripts/neoscripts.js"/>
-      <script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"/>
-      <script type="text/javascript" language="JavaScript" src="/library/js/jquery/qtip/tutorial.js"/>
+      <script type="text/javascript" src="/portal/scripts/neoscripts.js"/>
+      <script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"/>
+      <script type="text/javascript" src="/library/js/jquery/qtip/tutorial.js"/>
       <xsl:if test="$config/tutorial = 'true' and currentUser">
-        <script type="text/javascript" language="JavaScript">
+        <script type="text/javascript">
 					$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});
 			</script>
       </xsl:if>
       <xsl:if test="$config/neoChat = 'true' and currentUser">
-        <script type="text/javascript" language="JavaScript" src="/portal/scripts/jquery.idle-timer.js"/>
-        <script type="text/javascript" language="JavaScript" src="/portal/scripts/chat.js"/>
+        <script type="text/javascript" src="/portal/scripts/jquery.idle-timer.js"/>
+        <script type="text/javascript" src="/portal/scripts/chat.js"/>
       </xsl:if>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
         <xsl:attribute name="src">
           <xsl:value-of select="concat(config/extra/pageScriptPath, 'jquery/cluetip/1.2.5/jquery.cluetip.min.js')"/>
         </xsl:attribute>
@@ -523,7 +523,7 @@ your browser doesn't support iframes
                     </ul>
                   </div>
                 </xsl:if>
-                <script language="javascript" type="text/javascript">
+                <script type="text/javascript">
                   <xsl:text disable-output-escaping="yes">
     jQuery(document).ready(function() {
         setupSiteNav();
@@ -1016,7 +1016,7 @@ your browser doesn't support iframes
 				Server Time:
 				<span id="serverTime" class="server-time"/>
 			</div>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
 				updateFooterTime = (function() {
 					var serverTzDisplay='EDT';
 					var serverServerDateAndGMTOffset = new Date(1344854512428)

@@ -33,6 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * Handler to process static content with an internal, in memory cache.
@@ -102,7 +103,7 @@ public abstract class StaticHandler extends BasePortalHandler
 				staticCache = new StaticCache[100];
 				staticCacheHolder.set(staticCache);
 			}
-			String path = req.getPathInfo();
+			String path = URLUtils.getSafePathInfo(req);
 			if (path.indexOf("..") >= 0)
 			{
 				res.sendError(404);

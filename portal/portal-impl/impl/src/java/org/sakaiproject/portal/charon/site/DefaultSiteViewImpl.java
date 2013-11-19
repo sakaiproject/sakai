@@ -240,7 +240,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
 		}
-		if ( canAddSite && worksiteToolUrl != null ) {
+		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
 		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){
@@ -251,7 +251,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
 				currentSiteId, myWorkspaceSiteId,
 				/* includeSummary */false, /* expandSite */false,
-				/* resetTools */"true".equals(serverConfigurationService
+				/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
 						.getString(Portal.CONFIG_AUTO_RESET)),
 				/* doPages */true, /* toolContextPath */null, loggedIn);
 
@@ -271,7 +271,7 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 			List<Map> m = siteHelper.convertSitesToMaps(request, moreSites, prefix,
 					currentSiteId, myWorkspaceSiteId,
 					/* includeSummary */false, /* expandSite */ false,
-					/* resetTools */"true".equals(serverConfigurationService
+					/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
 							.getString(Portal.CONFIG_AUTO_RESET)),
 					/* doPages */true, /* toolContextPath */null, loggedIn);
 

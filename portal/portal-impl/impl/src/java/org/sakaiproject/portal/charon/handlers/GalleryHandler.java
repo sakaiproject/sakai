@@ -33,6 +33,7 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * The Gallery is effecively the main portal without the header.
@@ -111,7 +112,7 @@ public class GalleryHandler extends SiteHandler
 				if (forceLogin == null || "yes".equalsIgnoreCase(forceLogin)
 						|| "true".equalsIgnoreCase(forceLogin))
 				{
-					portal.doLogin(req, res, session, req.getPathInfo(), false);
+					portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 					return;
 				}
 				siteId = ServerConfigurationService.getGatewaySiteId();

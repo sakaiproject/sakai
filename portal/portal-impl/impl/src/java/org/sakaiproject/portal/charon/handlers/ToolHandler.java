@@ -48,6 +48,7 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.portal.util.URLUtils;
 
 
 /**
@@ -176,7 +177,7 @@ public class ToolHandler extends BasePortalHandler
 				// if not logged in, give them a chance
 				if (session.getUserId() == null)
 				{
-					portal.doLogin(req, res, session, req.getPathInfo(), false);
+					portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 				}
 				else
 				{

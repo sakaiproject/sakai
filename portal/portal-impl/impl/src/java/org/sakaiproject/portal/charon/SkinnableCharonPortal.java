@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -43,7 +44,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -98,6 +101,7 @@ import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -164,6 +168,14 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private PortalService portalService;
 	
+	private SecurityService securityService = null;
+        
+	/**
+	 * Keyword to look for in sakai.properties copyright message to replace
+	 * for the server's time's year for auto-update of Copyright end date
+	 */
+	private static final String SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD = "currentYearFromServer";
+
 	/**
 	 * Chat helper.
 	 */
@@ -653,7 +665,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			resetActionUrl = Web.serverUrl(req)
 			+ ServerConfigurationService.getString("portalPath")
-			+ req.getPathInfo() + "?sakai.state.reset=true";
+			+ URLUtils.getSafePathInfo(req) + "?sakai.state.reset=true";
 		}
 
 		// for the help button
@@ -699,7 +711,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// Must have site.upd to see the Edit button
 		if (result.getJSR168EditUrl() != null && site != null)
 		{
-			if (SecurityService.unlock(SiteService.SECURE_UPDATE_SITE, site
+			if (securityService.unlock(SiteService.SECURE_UPDATE_SITE, site
 					.getReference()))
 			{
 				String editUrl = Web.serverUrl(req) + result.getJSR168EditUrl();
@@ -841,7 +853,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			//FindBugs thinks this is not used but is passed to the portal handler
 			String[] parts = {};
@@ -1249,7 +1261,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Session session = SessionManager.getCurrentSession();
 
 			// recognize what to do from the path
-			String option = req.getPathInfo();
+			String option = URLUtils.getSafePathInfo(req);
 
 			// if missing, we have a stray post
 			if ((option == null) || ("/".equals(option)))
@@ -1347,7 +1359,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		    // you aren't known to the system.
 		    if (session.getUserId() == null)
 			{
-			    doLogin(req, res, session, req.getPathInfo(), false);
+			    doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 		    // If the login was successful lookup the myworkworkspace site.
 		    if (session.getUserId() != null) {
@@ -1372,7 +1384,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// punt
 			if (session.getUserId() == null)
 			{
-				doLogin(req, res, session, req.getPathInfo(), false);
+				doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 				return null;
 			}
 			return placementId; // cannot resolve placement
@@ -1409,12 +1421,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		// Adjust skin name if we are in the neo Portal
-		skin = getSkin(skin);
 		String headCssToolBase = "<link href=\""
-			+ skinRepo
-			+ "/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
-		+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+			+ CSSUtils.getCssToolBase()
+			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+		String headCssToolSkin = "<link href=\"" 
+			+ CSSUtils.getCssToolSkin(skin)
+			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		
 		Editor editor = portalService.getActiveEditor(placement);
@@ -1436,7 +1448,18 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		headJs.append(preloadScript);
 		headJs.append(editorScript);
 		headJs.append(launchScript);
-		
+
+		Session s = SessionManager.getCurrentSession();
+		String userWarning = (String) s.getAttribute("userWarning");
+		if (StringUtils.isNotEmpty(userWarning)) {
+			headJs.append("<script type=\"text/javascript\">window.parent.jQuery.pnotify({pnotify_title: '");
+			headJs.append(rloader.getString("pnotify_notice"));
+			headJs.append("', pnotify_text: '");
+			headJs.append(userWarning);
+			headJs.append("', type: 'error' });</script>");
+			s.removeAttribute("userWarning");
+		}
+
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
 		String head = headCss + headJs.toString();
 
@@ -1635,6 +1658,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			String copyright = ServerConfigurationService
 			.getString("bottom.copyrighttext");
+
+			/**
+			 * Replace keyword in copyright message from sakai.properties 
+			 * with the server's current year to auto-update of Copyright end date 
+			 */
+			SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy");
+			String currentServerYear = simpleDateFormat.format(new Date());
+			copyright = copyright.replaceAll(SERVER_COPYRIGHT_CURRENT_YEAR_KEYWORD, currentServerYear);
+
 			String service = ServerConfigurationService.getString("ui.service", "Sakai");
 			String serviceVersion = ServerConfigurationService.getString(
 					"version.service", "?");
@@ -1682,21 +1714,42 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         		rcontext.put("tutorial", true);
                         		//now save this in the user's prefefences so we don't show it again
                         		PreferencesEdit preferences = null;
+                        		SecurityAdvisor secAdv = null;
                         		try {
-                        			preferences = preferencesService.edit(thisUser);
-                        		} catch (Exception e1) {
+                        			secAdv = new SecurityAdvisor(){
+                        				@Override
+                        				public SecurityAdvice isAllowed(String userId, String function,
+                        						String reference) {
+                        					if("prefs.add".equals(function) || "prefs.upd".equals(function)){
+                        						return SecurityAdvice.ALLOWED;
+                        					}
+                        					return null;
+                        				}
+                        			};
+                        			securityService.pushAdvisor(secAdv);
+                        			
                         			try {
-                        				preferences = preferencesService.add(thisUser);
-                        			} catch (IdUsedException e2) {
-                        				M_log.error(e2);
-                        			} catch (PermissionException e2) {
-                        				M_log.error(e2);
+                        				preferences = preferencesService.edit(thisUser);
+                        			} catch (IdUnusedException ex1 ) {
+                        				try {
+                        					preferences = preferencesService.add( thisUser );
+                        				} catch (IdUsedException ex2) {
+                        					M_log.error(ex2);
+                        				} catch( PermissionException ex3) {
+                        					M_log.error(ex3);
+                        				}
                         			}
-                        		}
-                        		if (preferences != null) {
-                        			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
-                        			props.addProperty("sakaiTutorialFlag", "1");
-                        			preferencesService.commit(preferences);   
+                            		if (preferences != null) {
+                            			ResourcePropertiesEdit props = preferences.getPropertiesEdit();
+                            			props.addProperty("sakaiTutorialFlag", "1");
+                            			preferencesService.commit(preferences);   
+                            		}
+                        		} catch (Exception e1) {
+                        			M_log.error(e1);
+                        		}finally{
+                        			if(secAdv != null){
+                        				securityService.popAdvisor(secAdv);
+                        			}
                         		}
                         	}
                         }
@@ -1939,6 +1992,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		siteHelper = new PortalSiteHelperImpl(this, findPageAliases);
 
 		portalService = org.sakaiproject.portal.api.cover.PortalService.getInstance();
+		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		chatHelper = org.sakaiproject.portal.api.cover.PortalChatPermittedHelper.getInstance();
 		M_log.info("init()");
 
@@ -2250,15 +2304,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	protected String getSkin(String skin)
 	{
-		if (skin == null)
-		{
-			skin = ServerConfigurationService.getString("skin.default");
-		}
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = portalService.getSkinPrefix();
-		// Don't add the prefix twice
-		if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;
-		return skin;
+		return CSSUtils.adjustCssSkinFolder(skin);
 	}
 
 }

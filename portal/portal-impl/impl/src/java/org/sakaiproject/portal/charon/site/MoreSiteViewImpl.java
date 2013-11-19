@@ -162,7 +162,7 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 				List<Map> temp = siteHelper.convertSitesToMaps(request, currentList, prefix,
 						currentSiteId, myWorkspaceSiteId,
 						/* includeSummary */false, /* expandSite */false,
-						/* resetTools */"true".equals(serverConfigurationService
+						/* resetTools */"true".equalsIgnoreCase(serverConfigurationService
 								.getString(Portal.CONFIG_AUTO_RESET)),
 						/* doPages */true, /* toolContextPath */null, loggedIn);
 

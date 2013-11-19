@@ -36,16 +36,16 @@
 
     <meta http-equiv="Content-Style-Type" content="text/css" />
       <title><xsl:value-of disable-output-escaping="yes" select="pageTitle" /></title>
-      <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+      <script type="text/javascript" src="/library/js/headscripts.js">
          <xsl:value-of select="' '"/>
       </script>
-      <script type="text/javascript" language="JavaScript" src="/library/js/jquery.js">
+      <script type="text/javascript" src="/library/js/jquery.js">
          <xsl:value-of select="' '"/>
       </script>
-      <script type="text/javascript" language="JavaScript" src="/portal/scripts/portalscripts.js">
+      <script type="text/javascript" src="/portal/scripts/portalscripts.js">
          <xsl:value-of select="' '"/>
       </script>
-      <script type="text/javascript" language="JavaScript">
+      <script type="text/javascript">
          setLoginStatus (
            <xsl:choose><xsl:when test="currentUser">true</xsl:when><xsl:otherwise>false</xsl:otherwise></xsl:choose>,
            "<xsl:value-of select="config/portalPath"/>",
@@ -65,7 +65,7 @@
       </script>
    </head>
 <body class="portalBody">
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	var sakaiPortalWindow = "";
 	</script>
    

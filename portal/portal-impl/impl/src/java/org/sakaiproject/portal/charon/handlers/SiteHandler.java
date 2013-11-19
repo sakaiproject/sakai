@@ -66,6 +66,7 @@ import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * @author ieb
@@ -89,8 +90,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private boolean useDHTMLMore = false;
 	
-	private int showSearchWhen = 2; 
-
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
 	private String mutableSitename ="-";
@@ -104,8 +103,6 @@ public class SiteHandler extends WorksiteHandler
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
 				"portal.use.dhtml.more", false));
-		showSearchWhen = Integer.valueOf(ServerConfigurationService.getInt(
-				"portal.show.search.when", 2));
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -253,7 +250,7 @@ public class SiteHandler extends WorksiteHandler
 				ss.setRequest(req);
 				ss.setToolContextPath(toolContextPath);
 				portalService.setStoredState(ss);
-				portal.doLogin(req, res, session, req.getPathInfo(), false);
+				portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 			}
 			else
 			{
@@ -295,7 +292,7 @@ public class SiteHandler extends WorksiteHandler
 		// If the page is the mutable page name then look up the 
 		// real page id from the tool name.
 		if (mutablePagename.equalsIgnoreCase(pageId)) {
-			pageId = findPageIdFromToolId(pageId, req.getPathInfo(), site);
+			pageId = findPageIdFromToolId(pageId, URLUtils.getSafePathInfo(req), site);
 		}
 		
 		// clear the last page visited
@@ -370,7 +367,7 @@ public class SiteHandler extends WorksiteHandler
 		}catch(Exception e){}
 //End - log the visit into SAKAI_EVENT		
 		rcontext.put("currentUrlPath", Web.serverUrl(req) + req.getContextPath()
-				+ req.getPathInfo());
+				+ URLUtils.getSafePathInfo(req));
 
 		// end the response
 		if (doFrameTop)
@@ -606,7 +603,7 @@ public class SiteHandler extends WorksiteHandler
 
 			// If we have turned on auto-state reset on navigation, we generate
 			// the "site-reset" "worksite-reset" and "gallery-reset" urls
-			if ("true".equals(ServerConfigurationService
+            if ("true".equalsIgnoreCase(ServerConfigurationService
 					.getString(Portal.CONFIG_AUTO_RESET)))
 			{
 				prefix = prefix + "-reset";
@@ -705,6 +702,7 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
 			int tabsToDisplay = configuredTabsToDisplay;
+			int tabDisplayLabel = 1;
 
 			if (!loggedIn)
 			{
@@ -718,15 +716,16 @@ public class SiteHandler extends WorksiteHandler
 				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
 				try
 				{
-					tabsToDisplay = (int) props.getLongProperty("tabs");
+					tabsToDisplay = (int) props.getLongProperty("tabs");					 
+					tabDisplayLabel = (int) props.getLongProperty("tab:label");
 				}
 				catch (Exception any)
 				{
 				}
 			}
 
+			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			rcontext.put("useDHTMLMore", useDHTMLMore);
-			rcontext.put("showSearchWhen", showSearchWhen);
 			if (useDHTMLMore)
 			{
 				SiteView siteView = portal.getSiteHelper().getSitesView(

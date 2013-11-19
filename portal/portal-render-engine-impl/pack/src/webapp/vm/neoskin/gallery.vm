@@ -9,7 +9,7 @@
 #parse("/vm/neoskin/includeStandardHead.vm")
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	var sakaiPortalWindow = "";
 	</script>
 #end

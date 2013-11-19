@@ -36,6 +36,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
+import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -120,7 +121,7 @@ public class ToolPortal extends HttpServlet
 
 			// our path is /placement-id/tool-destination, but we want to
 			// include anchors and parameters in the destination...
-			String path = req.getPathInfo();
+			String path = URLUtils.getSafePathInfo(req);
 			if ((path == null) || (path.length() <= 1))
 			{
 				res.sendError(HttpServletResponse.SC_NOT_FOUND);

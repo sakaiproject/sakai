@@ -29,9 +29,8 @@
 							<a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
 						#else
 							#if ($roleswapdropdown)
-								<label for ="roleSwitchSelect">${rloader.rs_viewSiteAs}</label>
 								<select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
-								<option value="" selected="selected">${rloader.rs_selectRole}</option>   
+								<option value="" selected="selected">${rloader.rs_viewSiteAs}</option>   
 								#foreach( $role in $siteRoles)   
 									<option value="$switchRoleUrl$role$panelString">$role</option>       
 								#end     
@@ -112,13 +111,21 @@
 								#if (${site.isMyWorkspace})
 <li class="nav-selected nav-menu"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
+									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-selected nav-menu"><a href="#" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>
+									#else
 <li class="nav-selected nav-menu"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+									#end
 								#end
 							#else
 								#if (${site.isMyWorkspace})
 <li class="nav-menu"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span></a>
 								#else
+									#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+<li class="nav-menu"><a href="${site.siteUrl}" title="${site.shortDescription}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a>										
+									#else	
 <li class="nav-menu"><a href="${site.siteUrl}" title="${site.siteTitle}: ${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a>
+									#end
 								#end
 							#end
 
@@ -165,20 +172,17 @@
 #if ($tabsSites.tabsMoreSitesShow)
 	<div id="selectSite" style="display:none">
 		<div id="otherSiteSearch"> 
-			#if($tabsSites.tabsMoreSites.size() > ${showSearchWhen})
-				<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-				<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
-				<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
-			#else
-				<h4>${rloader.sit_drawer}</h4>
-			#end
+			<label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
+			<a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+			<span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
 		</div>
+        <ul id="otherSitesMenu">
             #if (${tabsSites.worksiteToolUrl})
-                <ul id="otherSitesMenu">
                     <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
                     #if ($allowAddSite)
                     <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
                     #end
+            #end
                     #if (${tabsSites.prefsToolUrl})
                         <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
                     #end
@@ -186,7 +190,6 @@
                         <a href="#" onclick="closeDrawer()" title="${rloader.sit_othersitesclose}"><span>X</span><span class="skip">${rloader.sit_othersitesclose}</span></a>
                     </li>
                 </ul>
-            #end
 		#if ($useDHTMLMore)
 			<div id="otherSitesCategorWrap">
 			### TODO: format well
@@ -207,7 +210,11 @@
 						</li>
 					#else
 						<li>
-							<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+								<a href="${site.siteUrl}" title="${site.shortDescription}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#else
+								<a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}"class="toolMenus">&nbsp;<span class="skip">Tools</span></a>
+							#end
 						</li>
 					#end
 				#end
@@ -226,7 +233,7 @@
 	</div>
 #end
 
-<script language="javascript" type="text/javascript">
+<script type="text/javascript">
     jQuery(document).ready(function() {
         setupSiteNav();
         // sakai_portal_ie_detected should have been set above

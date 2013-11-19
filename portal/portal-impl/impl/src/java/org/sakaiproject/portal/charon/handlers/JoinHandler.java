@@ -15,6 +15,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.portal.util.URLUtils;
 
 /**
  * Handler for managing the joining of a user to a site.
@@ -103,7 +104,7 @@ public class JoinHandler extends BasePortalHandler
 		// Handle user not logged in.
 		if (session.getUserId() == null)
 		{
-			portal.doLogin(req, res, session, req.getPathInfo(), false);
+			portal.doLogin(req, res, session, URLUtils.getSafePathInfo(req), false);
 		}
 		else
 		{
