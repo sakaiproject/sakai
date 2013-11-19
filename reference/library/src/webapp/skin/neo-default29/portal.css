@@ -1167,9 +1167,8 @@ below they are contextually defined depending on the column as an example,as you
 	margin-top: .5em;
 	margin-bottom: .5em;
 }
-
 /*a third wrapper - reserved for copyright blurbs*/
-.sakaiCopyrightInfo{
+.sakaiCopyrightInfo, .serviceInfo {
 
     font:.75em bold Helvetica, 'Helvetica Neue', Arial;
 	color: #fff;

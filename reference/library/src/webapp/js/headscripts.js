@@ -28,7 +28,7 @@ var doubleDeep = false;
 
 function openWindow(url, title, options)
 {
-	var win = top.window.open(url, title, options);
+	var win = top.window.open(url, title.replace(/[ -]+/g, ''), options);
 	win.focus();
 	return win;
 }

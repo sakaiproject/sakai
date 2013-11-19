@@ -818,9 +818,6 @@ INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1230', '!admin', 'External Tools', '0
 INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1235', '!admin-1230', '!admin', 'sakai.basiclti.admin', 1, 'External Tools', NULL );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1230', 'sitePage.customTitle', 'true');
 
--- SAM-973
-alter table SAM_ITEMGRADING_t add ISCORRECT bit;
-
 -- SAM-2063
 alter table SAM_ASSESSMENTGRADING_T add HASAUTOSUBMISSIONRUN bit not null DEFAULT false;
 
@@ -859,9 +856,6 @@ alter table SAM_PUBLISHEDITEM_T CHANGE SCORE SCORE double;
 alter table SAM_PUBLISHEDITEM_T CHANGE DISCOUNT DISCOUNT double;
 -- End SAM-2087
 
--- SAM-2088 
-update GB_GRADABLE_OBJECT_T set external_id=concat('/samigo/',external_id) where external_id not like '/%';
-
 
 -- Upgrade for Quartz 1.6 to 1.8 - SAK-20384
 
@@ -891,3 +885,62 @@ ALTER TABLE QRTZ_SIMPLE_TRIGGERS MODIFY TIMES_TRIGGERED BIGINT(10) NOT NULL;
 
 -- Increase size
 ALTER TABLE QRTZ_CRON_TRIGGERS MODIFY CRON_EXPRESSION VARCHAR(120) NOT NULL;
+
+--------------------------
+--
+-- SAK-23812 Peer Review feature for Assignments
+--
+--------------------------
+
+CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  ( 
+	SUBMISSION_ID   	varchar(255) NOT NULL,
+	ASSESSOR_USER_ID	varchar(255) NOT NULL,
+	ASSIGNMENT_ID   	varchar(255) NOT NULL,
+	SCORE           	int(11) NULL,
+	REVIEW_COMMENT         	varchar(6000) NULL,
+	REMOVED         	bit(1) NULL,
+	SUBMITTED         	bit(1) NULL,
+	PRIMARY KEY(SUBMISSION_ID,ASSESSOR_USER_ID)
+);
+
+create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ITEM_T (SUBMISSION_ID, ASSESSOR_USER_ID);
+create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSESSOR_USER_ID);
+
+----------------------
+--
+-- END SAK-23812 Peer Review feature for Assignments
+--
+----------------------
+
+-- https://jira.sakaiproject.org/browse/SAK-24207
+ALTER TABLE CHAT2_CHANNEL ADD COLUMN START_DATE DATETIME NULL DEFAULT NULL;
+ALTER TABLE CHAT2_CHANNEL ADD COLUMN END_DATE DATETIME NULL DEFAULT NULL;
+
+
+---------------
+--
+-- MSGCNTR-830 Mark replied messages on the "Received" folder.
+--
+---------------
+
+alter table MFR_PVT_MSG_USR_T add REPLIED bit not null default false; 
+
+--------------
+--
+-- END MSGCNTR-830 Mark replied messages on the "Received" folder.
+--
+--------------
+
+
+-- https://jira.sakaiproject.org/browse/SAK-24337
+
+alter table GB_GRADEBOOK_T
+add (
+    TOTAL_POINTS_DISPLAYED bit not null,
+    COURSE_AVERAGE_DISPLAYED bit not null,
+);
+
+update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=TRUE, COURSE_AVERAGE_DISPLAYED=TRUE where COURSE_GRADE_DISPLAYED=TRUE;
+update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=FALSE, COURSE_AVERAGE_DISPLAYED=FALSE where COURSE_GRADE_DISPLAYED=FALSE;
+
+-- END SAK-24337 - Gradebook edu-services new features for display

@@ -1,5 +1,5 @@
 var CKEDITOR   = window.parent.CKEDITOR;
-var oEditor = null;
+var oEditor = CKEDITOR.instances[getParameterByName("parentname")];
 var oMovie     = null;
 var isNew	   = true;
 //var flashPlayer = "/library/editor/CKeditor/plugins/movieplayer/player_flv_maxi.swf";
@@ -41,10 +41,6 @@ function getParameterByName(name)
 }
 /** Initial setup */
 window.onload = function() { 
-	//TODO:Translate dialog box
-	oEditor = CKEDITOR.instances[getParameterByName("parentname")];
-    //TODO: This should be translated like the old
-	//oEditor.FCKLanguageManager.TranslatePage(document);
 	// Load selected movie
 	loadMovieSelection();
 }

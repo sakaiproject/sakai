@@ -82,8 +82,8 @@ languages, as follows:
 	 
 13) Spanish (Spain)
     Status: released (updated up to 2.9)
-    Translated by: UPV and SAMOO
-    Contact: Valerio Cerní (vacercon@upvnet.upv.es)
+    Translated by: SAMOO
+    Contact: Miguel Carro (farreri.sakai@gmail.com)
     Local ID: es_ES
 
 14) Spanish (Mexico)
@@ -167,13 +167,13 @@ languages, as follows:
     Local ID: eu
  
 27) English (Australian)
-    Status: Underway for 2.10
+    Status: Underway for 10.0
     Translated by: Steve Swinsburg
     Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
     Local ID: en_AU
     
 28) English (British)
-    Status: Underway for 2.10
+    Status: Underway for 10.0
     Translated by: Steve Swinsburg
     Contact: Steve Swinsburg (steve.swinsburg@gmail.com)
     Local ID: en_GB
