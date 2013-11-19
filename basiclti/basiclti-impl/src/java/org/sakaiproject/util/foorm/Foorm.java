@@ -1627,8 +1627,8 @@ public class Foorm {
 		} else if ("oracle".equals(vendor)) {
 			if (startRec > endRec)
 				return null;
-			String retval = "select * from ( select a.*, ROWNUM rnum from ( " + sqlIn
-				+ " ) a where rownum <= " + (endRec + 1) + " ) where rnum >= " + (startRec + 1);
+			String retval = "select * from ( select a.*, ROWNUM foorm_rnum from ( " + sqlIn
+				+ " ) a where ROWNUM <= " + (endRec + 1) + " ) where foorm_rnum >= " + (startRec + 1);
 			return retval;
 		} else { // MySql for sure
 			if (startRec > endRec)

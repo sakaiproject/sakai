@@ -1,3 +1,4 @@
+
 /**********************************************************************************
  * $URL$
  * $Id$
@@ -36,6 +37,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,6 +46,8 @@ import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
+
+import org.sakaiproject.lti.impl.FoormMapRowMapper;
 
 /**
  * <p>
@@ -429,6 +433,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] model = LTIService.BINDING_MODEL;
+		String[] columns = foorm.getFields(model);
+
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_binding WHERE " + 
 			LTIService.LTI_SITE_ID + " = ? AND " + LTIService.LTI_TOOL_ID + " = ?";
 
@@ -437,7 +443,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		fields[1] = tool_id;
 
 		M_log.debug(statement);
-		List rv = getResultSet(statement, fields);
+		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
@@ -771,6 +777,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] model = LTIService.TOOL_MODEL;
+		String[] columns = foorm.getFields(model);
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_tools WHERE " + 
 			LTIService.LTI_RESOURCE_TYPE + " = ? ";
 
@@ -778,7 +785,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		fields[0] = resourceType;
 
 		M_log.debug(statement);
-		List rv = getResultSet(statement, fields);
+		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
@@ -796,6 +803,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		String[] model = LTIService.DEPLOY_MODEL;
+		String[] columns = foorm.getFields(model);
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_deploy WHERE " + 
 			LTIService.LTI_CONSUMERKEY + " = ? ";
 
@@ -803,7 +811,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		fields[0] = consumerKey;
 
 		M_log.debug(statement);
-		List rv = getResultSet(statement, fields);
+		List rv = getResultSet(statement, fields, columns);
 
 		if ((rv != null) && (rv.size() > 0)) {
 			if ( rv.size() > 1 ) {
@@ -816,20 +824,15 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 
 	// Utility to return a resultset
-	/**
-	 * 
-	 */
-	public List<Map<String, Object>> getResultSet(String statement, Object[] fields)
-	{
-		return getResultSet(statement, fields, null);
-	}
-
 	public List<Map<String, Object>> getResultSet(String statement, Object[] fields,
 			final String[] columns) {
 		// System.out.println("getResultSet sql="+statement+" fields="+fields);
-		List rv = jdbcTemplate.query(statement, fields, new ColumnMapRowMapper());
+		List rv = jdbcTemplate.query(statement, fields, new FoormMapRowMapper(columns));
 		// System.out.println("getResultSet size="+rv.size()+" sql="+statement);
+
 		return (List<Map<String, Object>>) rv;
 	}
+
+
 
 }
