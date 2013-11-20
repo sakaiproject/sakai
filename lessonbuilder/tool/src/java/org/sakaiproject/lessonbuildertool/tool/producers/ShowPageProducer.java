@@ -3729,8 +3729,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (noSpecifiedAnswers && "true".equals(question.getAttribute("questionGraded")))
 		    manuallyGraded = true;
 
-		if (noSpecifiedAnswers && !manuallyGraded)
-		    return Status.COMPLETED;  // a poll    
+		if (noSpecifiedAnswers && !manuallyGraded) {
+		    // poll. should we show completed if not required? Don't for
+		    // other item types, but here there's no separate tool where you
+		    // can look at the status. I'm currently showing completed, to
+		    // be consistent with non-polls, where I always show a result
+		    if (response != null)
+			return Status.COMPLETED;
+		    if(question.isRequired())
+			return Status.REQUIRED;
+		    return Status.NOT_REQUIRED;
+		}
 
 		if (manuallyGraded && (response != null && !response.isOverridden())) {
 			return Status.NEEDSGRADING;
