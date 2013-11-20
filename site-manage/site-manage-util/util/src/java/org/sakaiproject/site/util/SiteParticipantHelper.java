@@ -564,6 +564,9 @@ public class SiteParticipantHelper {
 	public static List<Role> getAllowedRoles( String siteType, List<Role> allRolesForSiteType )
 	{
 		List<Role> retVal = new ArrayList<Role>();
+		if (siteType == null) {
+			siteType = "";
+		}
 		
 		// Get all the restricted roles for this site type, as well as all restricted roles at the top level (restricted for all site types)
 		Set<String> restrictedRoles = new HashSet<String>();

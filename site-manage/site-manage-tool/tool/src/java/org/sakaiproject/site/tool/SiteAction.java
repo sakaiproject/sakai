@@ -2502,7 +2502,8 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("disableJoinable", Boolean.TRUE);
 				}
 
-				context.put("roles", getJoinerRoles(site.getReference()));
+				// bjones86 - SAK-23257
+				context.put("roles", getJoinerRoles(site.getReference(), state, site.getType()));
 			} else {
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
@@ -2541,11 +2542,15 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				try {
 					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
-					context.put("roles", getJoinerRoles(r.getId()));
+					
+					// bjones86 - SAK-23257
+					context.put("roles", getJoinerRoles(r.getId(), state, null));
 				} catch (GroupNotDefinedException e) {
 					try {
 						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
-						context.put("roles", getJoinerRoles(rr.getId()));
+						
+						// bjones86 - SAK-23257
+						context.put("roles", getJoinerRoles(rr.getId(), state, null));
 					} catch (GroupNotDefinedException ee) {
 					}
 				}
@@ -9666,8 +9671,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	/**
 	 * getRoles
 	 * 
+	 * bjones86 - SAK-23257 - added state and siteType parameters so list 
+	 * of joiner roles can respect the restricted role lists in sakai.properties.
+	 * 
 	 */
-	private List<Role> getJoinerRoles(String realmId) {
+	private List<Role> getJoinerRoles(String realmId, SessionState state, String siteType) {
 		List roles = new ArrayList();
 		/** related to SAK-18462, this is a list of permissions that the joinable roles shouldn't have ***/
 		String[] prohibitPermissionForJoinerRole = ServerConfigurationService.getStrings("siteinfo.prohibited_permission_for_joiner_role");
@@ -9684,12 +9692,20 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				{
 					permissionAllowedRoleIds.addAll(realm.getRolesIsAllowed(permission));
 				}
+				
+				// bjones86 - SAK-23257
+				List allRoles = getRoles(state);
+				List<Role> allowedRoles = SiteParticipantHelper.getAllowedRoles(siteType, allRoles);
+				
 				for(Role role:realm.getRoles())
 				{
 					if (permissionAllowedRoleIds == null 
 							|| permissionAllowedRoleIds!= null && !permissionAllowedRoleIds.contains(role.getId()))
 					{
-						roles.add(role);
+						// bjones86 - SAK-23257
+						if (allowedRoles.contains(role)) {
+							roles.add(role);
+						}
 					}
 				}
 				Collections.sort(roles);
