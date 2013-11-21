@@ -1333,7 +1333,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// Check whether the user can add assignments for the site.
 		// If so, return the full list.
 		String siteRef = SiteService.siteReference(siteId);
-		boolean allowAdd = SecurityService.unlock(userId, SECURE_ADD_ASSIGNMENT, siteRef);
+		boolean allowAdd = SecurityService.unlock(userId, SECURE_ALL_GROUPS, siteRef);
 		if (allowAdd)
 		{
 			return siteAssignments;
@@ -1358,7 +1358,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		permitted.addAll(filterGroupedAssignmentsForAccess(grouped, siteId, userId));
 
 		// Filter for visibility/submission state
-		List<Assignment> visible = filterAssignmentsByVisibility(permitted, userId);
+		List<Assignment> visible = (SecurityService.unlock(userId, SECURE_ADD_ASSIGNMENT, siteRef))? permitted : filterAssignmentsByVisibility(permitted, userId);
 
 		// We are left with the original list filtered by site/group permissions and visibility/submission state
 		return visible;
