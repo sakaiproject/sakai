@@ -4731,10 +4731,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									try
 									{
 										// numeric cell type?
-										String grade = submission.getGradeForUser(userId) == null ? submission.getGrade():
+										String grade = submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
                                                                                     submission.getGradeForUser(userId);
 
-                                                                                Float.parseFloat(grade);
+										//We get float number no matter the locale it was managed with.
+										NumberFormat nbFormat = NumberFormat.getNumberInstance(rb.getLocale());
+										nbFormat.setMaximumFractionDigits(1);
+										nbFormat.setMinimumFractionDigits(1);
+										float f = nbFormat.parse(grade).floatValue();
 
 										// remove the String-based cell first
 										cell = row.getCell(cellNum);
@@ -4742,7 +4746,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										// add number based cell
 										cell=row.createCell(cellNum);
 										cell.setCellType(0);
-										cell.setCellValue(Float.parseFloat(grade)/10);
+										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
 										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
@@ -4751,10 +4755,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									catch (Exception e)
 									{
 										// if the grade is not numeric, let's make it as String type
-										row.removeCell(cell);
-										cell=row.createCell(cellNum);
+										// No need to remove the cell and create a new one, as the existing one is String type.
+										cell = row.getCell(cellNum);
 										cell.setCellType(1);
-										cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGrade():
+										cell.setCellValue(submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
                                                                                     submission.getGradeForUser(userId));
 									}
 								}
@@ -4793,15 +4797,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									{
 										// numeric cell type?
 										String grade = submission.getGradeDisplay();
-										Float.parseFloat(grade);
 			
+										//We get float number no matter the locale it was managed with.
+										NumberFormat nbFormat = NumberFormat.getNumberInstance(rb.getLocale());
+										nbFormat.setMaximumFractionDigits(1);
+										nbFormat.setMinimumFractionDigits(1);
+										float f = nbFormat.parse(grade).floatValue();
+										
 										// remove the String-based cell first
 										cell = row.getCell(cellNum);
 										row.removeCell(cell);
 										// add number based cell
 										cell=row.createCell(cellNum);
 										cell.setCellType(0);
-										cell.setCellValue(Float.parseFloat(grade));
+										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
 										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
@@ -4810,10 +4819,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									catch (Exception e)
 									{
 										// if the grade is not numeric, let's make it as String type
-										row.removeCell(cell);
-										cell=row.createCell(cellNum);
+										// No need to remove the cell and create a new one, as the existing one is String type. 
+										cell = row.getCell(cellNum);
 										cell.setCellType(1);
-										cell.setCellValue(submission.getGrade());
+										// Setting grade display instead grade.
+										cell.setCellValue(submission.getGradeDisplay());
 									}
 								}
 								else
