@@ -1049,6 +1049,9 @@ $(function() {
 		
 		$('#change-resource-movie').click(function(){
 			closeMovieDialog();
+			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
+
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
 			var href=$("#mm-choose").attr("href");
@@ -1370,6 +1373,9 @@ $(function() {
 
 		$('#change-resource').click(function(){
 			closeEditItemDialog();
+			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
+
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
 			var href=$("#mm-choose").attr("href");
@@ -1395,6 +1401,7 @@ $(function() {
 			closeDropdowns();
 
 			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
 
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('true');
@@ -1422,6 +1429,9 @@ $(function() {
 
 		$(".add-resource").click(function(){
 			closeDropdowns();
+			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
+
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('false');
@@ -1446,6 +1456,9 @@ $(function() {
 
 		$(".add-website").click(function(){
 			closeDropdowns();
+			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
+
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('true');
@@ -1554,6 +1567,9 @@ $(function() {
 
 		$('#change-resource-mm').click(function(){
 			closeMultimediaEditDialog();
+			mm_test_reset();
+			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
+
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
 			var href=$("#mm-choose").attr("href");
