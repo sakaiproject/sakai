@@ -15,18 +15,30 @@
       <property name="location"><value>/sakai_lessonbuildertool/addtext.html</value></property>
    </bean>
 
-   <bean id="lessonbuildertoolAddResources" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolAddResources</value></property>
-      <property name="name"><value>Add Resources to a Page</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/addresources.html</value></property>
-   </bean>
-
    <bean id="lessonbuildertoolAddMultimedia" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddMultimedia</value></property>
-      <property name="name"><value>Add Multimedia to a Page</value></property>
+      <property name="name"><value>Embed Content on Page</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/addmultimedia.html</value></property>
    </bean>
 
+   <bean id="lessonbuildertoolAddResources" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddResources</value></property>
+      <property name="name"><value>Add Content Link</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addresources.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddSubpages" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddSubpages</value></property>
+      <property name="name"><value>Add Additional Pages to a Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addsubpages.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolAddWebsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolAddWebsite</value></property>
+      <property name="name"><value>Load content from another web site (ZIP file)</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/addwebsite.html</value></property>
+   </bean>
+   
    <bean id="lessonbuildertoolAddAssignments" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddAssignments</value></property>
       <property name="name"><value>Add Assignments to a Page</value></property>
@@ -45,28 +57,10 @@
       <property name="location"><value>/sakai_lessonbuildertool/addtopics.html</value></property>
    </bean>
 
-   <bean id="lessonbuildertoolAddWebsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolAddWebsite</value></property>
-      <property name="name"><value>Load content from another web site (ZIP file)</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/addwebsite.html</value></property>
-   </bean>
-
-   <bean id="lessonbuildertoolAddSubpages" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolAddSubpages</value></property>
-      <property name="name"><value>Add Additional Pages to a Page</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/addsubpages.html</value></property>
-   </bean>
-   
    <bean id="lessonbuildertoolAddQuestions" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddQuestions</value></property>
       <property name="name"><value>Add Simple Questions to a Page</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/addquestions.html</value></property>
-   </bean>
-
-   <bean id="lessonbuildertoolReorganize" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolReorganize</value></property>
-      <property name="name"><value>Reorganize content</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/reorganize.html</value></property>
    </bean>
 
    <bean id="lessonbuildertoolComments" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -87,22 +81,28 @@
       <property name="location"><value>/sakai_lessonbuildertool/external.html</value></property>
    </bean>
 
+   <bean id="lessonbuildertoolReorganize" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolReorganize</value></property>
+      <property name="name"><value>Reorganize content</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/reorganize.html</value></property>
+   </bean>
+
    <bean id="lessonbuildertoolSettings" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolSettings</value></property>
       <property name="name"><value>Change Page Settings</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/settings.html</value></property>
    </bean>
 
-   <bean id="lessonbuildertoolRemove" class="org.sakaiproject.component.app.help.model.ResourceBean">
-      <property name="docId"><value>lessonbuildertoolRemove</value></property>
-      <property name="name"><value>Remove a Top-level Page</value></property>
-      <property name="location"><value>/sakai_lessonbuildertool/remove.html</value></property>
-   </bean>
-
    <bean id="lessonbuildertoolAddTop" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddTop</value></property>
       <property name="name"><value>Add a Top-level Page</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/addpage.html</value></property>
+   </bean>
+
+   <bean id="lessonbuildertoolRemove" class="org.sakaiproject.component.app.help.model.ResourceBean">
+      <property name="docId"><value>lessonbuildertoolRemove</value></property>
+      <property name="name"><value>Remove a Top-level Page</value></property>
+      <property name="location"><value>/sakai_lessonbuildertool/remove.html</value></property>
    </bean>
 
    <bean id="lessonbuildertoolCCImport" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -127,21 +127,23 @@
                   <list>
                      <ref bean="lessonbuildertoolOverview"/>
                      <ref bean="lessonbuildertoolAddText"/>
-                     <ref bean="lessonbuildertoolAddResources"/>
                      <ref bean="lessonbuildertoolAddMultimedia"/>
+                     <ref bean="lessonbuildertoolAddResources"/>
+                     <ref bean="lessonbuildertoolAddSubpages"/>
+		     <ref bean="lessonbuildertoolAddWebsite"/>
                      <ref bean="lessonbuildertoolAddAssignments"/>
                      <ref bean="lessonbuildertoolAddQuizzes"/>
                      <ref bean="lessonbuildertoolAddTopics"/>
-                     <ref bean="lessonbuildertoolAddSubpages"/>
                      <ref bean="lessonbuildertoolAddQuestions"/>
-                     <ref bean="lessonbuildertoolReorganize"/>
                      <ref bean="lessonbuildertoolComments"/>
                      <ref bean="lessonbuildertoolStudentContent"/>
                      <ref bean="lessonbuildertoolExternal"/>
+                     <ref bean="lessonbuildertoolReorganize"/>
                      <ref bean="lessonbuildertoolSettings"/>
-                     <ref bean="lessonbuildertoolRemove"/>
                      <ref bean="lessonbuildertoolAddTop"/>
+                     <ref bean="lessonbuildertoolRemove"/>
                      <ref bean="lessonbuildertoolCCImport"/>
+                     <ref bean="lessonbuildertoolCCExport"/>
                   </list>
                </property>
             </bean>
