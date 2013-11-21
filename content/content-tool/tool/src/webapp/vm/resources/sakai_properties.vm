@@ -42,7 +42,7 @@
 	#elseif ($hour == 0)
 		#set($hour = 12)
 	#end
-	<label for="${prefix}_hour${DOT}${suffix}">$tlang.getString("dateselectionwidget.hour")</label>
+	<label for="${prefix}_hour${DOT}${suffix}" class="skip">$tlang.getString("dateselectionwidget.hour")</label>
 	<select name="${prefix}_hour${DOT}${suffix}" id="${prefix}_hour${DOT}${suffix}">
 		#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 		#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
@@ -57,7 +57,7 @@
 		#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
 		#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
 	</select>
-     <label for="${prefix}_minute${DOT}${suffix}">$tlang.getString("dateselectionwidget.minute")</label>
+     <label for="${prefix}_minute${DOT}${suffix}" class="skip">$tlang.getString("dateselectionwidget.minute")</label>
 
 	<select name="${prefix}_minute${DOT}${suffix}" id="${prefix}_minute${DOT}${suffix}">
 		#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
@@ -73,7 +73,7 @@
 		#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 		#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 	</select>
-     <label for="${prefix}_ampm${DOT}${suffix}">$tlang.getString("dateselectionwidget.ampm")</label>
+     <label for="${prefix}_ampm${DOT}${suffix}" class="skip">$tlang.getString("dateselectionwidget.ampm")</label>
 	<select name="${prefix}_ampm${DOT}${suffix}" id="${prefix}_ampm${DOT}${suffix}">
 		#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
 		#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
