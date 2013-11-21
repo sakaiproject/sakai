@@ -9,7 +9,7 @@
   </bean>
 
   <bean parent="requestAddressibleParent">
-    <property name="value" value="SiteManageGroupSectionRoleHandler" />
+    <property name="value" value="SiteManageGroupSectionRoleHandler, destroyScope" />
   </bean>
 
   <bean parent="templateContributorParent">

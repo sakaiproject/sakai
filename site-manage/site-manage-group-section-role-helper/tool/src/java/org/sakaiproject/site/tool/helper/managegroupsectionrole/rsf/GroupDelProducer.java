@@ -33,6 +33,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -128,7 +129,8 @@ implements ViewComponentProducer, ActionResultInterceptor{
 
 		deleteselect.optionlist.setValue(deletable.toStringArray());
 		UICommand.make(deleteForm, "delete-groups",  UIMessage.make("editgroup.removegroups"), "#{SiteManageGroupSectionRoleHandler.processDeleteGroups}");
-		UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelDelete}");
+		UICommand cancel = UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancelDelete}");
+		cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
    
 		//process any messages
         UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", "0");

@@ -19,6 +19,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -56,7 +57,8 @@ public class GroupImportStep1Producer implements ViewComponentProducer, Navigati
 		UIVerbatim.make(content, "import1.instr.req.3", messageLocator.getMessage("import1.instr.req.3"));
 		UIForm uploadForm = UIForm.make(content, "uploadform");
 		UICommand.make(uploadForm, "continue", messageLocator.getMessage("import1.continue"), "#{SiteManageGroupSectionRoleHandler.processUploadAndCheck}");
-		UICommand.make(uploadForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+		UICommand cancel = UICommand.make(uploadForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+		cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
 	    
 		if(StringUtils.equals(params.status, "error")){
 			UIMessage.make(content, "import1.error", "import1.error");

@@ -41,6 +41,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UISelect;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.UICSSDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -325,7 +326,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	        
     	 UICommand.make(groupForm, "save", addUpdateButtonName, "#{SiteManageGroupSectionRoleHandler.processAddGroup}");
 
-         UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
+         UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
+         cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
          
          UIInput.make(groupForm, "newRight", "#{SiteManageGroupSectionRoleHandler.memberList}", state);
          

@@ -18,6 +18,7 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.UICSSDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
@@ -116,7 +117,8 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 			saveMethodBinding = "#{SiteManageGroupSectionRoleHandler.processCreateJoinableSet}";
 		}
 		UICommand.make(groupForm, "save", messageLocator.getMessage("update"), saveMethodBinding);
-        UICommand.make(groupForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
+        UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
+        cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         
         if(edit){
         	//Delete Set button:

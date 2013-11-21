@@ -25,6 +25,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.UICSSDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -125,13 +126,15 @@ public class GroupImportStep2Producer implements ViewComponentProducer, Navigati
             UIMessage.make(content, "import2.error", "import2.error");
             handler.resetParams();
             
-            UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
             
         } else {
             UIMessage.make(content, "import2.okay", "import2.okay");
 
             UICommand.make(createForm, "continue", messageLocator.getMessage("import2.continue"), "#{SiteManageGroupSectionRoleHandler.processImportedGroups}");
-            UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+            UICommand cancel = UICommand.make(createForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+            cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         }
         
         if(StringUtils.equals(params.status, "error")){

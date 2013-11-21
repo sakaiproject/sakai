@@ -39,6 +39,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
@@ -202,13 +203,15 @@ public class GroupListProducer
 			
 			deleteselect.optionlist.setValue(deletable.toStringArray());
 			UICommand.make(deleteForm, "delete-groups",  UIMessage.make("editgroup.removechecked"), "#{SiteManageGroupSectionRoleHandler.processConfirmGroupDelete}");
-			UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+			UICommand cancel = UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+			cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
 			
 		}
 		else
 		{
 			UIMessage.make(deleteForm, "no-group","group.nogroup");
-			UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+			UICommand cancel = UICommand.make(deleteForm, "cancel", UIMessage.make("editgroup.cancel"), "#{SiteManageGroupSectionRoleHandler.processCancel}");
+			cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
 		}
 
 		
