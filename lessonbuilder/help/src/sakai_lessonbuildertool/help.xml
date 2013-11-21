@@ -4,7 +4,7 @@
 <beans>
    <bean id="lessonbuildertoolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolOverview</value></property>
-      <property name="name"><value>Lessonbuilder Overview</value></property>
+      <property name="name"><value>Lessons Overview</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/overview.html</value></property>
       <property name="defaultForTool"><value>sakai.lessonbuildertool</value></property>        
    </bean>
@@ -122,7 +122,7 @@
       <property name="categories">
          <list>
             <bean id="lessonbuilderCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
-               <property name="name"><value>LessonBuilder</value></property>
+               <property name="name"><value>Lessons</value></property>
                <property name="resources">
                   <list>
                      <ref bean="lessonbuildertoolOverview"/>
