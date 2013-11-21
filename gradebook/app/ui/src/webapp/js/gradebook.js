@@ -306,6 +306,11 @@ function toggleVisibilityDropScoresFields() {
     var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
     var itemValueVisibility = "";
     var tbl  = document.getElementById(formName + ":categoriesTable");
+    if(!tbl) {
+        // No categories currently defined
+        return;
+    }
+
     var thead = tbl.getElementsByTagName('thead');
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
