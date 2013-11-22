@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import junit.framework.TestCase;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
 
@@ -50,5 +51,17 @@ public class StaticHandlerTest extends TestCase {
 		assertEquals("text/javascript", handler.getContentType(new File("another/path/myfile.js")));
 		// Check trailing don't don't break things.
 		assertEquals("application/octet-stream", handler.getContentType(new File("file.that.ends.with.dot.")));
+	}
+
+	@Override
+	protected void setUp() throws Exception {
+		super.setUp();
+		ComponentManager.testingMode = true;
+	}
+
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		ComponentManager.shutdown();
 	}
 }

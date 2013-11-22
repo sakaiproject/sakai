@@ -36,6 +36,8 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -54,7 +56,10 @@ public abstract class BasePortalHandler implements PortalHandler
 	public BasePortalHandler()
 	{
 		urlFragment = "none";
+		timeService = (TimeService) ComponentManager.get(TimeService.class);
 	}
+
+	private TimeService timeService;
 
 	protected PortalService portalService;
 
@@ -189,10 +194,24 @@ public abstract class BasePortalHandler implements PortalHandler
 	}
 	
 	protected void addLocale(PortalRenderContext rcontext, Site site) {
+		addLocale(rcontext, site, null);
+	}
+
+	protected void addLocale(PortalRenderContext rcontext, Site site, String userId) {
+		Locale prevLocale = null;
+		if (userId != null) {
+			prevLocale = new ResourceLoader().getLocale();
+		}
+
 		Locale locale = setSiteLanguage(site);	
 		if(log.isDebugEnabled()) {
 			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
 		}
         rcontext.put("locale", locale.toString());
+
+		if (prevLocale != null && !prevLocale.equals(locale)) {
+			// if the locale was changed, clear the date/time format which was cached in the previous locale
+			timeService.clearLocalTimeZone(userId);
+		}
 	}
 }
