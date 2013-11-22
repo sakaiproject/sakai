@@ -35,7 +35,7 @@
 
    <bean id="lessonbuildertoolAddWebsite" class="org.sakaiproject.component.app.help.model.ResourceBean">
       <property name="docId"><value>lessonbuildertoolAddWebsite</value></property>
-      <property name="name"><value>Load content from another web site (ZIP file)</value></property>
+      <property name="name"><value>Upload content from a ZIP file</value></property>
       <property name="location"><value>/sakai_lessonbuildertool/addwebsite.html</value></property>
    </bean>
    
@@ -129,14 +129,14 @@
                      <ref bean="lessonbuildertoolAddText"/>
                      <ref bean="lessonbuildertoolAddMultimedia"/>
                      <ref bean="lessonbuildertoolAddResources"/>
-                     <ref bean="lessonbuildertoolAddSubpages"/>
-		     <ref bean="lessonbuildertoolAddWebsite"/>
                      <ref bean="lessonbuildertoolAddAssignments"/>
                      <ref bean="lessonbuildertoolAddQuizzes"/>
                      <ref bean="lessonbuildertoolAddTopics"/>
                      <ref bean="lessonbuildertoolAddQuestions"/>
                      <ref bean="lessonbuildertoolComments"/>
                      <ref bean="lessonbuildertoolStudentContent"/>
+                     <ref bean="lessonbuildertoolAddSubpages"/>
+		     <ref bean="lessonbuildertoolAddWebsite"/>
                      <ref bean="lessonbuildertoolExternal"/>
                      <ref bean="lessonbuildertoolReorganize"/>
                      <ref bean="lessonbuildertoolSettings"/>

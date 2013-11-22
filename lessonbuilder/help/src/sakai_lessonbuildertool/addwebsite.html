@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html><head>
-<title>Import Common Cartridge</title>
+<title>Import Content from ZIP file</title>
 <style type="text/css">
 		/* Style for specific inline images */
 		
@@ -13,24 +13,27 @@
 </head>
 <body>
 <div class="helpBody">
-<h2>Add Content From Another Web Site (ZIP file)</h2>
+<h2>Import Content From a ZIP file</h2>
 
 <a name="top"> </a>
 
-<p> This function allows you to load a file in ZIP format. It normally
-contains a set of pages from another web site. There is special support
-for ZIP files produced by Camtasia, Wimba Create, and Articulate.</p>
+<p> This function allows you to load a file in ZIP format. Many authoring tools
+intended for instructors can export in ZIP format. Sakai has special support
+for ZIP files produced by Camtasia, Wimba Create, and Articulate, but any ZIP
+file should work.</p>
 
-<p>Use the "Add Content" pull-down and choose <strong>Add Website</strong>.</p> 
+<p>Use the "Add Content" pull-down and choose <strong>Upload Content in ZIP File</strong>.</p> 
 
-<p> If Lessons recognizes the file format, it will add a link to 
-the main web page in the file. This file is often called index.html
-or index.htm. However Camtasia, Wimba Create, and Articulate have
-special ways of entering them, which Lessons will recognize.</p>
+<p> Where possible, Lessons will add a link to the content you
+have just uploaded. For this to work, we must be able to identify a 
+particular file from the upload that is the "starting point."
+The code can recognize this for certain common formats, including
+Camtasia, Wimba Create, and Articulate. For other files, we will use index.html
+or index.htm if it exists.</p>
 
 <p> The file contained in the ZIP file are loaded into a new folder in Resources.</p>
 
-<p> The "Add website" dialog allows you to specify a file. If you do it will 
+<p> The "Upload Content in a ZIP File" dialog allows you to specify a file. If you do it will 
 be uploaded and processed. However you can also choose a ZIP file is already
 present in the Resources tool. If you do that, Lessons will read the ZIP archive,
 extract all files in it, and add them as if you had uploaded the ZIP file.</p>
