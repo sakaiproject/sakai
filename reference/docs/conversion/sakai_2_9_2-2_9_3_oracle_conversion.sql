@@ -38,5 +38,5 @@ ALTER TABLE lti_tools MODIFY   (     secret VARCHAR2(255) );
 -- end BLTI-238
 
 -- SAM-973
-alter table SAM_ITEMGRADING_t add ISCORRECT number(1,0);
+alter table SAM_ITEMGRADING_T add ISCORRECT number(1,0);
 -- end SAM-973
