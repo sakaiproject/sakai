@@ -36,6 +36,7 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 
 import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Util;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -733,31 +734,31 @@ public class SakaiBLTIUtil {
 			}
 		}
 
-		// Merge all the sources of properties
+		// Merge all the sources of properties according to the arcane precedence for launch
 		Properties custom = new Properties();
 
-		BasicLTIUtil.mergeLTI2Custom(custom, (String) content.get(LTIService.LTI_SETTINGS));
-		BasicLTIUtil.mergeLTI2Custom(custom, (String) tool.get(LTIService.LTI_SETTINGS));
-		BasicLTIUtil.mergeLTI2Parameters(custom, (String) tool.get(LTIService.LTI_PARAMETER));
+		LTI2Util.mergeLTI2Custom(custom, (String) content.get(LTIService.LTI_SETTINGS));
+		LTI2Util.mergeLTI2Custom(custom, (String) tool.get(LTIService.LTI_SETTINGS));
+		LTI2Util.mergeLTI2Parameters(custom, (String) tool.get(LTIService.LTI_PARAMETER));
 		if ( proxyBinding != null ) {
-			BasicLTIUtil.mergeLTI2Custom(custom, (String) proxyBinding.get(LTIService.LTI_SETTINGS));
+			LTI2Util.mergeLTI2Custom(custom, (String) proxyBinding.get(LTIService.LTI_SETTINGS));
 		}
 		if ( deploy != null ) {
-			BasicLTIUtil.mergeLTI2Custom(custom, (String) deploy.get(LTIService.LTI_SETTINGS));
+			LTI2Util.mergeLTI2Custom(custom, (String) deploy.get(LTIService.LTI_SETTINGS));
 		}
 
 		int allowCustom = getInt(tool.get(LTIService.LTI_ALLOWCUSTOM));
 		if ( allowCustom == 1 ) 
-			BasicLTIUtil.mergeLTI1Custom(custom, (String) content.get(LTIService.LTI_CUSTOM));
+			LTI2Util.mergeLTI1Custom(custom, (String) content.get(LTIService.LTI_CUSTOM));
 
-		BasicLTIUtil.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
+		LTI2Util.mergeLTI1Custom(custom, (String) tool.get(LTIService.LTI_CUSTOM));
 
 		// System.out.println("ltiProps="+ltiProps);
 		// System.out.println("toolProps="+toolProps);
 System.out.println("lti2subst="+lti2subst);
 
 System.out.println("before custom="+custom);
-		BasicLTIUtil.substituteCustom(custom, lti2subst);
+		LTI2Util.substituteCustom(custom, lti2subst);
 System.out.println("after custom="+custom);
 
 		// Place the custom values into the launch

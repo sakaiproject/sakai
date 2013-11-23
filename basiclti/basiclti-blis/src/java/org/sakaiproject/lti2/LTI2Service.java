@@ -62,6 +62,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.objects.*;
 import org.sakaiproject.lti2.SakaiLTI2Services;
 import org.sakaiproject.lti2.SakaiLTI2Config;
@@ -230,7 +231,6 @@ public class LTI2Service extends HttpServlet {
 		}
 	}
 
-
 	protected ToolConsumer getToolConsumerProfile(Map<String, Object> deploy, String profile_id)
 	{
 		// Load the configuration data
@@ -240,6 +240,7 @@ public class LTI2Service extends HttpServlet {
 			M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
 			M_log.error("* Do not use this in production.  Test only *");
 			M_log.error("*********************************************");
+			// cnf = new org.imsglobal.lti2.LTI2ConfigSample();
 			cnf = new SakaiLTI2Base();
 		}
 
@@ -249,15 +250,11 @@ public class LTI2Service extends HttpServlet {
 		List<String> capabilities = consumer.getCapability_offered();
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
-			capabilities.add("Person.email.primary");
+			LTI2Util.allowEmail(capabilities);
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
-			capabilities.add("User.username");
-			capabilities.add("Person.name.fullname");
-			capabilities.add("Person.name.given");
-			capabilities.add("Person.name.family");
-			capabilities.add("Person.name.full");
+			LTI2Util.allowName(capabilities);
 		}
 
 		List<Service_offered> services = consumer.getService_offered();
@@ -265,12 +262,11 @@ public class LTI2Service extends HttpServlet {
 
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ("true".equals(allowOutcomes) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
+			LTI2Util.allowResult(capabilities);
+
 			services.add(LTI2ResultItem);
 			services.add(StandardServices.LTI1Outcomes(serverUrl+LTI1_PATH));
 			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+LTI1_PATH));
-			capabilities.add("Result.sourcedId");
-			capabilities.add("Result.autocreate");
-			capabilities.add("Result.url");
 		}
 
 		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
@@ -280,13 +276,12 @@ public class LTI2Service extends HttpServlet {
 
 		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 		if ("true".equals(allowSettings) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
+			LTI2Util.allowSettings(capabilities);
+
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
 			services.add(LTI2LtiLinkSettings);
 			services.add(LTI2ToolProxySettings);
 			services.add(LTI2ToolProxyBindingSettings);
-			capabilities.add("LtiLink.custom.url");
-			capabilities.add("ToolProxy.custom.url");
-			capabilities.add("ToolProxyBinding.custom.url");
 		}
 
 		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
@@ -372,66 +367,23 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
 
 		JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
-		List<Service_offered> services_offered = consumer.getService_offered();
-
-		if ( tool_services != null ) for (Object o : tool_services) {
-			JSONObject tool_service = (JSONObject) o;
-			String json_service = (String) tool_service.get(LTI2Constants.SERVICE);
-
-			boolean found = false;
-			for (Service_offered service : services_offered ) {
-				String service_endpoint = service.getEndpoint();
-				if ( service_endpoint.equals(json_service) ) {
-					found = true;
-					break;
-				}
-			}
-			if ( ! found ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "Service not allowed: "+json_service, null);
-				return;
-			}
+		String retval = LTI2Util.validateServices(consumer, providerProfile);
+		if ( retval != null ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, retval, null);
+			return;
 		}
 
 		// Parse the tool profile bit and extract the tools with error checking
-		List<Properties> theTools = new ArrayList<Properties> ();
-		Properties info = new Properties();
-		try {
-			String retval = BasicLTIUtil.parseToolProfile(theTools, info, providerProfile);
-			if ( retval != null ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, retval, null);
-				return;
-			}
-		}
-		catch (Exception e ) {
+		retval = LTI2Util.validateCapabilities(consumer, providerProfile);
+		if ( retval != null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "Exception:"+ e.getLocalizedMessage(), e);
+			doErrorJSON(request, response, jsonRequest, retval, null);
 			return;
 		}
 
-		if ( theTools.size() < 1 ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "No tools found in profile", null);
-			return;
-		}
-
-		// Check all the capabilities requested by all the tools comparing against consumer
-		List<String> capabilities = consumer.getCapability_offered();
-		for ( Properties theTool : theTools ) {
-			String ec = (String) theTool.get("enabled_capability");
-			JSONArray enabled_capability = (JSONArray) JSONValue.parse(ec);
-			if ( enabled_capability != null ) for (Object o : enabled_capability) {
-				ec = (String) o;
-				if ( capabilities.contains(ec) ) continue;
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "Capability not permitted="+ec, null);
-				return;
-			}
-		}
-
+		// Passed all the tests, lets commit this...
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
-
 		shared_secret = SakaiBLTIUtil.encryptSecret(shared_secret);
 		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
 

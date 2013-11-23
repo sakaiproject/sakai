@@ -75,6 +75,7 @@ import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Util;
 import org.sakaiproject.lti2.SakaiLTI2Config;
 
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
@@ -956,7 +957,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		List<Properties> profileTools = new ArrayList<Properties> ();
         try {
-            String retval = BasicLTIUtil.parseToolProfile(profileTools, info, providerProfile);
+            String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
             if ( retval != null ) {
 				addAlert(state,rb.getString("deploy.parse.error")+" "+retval);
 				return "lti_error";
