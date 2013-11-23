@@ -110,10 +110,6 @@ public class LTI2Service extends HttpServlet {
 	private static final String SVC_Settings = SakaiBLTIUtil.SVC_Settings;
 	private static final String SVC_Result = SakaiBLTIUtil.SVC_Result;
 
-	private static final String SET_LtiLink = SakaiBLTIUtil.SET_LtiLink;
-	private static final String SET_ToolProxyBinding = SakaiBLTIUtil.SET_ToolProxyBinding;
-	private static final String SET_ToolProxy = SakaiBLTIUtil.SET_ToolProxy;
-
 	private static final String LTI1_PATH = SakaiBLTIUtil.LTI1_PATH;
 	private static final String LTI2_PATH = SakaiBLTIUtil.LTI2_PATH;
 
@@ -130,11 +126,11 @@ public class LTI2Service extends HttpServlet {
 		LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl 
 			+ SVC_Result + "/{" + BasicLTIConstants.LIS_RESULT_SOURCEDID + "}");
 		LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl 
-			+ SVC_Settings + "/" + SET_LtiLink + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
+			+ SVC_Settings + "/" + LTI2Util.SCOPE_LtiLink + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
 		LTI2ToolProxyBindingSettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
-			+ SVC_Settings + "/" + SET_ToolProxyBinding + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
+			+ SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
 		LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
-			+ SVC_Settings + "/" + SET_ToolProxy + "/{" + LTI2Constants.TOOL_PROXY_GUID + "}");
+			+ SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/{" + LTI2Constants.TOOL_PROXY_GUID + "}");
 	}
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -412,7 +408,7 @@ public class LTI2Service extends HttpServlet {
 		String serverUrl = ServerConfigurationService.getServerUrl();
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + SET_ToolProxy + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
@@ -486,6 +482,10 @@ public class LTI2Service extends HttpServlet {
 		}
 	}
 
+	// If this code looks like a hack - it is because the spec is a hack.
+	// There are five possible scenarios for GET and two possible scenarios
+    // for PUT.  I begged to simplify the business logic but was overrulled.
+	// So we write obtuse code.
 	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
 			String[] parts) throws java.io.IOException
 	{
@@ -550,7 +550,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 		Map<String,Object> deploy = null;
 		Long deployKey = null;
 
-		if ( SET_LtiLink.equals(scope) || SET_ToolProxyBinding.equals(scope) ) {
+		if ( LTI2Util.SCOPE_LtiLink.equals(scope) || LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
 			placement_id = parts[5];
 System.out.println("placement_id="+placement_id);
 			String contentStr = placement_id.substring(8);
@@ -594,8 +594,7 @@ System.out.println("placement_id="+placement_id);
 
 		}
 
-
-		if ( SET_ToolProxyBinding.equals(scope) || SET_LtiLink.equals(scope) ) {
+		if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) || LTI2Util.SCOPE_LtiLink.equals(scope) ) {
 			proxyBinding = ltiService.getProxyBindingDao(toolKey,siteId);
 			if ( proxyBinding != null ) {
 				proxyBindingKey = SakaiBLTIUtil.getLongKey(proxyBinding.get(LTIService.LTI_ID));
@@ -603,7 +602,7 @@ System.out.println("placement_id="+placement_id);
 		}
 
 		// Retrieve the deployment if needed
-		if ( SET_ToolProxy.equals(scope) ) {
+		if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
 			consumer_key = parts[5];
 			deploy = ltiService.getDeployForConsumerKeyDao(consumer_key);
 			if ( deploy == null ) {
@@ -636,6 +635,12 @@ System.out.println("placement_id="+placement_id);
 			}
 		}
 
+		// The URLs for the various settings resources
+		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH + SVC_Settings;
+		String proxy_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxy + "/" + consumer_key;
+		String binding_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/" + placement_id;
+		String link_url = settingsUrl + "/" + LTI2Util.SCOPE_LtiLink + "/" + placement_id;
+
 		// Load and parse the old settings...
 		JSONObject link_settings = new JSONObject ();
 		JSONObject binding_settings = new JSONObject ();
@@ -650,7 +655,7 @@ System.out.println("placement_id="+placement_id);
 			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
 		}
 
-		if ( distinct && link_settings != null && scope.equals(SET_LtiLink) ) {
+		if ( distinct && link_settings != null && scope.equals(LTI2Util.SCOPE_LtiLink) ) {
 			Iterator i = link_settings.keySet().iterator();
 			while ( i.hasNext() ) {
 				String key = (String) i.next();
@@ -659,7 +664,7 @@ System.out.println("placement_id="+placement_id);
 			}
 		}
 
-		if ( distinct && binding_settings != null && scope.equals(SET_ToolProxyBinding) ) {
+		if ( distinct && binding_settings != null && scope.equals(LTI2Util.SCOPE_ToolProxyBinding) ) {
 			Iterator i = binding_settings.keySet().iterator();
 			while ( i.hasNext() ) {
 				String key = (String) i.next();
@@ -669,20 +674,15 @@ System.out.println("placement_id="+placement_id);
 
 		// Get the secret for the request...
 		String oauth_secret = null;
-		String endpoint = null;
-		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH + SVC_Settings;
-		if ( SET_LtiLink.equals(scope) ) {
+		if ( LTI2Util.SCOPE_LtiLink.equals(scope) ) {
 			oauth_secret = (String) content.get(LTIService.LTI_SECRET);
 			if ( oauth_secret == null || oauth_secret.length() < 1 ) {
 				oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
 			}
-			endpoint = settingsUrl + "/" + SET_LtiLink + "/" + placement_id;
-		} else if ( SET_ToolProxyBinding.equals(scope) ) {
+		} else if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
 			oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
-			endpoint = settingsUrl + "/" + SET_ToolProxyBinding + "/" + placement_id;
-		} else if ( SET_ToolProxy.equals(scope) ) {
+		} else if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
 			oauth_secret = (String) deploy.get(LTIService.LTI_SECRET);
-			endpoint = settingsUrl + "/" + SET_ToolProxy + "/" + consumer_key;
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "Bad Setttings Scope="+scope, null);
@@ -697,87 +697,25 @@ System.out.println("placement_id="+placement_id);
 			return;
 		}
 
-		if ( "GET".equals(request.getMethod()) && (distinct || bubbleAll) && acceptComplex ) { 
-			JSONObject jsonResponse = new JSONObject();	
-			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
-			JSONArray graph = new JSONArray();
-			boolean started = false;
-			if ( link_settings != null && SET_LtiLink.equals(scope) ) {
-				endpoint = settingsUrl + "/" + SET_LtiLink + "/" + placement_id;
-				JSONObject cjson = new JSONObject();
-				cjson.put(LTI2Constants.JSONLD_ID,endpoint);
-				cjson.put(LTI2Constants.TYPE,SET_LtiLink);
-				cjson.put(LTI2Constants.CUSTOM,link_settings);
-				graph.add(cjson);
-				started = true;
-			} 
-			if ( binding_settings != null && ( started || SET_ToolProxyBinding.equals(scope) ) ) {
-				endpoint = settingsUrl + "/" + SET_ToolProxyBinding + "/" + placement_id;
-				JSONObject cjson = new JSONObject();
-				cjson.put(LTI2Constants.JSONLD_ID,endpoint);
-				cjson.put(LTI2Constants.TYPE,SET_ToolProxyBinding);
-				cjson.put(LTI2Constants.CUSTOM,binding_settings);
-				graph.add(cjson);
-				started = true;
-			} 
-			if ( proxy_settings != null && ( started || SET_ToolProxy.equals(scope) ) ) {
-				endpoint = settingsUrl + "/" + SET_ToolProxy + "/" + consumer_key;
-				JSONObject cjson = new JSONObject();
-				cjson.put(LTI2Constants.JSONLD_ID,endpoint);
-				cjson.put(LTI2Constants.TYPE,SET_ToolProxy);
-				cjson.put(LTI2Constants.CUSTOM,proxy_settings);
-				graph.add(cjson);
+		// For a GET request we depend on LTI2Util to do the GET logic
+		if ( "GET".equals(request.getMethod()) ) { 
+			Object obj = LTI2Util.getSettings(request, scope,
+				link_settings, binding_settings, proxy_settings,
+				link_url, binding_url, proxy_url);
+
+			if ( obj instanceof String ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request,response, jsonRequest, (String) obj, null);
+				return;
 			}
-			jsonResponse.put(LTI2Constants.GRAPH,graph);
-			response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
-			response.setStatus(HttpServletResponse.SC_OK); 
-			PrintWriter out = response.getWriter();
-System.out.println("jsonResponse="+jsonResponse);
-			out.println(jsonResponse.toString());
-			return;
-		} else if ( "GET".equals(request.getMethod()) && distinct ) {  // acceptSimple
-			JSONObject jsonResponse = proxy_settings;
-			if ( SET_LtiLink.equals(scope) ) {
-				jsonResponse.putAll(binding_settings);
-				jsonResponse.putAll(link_settings);
-			} else if ( SET_ToolProxyBinding.equals(scope) ) {
-				jsonResponse.putAll(binding_settings);
-			}
-			response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
-			response.setStatus(HttpServletResponse.SC_OK); 
-			PrintWriter out = response.getWriter();
-System.out.println("jsonResponse="+jsonResponse);
-			out.println(jsonResponse.toString());
-			return;
-		} else if ( "GET".equals(request.getMethod()) ) { // bubble == none
-System.out.println("bubble=none");
-			JSONObject jsonResponse = new JSONObject();	
-			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
-			JSONObject theSettings = null;
-			if ( SET_LtiLink.equals(scope) ) {
-				endpoint = settingsUrl + "/" + SET_LtiLink + "/" + placement_id;
-				theSettings = link_settings;
-			} else if ( SET_ToolProxyBinding.equals(scope) ) {
-				endpoint = settingsUrl + "/" + SET_ToolProxyBinding + "/" + placement_id;
-				theSettings = binding_settings;
-			} 
-			if ( SET_ToolProxy.equals(scope) ) {
-				endpoint = settingsUrl + "/" + SET_ToolProxy + "/" + consumer_key;
-				theSettings = proxy_settings;
-			}
+
 			if ( acceptComplex ) {
-				JSONArray graph = new JSONArray();
-				JSONObject cjson = new JSONObject();
-				cjson.put(LTI2Constants.JSONLD_ID,endpoint);
-				cjson.put(LTI2Constants.TYPE,scope);
-				cjson.put(LTI2Constants.CUSTOM,theSettings);
-				graph.add(cjson);
-				jsonResponse.put(LTI2Constants.GRAPH,graph);
 				response.setContentType(StandardServices.TOOLSETTINGS_FORMAT);
 			} else {
-				jsonResponse = theSettings;
 				response.setContentType(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT);
 			}
+
+			JSONObject jsonResponse = (JSONObject) obj;
 			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
 System.out.println("jsonResponse="+jsonResponse);
@@ -803,10 +741,10 @@ System.out.println("jsonResponse="+jsonResponse);
 			}
 
 			retval = null;
-			if ( SET_LtiLink.equals(scope) ) {
+			if ( LTI2Util.SCOPE_LtiLink.equals(scope) ) {
 				content.put(LTIService.LTI_SETTINGS, settings);
 				retval = ltiService.updateContentDao(contentKey,content,siteId);
-			} else if ( SET_ToolProxyBinding.equals(scope) ) {
+			} else if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
 				if ( proxyBinding != null ) {
 					proxyBinding.put(LTIService.LTI_SETTINGS, settings);
 					retval = ltiService.updateProxyBindingDao(proxyBindingKey,proxyBinding);
@@ -818,7 +756,7 @@ System.out.println("jsonResponse="+jsonResponse);
 					retval = ltiService.insertProxyBindingDao(proxyBindingNew);
 					M_log.info("inserted ProxyBinding setting="+proxyBindingNew);
 				}
-			} else if ( SET_ToolProxy.equals(scope) ) {
+			} else if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
 				deploy.put(LTIService.LTI_SETTINGS, settings);
 				retval = ltiService.updateDeployDao(deployKey,deploy);
 			}

@@ -113,10 +113,6 @@ public class SakaiBLTIUtil {
 	public static final String SVC_Settings = "Settings";
 	public static final String SVC_Result = "Result";
 
-	public static final String SET_LtiLink = "LtiLink";
-	public static final String SET_ToolProxyBinding = "ToolProxyBinding";
-	public static final String SET_ToolProxy = "ToolProxy";
-
 	public static final String LTI1_PATH = "/imsblis/service/";
 	public static final String LTI2_PATH = "/imsblis/lti2/";
 
@@ -709,9 +705,9 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
 
 				String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
-				setProperty(lti2subst,"LtiLink.custom.url", settings_url + SET_LtiLink + "/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + SET_ToolProxyBinding + "/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + SET_ToolProxy + "/" + key);
+				setProperty(lti2subst,"LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
+				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
 			}
 
 			if ( allowroster == 1 ) {

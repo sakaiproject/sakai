@@ -32,6 +32,8 @@ import java.util.logging.Logger;
 
 import java.net.URL;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
@@ -41,6 +43,9 @@ public class LTI2Util {
 	// We use the built-in Java logger because this code needs to be very generic
 	private static Logger M_log = Logger.getLogger(LTI2Util.class.toString());
 
+    public static final String SCOPE_LtiLink = "LtiLink";
+    public static final String SCOPE_ToolProxyBinding = "ToolProxyBinding";
+    public static final String SCOPE_ToolProxy = "ToolProxy";
 
 	// Validate the incoming tool_services against a tool consumer
 	public static String validateServices(ToolConsumer consumer, JSONObject providerProfile) 
@@ -131,6 +136,125 @@ public class LTI2Util {
 		capabilities.add("ToolProxyBinding.custom.url");
 	}
 
+    // If this code looks like a hack - it is because the spec is a hack.
+    // There are five possible scenarios for GET and two possible scenarios
+    // for PUT.  I begged to simplify the business logic but was overrulled.
+    // So we write obtuse code.
+	public static Object getSettings(HttpServletRequest request, String scope,
+		JSONObject link_settings, JSONObject binding_settings, JSONObject proxy_settings,
+		String link_url, String binding_url, String proxy_url)
+	{
+		// Check to see if we are doing the bubble
+		String bubbleStr = request.getParameter("bubble");
+		String acceptHdr = request.getHeader("Accept");
+		String contentHdr = request.getContentType();
+
+		if ( bubbleStr != null && bubbleStr.equals("all") &&
+			acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
+			return "Simple format does not allow bubble=all";
+		}
+
+		if ( SCOPE_LtiLink.equals(scope) || SCOPE_ToolProxyBinding.equals(scope) 
+			|| SCOPE_ToolProxy.equals(scope) ) {
+			// All good
+		} else {
+			return "Bad Setttings Scope="+scope;
+		}
+
+		boolean bubble = bubbleStr != null && "GET".equals(request.getMethod());
+		boolean distinct = bubbleStr != null && "distinct".equals(bubbleStr);
+		boolean bubbleAll = bubbleStr != null && "all".equals(bubbleStr);
+
+		// Check our output format
+		boolean acceptComplex = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0;
+
+		if ( distinct && link_settings != null && scope.equals(SCOPE_LtiLink) ) {
+			Iterator i = link_settings.keySet().iterator();
+			while ( i.hasNext() ) {
+				String key = (String) i.next();
+				if ( binding_settings != null ) binding_settings.remove(key);
+				if ( proxy_settings != null ) proxy_settings.remove(key);
+			}
+		}
+
+		if ( distinct && binding_settings != null && scope.equals(SCOPE_ToolProxyBinding) ) {
+			Iterator i = binding_settings.keySet().iterator();
+			while ( i.hasNext() ) {
+				String key = (String) i.next();
+				if ( proxy_settings != null ) proxy_settings.remove(key);
+			}
+		}
+
+		// Lets get this party started...
+		JSONObject jsonResponse =  null;
+		if ( (distinct || bubbleAll) && acceptComplex ) { 
+			jsonResponse = new JSONObject();	
+			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
+			JSONArray graph = new JSONArray();
+			boolean started = false;
+			if ( link_settings != null && SCOPE_LtiLink.equals(scope) ) {
+				JSONObject cjson = new JSONObject();
+				cjson.put(LTI2Constants.JSONLD_ID,link_url);
+				cjson.put(LTI2Constants.TYPE,SCOPE_LtiLink);
+				cjson.put(LTI2Constants.CUSTOM,link_settings);
+				graph.add(cjson);
+				started = true;
+			} 
+			if ( binding_settings != null && ( started || SCOPE_ToolProxyBinding.equals(scope) ) ) {
+				JSONObject cjson = new JSONObject();
+				cjson.put(LTI2Constants.JSONLD_ID,binding_url);
+				cjson.put(LTI2Constants.TYPE,SCOPE_ToolProxyBinding);
+				cjson.put(LTI2Constants.CUSTOM,binding_settings);
+				graph.add(cjson);
+				started = true;
+			} 
+			if ( proxy_settings != null && ( started || SCOPE_ToolProxy.equals(scope) ) ) {
+				JSONObject cjson = new JSONObject();
+				cjson.put(LTI2Constants.JSONLD_ID,proxy_url);
+				cjson.put(LTI2Constants.TYPE,SCOPE_ToolProxy);
+				cjson.put(LTI2Constants.CUSTOM,proxy_settings);
+				graph.add(cjson);
+			}
+			jsonResponse.put(LTI2Constants.GRAPH,graph);
+
+		} else if ( distinct ) {  // Simple format output
+			jsonResponse = proxy_settings;
+			if ( SCOPE_LtiLink.equals(scope) ) {
+				jsonResponse.putAll(binding_settings);
+				jsonResponse.putAll(link_settings);
+			} else if ( SCOPE_ToolProxyBinding.equals(scope) ) {
+				jsonResponse.putAll(binding_settings);
+			}
+		} else { // bubble not specified
+			jsonResponse = new JSONObject();	
+			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
+			JSONObject theSettings = null;
+			String endpoint = null;
+			if ( SCOPE_LtiLink.equals(scope) ) {
+				endpoint = link_url;
+				theSettings = link_settings;
+			} else if ( SCOPE_ToolProxyBinding.equals(scope) ) {
+				endpoint = binding_url;
+				theSettings = binding_settings;
+			} 
+			if ( SCOPE_ToolProxy.equals(scope) ) {
+				endpoint = proxy_url;
+				theSettings = proxy_settings;
+			}
+			if ( acceptComplex ) {
+				JSONArray graph = new JSONArray();
+				JSONObject cjson = new JSONObject();
+				cjson.put(LTI2Constants.JSONLD_ID,endpoint);
+				cjson.put(LTI2Constants.TYPE,scope);
+				cjson.put(LTI2Constants.CUSTOM,theSettings);
+				graph.add(cjson);
+				jsonResponse.put(LTI2Constants.GRAPH,graph);
+			} else {
+				jsonResponse = theSettings;
+			}
+		}
+		return jsonResponse;
+	}
 
 	// Parse a provider profile with lots of error checking...
 	public static String parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
