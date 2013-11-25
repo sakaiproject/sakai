@@ -34,7 +34,7 @@ var dialogutil = dialogutil || {};
 	 */
 	dialogutil.turnOnPortalOverlay = function() {
 		$("body", parent.document).append('<div id="portalMask" style="position:fixed;width:100%;height:100%;"></div>');
-		$("#" + iframeId, parent.document).parent().css("z-index", "9001").css("position", "relative").css("background", "#fff");
+		$("#" + iframeId, parent.document).css("z-index", "9001").css("position", "relative").css("background", "#fff");
 	};
 
 	/**
