@@ -289,16 +289,18 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             return;
         }
         EntityContentProducer ecp = newEntityContentProducer(event);
-        String siteId = ecp.getSiteId(resourceName);
 
 
         if (ecp == null || ecp.getSiteId(resourceName) == null) {
             log.debug("Not indexing " + resourceName + " as it has no context");
             return;
         }
- 
-       String id = ecp.getId(resourceName);
-       if (onlyIndexSearchToolSites) {
+
+        String siteId = ecp.getSiteId(resourceName);
+
+
+        String id = ecp.getId(resourceName);
+        if (onlyIndexSearchToolSites) {
             try {
                 Site s = siteService.getSite(siteId);
                 ToolConfiguration t = s.getToolForCommonId(SEARCH_TOOL_ID);
@@ -692,7 +694,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         DeleteResponse deleteResponse  = prepareDelete(id, siteId).execute().actionGet();
 
         if (log.isDebugEnabled()) {
-            if (deleteResponse.notFound()) {
+            if (deleteResponse.isNotFound()) {
                 log.debug("could not delete doc with by id: " + id + " it wasn't found");
             } else {
                 log.debug("ES deleted a doc with id: " + deleteResponse.getId());
@@ -709,24 +711,24 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
         log.info("bulk request of batch size: " + bulkRequest.numberOfActions() + " took " + bulkResponse.getTookInMillis() + " ms");
 
-        for (BulkItemResponse response : bulkResponse.items()) {
+        for (BulkItemResponse response : bulkResponse.getItems()) {
 
-            if (response.response() instanceof DeleteResponse) {
-                DeleteResponse deleteResponse = (DeleteResponse) response.response();
+            if (response.getResponse() instanceof DeleteResponse) {
+                DeleteResponse deleteResponse = (DeleteResponse) response.getResponse();
 
-                if (response.failed()) {
-                    log.error("problem deleting doc: " + response.getId() + " error: " + response.failureMessage());
-                } else if (deleteResponse.notFound()) {
+                if (response.isFailed()) {
+                    log.error("problem deleting doc: " + response.getId() + " error: " + response.getFailureMessage());
+                } else if (deleteResponse.isNotFound()) {
                     log.debug("ES could not find a doc with id: " + deleteResponse.getId() + " to delete.");
                 } else {
                     log.debug("ES deleted a doc with id: " + deleteResponse.getId());
                 }
             }
-            if (response.response() instanceof IndexResponse) {
-                IndexResponse indexResponse = (IndexResponse) response.response();
+            if (response.getResponse() instanceof IndexResponse) {
+                IndexResponse indexResponse = (IndexResponse) response.getResponse();
 
-                if (response.failed()) {
-                    log.error("problem updating content for doc: " + response.getId() + " error: " + response.failureMessage());
+                if (response.isFailed()) {
+                    log.error("problem updating content for doc: " + response.getId() + " error: " + response.getFailureMessage());
                 } else {
                     log.debug("ES indexed content for doc with id: " + indexResponse.getId());
                 }
@@ -807,7 +809,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                     .setQuery(filteredQuery(matchAllQuery(), missingFilter(SearchService.FIELD_CONTENTS)))
                     .execute()
                     .actionGet();
-            return (int) response.count();
+            return (int) response.getCount();
         } catch (Exception e) {
             log.error("problem getting pending docs: " + e.getMessage());
         }
@@ -819,7 +821,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      */
     public void assureIndex() {
         IndicesExistsResponse response = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
-        if (!response.exists()) {
+        if (!response.isExists()) {
             createIndex();
         }
     }
@@ -830,7 +832,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     public void createIndex() {
         try {
             CreateIndexResponse createResponse = client.admin().indices().create(new CreateIndexRequest(indexName).settings(settings).mapping(ElasticSearchService.SAKAI_DOC_TYPE, mapping)).actionGet();
-            if (!createResponse.acknowledged()) {
+            if (!createResponse.isAcknowledged()) {
                 log.error("Index wasn't created, can't rebuild");
             }
         } catch (IndexAlreadyExistsException e) {
@@ -846,7 +848,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      */
     public void recreateIndex() {
         IndicesExistsResponse response = client.admin().indices().exists(new IndicesExistsRequest(indexName)).actionGet();
-        if (response.exists()) {
+        if (response.isExists()) {
 
             client.admin().indices().delete(new DeleteIndexRequest(indexName)).actionGet();
 
@@ -878,7 +880,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      */
     protected void flushIndex() {
         //flush
-        client.admin().indices().flush(new FlushRequest(indexName).refresh(true)).actionGet();
+        client.admin().indices().flush(new FlushRequest(indexName)).actionGet();
     }
 
     /**

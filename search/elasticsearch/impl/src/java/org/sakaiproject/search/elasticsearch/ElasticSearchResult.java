@@ -5,21 +5,17 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.StopAnalyzer;
+import org.apache.lucene.analysis.core.StopAnalyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.search.BooleanClause;
-import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.highlight.*;
 import org.apache.lucene.util.Version;
-import org.elasticsearch.common.text.Text;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHitField;
 import org.elasticsearch.search.facet.terms.InternalTermsFacet;
 import org.elasticsearch.search.facet.terms.TermsFacet;
-import org.elasticsearch.search.highlight.HighlightField;
 import org.sakaiproject.search.api.*;
 
 import java.io.IOException;
@@ -120,7 +116,7 @@ public class ElasticSearchResult implements SearchResult {
                 }
             }
             String text = sb.toString();
-            TokenStream tokenStream = analyzer.reusableTokenStream(
+            TokenStream tokenStream = analyzer.tokenStream(
                     SearchService.FIELD_CONTENTS, new StringReader(text));
             return hightlighter.getBestFragments(tokenStream, text, 5, " ... "); //$NON-NLS-1$
         } catch (IOException e) {
@@ -142,13 +138,13 @@ public class ElasticSearchResult implements SearchResult {
             return new ElasticSearchTermFrequency();
         }
 
-        String[] terms = new String[facet.entries().size()];
-        int[] frequencies = new int[facet.entries().size()];
+        String[] terms = new String[facet.getEntries().size()];
+        int[] frequencies = new int[facet.getEntries().size()];
 
         int i = 0;
 
-        for (TermsFacet.Entry termFacet : facet.entries()) {
-            terms[i] = termFacet.getTerm();
+        for (TermsFacet.Entry termFacet : facet.getEntries()) {
+            terms[i] = termFacet.getTerm().string();
             frequencies[i] = termFacet.getCount();
             i++;
         }

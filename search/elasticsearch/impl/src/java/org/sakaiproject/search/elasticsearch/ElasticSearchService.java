@@ -305,7 +305,7 @@ public class ElasticSearchService implements SearchService {
 
          SearchResponse response = searchRequestBuilder.execute().actionGet();
 
-         log.debug("search request took: " + response.took().format());
+         log.debug("search request took: " + response.getTook().format());
 
          eventTrackingService.post(eventTrackingService.newEvent(EVENT_SEARCH,
                  EVENT_SEARCH_REF + query.toString(), true,
@@ -530,9 +530,9 @@ public class ElasticSearchService implements SearchService {
         }
 
         sb.append("Index Size: " + roundTwoDecimals(status.getStoreSize().getGbFrac()) + " GB" +
-                " Refresh Time: " + status.getRefreshStats().totalTimeInMillis() + "ms" +
-                " Flush Time: " + status.getFlushStats().totalTimeInMillis() + "ms" +
-                " Merge Time: " + status.getMergeStats().totalTimeInMillis() + "ms");
+                " Refresh Time: " + status.getRefreshStats().getTotalTimeInMillis() + "ms" +
+                " Flush Time: " + status.getFlushStats().getTotalTimeInMillis() + "ms" +
+                " Merge Time: " + status.getMergeStats().getTotalTimeInMillis() + "ms");
 
         return sb.toString();
     }
@@ -544,7 +544,7 @@ public class ElasticSearchService implements SearchService {
                 .setQuery(filteredQuery(matchAllQuery(),existsFilter(SearchService.FIELD_CONTENTS)))
                 .execute()
                 .actionGet();
-        return (int) response.count();
+        return (int) response.getCount();
     }
 
     private double roundTwoDecimals(double d) {
@@ -739,7 +739,7 @@ public class ElasticSearchService implements SearchService {
 
         SearchResponse response = searchRequestBuilder.execute().actionGet();
 
-        log.debug("search request took: " + response.took().format());
+        log.debug("search request took: " + response.getTook().format());
 
         List<String> suggestions = new ArrayList();
 
