@@ -7726,6 +7726,60 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 	}
 	
+
+	/**
+ 	* SAK 23029 -  iterate through changed partiants to see how many would have maintain role if all roles, status and deletion changes went through
+ 	*
+ 	*/ 
+	private List<Participant> testProposedUpdates(List<Participant> participants, ParameterParser params, String maintainRole) {
+		List<Participant> maintainersAfterUpdates = new ArrayList<Participant>();
+		// create list of all partcipants that have been 'Charles Bronson-ed'
+		Set<String> removedParticipantIds = new HashSet();
+		Set<String> deactivatedParticipants = new HashSet();
+                if (params.getStrings("selectedUser") != null) {
+                	List removals = new ArrayList(Arrays.asList(params.getStrings("selectedUser")));
+                      	for (int i = 0; i < removals.size(); i++) {
+                        	String rId = (String) removals.get(i);
+				removedParticipantIds.add(rId);
+			}
+		}
+
+		// create list of all participants that have been deactivated
+		for(Participant statusParticipant : participants ) {
+			String activeGrantId = statusParticipant.getUniqname();
+			String activeGrantField = "activeGrant" + activeGrantId;
+		
+     			if (params.getString(activeGrantField) != null) { 
+      				boolean activeStatus = params.getString(activeGrantField).equalsIgnoreCase("true") ? true : false;
+				if (activeStatus == false) {
+					deactivatedParticipants.add(activeGrantId);
+				}
+			} 	
+		}
+
+
+		// now add only those partcipants whose new/current role is maintainer, is (still) active, and not marked for deletion
+		for(Participant roleParticipant : participants ) {
+			String id = roleParticipant.getUniqname();
+			String roleId = "role" + id;
+			String newRole = params.getString(roleId);
+			if ((deactivatedParticipants.contains(id)==false) && roleParticipant.isActive() != false) { // skip any that are not already inactive or are not  candidates for deactivation
+				 if (removedParticipantIds.contains(id) == false) {
+					if (newRole != null){
+						if (newRole.equals(maintainRole)) {
+							maintainersAfterUpdates.add(roleParticipant);
+						}
+					} else { 
+						// participant has no new role; was participant already maintainer?
+						if (roleParticipant.getRole().equals(maintainRole)) {
+							maintainersAfterUpdates.add(roleParticipant);
+						}
+					}
+				}
+			}	
+		}
+		return maintainersAfterUpdates;
+	}
 	
 	/**
 	 * doUpdate_participant
@@ -7742,21 +7796,28 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List<String> userUpdated = new Vector<String>();
 		// list of all removed user
 		List<String> usersDeleted = new Vector<String>();
-		
-		if (AuthzGroupService.allowUpdate(realmId)
-				|| SiteService.allowUpdateSiteMembership(s.getId())) {
+	
+                if (AuthzGroupService.allowUpdate(realmId)
+                                || SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
-				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
-				// SAK-23029 - create list of maintainers to compare to removal list
+				// init variables useful for actual edits and mainainersAfterProposedChanges check
+                                AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
-				Set<String> maintainers = realmEdit.getUsersHasRole(maintainRoleString);  // this list will empty as maintainers are removed
-                boolean hadMaintainUser = !maintainers.isEmpty();	// store whether list started with some maintainers 
-
-				// update participant roles
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 
-				// list of roles being added or removed
-				HashSet<String>roles = new HashSet<String>();
+				// SAK 23029 Test proposed removals/updates; reject all where activeMainainer count would = 0 if all proposed changes were made
+				List<Participant> maintainersAfterProposedChanges = testProposedUpdates(participants, params, maintainRoleString);
+
+				if (maintainersAfterProposedChanges.size() == 0) {
+					addAlert(state, 
+						rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuseractive", new Object[]{maintainRoleString} ));
+					return;
+				}
+
+				// SAK23029 - proposed changes do not leave site w/o maintainers; proceed with any allowed updates
+			
+                                // list of roles being added or removed
+                                HashSet<String>roles = new HashSet<String>();
 
 				// remove all roles and then add back those that were checked
 				for (int i = 0; i < participants.size(); i++) {
@@ -7805,41 +7866,42 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						
 						if (roleChange || activeGrantChange)
 						{
-							boolean fromProvider = !participant.isRemoveable();
-							if (fromProvider && !roleId.equals(participant.getRole())) {
-							    fromProvider = false;
-							}
-							realmEdit.addMember(id, roleId, activeGrant,
+								boolean fromProvider = !participant.isRemoveable();
+								if (fromProvider && !roleId.equals(participant.getRole())) {
+									    fromProvider = false;
+								}
+								realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
 							
-							// construct the event string
-							String userUpdatedString = "uid=" + id;
-							if (roleChange)
-							{
-								userUpdatedString += ";oldRole=" + oldRoleId + ";newRole=" + roleId;
-							}
-							else
-							{
-								userUpdatedString += ";role=" + roleId;
-							}
-							if (activeGrantChange)
-							{
-								userUpdatedString += ";oldActive=" + participant.isActive() + ";newActive=" + activeGrant;
-							}
-							else
-							{
-								userUpdatedString += ";active=" + activeGrant;
-							}
-							userUpdatedString += ";provided=" + fromProvider;
-							
-							// add to the list for all participants that have role changes
-							userUpdated.add(userUpdatedString);
+								// construct the event string
+								String userUpdatedString = "uid=" + id;
+								if (roleChange)
+								{
+									userUpdatedString += ";oldRole=" + oldRoleId + ";newRole=" + roleId;
+								}
+								else
+								{
+									userUpdatedString += ";role=" + roleId;
+								}
+								if (activeGrantChange)
+								{
+									userUpdatedString += ";oldActive=" + participant.isActive() + ";newActive=" + activeGrant;
+								}
+								else
+								{
+									userUpdatedString += ";active=" + activeGrant;
+								}
+								userUpdatedString += ";provided=" + fromProvider;
+								
+								// add to the list for all participants that have role changes
+								userUpdated.add(userUpdatedString);
+
 						}
 					}
-				}
+				  }
 
-				// remove selected users
-				if (params.getStrings("selectedUser") != null) {
+				  // remove selected users
+				  if (params.getStrings("selectedUser") != null) {
 					List removals = new ArrayList(Arrays.asList(params
 							.getStrings("selectedUser")));
 					state.setAttribute(STATE_SELECTED_USER_LIST, removals);
@@ -7850,26 +7912,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							 // save role for permission check
 							if (user != null) {
 								String userId = user.getId();
-								// SAK 23029 If selected user for removal is a maintainer, remove it from the maintainers list
-								if (maintainers.contains(userId)) {
-									maintainers.remove(userId);
-								}
-								// are there no more maintainers or did the site orginally have no maintainers?
-								if (maintainers.isEmpty() && (hadMaintainUser == true)) {
-									addAlert(
-											state,
-											rb.getString( rb.getFormattedMessage("sitegen.siteinfolist.lastmaintainuser", maintainRoleString )));
-								} else {
-									Member userMember = realmEdit
-											.getMember(userId);
-									if (userMember != null) {
-										Role role = userMember.getRole();
-										if (role != null) {
-											roles.add(role.getId());
-										}
-										realmEdit.removeMember(userId);
-										usersDeleted.add("uid=" + userId);
+								Member userMember = realmEdit
+										.getMember(userId);
+								if (userMember != null) {
+									Role role = userMember.getRole();
+									if (role != null) {
+										roles.add(role.getId());
 									}
+									realmEdit.removeMember(userId);
+									usersDeleted.add("uid=" + userId);
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -7886,11 +7937,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						}
 					}
-				}
+				  }
 
-				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
+				  // if user doesn't have update, don't let them add or remove any role with site.upd in it.
 
-				if (!AuthzGroupService.allowUpdate(realmId)) {
+				  if (!AuthzGroupService.allowUpdate(realmId)) {
 				    // see if any changed have site.upd
 				    for (String rolename: roles) {
 						Role role = realmEdit.getRole(rolename);
@@ -7899,20 +7950,20 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						    return;
 							}
 					    }
-				}
-				AuthzGroupService.save(realmEdit);
+				  }
+				  AuthzGroupService.save(realmEdit);
 
-				// then update all related group realms for the role
-				doUpdate_related_group_participants(s, realmId);
+				  // then update all related group realms for the role
+				  doUpdate_related_group_participants(s, realmId);
 
-				// post event about the participant update
-				EventTrackingService.post(EventTrackingService.newEvent(
+				  // post event about the participant update
+				  EventTrackingService.post(EventTrackingService.newEvent(
 						SiteService.SECURE_UPDATE_SITE_MEMBERSHIP,
 						realmEdit.getId(), false));
 
-				// check the configuration setting, whether logging membership
-				// change at individual level is allowed
-				if (ServerConfigurationService.getBoolean(
+				  // check the configuration setting, whether logging membership
+				  // change at individual level is allowed
+				  if (ServerConfigurationService.getBoolean(
 						SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
 					// event for each individual update
 					for (String userChangedRole : userUpdated) {
@@ -7930,8 +7981,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE,
 												userDeleted, true));
 					}
-				}
-				
+				 }
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
 				M_log.warn(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
