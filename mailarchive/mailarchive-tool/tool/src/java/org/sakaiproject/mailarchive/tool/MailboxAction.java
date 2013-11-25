@@ -179,9 +179,15 @@ public class MailboxAction extends PagedResourceActionII
         	try
 		{
 			MailArchiveChannel channel = MailArchiveService.getMailArchiveChannel((String) state.getAttribute(STATE_CHANNEL_REF));
-			int cCount = channel.getCount((Filter) getSearchFilter(search, 0, 0));
 
-			lastCount = Integer.valueOf(cCount);
+			int cCount = 0;
+			if(search == null) {
+			    cCount = channel.getCount();
+			} else {
+                cCount = channel.getCount((Filter) getSearchFilter(search, 0, 0));
+			}
+
+			lastCount = new Integer(cCount);
 			state.setAttribute(STATE_COUNT, lastCount);
 			state.setAttribute(STATE_COUNT_SEARCH, search);
 			return cCount;
