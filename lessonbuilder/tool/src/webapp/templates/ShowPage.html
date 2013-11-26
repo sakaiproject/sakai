@@ -710,6 +710,11 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.edit" id="simplepage.edit"></p>
 			  <p rsf:id="msg=simplepage.addLink_label_add" id="simplepage.addLink_label_add"></p>
 			  <p rsf:id="msg=simplepage.addLink_label_add_or" id="simplepage.addLink_label_add_or"></p>
+			  <p rsf:id="msg=simplepage.deletecommentsubmissionexist" id="simplepage.deletecommentsubmissionexist"></p>
+			  <p rsf:id="msg=simplepage.deletestudentsubmissionexist" id="simplepage.deletestudentsubmissionexist"></p>
+			  <p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
+			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
+
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -1354,7 +1359,7 @@ function resizeiframe(id) {
                     <p class="act">
                         <input class="bold" type="submit" onclick="event.returnValue = checkCommentsForm(); return checkCommentsForm();" id="update-comments" rsf:id="update-comments" />
                         <input type="submit" rsf:id="cancel-comments" onclick="closeCommentsDialog(); return false" />
-                        <input type="submit" class="deleteButton" rsf:id="delete-comments-item" />
+                        <input type="submit" class="deleteButton" id="delete-comments-item"  rsf:id="delete-comments-item" />
                     </p>
                 </form>
 			</div>
@@ -1393,6 +1398,11 @@ function resizeiframe(id) {
 			  </div>
 			</div>
 
+			<div id="delete-confirm" class="controlsPanel">
+			  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
+			    <p id="delete-confirm-message">Delete ok?</p></p>
+			</div>
+	
 			<div id="student-dialog" rsf:id="student-dialog">
                 <form action="#" rsf:id="student-form" class="controlsPanel">
 
@@ -1508,7 +1518,7 @@ function resizeiframe(id) {
                     <div class="act">
                         <input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
                         <input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
-                        <input type="submit" class="deleteButton" rsf:id="delete-student-item" />
+                        <input type="submit" class="deleteButton" id="delete-student-item" rsf:id="delete-student-item" />
                     </div>
                 </form>
 			</div>

@@ -4,7 +4,9 @@ var oldloc;
 var requirementType = 0;
 var importccactive = false;
 var insist = false;
+var delbutton;
 var mm_testing = 0;
+var editrow;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -172,6 +174,20 @@ $(function() {
 			draggable: false
 		});
 		
+		$('#delete-confirm').dialog({
+			autoOpen: false,
+			resizable: false,
+			modal: false,
+			dialogClass: "no-close",
+			    buttons: [{text:msg("simplepage.delete"),
+				          click: function() {
+				          insist = true;
+				          delbutton.click();
+				      }},{text:msg("simplepage.cancel_message"),
+				          click: function() {
+				          $( this ).dialog( "close" );}}
+				]});
+
 		/* RU Rubrics ********************************************* */
 		$("#rubric-title").append($("#peer-eval-title-cloneable input"));
 		blankRubricTemplate=$(".peer-eval-create-form").html();
@@ -549,6 +565,7 @@ $(function() {
 			$("#editgroups-comments").hide();
 
 			var row = $(this).parent().parent().parent();
+			editrow = row;
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -624,6 +641,7 @@ $(function() {
 			$("#student-group-show").hide();
 
 			var row = $(this).parent().parent().parent();
+			editrow = row;
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -1599,6 +1617,38 @@ $(function() {
 			setUpRequirements();
 		});
 		
+		function delete_confirm(event, message) {
+			if (insist) {
+			    insist = false;
+			    $("#delete-confirm").dialog('close');
+			    return true;
+			}
+			insist = false;
+			$("#delete-confirm-message").text(message);
+			$("#delete-confirm").dialog("option", "position", [event.pageX, event.pageY-100]);
+			$("#delete-confirm").dialog('open');
+			return false;
+		    };
+
+		$('#delete-comments-item').click(function(event) {
+			// edit row is set by edit-comments. We're current in the dialog. need
+			// to look in the actual page row.
+			if (editrow.find('.commentDiv').size() == 0)
+			    return true;
+			delbutton = $('#delete-comments-item');
+			return delete_confirm(event, msg("simplepage.deletecommentsubmissionexist"));
+		    });
+
+		$('#delete-student-item').click(function(event) {
+			// edit row is set by edit-comments. We're current in the dialog. need
+			// to look in the actual page row.
+			if (editrow.find('.studentLink').size() == 0)
+			    return true;
+			delbutton = $('#delete-student-item');
+			return delete_confirm(event, msg("simplepage.deletestudentsubmissionexist"));
+		    });
+
+
 		$('body').bind('dialogopen', function(event) {
 			hideMultimedia();
 		});
