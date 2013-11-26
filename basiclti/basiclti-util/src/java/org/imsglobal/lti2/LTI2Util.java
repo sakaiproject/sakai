@@ -43,9 +43,11 @@ public class LTI2Util {
 	// We use the built-in Java logger because this code needs to be very generic
 	private static Logger M_log = Logger.getLogger(LTI2Util.class.toString());
 
-    public static final String SCOPE_LtiLink = "LtiLink";
-    public static final String SCOPE_ToolProxyBinding = "ToolProxyBinding";
-    public static final String SCOPE_ToolProxy = "ToolProxy";
+	public static final String SCOPE_LtiLink = "LtiLink";
+	public static final String SCOPE_ToolProxyBinding = "ToolProxyBinding";
+	public static final String SCOPE_ToolProxy = "ToolProxy";
+
+    private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	// Validate the incoming tool_services against a tool consumer
 	public static String validateServices(ToolConsumer consumer, JSONObject providerProfile) 
@@ -136,10 +138,10 @@ public class LTI2Util {
 		capabilities.add("ToolProxyBinding.custom.url");
 	}
 
-    // If this code looks like a hack - it is because the spec is a hack.
-    // There are five possible scenarios for GET and two possible scenarios
-    // for PUT.  I begged to simplify the business logic but was overrulled.
-    // So we write obtuse code.
+	// If this code looks like a hack - it is because the spec is a hack.
+	// There are five possible scenarios for GET and two possible scenarios
+	// for PUT.  I begged to simplify the business logic but was overrulled.
+	// So we write obtuse code.
 	public static Object getSettings(HttpServletRequest request, String scope,
 		JSONObject link_settings, JSONObject binding_settings, JSONObject proxy_settings,
 		String link_url, String binding_url, String proxy_url)
@@ -411,6 +413,14 @@ public class LTI2Util {
 			theTools.add(theTool);
 		}
 		return null;  // All good
+	}
+
+	public static JSONObject parseSettings(String settings)
+	{
+		if ( settings == null || settings.length() < 1 ) {
+			settings = EMPTY_JSON_OBJECT;
+		}
+		return (JSONObject) JSONValue.parse(settings);
 	}
 
 	/* Two possible formats:

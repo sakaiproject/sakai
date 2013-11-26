@@ -88,6 +88,12 @@ import org.codehaus.jackson.map.ObjectWriter;
  *  The navigate to:
  *  http://localhost/testservlet/sample/register
  * 
+ *  A PHP endpoint is available at:
+ * 
+ *  https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test
+ * 
+ *  The tp.php script is the Tool Provider registration endpoint in the PHP code
+ * 
  */
 
 @SuppressWarnings("deprecation")
@@ -221,8 +227,8 @@ public class LTI2Servlet extends HttpServlet {
 			boolean dodebug = true;
 			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
 		} else {
-			output = "<form>Register URL:<br/><input type=\"text\" name=\"launch_url\" size=\"80\">\n" + 
-				"<input type=\"submit\">\n";
+			output = "<form>Register URL:<br/><input type=\"text\" name=\"launch_url\" size=\"80\"\n" + 
+				"value=\"http://localhost:8888/sakai-api-test/tp.php\"><input type=\"submit\">\n";
 		}
 
 		try {
@@ -677,23 +683,6 @@ System.out.println("placement_id="+placement_id);
 			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
 		}
 
-		if ( distinct && link_settings != null && scope.equals(LTI2Util.SCOPE_LtiLink) ) {
-			Iterator i = link_settings.keySet().iterator();
-			while ( i.hasNext() ) {
-				String key = (String) i.next();
-				if ( binding_settings != null ) binding_settings.remove(key);
-				if ( proxy_settings != null ) proxy_settings.remove(key);
-			}
-		}
-
-		if ( distinct && binding_settings != null && scope.equals(LTI2Util.SCOPE_ToolProxyBinding) ) {
-			Iterator i = binding_settings.keySet().iterator();
-			while ( i.hasNext() ) {
-				String key = (String) i.next();
-				if ( proxy_settings != null ) proxy_settings.remove(key);
-			}
-		}
-
 		// Get the secret for the request...
 		String oauth_secret = null;
 		if ( LTI2Util.SCOPE_LtiLink.equals(scope) ) {
@@ -796,54 +785,18 @@ System.out.println("jsonResponse="+jsonResponse);
 */
 	}
 
-	public JSONObject parseSettings(String settings)
-	{
-		if ( settings == null || settings.length() < 1 ) {
-			settings = EMPTY_JSON_OBJECT;
-		}
-		return (JSONObject) JSONValue.parse(settings);
-	}
-
 	/* IMS JSON version of Errors */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String message, Exception e) 
 		throws java.io.IOException 
-		{
-			if (e != null) {
-				M_log.error(e.getLocalizedMessage(), e);
-			}
-			M_log.info(message);
-			response.setContentType(APPLICATION_JSON);
-			Map jsonResponse = new TreeMap();
-
-			Map status = null;
-			if ( json == null ) {
-				status = IMSJSONRequest.getStatusFailure(message);
-			} else {
-				status = json.getStatusFailure(message);
-				if ( json.base_string != null ) {
-					jsonResponse.put("base_string", json.base_string);
-				}
-			}
-			jsonResponse.put(IMSJSONRequest.STATUS, status);
-			if ( e != null ) {
-				jsonResponse.put("exception", e.getLocalizedMessage());
-				try {
-					StringWriter sw = new StringWriter();
-					PrintWriter pw = new PrintWriter(sw, true);
-					e.printStackTrace(pw);
-					pw.flush();
-					sw.flush();
-					jsonResponse.put("traceback", sw.toString() );
-				} catch ( Exception f ) {
-					jsonResponse.put("traceback", f.getLocalizedMessage());
-				}
-			}
-			String jsonText = JSONValue.toJSONString(jsonResponse);
-System.out.print(jsonText);
-			PrintWriter out = response.getWriter();
-			out.println(jsonText);
+	{
+		if (e != null) {
+			M_log.error(e.getLocalizedMessage(), e);
 		}
+        M_log.info(message);
+		String output = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
+System.out.println(output);
+    }
 
 	public void destroy() {
 	}

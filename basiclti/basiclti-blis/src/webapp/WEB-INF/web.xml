@@ -14,12 +14,10 @@
     <servlet-class>org.sakaiproject.lti2.LTI2Service</servlet-class>
   </servlet>
 
-  <!--
   <servlet>
     <servlet-name>SampleServlet</servlet-name>
     <servlet-class>org.imsglobal.lti2.LTI2Servlet</servlet-class>
   </servlet>
-  -->
 
   <servlet-mapping>
     <servlet-name>ServiceServlet</servlet-name>
@@ -31,12 +29,10 @@
     <url-pattern>/lti2/*</url-pattern>
   </servlet-mapping>
 
-  <!--
   <servlet-mapping>
     <servlet-name>SampleServlet</servlet-name>
     <url-pattern>/sample/*</url-pattern>
   </servlet-mapping>
-  -->
   
   <listener>
     <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>

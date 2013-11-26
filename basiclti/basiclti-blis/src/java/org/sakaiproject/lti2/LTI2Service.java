@@ -113,8 +113,6 @@ public class LTI2Service extends HttpServlet {
 	private static final String LTI1_PATH = SakaiBLTIUtil.LTI1_PATH;
 	private static final String LTI2_PATH = SakaiBLTIUtil.LTI2_PATH;
 
-	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
-
 	private static final String APPLICATION_JSON = "application/json";
 
 	@Override
@@ -646,15 +644,16 @@ System.out.println("placement_id="+placement_id);
 		JSONObject binding_settings = new JSONObject ();
 		JSONObject proxy_settings = new JSONObject();
 		if ( content != null ) {
-			link_settings = parseSettings((String) content.get(LTIService.LTI_SETTINGS));
+			link_settings = LTI2Util.parseSettings((String) content.get(LTIService.LTI_SETTINGS));
 		}
 		if ( proxyBinding != null ) {
-			binding_settings = parseSettings((String) proxyBinding.get(LTIService.LTI_SETTINGS));
+			binding_settings = LTI2Util.parseSettings((String) proxyBinding.get(LTIService.LTI_SETTINGS));
 		}
 		if ( deploy != null ) {
-			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
+			proxy_settings = LTI2Util.parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
 		}
 
+/*
 		if ( distinct && link_settings != null && scope.equals(LTI2Util.SCOPE_LtiLink) ) {
 			Iterator i = link_settings.keySet().iterator();
 			while ( i.hasNext() ) {
@@ -671,6 +670,7 @@ System.out.println("placement_id="+placement_id);
 				if ( proxy_settings != null ) proxy_settings.remove(key);
 			}
 		}
+*/
 
 		// Get the secret for the request...
 		String oauth_secret = null;
@@ -773,14 +773,6 @@ System.out.println("jsonResponse="+jsonResponse);
 		}
 	}
 
-	public JSONObject parseSettings(String settings)
-	{
-		if ( settings == null || settings.length() < 1 ) {
-			settings = EMPTY_JSON_OBJECT;
-		}
-		return (JSONObject) JSONValue.parse(settings);
-	}
-
 	/* IMS JSON version of Errors */
 	public void doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String message, Exception e) 
@@ -790,36 +782,9 @@ System.out.println("jsonResponse="+jsonResponse);
 				M_log.error(e.getLocalizedMessage(), e);
 			}
 			M_log.info(message);
-			response.setContentType(APPLICATION_JSON);
-			Map jsonResponse = new TreeMap();
 
-			Map status = null;
-			if ( json == null ) {
-				status = IMSJSONRequest.getStatusFailure(message);
-			} else {
-				status = json.getStatusFailure(message);
-				if ( json.base_string != null ) {
-					jsonResponse.put("base_string", json.base_string);
-				}
-			}
-			jsonResponse.put(IMSJSONRequest.STATUS, status);
-			if ( e != null ) {
-				jsonResponse.put("exception", e.getLocalizedMessage());
-				try {
-					StringWriter sw = new StringWriter();
-					PrintWriter pw = new PrintWriter(sw, true);
-					e.printStackTrace(pw);
-					pw.flush();
-					sw.flush();
-					jsonResponse.put("traceback", sw.toString() );
-				} catch ( Exception f ) {
-					jsonResponse.put("traceback", f.getLocalizedMessage());
-				}
-			}
-			String jsonText = JSONValue.toJSONString(jsonResponse);
-System.out.print(jsonText);
-			PrintWriter out = response.getWriter();
-			out.println(jsonText);
+			String jsonText = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
+System.out.println(jsonText);
 		}
 
 	public void destroy() {

@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.net.URLDecoder;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.LinkedHashMap;
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -18,6 +19,9 @@ import java.lang.IllegalArgumentException;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.json.simple.JSONValue;
 
 import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
@@ -30,6 +34,9 @@ import net.oauth.server.HttpRequestMessage;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 import org.imsglobal.basiclti.Base64;
+
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import java.security.MessageDigest;
 
@@ -55,6 +62,8 @@ public class IMSJSONRequest {
 	public boolean valid = false;
 	public String errorMessage = null;
 	public String base_string = null;
+
+    private static final String APPLICATION_JSON = "application/json";
 
 	public String getOAuthConsumerKey()
 	{
@@ -220,6 +229,44 @@ public class IMSJSONRequest {
 		retval.put(STATUS_CODE,major);
 		retval.put(STATUS_DESCRIPTION,description);
 		return retval;
+	}
+
+	/* IMS JSON version of Errors - does the complet request - returns the JSON in case
+	   the code above us wants to log it. */
+	public static String doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
+			IMSJSONRequest json, String message, Exception e) 
+		throws java.io.IOException 
+	{
+		response.setContentType(APPLICATION_JSON);
+		Map jsonResponse = new TreeMap();
+
+		Map status = null;
+		if ( json == null ) {
+			status = IMSJSONRequest.getStatusFailure(message);
+		} else {
+			status = json.getStatusFailure(message);
+			if ( json.base_string != null ) {
+				jsonResponse.put("base_string", json.base_string);
+			}
+		}
+		jsonResponse.put(IMSJSONRequest.STATUS, status);
+		if ( e != null ) {
+			jsonResponse.put("exception", e.getLocalizedMessage());
+			try {
+				StringWriter sw = new StringWriter();
+				PrintWriter pw = new PrintWriter(sw, true);
+				e.printStackTrace(pw);
+				pw.flush();
+				sw.flush();
+				jsonResponse.put("traceback", sw.toString() );
+			} catch ( Exception f ) {
+				jsonResponse.put("traceback", f.getLocalizedMessage());
+			}
+		}
+		String jsonText = JSONValue.toJSONString(jsonResponse);
+		PrintWriter out = response.getWriter();
+		out.println(jsonText);
+		return jsonText;
 	}
 
 	/** Unit Tests */
