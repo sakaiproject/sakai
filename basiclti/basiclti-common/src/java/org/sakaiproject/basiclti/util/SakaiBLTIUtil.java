@@ -758,12 +758,7 @@ System.out.println("before custom="+custom);
 System.out.println("after custom="+custom);
 
 		// Place the custom values into the launch
-        Enumeration e = custom.propertyNames();
-        while (e.hasMoreElements()) {
-            String keyStr = (String) e.nextElement();
-            String value =  custom.getProperty(keyStr);
-			setProperty(ltiProps,"custom_"+keyStr,value);
-		}
+		LTI2Util.addCustomToLaunch(ltiProps, custom);
 
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}

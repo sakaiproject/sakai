@@ -552,6 +552,17 @@ public class LTI2Util {
 		}
 	}
 
+	// Place the custom values into the launch
+	public static void addCustomToLaunch(Properties ltiProps, Properties custom) 
+	{
+        Enumeration e = custom.propertyNames();
+        while (e.hasMoreElements()) {
+            String keyStr = (String) e.nextElement();
+            String value =  custom.getProperty(keyStr);
+            setProperty(ltiProps,"custom_"+keyStr,value);
+        }           
+	}
+
 	public static void setProperty(Properties props, String key, String value) {
 		BasicLTIUtil.setProperty(props, key, value);
 	}

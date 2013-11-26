@@ -258,15 +258,15 @@ public class LTI2Servlet extends HttpServlet {
 			List<Properties> profileTools = new ArrayList<Properties> ();
 	        Properties info = new Properties();
 			String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
-	        String instance_guid = (String) info.get("instance_guid");
 			String launch = null;
+			String parameter = null;
 			for ( Properties profileTool : profileTools ) {
 				launch = (String) profileTool.get("launch");
+				parameter = (String) profileTool.get("parameter");
 			}
 			JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
 
 			String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
-			System.out.println("instance_guid="+instance_guid);
 			System.out.println("launch="+launch);
 			System.out.println("shared_secret="+shared_secret);
 			output = "YO";
@@ -274,8 +274,27 @@ public class LTI2Servlet extends HttpServlet {
 			Properties ltiProps = LTI2SampleData.getLaunch();
 			ltiProps.setProperty(BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
 
+			Properties lti2subst = LTI2SampleData.getSubstitution();
+			String settings_url = getServiceURL(request) + SVC_Settings + "/";
+			lti2subst.setProperty("LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/"
+					+ ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_ID));
+			lti2subst.setProperty("ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" 
+					+ ltiProps.getProperty(BasicLTIConstants.CONTEXT_ID));
+			lti2subst.setProperty("ToolProxy.custom.url", settings_url + LTI2Util.SCOPE_ToolProxy + "/" 
+					+ TEST_KEY);
+			lti2subst.setProperty("Result.url", getServiceURL(request) + SVC_Result + "/"
+					+ ltiProps.getProperty(BasicLTIConstants.RESOURCE_LINK_ID));
+
+			// Do the substitutions
+			Properties custom = new Properties();
+			LTI2Util.mergeLTI2Parameters(custom, parameter);
+			LTI2Util.substituteCustom(custom, lti2subst);
+
+			// Place the custom values into the launch
+			LTI2Util.addCustomToLaunch(ltiProps, custom);
+
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch, "POST",
-                instance_guid, shared_secret, null, null, null);
+                TEST_KEY, shared_secret, null, null, null);
 
 			boolean dodebug = true;
 			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, dodebug);
