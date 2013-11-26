@@ -1,23 +1,22 @@
 /**
- * $URL$
- * $Id$
+ * Copyright (c) 2013 IMS GLobal Learning Consortium
  *
- * Copyright (c) 2009 The Sakai Foundation
- *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *			 http://www.opensource.org/licenses/ECL-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied. See the License for the specific language governing
+ * permissions and limitations under the License.
+ * 
+ * Author: Charles Severance <csev@umich.edu>
  */
 
-package org.sakaiproject.lti2;
+package org.imsglobal.lti2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -52,27 +51,17 @@ import org.json.simple.JSONValue;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 
-import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.LTI2SampleData;
 import org.imsglobal.lti2.objects.*;
-import org.sakaiproject.lti2.SakaiLTI2Services;
-import org.sakaiproject.lti2.SakaiLTI2Config;
-import org.sakaiproject.lti2.SakaiLTI2Base;
 
 import org.imsglobal.json.IMSJSONRequest;
-
-import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.util.foorm.SakaiFoorm;
-import org.sakaiproject.util.foorm.FoormUtil;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -82,55 +71,55 @@ import org.codehaus.jackson.map.ObjectWriter;
 /**
  * Notes:
  * 
- * This program is directly exposed as a URL to receive IMS Basic LTI messages
- * so it must be carefully reviewed and any changes must be looked at carefully.
+ * This is a sample "Hello World" servlet for LTI2.  It is a simple UI - mostly 
+ * intended to exercise the APIs and show the way for servlet-based LTI2 code.
+ * 
+ * Here are the web.xml entries:
+ *
+ *  <servlet>
+ *    <servlet-name>SampleServlet</servlet-name>
+ *    <servlet-class>org.imsglobal.lti2.LTI2Servlet</servlet-class>
+ *  </servlet>
+ *  <servlet-mapping>
+ *    <servlet-name>SampleServlet</servlet-name>
+ *    <url-pattern>/sample/*</url-pattern>
+ *  </servlet-mapping>
+ *
+ *  The navigate to:
+ *  http://localhost/testservlet/sample/register
  * 
  */
 
 @SuppressWarnings("deprecation")
-public class LTI2Service extends HttpServlet {
+public class LTI2Servlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
-	private static Log M_log = LogFactory.getLog(LTI2Service.class);
-	private static ResourceLoader rb = new ResourceLoader("blis");
+	private static Log M_log = LogFactory.getLog(LTI2Servlet.class);
 
-	protected static SakaiFoorm foorm = new SakaiFoorm();
-
-	protected static LTIService ltiService = null;
-
-	protected String resourceUrl = null;
 	protected Service_offered LTI2ResultItem = null;
 	protected Service_offered LTI2LtiLinkSettings = null;
 	protected Service_offered LTI2ToolProxyBindingSettings = null;
 	protected Service_offered LTI2ToolProxySettings = null;
 
-	// Copy these in...
-	private static final String SVC_tc_profile = SakaiBLTIUtil.SVC_tc_profile;
-	private static final String SVC_tc_registration = SakaiBLTIUtil.SVC_tc_registration;
-	private static final String SVC_Settings = SakaiBLTIUtil.SVC_Settings;
-	private static final String SVC_Result = SakaiBLTIUtil.SVC_Result;
-
-	private static final String LTI1_PATH = SakaiBLTIUtil.LTI1_PATH;
-	private static final String LTI2_PATH = SakaiBLTIUtil.LTI2_PATH;
+	private static final String SVC_tc_profile = "tc_profile";
+	private static final String SVC_tc_registration = "tc_registration";
+	private static final String SVC_Settings = "Settings";
+	private static final String SVC_Result = "Result";
 
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	private static final String APPLICATION_JSON = "application/json";
 
+	// Normally these would be in a database
+	private static String TEST_KEY = "42";
+	private static String TEST_SECRET = "zaphod";
+
+	// Pretending to be a database row :)
+	private static Map<String, String> PERSIST = new TreeMap<String, String> ();
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-
-		resourceUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH;
-		LTI2ResultItem = StandardServices.LTI2ResultItem(resourceUrl 
-			+ SVC_Result + "/{" + BasicLTIConstants.LIS_RESULT_SOURCEDID + "}");
-		LTI2LtiLinkSettings = StandardServices.LTI2LtiLinkSettings(resourceUrl 
-			+ SVC_Settings + "/" + LTI2Util.SCOPE_LtiLink + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
-		LTI2ToolProxyBindingSettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
-			+ SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}");
-		LTI2ToolProxySettings = StandardServices.LTI2ToolProxySettings(resourceUrl 
-			+ SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/{" + LTI2Constants.TOOL_PROXY_GUID + "}");
 	}
 
 	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -160,8 +149,10 @@ public class LTI2Service extends HttpServlet {
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) 
 		throws ServletException, IOException 
 	{
+		System.out.println("getServiceURL="+getServiceURL(request));
+
 		String ipAddress = request.getRemoteAddr();
-		M_log.debug("LTI Service request from IP=" + ipAddress);
+		System.out.println("LTI Service request from IP=" + ipAddress);
 
 		String rpi = request.getPathInfo();
 		String uri = request.getRequestURI();
@@ -172,7 +163,13 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 		String controller = parts[3];
-		if ( SVC_tc_profile.equals(controller) && parts.length == 5 ) {
+		if ( "register".equals(controller) ) {
+			doRegister(request,response);
+			return;
+		} else if ( "launch".equals(controller) ) {
+			doLaunch(request,response);
+			return;
+		} else if ( SVC_tc_profile.equals(controller) && parts.length == 5 ) {
 			String profile_id = parts[4];
 			getToolConsumerProfile(request,response,profile_id);
 			return;
@@ -199,16 +196,101 @@ public class LTI2Service extends HttpServlet {
 		doErrorJSON(request, response, null, "Unknown request="+uri, null);
 	}
 
+	protected void doRegister(HttpServletRequest request, HttpServletResponse response)
+	{
+		// Reset our database
+		PERSIST.clear();
+		String launch_url = request.getParameter("launch_url");
+		response.setContentType("text/html");
+
+		String output = null;
+		if ( launch_url != null ) {
+			Properties ltiProps = new Properties();
+
+			ltiProps.setProperty(BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
+			ltiProps.setProperty(LTI2Constants.REG_KEY,TEST_KEY);
+			ltiProps.setProperty(LTI2Constants.REG_PASSWORD,TEST_SECRET);
+			ltiProps.setProperty(BasicLTIUtil.BASICLTI_SUBMIT, "Press to Launch External Tool");
+			ltiProps.setProperty(BasicLTIConstants.LTI_MESSAGE_TYPE, BasicLTIConstants.LTI_MESSAGE_TYPE_TOOLPROXYREGISTRATIONREQUEST);
+
+			String serverUrl = getServiceURL(request);
+			ltiProps.setProperty(LTI2Constants.TC_PROFILE_URL,serverUrl + SVC_tc_profile + "/" + TEST_KEY);
+			ltiProps.setProperty(BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "launch");
+			System.out.println("ltiProps="+ltiProps);
+
+			boolean dodebug = true;
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
+		} else {
+			output = "<form>Register URL:<br/><input type=\"text\" name=\"launch_url\" size=\"80\">\n" + 
+				"<input type=\"submit\">\n";
+		}
+
+		try {
+			PrintWriter out = response.getWriter();
+			out.println(output);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	// We are actually bypassing the activation step.  Usually activation will parse
+	// the profile, and install a tool if the admin is happy.  For us we just parse 
+	// the profile and do a launch.
+	protected void doLaunch(HttpServletRequest request, HttpServletResponse response)
+	{
+		
+		String profile = PERSIST.get("profile");
+		response.setContentType("text/html");
+
+		String output = null;
+		if ( profile == null ) {
+			output = "Missing profile";
+		} else {
+	        JSONObject providerProfile = (JSONObject) JSONValue.parse(profile);
+
+			List<Properties> profileTools = new ArrayList<Properties> ();
+	        Properties info = new Properties();
+			String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
+	        String instance_guid = (String) info.get("instance_guid");
+			String launch = null;
+			for ( Properties profileTool : profileTools ) {
+				launch = (String) profileTool.get("launch");
+			}
+			JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+
+			String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+			System.out.println("instance_guid="+instance_guid);
+			System.out.println("launch="+launch);
+			System.out.println("shared_secret="+shared_secret);
+			output = "YO";
+
+			Properties ltiProps = LTI2SampleData.getLaunch();
+			ltiProps.setProperty(BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
+
+			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch, "POST",
+                instance_guid, shared_secret, null, null, null);
+
+			boolean dodebug = true;
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, dodebug);
+		}
+
+		try {
+			PrintWriter out = response.getWriter();
+			out.println(output);
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	protected void getToolConsumerProfile(HttpServletRequest request, 
 			HttpServletResponse response,String profile_id)
 	{
-		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
-		if ( deploy == null ) {
-			response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
-			return;
-		}
+		// Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
+		Map<String,Object> deploy = null;
 
-		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
+		ToolConsumer consumer = buildToolConsumerProfile(request, deploy, profile_id);
 
 		ObjectMapper mapper = new ObjectMapper();
 		try {
@@ -227,87 +309,48 @@ public class LTI2Service extends HttpServlet {
 		}
 	}
 
-	protected ToolConsumer getToolConsumerProfile(Map<String, Object> deploy, String profile_id)
+	// Normally deploy would have the data about the deployment - for this test
+	// it is always null and we allow everything
+	protected ToolConsumer buildToolConsumerProfile(HttpServletRequest request, Map<String, Object> deploy, String profile_id)
 	{
 		// Load the configuration data
-		LTI2Config cnf = new SakaiLTI2Config();
-		if ( cnf.getGuid() == null ) {
-			M_log.error("*********************************************");
-			M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
-			M_log.error("* Do not use this in production.  Test only *");
-			M_log.error("*********************************************");
-			// cnf = new org.imsglobal.lti2.LTI2ConfigSample();
-			cnf = new SakaiLTI2Base();
-		}
+		LTI2Config cnf = new org.imsglobal.lti2.LTI2ConfigSample();
 
-		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
+		ToolConsumer consumer = new ToolConsumer(profile_id+"", getServiceURL(request), cnf);
 
-		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, cnf);
+		// Normally we would check permissions before we offer capabilities
 		List<String> capabilities = consumer.getCapability_offered();
+		LTI2Util.allowEmail(capabilities);
+		LTI2Util.allowName(capabilities);
+		LTI2Util.allowSettings(capabilities);
+		LTI2Util.allowResult(capabilities);
 
-		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
-			LTI2Util.allowEmail(capabilities);
-		}
-
-		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
-			LTI2Util.allowName(capabilities);
-		}
-
+		// Normally we would check permissions before we offer services
 		List<Service_offered> services = consumer.getService_offered();
-		services.add(StandardServices.LTI2Registration(serverUrl + LTI2_PATH + SVC_tc_registration + "/" + profile_id));
-
-		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-		if ("true".equals(allowOutcomes) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-			LTI2Util.allowResult(capabilities);
-
-			services.add(LTI2ResultItem);
-			services.add(StandardServices.LTI1Outcomes(serverUrl+LTI1_PATH));
-			services.add(SakaiLTI2Services.BasicOutcomes(serverUrl+LTI1_PATH));
-		}
-
-		String allowRoster = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED, SakaiBLTIUtil.BASICLTI_ROSTER_ENABLED_DEFAULT);
-		if ("true".equals(allowRoster) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWROSTER)) > 0 ) {
-			services.add(SakaiLTI2Services.BasicRoster(serverUrl+LTI1_PATH));
-		}
-
-		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if ("true".equals(allowSettings) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
-			LTI2Util.allowSettings(capabilities);
-
-			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
-			services.add(LTI2LtiLinkSettings);
-			services.add(LTI2ToolProxySettings);
-			services.add(LTI2ToolProxyBindingSettings);
-		}
-
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-		if ("true".equals(allowLori) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
-			services.add(SakaiLTI2Services.LORI_XML(serverUrl+LTI1_PATH));
-		}
+		services.add(StandardServices.LTI2Registration(getServiceURL(request) + 
+			SVC_tc_registration + "/" + profile_id));
+		services.add(StandardServices.LTI2ResultItem(getServiceURL(request) + 
+			SVC_Result + "/{" + BasicLTIConstants.LIS_RESULT_SOURCEDID + "}"));
+		services.add(StandardServices.LTI2LtiLinkSettings(getServiceURL(request) + 
+			SVC_Settings + "/" + LTI2Util.SCOPE_LtiLink + "/{" + BasicLTIConstants.RESOURCE_LINK_ID + "}"));
+		services.add(StandardServices.LTI2ToolProxySettings(getServiceURL(request) + 
+			SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/{" + BasicLTIConstants.CONTEXT_ID + "}"));
+		services.add(StandardServices.LTI2ToolProxySettings(getServiceURL(request) + 
+			SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/{" + LTI2Constants.TOOL_PROXY_GUID + "}"));
 		return consumer;
 	}
 
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 			String profile_id) throws java.io.IOException
 	{
-		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
-		if ( deploy == null ) {
+		// Normally we would look up the deployment descriptor
+		if ( ! TEST_KEY.equals(profile_id) ) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
 			return;
 		}
-		Long deployKey = foorm.getLong(deploy.get(LTIService.LTI_ID));
 
-		// See if we can even register...
-		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
-		String key = null;
-		String secret = null;
-		if ( reg_state == 0 ) {
-			key = (String) deploy.get(LTIService.LTI_REG_KEY);
-			secret = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
-		} else {
-			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-			secret = (String) deploy.get(LTIService.LTI_SECRET);
-		}
+		String key = TEST_KEY;
+		String secret = TEST_SECRET;
 
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
 
@@ -316,7 +359,8 @@ public class LTI2Service extends HttpServlet {
 			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format", null);
 			return;
 		}
-		// System.out.println(jsonRequest.getPostBody());
+
+		System.out.println(jsonRequest.getPostBody());
 
 		// Lets check the signature
 		if ( key == null || secret == null ) {
@@ -350,17 +394,15 @@ public class LTI2Service extends HttpServlet {
 		}
 
 		String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+		System.out.println("shared_secret="+shared_secret);
 		if ( shared_secret == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON missing shared_secret", null);
 			return;
 		}
 
-		// Blank out the new shared secret
-		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
-
 		// Make sure that the requested services are a subset of the offered services
-		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
+		ToolConsumer consumer = buildToolConsumerProfile(request, null, profile_id);
 
 		JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
 		String retval = LTI2Util.validateServices(consumer, providerProfile);
@@ -378,37 +420,16 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 
-		// Passed all the tests, lets commit this...
-		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
-		shared_secret = SakaiBLTIUtil.encryptSecret(shared_secret);
-		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
-
-		// Indicate ready to validate and kill the interim info
-		deployUpdate.put(LTIService.LTI_REG_STATE, LTIService.LTI_REG_STATE_REGISTERED);
-		deployUpdate.put(LTIService.LTI_REG_KEY, "");
-		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
-		if ( default_custom != null ) deployUpdate.put(LTIService.LTI_SETTINGS, default_custom.toString());
-		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
-
-		M_log.debug("deployUpdate="+deployUpdate);
-
-		Object obj = ltiService.updateDeployDao(deployKey, deployUpdate);
-		boolean success = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
-		if ( ! success ) {
-			M_log.warn("updateDeployDao fail deployKey="+deployKey+"\nretval="+obj+"\ndata="+deployUpdate);
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "Failed update of deployment="+deployKey, null);
-			return;
-		}
+		// Pass the profile to the launch process
+		PERSIST.put("profile", providerProfile.toString());
 
 		// Share our happiness with the Tool Provider
 		Map jsonResponse = new TreeMap();
 		jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLPROXY_ID_CONTEXT);
 		jsonResponse.put(LTI2Constants.TYPE, StandardServices.TOOLPROXY_ID_TYPE);
-		String serverUrl = ServerConfigurationService.getServerUrl();
-		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.JSONLD_ID, getServiceURL(request) + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
-		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.CUSTOM_URL, getServiceURL(request) + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
@@ -417,16 +438,20 @@ public class LTI2Service extends HttpServlet {
 		out.println(jsonText);
 	}
 
+	public String getServiceURL(HttpServletRequest request) {
+		String scheme = request.getScheme();             // http
+		String serverName = request.getServerName();     // localhost
+		int serverPort = request.getServerPort();        // 80
+		String contextPath = request.getContextPath();   // /imsblis
+		String servletPath = request.getServletPath();   // /ltitest
+		String url = scheme+"://"+serverName+":"+serverPort+contextPath+servletPath+"/";
+		return url;
+	}
+
 	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
 			String sourcedid) throws java.io.IOException
 	{
-		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
-		if ( ! "true".equals(allowOutcomes) ) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			doErrorJSON(request,response, null, "Result resources not available", null);
-			return;
-		}
-
+/*
 		Object retval = null;
 		IMSJSONRequest jsonRequest = null;
 		if ( "GET".equals(request.getMethod()) ) { 
@@ -480,6 +505,7 @@ public class LTI2Service extends HttpServlet {
 			doErrorJSON(request,response, jsonRequest, (String) retval, null);
 			return;
 		}
+*/
 	}
 
 	// If this code looks like a hack - it is because the spec is a hack.
@@ -489,12 +515,8 @@ public class LTI2Service extends HttpServlet {
 	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
 			String[] parts) throws java.io.IOException
 	{
-		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
-		if ( ! "true".equals(allowSettings) ) {
-			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-			doErrorJSON(request,response, null, "Tool settings not available", null);
-			return;
-		}
+
+/*
 
 		String URL = SakaiBLTIUtil.getOurServletPath(request);
 		String scope = parts[4];
@@ -771,6 +793,7 @@ System.out.println("jsonResponse="+jsonResponse);
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "Method not handled="+request.getMethod(), null);
 		}
+*/
 	}
 
 	public JSONObject parseSettings(String settings)
