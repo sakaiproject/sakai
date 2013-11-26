@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.tool;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -76,6 +79,9 @@ public class RealmsAction extends PagedResourceActionII
 
 	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
 	.get(org.sakaiproject.authz.api.GroupProvider.class);
+	
+	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
+	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
 	
 	private static Log M_log = LogFactory.getLog(RealmsAction.class);
 
@@ -704,6 +710,13 @@ public class RealmsAction extends PagedResourceActionII
 			try
 			{
 				AuthzGroupService.save(realm);
+				// Grab the list from session state and save it, if appropriate
+				List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
+				if (userAuditList!=null && !userAuditList.isEmpty())
+				{
+					userAuditRegistration.addToUserAuditing(userAuditList);
+					state.removeAttribute("userAuditList");
+				}
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -1285,8 +1298,14 @@ public class RealmsAction extends PagedResourceActionII
 		
 		if (realm != null && user != null)
 		{
+			// Need to grab the role before removing the user from the realm
+			String roleId = realm.getUserRole(user.getId()).getId();
+			
 			// clear out this user's settings
 			realm.removeMember(user.getId());
+			
+			// user auditing
+			addToAuditLogList(state, realm, user.getEid(), roleId);
 	
 			// done with the user
 			state.removeAttribute("user");
@@ -1391,6 +1410,9 @@ public class RealmsAction extends PagedResourceActionII
 			{
 				// TODO: active, provided
 				realm.addMember(user.getId(), roles, status, false);
+				
+				// user auditing
+				addToAuditLogList(state, realm, user.getEid(), roles);
 			}
 		}
 
@@ -1413,6 +1435,7 @@ public class RealmsAction extends PagedResourceActionII
 		state.removeAttribute("allLocks");
 		state.removeAttribute("roles");
 		state.removeAttribute("locks");
+		state.removeAttribute("userAuditList");
 
 	} // cleanState
 	
@@ -1439,6 +1462,52 @@ public class RealmsAction extends PagedResourceActionII
 		}
 		
 		return false;
+	}
+	
+	private List<String[]> retrieveAuditLogList(SessionState state)
+	{
+		// user auditing
+		List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
+		if (userAuditList!=null && !userAuditList.isEmpty())
+		{
+			state.removeAttribute("userAuditList");
+		}
+		else
+		{
+			userAuditList = new ArrayList<String[]>();
+		}
+		
+		return userAuditList;
+	}
+	
+	private void addToAuditLogList(SessionState state, AuthzGroup realm, String userEid, String userRole)
+	{
+		List<String[]> userAuditList = retrieveAuditLogList(state);
+		
+		String realmId = realm.getId();
+		String siteId = "";
+		String fullReferenceRoot = SiteService.REFERENCE_ROOT + Entity.SEPARATOR;
+		if (realmId.startsWith(fullReferenceRoot))
+		{
+			siteId = realmId.substring(fullReferenceRoot.length());
+		}
+		else
+		{
+			// this will likely never happen, but adding it in as a backup
+			siteId = realmId;
+		}
+		String newOrExistingUser = (String) state.getAttribute("newUser");
+		String userAuditAction = userAuditService.USER_AUDIT_ACTION_UPDATE;
+		
+		// if this using the Grant As functionality, it will be a new user being added
+		if (newOrExistingUser!=null && "true".equals(newOrExistingUser))
+		{
+			userAuditAction = userAuditService.USER_AUDIT_ACTION_ADD;
+		}
+		String[] userAuditString = {siteId,userEid,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),UserDirectoryService.getCurrentUser().getEid()};
+		userAuditList.add(userAuditString);
+		
+		state.setAttribute("userAuditList", userAuditList);
 	}
 
 } // RealmsAction
