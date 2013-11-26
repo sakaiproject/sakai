@@ -144,6 +144,8 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FileItem;
@@ -760,6 +762,10 @@ public class SiteAction extends PagedResourceActionII {
 	private String m_filePath;
 	private String moreInfoPath;
 	private String libraryPath;
+	
+	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
+	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
+	
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -2002,6 +2008,18 @@ public class SiteAction extends PagedResourceActionII {
 											"doAttachmentsMtrlFrmFile"));
 								}
 							}
+						}
+					}
+				}
+				
+				if (allowUpdateSite) 
+				{
+					// show add parent sites menu
+					if (!isMyWorkspace) {
+						boolean eventLog = "true".equals(ServerConfigurationService.getString("user_audit_log_display", "true"));
+						if (notStealthOrHiddenTool("sakai.useraudit") && eventLog) {
+							b.add(new MenuEntry(rb.getString("java.userAuditEventLog"),
+									"doUserAuditEventLog"));
 						}
 					}
 				}
@@ -3799,6 +3817,19 @@ public class SiteAction extends PagedResourceActionII {
 
 		// launch the helper
 		startHelper(data.getRequest(), "sakai.basiclti.admin.helper");
+	}
+	
+	public void doUserAuditEventLog(RunData data) {
+		SessionState state = ((JetspeedRunData) data)
+				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+
+		// pass in the siteId of the site to be ordered (so it can configure
+		// sites other then the current site)
+		SessionManager.getCurrentToolSession().setAttribute(
+				HELPER_ID + ".siteId", ((Site) getStateSite(state)).getId());
+
+		// launch the helper
+		startHelper(data.getRequest(), "sakai.useraudit");
 	}
 	
 	public boolean setHelper(String helperName, String defaultHelperId, SessionState state, String stateHelperString)
@@ -7818,6 +7849,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
                                 // list of roles being added or removed
                                 HashSet<String>roles = new HashSet<String>();
+                                
+                                // List used for user auditing
+                                List<String[]> userAuditList = new ArrayList<String[]>();
 
 				// remove all roles and then add back those that were checked
 				for (int i = 0; i < participants.size(); i++) {
@@ -7872,6 +7906,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								}
 								realmEdit.addMember(id, roleId, activeGrant,
 									fromProvider);
+							String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
+							String[] userAuditString = {s.getId(),participant.getEid(),roleId,userAuditService.USER_AUDIT_ACTION_UPDATE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+							userAuditList.add(userAuditString);
 							
 								// construct the event string
 								String userUpdatedString = "uid=" + id;
@@ -7921,6 +7958,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									}
 									realmEdit.removeMember(userId);
 									usersDeleted.add("uid=" + userId);
+									String currentUserId = (String) state.getAttribute(STATE_CM_CURRENT_USERID);
+									String[] userAuditString = {s.getId(),user.getEid(),role.getId(),userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+									userAuditList.add(userAuditString);
 								}
 							}
 						} catch (UserNotDefinedException e) {
@@ -7952,6 +7992,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					    }
 				  }
 				  AuthzGroupService.save(realmEdit);
+				  
+				  // do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
+				  // but seems to be a better solution than call this multiple time for every update
+				  if (!userAuditList.isEmpty())
+				  {
+				  	userAuditRegistration.addToUserAuditing(userAuditList);
+				  }
 
 				  // then update all related group realms for the role
 				  doUpdate_related_group_participants(s, realmId);

@@ -31,6 +31,7 @@ import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
@@ -39,6 +40,10 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.SiteTextEditUtil;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -63,6 +68,10 @@ public class MembershipAction extends PagedResourceActionII
 	private static String SEARCH_TERM = "search";
 	
 	private static final String STATE_TOP_PAGE_MESSAGE = "msg-top";
+	
+	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.membership");
+	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
+	private static UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
 
 	/*
 	 * (non-Javadoc)
@@ -396,6 +405,17 @@ public class MembershipAction extends PagedResourceActionII
 				SiteService.join(id);
 				String msg = rb.getString("mb.youhave2") + " " + SiteService.getSite(id).getTitle();
 				addAlert(state, msg);
+				
+				// add to user auditing
+				List<String[]> userAuditList = new ArrayList<String[]>();
+				String currentUserEid = userDirectoryService.getCurrentUser().getEid();
+				String roleId = SiteService.getSite(id).getJoinerRole();
+				String[] userAuditString = {id,currentUserEid,roleId,userAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
+				userAuditList.add(userAuditString);
+				if (!userAuditList.isEmpty())
+				{
+					userAuditRegistration.addToUserAuditing(userAuditList);
+				}
 			}
 			catch (IdUnusedException e)
 			{
@@ -431,13 +451,27 @@ public class MembershipAction extends PagedResourceActionII
 		if (id != null)
 		{
 			String msg = rb.getString("mb.youhave") + " "; 
+			
+			// add to user auditing
+			List<String[]> userAuditList = new ArrayList<String[]>();
+			// get the User object since we need a couple of lookups
+			User tempUser = userDirectoryService.getCurrentUser();
+			String currentUserId = tempUser.getId();
+			String currentUserEid = tempUser.getEid();
+			
 			for(int i=0; i< id.length; i++){
 
 				try
 				{
+					// Get the user's role before unjoining the site
+					String roleId = SiteService.getSite(id[i]).getUserRole(currentUserId).getId();
+					
 					SiteService.unjoin(id[i]);
 					if (i>0) msg=msg+" ,";
 					msg = msg+SiteService.getSite(id[i]).getTitle();
+					
+					String[] userAuditString = {id[i],currentUserEid,roleId,userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};
+					userAuditList.add(userAuditString);
 				}
 				catch (IdUnusedException ignore)
 				{
@@ -455,6 +489,10 @@ public class MembershipAction extends PagedResourceActionII
 				}
 			}
 			addAlert(state, msg);
+			if (!userAuditList.isEmpty())
+			{
+				userAuditRegistration.addToUserAuditing(userAuditList);
+			}
 		}
 
 		// TODO: hard coding this frame id is fragile, portal dependent, and needs to be fixed -ggolden

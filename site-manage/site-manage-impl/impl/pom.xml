@@ -86,6 +86,14 @@
             <groupId>jdom</groupId>
             <version>1.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.userauditservice</groupId>
+            <artifactId>userauditservice-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.userauditservice</groupId>
+            <artifactId>userauditservice-util</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

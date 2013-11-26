@@ -23,6 +23,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -43,6 +44,8 @@ import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.userauditservice.api.UserAuditRegistration;
+import org.sakaiproject.userauditservice.api.UserAuditService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -84,6 +87,8 @@ public class SiteAddParticipantHandler {
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
     private final String HELPER_ID = "sakai.tool.helper.id";
+    private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
+    private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
 
     public MessageLocator messageLocator;
     
@@ -539,6 +544,10 @@ public class SiteAddParticipantHandler {
 					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 					boolean allowUpdate = authzGroupService.allowUpdate(realmId);
 					Set<String>okRoles = new HashSet<String>();
+					
+					// List used for user auditing
+					List<String[]> userAuditList = new ArrayList<String[]>();
+					
 					for (UserRoleEntry entry: userRoleEntries) {
 						String eId = entry.userEId;
 						String role =entry.role;
@@ -573,6 +582,11 @@ public class SiteAddParticipantHandler {
 										false);
 								addedUserEIds.add(eId);
 								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false");
+								
+								// Add the user to the list for the User Auditing Event Log
+								String currentUserId = userDirectoryService.getUserEid(sessionManager.getCurrentSessionUserId());
+								String[] userAuditString = {site.getId(),eId,role,userAuditService.USER_AUDIT_ACTION_ADD,userAuditRegistration.getDatabaseSourceKey(),currentUserId};
+								userAuditList.add(userAuditString);
 
 								// send notification
 								if (notify) {
@@ -591,6 +605,14 @@ public class SiteAddParticipantHandler {
 
 					try {
 						authzGroupService.save(realmEdit);
+						
+						// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
+						// but seems to be a better solution than call this multiple time for every update
+						if (!userAuditList.isEmpty())
+						{
+							userAuditRegistration.addToUserAuditing(userAuditList);
+						}
+						
 						// post event about adding participant
 						EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realmEdit.getId(),false));
 						

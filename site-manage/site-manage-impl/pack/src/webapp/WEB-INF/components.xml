@@ -83,5 +83,22 @@
     			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     	</property>
     </bean>
+    
+    <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage"
+    	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+    	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+    	init-method="init" singleton="true">
+    	<property name="bundleLocation"><value>UserAuditService</value></property>
+    	<property name="databaseSourceKey"><value>M</value></property>
+    	<property name="hasParameters"><value>true</value></property>
+    </bean>
+    
+    <bean id="org.sakaiproject.userauditservice.api.UserAuditRegistration.membership"
+    	parent="org.sakaiproject.userauditservice.api.UserAuditRegistration"
+    	class="org.sakaiproject.sitemanage.impl.UserAuditSiteManageImpl"
+    	init-method="init" singleton="true">
+    	<property name="bundleLocation"><value>UserAuditService</value></property>
+    	<property name="databaseSourceKey"><value>S</value></property>
+    </bean>
 
 </beans>
