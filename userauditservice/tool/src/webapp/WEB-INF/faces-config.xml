@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+  <application>
+    <message-bundle>UserAuditMessages</message-bundle>
+    <locale-config>
+      <default-locale>en</default-locale>
+    </locale-config>
+  </application>
+  
+  <managed-bean>
+    <managed-bean-name>eventLog</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.userauditservice.tool.UserAuditEventLog</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
+  
+  <navigation-rule>
+    <from-view-id>/eventLog.jsp</from-view-id>
+  </navigation-rule>
+</faces-config>
