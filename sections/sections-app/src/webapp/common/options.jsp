@@ -49,7 +49,7 @@
                 <h:outputText value="#{msgs.section_open_info}"/>
                 <h:inputText id="openDate" value="#{optionsBean.openDate}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
                 <script src="/sakai-sections-tool/widget/datepicker/datepicker.js" type="text/javascript"></script>
-                <img  id="calendar" onclick="javascript:var cal = new calendar2(document.getElementById('optionsForm:openDate'), cal_gen_date2_dm, cal_prs_date2_dm);cal.year_scroll = true;cal.time_comp = true;cal.popup('','/sakai-sections-tool/html/');"
+                <img  id="calendar" onclick="javascript:var cal = new calendar2(document.getElementById('optionsForm:openDate'), cal_gen_date2, cal_prs_date2);cal.year_scroll = true;cal.time_comp = true;cal.popup('','/sakai-sections-tool/html/');"
                       width="16"  height="16"  style="cursor:pointer;"   src="/sakai-sections-tool/images/calendar/cal.gif"  border="0" />
 			</t:div>
         </t:div>
