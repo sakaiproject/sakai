@@ -50,7 +50,8 @@ import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -245,6 +246,8 @@ public class AnnouncementAction extends PagedResourceActionII
    private ContentHostingService contentHostingService = null;
    
    private EventTrackingService eventTrackingService = null;
+
+   private SecurityService m_securityService = null;
    
    private EntityBroker entityBroker;
    
@@ -272,8 +275,21 @@ public class AnnouncementAction extends PagedResourceActionII
 	{
 		public Object getChannel(String channelReference)
 		{
-			try
-			{
+			
+			final String finalChannelReference = channelReference;
+			SecurityAdvisor advisor = new SecurityAdvisor() {
+				@Override
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					if (userId.equals(SessionManager.getCurrentSessionUserId()) && "annc.read".equals(function) && finalChannelReference.equals(reference)) {
+						return SecurityAdvice.ALLOWED;
+					} else {
+						return SecurityAdvice.NOT_ALLOWED;
+					}
+				}
+			};
+
+			try {
+				m_securityService.pushAdvisor(advisor);
 				return AnnouncementService.getAnnouncementChannel(channelReference);
 			}
 			catch (IdUnusedException e)
@@ -282,7 +298,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (PermissionException e)
 			{
+				M_log.warn(String.format("Permission denied for '%s' on '%s'", SessionManager.getCurrentSessionUserId(), channelReference));
 				return null;
+			} finally {
+				m_securityService.popAdvisor(advisor);
 			}
 		}
 	}
@@ -357,7 +376,25 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		public boolean allowGet(String ref)
 		{
-			return (!excludedSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
+			final String finalRef = ref;
+			SecurityAdvisor advisor = new SecurityAdvisor() {
+				@Override
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalRef)) {
+						return SecurityAdvice.ALLOWED;
+					} else {
+						return SecurityAdvice.NOT_ALLOWED;
+					}
+				}
+			};
+
+			try {
+				m_securityService.pushAdvisor(advisor);
+				return (!excludedSites.contains(ref) && AnnouncementService.allowGetChannel(ref));
+			} finally {
+				m_securityService.popAdvisor(advisor);
+			}
+
 		}
 
 		/*
@@ -848,7 +885,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		        StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()), 
 		        mergedAnnouncementList.getChannelReferenceArrayFromDelimitedString(state.getChannelId(), 
 		                portlet.getPortletConfig().getInitParameter(
-		                        getPortletConfigParameterNameForLoadOnly(portlet))), SecurityService.isSuperUser(), 
+		                        getPortletConfigParameterNameForLoadOnly(portlet))), m_securityService.isSuperUser(), 
 		                        ToolManager.getCurrentPlacement().getContext());
 
 		// Place this object in the context so that the velocity template
@@ -1481,7 +1518,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					initMergeList = tc.getPlacementConfig().getProperty(PORTLET_CONFIG_PARM_MERGED_CHANNELS);	
 				}
 
-				if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
+				if (isOnWorkspaceTab() && !m_securityService.isSuperUser())
 				{
 					String[] channelArrayFromConfigParameterValuebeBefore = null;
 
@@ -1523,7 +1560,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					mergedAnnouncementList.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
 							new EntryProvider(true), state.getChannelId(), channelArrayFromConfigParameterValue,
 							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, SecurityService.isSuperUser(),
+							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
 							ToolManager.getCurrentPlacement().getContext());
 
 				}
@@ -1536,7 +1573,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					.loadChannelsFromDelimitedString(isOnWorkspaceTab(), new MergedListEntryProviderFixedListWrapper(
 							new EntryProvider(), state.getChannelId(), channelArrayFromConfigParameterValue,
 							new AnnouncementReferenceToChannelConverter()), StringUtil.trimToZero(SessionManager
-							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, SecurityService.isSuperUser(),
+							.getCurrentSessionUserId()), channelArrayFromConfigParameterValue, m_securityService.isSuperUser(),
 							ToolManager.getCurrentPlacement().getContext());
 				}
 
@@ -1545,7 +1582,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}			
 		}
 		else {
-			if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
+			if (isOnWorkspaceTab() && !m_securityService.isSuperUser())
 			{
 				channelArrayFromConfigParameterValue = mergedAnnouncementList
 						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
@@ -1568,7 +1605,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		            new AnnouncementReferenceToChannelConverter() ), 
 		        StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()), 
 		        channelArrayFromConfigParameterValue, 
-		        SecurityService.isSuperUser(),
+		        m_securityService.isSuperUser(),
 		        ToolManager.getCurrentPlacement().getContext());
 
 		Iterator channelsIt = mergedAnnouncementList.iterator();
@@ -1584,9 +1621,30 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 
 			AnnouncementChannel curChannel = null;
+			final String finalChannelReference = curEntry.getReference();
+			SecurityAdvisor advisor = new SecurityAdvisor() {
+				@Override
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalChannelReference)) {
+						return SecurityAdvice.ALLOWED;
+					} else {
+						return SecurityAdvice.NOT_ALLOWED;
+					}
+				}
+			};
+
 			try
 			{
-				curChannel = (AnnouncementChannel) AnnouncementService.getChannel(curEntry.getReference());
+				m_securityService.pushAdvisor(advisor);
+				curChannel = (AnnouncementChannel) AnnouncementService.getChannel(finalChannelReference);
+				if (curChannel != null)
+				{
+					if (AnnouncementService.allowGetChannel(curChannel.getReference()))
+					{
+						messageList.addAll(AnnouncementWrapper.wrapList(curChannel.getMessages(filter, ascending), curChannel,
+									defaultChannel, state.getDisplayOptions()));
+					}
+				}
 			}
 			catch (IdUnusedException e)
 			{
@@ -1595,16 +1653,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			catch (PermissionException e)
 			{
 				M_log.debug(this + ".getMessages()", e);
+			} finally {
+				m_securityService.popAdvisor(advisor);
 			}
 
-			if (curChannel != null)
-			{
-				if (AnnouncementService.allowGetChannel(curChannel.getReference()))
-				{
-					messageList.addAll(AnnouncementWrapper.wrapList(curChannel.getMessages(filter, ascending), curChannel,
-							defaultChannel, state.getDisplayOptions()));
-				}
-			}
 		}
 
 		// Do an overall sort. We couldn't do this earlier since each merged channel
@@ -1811,8 +1863,8 @@ public class AnnouncementAction extends PagedResourceActionII
 				break;
 		}
 
-		boolean b = SecurityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
-							 || SecurityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
+		boolean b = m_securityService.unlock(AnnouncementService.SECURE_ANNC_READ_DRAFT, msg.getReference())
+							 || m_securityService.unlock(UPDATE_PERMISSIONS, "/site/"+ siteId);
 		if (roleswap==null)
 		{
 			b = b || msg.getHeader().getFrom().getId().equals(SessionManager.getCurrentSessionUserId()) ; 
@@ -2295,6 +2347,20 @@ public class AnnouncementAction extends PagedResourceActionII
 		// get the message object through service
 		try
 		{
+			final String finalMessageReference = messageReference;
+			final String finalChannelReference = getChannelIdFromReference(messageReference);
+			SecurityAdvisor advisor = new SecurityAdvisor() {
+				@Override
+				public SecurityAdvice isAllowed(String userId, String function, String reference) {
+					if (userId.equals(SessionManager.getCurrentSessionUserId()) && "annc.read".equals(function)
+						&& (finalMessageReference.equals(reference) || finalChannelReference.equals(reference))) {
+						return SecurityAdvice.ALLOWED;
+					} else {
+						return SecurityAdvice.NOT_ALLOWED;
+					}
+				}
+			};
+			m_securityService.pushAdvisor(advisor);
 			// get the channel id throught announcement service
 			AnnouncementChannel channel = AnnouncementService.getAnnouncementChannel(this
 					.getChannelIdFromReference(messageReference));
@@ -2323,6 +2389,9 @@ public class AnnouncementAction extends PagedResourceActionII
 				if (M_log.isDebugEnabled()) {
 					M_log.debug("buildShowMetadataContext retractDate is empty for message id " + message.getId());
 				}
+			}
+			finally {
+				m_securityService.popAdvisor(advisor);
 			}
 			
 			try {
@@ -4393,6 +4462,12 @@ public class AnnouncementAction extends PagedResourceActionII
 			eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
 		}
 
+		if (m_securityService == null)
+		{
+			m_securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
+		}
+
+
 		// retrieve the state from state object
 		AnnouncementActionState annState = (AnnouncementActionState) getState(portlet, rundata, AnnouncementActionState.class);
 
@@ -4426,7 +4501,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			state.setAttribute(STATE_INITED, STATE_INITED);
 
 			// check if the channel is marked public read
-			if (SecurityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
+			if (m_securityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
 			{
 				state.setAttribute(STATE_CHANNEL_PUBVIEW, STATE_CHANNEL_PUBVIEW);
 			}
@@ -4441,7 +4516,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			// If we're on the workspace tab, we get everything.
 			// Don't do this if we're the super-user, since we'd be
 			// overwhelmed.
-			if (isOnWorkspaceTab() && !SecurityService.isSuperUser())
+			if (isOnWorkspaceTab() && !m_securityService.isSuperUser())
 			{
 				channelArrayFromConfigParameterValue = mergedAnnouncementList
 						.getAllPermittedChannels(new AnnouncementChannelReferenceMaker());
@@ -4458,7 +4533,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					new EntryProvider(true), annState.getChannelId(), channelArrayFromConfigParameterValue,
 					new AnnouncementReferenceToChannelConverter()),
 					StringUtil.trimToZero(SessionManager.getCurrentSessionUserId()), channelArrayFromConfigParameterValue,
-					SecurityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
+					m_securityService.isSuperUser(), ToolManager.getCurrentPlacement().getContext());
 		}
 
 		// Set up or display options if we haven't done it yet.
