@@ -235,9 +235,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderJavascriptReference("/library/js/jquery-latest.min.js");
 
 		//for datepicker
-		response.renderCSSReference("css/flora.datepicker.css");
-		response.renderJavascriptReference("javascript/jquery.ui.core-1.5.2.min.js");
-		response.renderJavascriptReference("javascript/jquery.datepicker-1.5.2.min.js");
+		response.renderCSSReference("css/jquery-ui-1.10.3.min.css");
+		response.renderJavascriptReference("javascript/jquery-ui-1.10.3.min.js");
 
 	}
 
