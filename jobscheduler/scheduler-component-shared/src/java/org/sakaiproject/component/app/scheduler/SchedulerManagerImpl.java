@@ -43,6 +43,7 @@ import javax.sql.DataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.quartz.CronTrigger;
+import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.JobListener;
@@ -57,6 +58,7 @@ import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationExcep
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidator;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper;
 import org.sakaiproject.component.app.scheduler.jobs.SpringInitialJobSchedule;
@@ -198,14 +200,20 @@ public void init()
       {
         try
         {
-          scheduler.getJobDetail(arrJobs[i],
-              Scheduler.DEFAULT_GROUP);
+          JobDetail detail = scheduler.getJobDetail(arrJobs[i], Scheduler.DEFAULT_GROUP);
+          String bean = detail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
+          Job job = (Job) ComponentManager.get(bean);
+          if (job == null) {
+              LOG.warn("scheduler cannot load class for persistent job:" + arrJobs[i]);
+        	  scheduler.deleteJob(arrJobs[i], Scheduler.DEFAULT_GROUP);
+              LOG.warn("deleted persistent job:" + arrJobs[i]);
+          }
         }
         catch (SchedulerException e)
         {
-          LOG.warn("scheduler cannot load class for persistent job:"
-              + arrJobs[i]);
+          LOG.warn("scheduler cannot load class for persistent job:" + arrJobs[i]);
           scheduler.deleteJob(arrJobs[i], Scheduler.DEFAULT_GROUP);
+          LOG.warn("deleted persistent job:" + arrJobs[i]);
         }
       }
 
@@ -229,7 +237,7 @@ public void init()
       if (isStartScheduler()) {
           scheduler.start();
       } else {
-          LOG.info("Not Started Scheduler, startScheduler=false");
+          LOG.info("Scheduler Not Started, startScheduler=false");
       }
     }
     catch (Exception e)
