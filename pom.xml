@@ -59,6 +59,7 @@
                 <module>entitybroker</module>
                 <module>jsf</module>
                 <module>sakai-mock</module>
+                <module>userauditservice</module>
                 <module>webservices</module>
                 
                 <!-- Indie tools -->
@@ -140,6 +141,7 @@
                 <module>entitybroker</module>
                 <module>jsf</module>
                 <module>sakai-mock</module>
+                <module>userauditservice</module>
                 <module>webservices</module>
                 
                 <!-- Indie tools -->
