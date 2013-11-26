@@ -269,7 +269,6 @@ public class LTI2Servlet extends HttpServlet {
 			String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 			System.out.println("launch="+launch);
 			System.out.println("shared_secret="+shared_secret);
-			output = "YO";
 
 			Properties ltiProps = LTI2SampleData.getLaunch();
 			ltiProps.setProperty(BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
@@ -476,25 +475,20 @@ public class LTI2Servlet extends HttpServlet {
 	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
 			String sourcedid) throws java.io.IOException
 	{
-/*
-		Object retval = null;
 		IMSJSONRequest jsonRequest = null;
+		String retval = null;
 		if ( "GET".equals(request.getMethod()) ) { 
-			retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
-			if ( ! (retval instanceof Map) ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, (String) retval, null);
-				return;
-			}
-			Map grade = (Map) retval;
+			String grade = PERSIST.get("grade");
+			String comment = PERSIST.get("comment");
+
 			Map jsonResponse = new TreeMap();
 			Map resultScore = new TreeMap();
 	
 			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.RESULT_CONTEXT);
 			jsonResponse.put(LTI2Constants.TYPE, StandardServices.RESULT_TYPE);
-			jsonResponse.put(LTI2Constants.COMMENT, grade.get(LTI2Constants.COMMENT));
 			resultScore.put(LTI2Constants.TYPE, LTI2Constants.GRADE_TYPE_DECIMAL);
-			resultScore.put(LTI2Constants.VALUE, grade.get(LTI2Constants.GRADE));
+			jsonResponse.put(LTI2Constants.COMMENT, grade);
+			resultScore.put(LTI2Constants.VALUE, comment);
 			jsonResponse.put(LTI2Constants.RESULTSCORE,resultScore);
 			response.setContentType(StandardServices.RESULT_FORMAT);
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -502,6 +496,7 @@ public class LTI2Servlet extends HttpServlet {
 			M_log.debug(jsonText);
 			PrintWriter out = response.getWriter();
 			out.println(jsonText);
+			return;
 		} else if ( "PUT".equals(request.getMethod()) ) { 
 			retval = "Error parsing input data";
 			try {
@@ -512,25 +507,20 @@ public class LTI2Servlet extends HttpServlet {
 				JSONObject resultScore = (JSONObject) requestData.get(LTI2Constants.RESULTSCORE);
 				String sGrade = (String) resultScore.get(LTI2Constants.VALUE);
 				Double dGrade = new Double(sGrade);
-				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, comment);
+
+				PERSIST.put("comment", comment);
+				PERSIST.put("grade", dGrade+"");
+				response.setStatus(HttpServletResponse.SC_OK);
+				return;
 			} catch (Exception e) {
 				retval = "Error: "+ e.getMessage();
 			}
-			if ( retval instanceof Boolean && (Boolean) retval ) {
-				response.setStatus(HttpServletResponse.SC_OK);
-			} else {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			}
 		} else {
 			retval = "Unsupported operation:" + request.getMethod();
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		}
 	
-		if ( retval instanceof String ) {
-			doErrorJSON(request,response, jsonRequest, (String) retval, null);
-			return;
-		}
-*/
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		doErrorJSON(request,response, jsonRequest, (String) retval, null);
 	}
 
 	// If this code looks like a hack - it is because the spec is a hack.
@@ -541,34 +531,16 @@ public class LTI2Servlet extends HttpServlet {
 			String[] parts) throws java.io.IOException
 	{
 
-/*
-
-		String URL = SakaiBLTIUtil.getOurServletPath(request);
+		String URL = request.getRequestURL().toString();
+System.out.println("URL="+URL);
 		String scope = parts[4];
+System.out.println("scope="+scope);
 
-		// Check to see if we are doing the bubble
-		String bubbleStr = request.getParameter("bubble");
 		String acceptHdr = request.getHeader("Accept");
 		String contentHdr = request.getContentType();
-System.out.println("accept="+acceptHdr+" bubble="+bubbleStr);
-
-		if ( bubbleStr != null && bubbleStr.equals("all") &&
-			acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, null, "Simple format does not allow bubble=all", null);
-			return;
-		}
-
-		boolean bubble = bubbleStr != null && "GET".equals(request.getMethod());
-		boolean distinct = bubbleStr != null && "distinct".equals(bubbleStr) && "GET".equals(request.getMethod());
-		boolean bubbleAll = bubbleStr != null && "all".equals(bubbleStr) && "GET".equals(request.getMethod());
-
-		// Check our input and output formats
-		boolean acceptSimple = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
 		boolean acceptComplex = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
-		boolean inputSimple = contentHdr == null || contentHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
-		boolean inputComplex = contentHdr != null && contentHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
-System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" ic="+inputComplex);
+
+System.out.println("accept="+acceptHdr+" ac="+acceptComplex);
 
 		// Check the JSON on PUT and check the oauth_body_hash
 		IMSJSONRequest jsonRequest = null;
@@ -584,148 +556,30 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 			}
 		}
 
-		String consumer_key = null;
-		String siteId = null;
-		String placement_id = null;
-
-		Map<String,Object> content = null;
-		Long contentKey = null;
-		Map<String,Object> tool = null;
-		Long toolKey = null;
-		Map<String,Object> proxyBinding = null;
-		Long proxyBindingKey = null;
-		Map<String,Object> deploy = null;
-		Long deployKey = null;
-
-		if ( LTI2Util.SCOPE_LtiLink.equals(scope) || LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
-			placement_id = parts[5];
-System.out.println("placement_id="+placement_id);
-			String contentStr = placement_id.substring(8);
-			contentKey = SakaiBLTIUtil.getLongKey(contentStr);
-			if ( contentKey  >= 0 ) {
-				// Leave off the siteId - bypass all checking - because we need to 
-				// find the siteId from the content item
-				content = ltiService.getContentDao(contentKey);
-				if ( content != null ) siteId = (String) content.get(LTIService.LTI_SITE_ID);
-			}
-	
-			if ( content == null || siteId == null ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "Bad content item", null);
-				return;
-			}
-	
-			toolKey = SakaiBLTIUtil.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-			if ( toolKey >= 0 ) {
-				tool = ltiService.getToolDao(toolKey, siteId);
-			}
-		
-			if ( tool == null ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "Bad tool item", null);
-				return;
-			}
-	
-			// Adjust the content items based on the tool items
-			ltiService.filterContent(content, tool);
-
-			// Check settings to see if we are allowed to do this 
-			if (foorm.getLong(content.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ||
-				foorm.getLong(tool.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-				// Good news 
-			} else {
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				doErrorJSON(request,response, jsonRequest, "Item does not allow tool settings", null);
-				return;
-			}
-
-		}
-
-		if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) || LTI2Util.SCOPE_LtiLink.equals(scope) ) {
-			proxyBinding = ltiService.getProxyBindingDao(toolKey,siteId);
-			if ( proxyBinding != null ) {
-				proxyBindingKey = SakaiBLTIUtil.getLongKey(proxyBinding.get(LTIService.LTI_ID));
-			}
-		}
-
-		// Retrieve the deployment if needed
-		if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
-			consumer_key = parts[5];
-			deploy = ltiService.getDeployForConsumerKeyDao(consumer_key);
-			if ( deploy == null ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "Bad deploy item", null);
-				return;
-			}
-			deployKey = SakaiBLTIUtil.getLongKey(deploy.get(LTIService.LTI_ID));
-		} else if ( bubble ) {
-			deployKey = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
-			if ( deployKey >= 0 ) {
-				deploy = ltiService.getDeployDao(deployKey);
-			}
-			if ( deploy == null ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, "Bad deploy item", null);
-				return;
-			}
-			consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-		}
-
-		// Check settings to see if we are allowed to do this 
-		if ( deploy != null ) {
-			if (foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-				// Good news 
-			} else {
-				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-				doErrorJSON(request,response, jsonRequest, "Deployment does not allow tool settings", null);
-				return;
-			}
-		}
-
-		// The URLs for the various settings resources
-		String settingsUrl = SakaiBLTIUtil.getOurServerUrl() + LTI2_PATH + SVC_Settings;
-		String proxy_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxy + "/" + consumer_key;
-		String binding_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/" + placement_id;
-		String link_url = settingsUrl + "/" + LTI2Util.SCOPE_LtiLink + "/" + placement_id;
-
-		// Load and parse the old settings...
-		JSONObject link_settings = new JSONObject ();
-		JSONObject binding_settings = new JSONObject ();
-		JSONObject proxy_settings = new JSONObject();
-		if ( content != null ) {
-			link_settings = parseSettings((String) content.get(LTIService.LTI_SETTINGS));
-		}
-		if ( proxyBinding != null ) {
-			binding_settings = parseSettings((String) proxyBinding.get(LTIService.LTI_SETTINGS));
-		}
-		if ( deploy != null ) {
-			proxy_settings = parseSettings((String) deploy.get(LTIService.LTI_SETTINGS));
-		}
-
-		// Get the secret for the request...
-		String oauth_secret = null;
-		if ( LTI2Util.SCOPE_LtiLink.equals(scope) ) {
-			oauth_secret = (String) content.get(LTIService.LTI_SECRET);
-			if ( oauth_secret == null || oauth_secret.length() < 1 ) {
-				oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
-			}
-		} else if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
-			oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
-		} else if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
-			oauth_secret = (String) deploy.get(LTIService.LTI_SECRET);
-		} else {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request,response, jsonRequest, "Bad Setttings Scope="+scope, null);
-			return;
-		}
+		String consumer_key = TEST_KEY;
+		String profile = PERSIST.get("profile");
+		JSONObject providerProfile = (JSONObject) JSONValue.parse(profile);
+		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+		String oauth_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 
 		// Validate the incoming message
-		Object retval = SakaiBLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
+		Object retval = BasicLTIUtil.validateMessage(request, URL, oauth_secret, consumer_key);
 		if ( retval instanceof String ) {
 			response.setStatus(HttpServletResponse.SC_FORBIDDEN); 
 			doErrorJSON(request,response, jsonRequest, (String) retval, null);
 			return;
 		}
+
+		// The URLs for the various settings resources
+		String settingsUrl = getServiceURL(request) + SVC_Settings;
+		String proxy_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxy + "/" + consumer_key;
+		String binding_url = settingsUrl + "/" + LTI2Util.SCOPE_ToolProxyBinding + "/" + "TBD";
+		String link_url = settingsUrl + "/" + LTI2Util.SCOPE_LtiLink + "/" + "TBD";
+
+		// Load and parse the old settings...
+		JSONObject link_settings = LTI2Util.parseSettings(PERSIST.get(LTI2Util.SCOPE_LtiLink));
+		JSONObject binding_settings = LTI2Util.parseSettings(PERSIST.get(LTI2Util.SCOPE_ToolProxyBinding));
+		JSONObject proxy_settings = LTI2Util.parseSettings(PERSIST.get(LTI2Util.SCOPE_ToolProxy));
 
 		// For a GET request we depend on LTI2Util to do the GET logic
 		if ( "GET".equals(request.getMethod()) ) { 
@@ -769,39 +623,14 @@ System.out.println("jsonResponse="+jsonResponse);
 			} catch (Exception e) {
 				settings = jsonRequest.getPostBody();
 			}
-
-			retval = null;
-			if ( LTI2Util.SCOPE_LtiLink.equals(scope) ) {
-				content.put(LTIService.LTI_SETTINGS, settings);
-				retval = ltiService.updateContentDao(contentKey,content,siteId);
-			} else if ( LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
-				if ( proxyBinding != null ) {
-					proxyBinding.put(LTIService.LTI_SETTINGS, settings);
-					retval = ltiService.updateProxyBindingDao(proxyBindingKey,proxyBinding);
-				} else { 
-					Properties proxyBindingNew = new Properties();
-					proxyBindingNew.setProperty(LTIService.LTI_SITE_ID, siteId);
-					proxyBindingNew.setProperty(LTIService.LTI_TOOL_ID, toolKey+"");
-					proxyBindingNew.setProperty(LTIService.LTI_SETTINGS, settings);
-					retval = ltiService.insertProxyBindingDao(proxyBindingNew);
-					M_log.info("inserted ProxyBinding setting="+proxyBindingNew);
-				}
-			} else if ( LTI2Util.SCOPE_ToolProxy.equals(scope) ) {
-				deploy.put(LTIService.LTI_SETTINGS, settings);
-				retval = ltiService.updateDeployDao(deployKey,deploy);
-			}
-			if ( retval instanceof String || 
-				( retval instanceof Boolean && ((Boolean) retval != Boolean.TRUE) ) ) {
-				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request,response, jsonRequest, (String) retval, null);
-				return;
-			}
+			PERSIST.put(scope,settings);
+System.out.println("Stored settings scope="+scope);
+System.out.println("settings="+settings);
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "Method not handled="+request.getMethod(), null);
 		}
-*/
 	}
 
 	/* IMS JSON version of Errors */

@@ -80,7 +80,6 @@ import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
-import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
 
 /**
@@ -1036,42 +1035,8 @@ System.out.println("after custom="+custom);
 	public static Object validateMessage(HttpServletRequest request, String URL, 
 		String oauth_secret, String expected_oauth_key)
 	{
-		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
-		String oauth_consumer_key = null;
-		try {
-			oauth_consumer_key = oam.getConsumerKey();
-		} catch (Exception e) {
-            return "Unable to find consumer key";
-		}
-
-		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
-            return "Incorrect consumer key";
-		}
-
 		oauth_secret = decryptSecret(oauth_secret);
-
-		OAuthValidator oav = new SimpleOAuthValidator();
-		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
-
-		OAuthAccessor acc = new OAuthAccessor(cons);
-
-		String base_string = null;
-		try {
-			base_string = OAuthSignatureMethod.getBaseString(oam);
-		} catch (Exception e) {
-            return "Unable to find base string";
-		}
-
-		try {
-			oav.validateMessage(oam, acc);
-		} catch (Exception e) {
-			if (base_string != null) {
-				M_log.warn("Failed to validate: "+e.getLocalizedMessage());
-				M_log.warn(base_string);
-			}
-			return "Failed to validate: "+e.getLocalizedMessage();
-		}
-		return Boolean.TRUE;
+		return BasicLTIUtil.validateMessage(request, URL, oauth_secret, expected_oauth_key);
 	}
 
 	// Returns:

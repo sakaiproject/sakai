@@ -33,6 +33,7 @@ import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_UR
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
+import net.oauth.server.OAuthServlet;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.signature.OAuthSignatureMethod;
@@ -116,6 +117,45 @@ public class BasicLTIUtil {
 		if (verbosePrint)
 			System.out.println(str);
 		M_log.fine(str);
+	}
+
+	// expected_oauth_key can be null - if it is non-null it must match the key in the request
+	public static Object validateMessage(HttpServletRequest request, String URL, 
+		String oauth_secret, String expected_oauth_key)
+	{
+		OAuthMessage oam = OAuthServlet.getMessage(request, URL);
+		String oauth_consumer_key = null;
+		try {
+			oauth_consumer_key = oam.getConsumerKey();
+		} catch (Exception e) {
+            return "Unable to find consumer key";
+		}
+
+		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
+            return "Incorrect consumer key";
+		}
+
+		OAuthValidator oav = new SimpleOAuthValidator();
+		OAuthConsumer cons = new OAuthConsumer("about:blank#OAuth+CallBack+NotUsed", oauth_consumer_key,oauth_secret, null);
+
+		OAuthAccessor acc = new OAuthAccessor(cons);
+
+		String base_string = null;
+		try {
+			base_string = OAuthSignatureMethod.getBaseString(oam);
+		} catch (Exception e) {
+            return "Unable to find base string";
+		}
+
+		try {
+			oav.validateMessage(oam, acc);
+		} catch (Exception e) {
+			if (base_string != null) {
+				return "Failed to validate: "+e.getLocalizedMessage()+"\nBase String\n"+base_string;
+			}
+			return "Failed to validate: "+e.getLocalizedMessage();
+		}
+		return Boolean.TRUE;
 	}
 
 	public static String validateDescriptor(String descriptor) {
