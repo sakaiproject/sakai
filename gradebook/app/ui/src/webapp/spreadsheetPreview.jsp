@@ -25,7 +25,7 @@
 
             <%@ include file="/inc/globalMessages.jspf"%>
             <p/>
-            <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer">
+            <t:selectOneRadio id="assignment" layout="spread" converter="javax.faces.Integer" value="1">
                 <f:selectItems  value="#{spreadsheetUploadBean.assignmentColumnSelectItems}" />
             </t:selectOneRadio>
             <t:dataTable id="table1"
