@@ -6,11 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -19,10 +17,14 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
+import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
@@ -46,6 +48,7 @@ public class UserPage  extends BaseTreePage{
 	private SelectOption termField;
 	private TreeModel treeModel = null;
 	private String userId;
+	private String selectedInstructorOption = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR;
 	
 	protected AbstractTree getTree()
 	{
@@ -186,6 +189,7 @@ public class UserPage  extends BaseTreePage{
 				}
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, selectedInstructorOption);
 				}
 				//need to set the tree model so that is is the full model
 				setResponsePage(new UserPageSiteSearch(search, advancedOptions, false, false));
@@ -195,8 +199,31 @@ public class UserPage  extends BaseTreePage{
 				return treeModel != null || isShoppingPeriodTool() || (!isShoppingPeriodTool() && sakaiProxy.getDisableUserTreeView());
 			}
 		};
+		AbstractReadOnlyModel<String> instructorFieldLabelModel = new AbstractReadOnlyModel<String>() {
+
+			@Override
+			public String getObject() {
+				if(isShoppingPeriodTool()){
+					return new StringResourceModel("instructor", null).getObject() + ":";
+				}else{
+					return new StringResourceModel("user", null).getObject() + ":";
+				}
+			}
+		};
+		form.add(new Label("instructorFieldLabel", instructorFieldLabelModel));
 		form.add(new TextField<String>("search", messageModel));
 		form.add(new TextField<String>("instructorField", instructorFieldModel));
+		//Instructor Options:
+		RadioGroup group = new RadioGroup("instructorOptionsGroup", new PropertyModel<String>(this, "selectedInstructorOption")){
+			@Override
+			public boolean isVisible() {
+				//only show if its not shopping period
+				return !isShoppingPeriodTool();
+			}
+		};
+		group.add(new Radio("instructorOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR)));
+		group.add(new Radio("memberOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER)));
+		form.add(group);
 		List<SelectOption> termOptions = new ArrayList<SelectOption>();
 		for(String[] entry : sakaiProxy.getTerms()){
 			termOptions.add(new SelectOption(entry[1], entry[0]));

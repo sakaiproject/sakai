@@ -675,7 +675,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		// search title, props, or instructors
-		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), publishedSitesOnly);
+		//pass in whether it's an instructor or member search (if exists)
+		String instructorType = "";
+		if(advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE)){
+			instructorType = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE);
+		}
+		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), instructorType, publishedSitesOnly);
 		if(siteResults != null && siteResults.size() > 0){
 			//create an array of the siteIds returned:
 			String[] siteIds = new String[siteResults.size()];

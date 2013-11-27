@@ -15,6 +15,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.Radio;
+import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
@@ -24,6 +26,7 @@ import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -50,6 +53,7 @@ public class UserPageSiteSearch extends BasePage {
 	private SiteSearchResultDataProvider provider;
 	private String search = "";
 	private String instructorField = "";
+	private String selectedInstructorOption = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR;
 	private SelectOption termField;;
 	private List<SelectOption> termOptions;
 	private boolean statistics = false;
@@ -114,6 +118,7 @@ public class UserPageSiteSearch extends BasePage {
 			for(Entry<String, String> entry : advancedFields.entrySet()){
 				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR.equals(entry.getKey())){
 					instructorField = entry.getValue();
+					selectedInstructorOption = advancedFields.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE);
 				}
 				if(DelegatedAccessConstants.ADVANCED_SEARCH_TERM.equals(entry.getKey())){
 					for(SelectOption option : termOptions){
@@ -145,7 +150,11 @@ public class UserPageSiteSearch extends BasePage {
 				if(instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject())){
 					if(!"".equals(searchString))
 						searchString += ", ";
-					searchString += new StringResourceModel("instructorField", null).getString() + " " + instructorFieldModel.getObject();
+					String userType = new StringResourceModel("instructor", null).getString();
+					if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
+						userType = new StringResourceModel("member", null).getString();
+					}
+					searchString += userType + " " + instructorFieldModel.getObject();
 				}
 				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
 					if(!"".equals(searchString))
@@ -165,7 +174,31 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		form.add(new TextField<String>("search", searchModel));
+		AbstractReadOnlyModel<String> instructorFieldLabelModel = new AbstractReadOnlyModel<String>() {
+
+			@Override
+			public String getObject() {
+				if(isShoppingPeriodTool()){
+					return new StringResourceModel("instructor", null).getObject() + ":";
+				}else{
+					return new StringResourceModel("user", null).getObject() + ":";
+				}
+			}
+		};
+		form.add(new Label("instructorFieldLabel", instructorFieldLabelModel));
 		form.add(new TextField<String>("instructorField", instructorFieldModel));
+		//Instructor Options:
+		RadioGroup group = new RadioGroup("instructorOptionsGroup", new PropertyModel<String>(this, "selectedInstructorOption")){
+			@Override
+			public boolean isVisible() {
+				//only show if its not shopping period
+				return !isShoppingPeriodTool();
+			}
+		};
+		group.add(new Radio("instructorOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR)));
+		group.add(new Radio("memberOption", Model.of(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER)));
+		form.add(group);
+		
 		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
 		DropDownChoice termFieldDropDown = new DropDownChoice("termField", termFieldModel, termOptions, choiceRenderer);
 		//keeps the null option (choose one) after a user selects an option
@@ -240,6 +273,18 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
+		AbstractReadOnlyModel<String> instructorSortLabel = new AbstractReadOnlyModel<String>() {
+
+			@Override
+			public String getObject() {
+				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
+					return new StringResourceModel("member", null).getObject();
+				}else{
+					return new StringResourceModel("instructor", null).getObject();
+				}
+			}
+		};
+		instructorSort.add(new Label("instructorSortLinkLabel", instructorSortLabel));
 		add(instructorSort);
 		
 		Link<Void> accessSort = new Link<Void>("accessSortLink"){
@@ -468,6 +513,7 @@ public class UserPageSiteSearch extends BasePage {
 				}
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, selectedInstructorOption);
 				}
 				if(search == null){
 					search = "";

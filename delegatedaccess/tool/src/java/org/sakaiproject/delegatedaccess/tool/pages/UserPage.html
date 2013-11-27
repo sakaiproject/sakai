@@ -49,10 +49,15 @@
 			</tr>
 			<tr>
 				<td align='right'>
-					<wicket:message key="instructorField"/>
+					<span wicket:id="instructorFieldLabel"/>
 				</td>
 				<td>
 					<input type="text" wicket:id="instructorField" />
+					&nbsp;
+					<wicket:container wicket:id="instructorOptionsGroup">
+					    <label><input wicket:id="instructorOption" type="radio" name="ticker"/><wicket:message key="instructor"/></label>
+					    <label><input wicket:id="memberOption" type="radio" name="ticker"/><wicket:message key="member"/></label>
+				  </wicket:container>
 				</td>
 			</tr>
 			<tr>

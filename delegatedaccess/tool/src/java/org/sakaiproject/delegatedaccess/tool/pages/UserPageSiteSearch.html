@@ -28,10 +28,15 @@
 			</tr>
 			<tr>
 				<td align='right'>
-					<wicket:message key="instructorField"/>
+					<span wicket:id="instructorFieldLabel"/>
 				</td>
 				<td>
 					<input type="text" wicket:id="instructorField" />
+					&nbsp;
+					<wicket:container wicket:id="instructorOptionsGroup">
+					    <label><input wicket:id="instructorOption" type="radio" name="ticker"/><wicket:message key="instructor"/></label>
+					    <label><input wicket:id="memberOption" type="radio" name="ticker"/><wicket:message key="member"/></label>
+				    </wicket:container>
 				</td>
 			</tr>
 			<tr>
@@ -64,7 +69,7 @@
     	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
     	<th><a wicket:id="accessSortLink"><wicket:message key="access"/></a></th>
-   		<th><a wicket:id="instructorSortLink"><wicket:message key="instructorHeader"/></a></th>
+   		<th><a wicket:id="instructorSortLink"><span wicket:id="instructorSortLinkLabel"/></a></th>
     	<wicket:enclosure child="startDateSortLink">
 	    	<th><a wicket:id="startDateSortLink"><wicket:message key="startDate"/></a></th>
 	    	<th><a wicket:id="endDateSortLink"><wicket:message key="endDate"/></a></th>

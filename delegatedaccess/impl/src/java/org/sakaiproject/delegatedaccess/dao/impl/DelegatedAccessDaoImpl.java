@@ -19,6 +19,7 @@ import org.apache.commons.configuration.reloading.InvariantReloadingStrategy;
 import org.apache.log4j.Logger;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.support.JdbcDaoSupport;
@@ -251,7 +252,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, boolean publishedOnly){
+	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, String insturctorType, boolean publishedOnly){
 		try{
 			if(titleSearch == null){
 				titleSearch = "";
@@ -264,7 +265,12 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 			if(noInstructors){
 				query = getStatement("select.siteSearch");
 			}else{
-				query = getStatement("select.siteSearchInstructors");
+				if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(insturctorType)){
+					query = getStatement("select.siteSearchMembers");
+				}else{
+					//default is instructor search
+					query = getStatement("select.siteSearchInstructors");
+				}
 				String inParams = "(";
 				//to be on the safe side, I added oracle limit restriction, but hopefully no one is searching for
 				//more than 1000 instructors

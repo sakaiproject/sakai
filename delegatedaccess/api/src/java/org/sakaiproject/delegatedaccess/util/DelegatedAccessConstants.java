@@ -85,6 +85,9 @@ public class DelegatedAccessConstants {
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";
 	public static final String ADVANCED_SEARCH_INSTRUCTOR = "instructorField";
+	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE = "instructorFieldType";
+	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR = "instructor";
+	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER = "member";
 	public static final String ADVANCED_SEARCH_TERM = "termField";
 	public static final String PROPERTIES_TERMFIELD = "delegatedaccess.termfield";
 	public static final String PROPERTIES_TERM_USE_CM_API = "delegatedaccess.term.useCourseManagementApi";
