@@ -214,15 +214,15 @@ sakai.siteTypeSetup = function(){
     // check for a value in the create from template non-course title 
     // field and either enable or disable the submit, also check onblur below
     $('#siteTitleField').keyup(function(e){
-        if ($(this).attr('value').length >= 1) {
-            $('#submitFromTemplate').prop('disabled', false);
+        if ($(this).val().length >= 1) {
+            $('#submitFromTemplate').attr('disabled', false);
         }
         else {
-            $('#submitFromTemplate').prop('disabled', true);
+            $('#submitFromTemplate').attr('disabled', true);
         }
     });
     $('#siteTitleField').blur(function(){
-        if ($(this).attr('value').length >= 1) {
+        if ($(this).val().length >= 1) {
             $('#submitFromTemplate').prop('disabled', false);
         }
         else {
@@ -257,7 +257,7 @@ sakai.siteTypeSetup = function(){
     // handler for the template picker radio
     $('#templateList input').click(function(e){
         //what is the ID of the template site
-        var selectedTemplateId = $('#templateList input[type="radio"]:checked').val();
+        var selectedTemplateId = $('#templateList input[type="radio"]:checked').attr('id');
 
         if (!selectedTemplateId){  // how likely is this? 
             $('#templateSettingsTitleTerm span').hide(); // hide title for non-course sites

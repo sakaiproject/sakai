@@ -178,9 +178,11 @@
                 </div>
                 
                 <ul id="templateList">
+                        #set($templateNum = 0)
                         #set($templateCatNum = 0)
                         #set($templateCatPrefix = "")
                         #foreach($templateSite in $templateSites)
+                        #set($templateNum = $templateNum + 1)
                             #set($description=false)
                             #set($description=$templateSite.description)
                             #set($siteType = false)
@@ -212,10 +214,10 @@
                                     </div>
                                 </li>
                            #end
-                            <li id="row$templateSite.id" class="row$siteType" style="display:none">
+                            <li id="rowTemplate$templateNum" class="row$siteType" style="display:none">
                                 <div class="templateName" style="white-space: nowrap;">
-                                    <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="$templateSite.id"/>
-                                    <label for="$templateSite.id" title="$templateSite.title">$templateSite.title</label>
+                                    <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
+                                    <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
                                 </div>
                                 <div class="templateDescription">#if($description)$description#end</div>
                                 <div class="templateSettingsPlaceholder"></div>
