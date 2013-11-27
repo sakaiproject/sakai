@@ -68,7 +68,7 @@
 </script>		
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}" rendered="#{!ForumTool.threadMoved}">
 				<sakai:tool_bar_item action="#{ForumTool.processDfMsgReplyThread}" value="#{msgs.cdfm_reply_thread}" 
-		  			rendered="#{ForumTool.selectedTopic.isNewResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" />
+		  			rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && ForumTool.selectedThreadHead.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" />
 		  		
 		  		<h:commandLink action="#{ForumTool.processActionMarkAllThreadAsRead}" rendered="#{ForumTool.selectedTopic.isMarkAsRead and not ForumTool.selectedTopic.topic.autoMarkThreadsRead}"> 
    	        		<h:outputText value=" #{msgs.cdfm_mark_all_as_read}" />
