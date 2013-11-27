@@ -373,7 +373,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 	}
 
-	/* get SignupSit object for the site Id */
+	/* get SignupSite object for the site Id */
 	private SignupSite currentSite(SignupMeeting meeting, String siteId) {
 		List<SignupSite> signupSites = meeting.getSignupSites();
 		for (SignupSite site : signupSites) {

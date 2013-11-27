@@ -141,6 +141,16 @@ public class CreateMeetings extends SignupAction implements MeetingTypes, Signup
 		this.signupMeetings = new ArrayList<SignupMeeting>();
 		this.attachmentHandler = attachmentHandler;
 	}
+	
+	public CreateMeetings(SignupMeeting signupMeeting, boolean sendEmail, boolean assignParticatpantsToFirstOne,
+			boolean assignParicitpantsToAllEvents, SakaiFacade sakaiFacade, SignupMeetingService signupMeetingService, String currentUserId){
+		super(currentUserId, currentUserId, signupMeetingService, assignParicitpantsToAllEvents);
+		this.signupMeeting = signupMeeting;
+		this.sendEmail = sendEmail;
+		this.assignParticatpantsToFirstOne = assignParticatpantsToFirstOne;
+		this.assignParticitpantsToAllEvents = assignParicitpantsToAllEvents;
+		this.sakaiFacade = sakaiFacade;
+	}
 
 	/**
 	 * It will save the SignupMeeting list into DB and send email to notify

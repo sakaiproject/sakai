@@ -308,7 +308,7 @@ public class AttachmentHandler implements Serializable {
 		this.attachments = attachments;
 	}
 
-	private SignupAttachment createSignupAttachment(String resourceId, String filename,
+	protected SignupAttachment createSignupAttachment(String resourceId, String filename,
 			String protocol) {
 		SignupAttachment attach = new SignupAttachment();
 
