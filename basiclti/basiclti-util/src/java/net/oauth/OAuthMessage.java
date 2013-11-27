@@ -47,11 +47,13 @@ import net.oauth.signature.OAuthSignatureMethod;
  */
 public class OAuthMessage {
 
-    public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters) {
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters) {
         this(method, URL, parameters, null);
     }
 
-    public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters,
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage(String method, String URL, Collection<? extends Map.Entry> parameters,
             InputStream bodyAsStream) {
         this.method = method;
         this.URL = URL;
@@ -326,7 +328,8 @@ public class OAuthMessage {
      * Construct a WWW-Authenticate or Authentication header value, containing
      * the given realm plus all the parameters whose names begin with "oauth_".
      */
-    public String getAuthorizationHeader(String realm) throws IOException {
+    @SuppressWarnings("rawtypes")
+	public String getAuthorizationHeader(String realm) throws IOException {
         StringBuilder into = new StringBuilder();
         if (realm != null) {
             into.append(" realm=\"").append(OAuth.percentEncode(realm)).append('"');

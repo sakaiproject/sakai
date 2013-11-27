@@ -1,46 +1,29 @@
 package org.imsglobal.json;
 
-import java.io.Reader;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URLDecoder;
-import java.util.List;
+import java.security.MessageDigest;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.LinkedHashMap;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Properties;
 import java.util.logging.Logger;
-
-import java.lang.IllegalArgumentException;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.simple.JSONValue;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthConsumer;
 import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
-import net.oauth.signature.OAuthSignatureMethod;
-import net.oauth.server.HttpRequestMessage;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
 import org.imsglobal.basiclti.Base64;
-
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import java.security.MessageDigest;
-
-import org.apache.commons.lang.StringEscapeUtils;
+import org.json.simple.JSONValue;
 
 public class IMSJSONRequest {
 
@@ -96,6 +79,7 @@ public class IMSJSONRequest {
 	}
 
 	// Load but do not check the authentication
+	@SuppressWarnings("deprecation")
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		header = request.getHeader("Authorization");
@@ -208,24 +192,24 @@ public class IMSJSONRequest {
 		return false;
 	}
 
-	public static Map getStatusUnsupported(String desc)
+	public static Map<String, String> getStatusUnsupported(String desc)
 	{
 		return getStatus(desc, CODE_MAJOR_UNSUPPORTED);
 	}
 
-	public static Map getStatusFailure(String desc)
+	public static Map<String, String> getStatusFailure(String desc)
 	{
 		return getStatus(desc, CODE_MAJOR_FAILURE);
 	}
 
-	public static Map getStatusSuccess(String desc)
+	public static Map<String, String> getStatusSuccess(String desc)
 	{
 		return getStatus(desc, CODE_MAJOR_SUCCESS);
 	}
 
-	public static Map getStatus(String description, String major)
+	public static Map<String, String> getStatus(String description, String major)
 	{
-		Map retval = new LinkedHashMap();
+		Map<String, String> retval = new LinkedHashMap<String, String>();
 		retval.put(STATUS_CODE,major);
 		retval.put(STATUS_DESCRIPTION,description);
 		return retval;
@@ -233,14 +217,15 @@ public class IMSJSONRequest {
 
 	/* IMS JSON version of Errors - does the complet request - returns the JSON in case
 	   the code above us wants to log it. */
+	@SuppressWarnings("static-access")
 	public static String doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
 			IMSJSONRequest json, String message, Exception e) 
 		throws java.io.IOException 
 	{
 		response.setContentType(APPLICATION_JSON);
-		Map jsonResponse = new TreeMap();
+		Map<String, Object> jsonResponse = new TreeMap<String, Object>();
 
-		Map status = null;
+		Map<String, String> status = null;
 		if ( json == null ) {
 			status = IMSJSONRequest.getStatusFailure(message);
 		} else {

@@ -1,50 +1,39 @@
 package org.imsglobal.pox;
 
-import java.io.Reader;
 import java.io.ByteArrayInputStream;
-
+import java.io.Reader;
 import java.net.URLDecoder;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Iterator;
-import java.util.ArrayList;
-import java.util.TreeMap;
-import java.util.Date;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.logging.Logger;
 
-import java.lang.IllegalArgumentException;
-
 import javax.servlet.http.HttpServletRequest;
-
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
 
-import javax.xml.xpath.*;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import net.oauth.OAuth;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthConsumer;
 import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
 import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
-import net.oauth.signature.OAuthSignatureMethod;
-import net.oauth.server.HttpRequestMessage;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
-import org.imsglobal.basiclti.Base64;
-
-import java.security.MessageDigest;
 
 import org.apache.commons.lang.StringEscapeUtils;
-
+import org.imsglobal.basiclti.Base64;
 import org.imsglobal.basiclti.XMLMap;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 public class IMSPOXRequest {
 
@@ -180,6 +169,7 @@ public class IMSPOXRequest {
 	}
 
 	// Load but do not check the authentication
+	@SuppressWarnings("deprecation")
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		String contentType = request.getContentType();

@@ -140,7 +140,8 @@ public class OAuth {
      * name/value pairs. Use OAuth percent encoding (not exactly the encoding
      * mandated by HTTP).
      */
-    public static String formEncode(Iterable<? extends Map.Entry> parameters)
+    @SuppressWarnings("rawtypes")
+	public static String formEncode(Iterable<? extends Map.Entry> parameters)
             throws IOException {
         ByteArrayOutputStream b = new ByteArrayOutputStream();
         formEncode(parameters, b);
@@ -151,7 +152,8 @@ public class OAuth {
      * Write a form-urlencoded document into the given stream, containing the
      * given sequence of name/value pairs.
      */
-    public static void formEncode(Iterable<? extends Map.Entry> parameters,
+    @SuppressWarnings("rawtypes")
+	public static void formEncode(Iterable<? extends Map.Entry> parameters,
             OutputStream into) throws IOException {
         if (parameters != null) {
             boolean first = true;
@@ -192,7 +194,7 @@ public class OAuth {
     }
 
     /** Construct a &-separated list of the given values, percentEncoded. */
-    public static String percentEncode(Iterable values) {
+    public static String percentEncode(Iterable<?> values) {
         StringBuilder p = new StringBuilder();
         for (Object v : values) {
             if (p.length() > 0) {
@@ -232,7 +234,8 @@ public class OAuth {
      * parameters have the same name, the Map will contain the first value,
      * only.
      */
-    public static Map<String, String> newMap(Iterable<? extends Map.Entry> from) {
+    @SuppressWarnings("rawtypes")
+	public static Map<String, String> newMap(Iterable<? extends Map.Entry> from) {
         Map<String, String> map = new HashMap<String, String>();
         if (from != null) {
             for (Map.Entry f : from) {

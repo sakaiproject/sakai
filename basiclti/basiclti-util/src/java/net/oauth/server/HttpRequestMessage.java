@@ -23,7 +23,9 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
 
@@ -52,7 +54,8 @@ public class HttpRequestMessage extends OAuthMessage {
         return request.getCharacterEncoding();
     }
 
-    private static void copyHeaders(HttpServletRequest request, Collection<Map.Entry<String, String>> into) {
+    @SuppressWarnings("unchecked")
+	private static void copyHeaders(HttpServletRequest request, Collection<Map.Entry<String, String>> into) {
         Enumeration<String> names = request.getHeaderNames();
         if (names != null) {
             while (names.hasMoreElements()) {
@@ -67,7 +70,8 @@ public class HttpRequestMessage extends OAuthMessage {
         }
     }
 
-    public static List<OAuth.Parameter> getParameters(HttpServletRequest request) {
+    @SuppressWarnings("unchecked")
+	public static List<OAuth.Parameter> getParameters(HttpServletRequest request) {
         List<OAuth.Parameter> list = new ArrayList<OAuth.Parameter>();
         for (Enumeration<String> headers = request.getHeaders("Authorization"); headers != null
                 && headers.hasMoreElements();) {

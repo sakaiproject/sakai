@@ -92,7 +92,8 @@ public class ConsumerProperties {
         return consumer;
     }
 
-    protected OAuthConsumer newConsumer(String name)
+    @SuppressWarnings("rawtypes")
+	protected OAuthConsumer newConsumer(String name)
             throws MalformedURLException {
         String base = consumerProperties.getProperty(name
                 + ".serviceProvider.baseURL");

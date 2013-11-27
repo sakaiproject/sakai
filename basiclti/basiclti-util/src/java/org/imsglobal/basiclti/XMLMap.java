@@ -175,7 +175,6 @@ package org.imsglobal.basiclti;
 
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -187,11 +186,11 @@ import java.util.Iterator;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.OutputKeys;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import org.w3c.dom.Text;
-import org.w3c.dom.Attr;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 
@@ -281,6 +280,7 @@ public class XMLMap {
 		return path + "/";
 	}
 	
+	@SuppressWarnings({ "unused", "static-access" })
 	private static void recurse(Map<String, Object> tm, String path, Node parentNode, boolean doFull, int d) 
 	{
 		doDebug(d,"> recurse path="+path+" parentNode="+ nodeToString(parentNode));
@@ -409,14 +409,14 @@ public class XMLMap {
         doDebug(d,"< recurse path="+path+" parentNode="+ nodeToString(parentNode));
 	}
 
-	public static String getXML(Map tm)
+	public static String getXML(Map<?, ?> tm)
 	{
 		Document document = getXMLDom(tm);
 		if ( document == null ) return null;
 		return documentToString(document, false);
 	}
 
-	public static String getXMLFragment(Map tm, boolean pretty)
+	public static String getXMLFragment(Map<?, ?> tm, boolean pretty)
 	{
 		String retval = getXML(tm, pretty);
 		if ( retval.startsWith("<?xml") ) {
@@ -426,7 +426,7 @@ public class XMLMap {
 		return retval;
 	}
 
-	public static String getXML(Map tm, boolean pretty)
+	public static String getXML(Map<?, ?> tm, boolean pretty)
 	{
 		Document document = getXMLDom(tm);
 		if ( document == null ) return null;
@@ -486,7 +486,7 @@ public class XMLMap {
 		return sb.toString();
 	}
 
-	public static Document getXMLDom(Map tm)
+	public static Document getXMLDom(Map<?, ?> tm)
 	{
 		if ( tm == null ) return null;
 		Document document = null;
@@ -523,11 +523,11 @@ public class XMLMap {
       <d>D1</d>
     </a>
 	 */
-	private static void iterateMap(Document document, Node parentNode, Map tm, int d)
+	private static void iterateMap(Document document, Node parentNode, Map<?, ?> tm, int d)
 	{
 		doDebug(d,"> IterateMap parentNode= "+ nodeToString(parentNode));
 		d++;
-		Iterator iter = tm.keySet().iterator();
+		Iterator<?> iter = tm.keySet().iterator();
 		while( iter.hasNext() ) {
 			String key = (String) iter.next();
 			if ( key == null ) continue;
@@ -544,15 +544,15 @@ public class XMLMap {
 					storeInDom(document, parentNode, key, strArray[i], i, d);
 				} 
 			} else if ( obj instanceof Map ) {
-				Map subMap = (Map) obj;
+				Map<?, ?> subMap = (Map<?, ?>) obj;
 				Node startNode = getNodeAtPath(document, parentNode, key, 0, d);
 				doDebug(d,"descending into Map path="+key+" startNode="+ nodeToString(startNode));
 				iterateMap(document, startNode, subMap, d);
 				doDebug(d,"back from descent Map path="+key+" startNode="+ nodeToString(startNode));
 			} else if ( obj instanceof List ) {
-				List lst = (List) obj;
+				List<?> lst = (List<?>) obj;
 				doDebug(d,"Have a list that is this long "+lst.size());
-				Iterator listIter = lst.iterator();
+				Iterator<?> listIter = lst.iterator();
 				int newPos = 0;
 				while ( listIter.hasNext() ) {
 					Object listObj = listIter.next();
@@ -561,7 +561,7 @@ public class XMLMap {
 						storeInDom(document, parentNode, key, (String) listObj, newPos, d);
 						newPos++;
 					} if ( listObj instanceof Map ) {
-						Map subMap = (Map) listObj;
+						Map<?, ?> subMap = (Map<?, ?>) listObj;
 						doDebug(d,"Retrieving key from  List-Map path="+key+"@"+newPos);
 						Node startNode = getNodeAtPath(document, parentNode, key, newPos, d);
 						doDebug(d,"descending into List-Map path="+key+"@"+newPos+" startNode="+ nodeToString(startNode));
@@ -660,6 +660,7 @@ public class XMLMap {
 		return parentNode;
 	}
 
+	@SuppressWarnings("static-access")
 	private static Node getOrAddChildNode(Document doc, Node parentNode, String nodeName,int whichNode, int d)
 	{
 		doDebug(d,"> getOrAddChildNode name="+nodeName+"@"+whichNode+" parentNode="+ nodeToString(parentNode));
@@ -845,7 +846,7 @@ public class XMLMap {
 	 * /x/y    All of the children are removed and the node itself and
 	 *           any attributes are removed as well (typical case)
 	 */
-	public static void removeSubMap(Map tm, String selection)
+	public static void removeSubMap(Map<?, ?> tm, String selection)
 	{
 		if ( tm == null ) return;
 		selection = selection.trim();
@@ -864,7 +865,7 @@ public class XMLMap {
 		// Track what we will delete until loop is done
 		Set<String> delSet = new HashSet<String>();
 
-		Iterator iter = tm.keySet().iterator();
+		Iterator<?> iter = tm.keySet().iterator();
 		while( iter.hasNext() ) {
 			Object key = iter.next();
 			if ( ! (key instanceof String) ) continue;
@@ -921,6 +922,7 @@ public class XMLMap {
      *          	System.out.println("Site="+siteMap);
      *          }
      */
+	@SuppressWarnings("unchecked")
 	public static List<Map<String,Object>> getList(Map<String,Object> theMap,String key)
 	{
 		ArrayList<Map<String, Object>> al = new ArrayList<Map<String, Object>>();

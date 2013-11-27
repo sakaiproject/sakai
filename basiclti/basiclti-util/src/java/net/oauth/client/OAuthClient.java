@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
@@ -141,7 +142,8 @@ public class OAuthClient {
      * @throws OAuthProblemException
      *             the HTTP response status code was not 200 (OK)
      */
-    public void getRequestToken(OAuthAccessor accessor, String httpMethod,
+    @SuppressWarnings("rawtypes")
+	public void getRequestToken(OAuthAccessor accessor, String httpMethod,
             Collection<? extends Map.Entry> parameters) throws IOException,
             OAuthException, URISyntaxException {
         accessor.accessToken = null;
@@ -187,7 +189,8 @@ public class OAuthClient {
      * @throws OAuthProblemException
      *             the HTTP response status code was not 200 (OK)
      */
-    public OAuthMessage getAccessToken(OAuthAccessor accessor, String httpMethod,
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage getAccessToken(OAuthAccessor accessor, String httpMethod,
             Collection<? extends Map.Entry> parameters) throws IOException, OAuthException, URISyntaxException {
         if (accessor.requestToken != null) {
             if (parameters == null) {
@@ -218,7 +221,8 @@ public class OAuthClient {
      * @throws OAuthProblemException
      *             the HTTP response status code was not 200 (OK)
      */
-    public OAuthMessage invoke(OAuthAccessor accessor, String httpMethod,
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage invoke(OAuthAccessor accessor, String httpMethod,
             String url, Collection<? extends Map.Entry> parameters)
     throws IOException, OAuthException, URISyntaxException {
         OAuthMessage request = accessor.newRequestMessage(httpMethod, url, parameters);
@@ -256,7 +260,8 @@ public class OAuthClient {
      * @throws OAuthProblemException
      *                 the HTTP response status code was not 200 (OK)
      */
-    public OAuthMessage invoke(OAuthAccessor accessor, String url,
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage invoke(OAuthAccessor accessor, String url,
             Collection<? extends Map.Entry> parameters) throws IOException,
             OAuthException, URISyntaxException {
         return invoke(accessor, null, url, parameters);

@@ -20,53 +20,31 @@ package org.imsglobal.lti2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Collections;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.server.OAuthServlet;
-import net.oauth.signature.OAuthSignatureMethod;
-
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.imsglobal.basiclti.BasicLTIUtil;
-import org.imsglobal.basiclti.BasicLTIConstants;
-import org.imsglobal.lti2.LTI2Constants;
-import org.imsglobal.lti2.LTI2Config;
-import org.imsglobal.lti2.LTI2Util;
-import org.imsglobal.lti2.LTI2SampleData;
-import org.imsglobal.lti2.objects.*;
-
-import org.imsglobal.json.IMSJSONRequest;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
+import org.imsglobal.basiclti.BasicLTIConstants;
+import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.json.IMSJSONRequest;
+import org.imsglobal.lti2.objects.Service_offered;
+import org.imsglobal.lti2.objects.StandardServices;
+import org.imsglobal.lti2.objects.ToolConsumer;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 /**
  * Notes:
@@ -112,6 +90,7 @@ public class LTI2Servlet extends HttpServlet {
 	private static final String SVC_Settings = "Settings";
 	private static final String SVC_Result = "Result";
 
+	@SuppressWarnings("unused")
 	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	private static final String APPLICATION_JSON = "application/json";
@@ -151,7 +130,7 @@ public class LTI2Servlet extends HttpServlet {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("unused")
 	protected void doRequest(HttpServletRequest request, HttpServletResponse response) 
 		throws ServletException, IOException 
 	{
@@ -243,6 +222,7 @@ public class LTI2Servlet extends HttpServlet {
 	// We are actually bypassing the activation step.  Usually activation will parse
 	// the profile, and install a tool if the admin is happy.  For us we just parse 
 	// the profile and do a launch.
+	@SuppressWarnings("unused")
 	protected void doLaunch(HttpServletRequest request, HttpServletResponse response)
 	{
 		
@@ -364,6 +344,7 @@ public class LTI2Servlet extends HttpServlet {
 		return consumer;
 	}
 
+	@SuppressWarnings({ "unchecked", "unused", "rawtypes" })
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 			String profile_id) throws java.io.IOException
 	{
@@ -472,6 +453,7 @@ public class LTI2Servlet extends HttpServlet {
 		return url;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void handleResultRequest(HttpServletRequest request,HttpServletResponse response, 
 			String sourcedid) throws java.io.IOException
 	{
@@ -527,6 +509,7 @@ public class LTI2Servlet extends HttpServlet {
 	// There are five possible scenarios for GET and two possible scenarios
     // for PUT.  I begged to simplify the business logic but was overrulled.
 	// So we write obtuse code.
+	@SuppressWarnings("unused")
 	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
 			String[] parts) throws java.io.IOException
 	{

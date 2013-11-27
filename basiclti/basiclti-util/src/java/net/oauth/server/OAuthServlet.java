@@ -20,9 +20,11 @@ import net.oauth.http.HttpMessage;
 
 import java.io.IOException;
 import java.util.Map;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import net.oauth.OAuth;
 import net.oauth.OAuthMessage;
 import net.oauth.OAuthProblemException;
@@ -113,7 +115,8 @@ public class OAuthServlet {
     private static final Map<String, Integer> PROBLEM_TO_HTTP_CODE = OAuth.Problems.TO_HTTP_CODE;
 
     /** Send the given parameters as a form-encoded response body. */
-    public static void sendForm(HttpServletResponse response,
+    @SuppressWarnings("rawtypes")
+	public static void sendForm(HttpServletResponse response,
             Iterable<? extends Map.Entry> parameters) throws IOException {
         response.resetBuffer();
         response.setContentType(OAuth.FORM_ENCODED + ";charset="

@@ -21,41 +21,34 @@ package org.imsglobal.basiclti;
 
 import static org.imsglobal.basiclti.BasicLTIConstants.CUSTOM_PREFIX;
 import static org.imsglobal.basiclti.BasicLTIConstants.EXTENSION_PREFIX;
-import static org.imsglobal.basiclti.BasicLTIConstants.OAUTH_PREFIX;
 import static org.imsglobal.basiclti.BasicLTIConstants.LTI_MESSAGE_TYPE;
 import static org.imsglobal.basiclti.BasicLTIConstants.LTI_VERSION;
+import static org.imsglobal.basiclti.BasicLTIConstants.OAUTH_PREFIX;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_DESCRIPTION;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_GUID;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_NAME;
 import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_URL;
 
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.server.OAuthServlet;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.signature.OAuthSignatureMethod;
-
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-import java.util.Iterator;
-import java.util.Enumeration;
-import java.util.TreeMap;
 import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.TreeMap;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-import java.net.URL;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
+
+import net.oauth.OAuthAccessor;
+import net.oauth.OAuthConsumer;
+import net.oauth.OAuthMessage;
+import net.oauth.OAuthValidator;
+import net.oauth.SimpleOAuthValidator;
+import net.oauth.server.OAuthServlet;
+import net.oauth.signature.OAuthSignatureMethod;
 
 /* Leave out until we have JTidy 0.8 in the repository 
  import org.w3c.tidy.Tidy;
@@ -865,8 +858,7 @@ public class BasicLTIUtil {
         return retval;
     }
 
-	@SuppressWarnings("unchecked")
-    static public String getRealPath(HttpServletRequest request, String extUrl)
+	static public String getRealPath(HttpServletRequest request, String extUrl)
     {
         String URLstr = request.getRequestURL().toString();
         String retval = getRealPath(URLstr, extUrl);
@@ -880,7 +872,7 @@ public class BasicLTIUtil {
 	 * @param properties
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 		public static Map<String, String> convertToMap(final Properties properties) {
 			final Map<String, String> map = new HashMap(properties);
 			return map;

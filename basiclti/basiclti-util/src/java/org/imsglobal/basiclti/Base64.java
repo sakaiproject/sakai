@@ -59,6 +59,7 @@ public final class Base64 {
 	private static final int  SIXTEENBIT = 16;
 
 	/** */
+	@SuppressWarnings("unused")
 	private static final int  SIXBIT = 6;
 
 	/** */

@@ -76,7 +76,8 @@ public class OAuthAccessor implements Cloneable, Serializable {
      *            consumer.getProperty("httpMethod") or (if that's null)
      *            OAuthMessage.GET.
      */
-    public OAuthMessage newRequestMessage(String method, String url, Collection<? extends Map.Entry> parameters,
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage newRequestMessage(String method, String url, Collection<? extends Map.Entry> parameters,
             InputStream body) throws OAuthException, IOException, URISyntaxException {
         if (method == null) {
             method = (String) this.getProperty("httpMethod");
@@ -92,7 +93,8 @@ public class OAuthAccessor implements Cloneable, Serializable {
         return message;
     }
 
-    public OAuthMessage newRequestMessage(String method, String url, Collection<? extends Map.Entry> parameters)
+    @SuppressWarnings("rawtypes")
+	public OAuthMessage newRequestMessage(String method, String url, Collection<? extends Map.Entry> parameters)
             throws OAuthException, IOException, URISyntaxException {
         return newRequestMessage(method, url, parameters, null);
     }

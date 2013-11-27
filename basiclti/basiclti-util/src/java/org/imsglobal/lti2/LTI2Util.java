@@ -19,24 +19,23 @@
 
 package org.imsglobal.lti2;
 
-import org.imsglobal.lti2.objects.*;
-import org.imsglobal.basiclti.BasicLTIUtil;
-
-import java.util.List;
-import java.util.Iterator;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Properties;
-import java.util.Enumeration;
-import java.util.logging.Logger;
-
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
+import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.lti2.objects.Service_offered;
+import org.imsglobal.lti2.objects.StandardServices;
+import org.imsglobal.lti2.objects.ToolConsumer;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
 public class LTI2Util {
 
@@ -142,6 +141,7 @@ public class LTI2Util {
 	// There are five possible scenarios for GET and two possible scenarios
 	// for PUT.  I begged to simplify the business logic but was overrulled.
 	// So we write obtuse code.
+	@SuppressWarnings({ "unchecked", "unused" })
 	public static Object getSettings(HttpServletRequest request, String scope,
 		JSONObject link_settings, JSONObject binding_settings, JSONObject proxy_settings,
 		String link_url, String binding_url, String proxy_url)
@@ -171,7 +171,7 @@ public class LTI2Util {
 		boolean acceptComplex = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0;
 
 		if ( distinct && link_settings != null && scope.equals(SCOPE_LtiLink) ) {
-			Iterator i = link_settings.keySet().iterator();
+			Iterator<String> i = link_settings.keySet().iterator();
 			while ( i.hasNext() ) {
 				String key = (String) i.next();
 				if ( binding_settings != null ) binding_settings.remove(key);
@@ -180,7 +180,7 @@ public class LTI2Util {
 		}
 
 		if ( distinct && binding_settings != null && scope.equals(SCOPE_ToolProxyBinding) ) {
-			Iterator i = binding_settings.keySet().iterator();
+			Iterator<String> i = binding_settings.keySet().iterator();
 			while ( i.hasNext() ) {
 				String key = (String) i.next();
 				if ( proxy_settings != null ) proxy_settings.remove(key);
@@ -271,6 +271,7 @@ public class LTI2Util {
 	}
 
 	// Parse a provider profile with lots of error checking...
+	@SuppressWarnings("unused")
 	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
 		Object o = null;
@@ -540,7 +541,7 @@ public class LTI2Util {
 	public static void substituteCustom(Properties custom, Properties lti2subst) 
 	{
 		if ( custom == null || lti2subst == null ) return;	
-		Enumeration e = custom.propertyNames();
+		Enumeration<?> e = custom.propertyNames();
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			String value =  custom.getProperty(key);
@@ -555,7 +556,7 @@ public class LTI2Util {
 	// Place the custom values into the launch
 	public static void addCustomToLaunch(Properties ltiProps, Properties custom) 
 	{
-        Enumeration e = custom.propertyNames();
+        Enumeration<?> e = custom.propertyNames();
         while (e.hasMoreElements()) {
             String keyStr = (String) e.nextElement();
             String value =  custom.getProperty(keyStr);
@@ -563,6 +564,7 @@ public class LTI2Util {
         }           
 	}
 
+	@SuppressWarnings("deprecation")
 	public static void setProperty(Properties props, String key, String value) {
 		BasicLTIUtil.setProperty(props, key, value);
 	}

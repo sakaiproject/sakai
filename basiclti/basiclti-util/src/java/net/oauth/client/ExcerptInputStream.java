@@ -100,7 +100,8 @@ public class ExcerptInputStream extends FilterInputStream
     }
 
     /** @return an excerpt from the data copied. */
-    public static byte[] copyAll(InputStream from, OutputStream into) throws IOException
+    @SuppressWarnings("resource")
+	public static byte[] copyAll(InputStream from, OutputStream into) throws IOException
     {
         final ExcerptInputStream ex = new ExcerptInputStream(from);
         ex.copyAll(into);

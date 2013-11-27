@@ -1,7 +1,6 @@
 package org.imsglobal.lti2;
 
 import java.util.Properties;
-import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 
 public class LTI2SampleData {

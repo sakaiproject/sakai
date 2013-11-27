@@ -61,7 +61,7 @@ public class Vendor {
     }
 
     @JsonProperty("name")
-    public void setVendor_ame(Name name) {
+    public void setVendor_name(Name vendor_name) {
         this.vendor_name = vendor_name;
     }
 
