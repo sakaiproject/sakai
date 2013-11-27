@@ -408,3 +408,14 @@ ul.attachList li a{
 .attachList a[href$=".mp3"], .attachList a[href$=".wav"], .attachList a[href$=".aiff"] {
     background: url(/library/image/sakai/audio.gif) center left no-repeat !important
 }
+.itemList {
+    margin-bottom:100px;
+    outline:1px solid lime
+}
+#newsMoreDummyButton{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    text-align:center;
+    z-index:1000;
+}
