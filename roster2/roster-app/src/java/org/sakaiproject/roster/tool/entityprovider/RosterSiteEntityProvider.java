@@ -72,7 +72,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public RosterSiteEntityProvider() {
 		sakaiProxy = SakaiProxyImpl.instance();
 	}
-		
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -81,8 +81,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	}
 	
 	@EntityCustomAction(action = "get-membership", viewKey = EntityView.VIEW_SHOW)
-	public Object getMembership(EntityReference reference,
-			Map<String, Object> parameters) {
+	public Object getMembership(EntityReference reference, Map<String, Object> parameters) {
 
 		if (null == reference.getId() || DEFAULT_ID.equals(reference.getId())) {
 			throw new EntityException(ERROR_INVALID_SITE, reference.getReference());

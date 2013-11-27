@@ -22,44 +22,23 @@ var SakaiUtils;
 
 (function() {
 
-	if(SakaiUtils == null)
+	if(SakaiUtils == null) {
 		SakaiUtils = new Object();
-		
-	SakaiUtils.getCurrentUser = function() {
-		var user = null;
-		jQuery.ajax( {
-	 		url : "/direct/user/current.json",
-	   		dataType : "json",
-	   		async : false,
-	   		cache : false,
-		   	success : function(u) {
-				user = u;
-			},
-			error : function(xmlHttpRequest,stat,error) {
-				alert("Failed to get the current user. Status: " + stat + ". Error: " + error);
-			}
-	  	});
+    }
 
-		return user;
-	}
-
-	SakaiUtils.getProfileMarkup = function(userId) {
-		var profile = '';
+	SakaiUtils.getProfileMarkup = function(userId, callback) {
 
 		jQuery.ajax( {
 	       	url : "/direct/profile/" + userId + "/formatted",
 	       	dataType : "html",
-	       	async : false,
 			cache: false,
 		   	success : function(p) {
-				profile = p;
+				callback(p);
 			},
 			error : function(xmlHttpRequest,stat,error) {
 				alert("Failed to get profile markup. Status: " + stat + ". Error: " + error);
 			}
 	   	});
-
-		return profile;
 	}
 	
 	SakaiUtils.getCurrentUserPermissions = function(siteId,scope) {
@@ -87,15 +66,14 @@ var SakaiUtils;
 	  	return permissions;
 	}
 
-	SakaiUtils.getSitePermissionMatrix = function(siteId,scope) {
-        var perms = [];
+	SakaiUtils.getSitePermissionMatrix = function(siteId, callback) {
 
         jQuery.ajax( {
-            url : "/direct/site/" + siteId + "/perms/" + scope + ".json",
+            url : "/direct/site/" + siteId + "/perms/roster.json",
             dataType : "json",
-            async : false,
             cache: false,
             success : function(p) {
+                var perms = [];
                 for(role in p.data) {
                     var permSet = {'role':role};
 
@@ -106,13 +84,12 @@ var SakaiUtils;
 
                     perms.push(permSet);
                 }
+                callback(perms);
             },
             error : function(xmlHttpRequest,stat,error) {
                 alert("Failed to get permissions. Status: " + stat + ". Error: " + error);
             }
         });
-
-        return perms;
     }
 
 	SakaiUtils.savePermissions = function(siteId,checkboxClass,callback) {
@@ -131,7 +108,6 @@ var SakaiUtils;
             type : 'POST',
             data : myData,
             timeout: 30000,
-            async : false,
             dataType: 'text',
             success : function(result) {
                 callback();
@@ -140,8 +116,6 @@ var SakaiUtils;
                 alert("Failed to save permissions. Status: " + status + '. Error: ' + error);
             }
         });
-
-        return false;
     }
 	
 	SakaiUtils.renderTrimpathTemplate = function(templateName,contextObject,output) {

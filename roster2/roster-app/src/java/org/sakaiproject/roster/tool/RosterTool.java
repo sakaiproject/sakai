@@ -94,6 +94,7 @@ public class RosterTool extends HttpServlet {
        
 		ctx.put("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
 		
+		ctx.put("userId", userId);
 		ctx.put("state", sakaiProxy.getDefaultRosterStateString());
 		ctx.put("siteId", sakaiProxy.getCurrentSiteId());
         ctx.put("language", (new ResourceLoader(userId)).getLocale().getLanguage());

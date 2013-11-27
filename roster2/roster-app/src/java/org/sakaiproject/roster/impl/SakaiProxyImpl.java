@@ -171,8 +171,6 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
         }
-        
-        
 	}
 	
 	/**
@@ -287,14 +285,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
-//	public Boolean getUsePicturesAsDefaultView() {
-//		return serverConfigurationService.getBoolean(
-//				"roster.usePicturesAsDefaultView", DEFAULT_USE_PICTURES_AS_DEFAULT_VIEW);
-//	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
 	public List<RosterMember> getSiteMembership(String siteId, boolean includeConnectionStatus) {
 		return getMembership(siteId, null, includeConnectionStatus);
 	}
@@ -308,6 +298,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	private List<RosterMember> getMembership(String siteId, String groupId,
 			boolean includeConnectionStatus) {
+
+        String userId = getCurrentUserId();
 
 		List<RosterMember> rosterMembers = new ArrayList<RosterMember>();
 
@@ -323,8 +315,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 
 		// permissions are handled inside this method call
-		Set<Member> membership = getFilteredMembers(groupId,
-				getCurrentUserId(), site);
+		Set<Member> membership = getFilteredMembers(groupId, userId, site);
 		if (null == membership) {
 			return null;
 		}
@@ -334,7 +325,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			try {
 
 				RosterMember rosterMember = 
-					getRosterMember(member, site, includeConnectionStatus);
+					getRosterMember(member, site, includeConnectionStatus, userId);
 
 				rosterMembers.add(rosterMember);
 
@@ -367,12 +358,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 
+        String userId = getCurrentUserId();
+
 		// permissions are handled inside this method call
 		Set<Member> membership = null;
 		if (true == filtered) {
-			membership = getFilteredMembers(groupId, getCurrentUserId(), site);
+			membership = getFilteredMembers(groupId, userId, site);
 		} else {
-			membership = getUnfilteredMembers(groupId, getCurrentUserId(), site);
+			membership = getUnfilteredMembers(groupId, userId, site);
 		}
 		
 		if (null == membership) {
@@ -383,7 +376,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 			try {
 
-				RosterMember rosterMember = getRosterMember(member, site, false);
+				RosterMember rosterMember = getRosterMember(member, site, false, userId);
 
 				rosterMembers.put(rosterMember.getEid(), rosterMember);
 
@@ -446,7 +439,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 		}
 		
-		log.debug("membership.size(): " + membership.size());
+		if(log.isDebugEnabled()) log.debug("membership.size(): " + membership.size());
 		
 		//remove duplicates. Yes, its a Set but there can be dupes because its storing objects and from multiple groups.
 		Set<String> check = new HashSet<String>();
@@ -457,7 +450,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			}
 		}
 		
-		log.debug("cleanedMembers.size(): " + cleanedMembers.size());
+		if(log.isDebugEnabled()) log.debug("cleanedMembers.size(): " + cleanedMembers.size());
 
 		return cleanedMembers;
 	}
@@ -466,12 +459,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private Set<Member> filterHiddenMembers(Set<Member> membership,
 			String currentUserId, String siteId, AuthzGroup authzGroup) {
 
-		log.debug("filterHiddenMembers");
+		if(log.isDebugEnabled()) log.debug("filterHiddenMembers");
 		
 		if (isAllowed(currentUserId,
 				RosterFunctions.ROSTER_FUNCTION_VIEWHIDDEN, authzGroup.getReference())) {
 
-			log.debug("permission to view all, including hidden");
+			if(log.isDebugEnabled()) log.debug("permission to view all, including hidden");
 
 			return membership;
 		}
@@ -492,8 +485,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		boolean filterRoles = ArrayUtils.isNotEmpty(visibleRoles);
 
-		log.debug("visibleRoles: " + ArrayUtils.toString(visibleRoles));
-		log.debug("filterRoles: " + filterRoles);
+		if(log.isDebugEnabled()) log.debug("visibleRoles: " + ArrayUtils.toString(visibleRoles));
+		if(log.isDebugEnabled()) log.debug("filterRoles: " + filterRoles);
 		
 		// determine filtered membership
 		for (Member member : membership) {
@@ -508,16 +501,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 				String memberRoleId = member.getRole().getId();
 				if(ArrayUtils.contains(visibleRoles, memberRoleId)){
 					filteredMembership.add(member);
-					log.debug("Filter added: " + member.getUserEid());
+					if(log.isDebugEnabled()) log.debug("Filter added: " + member.getUserEid());
 				}
 			} else {
-				log.debug("Added: " + member.getUserEid());
+				if(log.isDebugEnabled()) log.debug("Added: " + member.getUserEid());
 				filteredMembership.add(member);
 			}
 			
 		}
 		
-		log.debug("filteredMembership.size(): " + filteredMembership.size());
+		if(log.isDebugEnabled()) log.debug("filteredMembership.size(): " + filteredMembership.size());
 		
 		return filteredMembership;
 	}
@@ -543,7 +536,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 	
 	private RosterMember getRosterMember(Member member, Site site,
-			boolean includeConnectionStatus) throws UserNotDefinedException {
+			boolean includeConnectionStatus, String currentUserId) throws UserNotDefinedException {
 
 		String userId = member.getUserId();
 
@@ -562,15 +555,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		Iterator<Group> groupIterator = groups.iterator();
 
 		while (groupIterator.hasNext()) {
-			Group group = groupIterator.next();
 
+			Group group = groupIterator.next();
 			rosterMember.addGroup(group.getId(), group.getTitle());
 		}
 
-		if (true == includeConnectionStatus && connectionsLogic != null) {
-			rosterMember.setConnectionStatus(connectionsLogic
-					.getConnectionStatus(getCurrentUserId(), userId));
-		}
+        if (true == includeConnectionStatus && connectionsLogic != null) {
+            rosterMember.setConnectionStatus(connectionsLogic
+                    .getConnectionStatus(currentUserId, userId));
+        }
 
 		return rosterMember;
 	}
@@ -638,43 +631,34 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		String currentUserId = getCurrentUserId();
 		if (null == currentUserId) {
-			log.debug("No currentUserId. Returning null");
+			if(log.isDebugEnabled()) log.debug("No currentUserId. Returning null");
 			return null;
 		}
 		
-		log.debug("currentUserId: " + currentUserId);
+		if(log.isDebugEnabled()) log.debug("currentUserId: " + currentUserId);
 
 
 		Site site = getSite(siteId);
 		if (null == site) {
-			log.debug("No site. Returning null");
+			if(log.isDebugEnabled()) log.debug("No site. Returning null");
 			return null;
 		}
 		
-		log.debug("site: " + site.getId());
-
-
-		/*
-		// return null if user is not a site member and not an admin user
-		if (null == site.getMember(currentUserId) && !isSuperUser()) {
-			log.debug("Not a member. Returning null");
-			return null;
-		}
-		*/
+		if(log.isDebugEnabled()) log.debug("site: " + site.getId());
 		
-		log.debug("Checking permissions for site: " +  site.getReference());
+		if(log.isDebugEnabled()) log.debug("Checking permissions for site: " +  site.getReference());
 		// for DelegatedAccess to work, you must use the SecurityService.unlock method of checking permissions.
 		if(!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
-			log.debug("roster.viewallmembers = false");
+			if(log.isDebugEnabled()) log.debug("roster.viewallmembers = false");
 
 			if(!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, site.getReference())) {
-				log.debug("roster.viewgroup = false");
+				if(log.isDebugEnabled()) log.debug("roster.viewgroup = false");
 				return null;
 			} else {
-				log.debug("roster.viewgroup = true. Access ok.");
+				if(log.isDebugEnabled()) log.debug("roster.viewgroup = true. Access ok.");
 			}
 		} else {
-			log.debug("roster.viewallmembers = true. Access ok.");
+			if(log.isDebugEnabled()) log.debug("roster.viewallmembers = true. Access ok.");
 		}
 
 		

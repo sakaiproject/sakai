@@ -29,6 +29,7 @@
 <script type="text/javascript">
 
     var startupArgs = {
+    	userId:'$!{userId}',
     	state:'$!{state}',
     	siteId:'$!{siteId}',
     	language:'$!{language}',
