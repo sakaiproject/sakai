@@ -119,21 +119,24 @@ var SakaiUtils;
     }
 	
 	SakaiUtils.renderTrimpathTemplate = function(templateName,contextObject,output) {
+
 		var templateNode = document.getElementById(templateName);
 		var firstNode = templateNode.firstChild;
 		var template = null;
 
-		if ( firstNode && ( firstNode.nodeType === 8 || firstNode.nodeType === 4))
+		if ( firstNode && ( firstNode.nodeType === 8 || firstNode.nodeType === 4)) {
   			template = templateNode.firstChild.data.toString();
-		else
+        } else {
    			template = templateNode.innerHTML.toString();
+        }
 
 		var trimpathTemplate = TrimPath.parseTemplate(template,templateName);
 
    		var render = trimpathTemplate.process(contextObject);
 
-		if (output)
+		if (output) {
 			document.getElementById(output).innerHTML = render;
+        }
 
 		return render;
 	}

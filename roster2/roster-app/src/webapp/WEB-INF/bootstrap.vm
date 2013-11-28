@@ -28,18 +28,20 @@
 
 <script type="text/javascript">
 
-    var startupArgs = {
-    	userId:'$!{userId}',
-    	state:'$!{state}',
-    	siteId:'$!{siteId}',
-    	language:'$!{language}',
-    	defaultSortColumn:'$!{defaultSortColumn}',
-    	firstNameLastName:'$!{firstNameLastName}',
-    	hideSingleGroupFilter:'$!{hideSingleGroupFilter}',
-    	viewUserDisplayId:'$!{viewUserDisplayId}',
-    	viewEmail:'$!{viewEmail}',
-    	superUser:'$!{superUser}',
-    	siteMaintainer:'$!{siteMaintainer}'
+    var roster = {
+        startupArgs: {
+            userId:'$!{userId}',
+            state:'$!{state}',
+            siteId:'$!{siteId}',
+            language:'$!{language}',
+            defaultSortColumn:'$!{defaultSortColumn}',
+            firstNameLastName:'$!{firstNameLastName}',
+            hideSingleGroupFilter:'$!{hideSingleGroupFilter}',
+            viewUserDisplayId:'$!{viewUserDisplayId}',
+            viewEmail:'$!{viewEmail}',
+            superUser:'$!{superUser}',
+            siteMaintainer:'$!{siteMaintainer}'
+        }
     };
     
 </script>
@@ -282,8 +284,8 @@ ${sakaiHtmlHead}
 			<td>
 				<div id="roster_form:search_filter" class="act">
 					<input id="roster_form_search_field" type="text" value="${roster_search_text}"
-						onfocus="clearIfDefaultString(this, roster_search_text)"
-						onkeypress="return handleEnterKey(this, event)"
+						onfocus="roster.clearIfDefaultString(this, roster_search_text)"
+						onkeypress="return roster.handleEnterKey(this, event)"
 						name="roster_form_search" />
 					<input id="roster_form_search_button" class="active" type="button"
 						value="${roster_search_button}" name="roster_form:search_button" />
@@ -310,8 +312,8 @@ ${sakaiHtmlHead}
 			<td>
 				<div id="roster_form:search_filter" class="act">
 					<input id="roster_form_search_field" type="text" value="${roster_search_text}"
-						onfocus="clearIfDefaultString(this, roster_search_text)"
-						onkeypress="return handleEnterKey(this, event)"
+						onfocus="roster.clearIfDefaultString(this, roster_search_text)"
+						onkeypress="return roster.handleEnterKey(this, event)"
 						name="roster_form_search" />
 					<input id="roster_form_search_button" class="active" type="button"
 						value="${roster_search_button}" name="roster_form:search_button" />
@@ -424,8 +426,8 @@ ${sakaiHtmlHead}
 
 <div id="roster_pics_wrapper_template" style="display:none"><!--
 <div id="roster_type_selector">
-    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {if rosterOfficialPictureMode == true}checked{/if}/><span>${roster_show_official_pictures}</span>
-    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {if rosterOfficialPictureMode == false}checked{/if}/><span>${roster_show_profile_pictures}</span>
+    <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {if roster.rosterOfficialPictureMode == true}checked{/if}/><span>${roster_show_official_pictures}</span>
+    <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {if roster.rosterOfficialPictureMode == false}checked{/if}/><span>${roster_show_profile_pictures}</span>
 </div>
 <div id="roster_pics"></div>
 -->
@@ -885,8 +887,8 @@ ${sakaiHtmlHead}
 <script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
 <!-- translations -->
 <script type="text/javascript">
-if(startupArgs['language']) {
-	$.localise('/sakai-roster2-tool/roster-translations',{language:startupArgs['language'],loadBase: true});
+if(roster.startupArgs['language']) {
+	$.localise('/sakai-roster2-tool/roster-translations',{language:roster.startupArgs['language'],loadBase: true});
 } else {
 	$.localise('/sakai-roster2-tool/roster-translations');
 }
