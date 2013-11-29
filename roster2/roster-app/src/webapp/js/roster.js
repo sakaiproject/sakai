@@ -540,8 +540,10 @@ roster.getRosterMembership = function (groupId, sorted, sortField, sortDirection
                 for (var i = 0, j = membership.length; i < j; i++) {
                     membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
                     if(forceOfficialPicture == true) {
-                        membership[i].profileImageUrl += "/official?siteId=" + roster.startupArgs.siteId;
+                        membership[i].profileImageUrl += "/official";
                     }
+                    membership[i].profileImageUrl += "?siteId=" + roster.startupArgs.siteId;
+                    membership[i].formattedProfileUrl = "/direct/profile/" + membership[i].userId + "/formatted?siteId=" + roster.startupArgs.siteId;
                 }
             }
 

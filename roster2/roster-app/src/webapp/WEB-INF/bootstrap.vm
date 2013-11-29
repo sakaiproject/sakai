@@ -388,7 +388,7 @@ ${sakaiHtmlHead}
 					</td>
 					<td>
 						{if true == viewProfile}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 						{else}
 							${member.displayId}
 						{/if}
@@ -397,9 +397,9 @@ ${sakaiHtmlHead}
 					<td>
 					{if true == viewProfile}
 						{if true == firstNameLastName}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayName}</a>
 						{else}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.sortName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.sortName}</a>
 						{/if}
 					{else}
 						{if true == firstNameLastName}
@@ -475,7 +475,7 @@ ${sakaiHtmlHead}
 				{/if}
 				<div>
 					{if false == viewUserDisplayId && true == viewProfile}
-                        <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
+                        <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
 					{else}
 						<img class="rosterPicture" src="${member.profileImageUrl}" title="${profile_picture_alt} ${member.displayName}" />
 					{/if}
@@ -486,14 +486,14 @@ ${sakaiHtmlHead}
 						<div><span title="${memberName}">${memberName}</span></div>
 					{else}
 						{if true == viewProfile}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${memberName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${memberName}</a>
 						{/if}
 					{/if}
 				{/if}
 				{if true == viewUserDisplayId}
 				<div>
 					{if true == viewProfile}
-                        <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                        <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 					{else}
 						${member.displayId}
 					{/if}
@@ -548,7 +548,7 @@ ${sakaiHtmlHead}
 				{/if}
 				<div>
 					{if false == viewUserDisplayId && true == viewProfile}
-                        <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
+                        <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}"><img class="rosterPicture" src="${member.profileImageUrl}" title="${show_profile}" /></a>
 					{else}
 						<img class="rosterPicture" src="${member.profileImageUrl}" title="${profile_picture_alt} ${member.displayName}" />
 					{/if}
@@ -558,14 +558,14 @@ ${sakaiHtmlHead}
 						<div><span title="${memberName}">${memberName}</span></div>
 					{else}
 						{if true == viewProfile}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${memberName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${memberName}</a>
 						{/if}
 					{/if}
 				{/if}
 				{if true == viewUserDisplayId}
 				<div>
 					{if true == viewProfile}
-                        <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                        <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 					{else}
 						${member.displayId}
 					{/if}
@@ -673,7 +673,7 @@ ${sakaiHtmlHead}
 											</td>
 											<td>
 												{if true == viewProfile}
-                                                    <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                                                    <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 												{else}
 													${member.displayId}
 												{/if}
@@ -682,9 +682,9 @@ ${sakaiHtmlHead}
 											<td>
 											{if true == viewProfile}
 												{if true == firstNameLastName}
-                                                    <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayName}</a>
+                                                    <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayName}</a>
 												{else}
-                                                    <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.sortName}</a>
+                                                    <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.sortName}</a>
 												{/if}
 											{else}
 												{if true == firstNameLastName}
@@ -739,7 +739,7 @@ ${sakaiHtmlHead}
 					</td>
 					<td>
 						{if true == viewProfile}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 						{else}
 							${member.displayId}
 						{/if}
@@ -748,9 +748,9 @@ ${sakaiHtmlHead}
 					<td>
 					{if true == viewProfile}
 						{if true == firstNameLastName}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayName}</a>
 						{else}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.sortName}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.sortName}</a>
 						{/if}
 					{else}
 						{if true == firstNameLastName}
@@ -811,7 +811,7 @@ ${sakaiHtmlHead}
 					</td>
 					<td>
 						{if true == viewProfile}
-                            <a href="javascript:;" class="profile" rel="/direct/profile/${member.userId}/formatted">${member.displayId}</a>
+                            <a href="javascript:;" class="profile" rel="${member.formattedProfileUrl}">${member.displayId}</a>
 						{else}
 							${member.displayId}
 						{/if}
