@@ -238,7 +238,10 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     padding-left: 40px
 }*/
 .mainList li.canEdit > div.edit-col {
-    float:left;
+/*    float:left; */
+    display: inline-block;
+    vertical-align:top;
+    padding-top: 0.35em;
     padding-left: 0;
     z-index:4
 }
@@ -452,7 +455,7 @@ h3.author {
 	display: inline;
 }
 .replaceWithComments {
-  margin:5px 5px 5px 20px;
+  margin:5px 5px 5px 20px; 
 }
 .commentPageTitle {
 	margin: 0 10px;
@@ -473,7 +476,8 @@ h3.author {
 	margin-top: 3px
 }
 .commentsCell {
-	margin-bottom: 10px
+	margin-bottom: 10px;
+        width:90%
 }
 .specialCommenter {
 	background-color: white;
@@ -601,7 +605,7 @@ ul#toolbar li em {
 	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
 	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
     border: 1px solid #d1d1d1 !important;
-    z-index: 10000;
+    z-index: 10;
     -webkit-box-shadow: 1px 1px 3px 2px #eeeeee;
     box-shadow: 1px 1px 3px 2px #eeeeee;
 }
@@ -951,8 +955,22 @@ div[role="dialog"] {
  alternate treatment for list - can go in tool.css
 */
 .edit-col {
- top: 0.35em;
+/* top: 0.35em; */
 }
+.right-col {
+ display: inline-block;
+ position:relative;
+ left:5px;
+}
+.right-col2 {
+ position:relative;
+ left:5px;
+}
+.right-col3 {
+ position:relative;
+ left:10px;
+}
+
 /*
 .edit-col {
     position: absolute !important;

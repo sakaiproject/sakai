@@ -13,7 +13,7 @@
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
 <link rel="stylesheet" rsf:id="customCSS" type="text/css" />
-<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.9.2.custom.css" rel="stylesheet" />	
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet" />	
 <title rsf:id="msg=simplepage.showpage"></title>
 
 <style type="text/css">
@@ -44,7 +44,7 @@ function resizeiframe(id) {
 <body rsf:id="scr=sakai-body">
 <!-- <script type="text/javascript" src="$context/js/jquery-1.4.2.min.js"></script> -->
 <script type="text/javascript" src="$context/js/jquery-1.8.3.min.js"></script>
-<script type="text/javascript" src="$context/js/jquery-ui-1.9.2.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.10.3.custom.min.js"></script>
 <script type="text/javascript" src="$context/js/jqBarGraph.1.1.customized.js"></script>
 <script type="text/javascript" src="$context/js/jquery.oembed.js"></script>
 <link rel="stylesheet" href="$context/js/jquery.oembed.css" type="text/css" />
@@ -262,7 +262,7 @@ function resizeiframe(id) {
                                     <ul class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
                 <li rsf:id="item:" id="item" role="listitem" class="item">
                     <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></div>
-                    <div rsf:id="item-td">
+                    <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
                             <img class="status-image icon-image" rsf:id="status" />
                         </div>
@@ -317,12 +317,12 @@ function resizeiframe(id) {
                       </div>
                     </div>
                     <div rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></div>
-                    <div rsf:id="itemSpan">
+                    <div rsf:id="itemSpan" class="right-col">
                       <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
                       <div rsf:id="content" class="textbox"></div>
                     </div>
                     <div rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></div>
-                    <div rsf:id="iframeSpan" class="hideOnDialog"><div>
+                    <div rsf:id="iframeSpan" class="hideOnDialog right-col"><div>
                       <div rsf:id="item-group-titles2" class="item-group-titles"></div>
                       <iframe
                          name="SimplePageIFrame"
@@ -365,7 +365,7 @@ function resizeiframe(id) {
                     </div>
 
                     <div rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></div>
-                    <div rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog"><div>
+                    <div rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog right-col"><div>
                         <div rsf:id="item-group-titles4" class="item-group-titles"></div>
                         
                         <iframe rsf:id="youtubeIFrame" frameborder="0"></iframe>
@@ -381,7 +381,7 @@ function resizeiframe(id) {
                     </div>
 
                     <div rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></div>
-                    <div rsf:id="movieSpan" class="hideOnDialog"><div>
+                    <div rsf:id="movieSpan" class="hideOnDialog right-col"><div>
                         <div rsf:id="item-group-titles5" class="item-group-titles"></div>
 			<video rsf:id="h5video" controls="controls" class="html5video" style="display:none">
 			  <source rsf:id="h5source" />
@@ -413,7 +413,7 @@ function resizeiframe(id) {
 
                     <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></div>
                     
-                    <div rsf:id="commentsSpan" class="commentsCell">
+                    <div rsf:id="commentsSpan" class="commentsCell right-col">
                             <p rsf:id="missing-prereqs" class="instruction"></p>
                         <div class="commentsDiv" rsf:id="commentsDiv">
                             <div rsf:id="item-group-titles6" class="item-group-titles"></div>
@@ -456,7 +456,7 @@ function resizeiframe(id) {
                     
                     <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></div>
                     
-                    <div rsf:id="studentSpan">
+                    <div rsf:id="studentSpan right-col">
                             <span rsf:id="student-missing-prereqs"></span>
                         <div class="studentDiv" rsf:id="studentDiv">
                             <div rsf:id="item-group-titles7" class="item-group-titles"></div>
@@ -518,7 +518,7 @@ function resizeiframe(id) {
                     </div>
                     
 		    <div rsf:id="peerReviewRubricStudent-edit" class="edit-col"></div>
-		    <div rsf:id="peerReviewRubricStudent" style="width:100%;" colspan="2">
+		    <div rsf:id="peerReviewRubricStudent" class="right-col"  style="width:100%;" colspan="2">
 		      <div class="add-peereval-button">
 			<a rsf:id="add-peereval-link" class="usebutton switchLink" onclick=""><span style="font-weight:normal; color:#555" rsf:id="add-peereval-text"></span></a>
 		      </div>
@@ -559,7 +559,7 @@ function resizeiframe(id) {
 
                     <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"></a></div></div>
                     
-                    <div rsf:id="questionSpan">
+                    <div rsf:id="questionSpan" class="right-col">
                         <div class="questionDiv" rsf:id="questionDiv">
                             <div class="statusCol">
                                 <img class="status-image icon-image" rsf:id="questionStatus" />

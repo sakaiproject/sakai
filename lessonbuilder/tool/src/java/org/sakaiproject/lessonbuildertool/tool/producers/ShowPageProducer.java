@@ -1576,7 +1576,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// application/xhtml+xml is XHTML.
 
 					} else if (mmDisplayType == null && 
-						   ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) || 
+						   ((mimeType != null && !mimeType.equals("text/html") && !mimeType.equals("application/xhtml+xml")) ||
+						    // ((mimeType != null && (mimeType.startsWith("audio/") || mimeType.startsWith("video/"))) || 
 						    (mimeType == null && !(Arrays.binarySearch(htmlTypes, extension) >= 0)))) {
 
                         // except where explicit display is set,
@@ -2887,7 +2888,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	/**
 	 * Checks for the version of IE. Returns 0 if we're not running IE.
-	 * 
+	 * But there's a problem. IE 11 doesn't have the MSIE tag. But it stiill
+	 * needs to be treated as IE, because the OBJECT tag won't work with Quicktime
+	 * Since all I test is > 0, I use a simplified version that returns 0 or 1
 	 * @return
 	 */
 	public int checkIEVersion() {
@@ -2897,26 +2900,30 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		browserString = usageSession.getUserAgent();
 		if (browserString == null)
 		    return 0;
-		int ieIndex = browserString.indexOf(" MSIE ");
-		int ieVersion = 0;
-		if (ieIndex >= 0) {
-			String ieV = browserString.substring(ieIndex + 6);
-			int i = 0;
-			int e = ieV.length();
-			while (i < e) {
-				if (Character.isDigit(ieV.charAt(i))) {
-					i++;
-				} else {
-					break;
-				}
-			}
-			if (i > 0) {
-				ieV = ieV.substring(0, i);
-				ieVersion = Integer.parseInt(ieV);
-			}
-		}
+		int ieIndex = browserString.indexOf("Trident/");
+		if (ieIndex >= 0)
+		    return 1;
+		else
+		    return 0;
 
-		return ieVersion;
+		// int ieVersion = 0;
+		// if (ieIndex >= 0) {
+		//	String ieV = browserString.substring(ieIndex + 6);
+		//	int i = 0;
+		//	int e = ieV.length();
+		//	while (i < e) {
+		//		if (Character.isDigit(ieV.charAt(i))) {
+		//			i++;
+		//		} else {
+		//			break;
+		//		}
+		//	}
+		//	if (i > 0) {
+		//		ieV = ieV.substring(0, i);
+		//		ieVersion = Integer.parseInt(ieV);
+		//}			}
+		//
+		//		return ieVersion;
 	}
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {

@@ -177,7 +177,7 @@ $(function() {
 		$('#delete-confirm').dialog({
 			autoOpen: false,
 			resizable: false,
-			modal: false,
+			    modal: true,
 			dialogClass: "no-close",
 			    buttons: [{text:msg("simplepage.delete"),
 				          click: function() {
