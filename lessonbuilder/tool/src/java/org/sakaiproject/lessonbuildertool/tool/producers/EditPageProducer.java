@@ -148,10 +148,12 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			richTextEvolver.evolveTextInput(instructions);
 
-			if (page.getOwner() == null)
+			if (page.getOwner() == null) {
+			    // these options don't apply on student pages
 			    showPageProducer.createGroupList(form, groups, "", "#{simplePageBean.selectedGroups}");
-
-			UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
+			    UIOutput.make(form, "prerequisite-block");
+			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
+			}
 
 			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
