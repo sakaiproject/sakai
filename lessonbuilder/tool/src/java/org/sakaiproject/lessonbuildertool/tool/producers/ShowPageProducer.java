@@ -1604,7 +1604,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             UIOutput.make(tableRow, "item-groups5", itemGroupString);
                         }
 
-						UIOutput.make(tableRow, "movieSpan");
+			UIOutput.make(tableRow, "movieSpan");
 
                         if(canEditPage || simplePageBean.isItemAvailable(i)) {
 
@@ -1619,6 +1619,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             String sessionParameter = getSessionParameter(movieUrl);
                             if (sessionParameter != null)
                                 movieUrl = movieUrl + "?lb.session=" + sessionParameter;
+
+			    UIOutput.make(tableRow, "movie-link-div");
+			    UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
@@ -1785,6 +1788,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							item.decorate(new UIFreeAttributeDecorator("maxHeight", height.getOld()));
 						    // oembed
 						} else  {
+						    UIOutput.make(tableRow, "iframe-link-div");
+						    UILink.make(tableRow, "iframe-link-link", messageLocator.getMessage("simplepage.open_new_window"), itemUrl);
 						    item = UIOutput.make(tableRow, "iframe").decorate(new UIFreeAttributeDecorator("src", itemUrl));
 						    // if user specifies auto, use Javascript to resize the
 						    // iframe when the
