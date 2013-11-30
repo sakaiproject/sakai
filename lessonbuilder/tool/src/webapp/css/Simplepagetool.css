@@ -477,7 +477,6 @@ h3.author {
 }
 .commentsCell {
 	margin-bottom: 10px;
-        width:90%
 }
 .specialCommenter {
 	background-color: white;
@@ -961,6 +960,7 @@ div[role="dialog"] {
  display: inline-block;
  position:relative;
  left:5px;
+ width:93%
 }
 .right-col2 {
  position:relative;
