@@ -79,17 +79,28 @@ function escapeApostrophe(name) {
 
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
-
-  <h3>
-    <h:outputText value="#{evaluationMessages.sub_status}"/>
-    <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{totalScores.assessmentName} " escape="false"/>
-  </h3>
   
-  <p class="navViewAction">
+  <h:panelGrid columns="1">
+  <h:panelGroup>
+  <f:verbatim><h3></f:verbatim>
+  	<h:outputText value="#{evaluationMessages.sub_status}#{evaluationMessages.column} " escape="false"/>
+  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+  	<h:outputText value="#{totalScores.assessmentName} " escape="false"/>
+  <f:verbatim></span></f:verbatim>
+  <f:verbatim></h3></f:verbatim>
+  </h:panelGroup>
+  </h:panelGrid>
+  
+  <!-- Per UX, for formatting -->
+  <div class="textBelowHeader">
+    <h:outputText value=""/>
+  </div>
+  
+  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
+    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
     <h:outputText value="#{evaluationMessages.sub_status}" />
     
-    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
     
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -97,7 +108,7 @@ function escapeApostrophe(name) {
       <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
     
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne ''}" />
     
     <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
@@ -106,8 +117,8 @@ function escapeApostrophe(name) {
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
     
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
-    
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
+   
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
@@ -116,7 +127,7 @@ function escapeApostrophe(name) {
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" />
     
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
@@ -126,50 +137,56 @@ function escapeApostrophe(name) {
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-
-    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" />
     
     <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true">
       <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
 
-  </p>
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
+
+    <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true" rendered="#{totalScores.hasFileUpload}">
+      <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
+    </h:commandLink>
+
+  <h:outputText value="</span></li></ul>" escape="false"/>
 
   <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
   
-  <div class="tier1">
-     <h:outputText value="#{evaluationMessages.max_score_poss}" style="instruction"/>
-     <h:outputText value="#{totalScores.maxScore}" style="instruction"/>
-     <br />
-
-
 <sakai:flowState bean="#{submissionStatus}" />
 <h:panelGrid columns="2" columnClasses="samLeftNav,samRightNav" width="100%">
   <h:panelGroup>
-    <h:panelGrid columns="1" columnClasses="samLeftNav" width="100%">
+  
+    <h:panelGrid rendered="#{!totalScores.hasRandomDrawPart}">
+        <h:outputText value="<h4>#{evaluationMessages.max_score_poss}<span style='font-weight:normal !important;'>: #{totalScores.maxScore}</span></h4>" escape="false"/>
+    </h:panelGrid>
+      
+    <h:panelGrid columns="2" columnClasses="samLeftNav" style="padding-top:.5em;">
+      <h:outputText value="#{evaluationMessages.view}"/>
 	  <h:panelGroup>
         <!-- SECTION AWARE -->
-        <h:outputText value="#{evaluationMessages.view}"/>
-        <h:outputText value="#{evaluationMessages.column}"/>
-        <h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();">
+        <h:outputText value="&nbsp;#{evaluationMessages.all_sections}" escape="false" rendered="#{totalScores.availableSectionSize < 1}"/>
+        
+     	<h:selectOneMenu value="#{submissionStatus.selectedSectionFilterValue}" id="sectionpicker" required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.availableSectionSize >= 1}">
           <f:selectItems value="#{totalScores.sectionFilterSelectItems}"/>
           <f:valueChangeListener
            type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener"/>
         </h:selectOneMenu>
       </h:panelGroup>
 	
+	  <h:outputText value="#{evaluationMessages.search}"/>
 	  <h:panelGroup>
-			<h:outputText value="#{evaluationMessages.search}"/>
-            <h:outputText value="#{evaluationMessages.column}"/>
 			<h:inputText
 				id="searchString"
 				value="#{submissionStatus.searchString}"
 				onfocus="clearIfDefaultString(this, '#{evaluationMessages.search_default_student_search_string}')"
 				onkeypress="return submitOnEnter(event, 'editTotalResults:searchSubmitButton');"/>
-			<f:verbatim> </f:verbatim>
+			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{submissionStatus.search}" value="#{evaluationMessages.search_find}" id="searchSubmitButton" />
-			<f:verbatim> </f:verbatim>
+			<h:outputText value="&nbsp;" escape="false" />
 			<h:commandButton actionListener="#{submissionStatus.clear}" value="#{evaluationMessages.search_clear}"/>
 	  </h:panelGroup>
     </h:panelGrid>

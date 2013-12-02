@@ -81,7 +81,7 @@ public class TotalScoresBean
   public static final int CALLED_FROM_HISTOGRAM_LISTENER_STUDENT = 5;
   public static final int CALLED_FROM_EXPORT_LISTENER = 6;
   public static final int CALLED_FROM_NOTIFICATION_LISTENER = 7;
-  
+ 
     /** Use serialVersionUID for interoperability. */
   private final static long serialVersionUID = 5517587781720762296L;
   private String assessmentName;
@@ -114,6 +114,7 @@ public class TotalScoresBean
 
   private List sectionFilterSelectItems;
   private List availableSections;
+  private int availableSectionSize;
   private boolean releaseToAnonymous = false;
   private PublishedAssessmentData publishedAssessment; 
   private ArrayList allAgents;
@@ -139,6 +140,7 @@ public class TotalScoresBean
   private Map userIdMap;
   
   private boolean isAutoScored = false;
+  private boolean hasFileUpload = false;
   
   private static Log log = LogFactory.getLog(TotalScoresBean.class);
 
@@ -734,12 +736,20 @@ public class TotalScoresBean
     return availableSections;
   }
 
+  public int getAvailableSectionSize() {
+	  availableSections = getAllAvailableSections();
+	  return availableSections.size();
+  }
+  
   public void setSectionFilterSelectItems(List param) {
     sectionFilterSelectItems = param;
   }
 
   public List getSectionFilterSelectItems() {
-	  availableSections = getAllAvailableSections();
+	  if (availableSections == null) {
+		  availableSections = getAllAvailableSections();
+	  }
+	  
 	    List filterSelectItems = new ArrayList();
 
 	    // added by gopalrc - Jan 2008
@@ -805,7 +815,7 @@ public class TotalScoresBean
     		|| (calledFrom==CALLED_FROM_HISTOGRAM_LISTENER 
     	    		&& "true".equalsIgnoreCase(anonymous)) 
     		|| (calledFrom==CALLED_FROM_NOTIFICATION_LISTENER
-	    	    && "true".equalsIgnoreCase(anonymous))
+	    	        && "true".equalsIgnoreCase(anonymous))
     	    || (calledFrom==CALLED_FROM_EXPORT_LISTENER
     	    	    && "true".equalsIgnoreCase(anonymous))) {
         enrollments = getAvailableEnrollments(false);
@@ -822,13 +832,13 @@ public class TotalScoresBean
   }
 
 
-  private List getSectionEnrollments(String sectionid) {
+  public List getSectionEnrollments(String sectionid) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     return service.getSectionEnrollments(AgentFacade.getCurrentSiteId(), sectionid , AgentFacade.getAgentString());
   }
 
 
-  private List getAvailableEnrollments(boolean fromStudentStatistics) {
+  public List getAvailableEnrollments(boolean fromStudentStatistics) {
     GradingSectionAwareServiceAPI service = new GradingSectionAwareServiceImpl();
     List list = null;
     if (fromStudentStatistics) {
@@ -1158,4 +1168,12 @@ public class TotalScoresBean
 	public void setApplyToUngraded(String applyToUngraded) {
 		this.applyToUngraded = applyToUngraded;
 	}	
+	
+	public boolean getHasFileUpload() {
+		return hasFileUpload;
+	}
+
+	public void setHasFileUpload(boolean hasFileUpload) {		
+		this.hasFileUpload = hasFileUpload;
+	}
 }

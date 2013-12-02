@@ -20,41 +20,30 @@
 --%>
 -->
 <!-- ASSESSMENT ATTACHMENTS -->
- <f:verbatim><div class="longtext"></f:verbatim><h:outputLabel value="#{assessmentSettingsMessages.attachments}" />
-  <f:verbatim><br/></f:verbatim>
+  <h:panelGrid border="0">
   <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
     <h:dataTable value="#{description.itemGradingAttachmentList}" var="attach">
       <h:column>
         <%@ include file="/jsf/shared/mimeicon.jsp" %>
       </h:column>
       <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputLink value="#{attach.location}" target="new_window">
           <h:outputText escape="false" value="#{attach.filename}" />
         </h:outputLink>
       </h:column>
       <h:column>
-        <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
         <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
       </h:column>
     </h:dataTable>
   </h:panelGroup>
-  <h:panelGroup rendered="#{!description.hasItemGradingAttachment}">
-    <h:outputText escape="false" value="#{assessmentSettingsMessages.no_attachments}" />
-  </h:panelGroup>
 
   <h:panelGroup rendered="#{!description.hasItemGradingAttachment}">
-    <sakai:button_bar>
-      <sakai:button_bar_item action="#{description.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_attachments}"/>
-    </sakai:button_bar>
+  	<h:commandButton value="#{assessmentSettingsMessages.add_attachments}" action="#{description.addAttachmentsRedirect}"/>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{description.hasItemGradingAttachment}">
-    <sakai:button_bar>
-      <sakai:button_bar_item action="#{description.addAttachmentsRedirect}"
-             value="#{assessmentSettingsMessages.add_remove_attachments}"/>
-    </sakai:button_bar>
+    <h:commandButton value="#{assessmentSettingsMessages.add_remove_attachments}" action="#{description.addAttachmentsRedirect}"/>
   </h:panelGroup>
-<f:verbatim></div></f:verbatim>
+  </h:panelGrid>
+
 

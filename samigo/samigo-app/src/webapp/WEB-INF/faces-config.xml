@@ -479,6 +479,12 @@
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.ExportResponsesBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+    <managed-bean>
+    <description>For evaluation: Download File Submissions backing bean.</description>
+    <managed-bean-name>downloadFileSubmissions</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.evaluation.DownloadFileSubmissionsBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+  </managed-bean>
   <managed-bean>
     <description>For evaluation: Retake Assessment backing bean.</description>
     <managed-bean-name>retakeAssessment</managed-bean-name>
@@ -1137,6 +1143,12 @@
       <from-outcome>exportResponses</from-outcome>
       <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
     </navigation-case>
+    
+    <navigation-case>
+      <from-outcome>downloadFileSubmissions</from-outcome>
+      <to-view-id>/jsf/evaluation/downloadFileSubmissions.jsp</to-view-id>
+    </navigation-case>
+    
     <navigation-case>
       <from-outcome>exportZip</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>

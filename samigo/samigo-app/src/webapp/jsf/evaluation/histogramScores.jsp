@@ -49,13 +49,23 @@ $Id$
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h3>
-    <h:outputText value="#{evaluationMessages.stat_view}"/>
-    <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{histogramScores.assessmentName} " escape="false"/>
-  </h3>
+  <h:panelGrid columns="1">
+  <h:panelGroup>
+  <f:verbatim><h3></f:verbatim>
+  	<h:outputText value="#{evaluationMessages.stat_view}#{evaluationMessages.column} " escape="false"/>
+  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+  	<h:outputText value="#{histogramScores.assessmentName} " escape="false"/>
+  <f:verbatim></span></f:verbatim>
+  <f:verbatim></h3></f:verbatim>
+  </h:panelGroup>
+  </h:panelGrid>
   
-     <h:outputText value=" <p class=\"navViewAction\">" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+  <!-- Per UX, for formatting -->
+  <div class="textBelowHeader">
+    <h:outputText value=""/>
+  </div>
+  
+  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'><li role='menuitem' class='firstToolBarItem'><span>"  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
      
     <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <h:outputText value="#{evaluationMessages.sub_status}" />
@@ -64,7 +74,7 @@ $Id$
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
@@ -72,7 +82,7 @@ $Id$
       <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <f:actionListener
@@ -80,12 +90,12 @@ $Id$
       <h:outputText value="#{evaluationMessages.q_view}" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:outputText value="#{evaluationMessages.stat_view}" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
 
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" >
@@ -94,15 +104,24 @@ $Id$
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-
-    <h:outputText value=" #{evaluationMessages.separator} "  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}"/>
+    <h:outputText value="</span><li role='menuitem'><span>"  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
 
     <h:commandLink title="#{commonMessages.export_action}" action="exportResponses" immediate="true"  rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
       <h:outputText value="#{commonMessages.export_action}" />
   	  <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ExportResponsesListener" />
     </h:commandLink>
 
-    <h:outputText value=" </p>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
+   
+    <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true" rendered="#{totalScores.hasFileUpload}">
+      <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
+    </h:commandLink>
+
+    <h:outputText value="</span></li></ul>" rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}" escape="false"/>
+
+    <f:verbatim><br /></f:verbatim>
 
    <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
    
@@ -112,7 +131,6 @@ $Id$
   <!-- LAST/ALL SUBMISSIONS; PAGER; ALPHA INDEX  -->
     <h:panelGroup rendered="#{histogramScores.hasNav==null || histogramScores.hasNav=='true'}">
      <h:outputText value="#{evaluationMessages.view} " />
-      <h:outputText value="#{evaluationMessages.column} " />
 
      <h:selectOneMenu value="#{histogramScores.allSubmissions}" id="allSubmissionsL"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2'}">

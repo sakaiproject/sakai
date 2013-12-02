@@ -120,6 +120,12 @@ font-size:1.2em
 	vertical-align:bottom;
     text-align:left;
 }
+
+.samLeftTopNav  {
+	vertical-align:top;
+    text-align:top;
+}
+
 .samRightNav  {
 	vertical-align:bottom;
     text-align:right;
@@ -147,7 +153,7 @@ font-size:1.2em
 }
 
 .textBelowHeader {
-	padding: .5em 0 0 0;
+	padding: .3em 0 0 0;
 }
 
 .selectAction {
@@ -688,7 +694,12 @@ background-color:#DBDBDB;
 
 }
 
+.downloanQuestionCheckbox {
+	vertical-align:top;
+}
 
+.downloanQuestionDescription {
+	vertical-align:top;
+}
 
-
-
+<<<<<<< .working

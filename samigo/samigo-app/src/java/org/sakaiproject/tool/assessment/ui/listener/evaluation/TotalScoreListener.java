@@ -359,8 +359,12 @@ public class TotalScoreListener
         p.setSectionSet(sectionSet);
         Iterator sectionIter = sectionSet.iterator();
         boolean isAutoScored = true;
+        boolean hasFileUpload = false;
 		while (sectionIter.hasNext()) {
 			if (!isAutoScored) {
+				break;
+			}
+			if (hasFileUpload) {
 				break;
 			}
 			PublishedSectionData section = (PublishedSectionData) sectionIter.next();
@@ -369,18 +373,29 @@ public class TotalScoreListener
 			while (itemIter.hasNext()) {
 				PublishedItemData item = (PublishedItemData) itemIter.next();
 				Long typeId = item.getTypeId();
-				if (typeId.equals(TypeIfc.FILE_UPLOAD) 
-						|| typeId.equals(TypeIfc.ESSAY_QUESTION) 
+				if (typeId.equals(TypeIfc.ESSAY_QUESTION) 
 						|| typeId.equals(TypeIfc.AUDIO_RECORDING))
 				{ 
 					bean.setIsAutoScored(false); 
 					isAutoScored = false;
 					break; 
 				}
+				
+				if (typeId.equals(TypeIfc.FILE_UPLOAD))
+				{ 
+					bean.setIsAutoScored(false); 
+					isAutoScored = false;
+					bean.setHasFileUpload(true);
+					hasFileUpload = true;
+					break; 
+				}
 			}
 		}
 		if (isAutoScored) {
 			bean.setIsAutoScored(true); 
+		}
+		if (!hasFileUpload) {
+			bean.setHasFileUpload(false); 
 		}
 				
         bean.setFirstItem(getFirstItem(p));

@@ -45,13 +45,24 @@
   <!-- HEADINGS -->
   <%@ include file="/jsf/evaluation/evaluationHeadings.jsp" %>
 
-  <h3>
-    <h:outputText value="#{commonMessages.export_action}"/>
-    <h:outputText value="#{evaluationMessages.column} "/>
-    <h:outputText value="#{exportResponses.assessmentName} " escape="false"/> 
-  </h3>
+  <h:panelGrid columns="1">
+  <h:panelGroup>
+  <f:verbatim><h3></f:verbatim>
+  	<h:outputText value="#{commonMessages.export_action}#{evaluationMessages.column} " escape="false"/>
+  <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
+  	<h:outputText value="#{exportResponses.assessmentName} " escape="false"/>
+  <f:verbatim></span></f:verbatim>
+  <f:verbatim></h3></f:verbatim>
+  </h:panelGroup>
+  </h:panelGrid>
 
-  <p class="navViewAction">
+  <!-- Per UX, for formatting -->
+  <div class="textBelowHeader">
+    <h:outputText value=""/>
+  </div>
+
+  <h:outputText value="<ul class='navIntraTool actionToolbar' role='menu'>" escape="false"/>
+    <h:outputText value="<li role='menuitem' class='firstToolBarItem'><span>" escape="false"/>
     <h:commandLink title="#{evaluationMessages.t_submissionStatus}" action="submissionStatus" immediate="true">
       <h:outputText value="#{evaluationMessages.sub_status}" />
       <f:param name="allSubmissions" value="true"/>
@@ -59,14 +70,15 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.SubmissionStatusListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false"/>
+    
     <h:commandLink title="#{evaluationMessages.t_totalScores}" action="totalScores" immediate="true">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
       <h:outputText value="#{commonMessages.total_scores}" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false" />
     <h:commandLink title="#{evaluationMessages.t_questionScores}" action="questionScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.q_view}" />
@@ -79,7 +91,8 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}" />
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" escape="false" />
+
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.stat_view}" />
@@ -88,7 +101,8 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " rendered="#{totalScores.firstItem ne ''}"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" escape="false"/>
+
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
       <h:outputText value="#{evaluationMessages.item_analysis}" />
@@ -97,10 +111,20 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value=" #{evaluationMessages.separator} " />
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" />
     <h:outputText value="#{commonMessages.export_action}" />
 
-  </p>
+    <h:outputText value="</span><li role='menuitem'><span>" escape="false" rendered="#{totalScores.hasFileUpload}"/>
+   
+    <h:commandLink title="#{evaluationMessages.t_title_download_file_submissions}" action="downloadFileSubmissions" immediate="true" rendered="#{totalScores.hasFileUpload}">
+      <h:outputText value="#{evaluationMessages.title_download_file_submissions}" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetQuestionScoreListener" />
+        <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.evaluation.DownloadFileSubmissionsListener" />
+    </h:commandLink>
+
+  <h:outputText value="</span></li></ul>" escape="false"/>
+  
+<f:verbatim><br /></f:verbatim>  
 <div class="tier1">
 <h:panelGrid columns="1">
 <h:panelGroup>
