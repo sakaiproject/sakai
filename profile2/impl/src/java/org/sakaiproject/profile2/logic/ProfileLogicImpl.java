@@ -58,6 +58,13 @@ public class ProfileLogicImpl implements ProfileLogic {
 	 * {@inheritDoc}
 	 */
 	public UserProfile getUserProfile(final String userUuid) {
+	    return getUserProfile(userUuid, null);
+    }
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public UserProfile getUserProfile(final String userUuid, final String siteId) {
 		
 		//check auth and get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -119,7 +126,9 @@ public class ProfileLogicImpl implements ProfileLogic {
 		//ADD email if allowed, REMOVE contact info if not
 		if(privacyLogic.isActionAllowed(userUuid, currentUserUuid, PrivacyType.PRIVACY_OPTION_CONTACTINFO)) {
 			p.setEmail(u.getEmail());
-		} else {
+        } else if(siteId != null && sakaiProxy.isUserAllowedInSite(currentUserUuid, ProfileConstants.ROSTER_VIEW_EMAIL, siteId)) {
+			p.setEmail(u.getEmail());
+        } else {
 			p.setEmail(null);
 			p.setHomepage(null);
 			p.setHomephone(null);

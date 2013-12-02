@@ -99,7 +99,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		String siteId = requestGetter.getRequest().getParameter("siteId");
 		
 		//get the full profile for the user, takes care of privacy checks against the current user
-		UserProfile userProfile = profileLogic.getUserProfile(uuid);
+		UserProfile userProfile = profileLogic.getUserProfile(uuid, siteId);
 		if(userProfile == null) {
 			throw new EntityNotFoundException("Profile could not be retrieved for " + ref.getId(), ref.getReference());
 		}
@@ -248,9 +248,12 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		
 		//get the full profile 
 		UserProfile userProfile = (UserProfile) getEntity(ref);
+
+		//Check for siteId in the request
+		String siteId = requestGetter.getRequest().getParameter("siteId");
 		
 		//convert UserProfile to HTML object
-		String formattedProfile = getUserProfileAsHTML(userProfile);
+		String formattedProfile = getUserProfileAsHTML(userProfile, siteId);
 		
 		//ActionReturn actionReturn = new ActionReturn("UTF-8", "text/html", entity);
 		ActionReturn actionReturn = new ActionReturn(Formats.UTF_8, Formats.HTML_MIME_TYPE, formattedProfile);
@@ -359,7 +362,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 	/**
 	 * {@inheritDoc}
 	 */
-	private String getUserProfileAsHTML(UserProfile userProfile) {
+	private String getUserProfileAsHTML(UserProfile userProfile, String siteId) {
 		
 		//note there is no birthday in this field. we need a good way to get the birthday without the year. 
 		//maybe it needs to be stored in a separate field and treated differently. Or returned as a localised string.

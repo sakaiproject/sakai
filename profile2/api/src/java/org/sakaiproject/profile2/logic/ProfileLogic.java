@@ -48,6 +48,23 @@ public interface ProfileLogic {
 	 * @return UserProfile 	for the user, that is visible to the requesting user, or null if the user does not exist.
 	 */
 	public UserProfile getUserProfile(String userUuid);
+
+	/**
+	 * Get a UserProfile for the given userUuid
+	 * 
+	 * <p>All users have profiles, even if they haven't filled it in yet. 
+	 * At a very minimum it will contain their name. Privacy checks will determine visibility of other fields</p>
+	 * 
+	 * <p>You must be logged-in in order to make requests to this method as the content returned will be tailored
+	 * to be visible for the currently logged in user.</p>
+	 * 
+	 * 
+	 * @param userUuid		uuid of the user to retrieve the profile for
+	 * @param siteId		a site id to check permissions against. Occasionally, site persmissions like roster.viewemail
+     *                      need to override profile2 permissions.
+	 * @return UserProfile 	for the user, that is visible to the requesting user, or null if the user does not exist.
+	 */
+	public UserProfile getUserProfile(String userUuid, String siteId);
 	
 	/**
 	 * Persist a SakaiPerson object and send an email notification, if required.
