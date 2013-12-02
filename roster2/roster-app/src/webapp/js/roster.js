@@ -541,14 +541,14 @@ roster.getRosterMembership = function (groupId, sorted, sortField, sortDirection
 
 			var membership = data['roster-membership_collection'];
 
-            if (roster.STATE_PICTURES === state) {
-                for (var i = 0, j = membership.length; i < j; i++) {
+            for (var i = 0, j = membership.length; i < j; i++) {
+                membership[i].formattedProfileUrl = "/direct/profile/" + membership[i].userId + "/formatted?siteId=" + roster.startupArgs.siteId;
+                if (roster.STATE_PICTURES === state) {
                     membership[i].profileImageUrl = "/direct/profile/" + membership[i].userId + "/image";
                     if(forceOfficialPicture == true) {
                         membership[i].profileImageUrl += "/official";
                     }
                     membership[i].profileImageUrl += "?siteId=" + roster.startupArgs.siteId;
-                    membership[i].formattedProfileUrl = "/direct/profile/" + membership[i].userId + "/formatted?siteId=" + roster.startupArgs.siteId;
                 }
             }
 
