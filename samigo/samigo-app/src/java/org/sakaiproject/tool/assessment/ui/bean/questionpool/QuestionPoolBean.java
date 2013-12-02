@@ -180,7 +180,7 @@ public class QuestionPoolBean implements Serializable
   {
 //	  if (qpDataModelCopy == null) {
 		  buildTreeCopy();
-		  setQpDataModelByLevelCopy();
+		  setQpDataModelByLevelCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
 //	  }
 	  log.debug("getCopyQpools()");
 	  return qpDataModelCopy;
@@ -190,7 +190,7 @@ public class QuestionPoolBean implements Serializable
   {
 //	  if (qpDataModelCopy == null) {
 		  buildTreeCopy();
-		  setQpDataModelByLevelCopy();
+		  setQpDataModelByLevelCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
 //	  }
 	  log.debug("getMoveQpools()");
 	  return qpDataModelCopy;
@@ -1488,7 +1488,7 @@ public String getAddOrEdit()
 	getCheckedPool();
 	buildTreeCopy();
 	setActionType("pool");
-	setQpDataModelByPropertyCopy();
+	setQpDataModelByPropertyCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
 	return "copyPool";
   }
 
@@ -1498,7 +1498,7 @@ public String getAddOrEdit()
 	getCheckedPool();
 	buildTreeCopy();
 	setActionType("pool");
-	setQpDataModelByPropertyCopy();
+	setQpDataModelByPropertyCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
 	return "movePool";
   }
 
@@ -1961,7 +1961,6 @@ String poolId = ContextUtil.lookupParam("qpid");
     this.setSortProperty(sortString);
     this.setSortAscending((Boolean.valueOf(ascending)).booleanValue());
     setQpDataModelByLevel();
-    setQpDataModelByLevelCopy();
     
     return "poolList";
   }
@@ -1972,8 +1971,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     String ascending = ContextUtil.lookupParam("copyPoolAscending");
     this.setSortCopyPoolProperty(sortString);
     this.setSortCopyPoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    setQpDataModelByLevel();
-    setQpDataModelByLevelCopy();
+    setQpDataModelByLevelCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
     
     return "copyPool";
   }
@@ -1984,8 +1982,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     String ascending = ContextUtil.lookupParam("movePoolAscending");
     this.setSortMovePoolProperty(sortString);
     this.setSortMovePoolAscending((Boolean.valueOf(ascending)).booleanValue());
-    setQpDataModelByLevel();
-    setQpDataModelByLevelCopy();
+    setQpDataModelByLevelCopy(getSortMovePoolProperty(), getSortMovePoolAscending());
     
     return "movePool";
   }
@@ -2160,8 +2157,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 	}
   
   	public void setQpDataModelByProperty() {
-		tree.sortByProperty(this.getSortCopyPoolProperty(), this
-				.getSortCopyPoolAscending());
+		tree.sortByProperty(this.getSortProperty(), this.getSortAscending());
 
 		Collection objects = tree.getSortedObjects();
 		ListDataModel model = new ListDataModel((List) objects);
@@ -2170,14 +2166,14 @@ String poolId = ContextUtil.lookupParam("qpid");
 		this.qpDataModel = qpDataModel;
 	}
 
-  	public void setQpDataModelByLevelCopy() {
+  	public void setQpDataModelByLevelCopy(String sortProperty, boolean sortAscending) {
   		Collection objects = tree.getSortedObjects();
 
   		// construct the sortedList, pools need to be sorted one level at a time
   		// so the hierachical structure can be maintained. Here, we start from root = 0,
   		if (objects != null) {
   			ArrayList sortedList = sortPoolByLevel(new Long("0"), objects,
-  					getSortProperty(), getSortAscending());
+  					sortProperty, sortAscending);
   			ListDataModel model = new ListDataModel((List) sortedList);
   			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
   					model);
@@ -2185,9 +2181,8 @@ String poolId = ContextUtil.lookupParam("qpid");
   		}
   	}
 
-  	public void setQpDataModelByPropertyCopy() {
-  		tree.sortByProperty(this.getSortCopyPoolProperty(), this
-  				.getSortCopyPoolAscending());
+  	public void setQpDataModelByPropertyCopy(String sortProperty, boolean sortAscending) {
+  		tree.sortByProperty(sortProperty, sortAscending);
 
   		Collection objects = tree.getSortedObjects();
   		ListDataModel model = new ListDataModel((List) objects);
