@@ -173,6 +173,27 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
    private Set<String> servers;
 
+    /* 
+     * There are several types of updating when we move a lesson from one site to another:
+     * Fixing HTML text:
+     *  fixItems - during load, called on the XML structure for each page
+     *    for each item object in the new page, if it's text, fixup the URLs (fixUrls)
+     *  fixUrls - for a piece of HTML, fixup urls on it, with convertHtmlContent
+     *  convertHtmlContent - for a piece of HTML, fixup urls on it
+     *      finds all URLs in a text and calls processUrl
+     *  processUrl
+     *      for special dummy "http://lessonbuilder.sakaiproject.org/ITEMID update the ID
+     *      for /access/content, etc, update site ID
+     *      see migrateEmbeddedlinks below for updating references to other sakai objects
+     *
+     * Fixing sakaiid's so that Sakai items point to the assignment, test, etc. in the new site
+     *   updateEntityReferences - called by Sakai as part of load with map of old and new references
+     *          one-argument version called from tool to get anything that couldn't be done during load
+     *      if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
+     *      look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
+     *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
+     */     
+
  // The attributes in HTML that should have their values looked at and possibly re-written
    private Collection<String> attributes = new HashSet<String>(
 				    Arrays.asList(new String[] { "href", "src", "background", "action",
