@@ -426,8 +426,10 @@ ${sakaiHtmlHead}
 
 <div id="roster_pics_wrapper_template" style="display:none"><!--
 <div id="roster_type_selector">
+    {if viewOfficialPhoto }
     <input type="radio" name="roster_picture_type" value="official" id="roster_official_picture_button" {if roster.rosterOfficialPictureMode == true}checked{/if}/><span>${roster_show_official_pictures}</span>
     <input type="radio" name="roster_picture_type" value="profile" id="roster_profile_picture_button" {if roster.rosterOfficialPictureMode == false}checked{/if}/><span>${roster_show_profile_pictures}</span>
+    {/if}
 </div>
 <div id="roster_pics"></div>
 -->

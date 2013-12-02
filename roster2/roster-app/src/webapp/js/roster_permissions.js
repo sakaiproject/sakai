@@ -36,9 +36,9 @@ function RosterPermissions(data) {
 			this.viewHidden = true;
 		} else if ('roster.viewprofile' === data[i]) {
 			this.viewProfile = true;
-		} 
-		// sakai permissions
-		else if ('site.upd' === data[i]) {
+		} else if ('roster.viewofficialphoto' === data[i]) {
+			this.viewOfficialPhoto = true;
+		} else if ('site.upd' === data[i]) { // sakai permissions
 			this.siteUpdate = true;
 		}
 	}	

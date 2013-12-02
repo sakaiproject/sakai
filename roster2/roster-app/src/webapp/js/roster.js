@@ -243,61 +243,66 @@ roster.switchState = function (state, arg, searchQuery) {
                         'roster_search');
 		
 
-                SakaiUtils.renderTrimpathTemplate('roster_pics_wrapper_template',{},'roster_content');
+                SakaiUtils.renderTrimpathTemplate('roster_pics_wrapper_template',
+                            {'viewOfficialPhoto': roster.rosterCurrentUserPermissions.viewOfficialPhoto},
+                            'roster_content');
 
                 $(document).ready(function() {
                     
-                    $('#roster_official_picture_button').click(function (e) {
+                    if(roster.rosterCurrentUserPermissions.viewOfficialPhoto) {
 
-                        roster.getMembers(searchQuery, true, state, true, function (members) {
+                        $('#roster_official_picture_button').click(function (e) {
 
-                            SakaiUtils.renderTrimpathTemplate('roster_pics_template',
-                                {'language':roster.startupArgs.language,
-                                'membership':members,
-                                'siteId':roster.startupArgs.siteId,
-                                'currentUserId':roster.startupArgs.userId,
-                                'groupToView':roster.groupToView,
-                                'viewSingleColumn':roster.viewSingleColumn,
-                                'hideNames':roster.hideNames,
-                                'firstNameLastName':roster.startupArgs.firstNameLastName,
-                                'viewUserDisplayId':roster.startupArgs.viewUserDisplayId,
-                                'viewEmail':roster.startupArgs.viewEmail,
-                                'viewProfile':roster.rosterCurrentUserPermissions.viewProfile,
-                                'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
-                                'roster_pics');
-                            roster.setupHideNamesAndSingleColumnButtons(state,searchQuery);
+                            roster.getMembers(searchQuery, true, state, true, function (members) {
 
-                            roster.addProfilePopups();
+                                SakaiUtils.renderTrimpathTemplate('roster_pics_template',
+                                    {'language':roster.startupArgs.language,
+                                    'membership':members,
+                                    'siteId':roster.startupArgs.siteId,
+                                    'currentUserId':roster.startupArgs.userId,
+                                    'groupToView':roster.groupToView,
+                                    'viewSingleColumn':roster.viewSingleColumn,
+                                    'hideNames':roster.hideNames,
+                                    'firstNameLastName':roster.startupArgs.firstNameLastName,
+                                    'viewUserDisplayId':roster.startupArgs.viewUserDisplayId,
+                                    'viewEmail':roster.startupArgs.viewEmail,
+                                    'viewProfile':roster.rosterCurrentUserPermissions.viewProfile,
+                                    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
+                                    'roster_pics');
+                                roster.setupHideNamesAndSingleColumnButtons(state,searchQuery);
 
-                            roster.rosterOfficialPictureMode = true;
+                                roster.addProfilePopups();
+
+                                roster.rosterOfficialPictureMode = true;
+                            });
                         });
-                    });
             
-                    $('#roster_profile_picture_button').click(function(e) {
+                        $('#roster_profile_picture_button').click(function(e) {
 
-                        roster.getMembers(searchQuery, true, state, false, function (members) {
+                            roster.getMembers(searchQuery, true, state, false, function (members) {
 
-                            SakaiUtils.renderTrimpathTemplate('roster_pics_template',
-                                {'language':roster.startupArgs.language,
-                                'membership':members,
-                                'siteId':roster.startupArgs.siteId,
-                                'currentUserId':roster.startupArgs.userId,
-                                'groupToView':roster.groupToView,
-                                'viewSingleColumn':roster.viewSingleColumn,
-                                'hideNames':roster.hideNames,
-                                'firstNameLastName':roster.startupArgs.firstNameLastName,
-                                'viewUserDisplayId':roster.startupArgs.viewUserDisplayId,
-                                'viewEmail':roster.startupArgs.viewEmail,
-                                'viewProfile':roster.rosterCurrentUserPermissions.viewProfile,
-                                'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
-                                'roster_pics');
-                            roster.setupHideNamesAndSingleColumnButtons(state,searchQuery);
+                                SakaiUtils.renderTrimpathTemplate('roster_pics_template',
+                                    {'language':roster.startupArgs.language,
+                                    'membership':members,
+                                    'siteId':roster.startupArgs.siteId,
+                                    'currentUserId':roster.startupArgs.userId,
+                                    'groupToView':roster.groupToView,
+                                    'viewSingleColumn':roster.viewSingleColumn,
+                                    'hideNames':roster.hideNames,
+                                    'firstNameLastName':roster.startupArgs.firstNameLastName,
+                                    'viewUserDisplayId':roster.startupArgs.viewUserDisplayId,
+                                    'viewEmail':roster.startupArgs.viewEmail,
+                                    'viewProfile':roster.rosterCurrentUserPermissions.viewProfile,
+                                    'viewConnections':(undefined != window.friendStatus)}, // do we have Profile2 1.4 for adding, removing etc. connections?
+                                    'roster_pics');
+                                roster.setupHideNamesAndSingleColumnButtons(state,searchQuery);
 
-                            roster.addProfilePopups();
+                                roster.addProfilePopups();
 
-                            roster.rosterOfficialPictureMode = false;
+                                roster.rosterOfficialPictureMode = false;
+                            });
                         });
-                    });
+                    }
 
                     roster.readySearchButton(state);
                     roster.readyClearButton(state);
