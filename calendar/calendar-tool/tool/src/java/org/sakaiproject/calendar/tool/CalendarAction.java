@@ -1689,6 +1689,10 @@ extends VelocityPortletStateAction
 			{
 				addAlert(sstate, rb.getString("java.alert.subsurlempty"));
 			}
+			else if(!FormattedText.validateURL(calendarUrl))
+			{
+				addAlert(sstate,rb.getString("java.alert.subsurlinvalid"));
+			}
 			else
 			{
 				String contextId = EntityManager.newReference(
