@@ -898,19 +898,19 @@ create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSE
 ALTER TABLE chat2_channel ADD COLUMN START_DATE TIMESTAMP NULL DEFAULT NULL;
 ALTER TABLE chat2_channel ADD COLUMN END_DATE TIMESTAMP NULL DEFAULT NULL;
 
----------------
+-- -------------
 --
 -- MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
----------------
+-- -------------
 
 alter table MFR_PVT_MSG_USR_T add REPLIED number(1, 0) default 0 not null;
 
---------------
+-- ------------
 --
 -- END MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
---------------
+-- ------------
 
 -- https://jira.sakaiproject.org/browse/SAK-24337
 alter table GB_GRADEBOOK_T add TOTAL_POINTS_DISPLAYED number(1, 0) not null;

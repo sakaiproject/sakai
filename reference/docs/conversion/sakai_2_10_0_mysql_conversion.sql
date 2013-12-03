@@ -917,19 +917,19 @@ ALTER TABLE CHAT2_CHANNEL ADD COLUMN START_DATE DATETIME NULL DEFAULT NULL;
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN END_DATE DATETIME NULL DEFAULT NULL;
 
 
----------------
+-- -------------
 --
 -- MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
----------------
+-- -------------
 
 alter table MFR_PVT_MSG_USR_T add REPLIED bit not null default false; 
 
---------------
+-- ------------
 --
 -- END MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
---------------
+-- ------------
 
 
 -- https://jira.sakaiproject.org/browse/SAK-24337
