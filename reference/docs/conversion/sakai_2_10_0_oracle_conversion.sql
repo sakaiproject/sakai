@@ -868,11 +868,11 @@ ALTER TABLE QRTZ_SIMPLE_TRIGGERS MODIFY TIMES_TRIGGERED BIGINT(10) NOT NULL;
 -- Increase size
 ALTER TABLE QRTZ_CRON_TRIGGERS MODIFY CRON_EXPRESSION VARCHAR(120) NOT NULL;
 
---------------------------
+-- ------------------------
 --
 -- SAK-23812 Peer Review feature for Assignments
 --
---------------------------
+-- ------------------------
 
 CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  ( 
 	SUBMISSION_ID   	varchar2(255) NOT NULL,
@@ -888,11 +888,11 @@ CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  (
 create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ITEM_T (SUBMISSION_ID, ASSESSOR_USER_ID);
 create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSESSOR_USER_ID);
 
-----------------------
+-- --------------------
 --
 -- END SAK-23812 Peer Review feature for Assignments
 --
-----------------------
+-- --------------------
 
 -- https://jira.sakaiproject.org/browse/SAK-24207
 ALTER TABLE chat2_channel ADD COLUMN START_DATE TIMESTAMP NULL DEFAULT NULL;
