@@ -71,6 +71,11 @@ public class ContentServlet extends HttpServlet
       getHelpManager().initialize();
       String docId = req.getParameter(DOC_ID);
 
+      if (docId == null) {
+          res.sendError(HttpServletResponse.SC_BAD_REQUEST);
+	  return;
+      }
+
       OutputStreamWriter writer = new OutputStreamWriter(res.getOutputStream(), "UTF-8");
       try {
           res.setContentType(TEXT_HTML);
