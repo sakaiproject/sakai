@@ -46,9 +46,9 @@
 						#set($siteTypeDisplay=$siteType)
 					#end
 						#if ($termSelection)
-							$allMsgNumber $tlang.getString("list.sites") "$siteTypeDisplay" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")    	
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termSelection)" $tlang.getString("list.aca")    	
 						#else
-							$allMsgNumber $tlang.getString("list.sites") "$siteTypeDisplay" $tlang.getString("list.type1") "$!searchText".
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
 						#end
 					</p>	
 			</div>
@@ -183,9 +183,9 @@
                 #set($siteTypeDisplay=$siteType)
             #end
             #if ($termSelection)
-                $tlang.getString("list.nosites") "$siteTypeDisplay" $tlang.getString("list.type2") "$!searchText" $tlang.getString("list.text") "$termSelection" $tlang.getString("list.aca")       
+                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termSelection)" $tlang.getString("list.aca")       
             #else
-                $tlang.getString("list.nosites") "$siteTypeDisplay" $tlang.getString("list.type1") "$!searchText".
+                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
             #end
 		</p>
 		#if ($helperMode)
