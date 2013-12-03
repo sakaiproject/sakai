@@ -36,9 +36,12 @@
                             </div>
                         </div>
                         <header data-role="header" class="ctheader">
-                            <div class="ui-grid-a navtop">
+							<a href="#" data-icon="arrow-l" data-theme="b"
+								style="text-decoration: none; color: inherit;" target="_parent" class="backToSiteButton"><span
+								class="backToSiteButtonLabel">[backToSiteButton]</span></a>
+							<div class="ui-grid-a navtop">
                                 <div class="ui-block-a navtopTitle">
-                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard</h1>
+                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">Dashboard</h1>
                                 </div>
                                 <div class="ui-block-d slideMenuControlWrap">
                                     <a href="#dashMenuEvents" class="menuControl" data-rel="popup" data-transition="slide"><strong>&#9776;</strong></a>
@@ -69,9 +72,12 @@
                             </div>
                         </div>
                         <header data-role="header" class="ctheader">
+							<a href="#" data-icon="arrow-l" data-theme="b"
+								style="text-decoration: none; color: inherit;" target="_parent" class="backToSiteButton"><span
+								class="backToSiteButtonLabel">[backToSiteButton]</span></a>
                             <div class="ui-grid-a navtop">
                                 <div class="ui-block-a navtopTitle">
-                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard</h1>
+                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">Dashboard</h1>
                                 </div>
                                 <div class="ui-block-d slideMenuControlWrap">
                                     <a href="#dashMenuActiv" class="menuControl" data-rel="popup" data-transition="slide"><strong>&#9776;</strong></a>
@@ -107,7 +113,7 @@
                             <div class="ui-grid-a navtop">
                                 <a href="#" data-icon="arrow-l" data-rel="back" class="ui-icon ui-icon-arrow-l itemHeaderBack" data-transition="slide" data-direction="reverse"></a>
                                 <div class="ui-block-a navtopTitle">
-                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">CTools Dashboard</h1>
+                                    <h1 role="heading" aria-level="1" class="ui-title navtopTitleHeader">Dashboard</h1>
                                 </div>
                                 <div class="ui-block-d slideMenuControlWrap">
                                     <a href="#dashMenuItemEvent" class="menuControl" data-rel="popup" data-transition="slide"><strong>&#9776;</strong></a>
@@ -139,7 +145,23 @@
                             setupLang(); //evaluate the language held in #lang-holder for use in the js
                             setupIcons();
                             setupDismissMOTD();
+
+                            // Set text and href of jQuery Mobile back buttons using
+                            // values from Sakai navigation buttons, which are hidden.
+                            var currentSiteLink = $('ul#pda-portlet-menu li.currentSiteLink span a');
+                            var currentSiteLinkText = currentSiteLink.text();
+                            var currentSiteLinkHref = currentSiteLink.attr('href');
+                            $('.backToSiteButtonLabel')
+                            	.text(currentSiteLinkText);
+                            $('.backToSiteButton')
+                            	.attr('href', currentSiteLinkHref);
                             
+                            // Set titles using value from Sakai navigation.
+                            // May be overkill, since the title will usually be "Dashboard".
+                            var currentToolTitle = $('ul#pda-portlet-menu li.currentToolTitle span').text();
+                            $('h1.navtopTitleHeader')
+                            	.text(currentToolTitle);
+                            document.title = currentToolTitle;  // Fix title that was set by jQuery Mobile
                         });
                     </script>
                     <div wicket:id="callbackUrl" class="callBackUrl skip">
