@@ -2617,7 +2617,18 @@ public class AssignmentAction extends PagedResourceActionII
 			String gradebookItem = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 			if (gradebookItem != null)
 			{
-				gAssignmentIdTitles.put(gradebookItem, a.getTitle());
+				String associatedAssignmentTitles="";
+				if (gAssignmentIdTitles.containsKey(gradebookItem))
+				{
+					// get the current associated assignment titles first
+					associatedAssignmentTitles=gAssignmentIdTitles.get(gradebookItem) + ", ";
+				}
+				
+				// append the current assignment title
+				associatedAssignmentTitles += a.getTitle();
+				
+				// put the current associated assignment titles back
+				gAssignmentIdTitles.put(gradebookItem, associatedAssignmentTitles);
 			}
 		}
 		
@@ -2641,12 +2652,7 @@ public class AssignmentAction extends PagedResourceActionII
 					if (gAssignmentIdTitles.containsKey(gaId))
 					{
 						String assignmentTitle = gAssignmentIdTitles.get(gaId);
-						if (aTitle == null || !aTitle.equals(assignmentTitle))
-						{
-							// this gradebook item has been associated with other assignment, not selectable
-							status = "disabled";
-						}
-						else if (aTitle != null && aTitle.equals(assignmentTitle))
+						if (aTitle != null && aTitle.equals(assignmentTitle))
 						{
 							// this gradebook item is associated with current assignment, make it selected
 							status = "selected";
