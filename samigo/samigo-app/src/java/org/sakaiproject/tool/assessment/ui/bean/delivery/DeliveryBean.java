@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -67,6 +66,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSecuredIPAd
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
+import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -97,8 +97,6 @@ import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
-
-import uk.org.ponder.rsf.state.support.TMLFixer;
 
 /**
  *
@@ -1469,6 +1467,15 @@ public class DeliveryBean
 		  log.debug(sae.getMessage());
 		  return "takeAssessment";
 	  }
+	  catch (SamigoDataAccessException e) {
+    	  e.printStackTrace();
+    	  FacesContext context = FacesContext.getCurrentInstance();
+    	  String err = (String) ContextUtil.getLocalizedString(
+    			  "org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+    			  "saveanswer_exception_error");
+    	  context.addMessage(null, new FacesMessage(err));
+    	  return "takeAssessment";
+      }
 	  
 	  // We don't need to call completeItemGradingData to create new ItemGradingData for linear access
 	  // because each ItemGradingData is created when it is viewed/answered 
@@ -1604,6 +1611,15 @@ public class DeliveryBean
 			  log.debug(sae.getMessage());
 			  return "takeAssessment";
 		  }
+		  catch (SamigoDataAccessException e) {
+	    	  e.printStackTrace();
+	    	  FacesContext context = FacesContext.getCurrentInstance();
+	    	  String err = (String) ContextUtil.getLocalizedString(
+	    			  "org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+	    			  "saveanswer_exception_error");
+	    	  context.addMessage(null, new FacesMessage(err));
+	    	  return "takeAssessment";
+	      }
 	  }
 
 	  DeliveryActionListener l2 = new DeliveryActionListener();
@@ -1685,10 +1701,18 @@ public class DeliveryBean
   		  log.debug(e.getMessage());
   		  return "takeAssessment";
     	}
-		  catch (SaLengthException sae) {
-			  log.debug(sae.getMessage());
-			  return "takeAssessment";
-		  }
+    	catch (SaLengthException sae) {
+    		log.debug(sae.getMessage());
+    		return "takeAssessment";
+    	}
+    	catch (SamigoDataAccessException e) {
+    		e.printStackTrace();
+    		String err = (String) ContextUtil.getLocalizedString(
+    				"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+    				"saveanswer_exception_error");
+    		context.addMessage(null, new FacesMessage(err));
+    		return "takeAssessment";
+    	}
     }
     
     String returnValue = "saveForLaterWarning";
@@ -1735,8 +1759,17 @@ public class DeliveryBean
 		  log.debug(sae.getMessage());
 		  return "takeAssessment";
 	  }
+      catch (SamigoDataAccessException e) {
+    	  e.printStackTrace();
+    	  FacesContext context = FacesContext.getCurrentInstance();
+    	  String err = (String) ContextUtil.getLocalizedString(
+    			  "org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+    			  "saveanswer_exception_error");
+    	  context.addMessage(null, new FacesMessage(err));
+    	  return "takeAssessment";
+      }
     }
-    
+
     if (getSettings().isFormatByPart())
     {
       partIndex++;
@@ -1822,6 +1855,15 @@ public class DeliveryBean
 			  log.debug(sae.getMessage());
 			  return "takeAssessment";
 		  }
+		  catch (SamigoDataAccessException e) {
+	    	  e.printStackTrace();
+	    	  FacesContext context = FacesContext.getCurrentInstance();
+	    	  String err = (String) ContextUtil.getLocalizedString(
+	    			  "org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+	    			  "saveanswer_exception_error");
+	    	  context.addMessage(null, new FacesMessage(err));
+	    	  return "takeAssessment";
+	      }
 	  }
 	  
 	  DeliveryActionListener l2 = new DeliveryActionListener();
@@ -3036,6 +3078,13 @@ public class DeliveryBean
 	  this.noQuestions = noQuestions;
   }
   
+  /**
+   * 
+   * @param isSubmitForGrade
+   * @param isFromTimer
+   * @param isViaUrlLogin
+   * @return
+   */
   public String checkBeforeProceed(boolean isSubmitForGrade, boolean isFromTimer, boolean isViaUrlLogin){
     // public method, who know if publishedAssessment is set, so check
     // to be sure
@@ -3046,6 +3095,7 @@ public class DeliveryBean
     if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "safeToProceed";
     }
+    
   
     GradingService service = new GradingService();
     AssessmentGradingData assessmentGrading=null;

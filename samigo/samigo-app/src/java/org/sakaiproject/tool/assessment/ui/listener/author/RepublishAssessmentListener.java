@@ -19,6 +19,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedEvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -27,6 +28,8 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.FinFormatException;
+import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
@@ -69,7 +72,11 @@ public class RepublishAssessmentListener implements ActionListener {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		// If there are submissions, need to regrade them
 		if (author.getIsRepublishAndRegrade() && hasGradingData) {
+			try {
 			regradeRepublishedAssessment(publishedAssessmentService, assessment);
+			} catch (SamigoDataAccessException e) {
+				e.printStackTrace();
+			}
 		}
 		
 		EventTrackingService.post(EventTrackingService.newEvent("sam.pubassessment.republish", "siteId=" + AgentFacade.getCurrentSiteId() + ", publishedAssessmentId=" + publishedAssessmentId, true));
@@ -105,7 +112,7 @@ public class RepublishAssessmentListener implements ActionListener {
 		author.setOutcome("author");
 	}
 	
-	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) {
+	private void regradeRepublishedAssessment (PublishedAssessmentService pubService, PublishedAssessmentFacade publishedAssessment) throws GradebookServiceException, FinFormatException, SamigoDataAccessException {
 		HashMap publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment);
 		HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(publishedAssessment);
 		HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(publishedAssessment);
