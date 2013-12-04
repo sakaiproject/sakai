@@ -41,8 +41,9 @@
 				</h:outputText>
 				<h:outputText value="#{msgs.student_view_not_released}" rendered="#{!studentViewBean.courseGradeReleased}"/>
 			</h:panelGroup>
-			
-			<h:outputText rendered="#{studentViewBean.showCoursePoints}" value="#{msgs.course_points_name}" />
+			<h:panelGroup>	
+				<h:outputText rendered="#{studentViewBean.showCoursePoints}" value="#{msgs.course_points_name}" />
+			</h:panelGroup>
 			<h:panelGroup>
 			  <h:outputText id="cumPoints" value="#{studentViewBean.pointsEarned}" rendered="#{studentViewBean.showCoursePoints}">
 			    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
