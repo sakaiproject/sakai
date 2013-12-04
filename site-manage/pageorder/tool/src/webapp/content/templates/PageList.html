@@ -84,19 +84,21 @@
 					<input accesskey ="s" class="active" rsf:id="save" value="Save" type="submit" onclick="serialize('sort1');"/>
 					<input accesskey ="x" rsf:id="revert" value="Cancel" type="submit"/>
 					<input accesskey ="r" rsf:id="reset" value="Reset" type="submit" onclick="return checkReset();"/>
+					<input accesskey ="a" rsf:id="msg=sort_alpha" value="Sort" type="button" onclick="return sortByTitle();"/>
 				</p>					
 			</form>
 		</div>
 	</div>
-	<script type="text/javascript">
+<script type="text/javascript">
+var fluidList;
 jQuery(document).ready(function () {
     var opts = {
         selectors: {
             movables: ".sortable_item"
         }
     };
-    return fluid.reorderList("ul#sort1", opts);
+    fluidList = fluid.reorderList("ul#sort1", opts);
 });
-	</script>
+</script>
 </body>
 </html>

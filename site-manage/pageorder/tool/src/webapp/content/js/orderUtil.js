@@ -210,6 +210,32 @@ function checkReset() {
 		return false;
 }
 				
+function sortByTitle() {
+    // Do natural sorting
+    $('ul.sortable').children('li').sort(function(a, b) {
+    	var as = $(a).children('.item_label_box').text();
+    	var bs = $(b).children('.item_label_box').text();
+        	var a, b, a1, b1, i= 0, n, L,
+        	rx=/(\.\d+)|(\d+(\.\d+)?)|([^\d.]+)|(\.\D+)|(\.$)/g;
+        	if(as===bs) return 0;
+        	a= as.toLowerCase().match(rx);
+        	b= bs.toLowerCase().match(rx);
+        	L= a.length;
+        	while(i<L){
+        		if(!b[i]) return 1;
+        		a1= a[i],
+        		b1= b[i++];
+        		if(a1!== b1){
+        			n= a1-b1;
+        			if(!isNaN(n)) return n;
+        			return a1.localeCompare(b1);
+        		}
+        	}
+        	return b[i]? -1:0;
+    }).appendTo('ul.sortable');
+    fluidList.refresh();
+}
+				
 function addTool(draggable, manual) {
 	if (manual == true) {
 		// we got fired via the add link not a drag and drop..
