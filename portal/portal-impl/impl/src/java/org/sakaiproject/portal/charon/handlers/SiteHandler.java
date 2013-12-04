@@ -340,7 +340,7 @@ public class SiteHandler extends WorksiteHandler
 		// should we consider a frameset ?
 		boolean doFrameSet = includeFrameset(rcontext, res, req, session, page);
 				
-		addLocale(rcontext, site);
+		addLocale(rcontext, site, session.getUserId());
 		
 		includeSiteNav(rcontext, req, session, siteId);
 
