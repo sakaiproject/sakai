@@ -406,7 +406,7 @@
 						<b>$tlang.getString("gen.score"):</b> $review.getScoreDisplay()
 						<br/>
 						#if($!review.getComment() && $review.getComment().length()>0)
-							<b>$tlang.getString("gen.comments"):</b> 
+							<b>$tlang.getString("gen.comments")</b> 
 							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
 						#end
 					#end
