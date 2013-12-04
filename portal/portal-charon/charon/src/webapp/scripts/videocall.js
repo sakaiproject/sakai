@@ -566,7 +566,9 @@ function SignalService(videoCall) {
 /*Initialize an object to work with*/
 
 if (typeof VideoCall === 'function') {
-	var videoCall = new VideoCall();
-	videoCall.init();
+	if (!$.browser.msie){
+		var videoCall = new VideoCall();
+		videoCall.init();
+	}
 }
 

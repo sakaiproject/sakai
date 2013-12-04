@@ -91,6 +91,12 @@ function WebRTC() {
 
 	// This method constructs adecuated URL for current browser
 	this.getUrlFromIce = function(ice) {
+		
+		//No need to parse stun server if it's not a webrtc capable browser
+		if (this.webrtcDetectedBrowser === 'none'){
+			return "";
+		}
+		
 		if (ice.protocol.toLowerCase()=='stun') {
 			if (this.webrtcDetectedBrowser=='firefox' && !ice.host.match(/^([0-9]{1,3}\.?){4}(:[0-9]{1,5}){0,1}$/)) {
 				return ""; // Firefox only support IP's in stun hosts
