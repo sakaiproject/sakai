@@ -1098,6 +1098,7 @@ public class DavServlet extends HttpServlet
 						&& !UsageSessionService.login(a, req, UsageSessionService.EVENT_LOGIN_DAV))
 				{
 					// login failed
+					res.addHeader("WWW-Authenticate","Basic realm=\"DAV\"");
 					res.sendError(401);
 					return;
 				}
@@ -1105,6 +1106,7 @@ public class DavServlet extends HttpServlet
 			catch (AuthenticationException ex)
 			{
 				// not authenticated
+				res.addHeader("WWW-Authenticate","Basic realm=\"DAV\"");
 				res.sendError(401);
 				return;
 			}
@@ -1112,6 +1114,7 @@ public class DavServlet extends HttpServlet
 		else
 		{
 			// user name missing, so can't authenticate
+			res.addHeader("WWW-Authenticate","Basic realm=\"DAV\"");
 			res.sendError(401);
 			return;
 		}
