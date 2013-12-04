@@ -157,7 +157,7 @@
                             	.attr('href', currentSiteLinkHref);
                             
                             // Set titles using value from Sakai navigation.
-                            // May be overkill, since the title will usually be "Dashboard".
+                            // Supports future tool localization and name changes.
                             var currentToolTitle = $('ul#pda-portlet-menu li.currentToolTitle span').text();
                             $('h1.navtopTitleHeader')
                             	.text(currentToolTitle);
