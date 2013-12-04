@@ -18,10 +18,11 @@
                         <a href="#" wicket:id="link" role="tab" aria-controls="schedPanel"><span wicket:id="label">[ Past ]</span></a>
                     </li>
                 </ul>
-                <div class="pagerCell">
-                    <!-- <span class="itemCount instruction" wicket:id="calendarLinksCount">[[ cero puntos ]]</span>  --><span class="pager" style="float:right" wicket:id="calendarNavigator"></span>
-                </div>
             </div>
+            <div class="pagerCell">
+                <!-- <span class="itemCount instruction" wicket:id="calendarLinksCount">[[ cero puntos ]]</span>  --><span class="pager" style="float:right" wicket:id="calendarNavigator"></span>
+            </div>
+
             <div id ="schedPanel" tabindex="-1">
                 <div class="panel" wicket:id="haveLinks">
                     <ul class="itemList">
@@ -48,6 +49,7 @@
                         </li>
                     </ul>
                 </div>
+                <a href="#" style="display:none" data-role="button" id="calendarMoreDummyButton">Get more</a>
                 <div wicket:id="haveNoLinks">
                     <p wicket:id="message">
                         [[ I got nothing for ya. ]]

@@ -410,12 +410,22 @@ ul.attachList li a{
 }
 .itemList {
     margin-bottom:100px;
-    outline:1px solid lime
 }
-#newsMoreDummyButton{
+
+.pagerCell {
+    /*
+display:none
+*/
+}
+
+#newsMoreDummyButton, #calendarMoreDummyButton{
     position:absolute;
-    bottom:0;
-    width:100%;
+    left:25%;
+    right:25%;
+    bottom:-45px;
+    width:50%;
+    margin:0 auto;
     text-align:center;
     z-index:1000;
+    text-decoration:none
 }
