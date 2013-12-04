@@ -125,6 +125,11 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 			m_info.put("da1", new Info("da1", "Dept", "Admin", "da1@local.host"));
 			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta@local.host"));
 
+			//SAK-25394 more ta's for testing purposes
+			m_info.put("ta1", new Info("ta1", "The", "Teaching-Assistant1", "ta1@local.host"));
+			m_info.put("ta2", new Info("ta2", "The", "Teaching-Assistant2", "ta2@local.host"));
+			m_info.put("ta3", new Info("ta2", "The", "Teaching-Assistant3", "ta3@local.host"));
+
 			//SAK-25267 used for integration with uPortal
 			m_info.put("student", new Info("student", "The", "Student", "student@local.host"));
 			m_info.put("faculty", new Info("faculty", "The", "Faculty", "faculty@local.host"));
