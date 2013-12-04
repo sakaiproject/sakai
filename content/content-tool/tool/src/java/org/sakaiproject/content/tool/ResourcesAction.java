@@ -4244,7 +4244,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 		if (! isSpecialSite) {
-			context.put("showQuota", Boolean.valueOf(!dropboxMode && allowUpdateSite));
+			context.put("showQuota", Boolean.valueOf(dropboxMode || allowUpdateSite));
 		} else {
 			context.put("showQuota", Boolean.valueOf(false));
 		}
@@ -5369,7 +5369,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("tlang",rb);
 		// find the ContentTypeImage service
 		
-		String siteCollectionId = ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
+		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
+		String siteCollectionId = dropboxMode ? ContentHostingService.getDropboxCollection(ToolManager.getCurrentPlacement().getContext()) : ContentHostingService.getSiteCollection(ToolManager.getCurrentPlacement().getContext());
 		try
 		{
 			ContentCollection collection = ContentHostingService.getCollection(siteCollectionId);
@@ -5403,7 +5404,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			logger.warn("User doesn't have permission to access site collection", e);
 		}
 
-		boolean dropboxMode = RESOURCES_MODE_DROPBOX.equalsIgnoreCase((String) state.getAttribute(STATE_MODE_RESOURCES));
 		context.put("dropboxMode", Boolean.toString(dropboxMode));
 		
 		boolean maintainer = SiteService.allowUpdateSite(siteCollectionId);
