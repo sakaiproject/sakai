@@ -440,6 +440,21 @@ public class SampleDataLoader implements BeanFactoryAware {
 		cmAdmin.addOrUpdateSectionMembership("instructor", "I", secEid, "section_leader");
 		cmAdmin.addOrUpdateSectionMembership("admin", "I", secEid, "section_leader");
 
+		//SAK-25394 add ta's for testing purposes
+		int sectionNum = Integer.parseInt(secEidPrefix.substring("Discussion ".length(),"Discussion ".length()+1));
+		switch (sectionNum) {
+			case 1: cmAdmin.addOrUpdateSectionMembership("ta1", "GSI", secEid, "section_leader"); break;
+			case 2: cmAdmin.addOrUpdateSectionMembership("ta2", "GSI", secEid, "section_leader"); break;
+			case 3: cmAdmin.addOrUpdateSectionMembership("ta3", "GSI", secEid, "section_leader"); break;
+			case 4: cmAdmin.addOrUpdateSectionMembership("ta", "GSI", secEid, "section_leader");
+					cmAdmin.addOrUpdateSectionMembership("ta1", "GSI", secEid, "section_leader");
+					break;
+			case 5: cmAdmin.addOrUpdateSectionMembership("ta", "GSI", secEid, "section_leader");
+					cmAdmin.addOrUpdateSectionMembership("ta2", "GSI", secEid, "section_leader");
+					break;
+			default: cmAdmin.addOrUpdateSectionMembership("ta", "GSI", secEid, "section_leader"); break;
+		}
+
 		Set<Meeting> meetings = new HashSet<Meeting>();
 		Meeting mtg = cmAdmin.newSectionMeeting(secEid, location, startTime, endTime, null);
 		mtg.setMonday(days[0]);
