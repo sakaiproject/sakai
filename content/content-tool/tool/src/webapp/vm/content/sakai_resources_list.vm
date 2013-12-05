@@ -201,11 +201,11 @@ $(document).ready(function() {
                             #if (!$dropboxMode)
                                 #if($canShowHide)
                                     #if($itemsOnLine > 0)|#end
-                                        <input id="show-button" type="button" value="Show"
+                                        <input id="show-button" type="button" value="$tlang.getString('avail.show')"
                                             onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='show';document.getElementById('showForm').submit();"
                                             disabled="disabled" alt="show" />
                                             #if($itemsOnLine > 0)|#end
-                                                <input id="hide-button" type="button" value="Hide"
+                                                <input id="hide-button" type="button" value="$tlang.getString('avail.hide')"
                                                     onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='hide';document.getElementById('showForm').submit();"
                                                     disabled="disabled" alt="hide" />
                                 #end
@@ -547,7 +547,7 @@ $(document).ready(function() {
 								<div class="navPanel">
 									<div class="navIntraToolLink viewNav">
 									<span>
-										<input id="copy-button-other" type="button" value="Copy"
+										<input id="copy-button-other" type="button" value="$tlang.getString('action.copy')"
 											onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
 											disabled="disabled" alt="copy" />
 										</span>
@@ -600,7 +600,7 @@ $(document).ready(function() {
 								<div class="navPanel">
 									<div class="navIntraToolLink viewNav">
 										<span>
-											<input id="copy-button-other" type="button" value="Copy"
+											<input id="copy-button-other" type="button" value="$tlang.getString('action.copy')"
 												onclick="javascript:document.getElementById('sakai_action').value='doMultiItemDispatch';document.getElementById('rt_action').value='copy-other';document.getElementById('showForm').submit();"
 												disabled="disabled" alt="copy" />
 										</span>
