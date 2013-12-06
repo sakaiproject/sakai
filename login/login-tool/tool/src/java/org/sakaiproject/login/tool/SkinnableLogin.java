@@ -505,7 +505,8 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	 */
 	private void logFailedAttempt(LoginCredentials credentials) {
 		if(serverConfigurationService.getBoolean("login.log-failed", true)) {
-			log.warn("Login attempt failed. ID=" + credentials.getIdentifier() + ", IP Address=" + credentials.getRemoteAddr());
+			// SAK-23672 Safe login string before log
+			log.warn("Login attempt failed. ID=" + StringUtils.abbreviate(credentials.getIdentifier().replaceAll("(\\r|\\n)", ""),255) + ", IP Address=" + credentials.getRemoteAddr());
 		}
 	}
 }
