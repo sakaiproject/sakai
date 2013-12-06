@@ -1063,7 +1063,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 		//format remaining list of instructors
 		for(User u : users) {
-			instructors.add(new SelectItem (u.getId(), u.getDisplayName() + " (" + u.getEid() + ")"));
+			instructors.add(new SelectItem (u.getId(), u.getDisplayName() + " (" + u.getDisplayId() + ")"));
 		}
 		
 		Collections.sort(instructors, SignupSorter.sortSelectItemComparator);
