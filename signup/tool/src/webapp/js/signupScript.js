@@ -459,19 +459,21 @@
 			}
 		}
 	}
-	
+
 	function isShowEmailChoice(){
-    	var emailChoiceTag = document.getElementById('meeting:emailChoice');
-		var emailAttendeeOnlyTag = document.getElementById('meeting:emailAttendeeOnly');				
+		var emailChoiceTag = document.getElementById('meeting:emailChoice');
+		var emailAttendeeOnlyTag = document.getElementById('meeting:emailAttendeeOnly');
+		var emailAttendeeInputs = emailAttendeeOnlyTag.getElementsByTagName('input');
+
 		if(!emailChoiceTag || !emailAttendeeOnlyTag)
 			return;
-	
-		if(emailChoiceTag.checked)
-			emailAttendeeOnlyTag.style.display = "";
-		else
-			emailAttendeeOnlyTag.style.display = "none";           	
-    }
-	
+
+		var i = 0, input;
+		while (input = emailAttendeeInputs[i++]) {
+			input.disabled = !emailChoiceTag.checked;
+		}
+	}
+
 	function showDTimeInputFields(opt){
 		var yearTag = document.getElementById("meeting:startTime.year");
 		var monthTag = document.getElementById("meeting:startTime.month");

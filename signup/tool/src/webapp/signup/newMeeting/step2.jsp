@@ -275,11 +275,11 @@
 										<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
 									</h:panelGroup>
 									
-									<h:panelGroup id="emailAttendeeOnly" style="display:none" >
+									<h:panelGroup id="emailAttendeeOnly">
 										<h:selectOneRadio  value="#{NewSignupMeetingBean.sendEmailToSelectedPeopleOnly}" layout="lineDirection" styleClass="rs" style="margin-left:20px;">
-						                          <f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}"/>                                              
-						                          <f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}"/>	
-						         		</h:selectOneRadio> 
+											<f:selectItem id="all_attendees" itemValue="all" itemLabel="#{msgs.label_email_all_people}" itemDisabled="true"/>
+											<f:selectItem id="only_organizers" itemValue="organizers_only" itemLabel="#{msgs.label_email_organizers_only}" itemDisabled="true"/>
+										</h:selectOneRadio>
 									</h:panelGroup>
 								</h:panelGrid>
 								<h:panelGroup styleClass="longtext" rendered="#{!NewSignupMeetingBean.publishedSite}">
