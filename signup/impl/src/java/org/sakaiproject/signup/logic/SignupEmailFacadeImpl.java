@@ -23,13 +23,7 @@
 package org.sakaiproject.signup.logic;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
+import java.util.*;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -153,7 +147,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	}
 	
 	private List<User> getMeetingOwnerAndCoordinators(SignupMeeting meeting){
-		List<User> organizerCoordinators = new ArrayList<User>();
+		Set<User> organizerCoordinators = new LinkedHashSet<User>();
 		try{
 			User creator = userDirectoryService.getUser(meeting.getCreatorUserId());
 			organizerCoordinators.add(creator);
@@ -173,7 +167,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		}
 		
 		
-		return organizerCoordinators;
+		return new ArrayList<User>(organizerCoordinators);
 	}
 	
 	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
