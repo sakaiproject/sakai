@@ -530,11 +530,10 @@ function allowClick(object)
 												$tlang.getString("peerassessment.reviewStarts") $!assignment.closeTime.toStringLocalFull()
 											#elseif($totalReviews == 0)
 												##user has submitted every review already
-												$tlang.getString("gen.peerreview") ($tlang.getString("gen.subm4"))
+												$tlang.getString("gen.peerreview.subm4")
 											#else
 												##user still has at least one review to submit
-												<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">$tlang.getString("gen.peerreview") ($totalReviews)</a>
-												&nbsp;($tlang.getString("gen.due")&nbsp;$!assignment.peerAssessmentPeriod.toStringLocalFull())
+												<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">$tlang.getFormattedMessage("gen.peerreview.todo", $totalReviews, $!assignment.peerAssessmentPeriod.toStringLocalFull())</a>
 											#end
 										#elseif ($assignment.isPeerAssessmentPending() && $submission.getSubmitted())
 											##student has submitted but the review period hasn't started
