@@ -23,7 +23,7 @@ $(document).ready(function(){
     });
     
     /*
-     * TODO: tab click callback needs to exmine the existence of the next button on the pager of the target view
+     * TODO: tab click callback needs to examine the existence of the next button on the pager of the target view
      *
      */
     if ($('#activ .pagerCell span.pager a[title="Go to next page"]').length) {
@@ -113,6 +113,23 @@ $(document).ready(function(){
         });
     });
     
+    // Set text and href of jQuery Mobile back buttons using
+    // values from Sakai navigation buttons, which are hidden.
+    var currentSiteLink = $('ul#pda-portlet-menu li.currentSiteLink span a');
+
+    // Some site names are too long for the button on mobile devices, so skip this for now,
+    // until we find a way to truncate jQM button names.
+    //    var currentSiteLinkText = currentSiteLink.text();
+    //    $('.backToSiteButtonLabel').text(currentSiteLinkText);
+
+    var currentSiteLinkHref = currentSiteLink.attr('href');
+    $('.backToSiteButton')
+    	.attr('href', currentSiteLinkHref);
     
-    
+    // Set titles using value from Sakai navigation.
+    // Supports future tool localization and name changes.
+    var currentToolTitle = $('ul#pda-portlet-menu li.currentToolTitle span').text();
+    $('h1.navtopTitleHeader')
+    	.text(currentToolTitle);
+    document.title = currentToolTitle;  // Fix title that was set by jQuery Mobile
 });
