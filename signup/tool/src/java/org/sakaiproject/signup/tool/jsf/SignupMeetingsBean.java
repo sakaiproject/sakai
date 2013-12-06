@@ -98,6 +98,11 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	protected String meetingUnavailableMessages;
 	
+	protected Boolean categoriesExist = null;
+	
+	protected Boolean locationsExist = null;
+	
+	
 	@Getter @Setter
 	protected String categoryFilter = ""; // default setting is blank, which means all categories
 
@@ -205,39 +210,82 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * Get a list of locations for the UI. Unfiltered. 
 	 * @return
 	 */
+	private long lastUpdatedLocTime = 0;
+	private List<SelectItem> allLocations = null;
 	public List<SelectItem> getAllLocations(){
-		
-		Set<String> set = new HashSet<String>();
-		List<SelectItem> locations= new ArrayList<SelectItem>();
-		List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
-		for(SignupMeetingWrapper meeting : allMeetings) {
-			String location = meeting.getMeeting().getLocation();
-			if(StringUtils.isNotBlank(location) && set.add(location)) {
-				locations.add(new SelectItem(location));
+		long curr_time=(new Date()).getTime();
+		//avoid multiple calls for one page loading : not refresh within one second
+		if(allLocations == null || curr_time - lastUpdatedLocTime > 1000){
+			//Set<String> set = new HashSet<String>();
+			List<SelectItem> locations= new ArrayList<SelectItem>();
+			//List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
+			List<String> allLocs = null;
+			try {
+				allLocs = signupMeetingService.getAllLocations(sakaiFacade.getCurrentLocationId());
+			} catch (Exception e) {
+				//do nothing
+				allLocs=null;
 			}
+			if(allLocs !=null){
+				for(String lc : allLocs) {
+					if(StringUtils.isNotBlank(lc)) {
+						locations.add(new SelectItem(lc));
+					}
+				}
+			}			
+		
+			if(!locations.isEmpty()){
+				//avoid multiple call later
+				this.locationsExist = new Boolean(true);
+			}
+			else{
+				this.locationsExist = new Boolean(false);
+			}
+			
+			lastUpdatedLocTime = curr_time;
+			allLocations = locations;
 		}
 		
-		return new ArrayList<SelectItem>(locations);
+		return allLocations;
 		
 	}
 	
+	private long lastUpdatedCatTime = 0;
+	private List<SelectItem> allCategories = null;
 	public List<SelectItem> getAllCategories(){
 		
-		Set<String> set = new HashSet<String>();
-		List<SelectItem> categories = new ArrayList<SelectItem>();
-		List<SignupMeetingWrapper> allMeetings = getMeetingWrappers(VIEW_ALL, null);
-		
-		if(allMeetings == null) {
-			return new ArrayList<SelectItem>();
-		}
-		
-		for(SignupMeetingWrapper meeting : allMeetings) {
-			String category = meeting.getMeeting().getCategory();
-			if(StringUtils.isNotBlank(category) && set.add(category)) {
-				categories.add(new SelectItem(category));
+		long curr_time=(new Date()).getTime();
+		//avoid multiple calls for one page loading : not refresh within one second
+		if(allCategories == null || curr_time - lastUpdatedCatTime > 1000){			
+			List<SelectItem> categories = new ArrayList<SelectItem>();		
+			List<String> allCategories = null;
+			try {
+				allCategories = signupMeetingService.getAllCategories(sakaiFacade.getCurrentLocationId());
+			} catch (Exception e) {
+				//do nothing
+				allCategories=null;
 			}
+			if(allCategories !=null){
+				for(String c : allCategories) {
+					if(StringUtils.isNotBlank(c)) {
+						categories.add(new SelectItem(c));
+					}
+				}
+			}
+			
+			if(!categories.isEmpty()){
+				//avoid multiple call later
+				this.categoriesExist = new Boolean(true);
+			}
+			else{
+				this.categoriesExist = new Boolean(false);
+			}
+			
+			lastUpdatedCatTime = curr_time;
+			allLocations = categories;
 		}
-		return categories;
+		
+		return allLocations;
 	}
 
 	/**
@@ -592,8 +640,29 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 *       
 	 */
 	public boolean isCategoriesAvailable() {
-		getSignupMeetings();
-		return !(getAllCategories() == null || getAllCategories().isEmpty());
+		//getSignupMeetings();
+		if(this.categoriesExist == null){	
+			//initialization first
+			getAllCategories();			
+		}
+		
+		return this.categoriesExist.booleanValue();
+	}
+	
+	/**
+	 * This is a getter method for UI.
+	 * 
+	 * @return true if we have categories already
+	 *       
+	 */
+	public boolean isLocationsAvailable() {
+		//getSignupMeetings();
+		if(this.locationsExist == null){	
+			//initialization first
+			getAllLocations();			
+		}
+		
+		return this.locationsExist.booleanValue();
 	}
 
 	/**

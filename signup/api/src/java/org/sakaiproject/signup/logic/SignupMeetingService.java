@@ -423,5 +423,23 @@ public interface SignupMeetingService {
 	 *             thrown if something goes bad
 	 */
 	void sendEmailToAttendee(SignupEventTrackingInfo eventTrackingInfo) throws Exception;
+	
+	/**
+	 * Get all the Locations from a site
+	 * @param siteId
+	 * 		String - a site Id
+	 * @return a list of Locations in a site
+	 * @throws Exception
+	 */
+	List<String> getAllLocations(String siteId) throws Exception;
+	
+	/**
+	 * Get all the Categories from a site
+	 * @param siteId
+	 * 		String - a site Id
+	 * @return a list of Categories in a site
+	 * @throws Exception
+	 */
+	List<String> getAllCategories(String siteId) throws Exception;
 
 }

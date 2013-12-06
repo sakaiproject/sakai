@@ -102,11 +102,15 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	//New Location added in the editable field
 	private String customLocation;
 	
+	private List<SelectItem> locations=null;
+	
 	//Category selected from the dropdown
 	private String selectedCategory;
 	
 	//New Category added in the editable field
 	private String customCategory;
+	
+	private List<SelectItem> categories = null;
 
 	private String repeatType;
 
@@ -462,6 +466,8 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 		this.selectedCategory=null;
 		this.customCategory="";
 		this.creatorUserId=null;
+		this.locations=null;
+		this.categories=null;
 		/*clean up everything in getUserDefineTimeslotBean*/
 		getUserDefineTimeslotBean().reset(UserDefineTimeslotBean.NEW_MEETING);
 	}
@@ -472,10 +478,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
  	 * @return list of allLocations
  	 */
  	public List<SelectItem> getAllLocations(){
+ 		if(locations ==null){
+ 			locations = new ArrayList<SelectItem>();
+ 			locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
+ 			locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
+ 		}
  		
- 		List<SelectItem> locations = new ArrayList<SelectItem>();
- 		locations.addAll(Utilities.getSignupMeetingsBean().getAllLocations());
- 		locations.add(0, new SelectItem(Utilities.rb.getString("select_location")));
  		return locations;
  	}
  	
@@ -485,10 +493,11 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
  	 * @return list of categories
  	 */
  	public List<SelectItem> getAllCategories(){
- 		
- 		List<SelectItem> categories = new ArrayList<SelectItem>();
- 		categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
- 		categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
+ 		if(categories ==null){
+ 			categories = new ArrayList<SelectItem>();
+ 			categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 			categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
+ 		}
  		return categories;
  	}
  	
@@ -578,6 +587,9 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 */
 
 	public void validateNewMeeting(ActionEvent e) {
+		if(currentStepHiddenInfo == null)
+			return;
+		
 		String step = (String) currentStepHiddenInfo.getValue();
 
 		if (step.equals("step1")) {
@@ -1997,12 +2009,12 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	}
 	
 	public boolean isAllLocationsEmpty(){
-		return !Utilities.getSignupMeetingsBean().isMeetingsAvailable();
+		return !Utilities.getSignupMeetingsBean().isLocationsAvailable();
 			
 	}
 	
 	public boolean isCategoriesExist() {
-		return !Utilities.getSignupMeetingsBean().getAllCategories().isEmpty();
+		return Utilities.getSignupMeetingsBean().isCategoriesAvailable();
 	}
 
 	public UserDefineTimeslotBean getUserDefineTimeslotBean() {

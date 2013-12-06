@@ -218,5 +218,23 @@ public interface SignupMeetingDao extends GeneralGenericDao {
 	 * @return the total record counts
 	 */
 	int getAutoReminderTotalEventCounts(Date startDate, Date endDate);
+	
+	/**
+	 * Get all the Categories from a site
+	 * @param siteId
+	 * 		String - a site Id
+	 * @return a list of Categories in a site
+	 * @throws DataAccessException
+	 */
+	List<String> getAllCategories(String siteId) throws DataAccessException;
+	
+	/**
+	 * Get all the Locations from a site
+	 * @param siteId
+	 * 		String - a site Id
+	 * @return a list of Locations in a site
+	 * @throws DataAccessException
+	 */
+	List<String> getAllLocations(String siteId) throws DataAccessException;
 
 }

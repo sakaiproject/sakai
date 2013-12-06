@@ -300,4 +300,40 @@ public class SignupMeetingDaoImpl extends HibernateGeneralGenericDao  implements
 		return getHibernateTemplate().findByCriteria(criteria);
 	}
 
+	@Override
+	public List<String> getAllCategories(String siteId) throws DataAccessException {
+		DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).setProjection(Projections.distinct(Projections.projectionList()
+					    	    .add(Projections.property("category"), "category") )).setResultTransformer(
+				Criteria.DISTINCT_ROOT_ENTITY)				
+				.addOrder(Order.asc("category")).createCriteria("signupSites")
+				.add(Restrictions.eq("siteId", siteId));
+		
+		List<String> categorys = getHibernateTemplate().findByCriteria(criteria);
+		
+		if(categorys !=null && !categorys.isEmpty()){
+			return categorys;
+		}
+		
+		return null;
+	}
+
+	@Override
+	public List<String> getAllLocations(String siteId) throws DataAccessException {
+				DetachedCriteria criteria = DetachedCriteria.forClass(
+				SignupMeeting.class).setProjection(Projections.distinct(Projections.projectionList()
+					    	    .add(Projections.property("location"), "location") )).setResultTransformer(
+				Criteria.DISTINCT_ROOT_ENTITY)				
+				.addOrder(Order.asc("location")).createCriteria("signupSites")
+				.add(Restrictions.eq("siteId", siteId));
+		
+		List<String> locations = getHibernateTemplate().findByCriteria(criteria);
+		
+		if(locations !=null && !locations.isEmpty()){
+			return locations;
+		}
+		
+		return null;
+	}
+
 }
