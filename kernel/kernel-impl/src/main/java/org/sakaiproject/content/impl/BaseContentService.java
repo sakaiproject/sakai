@@ -9011,7 +9011,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			collection = findCollection(id);
 			// Limit size per user inside dropbox
 			if (edit.getId().startsWith(COLLECTION_DROPBOX)) {
-				collection = findCollection(id + parts[3] + Entity.SEPARATOR);
+				try {
+					// if successful, the context is already a valid user id
+					userDirectoryService.getUser(parts[3]);
+					collection = findCollection(id + parts[3] + Entity.SEPARATOR);
+				} catch (UserNotDefinedException tryEid) {
+					// Nothing to do
+				}
 			}
 		}
 		catch (TypeException ignore)

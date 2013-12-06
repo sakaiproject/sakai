@@ -60,6 +60,7 @@ import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
@@ -3362,10 +3363,18 @@ public class DbContentService extends BaseContentService
     {
         long size = 0L;
 
-        String sql = context.startsWith(COLLECTION_DROPBOX)?contentServiceSql.getDropBoxQuotaQuerySql():contentServiceSql.getQuotaQuerySql();
-
-        Object [] fields = new Object[1];
-        fields[0] = context.startsWith(COLLECTION_DROPBOX)?context+"%":context;
+	String sql = contentServiceSql.getQuotaQuerySql();
+	Object [] fields = new Object[] {context.startsWith(COLLECTION_DROPBOX)?context+"%":context};
+	if (context.startsWith(COLLECTION_DROPBOX)) {
+	    if (context.split(Entity.SEPARATOR).length == 4) {
+		// User Folder
+		sql = contentServiceSql.getDropBoxQuotaQuerySql();
+	    } else {
+		// Root Folder - KNL-1084, SAK-22169
+		fields = new Object[] {context+"%",context,context};
+		sql = contentServiceSql.getDropBoxRootQuotaQuerySql(); 
+	    }
+	}
 
         List list = m_sqlService.dbRead(sql, fields, null);
         if(list != null && ! list.isEmpty())
