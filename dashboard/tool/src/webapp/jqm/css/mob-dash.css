@@ -149,7 +149,7 @@ h3 {
     display:none;
 }
 .pagerCell {
-    z-index:1000
+     display:none;
 }
 #messagePanel, #messageError {
     z-index:10;
@@ -412,12 +412,6 @@ ul.attachList li a{
     margin-bottom:100px;
 }
 
-.pagerCell {
-    /*
-display:none
-*/
-}
-
 #newsMoreDummyButton, #calendarMoreDummyButton{
     position:absolute;
     left:25%;
@@ -428,4 +422,7 @@ display:none
     text-align:center;
     z-index:1000;
     text-decoration:none
+}
+.action a {
+    display:none
 }
