@@ -28,7 +28,8 @@ authors and should not be interpreted as representing official policies, either 
 or implied, of Chas Emerick.
 */
 .diffContent {
-	height: 300px
+	height: 300px;
+	overflow:auto;
 }
 .diff * {white-space:pre-wrap!important}
 table.diff {
