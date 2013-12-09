@@ -1939,7 +1939,7 @@ public class AssignmentAction extends PagedResourceActionII
 							//only show peer reviews that have either a score or a comment saved
 							if(assignment.getPeerAssessmentAnonEval()){
 								//annonymous eval
-								review.setAssessorDisplayName(rb.get("gen.reviewer").toString() + " " + (completedReviews.size() + 1));
+								review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer", completedReviews.size() + 1));
 							}else{
 								//need to set the assessor's display name
 								try {
@@ -1948,7 +1948,7 @@ public class AssignmentAction extends PagedResourceActionII
 									//reviewer doesn't exist or userId is wrong
 									M_log.error(e.getMessage(), e);
 									//set a default one:
-									review.setAssessorDisplayName(rb.get("gen.reviewer").toString() + " " + (completedReviews.size() + 1));
+									review.setAssessorDisplayName(rb.getFormattedMessage("gen.reviewer", completedReviews.size() + 1));
 								}
 							}
 							completedReviews.add(review);

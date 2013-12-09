@@ -118,7 +118,7 @@ function handleEnterKeyPress(ev)
 					#end
 					#if($view_only)
 						<br/>
-						$tlang.getString("gen.reviewer"):&nbsp;$reviewer.getDisplayName().concat(" (").concat($reviewer.getDisplayId()).concat(")")
+						$tlang.getFormattedMessage("gen.reviewer", $reviewer.getDisplayName(), $reviewer.getDisplayId())
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>
