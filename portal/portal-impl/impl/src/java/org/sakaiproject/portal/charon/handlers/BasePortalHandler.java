@@ -156,7 +156,7 @@ public abstract class BasePortalHandler implements PortalHandler
 			return Locale.getDefault();
 	}
 	
-	private Locale setSiteLanguage(Site site)
+	protected Locale setSiteLanguage(Site site)
 	{
 		ResourceLoader rl = new ResourceLoader();
 				

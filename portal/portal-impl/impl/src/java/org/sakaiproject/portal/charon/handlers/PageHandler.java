@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import java.util.Locale;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -73,6 +74,10 @@ public class PageHandler extends BasePortalHandler
 	public PageHandler()
 	{
 		setUrlFragment(PageHandler.URL_FRAGMENT);
+	}
+
+	protected Locale setSiteLanguage(Site site) {
+		return super.setSiteLanguage(site);
 	}
 
 	@Override

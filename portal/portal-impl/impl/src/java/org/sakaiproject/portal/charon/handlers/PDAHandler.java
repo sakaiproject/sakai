@@ -23,6 +23,7 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 import java.util.Locale;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -34,6 +35,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -42,6 +45,7 @@ import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
@@ -294,6 +298,29 @@ public class PDAHandler extends PageHandler
 					}
 				}
 				
+				// Set the site language
+				Site site = null;
+				if (siteId == null && session.getUserId() != null) {
+					site = portal.getSiteHelper().getMyWorkspace(session);
+				} else {
+					try {
+						Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>) session.getAttribute("sitevisit.security.advisor");
+						if (advisors != null) {
+							for (SecurityAdvisor advisor : advisors) {
+								SecurityService.pushAdvisor(advisor);
+							}
+						}
+
+						// This should understand aliases as well as IDs
+						site = portal.getSiteHelper().getSiteVisit(siteId);
+					} catch (IdUnusedException e) {
+					} catch (PermissionException e) {
+					}
+				}
+				if (site != null) {
+					super.setSiteLanguage(site);
+				}
+
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						siteId, toolId, req.getContextPath() + req.getServletPath(),
 						"pda",
