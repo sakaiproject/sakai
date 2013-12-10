@@ -1,3 +1,8 @@
+/* override for jquery ui */
+.ui-front {
+	z-index: 100001;
+}
+/* end override */
 .firstColumn {
 	width: 5%;
 	text-align: center;
