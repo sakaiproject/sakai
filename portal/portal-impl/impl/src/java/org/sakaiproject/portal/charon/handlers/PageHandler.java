@@ -76,10 +76,6 @@ public class PageHandler extends BasePortalHandler
 		setUrlFragment(PageHandler.URL_FRAGMENT);
 	}
 
-	protected Locale setSiteLanguage(Site site) {
-		return super.setSiteLanguage(site);
-	}
-
 	@Override
 	public int doPost(String[] parts, HttpServletRequest req, HttpServletResponse res,
 			Session session) throws PortalHandlerException
