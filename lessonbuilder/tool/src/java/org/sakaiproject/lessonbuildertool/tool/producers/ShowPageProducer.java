@@ -375,6 +375,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		boolean canEditPage = simplePageBean.canEditPage();
 		boolean canReadPage = simplePageBean.canReadPage();
+		boolean canSeeAll = simplePageBean.canSeeAll();  // always on if caneditpage
 		
 		boolean cameFromGradingPane = params.getPath().equals("none");
 
@@ -515,7 +516,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		// check two parts of isitemvisible where we want to give specific errors
 		// potentially need time zone for setting release date
-		if (!canEditPage && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
+		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
 			TimeZone tz = timeService.getLocalTimeZone();
 			df.setTimeZone(tz);
@@ -530,7 +531,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// the only thing not already tested in isItemVisible is groups. In theory
 		// no one should have a URL to a page for which they aren't in the group,
 		// so I'm not trying to give a better message than just hidden
-		if (!canEditPage && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
+		if (!canSeeAll && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
 			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
 			return;
@@ -704,7 +705,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "dialogDiv");
 		} else if (!canReadPage) {
 			return;
-        } else {
+		} else if (!canSeeAll) {
 			// see if there are any unsatisfied prerequisites
 		        // if this isn't a top level page, this will check that the page above is
 		        // accessible. That matters because we check visible, available and release
@@ -1135,7 +1136,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// way things are
 					// done so the user never has to request a refresh.
 					//   FYI: this actually puts in an IFRAME for inline BLTI items
-					showRefresh = !makeLink(tableRow, "link", i, canEditPage, currentPage, notDone, status) || showRefresh;
+					showRefresh = !makeLink(tableRow, "link", i, canSeeAll, currentPage, notDone, status) || showRefresh;
 					UILink.make(tableRow, "copylink", i.getName(), "http://lessonbuilder.sakaiproject.org/" + i.getId() + "/").
 					    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.copylink2").replace("{}", i.getName())));
 
@@ -1384,7 +1385,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// 2 is the generic "use old display" so treat it as null
 					if ("".equals(mmDisplayType) || "2".equals(mmDisplayType))
 					    mmDisplayType = null;
-					if (canEditPage) {
+					if (canSeeAll) {
 					    try {
 						itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
 					    } catch (IdUnusedException e) {
@@ -1453,7 +1454,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// edit dialog
 					if (mmDisplayType == null && simplePageBean.isImageType(i)) {
 
-					    if(canEditPage || simplePageBean.isItemAvailable(i)) {
+					    if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "imageSpan");
 
 						    if (itemGroupString != null) {
@@ -1495,7 +1496,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					} else if (mmDisplayType == null && (youtubeKey = simplePageBean.getYoutubeKey(i)) != null) {
 						String youtubeUrl = SimplePageBean.getYoutubeUrlFromKey(youtubeKey);
 
-						if(canEditPage || simplePageBean.isItemAvailable(i)) {
+						if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 						    UIOutput.make(tableRow, "youtubeSpan");
 
 						    if (itemGroupString != null) {
@@ -1606,7 +1607,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			UIOutput.make(tableRow, "movieSpan");
 
-                        if(canEditPage || simplePageBean.isItemAvailable(i)) {
+                        if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 
 						    UIComponent item2;
 
@@ -1832,11 +1833,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					boolean isAvailable = simplePageBean.isItemAvailable(i);
 					// faculty missing preqs get warning but still see the comments
-					if (!isAvailable && canEditPage)
+					if (!isAvailable && canSeeAll)
 					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.fake-missing-prereqs"));
 
 					// students get warning and not the content
-					if (!isAvailable && !canEditPage) {
+					if (!isAvailable && !canSeeAll) {
 					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
 					}else {
 						UIOutput.make(tableRow, "commentsDiv");
@@ -2047,9 +2048,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 					boolean isAvailable = simplePageBean.isItemAvailable(i);
 					// faculty missing preqs get warning but still see the comments
-					if (!isAvailable && canEditPage)
+					if (!isAvailable && canSeeAll)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-fake-missing-prereqs"));
-					if (!isAvailable && !canEditPage)
+					if (!isAvailable && !canSeeAll)
 					    UIOutput.make(tableRow, "student-missing-prereqs", messageLocator.getMessage("simplepage.student-missing-prereqs"));
 					else {
 						UIOutput.make(tableRow, "studentDiv");
@@ -2266,7 +2267,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					UIOutput.make(tableRow, "questionSpan");
 
-					boolean isAvailable = simplePageBean.isItemAvailable(i);
+					boolean isAvailable = simplePageBean.isItemAvailable(i) || canSeeAll;
 					
 					UIOutput.make(tableRow, "questionDiv");
 					
@@ -2416,7 +2417,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// remaining type must be a block of HTML
 					UIOutput.make(tableRow, "itemSpan");
 
-					if (canEditPage) {
+					if (canSeeAll) {
 					    String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 					    String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
 					    if (itemGroupTitles != null) {
@@ -2426,7 +2427,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput.make(tableRow, "item-groups-titles-text", itemGroupTitles);
 					}
 
-					if(canEditPage || simplePageBean.isItemAvailable(i)) {
+					if(canSeeAll || simplePageBean.isItemAvailable(i)) {
 					    UIVerbatim.make(tableRow, "content", (i.getHtml() == null ? "" : i.getHtml()));
 					} else {
 					    UIComponent unavailableText = UIOutput.make(tableRow, "content", messageLocator.getMessage("simplepage.textItemUnavailable"));
@@ -2469,7 +2470,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			// that it's here doesn't mean it shows
 			// up at the end. This code produces errors and other odd stuff.
 
-			if (canEditPage) {
+			if (canSeeAll) {
 				// if the page is hidden, warn the faculty [students get stopped
 				// at
 				// the top]

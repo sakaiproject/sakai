@@ -83,7 +83,8 @@ public class PermissionsHelperProducer implements ViewComponentProducer, ViewPar
 
 	private static final String[] PERMISSIONS = new String[] {
 			SimplePage.PERMISSION_LESSONBUILDER_UPDATE,
-			SimplePage.PERMISSION_LESSONBUILDER_READ };
+			SimplePage.PERMISSION_LESSONBUILDER_READ,
+			SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL};
 
 	private SessionManager sessionManager;
 

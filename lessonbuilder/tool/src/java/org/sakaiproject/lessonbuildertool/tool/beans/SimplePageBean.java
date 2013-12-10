@@ -1280,11 +1280,18 @@ public class SimplePageBean {
 		String ref = "/site/" + getCurrentSiteId();
 		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
 	}
+
 	public boolean canEditSite() {
 		String ref = "/site/" + getCurrentSiteId();
 		return securityService.unlock("site.upd", ref);
 	}
 
+	public boolean canSeeAll() {
+	    if (canEditPage())
+		return true;
+	    String ref = "/site/" + getCurrentSiteId();
+	    return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
+	}
 
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
@@ -4053,7 +4060,7 @@ public class SimplePageBean {
     // for a student page, we don't bypass hidden and release date, so it's safest
     // just to call contentHosting.
 	public boolean isItemVisible(SimplePageItem item, SimplePage page, boolean testpriv) {
-		if (testpriv && canEditPage()) {
+		if (testpriv && canSeeAll()) {
 		    return true;
 		}
 		Boolean ret = visibleCache.get(item.getId());

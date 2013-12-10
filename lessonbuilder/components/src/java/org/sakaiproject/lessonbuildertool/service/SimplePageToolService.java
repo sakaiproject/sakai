@@ -81,6 +81,8 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_UPDATE);
 		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_READ))
 		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_READ);
+		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL))
+		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
 
 		sqlService = org.sakaiproject.db.cover.SqlService.getInstance();
 

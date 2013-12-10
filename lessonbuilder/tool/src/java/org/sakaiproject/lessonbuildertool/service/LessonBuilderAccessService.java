@@ -500,6 +500,7 @@ public class LessonBuilderAccessService {
 						// caches that we aren't trying to manage in the long term
 						// but don't do this unless the item needs checking
 
+						if (!canSeeAll(currentPage.getSiteId())) {
 						SimplePageBean simplePageBean = new SimplePageBean();
 						simplePageBean.setMessageLocator(messageLocator);
 						simplePageBean.setToolManager(toolManager);
@@ -521,6 +522,7 @@ public class LessonBuilderAccessService {
 
 						if (!simplePageBean.isItemAvailable(item, item.getPageId())) {
 							throw new EntityPermissionException(null, null, null);
+						}
 						}
 						accessCache.put(accessKey, "true", DEFAULT_EXPIRATION);
 						
@@ -1192,6 +1194,13 @@ public class LessonBuilderAccessService {
 				ref = getReference(id);
 			}
 
+			// if site maintainer or see all, allow any access.
+			// used to check this after the unlock below, but a user with see all
+			// may be prevented by group access from seeing the resource, but
+			// we still want them to see it.
+			if (canSeeAll(siteId) && id.startsWith("/group/" + siteId))
+			    return true;
+
 			// this will check basic access and group access. FOr that normal Sakai
 			// checking is fine.
 			isAllowed = ref != null && securityService.unlock(lock, ref);
@@ -1201,11 +1210,6 @@ public class LessonBuilderAccessService {
 			// resources from normal view but still see them through Lessons
 
 			if (isAllowed) {
-			    // if site maintainer, don't check release dates. The real check is complex, involving
-			    // who owns the page. For our purposes if it's a resource in this site, allow a maintainer
-			    // to access it.
-			    if (canWritePage(siteId) && id.startsWith("/group/" + siteId))
-				return true;
 
 			    boolean pushedAdvisor = false;
 			    ContentResource resource = null;
@@ -1255,9 +1259,13 @@ public class LessonBuilderAccessService {
 		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
 	}
 
-	public boolean canWritePage(String siteId) {
+	public boolean canSeeAll(String siteId) {
 		String ref = "/site/" + siteId;
-		return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
+		if (securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref))
+		    return true;
+		if (securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref))
+		    return true;
+		return false;
 	}
 
 

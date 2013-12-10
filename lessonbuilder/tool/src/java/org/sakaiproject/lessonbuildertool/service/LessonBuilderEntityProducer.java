@@ -191,6 +191,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
      *          one-argument version called from tool to get anything that couldn't be done during load
      *      if the kernel supports migrateAllLinks, call migrateEmbeddedLinks
      *      look up the all items in the map, and update the sakaiId to the new assignment, test, etc, id
+     *          Sakai supplies a map for objects in old site to new site. However not all tools support it
+     *          the one-argument version constructs a map when the entry is an "objectid". This is returned
+     *             from the tool-specific Lessons code, and may be different for assignments, test, quizes, etc.
+     *             but normally the objectid uses the title of the object in the tool since titles of quizes, etc
+     *             are unique in a given site. the update operation calls findobject in the tool-specific interface
+     *             to locate the quiz with that title
      *   migrateEmbedded links - for all text items in site, call kernel linkMigrationHelper
      */     
 
@@ -461,7 +467,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			e = assignmentEntity;
 		    e = e.getEntity(item.getSakaiId());
 		    if (e != null) {
-			String objectid = e.getObjectId();
+			String objectid = e.getObjectId();  // this is something like assignment/ID/TITLE. It's used to find the object in the new site if necessary
 			if (objectid!= null)
 			    addAttr(doc, itemElement, "objectid", objectid);
 		    }
@@ -1363,6 +1369,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		itemstring = entityid.substring(REF_LB_FORUM.length());
 	    }
 		
+	    // find the object in the new site. There are two approaches:
+	    // if we're lucky, we find it in the traveralMap. That's built by Sakai, and maps objects in 
+	    //   the old site to objects in the new site.
+	    // this uses the alt field, which for these item types contains an object ID such as assignment/ID/TITLE
+	    // findObject them asks the tool to find that object in the new site. Obviously it's the title we use,
+	    // since the ID will be different in the new site. Of course if the object is in the tranversalMap, we use
+	    // that, but not all tools make entries in the map.
+
 	    String sakaiid = e.findObject(objectid, transversalMap, toContext);
 	    if (sakaiid != null) {
 		long itemid = -1;

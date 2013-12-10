@@ -29,6 +29,7 @@ public interface SimplePage {
 
     public static String PERMISSION_LESSONBUILDER_UPDATE = "lessonbuilder.upd";
     public static String PERMISSION_LESSONBUILDER_READ = "lessonbuilder.read";
+    public static String PERMISSION_LESSONBUILDER_SEE_ALL = "lessonbuilder.seeall";
     public static String PERMISSION_LESSONBUILDER_PREFIX = "lessonbuilder.";
 
     /* WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. WARNING. 
