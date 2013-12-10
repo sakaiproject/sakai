@@ -114,8 +114,9 @@ function resizeFrame(){
     }
 }
 </script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
-</script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#notiHistoryToggle').click(function(e){
@@ -369,21 +370,19 @@ function resizeFrame(){
 				<tr class="showHideDates">
 					<td colspan="3"  style="padding:1px 0"></td>
 					<td  style="padding:1px 0"><label for="release_year">$tlang.getString("widget_date")</label></td>
-					<td  style="padding:1px 0"><label for="release_hour">$tlang.getString("widget_time")</label></td>
 				</tr>
+                
+                #set($release_year = $releaseDate.breakdownLocal().year)
+                #set($release_month = $releaseDate.breakdownLocal().month)
+                #set($release_day = $releaseDate.breakdownLocal().day)
 
-				#set($yearX = $releaseDate.breakdownLocal().year)
-				#set($year0 = $yearX - 4)
-				#set($yearN = $yearX + 4)
-				#set($monthX = $releaseDate.breakdownLocal().month)
-				#set($dayX = $releaseDate.breakdownLocal().day)
+                #set($release_hour = $releaseDate.breakdownLocal().hour)
+                #set($release_minute = $releaseDate.breakdownLocal().min)
+
 				<tr class="showHideDates">
 					<td colspan="3"  style="padding:1px 0"></td>
 					<td  style="padding:1px 0">
-						#chef_dateselectionwidget("release_year" "release_month" "release_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
-					</td>
-					<td  style="padding:1px 0">
-						#custom_timeSelectionWidget("release" $releaseDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_start_date').checked=true;")
+                         <input type="text" id="opendate">
 					</td>
 				</tr>
 				<tr class="showHideDates">
@@ -398,25 +397,56 @@ function resizeFrame(){
 				<tr class="showHideDates">
 					<td colspan="3"  style="padding:1px 0"></td>
 					<td  style="padding:1px 0"><label for="retract_year">$tlang.getString("widget_date")</label></td>
-					<td  style="padding:1px 0"><label for="retract_time">$tlang.getString("widget_time")</label></td>
 				</tr>
+                            
+                #set($retract_year = $retractDate.breakdownLocal().year)
+                #set($retract_month = $retractDate.breakdownLocal().month)
+                #set($retract_day = $retractDate.breakdownLocal().day)
 
-				#set($yearX = $retractDate.breakdownLocal().year)
-				#set($year0 = $yearX - 4)
-				#set($yearN = $yearX + 4)
-				#set($monthX = $retractDate.breakdownLocal().month)
-				#set($dayX = $retractDate.breakdownLocal().day)
+                #set($retract_hour = $retractDate.breakdownLocal().hour)
+                #set($retract_minute = $retractDate.breakdownLocal().min)
+
 				<tr class="showHideDates">
 					<td colspan="3"></td>
 					<td>
-						#chef_dateselectionwidget("retract_year" "retract_month" "retract_day" $year0 $yearN $yearX $monthX $dayX $dateFormat "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
-					</td>
-					<td>
-						#custom_timeSelectionWidget("retract" $retractDate "document.getElementById('hidden_specify').checked=true;document.getElementById('use_end_date').checked=true;")
+                        <input type="text" id="closedate">
 					</td>
 				</tr>
 			</table>
             </fieldset>
+            
+            <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+            <script type="text/javascript">
+                localDatePicker({
+                    input:'#opendate',
+                    useTime:1,
+                    val:"$release_month/$release_day/$release_year $release_hour:$release_minute",
+                    ashidden:{
+                        month:"release_month",
+                        day:"release_day",
+                        year:"release_year",
+                        hour:"release_hour",
+                        minute:"release_minute",
+                        ampm:"release_ampm"
+                    }
+                });
+
+                localDatePicker({
+                    input:'#closedate',
+                    useTime:1,
+                    val:"$retract_month/$retract_day/$retract_year $retract_hour:$retract_minute",
+                    ashidden:{
+                        month:"retract_month",
+                        day:"retract_day",
+                        year:"retract_year",
+                        hour:"retract_hour",
+                        minute:"retract_minute",
+                        ampm:"retract_ampm"
+                    }
+                });
+            </script>
+
 ################### End Start and end date selectors
 ##
 			<h4>
