@@ -190,6 +190,10 @@ public class AcountValidationLocator implements BeanLocator  {
 	          String key = (String) it.next();
 	          
 	          ValidationAccount item = (ValidationAccount) delivered.get(key);
+                  if (ValidationAccount.STATUS_CONFIRMED.equals(item.getStatus()) || ValidationAccount.STATUS_EXPIRED.equals(item.getStatus()))
+                  {
+                      return "error";
+                  }
 	           log.debug("Validating Item: " + item.getId() + " for user: " + item.getUserId());
 	           String firstName = item.getFirstName();
 	           String surname = item.getSurname();
