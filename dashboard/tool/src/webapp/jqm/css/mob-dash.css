@@ -426,3 +426,8 @@ ul.attachList li a{
 .action a {
     display:none
 }
+
+/* Hide Sakai navigation while in mobile dashboard */
+#pda-portlet-menu, #pda-footer {
+	display: none;
+}
