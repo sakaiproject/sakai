@@ -148,20 +148,20 @@
 								<h:outputText value="#{msgs.event_start_time}"  escape="false"/>
 							</h:panelGroup>
 							<h:panelGroup styleClass="editText" rendered="#{!CopyMeetingSignupMBean.customTsType}">
-		        						<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}"
+		        						<t:inputDate id="startTime" type="both"  ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
 		        							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear();getSignupDuration();sakai.updateSignupBeginsExact();return false;"
 		        							onchange="sakai.updateSignupBeginsExact();"/>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}">
 									<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-				 						<f:convertDateTime pattern="EEEEEEEE, " />
+				 						<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 				 					</h:outputText>
 									<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-				 						<f:convertDateTime dateStyle="long" />
+				 						<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 					</h:outputText>
 				 					<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.startTime}" styleClass="longtext">
-				 						<f:convertDateTime pattern=", h:mm a" />
+				 						<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 					</h:outputText>		
 							</h:panelGroup>
 							
@@ -170,19 +170,19 @@
 								<h:outputText value="#{msgs.event_end_time}" escape="false"/>
 							</h:panelGroup>
 		        			<h:panelGroup styleClass="editText" rendered="#{!CopyMeetingSignupMBean.customTsType}">
-		        						<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" style="color:black;" popupCalendar="true" 
+		        						<t:inputDate id="endTime" type="both" ampm="true" value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}" style="color:black;" popupCalendar="true" 
 		        							onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 							</h:panelGroup>
 							<h:panelGroup rendered="#{CopyMeetingSignupMBean.customTsType}" >
 									<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-										<f:convertDateTime pattern="EEEEEEEE, " />
+										<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 									</h:outputText>
 									<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-										<f:convertDateTime dateStyle="long" />
+										<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 									</h:outputText>
 									<h:outputText value="#{CopyMeetingSignupMBean.signupMeeting.endTime}" styleClass="longtext">
-										<f:convertDateTime pattern=", h:mm a" />
+										<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 									</h:outputText>
 							</h:panelGroup>
 							

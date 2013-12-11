@@ -59,7 +59,7 @@
 						    		<h:panelGrid columns="1">
 							    		<h:panelGroup styleClass="titleText">
 					        				<t:inputDate id="startTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.startTime}" 
-					        							 style="color:black;" popupCalendar="true" />
+					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}"/>       						
 										</h:panelGroup>
 										<h:message for="startTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>
@@ -71,7 +71,7 @@
 									<h:panelGrid columns="1">
 										<h:panelGroup styleClass="titleText">
 					        				<t:inputDate id="endTime" type="both"  ampm="true" value="#{tsWrapper.timeSlot.endTime}"
-					        							 style="color:black;" popupCalendar="true" />											
+					        							 style="color:black;" popupCalendar="true" timeZone="#{UserTimeZone.userTimeZoneStr}" />										
 										</h:panelGroup>
 										<h:message for="endTime" errorClass="alertMessageInline"/>
 									</h:panelGrid>

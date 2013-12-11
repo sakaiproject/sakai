@@ -22,13 +22,13 @@
 					<h:outputText value="#{msgs.event_date}" styleClass="titleText" escape="false"/>
 					<h:panelGroup>
 						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern="EEEEEEEE, " />
+							<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 				 		</h:outputText>
 						<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime dateStyle="long" />
+							<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 		</h:outputText>
 				 		<h:outputText value="#{NewSignupMeetingBean.signupMeeting.startTime}" styleClass="longtext">
-							<f:convertDateTime pattern=", h:mm a" />
+							<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 				 		</h:outputText>
 				 	</h:panelGroup>
 				 	
@@ -66,20 +66,20 @@
 						</f:facet>
 						<h:panelGroup>
 				   			<h:outputText value="#{timeSlot.timeSlot.startTime}" styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a"/>
+								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.startTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime pattern=", EEE" />
+									<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a"/>
+								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime pattern=", EEE, " />
+									<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime  dateStyle="short"/>
+									<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 						</h:panelGroup>		
 			   		</h:column>

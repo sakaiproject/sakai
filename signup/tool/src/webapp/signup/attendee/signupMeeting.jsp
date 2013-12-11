@@ -75,31 +75,31 @@
 							<h:panelGroup>
 								<h:outputText
 									value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-									<f:convertDateTime pattern="EEEEEEEE, " />
+									<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText
 									value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-									<f:convertDateTime dateStyle="long"/>
+									<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 							
 							<h:outputText value="#{msgs.event_time_period}" styleClass="titleText" escape="false"/>
 							<h:panelGroup>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}">
-									<f:convertDateTime pattern="h:mm a" />
+									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-										<f:convertDateTime pattern=", EEEEEEEE" />
+										<f:convertDateTime pattern=", EEEEEEEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>	
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false"/>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}">
-									<f:convertDateTime pattern="h:mm a" />
+									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}" >
-										<f:convertDateTime pattern=", EEEEEEEE, " />
+										<f:convertDateTime pattern=", EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>	
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}" >
-										<f:convertDateTime dateStyle="long"/>
+										<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>	
 							</h:panelGroup>	
 							
@@ -113,26 +113,26 @@
 							<h:outputText id="noAnnouncement107" value="#{msgs.event_signup_start}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
 							<h:panelGroup id="noAnnouncemnt108" rendered="#{!AttendeeSignupMBean.announcementType}">
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-									<f:convertDateTime pattern="EEEEEEEE, " />
+									<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-									<f:convertDateTime dateStyle="long" />
+									<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupBegins}" styleClass="longtext">
-									<f:convertDateTime pattern=", h:mm a" />
+									<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 		
 							<h:outputText id="noAnnouncement120" value="#{msgs.event_signup_deadline}" style="white-space: nowrap;" styleClass="titleText" rendered="#{!AttendeeSignupMBean.announcementType}" escape="false"/>
 							<h:panelGroup id="noAnnouncement121" rendered="#{!AttendeeSignupMBean.announcementType}">
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-									<f:convertDateTime pattern="EEEEEEEE, " />
+									<f:convertDateTime pattern="EEEEEEEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-									<f:convertDateTime dateStyle="long" />
+									<f:convertDateTime dateStyle="long" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{AttendeeSignupMBean.meetingWrapper.meeting.signupDeadline}" styleClass="longtext">
-									<f:convertDateTime pattern=", h:mm a" />
+									<f:convertDateTime pattern=", h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							</h:panelGroup>
 							
@@ -234,22 +234,22 @@
 							<h:graphicImage value="/images/cancelled.gif"  alt="#{msgs.event_tool_tip_ts_cancelled}" title="#{msgs.event_tool_tip_ts_cancelled}" style="border:none" rendered="#{timeSlotWrapper.timeSlot.canceled}"/>							
 							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}"
 								styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a"/>
+								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime pattern=", EEE" />
+								<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>	
 							<h:outputText value="#{msgs.timeperiod_divider}" escape="false"
 								styleClass="longtext" />
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}"
 								styleClass="longtext">
-								<f:convertDateTime pattern="h:mm a"/>
+								<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime pattern=", EEE," />
+								<f:convertDateTime pattern=", EEE," timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}" rendered="#{AttendeeSignupMBean.meetingWrapper.meeting.meetingCrossDays}">
-								<f:convertDateTime  dateStyle="short"/>
+								<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>	
 						</h:panelGroup>
 					</h:column>

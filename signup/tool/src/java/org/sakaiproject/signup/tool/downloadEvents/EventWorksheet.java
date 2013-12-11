@@ -488,6 +488,16 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 		Cell titleCell = titleRow.getCell(2);
 		titleCell.setCellValue(wrapper.getMeeting().getTitle());
 		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$1:$H$1"));
+		
+		// timezone row
+		Row timezoneRow = sheet.createRow(1);
+		timezoneRow.setHeightInPoints(16);
+		for (int i = 1; i <= 7; i++) {
+			timezoneRow.createCell(i).setCellStyle(styles.get("tabItem_fields"));
+		}
+		Cell timezoneCell = timezoneRow.getCell(2);
+		timezoneCell.setCellValue("(" + rb.getString("event_timezone") + " " + sakaiFacade.getTimeService().getLocalTimeZone().getID() + ")");
+		sheet.addMergedRegion(CellRangeAddress.valueOf("$C$2:$H$2"));
 
 		// owner row
 		Row row = sheet.createRow(2);

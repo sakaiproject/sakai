@@ -156,8 +156,9 @@
 						<h:outputText value="#{msgs.event_start_time}"  escape="false"/>
 					</h:panelGroup>	
         			<h:panelGroup styleClass="editText">
-						<t:inputDate id="startTime" type="both"  ampm="true" value="#{NewSignupMeetingBean.signupMeeting.startTime}"
-							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();"/>
+						<t:inputDate id="startTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.startTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
+							style="color:black;" popupCalendar="true" onkeyup="setEndtimeMonthDateYear(); getSignupDuration(); sakai.updateSignupBeginsExact(); return false;" onchange="sakai.updateSignupBeginsExact();">
+						</t:inputDate>
 						<h:message for="startTime" errorClass="alertMessageInline"/>
 					</h:panelGroup>
 					
@@ -167,8 +168,9 @@
 						<h:outputText value="#{msgs.event_end_time}" escape="false"/>
 					</h:panelGroup>
         			<h:panelGroup styleClass="editText">
-						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}"
-						 	style="color:black;" popupCalendar="true" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();"/>
+						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
+						 	style="color:black;" popupCalendar="true" onkeyup="getSignupDuration(); sakai.updateSignupEndsExact(); return false;" onchange="sakai.updateSignupEndsExact();">
+						 	</t:inputDate>
 						<h:message for="endTime" errorClass="alertMessageInline"/>
 					</h:panelGroup>
 
@@ -232,9 +234,6 @@
 						<h:outputText id="signupBeginsExact" value="" escape="false" styleClass="dateExact" />
 					
                     </h:panelGroup>
-                    
-                   
-					
                 
                 	<%-- signup end --%>
 					<h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_3">

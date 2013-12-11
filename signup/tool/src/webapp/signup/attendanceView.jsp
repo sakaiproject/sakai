@@ -66,23 +66,23 @@
 						<h:panelGroup id="timeslot">
 							<f:verbatim><h4 style="font-weight:bold;margin:.5em 0"></f:verbatim>
 								<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}">
-									<f:convertDateTime pattern="h:mm a" />
+									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{timeSlotWrapper.timeSlot.startTime}"
 									rendered="#{AttendanceSignupBean.meetingWrapper.meeting.meetingCrossDays}">
-									<f:convertDateTime pattern=", EEE" />
+									<f:convertDateTime pattern=", EEE" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{msgs.timeperiod_divider}" escape="false" />
 								<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}">
-									<f:convertDateTime pattern="h:mm a" />
+									<f:convertDateTime pattern="h:mm a" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}"
 									rendered="#{AttendanceSignupBean.meetingWrapper.meeting.meetingCrossDays}">
-									<f:convertDateTime pattern=", EEE, " />
+									<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 								<h:outputText value="#{timeSlotWrapper.timeSlot.endTime}"
 									rendered="#{AttendanceSignupBean.meetingWrapper.meeting.meetingCrossDays}">
-									<f:convertDateTime dateStyle="short" />
+									<f:convertDateTime dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
 								</h:outputText>
 							<f:verbatim><h4></f:verbatim>
 						</h:panelGroup>

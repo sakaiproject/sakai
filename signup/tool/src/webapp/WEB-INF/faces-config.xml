@@ -329,6 +329,16 @@
     </managed-bean>
     
     <managed-bean>
+    	<managed-bean-name>UserTimeZone</managed-bean-name>
+    	<managed-bean-class>org.sakaiproject.signup.tool.jsf.UserTimeZone</managed-bean-class>
+    	<managed-bean-scope>application</managed-bean-scope>
+    	<managed-property>
+			<property-name>sakaiFacade</property-name>
+			<value>#{org_sakaiproject_signup_logic_SakaiFacade}</value>
+		</managed-property>
+    </managed-bean>
+    
+    <managed-bean>
         <managed-bean-name>AttachmentHandler</managed-bean-name>
         <managed-bean-class>org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>

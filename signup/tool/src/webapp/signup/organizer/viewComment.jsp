@@ -52,7 +52,7 @@
 					
 					<h:outputText value="#{msgs.event_appointment_date}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{ViewCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
-					 	<f:convertDateTime dateStyle="full" />
+					 	<f:convertDateTime dateStyle="full" timeZone="#{UserTimeZone.userTimeZone}"/>
 					</h:outputText>	
 					
 					<h:outputText value="&nbsp" escape="false"/>
