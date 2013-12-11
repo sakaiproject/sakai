@@ -408,6 +408,10 @@ public class AssessmentService {
 	}
 
 	public int updateRandomPoolQuestions(SectionFacade section){
+		return updateRandomPoolQuestions(section, false);
+	}
+	
+	public int updateRandomPoolQuestions(SectionFacade section, boolean publishing){
 		if ((section != null)
 				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE) != null)
 				&& (section.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE).
@@ -481,14 +485,18 @@ public class AssessmentService {
 							Iterator iterITS = itemTextSet.iterator();
 							while (iterITS.hasNext()) {
 								ItemTextIfc itemText = (ItemTextIfc) iterITS.next();
-								itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+								if(publishing){
+									itemText.setText(copyContentHostingAttachments(itemText.getText(), AgentFacade.getCurrentSiteId()));
+								}
 								Set answerSet = itemText.getAnswerSet();
 								if (answerSet != null) {
 									Iterator iterAS = answerSet.iterator();
 									while (iterAS.hasNext()) {
 										AnswerIfc answer = (AnswerIfc) iterAS
 										.next();
-										answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
+										if(publishing){
+											answer.setText(copyContentHostingAttachments(answer.getText(), AgentFacade.getCurrentSiteId()));
+										}
 										if (hasRandomPartScore)
 											answer.setScore(score);
 										if (hasRandomPartDiscount && 
@@ -518,7 +526,11 @@ public class AssessmentService {
 		return UPDATE_SUCCESS;		
 	}
 
-	public int updateAllRandomPoolQuestions(AssessmentFacade assessment){		
+	public int updateAllRandomPoolQuestions(AssessmentFacade assessment){
+		return updateAllRandomPoolQuestions(assessment, false);
+	}
+	
+	public int updateAllRandomPoolQuestions(AssessmentFacade assessment, boolean publishing){		
 		//verify that we can update the sections first:
 		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){			
 			if(!verifyItemsDrawSize(section)){
@@ -528,7 +540,7 @@ public class AssessmentService {
 
 		//passed all tests, so update pool questions:
 		for(SectionFacade section : (List<SectionFacade>) assessment.getSectionArray()){
-			updateRandomPoolQuestions(section);
+			updateRandomPoolQuestions(section, publishing);
 		}
 
 		return UPDATE_SUCCESS;

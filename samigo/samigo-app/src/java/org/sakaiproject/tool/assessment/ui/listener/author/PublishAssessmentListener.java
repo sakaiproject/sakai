@@ -153,7 +153,7 @@ public class PublishAssessmentListener
   			author.setJustPublishedAnAssessment(true);
 
   			//update any random draw questions from pool since they could have changed
-  			int success = assessmentService.updateAllRandomPoolQuestions(assessment);
+  			int success = assessmentService.updateAllRandomPoolQuestions(assessment, true);
   			if(success == assessmentService.UPDATE_SUCCESS){
 
   				//grab new updated assessment
