@@ -68,6 +68,8 @@ $(document).ready(function(){
             $(newItems).appendTo('#activ .itemList');
             //need something to flag which are the new items inserted - maybe an animation (start off
             //light yellow background and fade to white) 
+            
+            initListItemClicks();
         });
     });
     
@@ -109,7 +111,9 @@ $(document).ready(function(){
             //append new items to the list
             $(newItems).appendTo('#events .itemList');
             //need something to flag which are the new items inserted - maybe an animation (start off
-            //light yellow background and fade to white) 
+            //light yellow background and fade to white)
+            
+            initListItemClicks();
         });
     });
     
@@ -132,4 +136,47 @@ $(document).ready(function(){
     $('h1.navtopTitleHeader')
     	.text(currentToolTitle);
     document.title = currentToolTitle;  // Fix title that was set by jQuery Mobile
+    
+    initListItemClicks();
 });
+
+initListItemClicks = function () {
+	console.log('initListItemClicks');
+
+	var itemList = $(".itemList li");
+
+	itemList.each(function () {
+		var itemId = $(this).attr('id');
+		console.log('itemId: ' + itemId);
+		
+		$(this).click(function (event) {
+	    	event.preventDefault();
+	
+	        /*
+	         *  TODO: remove the following four lines after debugging
+	         *  they're just here to show that clicks are being registered.
+	         *  
+	        */
+	        itemList.removeClass('selected');
+	        itemList.css('background', 'none');
+	        $(this).css('background', 'red');
+	        $(this).addClass('selected');
+	        /*
+	         * end debugging
+	         */
+	
+	        console.log($('#' + itemId + ' .itemLink').text());
+	        console.log($('#' + itemId + ' .itemLink').attr('href'));
+	        
+	        /* 
+	         * TODO: somehow trigger item link.  
+	         * this seems to trigger listItem click instead, causing an endless loop 
+	         */
+	        $('#' + itemId + ' .itemLink').click();
+	        
+	        // TODO: disable item *site* link
+	
+	    });
+	});
+};
+
