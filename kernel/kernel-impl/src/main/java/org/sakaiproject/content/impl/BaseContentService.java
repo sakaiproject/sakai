@@ -7380,11 +7380,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			else if(AccessMode.GROUPED.equals(access))
 			{
-				Site site = m_siteService.getSite(ref.getContext());
+				String siteReference = m_siteService.siteReference(ref.getContext());
 				boolean useSiteAsContext = false;
-				if(site != null && userId != null)
+				if(siteReference != null && userId != null)
 				{
-					useSiteAsContext = site.isAllowed(userId, AUTH_RESOURCE_ALL_GROUPS);
+					useSiteAsContext = m_securityService.unlock(userId, AUTH_RESOURCE_ALL_GROUPS, siteReference);
 				}
 				if(useSiteAsContext)
 				{
