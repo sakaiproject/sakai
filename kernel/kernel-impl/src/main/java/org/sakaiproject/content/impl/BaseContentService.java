@@ -10504,6 +10504,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 
+		/**
+		 * Loads a collection of group references. Any items not found aren't 
+		 * included in the returned collection;
+		 * @param groupRefs The group references to load.
+		 * @return The group objects corresponding to the group references. Will
+		 * not contain <code>null</code>.
+		 */
+		private Collection<Group> findGroupObjects(Collection<String> groupRefs)
+		{
+			Collection<Group> groups = new ArrayList<Group>();
+			for (String groupRef: groupRefs)
+			{
+				Group group = m_siteService.findGroup(groupRef);
+				if (group != null)
+				{
+					groups.add(group);
+				}
+			}
+			return groups;
+		}
 
 		/**
 		 * @inheritDoc
@@ -10515,18 +10535,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			{
 				m_groups = new ArrayList();
 			}
-			Collection groups = new ArrayList();
-			Iterator it = m_groups.iterator();
-			while(it.hasNext())
-			{
-				String ref = (String) it.next();
-				Group group = m_siteService.findGroup(ref);
-				if(group != null)
-				{
-					groups.add(group);
-				}
-			}
-			return groups;
+			return findGroupObjects(m_groups);
 
 		}
 
@@ -10587,16 +10596,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		 */
 		public Collection getInheritedGroupObjects() 
 		{
-			Collection groups = new ArrayList();
-			Collection groupRefs = getInheritedGroups();
-			Iterator it = groupRefs.iterator();
-			while(it.hasNext())
-			{
-				String groupRef = (String) it.next();
-				Group group = m_siteService.findGroup(groupRef);
-				groups.add(group);				
-			}
-			return groups;
+			return findGroupObjects(getInheritedGroups());
 		}
 
 		/** 
