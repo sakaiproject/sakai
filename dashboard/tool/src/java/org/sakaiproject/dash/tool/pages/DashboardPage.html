@@ -1,21 +1,25 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
     <head>
-		<wicket:head>
-			<wicket:link>
-				<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
-				<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" />
-				<link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" />
-			</wicket:link>
-			<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
-			<script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
-			<script type="text/javascript" src="js/dashboard.js"></script>
-		</wicket:head>
     </head>
     <body>
         <wicket:extend>
             <div class="portletBody">
             	<div wicket:id="dashboard-page">
+            	              <!--  
+                                 TODO: These script and link tags need to be moved to the head tag.  
+                                 Wicket can include them in the head tag if done properly from the java code.    
+                         -->     
+                       <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />  
+                     <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" />     
+     
+                         <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" />  
+                         <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js">  
+                         </script>   
+                         <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js">   
+                         </script>   
+                         <script type="text/javascript" src="js/dashboard.js">   
+                         </script>
 	                <div id="messagePanel" style="display:none">
 	                </div>
 	                <div id="messageError" style="display:none">
