@@ -2036,10 +2036,6 @@ isRTL:false
   var pluginName = 'sakaiDateTimePicker',
 	document = window.document,
 	defaults = {
-		// default date format
-		format: "M/dd/yy",
-		// default date format
-		timeFormat: "HH:mm",
 		// populate an alternate field? If yes, selector.
 		altField: false,
 		// alternate field format
@@ -2089,27 +2085,20 @@ isRTL:false
 		cfg.buttonImage = (options.icon === 0) ? null : "/library/image/silk/calendar.png";
 		cfg.buttonImageOnly = true;
 
-		cfg.dateFormat = options.format;
-		cfg.timeFormat = (options.ampm == true) ? "hh:mm tt" :"HH:mm";
-		cfg.dateTimeFormat = cfg.dateFormat + " " + cfg.timeFormat;
-
-		cfg.mFormat = (options.ampm == true) ? options.mFormat12 : options.mFormat12;
 		cfg.stepMinute = options.stepMinute;
 		cfg.altField = options.altField;
 		cfg.altFormat = options.altFormat;
 		cfg.altFieldTimeOnly = false;
 		cfg.showTimepicker = options.useTime;
-
 		cfg.parseFormat = options.parseFormat;
-
 
 		// disable the input field on show as to not display a tablet keyboard
 		cfg.onClose = function(dateText, inst) {
-			$(this).removeAttr("disabled");
+			$(this).removeProp("disabled");
 		};
 		// re-enables input field
 		cfg.beforeShow = function(input, inst) {
-			$(this).attr("disabled", 'disabled');
+			$(this).prop("disabled", 'disabled');
 		};
 		// on select, runs our custom method for setting dates
 		cfg.onSelect = function(dtObj, dpInst) {
@@ -2314,7 +2303,10 @@ isRTL:false
 
          // Load the localization for the timepicker if the timepicker is being used
          if (typeof $.timepicker !== "undefined") {
-           if (typeof $.timepicker.regional[userLocale] !== "undefined") {
+           if (userLocale == "en-US") {
+             // Special case for the USA and AM/PM
+             $.timepicker.setDefaults({timeFormat: "hh:mm tt"});
+           } else if (typeof $.timepicker.regional[userLocale] !== "undefined") {
              $.timepicker.setDefaults($.timepicker.regional[userLocale]); 
            } else if (typeof $.timepicker.regional[userLang] !== "undefined") {
              $.timepicker.setDefaults($.timepicker.regional[userLang]); 
@@ -2325,7 +2317,6 @@ isRTL:false
          }
 
          langLoaded(true);
-
 	};
 
 	// A really lightweight plugin wrapper around the constructor, 
