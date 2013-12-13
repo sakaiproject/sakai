@@ -13,7 +13,8 @@
 			init-method="init"
 			destroy-method="destroy"
 			singleton="true"
-			depends-on="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache">
+			depends-on="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache
+			            org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
@@ -76,4 +77,14 @@
     <property name="overflowToDisk" value="false" />
   </bean>
 
+   <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache"
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+        <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache"/>
+        <property name="maxElementsInMemory" value="2000" />
+        <property name="diskPersistent" value="false" />
+        <property name="eternal" value="false" />
+        <property name="timeToLive" value="21600" />
+		<property name="timeToIdle" value="21600" />
+    </bean>
 </beans>

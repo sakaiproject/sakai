@@ -27,6 +27,7 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -144,6 +145,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	// KNL-600 CACHING for the realm role groups
 	private Cache m_realmRoleGRCache;
 	
+	private Cache authzUserGroupIdsCache;
 
 	/**
 	 * @return the ServerConfigurationService collaborator.
@@ -229,6 +231,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			cacheFunctionNames();
 			m_realmRoleGRCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache");
 			M_log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
+			
+			authzUserGroupIdsCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
 		}
 		catch (Exception t)
 		{
@@ -241,6 +245,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	*/
 	public void destroy()
 	{
+		authzUserGroupIdsCache.destroy();
+		
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 
@@ -750,6 +756,20 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (authzGroupIds == null || userid == null || authzGroupIds.size() < 1)
 				return new ArrayList(); // empty list
 
+			UserAndGroups uag = null;
+			// first consult the cache
+			if (authzUserGroupIdsCache.containsKey(userid)) {
+				uag = (UserAndGroups) authzUserGroupIdsCache.get(userid);
+				List<String> result = uag.getRealmQuery(new HashSet<String>(authzGroupIds));
+				if (M_log.isDebugEnabled()) M_log.debug(uag);
+				if (result != null) {
+					// hit
+					return result;
+				}
+				// miss
+			}
+			
+			// not in the cache			
 			String inClause = orInClause( authzGroupIds.size(), "SAKAI_REALM.REALM_ID" );
 			String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql( inClause );
 			Object[] fields = new Object[authzGroupIds.size()+1];
@@ -758,8 +778,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				fields[i] = authzGroupIds.get(i);
 			}
 			fields[authzGroupIds.size()] = userid;
-			
-			return sqlService().dbRead(statement, fields, null );
+
+			List dbResult = sqlService().dbRead(statement, fields, null );
+
+			// no cache for user so create
+			if (uag == null) {
+				uag =  new UserAndGroups(userid);
+			}
+			// add to the users cache
+			uag.addRealmQuery(new HashSet<String>(authzGroupIds), dbResult);
+			authzUserGroupIdsCache.put(userid, uag);
+
+			return dbResult;
 		}
 
 		/**
@@ -2536,6 +2566,86 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			return grants;
 		}
 
+		private class UserAndGroups
+		{
+			String user;
+			long total;
+			long hit;
+			Map<Long, List<String>> realmsQuery;
+
+			public UserAndGroups(String userid) {
+				this.user = userid;
+				this.total = 0;
+				this.hit = 0;
+				this.realmsQuery = new HashMap<Long, List<String>>();
+			}
+
+			void addRealmQuery(Set<String> query, List<String> result) {
+				if (query == null || query.size() < 1) return;
+				total++;
+				Long queryHash = computeRealmQueryHash(query);
+				
+				if (queryHash != null) {
+					if (result == null) result = Collections.emptyList();
+					realmsQuery.put(queryHash, result);
+				}
+			}
+			
+			List<String> getRealmQuery(Set<String> query) {
+				if (query == null || query.size() < 1) return null;
+				List<String> result = null;
+				
+				total++;
+				Long queryHash = computeRealmQueryHash(query);
+				
+				if (queryHash != null) {
+					if (realmsQuery.containsKey(queryHash)) {
+						result = realmsQuery.get(queryHash);
+						hit++;
+					}
+				}
+				return result;
+			}
+
+			Long computeRealmQueryHash(Set<String> query) {
+				
+				if (query == null || query.size() == 0) return null;
+				
+				long hash = 0;
+				for (String q : query) {
+					hash += q.hashCode();
+				}
+				
+				return Long.valueOf(hash);
+			}
+			
+			@Override
+			public int hashCode() {
+				return user.hashCode();
+			}
+			
+			@Override
+			public boolean equals(Object obj) {
+				if (obj == null) return false;
+				if (this == obj) return true;
+				if (getClass() != obj.getClass())
+					return false;
+				UserAndGroups other = (UserAndGroups) obj;
+				if (user == null) {
+					if (other.user != null)
+						return false;
+				} else if (!user.equals(other.user))
+					return false;
+				return true;
+			}
+
+			@Override
+			public String toString() {
+				return "UserAndGroups [" + (user != null ? "user=" + user : "") + "]" +
+					" size=" + realmsQuery.size() + ", total=" + total + ", hits=" + hit + ", hit ratio=" + (hit * 100) / (float) total;
+			}
+		}
+		
 		public class RealmAndProvider
 		{
 			public Integer realmId;
@@ -2957,8 +3067,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	
 	
 	public void update(Observable arg0, Object arg) {
-		// No need to listen for events if we are not caching the authz grants
-        if (arg == null || !(arg instanceof Event) || !serverConfigurationService().getBoolean("authz.cacheGrants", true))
+        if (arg == null || !(arg instanceof Event))
 			return;
 		Event event = (Event) arg;
 		
@@ -2974,10 +3083,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			String realmId = extractEntityId(event.getResource());
 
 			if (realmId != null) {
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
+				for (String user : getAuthzUsersInGroups(new HashSet<String>(Arrays.asList(realmId)))) {
+					authzUserGroupIdsCache.remove(user);
 				}
-				m_realmRoleGRCache.remove(realmId);
+				if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
+					if (M_log.isDebugEnabled()) {
+						M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
+					}
+
+					m_realmRoleGRCache.remove(realmId);
+				}
 			} else {
 				// This should never happen as the events we generate should always have 
 				// a /realm/ prefix on the resource.

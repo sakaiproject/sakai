@@ -93,6 +93,7 @@ public interface AuthzGroupService extends EntityProducer
 
 	/**
 	 * Access a list of AuthzGroups which contain a specified userid
+	 * NOTE: This call is backed by a cache.
 	 * 
 	 * @param authzGroupIds
 	 *        AuthzGroup selection criteria (list of AuthzGroup ids)
