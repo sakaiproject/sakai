@@ -146,11 +146,18 @@
 			<value>10</value>
 		</property -->
 
-		<!-- Optional. Maximum number of users to search for
-		     Defaults to DEFAULT_MAX_OBJECTS_TO_QUERY = 200
-		<property name="maxObjectsToQueryFor">
+		<!-- Optional. Size of batch when loading multiple users at once.
+		     Defaults to DEFAULT_BATCH_SIZE = 200 -->
+		<!-- property name="batchSize">
 		  <value>200</value>
-		</property>-->
+		</property -->
+		
+		<!-- Optional. Maximum number of users to search for. This allows you to limit the
+		     maximum number of results the LDAP client will process.
+		     Defaults to DEFAULT_MAX_RESULT_SIZE = 1000 -->
+		<!-- property name="maxResultSize">
+		  <value>1000</value>
+		</property -->
 		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapAttributeMapper -->

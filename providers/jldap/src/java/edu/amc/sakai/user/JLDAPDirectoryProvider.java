@@ -86,8 +86,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/** Default LDAP maximum number of connections in the pool */
 	public static final int DEFAULT_POOL_MAX_CONNS = 10;
 	
+	/** Default LDAP maximum number of objects in a result */
+	public static final int DEFAULT_MAX_RESULT_SIZE = 1000;
+
 	/** Default LDAP maximum number of objects to query for */
-	public static final int DEFAULT_MAX_OBJECTS_TO_QUERY = 200;
+	public static final int DEFAULT_BATCH_SIZE = 200;
 
 	public static final boolean DEFAULT_CASE_SENSITIVE_CACHE_KEYS = false;
 	
@@ -132,7 +135,10 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	private int poolMaxConns = DEFAULT_POOL_MAX_CONNS;
 	
 	/** Maximum number of results from one LDAP query */
-	private int maxObjectsToQueryFor = DEFAULT_MAX_OBJECTS_TO_QUERY;
+	private int maxResultSize = DEFAULT_MAX_RESULT_SIZE;
+
+	/** The size of each batch to load from LDAP when loading multiple users. */
+	private int batchSize = DEFAULT_BATCH_SIZE;
 
 	/** Socket factory for secure connections. Only relevant if
 	 * {@link #secureConnection} is true. Defaults to a new instance
@@ -227,7 +233,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * Ensures initialization of delegate {@link LdapConnectionManager}
 	 * and {@link LdapAttributeMapper}
 	 * 
-	 * @see #initConnectionManager()
+	 * @see #initLdapConnectionManager()
 	 * @see #initLdapAttributeMapper()
 	 */
 	public void init()
@@ -237,6 +243,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.debug("init()");
 		}
 		userCache = memoryService.newCache(getClass().getName()+".userCache");
+		// We don't want to allow people to break their config by setting the batch size to be more than the maxResultsSize.
+		if (batchSize > maxResultSize) {
+			batchSize = maxResultSize;
+			M_log.warn("JLDAP batchSize is larger than maxResultSize, batchSize has been reduced from: "+ batchSize + " to: "+ maxResultSize);
+		}
 
 		initLdapConnectionManager();
 		initLdapAttributeMapper();
@@ -654,7 +665,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					}
 					
 					String filter = ldapAttributeMapper.getManyUsersInOneSearch(usersToSearchInLDAP.keySet());
-					List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+					List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, maxQuerySize);
 				
 					for (LdapUserData ldapUserData : ldapUsers) {
 						String ldapEid = ldapUserData.getEid();
@@ -971,10 +982,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 			constraints.setTimeLimit(operationTimeout);
 			constraints.setReferralFollowing(followReferrals); // TODO: Do we want to make an explicit set optional?
+			// Batch size is zero because we don't process the results until they are all in.
 			constraints.setBatchSize(0);
-			if ( maxResults > 0 ) {
-				constraints.setMaxResults(maxResults);
-			}
+			constraints.setMaxResults(maxResults);
 
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("searchDirectory(): [baseDN = " + 
@@ -1423,14 +1433,43 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 * {@inheritDoc}
 	 */
 	public int getMaxObjectsToQueryFor() {
-		return maxObjectsToQueryFor;
+		return getBatchSize();
 	}
 	
 	/**
 	 * {@inheritDoc}
 	 */
 	public void setMaxObjectsToQueryFor (int maxObjectsToQueryFor) {
-		this.maxObjectsToQueryFor = maxObjectsToQueryFor;
+		M_log.info("maxObjectToQueryFor is deprecated please use " + "batchSize@org.sakaiproject.user.api.UserDirectoryProvider instead");
+		setBatchSize(maxObjectsToQueryFor);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getBatchSize() {
+		return batchSize;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setBatchSize(int batchSize) {
+		this.batchSize = batchSize;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public int getMaxResultSize() {
+		return maxResultSize;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public void setMaxResultSize(int maxResultSize) {
+		this.maxResultSize = maxResultSize;
 	}
 
 	/**
@@ -1688,7 +1727,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		
 		try {
 			//no limit to the number of search results, use the LDAP server's settings.
-			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, maxResultSize);
 			
 			for(LdapUserData ldapUserData: ldapUsers) {
 				
@@ -1723,7 +1762,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		String filter = ldapAttributeMapper.getFindUserByEmailFilter(email);
 		List<User> users = new ArrayList<User>();
 		try {
-			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, 0);
+			List<LdapUserData> ldapUsers = searchDirectory(filter, null, null, null, null, maxResultSize);
 
 			for(LdapUserData ldapUserData: ldapUsers) {
 

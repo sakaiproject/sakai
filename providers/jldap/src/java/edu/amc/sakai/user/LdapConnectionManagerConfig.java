@@ -203,13 +203,34 @@ public interface LdapConnectionManagerConfig {
 	public void setPoolMaxConns(int maxConns);
 	
 	/**
-	 * @return The maximum number of results that can be returned in our query
+	 * @return The maximum number of objects to lookup in one query.
+	 * @deprecated {@link #getBatchSize()}
 	 */
 	public int getMaxObjectsToQueryFor();
 	
 	/**
-	 * @param maxResultsFromOneQuery The maximum number of results that can be returned in our query 
+	 * @param maxObjectsToQueryFor The maximum number objects to lookup in one query.
+	 * @deprecated {@link #setBatchSize(int)}
 	 */
 	public void setMaxObjectsToQueryFor(int maxObjectsToQueryFor);
 	
+	/**
+	 * @return The maximum number of objects to lookup in one query.
+	 */
+	public int getBatchSize();
+
+	/**
+	 * @param batchSize The maximum number objects to lookup in one query.
+	 */
+	public void setBatchSize(int batchSize);
+
+	/**
+	 * @return The maximum number of results to ever get back from LDAP.
+	 */
+	public int getMaxResultSize();
+
+	/**
+	 * @param maxResultSize The maximum number of results to ever get back from LDAP.
+	 */
+	public void setMaxResultSize(int maxResultSize);
 }
