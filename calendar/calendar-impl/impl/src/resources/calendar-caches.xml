@@ -78,7 +78,7 @@
 	<!-- External calendar caches. These are the underlying EhCache beans. -->
 	<bean
 		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutional"
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
 		</property>
@@ -101,7 +101,7 @@
 	     any potential memory leaks by having the object in memory for a very long time. -->
 	<bean
 		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.user"
-		class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
 		<property name="cacheManager">
 			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
 		</property>
