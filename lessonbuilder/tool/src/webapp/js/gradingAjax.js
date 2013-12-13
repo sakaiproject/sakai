@@ -1,7 +1,12 @@
 var gradingReturnHook = null;
+var gradingDoneHook = null;
 
 function setGradingReturnHook(item) {
     gradingReturnHook = item;
+}
+
+function setGradingDoneHook(item) {
+    gradingDoneHook = item;
 }
 
 function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elBinding) {
@@ -36,6 +41,9 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elB
 			}
 		}else {
 			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "failed.png");
+		}
+		if (gradingDoneHook != null) {
+		    gradingDoneHook.call();
 		}
 	}
 

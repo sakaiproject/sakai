@@ -96,12 +96,23 @@ $(function() {
 
 	// update points button, do all the need it
 	$("#clickToSubmit").click(function(event){
-		$(".unsubmitted").each(function(index) {
-			updateGrade($(this));
-		    });
+		updateGrades();
 	});
 
 });
+
+function updateGrades() {
+    var unsubs = $(".unsubmitted");
+    if (unsubs.length > 0) {
+	// call back when finished submitted this one
+	if (unsubs.length > 1)
+	    setGradingDoneHook(updateGrades);
+	else
+	    setGradingDoneHook(null);	    
+	updateGrade(unsubs.first());
+    }
+}
+
 
 function updateGrade(item) {
     var img = item.parent().children("img");
