@@ -1,107 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
 
-############################################# Date selection widget macro end
-##
-############################################# Time selection widget macro begin
-#macro(custom_timeSelectionWidget $prefix $current_value $onChangeAction)
-			#set($time = $current_value.toStringLocalFull())
-			#set($hour = $current_value.breakdownLocal().hour)
-			#set($minute = $current_value.breakdownLocal().min)
-			## TODO: need to add check to determine if am/pm is needed
-			#if($hour > 12)
-				#set($hour = $hour - 12)
-				#set($timeType = "pm")
-			#elseif ($hour == 0)
-				#set($hour = 12)
-				#set($timeType = "am")
-			#elseif($hour == 12)
-				#set($timeType = "pm")
-			#elseif($hour < 12)
-				#set($timeType = "am")
-			#end
-			<label for="${prefix}_hour" class="skip">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="${prefix}_hour" id="${prefix}_hour" onchange="hourChange('${prefix}_hour'); $!onChangeAction return false;">
-				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
-				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
-				#if($hour == 3) <option selected="selected" value="3">3</option> #else <option value="3">3</option> #end
-				#if($hour == 4) <option selected="selected" value="4">4</option> #else <option value="4">4</option> #end
-				#if($hour == 5) <option selected="selected" value="5">5</option> #else <option value="5">5</option> #end
-				#if($hour == 6) <option selected="selected" value="6">6</option> #else <option value="6">6</option> #end 
-				#if($hour == 7) <option selected="selected" value="7">7</option> #else <option value="7">7</option> #end
-				#if($hour == 8) <option selected="selected" value="8">8</option> #else <option value="8">8</option> #end
-				#if($hour == 9) <option selected="selected" value="9">9</option> #else <option value="9">9</option> #end
-				#if($hour == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
-				#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
-				#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
-			</select>
-			<label for="${prefix}_minute" class="skip">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="${prefix}_minute" id="${prefix}_minute" onchange="hourChange('${prefix}_minute'); $!onChangeAction return false;">
-				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
-				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
-				#if($minute == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
-				#if($minute == 15) <option selected="selected" value="15">15</option> #else <option value="15">15</option> #end
-				#if($minute == 20) <option selected="selected" value="20">20</option> #else <option value="20">20</option> #end
-				#if($minute == 25) <option selected="selected" value="25">25</option> #else <option value="25">25</option> #end
-				#if($minute == 30) <option selected="selected" value="30">30</option> #else <option value="30">30</option> #end 
-				#if($minute == 35) <option selected="selected" value="35">35</option> #else <option value="35">35</option> #end
-				#if($minute == 40) <option selected="selected" value="40">40</option> #else <option value="40">40</option> #end
-				#if($minute == 45) <option selected="selected" value="45">45</option> #else <option value="45">45</option> #end
-				#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
-				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
-			</select>
-		    <label for="${prefix}_ampm" class="skip">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="${prefix}_ampm" id="${prefix}_ampm" onchange="$!onChangeAction return false;">
-				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
-				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
-			</select>
-#end
-
-############################################# chef_announcements-revise.vm start
 <script type="text/javascript">
   focus_path = ["subject"];
   
-  function hourChange(FieldName)
-{
-    var startHour;
-    var startMinute;
-    var endHour;
-    var endMinute;
-    var duHour;
-    var duMinute;
-
-    if (navigator.appName == "Netscape")
-    {
-    blur();
-    self.focus();
-    }
-
-    switch(FieldName)
-    {
-        case 'startHour':
-        case 'startMinute':
-        {
-            startHour = parseInt(document.getElementById('startHour').value);
-            if (startHour != 100)
-                minuteChange(FieldName);
-            else <!-- if the start hour is change back to null -->
-            {
-                document.getElementById('endHour').selectedIndex = 0;
-                document.getElementById('endMinute').selectedIndex = 0;
-            }
-        } break;
-        case 'duHour':
-        case 'duMinute':
-        {
-            minuteChange(FieldName);
-        } break;
-        <!-- if endHour is changed, modify the duration hour relatively -->
-        case 'endHour': <!-- same as minuteChange case endMinute -->
-        case 'endMinute':
-        {
-           minuteChange(FieldName);
-        } break;
-    }
-}
 function resizeFrame(){
     // check needed as getElementById in IE doesn't like an empty parameter so the var
     // frame line returns an error. Firefox appears to be okay with it
@@ -131,7 +32,7 @@ function resizeFrame(){
 		#end
 		$('.showHide').click(function(){
 			if ($('.showHide:checked')){
-				$('.beginEnd').attr({checked:''});
+				$('.beginEnd').prop({checked:''});
 				$('.showHideDates').fadeOut('slow')
 
 			}
@@ -144,14 +45,11 @@ function resizeFrame(){
 			}
 		});	
 
-		
 		$('.beginEnd').click(function(){
 			if ($('.beginEnd:checked')){
 				//uncheck show hide radios
 				$('.showHide').prop({checked:''});
 				$('#hidden_specify').prop({checked:'checked'});
-				
-
 			}
 		});	
 		
@@ -417,11 +315,13 @@ function resizeFrame(){
             
             <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
+            #set( $H = '-' )
             <script type="text/javascript">
                 localDatePicker({
                     input:'#opendate',
                     useTime:1,
-                    val:"$release_month/$release_day/$release_year $release_hour:$release_minute",
+                    val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+                    parseFormat: 'YYYY-MM-DD HH:mm',
                     ashidden:{
                         month:"release_month",
                         day:"release_day",
@@ -435,7 +335,8 @@ function resizeFrame(){
                 localDatePicker({
                     input:'#closedate',
                     useTime:1,
-                    val:"$retract_month/$retract_day/$retract_year $retract_hour:$retract_minute",
+                    val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+                    parseFormat: 'YYYY-MM-DD HH:mm',
                     ashidden:{
                         month:"retract_month",
                         day:"retract_day",
