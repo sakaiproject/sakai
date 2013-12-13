@@ -88,15 +88,4 @@
       statistics="true"
       />
 
-
-    <cache 
-      name="org.sakaiproject.user.api.UserDirectoryService"
-      maxElementsInMemory="100000"
-      eternal="false"
-      timeToIdleSeconds="7200"
-      timeToLiveSeconds="7200"
-      overflowToDisk="false"
-      statistics="true"
-      />
-
 </ehcache>
