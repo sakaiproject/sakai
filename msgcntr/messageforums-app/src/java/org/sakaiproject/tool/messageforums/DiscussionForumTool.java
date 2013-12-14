@@ -6369,7 +6369,7 @@ public class DiscussionForumTool
     EventTrackingService.post(event);
     try {
         lrss.registerStatement(getStatementForGrade(studentUid, lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), 
-                gradeAsDouble, pointsPossibleAsDouble), "msgcntr");
+                gradeAsDouble), "msgcntr");
     } catch (UserNotDefinedException e) {
         if (LOG.isDebugEnabled()) {
             LOG.debug(e);
@@ -9800,7 +9800,7 @@ public class DiscussionForumTool
         return new LRS_Statement(student, verb, lrsObject);
     }
     
-    private LRS_Statement getStatementForGrade(String studentUid, LRS_Actor instructor, String forumTitle, double score, double maxScore)
+    private LRS_Statement getStatementForGrade(String studentUid, LRS_Actor instructor, String forumTitle, double score)
             throws UserNotDefinedException {
         LRS_Verb verb = new LRS_Verb(SAKAI_VERB.scored);
         LRS_Object lrsObject = new LRS_Object(ServerConfigurationService.getPortalUrl() + "/forums", "received-grade-forum");
@@ -9815,12 +9815,14 @@ public class DiscussionForumTool
         student.setName(studentUser.getDisplayName());
         LRS_Context context = new LRS_Context(instructor);
         context.setActivity("other", "assignment");
-        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score, maxScore), context);
+        LRS_Statement statement = new LRS_Statement(student, verb, lrsObject, getLRS_Result(score), context);
         return statement;
     }
 
-    private LRS_Result getLRS_Result(double score, double maxScore) {
-        LRS_Result result = new LRS_Result(new Float(score), new Float(0.0), new Float(maxScore), null);
+    private LRS_Result getLRS_Result(double score) {
+        // the Sakai gradebook allows scores greater than the points possible,
+        // so pass null for the max
+        LRS_Result result = new LRS_Result(new Float(score), new Float(0.0), null, null);
         result.setCompletion(true);
         return result;
     }
