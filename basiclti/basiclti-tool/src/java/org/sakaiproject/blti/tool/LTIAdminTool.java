@@ -897,21 +897,21 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( toolId == null ) {
 				retval = ltiService.insertTool(theTool);
 				if ( retval instanceof String ) {
-					String oops = "Unable to insert "+theTool.get(LTIService.LTI_RESOURCE_TYPE)+" "+retval;
+					String oops = "Unable to insert "+theTool.get(LTIService.LTI_RESOURCE_HANDLER)+" "+retval;
 					M_log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Inserted tool="+retval+" "+theTool.get(LTIService.LTI_RESOURCE_TYPE));
+					M_log.info("Inserted tool="+retval+" "+theTool.get(LTIService.LTI_RESOURCE_HANDLER));
 					inserts++;
 				}
 			} else {
 				retval = ltiService.updateTool(toolId, theTool);
 				if ( retval instanceof String ) {
-					String oops = "Unable to update "+theTool.get(LTIService.LTI_RESOURCE_TYPE)+" "+retval;
+					String oops = "Unable to update "+theTool.get(LTIService.LTI_RESOURCE_HANDLER)+" "+retval;
 					M_log.error(oops);
 					failures += "\n" + oops;
 				} else {
-					M_log.info("Updated tool="+toolId+" "+theTool.get(LTIService.LTI_RESOURCE_TYPE));
+					M_log.info("Updated tool="+toolId+" "+theTool.get(LTIService.LTI_RESOURCE_HANDLER));
 					updates++;
 				}
 			}
@@ -969,7 +969,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
         }
 
-		String instance_guid = (String) info.get("instance_guid");
+		String vendor_code = (String) info.get("vendor_code");
+		String product_code = (String) info.get("product_code");
 
         if ( profileTools.size() < 1 ) {
 			addAlert(state,rb.getString("deploy.activate.notools"));
@@ -996,11 +997,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
 System.out.println("profileTool="+profileTool);
-			String resource_type = (String) profileTool.get(LTIService.LTI_RESOURCE_TYPE);
-			String resource_full = instance_guid;
-			if ( ! resource_full.endsWith("/") && ! resource_type.startsWith("/") ) resource_full = resource_full + "/" ;
-			resource_full = resource_full + resource_type;
-			Map<String,Object> tool = ltiService.getToolForResourceTypeDao(resource_full);
+			String resource_type_code = (String) profileTool.get("resource_type_code");
+			String resource_handler = vendor_code;
+			if ( ! resource_handler.endsWith("/") && ! resource_handler.startsWith("/") ) resource_handler = resource_handler + "/" ;
+			resource_handler = resource_handler + product_code;
+			if ( ! resource_handler.endsWith("/") && ! resource_handler.startsWith("/") ) resource_handler = resource_handler + "/" ;
+			resource_handler = resource_handler + resource_type_code;
+			Map<String,Object> tool = ltiService.getToolForResourceHandlerDao(resource_handler);
 
 			// Construct a new tool object
 			Map<String, Object> newTool = new HashMap<String, Object> ();
@@ -1011,7 +1014,7 @@ System.out.println("profileTool="+profileTool);
 				newTool.putAll(localDeploy); 
 			}
 
-			newTool.put(LTIService.LTI_RESOURCE_TYPE, resource_full);
+			newTool.put(LTIService.LTI_RESOURCE_HANDLER, resource_handler);
 			newTool.put(LTIService.LTI_DEPLOYMENT_ID, deploy.get(LTIService.LTI_ID));
 
 			// Copy explicitly in case the parser changes slightly

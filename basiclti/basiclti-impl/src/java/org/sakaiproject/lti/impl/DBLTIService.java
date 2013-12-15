@@ -194,7 +194,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		if (!isMaintainRole) return null;
 
-		String toolId = newProps.getProperty(LTIService.LTI_TOOL_ID);
+		String toolId = newProps.getProperty(LTI_TOOL_ID);
 		if (toolId == null)
 			return rb.getString("error.missing.toolid");
 		Long toolKey = null;
@@ -212,7 +212,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return rb.getString("error.invalid.toolid");
 		}
 
-		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
+		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ! isAdminRole ) {
 			if ( visible == 1 ) {
@@ -246,6 +246,13 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				contentModelList.add(LTI_PAGETITLE + ":text");
 				newProps.put(LTI_PAGETITLE, pageTitle);
 			}
+			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
+		}
+
+		// If resource_handler is not in content and is in the tool, copy it
+		if ( newProps.getProperty(LTI_RESOURCE_HANDLER) == null && tool.get(LTI_RESOURCE_HANDLER) != null ) {
+			newProps.put(LTI_RESOURCE_HANDLER, (String) tool.get(LTI_RESOURCE_HANDLER));
+			contentModelList.add(LTI_RESOURCE_HANDLER + ":text");
 			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
 		}
 		
@@ -301,9 +308,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if (  content == null ) {
 			return rb.getString("error.content.not.found");
 		}
-		Long oldToolKey = foorm.getLongNull(content.get(LTIService.LTI_TOOL_ID));
+		Long oldToolKey = foorm.getLongNull(content.get(LTI_TOOL_ID));
 
-		Object oToolId = (Object) foorm.getField(newProps, LTIService.LTI_TOOL_ID);
+		Object oToolId = (Object) foorm.getField(newProps, LTI_TOOL_ID);
 		Long newToolKey = null;
 		if ( oToolId != null && oToolId instanceof Number ) {
 			newToolKey = new Long( ((Number) oToolId).longValue());
@@ -324,7 +331,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 		// If the user is not an admin, they cannot switch to 
 		// a tool that is stealthed
-		Long visible = foorm.getLongNull(tool.get(LTIService.LTI_VISIBLE));
+		Long visible = foorm.getLongNull(tool.get(LTI_VISIBLE));
 		if ( visible == null ) visible = new Long(0);
 		if ( ( !isAdminRole ) && ( ! oldToolKey.equals(newToolKey) )  ) {
 			if ( visible == 1 ) {
@@ -436,7 +443,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] columns = foorm.getFields(model);
 
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_binding WHERE " + 
-			LTIService.LTI_SITE_ID + " = ? AND " + LTIService.LTI_TOOL_ID + " = ?";
+			LTI_SITE_ID + " = ? AND " + LTI_TOOL_ID + " = ?";
 
 		Object [] fields = new Object[2];
 		fields[0] = siteId;
@@ -506,8 +513,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		// Insert the SITE_ID if it is not present in case it is required
-		if (!isAdminRole && (Arrays.asList(columns).contains(LTIService.LTI_SITE_ID))) {
-			((Map) newProps).put(LTIService.LTI_SITE_ID, siteId);
+		if (!isAdminRole && (Arrays.asList(columns).contains(LTI_SITE_ID))) {
+			((Map) newProps).put(LTI_SITE_ID, siteId);
 		}
 
 		// Check to see if this insert has all required fields in the proper format
@@ -516,8 +523,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			return errors;
 
 		// Only admins can insert things into sites other than the current site
-		if (!isAdminRole && (Arrays.asList(columns).contains(LTIService.LTI_SITE_ID))) {
-			newMapping.put(LTIService.LTI_SITE_ID, siteId);
+		if (!isAdminRole && (Arrays.asList(columns).contains(LTI_SITE_ID))) {
+			newMapping.put(LTI_SITE_ID, siteId);
 		}
 		String seqName = foorm.getSqlSequence(table, theKey, m_sql.getVendor());
 
@@ -535,7 +542,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// System.out.println("Insert SQL="+sql);
 		final Object[] fields = foorm.getInsertObjects(newMapping);
 
-		Long retval = m_sql.dbInsert(null, sql, fields, LTIService.LTI_ID);
+		Long retval = m_sql.dbInsert(null, sql, fields, LTI_ID);
 
 		M_log.debug("Count="+retval+" Insert="+sql);
 		return retval;
@@ -565,7 +572,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] columns = foorm.getFields(model);
 
 		// Non-admins only see global (SITE_ID IS NULL) or in their site
-		if (!isAdminRole && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
+		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
 			statement += " AND (SITE_ID = ? OR SITE_ID IS NULL)";
 			fields = new Object[2];
 			fields[0] = key;
@@ -616,14 +623,14 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		// Only admins can see invisible items and items from any site
 		Object fields[] = null;
 		if ( ! isAdminRole ) {
-			if (Arrays.asList(columns).indexOf(LTIService.LTI_VISIBLE) >= 0 && 
-				Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
-				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+
-					"("+LTIService.LTI_SITE_ID+" IS NULL AND "+LTIService.LTI_VISIBLE+" != 1 ) ) ";
+			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
+				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
+				whereClause = " ("+LTI_SITE_ID+" = ? OR "+
+					"("+LTI_SITE_ID+" IS NULL AND "+LTI_VISIBLE+" != 1 ) ) ";
 				fields = new Object[1];
 				fields[0] = siteId;
-			} else if (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0) {
-				whereClause = " ("+LTIService.LTI_SITE_ID+" = ? OR "+LTIService.LTI_SITE_ID+" IS NULL)";
+			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
+				whereClause = " ("+LTI_SITE_ID+" = ? OR "+LTI_SITE_ID+" IS NULL)";
 				fields = new Object[1];
 				fields[0] = siteId;
 			}
@@ -675,7 +682,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] columns = foorm.getFields(model);
 
 		// Only admins can delete by id irrespective of the current site
-		if (!isAdminRole && Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0 ) {
+		if (!isAdminRole && Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
 			statement += " AND SITE_ID = ?";
 			fields = new Object[2];
 			fields[0] = key;
@@ -746,16 +753,16 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		// Only admins can update *into* a site
-		if ( !isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
-			newMapping.put(LTIService.LTI_SITE_ID, siteId);
+		if ( !isAdminRole && (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0)) {
+			newMapping.put(LTI_SITE_ID, siteId);
 		}
 
 		String sql = "UPDATE " + table + " SET " + foorm.updateForm(newMapping)
 			+ " WHERE id=" + key.toString();
 
-		if ( isMaintainRole && !isAdminRole && (Arrays.asList(columns).indexOf(LTIService.LTI_SITE_ID) >= 0)) {
+		if ( isMaintainRole && !isAdminRole && (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0)) {
 			sql += " AND SITE_ID = '" + siteId + "'";
-			foorm.setField(newMapping, LTIService.LTI_SITE_ID, siteId);
+			foorm.setField(newMapping, LTI_SITE_ID, siteId);
 		}
 
 		// System.out.println("Upate="+sql);
@@ -770,7 +777,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 
 	/*-- Straight-up API methods ------------------------*/
 
-	public Map<String, Object> getToolForResourceTypeDao(String resourceType)
+	public Map<String, Object> getToolForResourceHandlerDao(String resourceType)
 	{
 		if (resourceType == null ) {
 			throw new IllegalArgumentException("resourceType must be non-null");
@@ -779,7 +786,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] model = LTIService.TOOL_MODEL;
 		String[] columns = foorm.getFields(model);
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_tools WHERE " + 
-			LTIService.LTI_RESOURCE_TYPE + " = ? ";
+			LTI_RESOURCE_HANDLER + " = ? ";
 
 		Object [] fields = new Object[1];
 		fields[0] = resourceType;
@@ -805,7 +812,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		String[] model = LTIService.DEPLOY_MODEL;
 		String[] columns = foorm.getFields(model);
 		String statement = "SELECT " + foorm.formSelect(model) + " FROM lti_deploy WHERE " + 
-			LTIService.LTI_CONSUMERKEY + " = ? ";
+			LTI_CONSUMERKEY + " = ? ";
 
 		Object [] fields = new Object[1];
 		fields[0] = consumerKey;

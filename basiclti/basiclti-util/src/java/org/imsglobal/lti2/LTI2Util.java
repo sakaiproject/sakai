@@ -295,17 +295,32 @@ public class LTI2Util {
 			return "JSON missing product_info";
 		}
 
-		// We want a name, but don't (yet) demand it
+		// Look for required fields
 		JSONObject product_name = product_info == null ? null : (JSONObject) product_info.get("product_name");
 		String productTitle = product_name == null ? null : (String) product_name.get("default_value");
 		JSONObject description = product_info == null ? null : (JSONObject) product_info.get("description");
-		String productDescription = product_name == null ? null : (String) description.get("default_value");
+		String productDescription = description == null ? null : (String) description.get("default_value");
+
+		JSONObject product_family = product_info == null ? null : (JSONObject) product_info.get("product_family");
+		String productCode = product_family == null ? null : (String) product_family.get("code");
+		JSONObject product_vendor = product_family == null ? null : (JSONObject) product_family.get("vendor");
+		description = product_vendor == null ? null : (JSONObject) product_vendor.get("description");
+		String vendorDescription = description == null ? null : (String) description.get("default_value");
+		String vendorCode = product_vendor == null ? null : (String) product_vendor.get("code");
+
 		if ( productTitle == null || productDescription == null ) {
 			return "JSON missing product_name or description ";
 		}
+		if ( productCode == null || vendorCode == null || vendorDescription == null ) {
+			return "JSON missing product code, vendor code or description";
+		}
 
 		info.put("product_name", productTitle);
-		info.put("description", productDescription);
+		info.put("description", productDescription);  // Backwards compatibility
+		info.put("product_description", productDescription);
+		info.put("product_code", productCode);
+		info.put("vendor_code", vendorCode);
+		info.put("vendor_description", vendorDescription);
 
 		o = tool_profile.get("base_url_choice");
 		if ( ! (o instanceof JSONArray)|| o == null  ) {
@@ -337,9 +352,9 @@ public class LTI2Util {
 		for(Object i : resource_handlers ) {
 			JSONObject resource_handler = (JSONObject) i;
 			JSONObject resource_type_json = (JSONObject) resource_handler.get("resource_type");
-			String resource_type = (String) resource_type_json.get("code");
-			if ( resource_type == null ) {
-				return "JSON missing resource_type";
+			String resource_type_code = (String) resource_type_json.get("code");
+			if ( resource_type_code == null ) {
+				return "JSON missing resource_type code";
 			}
 			o = (JSONArray) resource_handler.get("message");
 			if ( ! (o instanceof JSONArray)|| o == null ) {
@@ -367,21 +382,21 @@ public class LTI2Util {
 				String message_type = (String) message.get("message_type");
 				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
 				if ( path != null ) {
-					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type;
+					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type_code;
 				}
 				path = (String) message.get("path");
 				if ( path == null ) {
-					return "A basic-lti-launch-request message must have a path RT="+resource_type;
+					return "A basic-lti-launch-request message must have a path RT="+resource_type_code;
 				} 
 				o = (JSONArray) message.get("parameter");
 				if ( ! (o instanceof JSONArray)) {
-					return "Must be an array: parameter RT="+resource_type;
+					return "Must be an array: parameter RT="+resource_type_code;
 				}
 				parameter = (JSONArray) o;
 
 				o = (JSONArray) message.get("enabled_capability");
 				if ( ! (o instanceof JSONArray)) {
-					return "Must be an array: enabled_capability RT="+resource_type;
+					return "Must be an array: enabled_capability RT="+resource_type_code;
 				}
 				enabled_capability = (JSONArray) o;
 			}
@@ -402,7 +417,8 @@ public class LTI2Util {
 			// Passed all the tests...  Lets keep it...
 			Properties theTool = new Properties();
 
-			theTool.put("resource_type", resource_type);
+			theTool.put("resource_type", resource_type_code); // Backwards compatibility
+			theTool.put("resource_type_code", resource_type_code);
 			if ( title == null ) title = productTitle;
 			if ( title != null ) theTool.put("title", title);
 			if ( button != null ) theTool.put("button", button);

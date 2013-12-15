@@ -139,7 +139,7 @@ public interface LTIService {
 	 * @param resourceType
 	 * @return
 	 */
-	public Map<String, Object> getToolForResourceTypeDao(String resourceType);
+	public Map<String, Object> getToolForResourceHandlerDao(String resourceType);
 
 	/**
 	 * 
@@ -486,6 +486,7 @@ public interface LTIService {
 		"launch:url:label=bl_launch:maxlength=1024:allowed=true",
 		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=255",
 		"secret:text:label=bl_secret:allowed=true:maxlength=255",
+		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"settings:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
@@ -508,7 +509,7 @@ public interface LTIService {
 		"description:textarea:label=bl_description:maxlength=4096",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-		"resource_type:text:label=bl_resource_type:maxlength=1024:only=lti2",
+		"resource_handler:text:label=bl_resource_handler:maxlength=1024:only=lti2",
 		"deployment_id:integer:hidden=true",
 		"lti2_launch:header:fields=launch,consumerkey,secret:only=lti2",
 		"launch:url:label=bl_launch:maxlength=1024",
@@ -628,7 +629,7 @@ public interface LTIService {
 	static final String LTI_VERSION = "version";
 	static final Long LTI_VERSION_1 = new Long(0);
 	static final Long LTI_VERSION_2 = new Long(1);
-	static final String LTI_RESOURCE_TYPE = "resource_type";
+	static final String LTI_RESOURCE_HANDLER = "resource_handler";
 	static final String LTI_REG_STATE = "reg_state";
 	static final String LTI_REG_STATE_REGISTERED = "1";
 	static final String LTI_REG_LAUNCH = "reg_launch";

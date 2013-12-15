@@ -15,7 +15,7 @@
 		<li>
 			$tool.get("title")
 			<br/> $tlang.getString("tool.launch") $tool.get("launch")
-			<br/> $tlang.getString("tool.resource.type") $tool.get("resource_type")
+			<br/> $tlang.getString("tool.resource.handler") $tool.get("resource_handler")
 			#if ($tool.get("id") ) 
 			    $tlang.getString("tool.already.exists") 
 			#end
