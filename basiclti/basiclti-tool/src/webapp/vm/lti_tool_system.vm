@@ -118,7 +118,7 @@
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
 	#if ($isAdmin || $allowMaintainerAddSystemTool)<div align="right"><a href="" title="$tlang.getString("add.to.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolInsert")';return false;"> $tlang.getString("add.to.system")</a></a></div>#end
 	<br/>
-	#if ($!systemLtiToolsMap && !$systemLtiToolsMap.isEmpty())
+	#if ($!ltiTools && $ltiTools.size() > 0 )
 		$tlang.getString("tool.description.system")
 		<br/>
 		<div id="tools_system_pager" class="pager">
@@ -145,28 +145,26 @@
 	        </tr>
 	        </thead>
 	        <tbody>
-            #foreach($tool in $systemLtiToolsMap.entrySet())
+            #foreach($tool in $ltiTools)
             	
-				#set($toolId=$tool.getKey())
-				#set($toolValues=$tool.getValue())
 				<tr>
-	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$toolValues.get("id")">$validator.escapeHtml($toolValues.get("title"))</td>
+	                <td headers="title"><a href="$sakai_ActionURL.setPanel("ToolView")&id=$tool.get("id")">$validator.escapeHtml($tool.get("title"))</td>
 	                <td headers="launch">
 						#set($launch="")
-						#set($launch=$toolValues.get("launch"))
+						#set($launch=$tool.get("launch"))
 						$!launch
 	                </td>
 	                <td headers="site_id">
 	                	#set($siteId="<span style='display:none;'>zzzz</span>")
-	                	#set($siteId=$toolValues.get("site_id"))
+	                	#set($siteId=$tool.get("site_id"))
 	                	$!siteId
 	                </td>
-	                #if ($isAdmin) <td headers="use">$toolValues.get("tool_count")</td> #end
+	                #if ($isAdmin) <td headers="use">$tool.get("lti_content_count")</td> #end
 	                #if ( $isAdmin || $allowMaintainerAddSystemTool) 
 		                <td headers="action">
-		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $toolValues.get("SITE_ID")))
-	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$toolValues.get("id")">$tlang.getString("gen.edit")</a> / 
-	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$toolValues.get("id")">$tlang.getString("gen.delete")</a>
+		                	#if ( $isAdmin || ($allowMaintainerAddSystemTool && $getContext == $tool.get("SITE_ID")))
+	                        	<a href="$sakai_ActionURL.setPanel("ToolEdit")&id=$tool.get("id")">$tlang.getString("gen.edit")</a> / 
+	                        	<a href="$sakai_ActionURL.setPanel("ToolDelete")&id=$tool.get("id")">$tlang.getString("gen.delete")</a>
 	                        #end
 		                </td>
 	                 #end

@@ -249,45 +249,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("getContext", contextString);
 		
 		// this is for the system tool panel
-		List<Map<String,Object>> contents = ltiService.getContents(null,null,0,5000);
 		List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
-		if (tools != null && !tools.isEmpty())
-		{
-			List<Map<String,Object>> siteLtiTools = new ArrayList<Map<String, Object>>();
-			List<Map<String,Object>> systemLtiTools = new ArrayList<Map<String, Object>>();
-			HashMap<String, Map<String, Object>> systemLtiToolsMap = new HashMap<String, Map<String, Object>>();
-			for(Map<String, Object> tool:tools)
-			{
-				if (!tool.containsKey(ltiService.LTI_SITE_ID) || StringUtils.trimToNull((String) tool.get(ltiService.LTI_SITE_ID)) == null)
-				{
-					systemLtiTools.add(tool);
-				}
-				else if (((String) tool.get(ltiService.LTI_SITE_ID)).equals(contextString))
-				{
-					// if the current user is admin, add the site-range tool;
-					// otherwise, add the site-range tool only if the tool's site_id is the same as current site
-					systemLtiTools.add(tool);
-				}
-				else if (ltiService.isAdmin())
-				{
-					// show all the tools inside Admin MyWorkspace site
-					systemLtiTools.add(tool);
-				}
-			}
-			// get invoke count for all lti tools
-			HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(contents);
-			for (Map<String, Object> toolMap : systemLtiTools ) {
-				String ltiToolId = toolMap.get(ltiService.LTI_ID).toString();
-				List<String> toolSite = ltiToolsCount.containsKey(ltiToolId)?ltiToolsCount.get(ltiToolId):new ArrayList<String>();
-				Set<String> toolUniqueSite = new HashSet<String>();
-				toolUniqueSite.addAll(toolSite);
-				toolMap.put("tool_count", toolSite.size());
-				toolMap.put("tool_unique_site_count", toolUniqueSite.size());
-				systemLtiToolsMap.put(ltiToolId, toolMap);
-			}
-			context.put("systemLtiToolsMap", systemLtiToolsMap);
-			context.put("siteLtiTools", siteLtiTools);
-		}
+		context.put("ltiTools", tools);
 		
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
@@ -298,37 +261,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		return "lti_tool_system";
 	}
 	
-	/**
-	 * iterator through the whole system and find out the lti tool usages pattern, e.g. site count,etc
-	 * @param contents
-	 * @return
-	 */
-	private HashMap<String, List<String>> getLtiToolUsageCount(
-			List<Map<String, Object>> contents) {
-		HashMap<String, List<String>> ltiToolsCount = new HashMap<String, List<String>> ();
-		for ( Map<String,Object> content : contents ) {
-			String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
-			String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
-			if (siteId != null)
-			{
-				if (ltiToolsCount.containsKey(ltiToolId))
-				{
-					List<String> siteIds = ltiToolsCount.get(ltiToolId);
-					siteIds.add(siteId);
-					ltiToolsCount.put(ltiToolId, siteIds);
-				}
-				else
-				{
-					// new entry
-					List<String> siteIds = new ArrayList<String>();
-					siteIds.add(siteId);
-					ltiToolsCount.put(ltiToolId, siteIds);
-				}
-			}
-		}
-		return ltiToolsCount;
-	}
-
 	public void doEndHelper(RunData data, Context context)
 	{
 		// Request a shortcut transfer back to the tool we are helping
@@ -453,13 +385,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("formOutput", formOutput);
 		context.put("tool",tool);
 		
-		// get the tool usage count
-		HashMap<String, List<String>> ltiToolsCount = getLtiToolUsageCount(ltiService.getContents(null,null,0,5000));
-		List<String> toolSite = ltiToolsCount.containsKey(id)?ltiToolsCount.get(id):new ArrayList<String>();
-		Set<String> toolUniqueSite = new HashSet<String>();
-		toolUniqueSite.addAll(toolSite);
-		context.put("tool_count", toolSite.size());
-		context.put("tool_unique_site_count", toolUniqueSite.size());
+		// Retrieve the tool using a WHERE clause so the counts get computed
+		List<Map<String,Object>> tools = ltiService.getTools("lti_tools.id = "+key,null,0,0);
+        if ( tools != null && tools.size() == 1 ) {
+			Map<String,Object> countTool  = tools.get(0);
+			context.put("tool_count", countTool.get("lti_content_count"));
+			context.put("tool_unique_site_count", countTool.get("lti_site_count"));
+		}
 		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
@@ -1063,38 +995,6 @@ System.out.println("newTool="+newTool);
         }
 		
 		return "lti_deploy_system";
-	}
-
-	/**
-	 * iterator through the whole system and find out the lti tool usage pattern, e.g. site count,etc
-	 * @param contents
-	 * @return
-	 */
-	private HashMap<String, List<String>> getLtiDeployUsageCount(
-			List<Map<String, Object>> tools, List<Map<String, Object>> contents) {
-
-		HashMap<String, List<String>> ltiToolsCount = new HashMap<String, List<String>> ();
-		for ( Map<String,Object> content : contents ) {
-			String ltiToolId = content.get(ltiService.LTI_TOOL_ID).toString();
-			String siteId = StringUtils.trimToNull((String) content.get(ltiService.LTI_SITE_ID));
-			if (siteId != null)
-			{
-				if (ltiToolsCount.containsKey(ltiToolId))
-				{
-					List<String> siteIds = ltiToolsCount.get(ltiToolId);
-					siteIds.add(siteId);
-					ltiToolsCount.put(ltiToolId, siteIds);
-				}
-				else
-				{
-					// new entry
-					List<String> siteIds = new ArrayList<String>();
-					siteIds.add(siteId);
-					ltiToolsCount.put(ltiToolId, siteIds);
-				}
-			}
-		}
-		return ltiToolsCount;
 	}
 
 	public String buildDeployDeletePanelContext(VelocityPortlet portlet, Context context, 

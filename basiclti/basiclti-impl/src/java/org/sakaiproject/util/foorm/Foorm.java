@@ -1157,6 +1157,27 @@ public class Foorm {
 	 * @return
 	 */
 	public String formSelect(String[] fieldinfo) {
+		return formSelect(null, fieldinfo, false);
+	}
+
+	/**
+	 * 
+	 * @param tableName
+	 * @param fieldinfo
+	 * @return
+	 */
+	public String formSelect(String tableName, String[] fieldinfo) {
+		return formSelect(tableName, fieldinfo, true);
+	}
+
+	/**
+	 * 
+	 * @param tableName
+	 * @param fieldinfo
+	 * @param doAS
+	 * @return
+	 */
+	public String formSelect(String tableName, String[] fieldinfo, boolean doAS) {
 		StringBuffer fields = new StringBuffer();
 		for (String line : fieldinfo) {
 			Properties info = parseFormString(line);
@@ -1171,7 +1192,15 @@ public class Foorm {
 			if (fields.length() > 0) {
 				fields.append(", ");
 			}
+			if ( tableName != null ) {
+				fields.append(tableName);
+				fields.append(".");
+			}
 			fields.append(field);
+			if ( doAS && tableName != null ) {
+				fields.append(" AS ");
+				fields.append(field);
+			}
 		}
 		return fields.toString();
 	}

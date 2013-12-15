@@ -175,7 +175,40 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 */
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
-		return getThingsDao("lti_tools", LTIService.TOOL_MODEL, search, order, first, last, siteId, isAdminRole);
+		String extraSelect = "COUNT(DISTINCT lti_content.id) AS lti_content_count, COUNT(DISTINCT lti_content.SITE_ID) AS lti_site_count";
+		String joinClause = "LEFT OUTER JOIN lti_content ON lti_content.tool_id = lti_tools.id";
+		String groupBy = "lti_tools.id";
+		if ( order != null ) order = "lti_tools.id";
+
+		// Oracle needs all the selected values in the GROUP_BY
+		if ("mysql".equals(m_sql.getVendor())) {
+			return getThingsDao("lti_tools", LTIService.TOOL_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+		} else {
+			List<Map<String, Object>> mainList = getThingsDao("lti_tools", LTIService.TOOL_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
+			String[] id_model = { "id:key", "visible:radio", "SITE_ID:text" } ; 
+			groupBy = "lti_tools.id, lti_tools.visible, lti_tools.SITE_ID";
+			List<Map<String, Object>> countList = getThingsDao("lti_tools", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+
+			// Merge the lists...
+			Map<Object, Map<String, Object>> countMap = new HashMap<Object, Map<String, Object>> ();
+			for (Map<String, Object> count : countList) {
+				Object id = count.get("id");
+				countMap.put(id, count);
+			}
+
+			for (Map<String, Object> row : mainList) {
+				Object id = row.get("id");
+				if ( id == null ) continue;
+				Map<String, Object> count = countMap.get(id);
+				if ( count == null ) continue;
+				Object contentCount = count.get("LTI_CONTENT_COUNT");
+				row.put("lti_content_count", contentCount);
+				Object siteCount = count.get("LTI_SITE_COUNT");
+				row.put("lti_site_count", siteCount);
+			}
+			return mainList;
+		}
+
 	}
 
 	/**
@@ -357,7 +390,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 		List<Map<String, Object>> contents = getThingsDao("lti_content",
-				LTIService.CONTENT_MODEL, search, order, first, last, siteId, isAdminRole);
+				LTIService.CONTENT_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
 		for (Map<String, Object> content : contents) {
 			content.put("launch_url", getContentLaunch(content));
 		}
@@ -417,7 +450,39 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	protected List<Map<String, Object>> getDeploysDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, search, order, first, last, siteId, isAdminRole);
+		String extraSelect = "COUNT(DISTINCT lti_tools.id) AS lti_tool_count, COUNT(DISTINCT lti_content.id) AS lti_content_count";
+		String joinClause = "LEFT OUTER JOIN lti_tools ON lti_tools.deployment_id = lti_deploy.id LEFT OUTER JOIN lti_content ON lti_content.tool_id = lti_tools.id";
+		String groupBy = "lti_deploy.id";
+		if ( order != null ) order = "lti_deploy.id";
+
+		// Oracle needs all the selected values in the GROUP_BY
+		if ("mysql".equals(m_sql.getVendor())) {
+			return getThingsDao("lti_deploy", LTIService.DEPLOY_MODEL, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+		} else {
+			List<Map<String, Object>> mainList = getThingsDao("lti_deploy",LTIService.DEPLOY_MODEL, null, null, search, null, order, first, last, siteId, isAdminRole);
+			String[] id_model = { "id:key", "visible:radio" } ; 
+			groupBy = "lti_tools.id, lti_tools.visible";
+			List<Map<String, Object>> countList = getThingsDao("lti_deploy", id_model, extraSelect, joinClause, search, groupBy, order, first, last, siteId, isAdminRole);
+
+			// Merge the lists...
+			Map<Object, Map<String, Object>> countMap = new HashMap<Object, Map<String, Object>> ();
+			for (Map<String, Object> count : countList) {
+				Object id = count.get("id");
+				countMap.put(id, count);
+			}
+
+			for (Map<String, Object> row : mainList) {
+				Object id = row.get("id");
+				if ( id == null ) continue;
+				Map<String, Object> count = countMap.get(id);
+				if ( count == null ) continue;
+				Object contentCount = count.get("LTI_CONTENT_COUNT");
+				row.put("lti_content_count", contentCount);
+				Object toolCount = count.get("LTI_TOOL_COUNT");
+				row.put("lti_tool_count", toolCount);
+			}
+			return mainList;
+		}
 	}
 
 	public Object insertProxyBindingDao(Properties newProps) {
@@ -606,8 +671,9 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	 * @param isMaintainRole
 	 * @return
 	 */
-	public List<Map<String, Object>> getThingsDao(String table, String[] model, String search,
-		String order, int first, int last, String siteId, boolean isAdminRole) 
+	public List<Map<String, Object>> getThingsDao(String table, String[] model, 
+		String extraSelect, String joinClause, String search, String groupBy, String order, 
+		int first, int last, String siteId, boolean isAdminRole) 
 	{
 		if (table == null || model == null ) {
 			throw new IllegalArgumentException("table and model must be non-null");
@@ -616,7 +682,14 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			throw new IllegalArgumentException("siteId must be non-null for non-admins");
 		}
 
-		String statement = "SELECT " + foorm.formSelect(model) + " FROM " + table;
+		String statement = "SELECT " + foorm.formSelect(table, model, true);
+		if ( extraSelect != null ) {
+			statement += ", " + extraSelect;
+		}
+		statement += " FROM " + table;
+		if ( joinClause != null ) {
+			statement += " " + joinClause;
+		}
 		String[] columns = foorm.getFields(model);
 		String whereClause = "";
 
@@ -625,12 +698,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		if ( ! isAdminRole ) {
 			if (Arrays.asList(columns).indexOf(LTI_VISIBLE) >= 0 && 
 				Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0 ) {
-				whereClause = " ("+LTI_SITE_ID+" = ? OR "+
-					"("+LTI_SITE_ID+" IS NULL AND "+LTI_VISIBLE+" != 1 ) ) ";
+				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+
+					"("+table+'.'+LTI_SITE_ID+" IS NULL AND "+table+'.'+LTI_VISIBLE+" != 1 ) ) ";
 				fields = new Object[1];
 				fields[0] = siteId;
 			} else if (Arrays.asList(columns).indexOf(LTI_SITE_ID) >= 0) {
-				whereClause = " ("+LTI_SITE_ID+" = ? OR "+LTI_SITE_ID+" IS NULL)";
+				whereClause = " ("+table+'.'+LTI_SITE_ID+" = ? OR "+table+'.'+LTI_SITE_ID+" IS NULL)";
 				fields = new Object[1];
 				fields[0] = siteId;
 			}
@@ -645,6 +718,19 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		if ( whereClause.length() > 0 ) statement += " WHERE " + whereClause;
+
+		if ( groupBy != null ) {
+			statement += " GROUP BY ";
+			if ("oracle".equals(m_sql.getVendor()) ) {
+				statement += foorm.formSelect(table, model, false);
+			} else {
+				statement += groupBy;
+			}
+		}
+
+		if ( order != null ) {
+			statement += " ORDER BY " + order;
+		}
 
 		if (last != 0) {
 			String pagedStatement = foorm.getPagedSelect(statement, first, last,
