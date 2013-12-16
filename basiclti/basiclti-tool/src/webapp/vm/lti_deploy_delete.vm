@@ -7,7 +7,7 @@
 	<div class="alertMessage">$tlang.getString("deploy.delete.sure")</div><div style="display:block;clear:both" ></div>
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$formOutput
-		Uses: $tool_count uses in $tool_unique_site_count sites
+		$deployData
                 <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 <input type="hidden" name="id" value="$deploy.get("id")" />
 		<p class="act">

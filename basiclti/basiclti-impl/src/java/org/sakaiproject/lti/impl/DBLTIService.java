@@ -450,7 +450,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 	protected List<Map<String, Object>> getDeploysDao(String search, String order, int first,
 			int last, String siteId, boolean isAdminRole) {
 		if ( ! isAdminRole ) throw new IllegalArgumentException("Currently we support admins/Dao access");
-		String extraSelect = "COUNT(DISTINCT lti_tools.id) AS lti_tool_count, COUNT(DISTINCT lti_content.id) AS lti_content_count";
+		String extraSelect = "COUNT(DISTINCT lti_tools.id) AS lti_tool_count, COUNT(DISTINCT lti_content.SITE_ID) AS lti_site_count, COUNT(DISTINCT lti_content.id) AS lti_content_count";
 		String joinClause = "LEFT OUTER JOIN lti_tools ON lti_tools.deployment_id = lti_deploy.id LEFT OUTER JOIN lti_content ON lti_content.tool_id = lti_tools.id";
 		String groupBy = "lti_deploy.id";
 		if ( order != null ) order = "lti_deploy.id";
@@ -480,6 +480,8 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 				row.put("lti_content_count", contentCount);
 				Object toolCount = count.get("LTI_TOOL_COUNT");
 				row.put("lti_tool_count", toolCount);
+				Object siteCount = count.get("LTI_SITE_COUNT");
+				row.put("lti_site_count", siteCount);
 			}
 			return mainList;
 		}

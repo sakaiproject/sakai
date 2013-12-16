@@ -376,22 +376,20 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_main";
 		}	
 		Long key = new Long(id);
-		Map<String,Object> tool = ltiService.getTool(key);
-		if (  tool == null ) {
+
+		// Retrieve the tool using a WHERE clause so the counts get computed
+		List<Map<String,Object>> tools = ltiService.getTools("lti_tools.id = "+key,null,0,0);
+		if ( tools == null || tools.size() < 1 ) {
 			addAlert(state,rb.getString("error.tool.not.found"));
 			return "lti_main";
 		}
+
+		Map<String,Object> tool  = tools.get(0);
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		context.put("tool",tool);
-		
-		// Retrieve the tool using a WHERE clause so the counts get computed
-		List<Map<String,Object>> tools = ltiService.getTools("lti_tools.id = "+key,null,0,0);
-        if ( tools != null && tools.size() == 1 ) {
-			Map<String,Object> countTool  = tools.get(0);
-			context.put("tool_count", countTool.get("lti_content_count"));
-			context.put("tool_unique_site_count", countTool.get("lti_site_count"));
-		}
+		context.put("tool_count", tool.get("lti_content_count"));
+		context.put("tool_unique_site_count", tool.get("lti_site_count"));
 		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_tool_delete";
@@ -1012,14 +1010,27 @@ System.out.println("newTool="+newTool);
 			return "lti_deploy_system";
 		}	
 		Long key = new Long(id);
-		Map<String,Object> deploy = ltiService.getDeployDao(key);
-		if (  deploy == null ) {
+
+		// Retrieve the tool using a WHERE clause so the counts get computed
+		List<Map<String,Object>> deploys = ltiService.getDeploysDao("lti_deploy.id = "+key,null,0,0);
+		if ( deploys == null || deploys.size() < 1 ) {
 			addAlert(state,rb.getString("error.deploy.not.found"));
 			return "lti_deploy_system";
 		}
+
+		Map<String,Object> deploy  = deploys.get(0);
 		context.put("deploy",deploy);
-		context.put("ltiService", ltiService);
+
+		String [] mappingForm = foorm.filterForm(ltiService.getDeployModel(), "^title:.*|^reg_launch:.*|^id:.*", null);
+		String formOutput = ltiService.formOutput(deploy, mappingForm);
+		context.put("formOutput", formOutput);
+
+		String deployData = rb.getString("deploy.data");
+		deployData = deployData.replace(":tools",""+deploy.get("lti_tool_count"))
+			.replace(":contents",""+deploy.get("lti_content_count"))
+			.replace(":sites",""+deploy.get("lti_site_count"));
 		
+		context.put("deployData", deployData);
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_delete";
 	}
