@@ -176,7 +176,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
         public boolean useSakaiIcons = ServerConfigurationService.getBoolean("lessonbuilder.use-sakai-icons", false);
         public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
-        public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", false);
+        public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
 
 
 	// I don't much like the static, because it opens us to a possible race
