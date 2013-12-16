@@ -342,6 +342,12 @@ components of an item in the event view
     box-shadow: 0 1px 1px 0 #999999 !important;
     border-radius: 3px;
 }
+#itemHolder .results .moreInfo > li > a {
+    position: absolute;
+    right: -7px;
+    top: -11px;
+    white-space: nowrap;
+}
 .results .block, .attachList {
     line-height:130%;
 }
