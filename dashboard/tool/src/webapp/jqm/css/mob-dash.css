@@ -427,7 +427,59 @@ ul.attachList li a{
     display:none
 }
 
+ul.itemList .itemLink {
+    display:block;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    padding:5px 50px;
+    height:85px;
+}
+
+ul.itemCollection li {
+    position:relative;
+}
+ul.itemCollection .itemLink {
+    display:block;
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    padding:10px;
+    height:24px;
+
+}
+
+
+.span6 {
+    width:100%
+}
+
+ul.itemList .activeCell, ul.itemCollection  .activeCell {
+    margin:0 !important;
+    padding:0 !important;
+}
+ul.itemList .activeCell .itemLink{
+    height:75px !important;
+    padding:15px 33px;
+}
+ul.itemCollection .activeCell {
+    height:24px;
+}
+ul.itemCollection .activeCell .itemLink{
+    height:24px !important;
+    padding:10px 10px;
+}
+#activ ul.itemList .span6 .muted, ul.itemCollection .span6 .muted{
+    visibility:hidden;
+}
+
+.row-fluid a.siteLink {
+    cursor:text;
+    color:#000 !important;
+}
 /* Hide Sakai navigation while in mobile dashboard */
 #pda-portlet-menu, #pda-footer {
-	display: none;
+    display: none;
 }

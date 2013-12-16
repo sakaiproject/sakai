@@ -44,16 +44,17 @@ var setupLinks = function(){
      */
     $(".siteLink").live("click", function(e){
         // DO NOT CALL:  e.preventDefault();
-        var itemType = $(this).closest('li').find('.itemType').text();
-        var entityReference = $(this).closest('li').find('.entityReference').text();
-        reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
+        if (!isMobile) {
+            var itemType = $(this).closest('li').find('.itemType').text();
+            var entityReference = $(this).closest('li').find('.entityReference').text();
+            reportEvent(e.target, entityReference, itemType, "dash.follow.site.link");
+        }
     });
     /*
      * expand an item's contents
      */
     $(".itemLink").live("click", function(e){
-        ;
-        
+
         var parentRow = $(this).closest('li');
         var colCount = $(parentRow).find('div').length;
         var parentCell = $(this).closest('div');

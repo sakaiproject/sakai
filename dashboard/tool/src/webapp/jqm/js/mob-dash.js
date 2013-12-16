@@ -1,4 +1,11 @@
 $(document).ready(function(){
+
+    $('.siteLink').click(function(e){
+        e.preventDefault();
+        return null;
+    }) 
+        
+
     $(document).bind('pagechange', function(){
         $('.ui-page-active .ui-listview').listview('refresh');
         $('.ui-page-active :jqmData(role=content)').trigger('create');
