@@ -1670,11 +1670,16 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   
   public boolean  getAnonRole()
   {
+	  return getAnonRole(getContextSiteId());
+  }
+  
+  public boolean  getAnonRole(String contextSiteId)
+  {
    LOG.debug("getAnonRoles()");
    AuthzGroup realm = null;
    try
     {
-      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());      
+      realm = AuthzGroupService.getAuthzGroup(contextSiteId);      
       Role anon = realm.getRole(".anon");
      if (sessionManager.getCurrentSessionUserId()==null && anon != null && anon.getAllowedFunctions().contains("site.visit"))
       {

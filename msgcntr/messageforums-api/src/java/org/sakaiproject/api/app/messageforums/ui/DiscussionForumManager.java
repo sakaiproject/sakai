@@ -551,6 +551,7 @@ public interface DiscussionForumManager
    * @return
    */
   public boolean  getAnonRole();
+  public boolean  getAnonRole(String contextSiteId);
   
   /**
    *

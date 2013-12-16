@@ -1353,7 +1353,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private String getCurrentUserRole(String siteId)
   {
 	  LOG.debug("getCurrentUserRole()");
-	  if(authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId)==null&&sessionManager.getCurrentSessionUserId()==null&&getAnonRole()==true){
+	  if(authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId)==null&&sessionManager.getCurrentSessionUserId()==null&&getAnonRole(siteId)==true){
 		  return ".anon";
 	  }
 	  return authzGroupService.getUserRole(getCurrentUserId(), "/site/" + siteId);
@@ -1374,7 +1374,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     
     // if user role is still null at this point, check for .anon
-    if(userRole == null && sessionManager.getCurrentSessionUserId() == null && getAnonRole() == true){
+    if(userRole == null && sessionManager.getCurrentSessionUserId() == null && getAnonRole(siteId) == true){
         return ".anon";
     }
     
@@ -1385,6 +1385,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
 	 return  forumManager.getAnonRole();	   
     }
+   
+   public boolean  getAnonRole(String contextSiteId)
+   {
+	 return  forumManager.getAnonRole(contextSiteId);	   
+   }
   /**
    * @return
    */
