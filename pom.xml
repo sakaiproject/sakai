@@ -69,7 +69,6 @@
                 <module>mailsender</module>
                 <module>msgcntr</module>
                 <module>polls</module>
-                <module>profile</module>
                 <module>profile2</module>
                 <module>reset-pass</module>
                 <module>samigo</module>
@@ -110,7 +109,6 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <module>roster</module>
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
@@ -151,7 +149,6 @@
                 <module>mailsender</module>
                 <module>msgcntr</module>
                 <module>polls</module>
-                <module>profile</module>
                 <module>profile2</module>
                 <module>reset-pass</module>
                 <module>samigo</module>
@@ -192,7 +189,6 @@
                 <module>providers</module>
                 <module>reference</module>
                 <module>rights</module>
-                <!-- <module>roster</module> -->
                 <module>rwiki</module>
                 <module>sections</module>
                 <module>site</module>
