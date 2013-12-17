@@ -17,6 +17,7 @@ create table if not exists dash_calendar_link ( id bigint not null auto_incremen
 person_id bigint not null, context_id bigint not null, item_id bigint not null, hidden bit default 0, 
 sticky bit default 0, unique (person_id, context_id, item_id), primary key (id) ); 
 create index dash_calendar_link_idx on dash_calendar_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_calendar_link_item_id_idx on dash_calendar_link (item_id);
 
 create table if not exists dash_config ( id bigint not null auto_increment, 
 property_name varchar(99) not null, property_value integer not null, primary key (id) ); 
@@ -39,6 +40,7 @@ insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_F
 insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS', 2); 
 insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_PREFERENCE_EVENTS', 2); 
 insert into dash_config (property_name, property_value) values ('PROP_LOG_MODE_FOR_DASH_NAV_EVENTS', 2);
+insert into dash_config (property_name, property_value) values ('PROP_LOOP_TIMER_ENABLED', 0);
 
 
 create table if not exists dash_context ( id bigint not null auto_increment, context_id varchar(255) not null, 
@@ -60,6 +62,7 @@ create table if not exists dash_news_link ( id bigint not null auto_increment, p
 context_id bigint not null, item_id bigint not null, hidden bit default 0, sticky bit default 0, 
 unique (person_id, context_id, item_id), primary key (id) ); 
 create index dash_news_link_idx on dash_news_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_news_link_item_id_idx on dash_news_link (item_id);
 
 create table if not exists dash_person ( id bigint not null auto_increment,user_id varchar(99) not null,
 sakai_id varchar(99), primary key (id) ); 

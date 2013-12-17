@@ -1170,8 +1170,10 @@ public class DashboardLogicImpl implements DashboardLogic {
 			calendarItem.setCalendarTimeLabelKey(repeatingEvent.getCalendarTimeLabelKey());
 			saveChanges = true;
 		}
-		if(repeatingEvent.getContext() != null && repeatingEvent.getContext().equals(calendarItem.getContext())) {
-			// do nothing
+		if(repeatingEvent.getContext() != null && repeatingEvent.getContext().getId() != null 
+			&& calendarItem.getContext() != null && calendarItem.getContext().getId() != null
+			&& repeatingEvent.getContext().getId().equals(calendarItem.getContext().getId())) {
+			// do nothing if both have same context id
 		} else {
 			calendarItem.setContext(repeatingEvent.getContext());
 			saveChanges = true;
@@ -1183,13 +1185,16 @@ public class DashboardLogicImpl implements DashboardLogic {
 			calendarItem.setSourceType(repeatingEvent.getSourceType());
 			saveChanges = true;
 		}
-		if(repeatingEvent.getSubtype() != null && repeatingEvent.getSubtype().equals(calendarItem.getSubtype())) {
-			// do nothing
+		if((repeatingEvent.getSubtype() != null && calendarItem.getSubtype() != null && repeatingEvent.getSubtype().equals(calendarItem.getSubtype()))
+			|| (repeatingEvent.getSubtype() == null && calendarItem.getSubtype() == null))
+		{
+			// do nothing if both have null subtype or both have not-null subtype and subtypes equal to each other
 		} else {
 			calendarItem.setSubtype(repeatingEvent.getSubtype());
 			saveChanges = true;
 		}
 		if(saveChanges) {
+			logger.info(this + " verifyCalendarItem about to update CalendarItem with reference " + calendarItem.getEntityReference());
 			dao.updateCalendarItem(calendarItem);
 		}
 		return saveChanges;

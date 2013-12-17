@@ -92,9 +92,12 @@ public interface SakaiProxy {
 	public static final String PERMIT_DROPBOX_ACCESS = ContentHostingService.AUTH_DROPBOX_OWN;
 	public static final String PERMIT_DROPBOX_MAINTAIN = ContentHostingService.AUTH_DROPBOX_MAINTAIN;
 	public static final String PERMIT_SCHEDULE_ACCESS = CalendarService.AUTH_READ_CALENDAR;
+	// the prefix for permissions
+	public static final String[] PERMIT_PREFIX = new String[]{"calendar.", "asn.", "content.", "annc."};
 	
 	public static final String ANNOUNCEMENT_RELEASE_DATE = AnnouncementService.RELEASE_DATE;
 	public static final String ANNOUNCEMENT_RETRACT_DATE = AnnouncementService.RETRACT_DATE;
+	
 	
 	public static final String CONFIG_DISABLE_DASHBOARD_EVENTPROCESSING = "disable.dashboard.eventprocessing";
 	
@@ -302,5 +305,12 @@ public interface SakaiProxy {
 	public String getServerId();
 
 	public void registerFunction(String functionName);
+	
+	/**
+	 * returns true if the permission is known to Dashboard tool. Currently cover Announcement, Content, Assignment and Calendar permission)
+	 * @param permissionString
+	 * @return
+	 */
+	public boolean isOfDashboardRelatedPermissions(String permissionString);
 
 }

@@ -22,6 +22,7 @@ item_id number not null, hidden number(1,0) default 0, sticky number(1,0) defaul
 unique (person_id, context_id, item_id) ); 
 create sequence dash_calendar_link_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_calendar_link_idx on dash_calendar_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_calendar_link_item_id_idx on dash_calendar_link (item_id);
 
 create table dash_config ( id number not null primary key, 
 property_name varchar2(99) not null, property_value number(10,0) not null ); 
@@ -44,7 +45,8 @@ insert into dash_config (id, property_name, property_value) values (dash_config_
 insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_NAVIGATION_EVENTS', 2); 
 insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_ITEM_DETAIL_EVENTS', 2); 
 insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_PREFERENCE_EVENTS', 2); 
-insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_DASH_NAV_EVENTS', 2); 
+insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOG_MODE_FOR_DASH_NAV_EVENTS', 2);
+insert into dash_config (id, property_name, property_value) values (dash_config_seq.nextval, 'PROP_LOOP_TIMER_ENABLED', 0);
 
 create table dash_context 
 ( id number not null primary key, context_id varchar2(255) not null, 
@@ -71,6 +73,7 @@ create table dash_news_link
 item_id number not null, hidden number(1,0) default 0, sticky number(1,0) default 0, unique (person_id, context_id, item_id) ); 
 create sequence dash_news_link_seq start with 1 increment by 1 nomaxvalue; 
 create index dash_news_link_idx on dash_news_link (person_id, context_id, item_id, hidden, sticky);
+create index dash_news_link_item_id_idx on dash_news_link (item_id);
 
 create table dash_person 
 ( id number not null primary key,user_id varchar2(99) not null, sakai_id varchar2(99) ); 

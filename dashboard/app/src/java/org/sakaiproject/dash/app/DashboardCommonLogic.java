@@ -92,5 +92,24 @@ public interface DashboardCommonLogic extends DashboardLogic, DashboardUserLogic
 	 * @return
 	 */
 	public List<NewsItem> getMOTD();
-
+	
+	/**
+	 * Update calendar repeating events 
+	 */
+	public void updateRepeatingEvents();
+	
+	/**
+	 * Expire and purge dashboard old items and links
+	 */
+	public void expireAndPurge();
+	
+	/**
+	 * Handle the availability checks of dashboard items
+	 */
+	public void handleAvailabilityChecks();
+	
+	/**
+	 * Check for admin dashboard configuration changes
+	 */
+	public void checkForAdminChanges();
 }
