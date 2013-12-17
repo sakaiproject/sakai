@@ -994,18 +994,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.profile</groupId>
-        <artifactId>profile-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.profile</groupId>
-        <artifactId>profile-component-shared</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
         <groupId>org.sakaiproject.profile2</groupId>
         <artifactId>profile2-api</artifactId>
         <version>${sakai.version}</version>
@@ -1014,12 +1002,6 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-rights-api</artifactId>
-        <version>${sakai.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>sakai-roster-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
