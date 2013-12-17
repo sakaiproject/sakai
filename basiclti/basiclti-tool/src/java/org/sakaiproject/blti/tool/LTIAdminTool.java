@@ -292,6 +292,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Map<String,Object> tool = ltiService.getTool(key);
 		if (  tool == null ) return "lti_main";	
 
+		// Deal with the differences between LTI 1 and LTI 2
+		Long version = foorm.getLongNull(tool.get(LTIService.LTI_VERSION));
+		boolean isLTI1 = version == null || version == LTIService.LTI_VERSION_1;
+		if ( isLTI1 ) {
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=lti2.*");
+		} else {
+			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=lti1.*");
+		}
+
 		// Extract the version to make it view only
 		String fieldInfo = foorm.getFormField(mappingForm, "version");
 		fieldInfo = fieldInfo.replace(":hidden=true","");
@@ -336,7 +345,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Deal with the differences between LTI 1 and LTI 2
 		Long version = foorm.getLongNull(tool.get(LTIService.LTI_VERSION));
-		boolean isLTI1 = version == LTIService.LTI_VERSION_1;
+		boolean isLTI1 = version == null || version == LTIService.LTI_VERSION_1;
 		if ( isLTI1 ) {
 			mappingForm = foorm.filterForm(mappingForm, null, ".*:only=lti2.*");
 		} else {
@@ -824,6 +833,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		for ( Map<String, Object> theTool : theTools ) {
 			Object retval = null;
 			Long toolId = foorm.getLongNull(theTool.get(LTIService.LTI_ID));
+			theTool.put(LTIService.LTI_VERSION, LTIService.LTI_VERSION_2);
 			if ( toolId == null ) {
 				retval = ltiService.insertTool(theTool);
 				if ( retval instanceof String ) {
@@ -926,7 +936,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
-System.out.println("profileTool="+profileTool);
 			String resource_type_code = (String) profileTool.get("resource_type_code");
 			String resource_handler = vendor_code;
 			if ( ! resource_handler.endsWith("/") && ! resource_handler.startsWith("/") ) resource_handler = resource_handler + "/" ;

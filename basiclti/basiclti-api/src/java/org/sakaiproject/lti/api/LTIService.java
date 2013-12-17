@@ -503,9 +503,9 @@ public interface LTIService {
 		"version:radio:label=bl_version:choices=lti1,lti2:hidden=true",
 		"SITE_ID:text:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:maxlength=255",
-		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow:only=lti1",
+		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=255",
-		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow:only=lti1",
+		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
 		"description:textarea:label=bl_description:maxlength=4096",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
@@ -531,7 +531,7 @@ public interface LTIService {
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		// LTI 1.x user-entered custom
-		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024:only=lti1",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
 		// LTI 2.x settings from web services
 		"settings:text:hidden=true:maxlength=8096",
 		// LTI 2.x tool-registration time parameters
