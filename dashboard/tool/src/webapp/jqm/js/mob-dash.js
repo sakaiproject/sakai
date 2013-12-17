@@ -1,5 +1,7 @@
 $(document).ready(function(){
 
+    $('meta[name=viewport]').attr('content','width=device-width, user-scalable=no,  initial-scale=1.0, maximum-scale=1.0');
+
     $('.siteLink').click(function(e){
         e.preventDefault();
         return null;
