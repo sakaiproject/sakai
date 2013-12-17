@@ -323,6 +323,7 @@ components of an item in the event view
     font-size: 100%;
     margin-bottom: 5px;
     padding: 10px;
+    width:100%;
     position: relative;
 }
 
@@ -344,8 +345,14 @@ components of an item in the event view
 }
 #itemHolder .results .moreInfo > li > a {
     position: absolute;
-    right: -7px;
-    top: -11px;
+    right: 15px;
+    top: -20px;
+    white-space: nowrap;
+}
+#itemHolder .itemCollection .results .moreInfo > li > a {
+    position: absolute;
+    right: 5px;
+    top: -10px;
     white-space: nowrap;
 }
 .results .block, .attachList {
@@ -480,6 +487,7 @@ ul.itemCollection .activeCell .itemLink{
 #activ ul.itemList .span6 .muted, ul.itemCollection .span6 .muted{
     visibility:hidden;
 }
+
 
 .row-fluid a.siteLink {
     cursor:text;
