@@ -20,7 +20,6 @@
 	<properties>
 		<clean.targets>
 			components/sakai-common-components;
-            components/profile-component;
 		</clean.targets>
 		<deploy.target>tomcat-overlay</deploy.target>	
 	</properties>
@@ -30,13 +29,6 @@
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-assembly</artifactId>
 			<version>${sakai.common.version}</version>
-			<classifier>tomcat-overlay</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.profile</groupId>
-			<artifactId>profile-assembly</artifactId>
-			<version>${sakai.profile.version}</version>
 			<classifier>tomcat-overlay</classifier>
 			<type>zip</type>
 		</dependency>

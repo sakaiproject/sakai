@@ -214,22 +214,6 @@
 
   	</bean>
   	
-	
-	<!-- Legacy bean that implements the original ProfileManager interface
--->
-	<bean id="org.sakaiproject.profile2.legacy.ProfileManager" class="org.sakaiproject.profile2.legacy.ProfileManagerImpl" init-method="init" destroy-method="destroy">
-       
-        <property name="profileLogic">
-        	<ref bean="org.sakaiproject.profile2.logic.ProfileLogic"/>
-        </property>
-        <property name="imageLogic">
-        	<ref bean="org.sakaiproject.profile2.logic.ProfileImageLogic"/>
-        </property>
-        <property name="sakaiProxy">
-        	<ref bean="org.sakaiproject.profile2.logic.SakaiProxy"/>
-        </property>
-	</bean>
-	
 	<!-- Setup email templates -->
 	<bean id="org.sakaiproject.profile2.emailtemplates.List" class="java.util.ArrayList">
 		<constructor-arg>

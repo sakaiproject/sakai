@@ -260,16 +260,6 @@
 			<groupId>org.sakaiproject.kernel</groupId>
   			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-		
-		<!-- legacy dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject.profile</groupId>
-  			<artifactId>profile-api</artifactId>
-		</dependency>
-		<dependency>
-      		<groupId>commons-logging</groupId>
-      		<artifactId>commons-logging</artifactId>
-    	</dependency>
 
   	</dependencies>
   	
