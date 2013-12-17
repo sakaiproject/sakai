@@ -68,7 +68,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
-	private String defaultSkin = "defaultskin";
+	private String defaultSkin = "neoskin";
 
 	private boolean styleAble = false;
 
