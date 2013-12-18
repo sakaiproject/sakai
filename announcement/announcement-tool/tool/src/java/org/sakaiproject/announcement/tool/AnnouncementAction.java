@@ -2153,6 +2153,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			// output the notification options
 			String notification = (String) sstate.getAttribute(SSTATE_NOTI_VALUE);
 			// "r", "o" or "n"
+			// Get default notification
+			if (notification == null) {
+				notification = ServerConfigurationService.getString("announcement.default.notification", "n");
+			}
 			context.put("noti", notification);
  
 		}
