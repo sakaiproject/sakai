@@ -167,7 +167,7 @@ public class MockCharonPortal extends HttpServlet
                 String headCssToolSkin = "<link href=\"" 
                 + "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
                 String headCss = headCssToolBase + headCssToolSkin;
-                String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+                String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
                 String head = headCss + headJs;
 
                 rcontext.put("sakai_html_head", head);

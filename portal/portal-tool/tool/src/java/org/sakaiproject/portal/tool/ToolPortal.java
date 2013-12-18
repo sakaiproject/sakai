@@ -282,7 +282,7 @@ public class ToolPortal extends HttpServlet
 		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
-		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+		String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
 		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)

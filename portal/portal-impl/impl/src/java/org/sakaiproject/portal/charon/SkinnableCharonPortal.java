@@ -1431,15 +1431,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		Editor editor = portalService.getActiveEditor(placement);
 		String preloadScript = editor.getPreloadScript() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\">" + editor.getPreloadScript() + "</script>\n";
+				: "<script type=\"text/javascript\">" + editor.getPreloadScript() + "</script>\n";
 		String editorScript = editor.getEditorUrl() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getEditorUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" + editor.getEditorUrl() + "\"></script>\n";
 		String launchScript = editor.getLaunchUrl() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getLaunchUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" + editor.getLaunchUrl() + "\"></script>\n";
 		
 		StringBuilder headJs = new StringBuilder();
-		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n");
-		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
+		headJs.append("<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n");
+		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
 		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
