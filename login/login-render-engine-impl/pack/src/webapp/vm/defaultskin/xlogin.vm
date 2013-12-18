@@ -3,15 +3,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	     <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-	    <link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
-	    <meta http-equiv="Content-Style-Type" content="text/css" />
-	    <title>${uiService}</title>
+		 <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>${uiService}</title>
 		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
 		<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
 		<meta name="viewport" content="width=device-width"/>
 		#if ( $isPDA )
-    		<link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" />
+			<link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" />
 		#end
 	</head>
 	<body onload="if ((document.getElementById('pw').passwordfocus != true)) document.getElementById('eid').focus() ;parent.updCourier(doubleDeep, ignoreCourier);">
@@ -52,6 +52,11 @@
 						<td colspan="2"><input name="submit" type="submit" id="submit" value="${loginWording}"/></td>
 						#end
 					</tr>
+					#if (${passwordResetUrl})
+					<tr>
+						<td colspan="2"><a href="${passwordResetUrl}">${passwordResetWording}</a></td>
+					</tr>
+					#end
 					</table>
 				</form>
 			</td>

@@ -38,11 +38,15 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.login.api.Login;
 import org.sakaiproject.login.api.LoginCredentials;
 import org.sakaiproject.login.api.LoginRenderContext;
 import org.sakaiproject.login.api.LoginRenderEngine;
 import org.sakaiproject.login.api.LoginService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -69,22 +73,26 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 	/** Marker to indicate we are logging in the PDA Portal and should put out abbreviated HTML */
 	public static final String PDA_PORTAL_SUFFIX = "/pda/";
-	
+
 	/** The Neo-portal in 2.9+ introduced a portal.neoprefix config variable */
 	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-	
+
 	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
-	
+
 	private static String portalSkinPrefix;
-	
-	private static ServerConfigurationService serverConfigurationService;
+
+	// Services are transient because the class is serializable but the services aren't
+	private transient ServerConfigurationService serverConfigurationService;
+
+	private transient SiteService siteService;
+
+	private transient LoginService loginService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
-	
-	private transient LoginService loginService;
-	
+
+
 	private String loginContext;
-	
+
 	public void init(ServletConfig config) throws ServletException
 	{
 		super.init(config);
@@ -93,24 +101,26 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			loginContext = DEFAULT_LOGIN_CONTEXT;
 		}
-		
-		loginService = org.sakaiproject.login.cover.LoginService.getInstance();
-		
+
+		loginService = (LoginService)ComponentManager.get(LoginService.class);
+
 		serverConfigurationService = (ServerConfigurationService) ComponentManager
-				.get(ServerConfigurationService.class.getName());
+				.get(ServerConfigurationService.class);
+
+		siteService = (SiteService) ComponentManager.get(SiteService.class);
 
 		portalSkinPrefix = serverConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 
 		log.info("init()");
 	}
-	
+
 	public void destroy()
 	{
 		log.info("destroy()");
 
 		super.destroy();
 	}
-	
+
 	/**
 	 * Access the Servlet's information display.
 	 *
@@ -120,7 +130,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	{
 		return "Sakai Login";
 	}
-	
+
 	@SuppressWarnings(value = "HRS_REQUEST_PARAMETER_TO_HTTP_HEADER", justification = "Looks like the data is already URL encoded")
 	protected void doGet(HttpServletRequest req, HttpServletResponse res)
 		throws ServletException, IOException 
@@ -130,13 +140,13 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 		// get my tool registration
 		Tool tool = (Tool) req.getAttribute(Tool.TOOL);
-		
+
 		// recognize what to do from the path
 		String option = req.getPathInfo();
 
 		// maybe we don't want to do the container this time
 		boolean skipContainer = false;
-		
+
 		// flag for whether we should show the auth choice page
 		boolean showAuthChoice = false;
 
@@ -190,7 +200,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				 * data is already URL encoded. Had to @SuppressWarnings
 				 * the entire method.
 				 */
-				
+
 				//SAK-21498 choice page for selecting auth sources
 				showAuthChoice = serverConfigurationService.getBoolean("login.auth.choice", false);
 				URL helperUrl = new URL((String) session.getAttribute(Tool.HELPER_DONE_URL));
@@ -199,14 +209,14 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
 						helperPath.equals("/portal/") || helperPath.equals("/portal/pda") || helperPath.equals("/portal/pda/"))) {
 					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
-					
+
 					// Present the choice template
 					LoginRenderContext rcontext = startChoiceContext("", req, res);
 					rcontext.put("containerLoginUrl", containerCheckUrl);
 					rcontext.put("xloginUrl", xloginUrl);
-					
+
 					sendResponse(rcontext, res, "choice", null);
-				
+
 				} else {
 					//go straight to container check
 					res.sendRedirect(res.encodeRedirectURL(containerCheckUrl));
@@ -214,7 +224,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				return;
 			}
 		}
-		
+
 		// PDA or not?
 		String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 		boolean isPDA = false;
@@ -225,18 +235,18 @@ public class SkinnableLogin extends HttpServlet implements Login {
 
 		// Present the xlogin template
 		LoginRenderContext rcontext = startPageContext("", req, res);
-		
+
 		rcontext.put("isPDA", isPDA);
 
 		// Decide whether or not to put up the Cancel
 		String actualPortal = serverConfigurationService.getPortalUrl();
-                if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+				if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 			rcontext.put("doCancel", Boolean.TRUE);
 		}
-		
+
 		sendResponse(rcontext, res, "xlogin", null);
 	}
-	
+
 	/**
 	 * Respond to data posting requests.
 	 *
@@ -244,14 +254,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	 *        The servlet request.
 	 * @param res
 	 *        The servlet response.
-	 * @throws ServletException.
-	 * @throws IOException.
 	 */
 	protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
 	{
 		// Present the xlogin template
 		LoginRenderContext rcontext = startPageContext(null, req, res);
-		
+
 		// Get the Sakai session
 		Session session = SessionManager.getCurrentSession();
 
@@ -285,20 +293,20 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		{
 			LoginCredentials credentials = new LoginCredentials(req);
 			credentials.setSessionId(session.getId());
-			
+
 			try {
 				loginService.authenticate(credentials);
 				String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 				complete(returnUrl, session, tool, res);
-				
+
 			} catch (LoginException le) {
-				
+
 				String message = le.getMessage();
-				
+
 				log.debug("LoginException: " + message);
-				
+
 				boolean showAdvice = false;
-				
+
 				if (message.equals(EXCEPTION_INVALID_CREDENTIALS)) {
 					rcontext.put(ATTR_MSG, rb.getString("log.invalid.credentials"));
 					showAdvice = true;
@@ -333,15 +341,15 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				// Decide whether or not to put up the Cancel
 				String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
 				String actualPortal = serverConfigurationService.getPortalUrl();
-                		if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+						if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 					rcontext.put("doCancel", Boolean.TRUE);
 				}
-				
+
 				sendResponse(rcontext, res, "xlogin", null);
 			}
 		}
 	}
-	
+
 	public void sendResponse(LoginRenderContext rcontext, HttpServletResponse res,
 			String template, String contentType) throws IOException
 	{
@@ -374,7 +382,7 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		}
 
 	}
-	
+
 	public LoginRenderContext startPageContext(String skin, HttpServletRequest request, HttpServletResponse response)
 	{
 		LoginRenderEngine rengine = loginService.getRenderEngine(loginContext, request);
@@ -385,22 +393,24 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			skin = serverConfigurationService.getString("skin.default", "default");
 		}
 
-        String templates = serverConfigurationService.getString("portal.templates", "neoskin");
+		String templates = serverConfigurationService.getString("portal.templates", "neoskin");
 
 		if ("neoskin".equals(templates) && portalSkinPrefix != null && !StringUtils.startsWith(skin, portalSkinPrefix)) {
 			// Don't add the prefix twice
-            skin = portalSkinPrefix + skin;
+			skin = portalSkinPrefix + skin;
 		}
 
 		String skinRepo = serverConfigurationService.getString("skin.repo");
 		String uiService = serverConfigurationService.getString("ui.service", "Sakai");
-		
+		String passwordResetUrl = getPasswordResetUrl();
+
 		String eidWording = rb.getString("userid");
 		String pwWording = rb.getString("log.pass");
 		String loginRequired = rb.getString("log.logreq");
 		String loginWording = rb.getString("log.login");
 		String cancelWording = rb.getString("log.cancel");
-		
+		String passwordResetWording = rb.getString("log.password.reset");
+
 		rcontext.put("action", response.encodeURL(Web.returnUrl(request, null)));
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
@@ -411,21 +421,23 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("loginRequired", loginRequired);
 		rcontext.put("loginWording", loginWording);
 		rcontext.put("cancelWording", cancelWording);
-			
+		rcontext.put("passwordResetUrl", passwordResetUrl);
+		rcontext.put("passwordResetWording", passwordResetWording);
+
 		String eid = StringEscapeUtils.escapeHtml(request.getParameter("eid"));
 		String pw = StringEscapeUtils.escapeHtml(request.getParameter("pw"));
-		
+
 		if (eid == null)
 			eid = "";
 		if (pw == null)
 			pw = "";
-		
+
 		rcontext.put("eid", eid);
 		rcontext.put("password", pw);
-		
+
 		return rcontext;
 	}
-	
+
 	public LoginRenderContext startChoiceContext(String skin, HttpServletRequest request, HttpServletResponse response)
 	{
 		LoginRenderEngine rengine = loginService.getRenderEngine(loginContext, request);
@@ -437,30 +449,30 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		}
 		String skinRepo = serverConfigurationService.getString("skin.repo");
 		String uiService = serverConfigurationService.getString("ui.service","Sakai");
-		
+
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
 		rcontext.put("uiService", uiService);
 		rcontext.put("pageScriptPath", getScriptPath());
-		
+
 		rcontext.put("choiceRequired", rb.getString("log.choicereq"));
-		
+
 		rcontext.put("containerLoginChoiceIcon", serverConfigurationService.getString("container.login.choice.icon"));
 		rcontext.put("xloginChoiceIcon", serverConfigurationService.getString("xlogin.choice.icon"));
 		//the URLs for these are set above, as containerLoginUrl and xloginUrl
-		
+
 		rcontext.put("containerLoginChoiceText", serverConfigurationService.getString("container.login.choice.text"));
 		rcontext.put("xloginChoiceText", serverConfigurationService.getString("xlogin.choice.text"));
-		
+
 		return rcontext;
 	}
 
 	public String getLoginContext() {
 		return loginContext;
 	}
-	
+
 	// Helper methods
-	
+
 	/**
 	 * Cleanup and redirect when we have a successful login / logout
 	 *
@@ -491,12 +503,41 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		// redirect to the done URL
 		res.sendRedirect(res.encodeRedirectURL(returnUrl));
 	}
-	
+
 	protected String getScriptPath()
 	{
 		return "/library/js/";
 	}
-	
+
+	/**
+	 * Gets the password reset URL. If looks for a configured URL, otherwise it looks
+	 * for the password reset tool in the gateway site and builds a link to that.
+	 * @return The password reset URL or <code>null</code> if there isn't one or we
+	 * can't find the password reset tool.
+	 */
+	protected String getPasswordResetUrl()
+	{
+		// Has a password reset url been specified in sakai.properties? If so, it rules.
+		String passwordResetUrl = serverConfigurationService.getString("login.password.reset.url", null);
+
+		if(passwordResetUrl == null) {
+			// No explicit password reset url. Try and locate the tool on the gateway page.
+			// If it has been  installed we'll use it.
+			String gatewaySiteId = serverConfigurationService.getGatewaySiteId();
+			try {
+				Site gatewaySite = siteService.getSite(gatewaySiteId);
+				ToolConfiguration resetTC = gatewaySite.getToolForCommonId("sakai.resetpass");
+				if(resetTC != null) {
+					passwordResetUrl = resetTC.getContainingPage().getUrl();
+				}
+			} catch(IdUnusedException iue) {
+				log.warn("No " + gatewaySiteId + " site found whilst building password reset url, set password.reset.url" +
+						" or create " + gatewaySiteId + " and add password reset tool.");
+			}
+		}
+		return passwordResetUrl;
+	}
+
 	/**
 	 * Helper to log failed login attempts (SAK-22430)
 	 * @param credentials the credentials supplied
