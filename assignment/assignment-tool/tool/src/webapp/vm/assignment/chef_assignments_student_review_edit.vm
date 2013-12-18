@@ -122,7 +122,7 @@ function handleEnterKeyPress(ev)
 					#else
 						($reviewNumber $tlang.getString("gen.of") $totalReviews)
 						<br/>
-						$tlang.getString("peerassessment.peerReviewDueDate")&nbsp;$!assignment.peerAssessmentPeriod.toStringLocalFull()
+						$tlang.getFormattedMessage("peerassessment.peerReviewDueDateWithDate", $!assignment.peerAssessmentPeriod.toStringLocalFull())
 					#end
 					</span>
 				</h3>

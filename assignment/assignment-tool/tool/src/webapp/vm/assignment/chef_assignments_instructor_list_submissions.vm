@@ -463,7 +463,7 @@
 						</div>	
 			</div>
 			#if($disableGrade)
-				<div class="highlight">$tlang.getString("peerassessment.cantgrade")&nbsp;$assignment.getPeerAssessmentPeriod().toStringLocalFull()</div>
+				<div class="highlight">$tlang.getFormattedMessage("peerassessment.cantgradewithdate", $assignment.getPeerAssessmentPeriod().toStringLocalFull())</div>
 			#end
 			## show all submission
 			<table class="listHier lines nolines" id ="submissionList" cellpadding="0" cellspacing="0" summary="$tlang.getString("gen.viewassliststudentsummary")">
