@@ -22,7 +22,7 @@
 
 
 	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
-	    class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+	    class="org.sakaiproject.memory.util.EhCacheManagerFactoryBean">
   		<property name="configLocation">
     	<value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
   		</property>
