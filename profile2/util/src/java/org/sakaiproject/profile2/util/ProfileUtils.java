@@ -105,19 +105,36 @@ public class ProfileUtils {
 		return "jpg";
 	}
 	
+	
+	public static byte[] scaleImage(byte[] imageData, int maxSize, String mimeType) {
+		InputStream in = null;
+		try {
+			in = new ByteArrayInputStream(imageData);
+			return scaleImage(in, maxSize, mimeType);
+			
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+					log.debug("Image stream closed."); 
+				}
+				catch (IOException e) {
+					log.error("Error closing image stream: ", e); 
+				}
+			}
+		}
+	}
 	/**
 	 * Scale an image so it is fit within a give width and height, whilst maintaining its original proportions 
 	 *
 	 * @param imageData		bytes of the original image
 	 * @param maxSize		maximum dimension in px
 	 */
-	public static byte[] scaleImage(byte[] imageData, int maxSize, String mimeType) {
+	public static byte[] scaleImage(InputStream in, int maxSize, String mimeType) {
 		
-		InputStream in = null;
 		byte[] scaledImageBytes = null;
 		try {
 			//convert original image to inputstream
-			in = new ByteArrayInputStream(imageData);
 			
 			//original buffered image
 			BufferedImage originalImage = ImageIO.read(in);
@@ -134,19 +151,6 @@ public class ProfileUtils {
 			
 		} catch (Exception e) {
 			log.error("Scaling image failed.", e);
-		}
-		
-		
-		finally {
-			if (in != null) {
-				try {
-					in.close();
-					log.debug("Image stream closed."); 
-				}
-				catch (IOException e) {
-					log.error("Error closing image stream: ", e); 
-				}
-			}
 		}
 		
 		return scaledImageBytes;

@@ -385,6 +385,15 @@ public class ProfileLogicImpl implements ProfileLogic {
 			converter.convertProfileImages();
 		}
 		
+		// Should we import profile image URLs to be uploaded profile images?
+		if (sakaiProxy.isProfileImageImportEnabled()) {
+			if (sakaiProxy.getProfilePictureType() != ProfileConstants.PICTURE_SETTING_UPLOAD) {
+				log.warn("I'm set to import images but profile2.picture.type=upload is not set. Not importing.");
+			} else {
+				converter.importProfileImages();
+			}
+		}
+		
 		//do we need to import profiles?
 		if(sakaiProxy.isProfileImportEnabled()) {
 			

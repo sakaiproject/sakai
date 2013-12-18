@@ -17,6 +17,11 @@ package org.sakaiproject.profile2.conversion;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -28,12 +33,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.profile2.dao.ProfileDao;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.hbm.model.ProfileImageExternal;
@@ -98,10 +101,6 @@ public class ProfileConverter {
 		//for each, do they have a profile image record. if so, skip (perhaps null the SakaiPerson JPEG_PHOTO bytes?)
 		for(Iterator<String> i = allUsers.iterator(); i.hasNext();) {
 			String userUuid = (String)i.next();
-			
-			//
-			// Process iamge bytes
-			//
 			
 			//get image record from dao directly, we don't need privacy/prefs here
 			ProfileImageUploaded uploadedProfileImage = dao.getCurrentProfileImageRecord(userUuid);
@@ -185,6 +184,115 @@ public class ProfileConverter {
 		}
 		
 		return;
+	}
+	
+	/**
+	 * This imports URL profile images into upload profile images.
+	 */
+	public void importProfileImages() {
+		
+		//get list of users
+		List<String> allUsers = new ArrayList<String>(dao.getAllSakaiPersonIds());
+		
+		if(allUsers.isEmpty()){
+			log.warn("Profile2 image converter: No SakaiPersons to process. Nothing to do!");
+			return;
+		}
+		
+		//for each, do they have a profile image record. if so, skip (perhaps null the SakaiPerson JPEG_PHOTO bytes?)
+		for(Iterator<String> i = allUsers.iterator(); i.hasNext();) {
+			String userUuid = i.next();
+			
+			//get image record from dao directly, we don't need privacy/prefs here
+			ProfileImageUploaded uploadedProfileImage = dao.getCurrentProfileImageRecord(userUuid);
+			
+			ci = new ConvertedImage();
+			ci.setUserUuid(userUuid);
+			
+			//if no record, we need to run all conversions
+			if(uploadedProfileImage == null) {
+				
+				//main
+				ProfileImageExternal externalProfileImage = dao.getExternalImageRecordForUser(userUuid);
+				if (externalProfileImage == null) {
+					log.info("No existing external profile images for "+ userUuid);
+				} else {
+					String mainUrl = externalProfileImage.getMainUrl();
+					if (StringUtils.isNotBlank(mainUrl)) {
+						retrieveMainImage(userUuid, mainUrl);
+					} else {
+						log.info("No URL set for "+ userUuid);
+					}
+				}
+	
+				if(StringUtils.isNotBlank(ci.getMainResourceId())) {
+					//thumbnail
+					generateAndPersistThumbnail();
+					//avatar
+					generateAndPersistAvatar();
+				}
+			}
+		
+			//save image resource IDs
+			if(ci.isNeedsSaving()){
+				ProfileImageUploaded convertedProfileImage = new ProfileImageUploaded(userUuid, ci.getMainResourceId(), ci.getThumbnailResourceId(), ci.getAvatarResourceId(), true);
+			
+				if(dao.addNewProfileImage(convertedProfileImage)){
+					log.info("Profile2 image converter: Binary image converted and saved for " + userUuid);
+				} else {
+					log.warn("Profile2 image converter: Binary image conversion failed for " + userUuid);
+				}	
+			}
+		}
+	}
+
+	private void retrieveMainImage(String userUuid, String mainUrl) {
+		InputStream inputStream = null;
+		try {
+			URL url = new URL(mainUrl);
+			HttpURLConnection openConnection = (HttpURLConnection) url.openConnection();
+			openConnection.setReadTimeout(5000);
+			openConnection.setConnectTimeout(5000);
+			openConnection.setInstanceFollowRedirects(true);
+			openConnection.connect();
+			int responseCode = openConnection.getResponseCode();
+			if (responseCode == HttpURLConnection.HTTP_OK) {
+
+				String mimeType = openConnection.getContentType();
+				inputStream = openConnection.getInputStream();
+				// Convert the image.
+				byte[] imageMain = ProfileUtils.scaleImage(inputStream, ProfileConstants.MAX_IMAGE_XY, mimeType);
+
+				//create resource ID
+				String mainResourceId = sakaiProxy.getProfileImageResourcePath(userUuid, ProfileConstants.PROFILE_IMAGE_MAIN);
+				log.info("Profile2 image converter: mainResourceId: " + mainResourceId);
+
+				//save, if error, log and return.
+				if (!sakaiProxy.saveFile(mainResourceId, userUuid, DEFAULT_FILE_NAME, mimeType, imageMain)) {
+					log.error("Profile2 image importer: Saving main profile image failed.");
+				} else {
+					ci.setImage(imageMain);
+					ci.setMimeType(mimeType);
+					ci.setFileName(DEFAULT_FILE_NAME);
+					ci.setMainResourceId(mainResourceId);
+					ci.setNeedsSaving(true);
+				}
+			} else {
+				log.warn("Failed to get good response for user "+ userUuid+ " for "+ mainUrl+ " got "+ responseCode);
+			}
+		} catch (MalformedURLException e) {
+			log.info ("Invalid URL for user: "+ userUuid+ " of: "+ mainUrl);
+		} catch (IOException e) {
+			log.warn("Failed to download image for: "+ userUuid+ " from: "+ mainUrl+ " error of: "+ e.getMessage());
+		} finally {
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException ioe) {
+					log.info("Failed to close input stream for request to: "+ mainUrl);
+				}
+			}
+		}
 	}
 	
 	/**
