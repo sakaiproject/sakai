@@ -492,6 +492,11 @@ public class LTI2Util {
 			M_log.warning(e.getLocalizedMessage());
 			return false;
 		}
+
+		// This could happen if the old settings service was used
+		// on an LTI 2.x placement to put in settings that are not
+		// JSON - we just ignore it.
+		if ( json == null ) return false;
 		Iterator<?> keys = json.keySet().iterator();
 		while( keys.hasNext() ){
 			String key = (String)keys.next();

@@ -584,11 +584,14 @@ public class SakaiBLTIUtil {
 		Long toolKey = getLongKey(tool.get(LTIService.LTI_ID));
         proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
 
+		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
+		boolean isLTI1 = toolVersion == null || toolVersion == LTIService.LTI_VERSION_1;
+
 		// Start building up the properties
 		Properties ltiProps = new Properties();
 		Properties toolProps = new Properties();
 		Properties lti2subst = new Properties();
-		if ( deploy == null ) {
+		if ( isLTI1 ) {
 			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_1);
 		} else {
 			setProperty(ltiProps,BasicLTIConstants.LTI_VERSION,BasicLTIConstants.LTI_VERSION_2);
@@ -692,21 +695,25 @@ public class SakaiBLTIUtil {
 				setProperty(lti2subst, "Result.url", result_url);
 			}
 
+			// We don't allow LTI 2 tools to have access to the old settings extension
+			// because they can use it to set it to non-JSON
 			if ( allowsettings == 1 ) {
-				setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
+				if ( isLTI1 ) {
+					setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
 
-				String setting = (String) content.get(LTIService.LTI_SETTINGS);
-				if ( setting != null ) {
-					setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
+					String setting = (String) content.get(LTIService.LTI_SETTINGS);
+					if ( setting != null ) {
+						setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
+					}
+					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
+					if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
+					setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
+				} else {
+					String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
+					setProperty(lti2subst,"LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
+					setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
+					setProperty(lti2subst,"ToolProxy.custom.url", settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
 				}
-				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-				if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
-				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
-
-				String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
-				setProperty(lti2subst,"LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
-				setProperty(lti2subst,"ToolProxy.custom.url", settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
 			}
 
 			if ( allowroster == 1 ) {
@@ -750,11 +757,10 @@ public class SakaiBLTIUtil {
 
 		// System.out.println("ltiProps="+ltiProps);
 		// System.out.println("toolProps="+toolProps);
-System.out.println("lti2subst="+lti2subst);
-
-System.out.println("before custom="+custom);
+		M_log.debug("lti2subst="+lti2subst);
+		M_log.debug("before custom="+custom);
 		LTI2Util.substituteCustom(custom, lti2subst);
-System.out.println("after custom="+custom);
+		M_log.debug("after custom="+custom);
 
 		// Place the custom values into the launch
 		LTI2Util.addCustomToLaunch(ltiProps, custom);
@@ -802,7 +808,7 @@ System.out.println("after custom="+custom);
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		debug = 1;
 
-		System.out.println("ltiProps="+ltiProps);
+		M_log.debug("ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
@@ -850,7 +856,7 @@ System.out.println("after custom="+custom);
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
 				consumerkey, secret, null, null, null);
 
-		System.out.println("signed ltiProps="+ltiProps);
+		M_log.debug("signed ltiProps="+ltiProps);
 
 		boolean dodebug = debug == 1;
 		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);

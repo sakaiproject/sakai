@@ -193,30 +193,30 @@ public class SakaiIFrame extends GenericPortlet {
 			// Retrieve the corresponding content item and tool to check the launch
 			Map<String, Object> content = null;
 			Map<String, Object> tool = null;
-			int pos = source.indexOf("/content:");
-			if ( pos > 0 ) {
-				pos = pos + "/content:".length();
-				if ( pos < source.length()-1 ) {
-					String sContentId = source.substring(pos);
-					try {
-						Long key = new Long(sContentId);
-						content = m_ltiService.getContent(key);
-						String launch = (String) content.get("launch");
-						Long tool_id = getLongNull(content.get("tool_id"));
-						if ( launch == null && tool_id != null ) {
-							tool = m_ltiService.getTool(tool_id);
-							launch = (String) tool.get("launch");
-						}
-
-						// Force http:// to pop-up if we are https://
-						String serverUrl = ServerConfigurationService.getServerUrl();
-						if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
-							if ( launch != null && launch.startsWith("http://") ) popup = true;
-						}
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
+			Long key = getContentIdFromSource(source);
+			if ( key < 1 ) {
+				out.println(rb.getString("get.info.notconfig"));
+				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
+				return;
+			}
+			try {
+				content = m_ltiService.getContent(key);
+				String launch = (String) content.get("launch");
+				Long tool_id = getLongNull(content.get("tool_id"));
+				if ( launch == null && tool_id != null ) {
+					tool = m_ltiService.getTool(tool_id);
+					launch = (String) tool.get("launch");
 				}
+
+				// Force http:// to pop-up if we are https://
+				String serverUrl = ServerConfigurationService.getServerUrl();
+				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
+					if ( launch != null && launch.startsWith("http://") ) popup = true;
+				}
+			} catch (Exception e) {
+				out.println(rb.getString("get.info.notconfig"));
+				e.printStackTrace();
+				return;
 			}
 
 			if ( source != null && source.trim().length() > 0 ) {
@@ -259,37 +259,34 @@ public class SakaiIFrame extends GenericPortlet {
 			// get current site
 			Placement placement = ToolManager.getCurrentPlacement();
 			String siteId = "";
-			ToolConfiguration toolConfig = SiteService.findTool(placement.getId());
-			if ( toolConfig != null )
-			{
-				siteId = toolConfig.getSiteId();
-			}
+
 			// find the right LTIContent object for this page
-			Map<String,Object> foundContent = null;
-			List<Map<String,Object>> contents = m_ltiService.getContents(null,null,0,0);
-			HashMap<String, Map<String, Object>> linkedLtiContents = new HashMap<String, Map<String, Object>>();
-			for ( Map<String,Object> content : contents ) {
-				String sId = StringUtils.trimToNull((String) content.get(m_ltiService.LTI_SITE_ID));
-				if (sId != null && sId.equals(siteId))
-				{
-					String ltiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
-					Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
-					String toolTitle = (String) ltiToolValues.get(LTIService.LTI_TITLE);
-					if (toolTitle != null && toolTitle.equals(toolConfig.getTitle()))
-					{
-						// we have found the right LTIToolContent for this page
-						foundContent = content;
-						// exit the loop
-						break;
-					}
-				}
+			String source = placement.getPlacementConfig().getProperty(SOURCE);
+			Long key = getContentIdFromSource(source);
+			if ( key < 1 ) {
+				out.println(rb.getString("get.info.notconfig"));
+				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
+				return;
 			}
-			
-			String foundLtiToolId = foundContent.get(m_ltiService.LTI_TOOL_ID).toString();
-			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId));
+
+			Map<String, Object> content = m_ltiService.getContent(key);
+			if ( content == null ) {
+				out.println(rb.getString("get.info.notconfig"));
+				M_log.warn("Cannot find content item placement="+placement.getId()+" key="+key);
+				return;
+			}
+
 			// attach the ltiToolId to each model attribute, so that we could have the tool configuration page for multiple tools
-			Map<String, Object> ltiTool = m_ltiService.getTool(Long.valueOf(foundLtiToolId));
-			String formInput=m_ltiService.formInput(foundContent, contentToolModel);
+			String foundLtiToolId = content.get(m_ltiService.LTI_TOOL_ID).toString();
+			Map<String, Object> tool = m_ltiService.getTool(Long.valueOf(foundLtiToolId));
+			if ( tool == null ) {
+				out.println(rb.getString("get.info.notconfig"));
+				M_log.warn("Cannot find tool placement="+placement.getId()+" key="+foundLtiToolId);
+				return;
+			}
+
+			String[] contentToolModel=m_ltiService.getContentModel(Long.valueOf(foundLtiToolId));
+			String formInput=m_ltiService.formInput(content, contentToolModel);
 			context.put("formInput", formInput);
 			
 			vHelper.doTemplate(vengine, "/vm/edit.vm", context, out);
@@ -368,6 +365,24 @@ public class SakaiIFrame extends GenericPortlet {
 
 	/** Valid digits for custom height from user input **/
 	protected static final String VALID_DIGITS = "0123456789";
+
+	/* Parse the source URL to extract the content identifier */
+	private Long getContentIdFromSource(String source)
+	{
+		int pos = source.indexOf("/content:");
+		if ( pos < 1 ) return null;
+		pos = pos + "/content:".length();
+		if ( pos < source.length()-1 ) {
+			String sContentId = source.substring(pos);
+			try {
+				Long key = new Long(sContentId);
+				return key;
+			} catch (Exception e) {
+				return null;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * Check if the string from user input contains any characters other than digits
