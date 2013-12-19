@@ -30,6 +30,14 @@
 							</a>
 						</li>
 		  		#else
+		  			 #if (${page.toolpopup})
+						<li>
+							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" 
+							onclick="window.open('${page.toolpopupurl}');">
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"></span><span class="menuTitle">${page.pageTitle}</span>
+							</a>
+						</li>
+					 #else
 		  			 #if (${page.ispopup})
 						<li>
 							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
@@ -43,6 +51,7 @@
 							</a>
 						</li>
 		   			#end
+				    #end
 		  		#end
 			#end
 			#if ( $subSites && $showSubsitesAsFlyout ) 

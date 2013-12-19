@@ -204,8 +204,16 @@ ${responseBody}
 	<nav>
     <ul id="pda-portlet-page-menu"> 
     #foreach ( $page in $currentSite.sitePages.pageNavTools ) 
+      ## This must be a tool popup - so we treat it as a popup
+      #if ($page.toolpopup) 
+        <li class="${page.menuClass}-item">
+          <span><a href="${page.toolrefUrl}?sakai.popup=yes" title="${page.toolTitle}"  class=""
+			onclick="window.open('${page.toolpopupurl}');"
+			><span class="toolMenuIcon ${page.menuClass}"> </span>${page.toolTitle}</a></span>
+        </li>
+      #else 
       #if ($page.isPage)
-        ## This must be a popup - so we treat it as a popup
+        ## This must be a page popup - so we treat it as a popup
         <li class="${page.menuClass}-item">
         	<span>
 				<a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')"  class="">
@@ -217,6 +225,7 @@ ${responseBody}
         <li class="${page.menuClass}-item">
           <span><a href="${page.toolrefUrl}" title="${page.toolTitle}"  class=""><span class="toolMenuIcon ${page.menuClass}"> </span>${page.toolTitle}</a></span>
         </li>
+      #end
       #end
     #end
     #if ( $subSites )

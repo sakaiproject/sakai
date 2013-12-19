@@ -626,6 +626,29 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			ToolConfiguration firstTool = null;
 			String toolsOnPage = null;
 
+			// Check the tools that indicate the portal is to do the popup
+			Iterator<ToolConfiguration> toolz = pTools.iterator();
+			String source = null;
+			boolean toolPopup = false;	
+			int count = 0;
+			while(toolz.hasNext()){
+				ToolConfiguration tc = toolz.next();
+				count++;
+				Tool to = tc.getTool();
+				Properties pro = tc.getConfig();
+				if ( "sakai.web.168".equals(tc.getToolId()) ) {
+					source = pro.getProperty("source");
+					toolPopup = "true".equals(pro.getProperty("popup"));
+				} else if ( "sakai.iframe".equals(tc.getToolId()) ) {
+					source = pro.getProperty("source");
+					toolPopup = "true".equals(pro.getProperty("popup"));
+				} else if ( "sakai.basiclti".equals(tc.getToolId()) ) {
+					toolPopup = "on".equals(pro.getProperty("imsti.newpage"));
+					source = "/access/basiclti/site/"+tc.getContext()+"/"+tc.getId();
+				}
+			}
+			if ( count != 1 ) toolPopup = false;
+
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
 			String alias = lookupPageToAlias(site.getId(), p);
@@ -677,6 +700,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageId", Web.escapeUrl(p.getId()));
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
+				m.put("toolpopup", Boolean.valueOf(toolPopup));
+				m.put("toolpopupurl", source);
 				
 				// TODO: Should have Web.escapeHtmlAttribute()
 				String description = desc.toString().replace("\"","&quot;");
@@ -727,6 +752,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
 					m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
 					m.put("toolrefUrl", toolrefUrl);
+					m.put("toolpopup", Boolean.valueOf(toolPopup));
+					m.put("toolpopupurl", source);
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
 					m.put("menuClass", menuClass);
