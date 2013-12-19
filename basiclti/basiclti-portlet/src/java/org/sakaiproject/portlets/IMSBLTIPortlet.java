@@ -51,6 +51,9 @@ import javax.portlet.PortletMode;
 import javax.portlet.PortletSession;
 import javax.portlet.ReadOnlyException;
 
+import javax.servlet.ServletRequest;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -111,6 +114,8 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 	public static final String ISO_8601_FORMAT = "yyyy-MM-dd'T'HH:mm:ssz";
 
+	public final static String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
+
 	public void init(PortletConfig config) throws PortletException {
 		super.init(config);
 
@@ -163,6 +168,10 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			response.setContentType("text/html; charset=UTF-8");
 
+			// Grab that underlying request to get a GET parameter
+			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
+			String popupDone = req.getParameter("sakai.popup");
+
 			PrintWriter out = response.getWriter();
 
 			String title = getTitleString(request);
@@ -183,7 +192,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 			if ( placementSecret == null && 
 			   ( "on".equals(allowOutcomes) || "on".equals(allowSettings) || 
-			     "on".equals(allowRoster) || "on".equals(allowLORI) ) ) {
+				 "on".equals(allowRoster) || "on".equals(allowLORI) ) ) {
 				String uuid = UUID.randomUUID().toString();
 				Date date = new Date();
 				SimpleDateFormat sdf = new SimpleDateFormat(ISO_8601_FORMAT);
@@ -201,11 +210,19 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				dPrint("fh="+frameHeight);
 				String newPage =  getCorrectProperty(request, "newpage", null);
 				String serverUrl = ServerConfigurationService.getServerUrl();
+				boolean forcePopup = false;
 				if ( request.isSecure() || ( serverUrl != null && serverUrl.startsWith("https://") ) ) {
 					if ( launch != null && launch.startsWith("http://") ) {
-						newPage = "on";
+						forcePopup = true;
 					}
 				}
+
+				// Change "newpage" if forcePopup so the portal will do our pop up next time
+				if ( forcePopup && ! "on".equals(newPage) ) {
+					placement.getPlacementConfig().setProperty("imsti.newpage","on");
+					placement.save();
+				}
+
 				String maximize =  getCorrectProperty(request, "maximize", null);
 				StringBuffer text = new StringBuffer();
 
@@ -213,12 +230,14 @@ public class IMSBLTIPortlet extends GenericPortlet {
 				session.setAttribute("sakai:maximized-url",iframeUrl);
 				dPrint("Setting sakai:maximized-url="+iframeUrl);
 
-				if ( "on".equals(newPage) ) {
+				if ( "on".equals(newPage) || forcePopup ) {
 					String windowOpen = "window.open('"+iframeUrl+"','BasicLTI');"; 			
-					text.append("<p>\n");
-					text.append("<script type=\"text/javascript\">\n");
-					text.append(windowOpen+"\n");
-					text.append("</script>\n");
+					if ( popupDone == null ) {
+						text.append("<p>\n");
+						text.append("<script type=\"text/javascript\">\n");
+						text.append(windowOpen+"\n");
+						text.append("</script>\n");
+					}
 					text.append(rb.getString("new.page.launch"));
 					text.append("<br><a href=\""+iframeUrl+"\" onclick=\""+windowOpen+"\" target=\"BasicLTI\">"+rb.getString("noiframe.press.here")+"</a>");
 					text.append("</p>\n");

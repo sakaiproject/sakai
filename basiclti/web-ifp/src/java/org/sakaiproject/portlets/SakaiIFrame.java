@@ -74,6 +74,9 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 
+import javax.servlet.ServletRequest;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
 // Velocity
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.context.Context;
@@ -122,7 +125,7 @@ public class SakaiIFrame extends GenericPortlet {
 	/** The custom height from user input * */
 	protected final static String CUSTOM_HEIGHT = "customNumberField";
 
-	protected final String POPUP = "sakai:popup";
+	protected final String POPUP = "popup";
 	protected final String MAXIMIZE = "sakai:maximize";
 
 	protected final static String TITLE = "title";
@@ -134,6 +137,8 @@ public class SakaiIFrame extends GenericPortlet {
 	private static final int MAX_TITLE_LENGTH = 99;
 
 	private static String ALERT_MESSAGE = "sakai:alert-message";
+
+	public final static String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
 
 	// If the property is final, the property wins.  If it is not final,
 	// the portlet preferences take precedence.
@@ -180,6 +185,10 @@ public class SakaiIFrame extends GenericPortlet {
 
 			// System.out.println("==== doView called ====");
 
+			// Grab that underlying request to get a GET parameter
+			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
+			String popupDone = req.getParameter("sakai.popup");
+
 			PrintWriter out = response.getWriter();
 			Placement placement = ToolManager.getCurrentPlacement();
 			response.setTitle(placement.getTitle());
@@ -187,8 +196,10 @@ public class SakaiIFrame extends GenericPortlet {
 			if ( source == null ) source = "";
 			String height = placement.getPlacementConfig().getProperty(HEIGHT);
 			if ( height == null ) height = "1200px";
-			boolean popup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
 			boolean maximize = "true".equals(placement.getPlacementConfig().getProperty(MAXIMIZE));
+
+			boolean popup = false; // Comes from content item
+			boolean oldPopup = "true".equals(placement.getPlacementConfig().getProperty(POPUP));
 
 			// Retrieve the corresponding content item and tool to check the launch
 			Map<String, Object> content = null;
@@ -201,6 +212,13 @@ public class SakaiIFrame extends GenericPortlet {
 			}
 			try {
 				content = m_ltiService.getContent(key);
+				// If we are supposed ot popup (per the content), do so and optionally
+				// copy the calue into the placement to communicate with the portal
+				popup = getLongNull(content.get("newpage")) == 1;
+				if ( oldPopup != popup ) {
+					placement.getPlacementConfig().setProperty(POPUP, popup ? "true" : "false");
+					placement.save();
+				}
 				String launch = (String) content.get("launch");
 				Long tool_id = getLongNull(content.get("tool_id"));
 				if ( launch == null && tool_id != null ) {
@@ -227,6 +245,7 @@ public class SakaiIFrame extends GenericPortlet {
 				context.put("source",source);
 				context.put("height",height);
 				sendAlert(request,context);
+				context.put("popupdone", Boolean.valueOf(popupDone != null));
 				context.put("popup", Boolean.valueOf(popup));
 				context.put("maximize", Boolean.valueOf(maximize));
 
