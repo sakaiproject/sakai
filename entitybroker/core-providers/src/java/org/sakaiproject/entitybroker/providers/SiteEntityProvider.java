@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Properties;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -468,7 +469,7 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
         String userId = developerHelperService.getCurrentUserId();
         if (userId == null) {
             throw new SecurityException(
-            "This action (userPerms) is not accessible to anon and there is no current user.");
+            "This action (pages) is not accessible to anon and there is no current user.");
         }
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
@@ -527,8 +528,12 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             }
             List<Map<String, Object>> tools = new ArrayList<Map<String,Object>>();
             pageData.put("tools", tools);
-            data.add( pageData );
 
+            // Peek into the tools to see if they want to be popped up 
+	        // Similar to PortalSiteHelperImpl.java
+            String source = null;
+            boolean toolPopup = false;
+            int count = 0;
             // get the tool configs for each
             for (ToolConfiguration tc : (List<ToolConfiguration>) page.getTools() ) {
                 // get the tool from column 0 for this tool config (if there is one)
@@ -553,8 +558,30 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                         toolData.put("registeredConfig", tool.getRegisteredConfig());
                         toolData.put("mutableConfig", tool.getMutableConfig());
                     }
+
+                    count++;
+                    Properties toolProps = tc.getConfig();
+                    if ( "sakai.web.168".equals(tc.getToolId()) ) {
+                        source = toolProps.getProperty("source");
+                        toolPopup = "true".equals(toolProps.getProperty("popup"));
+                    } else if ( "sakai.iframe".equals(tc.getToolId()) ) {
+                        source = toolProps.getProperty("source");
+                        toolPopup = "true".equals(toolProps.getProperty("popup"));
+                    } else if ( "sakai.basiclti".equals(tc.getToolId()) ) {
+                        toolPopup = "on".equals(toolProps.getProperty("imsti.newpage"));
+                        source = "/access/basiclti/site/"+tc.getContext()+"/"+tc.getId();
+                    }
                 }
             }
+            if ( count != 1 ) {
+                toolPopup = false;
+                source = null;
+            }
+            pageData.put("toolpopup", Boolean.valueOf(toolPopup));
+            pageData.put("toolpopupurl", source);
+
+            // Add the pageData
+            data.add( pageData );
         }
 
         return new ActionReturn(data);
