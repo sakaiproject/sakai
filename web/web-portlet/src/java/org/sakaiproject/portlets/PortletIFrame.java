@@ -83,6 +83,9 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
 
+import javax.servlet.ServletRequest;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -233,6 +236,8 @@ public class PortletIFrame extends GenericPortlet {
     private static final String IFRAME_XFRAME_POPUP = "iframe.xframe.popup";
     private static final String IFRAME_XFRAME_INLINE = "iframe.xframe.inline";
 
+    public final static String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
+
     private static ArrayList allowedMacrosList;
     static
     {
@@ -320,6 +325,10 @@ public class PortletIFrame extends GenericPortlet {
 
 			// System.out.println("==== doView called ====");
 
+			// Grab that underlying request to get a GET parameter
+			ServletRequest req = (ServletRequest) ThreadLocalManager.get(CURRENT_HTTP_REQUEST);
+			String popupDone = req.getParameter("sakai.popup");
+
 			PrintWriter out = response.getWriter();
 			Context context = new VelocityContext();
 			Placement placement = ToolManager.getCurrentPlacement();
@@ -397,6 +406,7 @@ public class PortletIFrame extends GenericPortlet {
 				context.put("height",height);
 				sendAlert(request,context);
 				context.put("popup", Boolean.valueOf(popup));
+				context.put("popupdone", Boolean.valueOf(popupDone != null));
 				context.put("maximize", Boolean.valueOf(maximize));
 				context.put("placement", placement.getId().replaceAll("[^a-zA-Z0-9]","_"));
 				context.put("loadTime", new Long(xframeLoad));

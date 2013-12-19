@@ -1,9 +1,11 @@
 <div class="portletBody">
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 #if ($!popup) 
+#if ( ! $!popupdone) 
 <script type="text/javascript" language="JavaScript">
 window.open('$!source','_blank');
 </script>
+#end
 <p>
 $tlang.getString("new.page.launch") </p> <p>
 <a href="$source" onclick="window.open('$!source','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
