@@ -9787,8 +9787,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 				
 				// bjones86 - SAK-23257
-				List allRoles = getRoles(state);
-				List<Role> allowedRoles = SiteParticipantHelper.getAllowedRoles(siteType, allRoles);
+				List<Role> allowedRoles = null;
+				Set<String> restrictedRoles = null;
+				if (null == state.getAttribute(STATE_SITE_INSTANCE_ID)) {
+					restrictedRoles = SiteParticipantHelper.getRestrictedRoles(state.getAttribute(STATE_SITE_TYPE ).toString());
+				}
+				else {
+					allowedRoles = SiteParticipantHelper.getAllowedRoles(siteType, getRoles(state));
+				}
 				
 				for(Role role:realm.getRoles())
 				{
@@ -9796,7 +9802,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							|| permissionAllowedRoleIds!= null && !permissionAllowedRoleIds.contains(role.getId()))
 					{
 						// bjones86 - SAK-23257
-						if (allowedRoles.contains(role)) {
+						if (allowedRoles != null && allowedRoles.contains(role)) {
+							roles.add(role);
+						}
+						else if (restrictedRoles != null &&
+								(!restrictedRoles.contains(role.getId()) || !restrictedRoles.contains(role.getId().toLowerCase()))) {
 							roles.add(role);
 						}
 					}

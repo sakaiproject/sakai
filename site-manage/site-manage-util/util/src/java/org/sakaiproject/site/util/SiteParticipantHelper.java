@@ -548,6 +548,28 @@ public class SiteParticipantHelper {
 			}
 		}
 	}
+	
+	/**
+	 * Get a list of restricted roles, taking into account the current site type
+	 * 
+	 * @author bjones86
+	 * @param siteType
+	 * 				the current site's type
+	 * @return a list of restricted role IDs for the given site type
+	 */
+	public static Set<String> getRestrictedRoles( String siteType )
+	{
+		// Add all root level restricted roles
+		Set<String> retVal = new HashSet<String>();
+		retVal.addAll(Arrays.asList(ArrayUtils.nullToEmpty(scs.getStrings(SAK_PROP_RESTRICTED_ROLES))));
+		
+		// Add all site type specficic restricted roles
+		if(siteType != null && !"".equals(siteType)) {
+			retVal.addAll(Arrays.asList(ArrayUtils.nullToEmpty(scs.getStrings(SAK_PROP_RESTRICTED_ROLES + "." + siteType))));
+		}
+		
+		return retVal;
+	}
 
 	/**
 	 * Get a list of the 'allowed roles', taking into account the current site type
@@ -569,9 +591,7 @@ public class SiteParticipantHelper {
 		}
 		
 		// Get all the restricted roles for this site type, as well as all restricted roles at the top level (restricted for all site types)
-		Set<String> restrictedRoles = new HashSet<String>();
-		restrictedRoles.addAll( Arrays.asList( ArrayUtils.nullToEmpty( scs.getStrings( SAK_PROP_RESTRICTED_ROLES + "." + siteType ) ) ) );
-		restrictedRoles.addAll( Arrays.asList( ArrayUtils.nullToEmpty( scs.getStrings( SAK_PROP_RESTRICTED_ROLES ) ) ) );
+		Set<String> restrictedRoles = getRestrictedRoles(siteType);
 				
 		// Loop through all the roles for this site type
 		for( Role role : allRolesForSiteType )
