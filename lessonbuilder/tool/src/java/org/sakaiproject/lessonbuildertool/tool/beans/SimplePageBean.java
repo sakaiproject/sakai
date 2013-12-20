@@ -6315,9 +6315,26 @@ public class SimplePageBean {
 			
 			ContentCollection cc = cce;
 
+			// a directory with just a subdirectory. Use the subdirectory
 			if (children.size() == 1 && children.get(0).endsWith("/")) {
 			    contentCollectionId = children.get(0);
 			    cc = contentHostingService.getCollection(contentCollectionId);
+			}
+
+			// With MacOS we might have __MACOSX and a subdirectory. __MACOSX should be ignored,
+			// so treat it just like the case above
+			if (children.size() == 2 && children.get(0).endsWith("/") && children.get(1).endsWith("/")) {
+			    String dataChild = null;
+			    if (children.get(0).endsWith("__MACOSX/")) {
+				dataChild = children.get(1);
+			    } else if (children.get(1).endsWith("__MACOSX/")) {
+				dataChild = children.get(0);
+			    }
+			    
+			    if (dataChild != null) {
+				contentCollectionId = dataChild;
+				cc = contentHostingService.getCollection(contentCollectionId);
+			    }
 			}
 
 			// Now lets work out what type it is and return the appropriate
