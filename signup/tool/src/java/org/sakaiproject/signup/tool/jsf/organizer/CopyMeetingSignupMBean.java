@@ -48,8 +48,7 @@ import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateMeetings;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CreateSitesGroups;
 import org.sakaiproject.signup.tool.util.Utilities;
-
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
+//import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 /**
  * <p>

@@ -26,12 +26,14 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.TimeZone;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletOutputStream;
@@ -59,6 +61,8 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler;
 import org.sakaiproject.signup.tool.util.SignupBeanConstants;
 import org.sakaiproject.signup.tool.util.Utilities;
+import org.sakaiproject.time.api.Time;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -113,7 +117,6 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	protected String customCategory;
 	
 	protected static final String ICS_MIME_TYPE="text/calendar";
-
 
 	/**
 	 * This method will get the most updated event/meeting data and handle all
@@ -733,11 +736,77 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	 * Generate and send for download an ICS file for the meeting. Contains no timeslots, just the meeting itself.
 	 * This method is in this particular bean because 1. We have access to the meeting here, and 2. it is used in more than one sub-bean.
 	 */
+	
+	private UserTimeZone userTimeZone;
+	
 	public void downloadICSForMeeting() {
 		String filePath;
-		try{	
-			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meetingWrapper.getMeeting())));
+		SignupMeeting meeting = meetingWrapper.getMeeting();
+	
+		Date defaultEndTime = meeting.getEndTime();
+		Date dfaultStartTime = meeting.getStartTime();
+
+		//pass user preference time in and need to reset back since the object is cached.
+		meeting.setEndTime(getUserTimezonePreferenceDate(defaultEndTime));
+		meeting.setStartTime(getUserTimezonePreferenceDate(dfaultStartTime));
+	
+		try{
+			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForMeeting(meeting)));
+			meeting.setEndTime(defaultEndTime);
+			meeting.setStartTime(dfaultStartTime);
 		}catch(NullPointerException ne){
+			meeting.setEndTime(defaultEndTime);
+			meeting.setStartTime(dfaultStartTime);
+			handleICSDownloadWarningToUser();
+			return;
+		}
+		
+		if(StringUtils.isNotBlank(filePath)) {
+			logger.debug("filepath: " + filePath);
+			sendDownload(filePath, ICS_MIME_TYPE);
+		} else {
+			logger.error("Could not generate file for download");
+			//TODO this could set an error and return perhaps.
+		}
+	}
+	
+	public void downloadICSForMeetingTimeSlot(TimeslotWrapper timeslotWrapper) {
+		String filePath;
+		
+		SignupMeeting meeting = meetingWrapper.getMeeting();
+		SignupTimeslot currentTimeslot = timeslotWrapper.getTimeSlot();
+				
+		Date timeslotEndTime = currentTimeslot.getEndTime();
+		Date timeslotStartTime = currentTimeslot.getStartTime();
+		
+		Date defaultEndTime = meeting.getEndTime();
+		Date dfaultStartTime = meeting.getStartTime();
+
+		//pass user preference time in and need to reset back since the object is cached.
+		meeting.setEndTime(getUserTimezonePreferenceDate(defaultEndTime));
+		meeting.setStartTime(getUserTimezonePreferenceDate(dfaultStartTime));
+		if(currentTimeslot !=null){
+			currentTimeslot.setStartTime(getUserTimezonePreferenceDate(timeslotStartTime));
+			currentTimeslot.setEndTime(getUserTimezonePreferenceDate(timeslotEndTime));
+		}
+		
+		try{	
+			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForTimeslot(meeting, currentTimeslot)));
+			//reset timezone back on serverside
+			if(currentTimeslot !=null){
+				currentTimeslot.setStartTime(timeslotStartTime);
+				currentTimeslot.setEndTime(timeslotEndTime);
+			}
+			meeting.setEndTime(defaultEndTime);
+			meeting.setStartTime(dfaultStartTime);
+		}catch(NullPointerException ne){
+			if(currentTimeslot !=null){
+				currentTimeslot.setStartTime(timeslotStartTime);
+				currentTimeslot.setEndTime(timeslotEndTime);
+			}
+			meeting.setEndTime(defaultEndTime);
+			meeting.setStartTime(dfaultStartTime);
+			
 			handleICSDownloadWarningToUser();
 			return;
 		}
@@ -752,23 +821,34 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 		
 	}
 	
-	public void downloadICSForMeetingTimeSlot(TimeslotWrapper timeslotWrapper) {
-		String filePath;
-		try{	
-			filePath = calendarHelper.createCalendarFile(Collections.singletonList(calendarHelper.generateVEventForTimeslot(meetingWrapper.getMeeting(), timeslotWrapper.getTimeSlot())));;
-		}catch(NullPointerException ne){
-			handleICSDownloadWarningToUser();
-			return;
-		}
+	private Date getUserTimezonePreferenceDate(Date dateBasedOnServerTimezone){
+		/*
+		 * Since the external-calendar-service don't honor the timezone information (in
+		 * iCal file), which is passed by Date object. Here, we just convert it manually here.
+		 * Once the external-claendar-service can do the job, this method can be removed.
+		 */
+		TimeService timeService = sakaiFacade.getTimeService();
+		TimeZone currentUserTimeZone = timeService.getLocalTimeZone();
 		
-		if(StringUtils.isNotBlank(filePath)) {
-			logger.debug("filepath: " + filePath);
-			sendDownload(filePath, ICS_MIME_TYPE);
-		} else {
-			logger.error("Could not generate file for download");
-			//TODO this could set an error and return perhaps.
-		}
+		Calendar cal = Calendar.getInstance();
+		cal.setTime(dateBasedOnServerTimezone);
+		cal.setTimeZone(currentUserTimeZone);
 		
+		//get user Pref display hour, day, month and year
+		int userPrefMinute = cal.get(cal.MINUTE);
+		int userPrefHour = cal.get(cal.HOUR_OF_DAY);
+		int userPrefDay = cal.get(cal.DAY_OF_MONTH);
+		int userPrefMonth = cal.get(cal.MONTH);
+		int userPreYear = cal.get(cal.YEAR);
+		
+		Calendar calNew = Calendar.getInstance();
+		calNew.setTime(dateBasedOnServerTimezone);
+		calNew.set(cal.MINUTE,userPrefMinute);
+		calNew.set(cal.HOUR_OF_DAY, userPrefHour);
+		calNew.set(cal.DAY_OF_MONTH, userPrefDay);
+		calNew.set(cal.MONTH, userPrefMonth);
+		calNew.set(cal.YEAR, userPreYear);
+		return calNew.getTime();		
 	}
 	
 	private void handleICSDownloadWarningToUser(){
