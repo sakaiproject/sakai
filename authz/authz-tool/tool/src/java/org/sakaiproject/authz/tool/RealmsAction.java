@@ -1177,7 +1177,8 @@ public class RealmsAction extends PagedResourceActionII
 			}
 		}
 
-	
+		// clear out the role
+		role.disallowAll();
 
 		// description
 		role.setDescription(StringUtils.trimToNull(data.getParameters().getString("description")));
@@ -1189,8 +1190,6 @@ public class RealmsAction extends PagedResourceActionII
 		// for each lock set, give it to the role
 		if (locks != null)
 		{
-			// clear out the role, only reset if it's passing the locks for some reason
-			role.disallowAll();
 			for (int i = 0; i < locks.length; i++)
 			{
 				role.allowFunction(locks[i]);

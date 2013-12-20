@@ -114,7 +114,7 @@
 							<tr>
 								<td headers="Id">
 									<h4>
-										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$validator.escapeUrl($role.Id)")';return false;" title="$tlang.getString("realm.role.set")">
+										<a href="#" onclick="location = '#toolLinkParam("$action" "doEdit_role" "target=$validator.escapeUrl($role.Id)")'+buildQueryString('$form-name');return false;" title="$tlang.getString("realm.role.set")">
 											$validator.escapeHtml($role.Id)
 										</a>
 									</h4>	
