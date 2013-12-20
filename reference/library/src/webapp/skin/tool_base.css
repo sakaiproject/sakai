@@ -805,6 +805,9 @@ placeholder till more standard way of doing it*/
 {
 	color: #999 !important;
 }
+.inactiveBack, .inactiveBack:hover{
+    background:#F7F7F7 !important;
+}
 
 /*external login form formatting*/
 .login, .join{
