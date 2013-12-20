@@ -556,7 +556,7 @@ function printPreview(target){
 				</tr>
 				#foreach($participant in $participantList)
 					#set($uniqname = $participant.getUniqname())
-					<tr>
+					<tr #if(!$!participant.isActive())class="inactive inactiveBack"#end>
 						<td headers="name">
 							<h5>
 								#set ($participantName=$participant.getName())
