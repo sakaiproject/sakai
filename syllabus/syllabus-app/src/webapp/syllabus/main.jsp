@@ -256,10 +256,10 @@
 							<f:subview id="dateInstructor" rendered="#{SyllabusTool.editAble == 'true'}">
 								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
 									<h:outputText styleClass="editItem startTimeInput" value="#{eachEntry.entry.startDate}">
-										<f:convertDateTime type="date" pattern="MM/dd/yyyy h:mm a"/>
+										<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
 									<h:outputText styleClass="editItem endTimeInput" value="#{eachEntry.entry.endDate}">
-								  		<f:convertDateTime type="date" pattern="MM/dd/yyyy h:mm a"/>
+								  		<f:convertDateTime type="date" pattern="yyyy/MM/dd h:mm a"/>
 									</h:outputText>
 								<f:verbatim></span></f:verbatim>
 							</f:subview>

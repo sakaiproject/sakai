@@ -172,8 +172,8 @@ function setupEditable(msgs, iframId){
 			
 		},
 		format: 'YYYY-MM-DD HH:mm',
-		viewformat: 'MM/DD/YYYY h:mm a',
-		template: 'MM / DD / YYYY hh:mm a',
+		viewformat: 'YYYY/MM/DD h:mm a',
+		template: 'YYYY / MM / DD hh:mm a',
 		placement: "left",
 		url: function(params) {
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
@@ -198,8 +198,8 @@ function setupEditable(msgs, iframId){
 			
 		},
 		format: 'YYYY-MM-DD HH:mm',
-		viewformat: 'MM/DD/YYYY h:mm a',
-		template: 'MM / DD / YYYY hh:mm a',
+		viewformat: 'YYYY/MM/DD h:mm a',
+		template: 'YYYY / MM / DD hh:mm a',
 		placement: "left",
 		url: function(params) {
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
