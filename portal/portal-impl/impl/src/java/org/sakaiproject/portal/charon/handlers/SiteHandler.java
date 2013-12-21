@@ -54,6 +54,7 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -119,10 +120,20 @@ public class SiteHandler extends WorksiteHandler
 			{
 				// recognize an optional page/pageid
 				String pageId = null;
+				String toolId = null;
+
 				// may also have the tool part, so check that length is 5 or greater.
 				if ((parts.length >= 5) && (parts[3].equals("page")))
 				{
 					pageId = parts[4];
+				}
+
+System.out.println("Checking for tool...");
+				// may also have the tool part, so check that length is 5 or greater.
+				if ((parts.length >= 5) && (parts[3].equals("tool")))
+				{
+					toolId = parts[4];
+System.out.println("Found toolId="+toolId);
 				}
 
 				// site might be specified
@@ -139,8 +150,8 @@ public class SiteHandler extends WorksiteHandler
 					commonToolId = parts[3];
 				}
 
-				doSite(req, res, session, siteId, pageId, commonToolId, req.getContextPath()
-						+ req.getServletPath());
+				doSite(req, res, session, siteId, pageId, toolId, commonToolId, 
+						req.getContextPath() + req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -155,12 +166,11 @@ public class SiteHandler extends WorksiteHandler
 	}
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			String siteId, String pageId, String commonToolId, String toolContextPath) throws ToolException,
+			String siteId, String pageId, String toolId,
+			String commonToolId, String toolContextPath) throws ToolException,
 			IOException
 	{		
 				
-		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
-
 		// default site if not set
 		String userId = session.getUserId();
 		if (siteId == null)
@@ -194,15 +204,6 @@ public class SiteHandler extends WorksiteHandler
 		// check for a mutable site to be resolved here
 		if (mutableSitename.equalsIgnoreCase(siteId) && (session.getUserId() != null)) {
 			siteId = SiteService.getUserSiteId(userId);
-		}
-
-		// if no page id, see if there was a last page visited for this site
-		// if we are coming back from minimized navigation - go to the default
-		// tool
-		// Not the previous tool
-		if (pageId == null && !doFrameSuppress)
-		{
-			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
 		}
 
 		// find the site, for visiting
@@ -286,6 +287,38 @@ public class SiteHandler extends WorksiteHandler
 			{
 				pageId = tc.getPageId();
 			}
+		}
+
+		// Find the pageId looking backwards through the toolId
+		if(site != null && pageId == null && toolId != null ) {
+System.out.println("Finding page from toolId="+toolId);
+			List pages = site.getOrderedPages();
+			for (Iterator i = pages.iterator(); i.hasNext();)
+			{
+
+				SitePage p = (SitePage) i.next();
+				// check if current user has permission to see page
+				// we will draw page button if it have permission to see at least
+				// one tool on the page
+				List<ToolConfiguration> pTools = p.getTools();
+				Iterator<ToolConfiguration> toolz = pTools.iterator();
+	            while(toolz.hasNext()){
+					ToolConfiguration tc = toolz.next();
+					Tool to = tc.getTool();
+					if ( toolId.equals(tc.getId()) ) {
+						pageId = p.getId();
+System.out.println("Found pageId="+pageId);
+						break;
+					}
+				}
+				if ( pageId != null ) break;
+			}
+		}
+
+		// if no page id, see if there was a last page visited for this site
+		if (pageId == null)
+		{
+			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
 		}
 
 		// If the page is the mutable page name then look up the 
