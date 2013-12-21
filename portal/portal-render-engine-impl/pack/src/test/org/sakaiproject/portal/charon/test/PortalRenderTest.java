@@ -197,35 +197,4 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
-	public void testSiteFrameTop() throws Exception
-	{
-		try
-		{
-			log.info("========= Testing testSiteFrameTop");
-			mock.doSiteFrameTop();
-			log.info("========= PASSED Testing testSiteFrameTop");
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			log.info("========= FAILED Testing testSiteFrameTop");
-			fail(ex.getMessage());
-		}
-	}
-	public void testGalleryFrameTop() throws Exception
-	{
-		try
-		{
-			log.info("========= Testing testGalleryFrameTop");
-			mock.doGalleryFrameTop();
-			log.info("========= PASSED Testing testGalleryFrameTop");
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			log.info("========= FAILED Testing testGalleryFrameTop");
-			fail(ex.getMessage());
-		}
-	}
-
 }

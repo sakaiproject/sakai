@@ -70,8 +70,6 @@ import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
-import org.sakaiproject.portal.charon.handlers.GalleryHandler;
-import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
@@ -195,8 +193,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
 	// PortalHandler>();
 
-	private GalleryHandler galleryHandler;
-	
 	private String gatewaySiteUrl;
 
 	private String gatewayPdaSiteUrl;
@@ -272,13 +268,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			case ERROR_SITE:
 			{
 				siteHandler.doSite(req, res, session, "!error", null, null, req
-						.getContextPath()
-						+ req.getServletPath());
-				break;
-			}
-			case ERROR_GALLERY:
-			{
-				galleryHandler.doGallery(req, res, session, "!error", null, req
 						.getContextPath()
 						+ req.getServletPath());
 				break;
@@ -2013,7 +2002,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// warning messages will appear, but the end state will be the same.
 		portalService.addPortal(this);
 
-		galleryHandler = new GalleryHandler();
 		worksiteHandler = new WorksiteHandler();
 		siteHandler = new SiteHandler();
 
@@ -2029,8 +2017,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new PDAHandler());
 		addHandler(new AtomHandler());
 		addHandler(new OpmlHandler());
-		addHandler(galleryHandler);
-		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
 		addHandler(new PresenceHandler());
 		addHandler(new HelpHandler());
