@@ -66,7 +66,7 @@ import org.sakaiproject.util.Web;
  * 
  */
 @SuppressWarnings("deprecation")
-public class PDAHandler extends PageHandler
+public class PDAHandler extends SiteHandler
 {
 	/**
 	 * Key in the ThreadLocalManager for access to the current http response
@@ -217,6 +217,7 @@ public class PDAHandler extends PageHandler
 					}
 				}
 				
+				SitePage page = null;
 				// /portal/site/site-id/page/page-id
 				// /portal/pda/site-id/page/page-id
 				// 1 2 3 4
@@ -224,7 +225,7 @@ public class PDAHandler extends PageHandler
 				{
 					// look for page and pick up the top-left tool to show
 					String pageId = parts[4];
-					SitePage page = SiteService.findPage(pageId);
+					page = SiteService.findPage(pageId);
 					if (page == null)
 					{
 						portal.doError(req, res, session, Portal.ERROR_WORKSITE);
@@ -322,8 +323,16 @@ public class PDAHandler extends PageHandler
 				PortalRenderContext rcontext = portal.includePortal(req, res, session,
 						siteId, toolId, req.getContextPath() + req.getServletPath(),
 						"pda",
-						/* doPages */false, /* resetTools */true,
+						/* doPages */true, /* resetTools */true,
 						/* includeSummary */false, /* expandSite */false);
+
+		        includeSiteNav(rcontext, req, session, siteId);
+	
+				// String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
+				String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, parts.length-1); 
+				includeWorksite(rcontext, res, req, session, site, page, toolContextPath,
+                    "/pda");
+
 
 				//  TODO: Should this be a property?  Probably because it does cause an 
 				// uncached SQL query
