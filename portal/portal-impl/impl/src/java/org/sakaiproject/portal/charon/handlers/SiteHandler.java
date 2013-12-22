@@ -54,6 +54,7 @@ import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
+import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -64,9 +65,15 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.portal.util.ByteArrayServletResponse;
+import org.sakaiproject.util.Validator;
+
+import org.sakaiproject.portal.charon.handlers.PDAHandler;
 
 /**
  * @author ieb
@@ -117,14 +124,6 @@ public class SiteHandler extends WorksiteHandler
 			session.setAttribute("sakai-controlling-portal", null);
 			try
 			{
-				// recognize an optional page/pageid
-				String pageId = null;
-				// may also have the tool part, so check that length is 5 or greater.
-				if ((parts.length >= 5) && (parts[3].equals("page")))
-				{
-					pageId = parts[4];
-				}
-
 				// site might be specified
 				String siteId = null;
 				if (parts.length >= 3)
@@ -132,6 +131,41 @@ public class SiteHandler extends WorksiteHandler
 					siteId = parts[2];
 				}
 				
+				// recognize an optional page/pageid
+				String pageId = null;
+				String toolId = null;
+
+				// may also have the tool part, so check that length is 5 or greater.
+				if ((parts.length >= 5) && (parts[3].equals("page")))
+				{
+					pageId = parts[4];
+				}
+
+				// Tool resetting URL - clear state and forward to the real tool
+				// URL
+				// /portal/site/site-id/tool-reset/toolId
+				// 0 1 2 3 4
+				if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
+				{
+					toolId = parts[4];
+					String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
+						+ Web.makePath(parts, 4, parts.length);
+					String queryString = Validator.generateQueryString(req);
+					if (queryString != null)
+					{
+						toolUrl = toolUrl + "?" + queryString;
+					}
+					portalService.setResetState("true");
+					res.sendRedirect(toolUrl);
+					return RESET_DONE;
+				}
+
+				// may also have the tool part, so check that length is 5 or greater.
+				if ((parts.length >= 5) && (parts[3].equals("tool")))
+				{
+					toolId = parts[4];
+				}
+
 				String commonToolId = null;
 				
 				if(parts.length == 4)
@@ -139,8 +173,8 @@ public class SiteHandler extends WorksiteHandler
 					commonToolId = parts[3];
 				}
 
-				doSite(req, res, session, siteId, pageId, commonToolId, req.getContextPath()
-						+ req.getServletPath());
+				doSite(req, res, session, siteId, pageId, toolId, commonToolId, parts,
+						req.getContextPath() + req.getServletPath());
 				return END;
 			}
 			catch (Exception ex)
@@ -155,12 +189,11 @@ public class SiteHandler extends WorksiteHandler
 	}
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
-			String siteId, String pageId, String commonToolId, String toolContextPath) throws ToolException,
+			String siteId, String pageId, String toolId,
+			String commonToolId, String [] parts, String toolContextPath) throws ToolException,
 			IOException
 	{		
 				
-		boolean doFrameSuppress = "true".equals(req.getParameter("sakai.frame.suppress"));
-
 		// default site if not set
 		String userId = session.getUserId();
 		if (siteId == null)
@@ -194,15 +227,6 @@ public class SiteHandler extends WorksiteHandler
 		// check for a mutable site to be resolved here
 		if (mutableSitename.equalsIgnoreCase(siteId) && (session.getUserId() != null)) {
 			siteId = SiteService.getUserSiteId(userId);
-		}
-
-		// if no page id, see if there was a last page visited for this site
-		// if we are coming back from minimized navigation - go to the default
-		// tool
-		// Not the previous tool
-		if (pageId == null && !doFrameSuppress)
-		{
-			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
 		}
 
 		// find the site, for visiting
@@ -288,6 +312,36 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
+		// Find the pageId looking backwards through the toolId
+		if(site != null && pageId == null && toolId != null ) {
+			List pages = site.getOrderedPages();
+			for (Iterator i = pages.iterator(); i.hasNext();)
+			{
+
+				SitePage p = (SitePage) i.next();
+				// check if current user has permission to see page
+				// we will draw page button if it have permission to see at least
+				// one tool on the page
+				List<ToolConfiguration> pTools = p.getTools();
+				Iterator<ToolConfiguration> toolz = pTools.iterator();
+				while(toolz.hasNext()){
+					ToolConfiguration tc = toolz.next();
+					Tool to = tc.getTool();
+					if ( toolId.equals(tc.getId()) ) {
+						pageId = p.getId();
+						break;
+					}
+				}
+				if ( pageId != null ) break;
+			}
+		}
+
+		// if no page id, see if there was a last page visited for this site
+		if (pageId == null)
+		{
+			pageId = (String) session.getAttribute(Portal.ATTR_SITE_PAGE + siteId);
+		}
+
 		// If the page is the mutable page name then look up the 
 		// real page id from the tool name.
 		if (mutablePagename.equalsIgnoreCase(pageId)) {
@@ -311,10 +365,86 @@ public class SiteHandler extends WorksiteHandler
 			title += " : " + page.getTitle();
 		}
 
+
+
+
+		// Create and initialize a copy of the PDA Handler
+		PDAHandler pdah = new PDAHandler();
+		pdah.register(portal,portalService,servletContext);
+
+		// See if we can buffer the content, if not, pass the request through
+		String TCP = null;
+		String toolPathInfo = null;
+		boolean allowBuffer = false;
+		Object BC = null;
+
+		ToolConfiguration siteTool = null;
+		if ( toolId != null ) {
+			siteTool = SiteService.findTool(toolId);
+			if ( siteTool != null && parts.length >= 5 ) {
+				commonToolId = siteTool.getToolId();
+
+				// Does the tool allow us to buffer?
+				allowBuffer = pdah.allowBufferContent(req, siteTool);
+
+				if ( allowBuffer ) {
+					TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
+					toolPathInfo = Web.makePath(parts, 5, parts.length);
+
+					// Should we bypass buffering based on the request?
+					boolean matched = pdah.checkBufferBypass(req, siteTool);
+
+					if ( matched ) {
+						ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
+						portal.forwardTool(tool, req, res, siteTool,
+							siteTool.getSkin(), TCP, toolPathInfo);
+						return;
+					}
+				}
+			}
+		}
+
+
+
+
+
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
+
+
+		if ( allowBuffer ) {
+			BC = pdah.bufferContent(req, res, session, toolId,
+					TCP, toolPathInfo, siteTool);
+
+			// If the buffered response was not parseable
+			if ( BC instanceof ByteArrayServletResponse ) {
+				StringBuffer queryUrl = req.getRequestURL();
+				String queryString = req.getQueryString();
+				if ( queryString != null ) queryUrl.append('?').append(queryString);
+				// SAK-25494 - This probably should be a log.debug later
+				log.warn("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
+				ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
+				bufferResponse.forwardResponse();
+				return;
+			}
+		}
+
+
+		// Include the buffered content if we have it
+		if ( BC instanceof Map ) {
+			rcontext.put("bufferedResponse", Boolean.TRUE);
+			Map<String,String> bufferMap = (Map<String,String>) BC;
+			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
+			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
+		}
+
+
+
+
+
+
 		
 		// Have we been requested to display minimized and are we logged in?
 		if (session.getUserId() != null ) {
@@ -329,10 +459,10 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		rcontext.put("siteId", siteId);
-                boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+		boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
 
 		if (showShortDescription) {
-		  rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
+			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
 		}
 		rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
 

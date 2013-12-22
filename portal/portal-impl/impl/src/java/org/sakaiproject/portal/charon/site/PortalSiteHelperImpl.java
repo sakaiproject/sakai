@@ -631,28 +631,42 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			String source = null;
 			boolean toolPopup = false;	
 			int count = 0;
+			ToolConfiguration pageTool = null;
 			while(toolz.hasNext()){
-				ToolConfiguration tc = toolz.next();
 				count++;
-				Tool to = tc.getTool();
-				Properties pro = tc.getConfig();
-				if ( "sakai.web.168".equals(tc.getToolId()) ) {
+				pageTool = toolz.next();
+				Properties pro = pageTool.getConfig();
+				if ( "sakai.web.168".equals(pageTool.getToolId()) ) {
 					source = pro.getProperty("source");
 					toolPopup = "true".equals(pro.getProperty("popup"));
-				} else if ( "sakai.iframe".equals(tc.getToolId()) ) {
+				} else if ( "sakai.iframe".equals(pageTool.getToolId()) ) {
 					source = pro.getProperty("source");
 					toolPopup = "true".equals(pro.getProperty("popup"));
-				} else if ( "sakai.basiclti".equals(tc.getToolId()) ) {
+				} else if ( "sakai.basiclti".equals(pageTool.getToolId()) ) {
 					toolPopup = "on".equals(pro.getProperty("imsti.newpage"));
-					source = "/access/basiclti/site/"+tc.getContext()+"/"+tc.getId();
+					source = "/access/basiclti/site/"+pageTool.getContext()+"/"+pageTool.getId();
 				}
 			}
-			if ( count != 1 ) toolPopup = false;
+			if ( count != 1 ) {
+				toolPopup = false;
+				pageTool = null;
+			}
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
 			String alias = lookupPageToAlias(site.getId(), p);
 			String pagerefUrl = pageUrl + Web.escapeUrl((alias != null)?alias:p.getId());
+			
+			String trinity = ServerConfigurationService.getString("portal.inline.experimental", "false");
+			if ( "true".equals(trinity) && pageTool != null ) {
+				pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(getSiteEffectiveId(site)) );
+				if (resetTools) {
+					pageUrl = pageUrl + "/tool-reset/";
+				} else {
+					pageUrl = pageUrl + "/tool/";
+				}
+				pagerefUrl = pageUrl + Web.escapeUrl(pageTool.getId());
+			}
 
 			if (doPages || p.isPopUp())
 			{
@@ -679,7 +693,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						desc.append(t.getTool().getDescription());
 						tCount++;
 						if ( "sakai.siteinfo".equals(t.getToolId()) ) {
-							addMoreToolsUrl = Web.returnUrl(req, "/site/" + Web.escapeUrl(site.getId()) + "/page/" + Web.escapeUrl(p.getId()) + "?sakai_action=doMenu_edit_site_tools&panel=Shortcut" );
+							if ( "true".equals(trinity) && pageTool != null ) {
+								addMoreToolsUrl = pageUrl + Web.escapeUrl(p.getId());
+							} else {
+								addMoreToolsUrl = pageUrl + Web.escapeUrl(t.getId());
+							}
+							addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
 						}
 					}
 					// Won't work with mutliple tools per page

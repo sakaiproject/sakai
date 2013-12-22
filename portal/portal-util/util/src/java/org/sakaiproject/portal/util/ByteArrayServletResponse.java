@@ -23,6 +23,7 @@ package org.sakaiproject.portal.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.io.IOException;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -50,6 +51,8 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	 */
 	private String contentType = "text/html";
 
+	private int contentLength = -1;
+
 	private ServletByteOutputStream outStream = null;
 
 	/**
@@ -74,6 +77,13 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	}
 
 	@Override
+	public void setContentType(String newType)
+	{
+		// System.out.println("setContentType = "+contentType);
+		contentType = newType;
+	}
+
+	@Override
 	public PrintWriter getWriter()
 	{
 		// System.out.println("getWriter()");
@@ -90,8 +100,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	@Override
 	public void setContentLength(int i)
 	{
-		// Suppress setContentLength calls as we have no idea
-		// how large the resulting output will be
+		contentLength = i;
 	}
 
 	@Override
@@ -106,6 +115,20 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		// System.out.println("reset()");
 		outStream = new ServletByteOutputStream();
 		writer = new PrintWriter(outStream);
+	}
+
+	/**
+	 * Forward the request up the chain.
+	 */
+
+	public void forwardResponse()
+		throws IOException
+	{
+		// System.out.println("Forwarding request CT="+contentType+" CL="+contentLength);
+		super.setContentType(contentType);
+		if ( contentLength > 0 ) super.setContentLength(contentLength);
+		ServletOutputStream output = super.getOutputStream();
+		outStream.getContent().writeTo(output);
 	}
 
 	/**
