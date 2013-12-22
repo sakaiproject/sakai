@@ -272,7 +272,6 @@ public class PDAHandler extends SiteHandler
 				// See if we can buffer the content, if not, pass the request through
 				ToolConfiguration siteTool = SiteService.findTool(toolId);
 				String toolContextPath = null;
-				String placementId = null;
 				String toolPathInfo = null;
 				boolean allowBuffer = false;
 
@@ -285,7 +284,6 @@ public class PDAHandler extends SiteHandler
 
 					if ( allowBuffer ) {
 						toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
-						placementId = parts[4];
 						toolPathInfo = Web.makePath(parts, 5, parts.length);
 
 						// Should we bypass buffering based on the request?
@@ -308,7 +306,7 @@ public class PDAHandler extends SiteHandler
 						/* includeSummary */false, /* expandSite */false);
 
 				if ( allowBuffer ) {
-					BC = bufferContent(req, res, session, placementId, 
+					BC = bufferContent(req, res, session, toolId, 
 							toolContextPath, toolPathInfo, siteTool);
 
 					// If the buffered response was not parseable
@@ -341,7 +339,6 @@ System.out.println("The output could not be be buffered...");
 				if ( BC instanceof Map ) {
 					rcontext.put("bufferedResponse", Boolean.TRUE);
 					Map<String,String> bufferMap = (Map<String,String>) BC;
-System.out.println("Adding bufferMap");
 					rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
 					rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
 				}

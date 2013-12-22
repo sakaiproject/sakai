@@ -267,7 +267,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 			case ERROR_SITE:
 			{
-				siteHandler.doSite(req, res, session, "!error", null, null, null,
+				siteHandler.doSite(req, res, session, "!error", null, null, null, null,
 					req.getContextPath() + req.getServletPath());
 				break;
 			}

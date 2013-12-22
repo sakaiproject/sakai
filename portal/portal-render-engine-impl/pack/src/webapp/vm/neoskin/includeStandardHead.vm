@@ -63,6 +63,7 @@
 <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
 ${responseHead}
 <!-- End of Head material from Tool -->
+<title>
 	#if (  $pageColumn0Tools )
 		#foreach ( $tool in $pageColumn0Tools ) 
 			#if ( $tool ) 
@@ -83,6 +84,7 @@ ${tool.toolRenderResult.getTitle()}
 			#end
 		#end
 	#end
+</title>
 #else 
     <title>${pageTitle}</title>
 ${sakai_html_head_css}

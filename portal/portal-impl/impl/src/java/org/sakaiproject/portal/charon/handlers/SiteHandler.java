@@ -65,9 +65,14 @@ import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.tool.api.ActiveTool;
+import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.portal.util.ByteArrayServletResponse;
+
+import org.sakaiproject.portal.charon.handlers.PDAHandler;
 
 /**
  * @author ieb
@@ -128,12 +133,10 @@ public class SiteHandler extends WorksiteHandler
 					pageId = parts[4];
 				}
 
-System.out.println("Checking for tool...");
 				// may also have the tool part, so check that length is 5 or greater.
 				if ((parts.length >= 5) && (parts[3].equals("tool")))
 				{
 					toolId = parts[4];
-System.out.println("Found toolId="+toolId);
 				}
 
 				// site might be specified
@@ -150,7 +153,7 @@ System.out.println("Found toolId="+toolId);
 					commonToolId = parts[3];
 				}
 
-				doSite(req, res, session, siteId, pageId, toolId, commonToolId, 
+				doSite(req, res, session, siteId, pageId, toolId, commonToolId, parts,
 						req.getContextPath() + req.getServletPath());
 				return END;
 			}
@@ -167,7 +170,7 @@ System.out.println("Found toolId="+toolId);
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,
 			String siteId, String pageId, String toolId,
-			String commonToolId, String toolContextPath) throws ToolException,
+			String commonToolId, String [] parts, String toolContextPath) throws ToolException,
 			IOException
 	{		
 				
@@ -291,7 +294,6 @@ System.out.println("Found toolId="+toolId);
 
 		// Find the pageId looking backwards through the toolId
 		if(site != null && pageId == null && toolId != null ) {
-System.out.println("Finding page from toolId="+toolId);
 			List pages = site.getOrderedPages();
 			for (Iterator i = pages.iterator(); i.hasNext();)
 			{
@@ -307,7 +309,6 @@ System.out.println("Finding page from toolId="+toolId);
 					Tool to = tc.getTool();
 					if ( toolId.equals(tc.getId()) ) {
 						pageId = p.getId();
-System.out.println("Found pageId="+pageId);
 						break;
 					}
 				}
@@ -344,10 +345,86 @@ System.out.println("Found pageId="+pageId);
 			title += " : " + page.getTitle();
 		}
 
+
+
+
+		// Create and initialize a copy of the PDA Handler
+		PDAHandler pdah = new PDAHandler();
+		pdah.register(portal,portalService,servletContext);
+
+       // See if we can buffer the content, if not, pass the request through
+       String TCP = null;
+       String toolPathInfo = null;
+       boolean allowBuffer = false;
+       Object BC = null;
+
+		ToolConfiguration siteTool = null;
+		if ( toolId != null ) {
+			siteTool = SiteService.findTool(toolId);
+System.out.println("toolId="+toolId);
+            if ( siteTool != null && parts.length >= 5 ) {
+                commonToolId = siteTool.getToolId();
+
+                // Does the tool allow us to buffer?
+                allowBuffer = pdah.allowBufferContent(req, siteTool);
+
+                if ( allowBuffer ) {
+                    TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
+                    toolPathInfo = Web.makePath(parts, 5, parts.length);
+
+                    // Should we bypass buffering based on the request?
+                    boolean matched = pdah.checkBufferBypass(req, siteTool);
+
+                    if ( matched ) {
+System.out.println("Forwarded...");
+                        ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
+                        portal.forwardTool(tool, req, res, siteTool,
+                            siteTool.getSkin(), TCP, toolPathInfo);
+                        return;
+                    }
+                }
+           }
+		}
+
+
+
+
+
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
+
+
+        if ( allowBuffer ) {
+            BC = pdah.bufferContent(req, res, session, toolId,
+                    TCP, toolPathInfo, siteTool);
+
+System.out.println("buffer attempt");
+            // If the buffered response was not parseable
+            if ( BC instanceof ByteArrayServletResponse ) {
+System.out.println("The output could not be be buffered...");
+                ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
+                bufferResponse.forwardResponse();
+                return;
+            }
+        }
+
+
+        // Include the buffered content if we have it
+        if ( BC instanceof Map ) {
+System.out.println("Buffered...");
+            rcontext.put("bufferedResponse", Boolean.TRUE);
+            Map<String,String> bufferMap = (Map<String,String>) BC;
+            rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
+            rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
+        }
+
+
+
+
+
+
 		
 		// Have we been requested to display minimized and are we logged in?
 		if (session.getUserId() != null ) {
@@ -362,10 +439,10 @@ System.out.println("Found pageId="+pageId);
 		}
 
 		rcontext.put("siteId", siteId);
-                boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
+		boolean showShortDescription = Boolean.valueOf(ServerConfigurationService.getBoolean("portal.title.shortdescription.show", false));
 
 		if (showShortDescription) {
-		  rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
+			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
 		}
 		rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
 
