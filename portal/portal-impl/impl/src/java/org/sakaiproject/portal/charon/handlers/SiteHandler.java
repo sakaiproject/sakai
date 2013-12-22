@@ -71,6 +71,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
+import org.sakaiproject.util.Validator;
 
 import org.sakaiproject.portal.charon.handlers.PDAHandler;
 
@@ -123,6 +124,13 @@ public class SiteHandler extends WorksiteHandler
 			session.setAttribute("sakai-controlling-portal", null);
 			try
 			{
+				// site might be specified
+				String siteId = null;
+				if (parts.length >= 3)
+				{
+					siteId = parts[2];
+				}
+				
 				// recognize an optional page/pageid
 				String pageId = null;
 				String toolId = null;
@@ -133,19 +141,31 @@ public class SiteHandler extends WorksiteHandler
 					pageId = parts[4];
 				}
 
+				// Tool resetting URL - clear state and forward to the real tool
+				// URL
+				// /portal/site/site-id/tool-reset/toolId
+				// 0 1 2 3 4
+				if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
+				{
+					toolId = parts[4];
+					String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
+						+ Web.makePath(parts, 4, parts.length);
+					String queryString = Validator.generateQueryString(req);
+					if (queryString != null)
+					{
+						toolUrl = toolUrl + "?" + queryString;
+					}
+					portalService.setResetState("true");
+					res.sendRedirect(toolUrl);
+					return RESET_DONE;
+				}
+
 				// may also have the tool part, so check that length is 5 or greater.
 				if ((parts.length >= 5) && (parts[3].equals("tool")))
 				{
 					toolId = parts[4];
 				}
 
-				// site might be specified
-				String siteId = null;
-				if (parts.length >= 3)
-				{
-					siteId = parts[2];
-				}
-				
 				String commonToolId = null;
 				
 				if(parts.length == 4)
@@ -304,7 +324,7 @@ public class SiteHandler extends WorksiteHandler
 				// one tool on the page
 				List<ToolConfiguration> pTools = p.getTools();
 				Iterator<ToolConfiguration> toolz = pTools.iterator();
-	            while(toolz.hasNext()){
+				while(toolz.hasNext()){
 					ToolConfiguration tc = toolz.next();
 					Tool to = tc.getTool();
 					if ( toolId.equals(tc.getId()) ) {
@@ -352,38 +372,36 @@ public class SiteHandler extends WorksiteHandler
 		PDAHandler pdah = new PDAHandler();
 		pdah.register(portal,portalService,servletContext);
 
-       // See if we can buffer the content, if not, pass the request through
-       String TCP = null;
-       String toolPathInfo = null;
-       boolean allowBuffer = false;
-       Object BC = null;
+		// See if we can buffer the content, if not, pass the request through
+		String TCP = null;
+		String toolPathInfo = null;
+		boolean allowBuffer = false;
+		Object BC = null;
 
 		ToolConfiguration siteTool = null;
 		if ( toolId != null ) {
 			siteTool = SiteService.findTool(toolId);
-System.out.println("toolId="+toolId);
-            if ( siteTool != null && parts.length >= 5 ) {
-                commonToolId = siteTool.getToolId();
+			if ( siteTool != null && parts.length >= 5 ) {
+				commonToolId = siteTool.getToolId();
 
-                // Does the tool allow us to buffer?
-                allowBuffer = pdah.allowBufferContent(req, siteTool);
+				// Does the tool allow us to buffer?
+				allowBuffer = pdah.allowBufferContent(req, siteTool);
 
-                if ( allowBuffer ) {
-                    TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
-                    toolPathInfo = Web.makePath(parts, 5, parts.length);
+				if ( allowBuffer ) {
+					TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
+					toolPathInfo = Web.makePath(parts, 5, parts.length);
 
-                    // Should we bypass buffering based on the request?
-                    boolean matched = pdah.checkBufferBypass(req, siteTool);
+					// Should we bypass buffering based on the request?
+					boolean matched = pdah.checkBufferBypass(req, siteTool);
 
-                    if ( matched ) {
-System.out.println("Forwarded...");
-                        ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
-                        portal.forwardTool(tool, req, res, siteTool,
-                            siteTool.getSkin(), TCP, toolPathInfo);
-                        return;
-                    }
-                }
-           }
+					if ( matched ) {
+						ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
+						portal.forwardTool(tool, req, res, siteTool,
+							siteTool.getSkin(), TCP, toolPathInfo);
+						return;
+					}
+				}
+			}
 		}
 
 
@@ -396,29 +414,31 @@ System.out.println("Forwarded...");
 				.getSkin(), req);
 
 
-        if ( allowBuffer ) {
-            BC = pdah.bufferContent(req, res, session, toolId,
-                    TCP, toolPathInfo, siteTool);
+		if ( allowBuffer ) {
+			BC = pdah.bufferContent(req, res, session, toolId,
+					TCP, toolPathInfo, siteTool);
 
-System.out.println("buffer attempt");
-            // If the buffered response was not parseable
-            if ( BC instanceof ByteArrayServletResponse ) {
-System.out.println("The output could not be be buffered...");
-                ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
-                bufferResponse.forwardResponse();
-                return;
-            }
-        }
+			// If the buffered response was not parseable
+			if ( BC instanceof ByteArrayServletResponse ) {
+				StringBuffer queryUrl = req.getRequestURL();
+				String queryString = req.getQueryString();
+				if ( queryString != null ) queryUrl.append('?').append(queryString);
+				log.debug("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
+System.out.println("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
+				ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
+				bufferResponse.forwardResponse();
+				return;
+			}
+		}
 
 
-        // Include the buffered content if we have it
-        if ( BC instanceof Map ) {
-System.out.println("Buffered...");
-            rcontext.put("bufferedResponse", Boolean.TRUE);
-            Map<String,String> bufferMap = (Map<String,String>) BC;
-            rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
-            rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
-        }
+		// Include the buffered content if we have it
+		if ( BC instanceof Map ) {
+			rcontext.put("bufferedResponse", Boolean.TRUE);
+			Map<String,String> bufferMap = (Map<String,String>) BC;
+			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
+			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
+		}
 
 
 

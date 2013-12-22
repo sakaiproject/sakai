@@ -98,6 +98,7 @@ public class PDAHandler extends SiteHandler
 	private static final String IFRAME_SUPPRESS_PROP = "portal.pda.iframesuppress";
 	// SAK-22285 - says these fail in a frame
 	// private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.profile2:sakai.synoptic.messagecenter:sakai.sitestats:sakai.sitestats.admin";
+	// SAK-25494 with the post bufffer check now working, it seems as though we can inline everything
 	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:";
 	
 	public PDAHandler()
@@ -271,13 +272,14 @@ public class PDAHandler extends SiteHandler
 
 				// See if we can buffer the content, if not, pass the request through
 				ToolConfiguration siteTool = SiteService.findTool(toolId);
+				String commonToolId = null;
 				String toolContextPath = null;
 				String toolPathInfo = null;
 				boolean allowBuffer = false;
 
 				Object BC = null;
 				if ( siteTool != null && parts.length >= 5 ) {
-					String commonToolId = siteTool.getToolId();
+					commonToolId = siteTool.getToolId();
 
 					// Does the tool allow us to buffer?
 					allowBuffer = allowBufferContent(req, siteTool);
@@ -311,7 +313,11 @@ public class PDAHandler extends SiteHandler
 
 					// If the buffered response was not parseable
 					if ( BC instanceof ByteArrayServletResponse ) {
-System.out.println("The output could not be be buffered...");
+						StringBuffer queryUrl = req.getRequestURL();
+						String queryString = req.getQueryString();
+						if ( queryString != null ) queryUrl.append('?').append(queryString);
+						log.debug("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
+System.out.println("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
 						ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
 						bufferResponse.forwardResponse();
 						return END;
@@ -581,7 +587,7 @@ System.out.println("The output could not be be buffered...");
 			}
 		}
 
-System.out.println("portal.forwardTool siteTool="+siteTool+" TCP="+toolContextPath+" TPI="+toolPathInfo);
+		log.debug("doToolBuffer siteTool="+siteTool+" TCP="+toolContextPath+" TPI="+toolPathInfo);
 
 		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);

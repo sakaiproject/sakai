@@ -124,7 +124,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	public void forwardResponse()
 		throws IOException
 	{
-System.out.println("Forwarding request CT="+contentType+" CL="+contentLength);
+		// System.out.println("Forwarding request CT="+contentType+" CL="+contentLength);
 		super.setContentType(contentType);
 		if ( contentLength > 0 ) super.setContentLength(contentLength);
 		ServletOutputStream output = super.getOutputStream();
