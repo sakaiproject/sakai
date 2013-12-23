@@ -2473,7 +2473,9 @@ public class DiscussionForumTool
 					  break;
 				  }
 			  }
-			  if(needToPost && !uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic.getBaseForum(), userId)){
+			  if(needToPost && !(uiPermissionsManager.isChangeSettings(topic, (DiscussionForum) topic.getBaseForum(), userId)
+					   || uiPermissionsManager.isPostToGradebook(topic, (DiscussionForum) topic.getBaseForum(), userId)
+					   || uiPermissionsManager.isModeratePostings(topic, (DiscussionForum) topic.getBaseForum(), userId))){
 				  returnList.add(userId);
 			  }
 		  }

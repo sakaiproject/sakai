@@ -88,6 +88,8 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum);
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum, String userId);
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic

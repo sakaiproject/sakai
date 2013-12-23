@@ -472,7 +472,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    * @see org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager#isPostToGradebook(org.sakaiproject.api.app.messageforums.DiscussionTopic,
    *      org.sakaiproject.api.app.messageforums.DiscussionForum)
    */
-  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum)
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum){
+	  return isPostToGradebook(topic, forum, getCurrentUserId());
+  }
+  
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum, String userId)
+  {
+	  return isPostToGradebook(topic, forum, userId, getContextId());
+  }
+  
+  public boolean isPostToGradebook(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId)
   {
     if (LOG.isDebugEnabled())
     {
@@ -482,11 +491,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
