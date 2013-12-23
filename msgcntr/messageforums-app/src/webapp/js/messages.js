@@ -99,3 +99,16 @@ $(document).ready(function() {
 		$(this).attr('href', 'javascript:;');
 	});
 });	
+
+
+function changeSelect(obj) {
+	$(obj).trigger("change");
+}
+
+function addTagSelector(obj) {
+  	if (obj) {
+	  	$(obj).select2({formatNoMatches:function(){return'';}});
+	  	$(obj).on('change',function(){resize();});
+  	}
+}
+
