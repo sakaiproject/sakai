@@ -3225,14 +3225,14 @@ public class DiscussionForumTool
 		  List moved_messages = null;
 		  if(uiPermissionsManager.isRead(topic, selectedForum.getForum())){
 			  moved_messages = messageManager.findMovedMessagesByTopicId(topic.getId());
-		  }
-
-		  if (LOG.isDebugEnabled())
-		  {
-			  LOG.debug("getDecoratedTopic(moved_messages size  " + moved_messages.size()  );
-			  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
-				  Message msg = (Message) msgIter.next();
-				  LOG.debug("moved message ids = " +  msg.getId()  + "  title : " + msg.getTitle()  + " moved to topic : " +  msg.getTopic().getId() );
+		  
+			  if (LOG.isDebugEnabled())
+			  {
+				  LOG.debug("getDecoratedTopic(moved_messages size  " + moved_messages.size()  );
+				  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
+					  Message msg = (Message) msgIter.next();
+					  LOG.debug("moved message ids = " +  msg.getId()  + "  title : " + msg.getTitle()  + " moved to topic : " +  msg.getTopic().getId() );
+				  }
 			  }
 		  }
 
@@ -3332,6 +3332,7 @@ public class DiscussionForumTool
     	}
     }
 		  //  now add moved messages to decoTopic
+    	if(moved_messages != null){
 		  for (Iterator msgIter = moved_messages.iterator(); msgIter.hasNext();) {
 			  Message message = (Message) msgIter.next();
 			  if (message != null)
@@ -3349,6 +3350,7 @@ public class DiscussionForumTool
 				  decoTopic.addMessage(decoMsg);
 			  }
 		  }
+    	}
 
 	  }
     return decoTopic;
