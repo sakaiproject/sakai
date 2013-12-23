@@ -1258,6 +1258,10 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-role-exit {
     background-position: -270px -18px;
 }
+.icon-sakai-add-tool {
+    background-position: 0 0;
+}
+
 /* admin tools  */
 .icon-sakai-users {
     background-position: -324px -234px;
@@ -1298,7 +1302,6 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-sakai-createuser {
     background-position: -540px -504px;
 }
-
 /* PART 10: specific functionality: presence, chat */
 
 /* presence and chat rendering */
