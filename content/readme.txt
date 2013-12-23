@@ -1,3 +1,29 @@
+=============================================================================
+Release Notes Sakai 10.0
+
+SAK-25371 - The feature will add "Print File" action option to the Resources tool for those print-eligible-type resource items. The printing will be done on item-by-item base, not with a batch mode. The feature will save user effort of downloading the resource first and then upload to a  server. 
+
+The following is required to enable the "Print File" choice in the Resources tool: 
+
+1. Implement org.sakaiproject.content.api.ContentPrintService 
+
+2. Configure implementation in your provider's components.xml 
+
+<beans> 
+   <bean id="org.sakaiproject.content.api.ContentPrintService" 
+class="org.sakaiproject.content.impl.ContentPrintServiceUnivOfMichImpl" 
+singleton="true"> 
+ </bean> 
+</beans> 
+
+3. Define print_server_url in your sakai.properties 
+
+4. An example provider implementation is available at https://source.sakaiproject.org/svn//msub/umich.edu/ctools/ctools-providers/branches/2.9.x-from-2.7.x/contentprint/ 
+
+
+=============================================================================
+Release Notes Sakai 2.5
+
 The following steps are required to run the conversion from 2.4 to 2.5
 database schema for content (ContentHostingService) to improve performance
 of the Resources tool and other tools that depend on it.  Unless otherwise
