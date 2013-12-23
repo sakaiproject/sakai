@@ -73,9 +73,10 @@
 						 </li>
 			#end
 #if (${sitePages.pageNavCanAddMoreTools}) 
-			<li class="moreTools">
-            	<a class="moreToolsLink" href="${sitePages.pageNavAddMoreToolsUrl}">
-					<span>${rloader.sit_addmoretools}</span>
+			<li>
+            	<a class="toolMenuLink" href="${sitePages.pageNavAddMoreToolsUrl}">
+            	    <span class="toolMenuIcon icon-sakai-add-tool"> </span>
+					<span class="menuTitle">${rloader.sit_addmoretools}</span>
 				</a>
 #end	
 					</ul>
