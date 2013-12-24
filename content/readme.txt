@@ -7,7 +7,7 @@ The following is required to enable the "Print File" choice in the Resources too
 
 1. Implement org.sakaiproject.content.api.ContentPrintService 
 
-2. Configure implementation in your provider's components.xml 
+2. Configure implementation in your provider's components.xml - you'll need to first comment out the default implementation in the kernel (kernel-component/src/main/webapp/WEB-INF/content-components.xml), and then configure your provider. This is an example of UM's provider implementation:
 
 <beans> 
    <bean id="org.sakaiproject.content.api.ContentPrintService" 
