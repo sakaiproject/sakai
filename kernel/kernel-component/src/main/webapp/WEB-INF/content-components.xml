@@ -3,6 +3,11 @@
 
 <beans>
 
+   <bean id="org.sakaiproject.content.api.ContentPrintService"
+	class="org.sakaiproject.content.impl.BasicContentPrintService"
+	singleton="true">
+    </bean>
+
     <!-- database beans -->
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlDefault"   class="org.sakaiproject.content.impl.ContentServiceSqlDefault" singleton="true"/>
     <bean id="org.sakaiproject.content.impl.ContentServiceSqlHSql"      class="org.sakaiproject.content.impl.ContentServiceSqlHSql"    singleton="true"/>

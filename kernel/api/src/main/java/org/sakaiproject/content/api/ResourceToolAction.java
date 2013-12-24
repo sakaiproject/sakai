@@ -199,7 +199,12 @@ public interface ResourceToolAction
 		/**
 		 * Create a page in the site linking to the content.
 		 */
-		MAKE_SITE_PAGE
+		MAKE_SITE_PAGE,
+		
+		/**
+		 * Print a file
+		 */
+		PRINT_FILE
 	}
 	
 	public static final String CREATE = "create";
@@ -225,7 +230,7 @@ public interface ResourceToolAction
 	public static final String SHOW = "show";
 	public static final String HIDE = "hide";
 	public static final String COPY_OTHER = "copy-other";
-	
+	public static final String PRINT_FILE = "print file";
 	public static final String ACTION_DELIMITER = ":";
 		
 	/**
