@@ -64,7 +64,7 @@ function showTutorialPage(url, opts){
 									content: {
 										title: {
 											text: response.data.title,
-											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}"><img src="/library/image/silk/cancel.png"/></a>'
+											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'
 										},
 										text: response.data.body
 									},
@@ -89,7 +89,21 @@ function showTutorialPage(url, opts){
 										{
 											// javascript to run after hiding
 											$(response.data.selection).qtip("destroy");
-										}
+										},
+                                        onShow: function(){
+                                            $('.qtip-contentWrapper').attr('tabindex','-1').focus();
+                                            
+                                        },
+                                      onRender: function() {
+                                           var api = this;
+                                            $(window).bind('keydown', function(e) {
+                                                if(e.keyCode === 27) {
+                                                    api.hide(e);
+                                                    $(response.data.selection).qtip("destroy");
+                                                }
+                                            });
+                                        }
+
 										
 									}
 								});
@@ -100,7 +114,7 @@ function showTutorialPage(url, opts){
 									content: {
 										title: {
 											text: response.data.title,
-											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}"><img src="/library/image/silk/cancel.png"/></a>'
+											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'
 										},
 										text: response.data.body
 									},
@@ -127,6 +141,8 @@ function showTutorialPage(url, opts){
 										{
 											// javascript to run after hiding
 											$(response.data.selection).qtip("destroy");
+                                            //pass the focus to top of page
+                                            $('#skipNav a:first').focus();
 										},
 										onShow: function()
 										{
