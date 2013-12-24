@@ -10950,8 +10950,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
 	{   
-		List templateSites = new ArrayList();
-		
+		List<Site> templateSites = new ArrayList<Site>();
+	
 		boolean allowedForTemplateSites = true;
 		
 		// system wide setting for disable site creation based on template sites
@@ -10988,8 +10988,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// If no templates could be found, stick an empty list in the context
 		if(templateSites == null || templateSites.size() <= 0)
 			templateSites = new ArrayList();
-		
-		context.put("templateSites",templateSites);
+
+                //SAK25400 sort templates by type
+                context.put("templateSites",sortTemplateSitesByType(templateSites));
 		context.put("titleMaxLength", state.getAttribute(STATE_SITE_TITLE_MAX));
 		
 	} // setTemplateListForContext
@@ -12772,6 +12773,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		return resultedList;
 	} // prepareCourseAndSectionListing
+
+        /* SAK-25400 template site types duplicated in list
+	 * Sort template sites by type   
+ 	 **/
+        private Collection sortTemplateSitesByType(Collection<Site> templates) {
+                String[] sortKey = {"type"};
+                String[] sortOrder = {"asc"};
+                return sortCmObject(templates, sortKey, sortOrder);
+        }
 
 	/**
 	 * Helper method for sortCmObject 
