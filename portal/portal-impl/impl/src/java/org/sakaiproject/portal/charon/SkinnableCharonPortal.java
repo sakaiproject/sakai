@@ -100,6 +100,7 @@ import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -570,14 +571,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public boolean isPortletPlacement(Placement placement)
 	{
-		if (placement == null) return false;
-		Tool t = placement.getTool();
-		if (t == null) return false;
-		Properties toolProps = t.getFinalConfig();
-		if (toolProps == null) return false;
-		String portletContext = toolProps
-		.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
-		return (portletContext != null);
+		return ToolUtils.isPortletPlacement(placement);
 	}
 
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,

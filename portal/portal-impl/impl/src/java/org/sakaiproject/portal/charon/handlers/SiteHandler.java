@@ -70,6 +70,7 @@ import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
 
@@ -365,6 +366,22 @@ public class SiteHandler extends WorksiteHandler
 			title += " : " + page.getTitle();
 		}
 
+		// Check for incomplete URLs in the case of inlined tools
+		String trinity = ServerConfigurationService.getString(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, "false");
+		if ( "true".equals(trinity) && toolId == null) {
+			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
+				false, null, null);
+			// http://localhost:8080/portal/site/963b28b/tool/0996adf
+			String[] pieces = pagerefUrl.split("/");
+			if ( pieces.length > 6 && "tool".equals(pieces[6]) ) {
+				// SAK-25503 - This probably should be a log.debug later
+				String queryString = req.getQueryString();
+				if ( queryString != null ) pagerefUrl = pagerefUrl + '?' + queryString;
+				log.warn("Redirecting tool inline url: "+pagerefUrl);
+				res.sendRedirect(pagerefUrl);
+				return;
+			}
+		}
 
 
 

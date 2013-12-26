@@ -77,6 +77,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Web;
+import org.sakaiproject.portal.util.ToolUtils;
 
 /**
  * @author ieb
@@ -548,20 +549,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 		Map<String, Object> theMap = new HashMap<String, Object>();
 
-		String pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(getSiteEffectiveId(site)) + "/page/");
-		String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
-				+ Web.escapeUrl(getSiteEffectiveId(site)));
-		if (resetTools)
-		{
-			toolUrl = toolUrl + "/tool-reset/";
-		}
-		else
-		{
-			toolUrl = toolUrl + "/tool/";
-		}
-
-		String pagePopupUrl = Web.returnUrl(req, "/page/");
+		String effectiveSiteId = getSiteEffectiveId(site);
 		
 		// Should be pushed up to the API, similar to server configiuration service, but supporting an Enum(always, never, true, false).
 		boolean showHelp = true;
@@ -620,7 +608,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 			SitePage p = (SitePage) i.next();
 			// check if current user has permission to see page
-			// we will draw page button if it have permission to see at least
 			// one tool on the page
 			List<ToolConfiguration> pTools = p.getTools();
 			ToolConfiguration firstTool = null;
@@ -629,44 +616,29 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			// Check the tools that indicate the portal is to do the popup
 			Iterator<ToolConfiguration> toolz = pTools.iterator();
 			String source = null;
-			boolean toolPopup = false;	
 			int count = 0;
 			ToolConfiguration pageTool = null;
 			while(toolz.hasNext()){
 				count++;
 				pageTool = toolz.next();
-				Properties pro = pageTool.getConfig();
-				if ( "sakai.web.168".equals(pageTool.getToolId()) ) {
-					source = pro.getProperty("source");
-					toolPopup = "true".equals(pro.getProperty("popup"));
-				} else if ( "sakai.iframe".equals(pageTool.getToolId()) ) {
-					source = pro.getProperty("source");
-					toolPopup = "true".equals(pro.getProperty("popup"));
-				} else if ( "sakai.basiclti".equals(pageTool.getToolId()) ) {
-					toolPopup = "on".equals(pro.getProperty("imsti.newpage"));
-					source = "/access/basiclti/site/"+pageTool.getContext()+"/"+pageTool.getId();
+				source = ToolUtils.getToolPopupUrl(pageTool);
+				if ( "sakai.siteinfo".equals(pageTool.getToolId()) ) {
+					addMoreToolsUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, 
+						resetTools, effectiveSiteId, null);
+					addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
 				}
 			}
 			if ( count != 1 ) {
-				toolPopup = false;
+				source = null;
+				addMoreToolsUrl = null;
 				pageTool = null;
 			}
 
 			boolean current = (page != null && p.getId().equals(page.getId()) && !p
 					.isPopUp());
-			String alias = lookupPageToAlias(site.getId(), p);
-			String pagerefUrl = pageUrl + Web.escapeUrl((alias != null)?alias:p.getId());
-			
-			String trinity = ServerConfigurationService.getString("portal.inline.experimental", "false");
-			if ( "true".equals(trinity) && pageTool != null ) {
-				pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(getSiteEffectiveId(site)) );
-				if (resetTools) {
-					pageUrl = pageUrl + "/tool-reset/";
-				} else {
-					pageUrl = pageUrl + "/tool/";
-				}
-				pagerefUrl = pageUrl + Web.escapeUrl(pageTool.getId());
-			}
+			String pageAlias = lookupPageToAlias(site.getId(), p);
+			String pagerefUrl = ToolUtils.getPageUrl(req, site, p, portalPrefix, 
+				resetTools, effectiveSiteId, pageAlias);
 
 			if (doPages || p.isPopUp())
 			{
@@ -692,17 +664,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						if ( t.getTool() == null ) continue;
 						desc.append(t.getTool().getDescription());
 						tCount++;
-						if ( "sakai.siteinfo".equals(t.getToolId()) ) {
-							if ( "true".equals(trinity) && pageTool != null ) {
-								addMoreToolsUrl = pageUrl + Web.escapeUrl(p.getId());
-							} else {
-								addMoreToolsUrl = pageUrl + Web.escapeUrl(t.getId());
-							}
-							addMoreToolsUrl += "?sakai_action=doMenu_edit_site_tools&panel=Shortcut";
-						}
 					}
-					// Won't work with mutliple tools per page
-					if ( tCount > 1 ) addMoreToolsUrl = null; 
 				}
 
 				boolean siteUpdate = SecurityService.unlock("site.upd", site.getReference());
@@ -710,6 +672,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 
 				if ( ! ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false) ) addMoreToolsUrl = null;
 
+				String pagePopupUrl = Web.returnUrl(req, "/page/");
 				m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
@@ -719,7 +682,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageId", Web.escapeUrl(p.getId()));
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
-				m.put("toolpopup", Boolean.valueOf(toolPopup));
+				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
 				
 				// TODO: Should have Web.escapeHtmlAttribute()
@@ -751,6 +714,14 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				continue;
 			}
 
+			String toolUrl = Web.returnUrl(req, "/" + portalPrefix + "/"
+				+ Web.escapeUrl(getSiteEffectiveId(site)));
+			if (resetTools) {
+				toolUrl = toolUrl + "/tool-reset/";
+			} else {
+				toolUrl = toolUrl + "/tool/";
+			}
+
 			// Loop through the tools again and Unroll the tools
 			Iterator iPt = pTools.iterator();
 
@@ -771,7 +742,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					m.put("toolTitle", Web.escapeHtml(placement.getTitle()));
 					m.put("jsToolTitle", Web.escapeJavascript(placement.getTitle()));
 					m.put("toolrefUrl", toolrefUrl);
-					m.put("toolpopup", Boolean.valueOf(toolPopup));
+					m.put("toolpopup", Boolean.valueOf(source!=null));
 					m.put("toolpopupurl", source);
 					String menuClass = placement.getToolId();
 					menuClass = "icon-" + menuClass.replace('.', '-');
