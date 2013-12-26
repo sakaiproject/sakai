@@ -137,21 +137,7 @@ public class PortalRenderTest extends TestCase
 
 		}
 	}
-	public void testGallery() throws Exception
-	{
-		try
-		{
-			log.info("========= Testing testGallery");
-			mock.doGallery();
-			log.info("========= PASSED Testing testGallery");
-		}
-		catch (Exception ex)
-		{
-			ex.printStackTrace();
-			log.info("========= FAILED Testing testGallery");
-			fail(ex.getMessage());
-		}
-	}
+
 	public void testPage() throws Exception
 	{
 		try
@@ -167,6 +153,7 @@ public class PortalRenderTest extends TestCase
 			fail(ex.getMessage());
 		}
 	}
+
 	public void testSite() throws Exception
 	{
 		try
