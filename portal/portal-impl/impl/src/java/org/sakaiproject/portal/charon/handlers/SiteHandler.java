@@ -49,6 +49,7 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.SiteView;
@@ -122,7 +123,7 @@ public class SiteHandler extends WorksiteHandler
 		if ((parts.length >= 2) && (parts[1].equals(SiteHandler.URL_FRAGMENT)))
 		{
 			// This is part of the main portal so we simply remove the attribute
-			session.setAttribute("sakai-controlling-portal", null);
+			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);
 			try
 			{
 				// site might be specified

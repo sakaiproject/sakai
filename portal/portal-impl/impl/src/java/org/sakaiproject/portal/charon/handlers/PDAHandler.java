@@ -42,6 +42,7 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
@@ -124,7 +125,7 @@ public class PDAHandler extends SiteHandler
 		} else if ((parts.length >= 2) && (parts[1].equals("pda")))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",PDAHandler.URL_FRAGMENT);
+			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL,PDAHandler.URL_FRAGMENT);
 			try
 			{
 

@@ -57,6 +57,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -1447,8 +1448,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
-		retval.setProperty("sakai.html.head.css.base", SessionManager.getCurrentSession().getAttribute("sakai-controlling-portal") == "pda" ? "" : headCssToolBase);
-		retval.setProperty("sakai.html.head.css.skin", SessionManager.getCurrentSession().getAttribute("sakai-controlling-portal") == "pda" ? "" : headCssToolSkin);
+		retval.setProperty("sakai.html.head.css.base", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolBase);
+		retval.setProperty("sakai.html.head.css.skin", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolSkin);
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;

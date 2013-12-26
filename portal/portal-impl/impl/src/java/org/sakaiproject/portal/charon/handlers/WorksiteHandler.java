@@ -35,6 +35,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.site.api.Site;
@@ -80,7 +81,7 @@ public class WorksiteHandler extends PageHandler
 		if ((parts.length >= 3) && (parts[1].equals(WorksiteHandler.URL_FRAGMENT)))
 		{
 			// Indicate that we are the controlling portal
-			session.setAttribute("sakai-controlling-portal",WorksiteHandler.URL_FRAGMENT);
+			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL,WorksiteHandler.URL_FRAGMENT);
 			try
 			{
 				// recognize an optional page/pageid

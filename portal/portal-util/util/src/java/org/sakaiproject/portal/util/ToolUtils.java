@@ -35,9 +35,11 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
 
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.cover.SessionManager;
 
 public class ToolUtils
 {
@@ -56,6 +58,12 @@ public class ToolUtils
 	 */
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page)
 	{
+		String portalPrefix = "portal";
+		Session s = SessionManager.getCurrentSession();
+		if ( s != null ) {
+			String control = (String) s.getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL);
+			if ( control != null ) portalPrefix = control;
+		}
 		return getPageUrl(req, site, page, "portal", true, null, null);
 	}
 
