@@ -54,6 +54,7 @@
 #if ( $neoChat && $loggedIn )
 <link href="${pageSkinRepo}/${pageSkin}/portalchat.css" type="text/css" rel="stylesheet" media="all" />
 #end
+<link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
 
 
 #if (! $currentPlacement && $isPDA )
@@ -89,15 +90,18 @@ ${tool.toolRenderResult.getTitle()}
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
 ${sakai_html_head_js}
-     <script type="text/javascript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}/jquery/jquery-1.9.1.min.js"></script>
      <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
 #end
 
 ## Make sure we at least have a jQuery
 <script type="text/javascript">
-window.jQuery || document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js">'+'\x3C/script>')
+window.jQuery 
+|| document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}/jquery/jquery-1.9.1.min.js">'+'\x3C/script>')
 </script>
 
+<script type="text/javascript" src="${pageScriptPath}/jquery/bgiframe/jquery.bgiframe.min.js"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js"></script>
 <script type="text/javascript" src="/portal/scripts/neoscripts.js"></script>
 <script type="text/javascript" src="/library/js/jquery/notify/1.2.2/jquery.pnotify.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
@@ -129,10 +133,7 @@ window.jQuery || document.write('\x3Cscript type="text/javascript" src="${pageSc
 	</script>
     #end
 #end
-<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.5/jquery.cluetip.min.js"></script>
-
-## required CSS for cluetip, bundled with the release
-<link href="${pageScriptPath}jquery/cluetip/1.2.5/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
-
-
+<script type="text/javascript">
+document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
+</script>
 </head>

@@ -1,30 +1,29 @@
 #parse("/vm/neoskin/includeStandardHead.vm")
 <body class="portalBody">
   <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
-  #if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
+#if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
 #if ( $pageTop )
 <script type="text/javascript">
 	var sakaiPortalWindow = "";
-  $(document).ready(function() {
+	$(document).ready(function() {
 			setupSkipNav();
-    });
+	});
 	</script>
 #end
-<!-- END Header -->
 #if (!${loginTopLogin})
 #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
 <script type="text/javascript">
-    $(document).ready(function() {
+	$(document).ready(function() {
 
-        var toggleClass=""
-        #if (${portal_allow_minimize_tools})
-            toggleClass="toggleTools"
-        #end
-        #if (${portal_allow_minimize_navigation})	
-            toggleClass= toggleClass + "toggleNav"
-        #end
+		var toggleClass=""
+		#if (${portal_allow_minimize_tools})
+			toggleClass="toggleTools"
+		#end
+		#if (${portal_allow_minimize_navigation})	
+			toggleClass= toggleClass + "toggleNav"
+		#end
 				setupToolToggle(toggleClass);
-    });
+	});
 </script>
 #end
 #end
@@ -32,7 +31,7 @@
 
 <!-- start includeSiteNav -->
 <div id="portalOuterContainer">
-        <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
+		<div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
 		#if (${tabsSites} )
 		<div id="headerMax">
 			<div id="skipNav">
@@ -63,7 +62,7 @@
 					</div>
 				</div>
 #parse("/vm/neoskin/includeTabs.vm")
-      </div>
+	  </div>
 			
 
 		</div>
