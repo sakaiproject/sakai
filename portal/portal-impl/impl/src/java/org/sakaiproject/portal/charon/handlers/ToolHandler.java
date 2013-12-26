@@ -45,6 +45,7 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.ActiveToolManager;
+import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.Web;
@@ -188,77 +189,32 @@ public class ToolHandler extends BasePortalHandler
 		}
 
 		// Check to see if the tool is visible
-                if(!isToolVisible(site, siteTool)) {
-                        portal.doError(req, res, session, Portal.ERROR_WORKSITE);
-                        return;
-                }
+		if(!ToolManager.isVisible(site, siteTool)) {
+			portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+			return;
+		}
 
 		if ( portal.isPortletPlacement(siteTool) ) 
 		{
 	
-	                String siteType = portal.calcSiteType(siteTool.getSiteId());
+			String siteType = portal.calcSiteType(siteTool.getSiteId());
 
-       			// form a context sensitive title
-	                String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-                                + site.getTitle() + " : " + siteTool.getTitle();
+			// form a context sensitive title
+			String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
+				+ site.getTitle() + " : " + siteTool.getTitle();
 
-                	PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
+			PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
 				siteTool.getSkin(), req);
 
 			Map m = portal.includeTool(res, req, siteTool);
 			rcontext.put("tool", m);
 
-                	portal.sendResponse(rcontext, res, "tool", null);
+			portal.sendResponse(rcontext, res, "tool", null);
 
 		} else {
 			portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
 		}
-	}
-
-        // TODO: Remove when KNL-428 is solidly in place (i.e. shortly before 2.8 code freeze)
-	/**
-	 * Method to check if a tool is visible for a user in a site, based on KNL-428
-	 * @param site
-	 * @param toolConfig
-	 * @return
-	 */
-	private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
-		
-		//no way to check, so allow access. It's then up to the tool to control permissions
-		if(site == null || toolConfig == null) {
-			return true;
-		}
-		
-		String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
-
-		//no special permissions required, it's visible
-		if (toolPermissionsStr == null || toolPermissionsStr.trim().length() == 0) {
-			return true; 
-		}
-		
-		//check each set, if multiple permissions in the set, must have all.
-		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
-		for (int i = 0; i < toolPermissionsSets.length; i++){
-			String[] requiredPermissions = toolPermissionsSets[i].split(","); 
-			boolean allowed = true;
-			for (int j = 0; j < requiredPermissions.length; j++) {
-				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
-				//as that set may override and allow access
-				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
-					allowed = false;
-					break;
-				}
-			}
-			//if allowed, we have matched the entire set so are satisfied
-			//otherwise we will check the next set
-			if(allowed) {
-				return true;
-			}
-		}
-		
-		//no sets were completely matched
-		return false;
 	}
 
 }
