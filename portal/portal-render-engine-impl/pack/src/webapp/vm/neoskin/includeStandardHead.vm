@@ -93,6 +93,11 @@ ${sakai_html_head_js}
      <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
 #end
 
+## Make sure we at least have a jQuery
+<script type="text/javascript">
+window.jQuery || document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}/jquery/1.7.1/jquery-1.7.1.min.js">'+'\x3C/script>')
+</script>
+
 <script type="text/javascript" src="/portal/scripts/neoscripts.js"></script>
 <script type="text/javascript" src="/library/js/jquery/notify/1.2.2/jquery.pnotify.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
