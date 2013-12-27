@@ -741,7 +741,7 @@ function PortalChat() {
 			});
 	
 			// Handle return press in the edit fields
-			$('.pc_editor').live('keypress',function (e,ui) {
+			keyPressFunction = function (e,ui) {
 	
 				if(e.keyCode == 13) {
                     
@@ -752,7 +752,14 @@ function PortalChat() {
                         portalChat.sendMessageToUser(uuid, e.target.value);
                     }
 				}
-			});
+			}
+
+			// SAK-25505 - Switch from live() to on()
+			if ( $(document).on ) {
+				$(document).on('keypress', '.pc_editor', keyPressFunction);
+			} else {
+				$('.pc_editor').live('keypress', keyPressFunction);
+			}
 	
 			if(portalChat.getSetting('expanded') && portal.loggedIn) {
                 portalChat.toggleChat();
