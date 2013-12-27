@@ -468,6 +468,9 @@ public class PDAHandler extends SiteHandler
 
 			if ( ! retval ) return Boolean.FALSE;
 
+			// If the tool did a redirect - tell our caller to just complete the response
+			if ( bufferedResponse.getRedirect() != null ) return bufferedResponse;
+
 			// Check the response contentType for a pattern match
 			String commonToolId = siteTool.getToolId();
 			String pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);

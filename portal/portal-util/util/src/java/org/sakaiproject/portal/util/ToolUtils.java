@@ -54,17 +54,20 @@ public class ToolUtils
 	 * @param <code>site</code>
 	 *		The site that contains the page
 	 * @param <code>page</code>
-	 *		The page
+	 *		The page URL.   If this has a logged in session, we use it to set the
+	 *		default prefix if available.   This will use the default prefix if called
+	 *		without a session (i.e. through /direct).
 	 */
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page)
 	{
-		String portalPrefix = "portal";
+		// .../portal/site/1234
+		String portalPrefix = "site";
 		Session s = SessionManager.getCurrentSession();
 		if ( s != null ) {
 			String control = (String) s.getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL);
 			if ( control != null ) portalPrefix = control;
 		}
-		return getPageUrl(req, site, page, "portal", true, null, null);
+		return getPageUrl(req, site, page, portalPrefix, true, null, null);
 	}
 
 	/**

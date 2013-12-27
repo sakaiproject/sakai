@@ -53,6 +53,8 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 
 	private int contentLength = -1;
 
+	private String redirect = null;
+
 	private ServletByteOutputStream outStream = null;
 
 	/**
@@ -81,6 +83,18 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	{
 		// System.out.println("setContentType = "+contentType);
 		contentType = newType;
+	}
+
+	public String getRedirect()
+	{
+		return redirect;
+	}
+
+	@Override
+	public void sendRedirect(String redirectUrl)
+	{
+		// System.out.println("sendRedirect = "+redirectUrl);
+		redirect = redirectUrl;
 	}
 
 	@Override
@@ -128,6 +142,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		super.setContentType(contentType);
 		if ( contentLength > 0 ) super.setContentLength(contentLength);
 		ServletOutputStream output = super.getOutputStream();
+		if ( redirect != null ) super.sendRedirect(redirect);
 		outStream.getContent().writeTo(output);
 	}
 
