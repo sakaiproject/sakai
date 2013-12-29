@@ -610,14 +610,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String titleString = Web.escapeHtml(placement.getTitle());
 		String toolId = Web.escapeHtml(placement.getToolId());
 
-		// Reset the tool state if requested
-		if (portalService.isResetRequested(req))
-		{
-			Session s = SessionManager.getCurrentSession();
-			ToolSession ts = s.getToolSession(placement.getId());
-			ts.clearAttributes();
-		}
-
 		// for the reset button
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 		   + Web.escapeUrl(placement.getId()) + "/";
@@ -628,6 +620,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String newUrl = ToolUtils.getPageUrlForTool(req, site, placement);
 			if ( newUrl != null ) toolUrl = newUrl;
 		}
+
+		// Reset the tool state if requested
+		// Resets of inline tools have already been handled earlier in the request
+		// (See PDAHandler.java and SiteJHandler.java)
+		if (!toolInline && portalService.isResetRequested(req))
+		{
+			Session s = SessionManager.getCurrentSession();
+			ToolSession ts = s.getToolSession(placement.getId());
+			ts.clearAttributes();
+		}
+
 
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));

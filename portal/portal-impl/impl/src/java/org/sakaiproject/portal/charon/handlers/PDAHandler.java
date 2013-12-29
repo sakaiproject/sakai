@@ -314,12 +314,15 @@ public class PDAHandler extends SiteHandler
 
 					// If the buffered response was not parseable
 					if ( BC instanceof ByteArrayServletResponse ) {
+						ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
 						StringBuffer queryUrl = req.getRequestURL();
 						String queryString = req.getQueryString();
 						if ( queryString != null ) queryUrl.append('?').append(queryString);
 						// SAK-25494 - This probably should be a log.debug later
-						log.warn("Post buffer bypass CTI="+commonToolId+" URL="+queryUrl);
-						ByteArrayServletResponse bufferResponse = (ByteArrayServletResponse) BC;
+						String msg = "Post buffer bypass CTI="+commonToolId+" URL="+queryUrl;
+						String redir = bufferResponse.getRedirect();
+						if ( redir != null ) msg = msg + " redirect to="+redir;
+						log.warn(msg);
 						bufferResponse.forwardResponse();
 						return END;
 					}
