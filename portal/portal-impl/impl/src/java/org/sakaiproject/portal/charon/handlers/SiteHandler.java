@@ -72,6 +72,7 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
 
@@ -316,26 +317,8 @@ public class SiteHandler extends WorksiteHandler
 
 		// Find the pageId looking backwards through the toolId
 		if(site != null && pageId == null && toolId != null ) {
-			List pages = site.getOrderedPages();
-			for (Iterator i = pages.iterator(); i.hasNext();)
-			{
-
-				SitePage p = (SitePage) i.next();
-				// check if current user has permission to see page
-				// we will draw page button if it have permission to see at least
-				// one tool on the page
-				List<ToolConfiguration> pTools = p.getTools();
-				Iterator<ToolConfiguration> toolz = pTools.iterator();
-				while(toolz.hasNext()){
-					ToolConfiguration tc = toolz.next();
-					Tool to = tc.getTool();
-					if ( toolId.equals(tc.getId()) ) {
-						pageId = p.getId();
-						break;
-					}
-				}
-				if ( pageId != null ) break;
-			}
+			SitePage p = (SitePage) ToolUtils.getPageForTool(site, toolId);
+			if ( p != null ) pageId = p.getId();
 		}
 
 		// if no page id, see if there was a last page visited for this site

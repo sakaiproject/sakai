@@ -606,15 +606,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			site = null;
 		}
 
-		// FIXME: This does not look absolutely right,
-		// this appears to say, reset all tools on the page since there
-		// is no filtering of the tool that is bing reset, surely there
-		// should be a check which tool is being reset, rather than all
-		// tools on the page.
-		// let the tool do some the work (include) (see note above)
-
-		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
-		   + Web.escapeUrl(placement.getId()) + "/";
+		// emit title information
 		String titleString = Web.escapeHtml(placement.getTitle());
 		String toolId = Web.escapeHtml(placement.getToolId());
 
@@ -626,9 +618,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			ts.clearAttributes();
 		}
 
-		// emit title information
-
 		// for the reset button
+		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
+		   + Web.escapeUrl(placement.getId()) + "/";
+
+		// Reset is different (and awesome) when inlining
+		boolean toolInline = ToolUtils.isInlineRequest(req);
+		if ( toolInline ) {
+			String newUrl = ToolUtils.getPageUrlForTool(req, site, placement);
+			if ( newUrl != null ) toolUrl = newUrl;
+		}
+
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
@@ -759,6 +759,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
 		toolMap.put("toolId", toolId);
+		toolMap.put("toolInline", Boolean.valueOf(toolInline));
 		
 		String directToolUrl = ServerConfigurationService.getPortalUrl() + "/" + DirectToolHandler.URL_FRAGMENT +"/" + Web.escapeUrl(placement.getId()) + "/";
 		toolMap.put("directToolUrl", directToolUrl);

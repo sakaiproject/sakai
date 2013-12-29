@@ -47,6 +47,23 @@ public class ToolUtils
 	public static final String PORTAL_INLINE_EXPERIMENTAL = "portal.inline.experimental";
 
 	/**
+	 * Determine if this is an inline request.
+	 *
+	 * @param <code>req</code>
+	 *		The request object.
+	 * @return True if this is a request where a tool will be inlined.
+	 */
+	public static boolean isInlineRequest(HttpServletRequest req)
+	{
+		String option = URLUtils.getSafePathInfo(req);
+		String[] parts = option.split("/");
+		if ((parts.length >= 5) ) {
+			return parts[3].equals("tool");
+		}
+		return false;
+	}
+
+	/**
 	 * Captures the rules for getting the URL of a page suitable for a GET request
 	 *
 	 * @param <code>req</code>
@@ -166,8 +183,52 @@ public class ToolUtils
 		return source;
 	}
 
-	// Work backwards...
-	// public static String getPageUrlForTool(ToolConfiguration pageTool)
+	/**
+	 * Look through the pages in a site and find the page that corresponds to a tool.
+	 *
+	 * @param <code>site</code>
+	 *		The site
+	 * @param <code>toolId</code>
+	 *		The placement / tool ID
+	 * @return The page if found otherwise null.
+	 */
+	public static SitePage getPageForTool(Site site, String toolId)
+	{
+		if ( site == null || toolId == null ) return null;
+		List pages = site.getOrderedPages();
+		for (Iterator i = pages.iterator(); i.hasNext();)
+		{
+			SitePage p = (SitePage) i.next();
+			List<ToolConfiguration> pTools = p.getTools();
+			Iterator<ToolConfiguration> toolz = pTools.iterator();
+			while(toolz.hasNext()){
+				ToolConfiguration tc = toolz.next();
+				Tool to = tc.getTool();
+				if ( toolId.equals(tc.getId()) ) {
+					return p;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Look through the pages in a site and get the page URL for a tool.
+	 *
+	 * @param <code>req</code>
+	 *		The request object.
+	 * @param <code>site</code>
+	 *		The site
+	 * @param <code>pageTool</code>
+	 *		The placement / tool configuration
+	 * @return The page if found otherwise null.
+	 */
+	public static String getPageUrlForTool(HttpServletRequest req, Site site, ToolConfiguration pageTool)
+	{
+		SitePage thePage = getPageForTool(site, pageTool.getId());
+		if ( thePage == null ) return null;
+		return getPageUrl(req, site, thePage);
+	}
 
 	public static boolean isPortletPlacement(Placement placement)
 	{
