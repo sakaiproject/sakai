@@ -565,6 +565,7 @@ public class PDAHandler extends SiteHandler
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
+			portalService.setResetState(null);
 		}
 
 		// find the tool registered for this
