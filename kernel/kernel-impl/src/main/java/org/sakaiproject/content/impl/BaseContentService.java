@@ -5543,7 +5543,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				//				}
 				edit.setAvailability(resource.isHidden(), resource.getReleaseDate(), resource.getRetractDate());
 
-				commitResource(edit,NotificationService.NOTI_NONE);
+				commitResource(edit,NotificationService.NOTI_OPTIONAL);
 				// close the edit object
 				((BaseResourceEdit) edit).closeEdit();
 
