@@ -102,6 +102,7 @@ import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -1144,7 +1145,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
 		rcontext.put("pageTitle", Web.escapeHtml(title));
-		rcontext.put("pageScriptPath", getScriptPath());
+		rcontext.put("pageScriptPath", PortalUtils.getScriptPath());
+		rcontext.put("portalCDNPath", PortalUtils.getCDNPath());
+		rcontext.put("portalCDNQuery", PortalUtils.getCDNQuery());
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));
@@ -1405,23 +1408,41 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		// Adjust skin name if we are in the neo Portal
 		String headCssToolBase = "<link href=\""
+			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolBase()
+			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCssToolSkin = "<link href=\"" 
+			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolSkin(skin)
+			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		
 		Editor editor = portalService.getActiveEditor(placement);
 		String preloadScript = editor.getPreloadScript() == null ? ""
-				: "<script type=\"text/javascript\">" + editor.getPreloadScript() + "</script>\n";
+				: "<script type=\"text/javascript\">" 
+				+ editor.getPreloadScript() 
+				+ "</script>\n";
 		String editorScript = editor.getEditorUrl() == null ? ""
-				: "<script type=\"text/javascript\" src=\"" + editor.getEditorUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" 
+				+ PortalUtils.getCDNPath()
+				+ editor.getEditorUrl() 
+				+ PortalUtils.getCDNQuery()
+				+ "\"></script>\n";
 		String launchScript = editor.getLaunchUrl() == null ? ""
-				: "<script type=\"text/javascript\" src=\"" + editor.getLaunchUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" 
+				+ PortalUtils.getCDNPath()
+				+ editor.getLaunchUrl() 
+				+ PortalUtils.getCDNQuery()
+				+ "\"></script>\n";
 		
 		StringBuilder headJs = new StringBuilder();
-		headJs.append("<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n");
+		headJs.append("<script type=\"text/javascript\" src=\"");
+		headJs.append(PortalUtils.getCDNPath());
+		headJs.append("/library/js/headscripts.js");
+		headJs.append(PortalUtils.getCDNQuery());
+		headJs.append("\"></script>\n");
 		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
 		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
@@ -1552,11 +1573,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			page = p.getPageId();
 		}
 		return "/site/" + p.getSiteId() + "/page/" + page;
-	}
-
-	protected String getScriptPath()
-	{
-		return "/library/js/";
 	}
 
 	/**

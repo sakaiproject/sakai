@@ -42,13 +42,13 @@
 </script>
 
 #if ( $loggedIn )
-<script type="text/javascript" src="/portal/scripts/sessionstoragemanager.js"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
 #end
 
 <!-- this causes problems for layout needs investigating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 <!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="$!{portalCDNPath}/portal/styles/portalstyles-ie5.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
 <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
 #if ( $neoChat && $loggedIn )
@@ -90,35 +90,35 @@ ${tool.toolRenderResult.getTitle()}
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
 ${sakai_html_head_js}
-     <script type="text/javascript" src="${pageScriptPath}/jquery/jquery-1.9.1.min.js"></script>
-     <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
+     <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
 #end
 
 ## Make sure we at least have a jQuery
 <script type="text/javascript">
 window.jQuery 
-|| document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}/jquery/jquery-1.9.1.min.js">'+'\x3C/script>')
+|| document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
 </script>
 
-<script type="text/javascript" src="${pageScriptPath}/jquery/bgiframe/jquery.bgiframe.min.js"></script>
-<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js"></script>
-<script type="text/javascript" src="/portal/scripts/neoscripts.js"></script>
-<script type="text/javascript" src="/library/js/jquery/notify/1.2.2/jquery.pnotify.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/qtip/tutorial.js"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
 	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 #if ( $neoChat && $loggedIn )
-<script type="text/javascript" src="/portal/scripts/jquery.idle-timer.js"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
 <script type="text/javascript">
 	var portalChatPollInterval = ${portalChatPollInterval};
 </script>
-<script type="text/javascript" src="/portal/scripts/chat.js"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
 #end
 #if ( ${styleable} )
 <script type="text/javascript" 
-    	src="/sakai-preferable-tool/js/styleable.js" >
+    	src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}" >
     </script>
     
     <script type="text/javascript">

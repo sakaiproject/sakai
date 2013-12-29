@@ -27,7 +27,7 @@
     <meta http-equiv="Content-Language" content="$!{locale}" />
 #end
 ${sakai_html_head_css}
-	 <link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" /> 
+	 <link href="${pageSkinRepo}/${pageSkin}/pda.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" /> 
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta name="viewport" content="width=device-width, user-scalable=yes,  initial-scale=1.0, maximum-scale=1.0"/>
   	<link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      
@@ -36,7 +36,7 @@ ${sakai_html_head_css}
 ## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
 ## It depends on jquery - so we either have to include both jquery and portalscripts or neither
 ## and since we don't use any of this in pda.vm - we don't include either one
-   <script type="text/javascript" src="${pageScriptPath}jquery-latest.min.js"></script>
+   <script type="text/javascript" src="${pageScriptPath}jquery-latest.min.js$!{portalCDNQuery}"></script>
 ## <script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
 ## These may someday be needed for styleable - if so - move them into styleable below
 #if ( ${bufferedResponse} && ${responseHead} ) 
@@ -45,7 +45,7 @@ ${responseHead}
 <!-- End of Head material from Tool -->
 #else 
     <title>${pageTitle}</title>
-     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
 #end
 
 </head>
