@@ -25,6 +25,7 @@
 		<navigation-case>
 			<from-outcome>courseGradeDetails</from-outcome>
 			<to-view-id>/courseGradeDetails.jsp</to-view-id>
+			<redirect/>
 		</navigation-case>
 		<navigation-case>
 			<from-outcome>calculateCourseGrades</from-outcome>
@@ -77,6 +78,7 @@
         <navigation-case>
             <from-outcome>gradebookSetup</from-outcome>
             <to-view-id>/gradebookSetup.jsp</to-view-id>
+            <redirect/>
         </navigation-case>
 
         <navigation-case>
