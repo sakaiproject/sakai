@@ -86,20 +86,37 @@ ${tool.toolRenderResult.getTitle()}
 		#end
 	#end
 </title>
+## Make sure we at least have a jQuery 1.9 or higher, log messages
+<script type="text/javascript">
+var needJQuery = true;
+if ( window.jQuery ) {
+       tver = jQuery.fn.jquery;
+       if ( tver.indexOf('1.9.') == 0 ) {
+               window.console && console.log('Tool loaded jQuery '+tver);
+               needJQuery = false;
+       } else {
+               toggleJQuery = true;
+               window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
+               jQuery.noConflict();
+       }
+}
+if ( needJQuery ) {
+       document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+}
+</script>
+<script type="text/javascript">
+if ( needJQuery ) {
+       window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
+}
+</script>
 #else 
     <title>${pageTitle}</title>
 ${sakai_html_head_css}
 ${sakai_html_head_js}
-     <script type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
-     <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
 #end
 
-## Make sure we at least have a jQuery
-<script type="text/javascript">
-window.jQuery 
-|| document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-</script>
-
+<script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
