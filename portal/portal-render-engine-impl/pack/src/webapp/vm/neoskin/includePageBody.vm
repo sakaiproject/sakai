@@ -308,10 +308,10 @@
 				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
 					<div id="local_video_bar">
-						<a href="javascript:;" id="disable_local_video" onclick="return videoCall.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="video_button video_cam_enable"></a>
-						<a href="javascript:;" id="enable_local_video" onclick="return videoCall.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="video_button video_cam_disable"></a>
-						<a href="javascript:;" id="mute_local_audio" onclick="return videoCall.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="video_button video_mic_enable"></a>
-						<a href="javascript:;" id="unmute_local_audio" onclick="return videoCall.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="video_button video_mic_disable"></a>
+						<a href="javascript:;" id="disable_local_video" onclick="return portal.chat.video.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="video_button video_cam_enable"></a>
+						<a href="javascript:;" id="enable_local_video" onclick="return portal.chat.video.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="video_button video_cam_disable"></a>
+						<a href="javascript:;" id="mute_local_audio" onclick="return portal.chat.video.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="video_button video_mic_enable"></a>
+						<a href="javascript:;" id="unmute_local_audio" onclick="return portal.chat.video.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="video_button video_mic_disable"></a>
 
 					</div>
 				</div>
@@ -343,14 +343,14 @@
                 {for connection in connections}
                     <li class="pc_connection">
 
-                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${connection.uuid}');">
+                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.setupChatWindow('${connection.uuid}');">
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
 			#if ( $neoAvatar ) 
                             <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
 			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>
                             {if connection.online}
-         	                   {if connection.video=='none' || !videoCall || !videoCall.isVideoEnabled()}
+         	                   {if connection.video=='none' || !portal.chat.video || !portal.chat.video.isVideoEnabled()}
                            	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                                {/if}
                             {else}
@@ -358,14 +358,14 @@
                             {/if}
                         </a>
                         {if connection.online}
-     	                   {if connection.video!='none' && videoCall && videoCall.isVideoEnabled()}
-	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${connection.uuid}',false);">
+     	                   {if connection.video!='none' && portal.chat.video && portal.chat.video.isVideoEnabled()}
+	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${connection.uuid}',false);">
                         	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                         	</a>
                            {/if}
                         {/if}
                         {if connection.online == false}
-                            <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
+                            <a href="javascript:;" onclick="portal.chat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")"><img src="/library/image/silk/bell.png" width="16" height="16" border="0"/></a>
                        		<span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">${rloader.pc_pinged_popup}</span>
                         {/if}
                     </li>
@@ -379,7 +379,7 @@
                 {for user in siteUsers}
                     <li class="pc_site_user">
                         {if !user.offline}
-                        <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portalChat.setupChatWindow('${user.id}');">
+                        <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.setupChatWindow('${user.id}');">
                         {/if}
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
 			#if ( $neoAvatar ) 
@@ -387,7 +387,7 @@
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
                             {if user.offline == false}
-                              {if user.video=='none' || !videoCall || !videoCall.isVideoEnabled()}
+                              {if user.video=='none' || !portal.chat.video || !portal.chat.video.isVideoEnabled()}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                               {/if}
                             {else}
@@ -396,8 +396,8 @@
                         {if user.offline == false}
                         </a>
                         {/if}
-                        {if user.video!='none' && videoCall && videoCall.isVideoEnabled()}
-                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return videoCall.directVideoCall('${user.id}',false);">
+                        {if user.video!='none' && portal.chat.video && portal.chat.video.isVideoEnabled()}
+                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${user.id}',false);">
                           <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                          </a>
                         {/if}
@@ -409,14 +409,14 @@
             <!-- Trimpath template for the chat windows -->
             <div id="pc_connection_chat_template" style="display:none;" tabindex="-1"><!--
 #if ( $neoAvatar ) 
-               <div class="pc_connection_chat_title_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"><a href="#">
+               <div class="pc_connection_chat_title_avt pc_connection_chat_title" onclick="portal.chat.toggleChatWindow('${uuid}');"><a href="#">
                  <img src="/direct/profile/${uuid}/image" class="pc_connection_chat_title_avt"/><span>${displayName}</span></a>
 #else
-				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title" onclick="portalChat.toggleChatWindow('${uuid}');"> <a href="#">
+				<div class="pc_connection_chat_title_no_avt pc_connection_chat_title" onclick="portal.chat.toggleChatWindow('${uuid}');"> <a href="#">
                     <div class="pc_connection_chat_title">${displayName}</div></a>
 #end
 				
-                    <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="${rloader.pc_chat_close}">
+                    <a href="javascript:;" onclick="return portal.chat.closeChatWindow('${uuid}');" title="${rloader.pc_chat_close}">
 						<span class="skip">${rloader.pc_chat_close}</span>
 						<img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt=""/>
 					</a>
@@ -424,13 +424,13 @@
                 #if ( $neoChatVideo )
 				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
-						<a href="javascript:;" onclick="return videoCall.openVideoCall('${uuid}',false);" class="video_off video_button video_call" title="${rloader.pc_video_do_videocall_title}" ></a>
-						<a href="javascript:;" onclick="return videoCall.closeVideoCall('${uuid}',true);" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
-						<a href="javascript:;" onclick="return videoCall.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi" title="${rloader.pc_video_maximize_title}" ></a>
+						<a href="javascript:;" onclick="return portal.chat.video.openVideoCall('${uuid}',false);" class="video_off video_button video_call" title="${rloader.pc_video_do_videocall_title}" ></a>
+						<a href="javascript:;" onclick="return portal.chat.video.closeVideoCall('${uuid}',true);" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
+						<a href="javascript:;" onclick="return portal.chat.video.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi" title="${rloader.pc_video_maximize_title}" ></a>
 					</div>
 					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_answer">
-						<a href="javascript:;" onclick="return videoCall.acceptVideoCall('${uuid}');" class="video_button video_call" title="${rloader.pc_video_accept_title}"></a>
-						<a href="javascript:;" onclick="return videoCall.ignoreVideoCall('${uuid}');" class="video_button video_close" title="${rloader.pc_video_ingnore_title}"></a>
+						<a href="javascript:;" onclick="return portal.chat.video.acceptVideoCall('${uuid}');" class="video_button video_call" title="${rloader.pc_video_accept_title}"></a>
+						<a href="javascript:;" onclick="return portal.chat.video.ignoreVideoCall('${uuid}');" class="video_button video_close" title="${rloader.pc_video_ingnore_title}"></a>
 						<span>${rloader.pc_video_askforincoming}</span>
 					</div>
 					<div id="pc_connection_${uuid}_videotime" class="pc_connection_videochat_bar_right">
