@@ -154,6 +154,8 @@
                         </span>
                         <span id="copyContentWrapper">
                             <input type="checkbox" name="copyContent" id="copyContent" value="true"/>
+                            #* SAK25401 *#
+                            <input type="checkbox" name="lockedContent" id="lockedContent" checked="checked" disabled="disabled" style="display:none" />                            
                             <label for="copyContent">$tlang.getString("sitetype.copycontent")</label>
                         </span>
                         <span id="publishSiteWrapper">

@@ -297,9 +297,15 @@ sakai.siteTypeSetup = function(){
                         else {
                             $('#copyContentWrapper input').prop('checked', false)
                         }
+                        //SAK25401
                         if (this.copyContentLocked === true) {
-                            $('#copyContentWrapper input').prop('disabled', true);
+                           if (this.copyContentLocked === true) {
+                            // SAK-25401 hide the actual control, display locked 'stand-in'
+                            $( "#copyContent" ).hide();
+                            $( "#lockedContent").show();
+                           }
                         }
+
                         else {
                             $('#copyContentWrapper input').prop('disabled', false);
                         }
