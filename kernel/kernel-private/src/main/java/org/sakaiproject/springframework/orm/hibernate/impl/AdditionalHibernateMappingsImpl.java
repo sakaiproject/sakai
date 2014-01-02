@@ -43,7 +43,7 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 
 	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
 
-	private VendorHbmTransformer vendorHbmTrasformer;
+	private static VendorHbmTransformer vendorHbmTrasformer;
 
     public void setMappingResources(String[] mappingResources)
 	{
@@ -65,6 +65,15 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 		{
 			try {
 				logger.info("Loading hbm: " + mappingLocations[i]);
+				if (config == null) {
+					logger.warn("config is null!");
+					return;
+				}
+				if (vendorHbmTrasformer == null) {
+					logger.warn("vendor is null!");
+					return;
+				}
+
 				config.addInputStream(vendorHbmTrasformer.getTransformedMapping(this.mappingLocations[i].getInputStream()));
 			} catch (MappingException me) {
 				throw new MappingException("Failed to load "+ this.mappingLocations[i], me);
