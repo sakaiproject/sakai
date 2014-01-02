@@ -392,6 +392,12 @@
         <version>1.4</version>
         <scope>provided</scope>
       </dependency>
+	  <dependency>
+		  <groupId>org.apache.tomcat</groupId>
+		  <artifactId>tomcat-jdbc</artifactId>
+		  <scope>provided</scope>
+		  <version>${sakai.tomcat.version}</version>
+	  </dependency>
       <dependency>
         <groupId>commons-fileupload</groupId>
         <artifactId>commons-fileupload</artifactId>
