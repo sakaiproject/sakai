@@ -104,7 +104,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	}
 	
 	/**
-	 * Get the list of announcements for a site (or user site, or !site for motd)
+	 * Get the list of announcements for a site (or user site, or !site for motd).
+	 * This is aimed to providing a list of announcements similar to those that the synoptic announcement
+	 * tool shows. It doesn't show announcements that are outside their date range even if you
+	 * have permission to see them (eg from being a maintainer in the site).
 	 *
 	 * @param siteId - siteId requested, or user site, or !site for motd.
 	 * @param params - the raw URL params that were sent, for processing.
@@ -136,7 +139,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		
 		//check current user has annc.read permissions for this site, not for public or motd though
 		if(!onlyPublic && !motdView) {
-			if(!securityService.unlock(currentUserId, AnnouncementService.SECURE_ANNC_READ, siteService.siteReference(siteId))) {
+			if(!securityService.unlock(AnnouncementService.SECURE_ANNC_READ, siteService.siteReference(siteId))) {
 				throw new SecurityException("You do not have access to site: " + siteId);
 			}
 		}
@@ -233,13 +236,14 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 	
 		for (Message m : announcements) {
 			AnnouncementMessage a = (AnnouncementMessage)m;
-			try {
-				DecoratedAnnouncement da = createDecoratedAnnouncement(a,
-					siteTitle);
-				decoratedAnnouncements.add(da);
-			} catch (Exception e) {
-				//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
-				log.info("Exception caught processing announcement: " + m.getId() + " for user: " + currentUserId + ". Skipping...");
+			if(announcementService.isMessageViewable(a)) {
+				try {
+					DecoratedAnnouncement da = createDecoratedAnnouncement(a, siteTitle);
+					decoratedAnnouncements.add(da);
+				} catch (Exception e) {
+					//this can throw an exception if we are not logged in, ie public, this is fine so just deal with it and continue
+					log.info("Exception caught processing announcement: " + m.getId() + " for user: " + currentUserId + ". Skipping...");
+				}
 			}
 		}
 		
@@ -250,8 +254,8 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		Collections.reverse(decoratedAnnouncements);
 		
 		//trim to final number, within bounds of list size.
-		if(numberOfAnnouncements > announcements.size()) {
-			numberOfAnnouncements = announcements.size();
+		if(numberOfAnnouncements > decoratedAnnouncements.size()) {
+			numberOfAnnouncements = decoratedAnnouncements.size();
 		}
 		decoratedAnnouncements = decoratedAnnouncements.subList(0, numberOfAnnouncements);
 		
@@ -468,16 +472,19 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException("siteId must be set in order to get the announcements for a site, via the URL /announcement/site/siteId");
 		}
-        
-		boolean onlyPublic = false;
+
+		boolean onlyPublic = true;
 		
 		//check if logged in
 		String currentUserId = sessionManager.getCurrentSessionUserId();
-		if (StringUtils.isBlank(currentUserId)) {
+		boolean isLoggedIn = !StringUtils.isBlank(currentUserId);
+		boolean canReadThemAnyway = securityService.unlock(AnnouncementService.SECURE_ANNC_READ, siteService.siteReference(siteId));
+
+		if (isLoggedIn || canReadThemAnyway) {
 			//not logged in so set flag to just return any public announcements for the site
-			onlyPublic = true;
+			onlyPublic = false;
 		}
-        
+
 		//check this is a valid site
 		if(!siteService.siteExists(siteId)) {
 			throw new EntityNotFoundException("Invalid siteId: " + siteId, siteId);
