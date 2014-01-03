@@ -3,11 +3,11 @@ portal.chat.video.webrtc.peerConnection = null;
 portal.chat.video.webrtc.detectedBrowser = null;
 portal.chat.video.webrtc.currentPeerConnectionsMap = {};
 portal.chat.video.webrtc.localMediaStream = null;
-portal.chat.video.webrtc.debug = true;
+portal.chat.video.webrtc.debug = false;
 
 // Set this to true if you want to support firefox, but its implementation
 // is still immature and some performance problems have been detected.
-portal.chat.video.webrtc.firefoxAllowed = true;
+portal.chat.video.webrtc.firefoxAllowed = false;
 
 portal.chat.video.webrtc.pc_config = {
     "iceServers" : [ {
