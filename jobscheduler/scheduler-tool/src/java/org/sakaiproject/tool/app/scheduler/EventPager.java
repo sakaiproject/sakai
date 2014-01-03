@@ -35,7 +35,7 @@ public class EventPager
         triggerName = null;
     private int
         first = 0,
-        numRows = 10;
+        numRows = 100;
     private boolean
         filterEnabled = false;
     private HashMap<String, Boolean>
