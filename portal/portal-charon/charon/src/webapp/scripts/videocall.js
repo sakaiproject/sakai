@@ -17,7 +17,7 @@
     portal.chat.video.getCallTimeout = function () {
 
         if (this.callTimeout == 0) {
-            this.callTimeout = portal.chat.videoTimeout * 1000 + portal.chat.pollInterval;
+            this.callTimeout = portal.chat.video.timeout * 1000 + portal.chat.pollInterval;
         }
         return this.callTimeout;
     };
@@ -110,7 +110,7 @@
 
     portal.chat.video.getVideoAgent = function () {
 
-        return this.webrtc.webrtcDetectedBrowser;
+        return this.webrtc.detectedBrowser;
     };
         
     portal.chat.video.doClose = function (uuid, skipBye){
@@ -311,8 +311,12 @@
     };
 
     portal.chat.video.getRemoteVideoAgent = function (uuid) {
-
-        return portal.chat.currentConnectionsMap[uuid].video;
+    	
+    	//Just check video in case we have it in our conections map list   	
+    	if (portal.chat.currentConnectionsMap[uuid]){
+    		return portal.chat.currentConnectionsMap[uuid].video ? portal.chat.currentConnectionsMap[uuid].video : 'none';
+    	}
+    	return 'none';
     };
 
     portal.chat.video.doTimeout = function (uuid, callTime) {

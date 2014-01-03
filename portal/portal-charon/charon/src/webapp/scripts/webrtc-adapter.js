@@ -520,7 +520,7 @@ portal.chat.video.webrtc.onReceive = function (from, message, videoAgentType) {
         console.log(message);
     }
 
-    if (signal.sdp) {
+    if (signal.sdp && videoAgentType!= 'none') {
 
         if (signal.sdp.type === "offer") {
             this.onReceiveCall(from);
@@ -536,7 +536,7 @@ portal.chat.video.webrtc.onReceive = function (from, message, videoAgentType) {
         var pc = callConnection.rtcPeerConnection;
         pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
 
-    } else if (signal.candidate != null) {
+    } else if (signal.candidate != null && videoAgentType!= 'none') {
         var callConnection = this.currentPeerConnectionsMap[from];
         if (callConnection != null) {
             var pc = callConnection.rtcPeerConnection;
