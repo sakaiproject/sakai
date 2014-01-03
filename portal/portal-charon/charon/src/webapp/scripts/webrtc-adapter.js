@@ -7,7 +7,7 @@ portal.chat.video.webrtc.debug = false;
 
 // Set this to true if you want to support firefox, but its implementation
 // is still immature and some performance problems have been detected.
-portal.chat.video.webrtc.firefoxAllowed = false;
+portal.chat.video.webrtc.firefoxAllowed = true;
 
 portal.chat.video.webrtc.pc_config = {
     "iceServers" : [ {
@@ -72,15 +72,18 @@ portal.chat.video.webrtc.init = function () {
         RTCSessionDescription = mozRTCSessionDescription;
         RTCIceCandidate = mozRTCIceCandidate;
         
-        MediaStream.prototype.getVideoTracks = function () {
+        if (!MediaStream.prototype.getVideoTracks){
+        	MediaStream.prototype.getVideoTracks = function () {
 
-            return [];
-        };
+        		return [];
+        	};
+        }
+        if (!MediaStream.prototype.getAudioTracks){
+        	MediaStream.prototype.getAudioTracks = function () {
 
-        MediaStream.prototype.getAudioTracks = function () {
-
-            return [];
-        };
+        		return [];
+        	};
+    	}
         
         
     } else if (navigator.webkitGetUserMedia) {
