@@ -9650,7 +9650,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String email = StringUtils.trimToEmpty(params
 				.getString("siteContactEmail"));
 		if (email != null) {
-			if (!EmailValidator.getInstance().isValid(email)) {
+			if (!email.isEmpty() && !EmailValidator.getInstance().isValid(email)) {
 				// invalid email
 				addAlert(state, rb.getFormattedMessage("java.invalid.email", new Object[]{email}));
 			}
