@@ -51,6 +51,7 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.authz.cover.SecurityService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -160,6 +161,17 @@ public class PeerEvalStatsProducer implements ViewComponentProducer, ViewParamsR
 		    view.setItemId(studentContentBoxId);  //returns to page that contains the student content box item.
 		    UIInternalLink.make(tofill, "back", messageLocator.getMessage("simplepage.back"), view);
 		    
+		    // users is now set of users in site without page
+		    // remove any who are instructor or reviewer
+		    
+
+		    String ref = "/site/" + site.getId();
+		    for (String userId: users) {
+			if (SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) ||
+			    SecurityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref))
+			    users.remove(userId);
+		    }
+
 		    //make inactive user list
 		    if(!users.isEmpty()){
 		    	UIBranchContainer inactiveMemberBranch;
