@@ -9041,7 +9041,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		else
 		{
-			size = getCachedBodySizeK((BaseCollectionEdit)collection);
+			M_log.error("File size column is not ready. Unable to calculate size of collection. Something is wrong with this instance of Sakai. Please check for other startup errors.");
+			return false;
 		}
 
 		// find the resource being edited
@@ -9094,71 +9095,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	private Map<String, SiteContentAdvisorProvider> siteContentAdvisorsProviders = new HashMap<String, SiteContentAdvisorProvider>();
 
-	private long getCachedBodySizeK(BaseCollectionEdit collection) {
-		return getCachedSizeHolder(collection,true).size;
-	}
-	private void addCachedBodySizeK(BaseCollectionEdit collection, long increment) {
-		SizeHolder sh = getCachedSizeHolder(collection,false);
-		if ( sh != null ) {
-			sh.size += increment;
-		}
-	}
-
-
-
 	/**
 	 * @param collection
 	 * @return
 	 */
 
-	private SizeHolder getCachedSizeHolder(BaseCollectionEdit collection,boolean create)
-	{
-		String id = collection.getId();
-		SizeHolder sh = quotaMap.get(id);
-		boolean scan = false;
-		long now = System.currentTimeMillis();
-		if ( sh != null ) {
-			M_log.debug("Cache Hit ["+id+"] size=["+sh.size+"] ttl=["+(sh.ttl-now)+"]");
-			if ( sh.ttl < now ) {
-				M_log.debug("Cache Expire ["+id+"]");
-				quotaMap.remove(id);
-				sh = null;
-				scan = true;
-			}
-		} else {
-			M_log.debug("Cache Miss ["+id+"]");
-
-		}
-
-		if ( create && sh == null  ) {
-			M_log.debug("Cache Create ["+id+"]");
-			// get the content size of all resources in this hierarchy
-			long size = collection.getBodySizeK();
-			// the above can take a long time, just check that annother thread
-			// hasnt just done the same, if it has then sh != null so we should not
-			// add a new one in, and will have waisted our time.
-			sh = quotaMap.get(id);
-			if ( sh == null ) {
-				sh = new SizeHolder();
-				quotaMap.put(id,sh);
-				sh.size  = size;
-				scan = true;
-			}
-		} 
-		if ( scan ) {
-			// when we remove one, scan for old ones.
-			for ( Iterator<String> i = quotaMap.keySet().iterator(); i.hasNext(); ) {
-				String k = i.next();
-				SizeHolder s = quotaMap.get(k);
-				if ( s.ttl < now ) {
-					M_log.debug("Cache Scan Expire ["+id+"]");
-					quotaMap.remove(k);
-				}
-			}
-
-		}
-		return sh;
-	}
 	protected void removeSizeCache(ContentResourceEdit edit)
 	{
 		// Note: This implementation is hard coded to just check for a quota in the "/user/"
@@ -9190,8 +9131,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		if (collection == null) return;
-
-		addCachedBodySizeK((BaseCollectionEdit)collection, -bytes2k(edit.getContentLength()));
 
 	} // updateSizeCache();
 	protected void addSizeCache(ContentResourceEdit edit)
@@ -9225,8 +9164,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		if (collection == null) return;
-
-		addCachedBodySizeK((BaseCollectionEdit)collection, bytes2k(edit.getContentLength()));
 
 	} // updateSizeCache();
 
