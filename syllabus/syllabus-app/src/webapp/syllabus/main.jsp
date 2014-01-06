@@ -303,7 +303,7 @@
 										<img src="/library/image/silk/add.png">
 									</f:verbatim>
 									<h:outputText value="#{msgs.add_attach}"/>
-									<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"/>
+									<f:param name="itemId" value="#{eachEntry.entry.syllabusId}"></f:param>
 								</h:commandLink>
 								<f:verbatim>
 									<br/>
@@ -333,7 +333,12 @@
 						<input type="button" name="cancelDelete" value="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" title="</f:verbatim><h:outputText value="#{msgs.cancel}"/><f:verbatim>" onlclick="">
 					</p>
 				</div>
-			</f:verbatim>
+				<syllabus:syllabus_ifnot test="#{SyllabusTool.openInNewWindowAsString}">
+					<h:outputFormat value="#{msgs.syllabus_PopupBlocked}" escape="false">
+						<f:param value="#{SyllabusTool.syllabusItem.redirectURL}"/>
+					</h:outputFormat>
+				</syllabus:syllabus_ifnot>
+		</f:verbatim>
 
 		</h:form>
 		
