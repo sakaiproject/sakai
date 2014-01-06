@@ -147,6 +147,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	
 	private Cache authzUserGroupIdsCache;
 
+    private Cache maintainRolesCache;
+
 	/**
 	 * @return the ServerConfigurationService collaborator.
 	 */
@@ -233,6 +235,11 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			M_log.info("init(): table: " + m_realmTableName + " external locks: " + m_useExternalLocks);
 			
 			authzUserGroupIdsCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache");
+
+            maintainRolesCache = m_memoryService.newCache("org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache");
+            //get the set of maintain roles and cache them on startup
+            getMaintainRoles();
+
 		}
 		catch (Exception t)
 		{
@@ -249,6 +256,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
+
+        maintainRolesCache.destroy();
 
 		M_log.info(this +".destroy()");
 	}
@@ -2934,6 +2943,22 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			return rv;
 		}
+
+        public Set<String> getMaintainRoles(){
+
+            Set<String> maintainRoles = null;
+
+            if (maintainRolesCache != null && maintainRolesCache.containsKey("maintainRoles")) {
+                maintainRoles = (Set<String>) maintainRolesCache.get("maintainRoles");
+            } else {
+                String sql = dbAuthzGroupSql.getMaintainRolesSql();
+                maintainRoles = new HashSet<String>(m_sql.dbRead(sql));
+                maintainRolesCache.put("maintainRoles", maintainRoles);
+            }
+
+            return maintainRoles;
+        }
+
 	} // DbStorage
 
 	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs. */

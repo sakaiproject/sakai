@@ -486,4 +486,12 @@ public interface AuthzGroupService extends EntityProducer
      * 
      * @return List containing the currently registered AuthzGroupAdvisors
      */
-    public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();}
+    public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();
+
+    /**
+     * Set of all maintain roles
+     *
+     * @return String Set containing all maintain roles.
+     */
+    public Set<String> getMaintainRoles();
+}

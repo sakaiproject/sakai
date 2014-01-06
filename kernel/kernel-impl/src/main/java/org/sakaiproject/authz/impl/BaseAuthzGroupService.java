@@ -1505,6 +1505,13 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 *        The azGroup to refresh.
 		 */
 		void refreshAuthzGroup(BaseAuthzGroup azGroup);
+
+        /**
+         * Retrieve all maintain roles
+         *
+         * @return a String Set of all maintain roles
+         */
+        public Set<String> getMaintainRoles();
 	}
 
 	public class ProviderMap implements Map
@@ -1618,4 +1625,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	public List<AuthzGroupAdvisor> getAuthzGroupAdvisors() {
 		return Collections.unmodifiableList(authzGroupAdvisors);
 	}
+
+    public Set getMaintainRoles(){
+        return m_storage.getMaintainRoles();
+    }
 }

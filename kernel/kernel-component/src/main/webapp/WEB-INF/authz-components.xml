@@ -87,4 +87,15 @@
         <property name="timeToLive" value="21600" />
 		<property name="timeToIdle" value="21600" />
     </bean>
+  <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache"
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+      <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+      <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache"/>
+      <property name="maxElementsInMemory" value="1" />
+      <property name="diskPersistent" value="false" />
+      <property name="eternal" value="false" />
+      <property name="timeToLive" value="0" />
+      <property name="timeToIdle" value="0" />
+  </bean>
+
 </beans>

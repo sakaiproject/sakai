@@ -278,4 +278,7 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		return null;
 	}
 
+    public Set getMaintainRoles() {
+        return null;
+    }
 }

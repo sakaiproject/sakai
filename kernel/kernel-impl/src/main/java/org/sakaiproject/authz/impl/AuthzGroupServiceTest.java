@@ -31,6 +31,8 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.SessionManager;
 
+import java.util.Set;
+
 /**
  * <p>
  * AuthzGroupServiceTest extends the db authz group service providing the dependency injectors for testing.
@@ -109,4 +111,9 @@ public class AuthzGroupServiceTest extends DbAuthzGroupService
 	{
 		return null;
 	}
+
+    @Override
+    public Set<String> getMaintainRoles() {
+        return null;
+    }
 }
