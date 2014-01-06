@@ -1,13 +1,13 @@
---SAK-21225 Extra Credit in Gradebook
+-- SAK-21225 Extra Credit in Gradebook
 Update GB_CATEGORY_T
 set IS_EXTRA_CREDIT = false
-where IS_EXTRA_CREDIT is null
+where IS_EXTRA_CREDIT is null;
 
 update GB_GRADABLE_OBJECT_T
 Set IS_EXTRA_CREDIT = false
-Where IS_EXTRA_CREDIT is null
+Where IS_EXTRA_CREDIT is null;
 
---END SAK-21225
+-- END SAK-21225
 
 -- --------------------------------------------------------------------------------
 -- KNL-897 add !site.template.lti realm and associated roles/permissions
@@ -886,11 +886,11 @@ ALTER TABLE QRTZ_SIMPLE_TRIGGERS MODIFY TIMES_TRIGGERED BIGINT(10) NOT NULL;
 -- Increase size
 ALTER TABLE QRTZ_CRON_TRIGGERS MODIFY CRON_EXPRESSION VARCHAR(120) NOT NULL;
 
---------------------------
+-- ------------------------
 --
 -- SAK-23812 Peer Review feature for Assignments
 --
---------------------------
+-- ------------------------
 
 CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  ( 
 	SUBMISSION_ID   	varchar(255) NOT NULL,
@@ -906,41 +906,57 @@ CREATE TABLE ASN_PEER_ASSESSMENT_ITEM_T  (
 create index PEER_ASSESSOR_I on ASN_PEER_ASSESSMENT_ITEM_T (SUBMISSION_ID, ASSESSOR_USER_ID);
 create index PEER_ASSESSOR2_I on ASN_PEER_ASSESSMENT_ITEM_T (ASSIGNMENT_ID, ASSESSOR_USER_ID);
 
-----------------------
+-- --------------------
 --
 -- END SAK-23812 Peer Review feature for Assignments
 --
-----------------------
+-- --------------------
 
 -- https://jira.sakaiproject.org/browse/SAK-24207
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN START_DATE DATETIME NULL DEFAULT NULL;
 ALTER TABLE CHAT2_CHANNEL ADD COLUMN END_DATE DATETIME NULL DEFAULT NULL;
 
 
----------------
+-- -------------
 --
 -- MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
----------------
+-- -------------
 
 alter table MFR_PVT_MSG_USR_T add REPLIED bit not null default false; 
 
---------------
+-- ------------
 --
 -- END MSGCNTR-830 Mark replied messages on the "Received" folder.
 --
---------------
+-- ------------
 
 
 -- https://jira.sakaiproject.org/browse/SAK-24337
 
-alter table GB_GRADEBOOK_T
-add (
-    TOTAL_POINTS_DISPLAYED bit not null,
-    COURSE_AVERAGE_DISPLAYED bit not null,
-);
+ALTER TABLE GB_GRADEBOOK_T
+ADD COLUMN TOTAL_POINTS_DISPLAYED bit not null,
+ADD COLUMN COURSE_AVERAGE_DISPLAYED bit not null;
+
 
 update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=TRUE, COURSE_AVERAGE_DISPLAYED=TRUE where COURSE_GRADE_DISPLAYED=TRUE;
 update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=FALSE, COURSE_AVERAGE_DISPLAYED=FALSE where COURSE_GRADE_DISPLAYED=FALSE;
 
 -- END SAK-24337 - Gradebook edu-services new features for display
+
+-- SAK-23634 - new table to track user add/drop/update actions done in sites
+CREATE TABLE user_audits_log (
+	id BIGINT AUTO_INCREMENT NOT NULL,
+	site_id VARCHAR(255) NOT NULL,
+	user_id VARCHAR(99) NOT NULL,
+	role_name VARCHAR(255) NOT NULL,
+	action_taken VARCHAR(1) NOT NULL,
+	audit_stamp TIMESTAMP NOT NULL,
+	source VARCHAR(1),
+	action_user_id VARCHAR(99),
+	PRIMARY KEY(id)
+);
+
+CREATE INDEX user_audits_log_index ON user_audits_log (id,site_id);
+
+-- END SAK-23634

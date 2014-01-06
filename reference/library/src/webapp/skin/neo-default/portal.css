@@ -1258,6 +1258,10 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-role-exit {
     background-position: -270px -18px;
 }
+.icon-sakai-add-tool {
+    background-position: 0 0;
+}
+
 /* admin tools  */
 .icon-sakai-users {
     background-position: -324px -234px;
@@ -1298,7 +1302,6 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-sakai-createuser {
     background-position: -540px -504px;
 }
-
 /* PART 10: specific functionality: presence, chat */
 
 /* presence and chat rendering */
@@ -1779,4 +1782,129 @@ a.qtipLinkButton:hover {
     color:#0077B5;
     font-size: 120%;
     text-decoration:none;
+}
+
+
+/* -- Notice */
+.ui-pnotify {
+  top: 15px;
+  right: 105px;
+  position: absolute;
+  height: auto;
+  /* Ensures notices are above everything */
+  z-index: 9999;
+}
+/* Hides position: fixed from IE6 */
+html > body .ui-pnotify {
+  position: fixed;
+}
+.ui-pnotify .ui-pnotify-shadow {
+  box-shadow: 0px 2px 10px rgba(50, 50, 50, 0.5);
+}
+.ui-pnotify-container {
+  background-position: 0 0;
+  padding: .8em;
+  height: 100%;
+  margin: 0;
+  border: 1px solid #fcefa1; 
+  background: #fbf9ee url(/library/js/jquery-ui-latest/css/smoothness/images/ui-bg_glass_55_fbf9ee_1x400.png) 50% 50% repeat-x; color: #363636; 
+  border-radius: 4px;
+}
+.ui-pnotify-container.alert-error {
+  border-color: #cd0a0a;
+  color: #cd0a0a;
+  background: #fef1ec url(/library/js/jquery-ui-latest/css/smoothness/images/ui-bg_glass_95_fef1ec_1x400.png) 50% 50% repeat-x;
+}
+.ui-pnotify-container .ui-icon {
+}
+.ui-pnotify-container .ui-icon-alert {
+  background-position: 0 -144px;
+}
+.alert-error h1, .alert-error h2, .alert-error h3, .alert-error h4, .alert-error h5, .alert-error h6 {
+  color: #cd0a0a;
+}
+.ui-pnotify-sharp {
+  border-radius: 0;
+}
+.ui-pnotify-closer, .ui-pnotify-sticker {
+  float: right;
+  margin-left: .2em;
+}
+.ui-pnotify-title {
+  display: block;
+  margin: 0 0 .4em;
+  font-size: 1.2em;
+  text-rendering: optimizelegibility;
+}
+.ui-pnotify-text {
+  display: block;
+}
+.ui-pnotify-icon, .ui-pnotify-icon span {
+  display: block;
+  float: left;
+  margin-right: .2em;
+}
+.ui-pnotify-icon span, .ui-pnotify-closer span, .ui-pnotify-sticker span {
+  background-image: url(/library/js/jquery-ui-latest/css/smoothness/images/ui-icons_cd0a0a_256x240.png);
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+    display: block;
+    overflow: hidden;
+    text-indent: -99999px;
+}
+.ui-pnotify-icon span.icon-warning-sign {
+  background-position: -16px -144px;
+}
+.ui-pnotify-closer span {
+  background-position: -80px -128px;
+}
+.ui-pnotify-sticker span {
+  background-position: -144px -144px;
+}
+/* -- History Pulldown */
+.ui-pnotify-history-container {
+  position: absolute;
+  top: 0;
+  right: 18px;
+  width: 70px;
+  border-top: none;
+  padding: 0;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  /* Ensures history container is above notices. */
+  z-index: 10000;
+}
+.ui-pnotify-history-container .ui-pnotify-history-header {
+  padding: 2px;
+  text-align: center;
+}
+.ui-pnotify-history-container button {
+  cursor: pointer;
+  display: block;
+  width: 100%;
+}
+.ui-pnotify-history-container .ui-pnotify-history-pulldown {
+  display: block;
+  margin: 0 auto;
+}
+/* Alternate stack initial positioning. */
+.ui-pnotify.stack-topleft, .ui-pnotify.stack-bottomleft {
+  left: 25px;
+  right: auto;
+}
+.ui-pnotify.stack-bottomright, .ui-pnotify.stack-bottomleft {
+  bottom: 25px;
+  top: auto;
+}
+.ui-pnotify .picon {
+  background-color: transparent;
+  background-repeat: no-repeat;
+  background-position: center center;
+  width: 17px;
+  height: 17px;
+}
+.ui-pnotify-title {
+  line-height: 17px;
+  min-height: 17px;
 }
