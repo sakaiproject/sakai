@@ -5747,7 +5747,12 @@ public class SimplePageBean {
 			}
 			
 			// Reset the edit cache so that they can actually edit their page.
-			editPrivs = 1;
+			String ref = "/site/" + getCurrentSiteId();
+			boolean ok = securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref);
+			if(ok) 
+			    editPrivs = 0;
+			else
+			    editPrivs = 1;
 			
 			return true;
 		}else if(page != null) { 
