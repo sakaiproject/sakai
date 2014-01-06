@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.Assignment;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 
 import org.sakaiproject.component.cover.ComponentManager;
@@ -54,7 +55,8 @@ public class ConnectorHelper {
 	private static Log M_log = LogFactory.getLog(ConnectorHelper.class);
 	private SiteService siteService = null;
 	private AssignmentService assignmentService = null;
-	
+	private AuthzGroupService authzGroupService = null;
+
 	private EntityBroker entityBroker = null;
 
 	
@@ -74,17 +76,13 @@ public class ConnectorHelper {
 		M_log.info("init ConnectorHelper");
 		siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 		assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
+		authzGroupService = (AuthzGroupService) ComponentManager.get("org.sakaiproject.authz.api.AuthzGroupService");
 		sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null);
 		loggedInUserId = SessionManager.getCurrentSession().getUserId();
 		
 		entityBroker = (EntityBroker) ComponentManager.get(EntityBroker.class);
-		instructorRoles = new HashSet();
-		instructorRoles.add("maintain");
-		instructorRoles.add("Instructor");
-		instructorRoles.add("Owner");
-		instructorRoles.add("Administrator");
-		instructorRoles.add("Secondary Instructor");
-		instructorRoles.add("Teaching Assistant");
+
+		instructorRoles = authzGroupService.getMaintainRoles();
 		
 	}
 	
