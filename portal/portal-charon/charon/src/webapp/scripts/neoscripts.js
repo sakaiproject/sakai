@@ -118,13 +118,6 @@ function removeDHTMLMask(){
     jQuery('#portalMask').remove();
 }
 
-/* Copyright (c) 2010 Brandon Aaron (http://brandonaaron.net)
- * Licensed under the MIT License (LICENSE.txt).
- *
- * Version 2.1.2
- */
-(function(a){a.fn.bgiframe=(a.browser.msie&&/msie 6\.0/i.test(navigator.userAgent)?function(d){d=a.extend({top:"auto",left:"auto",width:"auto",height:"auto",opacity:true,src:"javascript:false;"},d);var c='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+d.src+'"style="display:block;position:absolute;z-index:-1;'+(d.opacity!==false?"filter:Alpha(Opacity='0');":"")+"top:"+(d.top=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+'px')":b(d.top))+";left:"+(d.left=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+'px')":b(d.left))+";width:"+(d.width=="auto"?"expression(this.parentNode.offsetWidth+'px')":b(d.width))+";height:"+(d.height=="auto"?"expression(this.parentNode.offsetHeight+'px')":b(d.height))+';"/>';return this.each(function(){if(a(this).children("iframe.bgiframe").length===0){this.insertBefore(document.createElement(c),this.firstChild)}})}:function(){return this});a.fn.bgIframe=a.fn.bgiframe;function b(c){return c&&c.constructor===Number?c+"px":c}})(jQuery);
-
 //For SAK-13987
 //For SAK-16162
 //Just use the EB current.json as the session id rather than trying to do a search/replace
@@ -362,7 +355,9 @@ function showToolMenu(e, xOffset){
         jQuery.getJSON(siteURL, function(data){
             $.each(data, function(i, item){
                 if (i <= maxToolsInt) {
-                    if (item.tools.length === 1) {
+                    if (item.toolpopup) {
+                        subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\"  href=\"' + item.tools[0].url + "?sakai.popup=yes\" title=\"" + item.title + "\" onclick=\"window.open('" + item.toolpopupurl + "');\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"> </span>" + item.title + "</a></span></li>";
+                    } else if (item.tools.length === 1) {
                         subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\"  href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"> </span>" + item.title + "</a></span></li>";
                     }
                 }
@@ -480,7 +475,7 @@ jQuery(document).ready(function(){
     });
     
     //bind directurl checkboxes
-    jQuery('a.tool-directurl').cluetip({
+    if ( jQuery('a.tool-directurl').length ) jQuery('a.tool-directurl').cluetip({
     	local: true,
     	arrows: true,
 		cluetipClass: 'jtip',
@@ -529,8 +524,7 @@ var setupSiteNav = function(){
         $(this).prev('ul').slideDown('fast')
      });
 
-
-    $('.topnav > li.nav-menu > a').live('keydown', function(e){
+	fixTopNav = function(e){
         if (e.keyCode == 40) { // downarrow
             e.preventDefault();
             jQuery('#selectSite').hide();
@@ -542,7 +536,16 @@ var setupSiteNav = function(){
             $(this).parent().children('a').focus();
             $(this).slideUp('fast');
         }
-    });
+    }
+
+	// SAK-25505 - Switch from live() to on()
+	// $( "a.offsite" ).live( "click", function() {
+	// $('.topnav > li.nav-menu > a').live('keydown', function(e){
+	if ( $(document).on ) {
+		$(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
+	} else {
+		$('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
+	}
     
     jQuery("ul.topnav > li").mouseleave(function(){
         $(this).find('ul').slideUp('fast')
@@ -577,7 +580,9 @@ var setupSiteNav = function(){
                 success: function(data){
                     $.each(data, function(i, item){
                         if (i <= maxToolsInt) {
-                            if (item.tools.length === 1) {
+                            if (item.toolpopup) {
+                                navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" href=\"' + item.tools[0].url + "?sakai.popup=yes\" title=\"" + item.title + "\" onclick=\"window.open('" + item.toolpopupurl + "');\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"></span>" + item.title + "</a></span></li>";
+                            } else if (item.tools.length === 1) {
                                 navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" href=\"' + item.tools[0].url + "\" title=\"" + item.title + "\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"></span>" + item.title + "</a></span></li>";
                             }
                         }

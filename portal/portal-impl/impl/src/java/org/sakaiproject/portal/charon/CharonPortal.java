@@ -762,7 +762,7 @@ public class CharonPortal extends HttpServlet
 				+ skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n"
 				+ "    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />\n"
-				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+				+ "    <script type=\"text/javascript\" src=\""
 				+ getScriptPath()
 				+ "headscripts.js\"></script>\n"
 				+ "    <title>"
@@ -810,7 +810,7 @@ public class CharonPortal extends HttpServlet
 			String mainFrameUrl = ServerConfigurationService.getToolUrl() + "/"
 					+ Web.escapeUrl(placement.getId()) + "?panel=Main";
 
-			out.write("<script type=\"text/javascript\" language=\"JavaScript\">\n");
+			out.write("<script type=\"text/javascript\">\n");
 			out.write("try\n");
 			out.write("{\n");
 			out
@@ -1562,7 +1562,7 @@ public class CharonPortal extends HttpServlet
 		String headCssToolSkin = "<link href=\"" + skinRepo + "/" + skin
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
-		String headJs = "<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n";
+		String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
 		String head = headCss + headJs;
 		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
@@ -2029,7 +2029,7 @@ public class CharonPortal extends HttpServlet
 			out.println("<input name=\"submit\" type=\"submit\" id=\"submit\" value=\""
 					+ loginWording + "\" /> </form>");
 
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("<script type=\"text/javascript\">");
 			out.println("document.forms[0].eid.focus();");
 			out.println("</script>");
 
@@ -2909,7 +2909,7 @@ public class CharonPortal extends HttpServlet
 				+ "/portal.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />");
 		out.println("    <meta http-equiv=\"Content-Style-Type\" content=\"text/css\" />"
 				+ "    <title>" + Web.escapeHtml(title) + "</title>"
-				+ "    <script type=\"text/javascript\" language=\"JavaScript\" src=\""
+				+ "    <script type=\"text/javascript\" src=\""
 				+ getScriptPath() + "headscripts.js\"></script>" + "  </head>");
 
 		// start the body
@@ -2919,7 +2919,7 @@ public class CharonPortal extends HttpServlet
 		// if top, mark this as the portal window
 		if (top)
 		{
-			out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+			out.println("<script type=\"text/javascript\">");
 			out.println("var sakaiPortalWindow = \"\";");
 			out.println("</script>");
 		}
@@ -3012,7 +3012,7 @@ public class CharonPortal extends HttpServlet
 			throws IOException
 	{
 		PrintWriter out = startResponse(res, null, null, false);
-		out.println("<script type=\"text/javascript\" language=\"JavaScript\">");
+		out.println("<script type=\"text/javascript\">");
 		out.println("portalWindowRefresh('" + url + "');");
 		out.println("</script>");
 		endResponse(out);

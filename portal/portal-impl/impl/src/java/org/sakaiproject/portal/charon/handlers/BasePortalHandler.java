@@ -156,7 +156,7 @@ public abstract class BasePortalHandler implements PortalHandler
 			return Locale.getDefault();
 	}
 	
-	private Locale setSiteLanguage(Site site)
+	protected Locale setSiteLanguage(Site site)
 	{
 		ResourceLoader rl = new ResourceLoader();
 				
@@ -207,7 +207,10 @@ public abstract class BasePortalHandler implements PortalHandler
 		if(log.isDebugEnabled()) {
 			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
 		}
-        rcontext.put("locale", locale.toString());
+		String localeString = locale.getLanguage();
+		String country = locale.getCountry();
+		if(country.length() > 0) localeString += "-" + country;
+		rcontext.put("locale", localeString);
 
 		if (prevLocale != null && !prevLocale.equals(locale)) {
 			// if the locale was changed, clear the date/time format which was cached in the previous locale

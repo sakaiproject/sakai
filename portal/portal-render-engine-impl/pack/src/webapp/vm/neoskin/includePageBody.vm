@@ -24,8 +24,12 @@
 								<div class="portletTitle">
 									<div class="title">
 						#if (${tool.toolShowResetButton})
-						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
-						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+							#if ($!{tool.toolInline})
+				                <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}">
+							#else
+				                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+							#end
+		                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
 						#end
 										<h2>${tool.toolRenderResult.getTitle()}</h2>
 									</div>
@@ -87,6 +91,11 @@
 					#end
 					<!-- end Tool -->
 					<!-- start Tool Body -->						
+						#if ( ${bufferedResponse} && ${responseBody} ) 
+						<!-- Buffered Body Tool Content -->
+						${responseBody}
+						<!-- End Buffered Body Tool Content -->
+						#else
 						#if (${tool.hasRenderResult})
 							<div class="portletMainWrap">
 							    ${tool.toolRenderResult.getContent()}
@@ -104,6 +113,7 @@
 									src="${tool.toolUrl}?panel=Main">
 								</iframe>
 							</div>
+						#end
 						#end
 					<!-- end Tool Body -->												
 				#end

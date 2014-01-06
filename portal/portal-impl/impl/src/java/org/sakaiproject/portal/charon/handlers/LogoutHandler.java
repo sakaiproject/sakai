@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.portal.api.PortalHandlerException;
 import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.portal.api.PortalService;
 
 /**
  * 
@@ -49,7 +50,7 @@ public class LogoutHandler extends BasePortalHandler
 	{
 
 		// Check to see what portal we have been using
-		String controlPortal = (String) session.getAttribute("sakai-controlling-portal");
+		String controlPortal = (String) session.getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL);
 		if ( controlPortal != null ) controlPortal = "/" + controlPortal;
 
 		if ((parts.length == 2) && (parts[1].equals(LogoutHandler.URL_FRAGMENT)))

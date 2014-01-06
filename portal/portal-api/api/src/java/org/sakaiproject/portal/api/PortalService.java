@@ -68,6 +68,11 @@ public interface PortalService
 	public static final String TOOL_PORTLET_NAME = "portlet-name";
 
 	/**
+	 * this is the property in session to keep track of the current portal
+	 */
+	public static final String SAKAI_CONTROLLING_PORTAL = "sakai-controlling-portal";
+
+	/**
 	 * ste the state of the portal reset flag.
 	 * 
 	 * @param state

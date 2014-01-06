@@ -86,11 +86,6 @@ public interface Portal
 	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
 
 	/**
-	 * Configuration option indicaing support for frame set mode.
-	 */
-	public static final String FRAMESET_SUPPORT = "portal.frameset";
-
-	/**
 	 * Configuration option to enable/disable state reset on navigation change
 	 */
 	public static final String CONFIG_AUTO_RESET = "portal.experimental.auto.reset";

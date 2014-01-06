@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
+import java.util.Locale;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;

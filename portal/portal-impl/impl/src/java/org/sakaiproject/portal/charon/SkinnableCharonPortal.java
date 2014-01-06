@@ -57,6 +57,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -70,8 +71,6 @@ import org.sakaiproject.portal.charon.handlers.AtomHandler;
 import org.sakaiproject.portal.charon.handlers.DirectToolHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorDoneHandler;
 import org.sakaiproject.portal.charon.handlers.ErrorReportHandler;
-import org.sakaiproject.portal.charon.handlers.GalleryHandler;
-import org.sakaiproject.portal.charon.handlers.GalleryResetHandler;
 import org.sakaiproject.portal.charon.handlers.HelpHandler;
 import org.sakaiproject.portal.charon.handlers.JoinHandler;
 import org.sakaiproject.portal.charon.handlers.LoginHandler;
@@ -102,6 +101,8 @@ import org.sakaiproject.portal.util.ErrorReporter;
 import org.sakaiproject.portal.util.ToolURLManagerImpl;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -195,8 +196,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// private HashMap<String, PortalHandler> handlerMap = new HashMap<String,
 	// PortalHandler>();
 
-	private GalleryHandler galleryHandler;
-	
 	private String gatewaySiteUrl;
 
 	private String gatewayPdaSiteUrl;
@@ -271,16 +270,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 			case ERROR_SITE:
 			{
-				siteHandler.doSite(req, res, session, "!error", null, null, req
-						.getContextPath()
-						+ req.getServletPath());
-				break;
-			}
-			case ERROR_GALLERY:
-			{
-				galleryHandler.doGallery(req, res, session, "!error", null, req
-						.getContextPath()
-						+ req.getServletPath());
+				siteHandler.doSite(req, res, session, "!error", null, null, null, null,
+					req.getContextPath() + req.getServletPath());
 				break;
 			}
 			case ERROR_WORKSITE:
@@ -582,14 +573,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	public boolean isPortletPlacement(Placement placement)
 	{
-		if (placement == null) return false;
-		Tool t = placement.getTool();
-		if (t == null) return false;
-		Properties toolProps = t.getFinalConfig();
-		if (toolProps == null) return false;
-		String portletContext = toolProps
-		.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
-		return (portletContext != null);
+		return ToolUtils.isPortletPlacement(placement);
 	}
 
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
@@ -622,43 +606,46 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			site = null;
 		}
 
-		// FIXME: This does not look absolutely right,
-		// this appears to say, reset all tools on the page since there
-		// is no filtering of the tool that is bing reset, surely there
-		// should be a check which tool is being reset, rather than all
-		// tools on the page.
-		// let the tool do some the work (include) (see note above)
-
-		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
-		+ Web.escapeUrl(placement.getId()) + "/";
+		// emit title information
 		String titleString = Web.escapeHtml(placement.getTitle());
 		String toolId = Web.escapeHtml(placement.getToolId());
 
+		// for the reset button
+		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
+		   + Web.escapeUrl(placement.getId()) + "/";
+
+		// Reset is different (and awesome) when inlining
+		boolean toolInline = ToolUtils.isInlineRequest(req);
+		if ( toolInline ) {
+			String newUrl = ToolUtils.getPageUrlForTool(req, site, placement);
+			if ( newUrl != null ) toolUrl = newUrl;
+		}
+
 		// Reset the tool state if requested
-		if (portalService.isResetRequested(req))
+		// Resets of inline tools have already been handled earlier in the request
+		// (See PDAHandler.java and SiteJHandler.java)
+		if (!toolInline && portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
 		}
 
-		// emit title information
 
-		// for the reset button
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
 
-                String sakaiPanel = req.getParameter("panel");
-                if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
-                if ( sakaiPanel == null ) sakaiPanel="Main";
-                resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
+		String sakaiPanel = req.getParameter("panel");
+		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
+		if ( sakaiPanel == null ) sakaiPanel="Main";
+		resetActionUrl = URLUtils.addParameter(resetActionUrl, "panel", sakaiPanel);
 
-                // SAK-20462 - Pass through the sakai_action parameter
-                String sakaiAction = req.getParameter("sakai_action");
-                if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
-                if ( sakaiAction != null ) resetActionUrl = URLUtils.addParameter(resetActionUrl, "sakai_action", sakaiAction);
+		// SAK-20462 - Pass through the sakai_action parameter
+		String sakaiAction = req.getParameter("sakai_action");
+		if ( sakaiAction != null && sakaiAction.matches(".*[\"'<>].*" ) ) sakaiAction=null;
+		if ( sakaiAction != null ) resetActionUrl = URLUtils.addParameter(resetActionUrl, "sakai_action", sakaiAction);
 
 		// Reset is different for Portlets
 		if (isPortletPlacement(placement))
@@ -775,6 +762,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("toolShowHelpButton", Boolean.valueOf(showHelpButton));
 		toolMap.put("toolHelpActionUrl", helpActionUrl);
 		toolMap.put("toolId", toolId);
+		toolMap.put("toolInline", Boolean.valueOf(toolInline));
 		
 		String directToolUrl = ServerConfigurationService.getPortalUrl() + "/" + DirectToolHandler.URL_FRAGMENT +"/" + Web.escapeUrl(placement.getId()) + "/";
 		toolMap.put("directToolUrl", directToolUrl);
@@ -1161,7 +1149,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageSkinRepo", skinRepo);
 		rcontext.put("pageSkin", skin);
 		rcontext.put("pageTitle", Web.escapeHtml(title));
-		rcontext.put("pageScriptPath", getScriptPath());
+		rcontext.put("pageScriptPath", PortalUtils.getScriptPath());
+		rcontext.put("portalCDNPath", PortalUtils.getCDNPath());
+		rcontext.put("portalCDNQuery", PortalUtils.getCDNQuery());
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));
@@ -1422,24 +1412,42 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String skinRepo = ServerConfigurationService.getString("skin.repo");
 		// Adjust skin name if we are in the neo Portal
 		String headCssToolBase = "<link href=\""
+			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolBase()
+			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCssToolSkin = "<link href=\"" 
+			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolSkin(skin)
+			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		
 		Editor editor = portalService.getActiveEditor(placement);
 		String preloadScript = editor.getPreloadScript() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\">" + editor.getPreloadScript() + "</script>\n";
+				: "<script type=\"text/javascript\">" 
+				+ editor.getPreloadScript() 
+				+ "</script>\n";
 		String editorScript = editor.getEditorUrl() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getEditorUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" 
+				+ PortalUtils.getCDNPath()
+				+ editor.getEditorUrl() 
+				+ PortalUtils.getCDNQuery()
+				+ "\"></script>\n";
 		String launchScript = editor.getLaunchUrl() == null ? ""
-				: "<script type=\"text/javascript\" language=\"JavaScript\" src=\"" + editor.getLaunchUrl() + "\"></script>\n";
+				: "<script type=\"text/javascript\" src=\"" 
+				+ PortalUtils.getCDNPath()
+				+ editor.getLaunchUrl() 
+				+ PortalUtils.getCDNQuery()
+				+ "\"></script>\n";
 		
 		StringBuilder headJs = new StringBuilder();
-		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\" src=\"/library/js/headscripts.js\"></script>\n");
-		headJs.append("<script type=\"text/javascript\" language=\"JavaScript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
+		headJs.append("<script type=\"text/javascript\" src=\"");
+		headJs.append(PortalUtils.getCDNPath());
+		headJs.append("/library/js/headscripts.js");
+		headJs.append(PortalUtils.getCDNQuery());
+		headJs.append("\"></script>\n");
+		headJs.append("<script type=\"text/javascript\">var sakai = sakai || {}; sakai.editor = sakai.editor || {};  sakai.locale = sakai.locale || {};\n");
 		headJs.append("sakai.locale.userCountry = '" + rloader.getLocale().getCountry() + "';\n");
 		headJs.append("sakai.locale.userLanguage = '" + rloader.getLocale().getLanguage() + "';\n");
 		headJs.append("sakai.locale.userLocale = '" + rloader.getLocale().toString() + "';\n");
@@ -1465,8 +1473,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
-		retval.setProperty("sakai.html.head.css.base", SessionManager.getCurrentSession().getAttribute("sakai-controlling-portal") == "pda" ? "" : headCssToolBase);
-		retval.setProperty("sakai.html.head.css.skin", SessionManager.getCurrentSession().getAttribute("sakai-controlling-portal") == "pda" ? "" : headCssToolSkin);
+		retval.setProperty("sakai.html.head.css.base", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolBase);
+		retval.setProperty("sakai.html.head.css.skin", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolSkin);
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;
@@ -1569,11 +1577,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			page = p.getPageId();
 		}
 		return "/site/" + p.getSiteId() + "/page/" + page;
-	}
-
-	protected String getScriptPath()
-	{
-		return "/library/js/";
 	}
 
 	/**
@@ -2017,7 +2020,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// warning messages will appear, but the end state will be the same.
 		portalService.addPortal(this);
 
-		galleryHandler = new GalleryHandler();
 		worksiteHandler = new WorksiteHandler();
 		siteHandler = new SiteHandler();
 
@@ -2033,8 +2035,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(new PDAHandler());
 		addHandler(new AtomHandler());
 		addHandler(new OpmlHandler());
-		addHandler(galleryHandler);
-		addHandler(new GalleryResetHandler());
 		addHandler(new NavLoginHandler());
 		addHandler(new PresenceHandler());
 		addHandler(new HelpHandler());

@@ -892,18 +892,25 @@
             }
         });
 
-        // Handle return press in the edit fields
-        $('.pc_editor').live('keypress',function (e,ui) {
+		// Handle return press in the edit fields
+		keyPressFunction = function (e,ui) {
 
-            if (e.keyCode == 13) {
-                var editorId = e.target.id;
+			if(e.keyCode == 13) {
+				var editorId = e.target.id;
                 //do nothing if no value
-                if (e.target.value !== '') {
+				if (e.target.value !== '') {
                     var uuid = editorId.split("pc_editor_for_")[1];
                     portal.chat.sendMessageToUser(uuid, e.target.value);
                 }
-            }
-        });
+			}
+		}
+
+		// SAK-25505 - Switch from live() to on()
+		if ( $(document).on ) {
+			$(document).on('keypress', '.pc_editor', keyPressFunction);
+		} else {
+			$('.pc_editor').live('keypress', keyPressFunction);
+		}
 
         if (portal.chat.getSetting('expanded') && portal.loggedIn) {
             portal.chat.toggleChat();

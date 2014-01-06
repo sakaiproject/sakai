@@ -3,10 +3,10 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
-    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 <!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 <!--[if gte IE 5]><![if lt IE 7]>
     <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
@@ -17,14 +17,14 @@
 #end
  
     <title>${pageTitle}</title>
-     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" src="${pageScriptPath}jquery.js"></script>
-<script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+     <script type="text/javascript" src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
 
 #if ( ${styleable} )
 <script type="text/javascript" 
     	
-    	src="/sakai-preferable-tool/js/styleable.js" >
+    	src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}" >
     </script>
     
     <script type="text/javascript" 
