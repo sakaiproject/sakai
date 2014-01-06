@@ -4,10 +4,11 @@
  */
 (function () {
 
-    if ($.browser.msie) {
-        return;
+    var msiePattern = /.*MSIE ((\d+).\d+).*/
+    if( msiePattern.test(navigator.userAgent) ) {
+    	return;
     }
-
+    
     portal.chat.video.currentCalls = [];
     portal.chat.video.callTimeout = 0; // Timeout in msecs
     portal.chat.video.debug = false;
