@@ -136,10 +136,19 @@ if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) ||
 $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
 "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
 
-  $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
+$content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
     "_blank");
      // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
-  print($content);
+
+global $LastOAuthBodyBaseString;
+if ( isset($LastOAuthBodyBaseString) && isset($_POST['debug']) ) {
+    echo("\n");
+    echo('<a href="basecheck.php?b='.urlencode($LastOAuthBodyBaseString).'" target="_blank">Base String Comparison Tool</a><br/>');
+    echo("\n");
+}
+print($content);
+
+
 
 }
 

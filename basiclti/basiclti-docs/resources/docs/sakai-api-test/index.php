@@ -49,6 +49,11 @@ require_once("util/lti_util.php");
 echo('URL: <a href="'.$cur_url.'">'.$cur_url."</a>\n");
 ?>
 </pre>
+<p>
+You can also compare Base Strings using my
+<a href="basecheck.php" target="_blank">Bsae String Comparison Tool</a>.  This tool also accepts 
+"a" and "b" as request parameters in case you want to link to this tool  and provide
+one of the base strings from output that you have.
 <h1>Using This Code</h1>
 <p>
 You are welcome to grab a copy of this code at<br/>
