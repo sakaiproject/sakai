@@ -139,24 +139,29 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 									 startBreakdown.getSec());	 //may have to move this line ahead 
 		
 		GregorianCalendar nextCalendarDate = (GregorianCalendar) startCalendarDate.clone();	
+		
+		//if day of week is not Tuesday or Thursday
 		if( ((startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)!=3) &&
 										((startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK))!=5 )) )
 		{
+			//if day of week is Sunday, add two to make it Tuesday
 			if (startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)==1){
-				
 				startCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 2);
-			} 
+			}
+			//if day of week is Monday, add one to make it Tuesday
 			else if (startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)==2){
-				
 				startCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 1);
-			} 
+			}
+			//if day of week is Wednesday, add one to make it Thursday
 			else if (startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)==4){
 				startCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 1);
 				
 			} 
+			//if day of week is Friday, add four to make it next Tuesday
 			else if (startCalendarDate.get(GregorianCalendar.DAY_OF_WEEK)==6){
 				startCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 4);
 			}
+			//must be Saturday, add three to make it next Tuesday
 			else {
 				startCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, 3);			 
 			} 
@@ -209,6 +214,7 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 			{
 				nextCalendarDate = (GregorianCalendar) startCalendarDate.clone();//this line seems pointless 
 				nextCalendarDate.add(java.util.Calendar.DAY_OF_MONTH, currentCount); //"1" is the supposed recurrence Type 
+								
 				int weekDay=nextCalendarDate.get(GregorianCalendar.DAY_OF_WEEK);
 				if((getInterval()>1&&(weekDay==6)))
 				{	

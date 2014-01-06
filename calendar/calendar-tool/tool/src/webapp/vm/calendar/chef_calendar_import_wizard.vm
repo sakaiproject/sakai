@@ -5,7 +5,7 @@
 </script>
 <div class="portletBody"> 
 	<h3>
-		$tlang.getString("java.cal") $tlang.getString("java.import")
+		$tlang.getString("java.importcal")
 	</h3>
 	<p class="step">
 		#if ($importWizardState == "SELECT_TYPE")

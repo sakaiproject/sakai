@@ -12,21 +12,6 @@
 		<property name="name"><value>Schedule Overview</value></property>
 		<property name="location"><value>/sakai_schedule/aray.html</value></property>
 	</bean>
-	<bean id="scheduleSummary"
-		class="org.sakaiproject.component.app.help.model.ResourceBean">
-		<property name="docId">
-			<value>avaz</value>
-		</property>
-		<property name="name">
-			<value>Schedule summary</value>
-		</property>
-		<property name="location">
-			<value>/sakai_schedule/avaz.html</value>
-		</property>
-		<property name="defaultForTool">
-			<value>sakai.summary.calendar</value>
-		</property>
-	</bean>
 	<bean id="addActivity"
 		class="org.sakaiproject.component.app.help.model.ResourceBean">
 		<property name="docId">
@@ -146,7 +131,6 @@
 						<list>
 							<ref bean="scheduleAbout" />
 							<ref bean="scheduleOverview" />
-							<ref bean="scheduleSummary" />
 							<ref bean="addActivity" />
 							<ref bean="addActivityAttachment" />
 							<ref bean="viewSchedule" />

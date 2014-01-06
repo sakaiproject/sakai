@@ -13,6 +13,20 @@
 	width: 50%;
 }
 
+.calRight fieldset { 
+     display:inline; 
+     margin:0; 
+     padding:0; 
+   } 
+.calRight legend { 
+     display:inline; 
+     margin:0; 
+     padding:0; 
+     position: absolute !important; 
+     clip: rect(1px 1px 1px 1px); /* IE6, IE7 */ 
+     clip: rect(1px, 1px, 1px, 1px); 
+}
+
 .calTop {
 	vertical-align: top;
 }

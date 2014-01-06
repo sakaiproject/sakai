@@ -5,26 +5,26 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
+        <version>10.0-SNAPSHOT</version>
+	<relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>sakai-calendar base pom</name>
     <groupId>org.sakaiproject.calendar</groupId>
     <artifactId>calendar</artifactId>
-    <version>2.10-SNAPSHOT</version>
+    <version>10.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
         <module>calendar-api/api</module>
-        <module>calendar-assembly</module>
         <module>calendar-bundles</module>
         <module>calendar-help</module>
+        <module>calendar-hbm</module>
         <module>calendar-impl/impl</module>
         <module>calendar-impl/pack</module>
         <module>calendar-summary-tool/tool</module>
         <module>calendar-tool/tool</module>
         <module>calendar-util/util</module>
-    <module>calendar-hbm</module>
     </modules>
     
     <scm>
@@ -41,41 +41,8 @@
         </site>
     </distributionManagement>
 
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <dependencyManagement>
         <dependencies>
-            <dependency>
-                <groupId>${project.groupId}</groupId>
-                <artifactId>sakai-calendar-api</artifactId>
-                <version>${project.version}</version>
-                <scope>provided</scope>
-            </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-calendar-bundles</artifactId>
@@ -98,28 +65,6 @@
                 <artifactId>sakai-calendar-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-tool</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-app</artifactId>
-                <version>${sakai.jsf.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>myfaces-widgets-depend</artifactId>
-                <version>${sakai.jsf.version}</version>
-                <type>pom</type>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.site</groupId>
-                <artifactId>sakai-mergedlist-util</artifactId>
-                <version>${sakai.site.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
-    
 </project>

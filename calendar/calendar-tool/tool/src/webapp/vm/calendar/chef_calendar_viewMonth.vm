@@ -27,7 +27,7 @@
 			</form>
 		</div>
 		<div class="listNav">
-		 	<div class="instruction" style="margin-bottom:.3em">$nameOfMonth $year</div>
+		 	<div class="instruction" style="margin-bottom:.3em">$viewingDate</div>
 			<form name="monthform" action="#toolForm("$action")" method="post">
 				 <input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewm.lasm')" title ="$tlang.getString('viewm.gotopm')" />
 				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>

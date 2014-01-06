@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- This spring configuration file is in the impl so that it can be used in tests -->
+<beans>
+
+	<!-- Timer that runs our tasks to refresh the calendars.-->
+	<bean id="org.sakaiproject.calendar.impl.EhCacheRefresh.timer"
+		class="java.util.Timer" destroy-method="cancel">
+		<constructor-arg>
+			<!-- Sets the name for the timer to aid debugging. -->
+			<value>org.sakaiproject.calendar.impl.EhCacheRefresh.timer</value>
+		</constructor-arg>
+		<constructor-arg>
+			<value>true</value>
+		</constructor-arg>
+	</bean>
+
+	<!-- These beans run on the timer and refresh any entries in the cache. -->
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCacheRefresh"
+		class="org.sakaiproject.calendar.impl.EhCacheRefresh" init-method="init">
+		<property name="refresher">
+			<ref
+				bean="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher" />
+		</property>
+		<property name="cache">
+			<ref
+				bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutional" />
+		</property>
+		<property name="timer">
+			<ref bean="org.sakaiproject.calendar.impl.EhCacheRefresh.timer" />
+		</property>
+		<property name="updateInterval">
+			<ref bean="calendar.external.subscriptions.institutional.cachetime"/>
+		</property>
+	</bean>
+
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCacheRefresh"
+		class="org.sakaiproject.calendar.impl.EhCacheRefresh" init-method="init">
+		<property name="refresher">
+			<ref
+				bean="org.sakaiproject.calendar.impl.ExternalCalendarElementRefresher" />
+		</property>
+		<property name="cache">
+			<ref
+				bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.user" />
+		</property>
+		<property name="timer">
+			<ref bean="org.sakaiproject.calendar.impl.EhCacheRefresh.timer" />
+		</property>
+		<property name="updateInterval">
+			<ref bean="calendar.external.subscriptions.user.cachetime"/>
+		</property>
+	</bean>
+
+	<!-- These wrap up the EhCache instances so they look more like a map. -->
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache"
+		class="org.sakaiproject.calendar.impl.SubscriptionCache" init-method="init">
+		<property name="cache">
+			<ref
+				bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutional" />
+		</property>
+	</bean>
+
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache"
+		class="org.sakaiproject.calendar.impl.SubscriptionCache" init-method="init">
+		<property name="cache">
+			<ref
+				bean="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.user" />
+		</property>
+	</bean>
+
+    <!-- We don't use the org.sakaiproject.memory.util.EhCacheFactoryBean as it kicks off the component manager -->
+
+	<!-- External calendar caches. These are the underlying EhCache beans. -->
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutional"
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+		</property>
+		<property name="cacheName">
+			<value>org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutional</value>
+		</property>
+		<property name="maxElementsInMemory">
+			<ref bean="calendar.external.subscriptions.institutional.cacheentries"/><!--  16 by default -->
+		</property>
+		<property name="overflowToDisk" value="false" />
+		<property name="diskPersistent" value="false" />
+		<!-- We keep this forever (unless someone manually clears the caches. -->
+		<property name="eternal" value="true" />
+	</bean>
+
+	<!-- Because of the for every item in the cache we reload it at a regular interval we want
+	     to be careful and clear out stuff that isn't being used. By default we refresh the cache
+	     every 2 hours and a feed can only exist in the cache for 4 hours without being accessed
+	     and after 8 hours it has to get reloaded no matter what. This is so that we try to avoid
+	     any potential memory leaks by having the object in memory for a very long time. -->
+	<bean
+		id="org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.user"
+		class="org.sakaiproject.memory.util.EhCacheFactoryBean">
+		<property name="cacheManager">
+			<ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+		</property>
+		<property name="cacheName">
+			<value>org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.user</value>
+		</property>
+		<property name="maxElementsInMemory">
+			<ref bean="calendar.external.subscriptions.user.cacheentries"/><!-- 32 by default -->
+		</property>
+		<property name="overflowToDisk" value="false" />
+		<property name="diskPersistent" value="false" />
+		<property name="eternal" value="false" />
+		<!-- Keep in cache for 4 hours after last use. -->
+		<property name="timeToIdle" value="7200" />
+		<!-- Only allow calendar to be cached for 8 hours before we chuck it out. -->
+		<property name="timeToLive" value="28800" />
+	</bean>
+</beans>

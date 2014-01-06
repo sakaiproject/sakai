@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -109,6 +109,9 @@ public interface CalendarService
 
 	/** Security function granted to users who will then have membership in all site groups based on their site membership. */
 	public static final String AUTH_ALL_GROUPS_CALENDAR = "calendar.all.groups";
+	
+	/** Security lock for adding to a calendar. */
+	public static final String AUTH_OPTIONS_CALENDAR = "calendar.options";
 
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";

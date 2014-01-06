@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -81,7 +81,7 @@ public class CalendarBean {
 	public static final String 						PRIORITY_HIGH			= "priority_high";
 	public static final String 						PRIORITY_MEDIUM			= "priority_medium";
 	public static final String 						PRIORITY_LOW			= "priority_low";
-	private static final String 					imgLocation				= "../../../library/image/sakai/";
+	private static final String 					imgLocation				= "/../library/image/sakai/";
 	private static final String 					SCHEDULE_TOOL_ID		= "sakai.schedule";
 	
 	private static final String 					MERGED_CALENDARS_PROP 	= "mergedCalendarReferences";
@@ -615,14 +615,14 @@ public class CalendarBean {
 						c.set(Calendar.MONTH, selMonth - 1);
 						c.set(Calendar.DAY_OF_MONTH, nDay);
 						vector = getScheduleEventsForDay(c);
-						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
+						day = new Day(c, getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else if(currDay > lastDay){
 						c.set(Calendar.MONTH, selMonth + 1);
 						c.set(Calendar.DAY_OF_MONTH, nextMonthDay++);
 						vector = getScheduleEventsForDay(c);
-						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
+						day = new Day(c, getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(true);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}else{
@@ -630,7 +630,7 @@ public class CalendarBean {
 						c.set(Calendar.MONTH, selMonth);
 						c.set(Calendar.DAY_OF_MONTH, currDay++);
 						vector = getScheduleEventsForDay(c);
-						day = new Day(c.getTime(), getDayEventCount(vector) > 0);
+						day = new Day(c, getDayEventCount(vector) > 0);
 						day.setOccursInOtherMonth(false);
 						day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 					}
@@ -678,7 +678,7 @@ public class CalendarBean {
 				boolean selected = (selectedDay != null) && (sameDay(c, selectedDay));
 
 				CalendarEventVector vector = getScheduleEventsForDay(c);
-				day = new Day(c.getTime(), getDayEventCount(vector) > 0);
+				day = new Day(c, getDayEventCount(vector) > 0);
 				day.setOccursInOtherMonth(!sameMonth);
 				day.setBackgroundCSSProperty(getDayPriorityCSSProperty(vector));
 				day.setToday(sameDay(c, getToday()));
@@ -723,11 +723,9 @@ public class CalendarBean {
 	}
 
 	public String getCaption() {
-		Calendar c = Calendar.getInstance(getCurrentUserTimezone(), msgs.getLocale());
-		c.setTime(getViewingDate());
-		String month = msgs.getString(months[c.get(Calendar.MONTH)]);
-		String year = c.get(Calendar.YEAR) + "";
-		return month + ", " + year;
+		SimpleDateFormat formatter = new SimpleDateFormat(msgs.getString("viewm.date_format"), msgs.getLocale());
+		formatter.setTimeZone(getCurrentUserTimezone());
+		return formatter.format(getViewingDate());
 	}
 
 	public boolean isViewingSelectedDay() {
@@ -860,5 +858,28 @@ public class CalendarBean {
 	public String[] getDayOfWeekNames() {
 		Calendar c = Calendar.getInstance(getCurrentUserTimezone(),msgs.getLocale());
 		return new CalendarUtil(c).getCalendarDaysOfWeekNames(false);
+	}
+	
+	//SAK-19700 method to get name of tool so it can be rendered with the option link, for screenreaders
+	public String getToolTitle() {
+		return M_tm.getCurrentPlacement().getTitle();
+	}
+	
+	//SAK-19700 renders a complete Options link with an additional span link for accessiblity
+	public String getAccessibleOptionsLink() {
+		StringBuilder sb = new StringBuilder();
+		sb.append(msgs.getString("menu_prefs"));
+		sb.append("<span class=\"skip\">");
+		sb.append(getToolTitle());
+		sb.append("</span>");
+		return sb.toString();
+		
+	}
+	
+	/**
+	 * Tests if the options section should be displayed.
+	 */
+	public boolean isPreferencesVisible() {
+		return M_as.unlock(CalendarService.AUTH_OPTIONS_CALENDAR, M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
 	}
 }

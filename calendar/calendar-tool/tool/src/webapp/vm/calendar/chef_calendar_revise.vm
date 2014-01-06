@@ -160,6 +160,10 @@ function minuteChange(FieldName)
 				{
 					endHour = 0;
 				}
+				if (startHour == 12)
+				{
+					startHour = 0;
+				}
                 startAmpmIndex = document.getElementById('startAmpm').selectedIndex;
                 endAmpmIndex = document.getElementById('endAmpm').selectedIndex;
                 sm = (startHour + startAmpmIndex * 12) * 60 + startMinute;
@@ -219,6 +223,71 @@ function ampmChange(FieldName)
     }
 }
 
+#if ($timeFormat.contains("H"))
+#* sets the 12-hour and am/pm values calculated from the 24-hour value.
+ * hour24Field: the id of <select> to get and calculate the 24-hour value from.
+ * hourField: the id of <select> to set the 12-hour value.
+ * ampmField: the id of <select> to set the am/pm value.
+ *#
+function hour24Change(hour24Field, hourField, ampmField) {
+    var hour = parseInt(document.getElementById(hour24Field).value);
+    var timeType;
+    if (hour == 0) {
+        hour = 12;
+        timeType = 'am';
+    } else if (hour > 0 && hour < 12) {
+        timeType = 'am';
+    } else if (hour == 12) {
+        timeType = 'pm';
+    } else if (hour > 12 && hour < 24) {
+        hour = hour - 12;
+        timeType = 'pm';
+    } else {
+        hour = 0;
+        timeType = document.getElementById(ampmField).value;
+    }
+    document.getElementById(hourField).selectedIndex = getIndexFromValue(hourField, hour);
+    document.getElementById(ampmField).selectedIndex = getIndexFromValue(ampmField, timeType);
+}
+
+#* sets the 24-hour value calculated from the 12-hour and am/pm values.
+ * hour24Field: the id of <select> to set the 24-hour value.
+ * hourField: the id of <select> to get and calculate the 12-hour value from.
+ * ampmField: the id of <select> to get and calculate the am/pm value from.
+ *#
+function reflectHourToHour24(hour24Field, hourField, ampmField) {
+    hour = parseInt(document.getElementById(hourField).value);
+    timeType = document.getElementById(ampmField).value;
+    if (hour == 12 && timeType == 'am') {
+        document.getElementById(hour24Field).selectedIndex = getIndexFromValue(hour24Field, 0);
+    } else if (hour > 0 && hour < 12 && timeType == 'am') {
+        document.getElementById(hour24Field).selectedIndex = getIndexFromValue(hour24Field, hour);
+    } else if (hour == 12 && timeType == 'pm') {
+        document.getElementById(hour24Field).selectedIndex = getIndexFromValue(hour24Field, 12);
+    } else if (hour > 0 && hour < 12 && timeType == 'pm') {
+        document.getElementById(hour24Field).selectedIndex = getIndexFromValue(hour24Field, hour + 12);
+    } else {
+        document.getElementById(hour24Field).selectedIndex = 0;
+    }
+}
+
+#* returns the index of <option> which has the desired value.
+ * FieldName: the id of <select> to find <option>.
+ * value: the desired value.
+ *#
+function getIndexFromValue(FieldName, value) {
+    var index = -1;
+    var element = document.getElementById(FieldName);
+    for (var i = 0; i < element.options.length; i++) {
+        if (element.options[i].value == value) {
+            index = i;
+            break;
+        }
+    }
+    return index;
+}
+#end
+
 function resizeFrame(){
     // check needed as getElementById in IE doesn't like an empty parameter so the var
     // frame line returns an error. Firefox appears to be okay with it
@@ -231,7 +300,7 @@ function resizeFrame(){
     }
 }
 </script>
-<script type="text/javascript" src="/library/js/jquery.js">
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 </script>
 
 
@@ -251,11 +320,19 @@ function resizeFrame(){
 			<label for="activitytitle">$tlang.getString("new.title")</label>
 			#if("$!savedData.getTitle()" != "")
 				#set($str = $savedData.getTitle().trim())
-				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
+				<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value = "$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
+					#if ($timeFormat.contains("H"))
+						reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+					#end
+				return false;" />
 			#elseif ($calEventFlag != "false")
 				#if ("$!event.getDisplayName()" != "")
 					#set($str = $event.getDisplayName().trim())
-					<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value="$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); return false;" />
+					<input type="text" name="activitytitle" id="activitytitle" size="50" maxlength="150" value="$validator.escapeHtml($str)" onfocus="minuteChange('startMinute'); 
+						#if ($timeFormat.contains("H"))
+							reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+						#end
+					return false;" />
 				#end
 			#else
 				<input type="text" name="activitytitle" size="50" maxlength="150" value = "" />
@@ -263,7 +340,7 @@ function resizeFrame(){
 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>	
-			<label for="month">
+			<label>
 				$tlang.getString("gen.date")
 			</label>	
 			## Setup a date selection widget
@@ -283,7 +360,7 @@ function resizeFrame(){
 		</p>	
 		<p class="shorttext">
 			<span class="reqStar">*</span>
-			<label for="startHour">
+			<label>
 				$tlang.getString("rev.start")
 			</label>
 			#set($time = $event.getRange().firstTime().toStringLocalFull())
@@ -301,6 +378,24 @@ function resizeFrame(){
 				#set($hour = 12)
 			#end
 			
+			#if($savedData.getMinute() != -1)
+				#set($minute = $savedData.getMinute())
+			#end
+		 
+			#if("$!savedData.getAm()" != "")
+				#set($timeType = $savedData.getAm())
+			#else
+				#set($hourType = $event.getRange().firstTime().breakdownLocal().getHour())
+				#if ($hourType>=12)
+					#set($timeType = "pm")
+				#else
+					#set($timeType = "am")
+				#end
+			#end
+			
+			#foreach ($format in $timeFormat)
+			#if ($format == "h")
+			<label for="startHour" class="skip"><span class="reqStar">*</span> $tlang.getString("start.hour")</label>
 			<select name="startHour" id="startHour" onchange="hourChange('startHour'); return false;">
 				#if($hour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 				#if($hour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
@@ -315,11 +410,13 @@ function resizeFrame(){
 				#if($hour == 11) <option selected="selected" value="11">11</option> #else <option value="11">11</option> #end
 				#if($hour == 12) <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
 			</select>
-			
-			#if($savedData.getMinute() != -1)
-				#set($minute = $savedData.getMinute())
-			#end
-			<select name="startMinute" id="startMinute" onchange="hourChange('startMinute'); return false;">
+			#elseif ($format == "m")
+            <label for="startMinute" class="skip"><span class="reqStar">*</span> $tlang.getString("start.minute")</label>
+			<select name="startMinute" id="startMinute" onchange="hourChange('startMinute'); 
+				#if ($timeFormat.contains("H"))
+					reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+				#end
+				return false;">
 				#if($minute == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($minute == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
 				#if($minute == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
@@ -333,25 +430,40 @@ function resizeFrame(){
 				#if($minute == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($minute == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-		 
-			#if("$!savedData.getAm()" != "")
-				#set($timeType = $savedData.getAm())
-			#else
-				#set($hourType = $event.getRange().firstTime().breakdownLocal().getHour())
-				#if ($hourType>=12)
-					#set($timeType = "pm")
-				#else
-					#set($timeType = "am")
-				#end
-			#end
+			#elseif ($format == "a")
+            <label for="startAmpm" class="skip"><span class="reqStar">*</span> $tlang.getString("start.ampm")</label>
 			<select name="startAmpm" id="startAmpm" onchange="ampmChange('startAmpm'); return false;">
-				#if($timeType =="am") <option selected="selected">am</option> #else <option>am</option> #end
-				#if($timeType =="pm") <option selected="selected">pm</option> #else <option>pm</option> #end
+				#if($timeType =="am") <option selected="selected" value="am">$amString</option> #else <option value="am">$amString</option> #end
+				#if($timeType =="pm") <option selected="selected" value="pm">$pmString</option> #else <option value="pm">$pmString</option> #end
 			</select>
+			#elseif ($format == "H")
+			<label for="startHour24" class="skip"><span class="reqStar">*</span> $tlang.getString("start.hour")</label>
+			<select name="startHour24" id="startHour24" onchange="hour24Change('startHour24', 'startHour', 'startAmpm'); hourChange('startHour'); reflectHourToHour24('endHour24', 'endHour', 'endAmpm'); return false;">
+				#if ($hour == 12 && $timeType == "am") <option selected="selected" value="0">0</option> #else <option value="0">0</option> #end
+				#foreach ($i in [1..11])
+					#if ($hour == $i && $timeType == "am") <option selected="selected" value="$i">$i</option> #else <option value="$i">$i</option> #end
+				#end
+				#if ($hour == 12 && $timeType == "pm") <option selected="selected" value="12">12</option> #else <option value="12">12</option> #end
+				#foreach ($i in [13..23])
+					#if ($hour == $i - 12 && $timeType == "pm") <option selected="selected" value="$i">$i</option> #else <option value="$i">$i</option> #end
+				#end
+			</select>
+			## the 12-hour and am/pm fields are hidden in 24-hour locales. those values are controled by JavaScript and posted to the server.
+			<select name="startHour" id="startHour" style="display:none;">
+				#foreach ($i in [1..12])
+					#if ($hour == $i) <option selected="selected" value="$i" /> #else <option value="$i" /> #end
+				#end
+			</select>
+			<select name="startAmpm" id="startAmpm" style="display:none;">
+				#if($timeType =="am") <option selected="selected" value="am" /> #else <option value="am" /> #end
+				#if($timeType =="pm") <option selected="selected" value="pm" /> #else <option value="pm" /> #end
+			</select>
+			#end
+			#end
          $timezone
 		</p>	
 		<p class="shorttext">
-			<label for="duHour">
+			<label>
 				$tlang.getString("new.duration")
 			</label>	
 			## if back from attachment, there is the saved data
@@ -375,14 +487,18 @@ function resizeFrame(){
 				#end
 				#if ($dmi == 60)
 					#set ($dmi = 0)
-					#if ($dhour == 12)
-						#set ($dhour = 1)
+					#if ($dhour == 23)
+						#set ($dhour = 0)
 					#else
 						#set ($dhour = $dhour + 1)
 					#end
 				#end
 			#end
-			<select name="duHour" id="duHour" onchange="hourChange('duHour'); return false;">
+			<select name="duHour" id="duHour" onchange="hourChange('duHour'); 
+				#if ($timeFormat.contains("H"))
+					reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+				#end
+				return false;">
 				#if($dhour == 0) <option selected="selected" value="0">0</option> #else <option value="0">0</option> #end
 				#if($dhour == 1) <option selected="selected" value="1">1</option> #else <option value="1">1</option> #end
 				#if($dhour == 2) <option selected="selected" value="2">2</option> #else <option value="2">2</option> #end
@@ -408,8 +524,12 @@ function resizeFrame(){
 				#if($dhour == 22) <option selected="selected" value="22">22</option> #else <option value="22">22</option> #end
 				#if($dhour == 23) <option selected="selected" value="23">23</option> #else <option value="23">23</option> #end
 			</select>
-			$tlang.getString("rev.hours")
-			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); return false;">
+			<label for ="duHour" style="float: none">$tlang.getString("rev.hours")</label>
+			<select name="duMinute" id="duMinute" onchange="hourChange('duMinute'); 
+				#if ($timeFormat.contains("H"))
+					reflectHourToHour24('endHour24', 'endHour', 'endAmpm');
+				#end
+				return false;">
 				#if($dmi == 0) <option selected="selected" value="0">00</option> #else <option value="0">00</option> #end
 				#if($dmi == 5) <option selected="selected" value="5">05</option> #else <option value="5">05</option> #end
 				#if($dmi == 10) <option selected="selected" value="10">10</option> #else <option value="10">10</option> #end
@@ -423,13 +543,16 @@ function resizeFrame(){
 				#if($dmi == 50) <option selected="selected" value="50">50</option> #else <option value="50">50</option> #end
 				#if($dmi == 55) <option selected="selected" value="55">55</option> #else <option value="55">55</option> #end
 			</select>
-			$tlang.getString("rev.minutes")
+			<label for="duMinute" style="float: none">$tlang.getString("rev.minutes")</label>
 		</p>	
 		<p class="shorttext">
-			<label for="endHour">
+			<label>
 				$tlang.getString("new.end")
 			</label>	
-			<select size="1" name="endHour" id="endHour" onchange="hourChange('endHour'); return false;">
+			#foreach ($format in $timeFormat)
+			#if ($format == "h")
+			<label for="endHour" class="skip">$tlang.getString("end.hour")</label>
+            <select size="1" name="endHour" id="endHour" onchange="hourChange('endHour'); return false;">
 			  <option selected="selected" value="0">0</option>
 			  <option value="1">1</option>
 			  <option value="2">2</option>
@@ -444,6 +567,8 @@ function resizeFrame(){
 			  <option value="11">11</option>
 			  <option value="12">12</option>
 			</select>
+			#elseif ($format == "m")
+            <label for="endMinute" class="skip">$tlang.getString("end.minute")</label>
 			<select size="1" name="endMinute" id="endMinute" onchange="hourChange('endMinute'); return false;">
 				<option selected="selected" value="0">00</option>
 				<option value="5">05</option>
@@ -458,10 +583,33 @@ function resizeFrame(){
 				<option value="50">50</option>
 				<option value="55">55</option>
 			</select>
+			#elseif ($format == "a")
+            <label for="endAmpm" class="skip">$tlang.getString("end.ampm")</label>
 			<select size="1" name="endAmpm" id="endAmpm" onchange="ampmChange('endAmpm'); return false;">
-			  <option selected="selected" value="am">am</option>
-			  <option value="pm">pm</option>
+			  <option selected="selected" value="am">$amString</option>
+			  <option value="pm">$pmString</option>
 			</select>
+			#elseif ($format == "H")
+			<label for="endHour24" class="skip">$tlang.getString("end.hour")</label>
+			<select size="1" name="endHour24" id="endHour24" onchange="hour24Change('endHour24', 'endHour', 'endAmpm'); hourChange('endHour'); reflectHourToHour24('startHour24', 'startHour', 'startAmpm'); return false;">
+				<option selected="selected" value="100">-</option>
+				#foreach ($i in [0..23])
+					<option value="$i">$i</option>
+				#end
+			</select>
+			## the 12-hour and am/pm fields are hidden in 24-hour locales. those values are controled by JavaScript and posted to the server.
+			<select name="endHour" id="endHour" style="display:none;">
+				<option selected="selected" value="0" />
+				#foreach ($i in [1..12])
+					<option value="$i" />
+				#end
+			</select>
+			<select name="endAmpm" id="endAmpm" style="display:none;">
+				<option selected="selected" value="am" />
+				<option value="pm" />
+			</select>
+			#end
+			#end
          $timezone
 		</p>
 		<div class="longtext">
@@ -703,6 +851,7 @@ function resizeFrame(){
 		</p>
 	
 		#foreach ($addfield in $addFieldsCalendarsCollection)
+			#set ($addfield = $validator.escapeHtml($addfield))
 			<p class="shorttext">
 				<label for="$addfield">
 					$addfield

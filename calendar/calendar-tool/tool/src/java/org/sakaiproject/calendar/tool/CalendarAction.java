@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,9 +24,9 @@ package org.sakaiproject.calendar.tool;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.File;
 import java.text.DateFormat;
 import java.text.NumberFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,6 +64,7 @@ import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.cover.OpaqueUrlDao;
+import org.sakaiproject.calendar.tool.CalendarActionState.LocalEvent;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -82,6 +83,8 @@ import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -208,7 +211,7 @@ extends VelocityPortletStateAction
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
 	private final static String ASSN_ENTITY_ACTION = "deepLink";
-	private final static String ASSN_ENTITY_PREFIX = File.separator+ASSN_ENTITY_ID+File.separator+ASSN_ENTITY_ACTION+File.separator;
+	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
    
 	private NumberFormat monthFormat = null;
 	
@@ -1688,6 +1691,10 @@ extends VelocityPortletStateAction
 			{
 				addAlert(sstate, rb.getString("java.alert.subsurlempty"));
 			}
+			else if(!FormattedText.validateURL(calendarUrl))
+			{
+				addAlert(sstate,rb.getString("java.alert.subsurlinvalid"));
+			}
 			else
 			{
 				String contextId = EntityManager.newReference(
@@ -2443,6 +2450,27 @@ extends VelocityPortletStateAction
 			buildFrequencyContext(portlet, context, runData, state);
 		}
 
+		if (stateName.equals("description") 
+		        || stateName.equals("year") 
+		        || stateName.equals("month") 
+		        || stateName.equals("day") 
+		        || stateName.equals("week")
+		        || stateName.equals("list")
+		        ) {
+		    // SAK-23566 capture the view calendar events
+		    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+		    String calendarRef = state.getPrimaryCalendarReference();
+		    if (ets != null && calendarRef != null) {
+		        // need to cleanup the cal references which look like /calendar/calendar/4ea74c4d-3f9e-4c32-b03f-15e7915e6051/main
+		        String eventRef = StringUtils.replace(calendarRef, "/main", "/"+stateName);
+		        String calendarEventId = state.getCalendarEventId();
+		        if (StringUtils.isNotBlank(calendarEventId)) {
+		            eventRef += "/"+calendarEventId;
+		        }
+		        ets.post(ets.newEvent("calendar.read", eventRef, false));
+		    }
+		}
+
 		TimeZone timeZone = TimeService.getLocalTimeZone();
 		context.put("timezone", timeZone.getDisplayName(timeZone.inDaylightTime(new Date()), TimeZone.SHORT) );
 		
@@ -2459,6 +2487,7 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		context.put("config",configProps);
 		context.put("dateFormat", getDateFormatString());
+		context.put("timeFormat", getTimeFormatString());
       
 		return template;
 		
@@ -2600,6 +2629,12 @@ extends VelocityPortletStateAction
 		
 		context.put("realDate", TimeService.newTime());
 				
+		if (DEFAULT_FREQ.equals(freq))
+		{
+			LocalEvent savedData = state.getNewData();
+			Time m_time = TimeService.newTimeLocal(savedData.getYearInt(), savedData.getMonth(), savedData.getDay(), 0, 0, 0, 0);
+			context.put("freqOnceDate", m_time.toStringLocalDate());
+		}
 	} // buildFrequencyContext
 	
 	/**
@@ -2911,7 +2946,7 @@ extends VelocityPortletStateAction
 					Map<String, Object> assignData = new HashMap<String, Object>();
 					StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
 					entityId.append( (CalendarService.getCalendar(calEvent.getCalendarReference())).getContext() );
-					entityId.append( File.separator );
+					entityId.append( EntityReference.SEPARATOR );
 					entityId.append( assignmentId );
 					ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
 					if (ret != null && ret.getEntityData() != null) {
@@ -2925,10 +2960,15 @@ extends VelocityPortletStateAction
 				
 				String ownerId = calEvent.getCreator();
 				if ( ownerId != null && ! ownerId.equals("") )
+				// if the user not defined, assigned the owner_name as ""
+				try 
 				{
 					String ownerName = 
 							 UserDirectoryService.getUser( ownerId ).getDisplayName();
 					context.put("owner_name", ownerName);
+				} 
+				catch (UserNotDefinedException e) {
+					context.put("owner_name", "");
 				}
 				
 				String siteName = calEvent.getSiteName();
@@ -2957,12 +2997,6 @@ extends VelocityPortletStateAction
 				context.put(NO_EVENT_FLAG_CONTEXT_VAR, TRUE_STRING);
 			}
 			catch (PermissionException e)
-			{
-				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotpermadd"));
-				M_log.debug(".buildDescriptionContext(): " + e);
-				return;
-			}
-			catch (UserNotDefinedException e)
 			{
 				context.put(ALERT_MSG_KEY,rb.getString("java.alert.younotpermadd"));
 				M_log.debug(".buildDescriptionContext(): " + e);
@@ -3109,7 +3143,8 @@ extends VelocityPortletStateAction
 		context.put("tlang",rb);
 		context.put("config",configProps);
 		context.put("yearArray",yearObj);
-		context.put("year",Integer.valueOf(calObj.getYear()));
+		SimpleDateFormat formatter = new SimpleDateFormat(rb.getString("viewy.date_format"), rb.getLocale());
+		context.put("year", formatter.format(calObj.getTime()));
 		context.put("date",dateObj1);
 		state.setState("year");
 		
@@ -3215,8 +3250,8 @@ extends VelocityPortletStateAction
 		calObj.setDay(dateObj1.getYear(),dateObj1.getMonth(),dateObj1.getDay());
 		
 		// retrieve the information from day, month and year to calObj again since calObj changed during the process of CalMonth().
-		context.put("nameOfMonth",calendarUtilGetMonth(calObj.getMonthInteger()));
-		context.put("year", Integer.valueOf(calObj.getYear()));
+		SimpleDateFormat formatter = new SimpleDateFormat(rb.getString("viewm.date_format"), rb.getLocale());
+		context.put("viewingDate", formatter.format(calObj.getTime()));
 		context.put("monthArray",monthObj2);
 		context.put("tlang",rb);
 		context.put("config",configProps);
@@ -6653,7 +6688,7 @@ extends VelocityPortletStateAction
 		}
 		
 		// navigate to the previous activity
-		if (direction.equals(STATE_PREV_ACT) && index > 0) 
+		if (STATE_PREV_ACT.equals(direction) && index > 0) 
 		{
 			CalendarEvent ce = (CalendarEvent) events.get(--index);
 			Reference ref = EntityManager.newReference(ce.getReference());
@@ -6668,7 +6703,7 @@ extends VelocityPortletStateAction
 			state.setAttachments(null);
 		}
 		// navigate to the next activity
-		else if (direction.equals(STATE_NEXT_ACT) && index < size-1) 
+		else if (STATE_NEXT_ACT.equals(direction) && index < size-1) 
 		{
 			CalendarEvent ce = (CalendarEvent) events.get(++index);
 			Reference ref = EntityManager.newReference(ce.getReference());

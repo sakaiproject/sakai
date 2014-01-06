@@ -23,8 +23,10 @@
 
 	<h:form id="calendarForm">
 	<h:panelGroup>
-       <sakai:tool_bar rendered="#{CalBean.userId ne null}">
-			<sakai:tool_bar_item action="#{MenuBean.processPreferences}" value="#{msgs.menu_prefs}" immediate="true" />
+		<sakai:tool_bar rendered="#{CalBean.userId ne null && CalBean.preferencesVisible}">
+			<h:commandLink action="#{MenuBean.processPreferences}" >
+				<h:outputText value="#{CalBean.accessibleOptionsLink}" escape="false"/>
+            </h:commandLink>
 			<sakai:tool_bar_item rendered="#{MenuBean.subscribeEnabled}" action="#{MenuBean.processSubscribe}" value="#{msgs.java_subscribe}" immediate="true" />
 		</sakai:tool_bar>
     </h:panelGroup>
@@ -41,9 +43,9 @@
 			</f:subview>
 			<%--</h:panelGroup>--%>
 	        <h:panelGroup style="text-align: right; white-space: nowrap; display: block ">
-	        	<h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/>
-	        	<h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
-	        	<h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/>
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.previous}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" < " actionListener="#{CalBean.prev}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
+                <h:commandButton value="#{msgs.today}" actionListener="#{CalBean.currDay}" immediate="true"/>
+                <f:verbatim><fieldset><legend></f:verbatim><h:outputText value="#{msgs.next}"/><f:verbatim></legend></f:verbatim><h:commandButton value=" > " actionListener="#{CalBean.next}" immediate="true"/><f:verbatim></fieldset></f:verbatim>
 	        </h:panelGroup>
 		</h:panelGrid>
 		

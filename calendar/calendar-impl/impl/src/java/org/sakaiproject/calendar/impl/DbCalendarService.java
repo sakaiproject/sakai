@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.osedu.org/licenses/ECL-2.0
+ *       http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.impl;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -34,7 +35,7 @@ import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.util.BaseDbDoubleStorage;
-import org.sakaiproject.util.StorageUser;
+import org.sakaiproject.util.DoubleStorageUser;
 
 /**
 * <p>DbCalendarService fills out the BaseCalendarService with a database implementation.</p>
@@ -174,7 +175,7 @@ public class DbCalendarService
 		* Construct.
 		* @param user The StorageUser class to call back for creation of Resource and Edit objects.
 		*/
-		public DbStorage(StorageUser user)
+		public DbStorage(DoubleStorageUser user)
 		{
 			// TODO: what about owner, draft?
 			super(m_cTableName, "CALENDAR_ID", m_rTableName, "EVENT_ID", "CALENDAR_ID",
@@ -226,29 +227,26 @@ public class DbCalendarService
 			// get to the end of the GMT day
 			endDate = endDate + (oneDay-(endDate%oneDay));  
 			// this will work untill 9 Oct 246953 07:00:00
-			int startDateHours = (int)(startDate/oneHour);
-			int endDateHours = (int)(endDate/oneHour);
+			Integer startDateHours = (int)(startDate/oneHour);
+			Integer endDateHours = (int)(endDate/oneHour);
 			
-			if ( M_log.isErrorEnabled() ) {
+			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("Selecting Range from "+(new Date(startDate)).toGMTString()+" to "+(new Date(endDate)).toGMTString());
 			}
-            StringBuilder filter = new StringBuilder("(");
-            filter.append(" (RANGE_START > ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_START < ");
-            filter.append( endDateHours );
-            filter.append( " ) or ( ");
-            filter.append(" RANGE_END > ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_END < ");
-            filter.append( endDateHours );
-            filter.append( " ) or ( ");
-            filter.append(" RANGE_START < ");
-            filter.append( startDateHours );
-            filter.append( " and RANGE_END > ");
-            filter.append( endDateHours );
-            filter.append( " )) ");
-            return super.getAllResources(calendar, filter.toString()); 
+			
+            String filter = "((RANGE_START > ? and RANGE_START < ? ) " +
+            		"or (  RANGE_END > ? and RANGE_END < ? ) " +
+            		"or ( RANGE_START < ? and RANGE_END > ? ))";
+            
+			List<Object> rangeValues = new ArrayList<Object>();
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
+			rangeValues.add(startDateHours);
+			rangeValues.add(endDateHours);
+			
+            return super.getAllResources(calendar, null, filter, true, null, rangeValues);
          }
 
 		public CalendarEventEdit putEvent(Calendar calendar,String id)
