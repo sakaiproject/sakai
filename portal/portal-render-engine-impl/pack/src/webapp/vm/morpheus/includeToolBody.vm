@@ -1,0 +1,96 @@
+##
+## the Tool part of the standard view, with no page navigation
+## This is only used when a JSR-168 portlet is called with a /portal/tool
+## URL.  Effectively it is a gutted version of the PageBody code.
+##
+## Title is suppressed - but reset, help, and edit are shown - because this
+## will likely be in a popup, iframe in a portal or somewhere else which will
+## not present these controls.
+##
+## The UI of this is not perfect - but it *is* better than a trace back.
+## And it will make sense when a non-Sakai portal shows this 
+## with an iframe.
+##
+## If this ends up with double resets in some Sakai UI - say the OSP portal,
+## the right way to fix it is to teach the OSP portal to really support
+## JSR-168 portlets in the background document rather than in an iFrame.
+##
+<!-- START from includeToolBody.vm -->
+				#if ( $tool ) 
+					<!-- start Tool -->
+					#if (${tool.hasRenderResult})
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
+						                        <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+						#end
+##										<h2>${tool.toolRenderResult.getTitle()}</h2>
+## Do not show the title in this mode because there may be a separate title above this
+										<h2>&nbsp;</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolJSR168Edit} )
+						            <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
+						                   title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
+						                    alt="${rloader.sit_edit}" border="0"></a>
+						#end 
+						#if (${tool.toolShowHelpButton})
+							#if (${tool.toolJSR168Help} )
+						             <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
+							#else
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+							#end
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
+						#end
+									</div>
+								</div>
+							</div>
+						#else
+							<div class="portletTitleWrap">
+								<div class="portletTitle">
+									<div class="title">
+						#if (${tool.toolShowResetButton})
+						                <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
+						                        <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+						#end	
+										<h2>${tool.toolTitle}</h2>
+									</div>
+									<div class="action">
+						#if (${tool.toolShowHelpButton})
+								<a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" 
+								 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
+								  'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
+									<img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}" border="0" />
+										<span class="skip">${rloader.site_newwindow}</span> </a>
+						#end
+									</div>
+								</div>
+							</div>
+						#end
+					<!-- end Tool -->
+					<!-- start Tool Body -->						
+						#if (${tool.hasRenderResult})
+							<div class="portletMainWrap">
+							    ${tool.toolRenderResult.getContent()}
+							</div>
+						#else
+							<div class="portletMainWrap">
+								<iframe	name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
+									class ="portletMainIframe"
+									height="475"
+									width="100%"
+									frameborder="0"
+									marginwidth="0"
+									marginheight="0"
+									scrolling="auto"	
+									src="${tool.toolUrl}?panel=Main">
+								</iframe>
+							</div>
+						#end
+					<!-- end Tool Body -->												
+				#end
