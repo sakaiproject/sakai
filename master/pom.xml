@@ -100,6 +100,7 @@
     <sakai.tomcat.version>7.0.42</sakai.tomcat.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
+    <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <rsfutil.version>0.8.0-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>0.8.0-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>0.8.0-SNAPSHOT</sakairsf.version>
@@ -461,13 +462,13 @@
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-log4j12</artifactId>
-        <version>1.5.8</version>
+        <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.slf4j</groupId>
         <artifactId>slf4j-api</artifactId>
-        <version>1.5.8</version>
+        <version>${sakai.slf4j.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
