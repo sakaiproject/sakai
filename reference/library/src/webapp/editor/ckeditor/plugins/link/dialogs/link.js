@@ -38,11 +38,6 @@ CKEDITOR.dialog.add("link", function (n) {
                 a.setLabel(n.lang.link.targetFrameName);
                 a.getElement().show();
                 break;
-            case "popup":
-                g.show();
-                a.setLabel(n.lang.link.targetPopupName);
-                a.getElement().show();
-                break;
             default:
                 a.setValue(c), a.getElement().hide()
             }
@@ -431,7 +426,6 @@ CKEDITOR.dialog.add("link", function (n) {
                     items: [
                         [i.notSet, "notSet"],
                         [b.targetFrame, "frame"],
-                        [b.targetPopup, "popup"],
                         [i.targetNew, "_blank"],
                         [i.targetTop, "_top"],
                         [i.targetSelf, "_self"],
