@@ -5,7 +5,9 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.quartz.JobExecutionException;
+import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob;
@@ -53,9 +55,11 @@ public class DelegatedAccessSampleDataLoader {
 				return SecurityAdvice.ALLOWED;
 			}
 		};
+		
 		try{
 			loginToSakai();
 			securityService.pushAdvisor(yesMan);
+			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template");
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
@@ -74,18 +78,86 @@ public class DelegatedAccessSampleDataLoader {
 								siteEdit.setPublished(true);
 								siteEdit.setType("course");
 								
-								//for some reason the course template may not work
+								//for some reason the course template may not work (prob missed some code somewhere)
 								if(siteEdit.getTool("sakai.siteinfo") == null){
+									//T&Q
 									SitePage page = siteEdit.addPage();
+									page.setTitle("Tests & Quizzes");
+									page.addTool("sakai.samigo");
+									
+									//Assignments
+									page = siteEdit.addPage();
+									page.setTitle("Assignments");
+									page.addTool("sakai.assignment.grades");
+									
+									//Forums
+									page = siteEdit.addPage();
+									page.setTitle("Forums");
+									page.addTool("sakai.forums");
+									
+									//Messages
+									page = siteEdit.addPage();
+									page.setTitle("Messages");
+									page.addTool("sakai.messages");
+
+									//Syllabus
+									page = siteEdit.addPage();
+									page.setTitle("Syllabus");
+									page.addTool("sakai.syllabus");
+									
+									//Announcements
+									page = siteEdit.addPage();
+									page.setTitle("Announcements");
+									page.addTool("sakai.announcements");
+									
+									//Gradebook
+									page = siteEdit.addPage();
+									page.setTitle("Gradebook");
+									page.addTool("sakai.gradebook.tool");
+									
+									//Schedule
+									page = siteEdit.addPage();
+									page.setTitle("Schedule");
+									page.addTool("sakai.schedule");
+
+									//Resources
+									page = siteEdit.addPage();
+									page.setTitle("Resources");
+									page.addTool("sakai.resources");
+									
+									//Roster
+									page = siteEdit.addPage();
+									page.setTitle("Roster");
+									page.addTool("sakai.site.roster");
+									
+									//Lessons
+									page = siteEdit.addPage();
+									page.setTitle("Lessons");
+									page.addTool("sakai.lessonbuildertool");
+
+									//Site Info
+									page = siteEdit.addPage();
 									page.setTitle("Site Info");
 									page.addTool("sakai.siteinfo");
+									
 								}
 								
 								ResourcePropertiesEdit propEdit = siteEdit.getPropertiesEdit();
 								propEdit.addProperty("School", school);
 								propEdit.addProperty("Department", dept);
 								propEdit.addProperty("Subject", subject);
+								
 								siteService.save(siteEdit);
+								
+								//Make sure roles exist:
+								AuthzGroup group = authzGroupService.getAuthzGroup(siteEdit.getReference());
+								group.removeMembers();
+								group.removeRoles();
+								for(Role role : templateGroup.getRoles()){
+									group.addRole(role.getId(), role);
+								}
+								group.addMember("datest", group.getMaintainRole(), true, false);
+								authzGroupService.save(group);
 
 							} catch (IdInvalidException e) {
 								log.warn(e);
