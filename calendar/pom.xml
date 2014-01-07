@@ -6,7 +6,7 @@
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
         <version>10.0-SNAPSHOT</version>
-	<relativePath>../master/pom.xml</relativePath>
+    <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>sakai-calendar base pom</name>
@@ -50,18 +50,18 @@
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-	    <artifactId>sakai-calendar-api</artifactId>
-        <version>${project.version}</version>
-		<scope>provided</scope>
-	  </dependency>
-	  <dependency>
-		<groupId>org.sakaiproject.calendar</groupId>
-		<artifactId>sakai-calendar-hbm</artifactId>
-        <version>${project.version}</version>
-		<scope>provided</scope>
- 	  </dependency>
-      <dependency>
-					<groupId>${project.groupId}</groupId>
+                <artifactId>sakai-calendar-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.calendar</groupId>
+                <artifactId>sakai-calendar-hbm</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
                 <artifactId>sakai-calendar-util</artifactId>
                 <version>${project.version}</version>
             </dependency>
