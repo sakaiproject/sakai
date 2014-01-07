@@ -60,7 +60,7 @@ function audioAnalyzer(time) {
 }
 
   function enableRecording(stream) {
-      $('#audio-record').attr('disabled','').fadeTo('slow', 1.0);
+      $('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
       if (stream) {
           //Save the input for later
           input = audio_context.createMediaStreamSource(stream);
@@ -91,7 +91,14 @@ function audioAnalyzer(time) {
   function startTimer() {
     timer = setInterval(function() {
       timeRemaining--;
-      $('#audio-timer').text( (maxSeconds - timeRemaining) < 10 ? "0" + (maxSeconds - timeRemaining) : (maxSeconds - timeRemaining));
+      timeTaken = (maxSeconds - timeRemaining);
+      timeTakenMins = Math.floor(timeTaken / 60);
+      timeTakenSecs = timeTaken - (timeTakenMins * 60);
+
+      $('#audio-timer').text( timeTakenMins + ":" + (timeTakenSecs < 10 ? "0" : "") + timeTakenSecs );
+      $('#audio-timer').css("left", timerStartPosition + (timeTaken * scrubberMultiple));
+
+
       if (timeRemaining <= 0) {
         clearInterval(timer);
         console.log('MaxSeconds reached');
@@ -133,10 +140,10 @@ function audioAnalyzer(time) {
     }
 
     // disable the record and play button, enable the stop button
-    $('#audio-stop').attr('disabled','').fadeTo('slow', 1.0);
-    $('#audio-record').attr('disabled','disabled').fadeTo('slow', 0.5);
-    $('#audio-upload').attr('disabled','disabled').fadeTo('slow', 0.5);
-    $('#audio-play').attr('disabled', 'disabled').fadeTo('slow', 0.5);
+    $('#audio-stop').prop('disabled','').fadeTo('slow', 1.0);
+    $('#audio-record').prop('disabled','disabled').fadeTo('slow', 0.5);
+    $('#audio-upload').prop('disabled','disabled').fadeTo('slow', 0.5);
+    $('#audio-play').prop('disabled', 'disabled').fadeTo('slow', 0.5);
     console.log('Recording...');
   }
 
@@ -165,9 +172,9 @@ function audioAnalyzer(time) {
     clearInterval(timer);
 
     // disable the stop button, enable the record button
-    $('#audio-stop').attr('disabled','disabled').fadeTo('slow', 0.5);
-    $('#audio-record').attr('disabled','').fadeTo('slow', 1.0);
-    $('#audio-upload').attr('disabled','').fadeTo('slow', 1.0);
+    $('#audio-stop').prop('disabled','disabled').fadeTo('slow', 0.5);
+    $('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
+    $('#audio-upload').prop('disabled','').fadeTo('slow', 1.0);
     //button.previousElementSibling.disabled = false;
     console.log('Stopped recording.');
     
@@ -178,8 +185,8 @@ function audioAnalyzer(time) {
 
     //force the user submission!
     if (attemptsRemaining < 1) {
-      $('#audio-record').attr('disabled', 'disabled');
-      $('#audio-stop').attr('disabled','disabled').fadeTo('slow', 0.5);
+      $('#audio-record').prop('disabled', 'disabled');
+      $('#audio-stop').prop('disabled','disabled').fadeTo('slow', 0.5);
 
 	  //This might fail if there's no data
 	  try {
@@ -309,7 +316,7 @@ function audioAnalyzer(time) {
 
 
   function createDownloadLink() {
-    $('#audio-play').attr('disabled', '').fadeTo('slow', 1.0);
+    $('#audio-play').prop('disabled', '').fadeTo('slow', 1.0);
 
     recorder && recorder.exportWAV(function(blob) {
       var url = URL.createObjectURL(blob);
@@ -412,19 +419,24 @@ $(document).ready(function() {
     
     // Set some initial variables
     timeRemaining = maxSeconds;
+    timeTaken = 0;
+    timerStartPosition = $('#audio-timer').position().left;
     $('#audio-time-allowed').text(timeRemaining);
     $('#audio-max-time').text(maxSeconds);
     $('#audio-attempts-allowed').text(attemptsRemaining);
     $('#audio-attempts').text(attemptsRemaining);
 
     maxWidth = $('#audio-controls').width();
-    if (isNaN(maxWidth) || maxWidth < 100) {
-      maxWidth = 100;
-    }
+    if (isNaN(maxWidth) || maxWidth < 100) maxWidth = 100;
     console.log('Width of controls: ' + maxWidth);
 
+    // We need to move the playback scrubber smoothly
+    scrubberWidth = $('#audio-scrubber').width();
+    if (isNaN(scrubberWidth) || scrubberWidth < 100) scrubberWidth = 520;
+    scrubberMultiple = (scrubberWidth - 10) / maxSeconds;
+
     // disable record button until the user grants microphone approval
-    $('#audio-record').attr('disabled','disabled').fadeTo('slow', 0.5);
+    $('#audio-record').prop('disabled','disabled').fadeTo('slow', 0.5);
 
     if (userMediaSupport) {
 
