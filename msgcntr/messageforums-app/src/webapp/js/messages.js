@@ -77,11 +77,14 @@ $(document).ready(function(){
 		    });
 	  }
 	  // I need UI js
-	  if (!$.progressbar) {
-		$.getScript("/library/js/jquery-ui-latest/js/jquery-ui.min.js",loadUI);
-	  } else {
-		loadUI();  
-	  }
+	  // But we'll assume its already on the page so we don't break other scripts by loading an outdated version
+	  loadUI();  
+	 //  if (!$.progressbar) {
+		// $.getScript("/library/js/jquery-ui-latest/js/jquery-ui.min.js",loadUI);
+	 //  } else {
+	 //  	loadUI();  
+
+	 //  }
 });
 
 //This is the profile display on user's names.

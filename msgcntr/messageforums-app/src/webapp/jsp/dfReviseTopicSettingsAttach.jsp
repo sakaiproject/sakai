@@ -16,7 +16,10 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
+	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
+	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+	<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+	
 	<%
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 
@@ -203,28 +206,40 @@
                </h:selectOneRadio>
                </h:panelGroup>
                <h:panelGroup id="openDateSpan" styleClass="indnt2 openDateSpan  calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+
                	   <h:outputLabel value="#{msgs.openDate}: " for="openDate"/>
-	               <h:inputText id="openDate" value="#{ForumTool.selectedTopic.openDate}"/>
-	               <f:verbatim>
-	               	<a id="openCal" href="javascript:openDateCal();">
-	               </f:verbatim>
-	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
-	               <f:verbatim>
-	               </a>
-	               </f:verbatim>
+
+	               <h:inputText id="openDate" styleClass="openDate2" value="#{ForumTool.selectedTopic.openDate}"/>
+
+
+              	</h:panelGroup>
+               <h:panelGroup id="closeDateSpan" styleClass="indnt2 openDateSpan  calWidget" style="display: #{ForumTool.selectedTopic.availabilityRestricted ? '' : 'none'}">
+
+					
               		<h:outputLabel value="#{msgs.closeDate}: " for="closeDate"/>
-	               <h:inputText id="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
-	               <f:verbatim>
-	               	<a id="closeCal" href="javascript:closeDateCal();">
-	               </f:verbatim>
-	               <h:graphicImage url="/images/calendar.png" title="#{msgs.pickDate}" alt="#{msgs.pickDate}"/>
-	               <f:verbatim>
-	               </a>
-	               </f:verbatim>
+
+	               <h:inputText id="closeDate" styleClass="closeDate" value="#{ForumTool.selectedTopic.closeDate}"/>
+
               	</h:panelGroup>
            </h:panelGrid>
 
 			</div>
+
+
+			
+
+			<script type="text/javascript">
+			      localDatePicker({
+			      	input:'[id="revise:openDate"]', 
+			      	useTime:1
+			      });
+			      
+			      localDatePicker({
+			      	input:'[id="revise:closeDate"]', 
+			      	useTime:1
+			      });
+			</script>
+
 		<%--
 		   <h4><h:outputText  value="Confidential Responses"/></h4>
 		   <h:selectBooleanCheckbox   title= "#{msgs.cdfm_topic_allow_anonymous_postings}"  value="false" />
