@@ -1,14 +1,13 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="$!{locale}">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
-    <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+  <meta charset="utf-8">
+	<link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" rel="stylesheet">
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" rel="stylesheet">
 <!-- this caises problems for layout nneds investihating -->
-    <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+    <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet">
 <!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/portal/styles/portalstyles-ie5.css" rel="stylesheet">
 <![endif]><![endif]-->
 
     <meta http-equiv="Content-Style-Type" content="text/css" />
@@ -17,25 +16,25 @@
 #end
  
     <title>${pageTitle}</title>
-     <script type="text/javascript" src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
-     <script type="text/javascript" src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
-<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
+     <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+     <script src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
+<script src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
 
 #if ( ${styleable} )
-<script type="text/javascript" 
+<script 
     	
     	src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}" >
     </script>
     
-    <script type="text/javascript" 
+    <script 
            >
     window.onload = insertStyleAbleStyles;
     </script>
     #if ( ${styleableStyleSheet} )
-	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+	<style title="StyleAble">${styleableStyleSheet}</style>
     #end
     #if ( ${styleableJS} )
-	<script type="text/javascript">
+	<script>
 	${styleableJS} 
 	</script>
     #end
@@ -43,7 +42,7 @@
 </head>
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript">
+	<script>
 	var sakaiPortalWindow = "";
 	</script>
 #end

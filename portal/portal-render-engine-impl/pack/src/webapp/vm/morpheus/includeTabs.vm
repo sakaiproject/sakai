@@ -102,8 +102,8 @@
 					<div id="linkNav" role="navigation" aria-labelledby="sitetabs">
 
 <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
-<script type="text/javascript">var sakai_portal_ie_detected=false;</script>
-<!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
+<script>var sakai_portal_ie_detected=false;</script>
+<!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
 							<h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
 <ul class="topnav" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
 						#foreach ( $site in $tabsSites.tabsSites ) 
@@ -233,7 +233,7 @@
 	</div>
 #end
 
-<script type="text/javascript">
+<script>
     jQuery(document).ready(function() {
         setupSiteNav();
         // sakai_portal_ie_detected should have been set above

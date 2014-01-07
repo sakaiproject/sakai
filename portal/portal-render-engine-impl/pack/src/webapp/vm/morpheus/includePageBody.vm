@@ -247,7 +247,7 @@
 					${rloader.site_servertime_label}
 					<span id="serverTime" class="server-time"></span>
 				</div>
-				<script type="text/javascript">
+				<script>
 					// <!--
 					updateFooterTime = (function() {
 							#if ($showPreferredTzTime == "true")
@@ -414,7 +414,7 @@
 				<div id="presenceIframe">
 					&nbsp;
 				</div>
-<script type="text/javascript">
+<script>
 	//these are global variables...
 	var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
 	var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";

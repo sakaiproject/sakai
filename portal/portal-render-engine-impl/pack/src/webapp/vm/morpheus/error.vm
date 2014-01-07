@@ -1,13 +1,12 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<!DOCTYPE html>
+<html lang="$!{locale}">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+  <meta charset="utf-8">
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
 <!-- this caises problems for layout nneds investihating -->
-    <link href="/portal/styles/portalstyles.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/portal/styles/portalstyles.css" rel="stylesheet">
 <!--[if gte IE 5]><![if lt IE 7]>
-    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+    <link href="/portal/styles/portalstyles-ie5.css" rel="stylesheet">
 <![endif]><![endif]-->
 
     <meta http-equiv="Content-Style-Type" content="text/css" />
@@ -40,26 +39,26 @@ ${tool.toolRenderResult.getTitle()}
 	#end
 #else 
     <title>${pageTitle}</title>
-     <script type="text/javascript" src="${pageScriptPath}headscripts.js"></script>
-     <script type="text/javascript" src="${pageScriptPath}jquery.js"></script>
+     <script src="${pageScriptPath}headscripts.js"></script>
+     <script src="${pageScriptPath}jquery.js"></script>
 #end
-<script type="text/javascript" src="/portal/scripts/portalscripts.js"></script>
+<script src="/portal/scripts/portalscripts.js"></script>
 
 #if ( ${styleable} )
-<script type="text/javascript" 
+<script 
     	
     	src="/sakai-preferable-tool/js/styleable.js" >
     </script>
     
-    <script type="text/javascript" 
+    <script 
            >
     window.onload = insertStyleAbleStyles;
     </script>
     #if ( ${styleableStyleSheet} )
-	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+	<style title="StyleAble">${styleableStyleSheet}</style>
     #end
     #if ( ${styleableJS} )
-	<script type="text/javascript">
+	<script>
 	${styleableJS} 
 	</script>
     #end
@@ -67,7 +66,7 @@ ${tool.toolRenderResult.getTitle()}
 </head>
 <body class="portalBody">
 #if ( $pageTop )
-	<script type="text/javascript">
+	<script>
 	var sakaiPortalWindow = "";
 	</script>
 #end

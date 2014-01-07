@@ -3,7 +3,7 @@
   <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
 #if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
 #if ( $pageTop )
-<script type="text/javascript">
+<script>
 	var sakaiPortalWindow = "";
 	$(document).ready(function() {
 			setupSkipNav();
@@ -12,7 +12,7 @@
 #end
 #if (!${loginTopLogin})
 #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
-<script type="text/javascript">
+<script>
 	$(document).ready(function() {
 
 		var toggleClass=""
@@ -117,7 +117,7 @@
 							<input name="pw" type="password" id="pw" />
 							<input name="submit" type="submit" id="submit" value="${loginWording}" />
 						</form>
-						<script type="text/javascript" src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+						<script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
 					#end
 					</div>
 					<!-- end login component -->
