@@ -256,7 +256,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }
 .mainList li.commentsType {
     margin-top: 10px;
-    margin-bottom: 10px;
+    margin-bottom: 0px;
 }
 .mainList li.textType, .mainList li.multimediaType {
     margin-top: 10px;
@@ -481,7 +481,7 @@ h3.author {
 	margin-top: 3px
 }
 .commentsCell {
-	margin-bottom: 10px;
+	margin-bottom: 0px;
 }
 .specialCommenter {
 	background-color: white;
@@ -535,8 +535,11 @@ vertical-align:top;
 .link-div .usebutton {
 	font-size: 160%
 }
-.add-comment-button, .add-peereval-button {
+.add-comment-button {
 	margin: 7px 0px 2px 0px
+}
+.add-peereval-button {
+	margin: 0px 0px 2px 0px
 }
 .add-comment-button span, .add-peereval-button span {
 	padding: 2px 8px 2px 8px

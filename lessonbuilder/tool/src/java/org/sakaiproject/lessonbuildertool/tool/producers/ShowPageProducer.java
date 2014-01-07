@@ -925,6 +925,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// Move all items with sequence <= 0 to the end of the list.
 		// Count is necessary to guarantee we don't infinite loop over a
 		// list that only has items with sequence <= 0.
+		// Becauses sequence number is < 0, these start out at the beginning
 		int count = 1;
 		while(itemList.size() > count && itemList.get(0).getSequence() <= 0) {
 			itemList.add(itemList.remove(0));

@@ -1324,17 +1324,16 @@ public class SimplePageBean {
 		// This code adds a global comments tool to the bottom of each
 		// student page, but only if there's something else on the page
 		// already and the instructor has enabled the option.
+		//   For some reason these are added to the beginning. In ShowPageProducer
+		// they are moved to the end. Beacuse that reverses the order, put peer first
+		// here in order to get it last. We need to check whether we can't just put 
+		// them at the end in the first place.
 		if(items.size() > 0) {
 			SimplePage page = getPage(pageid);
 				if(page.getOwner() != null) {
 				SimpleStudentPage student = simplePageToolDao.findStudentPage(page.getTopParent());
 				if(student != null && student.getCommentsSection() != null) {
 					SimplePageItem item = simplePageToolDao.findItem(student.getItemId());
-					if(item != null && item.getShowComments() != null && item.getShowComments()) {
-						//copy the attribute string from the top student section page  to each student page
-						items.add(0, simplePageToolDao.findItem(student.getCommentsSection()));
-					}
-				
 					if(item != null && item.getShowPeerEval() != null && item.getShowPeerEval()) {
 						String peerEval=item.getAttributeString();
 						SimplePageItem studItem =  new SimplePageItemImpl();
@@ -1345,6 +1344,10 @@ public class SimplePageBean {
 						studItem.setPageId(-10L);
 						studItem.setType(SimplePageItem.PEEREVAL); // peer eval defined in SimplePageItem.java
 						items.add(0,studItem);
+					}
+					if(item != null && item.getShowComments() != null && item.getShowComments()) {
+						//copy the attribute string from the top student section page  to each student page
+						items.add(0, simplePageToolDao.findItem(student.getCommentsSection()));
 					}
 				}
 			}
