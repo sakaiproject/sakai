@@ -28,12 +28,10 @@
 	<%/* We render the URL(s) itself around about here... */%>
 	<h:panelGroup rendered="#{SubscribeBean.opaqueUrlExists}">
 		<sakai:instruction_message value="#{msgs.ical_opaqueurl_webcal}"/>
-		<%-- <h:outputText value="#{msgs.ical_opaqueurl_webcal}"/><br /> --%>
 		<h:outputLink value="#{SubscribeBean.url.webcalForm}" target="_new_">
 			<h:outputText value="#{SubscribeBean.url.webcalForm}" />
 		</h:outputLink>
 		<sakai:instruction_message value="#{msgs.ical_opaqueurl_http}"/>
-		<%-- <h:outputText value="#{msgs.ical_opaqueurl_http}"/><br /> --%>
 		<h:outputLink value="#{SubscribeBean.url.httpForm}" target="_new_">
 			<h:outputText value="#{SubscribeBean.url.httpForm}" />
 		</h:outputLink>	
@@ -44,7 +42,7 @@
 		<h:panelGrid rendered="#{!SubscribeBean.opaqueUrlExists}" styleClass="act" columns="2">
 			<h:commandButton
 				action="#{SubscribeBean.generate}"
-				value="#{msgs.ical_opaqueurl_generate}"				
+				value="#{msgs.ical_opaqueurl_generate}"
 				styleClass="active"
 				immediate="true"
 				/>        
@@ -56,13 +54,13 @@
 		<h:panelGrid rendered="#{SubscribeBean.opaqueUrlExists}" styleClass="act" columns="3">
 			<h:commandButton
 				action="#{SubscribeBean.regenerate}"
-				value="#{msgs.ical_opaqueurl_regenerate}"				
+				value="#{msgs.ical_opaqueurl_regenerate}"
 				styleClass="active"
 				immediate="true"
 				/>
 			<h:commandButton
 				action="#{SubscribeBean.delete}"
-				value="#{msgs.ical_opaqueurl_delete}"				
+				value="#{msgs.ical_opaqueurl_delete}"
 				styleClass="active"
 				immediate="true"
 				/>        
