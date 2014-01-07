@@ -1418,14 +1418,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					EntityAccessOverloadException, EntityCopyrightException
 			{
 				String calRef = calendarReference(ref.getContext(), SiteService.MAIN_CONTAINER);
-				
-				// we only access the pdf & ical reference
-				if ( !REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) &&
-						  !REF_TYPE_CALENDAR_OPAQUEURL.equals(ref.getSubType()) &&
-					  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
- 				{	
-						throw new EntityNotDefinedException(ref.getReference());
- 				}
+
 				if (REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()))
 				{
 					handleAccessPdf(req, res, ref, calRef);
@@ -1437,112 +1430,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				else if (REF_TYPE_CALENDAR_OPAQUEURL.equals(ref.getSubType()))
  				{
 					handleAccessOpaqueUrl(req, res, ref, calRef);
- 				}				
-/*
-				// we only access the pdf & ical reference
-				if ( !REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) &&
-					  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
-						throw new EntityNotDefinedException(ref.getReference());
-
-				// check if ical export is enabled
-				if ( REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) &&
-					  !getExportEnabled(calRef) )
-						throw new EntityNotDefinedException(ref.getReference());
-
-				try
-				{
-					Properties options = new Properties();
-					Enumeration e = req.getParameterNames();
-					while (e.hasMoreElements())
-					{
-						String key = (String) e.nextElement();
-						String[] values = req.getParameterValues(key);
-						if (values.length == 1)
-						{
-							options.put(key, values[0]);
-						}
-						else
-						{
-							StringBuilder buf = new StringBuilder();
-							for (int i = 0; i < values.length; i++)
-							{
-								buf.append(values[i] + "^");
-							}
-							options.put(key, buf.toString());
-						}
-					}
-
-					// We need to write to a temporary stream for better speed, plus
-					// so we can get a byte count. Internet Explorer has problems
-					// if we don't make the setContentLength() call.
-					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
-
-					//	 Check if PDF document requested
-					if ( REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) )
-					{
-						res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
-						res.setContentType(PDF_MIME_TYPE);
-						printSchedule(options, outByteStream);
-					}
-					else
-					{
-                  List alias =  m_aliasService.getAliases(calRef);
-                  String aliasName = "schedule.ics";
-                  if ( ! alias.isEmpty() )
-                     aliasName =  ((Alias)alias.get(0)).getId();
-						
-						// update date/time reference
-						Time modDate = findCalendar(calRef).getModified();
-						if ( modDate == null )
-							modDate = m_timeService.newTime(0);
-							
-						res.addHeader("Content-Disposition", "inline; filename=\"" + Web.encodeFileName(req, aliasName) + "\"");
-						res.setContentType(ICAL_MIME_TYPE);
-						res.setDateHeader("Last-Modified", modDate.getTime() );
-						
-						printICalSchedule(calRef, res.getOutputStream());
-					}
-					
-					res.setContentLength(outByteStream.size());
-					if (outByteStream.size() > 0)
-					{
-						// Increase the buffer size for more speed.
-						res.setBufferSize(outByteStream.size());
-					}
-
-					OutputStream out = null;
-					try
-					{
-						out = res.getOutputStream();
-						if (outByteStream.size() > 0)
-						{
-							outByteStream.writeTo(out);
-						}
-						out.flush();
-						out.close();
-					}
-					catch (Throwable ignore)
-					{
-					}
-					finally
-					{
-						if (out != null)
-						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-						}
-					}
-				}
-				catch (Throwable t)
+ 				}
+				else // we only access the opaq, pdf & ical reference
 				{
 					throw new EntityNotDefinedException(ref.getReference());
 				}
-//*/
 			}
 		};
 	}
