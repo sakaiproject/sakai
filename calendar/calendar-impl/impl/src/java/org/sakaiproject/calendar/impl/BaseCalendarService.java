@@ -101,6 +101,7 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.OpaqueUrlDao;
 import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
@@ -108,7 +109,6 @@ import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.CalendarUtil;
-import org.sakaiproject.calendar.cover.OpaqueUrlDao;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -605,6 +605,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Dependency: UsageSessionService */
 	protected UsageSessionService m_usageSessionService = null;
 
+	/** Dependency: OpaqueUrlDao */
+	protected OpaqueUrlDao m_opaqueUrlDao = null;
+
 	/** A map of services used in SAX serialization */
 	private Map<String, Object> m_services;
 
@@ -731,6 +734,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public void setUsageSessionService(UsageSessionService usageSessionService) { this.m_usageSessionService = usageSessionService; }
 
+	/**
+	 * Dependency: OpaqueUrlDao
+	 * @param opaqueUrlDao
+	 *        The OpaqueUrlDao.
+	 */
+	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -7559,7 +7568,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public String calendarOpaqueUrlReference(Reference ref)
 	{
 		// TODO: Currently not sure whether alias handling will be required for this or not.
-		OpaqueUrl opaqUrl = OpaqueUrlDao.getOpaqueUrl(m_sessionManager.getCurrentSessionUserId(), ref.getReference());
+		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(m_sessionManager.getCurrentSessionUserId(), ref.getReference());
 		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_OPAQUEURL + Entity.SEPARATOR + opaqUrl.getOpaqueUUID() + Entity.SEPARATOR + ref.getId();
 	}
 	
@@ -7579,7 +7588,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	
 	protected String mapOpaqueGuidToContextId(Reference reference, String opaqueGuid)
 	{
-		OpaqueUrl opaqUrl = OpaqueUrlDao.getOpaqueUrl(opaqueGuid);
+		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
 		if (opaqUrl != null)
 		{
 			String[] parts = StringUtils.split(opaqUrl.getCalendarRef(), Entity.SEPARATOR);
@@ -7787,7 +7796,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		String userId = null;
 		if (opaqueGuid != null)
 		{
-			OpaqueUrl opaqUrl = OpaqueUrlDao.getOpaqueUrl(opaqueGuid); 
+			OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
 			userId = (opaqUrl != null) ? opaqUrl.getUserUUID() : null;
 		}
 		if (opaqueGuid == null || userId == null)
@@ -7803,7 +7812,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			UsageSession usage = m_usageSessionService.getSession();
 			if ((usage != null) && userId.equals(usage.getUserId()) && !usage.isClosed())
 			{
-					isAlreadyLoggedIn = true;
+				isAlreadyLoggedIn = true;
 			}
 			String eid = m_userDirectoryService.getUserEid(userId);
 			Authentication authn = new Authentication(userId, eid);
