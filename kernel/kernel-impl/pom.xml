@@ -283,6 +283,12 @@
       <version>1.9.5</version>
       <scope>test</scope>
    </dependency>
+   <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-jdbc</artifactId>
+      <scope>test</scope>
+   </dependency>
+
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
         <artifactId>sakai-kernel-util</artifactId>
