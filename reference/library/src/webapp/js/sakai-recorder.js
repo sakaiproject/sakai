@@ -6,6 +6,12 @@ var analyserContext = null;
 var canvasWidth, canvasHeight;
 var input = null;
 
+// These vars are for the canvas audio analysis
+var timeToNextPlot = 0;
+var barToPlot = 1;
+var secondsPerBar = 100;
+var recordingStopped = false;
+
   function __log(e, data) {
     log.innerHTML += "\n" + e + " " + (data || '');
   }
@@ -30,33 +36,38 @@ function audioAnalyzer(time) {
     $(canvas).show();
     canvasWidth = canvas.width;
     canvasHeight = canvas.height;
+	secondsPerBar = Math.floor ( (maxSeconds*1000) / canvasWidth );
     analyserContext = canvas.getContext('2d');
+
+    // draw a horizontal line down the middle
+    analyserContext.fillStyle = "blue";
+    analyserContext.fillRect ( 0, Math.floor(canvasHeight/2)-2, canvasWidth, 2)
+
+    // the waveform will be white
+    analyserContext.fillStyle = "white";
   }
 
   {
-    var barSpacing = 3;
-    var barWidth = 2;
-    var numBars = Math.round(canvasWidth / barSpacing);
-    var freqByteData = new Uint8Array(analyzerNode.frequencyBinCount);
-    analyzerNode.getByteFrequencyData(freqByteData); 
+    // Only plot a bar in the waveform when enough time has passed
+    if (time > timeToNextPlot) {
+      var freqByteData = new Uint8Array(analyzerNode.frequencyBinCount);
+      analyzerNode.getByteFrequencyData(freqByteData); 
 
-    analyserContext.clearRect(0, 0, canvasWidth, canvasHeight);
-    var multiplier = analyzerNode.frequencyBinCount / numBars;
+      // compute an average volume
+      var values = 0;
+      for (var i = 0; i < freqByteData.length; i++) {
+        values += freqByteData[i];
+      }
+      average = values / freqByteData.length;
+      timeToNextPlot = timeToNextPlot + secondsPerBar;
 
-    // Draw rectangle for each frequency
-    for (var i = 0; i < numBars; ++i) {
-      var magnitude = 0;
-      var offset = Math.floor( i * multiplier );
-      // sum/average the block or miss narrow-bandwidth spikes
-      for (var j = 0; j< multiplier; j++) magnitude += freqByteData[offset + j];
-      magnitude = magnitude / multiplier;
-      var magnitude2 = freqByteData[i * multiplier];
-      analyserContext.fillStyle = "hsl( " + Math.round((i*360)/numBars) + ", 70%, 50%)";
-      analyserContext.fillRect(i * barSpacing, canvasHeight, barWidth, -magnitude);
+      analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*1) );
+      analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*-1) );
+      barToPlot = barToPlot + 1;
     }
   }
 
-  animationId = window.requestAnimationFrame(audioAnalyzer);
+  if (!recordingStopped) animationId = window.requestAnimationFrame(audioAnalyzer);
 }
 
   function enableRecording(stream) {
@@ -148,6 +159,8 @@ function audioAnalyzer(time) {
   }
 
   function stopRecording(button) {
+    recordingStopped = true;
+
     if (userMediaSupport) {
       recorder && recorder.stop();
     }
@@ -437,6 +450,7 @@ $(document).ready(function() {
 
     // disable record button until the user grants microphone approval
     $('#audio-record').prop('disabled','disabled').fadeTo('slow', 0.5);
+    $('#audio-play').prop('disabled','disabled').fadeTo('slow', 0.5);
 
     if (userMediaSupport) {
 
