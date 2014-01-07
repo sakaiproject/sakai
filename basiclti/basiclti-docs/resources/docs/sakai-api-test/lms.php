@@ -98,6 +98,10 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   echo("Launch URL: <input size=\"120\" type=\"text\" $disabled name=\"endpoint\" value=\"$endpoint\">\n");
   echo("<br/>Key: <input type\"text\" name=\"key\" $disapbled size=\"90\" value=\"$key\">\n");
   echo("<br/>Secret: <input type\"text\" name=\"secret\" $disabled size=\"90\" value=\"$secret\">\n");
+  $iframe = isset($_REQUEST["iframe"]) && $_REQUEST["iframe"] == "true";
+  $checked = '';
+  if ( $iframe ) $checked = 'checked';
+  echo("<br/>Launch in iFrame: <input type=\"checkbox\" name=\"iframe\" $checked $disabled value=\"true\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
@@ -136,9 +140,10 @@ if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) ||
 $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
 "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
 
-$content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
-    "_blank");
-     // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
+$where = '_blank';
+if ( $iframe ) $where = "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency";
+
+$content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), $where);
 
 global $LastOAuthBodyBaseString;
 if ( isset($LastOAuthBodyBaseString) && isset($_POST['debug']) ) {

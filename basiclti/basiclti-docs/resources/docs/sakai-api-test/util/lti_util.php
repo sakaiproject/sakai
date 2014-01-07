@@ -540,7 +540,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
         $r .= "</div>\n";
     }
     $r .= "</form>\n";
-    if ( $iframeattr ) {
+    if ( $iframeattr && $iframeattr != '_blank' ) {
         $r .= "<iframe name=\"basicltiLaunchFrame\"  id=\"basicltiLaunchFrame\" src=\"\"\n";
         $r .= $iframeattr . ">\n<p>".get_string("frames_required","basiclti")."</p>\n</iframe>\n";
     }
