@@ -158,9 +158,7 @@
 	</fo:block>
 	<xsl:if test="description !=''">
 		<fo:block font-size="7pt" text-align="start" padding="2mm">
-			<xsl:call-template name="descriptionNoBreak">
-				<xsl:with-param name="text" select="description"></xsl:with-param>
-			</xsl:call-template>
+			<xsl:value-of select="description"/>
 		</fo:block>
 	</xsl:if>		
 	
@@ -169,30 +167,6 @@
 	    <fo:leader leader-pattern="dots" 
                    leader-length="10cm"/>
     </fo:block>
-</xsl:template>
-
-<xsl:template name="descriptionNoBreak">
-	<xsl:param name="text" />
-	<xsl:choose>
-		<xsl:when test="contains($text, '&#xD;')">
-			<xsl:choose>
-				<xsl:when test="substring-before($text, '&#xD;') = ''">
-					<fo:block><fo:leader></fo:leader></fo:block>
-				</xsl:when>
-				<xsl:otherwise>
-					<fo:block><xsl:value-of select="substring-before($text, '&#xD;')"/></fo:block>
-				</xsl:otherwise>
-			</xsl:choose>
-			<xsl:call-template name="descriptionNoBreak">
-				<xsl:with-param name="text">
-					<xsl:value-of select="substring-after($text, '&#xD;')"/>
-				</xsl:with-param>
-			</xsl:call-template>
-		</xsl:when>
-		<xsl:otherwise>
-			<xsl:value-of select="$text"/>
-		</xsl:otherwise>
-	</xsl:choose>
 </xsl:template>
 
 <xsl:template name="dtconv">
