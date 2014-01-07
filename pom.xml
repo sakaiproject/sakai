@@ -94,8 +94,10 @@
                 <module>content</module>
                 <module>courier</module>
                 <module>dav</module>
+                <module>delegatedaccess</module>
                 <module>gradebook</module>
                 <module>help</module>
+                <module>hierarchy</module>
                 <module>login</module>
                 <module>mailarchive</module>
                 <module>memory</module>
