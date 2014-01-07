@@ -114,9 +114,9 @@ calendar Portlet
 		#parse("/vm/calendar/chef_calendar-merge.vm")
 #elseif ($message=='setFrequency')
         #parse("/vm/calendar/chef_calendar_setFrequency.vm")
-#elseif ($message=='opaqueUrl1')
-        #parse("/vm/calendar/chef_calendar-opaqueUrl1.vm")
-#elseif ($message=='opaqueUrl2')
-        #parse("/vm/calendar/chef_calendar-opaqueUrl2.vm")
+#elseif ($message=='opaqueUrlClean')
+        #parse("/vm/calendar/chef_calendar-opaqueUrlClean.vm")
+#elseif ($message=='opaqueUrlExisting')
+        #parse("/vm/calendar/chef_calendar-opaqueUrlExisting.vm")
 #end
 

@@ -94,7 +94,6 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -2427,13 +2426,13 @@ extends VelocityPortletStateAction
 		{
 			buildIcalExportPanelContext(portlet, context, runData, state);
 		}
-		else if (stateName.equals("opaqueUrl1"))
+		else if (stateName.equals("opaqueUrlClean"))
 		{
-			buildOpaqueUrl1Context(portlet, context, runData, state);
+			buildOpaqueUrlCleanContext(portlet, context, runData, state);
 		}
-		else if (stateName.equals("opaqueUrl2"))
+		else if (stateName.equals("opaqueUrlExisting"))
 		{
-			buildOpaqueUrl2Context(portlet, context, runData, state);
+			buildOpaqueUrlExistingContext(portlet, context, runData, state);
 		}
 		else if (stateName.equals("delete"))
 		{
@@ -4042,7 +4041,7 @@ extends VelocityPortletStateAction
 	/**
 	 * Setup for Opaque URL Export ("No URL").
 	 */
-	protected void buildOpaqueUrl1Context(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	protected void buildOpaqueUrlCleanContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
 	{
 		context.put("isMyWorkspace", isOnWorkspaceTab());
 		context.put("form-generate", BUTTON + "doOpaqueUrlGenerate");
@@ -4052,7 +4051,7 @@ extends VelocityPortletStateAction
 	/**
 	 * Setup for Opaque URL Export ("URL exists").
 	 */
-	protected void buildOpaqueUrl2Context(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
+	protected void buildOpaqueUrlExistingContext(VelocityPortlet portlet, Context context, RunData rundata, CalendarActionState state)
 	{
 		String calId = state.getPrimaryCalendarReference();
 		Reference calendarRef = EntityManager.newReference(calId);
@@ -6994,7 +6993,7 @@ extends VelocityPortletStateAction
 		state.setReturnState(state.getState());
 		OpaqueUrl opaqUrl = 
 			OpaqueUrlDao.getOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
-		String newState = (opaqUrl == null) ? "opaqueUrl1" : "opaqueUrl2";
+		String newState = (opaqUrl == null) ? "opaqueUrlClean" : "opaqueUrlExisting";
 		state.setState(newState);
 	}
 	
@@ -7002,7 +7001,7 @@ extends VelocityPortletStateAction
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		OpaqueUrlDao.newOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
-		state.setState("opaqueUrl2");
+		state.setState("opaqueUrlExisting");
 	}
 	
 	public void doOpaqueUrlRegenerate(RunData data, Context context)
@@ -7018,7 +7017,7 @@ extends VelocityPortletStateAction
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		OpaqueUrlDao.deleteOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
-		state.setState("opaqueUrl1");
+		state.setState("opaqueUrlClean");
 	}
 	
 	/**
