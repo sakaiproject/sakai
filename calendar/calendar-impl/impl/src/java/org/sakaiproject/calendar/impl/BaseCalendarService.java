@@ -130,7 +130,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -154,8 +154,8 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.Authentication;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Authentication;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.CalendarChannelReferenceMaker;
 import org.sakaiproject.util.CalendarReferenceToChannelConverter;
@@ -602,6 +602,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
 
+	/** Dependency: UsageSessionService */
+	protected UsageSessionService m_usageSessionService = null;
+
 	/** A map of services used in SAX serialization */
 	private Map<String, Object> m_services;
 
@@ -720,6 +723,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		this.m_userDirectoryService = userDirectoryService;
 	}
+
+	/**
+	 * Dependency: UsageSessionService
+	 * @param usageSessionService
+	 *        The UsageSessionService.
+	 */
+	public void setUsageSessionService(UsageSessionService usageSessionService) { this.m_usageSessionService = usageSessionService; }
 
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -7790,14 +7800,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		try 
 		{
 			// We want to avoid an inadvertent logout coming from the same UA:
-			UsageSession usage = UsageSessionService.getSession();
+			UsageSession usage = m_usageSessionService.getSession();
 			if ((usage != null) && userId.equals(usage.getUserId()) && !usage.isClosed())
 			{
 					isAlreadyLoggedIn = true;
 			}
 			String eid = m_userDirectoryService.getUserEid(userId);
-			Authentication authn = new org.sakaiproject.util.Authentication(userId, eid);
-			if (UsageSessionService.login(authn, request))
+			Authentication authn = new Authentication(userId, eid);
+			if (m_usageSessionService.login(authn, request))
 			{
 				// Make sure the current user can access this calendar first.
 				if (allowGetCalendar(calRef)) 
@@ -7828,7 +7838,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		{
 			if (!isAlreadyLoggedIn)
 			{
-				UsageSessionService.logout();
+				m_usageSessionService.logout();
 			}
 		}
 	}
