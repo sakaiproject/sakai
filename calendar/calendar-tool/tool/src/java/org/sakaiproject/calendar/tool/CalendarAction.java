@@ -52,18 +52,10 @@ import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.CalendarEdit;
-import org.sakaiproject.calendar.api.CalendarEvent;
-import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarEventVector;
-import org.sakaiproject.calendar.api.ExternalSubscription;
-import org.sakaiproject.calendar.api.OpaqueUrl;
-import org.sakaiproject.calendar.api.RecurrenceRule;
+import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
-import org.sakaiproject.calendar.cover.OpaqueUrlDao;
 import org.sakaiproject.calendar.tool.CalendarActionState.LocalEvent;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -100,7 +92,7 @@ import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -206,6 +198,12 @@ extends VelocityPortletStateAction
 	private ContentHostingService contentHostingService;
    
 	private EntityBroker entityBroker;
+
+	// Dependency: setup in init
+	private SessionManager sessionManager;
+
+	// Dependency: setup in init
+	private OpaqueUrlDao opaqueUrlDao;
    
 	// tbd fix shared definition from org.sakaiproject.assignment.api.AssignmentEntityProvider
 	private final static String ASSN_ENTITY_ID     = "assignment";
@@ -2295,7 +2293,7 @@ extends VelocityPortletStateAction
 								isOnWorkspaceTab(),
 								false,
 								entryProvider,
-								StringUtils.trimToEmpty(SessionManager.getCurrentSessionUserId()),
+								StringUtils.trimToEmpty(sessionManager.getCurrentSessionUserId()),
 								channelArray, 
 								SecurityService.isSuperUser(),
 								ToolManager.getCurrentPlacement().getContext());
@@ -6992,7 +6990,7 @@ extends VelocityPortletStateAction
 		state.setPrevState(state.getState());
 		state.setReturnState(state.getState());
 		OpaqueUrl opaqUrl = 
-			OpaqueUrlDao.getOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
+			opaqueUrlDao.getOpaqueUrl(sessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
 		String newState = (opaqUrl == null) ? "opaqueUrlClean" : "opaqueUrlExisting";
 		state.setState(newState);
 	}
@@ -7000,23 +6998,23 @@ extends VelocityPortletStateAction
 	public void doOpaqueUrlGenerate(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		OpaqueUrlDao.newOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
+		opaqueUrlDao.newOpaqueUrl(sessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
 		state.setState("opaqueUrlExisting");
 	}
 	
 	public void doOpaqueUrlRegenerate(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		String userUUID = SessionManager.getCurrentSessionUserId();
+		String userUUID = sessionManager.getCurrentSessionUserId();
 		String calendarRef = state.getPrimaryCalendarReference();
-		OpaqueUrlDao.deleteOpaqueUrl(userUUID, calendarRef);
-		OpaqueUrlDao.newOpaqueUrl(userUUID, calendarRef);
+		opaqueUrlDao.deleteOpaqueUrl(userUUID, calendarRef);
+		opaqueUrlDao.newOpaqueUrl(userUUID, calendarRef);
 	}
 	
 	public void doOpaqueUrlDelete(RunData data, Context context)
 	{
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
-		OpaqueUrlDao.deleteOpaqueUrl(SessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
+		opaqueUrlDao.deleteOpaqueUrl(sessionManager.getCurrentSessionUserId(), state.getPrimaryCalendarReference());
 		state.setState("opaqueUrlClean");
 	}
 	
@@ -7549,7 +7547,7 @@ extends VelocityPortletStateAction
 			state.getPrimaryCalendarReference(),
 			isOnWorkspaceTab());
 			
-			SessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
+			sessionManager.getCurrentSession().setAttribute(CalendarService.SESSION_CALENDAR_LIST,calRefList);
 			
 			Reference calendarRef = EntityManager.newReference(state.getPrimaryCalendarReference());
 			
@@ -8003,6 +8001,14 @@ extends VelocityPortletStateAction
 		if (entityBroker == null)
 		{
 			entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
+		}
+		if (sessionManager == null)
+		{
+			sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+		}
+		if (opaqueUrlDao == null)
+		{
+			opaqueUrlDao = (OpaqueUrlDao) ComponentManager.get(OpaqueUrlDao.class);
 		}
 
 
