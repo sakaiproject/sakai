@@ -27,6 +27,9 @@ import org.sakaiproject.component.cover.ComponentManager;
 public class MenuBean implements Serializable {
 	private static final long	serialVersionUID	= 8092527674632095783L;
 
+	private transient ServerConfigurationService serverConfigurationService =
+			(ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+
 	public String processCalendar(){
 		return "calendar";
 	}
@@ -34,14 +37,12 @@ public class MenuBean implements Serializable {
 	public String processPreferences(){
 		return "prefs";
 	}
-	
-	private transient ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+
 	public String processSubscribe(){
 		return "subscribe";
-}
-	
+	}
+
 	public boolean isSubscribeEnabled() {
 		return serverConfigurationService.getBoolean("ical.opaqueurl.subscribe",false);
 	}
-	
 }
