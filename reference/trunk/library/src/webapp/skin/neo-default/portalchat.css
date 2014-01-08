@@ -1,0 +1,281 @@
+#pc {
+    width: 200px;
+    font-family: 'Helvetica Neue', Arial;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    position: fixed;
+    bottom: 28px;
+    /* Needs to be to the right of the expanded presence block. See presenceArea. */
+    right: 18px;
+    z-index: 2001;
+    margin: 0px;
+    padding: 0px;
+    display: none;
+}
+#pc h5 {
+    margin-bottom: 5px !important;
+}
+#pc_chat_window_container {
+    position: fixed;
+    /* The chats container is placed just to the left of the connections menu */
+    right: 225px;
+    bottom: 0px;
+    height: 300px;
+    width: auto;
+}
+#pc_chat_close {
+    padding: 0 !important
+}
+.pc_chat_window {
+    height: 300px;
+    width: 256px;
+    float: right;
+    border: #ccc solid 1px;
+    border-bottom: 0;
+    bottom: 0;
+    margin-right: 5px;
+}
+#pc_title {
+    font-weight: bold;
+    border-bottom: 1px solid #ccc;
+    padding: 5px;
+    background: #eee;
+    height: 15px;
+    vertical-align: middle;
+}
+#pc_people {
+    display: none
+}
+.pc_users_wrapper {
+    padding: 5px;
+    clear: both;
+    border-top: solid 1px #ccc;
+}
+#pc_connections_wrapper {
+    padding: 5px;
+    clear: both;
+    font-size: 95%;
+    height: 100%;
+    overflow: hidden;
+}
+#pc_connections_label, #pc_site_users_label {
+    padding: 2px 0;
+    margin: 0;
+    font-weight: bold;
+    font-size: 1em;
+    text-transform: capitalize;
+    color: #444;
+}
+#pc_site_users {
+    font-size: 90%;
+    height: 100%;
+    list-style: none;
+    overflow: hidden;
+    padding: 0;
+    margin: 0;
+}
+#pc_users {
+    overflow: auto;
+    list-style: none;
+    clear: both;
+    border-top: solid 1px #ccc;
+}
+#pc_users h5 {
+    margin: 0;
+    padding: 0;
+}
+#pc_connections {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.pc_connection, .pc_site_user {
+    clear: both;
+    height: 100%;
+    overflow: hidden;
+    margin: 4px 0 0 0;
+    position: relative;
+}
+.pc_connection_image, .pc_user_image {
+    display: none !important;
+}
+.pc_connection_display_name, .pc_site_display_name {
+    padding: 0;
+    display: block;
+    float: left;
+    width: 89% !important;
+}
+.pc_site_display_name {
+    width: 140px;
+    font-size: 10pt !important;
+    float: right;
+}
+.pc_display_status_bullet {
+    float: left;
+    display: inline-block;
+    right: -3px;
+    position: absolute;
+}
+.pc_connection_image, .pc_user_image {
+    vertical-align: middle;
+    display: block;
+    float: left;
+}
+#pc_options {
+    overflow: hidden;
+    font-size: 90%;
+    padding: 5px;
+}
+.pc_minimised {
+    margin-top: 260px
+}
+.pc_maximised {
+    margin-top: 0px;
+    font-family: 'Helvetica Neue', Arial;
+}
+.pc_connection_chat_title {
+    padding: 3px;
+}
+.pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    color: black;
+    background: #eee;
+    overflow: hidden;
+    position: relative;
+    height: 33px;
+    border-bottom: 1px solid #ccc;
+}
+.pc_connection_chat_title_avt img.pc_connection_chat_title_avt {
+    vertical-align: text-top;
+    position: relative;
+    right: 0px;
+    top: 0px;
+    height: 31px;
+    float: left;
+    margin: 0 4px 0 0;
+    border: 1px solid #ccc;
+}
+.pc_connection_chat_title_no_avt div.pc_connection_chat_title {
+    
+}
+.pc_connection_chat_title_avt a:link, .pc_connection_chat_title_no_avt a:link, .pc_connection_chat_title_avt a:visited, .pc_connection_chat_title_no_avt a:visited {
+    color: #000;
+    text-decoration: none;
+}
+.pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img {
+    position: absolute;
+    border: none;
+    right: 5px;
+    top: 5px;
+}
+.pc_connection_chat_title_avt div {
+    float: left;
+    margin: 3px;
+}
+.pc_connection_chat_title_no_avt {
+    height: auto
+}
+.pc_message_panel {
+    padding: 0px;
+    background: white;
+    height: 225px;
+    overflow: auto;
+    margin: 0;
+}
+.pc_message_panel li {
+    margin: 2px 0;
+    vertical-align: text-top;
+    position: relative;
+    border-bottom: 1px solid #eee;
+    padding: 2px 35px 5px 35px;
+    /*TODO: min-height also will depend on server-scaled avatar;;
+    * height: ;*/
+    min-height: 30px;
+}
+.pc_message_panel li img {
+    vertical-align: text-top;
+    /*TODO: remove width here when using server-scaled avatar, add;;
+    * height and width to chat.js to: ;
+    * avoid jiggle: ;
+    * */
+    max-width: 10%;
+    max-height: 80%;
+    border: 1px solid #ccc;
+    margin-right: 5px;
+    margin-left: 2px;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    float: left;
+}
+.pc_editor_wrapper {
+    padding: 5px 5px 0px 7px;
+    background: #f3f3f3;
+    border-top: 1px solid #ccc;
+    height: 200px;
+}
+.pc_editor {
+    width: 236px;
+    margin-top: 2px;
+    padding: 1px;
+}
+.pc_displayname {
+    display: block;
+    font-weight: bold;
+    font-size: 0.9em;
+    padding: 0 5% 5% 5%;
+    text-align: center;
+}
+.pc_displayname + .pc_message {
+    margin-left: -20px;
+    margin-top: 3px;
+}
+.pc_message {
+    /*TODO: width of message will also depend on server-scaled avatar;;
+    * width: ;*/
+    width: 170px;
+    overflow: hidden;
+}
+/* if avatars are not being displayed, adjust message
+ * positioning
+   */
+.pc_messagedate {
+    font-size: 90%;
+    color: #555;
+    position: absolute;
+    right: 3px;
+    top: 3px;
+}
+.pc_user_link {
+    margin-left: 5px;
+    text-decoration: none !important;
+}
+.pc_new_message {
+    background-color: #fcc6c6;
+    background: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
+    background: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+    background: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+}
+#pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
+    margin-right: 3px;
+    margin-left: -1px;
+}
+.pc_pinged_popup {
+    display: none;
+    color: #fff;
+    padding: 2px;
+    position: absolute;
+    right: 30px;
+    top: 1px;
+    background: green;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -khtml-border-radius: 3px;
+    border-radius: 3px;
+}

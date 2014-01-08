@@ -1,0 +1,13 @@
+test_upload\AssignmentText.doc
+test_upload\Attachmentdoc.doc
+test_upload\Attachmentxls.xls
+test_upload\Copy me into an email for email archive.doc
+test_upload\README.txt
+test_upload\Syllabus.bin
+test_upload\TestDoc.doc
+test_upload\TestGif.gif
+test_upload\TestHtml.htm
+test_upload\TestJpg.jpg
+test_upload\TestPdf.pdf
+test_upload\TestTar.gz
+test_upload\TestXls.xls

@@ -1,0 +1,49 @@
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><title>Creating Users and Sites</title><meta name="generator" content="DocBook XSL Stylesheets V1.68.1"><link rel="start" href="index.html" title="Getting Started with Web Services in Sakai 2.1"><link rel="up" href="ch01.html" title="Chapter 1. 20 Minute Quick Start"><link rel="prev" href="ch01s02.html" title="Where are the web services?"><link rel="next" href="ch02.html" title="Chapter 2. Getting Started"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Creating Users and Sites</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch01s02.html">Prev</a> </td><th width="60%" align="center">Chapter 1. 20 Minute Quick Start</th><td width="20%" align="right"> <a accesskey="n" href="ch02.html">Next</a></td></tr></table><hr></div><div class="section" lang="en"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="id4704286"></a>Creating Users and Sites</h2></div></div></div><p>
+	To demonstrate writing a client, we will write a python script
+	that adds a few users to Sakai, and then creates a site for them. First, the entire
+	contents of the example script.
+	</p><p>
+		</p><pre class="programlisting">
+	
+import os
+import sys
+from SOAPpy import WSDL
+
+login_url = "http://localhost:8080/sakai-axis/SakaiLogin.jws?wsdl"
+script_url = "http://localhost:8080/sakai-axis/SakaiScript.jws?wsdl"
+
+login_proxy = WSDL.SOAPProxy(login_url)
+script_proxy = WSDL.SOAPProxy(script_url)
+
+loginsoap = WSDL.SOAPProxy(login_url)
+scriptsoap = WSDL.SOAPProxy(script_url)
+
+sessionid = loginsoap.login("admin", "admin")
+
+print scriptsoap.addNewUser(sessionid, "teacher", "Bob", "Smith", "bob@pedagogy.edu", "", "password" )
+print scriptsoap.addNewUser(sessionid, "student1", "Laura", "Hope", "laura@pedagogy.edu", "", "password"
+print scriptsoap.addNewUser(sessionid, "student2", "Sam", "Goodman", "bob@pedagogy.edu", "", "password" )
+print scriptsoap.addNewSite(sessionid, "psych101", "Psych 101 ", "Psychology", \
+                            "Psych", "", "", True, "access", True, True, "", "" )
+
+print scriptsoap.addNewPageToSite(sessionid, "psych101", "Announcements", 0)
+print scriptsoap.addNewToolToPage(sessionid, "psych101", "Announcements", "Announcements", "sakai.announc
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "teacher", "maintain")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student1", "access")
+print scriptsoap.addMemberToSiteWithRole(sessionid, "psych101", "student2", "access")
+</pre><p>
+</p><p>
+Running this script on the command line will show results something like:
+</p><pre class="programlisting">
+sgithens@thumbtack$ python QuickExample.py
+success
+success
+success
+success
+success
+success
+success
+success
+sgithens@thumbtack$
+</pre><p>
+</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch01s02.html">Prev</a> </td><td width="20%" align="center"><a accesskey="u" href="ch01.html">Up</a></td><td width="40%" align="right"> <a accesskey="n" href="ch02.html">Next</a></td></tr><tr><td width="40%" align="left" valign="top">Where are the web services? </td><td width="20%" align="center"><a accesskey="h" href="index.html">Home</a></td><td width="40%" align="right" valign="top"> Chapter 2. Getting Started</td></tr></table></div></body></html>

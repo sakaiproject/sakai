@@ -1,0 +1,26 @@
+
+JSR-170 API's 
+from http://www.day.com/maven/jsr170/jars/LICENSE.txt
+
+================================================================
+In addition to the permissions granted under the Specification
+License, Day Management AG hereby grants to You a perpetual,
+worldwide, non-exclusive, no-charge, royalty-free, irrevocable
+license to reproduce, publicly display, publicly perform,
+sublicense, and distribute unmodified copies of the Content
+Repository for Java Technology API (JCR 1.0) Java Archive (JAR)
+file ("jcr-1.0.jar") and to make, have made, use, offer to sell,
+sell, import, and otherwise transfer said file on its own or
+as part of a larger work that makes use of the JCR API.
+
+With respect to any patent claims covered by this license
+that would be infringed by all technically feasible implementations
+of the Specification, such license is conditioned upon your
+offering on fair, reasonable and non-discriminatory terms,
+to any party seeking it from You, a perpetual, non-exclusive,
+non-transferable, worldwide license under Your patent rights
+that are or would be infringed by all technically feasible
+implementations of the Specification to develop, distribute
+and use a Compliant Implementation.
+============================================================================
+

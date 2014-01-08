@@ -1,0 +1,44 @@
+
+License Agreement
+You should carefully read the following terms and conditions before using this software package. Your use of this software 
+package indicates your acceptance of this license agreement. This is a legal agreement (this "Agreement") between you 
+(either an individual or an entity) and the proprietor of this software. This Agreement is part of the software package.
+
+1. GRANT OF LICENSE. The proprietor hereby grants you a personal, non-exclusive, non-transferable license to use one copy 
+of this Software. This grant of license gives the right to use the software on your computer. You may not decompile, 
+disassemble, or reverse engineer this software, and you may not create derivative works of the this software. You may 
+modify, translate or adapt the generated HTML code. You are not granted any right, title, or interest in the the software 
+except the right to use it in accordance with this Agreement. 
+
+2. REDISTRIBUTION Redistribution of the software ZIP file is allowed by shareware and freeware sites or CDROM media and 
+similar without the permission of the proprietor. Redistribution for commercial purposes or reselling is not allowed. 
+
+3. WARRANTY. This software and the accompanying files are provided "AS IS," without a warranty of any kind. 
+
+4. COPYRIGHT. Copyright is owned by Polygon Enterprises and is protected by United Kingdom copyright law and international
+ treaty provisions. 
+
+5. TERMINATION The license will terminate immediately without notice from the proprietor if you fail to comply with any 
+provision of this license. Upon termination, you must destroy all copies of the software and its components on any and 
+all forms of media. 
+
+6. LIMITATION OF LIABILITY IN NO EVENT WILL THE PROPRIETOR OR ITS SUPPLIERS BE LIABLE FOR ANY LOST REVENUE, PROFIT, OR FOR
+ DIRECT, SPECIAL, INDIRECT, CONSEQUENTIAL, INCIDENTAL OR PUNITIVE DAMAGES HOW EVER CAUSED AND REGARDLESS OF THEORY OF 
+LIABILITY, ARISING OUT OF THE USE OF OR INABILITY TO USE THE SOFTWARE, EVEN IF THE PROPRIETOR HAS BEEN ADVISED OF THE 
+POSSIBILITY OF SUCH DAMAGES. 
+
+7. GOVERNING LAW This agreement is made under, shall be governed by and construed in accordance with, the laws of the 
+United Kingdom.
+Credits
+•	Sun MicroSystems, thanks for making Java.
+•	Peter Van der Linden (Maintainer of the Java FAQ) and author of "Just Java 1.2" as well as many other good books, 
+thanks for the encouragement.
+•	The lads at MetaMata, especially Siram Sankar for his help on JavaCC and the Java Grammar.
+•	Guys on the JavaCC newsgroup, including :- David Williams for his Java 1.2 extensions.
+•	Thanks to the people at JARS for giving this tool (version 1.0.3) a, "rated JARS Top 25%", although it actually 
+got 895 out of a 1000, losing marks on presentation :-( 
+•	Jason Shattu (myself), This Web Site maintainer. 
+Queries and General Comments
+Please send any queries or general comments to jason.shattu@java2html.com 
+________________________________________
+

@@ -1,0 +1,307 @@
+#pc {
+    width: 210px;
+    font-family:Helvetica, 'Helvetica Neue', Arial;
+    background-color: white;
+    border: 1px solid #aaa;
+    position: fixed;
+    bottom: 24px;
+    /* Needs to be to the right of the expanded presence block. See presenceArea. */
+    right: 5px;
+    z-index: 2001;
+    margin: 0px;
+    padding: 0px;
+    display: none;
+}
+
+#pc_chat_window_container {
+    position: fixed;
+    /* The chats container is placed just to the left of the connections menu */
+    right: 216px;
+    bottom: 0px;
+    height: 300px;
+    /* This ridiculous width prevents pc_chat_windows from stacking */
+    width: 10000px;
+    pointer-events: none;
+}
+
+.pc_chat_window {
+    height: 300px;
+    width: 256px;
+    float: right;
+    border: #aaa solid 1px;
+    border-bottom: 0;
+    bottom:0;
+    pointer-events: auto;
+}
+
+#pc_title {
+/*
+	font-size: .8em;
+    border-bottom:1px solid #ccc;
+	padding:5px;
+    background:#eee;
+    height:15px;
+    vertical-align:middle;
+    border-bottom:1px solid #ddd
+*/
+}
+
+#pc_title div{
+/*
+    position:absolute;
+    top:1px;
+    text-align:center;
+    right:0px;
+    bottom:0;
+    width:15px;    
+    height:16px;
+    font-size:120%;
+    border-left:1px solid #ccc;
+    padding:4px;
+
+*/}    
+#pc_title div a{
+/*
+    color:#888;
+    font-weight:bold;
+    padding:3px;
+    text-decoration:none;
+*/
+}    
+
+#pc_people {
+    display: none;
+}
+
+.pc_users_wrapper {
+    padding: 5px;
+    clear: both;
+    border-top: solid 1px #aaa;
+}
+
+#pc_connections_wrapper {
+    padding: 5px;
+    clear: both;
+    font-size:95%;
+    height:100%;
+    overflow:hidden;
+}
+
+#pc_connections_label, #pc_site_users_label{
+    padding:2px 0;
+    font-weight:bold;
+    color:#555
+}
+#pc_site_users {
+    font-size:90%;
+    height:100%;
+    list-style:none;
+    overflow:hidden;
+    padding:0;
+    margin:0;
+}
+
+#pc_users {
+    overflow: auto;
+    list-style:none;
+    clear: both;
+    border-top: solid 1px #aaa;
+}
+#pc_users h2{
+    margin:2px 0;
+    padding:0;
+}
+#pc_connections {
+    list-style:none;
+    padding:0;
+    margin:0;
+}
+.pc_connection,.pc_site_user{
+    clear: both;
+    height:100%;
+    overflow:hidden;
+    margin:3px 0;
+    position:relative;
+}
+.pc_connection_image, .pc_user_image{
+/*
+    remove width after the image is 
+    scaled server-side - width of connection or site user
+    below might need to be tweaked 
+
+*/    width:15%;
+}
+.pc_connection_display_name, .pc_site_display_name{
+    padding:3px;
+    font-size:90%;
+    display:block;
+    float:left;
+    width:120px
+}
+.pc_site_display_name{
+    width:140px;
+}
+.pc_connection_image, .pc_user_image, .pc_display_status_bullet{
+    vertical-align:middle;
+    display:block;
+    float:left;
+}
+#pc_options {
+    overflow: none;
+    font-size:90%;
+    padding:5px;
+}
+#pc_show_off_ctrl{
+    
+}
+pc_go_off_ctrl{
+    
+}
+
+.pc_minimised {
+    margin-top: 262px;
+}
+
+.pc_maximised {
+    margin-top: 0px;
+    font-family:Helvetica, 'Helvetica Neue', Arial;
+}
+
+
+.pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
+    font:14px bold Helvetica, 'Helvetica Neue', Arial;
+    cursor:pointer;
+    color: black;
+    background:#eee;
+    overflow: hidden;
+    padding: 2px;
+    position:relative;
+    height:33px;
+    border-bottom:1px solid #ccc;
+}
+.pc_connection_chat_title_no_avt{
+    height:auto
+}
+.pc_connection_chat_title_avt a:link, .pc_connection_chat_title_no_avt a:link,
+.pc_connection_chat_title_avt a:visited, .pc_connection_chat_title_no_avt a:visited{
+    color:#000;
+    text-decoration:none;
+}
+.pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img{
+    position:absolute;
+    border:none;
+    right:5px;
+    top:5px;
+    
+}
+.pc_connection_chat_title_avt img.pc_connection_chat_title_avt{
+    vertical-align:text-top;
+    position:relative;   
+    right:0px;
+    top:0px;
+    height:30px;
+    float:left;
+}
+.pc_connection_chat_title_avt div{
+   float:left;
+   margin:3px;
+}
+.pc_connection_chat_title_no_avt div.pc_connection_chat_title{
+    padding:3px 20px 3px 3px;
+}
+.pc_message_panel {
+    padding: 2px;
+    background: white;
+    height: 225px;
+    overflow: auto;
+    margin:0;
+}
+
+.pc_message_panel li{
+    margin:2px 0;
+    vertical-align:text-top;
+    position:relative;
+    border-bottom:1px solid #eee;
+    padding:2px 35px 5px 35px;
+    /*TODO: min-height also will depend on server-scaled avatar
+     * height
+     */
+    min-height:30px;
+}
+.pc_message_panel li img{
+   vertical-align:text-top;
+   /*TODO: remove width here when using server-scaled avatar, add
+    * height and width to chat.js to 
+    * avoid jiggle
+    * */
+   width:10%;
+   margin-right:5px;
+   position:absolute;
+   top:2px;
+   left:2px; 
+}
+.pc_editor_wrapper {
+    padding: 4px;
+    background:#eee;
+    height:200px;
+}
+
+.pc_editor {
+    width: 240px;
+    outline:1px solid transparent;
+}
+
+.pc_displayname {
+    display:block;
+    font-weight: bold;
+    font-size: 0.8em;
+    margin-left: -30px;
+}
+
+.pc_message{
+    /*TODO: width of message will also depend on server-scaled avatar
+     * width
+     */
+    width:170px;
+    overflow:hidden;
+    font-size:87%;
+}
+
+/* if avatars are not being displayed, adjust message
+ * positioning
+ */
+.pc_displayname + .pc_message{
+    margin-left: -20px;
+    margin-top:3px;
+} 
+
+.pc_messagedate {
+    font-size:70%;
+    color:#777;
+    position:absolute;
+    right:3px;
+    top:5px;
+}
+
+.pc_user_link {
+    margin-left: 5px;
+    text-decoration: none !important;
+}
+
+.pc_new_message {
+    outline:1px solid red;
+    background-color: red;
+}
+
+.pc_pinged_popup {
+    display: none;
+    color: #fff;
+    padding:2px;
+    position:absolute;
+    right:30px;top:1px;
+    background:green;
+   -moz-border-radius: 3px;
+   -webkit-border-radius: 3px;
+   -khtml-border-radius: 3px;
+   border-radius: 3px;
+}

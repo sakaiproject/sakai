@@ -1,0 +1,785 @@
+/*pda portal*/
+html {
+    font-family: Helvetica, Arial, sans-serif;
+}
+.portalBodyPDA {
+    margin: 0;
+    padding: 0;
+    width: auto;
+}
+/*several overrides for tool elements displayed in the pda portal*/
+/*the menu for sites*/
+.portletpda .portletBody {
+    font-size: 13px !important;
+}
+/* Pad all direct descendants of .portletBody that are not a form (jsf tools) */
+.portletpda .portletBody > *:not(form) {
+    padding: 0 10px;
+}
+.portletpda .portletBody input[ type ="button"], .portletpda .portletBody input[ type = "submit"], .portletpda .portletBody input[ type = "reset"], .portletpda .portletBody input[ type = "text"], .portletpda .portletBody input[ type = "radio"], .portletpda .portletBody input[ type = "checkbox"], .portletpda .portletBody select {
+    margin: .3em 0;
+    font-size: .8em !important;
+}
+.portletpda .portletBody input[type ="text"] {
+    margin: .3em 0;
+    font-size: 1.1em !important;
+}
+.portletpda .portletBody .shorttext, .portletpda .portletBody .longtext, .portletpda .portletBody .checkbox {
+    padding: .3em 0;
+}
+.portletpda .portletBody .shorttext label, .portletpda .portletBody .longtext label, .portletpda .portletBody .checkbox label {
+    font-size: 1.1em;
+}
+.portalBodyPDA .portletBody .navIntraTool {
+    padding: .5em 0;
+}
+.portalBodyPDA .portletBody .navIntraTool a {
+    text-decoration: none !important;
+}
+#pda-portlet-menu {
+    font-size: 16px;
+    font-family: Helvetica, Arial, sans-serif;
+    width: 100%;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    list-style: none;
+    color: #fff;
+    margin: 0;
+    clear:  both;
+    overflow:  hidden;
+    line-height: 23px;
+    padding: 0;
+}
+#pda-portlet-menu li {
+    margin-left: 0;
+    padding: 0 10px;
+    list-style: none;
+    float: left;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+}
+#pda-portlet-menu li.instanceNote {
+    padding-top: 7px;
+}
+#pda-portlet-menu li.backLink {
+    background: url(images/pda-back-l.png) 0 0 no-repeat;
+    padding: 0px 0 0 10px !important;
+    margin: 3px;
+    display: block;
+    height: 32px;
+}
+#pda-portlet-menu li.backLink span {
+    background: url(images/pda-back-m.png) 0 0 repeat;
+    display: block;
+    height: 32px;
+    padding: 0 !important;
+    overflow: hidden;
+}
+#pda-portlet-menu a {
+    text-decoration: none !important
+}
+#pda-portlet-menu li.backLink span a {
+    padding: 5px 10px 5px 5px !important;
+    display: block;
+    background: url(images/pda-back-r.png) top right no-repeat;
+}
+#pda-portlet-menu li.loginLink,#pda-portlet-menu li.logoutLink, #switch-link-w,.helpLink {
+    background: rgb(0,157,206);
+    background: -moz-linear-gradient(top, rgba(0,157,206,1) 0%, rgba(0,127,166,1) 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(0,157,206,1)), color-stop(100%,rgba(0,127,166,1)));
+    background: -webkit-linear-gradient(top, rgba(0,157,206,1) 0%,rgba(0,127,166,1) 100%);
+    background: -o-linear-gradient(top, rgba(0,157,206,1) 0%,rgba(0,127,166,1) 100%);
+    background: -ms-linear-gradient(top, rgba(0,157,206,1) 0%,rgba(0,127,166,1) 100%);
+    background: linear-gradient(top, rgba(0,157,206,1) 0%,rgba(0,127,166,1) 100%);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    border: 1px solid #45505D;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: bold;
+    height: 30px;
+    line-height: 30px;
+    margin: 0;
+    padding: 0 5px;
+    text-align: center;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0 -1px 0;
+    white-space: nowrap;
+    width: auto;
+    margin: 3px 5px;
+    display: block;
+}
+#pda-portlet-menu li.loginLink span,#pda-portlet-menu li.logoutLink span ,  #switch-link-w span,.helpLink span {}
+#pda-portlet-menu li.loginLink span a,#pda-portlet-menu li.logoutLink span a, #switch-link-w span a, .helpLink span a {}
+#switch-link-w {
+    margin: auto;
+    width: 50%;
+}
+#switch-link-w span a {
+    color: #fff;
+    text-decoration: none;
+}
+#pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a {
+    padding-left: 10px;
+}
+#pda-portlet-menu li.resetToolLink, #pda-portlet-menu li.jsreditLink {
+    margin-top: 10px;
+}
+#pda-portlet-menu a img {
+    border: none
+}
+/*put non site links to the right*/
+#pda-portlet-menu li.loginLink, #pda-portlet-menu li.logoutLink, #pda-portlet-menu li.helpLink,#pda-portlet-menu li.usersPresentLink {
+    float: right;
+}
+#pda-portlet-menu li.helpLink {
+    margin-left: 5px;
+}
+#pda-portlet-menu li span a {
+    color: #fff;
+    text-decoration: none !important;
+}
+#pda-portlet-menu li span a:hover {
+    text-decoration: none !important;
+}
+#pda-portlet-menu li span a:focus {
+    outline: 1px dotted #fff !important;
+}
+/*all types of links in the breadcrumb are addressed in the markup and can be styled here*/
+.currentSiteParentLink {}
+.currentSiteChildLink {}
+.currentSiteTitle, .currentToolTitle {display:block;margin-top:8px;}
+.helpLink {}
+.logoutLink {}
+.loginLink {}
+/*the list menu (gateway sites, site lists, tool lists, may want to differentiate between them, if so can*/
+#pda-portlet-page-menu, #pda-portlet-site-menu {
+    font-size: 18px !important;
+    font-weight: bold;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    line-height: 2em;
+    font-family: Helvetica, Arial, sans-serif;
+    border-collapse: collapse;
+}
+#pda-portlet-page-menu li, #pda-portlet-site-menu li {
+    margin: 0;
+    padding:.4em;
+    border-bottom: 1px solid #ccc;
+}
+#pda-portlet-page-menu li.subSites, #pda-portlet-site-menu li.subSites {
+    padding: 0
+}
+#pda-portlet-page-menu li.subSites ul, #pda-portlet-site-menu li.subSites ul {
+    list-style: none;
+    margin: 0;
+    padding: 0 !important;
+}
+#pda-portlet-page-menu li.subSiteItem, #pda-portlet-site-menu li.subSiteItem {
+    padding-left: 0;
+}
+.subSiteItem .textPanelFooter {
+    font-size: .8em;
+    font-style: normal;
+    color: #aaa;
+}
+#pda-portlet-page-menu li:hover {
+    background: #eee url(images/pda-list-arrow.png) center right no-repeat;
+}
+#pda-portlet-page-menu > li.subSites {
+    background: none;
+}
+#pda-portlet-page-menu li {
+   background: url(images/pda-list-arrow.png) center right no-repeat;
+}
+#pda-portlet-site-menu li {
+    background: url(images/pda-site-item.png) center right no-repeat;
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    color: #333;
+    text-decoration: none;
+    padding: 0;
+    display: block;
+    margin: 0;
+    width: auto;
+}
+#pda-portlet-page-menu a {
+    padding-left: 25px;
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+#presdiv {
+    position: absolute;
+    top: 25px;right: 5px;
+    height: 75px;
+    width: 150px;
+}
+#presenceIframePDA {
+    border: 1px solid #000;
+    height: 75px;
+    width: 150px;
+    overflow: auto;
+}
+#pda-footer {
+    padding: 3px;
+    text-align: center;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    overflow: hidden;
+}
+.skip {
+    display: inline;
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    height: 0;
+}
+/*
+iPhone, iPod Touch
+Breadcrumb is minimized (logo: link to sites list; site title: link to tool list, tool reload icon link, lti/jsr168 settings icon link).
+Tool title, explicit link to sites, parent site link, help link are hidden. This might disorient the few current users just a little bit, but
+it will make the experience better for any new takers
+*/
+@media screen and (max-device-width: 480px) {
+html {
+    -webkit-text-size-adjust: none;
+}
+#pda-portlet-menu {
+    position: absolute;
+    top: 0;
+    padding: 0;
+    height: 38px;
+    font-size: 14px !important;
+    width: 100%;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    border-bottom: 1px solid #222;
+    line-height: 23px;
+}
+#pda-portlet-site-menu, #pda-portlet-page-menu, .portletpda .portletBody {
+    margin-top: 40px;
+}
+#pda-portlet-menu a:focus,#pda-portlet-menu a:active {
+    text-decoration: none
+}
+.notSmallDev {
+  display: none !important
+}
+#pda-portlet-menu li {
+    padding-top: 10px;
+    padding-left: 10px;
+    position: relative;
+    height: 35px;
+    width: auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    text-shadow: rgba(0, 0, 0, 0.597656) 0px -1px 0px;
+}
+#pda-portlet-menu li.instanceNote a {
+    text-decoration: none;
+    display: block;
+    width: 55px;
+    margin-top: 5px;
+    height: 35px;
+}
+#pda-portlet-menu li.resetToolLink a, #pda-portlet-menu  li.jsreditLink a {
+    padding: 0 2px;
+}
+#pda-portlet-menu li.resetToolLink,#pda-portlet-menu  li.jsreditLink {
+    margin-top: 0;
+}
+#pda-portlet-menu li.helpLink, .currentSiteParentLink, .currentToolTitle {
+    display: none;
+}
+#pda-portlet-menu li span a {
+    color: #fff;
+}
+.logoutLink, .loginLink, .switch-link {
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+.logoutLink:active, .loginLink:active, .switch-link:active,.logoutLink:focus, .loginLink:focus, .switch-link:focus {
+    text-decoration: none !important;
+}
+.sitesLink span a {
+    max-width: 45px !important;
+    text-overflow: ellipsis;
+    overflow: hidden
+}
+.currentSiteTitle {
+    width: 140px !important;
+    margin-top: 0;
+    padding: 0;
+}
+.currentToolTitle span, .currentSiteTitle span {
+    display: block;
+    margin-top: -2px;
+}
+.currentSiteLink span a {
+    width: 70px !important;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+#pda-portlet-site-menu li, #pda-portlet-page-menu li {
+    -webkit-tap-highlight-color: #fff;
+    -webkit-text-size-adjust: none;
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    width: auto !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.portletMainWrap+#pda-footer {
+    margin-top: 50px
+}
+#pda-footer {
+    padding: 2px;
+    height: 100%;
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    overflow: hidden;
+}
+.switch-link, .switch-link:visited {
+    position: relative;
+    top: 0;
+    color: #fff !important;
+    text-decoration: none !important;
+}
+/*below so that tool toolbar (.navIntraTool) will display*/
+.portletpda ul.navIntraTool>li>span.separator, .portletpda .navIntraTool>li>span:empty {
+    display: inline !important;
+}
+/*
+tools that are iframed 
+*/
+.portletMainWrap > iframe{
+    margin-top:39px;
+}
+/*
+tweak the resources and dropbox list to make it usable in this format
+*/
+/*
+hide some columns
+*/
+form#showForm table th#access,form#showForm table th#creator,form#showForm table th#modified,form#showForm table th#size,form#showForm table td[headers='access'],form#showForm table td[headers='creator'],form#showForm table td[headers='modified'],form#showForm table td[headers='size'],form#showForm table td[colspan='4'] {
+    display: none
+}
+/*
+set the width of other columns
+*/
+form#showForm table td[headers='expansion'], form#showForm table td[headers='checkboxes'] {
+    width: 3px;
+}
+/*
+make menus smaller
+*/
+form#showForm table .menuOpen {
+    font-size: 85%;
+    white-space: nowrap;
+}
+.navIntraToolLink input.enabled {
+    border: none !important;
+}
+/*
+set the size of resource names (default for portrait orientation) and add a trim and ellipsis if longer
+*/
+form#showForm table td[headers='title'] h3,form#showForm table td[headers='title'] h4, form#showForm table td[headers='title'] h5, form#showForm table td[headers='title'] h6 {
+    width: 120px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 90%;
+    font-weight: bold;
+    white-space: nowrap;
+}
+/*
+tweak the announcement list to make it usable in this format
+*/
+form[name='announcementListForm'] table td {
+    font-size: 90%
+}
+/*
+hide some metadata columns
+*/
+form[name='announcementListForm'] table th#releaseDate, form[name='announcementListForm'] table th#retractDate,
+form[name='announcementListForm'] table td[headers='releaseDate'],form[name='announcementListForm'] table td[headers='retractDate'] {
+    display: none;
+}
+/*
+set the size of announc titles (default for portrait orientation) and add a trim and ellipsis of longer
+*/
+form[name='announcementListForm'] table td[headers='subject'] h4 {
+    width: 120px !important;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+/*set width and height of textarea in different contexts in portrait mode
+ * Note: need to make sure that these are targetting unique things
+ * */
+#gradeForm textarea, textarea[id^='Assignment'], [name='reviseForm'] textarea#body, #addContentForm textarea, #addFolderForm textarea[id^='description'], #detailsForm textarea[id^='description'], form[name='newAssignmentForm'] textarea {
+    width: 100%;
+    height: 100px;
+}
+form[name='newAssignmentForm'] fieldset {
+    width: 80% !important;
+    min-width: 80%;
+    max-width: 80%;
+}
+form[name='newAssignmentForm'] fieldset textarea {
+    width: 90%;
+    margin-left: -1em
+}
+/*some adjustments to elements in resources and assignments*/
+form[name='newAssignmentForm'] .shorttext label {
+    display: block;
+    float: none
+}
+#gradeForm .navPanel .viewNav {
+    float: none;
+    width: 100% !important
+}
+#gradeForm .navPanel .viewNav span.act input[name="save"], #gradeForm .navPanel .viewNav span.act input[name="return"],#gradeForm .navPanel .viewNav span.act input[name="preview"], #gradeForm .navPanel .viewNav span.act input[name="cancel"] {
+   margin-top: .5em;
+   float: left;
+}
+#gradeForm .navPanel .viewNav span.act input[name="preview"] {
+    clear: left;
+}
+form[name='reviseForm'] input#subject, #addContentForm input[id^='content'], #detailsForm input[id^='displayName'] {
+    width: 100%;
+}
+#addContentForm  .labelindnt, #addFolderForm .labelindnt, #detailsForm .labelindnt, form[name='newAssignmentForm'] .labelindnt {
+    margin-left: 1em !important
+}
+#fileURLHolder {
+    width: 50px;
+}
+}
+/*
+adjust text trimming for site link in toolbar and in Sites menu (as well as Resource titles
+for a landscape orientation of the iPhone/iPod  T
+*/
+@media only screen and (orientation: landscape) and (max-device-width: 480px) {
+#pda-portlet-menu li.currentSiteLink, #pda-portlet-menu li.currentSiteChildLink {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#pda-portlet-site-menu a, #pda-portlet-page-menu a {
+    width: auto !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sitesLink span a {
+    max-width: 45px !important;
+    text-overflow: ellipsis;
+    overflow: hidden
+}
+.currentSiteTitle {
+    width: 300px !important;
+} 
+.currentToolTitle {
+    width: 220px !important;
+}
+.currentSiteLink span a {
+    width: 70px !important;
+    text-overflow: ellipsis;
+    overflow: hidden
+}
+/* resource title length in landscape orientation */
+form#showForm table td[headers='title'] h3,form#showForm table td[headers='title'] h4, form#showForm table td[headers='title'] h5, form#showForm table td[headers='title'] h6 {
+    width: 250px !important;
+    overflow: hidden;
+}
+}
+/*end of @ media selector for landscape orientation*/
+/*
+Overrides for specific tools that use iframes or the ability to invoke them, which will not work in the mobile portal.
+NOTE: some functionality is removed from the tool by this:
+ - rwiki: cannot create or edit comments, or preview a wiki edit
+ - chat: cannot see list of people in room
+*/
+#createCommentLink, #commentsList .itemAction, #rwiki_tabholder #preview {
+    display: none;
+}
+#chatPresenceWrapper {
+    display: none;
+}
+#chatListWrapper {
+    float: none !important;
+    clear: both !important;
+    width: 100% !important
+}
+/* PART 9 - Tool Icons */
+.icon-osp-evaluation {
+    background-image: url(../../image/silk/thumb_up.png);
+}
+.icon-osp-glossary {
+    background-image: url(../../image/silk/text_list_bullets.png);
+}
+
+.icon-osp-matrix {
+    background-image: url(../../image/silk/table.png);
+}
+.icon-osp-presentation {
+    background-image: url(../../image/silk/briefcase.png);
+}
+.icon-osp-presLayout {
+    background-image: url(../../image/silk/layout_content.png);
+}
+.icon-osp-presTemplate {
+    background-image: url(../../image/silk/application_view_tile.png);
+}
+.icon-osp-style {
+    background-image: url(../../image/silk/style.png);
+}
+.icon-osp-wizard {
+    background-image: url(../../image/silk/wand.png);
+}
+.icon-sakai-announcements {
+    background-image: url(../../image/silk/flag_blue.png);
+}
+.icon-sakai-chat {
+    background-image: url(../../image/silk/user_comment.png);
+}
+.icon-sakai-datapoint {
+    background-image: url(../../image/silk/chart_line.png);
+}
+.icon-sakai-discussion {
+    background-image: url(../../image/silk/comments.png);
+}
+.icon-sakai-dropbox {
+    background-image: url(../../image/silk/folder_page.png);
+}
+.icon-sakai-emailtemplateservice {
+    background-image: url(../../image/silk/email_edit.png);
+}
+.icon-sakai-gmt {
+    background-image: url(../../image/silk/award_star_gold_3.png);
+}
+.icon-sakai-help {
+    background-image: url(../../image/silk/help.png);
+}
+.icon-sakai-iframe {
+    background-image: url(../../image/silk/page_world.png);
+}
+.icon-sakai-iframe-site {
+    background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-web-168 {
+    background-image: url(../../image/silk/application_go.png);
+}
+.icon-sakai-mailbox {
+    background-image: url(../../image/silk/email.png);
+}
+.icon-sakai-messages {
+    background-image: url(../../image/silk/comment.png );
+}
+.icon-sakai-metaobj {
+    background-image: url(../../image/silk/application_form.png);
+}
+.icon-sakai-membership {
+    background-image: url(../../image/silk/group.png);
+}
+.icon-sakai-news {
+    background-image: url(../../image/silk/rss.png);
+}
+.icon-sakai-podcasts {
+    background-image: url(../../image/silk/ipod_cast.png );
+}
+.icon-sakai-postem {
+    background-image: url(../../image/silk/database_table.png );
+}
+.icon-sakai-preferences {
+    background-image: url(../../image/silk/cog.png );
+}
+.icon-sakai-rutgers-linktool {
+    background-image: url(../../image/silk/application.png);
+}
+.icon-sakai-sections {
+    background-image: url(../../image/silk/group_gear.png );
+}
+.icon-sakai-singleuser {
+    background-image: url(../../image/silk/user.png );
+}
+.icon-sakai-syllabus {
+    background-image: url(../../image/silk/script.png );
+}
+.icon-blogger, .icon-sakai-clog {
+    background-image: url(../../image/silk/book_edit.png );
+}
+.icon-sakai-assignment-grades {
+    background-image: url(../../image/silk/page_edit.png );
+}
+.icon-sakai-forums {
+    background-image: url(../../image/silk/comments.png );
+}
+.icon-sakai-gradebook-tool {
+    background-image: url(../../image/silk/report.png);
+}
+.icon-sakai-mailtool {
+    background-image: url(../../image/silk/email_go.png );
+}
+.icon-sakai-poll {
+    background-image: url(../../image/silk/chart_bar.png);
+}
+.icon-sakai-sitestats {
+    background-image: url(../../image/silk/chart_bar.png);
+}
+.icon-sakai-sitestats-admin {
+        background-image: url(../../image/silk/chart_line.png);
+}
+.icon-sakai-presentation {
+    background-image: url(../../image/silk/monitor.png);
+}
+.icon-sakai-profile {
+    background-image: url(../../image/silk/vcard_edit.png);
+}
+.icon-sakai-reports {
+    background-image: url(../../image/silk/report_magnify.png);
+}
+.icon-sakai-resetpass {
+    background-image: url(../../image/silk/key.png);
+}
+.icon-sakai-resources {
+    background-image: url(../../image/silk/folder.png);
+}
+.icon-sakai-rwiki {
+    background-image: url(../../image/silk/page_white_edit.png);
+}
+.icon-sakai-samigo {
+    background-image: url(../../image/silk/pencil.png);
+}
+.icon-sakai-schedule {
+    background-image: url(../../image/silk/calendar.png);
+}
+.icon-sakai-search {
+    background-image: url(../../image/silk/find.png);
+}
+.icon-sakai-siteinfo {
+    background-image: url(../../image/silk/application_lightning.png );
+}
+.icon-sakai-sitesetup {
+    background-image: url(../../image/silk/application_lightning.png );
+}
+.icon-sakai-site-roster {
+    background-image: url(../../image/silk/vcard.png);
+}
+.icon-sakai-synoptic-messagecenter {
+background-image: url(../../image/silk/comment.png);
+}
+.icon-sakai-conferencing {
+    background-image : url(../../image/silk/webcam.png);
+}
+.icon-sakai-profile2 {
+    background-image: url(../../image/silk/vcard.png);
+}
+.icon-sakai-summary-calendar {
+    background-image: url(../../image/silk/calendar.png);
+}
+.icon-sakai-synoptic-announcement {
+    background-image: url(../../image/silk/flag_blue.png);
+}
+.icon-sakai-synoptic-chat {
+    background-image: url(../../image/silk/user_comment.png);
+}
+
+/*admin tools*/
+.icon-sakai-users {
+    background-image: url(../../image/silk/folder_user.png);
+}
+.icon-sakai-aliases {
+    background-image: url(../../image/silk/tag_blue.png);
+}
+.icon-sakai-sites {
+    background-image: url(../../image/silk/application_cascade.png);
+}
+.icon-sakai-realms {
+    background-image: url(../../image/silk/sitemap_color.png);
+}
+.icon-sakai-online {
+    background-image: url(../../image/silk/report_user.png);
+}
+.icon-sakai-memory {
+    background-image: url(../../image/silk/server_chart.png);
+}
+.icon-sakai-archive {
+    background-image: url(../../image/silk/page_white_compressed.png);
+}
+.icon-sakai-scheduler {
+    background-image: url(../../image/silk/clock.png);
+}
+.icon-sakai-su {
+    background-image: url(../../image/silk/user_go.png);
+}
+.icon-sakai-usermembership {
+    background-image: url(../../image/silk/drive_user.png);
+}
+.icon-sakai-motd {
+    background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-sitebrowser {
+    background-image: url(../../image/silk/world.png);
+}
+.icon-sakai-createuser {
+    background-image: url(../../image/silk/user_add.png);
+}
+.icon-sakai-subsite {
+    background-image: url(../../image/silk/chart_organisation.png);
+}
+.icon-sakai-iframe-service {
+    background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+    background-image: url(../../image/silk/house.png);
+}
+.icon-sakai-basiclti {
+    background-image: url(../../image/silk/application_go.png);
+}
+.icon-sakai-basiclti-admin {
+    background-image: url(../../image/silk/application_go.png);
+}
+.icon-sakai-mneme {
+    background-image: url(../../image/sakai/tool-icons/sakai.mneme.png);
+}
+.icon-sakai-mneme-admin {
+    background-image: url(../../image/sakai/tool-icons/sakai.mneme.admin.png);
+}
+.icon-sakai-jforum-tool {
+    background-image: url(../../image/sakai/tool-icons/sakai.jforum.tool.png);
+}
+.icon-sakai-melete {
+    background-image: url(../../image/sakai/tool-icons/sakai.melete.png);
+}
+.icon-sakai-lessonbuildertool {
+    background-image: url(../../image/silk/book_open.png);
+}
+.icon-sakai-signup {
+    background-image: url(../../image/silk/date.png);
+}

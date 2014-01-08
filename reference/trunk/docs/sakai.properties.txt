@@ -1,0 +1,3 @@
+NOTE
+If you are looking for the sample sakai.properties file it has moved to:
+config/configuration/bundles/src/bundle/org/sakaiproject/config/bundle/default.sakai.properties

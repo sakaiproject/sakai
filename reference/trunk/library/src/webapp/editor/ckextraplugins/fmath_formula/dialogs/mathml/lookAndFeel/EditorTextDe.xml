@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<translate>
+		<text id="propComboLEFT">LINKS</text>
+		<text id="propComboCENTER">MITTE</text>
+		<text id="propComboRIGHT">RECHTS</text>
+		<text id="propComboTOP">OBEN</text>
+		<text id="propComboBOTTOM">UNTEN</text>
+		<text id="propComboNONE">KEIN</text>
+		<text id="propComboSOLID">VOLL</text>
+		<text id="propComboDASHED">GESTRICHELT</text>		
+		<text id="propLabelText">Text:</text>
+		<text id="propLabelHref">HRef:</text>
+		<text id="propLabelBorder">Rahmen:</text>
+		<text id="propLabelBorderColor">Rahmenfarbe:</text>
+		<text id="propLabelVariant">Schriftart:</text>
+		<text id="propLabelSize">Größe:</text>
+		<text id="propLabelColor">Farbe:</text>
+		<text id="propLabelBackcolor">Hintergrund:</text>
+		<text id="propLabelShiftSup">Superscript shift:</text>
+		<text id="propLabelShiftY">Shift Y:</text>
+		<text id="propLabelShiftX">Shift X:</text>
+		<text id="propLabelBevelled">Abgeschrägt:</text>
+		<text id="propLabelNumAlign">Ausrichtung Zähler:</text>
+		<text id="propLabelDenumAlign">Ausrichtung Nenner:</text>
+		<text id="propLabelThickness">Linienstärke:</text>
+		<text id="propLabelNumber">Nummer:</text>
+		<text id="propLabelRowalign">Ausrichtung Reihe:</text>
+		<text id="propLabelRowspan">Abstand Reihe:</text>
+		<text id="propLabelColumnalign">Ausrichtung Spalte:</text>
+		<text id="propLabelColumnspan">Abstand Spalte:</text>
+		<text id="propLabelFrame">Rahmen:</text>
+		<text id="propLabelFramespacing">Abstand Rahmen:</text>
+		<text id="propLabelRowlines">Linien Reihe:</text>
+		<text id="propLabelRowspacing">Abstand Reihe:</text>
+		<text id="propLabelColumnlines">Linien Spalte:</text>
+		<text id="propLabelColumnspacing">Abstand Spalte:</text>
+		<text id="propLabelOpen">Öffnen:</text>
+		<text id="propLabelClose">Schließen:</text>
+		<text id="propLabelLongdiv">Longdiv:</text>		
+		<text id="propLabelActuarial">Actuarial:</text>		
+		<text id="propLabelRadical">Radikant:</text>
+		<text id="propLabelBox">Box:</text>
+		<text id="propLabelRoundedbox">Rounded box:</text>
+		<text id="propLabelCircle">Kreis:</text>
+		<text id="propLabelLeft">Links:</text>
+		<text id="propLabelRight">Rechts:</text>
+		<text id="propLabelTop">Oben:</text>
+		<text id="propLabelBottom">Unten:</text>
+		<text id="propLabelUpdiagonalstrike">Diagonal nach oben:</text>
+		<text id="propLabelDowndiagonalstrike">Diagonal nach unten:</text>
+		<text id="propLabelVerticalstrike">Vertikal:</text>
+		<text id="propLabelHorizontalstrike">Horizontal:</text>
+		<text id="propLabelMadruwb">Madruwb:</text>
+		<text id="propLabelWidth">Breite:"</text>
+		<text id="propLabelHeight">Höhe:"</text>
+		<text id="propLabelBreak">Is break?"</text>
+		<text id="propLabelLspace">Left space:</text>
+		<text id="propLabelDepth">Tiefe:</text>
+		<text id="propLabelStretchy">Dehnbar?</text>
+		<text id="propLabelMaxsize">Max size:</text>
+		<text id="propLabelMinsize">Min size:</text>
+		<text id="propLabelShiftSub">Subscript shift:</text>
+		<text id="propLabelNbPrescripts">Nb prescripts:</text>
+		<text id="propLabelNbPostscripts">Nb postscripts:</text>
+		
+		<text id="propLabelCharalign">Ausrichtung Zeichen:</text>
+		<text id="propLabelCharspacing">Abstand Zeichen:</text>		
+		<text id="propPosition">Position:</text>		
+		<text id="propLength">Länge:</text>				
+		<text id="propShift">Shift:</text>
+		<text id="propLeftoverhang">Left over:</text>
+		<text id="propRightoverhang">Right over:</text>		
+
+		
+		<text id="propUpdateButton">Update</text>		
+
+		<text id="mathProperties">math Eigenschaften</text>
+		<text id="mrowProperties">mrow Eigenschaften</text>
+		<text id="mfencedProperties">mfenced Eigenschaften</text>
+		<text id="mencloseProperties">menclose Eigenschaften</text>
+		<text id="mphantomProperties">mphantom Eigenschaften</text>
+		<text id="mpaddedProperties">mpadded Eigenschaften</text>
+		<text id="merrorProperties">merror Eigenschaften</text>
+		<text id="mspaceProperties">mspace Eigenschaften</text>
+		<text id="mfracProperties">mfrac Eigenschaften</text>
+		<text id="msqrtProperties">msqrt Eigenschaften</text>
+		<text id="mrootProperties">mroot Eigenschaften</text>
+		<text id="mmultiscriptsProperties">mmultiscripts Eigenschaften</text>
+		<text id="noneProperties">none Eigenschaften</text>
+		<text id="msupProperties">msup Eigenschaften</text>
+		<text id="msubProperties">msub Eigenschaften</text>
+		<text id="msubsupProperties">msubsup Eigenschaften</text>
+		<text id="moverProperties">mover Eigenschaften</text>
+		<text id="munderProperties">munder Eigenschaften</text>
+		<text id="munderoverProperties">munderover Eigenschaften</text>
+		<text id="mnProperties">mn Eigenschaften</text>
+		<text id="mtextProperties">mtext Eigenschaften</text>
+		<text id="moProperties">mo Eigenschaften</text>
+		<text id="miProperties">mi Eigenschaften</text>
+		<text id="msProperties">ms Eigenschaften</text>
+		<text id="mtableProperties">mtable Eigenschaften</text>
+		<text id="mtrProperties">mtr Eigenschaften</text>
+		<text id="mtdProperties">mtd Eigenschaften</text>
+		<text id="mstyleProperties">mstyle Eigenschaften</text>
+		<text id="mactionProperties">maction Eigenschaften</text>
+		<text id="mstackProperties">mstack Eigenschaften</text>
+		<text id="msrowProperties">msrow Eigenschaften</text>
+		<text id="mslineProperties">msline Eigenschaften</text>
+		<text id="mscarriesProperties">mscarries Eigenschaften</text>
+		<text id="mscarryProperties">mscarry Eigenschaften</text>
+		<text id="mlongdivProperties">mlongdiv Eigenschaften</text>
+		<text id="msgroupProperties">msgroup Eigenschaften</text>
+		<text id="mprescriptsProperties">mprescripts Eigenschaften</text>
+		
+		<text id="mathElement">Top-level element</text>
+		<text id="mrowElement">Group of elements</text>
+		<text id="mfencedElement">Fences</text>
+		<text id="mencloseElement">Enclose content</text>
+		<text id="mphantomElement">Invisible content</text>
+		<text id="mpaddedElement">Space around content</text>
+		<text id="merrorElement">Error message</text>
+		<text id="mspaceElement">Blank space</text>
+		<text id="mfracElement">Fraction</text>
+		<text id="msqrtElement">Square root</text>
+		<text id="mrootElement">Radical with index</text>
+		<text id="mmultiscriptsElement">Prescripts and tensor</text>
+		<text id="noneElement">Empty element</text>
+		<text id="msupElement">Superscript</text>
+		<text id="msubElement">Subscript</text>
+		<text id="msubsupElement">Sub-Superscript</text>
+		<text id="moverElement">Overscript</text>
+		<text id="munderElement">Underscript</text>
+		<text id="munderoverElement">Under-Overscript</text>
+		<text id="mnElement">Number</text>
+		<text id="mtextElement">Text</text>
+		<text id="moElement">Operator</text>
+		<text id="miElement">Identifier</text>
+		<text id="msElement">String literal</text>
+		<text id="mtableElement">Table</text>
+		<text id="mtrElement">Row in a table</text>
+		<text id="mtdElement">Cell in a table</text>
+		<text id="mstyleElement">Style change</text>
+		<text id="mactionElement">Bind actions</text>
+		<text id="mstackElement">Rows of numbers</text>
+		<text id="msrowElement">A row of numbers</text>
+		<text id="mslineElement">Horizontal line</text>
+		<text id="mscarriesElement">Row of carries</text>
+		<text id="mscarryElement">Carry</text>
+		<text id="mlongdivElement">Long divison</text>
+		<text id="msgroupElement">Group of numbers</text>
+		<text id="mprescriptsElement">Separator element</text>
+		
+		<text id="mathDesc">MathML specifies a single top-level or root math element. All other MathML content must be contained in a math element</text>
+		<text id="mrowDesc">An mrow element is used to group together any number of sub-expressions</text>
+		<text id="mfencedDesc">Surround content with a pair of fences</text>
+		<text id="mencloseDesc">Enclose content with a stretching symbol such as a long division sign</text>
+		<text id="mphantomDesc">Make content invisible but preserve its size</text>
+		<text id="mpaddedDesc">Adjust space around content</text>
+		<text id="merrorDesc">Enclose a syntax error message from a preprocessor</text>
+		<text id="mspaceDesc">Blank space of any desired size</text>
+		<text id="mfracDesc">Fraction</text>
+		<text id="msqrtDesc">Square root</text>
+		<text id="mrootDesc">Radical with specified index</text>
+		<text id="mmultiscriptsDesc">Attach prescripts and tensor indices to a base</text>
+		<text id="noneDesc">Empty element</text>
+		<text id="msupDesc">Attach a superscript to a base</text>
+		<text id="msubDesc">Attach a subscript to a base</text>
+		<text id="msubsupDesc">Attach a subscript-superscript pair to a base</text>
+		<text id="moverDesc">Attach an overscript to a base</text>
+		<text id="munderDesc">Attach an underscript to a base</text>
+		<text id="munderoverDesc">Attach an underscript-overscript pair to a base</text>
+		<text id="mnDesc">Represents a sequence of digits, perhaps including a decimal point, representing an unsigned integer or real number.</text>
+		<text id="mtextDesc">Represents arbitrary text that should be rendered as itself</text>
+		<text id="moDesc">Represents an operator or anything that should be rendered as an operator</text>
+		<text id="miDesc">Represents a symbolic name or arbitrary text that should be rendered as an identifier</text>
+		<text id="msDesc">Represents "string literals" in expressions meant to be interpreted by computer algebra systems or other systems containing "programming languages".</text>
+		<text id="mtableDesc">Represent a table.</text>
+		<text id="mtrDesc">Represents a row in a table</text>
+		<text id="mtdDesc">Represents one entry, or cell, in a table</text>
+		<text id="mstyleDesc">It is used to make style changes that affect the rendering of its contents</text>
+		<text id="mactionDesc">Provide a mechanism for binding actions to expressions</text>
+		<text id="mstackDesc">It is used to lay out rows of numbers that are aligned on each digit.</text>
+		<text id="msrowDesc">Represents a row in a "Rows of numbers"</text>
+		<text id="mslineDesc">Horizontal line</text>
+		<text id="mscarriesDesc">Row in a "Rows of numbers" that whose contents represent carries or borrows</text>
+		<text id="mscarryDesc">Represents the carry for an individual column</text>
+		<text id="mlongdivDesc">Long division</text>
+		<text id="msgroupDesc">Represents a group of rows in a "Rows of numbers" that are shifted by similar amounts</text>
+		<text id="mprescriptsDesc">Separate prescripts elements</text>
+		
+		<text id="commonProperties">common properties:</text>
+		<text id="styleProperties">style properties:</text>
+		<text id="fenceOpen">Open:</text>		
+		<text id="fenceClose">Close:</text>
+		<text id="matrixChoiceLines">Nb of lines:</text>
+		<text id="matrixChoiceColumns">Nb of columns:</text>
+		<text id="matrixChoiceButton">Matrix erzeugen</text>
+		<text id="gradeChoiceLines">Grad:</text>		
+		<text id="PolynomCreateButton">Polynom erzeugen</text>
+		<text id="EquationCreateButton">Gleichung erzeugen</text>	
+		
+		<text id="functionPanelTitle">Ganzrationale Funktion generieren ...</text>
+		<text id="equationPanelTitle">Gamzrationale Gleichung erzeugen ...</text>
+		<text id="tablePanelTitle">Custom Tabelle ...</text>
+		<text id="matrixPanelTitle">Custom Matrix ...</text>		
+		<text id="additionPanelTitle">Addition generieren ...</text>	
+		<text id="additonCreateButton">Addition erzeugen</text>
+		<text id="additonDisplayCarries">Display Carries</text>
+		<text id="additionSignPosition">Sign "+" position:</text>		
+		<text id="additionSignNW">Top - Left</text>
+		<text id="additionSignSW">Bottom - Left</text>
+		<text id="additionSignNE">Top - Right</text>
+		<text id="additionSignSE">Bottom - Right</text>
+
+		
+		<text id="currentElement">Selected Element</text>
+		<text id="insertElement">Add Element</text>
+		<text id="newElementButton">Add New Element</text>		
+		
+		<text id="font-normal">Serif</text>
+		<text id="font-sans-serif">Sans Serif</text>
+		<text id="font-script">Script</text>
+		<text id="font-double-struck">Double Struck</text>
+		<text id="font-fraktur">Fraktur</text>
+		<text id="font-monospace">Monospace</text>
+		<text id="font-circle">Circle</text>
+
+		<text id="lookAndFeelXP">Xp Design</text>
+		<text id="lookAndFeelXpBlue">Blue</text>		
+		<text id="lookAndFeelXpRed">Red</text>		
+		<text id="lookAndFeelXpGreen">Green</text>				
+		
+		<text id="lookAndFeelYui">Yui Design</text>
+		<text id="lookAndFeelYuiBlack">Default</text>		
+		
+		<text id="lookAndFeelCKE">CKEditor Design</text>
+		<text id="lookAndFeelCKEBlue">Default</text>		
+		
+		<text id="lookAndFeelTiny">TinyMCE Design</text>
+		<text id="lookAndFeelTinyDefault">Default</text>
+		<text id="lookAndFeelTinyRed">Red</text>		
+
+		<text id="languageDe">Deutsch</text>		
+		<text id="languageEn">English</text>		
+		<text id="languageFr">French</text>		
+		<text id="languageRo">Romanian</text>	
+		
+	<!-- added for version 2.3 -->
+		<text id="subtractionPanelTitle">Subtraktion generieren...</text>			
+		<text id="subtractionCreateButton">Subtraktion erzeugen</text>
+		<text id="subtractionDisplayCarries">Display Carries</text>
+		<text id="subtractionSignPosition">Sign "-" position:</text>		
+		<text id="subtractionSignNW">Top - Left</text>
+		<text id="subtractionSignSW">Bottom - Left</text>
+		<text id="subtractionSignNE">Top - Right</text>
+		<text id="subtractionSignSE">Bottom - Right</text>
+		
+		<text id="multiplicationPanelTitle">Generate multiplication ...</text>			
+		<text id="multiplicationCreateButton">Create Multiplication</text>
+		<text id="multiplicationDisplayCarries">Display Carries</text>
+		<text id="multiplicationSignPosition">Sign "x" position:</text>		
+		<text id="multiplicationSignNW">Top - Left</text>
+		<text id="multiplicationSignSW">Bottom - Left</text>
+		<text id="multiplicationSignNE">Top - Right</text>
+		<text id="multiplicationSignSE">Bottom - Right</text>
+
+		<text id="propLabelCrossout">Cross out:</text>
+		<text id="propComboNONE">NONE</text>
+		<text id="propComboUPDIAGONALSTRIKE">Up Diag</text>
+		<text id="propComboDOWNDIAGONALSTRIKE">Down Diag</text>
+		<text id="propComboVERTICALSTRIKE">Vertical</text>
+		<text id="propComboHORIZONTALSTRIKE">Horizontal</text>		
+
+		<text id="divisionPanelTitle">Division generieren...</text>			
+		<text id="divisionCreateButton">Division erzeugen</text>
+		<text id="divisionPrecision">Präzision:</text>		
+		<text id="divisionSelect">Typ auswählen:</text>				
+		
+		<text id="propComboLEFTTOP">Links oben</text>		
+		<text id="propComboSTACKEDRIGHTRIGHT">Stacked Right</text>
+		<text id="propComboMEDIUMSTACKEDRIGHTRIGHT">Medium Stacked</text>
+		<text id="propComboSHORTSTACKEDRIGHTRIGHT">Short Stacked</text>
+		<text id="propComboRIGHTTOP">Rechts oben</text>
+		<text id="propComboLEFT/\RIGHT">Links / \ Rechts</text>
+		<text id="propComboLEFT)(RIGHT">LLinks ) ( Rechts</text>
+		<text id="propCombo:RIGHT=RIGHT">: Rechts = Rechts</text>
+		<text id="propComboSTACKEDLEFTLEFT">Stacked Left</text>
+		<text id="propComboSTACKEDLEFTLINETOP">Stacked Left Top</text>
+	
+	</translate>
+</configuration>

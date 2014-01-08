@@ -1,0 +1,34 @@
+﻿ html{background:-webkit-gradient(linear,left top,right top,from(#c5ccd3),to(#cfd5dd),color-stop(0.80,#c5ccd3),color-stop(0.80,#cfd5dd));}
+.fl-theme-iphone .fl-bevel-black{text-shadow:rgba(0,0,0,0.35) 0 -1px 0;}
+.fl-theme-iphone .fl-bevel-white{text-shadow:rgba(255,255,255,1) 0 1px 0;}
+.fl-theme-iphone a{-webkit-touch-callout:none;-webkit-tap-highlight-color:rgba(0,0,0,0);text-decoration:none;color:#000;}
+body::before{border-top-color:#ccd6e2;border-bottom-color:#000;background-image:-webkit-gradient(linear,left top,left bottom,from(#B0BCCD),color-stop(0.5,#889BB3),color-stop(0.50,#6D84A2),to(#6D84A2));}
+.fl-theme-iphone .fl-navbar{color:#fff;text-shadow:rgba(0,0,0,0.5) 0 -1px 0;}
+.fl-theme-iphone .fl-navbar h1{color:#fff;}
+.fl-theme-iphone .fl-navbar a{color:#fff;}
+.fl-theme-iphone .fl-navbar [class*=fl-button]{background-image:-webkit-gradient(linear,left top,left bottom,from(#9aafca),color-stop(0.5,#6d8cb3),color-stop(0.50,#4b6b90),to(#4b6b90));-webkit-border-image:none;}
+.fl-theme-iphone .fl-navbar [class*=fl-button]:active{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(149,184,239,1)),to(rgba(35,109,229,1)),color-stop(0.5,rgba(149,184,239,1)),color-stop(0.50,rgba(75,148,244,1)));}
+.fl-theme-iphone .fl-navbar .fl-backButton{-webkit-border-image:url(../images/themes/iphone/navbar_back_button_insetShadow.png) 0 15 stretch;-webkit-mask-box-image:url(../images/themes/iphone/backbutton_mask.png) 0 15 stretch;}
+.fl-theme-iphone .fl-navbar .fl-button-inner{-webkit-border-image:url(../images/themes/iphone/navbar_normal_button_insetShadow.png) 5 5 5 5 stretch;}
+.fl-theme-iphone .fl-button{text-decoration:none;font-weight:bold;-webkit-border-image:url(../images/themes/iphone/button_bg_insetShadow.png) 10 stretch;}
+.fl-theme-iphone .fl-button.fl-bevel-white{color:#333;}
+.fl-theme-iphone .fl-button.fl-bevel-black{color:#FFF;}
+.fl-theme-iphone .fl-button-white{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(240,240,240,0.25)),to(rgba(220,220,220,0.75)),color-stop(0.5,rgba(240,240,240,1)),color-stop(0.50,rgba(200,200,200,0.8)));}
+.fl-theme-iphone .fl-button-black{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(106,106,106,0.25)),to(rgba(00,00,00,0.75)),color-stop(0.5,rgba(130,130,130,1)),color-stop(0.50,rgba(75,75,75,0.8)));}
+.fl-theme-iphone .fl-button-green{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(120,190,130,0.2)),to(rgba(50,170,60,0.75)),color-stop(0.5,rgba(120,190,130,1)),color-stop(0.50,rgba(0,150,10,0.8)));}
+.fl-theme-iphone .fl-button-blue{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(149,184,239,0.2)),to(rgba(35,109,229,0.75)),color-stop(0.5,rgba(149,184,239,1)),color-stop(0.50,rgba(75,148,244,0.8)));}
+.fl-theme-iphone .fl-tabs li{background-image:-webkit-gradient(linear,left top,left bottom,from(#9aafca),color-stop(0.5,#6d8cb3),color-stop(0.50,#4b6b90),to(#4b6b90));-webkit-border-image:url(../images/themes/iphone/navbar_normal_button_insetShadow.png) 5 5 5 5 stretch;-webkit-border-left-image:none;-webkit-background-origin:border;-webkit-background-clip:border;}
+.fl-theme-iphone .fl-tabs .fl-tabs-active{background-image:-webkit-gradient(linear,left top,left bottom,from(rgba(149,184,239,1)),to(rgba(35,109,229,1)),color-stop(0.5,rgba(149,184,239,1)),color-stop(0.50,rgba(75,148,244,1)));}
+.fl-theme-iphone .fl-tabs li a,.fl-theme-iphone .fl-tabs .fl-tabs-active a{color:#fff;border-right-color:rgba(255,255,255,0.35);border-left-color:rgba(0,0,0,0.35);}
+.fl-theme-iphone .fl-listmenu li a{-webkit-tap-highlight-color:-webkit-gradient(linear,left top,left bottom,from(#4a94f4),to(#236de5));background:#fff url(../images/themes/iphone/listmenu_arrow.png) no-repeat right 5px;}
+.fl-theme-iphone [class*=fl-list]>li{color:#000;border-color:#a9adb0;background-color:#fff;}
+.fl-theme-iphone [class*=fl-list]:not(.fl-list) a:active,.fl-theme-iphone [class*=fl-list] .fl-link-hilight{color:#fff;background:url(../images/themes/iphone/listmenu_arrow.png) no-repeat right -25px,-webkit-gradient(linear,left top,left bottom,from(#4a94f4),to(#236de5));}
+.fl-theme-iphone [class*=fl-list] .fl-link-loading{color:#fff!important;background:url(../images/themes/iphone/listmenu_loader.gif) no-repeat 97% center,-webkit-gradient(linear,left top,left bottom,from(#4a94f4),to(#236de5));}
+.fl-theme-iphone [class*=fl-list]:not(.fl-list) a:active,.fl-theme-iphone [class*=fl-list] a:active .fl-link-secondary,.fl-theme-iphone [class*=fl-list] a:active .fl-link-summary,.fl-theme-iphone [class*=fl-list] .fl-link-loading *{color:#fff!important;}
+.fl-theme-iphone [class*=fl-list]>li .fl-link-secondary{color:#324f85;}
+.fl-theme-iphone [class*=fl-list]>li .fl-link-summary{color:#999;}
+.fl-theme-iphone .fl-list a{color:#4a94f4;}
+.fl-theme-iphone .fl-note{color:#4C566C;}
+.fl-theme-iphone .fl-panel-autoHeading>*:first-child{color:#fff;background:-webkit-gradient(linear,left top,left bottom,from(#999),to(#000));}
+.fl-theme-iphone .fl-panel-autoHeading>*:first-child:focus{color:#000;background:-webkit-gradient(linear,left top,left bottom,from(#FFF),to(#CCC));}
+.fl-theme-iphone .fl-list-glossy>li a::before{background-image:-webkit-gradient(radial,50% -15%,10,50% -50%,45,from(rgba(255,255,255,1)),to(rgba(255,255,255,0)),color-stop(90%,rgba(255,255,255,.65)));}

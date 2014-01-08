@@ -1,0 +1,62 @@
+
+
+Licensing
+The intellectual property considerations of the Open Knowledge Initiative are an important dimension of the project.
+
+MIT-O.K.I. OSID Definition License:
+The following text should accompany all copies of the MIT-O.K.I. OSID Definitions
+
+Copyright © 2002 Massachusetts Institute of Technology
+
+This work (the “Work”), including any software, documents, or other items related to O.K.I.™ OSID definitions, is being provided by the copyright holder(s) subject to the terms of the O.K.I.™ OSID Definition License. By obtaining, using and/or copying this Work, you agree that you have read, understand, and will comply with the following terms and conditions of the O.K.I.™ OSID Definition License:
+
+You may use, copy, and distribute unmodified versions of this Work for any purpose, without fee or royalty, provided that you include the following on ALL copies of the Work that you make or distribute:
+
+The full text of the MIT O.K.I.™ OSID Definition License in a location viewable to users of the redistributed Work. 
+Any pre-existing intellectual property disclaimers, notices, or terms and conditions. If none exist, a short notice similar to the following should be used within the body of any redistributed Work: "Copyright © 2002 Massachusetts Institute of Technology. All Rights Reserved. 
+You may modify or create Derivatives of this Work only for your internal purposes. You shall not distribute or transfer any such Derivative of this Work to any location or any other third party. For purposes of this license, "Derivative" shall mean any derivative of the Work as defined in the United States Copyright Act of 1976, such as a translation or modification.
+
+THIS WORK PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE WORK OR THE USE OR OTHER DEALINGS IN THE WORK.
+
+The name and trademarks of copyright holder(s) and/or MIT may NOT be used in advertising or publicity pertaining to the Work without specific, written prior permission. Title to copyright in the Work and any associated documentation will at all times remain with the copyright holders.
+
+MIT-O.K.I. API Implementation License:
+The following text should accompany all copies of the MIT-O.K.I. OSID Implementations:
+
+Copyright © <2002> <copyright holder>
+
+This work (the “Work”), including software, documents, or other items related to O.K.I.™ OSID implementations, is being provided by the copyright holder(s) subject to the terms of the O.K.I.™ OSID Implementation License. By obtaining, using and/or copying this Work, you agree that you have read, understand, and will comply with the following terms and conditions of the O.K.I.™ OSID Implementation License:
+
+Permission to use, copy, modify, and distribute this Software and its documentation, with or without modification, for any purpose and without fee or royalty is hereby granted, provided that you include the following on ALL copies of the Software or portions thereof, including modifications or derivatives, that you make:
+
+The full text of the MIT O.K.I.™ OSID Implementation License in a location viewable to users of the redistributed or derivative work. 
+Any pre-existing intellectual property disclaimers, notices, or terms and conditions. If none exist, a short notice similar to the following should be used within the body of any redistributed or derivative Software: "Copyright © 2002 <copyright holder>. All Rights Reserved. 
+Notice of any changes or modifications to the MIT O.K.I.™ Software, including the date the changes were made. Any modified software must be distributed in such as manner as to avoid any confusion with the original MIT O.K.I.™ Software. 
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+The name and trademarks of copyright holder(s) and/or MIT may NOT be used in advertising or publicity pertaining to the Software without specific, written prior permission. Title to copyright in the Software and any associated documentation will at all times remain with the copyright holders.
+
+The export of software employing encryption technology may require a specific license from the United States Government. It is the responsibility of any person or organization contemplating export to obtain such a license before exporting this Software.
+
+home » specs » licensing
+
+Open Licensing
+O.K.I.'s goal is to develop open architecture solutions for widespread adoption by educational institutions. Participation in the initiative demonstrates a strong belief in the project's philosophy, that all contributions to the project are individually recognized and attributed, but these contributions are licensed as part of an open-licensing system.
+
+Commercial Solutions
+O.K.I. is also working closely with educational software vendors to ensure that the O.K.I. architectural specifications will work with their own commercially licensed systems. O.K.I. will support proprietary technology and encourage commercial design of innovative tools, in keeping with the overall goal of global improvement in the management and design of educational technology.
+
+Licensing Strategy
+The O.K.I. project will operate using two separate licenses:
+
+MIT-O.K.I. API Definition License applies to the APIs that will be released by the Open Knowledge Initiative. This license is designed to ensure the centralized standardization of API definitions among all adopters. It promotes broad distribution of the APIs, but discourages modification of the API definitions.
+
+MIT-O.K.I. API Implementation License applies to the implementations and exemplar applications that will be released through the O.K.I. project. This license is designed to encourage the widespread sharing of innovation among adopters, so it promotes the open distribution and modification of implementations and exemplar applications
+
+Warranty, Copyright & Trademark
+Detailed information pertaining to the warranty, copyright, and trademark policies of the O.K.I. project can be found in the MIT-O.K.I. API licenses.
+
+ 
+
+
+
