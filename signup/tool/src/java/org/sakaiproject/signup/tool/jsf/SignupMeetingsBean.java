@@ -258,15 +258,15 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		//avoid multiple calls for one page loading : not refresh within one second
 		if(allCategories == null || curr_time - lastUpdatedCatTime > 1000){			
 			List<SelectItem> categories = new ArrayList<SelectItem>();		
-			List<String> allCategories = null;
+			List<String> allCats = null;
 			try {
-				allCategories = signupMeetingService.getAllCategories(sakaiFacade.getCurrentLocationId());
+				allCats = signupMeetingService.getAllCategories(sakaiFacade.getCurrentLocationId());
 			} catch (Exception e) {
 				//do nothing
-				allCategories=null;
+				allCats=null;
 			}
-			if(allCategories !=null){
-				for(String c : allCategories) {
+			if(allCats !=null){
+				for(String c : allCats) {
 					if(StringUtils.isNotBlank(c)) {
 						categories.add(new SelectItem(c));
 					}
@@ -282,10 +282,10 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			}
 			
 			lastUpdatedCatTime = curr_time;
-			allLocations = categories;
+			allCategories = categories;
 		}
 		
-		return allLocations;
+		return allCategories;
 	}
 
 	/**
