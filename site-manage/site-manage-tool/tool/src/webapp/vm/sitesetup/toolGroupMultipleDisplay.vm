@@ -1,10 +1,11 @@
 <script type="text/javascript">
       $(document).ready(function() {
             setupCategTools();
+            setLTIPrefix("$ltitool_id_prefix");
        });
 </script>
 
-<div id="toolHolderWW"> 
+<div id="toolHolderWW">
     <div id="toolHolderW">
         <div id="collExpContainer">
             <a id="expandAll" href="#">$tlang.getString("feat.expand.all")</a>

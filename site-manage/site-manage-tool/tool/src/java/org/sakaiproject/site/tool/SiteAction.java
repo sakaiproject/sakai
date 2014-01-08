@@ -1610,6 +1610,7 @@ public class SiteAction extends PagedResourceActionII {
 			Boolean checkToolGroupHome = (Boolean) state.getAttribute(STATE_TOOL_HOME_SELECTED);
 
 			context.put("check_home", checkToolGroupHome);
+			context.put("ltitool_id_prefix", LTITOOL_ID_PREFIX);
 			context.put("serverName", ServerConfigurationService
 					.getServerName());
 			context.put("sites", SiteService.getSites(

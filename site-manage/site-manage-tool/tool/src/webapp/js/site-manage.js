@@ -1,11 +1,12 @@
 var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
+var ltiPrefix = "lti_";
  
 $.ajaxSetup({
   cache: false
 });
- 
+
 /*
  calling template has dom placeholder for dialog,
  args:class of trigger, id of dialog, message strings
@@ -510,6 +511,11 @@ utils.resizeFrame = function(updown){
     }
 };
 
+// SAK-23905
+var setLTIPrefix = function(ltipref) {
+        ltiPrefix = ltipref;
+};
+
 
 
 var setupCategTools = function(){
@@ -563,69 +569,66 @@ var setupCategTools = function(){
     	var normId = myId.replace(/\./g, '_');
     	return normId;
     } 
-    
-    // SAK-16600
-    // replace additional tool multiple identification characters (i.e. those beyond the base tool's name) with 
+   
+    // SAK23905 adjust for different id's between toolHolder and toolSelection (except for LTI tools) 
+    function denormalizeId(myId) {
+	if (myId.lastIndexOf(ltiPrefix, 0) < 0) {
+		myId = myId.replace(/\_/g, '.');
+	}
+	return myId;
+    }
+
+    // SAK-16normalizedIde additional tool multiple identification characters (i.e. those beyond the base tool's name) with 
     // underscores to allow proper selection of the tool's associated icon 
     function iconizedId(myId) {
         if (myId.length > 36){
-            myId = myId.substring(36)            
+            myId = myId.substring(36);            
         }
     	var iconId = myId.replace(/\./g, '-') ;
     	return iconId;
     }
 
-    function hideToolSelection(myId,delaySeconds){
-    	var selId = '#'+normalizedId(myId);
-     	$('#toolSelectionList').find(selId).addClass('highlightTool').fadeOut(delaySeconds, function(){
-            $(this).hide();
+      function hideToolSelection(myId,delaySeconds){
+        var selectionTarget = $('#toolSelectionList').find('#' + normalizedId(myId));
+        selectionTarget.addClass('highlightTool').fadeOut(delaySeconds, function(){
+                $(this).hide();
+                $(this).removeClass('highlightTool');
+          });
+        $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",false);
+      }
+
+      function showToolSelection(myId,delaySeconds) {
+        var selectionTarget  = $('#toolSelectionList').find('#'+normalizedId(myId));
+        selectionTarget.addClass('highlightTool').fadeIn(delaySeconds, function(){
+          $(this).show();
             $(this).removeClass('highlightTool');
         });
-    }
-    
-    function showToolSelection(myId,delaySeconds) {
-    	var selId = '#'+normalizedId(myId);
-     	$('#toolSelectionList').find(selId).addClass('highlightTool').fadeIn(delaySeconds, function(){
-     	  $(this).show();
-          $(this).removeClass('highlightTool');
-     	});
-    }
-    
-    
-    // SAK-16600
-    // hide/show accordion list  
-   // function showToolHolder() {
-   // 		$('#toolHolder').show();
-   // }
-    
-   // function hideToolHolder() {
-//		$('#toolHolder').hide();    	
- //   }
-    
-    // SAK-16600 
-    // hide or display an item.  ignore if item is disabled
-    function setChecked(myId,checkVal){
-    	//var selSet = $('#toolSelectionList ul').find('#selected_' + normalizedId(myId));	
-    	var myId = normalizedId(myId);
-    	var item = $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]');
-    	// ignore if item is disabled
-    	if (!item.is(':disabled')) {
-    	
-    		if (checkVal== true){
-             	sorttoolSelectionList();
-             	showToolSelection(myId,1500);
-                $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop('checked', checkVal).next('label').css('font-weight', 'bold');
-    		
-    		} else {
-    			hideToolSelection(myId,1000);
-    			$('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').next('label').css('font-weight', 'normal');
-    		}
-    		// toggle checked
-    		$('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop("checked",checkVal);
-    		//setupCategTools();
-    	}
+        $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr("checked",true);
+      }
 
-    }
+      // SAK-16600
+      // hide or display an item.  ignore if item is disabled
+      function setChecked(myId,checkVal){
+       var item = $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]');
+        // ignore if item is disabled
+
+        if (!item.is(':disabled')) {
+                if (checkVal== true){
+                        sorttoolSelectionList();
+                       showToolSelection(myId,1500);
+                       // make toolholder text bold
+                       $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').attr('checked', checkVal).next('label').css('font-weight', 'bold');
+                } else {
+                        hideToolSelection(myId,1000);
+                        // make toolholder text normal
+                        $('#toolHolder').find('input[type="checkbox"][id="' + denormalizeId(myId) + '"]').next('label').css('font-weight', 'normal');
+                }
+                // toggle checked
+                $('#toolHolder').find('input[type="checkbox"][id=' + myId + ']').attr("checked",checkVal);
+        }
+
+      }
+
     // loop through list of tools; creating entry for each unique instance and hiding unselected
     var sourceList = $('input[name="selectedTools"][type="checkbox"]');
     $.each(sourceList, function(){
@@ -659,8 +662,8 @@ var setupCategTools = function(){
         	}
 
     		var selId = normalizedId($(this).attr('id'));
-            var iconId = iconizedId($(this).attr('id'));
-            $('#toolSelectionList ul').append('<li class=\"icon-' + iconId + '\" id=\"' + thisToolId + '\">' + $(this).next('label').text() + removeLink + '</li>');
+                var iconId = iconizedId($(this).attr('id'));
+                $('#toolSelectionList ul').append('<li class=\"icon-' + iconId + '\" id=\"' + thisToolId + '\">' + $(this).next('label').text() + removeLink + '</li>');
         	// append to selected tool list
         	if ($(this).prop('checked')) {
         		// make the selectiion visible
@@ -669,15 +672,14 @@ var setupCategTools = function(){
         		$(this).next('label').css('font-weight', 'bold');
         		//$('#toolHolder').find('#' + thisToolCatEsc).find('ul').show();
         		//$('#toolHolder').find('#' + thisToolCatEsc).find('h4').find('a').addClass('open');
-        		showToolSelection(thisToolId,0);
+                       showToolSelection(selId,0);
         	}
         	else {
-        		hideToolSelection(thisToolId,0);
+                       hideToolSelection(selId,0);
         		$(this).next('label').css('font-weight', 'normal');
         	}
         	var parentRow = $(this).closest('li');
         	$('#toolHolder').find('#' + thisToolCatEsc).find('ul').append(parentRow);
-        	//push into an array this id, and to close the function traverse and send a click to each
         }
     });
     
@@ -711,7 +713,7 @@ var setupCategTools = function(){
         }
     });
     
-    // remove 
+    // 
     $('input[name="selectedTools"][type="checkbox"]').click(function(){
         if(($(this).closest('ul').find(':checked').length === $(this).closest('ul').find('input[type="checkbox"]').length) && $(this).closest('ul').find(':checked').length > 0) {
             $('#selectAll').hide();
@@ -778,32 +780,25 @@ var setupCategTools = function(){
         $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show(); 
     });
     
-    
-    $('.removeTool').on('click', function(e){
-        e.preventDefault();
-        var myId = $(this).closest('li').attr('id').replace(/_/g, '.').replace('selected.','');
-        if ($('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').prop('disabled') == 'disabled') {
-            // there should be no instances of a "required" tool having a control to remove it.
-        }
-        else {
-        	// if toolMultple; confirm delete
-        	if ($(this).hasClass('toolInstance')) {
+     // Clicked red X on toolSelectionList
+      $('.removeTool').click(function(e){
+          e.preventDefault();
+         var selectedId = $(this).closest('li').attr('id').replace('selected.','');
+                // if toolMultple; confirm delete
+         if ($(this).hasClass('toolInstance')) {
                 $(this).closest('li').addClass('highlightTool');
                 showAlert(e);
                 return false;
                 // remove the checkbox? put in an alert
-            } else {
-            	// for each tool with this id, set check to false and fade in/out selectedTool display
-            	setChecked(myId,false);            	
-            }
-        }
-        //$(this).closest('li').addClass('highlightTool').fadeOut('slow', function(){
-        //    $(this).closest('li').remove();
-        //});
-        var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + myId + '"]').closest('ul').find(':checked').length;               
-        $('#toolHolder').find('input[type="checkbox"][id="' + myId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
-        noTools();
-    });
+         } else {
+                // for each tool with this id, set check to false and fade in/out selectedTool display
+                setChecked(selectedId,false);
+         }
+         var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + selectedId + '"]').closest('ul').find(':checked').length;
+         $('#toolHolder').find('input[type="checkbox"][id="' + selectedId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
+
+          noTools();
+      });    
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();
