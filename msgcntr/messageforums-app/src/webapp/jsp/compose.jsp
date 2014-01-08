@@ -95,7 +95,7 @@
 					 <h:outputLabel for="list1"><h:outputText value="#{msgs.pvt_star}" styleClass="reqStar"/><h:outputText value="#{msgs.pvt_to}"/></h:outputLabel>
 			  </h:panelGroup>
 			  <h:panelGroup styleClass="shorttext">
-					<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 20em;">
+					<h:selectManyListbox id="list1" value="#{PrivateMessagesTool.selectedComposeToList}" size="5" style="width: 100%;">
 		         <f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 		      </h:selectManyListbox>
 		      <f:verbatim>
@@ -151,7 +151,7 @@
 	       		</h:outputLabel>
 		  	</h:panelGroup>
 		  	<h:panelGroup styleClass="shorttext bcc" style="display:none">
-				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 20em;">
+				<h:selectManyListbox id="list2" value="#{PrivateMessagesTool.selectedComposeBccList}" size="5" style="width: 100%;">
 	         		<f:selectItems value="#{PrivateMessagesTool.totalComposeToBccList}"/>
 	       		</h:selectManyListbox>
 	       		<f:verbatim>
