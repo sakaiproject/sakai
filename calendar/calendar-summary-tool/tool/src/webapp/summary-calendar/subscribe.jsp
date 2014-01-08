@@ -18,7 +18,7 @@
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
 	
-	<h3><h:outputText value="#{msgs.java_subscribe}"/></h3>
+	<h3><h:outputText value="#{msgs.ical_opaqueurl_header}"/></h3>
 	<sakai:instruction_message rendered="#{!SubscribeBean.opaqueUrlExists}" 
 		value="#{msgs.ical_opaqueurl_explanation}" />
 	

@@ -27,7 +27,7 @@
 			<h:commandLink action="#{MenuBean.processPreferences}" >
 				<h:outputText value="#{CalBean.accessibleOptionsLink}" escape="false"/>
             </h:commandLink>
-			<sakai:tool_bar_item rendered="#{MenuBean.subscribeEnabled}" action="#{MenuBean.processSubscribe}" value="#{msgs.java_subscribe}" immediate="true" />
+			<sakai:tool_bar_item rendered="#{MenuBean.subscribeEnabled}" action="#{MenuBean.processSubscribe}" value="#{msgs['java.opaque_subscribe']}" immediate="true" />
 		</sakai:tool_bar>
     </h:panelGroup>
 	    
