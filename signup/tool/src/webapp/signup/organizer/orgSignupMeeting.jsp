@@ -208,11 +208,11 @@
 					<h:panelGrid  id="orgMeeting_191" columns="3" rendered="#{!OrganizerSignupMBean.announcementType}" columnClasses="titleColumn,valueColumn,alignRightColumn" styleClass="emailTable">										
 						<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
 						<h:panelGroup styleClass="longtext" rendered="#{OrganizerSignupMBean.publishedSite}">
-							<h:selectBooleanCheckbox value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;"/>
+							<h:selectBooleanCheckbox id="chkBx_pub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;"/>
 							<h:outputText value="#{msgs.event_email_yes_label}" escape="false" />
 						</h:panelGroup>
 						<h:panelGroup styleClass="longtext" rendered="#{!OrganizerSignupMBean.publishedSite}">
-							<h:selectBooleanCheckbox value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;" disabled="true"/>
+							<h:selectBooleanCheckbox id="chkBx_unpub" value="#{OrganizerSignupMBean.sendEmail}" style="vertical-align:middle;" disabled="true"/>
 							<h:outputText value="#{msgs.event_email_not_send_out_label}" escape="false" style="color:#b11"/>
 						</h:panelGroup>							
 						<h:panelGroup>	
@@ -389,7 +389,7 @@
 							   							<h:outputText value="&nbsp;" escape="false" />
 						   							</h:panelGroup>
 						   							<h:panelGroup>
-							   							<h:commandLink action="#{OrganizerSignupMBean.viewAttendeeComment}">
+							   							<h:commandLink id="view_comment" action="#{OrganizerSignupMBean.viewAttendeeComment}">
 							   								<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>
 							   								<f:param id="attendeeUserId" name="attendeeUserId" value="#{attendeeWrapper.signupAttendee.attendeeUserId}"/>				   										   								
 							   								<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
@@ -439,8 +439,8 @@
 										   						</h:panelGrid>
 										   					
 										   						<h:panelGrid columns="2"  style="width:50%;">
-										   							<h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.editTimeslotAttendee}"/>
-										   							<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels();return false;" immediate="true"/>
+										   							<h:commandButton id="edit_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.editTimeslotAttendee}"/>
+										   							<h:commandButton id="edit_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels();return false;" immediate="true"/>
 										   						</h:panelGrid>
 									   					
 									   					</h:panelGrid>
@@ -474,8 +474,8 @@
 						   							<h:inputText  id="addAttendeeEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
 					   								
 					   								<h:panelGroup>
-						   						    	<h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
-						   								<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+						   						    	<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
+						   								<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
 						   							</h:panelGroup>
 						   							
 						   							<%--  pad last column --%>
@@ -494,7 +494,7 @@
 								<f:facet name="header">
 									<h:outputText value="#{msgs.group_synchronise_heading}"/>
 								</f:facet>
-						   		<h:commandButton value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}"/>
+						   		<h:commandButton id="syncGroup_btn" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}"/>
 					   		</h:column>
 					   		
 					   		<h:column rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   
@@ -580,8 +580,8 @@
 									   							<h:inputText id="addWaiterEidOrEmailInput" size="20" value="#{OrganizerSignupMBean.userInputEidOrEmail}" rendered="#{OrganizerSignupMBean.eidInputMode}" />
 								   								
 									   							<h:panelGroup>
-								   						    		<h:commandButton value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendeeToWList}"/>
-						   											<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+								   						    		<h:commandButton id="addWaiter_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendeeToWList}"/>
+						   											<h:commandButton id="addWaiter_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
 						   										</h:panelGroup>
 									   							
 									   							<%--  pad last column --%>
