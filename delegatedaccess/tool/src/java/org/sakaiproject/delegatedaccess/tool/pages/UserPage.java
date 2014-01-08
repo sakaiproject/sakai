@@ -174,6 +174,14 @@ public class UserPage  extends BaseTreePage{
 			noAccessLabel.setDefaultModel(new StringResourceModel("noDelegatedAccess", null));
 		}
 		add(noAccessLabel);
+		
+		//no hierarchy setup:
+		add(new Label("noHierarchy", new StringResourceModel("noHierarchy", null)){
+			public boolean isVisible() {
+				return treeModel == null && sakaiProxy.isSuperUser() && "".equals(projectLogic.getRootNodeId().id);
+			}
+		});
+		
 
 
 		//Create Search Form:
