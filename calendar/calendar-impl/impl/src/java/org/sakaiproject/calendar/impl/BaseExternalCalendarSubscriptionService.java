@@ -563,10 +563,13 @@ public class BaseExternalCalendarSubscriptionService implements
 		// Is a institutional subscription?
 		String[] subscriptionURLs = m_configurationService
 				.getStrings(SAK_PROP_EXTSUBSCRIPTIONS_URL);
-		for (String url: subscriptionURLs)
+		if (subscriptionURLs != null)
 		{
-			if (subscriptionUrl.equals(url)) {
-				return true;
+			for (String url: subscriptionURLs)
+			{
+				if (subscriptionUrl.equals(url)) {
+					return true;
+				}
 			}
 		}
 		return false;
