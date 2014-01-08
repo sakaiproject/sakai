@@ -960,3 +960,56 @@ CREATE TABLE user_audits_log (
 CREATE INDEX user_audits_log_index ON user_audits_log (id,site_id);
 
 -- END SAK-23634
+
+-- INFRSTR-257 Delegated Access and Hierarchy
+
+create table HIERARCHY_NODE (
+	ID bigint not null auto_increment,
+	directParentIds text,
+	parentIds text,
+	directChildIds blob,
+	childIds blob,
+	primary key (ID)
+);
+
+create table HIERARCHY_NODE_META (
+	ID bigint not null auto_increment,
+	hierarchyId varchar(255),
+	isRootNode bit not null,
+	ownerId varchar(255),
+	title varchar(255),
+	description text,
+	permToken varchar(255),
+	isDisabled bit not null,
+	primary key (ID)
+);
+
+create table HIERARCHY_PERMS (
+	ID bigint not null auto_increment,
+	createdOn datetime not null,
+	lastModified datetime not null,
+	userId varchar(255) not null,
+	nodeId varchar(255) not null,
+	permission varchar(255) not null,
+	primary key (ID)
+);
+
+create index HIERARCHY_PERMTOKEN on HIERARCHY_NODE_META (permToken);
+
+create index HIERARCHY_HID on HIERARCHY_NODE_META (hierarchyId);
+
+create index HIER_PERM_USER on HIERARCHY_PERMS (userId);
+
+create index HIER_PERM_NODE on HIERARCHY_PERMS (nodeId);
+
+create index HIER_PERM_PERM on HIERARCHY_PERMS (permission);
+
+
+
+
+
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1300', '!admin', 'Delegated Access', '0', 18, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1350', '!admin-1300', '!admin', 'sakai.delegatedaccess', 1, 'Delegated Access', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1300', 'sitePage.customTitle', 'true');
+
+-- END INFRSTR-257 Delegated Access and Hierarchy
