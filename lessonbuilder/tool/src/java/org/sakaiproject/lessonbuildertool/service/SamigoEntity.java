@@ -173,7 +173,8 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    }
 	    if (parts.length >= 2) {
 		try {
-		    major = Integer.parseInt(parts[1]);
+		    String[] s = parts[1].split("\\D");
+		    major = Integer.parseInt(s[0]);
 		} catch (Exception e) {
 		};
 	    }
@@ -186,7 +187,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 		};
 	    }
 	    // samigo starting with 2.8.1 has the edit link
-	    if (cle == 2 && (major == 8 && minor > 0 || major > 8))
+	    if (cle > 2 || (cle == 2 && (major == 8 && minor > 0 || major > 8)))
 		defaultEditLink = true;
 	}
 	System.out.println("SamigoEntity thinks this is Sakai verison " + cle + "." + major + "." + minor + ", defaulting Samigo edit link to " + defaultEditLink);

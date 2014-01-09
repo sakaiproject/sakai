@@ -65,7 +65,8 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		}
 		if (parts.length >= 2) {
 		    try {
-			major = Integer.parseInt(parts[1]);
+			String[] s = parts[1].split("\\D");
+			major = Integer.parseInt(s[0]);
 		    } catch (Exception e) {
 		    };
 		}
@@ -78,12 +79,10 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		    };
 		}
 
-		//System.out.println("EditPage thinks CLE is " + cle + " major " + major);
-
 		// samigo starting with 2.8.0 has the new editor calling protocol
-		if (cle == 2 && major >= 8)
+		if (cle > 2 || (cle == 2 && major >= 8))
 		    isNew = true;
-
+		System.out.println("EditPage thinks CLE is " + cle + " major " + major + " isNew=" + isNew);
 	    }
 	    //System.out.println("isnew " + isNew);
 	    return isNew;
