@@ -1,0 +1,21 @@
+{
+  "name": "CKEditor-AutoSave-Plugin",
+  "author": "w8tcha",
+  "description": "Auto Save Plugin for the CKEditor which automatically saves the content (via HTML5 LocalStorage) ",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/w8tcha/CKEditor-AutoSave-Plugin.git"
+  },
+  "keywords": [
+    "CKEditor",
+    "Autosave",
+    "localStorage",
+    "html5"
+  ],
+  "devDependencies": {
+    "grunt": "~0.4.2",
+    "grunt-contrib-imagemin": "~0.4.0",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-yui-compressor": "~0.3.0"
+  }
+}
