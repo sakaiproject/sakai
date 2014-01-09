@@ -432,6 +432,9 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		
 		//Data
 		String[] tmpHierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
+		if(tmpHierarchy == null || tmpHierarchy.length == 0){
+			tmpHierarchy = DelegatedAccessConstants.DEFAULT_HIERARCHY;
+		}
 		final String[] hierarchy = new String[tmpHierarchy.length + 1];
 		//include the root as part of the hierarchy:
 		hierarchy[0] = sakaiProxy.getRootName();
