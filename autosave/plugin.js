@@ -9,7 +9,7 @@
     }
    
     CKEDITOR.plugins.add("autosave", {
-        lang: ['de', 'en', 'jp', 'pl', 'pt-BR', 'zh', 'zh-cn'],
+        lang: ['de', 'en', 'jp', 'pl', 'pt-BR', 'sv', 'zh', 'zh-cn'],
         version: 0.6,
         init: function (editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
