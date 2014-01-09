@@ -2,14 +2,12 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
     <title type="text">
         #if ($currentSite) 
-            ${currentSite.siteTitle}
-    </title>
-    <link>${currentSite.siteUrl}</link>
-    <link rel="alternate" type="text/html">${currentSite.siteTitle}</link>
+            <title>${currentSite.siteTitle}</title>
+            <link>${currentSite.siteUrl}</link>
+            <link rel="alternate" type="text/html">${currentSite.siteTitle}</link>
         #else
-            Sakai RSS Feed
-</title>
-<link rel="alternate" type="text/html">http://www.sakaiproject.org/</link>
+            <title>Sakai RSS Feed</title>
+            <link rel="alternate" type="text/html">http://www.sakaiproject.org/</link>
         #end
         <generator uri="http://www.sakaiproject.org">
             Sakai Collaboration and Learning Environment
