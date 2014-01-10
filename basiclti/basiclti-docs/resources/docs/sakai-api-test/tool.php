@@ -127,6 +127,9 @@ print "<p>Base String:<br/>\n";
 print htmlent_utf8($context->basestring);
 print "<br/></p>\n";
 
+echo('<a href="basecheck.php?b='.urlencode($context->basestring).'" target="_blank">Compare This Base String</a><br/>');
+print "<br/></p>\n";
+
 print "<pre>\n";
 print "Raw POST Parameters:\n\n";
 ksort($_POST);
