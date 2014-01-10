@@ -35,8 +35,12 @@ ul.makeMenu li {
 </script>
 <script type="text/javascript">
 $(document).ready(function() {
+	if ($('#content_print_result_url').length)
+	{
+		window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
+	}
 	jQuery('.portletBody').click(function(e) { 
-			
+	
 		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
 			$('.makeMenuChild').hide();
 		}
@@ -91,8 +95,8 @@ $(document).ready(function() {
 	        'aria-hidden': 'true',
 	        'tabindex': '-1'
 	    });
-	});
-	});
+	});	
+	})
 </script>
 #**#
 #set($num = 0)
@@ -124,7 +128,20 @@ $(document).ready(function() {
 	#if ($alertMessage)
                  <br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
 	#end
+	## display print success message
+	#if ($content_print_status_success)
+		<br /><div id="messageSuccessHolder" class="messageSuccess" style="display:block">$!content_print_message</div>
+	#end
+	## display print failure message
+	#if ($content_print_status_failure)
+		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
+	#end
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
+		## hidden fields for print url
+		#if ($!content_print_result_url && $!content_print_result_url_title)
+			<input type="hidden" value="$content_print_result_url" id="content_print_result_url" />
+			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />
+		#end
 		<input type="hidden" name="source" id="source" value="0" />
 		<input type="hidden" name="collectionId" id="collectionId" value="$validator.escapeHtml($collectionId)" />
 		<input type="hidden" name="navRoot" id="navRoot" value="" />

@@ -31,6 +31,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.Arrays;
+
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
@@ -39,6 +42,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
+import org.sakaiproject.content.api.ContentPrintService;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.content.util.BaseInteractionAction;
@@ -88,13 +92,15 @@ public class FileUploadType extends BaseResourceType
 	protected UserDirectoryService userDirectoryService;
 	protected ContentTypeImageService contentTypeImageService;
 	protected ContentHostingService contentHostingService;
+	protected ContentPrintService contentPrintService;
 	
 	public FileUploadType()
 	{
 		this.userDirectoryService = (UserDirectoryService) ComponentManager.get("org.sakaiproject.user.api.UserDirectoryService");
 		this.contentTypeImageService = (ContentTypeImageService) ComponentManager.get("org.sakaiproject.content.api.ContentTypeImageService");
 		this.contentHostingService = (ContentHostingService) ComponentManager.get("org.sakaiproject.content.api.ContentHostingService");
-		
+		this.contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
+				
 		BaseInteractionAction createAction = new BaseInteractionAction(CREATE, ActionType.NEW_UPLOAD, typeId, helperId, localizer("create.uploads"));
 		createAction.setRequiredPropertyKeys(Collections.singletonList(ResourceProperties.PROP_CONTENT_ENCODING));
 		actions.put(CREATE, createAction);
@@ -110,6 +116,11 @@ public class FileUploadType extends BaseResourceType
 		actions.put(EXPAND_ZIP_ARCHIVE, new FileUploadExpandAction(EXPAND_ZIP_ARCHIVE, ActionType.EXPAND_ZIP_ARCHIVE, typeId, false, localizer("action.expandziparchive")));
 		actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId, helperId, localizer("action.makesitepage")));
 		
+		if (ServerConfigurationService.getString(contentPrintService.CONTENT_PRINT_SERVICE_URL, null) != null)
+		{
+			// print service url is provided. Add the Print option.
+			actions.put(PRINT_FILE, new BaseServiceLevelAction(PRINT_FILE, ActionType.PRINT_FILE, typeId, false, localizer("action.printfile")));
+		}
 		// initialize actionMap with an empty List for each ActionType
 		for(ActionType type : ActionType.values())
 		{

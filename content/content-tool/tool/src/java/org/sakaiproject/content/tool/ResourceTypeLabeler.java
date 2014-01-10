@@ -92,6 +92,9 @@ public class ResourceTypeLabeler
 				case PASTE_MOVED:
 					label = ResourcesAction.trb.getString("action.pastemove");
 					break;
+				case PRINT_FILE:
+					label = ResourcesAction.trb.getString("action.printfile");
+					break;
 				default:
 					ResourcesAction.logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
 					label = action.getId();

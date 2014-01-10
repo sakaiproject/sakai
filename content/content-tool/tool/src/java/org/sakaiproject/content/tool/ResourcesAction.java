@@ -78,6 +78,7 @@ import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingHandlerResolver;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.ContentPrintService;
 import org.sakaiproject.content.api.ExpandableResourceType;
 import org.sakaiproject.content.api.GroupAwareEntity;
 import org.sakaiproject.content.api.InteractionAction;
@@ -139,6 +140,14 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
 import org.w3c.dom.Element;
 
+import java.io.PrintWriter;
+import java.io.IOException;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.sakaiproject.util.RequestFilter;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+
 /**
 * <p>ResourceAction is a ContentHosting application</p>
 *
@@ -148,6 +157,12 @@ import org.w3c.dom.Element;
 public class ResourcesAction 
 	extends PagedResourceHelperAction // VelocityPortletPaneledAction
 {
+	 /** the content print service */
+	 private static ContentPrintService contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
+	 
+	 /** state variable name for the content print service call result */
+	 private static String CONTENT_PRINT_CALL_RESPONSE = "content_print_call_response";
+	 
 	/**
 	 * 
 	 */
@@ -820,6 +835,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		CONTENT_READ_ACTIONS.add(ActionType.VIEW_CONTENT);
 		CONTENT_READ_ACTIONS.add(ActionType.COPY);
+		CONTENT_READ_ACTIONS.add(ActionType.PRINT_FILE);
 		
 		CONTENT_PROPERTIES_ACTIONS.add(ActionType.VIEW_METADATA);
 		
@@ -856,6 +872,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		ACTIONS_ON_RESOURCES.add(ActionType.COPY);
 		ACTIONS_ON_RESOURCES.add(ActionType.MOVE);
 		ACTIONS_ON_RESOURCES.add(ActionType.DELETE);
+		ACTIONS_ON_RESOURCES.add(ActionType.PRINT_FILE);
 
 		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.COPY);
 		ACTIONS_ON_MULTIPLE_ITEMS.add(ActionType.MOVE);
@@ -4590,9 +4607,36 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		context.put("labeler", new ResourceTypeLabeler());
 		
+		contentPrintResultIntoContext(data, context, state);
+		
 		return TEMPLATE_NEW_LIST;
 
 	}	// buildListContext
+	
+	protected void contentPrintResultIntoContext(RunData data, Context context, SessionState state)
+	{
+		if (state.getAttribute(CONTENT_PRINT_CALL_RESPONSE) != null)
+		{
+			HashMap<String, String> result = (HashMap<String, String>) state.getAttribute(CONTENT_PRINT_CALL_RESPONSE);
+			String status = result.get(contentPrintService.CONTENT_PRINT_RESPONSE_STATUS);
+			if (status != null && status.equals(contentPrintService.CONTENT_PRINT_RESPONSE_STATUS_SUCCESS))
+			{
+				// put the success status, confirmation message, and possible popup url address
+				context.put("content_print_status_success", Boolean.TRUE);
+			}
+			else
+			{
+				// put the failure status and message
+				context.put("content_print_status_failure", Boolean.TRUE);
+			}
+			context.put("content_print_message", result.get(contentPrintService.CONTENT_PRINT_RESPONSE_MESSAGE));
+			context.put("content_print_result_url", result.get(contentPrintService.CONTENT_PRINT_RESPONSE_URL));
+			context.put("content_print_result_url_title", result.get(contentPrintService.CONTENT_PRINT_RESPONSE_URL_TITLE));
+			
+			// clean the state object
+			state.removeAttribute(CONTENT_PRINT_CALL_RESPONSE);
+		}
+	}
 
 
 	/**
@@ -6352,6 +6396,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
 					state.setAttribute(STATE_MODE, MODE_REORDER);
 					sAction.finalizeAction(reference);
+					break;
+				case PRINT_FILE:
+					printFile(state, data, selectedItemId);
 					break;
 				default:
 					sAction.initializeAction(reference);
@@ -9854,4 +9901,63 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 // END SAK-23304 additions
 
+	/**
+	 * 
+	 * @param state
+	 * @param data
+	 * @param selectedItemId
+	 */
+	protected void printFile(SessionState state, RunData data, String selectedItemId)
+	{
+		logger.info(this + ".printFile()");
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+
+		Cookie cookie = null;
+		HttpServletRequest req = data.getRequest();
+		
+		List<Object> params = new ArrayList<Object>();
+		Cookie[] cookies = req.getCookies();
+		for (int i = 0; i<cookies.length; i++)
+		{
+			params.add(cookies[i].getName() + "=" + cookies[i].getValue());
+		}
+		
+		try
+		{
+			ContentResource r = ContentHostingService.getResource(selectedItemId);
+			if (r != null)
+			{
+				try
+				{
+					//Upload the file
+					HashMap<String, String> result = contentPrintService.printResource(r, params);
+					if (result != null)
+					{
+						state.setAttribute(CONTENT_PRINT_CALL_RESPONSE, result);
+					}
+                    return;
+				}
+				catch (Exception e)
+				{
+					// TODO: do something
+					logger.warn(this + ".printFile() error with executeMultiPartRequest " + r.getReference());
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+			logger.warn(this + ".printFile() IdUnusedException " + selectedItemId );
+		}
+		catch (TypeException e)
+		{
+			logger.warn(this + ".printFile() TypeException " + selectedItemId );
+		}
+		catch (PermissionException e)
+		{
+			logger.warn(this + ".printFile() PermissionException " + selectedItemId );
+		}
+		
+	}
+	
 }	// ResourcesAction

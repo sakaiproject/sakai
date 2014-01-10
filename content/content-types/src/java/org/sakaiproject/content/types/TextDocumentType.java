@@ -31,11 +31,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
+import org.sakaiproject.content.api.ContentPrintService;
 import org.sakaiproject.content.util.BaseInteractionAction;
 import org.sakaiproject.content.util.BaseResourceType;
 import org.sakaiproject.content.util.BaseResourceAction.Localizer;
@@ -48,6 +50,8 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class TextDocumentType extends BaseResourceType 
 {
+	protected ContentPrintService contentPrintService;
+	
 	protected String typeId = ResourceType.TYPE_TEXT;
 	protected String helperId = "sakai.resource.type.helper";
 	public static final String MY_HELPER_ID = "sakai.resource.type.helper";
@@ -66,7 +70,6 @@ public class TextDocumentType extends BaseResourceType
 	
 	private Localizer localizer(final String string) {
 		return new Localizer() {
-
 			public String getLabel() {
 				return rb.getString(string);
 			}
@@ -76,6 +79,8 @@ public class TextDocumentType extends BaseResourceType
 	
 	public TextDocumentType()
 	{
+		this.contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
+		
 		actions.put(CREATE, new TextDocumentCreateAction(CREATE, ActionType.CREATE, typeId, helperId, localizer("create.text")));
 		// actions.put(ACCESS_CONTENT, new TextDocumentAccessAction());
 		actions.put(REVISE_CONTENT, new TextDocumentReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
@@ -88,6 +93,12 @@ public class TextDocumentType extends BaseResourceType
 		actions.put(DELETE, new BaseServiceLevelAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
 		actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId, helperId, localizer("action.makesitepage")));
 
+		if (ServerConfigurationService.getString(contentPrintService.CONTENT_PRINT_SERVICE_URL, null) != null)
+		{
+			// print service url is provided. Add the Print option.
+			actions.put(PRINT_FILE, new BaseServiceLevelAction(PRINT_FILE, ActionType.PRINT_FILE, typeId, false, localizer("action.printfile")));
+		}
+		
 		// initialize actionMap with an empty List for each ActionType
 		for(ActionType type : ActionType.values())
 		{
