@@ -5,6 +5,7 @@ var optsCache;
 var maxWidth = 500;
 var previousClicked = false;
 //create sakai tutorial style skin
+/*
 $.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
 		width: { max: 800 },
 		padding: '14px',
@@ -18,6 +19,7 @@ $.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
 		},
 		name: 'light' // Inherit the rest of the attributes from the preset dark style
 }
+*/
 
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
@@ -36,6 +38,7 @@ function showTutorialPage(url, opts){
 	
 	$.getJSON(url, 
 			function(response){
+				//Current fix for Sakai 10
 				try{
 				if(response.data.dialog == 'true'){
 					response.data.selection = 'div#tutorial';
@@ -70,20 +73,23 @@ function showTutorialPage(url, opts){
 									},
 
 									position: {
+										my: 'top center',
+										at: 'top center',
 										target: $(document.body), // Position it via the document body...
-										corner: 'center' // ...at the center of the viewport
 									},
 									show: {
 										ready: true, // Show it when ready
 										solo: true // And hide all other tooltips
 									},
 									hide: false,
+									/*
 									style: {
 										name: sakaiTutorialSkin,
 										width: {
 											max: mxWidth
 										}
 									},
+									*/
 									api: {
 										onHide: function()
 										{
@@ -124,6 +130,7 @@ function showTutorialPage(url, opts){
 											target: response.data.positionTarget
 										}
 									},
+									/*
 									style: {
 											name: sakaiTutorialSkin,
 											tip: true,
@@ -131,6 +138,7 @@ function showTutorialPage(url, opts){
 												max: mxWidth
 											}
 									},
+									*/
 									show: {
 										ready: true, // Show it when ready
 										solo: true // And hide all other tooltips
