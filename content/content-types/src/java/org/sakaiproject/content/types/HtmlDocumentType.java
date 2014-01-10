@@ -30,8 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
+import org.sakaiproject.content.api.ContentPrintService;
 import org.sakaiproject.content.api.ResourceToolAction;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.content.api.ResourceToolAction.ActionType;
@@ -45,6 +47,8 @@ import org.sakaiproject.util.ResourceLoader;
 
 public class HtmlDocumentType extends BaseResourceType 
 {
+	protected ContentPrintService contentPrintService;
+
 	protected String typeId = ResourceType.TYPE_HTML;
 	protected String helperId = "sakai.resource.type.helper";
 	
@@ -128,6 +132,8 @@ public class HtmlDocumentType extends BaseResourceType
 	
 	public HtmlDocumentType()
 	{
+		this.contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
+		
 		actions.put(CREATE, new HtmlDocumentCreateAction(CREATE, ActionType.CREATE, typeId, helperId, localizer("create.html")));
 		actions.put(REVISE_CONTENT, new HtmlDocumentReviseAction(REVISE_CONTENT, ActionType.REVISE_CONTENT, typeId, helperId, localizer("action.revise")));
 		actions.put(REPLACE_CONTENT, new HtmlDocumentReplaceAction(REPLACE_CONTENT, ActionType.REPLACE_CONTENT, typeId, helperId, localizer("action.replace")));
@@ -139,6 +145,12 @@ public class HtmlDocumentType extends BaseResourceType
 		actions.put(DELETE, new BaseServiceLevelAction(DELETE, ActionType.DELETE, typeId, true, localizer("action.delete")));
 		actions.put(MAKE_SITE_PAGE, new MakeSitePageAction(MAKE_SITE_PAGE, ActionType.MAKE_SITE_PAGE, typeId, helperId, localizer("action.makesitepage")));
 
+		if (ServerConfigurationService.getString(contentPrintService.CONTENT_PRINT_SERVICE_URL, null) != null)
+		{
+			// print service url is provided. Add the Print option.
+			actions.put(PRINT_FILE, new BaseServiceLevelAction(PRINT_FILE, ActionType.PRINT_FILE, typeId, false, localizer("action.printfile")));
+		}
+		
 		// initialize actionMap with an empty List for each ActionType
 		for(ActionType type : ActionType.values())
 		{
