@@ -4,6 +4,12 @@ var sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.
 var optsCache;
 var maxWidth = 500;
 var previousClicked = false;
+var dialogPosition = {
+		my: 'center',
+		at: 'center',
+		target: $(window), // Position it via the document body...
+		viewport: $(window)
+};
 
 
 function startTutorial(opts){
@@ -45,41 +51,50 @@ function showTutorialPage(url, opts){
 					if(totalWidth < mxWidth){
 						mxWidth = totalWidth;
 					}
-					
-					if(response.data.dialog == 'true'){
-						$(response.data.selection).qtip(
-								{
-									content: {
-										title: response.data.title,
-										button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
-										text: response.data.body
-									},
 
-									position: {
-										my: 'center',
-										at: 'center',
-										target: $(document.body), // Position it via the document body...
-										viewport: $(document.body)
+					$(response.data.selection).qtip(
+							{ 
+								content: {
+									title: response.data.title,
+									button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
+									text: response.data.body
+								},
+								position: response.data.dialog == 'true' ? dialogPosition: {
+									my: response.data.positionTooltip,
+									at: response.data.positionTarget,
+									viewport: $(document.body)
+								},
+								style: {
+									classes: 'qtip-tipped qtip-shadow',
+									tip: {
+										corner: response.data.positionTooltip
+									}
+								},
+								show: {
+									ready: true, // Show it when ready
+									solo: true // And hide all other tooltips
+								},
+								hide: false,
+								events: {
+									hide: function()
+									{
+										// javascript to run after hiding
+										$(response.data.selection).qtip("destroy");
+                                        //pass the focus to top of page
+                                        $('#skipNav a:first').focus();
 									},
-									show: {
-										ready: true, // Show it when ready
-										solo: true // And hide all other tooltips
+									show: function(e)
+									{
+										if(response.data.fadeout){
+											setTimeout(function(){
+												$('.qtip').fadeOut(2000, function() {
+													// Animation complete.
+													$(response.data.selection).qtip("destroy", true);
+												});
+											}, 10000);
+										}
 									},
-									hide: false,
-									style: {
-										classes: 'qtip-tipped qtip-shadow'
-									},
-									events: {
-										hide: function()
-										{
-											// javascript to run after hiding
-											$(response.data.selection).qtip("destroy");
-										},
-                                        show: function(){
-                                            $('.qtip-contentWrapper').attr('tabindex','-1').focus();
-                                            
-                                        },
-                                       render: function() {
+									render: function() {
                                            var api = this;
                                             $(window).bind('keydown', function(e) {
                                                 if(e.keyCode === 27) {
@@ -88,58 +103,9 @@ function showTutorialPage(url, opts){
                                                 }
                                             });
                                         }
-
-										
-									}
-								});
-					}else{
-						//not dialog:
-						$(response.data.selection).qtip(
-								{ 
-									content: {
-										title: response.data.title,
-										button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
-										text: response.data.body
-									},
-									position: {
-										my: response.data.positionTooltip,
-										at: response.data.positionTarget,
-										viewport: $(document.body)
-									},
-									style: {
-										classes: 'qtip-tipped qtip-shadow',
-										tip: {
-											corner: response.data.positionTooltip
-										}
-									},
-									show: {
-										ready: true, // Show it when ready
-										solo: true // And hide all other tooltips
-									},
-									hide: false,
-									events: {
-										hide: function()
-										{
-											// javascript to run after hiding
-											$(response.data.selection).qtip("destroy");
-                                            //pass the focus to top of page
-                                            $('#skipNav a:first').focus();
-										},
-										show: function(e)
-										{
-											if(response.data.fadeout){
-												setTimeout(function(){
-													$('.qtip').fadeOut(2000, function() {
-														// Animation complete.
-														$(response.data.selection).qtip("destroy", true);
-													});
-												}, 10000);
-											}
-										}
-									}
 								}
-						);
-					}
+							}
+					);
 				}
 				}catch(e){
 				//	$(this).qtip("destroy");
