@@ -122,6 +122,7 @@ ${sakai_html_head_js}
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
+<link type="text/css" rel="stylesheet" href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}">
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
 	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
