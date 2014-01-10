@@ -4,22 +4,7 @@ var sakaiTutorialLocationUrl = '/direct/tutorial/introToSakai_pTutorialLocation.
 var optsCache;
 var maxWidth = 500;
 var previousClicked = false;
-//create sakai tutorial style skin
-/*
-$.fn.qtip.styles.sakaiTutorial = { // Last part is the name of the style
-		width: { max: 800 },
-		padding: '14px',
-		border: {
-			width: 9,
-			radius: 9,
-			color: '#666666'
-		},
-		tip: {
-			color: '#6699CC'
-		},
-		name: 'light' // Inherit the rest of the attributes from the preset dark style
-}
-*/
+
 
 function startTutorial(opts){
 	showTutorialPage(sakaiTutorialStartUrl, opts);
@@ -65,47 +50,41 @@ function showTutorialPage(url, opts){
 						$(response.data.selection).qtip(
 								{
 									content: {
-										title: {
-											text: response.data.title,
-											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'
-										},
+										title: response.data.title,
+										button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
 										text: response.data.body
 									},
 
 									position: {
-										my: 'top center',
-										at: 'top center',
+										my: 'center',
+										at: 'center',
 										target: $(document.body), // Position it via the document body...
+										viewport: $(document.body)
 									},
 									show: {
 										ready: true, // Show it when ready
 										solo: true // And hide all other tooltips
 									},
 									hide: false,
-									/*
 									style: {
-										name: sakaiTutorialSkin,
-										width: {
-											max: mxWidth
-										}
+										classes: 'qtip-tipped qtip-shadow'
 									},
-									*/
-									api: {
-										onHide: function()
+									events: {
+										hide: function()
 										{
 											// javascript to run after hiding
 											$(response.data.selection).qtip("destroy");
 										},
-                                        onShow: function(){
+                                        show: function(){
                                             $('.qtip-contentWrapper').attr('tabindex','-1').focus();
                                             
                                         },
-                                      onRender: function() {
+                                       render: function() {
                                            var api = this;
                                             $(window).bind('keydown', function(e) {
                                                 if(e.keyCode === 27) {
                                                     api.hide(e);
-                                                    $(response.data.selection).qtip("destroy");
+                                                    $(response.data.selection).qtip("destroy", true);
                                                 }
                                             });
                                         }
@@ -118,47 +97,43 @@ function showTutorialPage(url, opts){
 						$(response.data.selection).qtip(
 								{ 
 									content: {
-										title: {
-											text: response.data.title,
-											button: '<a href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'
-										},
+										title: response.data.title,
+										button: $('<a class="qtipClose" href="#" onclick="if(\''+opts.showTutorialLocationOnHide + '\' == \'true\' && \'' + url + '\' != \'' + sakaiTutorialLocationUrl + '\'){showTutorialPage(\''+ sakaiTutorialLocationUrl + '\');}" title="' + $('.closeMe').find('.skip').text() +'"><img src="/library/image/silk/cancel.png" alt=""/><span class="skip">' + $('.closeMe').find('.skip').text() + '</span></a>'),
 										text: response.data.body
 									},
 									position: {
-										corner: {
-											tooltip: response.data.positionTooltip,
-											target: response.data.positionTarget
+										my: response.data.positionTooltip,
+										at: response.data.positionTarget,
+										viewport: $(document.body)
+									},
+									style: {
+										classes: 'qtip-tipped qtip-shadow',
+										tip: {
+											corner: response.data.positionTooltip
 										}
 									},
-									/*
-									style: {
-											name: sakaiTutorialSkin,
-											tip: true,
-											width: {
-												max: mxWidth
-											}
-									},
-									*/
 									show: {
 										ready: true, // Show it when ready
 										solo: true // And hide all other tooltips
 									},
 									hide: false,
-									api: {
-										onHide: function()
+									events: {
+										hide: function()
 										{
 											// javascript to run after hiding
 											$(response.data.selection).qtip("destroy");
                                             //pass the focus to top of page
                                             $('#skipNav a:first').focus();
 										},
-										onShow: function()
+										show: function(e)
 										{
 											if(response.data.fadeout){
-												$(".qtip").delay(10000).fadeOut(2000, function() {
-												    // Animation complete.
-													$(response.data.selection).qtip("destroy");
-												});
+												setTimeout(function(){
+													$('.qtip').fadeOut(2000, function() {
+														// Animation complete.
+														$(response.data.selection).qtip("destroy", true);
+													});
+												}, 10000);
 											}
 										}
 									}
