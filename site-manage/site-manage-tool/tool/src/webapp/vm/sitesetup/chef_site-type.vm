@@ -56,14 +56,17 @@
         <div id="siteTypeList" 
              #* if templates enabled *# class="indnt3" #*end templates enabled *#>
             #foreach ($type in $siteTypes)
-                #if ((!$courseSiteTypeStrings.contains($type) && $type != $portfolioSiteType) || ($courseSiteTypeStrings.contains($type) && $canAddPortfolio))
+				#set($courseTypeWithPerm    = ((($courseSiteTypeStrings.contains($type)     && $type == "course")     || $type == "course")    && $canAddCourse ))
+				#set($portfolioTypeWithPerm = ((($portfolioSiteTypeStrings.contains($type) && $type == "portfolio")  || $type == "portfolio") && $canAddPortfolio )) 
+				#set($projectTypeWithPerm   = ((($projectSiteTypeStrings.contains($type)   && $type == "project")    || $type == "project")   && $canAddProject )) 
+				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm)) 
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">
                             $tlang.getFormattedMessage("sitetype.websit", $type)
                         </label>    
                     </p>        
-                    #if ($courseSiteTypeStrings.contains($type) && $canAddCourse)
+                    #if ($courseTypeWithPerm)
                         <div class="indnt3" id="termList" style="display:none;">
                             <p class="required">
                                 <span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
@@ -89,8 +92,8 @@
                                 </select> 
                             </p>    
                         </div>  
-                    #end ## end of #if ($courseSiteTypeStrings.contains($type) && $canAddCourse)
-                #end ## end of #if (!$courseSiteTypeStrings.contains($type) || ($courseSiteTypeStrings.contains($type) && $canAddCourse))
+                    #end ## end of #if ($courseTypeWithPerm)
+                #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))
                 #*
                 #if ($templateList.size() > 0 && $templateList.containsKey($type))
                     <p class="checkbox indnt3">

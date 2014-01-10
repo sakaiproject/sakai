@@ -1385,8 +1385,10 @@ public class SiteAction extends PagedResourceActionII {
 
 		ResourceProperties siteProperties = null;
 
-		// course site types
+		// all site types
 		context.put("courseSiteTypeStrings", SiteService.getSiteTypeStrings("course"));
+		context.put("portfolioSiteTypeStrings", SiteService.getSiteTypeStrings("portfolio"));
+		context.put("projectSiteTypeStrings", SiteService.getSiteTypeStrings("project"));
 		
 		//can the user create course sites?
 		context.put(STATE_SITE_ADD_COURSE, SiteService.allowAddCourseSite());
