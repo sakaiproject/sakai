@@ -93,6 +93,15 @@ public class AttendeeSignupOwnEmail extends SignupEmailBase {
 					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
 
 		}
+		
+		//attendee's comment
+		if(timeslot.getAttendee(attendee.getId()) !=null && timeslot.getAttendee(attendee.getId()).getComments() !=null
+				&& timeslot.getAttendee(attendee.getId()).getComments().length()> 0
+				&& !"&nbsp;".equals(timeslot.getAttendee(attendee.getId()).getComments())){
+			message.append(newline + newline + MessageFormat.format(rb.getString("body.ownComment"), new Object[] { 
+					timeslot.getAttendee(attendee.getId()).getComments() }));
+		}
+		
 		/* footer */
 		message.append(newline + getFooter(newline));
 		return message.toString();

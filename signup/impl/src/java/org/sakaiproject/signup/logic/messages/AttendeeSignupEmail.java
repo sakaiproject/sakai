@@ -111,6 +111,14 @@ public class AttendeeSignupEmail extends SignupEmailBase {
 					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
 
 		}
+		//gets the comment
+		if(timeslot.getAttendee(currentUser.getId()) !=null && timeslot.getAttendee(currentUser.getId()).getComments() !=null
+				&& timeslot.getAttendee(currentUser.getId()).getComments().length()> 0
+				&& !"&nbsp;".equals(timeslot.getAttendee(currentUser.getId()).getComments())){
+			message.append(newline + newline + MessageFormat.format(rb.getString("body.commentBy"), new Object[] {
+				makeFirstCapLetter(currentUser.getDisplayName()), timeslot.getAttendee(currentUser.getId()).getComments() }));
+		}
+		
 		/* footer */
 		message.append(newline + getFooter(newline));
 		return message.toString();
