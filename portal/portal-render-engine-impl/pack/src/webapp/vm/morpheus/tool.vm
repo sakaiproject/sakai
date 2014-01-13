@@ -1,5 +1,7 @@
-#parse("/vm/neoskin/includeStandardHead.vm")
+<!--//START VM tool.vm -->
+#parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
-        #parse("/vm/neoskin/includeToolBody.vm")
+        #parse("/vm/morpheus/includeToolBody.vm")
     </body>
+<!--//END VM tool.vm -->
 </html>

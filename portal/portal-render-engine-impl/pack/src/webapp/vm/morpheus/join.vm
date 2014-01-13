@@ -33,14 +33,13 @@
             #end
         #end
     </head>
+    <!--//START VM join.vm -->
     <body class="portalBody">
         #if ( $pageTop )
             <script>
                var sakaiPortalWindow = "";
             </script>
         #end
-        <!-- END Header -->
-        <!-- join.vm -->
         <table class="join" cellpadding="0" cellspacing="0" border="0" summary="layout"> 
             <tr> 
                 <th colspan="2">${uiService} : ${rloader.getString("join_title")}</th> 
@@ -72,4 +71,5 @@
             </tr> 
         </table> 
     </body>
+    <!--//END VM join.vm -->
 </html>

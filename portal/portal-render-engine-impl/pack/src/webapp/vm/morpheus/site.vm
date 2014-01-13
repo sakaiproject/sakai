@@ -1,4 +1,5 @@
-#parse("/vm/neoskin/includeStandardHead.vm")
+<!--//START VM site.vm -->
+#parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
         <div style="position:absolute;top:5px;left:5px;padding:5px;background:#fff;color:#000;border:1px solid #000">Morpheus</div>
         <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
@@ -29,9 +30,6 @@
                 </script>
             #end
         #end
-        <!-- site.vm -->
-
-        <!-- start includeSiteNav -->
         <div id="portalOuterContainer">
             <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
                 #if (${tabsSites} )
@@ -61,7 +59,7 @@
                                     <img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
                                 </div>
                             </div>
-                            #parse("/vm/neoskin/includeTabs.vm")
+#parse("/vm/morpheus/includeTabs.vm")
                         </div>
                     </div>
                 #else
@@ -124,10 +122,9 @@
                     </div>
                 #end
 
-                #parse("/vm/neoskin/includePageWithNav.vm")
+#parse("/vm/morpheus/includePageWithNav.vm")
             </div>
         </div>
-        <!-- end includeSiteNav -->
-        <!-- end site.vm -->
+        <!--//END VM site.vm -->
     </body>
 </html>

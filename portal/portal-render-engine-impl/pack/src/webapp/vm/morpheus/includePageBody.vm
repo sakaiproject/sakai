@@ -2,7 +2,7 @@
 ## the Page part of the standard view, with no page navigation
 ##
 ##
-<!-- START from includePageBody.vm -->
+<!--//END VM includePageBody.vm -->
 #if ( $sitePages.pageMaxIfSingle )
     #if ( $sitePages.pageNavToolsCount > 1 ) 
         <div id="$pageWrapperClass" role="main">
@@ -466,6 +466,5 @@
             #else
                 </div>
             #end
-            <!-- end includePageBody -->
-            <!-- END from includePageBody.vm -->
             <div id="tutorial"></div>
+            <!--//END VM includePageBody.vm -->

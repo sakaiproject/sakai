@@ -14,8 +14,7 @@
         #set ($portalPwd = $site.pwd)
     #end
 #end
-<!-- START from NEO includeTabs.vm -->
-<!-- start includeTabs -->
+<!--//START VM includeTabs.vm -->
     <div class="${tabsCssClass}">
         <div id="maxToolsInt" style="display:none">$maxToolsInt</div>
         <div id="maxToolsAnchor" style="display:none">${rloader.sit_alltools}</div>
@@ -223,5 +222,4 @@
             });
         </script>
     </div> <!--///end of div.tabsCssClass}"
-<!-- end includeTabs -->
-<!-- END from includeTabs.vm -->
+<!--//END VM includeTabs.vm -->

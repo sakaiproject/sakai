@@ -6,16 +6,14 @@
 ## Has Page Tabs
 ##
 ##
-#parse("/vm/neoskin/includeStandardHead.vm")
+<!--//START VM worksite.vm -->
+#parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
         #if ( $pageTop )
             <script>
                 var sakaiPortalWindow = "";
             </script>
         #end
-        <!-- END Header -->
-        <!-- site.vm -->
-        <!-- start includeSiteNav -->
         <div id="portalOuterContainer">
             <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
                 <div id="skipNav">
@@ -34,10 +32,9 @@
                         ${rloader.sit_jumpworksite}
                     </a>
                 </div>
-                #parse("/vm/neoskin/includePageWithNav.vm")
+                #parse("/vm/morpheus/includePageWithNav.vm")
             </div>
         </div>
-        <!-- end includeSiteNav -->
-        <!-- end site.vm -->
+        <!--//END VM worksite.vm -->
     </body>
 </html>

@@ -15,7 +15,7 @@
 ## the right way to fix it is to teach the OSP portal to really support
 ## JSR-168 portlets in the background document rather than in an iFrame.
 ##
-<!-- START from includeToolBody.vm -->
+<!--//START VM includeToolBody.vm -->
 #if ( $tool ) 
     <!-- start Tool -->
     #if (${tool.hasRenderResult})
@@ -93,5 +93,5 @@
             </iframe>
         </div>
     #end
-    <!-- end Tool Body -->
+    <!--//END VM includeToolBody.vm -->
 #end
