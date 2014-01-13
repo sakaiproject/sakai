@@ -115,6 +115,7 @@ ${sakai_html_head_css}
 ${sakai_html_head_js}
 <script type="text/javascript" src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
 #end
+<script type="text/javascript" src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}"></script>
 
 <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
