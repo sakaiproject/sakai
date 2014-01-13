@@ -360,7 +360,7 @@
 			#end
                             <span class="pc_connection_display_name">${connection.displayName}</span>
                             {if connection.online}
-         	                   {if connection.video=='none' || !portal.chat.video || !portal.chat.video.isVideoEnabled()}
+         	                   {if connection.video == 'none' || !portal.chat.video || !portal.chat.video.webrtc.isVideoEnabled()}
                            	       <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                                {/if}
                             {else}
@@ -368,7 +368,7 @@
                             {/if}
                         </a>
                         {if connection.online}
-     	                   {if connection.video!='none' && portal.chat.video && portal.chat.video.isVideoEnabled()}
+     	                   {if connection.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
 	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${connection.uuid}',false);">
                         	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                         	</a>
@@ -397,7 +397,7 @@
 			#end
                             <span class="pc_site_display_name">${user.displayName}</span>
                             {if user.offline == false}
-                              {if user.video=='none' || !portal.chat.video || !portal.chat.video.isVideoEnabled()}
+                              {if user.video == 'none' || !portal.chat.video || !portal.chat.video.webrtc.isVideoEnabled()}
                               <img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
                               {/if}
                             {else}
@@ -406,7 +406,7 @@
                         {if user.offline == false}
                         </a>
                         {/if}
-                        {if user.video!='none' && portal.chat.video && portal.chat.video.isVideoEnabled()}
+                        {if user.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
                          <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${user.id}',false);">
                           <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                          </a>

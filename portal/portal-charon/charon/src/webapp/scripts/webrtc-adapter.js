@@ -1,139 +1,153 @@
 portal.chat.video.webrtc = {};
-portal.chat.video.webrtc.peerConnection = null;
+
+// RTCPeerConnection constructor function. Gets set to the correct browser function.
+portal.chat.video.webrtc.PeerConnection = null;
+
 portal.chat.video.webrtc.detectedBrowser = null;
 portal.chat.video.webrtc.currentPeerConnectionsMap = {};
 portal.chat.video.webrtc.localMediaStream = null;
-portal.chat.video.webrtc.debug = false;
+portal.chat.video.webrtc.debug = true;
+
+if(typeof console === 'undefined') portal.chat.video.webrtc.debug = false;
 
 // Set this to true if you want to support firefox, but its implementation
 // is still immature and some performance problems have been detected.
 portal.chat.video.webrtc.firefoxAllowed = true;
 
+/**
+ * Default ice server. This will potentially be overwritten by the
+ * servers call in init.
+ */
 portal.chat.video.webrtc.pc_config = {
-    "iceServers" : [ {
-        "url": "stun:stun.l.google.com:19302"
-    } ]
-};
-
-portal.chat.video.webrtc.signalService = {
-
-        "signal": function (to, content) {
-
-            jQuery.ajax({
-                url : "/direct/portal-chat/new",
-                dataType : "text",
-                cache : false,
-                type : 'POST',
-                data : {
-                    'to' : to,
-                    'message' : content,
-                    'video' : true
-                },
-                success : function (text, status) {
-                    if ('OFFLINE' === text) {
-                        /* The peer is disconnected you can close the connection */
-                        if (portal.chat.video.enabled) {
-                            portal.chat.video.setVideoStatus(to, portal.chat.video.messages.pc_video_status_user_hung, "finished");
-                            portal.chat.video.closeVideoCall(to);
-                        }
-                    }
-                },
-                error : function (xhr, textStatus, error) {
-
-                    if (403 === xhr.status) {
-                        portal.chat.handleSecurityError();
-                    }
-
-                    alert("Failed to send message. Reason: " + textStatus + ". Error: " + error);
-                }
-            });
-        },
-        "send": function (userid, content) {
-
-            this.signal(userid, content);
-        },
-        "onReceive": function (userid, message, videoAgentType) {
-
-            portal.chat.video.webrtc.onReceive(userid, message, videoAgentType);
-        }
+        'iceServers' : [{'url': 'stun:stun.l.google.com:19302'}]
     };
 
+portal.chat.video.webrtc.signal = function (peerUUID, content) {
+
+    if(this.debug) console.debug('webrtc.signal(' + peerUUID + ', ' + content + ')');
+
+    var video = portal.chat.video;
+
+    jQuery.ajax({
+        url : '/direct/portal-chat/new',
+        dataType : 'text',
+        cache : false,
+        type : 'POST',
+        data : {
+            'to' : peerUUID,
+            'message' : content,
+            'video' : true
+        },
+        success : function (text, status) {
+            if ('OFFLINE' === text) {
+                /* The peer is disconnected you can close the connection */
+                video.setVideoStatus(peerUUID, video.messages.pc_video_status_user_hung, 'finished');
+                video.closeVideoCall(peerUUID);
+            }
+        },
+        error : function (xhr, textStatus, error) {
+
+            if (403 === xhr.status) {
+                portal.chat.handleSecurityError();
+            }
+
+            alert('Failed to send signal. Reason: ' + textStatus + '. Error: ' + error);
+        }
+    });
+};
 
 portal.chat.video.webrtc.init = function () {
+
+    if(this.debug) console.debug('webrtc.init');
 
     // First of all we try to detect which navigator is trying to use the
     // videoconference from getUserMedia diferences
     if (navigator.getUserMedia) {
-        this.detectedBrowser = "webrtcenabled";
+        this.detectedBrowser = 'webrtcenabled';
     } else if (this.firefoxAllowed && navigator.mozGetUserMedia) {
-        this.detectedBrowser = "firefox";
+        this.detectedBrowser = 'firefox';
         navigator.getUserMedia = navigator.mozGetUserMedia;
-        portal.chat.video.webrtc.peerConnection = mozRTCPeerConnection;
+        this.PeerConnection = mozRTCPeerConnection;
         RTCSessionDescription = mozRTCSessionDescription;
         RTCIceCandidate = mozRTCIceCandidate;
         
-        if (!MediaStream.prototype.getVideoTracks){
-        	MediaStream.prototype.getVideoTracks = function () {
-
-        		return [];
-        	};
+        if (!MediaStream.prototype.getVideoTracks) {
+        	MediaStream.prototype.getVideoTracks = function () { return []; };
         }
-        if (!MediaStream.prototype.getAudioTracks){
-        	MediaStream.prototype.getAudioTracks = function () {
 
-        		return [];
-        	};
+        if (!MediaStream.prototype.getAudioTracks) {
+        	MediaStream.prototype.getAudioTracks = function () { return []; };
     	}
-        
-        
     } else if (navigator.webkitGetUserMedia) {
-        this.detectedBrowser = "chrome";
+        this.detectedBrowser = 'chrome';
         navigator.getUserMedia = navigator.webkitGetUserMedia;
-        portal.chat.video.webrtc.peerConnection = webkitRTCPeerConnection;
+        this.PeerConnection = webkitRTCPeerConnection;
         
         if (!webkitRTCPeerConnection.prototype.getLocalStreams) {
-            webkitRTCPeerConnection.prototype.getLocalStreams = function () {
-
-                return this.localStreams;
-            };
-            webkitRTCPeerConnection.prototype.getRemoteStreams = function () {
-
-                return this.remoteStreams;
-            };
+            webkitRTCPeerConnection.prototype.getLocalStreams = function () { return this.localStreams; };
+            webkitRTCPeerConnection.prototype.getRemoteStreams = function () { return this.remoteStreams; };
         }
     } else {
-        this.detectedBrowser = "none";
+        this.detectedBrowser = 'none';
     }
 
-    var webRTCClass = this;
+    var self = this;
 
-    jQuery.ajax({
+    $.ajax({
         url : '/direct/portal-chat/' + portal.user.id + '/servers.json',
         dataType : "json",
         cache : false,
         success : function (data, status) {
 
-            webRTCClass.pc_config = data.data;
             var iceServers = [];
             
-            $.each(webRTCClass.pc_config.iceServers, function (key, value) {
+            $.each(data.data.iceServers, function (index, iceServer) {
 
-                value.url = webRTCClass.getUrlFromIce(value);
-                if (value.url !== "") {
-                    iceServers.push(value);
+                iceServer.url = self.getUrlFromIce(iceServer);
+                if (iceServer.url !== "") {
+                    iceServers.push(iceServer);
                 }
             });
-            webRTCClass.pc_config.iceServers = iceServers;
+
+            self.pc_config.iceServers = iceServers;
             
-            if (webRTCClass.debug) {
-                console.log(webRTCClass.pc_config);
+            if (self.debug) {
+                console.log(self.pc_config);
             }
         }
     });
-};
+
+    var self = this;
+
+    // Update the durations for current calls, every second.
+    setInterval( function () {
+
+            $.each(Object.keys(self.currentPeerConnectionsMap), function (index, peerUUID) {
+
+                var startTime = self.currentPeerConnectionsMap[peerUUID].startTime;
+                var ms = (new Date()).getTime() - startTime;
+                var secs = ms / 1000;
+                ms = Math.floor(ms % 1000);
+                var mins = secs / 60;
+                secs = Math.floor(secs % 60);
+                var hours = mins / 60;
+                mins = Math.floor(mins % 60);
+                hours = Math.floor(hours % 24);
+
+                if(hours < 10) hours = '0' + hours;
+                if(mins < 10) mins = '0' + mins;
+                if(secs < 10) secs = '0' + secs;
+
+                var formattedDuration = hours + ":" + mins + ":" + secs;  
+                $('#pc_connection_' + peerUUID + '_time').html(formattedDuration);
+            });
+        }, 1000);
+}; // init
 
 // This method constructs adecuated URL for current browser
 portal.chat.video.webrtc.getUrlFromIce = function (ice) {
+
+    if(this.debug) console.debug('webrtc.getUrlFromIce(' + ice + ')');
     
     //No need to parse stun server if it's not a webrtc capable browser
     if (this.detectedBrowser === 'none') {
@@ -145,7 +159,7 @@ portal.chat.video.webrtc.getUrlFromIce = function (ice) {
             // Firefox only support IP's in stun hosts
             return "";
         } else {
-            return ice.protocol + ":" + ice.host;
+            return ice.protocol + ':' + ice.host;
         }
     } else {
         if (this.detectedBrowser === 'firefox') {
@@ -155,42 +169,44 @@ portal.chat.video.webrtc.getUrlFromIce = function (ice) {
             if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
                 return ice.protocol + ":" + ice.host;
             } else {
-                return ice.protocol + ":" + encodeURIComponent(ice.username) + "@" + ice.host;
+                return ice.protocol + ':' + encodeURIComponent(ice.username) + '@' + ice.host;
             }
         }
     } 
 };
 
-/* Call this process to start a video call */
-portal.chat.video.webrtc.doCall = function (userid, videoAgentType, started, success, fail) {
+/**
+ * Call this function to start a video call
+ */
+portal.chat.video.webrtc.doCall = function (peerUUID, videoAgentType, onStartedCallback, onConnectedCallback, onFailedCallback) {
 
-    var callConnection = this.currentPeerConnectionsMap[userid];
+    if(this.debug) console.debug('webrtc.doCall(' + peerUUID + ', ' + videoAgentType + ')');
+
+    var callConnection = this.currentPeerConnectionsMap[peerUUID];
 
     if (callConnection == null) {
-        callConnection = this.setupPeerConnection(userid, videoAgentType, success, fail);
+        callConnection = this.setupPeerConnection(peerUUID, videoAgentType, onConnectedCallback, onFailedCallback);
         callConnection.isCaller = true;
     }
 
-    var webRTCClass = this;
-
     if (this.localMediaStream != null) {
-        started(userid, webRTCClass.localMediaStream);
-        webRTCClass.offerStream(callConnection, userid, success, fail);
+        onStartedCallback(peerUUID, this.localMediaStream);
+        this.offerStream(callConnection, peerUUID, onConnectedCallback, onFailedCallback);
     } else {
-
+        var self = this;
         navigator.getUserMedia(
-            {audio: true, video: true}
+            { audio: true, video: true }
             , function (localMediaStream) {
 
-                /* Call started function to fire rendering effects on the screen */
+                /* Call onStartedCallback function to fire rendering effects on the screen */
                 //Let's check if the connection is currently in the connection map
-                if (webRTCClass.currentPeerConnectionsMap[userid] != null){ 
-                    webRTCClass.localMediaStream = localMediaStream;
-                    started(userid, webRTCClass.localMediaStream);
-                    webRTCClass.offerStream(callConnection, userid, success, fail);
+                if (self.currentPeerConnectionsMap[peerUUID] != null){ 
+                    self.localMediaStream = localMediaStream;
+                    onStartedCallback(peerUUID, self.localMediaStream);
+                    self.offerStream(callConnection, peerUUID, onConnectedCallback, onFailedCallback);
                 } else {
                     //In the case it does not exits and there is no more connections then stop and close the localvideo
-                    var keys = Object.keys(webRTCClass.currentPeerConnectionsMap);
+                    var keys = Object.keys(self.currentPeerConnectionsMap);
 
                     if (keys.length < 1 && localMediaStream != null) {
                         localMediaStream.stop();
@@ -199,75 +215,82 @@ portal.chat.video.webrtc.doCall = function (userid, videoAgentType, started, suc
                 }
             }
             , function () {
-                fail(userid)
+                onFailedCallback(peerUUID)
             });
     }
 };
 
-/*
- * Provide this function. It will be called when receiving a incoming call
+/**
+ * Called when receiving a incoming call
  */
-portal.chat.video.webrtc.onReceiveCall = function (userid) {
+portal.chat.video.webrtc.onReceiveCall = function (peerUUID) {
+
+    if(this.debug) console.debug('webrtc.onReceiveCall(' + peerUUID + ')');
+
+    var video = portal.chat.video;
 
     var callTime = null;
-    if (portal.chat.video.getCurrentCall(userid)) {
-        if (portal.chat.video.getCurrentCallStatus(userid) === "SYNC") {
+    if (video.getCurrentCall(peerUUID)) {
+        if (video.getCurrentCallStatus(peerUUID) === video.statuses.QUEUED) {
             // I'm calling to the same user at the same time, discard !!
-            portal.chat.video.changeCallStatus(userid, "ANSWERING");
-        } else if (portal.chat.video.getCurrentCallStatus(userid) === "ESTABLISHING") {
+            video.changeCallStatus(peerUUID, video.statuses.ANSWERING);
+        } else if (video.getCurrentCallStatus(peerUUID) === video.statuses.ESTABLISHING) {
             // We call each other at the same time
-            if (userid < portal.user.id) {
+            if (peerUUID < portal.user.id) {
                 // I discard the call and go with the answer (do not send bye)
-                portal.chat.video.doClose(userid, true);
+                video.doClose(peerUUID, true);
             } else {
                 // I do the call discard the answer
                 return;
             }  
         }
-        callTime = portal.chat.video.getCurrentCallTime(userid);
+        callTime = video.getCurrentCallTime(peerUUID);
         
     } else {
         callTime = new Date().getTime();
-        portal.chat.video.createNewCall(userid, {
-            'status':'ANSWERING',
-            'calltime':callTime
+        video.queueNewCall(peerUUID, {
+            'status': video.statuses.ANSWERING,
+            'calltime': callTime
         });
     }
     
-    portal.chat.video.openVideoCall (userid,true);
-    portal.chat.video.setVideoStatus(userid,portal.chat.video.messages.pc_video_status_incoming_call, "waiting");
-    setTimeout('portal.chat.video.doAnswerTimeout("' + userid + '",' + callTime + ')', portal.chat.video.getCallTimeout());
+    video.openVideoCall(peerUUID, true);
+    video.setVideoStatus(peerUUID, video.messages.pc_video_status_incoming_call, 'waiting');
+    setTimeout('portal.chat.video.doAnswerTimeout("' + peerUUID + '",' + callTime + ')', video.callTimeout);
 };
 
-/* Call this function to start the answer process to a previous call */
+/**
+ * Call this function to start the answer process to a previous call
+ */
+portal.chat.video.webrtc.answerCall = function(peerUUID, startAnswerCallback, onSuccessCallback, fail) {
 
-portal.chat.video.webrtc.answerCall = function(userid, videoAgentType, startAnswer, success, fail) {
+    if(this.debug) console.debug('webrtc.answerCall(' + peerUUID + ')');
 
-    var callConnection = this.currentPeerConnectionsMap[userid];
+    var callConnection = this.currentPeerConnectionsMap[peerUUID];
 
     // Set up the triggered functions
-    callConnection.onsuccessconn = success;
+    callConnection.ononSuccessCallbackconn = onSuccessCallback;
     callConnection.onfail = fail;
     callConnection.isCaller = false;
 
-    var webRTCClass = this;
+    var self = this;
 
-    if (webRTCClass.localMediaStream != null) {
-        startAnswer(userid, webRTCClass.localMediaStream);
-        webRTCClass.offerStream(callConnection, userid, success, fail);
+    if (self.localMediaStream != null) {
+        startAnswerCallback(peerUUID, self.localMediaStream);
+        self.offerStream(callConnection, peerUUID, onSuccessCallback, fail);
 
     } else {
         navigator.getUserMedia(
             {audio: true, video: true}
             , function (localMediaStream) {
                 /* Call started function to fire rendering effects on the screen */
-                if (webRTCClass.currentPeerConnectionsMap[userid] != null){ 
-                    webRTCClass.localMediaStream = localMediaStream;
-                    startAnswer(userid, webRTCClass.localMediaStream );
-                    webRTCClass.offerStream(callConnection, userid, success, fail);
+                if (self.currentPeerConnectionsMap[peerUUID] != null){ 
+                    self.localMediaStream = localMediaStream;
+                    startAnswerCallback(peerUUID, self.localMediaStream );
+                    self.offerStream(callConnection, peerUUID, onSuccessCallback, fail);
                 } else {
                     //In the case it does not exits and there is no more connections then stop and close the localvideo
-                    var keys = Object.keys(webRTCClass.currentPeerConnectionsMap);
+                    var keys = Object.keys(self.currentPeerConnectionsMap);
 
                     if (keys.length < 1 && localMediaStream != null) {
                         localMediaStream.stop();
@@ -276,120 +299,129 @@ portal.chat.video.webrtc.answerCall = function(userid, videoAgentType, startAnsw
                 }
             }
             , fail);
-
     }
 };
 
-/*
- * That method will be called when caller receive answer onReceiveAnswer =
- * function (userid){ }
- * 
- * /*Call this function to announce you want to hangup, success callback is
- * launched when the pair get the request, fail in other case
+/**
+ * Call this function to announce you want to hangup, success callback is
+ * launched when the pair get the request, fail in other case.
  */
-portal.chat.video.webrtc.hangUp = function (userid, skipBye) {
+portal.chat.video.webrtc.hangUp = function (peerUUID, skipBye) {
 
-    var callConnection = this.currentPeerConnectionsMap[userid];
+    if(this.debug) console.debug('webrtc.hangUp(' + peerUUID + ', ' + skipBye + ')');
+
+    var callConnection = this.currentPeerConnectionsMap[peerUUID];
     if (callConnection != null) {
-        var pc = callConnection.rtcPeerConnection;
+        var peerConnection = callConnection.rtcPeerConnection;
 
-        if (pc != null) {
-            pc.close();
+        if (peerConnection != null) {
+            peerConnection.close();
         }
-        // If it was the last connection we stop the webcam
-        delete this.currentPeerConnectionsMap[userid];
-        var keys = Object.keys(this.currentPeerConnectionsMap);
 
+        delete this.currentPeerConnectionsMap[peerUUID];
+
+        // If it was the last connection we stop the webcam
+        var keys = Object.keys(this.currentPeerConnectionsMap);
         if (keys.length < 1 && this.localMediaStream != null) {
             this.localMediaStream.stop();
             this.localMediaStream = null;
         }
 
         if (!skipBye) {
-            this.signalService.send(userid, JSON.stringify({"bye": "bye"}));
+            this.signal(peerUUID, JSON.stringify({"bye": "bye"}));
         }
     }
 };
 
-/*
- * Provide this function. It will be called when hangup request is received,
- * or connection is lost
+/**
+ * Called when a hangup request is received, or the connection is lost.
  */
-portal.chat.video.webrtc.onHangUp = function (userid) {
+portal.chat.video.webrtc.onHangUp = function (peerUUID) {
+
+    if(this.debug) console.debug('webrtc.onHangUp(' + peerUUID + ')');
 };
 
-/*
- * Provide this function. It will be called when a ignore response is
- * received,
+/**
+ * Called when a ignore response is received,
  */
+portal.chat.video.webrtc.onIgnore = function (peerUUID) {
 
-portal.chat.video.webrtc.onIgnore = function (userid) {
+    if(this.debug) console.debug('webrtc.onIgnore(' + peerUUID + ')');
 };
 
-/* Use this helper function to hook the media stream to a especified element */
+/**
+ * Use this helper function to hook the media stream to a especified element
+ */
 portal.chat.video.webrtc.attachMediaStream = function (element, stream) {
-    if (this.detectedBrowser === "firefox") {
+
+    if(this.debug) console.debug('webrtc.attachMediaStream');
+
+    if (this.detectedBrowser === 'firefox') {
         element.mozSrcObject = stream;
         element.play();
-    } else if (this.detectedBrowser === "chrome") {
+    } else if (this.detectedBrowser === 'chrome') {
         element.src = webkitURL.createObjectURL(stream);
     }
     element.play();
 };
 
-portal.chat.video.webrtc.offerStream = function (callConnection, to, successCall, failedCall) {
+portal.chat.video.webrtc.offerStream = function (callConnection, peerUUID, onSuccessCallback, onFailedCallback) {
 
-    var pc = callConnection.rtcPeerConnection;
+    if(this.debug) console.debug('webrtc.offerStream');
 
-    pc.addStream(this.localMediaStream);
+    var peerConnection = callConnection.rtcPeerConnection;
 
-    var webRTCClass = this;
+    peerConnection.addStream(this.localMediaStream);
 
-    /*
-     * Declare the success function to be launched when remote stream is
-     * added
-     */
+    var self = this;
 
     if (callConnection.isCaller) {
-        var constrains = {optional: []};
+        var mediaConstraints = {optional: []};
         
-        if (this.detectedBrowser === "firefox"){
-            constrains["mandatory"] = {
+        if (this.detectedBrowser === 'firefox') {
+            mediaConstraints['mandatory'] = {
                     OfferToReceiveAudio: true,
                     OfferToReceiveVideo: true,
                     MozDontOfferDataChannel: true
                 };
         }
         
-        pc.createOffer(function (desc) {
+        peerConnection.createOffer(
+            function (rtcSessionDescription) {
 
-            // we won't call success, we will wait until peer offers the
-            // stream.
-            webRTCClass.gotDescription(to, desc);
-        }, failedCall, constrains);
+                // RTCSessionDescriptionCallback
+
+                if(self.debug) console.debug('offer created successfully');
+
+                // we won't call success, we will wait until peer offers the stream.
+                self.gotDescription(peerUUID, rtcSessionDescription);
+            }
+            , onFailedCallback
+            , mediaConstraints);
     } else {
-        pc.createAnswer(function (desc) {
+        peerConnection.createAnswer(function (rtcSessionDescription) {
 
-            webRTCClass.gotDescription(to, desc);
+            self.gotDescription(peerUUID, rtcSessionDescription);
 
             // In this case we have to declare the success, instead
             // on addStream
-            successCall(to, callConnection.remoteMediaStream); // In this
-        }, failedCall);
+            onSuccessCallback(peerUUID, callConnection.remoteMediaStream); // In this
+        }, onFailedCallback);
     }
-
 };
 
-/* Suport functions */
+portal.chat.video.webrtc.isVideoEnabled = function () {
 
-portal.chat.video.webrtc.isWebRTCEnabled = function () {
+    if(this.debug) console.debug('webrtc.isVideoEnabled');
 
-    return this.detectedBrowser !== "none";
+    return this.detectedBrowser !== 'none';
 };
 
-portal.chat.video.webrtc.setupPeerConnection = function (userid, videoAgentType, successConn, failConn) {
+portal.chat.video.webrtc.setupPeerConnection = function (peerUUID, videoAgentType, onSuccessCallback, onFailedCallback) {
 
-    var pc_constrains = {'optional': []};
+    if(this.debug) console.debug('webrtc.setupPeerConnection(' + peerUUID + ', ' + videoAgentType + ')');
+
+    var pc_constraints = {'optional': []};
 
     if (videoAgentType != null) {
         /*
@@ -399,71 +431,79 @@ portal.chat.video.webrtc.setupPeerConnection = function (userid, videoAgentType,
          */
 
         // Case 1 : Me = Chrome other Fireforx
-        if (this.detectedBrowser === "chrome"
-                && videoAgentType === "firefox") {
-            pc_constrains['optional'] = [ {
+        if (this.detectedBrowser === 'chrome'
+                && videoAgentType === 'firefox') {
+            pc_constraints['optional'] = [ {
                 'DtlsSrtpKeyAgreement' : 'true'
             } ];
-        } else if (this.detectedBrowser === "firefox" && videoAgentType === "chrome") {
-            pc_constrains['optional'] = [ {
+        } else if (this.detectedBrowser === 'firefox' && videoAgentType === 'chrome') {
+            pc_constraints['optional'] = [ {
                 'DtlsSrtpKeyAgreement': 'true'
             } ];
-            pc_constrains['mandatory'] = {
+            pc_constraints['mandatory'] = {
                 'MozDontOfferDataChannel': true
             };
         }
     }
 
-    var pc = new portal.chat.video.webrtc.peerConnection(this.pc_config, pc_constrains);
+    var peerConnection = new this.PeerConnection(this.pc_config, pc_constraints);
 
     // send any ice candidates to the other peer
-    var callConnection = new portal.chat.video.webrtc.CallConnection(pc, successConn, failConn);
+    var callConnection = new this.CallConnection(peerConnection, onSuccessCallback, onFailedCallback);
 
     callConnection.remoteVideoAgentType = videoAgentType;
 
-    pc.onicechange = function (event) {
-        console.info("onicechange +" + pc.iceState);
+    var self = this;
+
+    peerConnection.onicechange = function (event) {
+
+        if(self.debug) console.debug('onicechange');
     };
 
-    pc.onicechange = function (event) {
-        console.info("onicechange +" + pc.iceState);
+    peerConnection.onstatechange = function (event) {
+
+        if(self.debug) console.debug('onstatechange');
     };
 
-    pc.onstatechange = function (event) {
-        console.info("onicechange +" + pc.readyState);
-    };
+    var video = portal.chat.video;
     
     if (this.detectedBrowser === 'chrome' && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 27) {
-        pc.oniceconnectionstatechange = function (event) {
 
-            if(this.debug) {
-                console.info ("oniceconnectionstatechange " + userid + " state " + pc.iceConnectionState);
+        peerConnection.oniceconnectionstatechange = function (event) {
+
+            if(self.debug) {
+                console.debug('oniceconnectionstatechange ' + peerUUID + ' state ' + peerConnection.iceConnectionState);
             }
             
-            if (pc.iceConnectionState === "disconnected") {
-                portal.chat.video.setVideoStatus(userid, portal.chat.video.messages.pc_video_status_waiting_peer, "waiting");
+            if (peerConnection.iceConnectionState === 'disconnected') {
+                video.setVideoStatus(peerUUID, video.messages.pc_video_status_waiting_peer, 'waiting');
+
+                if(self.debug) console.debug('webrtc: iceConnectionState === disconnected. Waiting 5 seconds before retrying ...');
             
                 setTimeout(function () {
 
-                    if (pc.iceConnectionState === "disconnected"){
-                        var status = portal.chat.video.getCurrentCallStatus(userid);
-                        if (status === "ESTABLISHED"){
-                            webRTCClass.onHangUp(userid);
+                    if(self.debug) console.debug('webrtc: Testing iceConnectionState again ...');
+
+                    if (peerConnection.iceConnectionState === 'disconnected') {
+                        if (video.getCurrentCallStatus(peerUUID) === video.statuses.ESTABLISHED) {
+                            if(self.debug) console.debug('webrtc: iceConnectionState === disconnected still. Calling onHangUp ...');
+                            self.onHangUp(peerUUID);
                         }
-                    }else if (pc.iceConnectionState === "connected"){
-                        portal.chat.video.setVideoStatus(userid,portal.chat.video.messages.pc_video_status_connection_established, "video");
+                    } else if (peerConnection.iceConnectionState === 'connected') {
+                        if(self.debug) console.debug('webrtc: iceConnectionState === connected');
+                        video.setVideoStatus(peerUUID, video.messages.pc_video_status_connection_established, 'video');
                     }
                 }, 5000);
             }
         }
     }
     
-    var signalService = this.signalService;
-    var webRTCClass = this;
+    var signal = this.signal;
 
-    pc.onicecandidate = function (event) {
+    peerConnection.onicecandidate = function (event) {
+
         if (event.candidate) {
-            signalService.send(userid, JSON.stringify({
+            signal(peerUUID, JSON.stringify({
                 type: 'candidate',
                 label: event.candidate.sdpMLineIndex,
                 id: event.candidate.sdpMid,
@@ -472,92 +512,97 @@ portal.chat.video.webrtc.setupPeerConnection = function (userid, videoAgentType,
         }
     };
 
-    pc.onaddstream = function (event) {
+    peerConnection.onaddstream = function (event) {
+
         callConnection.remoteMediaStream = event.stream;
 
         if (callConnection.onsuccessconn != null) {
 
-            /*
-             * In this case we have declared what to do in case of success
-             * connection (Offer)
-             */
-            callConnection.onsuccessconn(userid, event.stream);
+            // In this case we have declared what to do in case of success
+            callConnection.onsuccessconn(peerUUID, event.stream);
         }
     };
-    this.currentPeerConnectionsMap[userid] = callConnection;
+
+    this.currentPeerConnectionsMap[peerUUID] = callConnection;
 
     return callConnection;
 };
 
-portal.chat.video.webrtc.gotDescription = function (uuid, desc) {
+portal.chat.video.webrtc.gotDescription = function (peerUUID, rtcSessionDescription) {
 
-    var callConnection = this.currentPeerConnectionsMap[uuid];
+    if(this.debug) console.debug('webrtc.gotDescription(' + peerUUID + ', ' + rtcSessionDescription + ')');
+
+    var callConnection = this.currentPeerConnectionsMap[peerUUID];
 
     if(callConnection) {
-        var pc = callConnection.rtcPeerConnection;
+        var peerConnection = callConnection.rtcPeerConnection;
 
-        if (callConnection.remoteVideoAgentType === "chrome" && this.detectedBrowser === "firefox") {
-            desc.sdp = this.getInteropSDP(desc.sdp);
+        if (callConnection.remoteVideoAgentType === 'chrome' && this.detectedBrowser === 'firefox') {
+            rtcSessionDescription.sdp = this.getInteropSDP(rtcSessionDescription.sdp);
         }
 
-        if (pc != null) {
-            pc.setLocalDescription(desc);
-            this.signalService.send(uuid, JSON.stringify({"sdp": desc}));
+        if (peerConnection != null) {
+            peerConnection.setLocalDescription(rtcSessionDescription);
+            this.signal(peerUUID, JSON.stringify({'sdp': rtcSessionDescription}));
         }
     } else {
         if(this.debug) {
-            console.error("No call connection for uuid'" + uuid + "'.");
+            console.error("No call connection for peerUUID '" + peerUUID + "'.");
         }
         // TODO: Can this ever happen?
     }
 };
 
 /*
- * That function is called when the signal service receive a message
+ * Called when a message is received from the signalling server (Sakai)
  */
-portal.chat.video.webrtc.onReceive = function (from, message, videoAgentType) {
+portal.chat.video.webrtc.onReceive = function (peerUUID, message) {
 
-    var signal = JSON.parse(message.content);
+    if(this.debug) console.debug('webrtc.onReceive(' + peerUUID + ')');
 
-    if (this.debug) {
-        console.log(message);
-    }
+    var receivedSignal = JSON.parse(message.content);
 
-    if (signal.sdp && videoAgentType!= 'none') {
+    console.log('SDP type: ' + receivedSignal.sdp.type);
+    console.log('Candidate: ' + receivedSignal.candidate);
+    console.log('Bye: ' + receivedSignal.bye);
+    
+    var videoAgentType = portal.chat.video.getRemoteVideoAgent(peerUUID);
 
-        if (signal.sdp.type === "offer") {
-            this.onReceiveCall(from);
+    if (receivedSignal.sdp && videoAgentType != 'none') {
+
+        if (receivedSignal.sdp.type === 'offer') {
+            if(this.debug) console.debug('webrtc: offer');
+            this.onReceiveCall(peerUUID);
         }
 
-        var callConnection = this.currentPeerConnectionsMap[from];
+        var callConnection = this.currentPeerConnectionsMap[peerUUID];
 
         if (callConnection == null) {
-            callConnection = this.setupPeerConnection(from, videoAgentType);
-            this.currentPeerConnectionsMap[from] = callConnection;
+            callConnection = this.setupPeerConnection(peerUUID, videoAgentType);
+            this.currentPeerConnectionsMap[peerUUID] = callConnection;
         }
 
-        var pc = callConnection.rtcPeerConnection;
-        pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+        callConnection.rtcPeerConnection.setRemoteDescription(new RTCSessionDescription(receivedSignal.sdp));
 
-    } else if (signal.candidate != null && videoAgentType!= 'none') {
-        var callConnection = this.currentPeerConnectionsMap[from];
+    } else if (receivedSignal.candidate != null && videoAgentType != 'none') {
+        var callConnection = this.currentPeerConnectionsMap[peerUUID];
         if (callConnection != null) {
-            var pc = callConnection.rtcPeerConnection;
-            pc.addIceCandidate(new RTCIceCandidate({
-                sdpMLineIndex : signal.label,
-                candidate : signal.candidate
+            var peerConnection = callConnection.rtcPeerConnection;
+            peerConnection.addIceCandidate(new RTCIceCandidate({
+                sdpMLineIndex : receivedSignal.label,
+                candidate : receivedSignal.candidate
             }));
         } else {
-            //For now, we send a bye signal in M2 we will try to reconnect.
-            this.signalService.send(from, JSON.stringify({"bye" : "bye"}));
+            //For now, we send a bye receivedSignal in M2 we will try to reconnect.
+            this.signal(peerUUID, JSON.stringify({"bye" : "bye"}));
         }
-    } else if (signal.bye != null) {
-        var callConnection = this.currentPeerConnectionsMap[from];
+    } else if (receivedSignal.bye != null) {
+        var callConnection = this.currentPeerConnectionsMap[peerUUID];
         if (callConnection != null) {
-            if (signal.bye === "bye") {
-                this.onHangUp(from);
-            } else if (signal.bye === "ignore") {
-                this.onIgnore(from);
+            if (receivedSignal.bye === "bye") {
+                this.onHangUp(peerUUID);
+            } else if (receivedSignal.bye === "ignore") {
+                this.onIgnore(peerUUID);
             }
             // In the case of not having a previous connection could be a
             // refuse message
@@ -567,49 +612,65 @@ portal.chat.video.webrtc.onReceive = function (from, message, videoAgentType) {
 
 portal.chat.video.webrtc.getInteropSDP = function (sdp) {
 
+    if(this.debug) console.debug('webrtc.getInteropSDP(' + sdp + ')');
+
     var inline = 'a=crypto:1 AES_CM_128_HMAC_SHA1_80 inline:ABCDEFGHIJKLMNOPQRSTUVWXYZ01234567890abc\r\nc=IN';
     return sdp.indexOf('a=crypto') == -1 ? sdp.replace(/c=IN/g, inline) : sdp;
 };
 
 portal.chat.video.webrtc.enableLocalVideo = function () {
 
+    if(this.debug) console.debug('webrtc.enableLocalVideo');
+
     this.localMediaStream.getVideoTracks()[0].enabled = true;
 };
 
 portal.chat.video.webrtc.disableLocalVideo = function () {
+
+    if(this.debug) console.debug('webrtc.disableLocalVideo');
 
     this.localMediaStream.getVideoTracks()[0].enabled = false;
 };
 
 portal.chat.video.webrtc.muteLocalAudio = function () {
 
+    if(this.debug) console.debug('webrtc.muteLocalAudio');
+
     this.localMediaStream.getAudioTracks()[0].enabled = false;
 };
 
 portal.chat.video.webrtc.unmuteLocalAudio = function () {
 
+    if(this.debug) console.debug('webrtc.unmuteLocalAudio');
+
     this.localMediaStream.getAudioTracks()[0].enabled = true;
 };
 
-portal.chat.video.webrtc.onIgnore = function (userid) {
+portal.chat.video.webrtc.onIgnore = function (peerUUID) {
 
-    portal.chat.video.closeVideoCall (userid);
-    portal.chat.video.setVideoStatus(userid,portal.chat.video.messages.pc_video_status_user_refused, "failed");
+    if(this.debug) console.debug('webrtc.onIgnore(' + peerUUID + ')');
+
+    portal.chat.video.closeVideoCall(peerUUID);
+    portal.chat.video.setVideoStatus(peerUUID, portal.chat.video.messages.pc_video_status_user_refused, "failed");
 };
 
-portal.chat.video.webrtc.onHangUp = function (uuid) {
+portal.chat.video.webrtc.onHangUp = function (peerUUID) {
+
+    if(this.debug) console.debug('webrtc.onHangUp(' + peerUUID + ')');
+
+    var video = portal.chat.video;
 
     //check if the connection you want to close is in fullScreen
-    if (portal.chat.video.isFullScreenEnabled(uuid)) {
-        portal.chat.video.minimizeVideo();
+    if (video.isFullScreenEnabled(peerUUID)) {
+        video.minimizeVideo();
     }
         
-    portal.chat.video.setVideoStatus(uuid, portal.chat.video.messages.pc_video_status_user_hung, "finished");
-    portal.chat.video.doClose(uuid);
-    $('#pc_connection_' + uuid + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
-    $('#pc_connection_' + uuid + '_videochat_bar .video_off').show();
-    $('#pc_connection_' + uuid + '_videochat_bar .video_on').hide();
-    $('#pc_connection_' + uuid + '_videoin').hide();
+    video.setVideoStatus(peerUUID, video.messages.pc_video_status_user_hung, "finished");
+    video.doClose(peerUUID);
+    $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+    $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
+    $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
+    $('#pc_connection_' + peerUUID + '_videoin').hide();
 };
 
 /** 
@@ -623,5 +684,5 @@ portal.chat.video.webrtc.CallConnection = function (pc, success, failed) {
 	this.isCaller = null;
 	this.remoteMediaStream = null;
 	this.remoteVideoAgentType = null;
-	this.startTime = new Date();
+	this.startTime = new Date().getTime();
 };
