@@ -102,7 +102,8 @@ public class AutoReminderEmail extends SignupEmailBase {
 			Object[] paramsTimeframe = new Object[] {
 					getTime(item.getStartTime()).toStringLocalTime(),
 					getTime(item.getEndTime()).toStringLocalTime(),
-					getTime(item.getStartTime()).toStringLocalDate() };
+					getTime(item.getStartTime()).toStringLocalDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 			message.append(newline
 					+ MessageFormat.format(rb.getString("body.attendee.meeting.timeslot"), paramsTimeframe));
 		} else {
@@ -110,7 +111,8 @@ public class AutoReminderEmail extends SignupEmailBase {
 					getTime(item.getStartTime()).toStringLocalTime(),
 					getTime(item.getStartTime()).toStringLocalShortDate(),
 					getTime(item.getEndTime()).toStringLocalTime(),
-					getTime(item.getEndTime()).toStringLocalShortDate() };
+					getTime(item.getEndTime()).toStringLocalShortDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 			message.append(newline
 					+ MessageFormat.format(rb.getString("body.attendee.meeting.crossdays.timeslot"), paramsTimeframe));
 		}

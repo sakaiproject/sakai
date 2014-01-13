@@ -102,7 +102,8 @@ public class OrganizerPreAssignEmail extends SignupEmailBase {
 		if (!meeting.isMeetingCrossDays()) {
 			Object[] paramsTimeframe = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
-					getTime(timeslot.getStartTime()).toStringLocalDate() };
+					getTime(timeslot.getStartTime()).toStringLocalDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID() };
 			message.append(newline
 					+ MessageFormat.format(rb.getString("body.organizer.preassigned.attendee.meeting.timeframe"),
 							paramsTimeframe));
@@ -110,7 +111,8 @@ public class OrganizerPreAssignEmail extends SignupEmailBase {
 			Object[] paramsTimeframe1 = new Object[] { getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
-					getTime(timeslot.getEndTime()).toStringLocalShortDate(), };
+					getTime(timeslot.getEndTime()).toStringLocalShortDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID() };
 			message.append(newline
 					+ MessageFormat.format(rb
 							.getString("body.organizer.preassigned.attendee.meeting.crossdays.timeframe"),

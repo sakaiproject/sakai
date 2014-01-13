@@ -110,14 +110,16 @@ public class AttendeeCancellationEmail extends SignupEmailBase {
 				Object[] paramsTimeframe = new Object[] {
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
-						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate() };
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalDate(),
+						getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 				message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe));
 			} else {
 				Object[] paramsTimeframe = new Object[] {
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalTime(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getStartTime()).toStringLocalShortDate(),
 						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalTime(),
-						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalShortDate() };
+						getTime(intiatorItem.getRemovedFromTimeslot().get(0).getEndTime()).toStringLocalShortDate(),
+						getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 				message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
 						paramsTimeframe));
 			}

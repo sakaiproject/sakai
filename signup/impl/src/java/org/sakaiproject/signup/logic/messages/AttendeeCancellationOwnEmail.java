@@ -96,14 +96,16 @@ public class AttendeeCancellationOwnEmail extends SignupEmailBase implements Sig
 			Object[] paramsTimeframe = new Object[] {
 					getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
-					getTime(timeslot.getStartTime()).toStringLocalDate() };
+					getTime(timeslot.getStartTime()).toStringLocalDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 			message.append(MessageFormat.format(rb.getString("body.meeting.timeslot.timeframe"), paramsTimeframe));
 		} else {
 			Object[] paramsTimeframe = new Object[] {
 					getTime(timeslot.getStartTime()).toStringLocalTime(),
 					getTime(timeslot.getStartTime()).toStringLocalShortDate(),
 					getTime(timeslot.getEndTime()).toStringLocalTime(),
-					getTime(timeslot.getEndTime()).toStringLocalShortDate() };
+					getTime(timeslot.getEndTime()).toStringLocalShortDate(),
+					getSakaiFacade().getTimeService().getLocalTimeZone().getID()};
 			message.append(MessageFormat.format(rb.getString("body.meeting.crossdays.timeslot.timeframe"),
 					paramsTimeframe));
 		}
