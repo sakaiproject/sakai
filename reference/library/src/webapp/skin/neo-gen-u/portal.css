@@ -1792,6 +1792,37 @@ a.qtipLinkButton img {
 a.qtipLinkButton:hover {
      color: #7AA3CC !important;
 }
+div.qtip-titlebar{
+    border-bottom-width: 0 !important;
+    color: #fff !important;
+    background: #86a66e !important;
+    background: -moz-linear-gradient(top, #86a66e 0%, #509915 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#86a66e), color-stop(100%,#509915)) !important;
+    background: -webkit-linear-gradient(top, #86a66e 0%,#509915 100%) !important;
+    background: -o-linear-gradient(top, #86a66e 0%,#509915 100%) !important;
+    background: -ms-linear-gradient(top, #86a66e 0%,#509915 100%) !important;
+    background: linear-gradient(to bottom, #86a66e 0%,#509915 100%) !important;
+    border-bottom: 1px solid #007194 !important;    
+}
+
+.qtip{
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+.qtip-title:focus{
+    outline:none;
+}
+
+.qtipClose{
+    float: left;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    border: none !important;
+    background: none !important;
+}
+
 /* warning displayed when js is disabled */
 #portal_js_warn {
     font-size: 1.2em;

@@ -1719,7 +1719,6 @@ a.qtipLinkButton img {
 a.qtipLinkButton:hover {
      color: #7AA3CC !important;
 }
-
 div.qtip-titlebar{
     border-bottom-width: 0 !important;
     color: #fff !important;
@@ -1734,8 +1733,12 @@ div.qtip-titlebar{
 }
 
 .qtip{
+    font-family: inherit !important;
     font-size: inherit !important;
     line-height: inherit !important;
+}
+.qtip-title:focus{
+    outline:none;
 }
 
 .qtipClose{
