@@ -109,6 +109,7 @@
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
     <sakai.msgcntr.version>10.0-SNAPSHOT</sakai.msgcntr.version> 
+    <sakai.hierarchy.version>10.0-SNAPSHOT</sakai.hierarchy.version>
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.6</sakai.jdk.version>
