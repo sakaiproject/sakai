@@ -25,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.mail.MessagingException;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -407,7 +409,7 @@ public class ExternalLogicImpl implements ExternalLogic
 
 		try
 		{
-			List<EmailAddress> invalids = emailService.send(msg);
+			List<EmailAddress> invalids = emailService.sendMessagingException(msg);
 			List<String> rets = EmailAddress.toStringList(invalids);
 			Event event = eventService.newEvent(ExternalLogic.EVENT_EMAIL_SEND,
 					null, false);
@@ -425,6 +427,12 @@ public class ExternalLogicImpl implements ExternalLogic
 		{
 			MailsenderException me = new MailsenderException(e.getMessage(), e);
 			me.addMessage("error.no.valid.recipients", "");
+			throw me;
+		} catch (MessagingException e) {
+			MailsenderException me = new MailsenderException(e.getMessage(), e);
+			me.addMessage("error.messaging.exception", "");
+			//This one is worth logging
+			log.warn(me);
 			throw me;
 		}
 	}
