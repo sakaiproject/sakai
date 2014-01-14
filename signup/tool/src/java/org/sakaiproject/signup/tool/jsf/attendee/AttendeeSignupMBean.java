@@ -114,9 +114,11 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 					Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
 				}
 			}
-			
+
 			//also send confirmation email to attendee
-			if(sendEmail) {
+			boolean sendAttendeeEmail = Utilities.getSignupConfigParamVal("signup.email.notification.attendee.signed.up", true);
+
+			if(sendEmail || sendAttendeeEmail) {
 				try {
 					signupMeetingService.sendEmailToAttendee(signup.getSignupEventTrackingInfo());
 				} catch (Exception e) {

@@ -466,7 +466,18 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return myConfigValue;
 
 	}
-	
+
+	/**
+	 * Gets a boolean value for a configuration, instead of a string value.
+	 * @param paramname     the name of the config parameter
+	 * @param defaultValue  the default boolean value to use
+	 * @return <code>true</code> if and only if the config parameter is <code>"true"</code>.
+	 */
+	public static boolean getSignupConfigParamVal(final String paramname, final boolean defaultValue) {
+		String stringValue = getSignupConfigParamVal(paramname, String.valueOf(defaultValue));
+		return "true".equalsIgnoreCase(stringValue);
+	}
+
 	public static boolean isDataIntegritySafe(boolean isUserDefinedTS, String callerBeanType, UserDefineTimeslotBean uBean){
 		if(isUserDefinedTS && !callerBeanType.equals(uBean.getPlaceOrderBean())){
 			Utilities.addErrorMessage("You may have opened multiple Tabs in your browser, please close them and try again.");// Utilities.rb.getString("event_endtime_auto_adjusted_warning"));

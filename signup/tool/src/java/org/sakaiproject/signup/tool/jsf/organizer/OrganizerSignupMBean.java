@@ -644,7 +644,12 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 			meeting = addAttendee.signup(getMeetingWrapper().getMeeting(), timeslotWrapper.getTimeSlot(),
 					timeslotWrapper.getNewAttendee());
 
-			if (sendEmail) {
+			/*TODO : we may need to re-think adding this sendAtteneeEmail condition here.  We want that the Organizer will be enable to control 
+			 * the email notification via that checkBox on 'Organizer Meeting' page.
+			 * */
+			boolean sendAttendeeEmail = false;//Utilities.getSignupConfigParamVal("signup.email.notification.attendee.signed.up", true);
+
+			if (sendEmail || sendAttendeeEmail) {
 				try {
 					signupMeetingService.sendEmailToParticipantsByOrganizerAction(addAttendee
 							.getSignupEventTrackingInfo());
