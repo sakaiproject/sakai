@@ -450,7 +450,7 @@ public class XMLImportBean implements Serializable
     catch (Exception ex)
     {
       ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorImportExport");
-      FacesMessage message = new FacesMessage( rb.getString("import_err") );
+      FacesMessage message = new FacesMessage( rb.getString("import_err_pool") );
       FacesContext.getCurrentInstance().addMessage(null, message);
     }
   }

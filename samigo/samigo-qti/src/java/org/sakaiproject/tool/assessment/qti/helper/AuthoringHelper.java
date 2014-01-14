@@ -764,7 +764,18 @@ public class AuthoringHelper
  	  // create the questionpool as an assessment
  	  ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
  	  ItemService itemService = new ItemService();
- 	  Assessment assessmentXml = new Assessment(document);
+ 	  // we need to remove a default namespace if present
+  	  Document removeNamespace = exHelper.getTransformDocument(exHelper.REMOVE_NAMESPACE_TRANSFORM);
+  	  Document flatNamespaceXml = XmlUtil.transformDocument(document, removeNamespace);
+  	  Assessment assessmentXml = new Assessment(flatNamespaceXml);
+
+  	  // validate xml first
+  	  boolean success = validateImportXml(flatNamespaceXml);
+  	  if (!success) {
+  		  throw( new RuntimeException("Invalid QTI XML format."));
+  	  }
+  	  // else continue;
+
  	  Map assessmentMap = exHelper.mapAssessment(assessmentXml);
  	  String title = (String) assessmentMap.get("title");
  	  
