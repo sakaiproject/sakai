@@ -4,6 +4,8 @@ portal.chat.video.webrtc = {};
 portal.chat.video.webrtc.PeerConnection = null;
 
 portal.chat.video.webrtc.detectedBrowser = null;
+portal.chat.video.webrtc.detectedBrowserVersion = null;
+
 portal.chat.video.webrtc.currentPeerConnectionsMap = {};
 portal.chat.video.webrtc.localMediaStream = null;
 portal.chat.video.webrtc.debug = true;
@@ -66,6 +68,14 @@ portal.chat.video.webrtc.init = function () {
         this.detectedBrowser = 'webrtcenabled';
     } else if (this.firefoxAllowed && navigator.mozGetUserMedia) {
         this.detectedBrowser = 'firefox';
+        this.detectedBrowserVersion = parseInt(navigator.userAgent.match(/Firefox\/([0-9]+)\./)[1], 10);
+        
+        //Limit webRTC connections from firefox 25 and above
+        if (this.detectedBrowserVersion < 25){
+        	this.detectedBrowser = 'none';
+        	return "";
+        }
+        
         navigator.getUserMedia = navigator.mozGetUserMedia;
         this.PeerConnection = mozRTCPeerConnection;
         RTCSessionDescription = mozRTCSessionDescription;
@@ -80,6 +90,13 @@ portal.chat.video.webrtc.init = function () {
     	}
     } else if (navigator.webkitGetUserMedia) {
         this.detectedBrowser = 'chrome';
+        this.detectedBrowserVersion = parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10);
+
+        if (this.detectedBrowserVersion < 26){
+        	this.detectedBrowser = 'none';
+        	return "";
+        }
+        
         navigator.getUserMedia = navigator.webkitGetUserMedia;
         this.PeerConnection = webkitRTCPeerConnection;
         
@@ -155,18 +172,12 @@ portal.chat.video.webrtc.getUrlFromIce = function (ice) {
     }
     
     if (ice.protocol.toLowerCase() === 'stun') {
-        if (this.detectedBrowser === 'firefox' && !ice.host.match(/^([0-9]{1,3}\.?){4}(:[0-9]{1,5}){0,1}$/)) {
-            // Firefox only support IP's in stun hosts
-            return "";
-        } else {
             return ice.protocol + ':' + ice.host;
-        }
     } else {
         if (this.detectedBrowser === 'firefox') {
-            // Firefox only support stun
-            return "";
-        } else {
-            if (parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 28) {
+            return ice.protocol + ":" + ice.host;;
+        } else if (this.detectedBrowser === 'chrome') {
+            if (this.detectedBrowserVersion >= 28) {
                 return ice.protocol + ":" + ice.host;
             } else {
                 return ice.protocol + ':' + encodeURIComponent(ice.username) + '@' + ice.host;
@@ -426,19 +437,19 @@ portal.chat.video.webrtc.setupPeerConnection = function (peerUUID, videoAgentTyp
     if (videoAgentType != null) {
         /*
          * Let's start to defining some compatibility scenarios to perform
-         * the negotiation If have videoAgentTupe I supose that I am the
+         * the negotiation If have videoAgentTupe I suppose that I am the
          * caller
          */
 
-        // Case 1 : Me = Chrome other Fireforx
+        // Case 1 : Me = Chrome other Firefox
         if (this.detectedBrowser === 'chrome'
                 && videoAgentType === 'firefox') {
             pc_constraints['optional'] = [ {
-                'DtlsSrtpKeyAgreement' : 'true'
+                'DtlsSrtpKeyAgreement' : true
             } ];
         } else if (this.detectedBrowser === 'firefox' && videoAgentType === 'chrome') {
             pc_constraints['optional'] = [ {
-                'DtlsSrtpKeyAgreement': 'true'
+                'DtlsSrtpKeyAgreement': true
             } ];
             pc_constraints['mandatory'] = {
                 'MozDontOfferDataChannel': true
@@ -467,7 +478,7 @@ portal.chat.video.webrtc.setupPeerConnection = function (peerUUID, videoAgentTyp
 
     var video = portal.chat.video;
     
-    if (this.detectedBrowser === 'chrome' && parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2]) >= 27) {
+    if ((this.detectedBrowser === 'chrome' && this.detectedBrowserVersion >= 27) || (this.detectedBrowser == 'firefox')) {
 
         peerConnection.oniceconnectionstatechange = function (event) {
 
@@ -537,9 +548,9 @@ portal.chat.video.webrtc.gotDescription = function (peerUUID, rtcSessionDescript
     if(callConnection) {
         var peerConnection = callConnection.rtcPeerConnection;
 
-        if (callConnection.remoteVideoAgentType === 'chrome' && this.detectedBrowser === 'firefox') {
+        /*if (callConnection.remoteVideoAgentType === 'chrome' && this.detectedBrowser === 'firefox') {
             rtcSessionDescription.sdp = this.getInteropSDP(rtcSessionDescription.sdp);
-        }
+        }*/
 
         if (peerConnection != null) {
             peerConnection.setLocalDescription(rtcSessionDescription);
@@ -562,9 +573,9 @@ portal.chat.video.webrtc.onReceive = function (peerUUID, message) {
 
     var receivedSignal = JSON.parse(message.content);
 
-    console.log('SDP type: ' + receivedSignal.sdp.type);
-    console.log('Candidate: ' + receivedSignal.candidate);
-    console.log('Bye: ' + receivedSignal.bye);
+    if(this.debug) console.log('SDP: ' +JSON.stringify( receivedSignal.sdp));	
+    if(this.debug) console.log('Candidate: ' + receivedSignal.candidate);
+    if(this.debug) console.log('Bye: ' + receivedSignal.bye);
     
     var videoAgentType = portal.chat.video.getRemoteVideoAgent(peerUUID);
 
