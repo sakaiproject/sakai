@@ -18,6 +18,7 @@
     <module>gradebook-service</module>
     <module>cm-service</module>
     <module>sections-service</module>
+    <module>scoring-service</module>
   </modules>
 
   <scm>
@@ -72,6 +73,12 @@
         <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.edu-services.scoring-service</groupId>
+          <artifactId>scoring-service-api</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+        </dependency>
       <!-- Used only for test data. -->
       <dependency>
         <groupId>org.sakaiproject.edu-services.sections</groupId>
