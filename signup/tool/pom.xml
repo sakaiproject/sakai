@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.sakaiproject.signup</groupId>
 		<artifactId>signup</artifactId>
-		<version>1.0-SNAPSHOT</version>
+		<version>10.0-SNAPSHOT</version>
 	</parent>
 	
 	<name>Sakai Signup Tool</name>
@@ -43,6 +43,10 @@
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-component-manager</artifactId>
 	    </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
 	    <dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
       		<artifactId>entitybroker-api</artifactId>
@@ -51,7 +55,20 @@
       		<groupId>org.sakaiproject.entitybroker</groupId>
       		<artifactId>entitybroker-utils</artifactId>
     	</dependency>
-
+        <dependency>
+            <groupId>org.sakaiproject.jsf</groupId>
+            <artifactId>jsf-tool</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.jsf</groupId>
+            <artifactId>jsf-app</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.jsf</groupId>
+            <artifactId>jsf-widgets-sun-depend</artifactId>
+            <type>pom</type>
+        </dependency>
+        
 		<!-- third party dependencies -->
 		<dependency>
 			<groupId>org.springframework</groupId>
@@ -61,14 +78,6 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
-		<dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-tool</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.sakaiproject.jsf</groupId>
-            <artifactId>jsf-app</artifactId>
-        </dependency>
 		<dependency>
 			<groupId>org.apache.myfaces.tomahawk</groupId>
 			<artifactId>tomahawk</artifactId>
@@ -89,12 +98,7 @@
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>jsp-api</artifactId>
-		</dependency>
-		<dependency>
-           	<groupId>org.sakaiproject.jsf</groupId>
-           	<artifactId>jsf-widgets-sun-depend</artifactId>
-           	<type>pom</type>
-       	</dependency>	
+		</dependency>	
 		<dependency>
 			<groupId>commons-validator</groupId>
 			<artifactId>commons-validator</artifactId>
@@ -142,10 +146,6 @@
 			<artifactId>mockito-core</artifactId>
 			<version>1.8.4</version>
 			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-calendar-api</artifactId>
 		</dependency>
 	</dependencies>
 

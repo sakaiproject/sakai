@@ -1,42 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">                                         
 	<modelVersion>4.0.0</modelVersion>
-	
 	<parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>2.10-SNAPSHOT</version>
-        <!-- version>2.9-SNAPSHOT</version -->
-        <!-- version>2.9.1</version -->
+        <version>10.0-SNAPSHOT</version>
         <relativePath>../master/pom.xml</relativePath>
-        <!-- for 2.8 -->
-        <!--
-        <version>2.8.3</version>
-        -->
     </parent>
     
-    <!-- parent>
-		<groupId>org.sakaiproject.purepoms</groupId>
-		<artifactId>sakai-standard-tool</artifactId>
-		<version>2.9.0-a02</version>
-	</parent -->
-    
-
-	
-	<name>Sakai Signup Project</name>
-	
+	<name>Sakai Signup Module</name>
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>signup</artifactId>
-	<version>1.0-SNAPSHOT</version>
-	
-	<packaging>pom</packaging>
-	
+	<version>10.0-SNAPSHOT</version>
+
 	<organization>
 		<name>Sakai Project</name>
 		<url>http://sakaiproject.org/</url>
 	</organization>
-	
 	<inceptionYear>2007</inceptionYear>
+    <packaging>pom</packaging>
 	
 	<developers>
 		<developer>
@@ -46,12 +28,15 @@
 		</developer>
 	</developers>
 	
-	
 	<contributors>
 		<contributor>
 			<name>Steve Swinsburg</name>
 			<email>steve.swinsburg@gmail.com</email>
 		</contributor>
+        <contributor>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@umich.edu</email>
+        </contributor>
 	</contributors>
 	
 	<scm>
@@ -64,80 +49,18 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<external-calendaring-service-version>1.0.5</external-calendaring-service-version>
 	</properties>
-	
-	 <distributionManagement>
-        <site>
-            <id>sakai-site</id>
-            <name>Sakai release Site</name>
-            <url>scpexe://source.sakaiproject.org/var/www/html/release/signup/${project.version}</url>
-        </site>
-    </distributionManagement>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>Sakai Plugin Repo</id>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>maven2-central-repo</id>
-            <name>Maven2 Central Repo</name>
-            <url>http://repo1.maven.org/maven2/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
-    <repositories>
-        <repository>
-            <id>sakai-maven</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>sakai-maven2-snapshots</id>
-            <name>Sakai Maven Repo</name>
-            <layout>default</layout>
-            <url>http://source.sakaiproject.org/maven2-snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>default</id>
-            <name>Maven Repository Switchboard</name>
-            <layout>default</layout>
-            <url>http://repo1.maven.org/maven2</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories> 
+    <modules>
+        <module>api</module>
+        <module>help</module>
+        <module>impl</module>
+        <module>pack</module>
+        <module>tool</module>
+        <module>deploy</module>
+    </modules>
+ 
 	<dependencyManagement>
 		<dependencies>
-			
             <dependency>
                 <groupId>org.azeckoski</groupId>
                 <artifactId>reflectutils</artifactId>
@@ -145,44 +68,67 @@
             </dependency>
 			<!--  project dependencies -->
 			<dependency>
-				<groupId>org.sakaiproject.signup</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>signup-api</artifactId>
 				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.sakaiproject.signup</groupId>
+				<groupId>${project.groupId}</groupId>
 				<artifactId>signup-impl</artifactId>
 				<version>${project.version}</version>
 				<scope>runtime</scope>
 			</dependency>
-			
-			
+            
 			<!-- sakai dependencies -->
 			<dependency>
 				<groupId>org.sakaiproject</groupId>
 				<artifactId>sakai-calendar-api</artifactId>
-				<version>2.8.0</version>
+				<version>${sakai.version}</version>
 				<scope>provided</scope>
 			</dependency>
-			<dependency>
-				<groupId>org.sakaiproject</groupId>
-				<artifactId>generic-dao</artifactId>
-				<version>0.9.18</version>
-				<scope>provided</scope>
-			</dependency>
+            <dependency>
+                <groupId>org.sakaiproject.calendaring</groupId>
+                <artifactId>external-calendaring-service-api</artifactId>
+                <version>${external-calendaring-service-version}</version>
+                <scope>provided</scope>
+            </dependency>
 			<dependency>
 				<groupId>org.sakaiproject.entitybroker</groupId>
 				<artifactId>entitybroker-api</artifactId>
-                <version>1.5.3</version>
+                <version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
     		<dependency>
 				<groupId>org.sakaiproject.entitybroker</groupId>
 				<artifactId>entitybroker-utils</artifactId>
-                <version>1.5.3</version>
+                <version>${project.version}</version>
 				<scope>compile</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.sakaiproject</groupId>
+                <artifactId>generic-dao</artifactId>
+                <version>0.9.18</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.jsf</groupId>
+                <artifactId>jsf-tool</artifactId>
+                <version>${sakai.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.jsf</groupId>
+                <artifactId>jsf-app</artifactId>
+                <version>${sakai.version}</version>
+                <scope>compile</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.jsf</groupId>
+                <artifactId>jsf-widgets-sun-depend</artifactId>
+                <version>${sakai.version}</version>
+                <type>pom</type>
+            </dependency>
 			
 			<!-- third party dependencies -->
 			<dependency>
@@ -274,41 +220,19 @@
 				<artifactId>servlet-api</artifactId>
 				<version>2.4</version>
 				<scope>provided</scope>
-			</dependency>
-			
-			<dependency>
-            	<groupId>org.sakaiproject.jsf</groupId>
-            	<artifactId>jsf-tool</artifactId>
-				<version>2.9.0</version>
-				<scope>compile</scope>
-        	</dependency>
-        	<dependency>
-            	<groupId>org.sakaiproject.jsf</groupId>
-            	<artifactId>jsf-app</artifactId>
-				<version>2.9.0</version>
-				<scope>compile</scope>
-        	</dependency>
-        	<dependency>
-            	<groupId>org.sakaiproject.jsf</groupId>
-            	<artifactId>jsf-widgets-sun-depend</artifactId>
-				<version>2.9.0</version>
-            	<type>pom</type>
-        	</dependency>		
-			
+			</dependency>		
 			<dependency>
 				<groupId>org.apache.myfaces.tomahawk</groupId>
 				<artifactId>tomahawk</artifactId>
 				<version>1.1.11</version>
 				<scope>compile</scope>
 			</dependency>
-		
 			<dependency>
 				<groupId>org.apache.poi</groupId>
 				<artifactId>poi</artifactId>
 				<version>3.5-FINAL</version>
 				<scope>compile</scope>
 			</dependency>
-
 			<dependency>
 				<groupId>javax.servlet</groupId>
 				<artifactId>jstl</artifactId>
@@ -327,7 +251,6 @@
 				<version>2.0</version>
 				<scope>provided</scope>
 			</dependency>
-
 			<dependency>
 				<groupId>commons-validator</groupId>
 				<artifactId>commons-validator</artifactId>
@@ -346,47 +269,25 @@
 				<version>2.0.8</version>
 				<scope>compile</scope>
 			</dependency>
-			
 			<dependency>
 				<groupId>net.sf.opencsv</groupId>
 				<artifactId>opencsv</artifactId>
 				<version>2.3</version>
 				<scope>compile</scope>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.projectlombok</groupId>
 				<artifactId>lombok</artifactId>
 				<version>0.10.8</version>
 				<scope>provided</scope>
 			</dependency>
-			
-			<dependency>
-				<groupId>org.sakaiproject.calendaring</groupId>
-				<artifactId>external-calendaring-service-api</artifactId>
-				<version>${external-calendaring-service-version}</version>
-				<scope>provided</scope>
-			</dependency>
-			
 			<dependency>
       			<groupId>org.mnode.ical4j</groupId>
       			<artifactId>ical4j</artifactId>
       			<version>1.0.3</version>
     		</dependency>
-			
 		</dependencies>
 	</dependencyManagement>
-	
-	<modules>
-		<module>api</module>
-		<module>help</module>
-		<module>impl</module>
-		<module>pack</module>
-		<module>tool</module>
-		<module>assembly</module>
-		<module>deploy</module>
-	</modules>
-	
+
 	<build />
-	
 </project>
