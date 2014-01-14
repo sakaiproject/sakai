@@ -114,8 +114,6 @@ public class CalendarBean {
 	private MonthWeek								week6					= new MonthWeek();
 	private CalendarEventVector						calendarEventVector		= null;
 	private String									siteId					= null;
-	private String[]								months					= { "month.jan", "month.feb", "month.mar", "month.apr", "month.may", "month.jun", "month.jul", "month.aug", "month.sep", "month.oct",
-			"month.nov", "month.dec"											};
 
 	private Map	<String, String>									eventImageMap			= new HashMap<String, String>();
 	

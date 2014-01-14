@@ -30,6 +30,8 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.time.api.TimeBreakdown;
 
+import org.sakaiproject.util.CalendarUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,22 +42,27 @@ public class SMWRecurrenceRule extends RecurrenceRuleBase
 {
 	
 	protected final static String FREQ = "SMW";
+	private CalendarUtil calUtil = null;
 	
 	public SMWRecurrenceRule() {
 		super();
+		calUtil = new CalendarUtil();
 	}	
 	
 	public SMWRecurrenceRule(int interval) {
 		super(interval);
+		calUtil = new CalendarUtil();
 	}	
 
 	
 	public SMWRecurrenceRule(int interval, int count) {
 		super(interval, count);
+		calUtil = new CalendarUtil();
 	}	
 	
 	public SMWRecurrenceRule(int interval, Time until) {
 		super(interval, until);	
+		calUtil = new CalendarUtil();
 	}	
 	
 	public Element toXml(Document doc, Stack stack) {
@@ -76,7 +83,7 @@ public class SMWRecurrenceRule extends RecurrenceRuleBase
 	 * {@inheritDoc}
 	 */
 	public String getFrequencyDescription() {
-		return rb.getString("set.SMW");
+		return rb.getFormattedMessage("set.SMW.fm", calUtil.getDayOfWeekName(0), calUtil.getDayOfWeekName(1), calUtil.getDayOfWeekName(3));
 	}
    
 	

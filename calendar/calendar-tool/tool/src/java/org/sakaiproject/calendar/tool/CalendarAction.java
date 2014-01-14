@@ -2583,6 +2583,8 @@ extends VelocityPortletStateAction
 	
 		RecurrenceRule rule = (RecurrenceRule) sstate.getAttribute(CalendarAction.SSTATE__RECURRING_RULE);
 
+		CalendarUtil calutil = new CalendarUtil();
+
 		// defaultly set frequency to be once
 		// if there is a saved state frequency attribute, replace the default one
 		String freq = CalendarAction.DEFAULT_FREQ;
@@ -2604,6 +2606,7 @@ extends VelocityPortletStateAction
 		}
 		context.put("freq", freq);
 		context.put("tlang",rb);
+		context.put("cutil",calutil);
 		context.put("config",configProps);
 		// get the data the user just input in the preview new/revise page
 		context.put("savedData",state.getNewData());
@@ -3592,7 +3595,7 @@ extends VelocityPortletStateAction
 
 		context.put("selectedView", rb.getString("java.byday"));
 		
-		context.put("dayName", calendarUtilGetDay(calObj.getDay_Of_Week(false)));
+		context.put("dayName", calendarUtilGetDay(calObj.getDay_Of_Week(true)));
 
 	} // buildDayContext
 	
@@ -3717,7 +3720,7 @@ extends VelocityPortletStateAction
 			Vector eventVector1;
 			dateObj2 =	new MyDate();
 			dateObj2.setTodayDate(calObj.getMonthInteger(),calObj.getDayOfMonth(),calObj.getYear());
-			dateObj2.setDayName(calendarUtilGetDay(calObj.getDay_Of_Week(false)));
+			dateObj2.setDayName(calendarUtilGetDay(calObj.getDay_Of_Week(true)));
 			dateObj2.setNameOfMonth(calendarUtilGetMonth(calObj.getMonthInteger()));
 			
 			if (calObj.getDayOfMonth() == dayObj.getDay())
@@ -8019,10 +8022,8 @@ extends VelocityPortletStateAction
 	public String calendarUtilGetMonth(int l_month)
 	{
 		// get the index for the month. Note, the index is increased by 1, u need to deduct 1 first
-		String[] months = new String [] { rb.getString("jan"),rb.getString("feb"),rb.getString("mar"),
-											rb.getString("apr"), rb.getString("may"), rb.getString("jun"),
-											rb.getString("jul"), rb.getString("aug"), rb.getString("sep"),
-											rb.getString("oct"), rb.getString("nov"), rb.getString("dec") };
+		CalendarUtil calUtil = new CalendarUtil();
+		String[] months = calUtil.getCalendarMonthNames(false);
 
 		if (l_month >12) 
 		{
@@ -8039,9 +8040,9 @@ extends VelocityPortletStateAction
 	*/
 	private String calendarUtilGetDay(int dayofweek) 
 	{		
-		String[] l_ndays = new String[] {rb.getString("day.sunday"),rb.getString("day.monday"),
-					rb.getString("day.tuesday"),rb.getString("day.wednesday"),rb.getString("day.thursday")
-					,rb.getString("day.friday"),rb.getString("day.saturday")};
+
+		CalendarUtil calUtil = new CalendarUtil();
+		String[] l_ndays = calUtil.getCalendarDaysOfWeekNames(true);
 		
 		if ( dayofweek > 7 ) 
 		{

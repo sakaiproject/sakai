@@ -29,6 +29,8 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.time.api.TimeBreakdown;
 
+import org.sakaiproject.util.CalendarUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -42,12 +44,14 @@ public class MWFRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
 	protected final static String FREQ = "MWF";
+	private CalendarUtil calUtil = null;
 	/**
 	* Construct.
 	*/
 	public MWFRecurrenceRule()
 	{
 		super();
+		calUtil = new CalendarUtil();
 	}	// MWFRecurrenceRule
 	/**
 	* Construct with no  limits.
@@ -56,6 +60,7 @@ public class MWFRecurrenceRule extends RecurrenceRuleBase
 	public MWFRecurrenceRule(int interval)
 	{
 		super(interval);
+		calUtil = new CalendarUtil();
 	}	//MWFRecurrenceRule
 
 	/**
@@ -66,6 +71,7 @@ public class MWFRecurrenceRule extends RecurrenceRuleBase
 	public MWFRecurrenceRule(int interval, int count)
 	{
 		super(interval, count);
+		calUtil = new CalendarUtil();
 	}	// MWFRecurrenceRule
 	/**
 	* Construct with time limit.
@@ -75,6 +81,7 @@ public class MWFRecurrenceRule extends RecurrenceRuleBase
 	public MWFRecurrenceRule(int interval, Time until)
 	{
 		super(interval, until);	
+		calUtil = new CalendarUtil();
 	}	// MWFRecurrenceRule
 	/**
 	* Serialize the resource into XML, adding an element to the doc under the top of the stack element.
@@ -109,7 +116,7 @@ public class MWFRecurrenceRule extends RecurrenceRuleBase
 	 */
 	public String getFrequencyDescription()
 	{
-		return rb.getString("set.MWF");
+		return rb.getFormattedMessage("set.MWF.fm", calUtil.getDayOfWeekName(1), calUtil.getDayOfWeekName(3), calUtil.getDayOfWeekName(5));
 	}
    
 	/**

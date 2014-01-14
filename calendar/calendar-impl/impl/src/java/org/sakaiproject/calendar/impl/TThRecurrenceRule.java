@@ -28,6 +28,8 @@ import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.time.api.TimeBreakdown;
 
+import org.sakaiproject.util.CalendarUtil;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -40,12 +42,14 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 {
 	/** The unique type / short frequency description. */
 	protected final static String FREQ = "TTh";
+	private CalendarUtil calUtil = null;
 	/**
 	* Construct.
 	*/
 	public TThRecurrenceRule()
 	{
 		super();
+		calUtil = new CalendarUtil();
 	}	// TThRecurrenceRule
 	/**
 	* Construct with no  limits.
@@ -54,6 +58,7 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 	public TThRecurrenceRule(int interval)
 	{
 		super(interval);
+		calUtil = new CalendarUtil();
 	}	// TThRecurrenceRule
 	/**
 	* Construct with count limit.
@@ -63,6 +68,7 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 	public TThRecurrenceRule(int interval, int count)
 	{
 		super(interval, count);
+		calUtil = new CalendarUtil();
 	}	// TThRecurrenceRule
 	/**
 	* Construct with time limit.
@@ -72,6 +78,7 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 	public TThRecurrenceRule(int interval, Time until)
 	{
 		super(interval, until);
+		calUtil = new CalendarUtil();
 	}	// TThRecurrenceRule
 	/**
 	* Serialize the resource into XML, adding an element to the doc under the top of the stack element.
@@ -105,7 +112,7 @@ public class TThRecurrenceRule extends RecurrenceRuleBase
 	 */
 	public String getFrequencyDescription()
 	{
-		return rb.getString("set.TTh");
+		return rb.getFormattedMessage("set.TTh.fm", calUtil.getDayOfWeekName(2), calUtil.getDayOfWeekName(4));
 	}
    
 	/**

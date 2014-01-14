@@ -22,6 +22,7 @@
 package org.sakaiproject.util;
 
 import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
@@ -45,6 +46,27 @@ public class CalendarUtil
 	DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.SHORT);
 	ResourceLoader rb = new ResourceLoader("calendar");
 
+	Date dateSunday = null;
+	Date dateMonday = null;
+	Date dateTuesday = null;
+	Date dateWednesday = null;
+	Date dateThursday = null;
+	Date dateFriday = null;
+	Date dateSaturday = null;
+
+	Date dateJanuary = null;
+	Date dateFebruary = null;
+	Date dateMarch = null;
+	Date dateApril = null;
+	Date dateMay = null;
+	Date dateJune = null;
+	Date dateJuly = null;
+	Date dateAugust = null;
+	Date dateSeptember = null;
+	Date dateOctober = null;
+	Date dateNovember = null;
+	Date dateDecember = null;
+
 	public final static String NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID = "new_assignment_duedate_calendar_assignment_id";
 	
 	/**
@@ -54,6 +76,7 @@ public class CalendarUtil
 	{
 		Locale locale = rb.getLocale();
 		m_calendar = Calendar.getInstance(locale);
+		initDates();
 		
 	}	// CalendarUtil
 	
@@ -63,9 +86,76 @@ public class CalendarUtil
 	public CalendarUtil(Calendar calendar) 
 	{
 		m_calendar = calendar;
+		initDates();
 		
 	}	// CalendarUtil
-		
+
+	void initDates() {
+	  Calendar calendarSunday = Calendar.getInstance();
+	  Calendar calendarMonday = Calendar.getInstance();
+	  Calendar calendarTuesday = Calendar.getInstance();
+	  Calendar calendarWednesday = Calendar.getInstance();
+	  Calendar calendarThursday = Calendar.getInstance();
+	  Calendar calendarFriday = Calendar.getInstance();
+	  Calendar calendarSaturday = Calendar.getInstance();
+
+	  calendarSunday.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+	  calendarMonday.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
+	  calendarTuesday.set(Calendar.DAY_OF_WEEK, Calendar.TUESDAY);
+	  calendarWednesday.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+	  calendarThursday.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+	  calendarFriday.set(Calendar.DAY_OF_WEEK, Calendar.FRIDAY);
+	  calendarSaturday.set(Calendar.DAY_OF_WEEK, Calendar.SATURDAY);
+
+	  dateSunday = calendarSunday.getTime();
+	  dateMonday = calendarMonday.getTime();
+	  dateTuesday = calendarTuesday.getTime();
+	  dateWednesday = calendarWednesday.getTime();
+	  dateThursday = calendarThursday.getTime();
+	  dateFriday = calendarFriday.getTime();
+	  dateSaturday = calendarSaturday.getTime();
+
+	  Calendar calendarJanuary = Calendar.getInstance();
+	  Calendar calendarFebruary = Calendar.getInstance();
+	  Calendar calendarMarch = Calendar.getInstance();
+	  Calendar calendarApril = Calendar.getInstance();
+	  Calendar calendarMay = Calendar.getInstance();
+	  Calendar calendarJune = Calendar.getInstance();
+	  Calendar calendarJuly = Calendar.getInstance();
+	  Calendar calendarAugust = Calendar.getInstance();
+	  Calendar calendarSeptember = Calendar.getInstance();
+	  Calendar calendarOctober = Calendar.getInstance();
+	  Calendar calendarNovember = Calendar.getInstance();
+	  Calendar calendarDecember = Calendar.getInstance();
+
+	  calendarJanuary.set(Calendar.MONTH, Calendar.JANUARY); 
+	  calendarFebruary.set(Calendar.MONTH, Calendar.FEBRUARY); 
+	  calendarMarch.set(Calendar.MONTH, Calendar.MARCH); 
+	  calendarApril.set(Calendar.MONTH, Calendar.APRIL); 
+	  calendarMay.set(Calendar.MONTH, Calendar.MAY); 
+	  calendarJune.set(Calendar.MONTH, Calendar.JUNE); 
+	  calendarJuly.set(Calendar.MONTH, Calendar.JULY); 
+	  calendarAugust.set(Calendar.MONTH, Calendar.AUGUST); 
+	  calendarSeptember.set(Calendar.MONTH, Calendar.SEPTEMBER); 
+	  calendarOctober.set(Calendar.MONTH, Calendar.OCTOBER); 
+	  calendarNovember.set(Calendar.MONTH, Calendar.NOVEMBER); 
+	  calendarDecember.set(Calendar.MONTH, Calendar.DECEMBER); 
+
+	  dateJanuary = calendarJanuary.getTime();
+	  dateFebruary = calendarFebruary.getTime();
+	  dateMarch = calendarMarch.getTime();
+	  dateApril = calendarApril.getTime();
+	  dateMay = calendarMay.getTime();
+	  dateJune = calendarJune.getTime();
+	  dateJuly = calendarJuly.getTime();
+	  dateAugust = calendarAugust.getTime();
+	  dateSeptember = calendarSeptember.getTime();
+	  dateOctober = calendarOctober.getTime();
+	  dateNovember = calendarNovember.getTime();
+	  dateDecember = calendarDecember.getTime();
+
+	}
+
 	/**
 	* Access the current user.
 	* @return the current year.
@@ -317,30 +407,111 @@ public class CalendarUtil
     ** 
     ** @param longNames indicates whether to use short or long version of weekday names
 	 **/
+	public String[] getCalendarMonthNames(boolean longNames) {
+
+		Locale currentLocale = rb.getLocale();
+		String[] months = null; 
+		
+		if (longNames) {
+
+		  SimpleDateFormat longMonth = new SimpleDateFormat("MMMM", currentLocale);
+
+		  months = new String[] {
+	  		longMonth.format(dateJanuary),
+	  		longMonth.format(dateFebruary),
+	  		longMonth.format(dateMarch),
+	  		longMonth.format(dateApril),
+	 		longMonth.format(dateMay),
+	  		longMonth.format(dateJune),
+	  		longMonth.format(dateJuly),
+	  		longMonth.format(dateAugust),
+	  		longMonth.format(dateSeptember),
+	  		longMonth.format(dateOctober),
+	  		longMonth.format(dateNovember),
+	  		longMonth.format(dateDecember)
+		  };
+
+		  return months;
+
+		}
+
+		SimpleDateFormat shortMonth = new SimpleDateFormat("MMM", currentLocale);
+
+		months = new String[] {
+	  		shortMonth.format(dateJanuary),
+	  		shortMonth.format(dateFebruary),
+	  		shortMonth.format(dateMarch),
+	  		shortMonth.format(dateApril),
+	 		shortMonth.format(dateMay),
+	  		shortMonth.format(dateJune),
+	  		shortMonth.format(dateJuly),
+	  		shortMonth.format(dateAugust),
+	  		shortMonth.format(dateSeptember),
+	  		shortMonth.format(dateOctober),
+	  		shortMonth.format(dateNovember),
+	  		shortMonth.format(dateDecember)
+		};
+
+		return months;
+
+	}
+
+	public String getDayOfWeekName(int index) {
+	  Locale currentLocale = rb.getLocale();
+	  SimpleDateFormat longDay = new SimpleDateFormat("EEEE", currentLocale);
+
+	  switch(index) {
+	    case 0:
+	      return longDay.format(dateSunday);
+	    case 1:
+	      return longDay.format(dateMonday);
+	    case 2:
+	      return longDay.format(dateTuesday);
+	    case 3:
+	      return longDay.format(dateWednesday);
+	    case 4:
+	      return longDay.format(dateThursday);
+	    case 5:
+	      return longDay.format(dateFriday);
+	    case 6:
+	      return longDay.format(dateSaturday);
+	  }
+
+	  return null;
+	}
+
+	/** Returns array of weekday names, using the locale-specific first day-of-week
+    ** 
+    ** @param longNames indicates whether to use short or long version of weekday names
+	 **/
 	public String[] getCalendarDaysOfWeekNames(boolean longNames)
 	{
 		int firstDayOfWeek = getFirstDayOfWeek();
+
+		Locale currentLocale = rb.getLocale();
+		SimpleDateFormat longDay = new SimpleDateFormat("EEEE", currentLocale);
+		SimpleDateFormat shortDay = new SimpleDateFormat("EEE", currentLocale);
 		
 		String[] weekDays = null; 
 		String[] longWeekDays = new String[] 
 		{
-			rb.getString("day.sunday"),
-			rb.getString("day.monday"),
-			rb.getString("day.tuesday"),
-			rb.getString("day.wednesday"),
-			rb.getString("day.thursday"),
-			rb.getString("day.friday"),
-			rb.getString("day.saturday")
+			longDay.format(dateSunday),
+			longDay.format(dateMonday),
+			longDay.format(dateTuesday),
+			longDay.format(dateWednesday),
+			longDay.format(dateThursday),
+			longDay.format(dateFriday),
+			longDay.format(dateSaturday)
 		};
 		String[] shortWeekDays = new String[] 
 		{
-			rb.getString("day.sun"),
-			rb.getString("day.mon"),
-			rb.getString("day.tue"),
-			rb.getString("day.wed"),
-			rb.getString("day.thu"),
-			rb.getString("day.fri"),
-			rb.getString("day.sat")
+			shortDay.format(dateSunday),
+			shortDay.format(dateMonday),
+			shortDay.format(dateTuesday),
+			shortDay.format(dateWednesday),
+			shortDay.format(dateThursday),
+			shortDay.format(dateFriday),
+			shortDay.format(dateSaturday)
 		};
 		
 		if ( longNames )

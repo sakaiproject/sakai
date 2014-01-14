@@ -6432,6 +6432,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			java.util.Calendar c = java.util.Calendar.getInstance(m_timeService.getLocalTimeZone(),new ResourceLoader().getLocale());
 			CalendarUtil calUtil = new CalendarUtil(c);
 			String[] dayNames = calUtil.getCalendarDaysOfWeekNames(true);
+			String[] monthNames = calUtil.getCalendarMonthNames(true);
          
 			// Kludge: Xalan in JDK 1.4/1.5 does not properly resolve java classes 
 			// (http://xml.apache.org/xalan-j/faq.html#jdk14)
@@ -6444,18 +6445,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			transformer.setParameter("dayNames5", dayNames[5]);
 			transformer.setParameter("dayNames6", dayNames[6]);
 			
-			transformer.setParameter("jan", rb.getString("month.jan"));
-			transformer.setParameter("feb", rb.getString("month.feb"));
-			transformer.setParameter("mar", rb.getString("month.mar"));
-			transformer.setParameter("apr", rb.getString("month.apr"));
-			transformer.setParameter("may", rb.getString("month.may"));
-			transformer.setParameter("jun", rb.getString("month.jun"));
-			transformer.setParameter("jul", rb.getString("month.jul"));
-			transformer.setParameter("aug", rb.getString("month.aug"));
-			transformer.setParameter("sep", rb.getString("month.sep"));
-			transformer.setParameter("oct", rb.getString("month.oct"));
-			transformer.setParameter("nov", rb.getString("month.nov"));
-			transformer.setParameter("dec", rb.getString("month.dec"));
+			transformer.setParameter("jan", monthNames[0]);
+			transformer.setParameter("feb", monthNames[1]);
+			transformer.setParameter("mar", monthNames[2]);
+			transformer.setParameter("apr", monthNames[3]);
+			transformer.setParameter("may", monthNames[4]);
+			transformer.setParameter("jun", monthNames[5]);
+			transformer.setParameter("jul", monthNames[6]);
+			transformer.setParameter("aug", monthNames[7]);
+			transformer.setParameter("sep", monthNames[8]);
+			transformer.setParameter("oct", monthNames[9]);
+			transformer.setParameter("nov", monthNames[10]);
+			transformer.setParameter("dec", monthNames[11]);
          
 			transformer.setParameter("site", rb.getString("event.site"));
 			transformer.setParameter("event", rb.getString("event.event"));
