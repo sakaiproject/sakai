@@ -90,7 +90,7 @@
 	
 	<!-- Cache: ttl=1 hour -->
     <bean id="org.sakaiproject.dash.cache"
-        class="org.springframework.cache.ehcache.EhCacheFactoryBean">
+        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
         <property name="cacheManager">
             <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
         </property>
