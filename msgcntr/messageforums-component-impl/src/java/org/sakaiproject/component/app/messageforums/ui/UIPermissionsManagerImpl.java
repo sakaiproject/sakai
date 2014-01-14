@@ -1383,7 +1383,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     
     // if user role is still null at this point, check for .anon
-    if(userRole == null && sessionManager.getCurrentSessionUserId() == null && getAnonRole(siteId) == true){
+    if(userRole == null && userId == null && getAnonRole("/site/" + siteId) == true){
         return ".anon";
     }
     
