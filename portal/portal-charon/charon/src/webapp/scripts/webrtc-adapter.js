@@ -280,8 +280,8 @@ portal.chat.video.webrtc.answerCall = function(peerUUID, startAnswerCallback, on
     var callConnection = this.currentPeerConnectionsMap[peerUUID];
 
     // Set up the triggered functions
-    callConnection.ononSuccessCallbackconn = onSuccessCallback;
-    callConnection.onfail = fail;
+    callConnection.onsuccessconn = onSuccessCallback;
+    callConnection.onfailconn = fail;
     callConnection.isCaller = false;
 
     var self = this;
@@ -385,23 +385,22 @@ portal.chat.video.webrtc.offerStream = function (callConnection, peerUUID, onSuc
     peerConnection.addStream(this.localMediaStream);
 
     var self = this;
-
+    var mediaConstraints = {
+    		optional: [],
+    		mandatory: {
+    			OfferToReceiveAudio: true,
+    			OfferToReceiveVideo: true
+    		}
+   };
+   
+    
+    
     if (callConnection.isCaller) {
-        var mediaConstraints = {optional: []};
-        
-        if (this.detectedBrowser === 'firefox') {
-            mediaConstraints['mandatory'] = {
-                    OfferToReceiveAudio: true,
-                    OfferToReceiveVideo: true,
-                    MozDontOfferDataChannel: true
-                };
-        }
         
         peerConnection.createOffer(
             function (rtcSessionDescription) {
 
                 // RTCSessionDescriptionCallback
-
                 if(self.debug) console.debug('offer created successfully');
 
                 // we won't call success, we will wait until peer offers the stream.
@@ -410,6 +409,7 @@ portal.chat.video.webrtc.offerStream = function (callConnection, peerUUID, onSuc
             , onFailedCallback
             , mediaConstraints);
     } else {
+    	delete mediaConstraints.optional;
         peerConnection.createAnswer(function (rtcSessionDescription) {
 
             self.gotDescription(peerUUID, rtcSessionDescription);
@@ -432,31 +432,10 @@ portal.chat.video.webrtc.setupPeerConnection = function (peerUUID, videoAgentTyp
 
     if(this.debug) console.debug('webrtc.setupPeerConnection(' + peerUUID + ', ' + videoAgentType + ')');
 
-    var pc_constraints = {'optional': []};
-
-    if (videoAgentType != null) {
-        /*
-         * Let's start to defining some compatibility scenarios to perform
-         * the negotiation If have videoAgentTupe I suppose that I am the
-         * caller
-         */
-
-        // Case 1 : Me = Chrome other Firefox
-        if (this.detectedBrowser === 'chrome'
-                && videoAgentType === 'firefox') {
-            pc_constraints['optional'] = [ {
-                'DtlsSrtpKeyAgreement' : true
-            } ];
-        } else if (this.detectedBrowser === 'firefox' && videoAgentType === 'chrome') {
-            pc_constraints['optional'] = [ {
-                'DtlsSrtpKeyAgreement': true
-            } ];
-            pc_constraints['mandatory'] = {
-                'MozDontOfferDataChannel': true
-            };
-        }
-    }
-
+    var pc_constraints = {'optional': [{
+        'DtlsSrtpKeyAgreement' : true
+    }]};
+   
     var peerConnection = new this.PeerConnection(this.pc_config, pc_constraints);
 
     // send any ice candidates to the other peer
@@ -547,11 +526,7 @@ portal.chat.video.webrtc.gotDescription = function (peerUUID, rtcSessionDescript
 
     if(callConnection) {
         var peerConnection = callConnection.rtcPeerConnection;
-
-        /*if (callConnection.remoteVideoAgentType === 'chrome' && this.detectedBrowser === 'firefox') {
-            rtcSessionDescription.sdp = this.getInteropSDP(rtcSessionDescription.sdp);
-        }*/
-
+        
         if (peerConnection != null) {
             peerConnection.setLocalDescription(rtcSessionDescription);
             this.signal(peerUUID, JSON.stringify({'sdp': rtcSessionDescription}));
