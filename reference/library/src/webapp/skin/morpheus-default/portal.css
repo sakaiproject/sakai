@@ -1907,3 +1907,12 @@ html > body .ui-pnotify {
   line-height: 17px;
   min-height: 17px;
 }
+
+
+/* Temp Morpheus styles */
+.hidden {
+    display: none;
+}
+.show {
+    display: block;
+}
