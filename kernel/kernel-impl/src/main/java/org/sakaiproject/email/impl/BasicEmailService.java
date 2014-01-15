@@ -432,8 +432,20 @@ public class BasicEmailService implements EmailService
 	 */
 	public void sendMail(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
-			List<String> additionalHeaders, List<Attachment> attachments)
-	{
+			List<String> additionalHeaders, List<Attachment> attachments) {
+		try {
+			sendMailMessagingException(from, to, subject, content, headerTo, replyTo, additionalHeaders, attachments);
+		}
+		catch (MessagingException e)
+		{
+			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+		}
+	}
+
+	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
+			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
+			List<String> additionalHeaders, List<Attachment> attachments) throws MessagingException
+			{
 		// some timing for debug
 		long start = 0;
 		if (M_log.isDebugEnabled()) start = System.currentTimeMillis();
@@ -473,138 +485,131 @@ public class BasicEmailService implements EmailService
 
 		Session session = Session.getInstance(props);
 
-		try
+		// see if we have a message-id in the additional headers
+		String mid = null;
+		if (additionalHeaders != null)
 		{
-			// see if we have a message-id in the additional headers
-			String mid = null;
-			if (additionalHeaders != null)
+			for (String header : additionalHeaders)
 			{
-				for (String header : additionalHeaders)
+				if (header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
 				{
-					if (header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
-					{
-						// length of 'message-id: ' == 12
-						mid = header.substring(12);
-						break;
-					}
+					// length of 'message-id: ' == 12
+					mid = header.substring(12);
+					break;
 				}
 			}
+		}
 
-			// use the special extension that can set the id
-			MimeMessage msg = new MyMessage(session, mid);
+		// use the special extension that can set the id
+		MimeMessage msg = new MyMessage(session, mid);
 
-			// the FULL content-type header, for example:
-			// Content-Type: text/plain; charset=windows-1252; format=flowed
-			String contentTypeHeader = null;
+		// the FULL content-type header, for example:
+		// Content-Type: text/plain; charset=windows-1252; format=flowed
+		String contentTypeHeader = null;
 
-			// set the additional headers on the message
-			// but treat Content-Type specially as we need to check the charset
-			// and we already dealt with the message id
-			if (additionalHeaders != null)
+		// set the additional headers on the message
+		// but treat Content-Type specially as we need to check the charset
+		// and we already dealt with the message id
+		if (additionalHeaders != null)
+		{
+			for (String header : additionalHeaders)
 			{
-				for (String header : additionalHeaders)
-				{
-					if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
-						contentTypeHeader = header;
-					else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
-						msg.addHeaderLine(header);
-				}
+				if (header.toLowerCase().startsWith(EmailHeaders.CONTENT_TYPE.toLowerCase() + ": "))
+					contentTypeHeader = header;
+				else if (!header.toLowerCase().startsWith(EmailHeaders.MESSAGE_ID.toLowerCase() + ": "))
+					msg.addHeaderLine(header);
 			}
+		}
 
-			// date
-			if (msg.getHeader(EmailHeaders.DATE) == null)
-				msg.setSentDate(new Date(System.currentTimeMillis()));
+		// date
+		if (msg.getHeader(EmailHeaders.DATE) == null)
+			msg.setSentDate(new Date(System.currentTimeMillis()));
 
-			// set the message sender
-			msg.setFrom(from);
+		// set the message sender
+		msg.setFrom(from);
 
-			// set the message recipients (headers)
-			setRecipients(headerTo, msg);
+		// set the message recipients (headers)
+		setRecipients(headerTo, msg);
 
-			// set the reply to
-			if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
-				msg.setReplyTo(replyTo);
+		// set the reply to
+		if ((replyTo != null) && (msg.getHeader(EmailHeaders.REPLY_TO) == null))
+			msg.setReplyTo(replyTo);
 
-			// figure out what charset encoding to use
-			//
-			// first try to use the charset from the forwarded
-			// Content-Type header (if there is one).
-			//
-			// if that charset doesn't work, try a couple others.
-			// the character set, for example, windows-1252 or UTF-8
-			String charset = extractCharset(contentTypeHeader);
+		// figure out what charset encoding to use
+		//
+		// first try to use the charset from the forwarded
+		// Content-Type header (if there is one).
+		//
+		// if that charset doesn't work, try a couple others.
+		// the character set, for example, windows-1252 or UTF-8
+		String charset = extractCharset(contentTypeHeader);
 
-			if (charset != null && canUseCharset(content, charset) && canUseCharset(subject, charset))
-			{
-				// use the charset from the Content-Type header
-			}
-			else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
-			{
-				if (contentTypeHeader != null && charset != null)
-					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
-				else if (contentTypeHeader != null)
-					contentTypeHeader += "; charset=" + CharacterSet.ISO_8859_1;
-				charset = CharacterSet.ISO_8859_1;
-			}
-			else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
-			{
-				if (contentTypeHeader != null && charset != null)
-					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
-				else if (contentTypeHeader != null)
-					contentTypeHeader += "; charset=" + CharacterSet.WINDOWS_1252;
-					charset = CharacterSet.WINDOWS_1252;
-			}
+		if (charset != null && canUseCharset(content, charset) && canUseCharset(subject, charset))
+		{
+			// use the charset from the Content-Type header
+		}
+		else if (canUseCharset(content, CharacterSet.ISO_8859_1) && canUseCharset(subject, CharacterSet.ISO_8859_1))
+		{
+			if (contentTypeHeader != null && charset != null)
+				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.ISO_8859_1);
+			else if (contentTypeHeader != null)
+				contentTypeHeader += "; charset=" + CharacterSet.ISO_8859_1;
+			charset = CharacterSet.ISO_8859_1;
+		}
+		else if (canUseCharset(content, CharacterSet.WINDOWS_1252) && canUseCharset(subject, CharacterSet.WINDOWS_1252))
+		{
+			if (contentTypeHeader != null && charset != null)
+				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.WINDOWS_1252);
+			else if (contentTypeHeader != null)
+				contentTypeHeader += "; charset=" + CharacterSet.WINDOWS_1252;
+			charset = CharacterSet.WINDOWS_1252;
+		}
+		else
+		{
+			// catch-all - UTF-8 should be able to handle anything
+			if (contentTypeHeader != null && charset != null) 
+				contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.UTF_8);
+			else if (contentTypeHeader != null)
+				contentTypeHeader += "; charset=" + CharacterSet.UTF_8;
 			else
-			{
-				// catch-all - UTF-8 should be able to handle anything
-				if (contentTypeHeader != null && charset != null) 
-					contentTypeHeader = contentTypeHeader.replaceAll(charset, CharacterSet.UTF_8);
-				else if (contentTypeHeader != null)
-					contentTypeHeader += "; charset=" + CharacterSet.UTF_8;
-				else
-					contentTypeHeader = EmailHeaders.CONTENT_TYPE + ": "
-							+ ContentType.TEXT_PLAIN + "; charset="
-							+ CharacterSet.UTF_8;
-				charset = CharacterSet.UTF_8;
-			}
-
-			if ((subject != null) && (msg.getHeader(EmailHeaders.SUBJECT) == null))
-				msg.setSubject(subject, charset);
-
-			// extract just the content type value from the header
-			String contentType = null;
-			if (contentTypeHeader != null)
-			{
-				int colonPos = contentTypeHeader.indexOf(":");
-				contentType = contentTypeHeader.substring(colonPos + 1).trim();
-			}
-			setContent(content, attachments, msg, contentType, charset);
-
-			// if we have a full Content-Type header, set it NOW
-			// (after setting the body of the message so that format=flowed is preserved)
-			// if there attachments, the messsage type will default to multipart/mixed and should
-			// stay that way.
-			if ((attachments == null || attachments.size() == 0) && contentTypeHeader != null)
-			{
-				msg.addHeaderLine(contentTypeHeader);
-				msg.addHeaderLine(EmailHeaders.CONTENT_TRANSFER_ENCODING + ": quoted-printable");
-			}
-
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("HeaderLines received were: ");
-				Enumeration<String> allHeaders = msg.getAllHeaderLines();
-				while(allHeaders.hasMoreElements()) {
-					M_log.debug((String)allHeaders.nextElement());
-				}
-			}
-
-			sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
+				contentTypeHeader = EmailHeaders.CONTENT_TYPE + ": "
+						+ ContentType.TEXT_PLAIN + "; charset="
+						+ CharacterSet.UTF_8;
+			charset = CharacterSet.UTF_8;
 		}
-		catch (MessagingException e)
+
+		if ((subject != null) && (msg.getHeader(EmailHeaders.SUBJECT) == null))
+			msg.setSubject(subject, charset);
+
+		// extract just the content type value from the header
+		String contentType = null;
+		if (contentTypeHeader != null)
 		{
-			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+			int colonPos = contentTypeHeader.indexOf(":");
+			contentType = contentTypeHeader.substring(colonPos + 1).trim();
 		}
-	}
+		setContent(content, attachments, msg, contentType, charset);
+
+		// if we have a full Content-Type header, set it NOW
+		// (after setting the body of the message so that format=flowed is preserved)
+		// if there attachments, the messsage type will default to multipart/mixed and should
+		// stay that way.
+		if ((attachments == null || attachments.size() == 0) && contentTypeHeader != null)
+		{
+			msg.addHeaderLine(contentTypeHeader);
+			msg.addHeaderLine(EmailHeaders.CONTENT_TRANSFER_ENCODING + ": quoted-printable");
+		}
+
+		if (M_log.isDebugEnabled()) {
+			M_log.debug("HeaderLines received were: ");
+			Enumeration<String> allHeaders = msg.getAllHeaderLines();
+			while(allHeaders.hasMoreElements()) {
+				M_log.debug((String)allHeaders.nextElement());
+			}
+		}
+
+		sendMessageAndLog(from, to, subject, headerTo, start, msg, session);
+			}
 
 	/**
 	 * {@inheritDoc}
@@ -912,9 +917,27 @@ public class BasicEmailService implements EmailService
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
+	 * For temporary backward compatibility
 	 */
 	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException,
-			NoRecipientsException
+	NoRecipientsException
+	{
+		List<EmailAddress> addresses = new ArrayList<EmailAddress>();
+		try {
+			addresses = send(msg,true);
+		}
+		catch (MessagingException e) {
+			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+		}
+		return addresses;
+	}
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
+	 */
+	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
+			NoRecipientsException, MessagingException
 	{
 		ArrayList<EmailAddress> invalids = new ArrayList<EmailAddress>();
 
@@ -1009,9 +1032,18 @@ public class BasicEmailService implements EmailService
 		headers.add(contentType);
 
 		// send the message
-		sendMail(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
-				.getAttachments());
-
+		try {
+			sendMailMessagingException(from, actual, msg.getSubject(),
+					msg.getBody(), headerTo, replyTo, headers,
+					msg.getAttachments());
+		} catch (MessagingException e) {
+			// Just log it, if user doesn't want it thrown
+			if (messagingException == false) {
+				M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+			} else {
+				throw e;
+			}
+		}
 		return invalids;
 	}
 
