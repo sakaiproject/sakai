@@ -251,6 +251,8 @@ public class EmailBean
 		}
 		catch (MailsenderException me)
 		{
+			//Print this exception
+			log.warn(me);
 			messages.clear();
 			List<Map<String, Object[]>> msgs = me.getMessages();
 			if (msgs != null)
