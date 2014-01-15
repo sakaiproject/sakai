@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Observable;
@@ -52,6 +53,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.ContextObserver;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityAccessOverloadException;
@@ -74,6 +76,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
@@ -156,6 +159,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 	/** A list of observers watching site save events **/
 	protected List<SiteAdvisor> siteAdvisors;
+        
+    /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
+    protected JoinSiteDelegate joinSiteDelegate;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -454,6 +460,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @return the IdManager collaborator.
 	 */
 	protected abstract IdManager idManager();
+        
+    /**
+     * sfoster9@uwo.ca
+     * @return the EmailService collaborator.
+     */
+    protected abstract EmailService emailService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -525,6 +537,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 			
 			portalSkinPrefix = serverConfigurationService().getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 
+                        
+            // sfoster9@uwo.ca
+            // assign a new JoinSiteDelegate to handle the join methods; provide it services from this class
+            joinSiteDelegate = new JoinSiteDelegate( this, securityService(), userDirectoryService(), emailService() );
 		}
 		catch (Exception t)
 		{
@@ -1695,20 +1711,222 @@ public abstract class BaseSiteService implements SiteService, Observer
 			throw new PermissionException(user, AuthzGroupService.SECURE_UPDATE_OWN_AUTHZ_GROUP, siteReference(id));
 		}
 
-		// do the join
+		// sfoster9@uwo.ca
+        // once joined, add the user to the specified join group and send an email, if these join options are selected
+        // if anything goes wrong with adding to a group or sending email, the join should still finish
 		try
 		{
+			// do the join
 			authzGroupService().joinGroup(siteReference(id), roleId);
 		}
-		catch (GroupNotDefinedException e)
+		catch(GroupNotDefinedException e)
 		{
 			throw new IdUnusedException(e.getId());
 		}
-		catch (AuthzPermissionException e)
+		catch(AuthzPermissionException e)
 		{
 			throw new PermissionException(e.getUser(), e.getFunction(), e.getResource());
 		}
+		catch(Exception e)
+		{
+			M_log.error(String.format("Unexpected exception joining user %s to site %s: ", user, id), e);
+			return;
 	}
+		
+		try
+		{
+			// add joining user to the site's join group; the delegate method checks if there are any groups to join
+            joinSiteDelegate.addJoinerToGroup(site);
+		}
+		catch(Exception e)
+		{
+			M_log.error(String.format("Unexpected exception joining user %s to group in site %s: ", user, id), e);
+		}
+		
+		try
+		{
+			// if email notifications are set to be sent on join
+            if(isJoinNotificationToggled(id))
+            {
+                // ... send email notification
+                joinSiteDelegate.sendEmailNotification(id);
+            }
+		}
+		catch (Exception e)
+		{
+			M_log.error(String.format("Unexpected exception when sending join notification email for user %s joined site %s", user, id), e);
+		}
+	}
+        
+    /**
+	 * @inheritDoc
+	 */
+	public boolean isAllowedToJoin(String siteID)
+	{
+        Site site = null;
+        try 
+        {
+            // get the site
+            site = getDefinedSite(siteID);
+        }
+        catch (IdUnusedException iue)
+        {
+            M_log.error("Site could not be determined for allowed to join method: " + iue.getMessage(), iue);
+            return false;
+        }
+        
+        // pass to the JoinDelegate method to handle the logic
+        return joinSiteDelegate.isAllowedToJoin(site);
+	}
+    
+	/**
+	 * @inheritDoc
+	 */
+    public boolean isUserLoggedIn()
+    {
+        // pass to the JoinDelegate method to handle the logic
+        return joinSiteDelegate.isUserLoggedIn();
+    }
+
+	/**
+	 * @inheritDoc
+	 */
+    public String getJoinGroupId(String siteID)
+    {
+        Site site = null;
+                
+        try 
+        {
+            // get the site
+            site = getDefinedSite(siteID);
+        }
+        catch (IdUnusedException iue)
+        {
+            M_log.error("Site could not be determined for getting the join group: " + iue.getMessage(), iue);
+        }
+        
+        // pass to the JoinDelegate method to handle the logic
+        return joinSiteDelegate.getJoinGroupId(site);
+    }
+
+    /**
+     * @inheritDoc
+     */
+	public boolean isCurrentUserMemberOfSite( String siteID )
+	{
+		if( siteID == null || "".equals( siteID ) )
+        {
+			return false;
+        }
+		
+		try
+		{
+            // get the current user
+            User user = userDirectoryService().getCurrentUser();
+            if( user == null )
+            {
+            	return false;
+            }
+            
+			// If current user is a member of the site, return true; otherwise return false
+            return getSite( siteID ).getMember( user.getId() ) != null;
+		}
+		catch( IdUnusedException ex ) 
+        { 
+            M_log.debug( "isAlreadyMember()", ex ); 
+        }
+		
+		// Otherwise they're not already a member, return false
+		return false;
+	}
+    
+    /** 
+     * @inheritDoc
+     */
+    public boolean isLimitByAccountTypeEnabled(String siteID)
+    {
+        return joinSiteDelegate.isLimitByAccountTypeEnabled(siteID);
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public boolean getBooleanSiteProperty(String siteID, String propertyName)
+    {
+        return joinSiteDelegate.getBooleanSiteProperty(siteID, propertyName);
+    }
+    
+    /** 
+     * @inheritDoc
+     */    
+    public boolean isJoinNotificationToggled(String siteID)
+    {
+        return joinSiteDelegate.isJoinNotificationToggled(siteID);
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public LinkedHashSet<String> getAllowedJoinableAccountTypeCategories()
+    {
+    	return joinSiteDelegate.getAllowedJoinableAccountTypeCategories();
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public List<String> getAllowedJoinableAccountTypes()
+    {
+    	return joinSiteDelegate.getAllowedJoinableAccountTypes();
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public List<AllowedJoinableAccount> getAllowedJoinableAccounts()
+	{
+    	return joinSiteDelegate.getAllowedJoinableAccounts();
+	}
+    
+    /** 
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinGroupEnabled()
+    {
+    	return joinSiteDelegate.getGlobalJoinGroupEnabled();
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinNotificationEnabled()
+    {
+    	return joinSiteDelegate.getGlobalJoinNotificationEnabled();
+    }
+    
+    /** 
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinExcludedFromPublicListEnabled()
+    {
+    	return joinSiteDelegate.getGlobalJoinExcludeFromPublicListEnabled();
+    }
+
+    /** 
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinLimitByAccountTypeEnabled()
+    {
+    	return joinSiteDelegate.getGlobalJoinLimitByAccountTypeEnabled();
+    }
+
+    /** 
+     * @inheritDoc
+     */
+    public boolean isGlobalJoinFromSiteBrowserEnabled()
+    {
+    	return joinSiteDelegate.getGlobalSiteBrowserJoinEnabled();
+    }
 
 	/**
 	 * @inheritDoc

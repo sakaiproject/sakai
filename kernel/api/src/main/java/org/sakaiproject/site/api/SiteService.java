@@ -21,6 +21,7 @@
 
 package org.sakaiproject.site.api;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -718,6 +719,141 @@ public interface SiteService extends EntityProducer
 	 *            if the site is otherwise being edited.
 	 */
 	void join(String id) throws IdUnusedException, PermissionException;
+        
+        /**
+     * Check if current user has the allowed user account type to join the site.
+     * The account type of the joining user can be restricted by the site maintainer if option is available system-wide.
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param id
+     *      The site id
+     * @return true if the user has same user account type that the site is restricted to, or if the option is disabled system-wide
+     */
+    boolean isAllowedToJoin(String id);
+    
+    /**
+     * determine if current user is actually logged into the system
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @return true if user is logged in with an account
+     */
+    boolean isUserLoggedIn();
+    
+    /**
+     * Get the group that a joining user will be added to upon joining a site, if option is available system-wide
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param id
+     *      The site id
+     * @return group id of the group that a joining user will be added to upon joining a site; an empty string represents no joiner group
+     */
+    String getJoinGroupId(String id);
+    
+    /**
+	 * Determine if the current user is already a member of the site.
+	 * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+	 * @param siteID
+	 * 		The ID of the site in question
+	 * @return true if current user is a member of the site
+	 */
+    boolean isCurrentUserMemberOfSite(String id);
+    
+    /**
+     * Checks if the system and the provided site allows account types of joining users to be limited
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param id 
+     *      The site to check if the join system will limit users to allowed account types
+     * @return true if the join site is limiting account types
+     */
+    boolean isLimitByAccountTypeEnabled(String id);
+    
+    /**
+     * Retrieves the boolean value of a boolean site property
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param id 
+     * 		The site to retrieve the property from
+     * @param propertyName 
+     * 		The boolean property name to retrieve
+     * @return boolean value of the site property; true if the boolean property is found and is set to true
+     */
+    boolean getBooleanSiteProperty(String id, String propertyName);
+    
+    /**
+     * Check if the system and the provided site has the ability to send email notifications when a user joins the site
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param id 
+     * 		The site to check if the join email notification option is enabled 
+     * @return true if the join email notification options are enabled at the system and passed-in site's levels
+     */
+    boolean isJoinNotificationToggled(String id);
+    
+    /**
+     * Get the list of allowed account type categories
+     * 
+     * @author bjones86@uwo.ca
+     * @return list of allowed account type categories from sakai.properties
+     */
+    LinkedHashSet<String> getAllowedJoinableAccountTypeCategories();
+    
+    /**
+     * Get the (unfriendly) list of allowed account types
+     * 
+     * @author bjones86@uwo.ca
+     * @return list of allowed account types from sakai.properties (internal account type key values)
+     */
+    List<String> getAllowedJoinableAccountTypes();
+    
+    /**
+     * Get the 'friendly' list of AllowedJoinableAccount objects
+     * 
+     * @author bjones86@uwo.ca
+     * @return
+     */
+    List<AllowedJoinableAccount> getAllowedJoinableAccounts();
+    
+    /**
+     * Check if joiner group is enabled/disabled globally (sakai.property)
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinGroupEnabled();
+    
+    /**
+     * Check if join email notification is enabled/disabled globally (sakai.property)
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinNotificationEnabled();
+    
+    /**
+     * Check if exclude from public list is enabled/disabled globally (sakai.property)
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinExcludedFromPublicListEnabled();
+    
+    /**
+     * Check if join limited by account types is enabled/disabled globally (sakai.property)
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinLimitByAccountTypeEnabled();
+    
+    /**
+     * Check if join from Site Browser is enabled/disabled globally (sakai.property)
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    boolean isGlobalJoinFromSiteBrowserEnabled();
 
 	/**
 	 * check permissions for unjoin() - unjoining the site and removing all role relationships.

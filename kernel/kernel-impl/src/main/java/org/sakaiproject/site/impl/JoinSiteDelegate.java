@@ -1,0 +1,592 @@
+package org.sakaiproject.site.impl;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
+
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.AllowedJoinableAccount;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.UserDirectoryService;
+
+/**
+ * Contains methods used to join a site and to check for the different join options and restrictions.
+ * @author sfoster
+ */
+public class JoinSiteDelegate
+{
+    // apis
+    private SiteService             siteService;
+    private SecurityService         securityService;
+    private UserDirectoryService    userDirectoryService;
+    private EmailService            emailService;
+
+    // class members
+    private static Log          log                             = LogFactory.getLog(JoinSiteDelegate.class);
+    private static final String COMMA_DELIMITER					= ",";										// Comma delimiter (for csv parsing)
+    private static final String JOINSITE_GROUP_NO_SELECTION		= "noSelection";							// The value of the joiner group site
+    private static final String TMPLT_VAR_SITE_NAME				= "worksiteName";							// The name of the worksite name template variable
+	private static final String TMPLT_VAR_INSTITUTE				= "institution";							// The name of the institution template variable
+	private static final String TMPLT_VAR_SHORT_NAME			= "currentUserShortName";					// The name of the current user short name template variable
+	private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission
+
+    // sakai.properties
+    private static final String SAK_PROP_JOIN_GROUP_ENABLED 			= "sitemanage.join.joinerGroup.enabled";
+   	private static final String SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES 		= "sitemanage.join.limitAccountTypes.enabled";
+  	private static final String SAK_PROP_JOIN_ACCOUNT_TYPES	 			= "sitemanage.join.allowedJoinableAccountTypes";
+	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS		= "sitemanage.join.allowedJoinableAccountTypeLabels";
+	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES	= "sitemanage.join.allowedJoinableAccountTypeCategories";
+    private static final String SAK_PROP_JOIN_NOTIFICATION_ENABLED 		= "sitemanage.join.notification.enabled";
+    private static final String SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST 	= "sitemanage.join.excludeFromPublicList.enabled";
+    private static final String SAK_PROP_SITE_BROWSER_JOIN_ENABLED		= "sitebrowser.join.enabled";
+	private static final String SAK_PROP_UI_INSTITUTION			= "ui.institution";							// The name of the sakai.property holding the ui institution name
+	private static final String SAK_PROP_SUPPORT_EMAIL			= "support.email";							// the name of the sakai.property holding the support email address
+    
+    // site properties
+	private static final String EMAIL_TEMPLATE_KEY 				= "sitemanage.joinNotification";			// The name (key) of the email template
+   	private static final String SITE_PROP_JOIN_LIMIT_OFFICIAL 	= "joinLimitByAccountType";					// The name (key) of the join limit official site property
+    private static final String SITE_PROP_JOIN_ACCOUNT_TYPES 	= "joinLimitedAccountTypes";				// The name (key) of the limit join to account types site property
+    private static final String SITE_PROP_JOINSITE_GROUP_ID 	= "joinerGroup";							// The name (key) of the joiner group site property
+	private static final String SITE_PROP_JOIN_NOTIFY 			= "joinNotification";						// The name (key) of the join notification site property
+    
+    // global switches
+	private static final boolean GLOBAL_JOIN_GROUP_ENABLED					= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_GROUP_ENABLED, Boolean.FALSE );
+	private static final boolean GLOBAL_JOIN_NOTIFICATION_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_NOTIFICATION_ENABLED, Boolean.FALSE );
+	private static final boolean GLOBAL_JOIN_EXCLUDE_FROM_PUBLIC_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST, Boolean.FALSE );
+	private static       boolean GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES, Boolean.FALSE );
+	private static final boolean GLOBAL_SITE_BROWSER_JOIN_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_SITE_BROWSER_JOIN_ENABLED, Boolean.FALSE );
+    
+    // account type lists
+	private static List<String> 					allowJoinableAccountTypes 			= new ArrayList<String>();
+	private static LinkedHashSet<String> 			allowJoinableAccountTypeCategories	= new LinkedHashSet<String>();
+	private static List<AllowedJoinableAccount> 	allowJoinableAccounts				= new ArrayList<AllowedJoinableAccount>();
+    private static final List<String> accountTypes			= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPES)));
+    private static final List<String> accountTypeLabels		= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS)));
+    private static final List<String> accountTypeCategories	= Arrays.asList(ArrayUtils.nullToEmpty(ServerConfigurationService.getStrings(SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES)));
+    
+    /**
+     * Default zero-arg constructor; check/verify limit by account type global switch and lists
+     * 
+     * @author bjones86@uwo.ca
+     */
+    public JoinSiteDelegate( SiteService siteService, SecurityService securityService, UserDirectoryService userDirectoryService, EmailService emailService )
+    {
+    	// Assign the APIs
+    	this.siteService 			= siteService;
+    	this.securityService 		= securityService;
+    	this.userDirectoryService 	= userDirectoryService;
+    	this.emailService 			= emailService;
+    	
+    	// If join limit by account types is enabled globally in sakai.properties, check to make sure the lists are actually valid
+    	if( GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED )
+    	{
+	        // If any of the lists are null, empty or of differing sizes, it is invalid; flip the global switch to disabled
+	        if( ( accountTypes == null || accountTypeCategories == null || accountTypeLabels == null ) ||
+	        		( accountTypes.isEmpty() || accountTypeCategories.isEmpty() || accountTypeLabels.isEmpty() ) ||
+	        		( accountTypeCategories.size() != accountTypes.size() || accountTypeCategories.size() != accountTypeLabels.size() ) )
+	        {
+	        	GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED = false;
+	        	log.warn( "The sakai.properties for allowed joinabel account types are invalid " + 
+	                    "(sitmanage.join.allowedJoinableAccountTypeCategories, sitemanage.join.allowedJoinableAccountTypes, " +
+	                    "sitemanage.join.allowedJoinableAccountTypeLabels). This option is now disabled globally." );
+	        }
+    	}
+    	
+    	// If join limit by account types is still enabled globally, initialize the 'friendly' list
+    	if( GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED )
+    	{
+    		// Initialize the 'friendly' lists
+			allowJoinableAccountTypes.addAll( accountTypes );
+	        allowJoinableAccountTypeCategories.addAll( accountTypeCategories );
+	        for( int i = 0; i < accountTypeCategories.size(); ++i )
+            {
+	        	allowJoinableAccounts.add( new AllowedJoinableAccount( allowJoinableAccountTypes.get( i ), accountTypeLabels.get( i ), accountTypeCategories.get( i ) ) );
+            }
+    	}
+    }
+    
+    /**
+     * Get the list of allowed account type categories
+     * 
+     * @author bjones86@uwo.ca
+     * @return list of strings (allowed account type categories)
+     */
+    public LinkedHashSet<String> getAllowedJoinableAccountTypeCategories()
+    {
+    	return JoinSiteDelegate.allowJoinableAccountTypeCategories;
+    }
+    
+    /**
+     * Get the list of (unfriendly) allowed account types
+     * 
+     * @author bjones86@uwo.ca
+     * @return list of strings (allowed account type keys)
+     */
+    public List<String> getAllowedJoinableAccountTypes()
+    {
+    	return JoinSiteDelegate.allowJoinableAccountTypes;
+    }
+    
+    /**
+     * Get the 'friendly' list of AllowedJoinableAccount objects
+     * 
+     * @author bjones86@uwo.ca
+     * @return
+     */
+    public List<AllowedJoinableAccount> getAllowedJoinableAccounts()
+    {
+    	return JoinSiteDelegate.allowJoinableAccounts;
+    }
+    
+    /**
+     * Get the global joiner group enabled setting
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    public boolean getGlobalJoinGroupEnabled()
+    {
+    	return JoinSiteDelegate.GLOBAL_JOIN_GROUP_ENABLED;
+    }
+    
+    /**
+     * Get the global join email notification enabled setting
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    public boolean getGlobalJoinNotificationEnabled()
+    {
+    	return JoinSiteDelegate.GLOBAL_JOIN_NOTIFICATION_ENABLED;
+    }
+    
+    /**
+     * Get the global join exclude from public list enabled setting
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    public boolean getGlobalJoinExcludeFromPublicListEnabled()
+    {
+    	return JoinSiteDelegate.GLOBAL_JOIN_EXCLUDE_FROM_PUBLIC_ENABLED;
+    }
+    
+    /**
+     * Get the global join limit by account type enabled setting
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    public boolean getGlobalJoinLimitByAccountTypeEnabled()
+    {
+    	return JoinSiteDelegate.GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED;
+    }
+    
+    /**
+     * Get the global site browser join enabled setting
+     * 
+     * @author bjones86@uwo.ca
+     * @return true/false (enabled/disabled)
+     */
+    public boolean getGlobalSiteBrowserJoinEnabled()
+    {
+    	return JoinSiteDelegate.GLOBAL_SITE_BROWSER_JOIN_ENABLED;
+    }
+    
+    /** 
+     * Check if the system has restricted account types enabled as a joining option. If so,
+     * check if the current user has allowed account type to join the worksite.
+     * 
+     * @param site 
+     * 		The worksite to check the current user's ability to join against
+     * @return true if either restricted account type join option is disabled at the system level, or if user has one of the site's allowed account type 
+     */
+    public boolean isAllowedToJoin(Site site)
+    {
+        // get current user
+        User user = userDirectoryService.getCurrentUser();
+        if(user == null || site == null)
+        {
+            return false;
+        }
+        
+        // check first if account types are limited; if not, user is allowed (that is, user isn't being restricted)
+    	// otherwise, check if the user's account type is an allowed joinable account type for the site
+        return !isLimitByAccountTypeEnabled(site.getId()) || hasAllowedAccountTypeToJoin(user, site);
+    }
+    
+    
+    /** 
+     * Check if the current user is logged in
+     * 
+     * @author bjones86@uwo.ca
+     * @return true if the current user is logged in
+     */
+    public boolean isUserLoggedIn()
+	{
+        // get current user
+		User user = userDirectoryService.getCurrentUser();
+		if( user == null )
+		{
+			return false;
+		}
+        
+        // user is logged in if user id is not null and not empty
+		return user.getId() != null && !"".equals( user.getId() );
+	}
+    
+    /**
+     * Checks if the system and the provided site allows account types of joining users to be limited
+     * 
+     * @param siteID 
+     * 		The site to check if the join system will limit users to allowed account types
+     * @return true if the join site is limiting account types
+     */
+	public boolean isLimitByAccountTypeEnabled(String siteID)
+	{
+		if(siteID == null || StringUtils.isBlank(siteID))
+		{
+			return false;
+		}
+		
+        // if the system allows joinable systems to limit on account type and the account types lists are valid
+		if(GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED)
+        {
+            // get the site's property to determine if the site is restricted by account type
+            return getBooleanSiteProperty(siteID, SITE_PROP_JOIN_LIMIT_OFFICIAL);
+        }
+		else
+        {
+			return false;
+        }
+	}
+    
+    /**
+     * Get a site's group id for the group that a joiner will be added to upon joining a site, if enabled
+     * 
+     * @author sfoster9@uwo.ca, bjones86@uwo.ca
+     * @param site 
+     * 		Site to get current joiner group from
+     * @return joinGroupId string representing the group id of the group that a joining user will be added to upon joining a site; the string "noSelection" represents no joiner group
+     */
+    public String getJoinGroupId(Site site)
+    {
+        // set group id to default no selection string
+        String joinGroupId = JOINSITE_GROUP_NO_SELECTION;
+
+        if(site != null)
+        {
+            // get the site's properties
+            ResourceProperties rp = site.getProperties();
+            
+            // get the group id property
+            if(rp != null)
+            {
+            	joinGroupId = rp.getProperty(SITE_PROP_JOINSITE_GROUP_ID);
+            }
+            
+            // If the group was not found or the group id is null or empty, revert the site property to the "noSelection" setting
+            if(site.getGroup(joinGroupId) == null)
+            {
+                ResourcePropertiesEdit rpe = site.getPropertiesEdit();
+                rpe.addProperty(SITE_PROP_JOINSITE_GROUP_ID, JOINSITE_GROUP_NO_SELECTION);
+                joinGroupId = JOINSITE_GROUP_NO_SELECTION;
+
+                try
+                {
+                    siteService.save(site);
+                }
+                catch(Exception e)
+                {
+                    log.error("Site " + site.getId() + " couldn not be saved during adding joiner to join group: " + e.getMessage(), e);
+                }
+            }
+        }
+
+        return joinGroupId;
+    }
+    
+    /** 
+     * Adds current user to provided site
+     * 
+     * @param site 
+     * 		Site to add current user to
+     */
+    public void addJoinerToGroup(Site site)
+    {
+    	// can't add joiner to a site that doesn't exist
+        if(site == null)
+        {
+        	return;
+        }
+    	
+    	// can't add joiner to a group if they're not a member of the site
+        if(!siteService.isCurrentUserMemberOfSite(site.getId()))
+        {
+        	return;
+        }
+        
+        // Create the SecurityAdvisor (elevated permissions needed to use add members)
+        SecurityAdvisor yesMan = new SecurityAdvisor()
+        {
+            @Override
+            public SecurityAdvice isAllowed(String userID, String function, String reference)
+            {
+                // get permission to update the site
+                if(SAK_PERM_SITE_UPD.equalsIgnoreCase(function))
+                {
+                    return SecurityAdvice.ALLOWED;
+                }
+                else
+                {
+                    return SecurityAdvice.PASS;
+                }
+            }
+        };
+
+        try
+        {
+            // Push the security advisor onto the stack
+            securityService.pushAdvisor(yesMan);
+
+            // check if the site has the join group property enabled
+            if(GLOBAL_JOIN_GROUP_ENABLED);
+            {
+                //get joiner group id
+                String joinerGroupId = getJoinGroupId(site);
+
+                // if the joiner group is found
+                if(joinerGroupId != null && !JOINSITE_GROUP_NO_SELECTION.equals(joinerGroupId))
+                {
+                    try 
+                    {
+                    	User user = userDirectoryService.getCurrentUser();
+                    	if( user == null )
+                    	{
+                    		throw new UserNotDefinedException( "No user is logged in" );
+                    	}
+                    	
+                    	// try adding the user to the group
+                        site.getGroup(joinerGroupId).addMember(user.getId(), site.getJoinerRole(), true, false);
+                        siteService.saveGroupMembership(site);
+                    }
+                    catch(Exception e)
+                    {
+                        log.error("Join group not found during site join: " + e.getMessage(), e);
+                    }
+                }
+            }
+        }
+        finally
+        {
+            // pop the Security Advisor off no matter what happens
+            securityService.popAdvisor(yesMan);
+        }
+    }
+    
+    /** 
+     * Check if the system and the provided site has the ability to send email notifications when a user joins the site
+     * 
+     * @param siteID 
+     * 		The site to check if the join email notification option is enabled
+     * @return true if the join email notification options are enabled at the system and passed-in site's levels
+     */
+    public boolean isJoinNotificationToggled(String siteID)
+	{
+        // if system has join notifications enabled
+		if(GLOBAL_JOIN_NOTIFICATION_ENABLED && siteID != null)
+        {
+            // determine whether the site's options are to send join email notifications upon user joining a site
+			return getBooleanSiteProperty(siteID, SITE_PROP_JOIN_NOTIFY);
+        }
+		else
+        {
+            // options not enabled
+			return false;
+        }
+	}
+ 
+    /**
+     * Send email notification to the worksite's maintainers when a user joins their site
+     * 
+     * @author bjones86@uwo.ca
+     * @param siteID 
+     * 		Site to send email to its maintainers
+     */
+	public void sendEmailNotification(String siteID)
+	{
+		if(siteID == null || "".equals(siteID))
+		{
+			return;
+		}
+		
+		try
+		{
+			// Get the current site, current user
+			Site site = siteService.getSite(siteID);
+			User currentUser = userDirectoryService.getCurrentUser();
+			if( currentUser == null )
+			{
+				return;
+			}
+			
+			// Add all the maintainers to the list of recipients
+			List<InternetAddress> emailRecipients = new ArrayList<InternetAddress>();
+			for( String userRef : site.getUsersHasRole( site.getMaintainRole() ) )
+			{
+				User user = null;
+				try 
+                { 
+                    user = userDirectoryService.getUser( userRef ); 
+                }
+				catch( UserNotDefinedException ex ) 
+                { 
+                    // skip and continue to next user
+                    continue; 
+                }
+				
+				if( user != null )
+				{
+					try 
+                    { 
+                        emailRecipients.add( new InternetAddress( user.getEmail() ) ); 
+                    }
+					catch( AddressException ex ) 
+                    { 
+                        continue; 
+                    }
+				}
+			}
+			
+			// Create the map of replacement values
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put( TMPLT_VAR_SITE_NAME, site.getTitle() );
+			replacementValues.put( TMPLT_VAR_INSTITUTE, ServerConfigurationService.getString( SAK_PROP_UI_INSTITUTION ) );
+			if( currentUser.getFirstName() != null && !"".equals( currentUser.getFirstName() ) )
+            {
+				replacementValues.put( TMPLT_VAR_SHORT_NAME, currentUser.getFirstName() );
+            }
+			else
+            {
+				replacementValues.put( TMPLT_VAR_SHORT_NAME, currentUser.getDisplayId() );
+            }
+            
+			// Send the email(s)
+			String emailFrom = ServerConfigurationService.getString( SAK_PROP_SUPPORT_EMAIL );
+            
+            // get Email Template Service
+            EmailTemplateService emailTemplateService = (EmailTemplateService) ComponentManager.get(EmailTemplateService.class);
+            
+            // get template
+			RenderedTemplate template = emailTemplateService.getRenderedTemplate( EMAIL_TEMPLATE_KEY, Locale.ENGLISH, replacementValues );
+			try 
+			{ 
+                // send the email(s)
+				emailService.sendMail( new InternetAddress( emailFrom ), emailRecipients.toArray( new InternetAddress[0] ), template.getRenderedSubject(),
+					template.getRenderedMessage(), null, null, null );
+			}
+			catch( AddressException ex ) 
+            { 
+                log.error( "Problem sending join notification email: " + ex.getMessage(), ex ); 
+            }
+			
+		}
+		catch( IdUnusedException e ) 
+        { 
+            log.error( String.format("Site ID %s not found; not sending join notification email", siteID), e ); 
+        }
+	}
+    
+    
+    /**
+     * Helper method to get the value of a boolean property
+     * 
+     * @param siteID 
+     * 		The site to retrieve the property from
+     * @param propertyName 
+     * 		The boolean property name to retrieve
+     * @return true if the boolean property is found and is set to true
+     */
+    public boolean getBooleanSiteProperty(String siteID, String propertyName)
+    {
+        try 
+        {
+            // for example, return the site property called 'joinLimitOfficial' (boolean)
+            Site site = siteService.getSite(siteID);
+            ResourceProperties props = site.getProperties();
+            return props.getBooleanProperty(propertyName);
+        }
+        catch(Exception e)
+        {
+            log.debug(String.format("Error retrieving property %s from site %s ", propertyName, siteID), e);
+        }
+        return false;
+    }
+        
+    /**
+     * Check if the user's account type is an allowed joinable account type for the site
+     * 
+     * @param user 
+     * 		User to check account type
+     * @param site 
+     * 		Site to check for account types
+     * @return true if user's account type matches one of the site's allowed account types
+     */
+	private boolean hasAllowedAccountTypeToJoin(User user, Site site)
+	{
+		if(user == null || site == null)
+		{
+			return false;
+		}
+		
+		if(!GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED)
+		{
+			return true;
+		}
+		
+        try 
+        { 
+            // checks to see if the user's account type is in the allowed joinable account types for this site
+            ResourceProperties rp = site.getProperties();
+            String csv = rp.getProperty(SITE_PROP_JOIN_ACCOUNT_TYPES);
+
+            if(csv != null)
+            {
+                List<String> accntTypes = Arrays.asList(csv.split(COMMA_DELIMITER));
+                
+                // if the current user has an allowed user types to join this site, as chosen by the site maintainer
+                return accntTypes.contains(user.getType());
+            }
+        }
+        catch( Exception e ) 
+        { 
+            log.error( "Error occurred when checking if user has the allowed account type: " + e.getMessage(), e ); 
+        }
+
+        return false;
+	}
+}
