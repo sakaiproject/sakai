@@ -409,6 +409,9 @@ var RcptSelect = function()
 				var checked = jQuery(checkbox).is(':checked');
 				var context = jQuery(checkbox + ' ~ div');
 				jQuery('input[type=checkbox]:enabled', context).attr('checked', checked);
+				if (!checked) {
+					jQuery('#mailsender-rcpt-all').attr('checked',false);
+				}
 			}
 		},
 
@@ -439,6 +442,7 @@ var RcptSelect = function()
 			if (!checkbox.is(':checked'))
 			{
 				selectAll.attr('checked', false);
+				jQuery('#mailsender-rcpt-all').attr('checked',false);
 			}
 			else
 			{
