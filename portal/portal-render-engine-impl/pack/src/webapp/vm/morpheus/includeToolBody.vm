@@ -24,7 +24,7 @@
                 <div class="title">
                     #if (${tool.toolShowResetButton})
                         <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
-                            <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
+                            <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}">
                         </a>
                     #end
                     ## <h2>${tool.toolRenderResult.getTitle()}</h2>
@@ -33,18 +33,14 @@
                 </div>
                 <div class="action">
                     #if (${tool.toolJSR168Edit} )
-                        <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
-                            title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
-                            alt="${rloader.sit_edit}" border="0">
+                        <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"><img src="/library/image/transparent.gif" alt="${rloader.sit_edit}">
                         </a>
                     #end 
                     #if (${tool.toolShowHelpButton})
                         #if (${tool.toolJSR168Help} )
-                            <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" /><span class="skip">${rloader.site_newwindow}</span> </a>
+                            <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}"><span class="skip">${rloader.site_newwindow}</span> </a>
                         #else
-                            <a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" 
-                             target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
-                              'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" border="0" /><span class="skip">${rloader.site_newwindow}</span> </a>
+                            <a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}"><span class="skip">${rloader.site_newwindow}</span></a>
                         #end
                     #end
                 </div>
@@ -55,41 +51,27 @@
             <div class="portletTitle">
                 <div class="title">
                     #if (${tool.toolShowResetButton})
-                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
-                                <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" /></a>
+                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}"><img src="/library/image/transparent.gif" alt="${sitReset}"></a>
                     #end    
                     <h2>${tool.toolTitle}</h2>
                 </div>
                 <div class="action">
                     #if (${tool.toolShowHelpButton})
-                        <a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" 
-                            target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
-                            'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-                            <img src="/library/image/transparent.gif"  alt="${rloader.sit_helpfor} ${tool.toolTitle}" border="0" />
-                            <span class="skip">${rloader.site_newwindow}</span>
-                        </a>
+                        <a href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                     #end
                 </div>
             </div>
         </div>
     #end
     <!-- end Tool -->
-    <!-- start Tool Body -->                        
+    <!-- start Tool Body -->
     #if (${tool.hasRenderResult})
         <div class="portletMainWrap">
             ${tool.toolRenderResult.getContent()}
         </div>
     #else
         <div class="portletMainWrap">
-            <iframe    name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
-                class ="portletMainIframe"
-                height="475"
-                width="100%"
-                frameborder="0"
-                marginwidth="0"
-                marginheight="0"
-                scrolling="auto"    
-                src="${tool.toolUrl}?panel=Main">
+            <iframe name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" class ="portletMainIframe" height="475" width="100%" src="${tool.toolUrl}?panel=Main">
             </iframe>
         </div>
     #end

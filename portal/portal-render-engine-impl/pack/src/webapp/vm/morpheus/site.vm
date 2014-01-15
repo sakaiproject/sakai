@@ -1,10 +1,10 @@
 <!--//START VM site.vm -->
 #parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
-        <div style="position:absolute;top:5px;left:5px;padding:5px;background:#fff;color:#000;border:1px solid #000">Morpheus</div>
-        <noscript><div id="portal_js_warn">${rloader.sit_noscript_message}</div></noscript>
+        <span style="position:absolute;top:5px;left:5px;padding:5px;background:rgba(255,255,255,.75);color:#000;border:1px solid #000">Morpheus</span>
+        <noscript><span id="portal_js_warn">${rloader.sit_noscript_message}</span></noscript>
         #if (${portal_add_mobile_link})
-            <div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>
+            <span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
         #end
         #if ( $pageTop )
             <script>
@@ -25,16 +25,16 @@
                         #if (${portal_allow_minimize_navigation})
                             toggleClass= toggleClass + "toggleNav"
                         #end
-                                setupToolToggle(toggleClass);
+                            setupToolToggle(toggleClass);
                     });
                 </script>
             #end
         #end
-        <div id="portalOuterContainer">
-            <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="sakaiMinimizeSiteNavigation" #end >
+        <div id="portalOuterContainer" class="container portal outer">
+            <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="container portal inner sakaiMinimizeSiteNavigation" #else class="container portal inner" #end>
                 #if (${tabsSites} )
-                    <div id="headerMax">
-                        <div id="skipNav">
+                    <div id="headerMax" class="header max">
+                        <div id="skipNav" class="skip">
                             #if ($siteNavHasAccessibilityURL)
                                 <a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
                                     ${rloader.sit_accessibility}
@@ -51,14 +51,12 @@
                             </a>
                         </div>
                         <div id="siteNavWrapper" class="${logoSiteClass}">
-                            <div id="mastHead" role="banner">
-                                <div id="mastLogo">
-                                    <img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
-                                </div>
-                                <div id="mastBanner">
-                                    <img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
-                                </div>
-                            </div>
+                            <header id="mastHead" role="banner">
+                                <span id="mastLogo"  class="header logo insttitution">
+                                </span>
+                                <span id="mastBanner" class="header logo banner">
+                                </span>
+                            </header>
 #parse("/vm/morpheus/includeTabs.vm")
                         </div>
                     </div>
@@ -78,13 +76,11 @@
                             </a>
                         </div>
                         <div id="siteNavWrapper" class="${logoSiteClass}">
-                            <div id="mastHead" role="banner">
-                                <div id="mastLogo">
-                                    <img title="Logo" alt="Logo" src="${logoSkinRepo}/${logoSkin}/images/logo_inst.gif" />
-                                </div>
-                                <div id="mastBanner">
-                                    <img title="Banner" alt="Banner" src="${logoSkinRepo}/${logoSkin}/images/banner_inst.gif" />
-                                </div>
+                            <header id="mastHead" role="banner">
+                                <span id="mastLogo"  class="header logo insttitution">
+                                </span>
+                                <span id="mastBanner" class="header logo banner">
+                                </span>
                                 <!-- login component -->
                                 <div id="mastLogin">
                                     #if (!${loginTopLogin})
@@ -105,19 +101,18 @@
                                     #else
                                         <form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
                                             <label for="eid">${loginEidWording}</label>
-                                            <input name="eid" id="eid" type="text" />
+                                            <input name="eid" id="eid" type="text">
                                             <label for="pw">${loginPwWording}</label>
-                                            <input name="pw" type="password" id="pw" />
-                                            <input name="submit" type="submit" id="submit" value="${loginWording}" />
+                                            <input name="pw" type="password" id="pw">
+                                            <input name="submit" type="submit" id="submit" value="${loginWording}">
                                         </form>
                                         <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
                                     #end
                                 </div>
                                 <!-- end login component -->
-                            </div>
+                            </header>
                         </div>
                         <div class="divColor" id="tabBottom">
-                            <br />
                         </div>
                     </div>
                 #end

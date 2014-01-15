@@ -3,17 +3,19 @@
     <head>
         <!--//START VM login.vm -->
         <meta charset="utf-8">
-        <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" rel="stylesheet">
-        <!-- this caises problems for layout nneds investihating -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>${pageTitle}</title>
+        <link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" rel="stylesheet">
+        
         <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet">
-        <!--[if gte IE 5]><![if lt IE 7]>
-            <link href="/portal/styles/portalstyles-ie5.css" rel="stylesheet">
-        <![endif]><![endif]-->
-    
-        <meta http-equiv="Content-Style-Type" content="text/css" />
-        #if (! $currentPlacement && $isPDA )
-            <meta name="viewport" content="width=320, user-scalable=no" />
-        #end
+        <!--[if (lt IE 9)]>
+          <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css" rel="stylesheet">
+        <![endif]-->
+        ## downlevel revealed conditional comment - only loads for IE9+, IEMobile and Non IE browsers
+        <!--[if (gte IE 9)|(IEMobile)|(!IE)]><!--> 
+          <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
+        <!--<![endif]-->
+
         #if ( ${bufferedResponse} && ${responseHead} ) 
             <!-- Head material from Tool (will include title and headscripts) -->
             ${responseHead}
@@ -90,10 +92,10 @@
         #else
             <form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
                 <label for="eid">${loginEidWording}</label>
-                <input name="eid" id="eid" type="text" />
+                <input name="eid" id="eid" type="text">
                 <label for="pw">${loginPwWording}</label>
-                <input name="pw" type="password" id="pw" />
-                <input name="submit" type="submit" id="submit" value="${loginWording}" />
+                <input name="pw" type="password" id="pw">
+                <input name="submit" type="submit" id="submit" value="${loginWording}">
                 <script>
                     document.forms[0].eid.focus();
                 </script>

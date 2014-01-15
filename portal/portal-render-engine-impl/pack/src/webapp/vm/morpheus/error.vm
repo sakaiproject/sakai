@@ -3,16 +3,9 @@
     <head>
         <!--//START VM error.vm -->
         <meta charset="utf-8">
-        <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
-        <!-- this caises problems for layout nneds investihating -->
+        <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="/portal/styles/portalstyles.css" rel="stylesheet">
-        <!--[if gte IE 5]><![if lt IE 7]>
-            <link href="/portal/styles/portalstyles-ie5.css" rel="stylesheet">
-        <![endif]><![endif]-->
-        <meta http-equiv="Content-Style-Type" content="text/css" />
-        #if (! $currentPlacement && $isPDA )
-            <meta name="viewport" content="width=320, user-scalable=no" />
-        #end
+        <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
         #if ( ${bufferedResponse} && ${responseHead} ) 
             <!-- Head material from Tool (will include title and headscripts) -->
             ${responseHead}
@@ -70,17 +63,17 @@
         <h2>Session</h2>
         #if ($s)
             session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
-            <br />
+            <br>
         #else
             no session established
-            <br />
+            <br>
         #end
         #if ($ts)
             tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
-            <br />
+            <br>
         #else
             no tool session established
-            <br />
+            <br>
         #end
         <h2>Unknown Request</h2>
         <h1>Snoop for request</h1>

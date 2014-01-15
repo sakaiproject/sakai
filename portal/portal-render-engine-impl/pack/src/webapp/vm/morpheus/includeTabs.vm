@@ -87,10 +87,10 @@
                 #else ## else of #if (!${loginTopLogin})
                     <form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
                         <label for="eid">${loginEidWording}</label>
-                        <input name="eid" id="eid" type="text" />
+                        <input name="eid" id="eid" type="text">
                         <label for="pw">${loginPwWording}</label>
-                        <input name="pw" type="password" id="pw" />
-                        <input name="submit" type="submit" id="submit" value="${loginWording}" />
+                        <input name="pw" type="password" id="pw">
+                        <input name="submit" type="submit" id="submit" value="${loginWording}">
                     </form>
                 #end ## end of #if (!${loginTopLogin})
             </div> <!--// end of div#mastLogin -->
@@ -146,8 +146,8 @@
         #if ($tabsSites.tabsMoreSitesShow)
             <div id="selectSite" style="display:none">
                 <div id="otherSiteSearch"> 
-                    <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50" />
-                    <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}" /></a>
+                    <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
+                    <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
                     <span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
                 </div>
                 <ul id="otherSitesMenu">

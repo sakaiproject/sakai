@@ -7,6 +7,53 @@
 <html lang="$!{locale}">
     <head>
         <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        
+        #if ( ${bufferedResponse} && ${responseHead} ) 
+            <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
+            ${responseHead}
+            <!-- End of Head material from Tool -->
+            <title>
+                #if (  $pageColumn0Tools )
+                    #foreach ( $tool in $pageColumn0Tools ) 
+                        #if ( $tool ) 
+                            #if ( $tool.toolRenderResult ) 
+                                ${tool.toolRenderResult.getTitle()}
+                            #end
+                        #end
+                    #end
+                #end
+                #if ($pageTwoColumn)
+                    #if (  $pageColumn1Tools )
+                        #foreach ( $tool in $pageColumn1Tools ) 
+                            #if ( $tool ) 
+                                #if ( $tool.toolRenderResult ) 
+                                    ${tool.toolRenderResult.getTitle()}
+                                #end
+                            #end
+                        #end
+                    #end
+                #end
+        #else 
+            <title>${pageTitle}</title>
+            ${sakai_html_head_css}
+        #end
+        
+        <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet">
+        <!--[if (lt IE 9)]>
+          <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css" rel="stylesheet">
+        <![endif]-->
+        ## downlevel revealed conditional comment - only loads for IE9+, IEMobile and Non IE browsers
+        <!--[if (gte IE 9)|(IEMobile)|(!IE)]><!--> 
+          <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
+        <!--<![endif]-->
+        
+        #if ( $neoChat && $loggedIn )
+            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css" rel="stylesheet">
+        #end
+        
+        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" rel="stylesheet">
+        <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script>
             ## SAK-16484 Allow Javascript to easily get at user details.
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
@@ -36,88 +83,52 @@
                 }
             };
         </script>
-        #if ( $loggedIn )
-            <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
-        #end
-        <!-- this causes problems for layout needs investigating -->
-        <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet"/>
-        <!--[if gte IE 5]><![if lt IE 7]>
-            <link href="$!{portalCDNPath}/portal/styles/portalstyles-ie5.css$!{portalCDNQuery}" rel="stylesheet">
-        <![endif]><![endif]-->
-        <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet" />
-        #if ( $neoChat && $loggedIn )
-            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css" rel="stylesheet">
-        #end
-        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" rel="stylesheet">
-        #if (! $currentPlacement && $isPDA )
-            <meta name="viewport" content="width=320, user-scalable=no">
-        #end
+        
         #if ( ${bufferedResponse} && ${responseHead} ) 
-            <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
-            ${responseHead}
-            <!-- End of Head material from Tool -->
-            <title>
-                #if (  $pageColumn0Tools )
-                    #foreach ( $tool in $pageColumn0Tools ) 
-                        #if ( $tool ) 
-                            #if ( $tool.toolRenderResult ) 
-                                ${tool.toolRenderResult.getTitle()}
-                            #end
-                        #end
-                    #end
-                #end
-                #if ($pageTwoColumn)
-                    #if (  $pageColumn1Tools )
-                        #foreach ( $tool in $pageColumn1Tools ) 
-                            #if ( $tool ) 
-                                #if ( $tool.toolRenderResult ) 
-                                    ${tool.toolRenderResult.getTitle()}
-                                #end
-                            #end
-                        #end
-                    #end
-                #end
-            </title>
-            ## Make sure we at least have a jQuery 1.9 or higher, log messages
-            <script>
-                var needJQuery = true;
-                if ( window.jQuery ) {
-                    tver = jQuery.fn.jquery;
-                    if ( tver.indexOf('1.9.') == 0 ) {
-                        window.console && console.log('Tool loaded jQuery '+tver);
-                        needJQuery = false;
-                    } else {
-                        toggleJQuery = true;
-                        window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
-                        jQuery.noConflict();
-                    }
+        ## Make sure we at least have a jQuery 1.9 or higher, log messages
+        <script>
+            var needJQuery = true;
+            if ( window.jQuery ) {
+                tver = jQuery.fn.jquery;
+                if ( tver.indexOf('1.9.') == 0 ) {
+                    window.console && console.log('Tool loaded jQuery '+tver);
+                    needJQuery = false;
+                } else {
+                    toggleJQuery = true;
+                    window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
+                    jQuery.noConflict();
                 }
-                if ( needJQuery ) {
-                    document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-                }
-            </script>
-            <script>
-                if ( needJQuery ) {
-                    window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
-                }
-            </script>
+            }
+            if ( needJQuery ) {
+                document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            }
+        </script>
+        <script>
+            if ( needJQuery ) {
+                window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
+            }
+        </script>
         #else 
-            <title>${pageTitle}</title>
-            ${sakai_html_head_css}
             ${sakai_html_head_js}
             <script src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
         #end
+        
+        #if ( $loggedIn )
+            <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
+        #end
+        
         <script src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
         <script src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
-        <link type="text/css" rel="stylesheet" href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}">
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
+        
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
         #end
+        
         #if ( $neoChat && $loggedIn )
             <script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
             <script>
@@ -125,6 +136,7 @@
             </script>
             <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
         #end
+        
         #if ( ${styleable} )
             <script src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}"></script>
             <script>
@@ -139,6 +151,7 @@
                 </script>
             #end
         #end
+        
         <script>
             document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
         </script>

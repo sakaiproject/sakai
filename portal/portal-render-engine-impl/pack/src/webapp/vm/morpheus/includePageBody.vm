@@ -25,9 +25,9 @@
                                         <div class="title">
                                             #if (${tool.toolShowResetButton})
                                                 #if ($!{tool.toolInline})
-                                                    <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}"><img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+                                                    <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}"><img src="/library/image/transparent.gif" alt="${rloader.sit_reset}"></a>
                                                 #else
-                                                    <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"><img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" /></a>
+                                                    <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"><img src="/library/image/transparent.gif" alt="${rloader.sit_reset}"></a>
                                                 #end
                                             #end
                                             <h2>${tool.toolRenderResult.getTitle()}</h2>
@@ -36,15 +36,15 @@
                                             #if (${tool.toolJSR168Edit} )
                                                 <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
                                                     title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
-                                                    alt="${rloader.sit_edit}" border="0"></a>
+                                                    alt="${rloader.sit_edit}"></a>
                                             #end 
                                             #if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
                                                 <a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
-                                                    <img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+                                                    <img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}">
                                                 </a>
                                                 <div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
                                                     #if($toolShortUrlEnabled)
-                                                    <input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+                                                    <input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');">
                                                     <span>${rloader.short_url}</span>
                                                     #end
                                                     <textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>
@@ -53,14 +53,14 @@
                                             #if (${tool.toolShowHelpButton})
                                                 #if (${tool.toolJSR168Help} )
                                                     <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
-                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" border="0" />
+                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
                                                         <span class="skip">${rloader.site_newwindow}</span>
                                                     </a>
                                                 #else
                                                     <a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" 
                                                     target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
                                                     'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-                                                         <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" border="0" />
+                                                         <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
                                                         <span class="skip">${rloader.site_newwindow}</span>
                                                     </a>
                                                 #end
@@ -74,7 +74,7 @@
                                         <div class="title">
                                             #if (${tool.toolShowResetButton})
                                                 <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
-                                                    <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
+                                                    <img src="/library/image/transparent.gif" alt="${sitReset}">
                                                 </a>
                                             #end    
                                             <h2>${tool.toolTitle}</h2>
@@ -84,7 +84,7 @@
                                                 <a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
                                                 target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
                                                 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-                                                    <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" border="0" />
+                                                    <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)">
                                                     <span class="skip">${rloader.site_newwindow}</span>
                                                 </a>
                                             #end
@@ -106,15 +106,7 @@
                                 </div>
                             #else
                                 <div class="portletMainWrap">
-                                    <iframe name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
-                                        class ="portletMainIframe"
-                                        height="475"
-                                        width="100%"
-                                        frameborder="0"
-                                        marginwidth="0"
-                                        marginheight="0"
-                                        scrolling="auto"    
-                                        src="${tool.toolUrl}?panel=Main">
+                                    <iframe name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" class ="portletMainIframe"height="475" width="100%" src="${tool.toolUrl}?panel=Main">
                                     </iframe>
                                 </div>
                             #end
@@ -135,7 +127,7 @@
                                         <div class="title">
                                             #if (${tool.toolShowResetButton})
                                                 <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}">
-                                                    <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}" border="1" />
+                                                    <img src="/library/image/transparent.gif" alt="${rloader.sit_reset}">
                                                 </a>
                                             #end
                                             <h2>${tool.toolRenderResult.getTitle()}</h2>
@@ -144,15 +136,15 @@
                                             #if (${tool.toolJSR168Edit} )
                                                 <a accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" 
                                                     title="${rloader.sit_edit}"><img src="/library/image/transparent.gif"  
-                                                    alt="${rloader.sit_edit}" border="0"></a>
+                                                    alt="${rloader.sit_edit}"></a>
                                             #end 
                                             #if ($toolDirectUrlEnabled && ${tool.showDirectToolUrl})
                                                 <a class="tool-directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}">
-                                                    <img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}" border="0"/>
+                                                    <img src="/library/image/transparent.gif" alt="${rloader.tool_direct_link}">
                                                 </a>
                                                 <div id="${tool.toolPlacementIDJS}_directurl" class="direct-url-wrap">
                                                     #if($toolShortUrlEnabled)
-                                                        <input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');" />
+                                                        <input type="checkbox" onclick="toggleShortUrlOutput('${tool.directToolUrl}', this, '${tool.toolPlacementIDJS}_urlholder');">
                                                         <span>${rloader.short_url}</span>
                                                     #end
                                                     <textarea class="${tool.toolPlacementIDJS}_urlholder" rows="3" cols="50">${tool.directToolUrl}</textarea>
@@ -161,14 +153,14 @@
                                             #if (${tool.toolShowHelpButton})
                                                 #if (${tool.toolJSR168Help} )
                                                     <a accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}">
-                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"  border="0" />
+                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
                                                         <span class="skip">${rloader.site_newwindow}</span>
                                                     </a>
                                                 #else
                                                     <a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)" 
                                                         target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
                                                         'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)"  border="0" />
+                                                        <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolRenderResult.title)">
                                                         <span class="skip">${rloader.site_newwindow}</span>
                                                     </a>
                                                 #end
@@ -182,7 +174,7 @@
                                         <div class="title">
                                             #if (${tool.toolShowResetButton})
                                                 <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}">
-                                                    <img src="/library/image/transparent.gif" alt="${sitReset}" border="1" />
+                                                    <img src="/library/image/transparent.gif" alt="${sitReset}">
                                                 </a>
                                             #end
                                             <h2>${tool.toolTitle}</h2>
@@ -192,7 +184,7 @@
                                                 <a href="${tool.toolHelpActionUrl}" title="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)" 
                                                     target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help',
                                                     'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">
-                                                    <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)"  border="0" />
+                                                    <img src="/library/image/transparent.gif"  alt="$rloader.getFormattedMessage("sit_helpfor", $tool.toolTitle)">
                                                     <span class="skip">${rloader.site_newwindow}</span>
                                                 </a>
                                             #end
@@ -208,15 +200,7 @@
                                 </div>
                             #else
                                 <div class="portletMainWrap">
-                                    <iframe    name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" 
-                                    class ="portletMainIframe"
-                                    height="475"
-                                    width="100%"
-                                    frameborder="0"
-                                    marginwidth="0"
-                                    marginheight="0"
-                                    scrolling="auto"    
-                                    src="${tool.toolUrl}?panel=Main">
+                                    <iframe    name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" class ="portletMainIframe" height="475" width="100%" src="${tool.toolUrl}?panel=Main">
                                     </iframe>
                                 </div>
                             #end
@@ -244,7 +228,7 @@
                 <div id="footerInfo">
                     #foreach ( $pb in $bottomNavPoweredBy )    
                         <a href="${pb.poweredByUrl}" target="_blank">
-                            <img border="0" src="${pb.poweredByImage}" alt="${pb.poweredByAltText}" />
+                            <img src="${pb.poweredByImage}" alt="${pb.poweredByAltText}">
                             <span class="skip"> (${rloader.site_newwindow})</span>
                         </a>
                     #end
@@ -257,7 +241,7 @@
                         #if ($showPreferredTzTime == "true")
                             ${rloader.site_preferredtime_label}
                             <span id="preferredTime" class="server-time"></span>
-                            <br />
+                            <br>
                         #end
                         ${rloader.site_servertime_label}
                         <span id="serverTime" class="server-time"></span>
@@ -298,7 +282,7 @@
                         #if ( $neoChat )
                             <div id="footerAppChat" style="display:none">
                                 <a href="#" id="chatToggle">
-                                    <img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="" />
+                                    <img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="">
                                     ${rloader.pc_title} 
                                     <span id="chattableCount"></span>
                                 </a>
@@ -309,7 +293,7 @@
                                 <h1 class="skip">${rloader.sit_presencehead}</h1>
                                 <div id="footerAppPresence">
                                     <a href="#" id="presenceToggle">
-                                        <img src="/library/image/silk/user_green.png" style="vertical-align: middle;" alt="" />
+                                        <img src="/library/image/silk/user_green.png" style="vertical-align: middle;" alt="">
                                         <span class="skip">Toggle users present panel</span>
                                     </a>
                                     <span class="skip">Number of users present:</span>
@@ -365,13 +349,13 @@
                     #if ( $neoAvatar ) 
                     <img class="pc_connection_image" src="/direct/profile/${connection.uuid}/image"/>
                     #end
-                    <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
-                    {else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>
+                    <span class="pc_connection_display_name">${connection.displayName}</span>{if connection.online}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png">
+                    {else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png">
                     {/if}
                     </a>
                     {if connection.online == false}
                     <a href="javascript:;" onclick="portalChat.pingConnection('${connection.uuid}');" title="$rloader.getString("pc_ping") ${connection.displayName} $rloader.getString("pc_ping_connection")">
-                    <img src="/library/image/silk/bell.png" width="16" height="16" border="0"/>
+                    <img src="/library/image/silk/bell.png" width="16" height="16">
                     </a>
                     <span id="pc_pinged_popup_${connection.uuid}" class="pc_pinged_popup">${rloader.pc_pinged_popup}</span>
                     {/if}
@@ -388,10 +372,10 @@
                     {/if}
 ## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
                     #if ( $neoAvatar ) 
-                    <img class="pc_user_image" src="/direct/profile/${user.id}/image" />
+                    <img class="pc_user_image" src="/direct/profile/${user.id}/image">
                     #end
-                    <span class="pc_site_display_name">${user.displayName}</span>{if user.offline == false}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png" border="0"/>
-                    {else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png" border="0"/>
+                    <span class="pc_site_display_name">${user.displayName}</span>{if user.offline == false}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_green.png">
+                    {else}<img class="pc_display_status_bullet" src="/library/image/silk/bullet_red.png">
                     {/if}
                     {if user.offline == false}
                     </a>
@@ -416,7 +400,7 @@
                     #end
                     <a href="javascript:;" onclick="return portalChat.closeChatWindow('${uuid}');" title="${rloader.pc_chat_close}">
                     <span class="skip">${rloader.pc_chat_close}</span>
-                    <img src="/library/image/silk/cross.png" width="16px" height="16px" border="0" style="float: right;" alt=""/>
+                    <img src="/library/image/silk/cross.png" width="16px" height="16px" class="float right" alt=""/>
                     </a>
                     </div>
                     <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
@@ -432,15 +416,14 @@
                 <!-- END FLOATING CHAT STUFF -->
                 #end
                 #if ( ( !$neoChat ) && ${loggedIn} && ${sitePages.pageNavShowPresenceLoggedIn})
-                    <div id="presenceArea" style="display: none" class="trayPopup">
+                    <div id="presenceArea" class="trayPopup hidden">
                         <div id="presenceWrapper">
                             <div id="presenceTitle">${rloader.sit_presencetitle}<div>
                                 <a href="#" id="presenceClose" class="trayPopupClose">x</a>
                             </div>
                         </div>
                         #if (${sitePages.pageNavPresenceIframe})
-                            <iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}"
-                            frameborder="0" marginwidth="0" marginheight="0" scrolling="auto" src="${sitePages.pageNavPresenceUrl}?auto=true" >
+                            <iframe name="presenceIframe" id="presenceIframe" title="${rloader.sit_presencetitle}" src="${sitePages.pageNavPresenceUrl}?auto=true">
                             </iframe>
                         #else
                             <div id="presenceIframe">

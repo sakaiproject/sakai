@@ -23,10 +23,10 @@
                             ${rloader.sit_accessibility}
                         </a>
                     #end
-                    <a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+                    <a href="#tocontent" class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
                         ${rloader.sit_jumpcontent}
                     </a>
-                    <a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+                    <a href="#totoolmenu" class="skip" title="${rloader.sit_jumptools}" accesskey="l">
                         ${rloader.sit_jumptools}
                     </a>
                     <a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
