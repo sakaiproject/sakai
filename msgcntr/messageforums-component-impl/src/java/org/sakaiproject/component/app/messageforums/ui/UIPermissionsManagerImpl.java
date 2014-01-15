@@ -926,12 +926,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  userMemberships.add(currRole);
 	  // now, add any groups the user is a member of
 	  try {
-		  Collection groups;
-		  if (ThreadLocalManager.get("message_center_current_member_groups") != null) {
-			  groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
-		  } else {
-			  groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
-		  }
+		  Collection groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
 	
 		  Iterator groupIter = groups.iterator();
 		  while (groupIter.hasNext())
@@ -1033,7 +1028,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     //  for group awareness
     try
     {
-    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+      	Collection groups = null;
+      	try
+      	{
+      		Site currentSite = SiteService.getSite(getContextId());
+      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+      	}
+        catch(IdUnusedException iue)
+        {
+        	LOG.error(iue.getMessage(), iue);
+        }
     	if(groups != null)
     	{
     		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
@@ -1051,7 +1055,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     catch(Exception iue)
     {
-    	iue.printStackTrace();
+    	LOG.error(iue.getMessage(), iue);
     }
     
     return areaItems.iterator();
@@ -1128,7 +1132,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	//  for group awareness
     try
     {
-    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+      	Collection groups = null;
+      	try
+      	{
+      		Site currentSite = SiteService.getSite(getContextId());
+      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+      	}
+        catch(IdUnusedException iue)
+        {
+        	LOG.error(iue.getMessage(), iue);
+        }
     	if(groups != null)
     	{
     		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
@@ -1145,7 +1158,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     catch(Exception iue)
     {
-    	iue.printStackTrace();
+    	LOG.error(iue.getMessage(), iue);
     }
 
 //    Iterator iter = membershipItems.iterator();
@@ -1233,7 +1246,16 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     //for group awareness
     try
     {
-    	Collection groups = (Collection) ThreadLocalManager.get("message_center_current_member_groups");
+      	Collection groups = null;
+      	try
+      	{
+      		Site currentSite = SiteService.getSite(getContextId());
+      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+      	}
+        catch(IdUnusedException iue)
+        {
+        	LOG.error(iue.getMessage(), iue);
+        }
     	if(groups != null)
     	{
     		for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
@@ -1250,7 +1272,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     catch(Exception iue)
     {
-    	iue.printStackTrace();
+    	LOG.error(iue.getMessage(), iue);
     }
     
 //    Iterator iter = membershipItems.iterator();
@@ -1539,7 +1561,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	}
     catch(IdUnusedException iue)
     {
-    	iue.printStackTrace();
+    	LOG.error(iue.getMessage(), iue);
     }
 
    	ThreadLocalManager.set("message_center_current_member_groups", groups);
