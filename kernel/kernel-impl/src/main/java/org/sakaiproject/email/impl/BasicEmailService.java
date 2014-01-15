@@ -442,7 +442,7 @@ public class BasicEmailService implements EmailService
 		}
 	}
 
-	private void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
+	public void sendMailMessagingException(InternetAddress from, InternetAddress[] to, String subject, String content,
 			Map<RecipientType, InternetAddress[]> headerTo, InternetAddress[] replyTo,
 			List<String> additionalHeaders, List<Attachment> attachments) throws MessagingException
 			{
@@ -917,13 +917,14 @@ public class BasicEmailService implements EmailService
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
+	 * For temporary backward compatibility
 	 */
 	public List<EmailAddress> send(EmailMessage msg) throws AddressValidationException,
 	NoRecipientsException
 	{
 		List<EmailAddress> addresses = new ArrayList<EmailAddress>();
 		try {
-			addresses = sendMessagingException(msg);
+			addresses = send(msg,true);
 		}
 		catch (MessagingException e) {
 			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
@@ -935,7 +936,7 @@ public class BasicEmailService implements EmailService
 	 * 
 	 * @see org.sakaiproject.email.api.EmailService#send(EmailMessage)
 	 */
-	public List<EmailAddress> sendMessagingException(EmailMessage msg) throws AddressValidationException,
+	public List<EmailAddress> send(EmailMessage msg, boolean messagingException) throws AddressValidationException,
 			NoRecipientsException, MessagingException
 	{
 		ArrayList<EmailAddress> invalids = new ArrayList<EmailAddress>();
@@ -1031,9 +1032,18 @@ public class BasicEmailService implements EmailService
 		headers.add(contentType);
 
 		// send the message
-		sendMailMessagingException(from, actual, msg.getSubject(), msg.getBody(), headerTo, replyTo, headers, msg
-				.getAttachments());
-
+		try {
+			sendMailMessagingException(from, actual, msg.getSubject(),
+					msg.getBody(), headerTo, replyTo, headers,
+					msg.getAttachments());
+		} catch (MessagingException e) {
+			// Just log it, if user doesn't want it thrown
+			if (messagingException == false) {
+				M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+			} else {
+				throw e;
+			}
+		}
 		return invalids;
 	}
 
