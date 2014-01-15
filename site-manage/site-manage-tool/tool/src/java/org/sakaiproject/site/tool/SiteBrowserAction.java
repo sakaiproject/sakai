@@ -245,6 +245,21 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		{
 			template = buildVisitContext(state, context);
 		}
+		
+		// bjones86 - SAK-24423 - joinable site settings - join from site browser
+		else if( JoinableSiteSettings.SITE_BROWSER_JOIN_MODE.equalsIgnoreCase( mode ) )
+		{
+			if( JoinableSiteSettings.isJoinFromSiteBrowserEnabled() )
+			{
+				template = JoinableSiteSettings.buildJoinContextForSiteBrowser( state, context, rb );
+			}
+		else
+		{
+				Log.warn( "chef", "SiteBrowserAction: mode = " + mode + ", but site browser join is disabled globally" );
+				template = buildListContext( state, context );
+			}
+		}
+		
 		else
 		{
 			Log.warn("chef", "SiteBrowserAction: mode: " + mode);
@@ -288,6 +303,11 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		List sites = prepPage(state);
 		state.setAttribute(STATE_SITES, sites);
 		context.put("sites", sites);
+		
+		// bjones86 - SAK-24423 - joinable site settings - put the necessary info into the context for the list interface
+		JoinableSiteSettings.putSiteMapInContextForSiteBrowser( context, sites );
+        JoinableSiteSettings.putCurrentUserInContextForSiteBrowser( context );
+        JoinableSiteSettings.putIsSiteBrowserJoinEnabledInContext( context );
 
 		if (state.getAttribute(STATE_NUM_MESSAGES) != null)
 			context.put("allMsgNumber", state.getAttribute(STATE_NUM_MESSAGES).toString());
@@ -558,6 +578,11 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			}
 
 			context.put("contentTypeImageService", ContentTypeImageService.getInstance());
+			
+			// bjones86 - SAK-24423 - joinable site settings - put info into the context for the visit UI
+			JoinableSiteSettings.putIsSiteBrowserJoinEnabledInContext( context );
+			JoinableSiteSettings.putIsCurrentUserAlreadyMemberInContextForSiteBrowser( context, siteId );
+			JoinableSiteSettings.putIsSiteExcludedFromPublic( context, siteId );
 		}
 		catch (IdUnusedException err)
 		{
@@ -612,6 +637,26 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		}
 
 	} // doVisit
+	
+	/**
+	 * Handle a request to join a site.
+	 * 
+	 * @author bjones86
+	 * 
+	 * @param data
+	 * 				the state to get the settings from
+	 * @param context
+	 * 				the object to put the settings into
+	 */
+	public void doJoin( RunData data, Context context )
+	{
+		SessionState state = ( (JetspeedRunData) data).getPortletSessionState( ( (JetspeedRunData) data).getJs_peid() );
+		String message = JoinableSiteSettings.doJoinForSiteBrowser( state, rb, data.getParameters().getString( "id" ) );
+		if( message != null && !message.isEmpty() )
+		{
+			addAlert( state, message );
+		}
+	} // doJoin
 
 	/**
 	 * Handle a request to return to the list.

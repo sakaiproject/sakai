@@ -1146,6 +1146,9 @@ public class SiteAction extends PagedResourceActionII {
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
+                
+        // bjones86 - SAK-24423 - remove joinable site settings from the state
+		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
 	} // cleanState
 
@@ -1762,6 +1765,9 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("published", Boolean.valueOf(siteInfo.published));
 			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
+                        
+            // bjones86 - SAK-24423 - add joinable site settings to context
+			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
 
 			context.put("importSiteTools", state
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
@@ -2503,6 +2509,10 @@ public class SiteAction extends PagedResourceActionII {
 
 				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", ServerConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
+                                
+                // bjones86 - SAK-24423 - add joinable site settings to context
+				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNotNull( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
+                                
 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
 					// site can be set as joinable
 					context.put("disableJoinable", Boolean.FALSE);
@@ -2550,6 +2560,9 @@ public class SiteAction extends PagedResourceActionII {
 					// site cannot be set as joinable
 					context.put("disableJoinable", Boolean.TRUE);
 				}
+				
+                // bjones86 - SAK-24423 - add joinable site settings to context
+				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNull( context, siteInfo, true );
 				
 				// the template site, if using one
 				Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);			
@@ -4955,6 +4968,9 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.joinerRole = templateSite.getJoinerRole();
 			//siteInfo.include = false;
 			
+            // bjones86 - SAK-24423 - update site info for joinable site settings
+			JoinableSiteSettings.updateSiteInfoFromSitePropertiesOnSelectTemplate( templateSite.getProperties(), siteInfo );
+			
 			List<String> toolIdsSelected = new Vector<String>();
 			List pageList = templateSite.getPages();
 			if (!((pageList == null) || (pageList.size() == 0))) {
@@ -7339,6 +7355,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 			state.setAttribute(STATE_JOINERROLE, joinerRole); 
+                        
+            // bjones86 - SAK-24423 - update state for joinable site settings
+			JoinableSiteSettings.updateStateFromSitePropertiesOnEditAccessOrNewSite( site.getProperties(), state );
 		}
 		catch (Exception e)
 		{
@@ -8138,6 +8157,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
 		
+		// bjones86 - SAK-24423 - get all joinable site settings from the form input
+		JoinableSiteSettings.getAllFormInputs( state, params );
+		
 		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
 		
 		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
@@ -8173,6 +8195,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				state.removeAttribute(STATE_JOINABLE);
 				state.removeAttribute(STATE_JOINERROLE);
+                                
+                // bjones86 - SAK-24423 - remove joinable site settings from the state
+				JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 			}
 		} else {
 			// adding new site
@@ -8187,6 +8212,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				// joinable site or not
 				boolean joinable = state.getAttribute(STATE_JOINABLE) != null ? ((Boolean) state.getAttribute(STATE_JOINABLE)).booleanValue() : null;
+                                
+                // bjones86 - SAK-24423 - update site info for joinable site settings
+				JoinableSiteSettings.updateSiteInfoFromStateOnSiteUpdate( state, siteInfo, joinable );
+                                
 				if (joinable) {
 					siteInfo.joinable = true;
 					String joinerRole = state.getAttribute(STATE_JOINERROLE) != null ? (String) state.getAttribute(STATE_JOINERROLE) : null;
@@ -8267,6 +8296,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			} else {
 				addAlert(state, rb.getString("java.joinsite") + " ");
 			}
+                        
+            // bjones86 - SAK-24423 - update site properties for joinable site settings
+			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteUpdate( sEdit.getPropertiesEdit(), state );
+                        
 		} else if ( !joinable || 
 				(!joinable && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
 			sEdit.setJoinable(false);
@@ -9496,6 +9529,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// set the joiner role
 			String joinerRole = (String) state.getAttribute("form_joinerRole");
 			s.setJoinerRole(joinerRole);
+                        
+            // bjones86 - SAK-24423 - update site properties for joinable site settings
+			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteInfoSaveGlobalAccess( s.getPropertiesEdit(), state );
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {
@@ -9540,6 +9576,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 			// Make changes and then put changed site back in state
 			String id = site.getId();
+                        
+            // bjones86 - SAK-24423 - update site properties for joinable site settings
+			JoinableSiteSettings.updateSitePropertiesFromStateOnUpdateSiteAttributes( site, state );
 
 			try {
 				SiteService.save(site);
@@ -9642,6 +9681,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.published = Boolean
 					.valueOf(params.getString("itemStatus")).booleanValue();
 		}
+                
+        // bjones86 - SAK-24423 - update site info for joinable site settings
+		JoinableSiteSettings.updateSiteInfoFromParams( params, siteInfo );
 
 		// site contact information
 		String name = StringUtils.trimToEmpty(params.getString("siteContactName"));
@@ -10921,6 +10963,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// if the site was created from template
 					rp.addProperty(TEMPLATE_USED, templateSite.getId());
 				}
+                                
+                // bjones86 - SAK-24423 - update site properties for joinable site settings
+				JoinableSiteSettings.updateSitePropertiesFromSiteInfoOnAddNewSite( siteInfo, rp );
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
 
@@ -11025,6 +11070,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (term != null) {
 					siteInfo.term = term;
 				}
+				
+                // bjones86 - SAK-24423 - update site info for joinable site settings
+				JoinableSiteSettings.updateSiteInfoFromSiteProperties( siteProperties, siteInfo );
 				
 				// site contact information
 				String contactName = siteProperties.getProperty(Site.PROP_SITE_CONTACT_NAME);
@@ -12098,7 +12146,38 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		public String term = NULL_STRING; // academic term
 		
-		public ResourceProperties properties = new BaseResourcePropertiesEdit();		
+		public ResourceProperties properties = new BaseResourcePropertiesEdit();
+                
+        // bjones86 - SAK-24423 - joinable site settings
+		public String joinerGroup = NULL_STRING;
+		public String getJoinerGroup()
+		{ 
+			return joinerGroup;
+		}
+		
+		public boolean joinNotifications = false;
+		public boolean getJoinNotifications()
+		{ 
+			return joinNotifications;
+		}
+		
+		public boolean joinExcludePublic = false;
+		public boolean getJoinExcludePublic()
+		{ 
+			return joinExcludePublic;
+		}
+		
+		public boolean joinLimitByAccountType = false;
+		public boolean getJoinLimitByAccountType()
+		{ 
+			return joinLimitByAccountType;
+		}
+		
+		public String joinLimitedAccountTypes = NULL_STRING;
+		public String getJoinLimitedAccountTypes()
+		{ 
+			return joinLimitedAccountTypes;
+		} // end joinable site settings
 
 		public String getSiteId() {
 			return site_id;
@@ -13987,6 +14066,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.joinable = templateSite.isJoinable();
 			siteInfo.joinerRole = templateSite.getJoinerRole();
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
+			
+            // bjones86 - SAK-24423 - update site info for joinable site settings
+			JoinableSiteSettings.updateSiteInfoFromParams( params, siteInfo );
 			
 			// whether to copy users or site content over?
 			if (params.getBoolean("copyUsers")) state.setAttribute(STATE_TEMPLATE_SITE_COPY_USERS, Boolean.TRUE); else state.removeAttribute(STATE_TEMPLATE_SITE_COPY_USERS);

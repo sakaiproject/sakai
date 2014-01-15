@@ -1,0 +1,22 @@
+<div class="portletBody">
+	#if( $menu )
+		#toolbar( $menu )
+	#end
+	
+	<div class="navPanel">
+		<div class="itemNav">
+			<form action="#toolForm( "$action" )" method="post" class="inlineForm">
+				<input type="submit" name="eventSubmit_doBack" value="$tlang.getString( "vi.ret" )" accesskey="l" />
+			</form>
+		</div>
+	</div>
+	
+	<h3>$message</h3>
+	
+	#if( $success )
+		<br />
+		<a href="$link" title="$tlang.getString( "list.go" ) $validator.escapeHtml( $siteTitle ) $tlang.getString( "site" )" target="_top">
+			$siteTitle
+		</a>
+	#end
+</div>

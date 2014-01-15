@@ -38,6 +38,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.user.api.User;
@@ -98,8 +99,10 @@ public class MembershipAction extends PagedResourceActionII
 		else
 		{
 		List openSites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
-		// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
 				null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null);
+			
+            // bjones86 - SAK-24423 - joinable site settings - filter sites
+            JoinableSiteSettings.filterSitesListForMembership( openSites );
 		size = openSites.size();
 		}
 
@@ -153,15 +156,23 @@ public class MembershipAction extends PagedResourceActionII
 
 			if (sortAsc)
 			{
-				rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
+				List<Site> sites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE, 
 						// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
 						null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, page);
+				
+				// bjones86 - SAK-24423 - filter sites taking into account 'exclude from public list' setting and global toggle
+				JoinableSiteSettings.filterSitesListForMembership( sites );
+				rv = sites;
 			}
 			else
 			{
-				rv = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE,
-						// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_DESC, null);
+				List<Site> sites = SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.JOINABLE, 
+						// null, null, null, org.sakaiproject.service.legacy.site.SiteService.SortType.TITLE_ASC, null);
 						null, search, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_DESC, page);
+				
+				// bjones86 - SAK-24423 - filter sites taking into account 'exclude from public list' setting and global toggle
+				JoinableSiteSettings.filterSitesListForMembership( sites );
+				rv = sites;
 			}
 		}
 
@@ -401,10 +412,15 @@ public class MembershipAction extends PagedResourceActionII
 		{
 			try
 			{
-				// join the site
-				SiteService.join(id);
-				String msg = rb.getString("mb.youhave2") + " " + SiteService.getSite(id).getTitle();
-				addAlert(state, msg);
+				// bjones86 - SAK-24423 - joinable site settings - join the site
+				if( JoinableSiteSettings.doJoinForMembership( id ) )
+				{
+					addAlert( state, rb.getString( "mb.youhave2" ) + " " + SiteService.getSite( id ).getTitle() );
+				}
+				else
+				{
+					addAlert( state, rb.getString( "mb.join.notAllowed" ) );
+				}
 				
 				// add to user auditing
 				List<String[]> userAuditList = new ArrayList<String[]>();

@@ -134,10 +134,61 @@
                         </td>
                         
                         <td headers="joinable">
-                        #if ($site.isJoinable())
-                        	$tlang.getString("list.joinable")
+                        #if( $site.isJoinable() )
+                    	
+                    		## bjones86 - SAK-24423 - if site browser joining is disabled, just use the normal strings
+                    		#if( !$siteBrowserJoinEnabled )
+                    			$tlang.getString( "list.joinable" )
+                    			
+                    		## bjones86 - SAK-24423 - otherwise, provide the ability to join from the site browser
                         #else
-                        	$tlang.getString("list.notjoinable")
+	                    		#if( !$currentUser.Id || $currentUser.Id == "" )
+	                    			<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )" 
+	                    				title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+	                    				$tlang.getString( "join.joinNow" )
+	                    			</a>
+	                    		#else
+	                    			
+	                    			## Check if they're already a member of the site
+	                    			#set( $currentUserEid = $currentUser.Eid )
+	                    			#set( $alreadyMember = false )
+	                    			#set( $members = $site.Members )
+	                    			#foreach( $member in $members )
+	                    				#if( $member.UserEid == $currentUserEid )
+	                    					#set( $alreadyMember = true )
+	                    					#break
+                        #end
+	                    			#end
+	                    			
+	                    			## Check if the site is joinable but public excluded
+	                    			#set( $publicExcluded = false )
+	                    			#foreach( $key in $siteMap.keySet() )
+	                    				#if( $key == $site.Id )
+	                    					#set( $publicExcluded = $siteMap.get( $key ) )
+	                    					#break
+	                    				#end
+	                    			#end
+	                    			
+	                    			#if( $alreadyMember )
+	                    				$tlang.getString( "list.alreadyMember" )
+	                    				
+	                    			#elseif( $publicExcluded )
+	                    				$tlang.getString( "list.joinableButExclude" )	
+	                    			
+	                    			#else
+	                    				<a href="#toolLinkParam( "$action" "doJoin" "id=$validator.escapeUrl( $site.Id )" )" 
+	                    					title="$tlang.getString( "list.join" ) $validator.escapeHtml( $site.Title )">
+	                    					$tlang.getString( "join.joinNow" )
+	                    				</a>
+	                    			#end
+	                    		#end
+	                    	#end
+                    	#else
+                    		#if( !$siteBrowserJoinEnabled )
+                        		$tlang.getString( "list.notjoinable" )
+                        	#else
+                        		$tlang.getString( "join.notJoinable" )
+                        	#end
                         #end
                         </td>
 
