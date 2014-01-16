@@ -33,17 +33,23 @@ public interface ImportService {
 
 	/**
 	 *  Check the validity of the file data passed.
+	 *  Currently if you use this method, it's important you use an InputStream that does a .reset() on .close(). The archive-api's org.sakaiproject.importer.api.ResetOnCloseInputStream is one such example of this.
+	 *  This is because this InputStream may be re-used.
 	 *
 	 *  @param archiveFileData is an input stream of data gathered from an archive file or package.
 	 *  @return true if file data is valid.
+	 *  @see org.sakaiproject.importer.api.ResetOnCloseInputStream
 	 */
 	boolean isValidArchive(InputStream archiveFileData);
 
 	/**
 	 *  Parse the archive file data and create an Import Data Source object containing the results.
+	 *  Currently if you use this method, it's important you use an InputStream that does a .reset() on .close(). The archive-api's org.sakaiproject.importer.api.ResetOnCloseInputStream is one such example of this.
+	 *  This is because this InputStream may be re-used.
 	 *
 	 *	@param archiveFileData is an input stream of data gathered from an archive file or package.
 	 *  @return ImportDataSource containing parsing results.
+	 *  @see org.sakaiproject.importer.api.ResetOnCloseInputStream
 	 */
 	ImportDataSource parseFromFile(InputStream archiveFileData);
 

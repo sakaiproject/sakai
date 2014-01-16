@@ -1,4 +1,4 @@
-package org.sakaiproject.importer.util;
+package org.sakaiproject.importer.api;
 
 import java.io.InputStream;
 import java.io.FileNotFoundException;
