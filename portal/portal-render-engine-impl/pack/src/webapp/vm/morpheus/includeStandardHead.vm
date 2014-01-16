@@ -120,7 +120,7 @@
         <script src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
-        <script src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
+        <script src="$!{portalCDNPath}/portal/scripts/morpheus.scripts.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>

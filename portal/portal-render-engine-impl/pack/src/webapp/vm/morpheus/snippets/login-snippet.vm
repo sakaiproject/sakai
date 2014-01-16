@@ -1,0 +1,42 @@
+<!-- login component -->
+<nav class="header login">
+    #if (!${loginTopLogin})
+        <ul class="loginlinks" role="menu">
+        
+            #if (${loginHasImage1}) 
+                <li role="menuitem">
+                    <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"></a>
+                </li>
+            #else
+                <li role="menuitem">
+                    <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+                </li>
+            #end
+            
+            #if (${loginHasLogInOutUrl2})
+            
+                #if (${loginHasImage2}) 
+                        <li role="menuitem">
+                            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"></a>
+                        </li>
+                #else
+                        <li role="menuitem">
+                            <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
+                        </li>
+                #end
+                
+            #end
+            
+        </ul>
+    #else
+        <form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+            <label for="eid">${loginEidWording}</label>
+            <input name="eid" id="eid" type="text">
+            <label for="pw">${loginPwWording}</label>
+            <input name="pw" type="password" id="pw">
+            <input name="submit" type="submit" id="submit" value="${loginWording}">
+        </form>
+        <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+    #end
+</nav>
+<!-- end login component -->

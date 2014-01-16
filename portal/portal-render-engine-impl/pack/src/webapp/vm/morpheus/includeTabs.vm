@@ -16,8 +16,8 @@
 #end
 <!--//START VM includeTabs.vm -->
     <div class="${tabsCssClass}">
-        <div id="maxToolsInt" style="display:none">$maxToolsInt</div>
-        <div id="maxToolsAnchor" style="display:none">${rloader.sit_alltools}</div>
+        <div id="maxToolsInt" class="hidden">$maxToolsInt</div>
+        <div id="maxToolsAnchor" class="hidden">${rloader.sit_alltools}</div>
         <div id="siteNav">
             <!-- login component -->
             <div id="mastLogin">
