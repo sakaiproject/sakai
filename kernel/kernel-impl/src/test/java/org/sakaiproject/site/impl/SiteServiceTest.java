@@ -32,6 +32,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -169,4 +170,8 @@ public class SiteServiceTest extends DbSiteService
 	    return new ArrayList<String>(0);
 	}
 
+	@Override
+	protected EmailService emailService(){
+		return null;
+	}
 }
