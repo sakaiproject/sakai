@@ -8,7 +8,7 @@ portal.chat.video.webrtc.detectedBrowserVersion = null;
 
 portal.chat.video.webrtc.currentPeerConnectionsMap = {};
 portal.chat.video.webrtc.localMediaStream = null;
-portal.chat.video.webrtc.debug = true;
+portal.chat.video.webrtc.debug = false;
 
 if(typeof console === 'undefined') portal.chat.video.webrtc.debug = false;
 

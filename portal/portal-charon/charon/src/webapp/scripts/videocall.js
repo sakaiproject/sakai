@@ -21,7 +21,7 @@
     portal.chat.video.currentCalls = [];
     portal.chat.video.callTimeout = portal.chat.video.timeout * 1000 + portal.chat.pollInterval;
 
-    var debug = true;
+    var debug = false;
 
     if(typeof console === 'undefined') debug = false;
 
@@ -78,7 +78,7 @@
 
     portal.chat.video.getLocalVideoAgent = function () {
 
-        //if(debug) console.debug('getLocalVideoAgent');
+        if(debug) console.debug('getLocalVideoAgent');
 
         return this.webrtc.detectedBrowser;
     };
@@ -236,7 +236,7 @@
      */
     portal.chat.video.callProceedOnQueuedCalls = function () {
 
-        //if(debug) console.debug('callProceedOnQueuedCalls');
+        if(debug) console.debug('callProceedOnQueuedCalls');
 
         var self = this;
 

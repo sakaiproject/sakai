@@ -2,7 +2,7 @@
 
     "use strict";
 
-    portal.chat.debug = true;
+    portal.chat.debug = false;
 
     if(typeof console === 'undefined') portal.chat.debug = false;
 
