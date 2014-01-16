@@ -7764,12 +7764,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 							// get a stream from the file
 							FileInputStream in = new FileInputStream(bodyPath);
 
-							// read the bytes
-							Blob body = new Blob();
-							body.read(in);
-
 							// resource: add if missing
-							r = mergeResource(element, body.getBytes());
+							r = mergeResource(element, in);
 						}
 
 						else
@@ -8823,7 +8819,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 *            if this would result in being over quota.
 	 * @return a new ContentResource object, or null if it was not created.
 	 */
-	protected ContentResource mergeResource(Element element, byte[] body) throws PermissionException, InconsistentException,
+	protected ContentResource mergeResource(Element element, InputStream in) throws PermissionException, InconsistentException,
 	IdInvalidException, OverQuotaException, ServerOverloadException
 	{
 		// make the resource object
@@ -8848,10 +8844,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		p.clear();
 		p.addAll(resourceFromXml.getProperties());
 
-		// if body is provided, use it
-		if (body != null)
+		// if input stream is provided, use it
+		if (in != null)
 		{
-			edit.setContent(body);
+			edit.setContent(in);
 		}
 
 		// setup the event
