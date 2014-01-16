@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,6 +40,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
@@ -407,4 +409,63 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	    return new ArrayList<String>(0);
 	}
 
+	public boolean isAllowedToJoin(String id){
+		return false;
+	}
+    
+	public boolean isUserLoggedIn(){
+		return false;
+	}
+    
+    	public String getJoinGroupId(String id){
+		return null;
+	}
+    
+    	public boolean isCurrentUserMemberOfSite(String id){
+		return false;
+	}
+    
+    	public boolean isLimitByAccountTypeEnabled(String id){
+		return false;
+	}
+    
+    	public boolean getBooleanSiteProperty(String id, String propertyName){
+		return false;
+	}
+    
+	public boolean isJoinNotificationToggled(String id){
+		return false;
+	}	
+    
+    	public LinkedHashSet<String> getAllowedJoinableAccountTypeCategories(){
+		return null;
+	}
+    
+    	public List<String> getAllowedJoinableAccountTypes(){
+		return null;
+	}
+   
+    	public List<AllowedJoinableAccount> getAllowedJoinableAccounts(){
+		return null;
+	}
+    
+    	public boolean isGlobalJoinGroupEnabled(){
+		return false;
+	}
+    
+    	public boolean isGlobalJoinNotificationEnabled(){
+		return false;
+	}
+   
+	public boolean isGlobalJoinExcludedFromPublicListEnabled(){
+		return false;
+	}
+
+	public boolean isGlobalJoinLimitByAccountTypeEnabled(){
+		return false;
+	}
+
+	public boolean isGlobalJoinFromSiteBrowserEnabled(){
+		return false;
+	}
 }
