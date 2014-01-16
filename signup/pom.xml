@@ -96,7 +96,7 @@
             <dependency>
                 <groupId>org.sakaiproject.calendaring</groupId>
                 <artifactId>external-calendaring-service-api</artifactId>
-                <version>1.0.5</version>
+                <version>${sakai.version}</version>
                 <scope>provided</scope>
             </dependency>
 			<dependency>
