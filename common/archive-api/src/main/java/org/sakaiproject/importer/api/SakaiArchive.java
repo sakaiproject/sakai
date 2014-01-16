@@ -23,8 +23,10 @@ package org.sakaiproject.importer.api;
 
 import java.util.Collection;
 
+import org.sakaiproject.archive.api.ImportMetadata;
+
 public interface SakaiArchive {
 
-	void buildSourceFolder(Collection fnlList);
+	void buildSourceFolder(Collection<ImportMetadata> fnlList);
 	String getSourceFolder();
 }

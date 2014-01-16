@@ -21,8 +21,16 @@
 
 package org.sakaiproject.importer.api;
 
+/**
+ * Importables are extracted as a collection by a parser, and passed one at a time
+ * to one or more handlers to be added to Sakai.
+ */
 public interface Importable {
 	String getGuid();
+	/**
+	 * Get the type for this importable.
+	 * @return A String type, this is used for deciding which handler to use.
+	 */
 	String getTypeName();
 	String getLegacyGroup();
 	String getContextPath();

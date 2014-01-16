@@ -48,11 +48,11 @@ public interface ImportService {
 	ImportDataSource parseFromFile(InputStream archiveFileData);
 
 	/**
-	 *  doImportItems
+	 *  Put the parsed items into a site.
 	 *
-	 *  @param importable a collection of things to import (?)
+	 *  @param importables a collection of importable things to import.
 	 *  @param siteId is the the id of the site to import to.
 	 */
-	void doImportItems(Collection importables, String siteId);
+	void doImportItems(Collection<Importable> importables, String siteId);
 
 }

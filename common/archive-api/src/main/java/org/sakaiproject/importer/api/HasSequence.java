@@ -20,6 +20,11 @@
  **********************************************************************************/
 package org.sakaiproject.importer.api;
 
+/**
+ * If an Importable has an order then this interface can be applied to it and 
+ * then they can be arranged into an order.
+ * @see Importable
+ */
 public interface HasSequence {
 	int getSequenceNum();
 

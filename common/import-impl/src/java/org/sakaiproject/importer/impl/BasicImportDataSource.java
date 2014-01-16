@@ -34,28 +34,28 @@ import org.sakaiproject.importer.api.Importable;
 
 public class BasicImportDataSource implements ImportDataSource {
 	
-	private List itemCategories;
-	private Collection items;
+	private List<ImportMetadata> itemCategories;
+	private Collection<Importable> items;
 
-	public List getItemCategories() {
+	public List<ImportMetadata> getItemCategories() {
 		return itemCategories;
 	}
 	
-	public void setItemCategories(List itemCategories) {
+	public void setItemCategories(List<ImportMetadata> itemCategories) {
 		this.itemCategories = itemCategories;
 	}
 
-	public Collection getItemsForCategories(List categories) {
-		Collection rv = new ArrayList();
+	public Collection<Importable> getItemsForCategories(List<ImportMetadata> categories) {
+		Collection<Importable> rv = new ArrayList<Importable>();
 		// create the Set of selected archive items
-		Set selectedCategories = new HashSet();
-		for(Iterator iter = categories.iterator();iter.hasNext();) {
-			selectedCategories.add(((ImportMetadata)iter.next()).getLegacyTool());
+		Set<String> selectedCategories = new HashSet<String>();
+		for(Iterator<ImportMetadata> iter = categories.iterator();iter.hasNext();) {
+			selectedCategories.add(iter.next().getLegacyTool());
 		}
 		
 		Importable item;
-		for(Iterator iter = items.iterator(); iter.hasNext();) {
-			item = (Importable)iter.next();
+		for(Iterator<Importable> iter = items.iterator(); iter.hasNext();) {
+			item = iter.next();
 			if("mandatory".equals(item.getLegacyGroup()) || "".equals(item.getLegacyGroup()) || selectedCategories.contains(item.getLegacyGroup())) {
 				rv.add(item);
 			}
@@ -63,8 +63,13 @@ public class BasicImportDataSource implements ImportDataSource {
 		return rv;
 	}
 	
-	public void setItems(Collection items) {
+	public void setItems(Collection<Importable> items) {
 		this.items = items;
+	}
+
+	public void cleanup() {
+		//items.iterator().next().get
+		
 	}
 
 }

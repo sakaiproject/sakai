@@ -9,6 +9,10 @@
   <name>archive-api</name>
   <groupId>org.sakaiproject.common</groupId>
   <artifactId>archive-api</artifactId>
+  <description>The API for importing content into Sakai. There's
+  some more information about the design on.
+  https://confluence.sakaiproject.org/display/PROD/A+Tour+of+Sakai+Import
+  </description>
   <organization>
     <name>Sakai Foundation</name>
     <url>http://sakaiproject.org/</url>

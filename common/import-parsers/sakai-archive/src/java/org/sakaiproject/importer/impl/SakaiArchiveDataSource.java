@@ -55,15 +55,14 @@ public class SakaiArchiveDataSource extends BasicImportDataSource implements Sak
 		this.sourceFolder = sourceFolder;
 	}
 	
-	public void buildSourceFolder(Collection selectedItems) {		
+	public void buildSourceFolder(Collection<ImportMetadata> selectedItems) {		
 	    File dir = new File(pathToArchive + "/source"); //directory where file would be saved
 	    if (!dir.exists())
 	    {
 	        dir.mkdirs();
 	    }
-	    for (Iterator i = selectedItems.iterator();i.hasNext();)
+	    for (ImportMetadata impvalue: selectedItems)
 	    {
-	        ImportMetadata impvalue = (ImportMetadata) i.next();
 	        String selectedFileName = impvalue.getFileName();
 	        ZipInputStream zipStream = new ZipInputStream(fileData);
 	        try {

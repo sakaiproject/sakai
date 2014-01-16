@@ -22,8 +22,20 @@
 package org.sakaiproject.importer.api;
 import java.io.InputStream;
 
+/**
+ * A parser is a class that understands how to read an archive file and extract from
+ * it a vendor-neutral collection of content objects.
+ * This is the interface you should implement if you have an importer which is going
+ * to parse a new type of archive.
+ *
+ */
 public interface ImportFileParser {
 	boolean isValidArchive(InputStream fileData);
 	ImportDataSource parse(InputStream fileData, String unArchiveLocation);
+	
+	/**
+	 * Factory method to create a new instance of this parser.
+	 * @return A new instance of this parser.
+	 */
 	ImportFileParser newParser();
 }

@@ -24,10 +24,22 @@ package org.sakaiproject.importer.api;
 import java.util.Collection;
 import java.util.List;
 
-public interface ImportDataSource {
-	List getItemCategories();
-	Collection getItemsForCategories(List categories);
-	void setItemCategories(List categories);
-	void setItems(Collection items);
+import org.sakaiproject.archive.api.ImportMetadata;
 
+/**
+ * An ImportDataSource is an object that acts as a container for the Importable objects in an archive.
+ * You can think of it as the abstract representation of some archive.
+ * When an archive has been parsed an ImportDataSource is returned that allows
+ * the handlers to the be called passing Importable items.
+ */
+public interface ImportDataSource {
+	List<ImportMetadata> getItemCategories();
+	Collection<Importable> getItemsForCategories(List<ImportMetadata> categories);
+	void setItemCategories(List<ImportMetadata> categories);
+	void setItems(Collection<Importable> items);
+
+	/**
+	 * This should be called when the content has been imported and is no longer needed.
+	 */
+	void cleanup();
 }

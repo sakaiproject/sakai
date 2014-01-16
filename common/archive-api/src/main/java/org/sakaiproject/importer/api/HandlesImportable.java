@@ -21,8 +21,25 @@
 
 package org.sakaiproject.importer.api;
 
+/**
+ * A handler takes a vendor-neutral content object and stuffs it into a particular Sakai tool.
+ * A handler belongs to one and only one Sakai tool. A handler may
+ * be called upon many times in the process of importing a single archive.
+ */
 public interface HandlesImportable {
+	
+	/**
+	 * Can this handler deal with this importable type.
+	 * @param typeName The type of the importable.
+	 * @return <code>true</code> if this handler can handle this type.
+	 */
 	boolean canHandleType(String typeName);
+	
+	/**
+	 * Import the supplied importable into the site.
+	 * @param thing The Importable to be imported.
+	 * @param siteId The site ID into which 
+	 */
 	void handle(Importable thing, String siteId);
 
 }

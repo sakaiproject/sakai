@@ -33,14 +33,14 @@ public interface ImportMetadataService
 	public static final String SERVICE_NAME = ImportMetadataService.class.getName();
 
 	/**
-	 * @param Document
+	 * @param doc
 	 *        doc containing import_config.xml
 	 * @return List containing ImportMetadata
 	 */
 	public List getImportMetadataElements(Document doc);
 
 	/**
-	 * @param String
+	 * @param id
 	 *        id of the MapEntry requested
 	 * @return ImportMetada map entry
 	 */
