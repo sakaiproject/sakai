@@ -649,7 +649,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 			for (SignupSite site : signupSites) {
 				try {
 					Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
-					if (calendar == null)// site does not have calendar tool
+					if (calendar == null)// something went wrong when fetching the calendar
 						continue;
 	
 					String eventId = null;
@@ -917,7 +917,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 			for (SignupSite site : sites) {
 				try {
 					Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
-					if (calendar == null)// site does not have calendar tool
+					if (calendar == null)// something went wrong when fetching the calendar
 						continue;
 
 					String eventIds = null;
@@ -953,8 +953,6 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 						calendar.removeEvent(eventEdit);
 					}
 					
-				} catch (IdUnusedException e) {
-					log.info("IdUnusedException: " + e.getMessage());
 				} catch (PermissionException e) {
 					log.info("PermissionException for removal of calendar: " + e.getMessage());
 				}

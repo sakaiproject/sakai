@@ -849,9 +849,9 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 	}
 	
 	private void handleICSDownloadWarningToUser(){
-		logger.error("The Scheduler tool may not be availabe for the site");
-		String warningFileName = Utilities.rb.getString("ics_file_name_for_missing_scheduler_tool");
-		String warningMsg = Utilities.rb.getString("ics_warning_msg_for_missing_scheduler_tool");			
+		logger.error("The site calendar could not be retrieved when using the Signup tool");
+		String warningFileName = Utilities.rb.getString("ics_file_name_for_failure_warning");
+		String warningMsg = Utilities.rb.getString("ics_message_for_failure_warning");
 		sendDownloadWarning(warningFileName,warningMsg);
 	}
 	

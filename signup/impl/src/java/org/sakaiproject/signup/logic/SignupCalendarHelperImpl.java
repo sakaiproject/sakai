@@ -104,7 +104,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 				
 				CalendarEventEdit tsEvent = generateEvent(meeting, ts);
 				if(tsEvent == null) {
-					//calendar may not be in site - this will be skipped
+					// something went wrong when fetching the calendar
 					return null;
 				}
 				tsEvent.setField("vevent_uuid", ts.getUuid());
@@ -225,10 +225,7 @@ public class SignupCalendarHelperImpl implements SignupCalendarHelper {
 			
 			
 		} catch (PermissionException e) {
-			e.printStackTrace();
-			return null;
-		} catch (IdUnusedException e) {
-			log.warn("Site " + siteId + " does not have calendar tool. Cannot proceed");
+			log.error("SignupCalendarHelperImpl.generateEvent: " + e);
 			return null;
 		}
 		
