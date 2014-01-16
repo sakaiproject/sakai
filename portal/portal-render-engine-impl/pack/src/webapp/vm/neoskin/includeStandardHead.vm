@@ -16,7 +16,9 @@
         ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
 	var portal = { 
         "chat": {
-            "enabled": $!{neoChat}
+            "enabled": $!{neoChat},
+	        "pollInterval": $!{portalChatPollInterval},
+            "video": {}
         },
 		"loggedIn": $!{loggedIn},
 		"portalPath": "$!{portalPath}",
@@ -123,7 +125,6 @@ ${sakai_html_head_js}
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/neoscripts.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
-<link type="text/css" rel="stylesheet" href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}">
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
 	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
@@ -134,6 +135,33 @@ ${sakai_html_head_js}
 	var portalChatPollInterval = ${portalChatPollInterval};
 </script>
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
+#if ( $neoChatVideo )
+<link href="${pageSkinRepo}/${pageSkin}/portalvideo.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript">
+	portal.chat.video.enabled = true;
+	portal.chat.video.timeout = ${portalVideoChatTimeout};
+    portal.chat.video.messages = {
+        "pc_video_status_setup": "${rloader.pc_video_status_setup}",
+        "pc_video_status_user_hung": "${rloader.pc_video_status_user_hung}",
+        "pc_video_status_hangup": "${rloader.pc_video_status_hangup}",
+        "pc_video_status_user_refused": "${rloader.pc_video_status_user_refused}",
+        "pc_video_status_incoming_call": "${rloader.pc_video_status_incoming_call}",
+        "pc_video_status_call_timeout": "${rloader.pc_video_status_call_timeout}",
+        "pc_video_status_waiting_peer": "${rloader.pc_video_status_waiting_peer}",
+        "pc_video_status_call_accepted": "${rloader.pc_video_status_call_accepted}",
+        "pc_video_status_call_not_accepted": "${rloader.pc_video_status_call_not_accepted}",
+        "pc_video_status_call_in_progress": "${rloader.pc_video_status_call_in_progress}",
+        "pc_video_status_answer_timeout": "${rloader.pc_video_status_answer_timeout}",
+        "pc_video_status_connecting": "${rloader.pc_video_status_connecting}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}",
+        "pc_video_status_call_failed": "${rloader.pc_video_status_call_failed}",
+        "pc_video_status_you_ignored": "${rloader.pc_video_status_you_ignored}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}"
+    };
+</script>
+<script type="text/javascript" src="/portal/scripts/webrtc-adapter.js"></script>
+<script type="text/javascript" src="/portal/scripts/videocall.js"></script>
+#end
 #end
 #if ( ${styleable} )
 <script type="text/javascript" 
