@@ -306,16 +306,16 @@ public class UserAuditEventLog {
 			{
 				conn = sqlService.borrowConnection();
 				statement = conn.createStatement();
-				sql = "select USER_ID, ROLE_NAME, ACTION_TAKEN, AUDIT_STAMP, SOURCE, ACTION_USER_ID from USER_AUDITS_LOG where SITE_ID = '" + siteId + "' order by AUDIT_STAMP desc";
+				sql = "select user_id, role_name, action_taken, audit_stamp, source, action_user_id from user_audits_log where site_id = '" + siteId + "' order by audit_stamp desc";
 				result = statement.executeQuery(sql);
 				while (result.next())
 				{
-					String userId = result.getString("USER_ID");
-					String roleName = result.getString("ROLE_NAME");
-					String actionTaken = result.getString("ACTION_TAKEN");
-					Timestamp auditStamp = result.getTimestamp("AUDIT_STAMP");
-					String source = result.getString("SOURCE");
-					String actionUserId = result.getString("ACTION_USER_ID");
+					String userId = result.getString("user_id");
+					String roleName = result.getString("role_name");
+					String actionTaken = result.getString("action_taken");
+					Timestamp auditStamp = result.getTimestamp("audit_stamp");
+					String source = result.getString("source");
+					String actionUserId = result.getString("action_user_id");
 					
 					User cachedUser;
 					if (userMap.containsKey(userId))

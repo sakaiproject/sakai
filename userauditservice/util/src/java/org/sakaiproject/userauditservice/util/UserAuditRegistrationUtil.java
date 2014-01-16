@@ -163,11 +163,11 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 			Object fields[] = new Object[7];
 			if ("oracle".equals(sqlVendor))
 			{
-				sql = "insert into USER_AUDITS_LOG (ID,SITE_ID,USER_ID,ROLE_NAME,ACTION_TAKEN,AUDIT_STAMP,SOURCE,ACTION_USER_ID) values (USER_AUDITS_LOG_SEQ.nextval,?,?,?,?,to_date(?,'YYYY-MM-DD HH24:MI:SS'),?,?)";
+				sql = "insert into user_audits_log (id,site_id,user_id,role_name,action_taken,audit_stamp,source,action_user_id) values (user_audits_log_seq.nextval,?,?,?,?,to_date(?,'YYYY-MM-DD HH24:MI:SS'),?,?)";
 			}
 			else
 			{
-				sql = "insert into USER_AUDITS_LOG (SITE_ID,USER_ID,ROLE_NAME,ACTION_TAKEN,AUDIT_STAMP,SOURCE,ACTION_USER_ID) values (?,?,?,?,?,?,?)";
+				sql = "insert into user_audits_log (site_id,user_id,role_name,action_taken,audit_stamp,source,action_user_id) values (?,?,?,?,?,?,?)";
 			}
 			fields[0] = siteId;
 			fields[1] = username;
@@ -186,7 +186,7 @@ public class UserAuditRegistrationUtil implements UserAuditRegistration
 	/** Method to delete all the user auditing log entries for a site.  Used when deleting a site */
 	public void deleteUserAuditingFromSite(String siteId)
 	{
-		String sql = "delete from USER_AUDITS_LOG where SITE_ID = ?";
+		String sql = "delete from user_audits_log where site_id = ?";
 
 		Object fields[] = new Object[1];
 
