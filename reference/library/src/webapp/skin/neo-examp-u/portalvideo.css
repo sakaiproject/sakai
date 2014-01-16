@@ -1,0 +1,274 @@
+/* Video Chat Styles */
+
+#pc_video_off_checkbox {
+    margin-right: 3px;
+    margin-left: -1px;
+}
+
+.pc_connection_videochat_bar {
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    background: #aaa;
+    overflow: hidden;
+    position: relative;
+    height: 18px;
+    border-bottom: 1px solid #ccc;
+}
+.pc_connection_videochat_bar_right {
+    font-size: 15px;
+    font-weight: bold;
+	float: right;
+	width: 75%;
+	text-align: right;
+}
+
+#local_video_bar{
+    font-size: 14px;
+    font-weight: bold;
+    color: black;
+    background: #aaa;
+    overflow: hidden;
+    position: relative;
+    height: 18px;
+    border-bottom: 1px solid #ccc;
+}
+
+.pc_chat_video_statusbar{
+	position: relative;
+	top: 150px;
+	color: #DEDEDE;
+	font-weight: bold;
+	font-size: 10pt;
+	text-align: center;
+	width: 100%;
+	height:0px;
+}
+
+.pc_chat_video {
+	width: 100%;
+	height: 192px;
+}
+.pc_chat_video_min {
+	height: 150px;
+}
+.pc_chat_video_remote {
+	background: black;
+	position: relative;
+}
+.pc_chat_video_local {
+	display: none;
+}
+.pc_connection_videochat_bar_left {
+	float: left;
+	width: 25%;
+}
+.pc_connection_videochat_bar_answer {
+	font-size: 12px;
+	font-weight: bold;
+  	float: left;
+	width: 75%;
+	text-align: left;
+	vertical-align: middle;
+}
+.pc_chat_video_content{
+	background-color: #000;
+}
+
+.pc_chat_video_failed{
+color: #DEDEDE;
+text-align: center;
+height:192px;
+margin-left:auto;
+margin-right: auto;
+font-size: 36pt;
+position: relative;
+top: 20px;
+}
+
+.pc_chat_video_finished{
+height:192px;
+background-image:url('images/video_back_finish.png');
+background-repeat:no-repeat;
+background-position: 50% 30%;
+}
+
+.bubblingG {
+text-align: center;
+width:80px;
+height:192px;
+margin-left:auto;
+margin-right: auto;
+}
+
+.bubblingG span {
+display: inline-block;
+vertical-align: middle;
+width: 10px;
+height: 10px;
+margin: 90px auto;
+background: #FFFFFF;
+-moz-border-radius: 50px;
+-moz-animation: bubblingG 1.3s infinite alternate;
+-webkit-border-radius: 50px;
+-webkit-animation: bubblingG 1.3s infinite alternate;
+-ms-border-radius: 50px;
+-ms-animation: bubblingG 1.3s infinite alternate;
+-o-border-radius: 50px;
+-o-animation: bubblingG 1.3s infinite alternate;
+border-radius: 50px;
+animation: bubblingG 1.3s infinite alternate;
+}
+
+.bubblingG span.bubblingG_1 {
+-moz-animation-delay: 0s;
+-webkit-animation-delay: 0s;
+-ms-animation-delay: 0s;
+-o-animation-delay: 0s;
+animation-delay: 0s;
+}
+
+.bubblingG span.bubblingG_2 {
+-moz-animation-delay: 0.39s;
+-webkit-animation-delay: 0.39s;
+-ms-animation-delay: 0.39s;
+-o-animation-delay: 0.39s;
+animation-delay: 0.39s;
+}
+
+.bubblingG span.bubblingG_3 {
+-moz-animation-delay: 0.78s;
+-webkit-animation-delay: 0.78s;
+-ms-animation-delay: 0.78s;
+-o-animation-delay: 0.78s;
+animation-delay: 0.78s;
+}
+
+@-moz-keyframes bubblingG {
+0% {
+width: 10px;
+height: 10px;
+background-color:#FFFFFF;
+-moz-transform: translateY(0);
+}
+
+100% {
+width: 24px;
+height: 24px;
+background-color:#4D4D4D;
+-moz-transform: translateY(-21px);
+}
+
+}
+
+@-webkit-keyframes bubblingG {
+0% {
+width: 10px;
+height: 10px;
+background-color:#FFFFFF;
+-webkit-transform: translateY(0);
+}
+
+100% {
+width: 24px;
+height: 24px;
+background-color:#4D4D4D;
+-webkit-transform: translateY(-21px);
+}
+
+}
+
+@-ms-keyframes bubblingG {
+0% {
+width: 10px;
+height: 10px;
+background-color:#FFFFFF;
+-ms-transform: translateY(0);
+}
+
+100% {
+width: 24px;
+height: 24px;
+background-color:#4D4D4D;
+-ms-transform: translateY(-21px);
+}
+
+}
+
+@-o-keyframes bubblingG {
+0% {
+width: 10px;
+height: 10px;
+background-color:#FFFFFF;
+-o-transform: translateY(0);
+}
+
+100% {
+width: 24px;
+height: 24px;
+background-color:#4D4D4D;
+-o-transform: translateY(-21px);
+}
+
+}
+
+@keyframes bubblingG {
+0% {
+width: 10px;
+height: 10px;
+background-color:#FFFFFF;
+transform: translateY(0);
+}
+
+100% {
+width: 24px;
+height: 24px;
+background-color:#4D4D4D;
+transform: translateY(-21px);
+}
+
+}
+
+/*Video icons*/
+.video_button{
+width:16px;
+height:16px;
+margin-left: 2px;
+margin-top: 1px;
+text-decoration: none;
+border : 0px;
+cursor: hand; 
+display:inline-block;
+cursor: pointer;
+background-repeat:no-repeat;
+background-position: center;
+}
+
+.video_button:hover{
+    -moz-box-shadow: 0 0 6px #009DCE ;
+    -webkit-box-shadow: 0 0 6px #009DCE;
+    box-shadow: 0 0 6px #009DCE;
+}
+
+.video_call{
+	background-image: url('images/video_call.png');
+}
+.video_close{
+	background-image: url('images/video_hang.png');
+}
+.video_maxi{
+	background-image: url('images/video_maxi.png');
+}
+.video_mic_enable{
+	background-image: url('images/video_mic_enable.png');
+}
+.video_mic_disable{
+	background-image: url('images/video_mic_disable.png');
+}
+.video_cam_enable{
+	background-image: url('images/video_cam_enable.png');
+}
+.video_cam_disable{
+	background-image: url('images/video_cam_disable.png');
+}
+

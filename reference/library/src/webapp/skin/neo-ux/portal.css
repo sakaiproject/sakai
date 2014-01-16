@@ -1183,6 +1183,7 @@ below they are contextually defined depending on the column as an example,as you
      right:5px;
      bottom:0;
      height:23px;
+     z-index: 9999;
      line-height:1.2em;
      width:auto;
      padding:0;
@@ -1214,6 +1215,7 @@ below they are contextually defined depending on the column as an example,as you
 }
 
 #chatToggle{
+	display: inline;
 	color: #888;
 	text-decoration: none;
 }

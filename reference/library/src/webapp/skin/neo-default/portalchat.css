@@ -8,7 +8,7 @@
     bottom: 28px;
     /* Needs to be to the right of the expanded presence block. See presenceArea. */
     right: 18px;
-    z-index: 2001;
+    z-index: 9999;
     margin: 0px;
     padding: 0px;
     display: none;
@@ -21,7 +21,7 @@
     /* The chats container is placed just to the left of the connections menu */
     right: 225px;
     bottom: 0px;
-    height: 300px;
+    /*height: 450px;*/
     width: auto;
 }
 #pc_chat_close {
@@ -69,9 +69,9 @@
 }
 #pc_site_users {
     font-size: 90%;
-    height: 100%;
+    max-height: 200px;
     list-style: none;
-    overflow: hidden;
+    overflow: auto;
     padding: 0;
     margin: 0;
 }
@@ -89,6 +89,8 @@
     list-style: none;
     padding: 0;
     margin: 0;
+    max-height: 150px;
+    overflow: auto;
 }
 .pc_connection, .pc_site_user {
     clear: both;
@@ -103,7 +105,7 @@
 .pc_connection_display_name, .pc_site_display_name {
     padding: 0;
     display: block;
-    float: left;
+    float: left !important;
     width: 89% !important;
 }
 .pc_site_display_name {
@@ -279,3 +281,17 @@
     -khtml-border-radius: 3px;
     border-radius: 3px;
 }
+/* Scrolling methods */
+
+#pc_chat_scroll_bar {
+	display: none;
+	float: right;
+	margin-top: 6px;
+}
+
+.goclass {
+	display: inline;
+	margin-left: 2px;
+	margin-right: 4px;
+}
+

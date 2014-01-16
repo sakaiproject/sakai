@@ -1422,15 +1422,14 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* main container for presence and portal chat.*/
 #footerAppTray {
-    font-size: .9em;
-/*
+     font-size: .9em;
     position: fixed;
-*/
     right: 18px;
     bottom: 0;
     line-height: 1.2em;
     text-align: center;
     padding: 0;
+    z-index: 9999;
     border: 1px solid #ccc;
     border-width: 1px 1px 0 1px;
     background: #eeeeee;
@@ -1504,7 +1503,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 #chatToggle {
-    display: block;
+    display: inline;
     padding: 6px 6px 5px 6px;
     color: #222;
     text-decoration: none;
@@ -1825,3 +1824,4 @@ div.qtip-titlebar{
     font-size: 120%;
     text-decoration:none;
 }
+
