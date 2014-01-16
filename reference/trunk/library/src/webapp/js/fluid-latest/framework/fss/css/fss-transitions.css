@@ -1,9 +1,0 @@
-.fl-transition-slide{-webkit-transition:-webkit-transform .75s ease-in-out;}
-.fl-transition-grow{-webkit-transition:height .75s ease-in-out;}
-.fl-transition-fade{-webkit-transition:opacity .75s linear;}
-@-webkit-keyframes fadeOut{from{opacity:1;}
-to{opacity:0;}
-}
-@-webkit-keyframes loading_spinner{from{-webkit-transform:rotate(0deg);-webkit-animation-timing-function:linear;}
-to{-webkit-transform:rotate(360deg);-webkit-animation-timing-function:linear;}
-}

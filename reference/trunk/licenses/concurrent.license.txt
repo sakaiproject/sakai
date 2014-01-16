@@ -1,3 +1,0 @@
-Doug Lea's concurrent utilities.
-See the Notes at
-http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
