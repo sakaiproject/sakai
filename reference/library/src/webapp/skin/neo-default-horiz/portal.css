@@ -1788,6 +1788,37 @@ a.qtipLinkButton img {
 a.qtipLinkButton:hover {
      color: #7AA3CC !important;
 }
+div.qtip-titlebar{
+    border-bottom-width: 0 !important;
+    color: #fff !important;
+    background: #9e0000 !important;
+    background: -moz-linear-gradient(top, #9e0000 0%, #a20000 26%, #980000 57%, #800000 93%, #7d0000 95%, #740300 98%, #740300 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9e0000), color-stop(26%,#a20000), color-stop(57%,#980000), color-stop(93%,#800000), color-stop(95%,#7d0000), color-stop(98%,#740300), color-stop(100%,#740300)) !important;
+    background: -webkit-linear-gradient(top, #9e0000 0%,#a20000 26%,#980000 57%,#800000 93%,#7d0000 95%,#740300 98%,#740300 100%) !important;
+    background: -o-linear-gradient(top, #9e0000 0%,#a20000 26%,#980000 57%,#800000 93%,#7d0000 95%,#740300 98%,#740300 100%) !important;
+    background: -ms-linear-gradient(top, #9e0000 0%,#a20000 26%,#980000 57%,#800000 93%,#7d0000 95%,#740300 98%,#740300 100%) !important;
+    background: linear-gradient(to bottom, #9e0000 0%,#a20000 26%,#980000 57%,#800000 93%,#7d0000 95%,#740300 98%,#740300 100%) !important;
+
+}
+
+.qtip{
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+.qtip-title:focus{
+    outline:none;
+}
+
+.qtipClose{
+    float: left;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    border: none !important;
+    background: none !important;
+}
+
 /* warning displayed when js is disabled */
 #portal_js_warn {
     font-size: 1.2em;
