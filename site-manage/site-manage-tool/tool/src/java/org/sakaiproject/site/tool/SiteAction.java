@@ -109,7 +109,7 @@ import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.SakaiArchive;
-import org.sakaiproject.importer.util.ResetOnCloseInputStream;
+import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.site.api.Group;
