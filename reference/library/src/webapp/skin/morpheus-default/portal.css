@@ -1910,9 +1910,11 @@ html > body .ui-pnotify {
 
 
 /* Temp Morpheus styles */
-.hidden {
+#togglebar #toggleNormal.hidden, 
+#togglebar #toggleToolMax.hidden {
   display: none;
 }
-.show {
+#togglebar #toggleNormal.show,
+#togglebar #toggleToolMax.show {
   display: block;
 }
