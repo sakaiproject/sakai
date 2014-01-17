@@ -29,21 +29,13 @@ jQuery(document).ready(function () {
 });
 //-->
 </script>
-<div id="movePanel">
-    <div id="movePanelTop"><a href="#" accesskey="t" title="<h:outputText value="#{msgs.tabs_move_top}"/>"><h:graphicImage value="prefs/to-top.png" alt="#{msgs.tabs_move_top}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_top}"/></a></div>
-    <div id="movePanelTopDummy" style="display:none"><h:graphicImage value="prefs/to-top-dis.png" alt="" /></div>
-    <div id="movePanelLeftRight">
-        
-        <a href="#" id="movePanelLeft" accesskey="l" title="<h:outputText value="#{msgs.tabs_move_left}"/>"><h:graphicImage value="prefs/to-left.png" alt="#{msgs.tab_move_inst_re}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_left}"/></a>
-        <span id="movePanelLeftDummy" style="display:none"><h:graphicImage value="prefs/to-left-dis.png" alt="" /></span> 
-        
-        <a href="#" id="movePanelRight" accesskey="r" title="<h:outputText value="#{msgs.tabs_move_right}"/>"><h:graphicImage value="prefs/to-right.png" alt="#{msgs.tabs_move_right}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_right}"/></a>
-        <span id="movePanelRightDummy"><h:graphicImage value="prefs/to-right-dis.png" alt="" /></span> 
-    </div>
-    
-    <div id="movePanelBottom"><a href="#" accesskey="b" title="<h:outputText value="#{msgs.tabs_move_bottom}"/>"><h:graphicImage value="prefs/to-bottom.png" alt="#{msgs.tabs_move_bottom}" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_bottom}"/></a></div>
-    <div id="movePanelBottomDummy" style="display:none"><h:graphicImage value="prefs/to-bottom-dis.png" alt="" /></div>
-</div> 
+<t:outputText style="display:none" styleClass="checkboxSelectMessage" value="#{msgs.prefs_checkbox_select_message}"/>
+<%--<t:outputText style="display:none" styleClass="movePanelMessage" value="#{msgs.prefs_move_panel_message}"/>--%>
+<t:outputText style="display:none" styleClass="movePanelMessage" value="Move selected sites to top of {0}"/>
+<t:outputText style="display:none" styleClass="checkboxFromMessFav" value="#{msgs.prefs_fav_sites_short}"/>
+<t:outputText style="display:none" styleClass="checkboxFromMessAct" value="#{msgs.prefs_active_sites_short}"/>
+<t:outputText style="display:none" styleClass="checkboxFromMessArc" value="#{msgs.prefs_archive_sites_short}"/>
+
 </f:verbatim>
 		<h:form id="prefs_form">
 				<sakai:tool_bar>
@@ -98,12 +90,26 @@ jQuery(document).ready(function () {
         <h:outputText value="#{msgs.prefs_mouse_instructions}" escape="false"/>
     </p>
     <p>
-        <h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>
+        <h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>  <h:outputText styleClass="skip" value="#{msgs.prefs_multitples_instructions_scru}" escape="false"/>
     </p>
     <p>
         <h:outputText value="#{msgs.prefs_multitples_instructions}" escape="false"/>
     </p>
-    
+
+    <div id="movePanel">
+        <div id="movePanelTop" style="display:none"><a href="#" accesskey="6" title="<h:outputText value="#{msgs.tabs_move_top}"/>"><h:graphicImage value="prefs/to-top.png" alt="" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_top}"/></a></div>
+        <div id="movePanelTopDummy" class="dummy"><h:graphicImage value="prefs/to-top-dis.png" alt="" /></div>
+        <div id="movePanelLeftRight">
+            <a href="#" id="movePanelLeft"  style="display:none" accesskey="7" title="<h:outputText value="#{msgs.tabs_move_left}"/>"><h:graphicImage value="prefs/to-left.png" alt="" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_left}"/></a>
+            <span id="movePanelLeftDummy"><h:graphicImage value="prefs/to-left-dis.png" alt="" /></span> 
+            
+            <a href="#" id="movePanelRight"  style="display:none" accesskey="8" title="<h:outputText value="#{msgs.tabs_move_right}"/>"><h:graphicImage value="prefs/to-right.png" alt="" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_right}"/></a>
+            <span id="movePanelRightDummy"class="dummy"><h:graphicImage value="prefs/to-right-dis.png" alt="" /></span> 
+        </div>
+        
+        <div id="movePanelBottom" style="display:none"><a href="#" accesskey="9" title="<h:outputText value="#{msgs.tabs_move_bottom}"/>"><h:graphicImage value="prefs/to-bottom.png" alt="" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_bottom}"/></a></div>
+        <div id="movePanelBottomDummy"class="dummy"><h:graphicImage value="prefs/to-bottom-dis.png" alt="" /></div>
+    </div>     
 <div class="columnSetup3 fluid-vertical-order">
 <!-- invalid drag n drop message template -->
 <p class="flc-reorderer-dropWarning layoutReorderer-dropWarning">
@@ -132,14 +138,13 @@ jQuery(document).ready(function () {
 		</f:verbatim>
                 <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
                 <f:verbatim>
-                    <div class="checkBoxContainer"><label>
+                    <div class="checkBoxContainer">
+                    <input type="checkbox" class="selectSiteCheck" title="
                 </f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
-                <t:outputText value="#{item.label}" styleClass="skip"/>
-                <f:verbatim></label>
-                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
-                <t:outputText value="#{item.label}"/>
+                <h:outputFormat value="#{msgs.prefs_checkbox_select_message}">
+                    <f:param value="#{item.label}" />
+                    <f:param value="#{msgs.prefs_fav_sites_short}" />
+                </h:outputFormat>
                 <f:verbatim>"/></div></div></div></f:verbatim>
 
 
@@ -164,14 +169,13 @@ jQuery(document).ready(function () {
 		</f:verbatim>
                 <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
                 <f:verbatim>
-                    <div class="checkBoxContainer"><label>
+                    <div class="checkBoxContainer">
+                    <input type="checkbox" class="selectSiteCheck" title="
                 </f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
-                <t:outputText value="#{item.label}" styleClass="skip"/>
-                <f:verbatim></label>
-                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
-                <t:outputText value="#{item.label}"/>
+                <h:outputFormat value="#{msgs.prefs_checkbox_select_message}">
+                    <f:param value="#{item.label}" />
+                    <f:param value="#{msgs.prefs_active_sites_short}" />
+                </h:outputFormat>
                 <f:verbatim>"/></div></div></div></f:verbatim>
 		</t:dataList>
                 <f:verbatim></div></f:verbatim>
@@ -194,14 +198,13 @@ jQuery(document).ready(function () {
 		</f:verbatim>
                 <t:outputText value="#{item.label}" styleClass="siteLabel"></t:outputText>
                 <f:verbatim>
-                    <div class="checkBoxContainer"><label>
+                    <div class="checkBoxContainer">
+                    <input type="checkbox" class="selectSiteCheck" title="
                 </f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} " styleClass="skip"/>
-                <t:outputText value="#{item.label}" styleClass="skip"/>
-                <f:verbatim></label>
-                <input type="checkbox" class="selectSiteCheck" title="</f:verbatim>
-                <t:outputText value="#{msgs.tabs_screen_reader_label} "/>
-                <t:outputText value="#{item.label}"/>
+                <h:outputFormat value="#{msgs.prefs_checkbox_select_message}">
+                    <f:param value="#{item.label}" />
+                    <f:param value="#{msgs.prefs_archive_sites_short}" />
+                </h:outputFormat>
                 <f:verbatim>"/></div></div></div></f:verbatim>
 
 		</t:dataList>

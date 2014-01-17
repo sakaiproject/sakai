@@ -169,8 +169,8 @@
     cursor:default;
 }
 #movePanel {
-    display: none;
     position:absolute;
+    top:-1000px;
     width: 75px;
     height:75px;
     border:1px solid #ccc;
