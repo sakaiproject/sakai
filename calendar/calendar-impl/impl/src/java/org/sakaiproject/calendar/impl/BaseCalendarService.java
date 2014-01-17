@@ -3369,7 +3369,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// update the properties
 			// addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
 			
-			postEventsForChanges(bedit);
+			if (!EVENT_ADD_CALENDAR.equals(bedit.getEvent()))
+			{
+				// only do this for revised/updated schedule events
+				postEventsForChanges(bedit);
+			}
 			
 			// complete the edit
 			m_storage.commitEvent(this, edit);
