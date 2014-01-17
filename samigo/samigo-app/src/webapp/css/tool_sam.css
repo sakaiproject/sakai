@@ -522,6 +522,9 @@ table.listHierEventLog {
     padding: 4px 0;
     margin-bottom: 8px;
 }
+#audio-recorder-container {
+    padding: 0 8px;
+}
 #audio-popup-question {
     font-size: 1.1em;
     font-weight: bold;
@@ -529,6 +532,115 @@ table.listHierEventLog {
 }
 #audio-recorder-intro div {
     padding-bottom: 12px;
+}
+#audio-visual-container {
+    width: 590px;
+    height: 300px;
+    padding: 2px;
+    border: 1px solid black;
+    background-color: #ccc;
+}
+#audio-analyzer {
+    height: 180px;
+    width: 590px;
+    background-color: black;
+}
+#audio-timer-wrapper {
+    width: 588px;
+    height: 60px;
+    background-color: #333;
+    margin: 0 auto;
+    position: relative;
+    color: white;
+}
+#audio-scrubber {
+    width: 516px;
+    height: 12px;
+    border-radius: 4px;
+    background-color: #ccc;
+    border: 1px solid #ddd;
+    position: absolute;
+    top: 30px;
+    right: 50px;
+}
+#audio-timer {
+    position: absolute;
+    top: 14px;
+    left: 12px;
+    width: 26px;
+    height: 14px;
+    background-color: #858585;
+    border: 1px solid #333;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 0.9em;
+    z-index: 999;
+}
+#audio-timer:after, #audio-timer:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+#audio-timer:after {
+	border-color: rgba(133, 133, 133, 0);
+	border-top-color: #858585;
+	border-width: 4px;
+	left: 50%;
+	margin-left: -4px;
+}
+#audio-timer:before {
+	border-color: rgba(153, 153, 153, 0);
+	border-top-color: #999;
+	border-width: 5px;
+	left: 50%;
+	margin-left: -5px;
+}
+#audio-max-time {
+    position: absolute;
+    right: 8px; 
+    top: 30px;
+    width: 30px;
+    text-align: right;
+    font-size: 0.9em;
+}
+#audio-visual-container button {
+    height: 56px;
+    width: 60px;
+    padding-top: 32px;
+    margin-top: 2px;
+    color: black;
+}
+#audio-record {
+    background: transparent url(/library/image/record.png) no-repeat center 2px;
+}
+#audio-stop {
+    background: transparent url(/library/image/stop.png) no-repeat center 2px;
+}
+#audio-play {
+    background: transparent url(/library/image/play.png) no-repeat center 2px;
+}
+#audio-visual-container #audio-upload {
+    margin-left: 200px;
+    width: 140px;
+    border-radius: 5px;
+    height: 40px;
+    padding:0;
+    margin-top: 8px;
+    vertical-align: top;
+}
+div.attempts-remaining {
+    font-weight: bold;
+}
+#audio-mic-check {
+  padding: 8px 0;
+}
+#mic-check {
+    background: transparent url(/library/image/mic-check.png) no-repeat center center;
 }
 
 #squaresWaveG{

@@ -24,6 +24,8 @@
 
 <f:verbatim><div id="audio-recorder-header"></f:verbatim> <h:outputFormat value="#{deliveryMessages.audio_recorder_header}" escape="false" /> <f:verbatim></div></f:verbatim>
 
+<f:verbatim><div id="audio-recorder-container"></f:verbatim>
+
 <f:verbatim><div id="audio-popup-question"></f:verbatim>
   <h:outputFormat value="#{deliveryMessages.q} " />
   <f:verbatim> <span id="audio-popup-question-number">1</span> </f:verbatim> 
@@ -44,25 +46,38 @@
 <f:verbatim></div></f:verbatim>
 
 <f:verbatim>
+<div id="audio-visual-container">
   <div id="flashrecarea"> </div>
+  <canvas id="audio-analyzer"></canvas>
+
   <div id="audio-controls">
-    <div id="audio-timer-wrapper"><span id="audio-timer">00</span> / <span id="audio-max-time">30</span></div>
-    <button id="audio-record" onclick="startRecording(this);"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
-    <button id="audio-stop"   onclick="stopRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
-    <button id="audio-play" onclick="playRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
-    <button id="audio-upload" onclick="postDataToServer(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
     <div id="audio-posting" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_posting}" /><f:verbatim></div>
     <div id="audio-finished" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_complete}" /><f:verbatim></div>
     <div id="audio-statusbar" style="display:none"> </div>
     <div id="audio-levelbar"> </div>
-    <canvas id="audio-analyzer" style="display:none"></canvas>
+    <div id="audio-timer-wrapper">
+      <span id="audio-timer">0:00</span>
+      <div id="audio-scrubber"> </div>
+      <span id="audio-max-time">30</span>
+    </div>
+    <button id="audio-record" onclick="startRecording(this);"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_record}" /><f:verbatim></button>
+    <button id="audio-stop"   onclick="stopRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_stop}" /><f:verbatim></button>
+    <button id="audio-play" onclick="playRecording(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_play}" /><f:verbatim></button>
+    <button id="audio-upload" onclick="postDataToServer(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
   </div>
+
+  <div id="audio-mic-check">
+    <canvas id="volumemeter" width="16" height="54" style="background-color:#555;display:none"></canvas>
+    <button id="mic-check" onclick="microphoneCheck(this)" disabled="disabled"> </button>
+    <span></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_mic_check}" /><f:verbatim></span>
+  </div>
+</div>
 
   <audio id="audio-html5" style="display:none"> </audio>
   <div id="audio-debug-log" style="display:none">
     <h2>Log</h2>
     <pre id="log"></pre>
   </div>
-
+</div><!-- End audio-recorder-container -->
 </f:verbatim>
 </h:panelGroup>
