@@ -11,36 +11,37 @@
     <meta http-equiv="Content-Style-Type" content="text/css" />
     <meta http-equiv="Content-Language" content="$!{locale}" />
 
+## SAK-16484 Allow Javascript to easily get at user details.
+## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
 <script type="text/javascript">
-	## SAK-16484 Allow Javascript to easily get at user details.
-        ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
-	var portal = { 
+
+    var portal = {
         "chat": {
             "enabled": $!{neoChat},
-	        "pollInterval": $!{portalChatPollInterval},
+            "pollInterval": $!{portalChatPollInterval},
             "video": {}
         },
-		"loggedIn": $!{loggedIn},
-		"portalPath": "$!{portalPath}",
-		"loggedOutUrl": "$!{loggedOutUrl}",
+        "loggedIn": $!{loggedIn},
+        "portalPath": "$!{portalPath}",
+        "loggedOutUrl": "$!{loggedOutUrl}",
         "siteId": "$!{siteId}",
-	"siteTitle": "$!{siteTitle}",
-	"shortDescription" : "$!{shortDescription}",
+        "siteTitle": "$!{siteTitle}",
+        "shortDescription": "$!{shortDescription}",
         "locale": "$!{locale}",
-		"user": {
-			"id": "$!{userId}",
-			"eid": "$!{userEid}"
-		},
-		"timeoutDialog" : {
-			"enabled": $!{timeoutDialogEnabled},
-			"seconds": $!{timeoutDialogWarningSeconds}
-		},
-		"toggle" : {
-			"allowauto": $!{portal_allow_auto_minimize},
-			"tools": $!{portal_allow_minimize_tools},
-			"sitenav": $!{portal_allow_minimize_navigation}
-		}
-	};
+        "user": {
+            "id": "$!{userId}",
+            "eid": "$!{userEid}"
+        },
+        "timeoutDialog": {
+            "enabled": $!{timeoutDialogEnabled},
+            "seconds": $!{timeoutDialogWarningSeconds}
+        },
+        "toggle": {
+            "allowauto": $!{portal_allow_auto_minimize},
+            "tools": $!{portal_allow_minimize_tools},
+            "sitenav": $!{portal_allow_minimize_navigation}
+        }
+    };
 </script>
 
 #if ( $loggedIn )
@@ -131,15 +132,13 @@ ${sakai_html_head_js}
 #end
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
-<script type="text/javascript">
-	var portalChatPollInterval = ${portalChatPollInterval};
-</script>
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
 #if ( $neoChatVideo )
 <link href="${pageSkinRepo}/${pageSkin}/portalvideo.css" type="text/css" rel="stylesheet" media="all" />
 <script type="text/javascript">
-	portal.chat.video.enabled = true;
-	portal.chat.video.timeout = ${portalVideoChatTimeout};
+
+    portal.chat.video.enabled = true;
+    portal.chat.video.timeout = ${portalVideoChatTimeout};
     portal.chat.video.messages = {
         "pc_video_status_setup": "${rloader.pc_video_status_setup}",
         "pc_video_status_user_hung": "${rloader.pc_video_status_user_hung}",
