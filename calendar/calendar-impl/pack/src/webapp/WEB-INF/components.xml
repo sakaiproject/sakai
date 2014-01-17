@@ -24,6 +24,8 @@
 		<property name="timeService"><ref bean="org.sakaiproject.time.api.TimeService"/></property>
 		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+		<property name="opaqueUrlDao"><ref bean="org.sakaiproject.calendar.api.OpaqueUrlDao"/></property>
  		<property name="containerTableName"><value>CALENDAR_CALENDAR</value></property>
  		<property name="resourceTableName"><value>CALENDAR_EVENT</value></property>
  		<property name="caching"><value>false</value></property>
@@ -101,5 +103,25 @@
 				bean="org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService"/>
 		</property>
 	</bean>
+
+	<bean id="org.sakaiproject.calendar.api.OpaqueUrlDao" 
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		singleton="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.calendar.impl.OpaqueUrlDaoHbm">
+				<property name="sessionFactory"
+					ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+			</bean>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED</prop>
+			</props>
+		</property>
+	</bean>
+	<import resource="hibernate-hbms.xml"/>
 
 </beans>

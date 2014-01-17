@@ -22,6 +22,7 @@
 package org.sakaiproject.calendar.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
@@ -76,6 +77,7 @@ import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.TzId;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.XProperty;
 
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.lang.StringUtils;
@@ -99,9 +101,13 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendar.api.CalendarEventVector;
 import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.OpaqueUrlDao;
+import org.sakaiproject.calendar.api.OpaqueUrl;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -124,6 +130,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -148,12 +155,18 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Authentication;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.CalendarChannelReferenceMaker;
+import org.sakaiproject.util.CalendarReferenceToChannelConverter;
 import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.util.DefaultEntityHandler;
 import org.sakaiproject.util.DoubleStorageUser;
 import org.sakaiproject.util.EntityCollections;
+import org.sakaiproject.util.EntryProvider;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.MergedList;
+import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SAXEntityReader;
 import org.sakaiproject.util.Validator;
@@ -589,6 +602,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Dependency: UserDirectoryService */
 	protected UserDirectoryService m_userDirectoryService = null;
 
+	/** Dependency: UsageSessionService */
+	protected UsageSessionService m_usageSessionService = null;
+
+	/** Dependency: OpaqueUrlDao */
+	protected OpaqueUrlDao m_opaqueUrlDao = null;
+
 	/** A map of services used in SAX serialization */
 	private Map<String, Object> m_services;
 
@@ -708,6 +727,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		this.m_userDirectoryService = userDirectoryService;
 	}
 
+	/**
+	 * Dependency: UsageSessionService
+	 * @param usageSessionService
+	 *        The UsageSessionService.
+	 */
+	public void setUsageSessionService(UsageSessionService usageSessionService) { this.m_usageSessionService = usageSessionService; }
+
+	/**
+	 * Dependency: OpaqueUrlDao
+	 * @param opaqueUrlDao
+	 *        The OpaqueUrlDao.
+	 */
+	public void setOpaqueUrlDao(OpaqueUrlDao opaqueUrlDao) { this.m_opaqueUrlDao = opaqueUrlDao; }
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1405,107 +1437,20 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					EntityAccessOverloadException, EntityCopyrightException
 			{
 				String calRef = calendarReference(ref.getContext(), SiteService.MAIN_CONTAINER);
-				
-				// we only access the pdf & ical reference
-				if ( !REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) &&
-					  !REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) ) 
-						throw new EntityNotDefinedException(ref.getReference());
 
-				// check if ical export is enabled
-				if ( REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()) &&
-					  !getExportEnabled(calRef) )
-						throw new EntityNotDefinedException(ref.getReference());
-
-				try
+				if (REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()))
 				{
-					Properties options = new Properties();
-					Enumeration e = req.getParameterNames();
-					while (e.hasMoreElements())
-					{
-						String key = (String) e.nextElement();
-						String[] values = req.getParameterValues(key);
-						if (values.length == 1)
-						{
-							options.put(key, values[0]);
-						}
-						else
-						{
-							StringBuilder buf = new StringBuilder();
-							for (int i = 0; i < values.length; i++)
-							{
-								buf.append(values[i] + "^");
-							}
-							options.put(key, buf.toString());
-						}
-					}
-
-					// We need to write to a temporary stream for better speed, plus
-					// so we can get a byte count. Internet Explorer has problems
-					// if we don't make the setContentLength() call.
-					ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
-
-					//	 Check if PDF document requested
-					if ( REF_TYPE_CALENDAR_PDF.equals(ref.getSubType()) )
-					{
-						res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
-						res.setContentType(PDF_MIME_TYPE);
-						printSchedule(options, outByteStream);
-					}
-					else
-					{
-                  List alias =  m_aliasService.getAliases(calRef);
-                  String aliasName = "schedule.ics";
-                  if ( ! alias.isEmpty() )
-                     aliasName =  ((Alias)alias.get(0)).getId();
-						
-						// update date/time reference
-						Time modDate = findCalendar(calRef).getModified();
-						if ( modDate == null )
-							modDate = m_timeService.newTime(0);
-							
-						res.addHeader("Content-Disposition", "inline; filename=\"" + Web.encodeFileName(req, aliasName) + "\"");
-						res.setContentType(ICAL_MIME_TYPE);
-						res.setDateHeader("Last-Modified", modDate.getTime() );
-						
-						printICalSchedule(calRef, res.getOutputStream());
-					}
-					
-					res.setContentLength(outByteStream.size());
-					if (outByteStream.size() > 0)
-					{
-						// Increase the buffer size for more speed.
-						res.setBufferSize(outByteStream.size());
-					}
-
-					OutputStream out = null;
-					try
-					{
-						out = res.getOutputStream();
-						if (outByteStream.size() > 0)
-						{
-							outByteStream.writeTo(out);
-						}
-						out.flush();
-						out.close();
-					}
-					catch (Throwable ignore)
-					{
-					}
-					finally
-					{
-						if (out != null)
-						{
-							try
-							{
-								out.close();
-							}
-							catch (Throwable ignore)
-							{
-							}
-						}
-					}
+					handleAccessPdf(req, res, ref, calRef);
 				}
-				catch (Throwable t)
+				else if (REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()))
+ 				{
+					handleAccessIcal(res, ref, calRef);
+ 				}
+				else if (REF_TYPE_CALENDAR_OPAQUEURL.equals(ref.getSubType()))
+ 				{
+					handleAccessOpaqueUrl(req, res, ref, calRef);
+ 				}
+				else // we only access the opaq, pdf & ical reference
 				{
 					throw new EntityNotDefinedException(ref.getReference());
 				}
@@ -1531,10 +1476,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			if (parts.length > 2)
 			{
 				subType = parts[2];
+				// Opaque URLs put the opaque GUID where the context ID would normally be:
+				if (REF_TYPE_CALENDAR_OPAQUEURL.equals(subType) && parts.length > 3)
+				{
+					parts[3] = mapOpaqueGuidToContextId(ref, parts[3]);
+				}
 				if (REF_TYPE_CALENDAR.equals(subType) || 
 						 REF_TYPE_CALENDAR_PDF.equals(subType) || 
 						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
-						 REF_TYPE_CALENDAR_SUBSCRIPTION.equals(subType))
+						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
+						 REF_TYPE_CALENDAR_OPAQUEURL.equals(subType))
 				{
 					// next is the context id
 					if (parts.length > 3)
@@ -1572,6 +1523,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 						Calendar calendarObj = getCalendar(m_aliasService.getTarget(context));
 						context = calendarObj.getContext();
 					}
+
 					catch (IdUnusedException ide) {
 							M_log.info(".parseEntityReference():"+ide.toString()); 
 							return false;
@@ -6800,8 +6752,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 *        This is the name of the user whose schedule is being printed.
 	 * @return Number of events generated in ical object
 	 */
-	protected int generateICal(net.fortuna.ical4j.model.Calendar ical,
-										String calendarReference)
+	protected int generateICal(net.fortuna.ical4j.model.Calendar ical, List<String> calRefs)
 	{
 		int numEvents = 0;
 		
@@ -6809,9 +6760,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		TimeRange currentTimeRange = getICalTimeRange();
 
 		// Get a list of events.
-		List calList = new ArrayList();
-		calList.add(calendarReference);
-		CalendarEventVector calendarEventVector = getEvents(calList, currentTimeRange);
+		CalendarEventVector calendarEventVector = getEvents(calRefs, currentTimeRange);
 		Iterator itEvent = calendarEventVector.iterator();
 
 		// Generate XML for all the events.
@@ -6834,7 +6783,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// build the description, adding links to attachments if necessary
 			StringBuffer description = new StringBuffer("");
 			if ( event.getDescription() != null && !event.getDescription().equals("") )
-				description.append(event.getDescription());
+				description.append(event.getDescription().replace('\r', '\n'));
 			
 			List attachments = event.getAttachments();
 			if(attachments != null){
@@ -6982,8 +6931,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		// If a "Faculty" extra field is present, then add the node.
 		writeStringNodeToDom(doc, eventElement, FACULTY_NODE, event.getField(FACULTY_EVENT_ATTRIBUTE_NAME));
 
+
 		// If a "Description" field is present, then add the node.
-		writeStringNodeToDom(doc, eventElement, DESCRIPTION_NODE, event.getDescription());
 
 		parent.appendChild(eventElement);
 	}
@@ -7264,7 +7213,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return calendarReferenceList;
 	}
 
-	protected void printICalSchedule(String calRef, OutputStream os) 
+	protected void printICalSchedule(String calelndarName, List<String> calRefs, OutputStream os)
+//	protected void printICalSchedule(String calRef, OutputStream os) 
 		throws PermissionException
 	{
 		// generate iCal text file 
@@ -7272,17 +7222,17 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		ical.getProperties().add(new ProdId("-//SakaiProject//iCal4j 1.0//EN"));
 		ical.getProperties().add(Version.VERSION_2_0);
 		ical.getProperties().add(CalScale.GREGORIAN);
+		ical.getProperties().add(new XProperty("X-WR-CALNAME", calelndarName));
 		
 		TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry(); 
 		TzId tzId = new TzId( m_timeService.getLocalTimeZone().getID() ); 
 		ical.getComponents().add(registry.getTimeZone(tzId.getValue()).getVTimeZone());
 		
 		CalendarOutputter icalOut = new CalendarOutputter();
-		int numEvents = generateICal(ical, calRef);
+		int numEvents = generateICal(ical, calRefs);
 			
 		try 
 		{
-			if ( numEvents > 0 )
 				icalOut.output( ical, os );
 		}
 		catch (Exception e)
@@ -7614,6 +7564,342 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		public int compare(Object o1, Object o2) {
 			return ((Group)o1).getTitle().compareToIgnoreCase( ((Group)o2).getTitle() );
 		}
+	}
+	
+	public String calendarOpaqueUrlReference(Reference ref)
+	{
+		// TODO: Currently not sure whether alias handling will be required for this or not.
+		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(m_sessionManager.getCurrentSessionUserId(), ref.getReference());
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_OPAQUEURL + Entity.SEPARATOR + opaqUrl.getOpaqueUUID() + Entity.SEPARATOR + ref.getId();
+	}
+	
+	/**
+ 	/**
+	 * check permissions for subscribing to the implicit calendar.
+	 * 
+	 * @param ref
+	 *        The calendar reference.
+	 * @return true if the user is allowed to subscribe to the implicit calendar, false if not.
+	 */
+	public boolean allowSubscribeThisCalendar(String ref)
+	{
+		// If you can read this calendar, you may subscribe to it:
+		return unlockCheck(AUTH_READ_CALENDAR, ref);
+	}
+	
+	protected String mapOpaqueGuidToContextId(Reference reference, String opaqueGuid)
+	{
+		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
+		if (opaqUrl != null)
+		{
+			String[] parts = StringUtils.split(opaqUrl.getCalendarRef(), Entity.SEPARATOR);
+			//This was originally parts[3], neither seem to work
+			return parts[2];
+		}
+		
+		return null;
+	}
+	
+	protected String extractOpaqueGuid(Reference reference) throws EntityNotDefinedException
+	{
+		// subType at [2], opaqueGuid [3]:
+		String[] parts = StringUtils.split(reference.getReference(), Entity.SEPARATOR);
+		if (parts.length < 4 || !REF_TYPE_CALENDAR_OPAQUEURL.equals(parts[1]))
+		{
+			throw new EntityNotDefinedException(reference.getReference());
+		}
+		return parts[2];
+	}
+	
+	protected void handleAccessPdf(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
+			throws EntityPermissionException, EntityNotDefinedException {
+		try
+		{
+			Properties options = new Properties();
+			Enumeration e = req.getParameterNames();
+			while (e.hasMoreElements())
+			{
+				String key = (String) e.nextElement();
+				String[] values = req.getParameterValues(key);
+				if (values.length == 1)
+				{
+					options.put(key, values[0]);
+				}
+				else
+				{
+					StringBuilder buf = new StringBuilder();
+					for (int i = 0; i < values.length; i++)
+					{
+						buf.append(values[i] + "^");
+					}
+					options.put(key, buf.toString());
+				}
+			}
+			
+			// We need to write to a temporary stream for better speed, plus
+			// so we can get a byte count. Internet Explorer has problems
+			// if we don't make the setContentLength() call.
+			ByteArrayOutputStream outByteStream = new ByteArrayOutputStream();
+			res.addHeader("Content-Disposition", "inline; filename=\"schedule.pdf\"");
+			res.setContentType(PDF_MIME_TYPE);
+			printSchedule(options, outByteStream);
+			res.setContentLength(outByteStream.size());
+			
+			if (outByteStream.size() > 0)
+			{
+				// Increase the buffer size for more speed.
+				res.setBufferSize(outByteStream.size());
+			}
+			
+			OutputStream out = null;
+			try
+			{
+				out = res.getOutputStream();
+				if (outByteStream.size() > 0)
+				{
+					outByteStream.writeTo(out);
+				}
+				out.flush();
+				out.close();
+			}
+			catch (Throwable ignore)
+			{
+			}
+			finally
+			{
+				if (out != null)
+				{
+					try
+					{
+						out.close();
+					}
+					catch (Throwable ignore)
+					{
+					}
+				}
+			}
+		}
+		catch (Throwable t)
+		{
+			throw new EntityNotDefinedException(ref.getReference());
+		}
+	}
+	
+	protected void handleAccessIcalCommon(HttpServletResponse res, Reference ref, String calRef)
+			throws EntityPermissionException, PermissionException, IOException {
+		
+		// Extract the alias name to use for the filename.
+		List alias =  m_aliasService.getAliases(calRef);
+		String aliasName = "schedule.ics";
+		if ( ! alias.isEmpty() )
+			aliasName =  ((Alias)alias.get(0)).getId();
+		
+		List<String> referenceList = getCalendarReferences(ref.getContext());
+		Time modDate = m_timeService.newTime(0);
+		// update date/time reference
+		for (String curCalRef: referenceList)
+		{
+			Calendar curCal = findCalendar(curCalRef);
+			/*
+			 * TODO: This null check is required to handle the references 
+			 * pertaining to external calendar subscriptions as they are 
+			 * currently broken in (at least) the 2 following ways:
+			 * 
+			 * (i) findCalendar will return null rather than a calendar object.
+			 * (ii) getCalendar(String) will return a calendar object that is 
+			 * not null, but the corresponding getModified() method returns a
+			 * date than can not be parsed.  
+			 *  
+			 * Clearly such references to need to be improved to make them 
+			 * consistent with other types as at the moment they have to be
+			 * excluded as part of this process to find the most recent modified
+			 * date. 
+			 */
+			if (curCal == null)
+			{	
+				continue;
+			}
+			Time curModDate = curCal.getModified();
+			if ( curModDate != null && curModDate.after(modDate))
+			{
+				modDate = curModDate;
+			}
+		}
+		res.addHeader("Content-Disposition", "inline; filename=\"" + aliasName + "\"");
+		res.setContentType(ICAL_MIME_TYPE);
+		res.setDateHeader("Last-Modified", modDate.getTime() );
+		String calendarName = "";
+		try {
+			calendarName = m_siteService.getSite(ref.getContext()).getTitle();
+		} catch (IdUnusedException e) {
+		}
+		printICalSchedule(calendarName, referenceList, res.getOutputStream());
+	}
+	
+	protected void handleAccessIcal(HttpServletResponse res, Reference ref, String calRef)
+			throws EntityPermissionException, EntityNotDefinedException {
+		
+		// check if ical export is enabled
+		if (!getExportEnabled(calRef))
+		{
+			throw new EntityNotDefinedException(ref.getReference());
+		}
+		
+		// Make sure the current user can access this calendar first.
+		if (m_siteService.isUserSite(ref.getContext()) && !allowGetCalendar(calRef)) 
+		{
+			throw new EntityPermissionException(m_sessionManager.getCurrentSessionUserId(), SECURE_READ, calRef);
+		}
+		
+		try
+		{
+			handleAccessIcalCommon(res, ref, calRef);
+			
+			OutputStream out = null;
+			try
+			{
+				out = res.getOutputStream();
+				out.flush();
+				out.close();
+			}
+			catch (Throwable ignore)
+			{
+			}
+			finally
+			{
+				if (out != null)
+				{
+					try
+					{
+						out.close();
+					}
+					catch (Throwable ignore)
+					{
+					}
+				}
+			}
+		}
+		catch (EntityPermissionException epe)
+		{
+			throw epe;
+		}
+		catch (Throwable t)
+		{
+			throw new EntityNotDefinedException(ref.getReference());
+		}
+	}
+	
+	protected void handleAccessOpaqueUrl(HttpServletRequest request, HttpServletResponse res, Reference ref, String calRef)
+			throws EntityPermissionException, EntityNotDefinedException {
+		
+		// Get the user UUID from any opaque GUID within the reference:
+		String opaqueGuid = extractOpaqueGuid(ref);
+		String userId = null;
+		if (opaqueGuid != null)
+		{
+			OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(opaqueGuid);
+			userId = (opaqUrl != null) ? opaqUrl.getUserUUID() : null;
+		}
+		if (opaqueGuid == null || userId == null)
+		{
+			throw new EntityNotDefinedException(ref.getReference());
+		}
+		
+		boolean isAlreadyLoggedIn = false;
+		
+		try 
+		{
+			// We want to avoid an inadvertent logout coming from the same UA:
+			UsageSession usage = m_usageSessionService.getSession();
+			if ((usage != null) && userId.equals(usage.getUserId()) && !usage.isClosed())
+			{
+				isAlreadyLoggedIn = true;
+			}
+			String eid = m_userDirectoryService.getUserEid(userId);
+			Authentication authn = new Authentication(userId, eid);
+			if (m_usageSessionService.login(authn, request))
+			{
+				// Make sure the current user can access this calendar first.
+				if (allowGetCalendar(calRef)) 
+				{
+					handleAccessIcalCommon(res, ref, calRef);
+				}
+				else
+				{
+					M_log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
+					throw new EntityNotDefinedException(opaqueGuid);
+				}
+			}
+		} 
+		catch (UserNotDefinedException e) 
+		{
+			M_log.warn("User not found: " + userId);
+			throw new EntityNotDefinedException(ref.getReference());
+		} 
+		catch (PermissionException e) 
+		{
+			M_log.warn("Calendar access via opaque UUID failed: " + opaqueGuid);
+			throw new EntityNotDefinedException(opaqueGuid);
+		} 
+		catch (IOException e) 
+		{
+		}
+		finally
+		{
+			if (!isAlreadyLoggedIn)
+			{
+				m_usageSessionService.logout();
+			}
+		}
+	}
+	
+	protected List<String> getCalendarReferences(String siteId) {
+		// get merged calendars channel refs
+		String initMergeList = null;
+		try {
+			ToolConfiguration tc = m_siteService.getSite(siteId).getToolForCommonId("sakai.schedule");
+			if (tc != null) {
+				initMergeList = tc.getPlacementConfig().getProperty("mergedCalendarReferences");
+			}
+		} catch (IdUnusedException e){
+			initMergeList = null;
+		}
+		
+		// load all calendar channels (either primary or merged calendars)
+		String primaryCalendarReference = calendarReference(siteId, SiteService.MAIN_CONTAINER);
+		MergedList mergedCalendarList = loadChannels(siteId, primaryCalendarReference, initMergeList, null);
+		
+		// add external calendar subscriptions
+		List referenceList = mergedCalendarList.getReferenceList();
+		Set subscriptionRefList = ExternalCalendarSubscriptionService.getCalendarSubscriptionChannelsForChannels(primaryCalendarReference,referenceList);
+		referenceList.addAll(subscriptionRefList);
+		
+		return referenceList;
+	}
+	
+	/**
+	 ** loadChannels -- load specified primaryCalendarReference or merged
+	 ** calendars if initMergeList is defined
+	 **/
+	protected MergedList loadChannels(String siteId, String primaryCalendarReference, String initMergeList, MergedList.EntryProvider entryProvider) {
+		MergedList mergedCalendarList = new MergedList();
+		String[] channelArray = null;
+		boolean isOnWorkspaceTab = m_siteService.isUserSite(siteId);
+		
+		// Figure out the list of channel references that we'll be using.
+		// MyWorkspace is special: if not superuser, and not otherwise defined,
+		// get all channels
+		if (isOnWorkspaceTab && !m_securityService.isSuperUser() && initMergeList == null) {
+			channelArray = mergedCalendarList.getAllPermittedChannels(new CalendarChannelReferenceMaker());
+		} else {
+			channelArray = mergedCalendarList.getChannelReferenceArrayFromDelimitedString(primaryCalendarReference, initMergeList);
+		}
+		if (entryProvider == null) {
+			entryProvider = new MergedListEntryProviderFixedListWrapper(new EntryProvider(), primaryCalendarReference, channelArray, new CalendarReferenceToChannelConverter());
+		}
+		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, m_sessionManager.getCurrentSessionUserId(), channelArray, m_securityService.isSuperUser(), siteId);
+		
+		return mergedCalendarList;
 	}
 	
 } // BaseCalendarService

@@ -74,6 +74,7 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
@@ -749,7 +750,12 @@ public class BaseExternalCalendarSubscriptionService implements
 	 */
 	private boolean isOnWorkspaceTab()
 	{
-		return m_siteService.isUserSite(m_toolManager.getCurrentPlacement().getContext());
+		Placement p = m_toolManager.getCurrentPlacement();
+		// When the request comes in from somewhere other than the portal then we don't have a placement
+		// Examples of non-portal URLs are /access
+		if (p == null) return false;
+		String c = p.getContext();
+		return m_siteService.isUserSite(c);
 	}
 
 	// ######################################################

@@ -49,6 +49,12 @@
 		<managed-bean-class>org.sakaiproject.tool.summarycalendar.ui.MenuBean</managed-bean-class>
 		<managed-bean-scope>request</managed-bean-scope>
 	</managed-bean>
+	<managed-bean>
+		<description>Subscribe Bean</description>
+		<managed-bean-name>SubscribeBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.summarycalendar.ui.SubscribeBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+	</managed-bean>
 	
 	
 	<navigation-rule>
@@ -63,6 +69,12 @@
           <navigation-case>
             <from-outcome>prefs</from-outcome>
             <to-view-id>/summary-calendar/prefs.jsp</to-view-id>
+            <redirect/>
+          </navigation-case>
+          
+          <navigation-case>
+            <from-outcome>subscribe</from-outcome>
+            <to-view-id>/summary-calendar/subscribe.jsp</to-view-id>
             <redirect/>
           </navigation-case>
     </navigation-rule>
