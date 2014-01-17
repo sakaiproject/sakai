@@ -1933,7 +1933,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 p = Pattern.compile(regex_quote );
 		 }
 		 else {
-		 p = Pattern.compile(regex_quote,Pattern.CASE_INSENSITIVE );
+		 p = Pattern.compile(regex_quote,Pattern.CASE_INSENSITIVE|Pattern.UNICODE_CASE);
 		 }
 		 Matcher m = p.matcher(input);
 		 boolean result = m.matches();
