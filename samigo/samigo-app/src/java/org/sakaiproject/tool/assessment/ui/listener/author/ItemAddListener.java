@@ -2244,13 +2244,20 @@ public class ItemAddListener
 		  item.addItemFeedback(feedbackTypeId, feedbackText);
 	  }
 	  else {
+          boolean feedbackTypeExists = false;
 		  Iterator iter = itemFeedbackSet.iterator();
 		  while (iter.hasNext()) {
 			  ItemFeedbackIfc itemFeedback = (ItemFeedbackIfc) iter.next();
 			  if (itemFeedback.getTypeId().equals(feedbackTypeId)) {
+                  feedbackTypeExists = true;
 				  itemFeedback.setText(feedbackText);
+				  break;
 			  }
 		  }
+          //If the feedback type was not found in the set, add it so changes are not lost.
+          if (!feedbackTypeExists) {
+        	  item.addItemFeedback(feedbackTypeId, feedbackText);
+          }
 	  }
   }
   
