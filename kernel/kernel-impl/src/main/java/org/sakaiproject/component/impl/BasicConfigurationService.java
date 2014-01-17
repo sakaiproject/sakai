@@ -183,7 +183,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 }
             }
         }
-        M_log.info("Configured "+this.secureConfigurationKeys.size()+" secured key names: "+this.secureConfigurationKeys);
 
         // load up some things that are not part of the config but are used by it
         this.addConfigItem(new ConfigItemImpl("sakai.home", this.getSakaiHomePath()), "SCS");
@@ -193,8 +192,15 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         // put all the properties into the configuration map
         Map<String, Properties> allSakaiProps = sakaiProperties.getSeparateProperties();
         for (Entry<String, Properties> entry : allSakaiProps.entrySet()) {
+        	// all properties from security.properties should be secured
+        	if ("security.properties".equalsIgnoreCase(entry.getKey())) {
+        		for (String securedKey : entry.getValue().stringPropertyNames()) {
+					this.secureConfigurationKeys.add(securedKey);
+				}
+        	}
             this.addProperties(entry.getValue(), entry.getKey());
         }
+        M_log.info("Configured "+this.secureConfigurationKeys.size()+" secured key names: "+this.secureConfigurationKeys);
         M_log.info("Loaded "+configurationItems.size()+" config items from all initial sources");
 
         if (this.getBoolean("config.dereference.on.load.initial", true)) {
