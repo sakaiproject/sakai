@@ -68,7 +68,13 @@
 				</h3>
 
 				
-				<p class="instruction"><h:outputText value="#{msgs.time_inst_1}"/> <h:outputText value="#{UserPrefsTool.selectedTimeZone}" styleClass="highlight" style="font-weight:bold !important;"/> <h:outputText value="#{msgs.time_inst_2}"/></p>
+				<p class="instruction">
+				<h:outputFormat value="#{msgs.time_inst_1}">
+					<f:param value="#{UserPrefsTool.serviceName}"/>
+				</h:outputFormat>
+				<h:outputText value="#{UserPrefsTool.selectedTimeZone}" styleClass="highlight" style="font-weight:bold !important;"/>
+				<h:outputText value="#{msgs.time_inst_2}"/>
+				</p>
 					
     			 <h:selectOneListbox 
                       value="#{UserPrefsTool.selectedTimeZone}"

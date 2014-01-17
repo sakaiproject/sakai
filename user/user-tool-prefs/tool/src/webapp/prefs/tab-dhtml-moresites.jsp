@@ -69,7 +69,9 @@
 		    <sakai:messages rendered="#{!empty facesContext.maximumSeverity}" />
     <div id="tab-dhtml-more-sites">
     <div id="top-text">
-        <h:outputText value="#{msgs.tab_inst_1_alt}"/> 
+        <h:outputFormat value="#{msgs.tab_inst_1_alt}">
+            <f:param value="#{UserPrefsTool.serviceName}"/>
+        </h:outputFormat>
         <div>
             <h:outputText value="#{msgs.tab_inst_2_alt}"/>
         </div>

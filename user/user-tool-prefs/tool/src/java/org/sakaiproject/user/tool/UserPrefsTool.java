@@ -3054,4 +3054,12 @@ public class UserPrefsTool
 
 	}
 	
+	/**
+	 * Gets the name of the service.
+	 * @return The name of the service that should be shown to users.
+	 */
+	public String getServiceName() {
+		return ServerConfigurationService.getString("ui.name", "Sakai");
+	}
+	
 }
