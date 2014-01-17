@@ -388,7 +388,7 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
 }
 /* current site control rendering */
  ul.topnav li.nav-selected {
-     background: #008DB9;
+    background: #008DB9;
     background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
     background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
@@ -1910,11 +1910,28 @@ html > body .ui-pnotify {
 
 
 /* Temp Morpheus styles */
+.hidden,
 #togglebar #toggleNormal.hidden, 
 #togglebar #toggleToolMax.hidden {
   display: none;
 }
+.show,
 #togglebar #toggleNormal.show,
 #togglebar #toggleToolMax.show {
   display: block;
+}
+
+#linkNav {
+    
+}
+
+.header.max, .header.min {
+    background: #009DCE;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
+    border-bottom: 1px solid #007194;
 }
