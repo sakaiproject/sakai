@@ -369,7 +369,7 @@
                         </a>
                         {if connection.online}
      	                   {if connection.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
-	                        <a id="${connection.uuid}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${connection.uuid}',false);">
+	                        <a id="${connection.uuid}_link" class="pc_user_video_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${connection.uuid}',false);">
                         	   <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                         	</a>
                            {/if}
@@ -407,7 +407,7 @@
                         </a>
                         {/if}
                         {if user.video != 'none' && portal.chat.video && portal.chat.video.webrtc.isVideoEnabled()}
-                         <a id="${user.id}_link" class="pc_user_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${user.id}',false);">
+                         <a id="${user.id}_link" class="pc_user_video_link" href="javascript:;" onclick="return portal.chat.video.directVideoCall('${user.id}',false);">
                           <img class="pc_display_status_bullet" src="/library/image/silk/video_cam_available.png" style="right:0px" border="0"/>
                          </a>
                         {/if}

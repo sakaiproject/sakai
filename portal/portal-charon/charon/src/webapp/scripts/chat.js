@@ -606,7 +606,7 @@
         if (match && match.length == 2) siteId = match[1];
         
         var onlineString = portal.chat.offline ? 'false' : 'true';
-		var videoAgent = (portal.chat.video.enabled && !this.videoOff) ? portal.chat.video.getLocalVideoAgent() : 'none';
+		var videoAgent = (this.video.enabled && !this.videoOff) ? this.video.getLocalVideoAgent() : 'none';
 
 		jQuery.ajax({
 			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString + '&videoAgent=' + videoAgent,
@@ -667,6 +667,8 @@
                     $('#chattableCount').html(' ');
                     $('#chattableCount').removeClass('present').addClass('empty');
                 }
+
+                $('.pc_user_video_link').toggle(videoAgent !== 'none');
 			},
 			error : function (xhr,textStatus,error) {
 
