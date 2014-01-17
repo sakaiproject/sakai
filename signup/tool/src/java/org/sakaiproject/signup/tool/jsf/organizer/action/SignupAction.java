@@ -245,8 +245,9 @@ public abstract class SignupAction implements SignupBeanConstants{
 		final int TITLE_MAX_LENGTH = 99;
 		final char SEPARATOR = '-';
 
-		final DateFormat df = DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT);
+		final DateFormat df = DateFormat.getDateInstance(DateFormat.SHORT);
 		int titleSize = TITLE_MAX_LENGTH - SakaiFacade.GROUP_PREFIX.length();
+		String dateString = df.format(timeslot.getStartTime());
 		StringBuilder sb = new StringBuilder(titleSize);
 		
 		sb.append(" ");
@@ -254,9 +255,14 @@ public abstract class SignupAction implements SignupBeanConstants{
 		sb.append(Utilities.rb.getString("group_slot_in_group_titlename"));
 		sb.append(" " + rowNum);
 		titleSize -= sb.length();
+		//take the dateString length away with " _" prefix, it fixed recurring events duplicate groupName issue
+		titleSize -= dateString.length() + 2;
 		
 		if (titleSize > 0)
 			sb.insert(0, meetingTitle.substring(0, Math.min(titleSize, meetingTitle.length())));
+		
+		//fixes recurring meeting with the same tile, which causes the same groupName
+		sb.append(" _" + dateString);
 
 		return sb.toString();
 	}
