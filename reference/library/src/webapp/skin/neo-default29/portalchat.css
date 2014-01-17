@@ -283,7 +283,7 @@ pc_go_off_ctrl{
     top:5px;
 }
 
-.pc_user_link {
+.pc_user_link, .pc_user_video_link {
     margin-left: 5px;
     text-decoration: none !important;
 }

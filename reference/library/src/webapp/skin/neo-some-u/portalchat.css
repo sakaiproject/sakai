@@ -251,7 +251,7 @@
     right: 3px;
     top: 3px;
 }
-.pc_user_link {
+.pc_user_link, .pc_user_video_link {
     margin-left: 5px;
     text-decoration: none !important;
 }
