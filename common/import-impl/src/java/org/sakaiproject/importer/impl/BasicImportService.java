@@ -30,6 +30,7 @@ import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportFileParser;
 import org.sakaiproject.importer.api.ImportService;
 import org.sakaiproject.importer.api.Importable;
+import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 
 import java.io.InputStream;
 
@@ -50,11 +51,11 @@ public class BasicImportService implements ImportService {
 		}
 	}
 
-	public boolean isValidArchive(InputStream archiveFileData) {
+	public boolean isValidArchive(ResetOnCloseInputStream archiveFileData) {
 		return findParser(archiveFileData) != null;
 	}
 
-	private ImportFileParser findParser(InputStream archiveFileData) {
+	private ImportFileParser findParser(ResetOnCloseInputStream archiveFileData) {
 		for(ImportFileParser parser : parsers) {
 			if(parser.isValidArchive(archiveFileData)){
 				return parser;
@@ -63,7 +64,7 @@ public class BasicImportService implements ImportService {
 		return null;
 	}
 
-	public ImportDataSource parseFromFile(InputStream archiveFileData) {
+	public ImportDataSource parseFromFile(ResetOnCloseInputStream archiveFileData) {
 		ImportFileParser parser = findParser(archiveFileData);
 		if (parser != null) {
 			return parser.newParser().parse(archiveFileData, configService.getSakaiHomePath() + "archive");

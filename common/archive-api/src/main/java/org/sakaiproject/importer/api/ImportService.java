@@ -40,7 +40,7 @@ public interface ImportService {
 	 *  @return true if file data is valid.
 	 *  @see org.sakaiproject.importer.api.ResetOnCloseInputStream
 	 */
-	boolean isValidArchive(InputStream archiveFileData);
+	boolean isValidArchive(ResetOnCloseInputStream archiveFileData);
 
 	/**
 	 *  Parse the archive file data and create an Import Data Source object containing the results.
@@ -51,7 +51,7 @@ public interface ImportService {
 	 *  @return ImportDataSource containing parsing results.
 	 *  @see org.sakaiproject.importer.api.ResetOnCloseInputStream
 	 */
-	ImportDataSource parseFromFile(InputStream archiveFileData);
+	ImportDataSource parseFromFile(ResetOnCloseInputStream archiveFileData);
 
 	/**
 	 *  Put the parsed items into a site.
