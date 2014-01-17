@@ -119,7 +119,8 @@ public class BaseExternalCalendarSubscriptionService implements
 	// Spring services
 	// ######################################################
 	/** Dependency: CalendarService. */
-	protected CalendarService m_calendarService = null;
+	// We depend on the BaseCalendarService so we can call methods outside the calendar service API.
+	protected BaseCalendarService m_calendarService = null;
 
 	/** Dependency: SecurityService */
 	protected SecurityService m_securityService = null;
@@ -148,7 +149,7 @@ public class BaseExternalCalendarSubscriptionService implements
 	/** Dependency: SiteService. */
 	protected SiteService m_siteService = null;
 
-	public void setCalendarService(CalendarService service)
+	public void setCalendarService(BaseCalendarService service)
 	{
 		this.m_calendarService = service;
 	}
@@ -676,9 +677,12 @@ public class BaseExternalCalendarSubscriptionService implements
 
 			// connect
 			URLConnection conn = _url.openConnection();
-			conn.addRequestProperty("User-Agent", "Sakai/"+ m_configurationService.getString("sakai.version", "?") + " (Calendar Subscription)");
+			// Must set user agent so we can detect loops.
+			conn.addRequestProperty("User-Agent", m_calendarService.getUserAgent());
 			conn.setConnectTimeout(TIMEOUT);
 			conn.setReadTimeout(TIMEOUT);
+			// Now make the connection.
+			conn.connect();
 			stream =  new BufferedInputStream(conn.getInputStream());
 			// import
 			events = m_importerService.doImport(CalendarImporterService.ICALENDAR_IMPORT,
@@ -708,6 +712,8 @@ public class BaseExternalCalendarSubscriptionService implements
 			String reference = calendarSubscriptionReference(context, subscriptionId);
 			calendar = new ExternalCalendarSubscription(reference);
 			calendar.setName(calendarName);
+			// By setting the calendar to be an empty one we make sure that we don't attempt to re-retrieve it
+			// When 2 hours are up it will get refreshed through.
 			subscription.setCalendar(calendar);
 		}
 		catch (PermissionException e)

@@ -1444,7 +1444,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 				else if (REF_TYPE_CALENDAR_ICAL.equals(ref.getSubType()))
  				{
-					handleAccessIcal(res, ref, calRef);
+					handleAccessIcal(req, res, ref, calRef);
  				}
 				else if (REF_TYPE_CALENDAR_OPAQUEURL.equals(ref.getSubType()))
  				{
@@ -7489,7 +7489,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 		};
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.util.SAXEntityReader#getServices()
 	 */
@@ -7685,7 +7685,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 	}
 	
-	protected void handleAccessIcalCommon(HttpServletResponse res, Reference ref, String calRef)
+	protected void handleAccessIcalCommon(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, PermissionException, IOException {
 		
 		// Extract the alias name to use for the filename.
@@ -7696,6 +7696,14 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		List<String> referenceList = getCalendarReferences(ref.getContext());
 		Time modDate = m_timeService.newTime(0);
+		// Ok so we need to check to see if we've handled this reference before.
+		// This is to prevent loops when including calendars
+		// that currently includes other calendars we only do the check in here.
+		if (getUserAgent().equals(req.getHeader("User-Agent"))) {
+			res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+			M_log.warn("Reject internal request for: "+ calRef);
+			return;
+		}
 		// update date/time reference
 		for (String curCalRef: referenceList)
 		{
@@ -7736,7 +7744,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		printICalSchedule(calendarName, referenceList, res.getOutputStream());
 	}
 	
-	protected void handleAccessIcal(HttpServletResponse res, Reference ref, String calRef)
+	protected void handleAccessIcal(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, EntityNotDefinedException {
 		
 		// check if ical export is enabled
@@ -7753,7 +7761,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		
 		try
 		{
-			handleAccessIcalCommon(res, ref, calRef);
+			handleAccessIcalCommon(req, res, ref, calRef);
 			
 			OutputStream out = null;
 			try
@@ -7789,7 +7797,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 	}
 	
-	protected void handleAccessOpaqueUrl(HttpServletRequest request, HttpServletResponse res, Reference ref, String calRef)
+	protected void handleAccessOpaqueUrl(HttpServletRequest req, HttpServletResponse res, Reference ref, String calRef)
 			throws EntityPermissionException, EntityNotDefinedException {
 		
 		// Get the user UUID from any opaque GUID within the reference:
@@ -7817,12 +7825,12 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			}
 			String eid = m_userDirectoryService.getUserEid(userId);
 			Authentication authn = new Authentication(userId, eid);
-			if (m_usageSessionService.login(authn, request))
+			if (m_usageSessionService.login(authn, req))
 			{
 				// Make sure the current user can access this calendar first.
 				if (allowGetCalendar(calRef)) 
 				{
-					handleAccessIcalCommon(res, ref, calRef);
+					handleAccessIcalCommon(req, res, ref, calRef);
 				}
 				else
 				{
@@ -7900,6 +7908,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		mergedCalendarList.loadChannelsFromDelimitedString(isOnWorkspaceTab, false, entryProvider, m_sessionManager.getCurrentSessionUserId(), channelArray, m_securityService.isSuperUser(), siteId);
 		
 		return mergedCalendarList;
+	}
+	
+
+	/**
+	 * Get the user agent we should use for request to get other calendars.
+	 * @return The user agent.
+	 */
+	String getUserAgent() {
+		return "Sakai/"+ m_serverConfigurationService.getString("version.sakai", "?") + " (Calendar Subscription)";
 	}
 	
 } // BaseCalendarService
