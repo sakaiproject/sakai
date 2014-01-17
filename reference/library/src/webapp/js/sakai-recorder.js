@@ -30,6 +30,50 @@ var recordingStopped = false;
     }
   }
 
+function microphoneCheck(stream) {
+  if (audio_context) {
+    $('#volumemeter').show();
+    var h = $('#volumemeter').height();
+    var w = $('#volumemeter').width();
+
+    // connect to the user input; the lower the smoothing, the more variation in the meter
+    analyzerNode = audio_context.createAnalyser();
+    analyzerNode.smoothingTimeConstant = 0.2;
+    analyzerNode.fftSize = 256;
+    input.connect( analyzerNode );
+
+    var volumeCanvas = document.getElementById('volumemeter');
+    var vCtx  = volumeCanvas.getContext('2d');
+    vCtx.fillStyle = '#333';
+	vCtx.fillRect(0,0,w,h);
+          
+    setInterval(
+      function() {
+        var freqByteData = new Float32Array(analyzerNode.frequencyBinCount);
+        analyzerNode.getFloatFrequencyData(freqByteData); 
+
+        // compute an average volume
+        var values = 0;
+        for (var i = 0; i < freqByteData.length; i++) {
+          values += freqByteData[i];
+        }
+        var average = Math.round(values / freqByteData.length) + 120;
+
+        var grad = vCtx.createLinearGradient(w/10,h*0.2,w/10,h*0.95);
+		grad.addColorStop(0,'red');
+		grad.addColorStop(-6/-72,'yellow');
+		grad.addColorStop(1,'green');
+		// fill the grey background
+		vCtx.fillStyle = '#555';
+		vCtx.fillRect(0,0,w,h);
+		vCtx.fillStyle = grad;
+		// draw the current volume
+		vCtx.fillRect(0,h,w, average*-1);
+      }, 500 // rinse and repeat every half second
+    );
+  }
+}
+
 function audioAnalyzer(time) {
   if (!analyserContext) {
     var canvas = document.getElementById('audio-analyzer');
@@ -59,11 +103,12 @@ function audioAnalyzer(time) {
         values += freqByteData[i];
       }
       average = values / freqByteData.length;
-      timeToNextPlot = timeToNextPlot + secondsPerBar;
 
       analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*1) );
       analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*-1) );
+
       barToPlot = barToPlot + 1;
+      timeToNextPlot = time + secondsPerBar;
     }
   }
 
@@ -71,7 +116,10 @@ function audioAnalyzer(time) {
 }
 
   function enableRecording(stream) {
+      // enable the mic check and record buttons
+      $('#mic-check').prop('disabled','').fadeTo('slow', 1.0);
       $('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
+
       if (stream) {
           //Save the input for later
           input = audio_context.createMediaStreamSource(stream);
@@ -451,6 +499,7 @@ $(document).ready(function() {
     // disable record button until the user grants microphone approval
     $('#audio-record').prop('disabled','disabled').fadeTo('slow', 0.5);
     $('#audio-play').prop('disabled','disabled').fadeTo('slow', 0.5);
+    $('#mic-check').fadeTo('fast', 0.2);
 
     if (userMediaSupport) {
 
