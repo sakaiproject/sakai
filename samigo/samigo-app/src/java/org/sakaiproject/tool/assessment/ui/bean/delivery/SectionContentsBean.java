@@ -440,7 +440,7 @@ public class SectionContentsBean
 				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();	//The Date Time is in ISO format
 				try {
 					drawDate = fmt.parseDateTime(randomDrawDate);
-				} catch(IllegalStateException ex) {
+				} catch(Exception ex) {
 					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
 					Date date = df.parse(randomDrawDate);
 					if(date == null) {
