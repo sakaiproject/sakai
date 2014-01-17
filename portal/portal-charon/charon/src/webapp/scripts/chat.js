@@ -261,13 +261,9 @@
 	portal.chat.toggleChat = function () {
 
 		if (!this.expanded) {
-			//var pcc = $('#pc_content');
 			var pc = $('#pc');
 
-			//pcc.show();
 			pc.show();
-
-            //$('#presenceArea').toggle(false);
 
 			this.setSetting('expanded', true);
 			this.expanded = true;
@@ -280,15 +276,12 @@
 
 			$('#pc').css('height', 'auto');
 		} else {
-			//$('#pc_content').hide();
 			$('#pc').hide();
 
 			$('#pc').css('height', 'auto');
 
 			this.setSetting('expanded', false);
 			this.expanded = false;
-
-            //$('#presenceArea').toggle(true);
 		}
 
 		return false;
@@ -834,7 +827,7 @@
             }
 
             if (portal.chat.getSetting('offline',true)) {
-                $('#pc_go_offline_checkbox').attr('checked', 'checked');
+                $('#pc_go_offline_checkbox').prop('checked', true);
                 portal.chat.offline = true;
             } else {
                 portal.chat.offline = false;
@@ -846,7 +839,7 @@
 
             if (portal.chat.video.enabled && portal.chat.video.webrtc.isVideoEnabled()) { 
                 if (portal.chat.getSetting('videoOff')) {
-                    $('#pc_video_off_checkbox').attr('checked', 'checked');
+                    $('#pc_video_off_checkbox').prop('checked', true);
                     portal.chat.videoOff = true;
                 } else {
                     portal.chat.videoOff = false;
@@ -867,7 +860,7 @@
 
         $('#pc_showoffline_connections_checkbox').click(function () {
 
-            if ($(this).attr('checked') == 'checked') {
+            if ($(this).prop('checked')) {
                 portal.chat.showOfflineConnections = true;
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},'pc_connections');
                 var pc_users = $('#pc_users');
@@ -885,24 +878,13 @@
 
         $('#pc_go_offline_checkbox').click(function () {
 
-            if ($(this).attr('checked') == 'checked') {
+            if ($(this).prop('checked')) {
                 portal.chat.setSetting('offline', true, true);
                 portal.chat.offline = true;
             } else {
                 portal.chat.setSetting('offline', false, true);
                 portal.chat.offline = false;
                 portal.chat.setGetLatestDataInterval();
-            }
-        });
-
-        $('#pc_video_off_checkbox').click(function () {
-
-            if ($(this).attr('checked') == 'checked') {
-                portal.chat.setSetting('videoOff', true);
-                portal.chat.videoOff = true;
-            } else {
-                portal.chat.setSetting('videoOff', false);
-                portal.chat.videoOff = false;
             }
         });
 
@@ -976,10 +958,10 @@
         if (portal.chat.currentConnections.length > 0) {
             if (portal.chat.showOfflineConnections) {
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},'pc_connections');
-                $('#pc_showoffline_connections_checkbox').attr('checked','checked');
+                $('#pc_showoffline_connections_checkbox').prop('checked', true);
             } else {
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},'pc_connections');
-                $('#pc_showoffline_connections_checkbox').removeAttr('checked');
+                $('#pc_showoffline_connections_checkbox').prop('checked', false);
             }
 
             var pc_users = $('#pc_users');

@@ -531,8 +531,8 @@
 
         $('#pc_video_off_checkbox').click( function () {
 
-            if ($(this).attr('checked') == 'checked') {
-                portal.chat.setSetting('videoOff', true, true);
+            if ($(this).prop('checked')) {
+                portal.chat.setSetting('videoOff', true, /* localStorage */ true);
                 portal.chat.videoOff = true;
             } else {
                 portal.chat.setSetting('videoOff', false);
