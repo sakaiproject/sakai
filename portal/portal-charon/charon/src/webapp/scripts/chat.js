@@ -599,20 +599,14 @@
 
 	portal.chat.getLatestData = function () {
 
-        // Grab the site id from the url. We need to pass it to the presence code in the chat entity provider.
-        var url = document.location.href;
-        var match = /site\/([\w-]*)/.exec(url);
-        var siteId = '';
-        if (match && match.length == 2) siteId = match[1];
-        
         var onlineString = portal.chat.offline ? 'false' : 'true';
 		var videoAgent = (this.video.enabled && !this.videoOff) ? this.video.getLocalVideoAgent() : 'none';
 
 		jQuery.ajax({
-			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + siteId + '&online=' + onlineString + '&videoAgent=' + videoAgent,
+			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + portal.siteId + '&online=' + onlineString + '&videoAgent=' + videoAgent,
 			dataType : "json",
 			cache: false,
-			success : function (data,status) {
+			success : function (data, status) {
 				if (data.data.messages) {
                     portal.chat.updateMessages(data.data.messages);
                 }
@@ -624,13 +618,10 @@
                 if (portal.chat.connectionsAvailable === true) {
                     if (data.data.connectionsAvailable) {
                         $('#pc_connections_wrapper').show();
-                        portal.chat.updateConnections(data.data.connections,data.data.online);
+                        portal.chat.updateConnections(data.data.connections, data.data.online);
                     } else {
                         $('#pc_connections_wrapper').hide();
-
                         // No point checking again as profile2 can't be installed without a full restart
-                        //portal.chat.connectionsAvailable = false;
-                        //portal.chat.setSetting('connectionsAvailable',false);
                     }
                 }
 
@@ -828,7 +819,7 @@
                 portal.chat.getLatestData();
             }
 
-            if (portal.chat.getSetting('offline',true)) {
+            if (portal.chat.getSetting('offline', true)) {
                 $('#pc_go_offline_checkbox').prop('checked', true);
                 portal.chat.offline = true;
             } else {
