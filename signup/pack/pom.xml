@@ -11,7 +11,6 @@
 	<name>Sakai Signup Components Pack</name>
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>signup-pack</artifactId>
-	
 	<packaging>sakai-component</packaging>
 	
 	<properties>
@@ -19,14 +18,10 @@
 	</properties>
 	
 	<dependencies>
-		
-		<!-- project dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.signup</groupId>
 			<artifactId>signup-impl</artifactId>
 		</dependency>
-
-		<!--  Sakai dependencies -->
 		<dependency>
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-kernel-util</artifactId>
@@ -36,7 +31,6 @@
 			<artifactId>generic-dao</artifactId>
 			<scope>compile</scope>
 		</dependency>
-		
 	</dependencies>
 	
 	<build />

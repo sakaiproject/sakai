@@ -12,25 +12,13 @@
 	<groupId>org.sakaiproject.signup</groupId>
 	<artifactId>sakai-signup-tool</artifactId>
 	<description>Signup webapp (tool) for Sakai</description>
-	
 	<packaging>war</packaging>
 	
 	<dependencies>
-
-		<!--  project dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.signup</groupId>
 			<artifactId>signup-api</artifactId>
 		</dependency>
-
-		<!--  why is the impl packaged in the webapp? -->
-		<!--Remove it- dependency>
-			<groupId>org.sakaiproject.signup</groupId>
-			<artifactId>signup-impl</artifactId>
-			<scope>compile</scope>
-		</dependency -->
-		
-		<!-- Sakai dependencies -->
 		<dependency>
 	      	<groupId>org.sakaiproject.kernel</groupId>
 	      	<artifactId>sakai-kernel-api</artifactId>
@@ -77,12 +65,12 @@
 		 <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
-            <version>3.2.3.RELEASE</version>
+            <version>${sakai.spring.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-orm</artifactId>
-            <version>3.2.3.RELEASE</version>
+            <version>${sakai.spring.version}</version>
         </dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -136,7 +124,6 @@
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>0.10.8</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -148,7 +135,6 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
