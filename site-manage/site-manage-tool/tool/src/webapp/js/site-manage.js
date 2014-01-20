@@ -548,7 +548,11 @@ var setupCategTools = function(){
 };
    var showAlert = function(e){
         var pos = $(e.target).position();
-        $(e.target).parent('li').append('<div id=\"alertBox\">Remove configured tool? <a href=\"#\" id=\"alertBoxYes\">Yes</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">No</a></div>');
+        var msg = $('#removalAlertMessage').val();
+        var yesMsg = $('#removalAlertYesMessage').val();
+        var noMsg = $('#removalAlertNoMessage').val();
+
+        $(e.target).parent('li').append('<div id=\"alertBox\">' + msg + '<a href=\"#\" id=\"alertBoxYes\">Yes</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">No</a></div>');
         $(e.target).find('#alertBox').css({
             'top': pos.top - 14,
             'left': pos.left - 150

@@ -1,4 +1,8 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-newSiteFeatures.vm,v 1.1 2005/04/14 20:22:06 ggolden.umich.edu Exp $ -->
+<input type="hidden" id="removalAlertMessage" value="$tlang.getString('feat.remove.alert')" />
+<input type="hidden" id="removalAlertYesMessage" value="$tlang.getString('feat.remove.alert.yes')" />
+<input type="hidden" id="removalAlertNoMessage" value="$tlang.getString('feat.remove.alert.no')" />
+
 <div class="portletBody">
     #if ($!isProjectSite)
         <h3>
