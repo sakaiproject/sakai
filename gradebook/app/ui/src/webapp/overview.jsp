@@ -169,7 +169,18 @@
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
 				</h:outputText>
 			</h:column>
-			
+
+            <h:column rendered="#{overviewBean.displayTotalPoints}">
+                <f:facet name="header">
+                    <t:commandSortHeader columnName="pointsPossible" propertyName="pointsPossible" immediate="true" arrow="true">
+                        <h:outputText value="#{msgs.overview_assignments_header_total_points}" />
+                    </t:commandSortHeader>
+                </f:facet>
+                <h:outputText value="#{gradebookItem.pointsPossible}">
+                    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.TOTAL_POINTS_CONVERTER" />
+                </h:outputText>
+            </h:column>
+
 			<h:column>
 				<f:facet name="header">
 		    	<t:commandSortHeader columnName="dueDate" propertyName="dueDate" immediate="true" arrow="true">

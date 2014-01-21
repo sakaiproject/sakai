@@ -152,6 +152,14 @@
 			org.sakaiproject.tool.gradebook.jsf.CategoryItemValidator
 		</validator-class>
 	</validator>
+	<converter>
+        <converter-id>
+            org.sakaiproject.gradebook.jsf.converter.TOTAL_POINTS_CONVERTER
+        </converter-id>
+        <converter-class>
+            org.sakaiproject.tool.gradebook.jsf.TotalPointsConverter
+        </converter-class>
+    </converter>
 	<render-kit>
 		<renderer>
 			<component-family>javax.faces.Messages</component-family>

@@ -38,6 +38,7 @@ import javax.faces.context.FacesContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -96,6 +97,18 @@ public class OverviewBean extends GradebookDependentBean implements Serializable
 		
 		return letterGrade;
 	}
+
+    /**
+     * Controls the display of the "Total Points" column on the overview screen.
+     * DEFAULT: false (Total Points column is not shown)
+     */
+    private Boolean displayTotalPoints;
+    public boolean isDisplayTotalPoints() {
+        if (displayTotalPoints == null) {
+            displayTotalPoints = ServerConfigurationService.getBoolean("gradebook.display.total.points", false);
+        }
+        return displayTotalPoints;
+    }
 
 	protected void init() {
 
