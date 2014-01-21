@@ -141,19 +141,22 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	    List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 	    SimplePageItem item = simplePageBean.findItem (params.getItemId());
+	    int type = 0;
+	    boolean available = false;
+	    if (item != null) {
+		type = item.getType();
+		available = simplePageBean.isItemVisible(item) && simplePageBean.isItemAvailable(item, item.getPageId());
+	    }
 
-	    // this is a "next" page where we couldn't tell if the item is
-	    // available. Need to check here in order to set ACLs. If not available,
-	    // return to calling page
-	    if (item != null && "true".equals(params.getRecheck())) {
-		if (simplePageBean.isItemAvailable(item, item.getPageId())) {
-		    // for resources we do our own tracking, for the other types handled by this
-		    // class we depend upon the tool
-		    if (item.getType() == SimplePageItem.RESOURCE)
-			simplePageBean.track(params.getItemId(), null);
-		    else if (item.isPrerequisite())
-			simplePageBean.checkItemPermissions(item, true); // set acl, etc
-		} else {
+	    if (available) {
+		// make sure underlying tool permissions have been updated if necessasry.
+		if (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.BLTI)
+		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
+		else if (type == SimplePageItem.RESOURCE)
+		    simplePageBean.track(params.getItemId(), null);
+	    } else if (item != null && "true".equals(params.getRecheck())) {
+		// main code realized it might not be available and set up
+		// the link appropriately. We can just return to the main page
 		    SimplePageBean.PathEntry containingPage = null;
 		    if (breadcrumbs.size() > 0)  // shouldn't ever fail
 			containingPage = breadcrumbs.get(breadcrumbs.size()-1);  // page we're on
@@ -166,18 +169,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 			UIOutput.make(tofill, "redirect");
 		    }
 		    return;
-		}
-	    } else if (item != null && item.getType() == SimplePageItem.RESOURCE) {
-		// since recheck isn't set, permission checking should have been done.
-		// for most item types handled here, we depend upon the tool for final access
-		// checking and for tracking. But for resources we have to do it.
-		if (simplePageBean.isItemAvailable(item, item.getPageId()))
-		    simplePageBean.track(params.getItemId(), null);
-		else {
-		    UIOutput.make(tofill, "hiddenAlert");
-		    UIOutput.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.complete_required"));
-		    return;
-		}
+	    } else {
+		// things probably aren't set up to return to the  main page,
+		// so just give an error
+		UIOutput.make(tofill, "hiddenAlert");
+		UIOutput.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.complete_required"));
+		return;
 	    }
 
 	    String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
