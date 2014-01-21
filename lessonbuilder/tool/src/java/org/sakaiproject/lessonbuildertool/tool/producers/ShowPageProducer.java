@@ -698,7 +698,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (studentPage != null && studentPage.getPageId() == currentPage.getPageId()) {
 				    System.out.println("is student page 2");
 					UIOutput.make(tofill, "remove-student");
-					UIOutput.make(tofill, "remove-page-student").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-page-tooltip")));
+					UIOutput.make(tofill, "remove-page-student").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.remove-student-page-explanation")));
 				}
 			}
 
