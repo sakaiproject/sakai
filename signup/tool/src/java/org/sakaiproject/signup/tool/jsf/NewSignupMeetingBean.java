@@ -795,6 +795,18 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	 * @return an action outcome string.
 	 */
 	public String goBack() {
+		if(currentStepHiddenInfo == null){
+			//it is rarely happening if any
+			Utilities.addErrorMessage(Utilities.rb.getString("publish.withAttendee.exception"));
+			//recover this from "assignAttendee" step case too
+			//reset to remove timeslots info with attendees
+			timeSlotWrappers = null; 
+			assignParicitpantsToAllRecurEvents = false;
+			//reset warning for ending time auto-adjustment
+			setEndTimeAutoAdjusted(false);
+			return ADD_MEETING_STEP1_PAGE_URL;
+		}
+		
 		String step = (String) currentStepHiddenInfo.getValue();
 
 		if (step.equals("step2")) {
