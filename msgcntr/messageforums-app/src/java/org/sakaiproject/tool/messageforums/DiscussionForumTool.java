@@ -453,7 +453,7 @@ public class DiscussionForumTool
     showForumLinksInNav = ServerConfigurationService.getBoolean("mc.showForumLinksInNav", true);
     showShortDescription = ServerConfigurationService.getBoolean("mc.showShortDescription", true);
     collapsePermissionPanel = ServerConfigurationService.getBoolean("mc.collapsePermissionPanel", false);
-    showProfileInfo = ServerConfigurationService.getBoolean("msgcntr.forums.showProfileInfo", false);
+    showProfileInfo = ServerConfigurationService.getBoolean("msgcntr.forums.showProfileInfo", true);
     showProfileLink = showProfileInfo && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
 

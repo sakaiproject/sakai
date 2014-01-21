@@ -355,7 +355,7 @@ public class PrivateMessagesTool
   
   public PrivateMessagesTool()
   {    
-	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", false);
+	  showProfileInfoMsg = ServerConfigurationService.getBoolean("msgcntr.messages.showProfileInfo", true);
 	  showProfileLink = showProfileInfoMsg && ServerConfigurationService.getBoolean("profile2.profile.link.enabled", true);
   }
   

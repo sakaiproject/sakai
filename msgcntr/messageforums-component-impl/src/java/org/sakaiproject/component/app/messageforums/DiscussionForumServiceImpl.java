@@ -411,7 +411,7 @@ public class DiscussionForumServiceImpl  implements DiscussionForumService, Enti
 	{
 		Map<String, String> transversalMap = new HashMap<String, String>();
 		
-		boolean importOpenCloseDates = ServerConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", false);
+		boolean importOpenCloseDates = ServerConfigurationService.getBoolean("msgcntr.forums.import.openCloseDates", true);
 		try 
 		{
 			LOG.debug("transfer copy mc items by transferCopyEntities");
