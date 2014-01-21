@@ -521,4 +521,18 @@ public class Category implements Serializable
 	public void setTotalPointsPossible(Double totalPointsPossible) {
 		this.totalPointsPossible = totalPointsPossible;
 	}
+
+    /**
+     * Fix for Category NPE reported in SAK-14519 
+     * Since category uses "totalPointsPossible" property instead of
+     * "pointsPossible" property, as in Assignments
+     */
+    public Double getPointsPossible() {
+        return totalPointsPossible;
+    }
+
+    public void setPointsPossible(Double pointsPossible) {
+        this.totalPointsPossible = pointsPossible;
+    }
+
 }
