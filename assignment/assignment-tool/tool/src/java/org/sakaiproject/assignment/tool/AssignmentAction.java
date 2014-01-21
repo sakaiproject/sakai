@@ -2198,7 +2198,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		context.put("fField", state.getAttribute(NEW_ASSIGNMENT_FOCUS));
 
-                context.put("group_submissions_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.group.submission.enabled", false)));
+                context.put("group_submissions_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.group.submission.enabled", true)));
 		context.put("visible_date_enabled", Boolean.valueOf(ServerConfigurationService.getBoolean("assignment.visible.date.enabled", false)));
 			
 		String sortedBy = (String) state.getAttribute(SORTED_BY);
