@@ -22,19 +22,19 @@ Licensed under the terms of the MIT License.
  1. Extract the contents of the file into the "plugins" folder of CKEditor.
  2. In the CKEditor configuration file (config.js) add the following code:
 
-````
+````js
 config.extraPlugins = 'autosave';
 ````
 
 #####Optional
 The Default autosavekey can be overidden from the config ...
 
-````
+````js
 config.autosave_SaveKey = 'autosaveKey';
 ````
 
 The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can beoveridden from the config ...
 
-````
+````js
 config.autosave_NotOlderThan = 1440;
 ````
