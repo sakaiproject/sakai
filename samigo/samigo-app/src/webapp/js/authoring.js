@@ -355,6 +355,47 @@ function disableAllFeedbackCheck(feedbackType)
   }
 }
 
+function disableAllFeedbackCheckTemplate(feedbackType)
+{
+	// By convention we start all feedback JSF ids with "feedback".
+	var feedbackIdFlag = "templateEditorForm:feedbackComponent";
+	var noFeedback = "3";
+	var feedbacks = document.getElementsByTagName('INPUT');
+
+	for (i=0; i<feedbacks.length; i++)
+	{
+		if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
+		{
+			if (feedbackType == noFeedback)
+			{
+				if (feedbacks[i].type == 'checkbox')
+				{
+					feedbacks[i].checked = false;
+					feedbacks[i].disabled = true;
+				}
+				else if (feedbacks[i].type == 'text')
+				{
+					feedbacks[i].value = "";
+					feedbacks[i].disabled = true;
+				}
+				else if ((feedbacks[i].type == 'radio') && (feedbacks[i].name.indexOf(feedbackComponentOptionFlag)==0))
+				{
+					if(feedbacks[i].value == 2) {
+						feedbacks[i].checked = true;
+					}
+					if(feedbacks[i].value == 1) {
+						feedbacks[i].checked = false;
+						feedbacks[i].disabled = true;
+					}
+				}
+			}
+			else
+			{
+				feedbacks[i].disabled = false;
+			}
+		}
+	}
+}
 
 function disableOtherFeedbackComponentOption(field)
 {

@@ -274,25 +274,40 @@ public class TemplateUpdateListener
 	  feedback.setEditComponents(Integer.valueOf("1"));
       else
 	  feedback.setEditComponents(Integer.valueOf("0"));
-
-      feedback.setShowQuestionText
-        (templateBean.getFeedbackComponent_QuestionText());
-      feedback.setShowStudentResponse
-        (templateBean.getFeedbackComponent_StudentResp());
-      feedback.setShowCorrectResponse
-        (templateBean.getFeedbackComponent_CorrectResp());
-      feedback.setShowStudentScore
-        (templateBean.getFeedbackComponent_StudentScore());
-      feedback.setShowStudentQuestionScore
-        (templateBean.getFeedbackComponent_StudentQuestionScore());
-      feedback.setShowQuestionLevelFeedback
-        (templateBean.getFeedbackComponent_QuestionLevel());
-      feedback.setShowSelectionLevelFeedback
-        (templateBean.getFeedbackComponent_SelectionLevel());
-      feedback.setShowGraderComments
-        (templateBean.getFeedbackComponent_GraderComments());
-      feedback.setShowStatistics
-        (templateBean.getFeedbackComponent_Statistics());
+      // if 'No feedback' (it corresponds to value 3) is selected, 
+      // all components are unchecked
+      if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+      {
+    	  feedback.setShowQuestionText(false);
+    	  feedback.setShowStudentResponse(false);
+    	  feedback.setShowCorrectResponse(false);
+    	  feedback.setShowStudentScore(false);
+    	  feedback.setShowStudentQuestionScore(false);
+    	  feedback.setShowQuestionLevelFeedback(false);
+    	  feedback.setShowSelectionLevelFeedback(false);
+    	  feedback.setShowGraderComments(false);
+    	  feedback.setShowStatistics(false);
+      }
+      else {
+    	  	feedback.setShowQuestionText
+    	  		(templateBean.getFeedbackComponent_QuestionText());
+    	  	feedback.setShowStudentResponse
+    	  		(templateBean.getFeedbackComponent_StudentResp());
+    	  	feedback.setShowCorrectResponse
+    	  		(templateBean.getFeedbackComponent_CorrectResp());
+    	  	feedback.setShowStudentScore
+    	  		(templateBean.getFeedbackComponent_StudentScore());
+    	  	feedback.setShowStudentQuestionScore
+    	  		(templateBean.getFeedbackComponent_StudentQuestionScore());
+    	  	feedback.setShowQuestionLevelFeedback
+    	  		(templateBean.getFeedbackComponent_QuestionLevel());
+    	  	feedback.setShowSelectionLevelFeedback
+    	  		(templateBean.getFeedbackComponent_SelectionLevel());
+    	  	feedback.setShowGraderComments
+    	  		(templateBean.getFeedbackComponent_GraderComments());
+    	  	feedback.setShowStatistics
+    	  		(templateBean.getFeedbackComponent_Statistics());
+      }
 
       //log.info("templateId = " + templateIdString);
       if ("0".equals(templateIdString)) // New template

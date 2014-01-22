@@ -219,15 +219,31 @@ public class SaveAssessmentSettings
         feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
-    feedback.setShowQuestionText(Boolean.valueOf(assessmentSettings.getShowQuestionText()));
-    feedback.setShowStudentResponse(Boolean.valueOf(assessmentSettings.getShowStudentResponse()));
-    feedback.setShowCorrectResponse(Boolean.valueOf(assessmentSettings.getShowCorrectResponse()));
-    feedback.setShowStudentScore(Boolean.valueOf(assessmentSettings.getShowStudentScore()));
-    feedback.setShowStudentQuestionScore(Boolean.valueOf(assessmentSettings.getShowStudentQuestionScore()));
-    feedback.setShowQuestionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowQuestionLevelFeedback()));
-    feedback.setShowSelectionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowSelectionLevelFeedback()));
-    feedback.setShowGraderComments(Boolean.valueOf(assessmentSettings.getShowGraderComments()));
-    feedback.setShowStatistics(Boolean.valueOf(assessmentSettings.getShowStatistics()));
+    // if 'No feedback' (it corresponds to value 3) is selected, 
+	// all components are unchecked
+    if (feedback.getFeedbackDelivery().equals(new Integer("3")))
+    {
+    	feedback.setShowQuestionText(false);
+		feedback.setShowStudentResponse(false);
+		feedback.setShowCorrectResponse(false);
+		feedback.setShowStudentScore(false);
+		feedback.setShowStudentQuestionScore(false);
+		feedback.setShowQuestionLevelFeedback(false);
+		feedback.setShowSelectionLevelFeedback(false);
+		feedback.setShowGraderComments(false);
+		feedback.setShowStatistics(false);
+    }
+    else {
+    		feedback.setShowQuestionText(Boolean.valueOf(assessmentSettings.getShowQuestionText()));
+    		feedback.setShowStudentResponse(Boolean.valueOf(assessmentSettings.getShowStudentResponse()));
+    		feedback.setShowCorrectResponse(Boolean.valueOf(assessmentSettings.getShowCorrectResponse()));
+    		feedback.setShowStudentScore(Boolean.valueOf(assessmentSettings.getShowStudentScore()));
+    		feedback.setShowStudentQuestionScore(Boolean.valueOf(assessmentSettings.getShowStudentQuestionScore()));
+    		feedback.setShowQuestionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowQuestionLevelFeedback()));
+    		feedback.setShowSelectionLevelFeedback(Boolean.valueOf(assessmentSettings.getShowSelectionLevelFeedback()));
+    		feedback.setShowGraderComments(Boolean.valueOf(assessmentSettings.getShowGraderComments()));
+    		feedback.setShowStatistics(Boolean.valueOf(assessmentSettings.getShowStatistics()));
+    }
     assessment.setAssessmentFeedback(feedback);
 
     // g. set Grading
