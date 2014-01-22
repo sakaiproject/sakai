@@ -1027,6 +1027,9 @@ span.nil a{
 	border:1px solid #ddd;
 	width: 100%;
 }
+#reorder-list li:focus {
+	border:1px solid #555
+}
 #reorder-list li span.grabHandle{
 	display:block;
 	float:left;
