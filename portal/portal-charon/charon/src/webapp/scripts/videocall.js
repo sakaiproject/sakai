@@ -2,10 +2,10 @@
  * Video controller. 
  * It uses webrtc-adapter.js to handle all the communication
  */
-(function () {
+(function ($) {
 
     var msiePattern = /.*MSIE ((\d+).\d+).*/
-    if( msiePattern.test(navigator.userAgent) ) {
+    if ( msiePattern.test(navigator.userAgent) ) {
     	return;
     }
 
@@ -23,34 +23,34 @@
 
     var debug = false;
 
-    if(typeof console === 'undefined') debug = false;
+    if (typeof console === 'undefined') debug = false;
 
     /* Define the actions executed in each event */
 
     portal.chat.video.getCurrentCall = function (peerUUID) {
 
-        if(debug) console.debug('video.getCurrentCall(' + peerUUID + ')');
+        if (debug) console.debug('video.getCurrentCall(' + peerUUID + ')');
 
         return this.currentCalls[peerUUID];
     };
 
     portal.chat.video.queueNewCall = function (peerUUID, proceedable) {
 
-        if(debug) console.debug('video.queueNewCall(' + peerUUID + ')');
+        if (debug) console.debug('video.queueNewCall(' + peerUUID + ')');
 
         return this.currentCalls[peerUUID] = proceedable;
     };
 
     portal.chat.video.removeCurrentCall = function (peerUUID) {
 
-        if(debug) console.debug('video.removeCurrentCall(' + peerUUID + ')');
+        if (debug) console.debug('video.removeCurrentCall(' + peerUUID + ')');
 
         delete this.currentCalls[peerUUID];
     };
 
     portal.chat.video.changeCallStatus = function (peerUUID, newStatus) {
 
-        if(debug) console.debug('video.changeCallStatus(' + peerUUID + ', ' + newStatus + ')');
+        if (debug) console.debug('video.changeCallStatus(' + peerUUID + ', ' + newStatus + ')');
 
         // TODO: Should we need to check whether there is a current call at this point?
         if (this.currentCalls[peerUUID]) {
@@ -60,16 +60,16 @@
 
     portal.chat.video.getCurrentCallStatus = function (peerUUID) {
 
-        if(debug) console.debug('video.getCurrentCallStatus(' + peerUUID + ')');
+        if (debug) console.debug('video.getCurrentCallStatus(' + peerUUID + ')');
 
         var currentStatus = this.currentCalls[peerUUID] ? this.currentCalls[peerUUID].status : null;
-        if(debug) console.debug("Current call status: " + currentStatus);
+        if (debug) console.debug("Current call status: " + currentStatus);
         return currentStatus;
     };
 
     portal.chat.video.getCurrentCallTime = function (peerUUID) {
 
-        if(debug) console.debug('video.getCurrentCallTime(' + peerUUID + ')');
+        if (debug) console.debug('video.getCurrentCallTime(' + peerUUID + ')');
 
         var calltime = this.currentCalls[peerUUID] ? this.currentCalls[peerUUID].calltime : null;
         if (debug) console.debug("Current call time: " + calltime);
@@ -78,14 +78,14 @@
 
     portal.chat.video.getLocalVideoAgent = function () {
 
-        if(debug) console.debug('getLocalVideoAgent');
+        if (debug) console.debug('getLocalVideoAgent');
 
         return this.webrtc.detectedBrowser;
     };
         
     portal.chat.video.doClose = function (peerUUID, skipBye){
 
-        if(debug) console.debug('video.doClose(' + peerUUID + ', ' + skipBye + ')');
+        if (debug) console.debug('video.doClose(' + peerUUID + ', ' + skipBye + ')');
 
         if (!skipBye) {
             this.removeCurrentCall(peerUUID);
@@ -100,7 +100,7 @@
 
     portal.chat.video.startCall = function (peerUUID, localMediaStream) {
 
-        if(debug) console.debug('video.startCall(' + peerUUID + ')');
+        if (debug) console.debug('video.startCall(' + peerUUID + ')');
 
         this.showMyVideo();
         this.webrtc.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
@@ -108,7 +108,7 @@
 
     portal.chat.video.maximizeVideo = function (videoElement) {
 
-        if(debug) console.debug('video.maximizeVideo(' + videoElement + ')');
+        if (debug) console.debug('video.maximizeVideo(' + videoElement + ')');
 
         if ("chrome" === this.getLocalVideoAgent()) {
             videoElement.webkitRequestFullScreen();
@@ -121,7 +121,7 @@
 
     portal.chat.video.isFullScreenEnabled = function (peerUUID) {
 
-        if(debug) console.debug('video.isFullScreenEnabled(' + peerUUID + ')');
+        if (debug) console.debug('video.isFullScreenEnabled(' + peerUUID + ')');
 
         var fullscreenEnabled = document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled;
         
@@ -139,7 +139,7 @@
 
     portal.chat.video.minimizeVideo = function () {
 
-        if(debug) console.debug('video.minimizeVideo');
+        if (debug) console.debug('video.minimizeVideo');
 
         if ("chrome" === this.getLocalVideoAgent()) {
              document.webkitCancelFullScreen();
@@ -152,7 +152,7 @@
 
     portal.chat.video.successCall = function (peerUUID, remoteMediaStream) {
 
-        if(debug) console.debug('video.successCall(' + peerUUID + ')');
+        if (debug) console.debug('video.successCall(' + peerUUID + ')');
      
         this.webrtc.attachMediaStream(document.getElementById("pc_chat_" + peerUUID + "_remote_video"), remoteMediaStream);
         this.setVideoStatus (peerUUID, this.messages.pc_video_status_connection_established, "video");
@@ -161,7 +161,7 @@
 
     portal.chat.video.failedCall = function (peerUUID) {
 
-        if(debug) console.debug('video.failedCall(' + peerUUID + ')');
+        if (debug) console.debug('video.failedCall(' + peerUUID + ')');
     };
 
     /**
@@ -169,7 +169,7 @@
      */
     portal.chat.video.getActiveUserIdVideoCalls = function () {
 
-        if(debug) console.debug('video.getActiveUserIdVideoCalls');
+        if (debug) console.debug('video.getActiveUserIdVideoCalls');
 
         var currentUserIdConnections = {};
         if (this.webrtc != null) {
@@ -180,14 +180,14 @@
 
     portal.chat.video.hasVideoChatActive = function (peerUUID) {
 
-        if(debug) console.debug('video.hasVideoChatActive(' + peerUUID + ')');
+        if (debug) console.debug('video.hasVideoChatActive(' + peerUUID + ')');
 
         return this.getCurrentCall(peerUUID);
     };
 
     portal.chat.video.maximizeVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.maximizeVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.maximizeVideoCall(' + peerUUID + ')');
 
         var remoteVideo = document.getElementById("pc_chat_" + peerUUID + "_remote_video");
         this.maximizeVideo (remoteVideo);
@@ -195,7 +195,7 @@
 
     portal.chat.video.disableVideo = function () {
 
-        if(debug) console.debug('video.disableVideo');
+        if (debug) console.debug('video.disableVideo');
 
         this.webrtc.disableLocalVideo();
         $('#enable_local_video').show();
@@ -205,7 +205,7 @@
 
     portal.chat.video.enableVideo = function () {
 
-        if(debug) console.debug('video.enableVideo');
+        if (debug) console.debug('video.enableVideo');
 
         this.webrtc.enableLocalVideo();
         $('#disable_local_video').show();
@@ -215,7 +215,7 @@
 
     portal.chat.video.mute = function () {
 
-        if(debug) console.debug('video.mute');
+        if (debug) console.debug('video.mute');
 
         this.webrtc.muteLocalAudio();
         $('#unmute_local_audio').show();
@@ -224,7 +224,7 @@
 
     portal.chat.video.unmute = function () {
 
-        if(debug) console.debug('video.unmute');
+        if (debug) console.debug('video.unmute');
 
         this.webrtc.unmuteLocalAudio();
         $('#mute_local_audio').show();
@@ -236,7 +236,7 @@
      */
     portal.chat.video.callProceedOnQueuedCalls = function () {
 
-        if(debug) console.debug('callProceedOnQueuedCalls');
+        if (debug) console.debug('callProceedOnQueuedCalls');
 
         var self = this;
 
@@ -251,14 +251,14 @@
 
     portal.chat.video.hasRemoteVideoAgent = function (peerUUID) {
 
-        if(debug) console.debug('video.hasRemoteVideoAgent(' + peerUUID + ')');
+        if (debug) console.debug('video.hasRemoteVideoAgent(' + peerUUID + ')');
 
         return this.getRemoteVideoAgent(peerUUID) !== 'none';
     };
 
     portal.chat.video.getRemoteVideoAgent = function (peerUUID) {
 
-        if(debug) console.debug('video.getRemoteVideoAgent(' + peerUUID + ')');
+        if (debug) console.debug('video.getRemoteVideoAgent(' + peerUUID + ')');
     	
     	//Just check video in case we have it in our connections map list   	
     	if (portal.chat.currentConnectionsMap[peerUUID]){
@@ -269,7 +269,7 @@
 
     portal.chat.video.doTimeout = function (peerUUID, timeLimit) {
 
-        if(debug) console.debug('video.doTimeout(' + peerUUID + ', ' + timeLimit + ')');
+        if (debug) console.debug('video.doTimeout(' + peerUUID + ', ' + timeLimit + ')');
 
         if (this.getCurrentCallStatus(peerUUID) === this.statuses.ESTABLISHING && this.getCurrentCallTime(peerUUID) === timeLimit) {
             this.setVideoStatus(peerUUID, this.messages.pc_video_status_call_timeout, "failed");
@@ -281,7 +281,7 @@
 
     portal.chat.video.doAnswerTimeout = function (peerUUID, timeLimit) {
 
-        if(debug) console.debug('video.doAnswerTimeout(' + peerUUID + ', ' + timeLimit + ')');
+        if (debug) console.debug('video.doAnswerTimeout(' + peerUUID + ', ' + timeLimit + ')');
 
         if ($('#pc_connection_' + peerUUID + '_videoin').is(":visible")
                 && (!this.webrtc.currentPeerConnectionsMap[peerUUID] || this.getCurrentCallStatus(peerUUID) === this.statuses.CANCELLING)
@@ -293,7 +293,7 @@
 
     portal.chat.video.directVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.directVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.directVideoCall(' + peerUUID + ')');
 
         portal.chat.toggleChat();
         this.openVideoCall(peerUUID, false);
@@ -301,7 +301,7 @@
 
     portal.chat.video.openVideoCall = function (peerUUID, incoming) {
 
-        if(debug) console.debug('video.openVideoCall(' + peerUUID + ', ' + incoming + ')');
+        if (debug) console.debug('video.openVideoCall(' + peerUUID + ', ' + incoming + ')');
 
         if (incoming && this.videoOff) {
             return;
@@ -331,7 +331,7 @@
                     "calltime": currentTime,
                     "proceed": function () {
 
-                        if(debug) console.debug("proceed called on call with '" + peerUUID + "'");
+                        if (debug) console.debug("proceed called on call with '" + peerUUID + "'");
 
                         self.webrtc.doCall(
                             peerUUID,
@@ -340,7 +340,7 @@
 
                                 // onStartedCallback
 
-                                if(self.debug) console.debug('webrtc: doCall onStartedCallback');
+                                if (self.debug) console.debug('webrtc: doCall onStartedCallback');
 
                                 self.startCall(peerUUID, localMediaStream);  
 
@@ -351,7 +351,7 @@
 
                                 // onConnectedCallback
 
-                                if(self.debug) console.debug('webrtc: doCall onConnectedCallback');
+                                if (self.debug) console.debug('webrtc: doCall onConnectedCallback');
 
                                 self.successCall(peerUUID, localMediaStream);  
 
@@ -362,7 +362,7 @@
 
                                 // onFailedCallback
 
-                                if(self.debug) console.debug('webrtc: doCall onFailedCallback');
+                                if (self.debug) console.debug('webrtc: doCall onFailedCallback');
 
                                 $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
                                 $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
@@ -388,7 +388,7 @@
 
     portal.chat.video.acceptVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.acceptVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.acceptVideoCall(' + peerUUID + ')');
 
         this.changeCallStatus(peerUUID, this.statuses.ACCEPTED);
         if (!this.webrtc.currentPeerConnectionsMap[peerUUID]) {
@@ -427,14 +427,14 @@
 
     portal.chat.video.receiveVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.receiveVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.receiveVideoCall(' + peerUUID + ')');
 
         $('#pc_connection_' + peerUUID + '_videoin').show();
     };
 
     portal.chat.video.ignoreVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.ignoreVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.ignoreVideoCall(' + peerUUID + ')');
 
         this.changeCallStatus(peerUUID, this.statuses.CANCELLED);
         $('#pc_connection_' + peerUUID + '_videoin').hide();
@@ -446,7 +446,7 @@
 
     portal.chat.video.showVideoCall = function (peerUUID) {
 
-        if(debug) console.debug('video.showVideoCall(' + peerUUID + ')');
+        if (debug) console.debug('video.showVideoCall(' + peerUUID + ')');
 
         var chatDiv = $("#pc_chat_with_" + peerUUID);
         $("#pc_chat_" + peerUUID + "_video_content").show();
@@ -469,7 +469,7 @@
 
     portal.chat.video.closeVideoCall = function (peerUUID, ui) {
 
-        if(debug) console.debug('video.closeVideoCall(' + peerUUID + ', ' + ui + ')');
+        if (debug) console.debug('video.closeVideoCall(' + peerUUID + ', ' + ui + ')');
 
         if (ui) {
             this.setVideoStatus(peerUUID, this.messages.pc_video_status_hangup, "finished");
@@ -481,7 +481,7 @@
 
     portal.chat.video.showMyVideo = function () {
 
-        if(debug) console.debug('video.showMyVideo');
+        if (debug) console.debug('video.showMyVideo');
 
         $('#pc_chat_local_video_content').show();
         if (!portal.chat.expanded) {
@@ -492,7 +492,7 @@
 
     portal.chat.video.hideMyVideo = function () {
 
-        if(debug) console.debug('video.hideMyVideo');
+        if (debug) console.debug('video.hideMyVideo');
 
         if ($('.video_active').length < 1) {
             if (portal.chat.expanded) {
@@ -505,7 +505,7 @@
 
     portal.chat.video.setVideoStatus = function (peerUUID, text, state) {
 
-        if(debug) console.debug('video.setVideoStatus(' + peerUUID + ', ' + text + ', ' + state + ')');
+        if (debug) console.debug('video.setVideoStatus(' + peerUUID + ', ' + text + ', ' + state + ')');
 
         if (state != null) {
             $("#pc_chat_" + peerUUID + "_video_content > .statusElement").hide();
@@ -542,4 +542,4 @@
     });
 
     portal.chat.video.webrtc.init();
-}) ();
+}) (jQuery);

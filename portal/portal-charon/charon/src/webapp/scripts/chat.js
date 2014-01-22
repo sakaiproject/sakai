@@ -1,10 +1,10 @@
-(function () {
+(function ($) {
 
     "use strict";
 
     portal.chat.debug = false;
 
-    if(typeof console === 'undefined') portal.chat.debug = false;
+    if (typeof console === 'undefined') portal.chat.debug = false;
 
     // Portal chat depends on session storage and JSON. If either aren't
     // supported in the browser, return without doing anything.
@@ -59,7 +59,7 @@
 
     portal.chat.sendMessageToUser = function (peerUUID, content) {
 
-        jQuery.ajax({
+        $.ajax({
             url : "/direct/portal-chat/new",
             dataType : "text",
             cache: false,
@@ -168,7 +168,7 @@
 		// Test if video is enabled
 
         if (portal.chat.video.enabled) {
-            if(portal.chat.debug) console.debug('Setting up the video chat bar ...');
+            if (portal.chat.debug) console.debug('Setting up the video chat bar ...');
             this.setupVideoChatBar(peerUUID, !portal.chat.video.webrtc.isVideoEnabled() || !portal.chat.video.hasRemoteVideoAgent(peerUUID), minimised);
         }
 
@@ -177,10 +177,10 @@
 
 	portal.chat.setupVideoChatBar = function (peerUUID, notEnabled, minimised) {
 
-        if(portal.chat.debug) console.debug('setupVideoChatBar');
+        if (portal.chat.debug) console.debug('setupVideoChatBar');
 
         if (portal.chat.video.enabled && portal.chat.video.getCurrentCallStatus(peerUUID)) {
-            if(portal.chat.debug) console.debug('Returning from setupVideoChatBar without doing anything ...');
+            if (portal.chat.debug) console.debug('Returning from setupVideoChatBar without doing anything ...');
             return;
         }
 
@@ -211,7 +211,7 @@
             chatDiv.attr('data-height', '318');
         }
 
-        if(portal.chat.debug) console.debug('Finished setting up video chat bar.');
+        if (portal.chat.debug) console.debug('Finished setting up video chat bar.');
     };
 
 	portal.chat.closeChatWindow = function (peerUUID) {
@@ -343,7 +343,7 @@
 
 			var objDiv = document.getElementById("pc_connection_chat_" + uuid + "_messages");
 
-            if(objDiv != null) {
+            if (objDiv != null) {
                 // Arbitrary. Just nice and big.
                 objDiv.scrollTop = 100000;
             }
@@ -602,7 +602,7 @@
         var onlineString = portal.chat.offline ? 'false' : 'true';
 		var videoAgent = (this.video.enabled && !this.videoOff) ? this.video.getLocalVideoAgent() : 'none';
 
-		jQuery.ajax({
+		$.ajax({
 			url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + portal.siteId + '&online=' + onlineString + '&videoAgent=' + videoAgent,
 			dataType : "json",
 			cache: false,
@@ -699,7 +699,7 @@
 
 	portal.chat.pingConnection = function (connectionUserId) {
 
-		jQuery.ajax({
+		$.ajax({
 			url : '/direct/portal-chat/' + connectionUserId + '/ping',
 			dataType : "text",
 			cache: false,
@@ -884,7 +884,7 @@
 		// Handle return press in the edit fields
 		var keyPressFunction = function (e,ui) {
 
-			if(e.keyCode == 13) {
+			if (e.keyCode == 13) {
 				var editorId = e.target.id;
                 //do nothing if no value
 				if (e.target.value !== '') {
@@ -895,7 +895,7 @@
 		};
 
 		// SAK-25505 - Switch from live() to on()
-		if ( $(document).on ) {
+		if ($(document).on) {
 			$(document).on('keypress', '.pc_editor', keyPressFunction);
 		} else {
 			$('.pc_editor').live('keypress', keyPressFunction);
@@ -915,11 +915,11 @@
         $('.pc_users_wrapper').hide();
 
         // Clear all of the intervals when the window is closed
-        $(window).bind('unload',function () {
+        $(window).bind('unload', function () {
             portal.chat.clearGetLatestDataInterval();
         });
 
-        $(document).bind('focus',function () {
+        $(document).bind('focus', function () {
             document.title = portal.chat.originalTitle;
         });
 
@@ -1035,16 +1035,13 @@
     $.idleTimer(900000);
 
     $(document).bind("idle.idleTimer", function () {
-
         portal.chat.clearGetLatestDataInterval();
     }).bind("active.idleTimer", function () {
-
         portal.chat.setGetLatestDataInterval();
     });
 
-}) ();
+}) (jQuery);
 
 $(document).ready(function () {
-
-    $('#footerAppChat').show();
+    jQuery('#footerAppChat').show();
 });
