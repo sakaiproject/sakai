@@ -2222,38 +2222,50 @@ public class SimplePageBean {
 	    String siteId = getCurrentSiteId();
 
 	    for (int i = 0; i < selectedEntities.length; i++) {
-	    	SimplePage target = getPage(Long.valueOf(selectedEntities[i]));
-	    	if (target != null) {
-	    		if (!target.getSiteId().equals(siteId)) {
-	    			return "permission-failed";
-	    		}
+		deletePage(siteId, Long.valueOf(selectedEntities[i]));
+	    }
+	    return "success";
+	}
+
+
+    public void deletePage(String siteId, Long pageId) {
+		
+	SimplePage target = simplePageToolDao.getPage(pageId);
+	if (target != null) {
+	    if (!target.getSiteId().equals(siteId)) {
+		return "permission-failed";
+	    }
 	    		
-	    		// delete all the items on the page
-	    		List<SimplePageItem> items = getItemsOnPage(target.getPageId());
-	    		for (SimplePageItem item: items) {
-	    			// if access controlled, clear it before deleting item
-	    			if (item.isPrerequisite()) {
-	    				item.setPrerequisite(false);
-	    				checkControlGroup(item, false);
-	    			}
-	    			simplePageToolDao.deleteItem(item);
-	    		}
+	    // delete all the items on the page
+	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(target.getPageId());
+	    for (SimplePageItem item: items) {
+		// if access controlled, clear it before deleting item
+		if (item.isPrerequisite()) {
+		    item.setPrerequisite(false);
+		    // doesn't seem to use any internal data
+		    checkControlGroup(item, false);
+		}
+		simplePageToolDao.deleteItem(item);
+	    }
 
-	    		// remove from gradebook
-	    		gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + target.getPageId());
+
+	    // remove from gradebook
+	    Double currentPoints = page.getGradebookPoints();
+	    if (currentPoints != null && currentPoints != 0.0)
+		gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + pageId);
 		    
-	    		// remove fake item if it's top level. We won't see it if it's still active
-	    		// so this means the user has removed it in site info
-	    		SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(selectedEntities[i]);
-	    		if (item != null)
-	    			simplePageToolDao.deleteItem(item);			
-
-	    		// currently the UI doesn't allow you to kill top level pages until they have been
-	    		// removed by site info, so we don't have to hack on the site pages
-
-	    		// remove page
-	    		simplePageToolDao.deleteItem(target);
-	    	}
+	    // remove fake item if it's top level. We won't see it if it's still active
+	    // so this means the user has removed it in site info
+	    SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId);
+	    if (item != null)
+		simplePageToolDao.deleteItem(item);			
+	    
+	    // currently the UI doesn't allow you to kill top level pages until they have been
+	    // removed by site info, so we don't have to hack on the site pages
+	    
+	    // remove page
+	    simplePageToolDao.deleteItem(target);
+	}
 	    }
 	    return "success";
 	}
@@ -2376,6 +2388,7 @@ public class SimplePageBean {
     // because we call it when deleting or updating items, before saving them to the database.
     // The caller will update the item in the database, typically after this call
     //    correct is correct value, i.e whether it hsould be there or not
+    // WARNING: with argument false is called by the service layer. Can't depend upon data in the bean
 	public void checkControlGroup(SimplePageItem i, boolean correct) {
 		if (i.getType() == SimplePageItem.RESOURCE) {
 		    checkControlResource(i, correct);

@@ -1301,6 +1301,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		    }
 			
+		    SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
+		    List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+		    if (sitePages != null && !sitePages.isEmpty()) {
+			for (SimplePage page: sitePages)
+			    simplePageBean.deletePage(fromContext, page.getPageId());
+		    }
+
 		}
 
 		logger.debug("lesson builder transferCopyEntities");
@@ -1774,21 +1781,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 		// fake up a SimplePageBean. Set up just enough state to let it do the import
 		
-		SimplePageBean simplePageBean = new SimplePageBean();
-		simplePageBean.setMessageLocator(messageLocator);
-		simplePageBean.setToolManager(toolManager);
-		simplePageBean.setSecurityService(securityService);
-		simplePageBean.setSessionManager(sessionManager);
-		simplePageBean.setSiteService(siteService);
-		simplePageBean.setContentHostingService(contentHostingService);
-		simplePageBean.setSimplePageToolDao(simplePageToolDao);
-		simplePageBean.setForumEntity(forumEntity);
-		simplePageBean.setQuizEntity(quizEntity);
-		simplePageBean.setAssignmentEntity(assignmentEntity);
-		simplePageBean.setBltiEntity(bltiEntity);
-		simplePageBean.setGradebookIfc(gradebookIfc);
-		simplePageBean.setMemoryService(memoryService);
-		simplePageBean.setCurrentSiteId(siteId);
+		SimplePageBean simplePageBean = makeSimplePageBean(siteId);
 
 		toolSession.removeAttribute("lessonbuilder.errors");
 
@@ -1819,6 +1812,25 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	return "missing arguments";
 
+    }
+
+    SimplePageBean makeSimplePageBean(String siteId) {
+	SimplePageBean simplePageBean = new SimplePageBean();
+	simplePageBean.setMessageLocator(messageLocator);
+	simplePageBean.setToolManager(toolManager);
+	simplePageBean.setSecurityService(securityService);
+	simplePageBean.setSessionManager(sessionManager);
+	simplePageBean.setSiteService(siteService);
+	simplePageBean.setContentHostingService(contentHostingService);
+	simplePageBean.setSimplePageToolDao(simplePageToolDao);
+	simplePageBean.setForumEntity(forumEntity);
+	simplePageBean.setQuizEntity(quizEntity);
+	simplePageBean.setAssignmentEntity(assignmentEntity);
+	simplePageBean.setBltiEntity(bltiEntity);
+	simplePageBean.setGradebookIfc(gradebookIfc);
+	simplePageBean.setMemoryService(memoryService);
+	simplePageBean.setCurrentSiteId(siteId);
+	return simplePageBean;
     }
 
     public boolean deleteRecursive(File path) throws FileNotFoundException{
