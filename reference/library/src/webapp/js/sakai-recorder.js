@@ -82,6 +82,14 @@ function microphoneCheck(stream) {
 }
 
 function audioAnalyzer(time) {
+  // We are resetting the state of the audio visualization if a user is doing another attempt
+  if (time == 0) {
+    console.log('Resetting analyzer canvas');
+    analyserContext = false;
+    timeToNextPlot = 0;
+    barToPlot = 1;
+  }
+
   if (!analyserContext) {
     var canvas = document.getElementById('audio-analyzer');
     $(canvas).show();
@@ -89,6 +97,10 @@ function audioAnalyzer(time) {
     canvasHeight = canvas.height;
 	secondsPerBar = Math.floor ( (maxSeconds*1000) / canvasWidth );
     analyserContext = canvas.getContext('2d');
+
+    // make the background black
+    analyserContext.fillStyle = "black";
+    analyserContext.fillRect ( 0, 0, canvasWidth, canvasHeight);
 
     // draw a horizontal line down the middle
     analyserContext.fillStyle = "blue";
@@ -149,11 +161,12 @@ function audioAnalyzer(time) {
           console.log('Recorder initialized.');
 
           // initialize the audio analysis
-          audioAnalyzer();
+          audioAnalyzer(0);
       }
 
   }
 
+  // This is a recording timer
   function startTimer() {
     timer = setInterval(function() {
       timeRemaining--;
@@ -173,8 +186,28 @@ function audioAnalyzer(time) {
     }, 1000); 
   }
 
+  // This is a playback timer (just simulating)
+  function playbackTimer(secsToCount) {
+    var secsTaken = 0;
+
+    timer = setInterval(function() {
+      secsTaken++;
+      minsTaken = Math.floor(secsTaken / 60);
+      secsToDisplay = secsTaken - (minsTaken * 60);
+
+      $('#audio-timer').text( minsTaken + ":" + (secsToDisplay < 10 ? "0" : "") + secsToDisplay );
+      $('#audio-timer').css("left", timerStartPosition + (secsTaken * scrubberMultiple));
+
+      if (secsTaken >= secsToCount) {
+        clearInterval(timer);
+        console.log('MaxSeconds of playback reached');
+      } 
+    }, 1000); 
+  }
+
   function startRecording(button) {
     recordingStarted = true;
+    recordingStopped = false;
 	
     //Try to stop/reload previous recording
     if (userMediaSupport) {
@@ -422,6 +455,9 @@ function audioAnalyzer(time) {
         }
         catch (err) {}
     }
+
+    // Start the playback timer
+    playbackTimer(timeTaken);
   }
 
   function drawBuffer(width, height, context, data) {
