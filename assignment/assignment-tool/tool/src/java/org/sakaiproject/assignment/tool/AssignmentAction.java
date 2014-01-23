@@ -3249,12 +3249,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{		
 			state.setAttribute(ampm, "AM");
 		}
-		if (bHour == 0)
-		{
-			// for midnight point, we mark it as 12AM
-			bHour = 12;
-		}		
-		state.setAttribute(hour, Integer.valueOf((bHour > 12) ? bHour - 12 : bHour));
+		state.setAttribute(hour, Integer.valueOf(bHour));
 		state.setAttribute(min, Integer.valueOf(bTime.getMin()));
 		} catch (NullPointerException _npe) { /* TODO empty exception block */ }
 	}
@@ -10870,7 +10865,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_DUEMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_DUEDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_DUEYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, Integer.valueOf(5));
+		state.setAttribute(NEW_ASSIGNMENT_DUEHOUR, Integer.valueOf(17));
 		state.setAttribute(NEW_ASSIGNMENT_DUEMIN, Integer.valueOf(0));
 		state.setAttribute(NEW_ASSIGNMENT_DUEAMPM, "PM");
 		
@@ -10878,7 +10873,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEMONTH, Integer.valueOf(month));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEDAY, Integer.valueOf(day));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEYEAR, Integer.valueOf(year));
-		state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, Integer.valueOf(5));
+		state.setAttribute(ALLOW_RESUBMIT_CLOSEHOUR, Integer.valueOf(17));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEMIN, Integer.valueOf(0));
 		state.setAttribute(ALLOW_RESUBMIT_CLOSEAMPM, "PM");
 		state.setAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, Integer.valueOf(1));
@@ -10889,7 +10884,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, Integer.valueOf(5));
+		state.setAttribute(NEW_ASSIGNMENT_CLOSEHOUR, Integer.valueOf(17));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEMIN, Integer.valueOf(0));
 		state.setAttribute(NEW_ASSIGNMENT_CLOSEAMPM, "PM");
 		
@@ -10897,7 +10892,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(ALLPURPOSE_RETRACT_MONTH, Integer.valueOf(month));
 		state.setAttribute(ALLPURPOSE_RETRACT_DAY, Integer.valueOf(day));
 		state.setAttribute(ALLPURPOSE_RETRACT_YEAR, Integer.valueOf(year));
-		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(5));
+		state.setAttribute(ALLPURPOSE_RETRACT_HOUR, Integer.valueOf(17));
 		state.setAttribute(ALLPURPOSE_RETRACT_MIN, Integer.valueOf(0));
 		state.setAttribute(ALLPURPOSE_RETRACT_AMPM, "PM");
 
@@ -10905,7 +10900,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMONTH, Integer.valueOf(month));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODDAY, Integer.valueOf(day));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODYEAR, Integer.valueOf(year));
-		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(5));
+		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODHOUR, Integer.valueOf(17));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODMIN, Integer.valueOf(10));
 		state.setAttribute(NEW_ASSIGNMENT_PEERPERIODAMPM, "PM");
 		

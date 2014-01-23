@@ -2,6 +2,12 @@
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
+#set( $H = '-' )
+
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+
 <script type="text/javascript">
 $(document).ready(function() {
  	setupAssignNew();
@@ -284,39 +290,30 @@ $(document).ready(function() {
 			$tlang.getString("gen.stuwonsee")
 		</p>
 		#end
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label>
 				$tlang.getString("newassig.opedat")
 			</label>	
-			#chef_dateselectionwidgetwithtitles($name_OpenYear $name_OpenMonth $name_OpenDay $!value_year_from $!value_year_to $value_OpenYear $value_OpenMonth $value_OpenDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
-			&nbsp;$tlang.getString("gen.at")&nbsp; 
-            <label class="skip" for="$name_OpenHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_OpenHour" id="$name_OpenHour" title="$tlang.getString("dateselectionwidget.hour")">
-				#foreach ($i in [1..12])
-					#if ($value_OpenHour==$i)
-						<option value="$i" selected="selected">$i</option>
-					#else
-						<option value="$i">$i</option>
-					#end
-				#end
-			</select>
-            <label class="skip" for="$name_OpenMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_OpenMin" id="$name_OpenMin" title="$tlang.getString("dateselectionwidget.minute")">
-				#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-					<option value="$i" #if($i == $value_OpenMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-				#end
-			</select>
-            <label class="skip" for="$name_OpenAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_OpenAMPM" id="$name_OpenAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-				#foreach ($i in ["AM", "PM"])
-					#if ($i == $value_OpenAMPM)
-						<option value="$i" selected="selected">$i</option>
-					#else
-							<option value="$i">$i</option>
-					#end
-				#end
-			</select>
+			<input type="text" id="opendate" name="opendate" class="datepicker" value="">
+
+			<script type="text/javascript">
+			      localDatePicker({
+			      	input:'#opendate', 
+			      	useTime:1, 
+			      	val:"$value_OpenYear$H$value_OpenMonth$H$value_OpenDay $value_OpenHour:$value_OpenMin",
+			      	parseFormat: 'YYYY-MM-DD HH:mm',
+			      	ashidden:{
+			      		month:"new_assignment_openmonth",
+			      		day:"new_assignment_openday",
+			      		year:"new_assignment_openyear",
+			      		hour:"new_assignment_openhour",
+			      		minute:"new_assignment_openmin"
+			      	}
+			      });
+			</script>
+
 		</p>	
 		<p class="instruction labelindnt">
                         $tlang.getString("gen.stucantdo")
@@ -326,71 +323,52 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("gen.duedat")
 			</label>
-			#chef_dateselectionwidgetwithtitles($name_DueYear $name_DueMonth $name_DueDay $!value_year_from $!value_year_to $value_DueYear $value_DueMonth $value_DueDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "dueDateChange(this)")
-				&nbsp;$tlang.getString("gen.at")&nbsp; 
-            <label class="skip" for="$name_DueHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_DueHour" id="$name_DueHour" title="$tlang.getString("dateselectionwidget.hour")" onchange="dueDateChange(this)">
-				#foreach ($i in [1..12])
-					#if ($i == $value_DueHour)
-						<option value="$i" selected="selected">$i</option>
-					#else
-						<option value="$i">$i</option>
-					#end
-				#end
-			</select>
-            <label class="skip" for="$name_DueMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_DueMin" id="$name_DueMin" title="$tlang.getString("dateselectionwidget.minute")" onchange="dueDateChange(this)">
-				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-					<option value="$i" #if($i == $value_DueMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-				#end
-			</select>
-            <label class="skip" for="$name_DueAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_DueAMPM" id="$name_DueAMPM" title="$tlang.getString("dateselectionwidget.ampm")" onchange="dueDateChange(this)">
-				#foreach ($i in ["AM", "PM"])
-					#if ($i == $value_DueAMPM)
-						<option value="$i" selected="selected">$i</option>
-					#else
-						<option value="$i">$i</option>
-					#end
-				#end
-			</select>
-		</p>
+
+			<input type="text" id="duedate" name="duedate" class="datepicker" value="">
+
+			<script type="text/javascript">
+			      localDatePicker({
+			      	input:'#duedate', 
+			      	useTime:1, 
+			      	val:"$value_DueYear$H$value_DueMonth$H$value_DueDay $value_DueHour:$value_DueMin",
+			      	parseFormat: 'YYYY-MM-DD HH:mm',
+			      	ashidden:{
+			      		month:"new_assignment_duemonth",
+			      		day:"new_assignment_dueday",
+			      		year:"new_assignment_dueyear",
+			      		hour:"new_assignment_duehour",
+			      		minute:"new_assignment_duemin"
+			      	}
+			      });
+			</script>
+
+ 		</p>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label>
 				$tlang.getString("gen.acesubunt")
 			</label>
 			#if ($value_EnableCloseDate)
-				#chef_dateselectionwidgetwithtitles($name_CloseYear $name_CloseMonth $name_CloseDay $!value_year_from $!value_year_to $value_CloseYear $value_CloseMonth $value_CloseDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
-				&nbsp;$tlang.getString("gen.at")&nbsp; 
-                <label class="skip" for="$name_CloseHour">$tlang.getString("dateselectionwidget.hour")</label>
-				<select name="$name_CloseHour" id="$name_CloseHour" title="$tlang.getString("dateselectionwidget.hour")">
-					#foreach ($i in [1..12])
-						#if ($i == $value_CloseHour)
-							<option value="$i" selected="selected">$i</option>
-						#else
-							<option value="$i">$i</option>
-						#end
-					#end
-				</select>
-                <label class="skip" for="$name_CloseMin">$tlang.getString("dateselectionwidget.minute")</label>
-				<select name="$name_CloseMin" id="$name_CloseMin" title="$tlang.getString("dateselectionwidget.minute")">
-					#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-						<option value="$i" #if($i == $value_CloseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-					#end
-				</select>
-                <label class="skip" for="$name_CloseAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-				<select name="$name_CloseAMPM" id="$name_CloseAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-					#foreach ($i in ["AM", "PM"])
-						#if ($i == $value_CloseAMPM)
-							<option value="$i" selected="selected">$i</option>
-						#else
-							<option value="$i">$i</option>
-						#end
-					#end
-				</select>
-			#else
-                <label class="skip" for="$name_CloseMonth">$tlang.getString("dateselectionwidget.month")</label>
+
+			<input type="text" id="closedate" name="closedate" class="datepicker" value="">
+
+			<script type="text/javascript">
+			      localDatePicker({
+			      	input:'#closedate', 
+			      	useTime:1, 
+			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_DueHour:$value_CloseMin",
+			      	parseFormat: 'YYYY-MM-DD HH:mm',
+			      	ashidden:{
+			      		month:"new_assignment_closemonth",
+			      		day:"new_assignment_closeday",
+			      		year:"new_assignment_closeyear",
+			      		hour:"new_assignment_closehour",
+			      		minute:"new_assignment_closemin"
+			      	}
+			      });
+			</script>
+
+ 			#else
 				<select name="$name_CloseMonth" id="$name_CloseMonth" title="$tlang.getString("dateselectionwidget.month")" disabled="disabled">
 					#foreach ($i in [1..12])
 						#if ($i == $value_CloseMonth)
@@ -491,38 +469,30 @@ $(document).ready(function() {
 				</select>
 		</p>
 		<p class="shorttext" id="allowResubmitTime" style="$!resubmitStyle">
+
+			<label for="$name_ResubmitMonth">
+				$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
+			</label>
+		
+			<input type="text" id="resubmit" name="resubmit" class="datepicker" value="">
+
+
+			<script type="text/javascript">
+			      localDatePicker({
+			      	input:'#resubmit', 
+			      	useTime:1, 
+			      	val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
+			      	parseFormat: 'YYYY-MM-DD HH:mm',
+			      	ashidden:{
+			      		month:"allow_resubmit_closeMonth",
+			      		day:"allow_resubmit_closeDay",
+			      		year:"allow_resubmit_closeYear",
+			      		hour:"allow_resubmit_closeHour",
+			      		minute:"allow_resubmit_closeMin"
+			      	}
+			      });
+			</script>
 							## only show date selection when allowed to resubmit
-							<label>
-								$tlang.getString("gen.resubmission") $tlang.getString("gen.acesubunt")
-							</label>
-							#chef_dateselectionwidgetwithtitles($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
-							&nbsp;$tlang.getString("gen.at")&nbsp; 
-                            <label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
-                            <select name="$name_ResubmitHour" id="$name_ResubmitHour" title="$tlang.getString("dateselectionwidget.hour")">
-								#foreach ($i in [1..12])
-									#if ($i == $value_ResubmitHour)
-										<option value="$i" selected="selected">$i</option>
-									#else
-										<option value="$i">$i</option>
-									#end
-								#end
-							</select>
-                            <label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
-							<select name="$name_ResubmitMin" id="$name_ResubmitMin" title="$tlang.getString("dateselectionwidget.minute")">
-								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-								#end
-							</select>
-                            <label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-								#foreach ($i in ["AM", "PM"])
-									#if ($i == $value_ResubmitAMPM)
-										<option value="$i" selected="selected">$i</option>
-									#else
-										<option value="$i">$i</option>
-									#end
-								#end
-							</select>
 						</p>
 		<p class="shorttext" id="resubmitNotification" style="$!resubmitStyle">
 			## whether to notify student about released grade and resubmission is available
@@ -961,37 +931,26 @@ $(document).ready(function() {
 					<p class="instruction">
 						$tlang.getString("peerassessment.note")
 					</p>
+					<div id="peerperiod-finish">
 					$tlang.getString("peerassessment.periodfinishes")
-					<div class="indnt4">
-						#chef_dateselectionwidgetwithtitles($name_PeerPeriodYear $name_PeerPeriodMonth $name_PeerPeriodDay $!value_year_from $!value_year_to $value_PeerPeriodYear $value_PeerPeriodMonth $value_PeerPeriodDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
-						&nbsp;$tlang.getString("gen.at")&nbsp; 
-			            <label class="skip" for="$name_PeerPeriodHour">$tlang.getString("dateselectionwidget.hour")</label>
-						<select name="$name_PeerPeriodHour" id="$name_PeerPeriodHour" title="$tlang.getString("dateselectionwidget.hour")">
-							#foreach ($i in [1..12])
-								#if ($value_PeerPeriodHour==$i)
-									<option value="$i" selected="selected">$i</option>
-								#else
-									<option value="$i">$i</option>
-								#end
-							#end
-						</select>
-			            <label class="skip" for="$name_PeerPeriodMin">$tlang.getString("dateselectionwidget.minute")</label>
-						<select name="$name_PeerPeriodMin" id="$name_PeerPeriodMin" title="$tlang.getString("dateselectionwidget.minute")">
-							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-								<option value="$i" #if($i == $value_PeerPeriodMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-							#end
-						</select>
-			            <label class="skip" for="$name_PeerPeriodAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-						<select name="$name_PeerPeriodAMPM" id="$name_PeerPeriodAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-							#foreach ($i in ["AM", "PM"])
-								#if ($i == $value_PeerPeriodAMPM)
-									<option value="$i" selected="selected">$i</option>
-								#else
-										<option value="$i">$i</option>
-								#end
-							#end
-						</select>
+						<input type="text" id="new_assignment_peerperiod" name="new_assignment_peerperiod" class="datepicker" value="">
 					</div>
+
+						<script type="text/javascript">
+						      localDatePicker({
+						      	input:'#new_assignment_peerperiod', 
+						      	useTime:1, 
+						      	val:"$value_PeerPeriodYear$H$value_PeerPeriodMonth$H$value_PeerPeriodDay $value_PeerPeriodHour:$value_PeerPeriodMin",
+						      	parseFormat: 'YYYY-MM-DD HH:mm',
+						      	ashidden:{
+						      		month:"$name_PeerPeriodMonth",
+						      		day:"$name_PeerPeriodDay",
+						      		year:"$name_PeerPeriodYear",
+						      		hour:"$name_PeerPeriodHour",
+						      		minute:"$name_PeerPeriodMin"
+						      	}
+						      });
+						</script>
 					##Anonymous Eval
 					#if ($!value_PeerAssessmentAnonEval.equals("true"))
 						<input id="$name_PeerAssessmentAnonEval" name="$name_PeerAssessmentAnonEval" type="checkbox" value="true" checked="checked"/>
@@ -1549,9 +1508,6 @@ $(document).ready(function() {
 						</label>
 					</td>
 					<td>
-						<label for="allPurposeReleaseHour">
-							$tlang.getString("allPurpose.show.time")
-						</label>
 					</td>
 				</tr>
 				<tr>
@@ -1562,28 +1518,27 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-					#chef_dateselectionwidgetwithtitles($name_allPurposeReleaseYear $name_allPurposeReleaseMonth $name_allPurposeReleaseDay $!value_year_from $!value_year_to $value_allPurposeReleaseYear $value_allPurposeReleaseMonth $value_allPurposeReleaseDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
+
+						<input type="text" id="allPurposeRelease" name="allPurposeRelease" class="datepicker" value="">
+
+						<script type="text/javascript">
+						      localDatePicker({
+						      	input:'#allPurposeRelease', 
+						      	useTime:1, 
+						      	val:"$value_allPurposeReleaseYear$H$value_allPurposeReleaseMonth$H$value_allPurposeReleaseDay $value_allPurposeReleaseHour:$value_allPurposeReleaseMin",
+						      	parseFormat: 'YYYY-MM-DD HH:mm',
+						      	ashidden:{
+						      		month:"allPurpose_releaseMonth",
+						      		day:"allPurpose_releaseDay",
+						      		year:"allPurpose_releaseYear",
+						      		hour:"allPurpose_releaseHour",
+						      		minute:"allPurpose_releaseMin"
+						      	}
+						      });
+						</script>
+
 					</td>
 					<td>
-						<select name="$name_allPurposeReleaseHour" id="$name_allPurposeReleaseHour" title="$tlang.getString("dateselectionwidget.hour")">
-							#foreach ($i in [1..12])
-								<option value="$i" #if ($value_allPurposeReleaseHour==$i)selected="selected"#end>$i</option>
-							#end
-						</select>
-						<select name="$name_allPurposeReleaseMin" id="$name_allPurposeReleaseMin" title="$tlang.getString("dateselectionwidget.minute")">
-							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-								<option value="$i" #if($i == $value_allPurposeReleaseMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-							#end
-						</select>
-						<select name="$name_allPurposeReleaseAMPM" id="$name_allPurposeReleaseAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-							#foreach ($i in ["AM", "PM"])
-								#if ($i == $value_allPurposeReleaseAMPM)
-									<option value="$i" selected="selected">$i</option>
-								#else
-									<option value="$i">$i</option>
-								#end
-						#end
-					</select>
 					</td>
 				</tr>
 				<tr>
@@ -1624,28 +1579,27 @@ $(document).ready(function() {
 					<td>
 					</td>
 					<td>
-						#chef_dateselectionwidgetwithtitles($name_allPurposeRetractYear $name_allPurposeRetractMonth $name_allPurposeRetractDay $!value_year_from $!value_year_to $value_allPurposeRetractYear $value_allPurposeRetractMonth $value_allPurposeRetractDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
+
+						<input type="text" id="allPurposeRetract" name="allPurposeRetract" class="datepicker" value="">
+
+						<script type="text/javascript">
+						      localDatePicker({
+						      	input:'#allPurposeRetract', 
+						      	useTime:1, 
+						      	val:"$value_allPurposeRetractYear$H$value_allPurposeRetractMonth$H$value_allPurposeRetractDay $value_allPurposeRetractHour:$value_allPurposeRetractMin",
+						      	parseFormat: 'YYYY-MM-DD HH:mm',
+						      	ashidden:{
+						      		month:"allPurpose_retractMonth",
+						      		day:"allPurpose_retractDay",
+						      		year:"allPurpose_retractYear",
+						      		hour:"allPurpose_retractHour",
+						      		minute:"allPurpose_retractMin"
+						      	}
+						      });
+						</script>
+
 					</td>
 					<td>
-						<select name="$name_allPurposeRetractHour" id="$name_allPurposeRetractHour" title="$tlang.getString("dateselectionwidget.hour")">
-							#foreach ($i in [1..12])
-								<option value="$i" #if ($value_allPurposeRetractHour==$i)selected="selected"#end>$i</option>
-							#end
-						</select>
-						<select name="$name_allPurposeRetractMin" id="$name_allPurposeRetractMin" title="$tlang.getString("dateselectionwidget.minute")">
-							#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-								<option value="$i" #if($i == $value_allPurposeRetractMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-							#end
-						</select>
-						<select name="$name_allPurposeRetractAMPM" id="$name_allPurposeRetractAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-							#foreach ($i in ["AM", "PM"])
-								#if ($i == $value_allPurposeRetractAMPM)
-									<option value="$i" selected="selected">$i</option>
-								#else
-									<option value="$i">$i</option>
-								#end
-						#end
-					</select>
 					</td>
 				</tr>
 				<tr>
