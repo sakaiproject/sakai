@@ -151,11 +151,12 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    }
 	    
 	    // update permissions in tools if appropriate.
-	    if (available && item.isPrerequisite()) {
-		if (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM || type == SimplePageItem.BLTI)
-		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
-		else if (type == SimplePageItem.RESOURCE)
+	    if (available) {
+		if (type == SimplePageItem.RESOURCE || type == SimplePageItem.BLTI)
 		    simplePageBean.track(params.getItemId(), null);
+		else if (item.isPrerequisite() && (type == SimplePageItem.PAGE || type == SimplePageItem.ASSIGNMENT || type == SimplePageItem.ASSESSMENT || type == SimplePageItem.FORUM))
+		    simplePageBean.checkItemPermissions(item, true); // set acl, etc		
+
 	    }
 
 	    // this is a "next" page where we couldn't tell if the item is
