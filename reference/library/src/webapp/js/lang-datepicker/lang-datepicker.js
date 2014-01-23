@@ -2043,7 +2043,7 @@ isRTL:false
 		// use an icon?
 		icon: 1,
 		// minute increments
-		stepMinute: 15,
+		stepMinute: 5,
 		// use time
 		useTime: false
 	},
