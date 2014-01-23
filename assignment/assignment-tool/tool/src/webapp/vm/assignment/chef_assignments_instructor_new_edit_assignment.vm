@@ -979,6 +979,7 @@ $(document).ready(function() {
 						$tlang.getString("peerassessment.numSubmissions")
 					</label>
 					<br/>
+					<br/>
 					$tlang.getString("peerassessment.reviewInstructions")
 					<br/>
 					<table border="0" style="margin:0"><tr><td>
