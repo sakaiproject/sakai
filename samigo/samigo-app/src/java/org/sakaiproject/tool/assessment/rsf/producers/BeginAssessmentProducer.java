@@ -124,6 +124,9 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
     delivery.setTimeLimit("0");
     delivery.setBeginAssessment(true);
 
+    delivery.setNumberRetake(-1);
+    delivery.setActualNumberRetake(-1);
+    
     // set path
     delivery.setContextPath(httpServletRequest.getContextPath());
 

@@ -68,5 +68,7 @@ public class ResetDeliveryListener implements ActionListener
     bean.setTimeElapseAfterFileUpload(null);
     bean.setLastTimer(0);
     bean.setTimeLimit("0");
+    bean.setNumberRetake(-1);
+    bean.setActualNumberRetake(-1);
   }
 }

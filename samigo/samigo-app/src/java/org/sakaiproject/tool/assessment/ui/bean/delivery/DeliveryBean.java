@@ -3150,8 +3150,12 @@ public class DeliveryBean
         return "safeToProceed";
     }
     
-    GradingService gradingService = new GradingService();
-    int numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    if (numberRetake == -1 || actualNumberRetake == -1) {
+    	GradingService gradingService = new GradingService();
+    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    	actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+    }
+    	
     log.debug("check 7");
     // check 7: any submission attempt left?
     if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
@@ -3450,12 +3454,14 @@ public class DeliveryBean
 	  public String updateTimeLimit(String timeLimit) {
   	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
 	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
-  	    GradingService gradingService = new GradingService();
-        numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-        log.debug("numberRetake = " + numberRetake);
-        actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
-		log.debug("actualNumberRetake =" + actualNumberRetake);
-
+  	    if (numberRetake == -1 || actualNumberRetake == -1) {
+		    	GradingService gradingService = new GradingService();
+		    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+		    	log.debug("numberRetake = " + numberRetake);
+		    	actualNumberRetake = gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
+		    	log.debug("actualNumberRetake =" + actualNumberRetake);
+		 }
+		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
 			if (dueDate != null && !acceptLateSubmission) {
 				int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
@@ -3686,5 +3692,21 @@ public class DeliveryBean
 	    return recURL;
 	  }
 
+	  
+	  public void setNumberRetake(int numberRetake) {
+		  this.numberRetake = numberRetake;
+	  }
+	  
+	  public int getNumberRetake() {
+		 return numberRetake;
+	  }
+	  
+	  public void setActualNumberRetake(int actualNumberRetake) {
+		  this.actualNumberRetake = actualNumberRetake;
+	  }
+	  
+	  public int getActualNumberRetake() {
+		  return actualNumberRetake;
+	  }
 }
 

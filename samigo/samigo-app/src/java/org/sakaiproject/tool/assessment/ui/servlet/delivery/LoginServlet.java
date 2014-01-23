@@ -114,6 +114,9 @@ public class LoginServlet
     delivery.setLastTimer(0);
     delivery.setTimeLimit("0");
     delivery.setBeginAssessment(true);
+    
+    delivery.setNumberRetake(-1);
+    delivery.setActualNumberRetake(-1);
 
     // set path
     delivery.setContextPath(req.getContextPath());
@@ -170,7 +173,7 @@ public class LoginServlet
       }
 
       log.debug("*** agentIdString: "+agentIdString);
-
+       
       String nextAction = delivery.checkFromViaUrlLogin();
       log.debug("nextAction="+nextAction);
       if (isAuthorized){

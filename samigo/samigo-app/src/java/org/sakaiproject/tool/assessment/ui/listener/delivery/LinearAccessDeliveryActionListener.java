@@ -246,7 +246,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // get the position of last question which has ben answered/viewed by the student
       log.debug("before partIndex = " + delivery.getPartIndex());
       log.debug("before questionIndex = " + delivery.getQuestionIndex());
-      setPosition(delivery);
+      setPosition(delivery, publishedAssessment, ae);
       log.debug("after partIndex = " + delivery.getPartIndex());
       log.debug("after questionIndex = " + delivery.getQuestionIndex());
 
@@ -256,8 +256,23 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
   }
 
-  private void setPosition(DeliveryBean delivery) {
+  private void setPosition(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment, ActionEvent ae) {
 	  GradingService gradingService = new GradingService();
+	  if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
+          if (delivery.getNumberRetake() == -1 || delivery.getActualNumberRetake() == -1) {
+        	  delivery.setNumberRetake(gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString()));
+        	  log.debug("numberRetake = " + delivery.getNumberRetake());
+        	  delivery.setActualNumberRetake(gradingService.getActualNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString()));
+        	  log.debug("actualNumberRetake =" + delivery.getActualNumberRetake());
+          }
+          
+          if (delivery.getActualNumberRetake() == delivery.getNumberRetake() - 1) {
+        	  delivery.setPartIndex(0);
+        	  delivery.setQuestionIndex(0);
+        	  return;
+          }
+	  }
+	  
 	  AssessmentGradingData assessmentGradingData = delivery.getAssessmentGrading();
 	  log.debug("assessmentGradingData.getAssessmentGradingId() = " + assessmentGradingData.getAssessmentGradingId());
 	  if (assessmentGradingData.getLastVisitedPart() != null && assessmentGradingData.getLastVisitedQuestion() != null) {
