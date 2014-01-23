@@ -121,8 +121,10 @@ $(document).ready(function() {
 		var section = document.getElementById("peerAssessmentOptions");
 		if(checked){
 			section.style.display="block";
+			resizeFrame('grow');
 		}else{
 			section.style.display="none";
+			resizeFrame('shrink');
 		}
 	}
 	
