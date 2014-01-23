@@ -21,11 +21,14 @@
 
 package org.sakaiproject.alias.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Arrays;
@@ -46,6 +49,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -53,6 +57,7 @@ import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
@@ -77,7 +82,7 @@ import org.w3c.dom.NodeList;
  * BaseAliasService is ...
  * </p>
  */
-public abstract class BaseAliasService implements AliasService, SingleStorageUser
+public abstract class BaseAliasService implements AliasService, SingleStorageUser, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseAliasService.class);
@@ -90,6 +95,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/** A cache of calls to the service and the results. */
 	protected Cache m_callCache = null;
+	
+	/** A cache of calls to the getAliases calls */
+	protected GenericMultiRefCache m_targetCache = null;
 
 	private List<String> prohibited_aliases = null;
 
@@ -376,6 +384,11 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 				m_callCache = memoryService().newCache(
 						"org.sakaiproject.alias.api.AliasService.callCache",
 						aliasReference(""));
+				m_targetCache = memoryService().newGenericMultiRefCache(
+						"org.sakaiproject.alias.api.AliasService.targetCache");
+			
+				// Need to catch new aliases being added so we don't still serve up the old data.
+				eventTrackingService().addObserver(this);
 			}
 
 			// register as an entity producer
@@ -607,8 +620,32 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 */
 	public List<Alias> getAliases(String target)
 	{
-		List<Alias> allForTarget = m_storage.getAll(target);
+		List<Alias> allForTarget = null;
+		boolean found = false;
+		if (m_targetCache != null)
+		{
+			allForTarget = (List<Alias>)m_targetCache.get(target);
+		}
+		if (allForTarget == null)
+		{
+			allForTarget = m_storage.getAll(target);
+			if (m_targetCache != null)
+			{
+				Collection dependRefs = null;
+				if (allForTarget != null)
+				{
+					dependRefs = new ArrayList(allForTarget.size());
+					// Need to cache against a set of references.
+					for(Alias alias: (List<Alias>)allForTarget)
+					{
+						dependRefs.add(alias.getReference());
+					}
+				}
 
+				m_targetCache.put(target, allForTarget, target, dependRefs);
+			}
+		}
+		
 		return allForTarget;
 
 	} // getAliases
@@ -1809,5 +1846,35 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		return null;
 	}
 
+	/**
+	 * Registered with the event service, to invalidate cache entries.
+	 * @param o The observable object.
+	 * @param arg Hopefully an Event which we can check against.
+	 */
+	@Override
+	public void update(Observable o, Object arg)
+	{
+		if (arg instanceof Event)
+		{
+			Event event = (Event) arg;
+			if (SECURE_ADD_ALIAS.equals(event.getEvent())
+					&& event.getResource().startsWith(
+					REFERENCE_ROOT + Entity.SEPARATOR))
+			{
+				String id = event.getResource().substring(
+						(REFERENCE_ROOT + Entity.SEPARATOR).length());
+				String target;
+				try
+				{
+					target = getTarget(id);
+					m_targetCache.remove(target);
+				}
+				catch (IdUnusedException e)
+				{
+					M_log.warn("Failed to find new Alias: " + id);
+				}
+			}
+		}
+	}
 } // BaseAliasService
 
