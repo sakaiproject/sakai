@@ -13,6 +13,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.email.api.EmailService;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.user.api.User;
@@ -40,6 +41,11 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService uds) {
 		userDirectoryService = uds;
+	}
+	
+	private DeveloperHelperService developerHelperService;
+	public void setDeveloperHelperService(DeveloperHelperService dhs) {
+		developerHelperService = dhs;
 	}
 	
 	/** portlet configuration parameter values* */
@@ -497,9 +503,10 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 		if(toEmail != null && !"".equals(toEmail)){
 			String headerTo = toEmail;
 			String replyTo = toEmail;
+			String link = developerHelperService.getLocationReferenceURL(SITE_REF_PREFIX + siteId);
 			ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 			String message_subject = rb.getFormattedMessage("java.siteImport.confirmation.subject", new Object[]{siteTitle});
-			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteId, siteTitle});
+			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteTitle, link});
 			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
 		}
 	}

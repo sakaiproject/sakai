@@ -24,6 +24,7 @@ import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
 import org.sakaiproject.tool.api.Session;
@@ -59,9 +60,15 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	
 	private static final String ADMIN = "admin";
 	
+	private static final String SITE_IMPORT_EMAIL_TEMPLATE_FILE_NAME 		= "notifySiteImportConfirmation.xml";
+   private static final String SITE_IMPORT_EMAIL_TEMPLATE_KEY 				= "sitemanage.siteImport.Confirmation";
+   private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_WORKSITE 	= "worksiteName";
+   private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_LINK 		= "linkToWorksite";
+   private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION 	= "institution";
+   private static final String SAK_PROP_UI_INSTITUTION						= "ui.institution";
+	
 	private EmailService emailService; 
 	
-	// sfoster9@uwo.ca, bjones86@uwo.ca
     // email template sent during site join; see JoinSiteDelegate class in kernel
    	private static final String JOIN_EMAIL_TEMPLATE_FILE_NAME = "joinNotification.xml";
     private static final String JOIN_EMAIL_TEMPLATE_KEY = "sitemanage.joinNotification";    // The name (key) of the email template
@@ -88,6 +95,11 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	private SessionManager sessionManager;
 	public void setSessionManager(SessionManager s) {
 		this.sessionManager = s;
+	}
+	
+	private DeveloperHelperService developerHelperService;
+	public void setDeveloperHelperService(DeveloperHelperService dhs) {
+		this.developerHelperService = dhs;
 	}
 
 	public void init() {
@@ -120,9 +132,10 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
     	loadTemplate("notifySiteCreation.xml", NOTIFY_SITE_CREATION);
     	loadTemplate("notifySiteCreationConfirmation.xml", NOTIFY_SITE_CREATION_CONFIRMATION);
 			
-        // sfoster9@uwo.ca, bjones86@uwo.ca
         // email sent during site join; see JoinSiteDelegate class in kernel
         loadTemplate(JOIN_EMAIL_TEMPLATE_FILE_NAME, JOIN_EMAIL_TEMPLATE_KEY);
+			
+        loadTemplate(SITE_IMPORT_EMAIL_TEMPLATE_FILE_NAME, SITE_IMPORT_EMAIL_TEMPLATE_KEY);
 			
 	}
 	
@@ -551,12 +564,18 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	
 	public void notifySiteImportCompleted(String toEmail, String siteId, String siteTitle){
 		if(toEmail != null && !"".equals(toEmail)){
+			
+			// Create the map of replacement values
+			Map<String, String> replacementValues = new HashMap<String, String>();
+			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_WORKSITE, siteTitle);
+			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_LINK, developerHelperService.getLocationReferenceURL(SITE_REF_PREFIX + siteId));
+			replacementValues.put(SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION, serverConfigurationService.getString(SAK_PROP_UI_INSTITUTION));
+			
+			// Use the email template service to send the email
 			String headerTo = toEmail;
 			String replyTo = toEmail;
-			ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
-			String message_subject = rb.getFormattedMessage("java.siteImport.confirmation.subject", new Object[]{siteTitle});
-			String message_body = rb.getFormattedMessage("java.siteImport.confirmation", new Object[]{siteId, siteTitle});
-			emailService.send(getSetupRequestEmailAddress(), toEmail, message_subject, message_body, headerTo, replyTo, null);
+			emailTemplateServiceSend(SITE_IMPORT_EMAIL_TEMPLATE_KEY, Locale.ENGLISH, userDirectoryService.getCurrentUser(), getSetupRequestEmailAddress(),
+					toEmail, headerTo, replyTo, replacementValues);
 		}
 	}
 }
