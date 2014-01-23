@@ -1302,10 +1302,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    }
 			
 		    SimplePageBean simplePageBean = makeSimplePageBean(fromContext);
-		    List<SimplePage> sitePages = simplePageToolDao.getSitePages(fromContext);
+		    List<SimplePage> sitePages = simplePageToolDao.getSitePages(toContext);
 		    if (sitePages != null && !sitePages.isEmpty()) {
 			for (SimplePage page: sitePages)
-			    simplePageBean.deletePage(fromContext, page.getPageId());
+			    simplePageBean.deletePage(toContext, page.getPageId());
 		    }
 
 		}

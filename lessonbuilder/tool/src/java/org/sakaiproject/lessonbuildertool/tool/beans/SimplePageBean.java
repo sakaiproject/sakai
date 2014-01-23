@@ -2228,46 +2228,54 @@ public class SimplePageBean {
 	}
 
 
-    public void deletePage(String siteId, Long pageId) {
+	public void deletePage(String siteId, Long pageId) {
 		
-	SimplePage target = simplePageToolDao.getPage(pageId);
-	if (target != null) {
-	    if (!target.getSiteId().equals(siteId)) {
-		return "permission-failed";
-	    }
-	    		
-	    // delete all the items on the page
-	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(target.getPageId());
-	    for (SimplePageItem item: items) {
-		// if access controlled, clear it before deleting item
-		if (item.isPrerequisite()) {
-		    item.setPrerequisite(false);
-		    // doesn't seem to use any internal data
-		    checkControlGroup(item, false);
+	    SimplePage target = simplePageToolDao.getPage(pageId);
+	    if (target != null) {
+		if (!target.getSiteId().equals(siteId)) {
+		    return;
 		}
-		simplePageToolDao.deleteItem(item);
-	    }
+		// delete all the items on the page
+		List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(target.getPageId());
+		for (SimplePageItem item: items) {
+		    // if access controlled, clear it before deleting item
+		    if (item.isPrerequisite()) {
+			item.setPrerequisite(false);
+			// doesn't seem to use any internal data
+			checkControlGroup(item, false);
+		    }
 
+		    // delete gradebook entries
+		    if(item.getGradebookId() != null) {
+			gradebookIfc.removeExternalAssessment(siteId, item.getGradebookId());
+		    }
+		    if(item.getAltGradebook() != null) {
+			gradebookIfc.removeExternalAssessment(siteId, item.getAltGradebook());
+		    }
 
-	    // remove from gradebook
-	    Double currentPoints = page.getGradebookPoints();
-	    if (currentPoints != null && currentPoints != 0.0)
-		gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + pageId);
-		    
-	    // remove fake item if it's top level. We won't see it if it's still active
-	    // so this means the user has removed it in site info
-	    SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId);
-	    if (item != null)
-		simplePageToolDao.deleteItem(item);			
+		    //actually delete item
+		    simplePageToolDao.deleteItem(item);
+
+		}
+		
+
+		// remove from gradebook
+		Double currentPoints = target.getGradebookPoints();
+		if (currentPoints != null && currentPoints != 0.0)
+		    gradebookIfc.removeExternalAssessment(siteId, "lesson-builder:" + pageId);
 	    
-	    // currently the UI doesn't allow you to kill top level pages until they have been
-	    // removed by site info, so we don't have to hack on the site pages
-	    
-	    // remove page
-	    simplePageToolDao.deleteItem(target);
-	}
+		// remove fake item if it's top level. We won't see it if it's still active
+		// so this means the user has removed it in site info
+		SimplePageItem item = simplePageToolDao.findTopLevelPageItemBySakaiId(pageId+"");
+		if (item != null)
+		    simplePageToolDao.deleteItem(item);			
+		
+		// currently the UI doesn't allow you to kill top level pages until they have been
+		// removed by site info, so we don't have to hack on the site pages
+		
+		// remove page
+		simplePageToolDao.deleteItem(target);
 	    }
-	    return "success";
 	}
 
     //  remove a top-level page from the left margin. Does not actually delete it.
