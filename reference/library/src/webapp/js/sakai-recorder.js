@@ -11,6 +11,7 @@ var timeToNextPlot = 0;
 var barToPlot = 1;
 var secondsPerBar = 100;
 var recordingStopped = false;
+var recordingStarted = false;
 
   function __log(e, data) {
     log.innerHTML += "\n" + e + " " + (data || '');
@@ -47,8 +48,14 @@ function microphoneCheck(stream) {
     vCtx.fillStyle = '#333';
 	vCtx.fillRect(0,0,w,h);
           
-    setInterval(
+    var intervalId = setInterval(
       function() {
+        // Once the user starts recording, hide the mic check and stop this loop
+        if (recordingStarted) {
+          $('#audio-mic-check').hide();
+          clearInterval(intervalId);
+        }
+
         var freqByteData = new Float32Array(analyzerNode.frequencyBinCount);
         analyzerNode.getFloatFrequencyData(freqByteData); 
 
@@ -167,6 +174,7 @@ function audioAnalyzer(time) {
   }
 
   function startRecording(button) {
+    recordingStarted = true;
 	
     //Try to stop/reload previous recording
     if (userMediaSupport) {
