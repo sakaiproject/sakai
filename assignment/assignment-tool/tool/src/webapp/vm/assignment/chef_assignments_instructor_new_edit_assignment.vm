@@ -981,8 +981,10 @@ $(document).ready(function() {
 					<br/>
 					$tlang.getString("peerassessment.reviewInstructions")
 					<br/>
-					<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
-					#chef_setupformattedtextarea($name_PeerAssessmentInstructions)
+					<table border="0" style="margin:0"><tr><td>
+						<textarea name="$name_PeerAssessmentInstructions" id="$name_PeerAssessmentInstructions" cols="80" rows="30" wrap="virtual">$validator.escapeHtmlTextarea($!value_PeerAssessmentInstructions)</textarea>
+						#chef_setupformattedtextarea($name_PeerAssessmentInstructions)
+					</td</tr></table>
 				</div>
 			</div>
 		#end
