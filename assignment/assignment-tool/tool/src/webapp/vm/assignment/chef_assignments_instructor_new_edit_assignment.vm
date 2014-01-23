@@ -974,6 +974,7 @@ $(document).ready(function() {
 					</label>
 					<br/>
 					##Number of Submissions for review
+					<span class="reqStar">*</span>
 					<input name="$name_PeerAssessmentNumReviews" id="$name_PeerAssessmentNumReviews" value="$!value_PeerAssessmentNumReviews" type="text" size="5" maxlength="11"/>
 					<label for="$name_PeerAssessmentNumReviews">
 						$tlang.getString("peerassessment.numSubmissions")
