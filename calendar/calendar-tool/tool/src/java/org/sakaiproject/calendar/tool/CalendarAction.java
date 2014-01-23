@@ -6497,6 +6497,10 @@ extends VelocityPortletStateAction
 							state.setPrimaryCalendarEdit(null);
 							state.setEdit(null);
 							state.setIsNewCalendar(false);
+							
+							// post update-type events for the revised schedule event
+							postEventsForChanges(edit);
+							
 						} // if (edit != null)
 						
 						m_calObj.setDay(Integer.parseInt(year),Integer.parseInt(month),Integer.parseInt(day));
@@ -8163,6 +8167,113 @@ extends VelocityPortletStateAction
 		return l_ndays[dayofweek - 1];
 			
 	}	// calendarUtilGetDay
+	
+	/**
+	 * @param newEvent
+	 */
+	public void postEventsForChanges(CalendarEventEdit newEvent) {
+		// determine which events should be posted by comparing with saved properties
+		try
+		{
+			Calendar calendar = CalendarService.getCalendar(newEvent.getCalendarReference());
+			if (calendar != null)
+			{
+				try
+				{
+					CalendarEvent savedEvent = calendar.getEvent(newEvent.getId());
+					if(savedEvent == null) {
+						
+					} else {
+						
+						EventTrackingService m_eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+					    
+						// has type changed? 
+						String savedType = savedEvent.getType();
+						String newType = newEvent.getType();
+						if(savedType == null || newType == null) {
+							// TODO: is this an error?
+						} else {
+							if (!newType.equals(savedType))
+							{
+								// post type-change event
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TYPE, newEvent.getReference() + "::" + savedType + "::" + newType, true));
+							}
+						}
+						
+						// has title changed?
+						if(savedEvent.getDisplayName() != null && ! savedEvent.getDisplayName().equals(newEvent.getDisplayName())) {
+							// post title-change event
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TITLE, newEvent.getReference(), true));
+						}
+						
+						// has start-time changed?
+						TimeRange savedRange = savedEvent.getRange();
+						TimeRange newRange = newEvent.getRange();
+						if(savedRange == null || newRange == null) {
+							// TODO: Is this an error?
+						} else if(savedRange.firstTime() != null && savedRange.firstTime().compareTo(newRange.firstTime()) != 0) {
+							// post time-change event 
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_TIME, newEvent.getReference(), true));
+						}
+						
+						// has access changed?
+						if(savedEvent.getAccess() != newEvent.getAccess()) {
+							// post access-change event
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS, newEvent.getReference(), true));
+						} else {
+							Collection savedGroups = savedEvent.getGroups();
+							Collection newGroups = newEvent.getGroups();
+							if(! (savedGroups.containsAll(newGroups) && newGroups.containsAll(savedGroups))) {
+								// post access-change event
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_ACCESS, newEvent.getReference(), true));
+							}
+						}
+						
+						// has frequency changed (other than exclusions)? 
+						RecurrenceRule savedRule = savedEvent.getRecurrenceRule();
+						RecurrenceRule newRule = newEvent.getRecurrenceRule();
+						if(savedRule == null && newRule == null) {
+							// do nothing -- no change
+						} else if(savedRule == null || newRule == null) {
+							// post frequency-change event
+							m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));
+						} else {
+							// check for changes in properties of the rules
+							// (rule.getCount() rule.getFrequency() rule.getInterval() rule.getUntil() 
+							if(savedRule.getCount() != newRule.getCount() || savedRule.getInterval() != newRule.getInterval()) {
+								// post frequency-change event
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+							} else if((savedRule.getFrequency() != null && ! savedRule.getFrequency().equals(newRule.getFrequency())) || (savedRule.getFrequency() == null && newRule.getFrequency() != null)) {
+								// post frequency-change event
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+							} else if((savedRule.getUntil() == null && newRule.getUntil() != null) 
+									|| (savedRule.getUntil() != null && newRule.getUntil() == null)
+									|| (savedRule.getUntil() != null && savedRule.getUntil().getTime() != newRule.getUntil().getTime())) {
+								// post frequency-change event
+								m_eventTrackingService.post(m_eventTrackingService.newEvent(CalendarService.EVENT_MODIFY_CALENDAR_EVENT_FREQUENCY, newEvent.getReference(), true));								
+							}
+						}
+					} // if
+				}
+				catch (IdUnusedException Exception)
+				{
+					M_log.warn(this + ":postEventsForChanges IdUnusedException Cannot find calendar event for " +  newEvent.getId());
+				}
+				catch (PermissionException Exception)
+				{
+					M_log.warn(this + ":postEventsForChanges PermissionException Cannot find calendar event for " +  newEvent.getId());
+				}
+			} // if
+		}
+		catch (IdUnusedException Exception)
+		{
+			M_log.warn(this + ":postEventsForChanges IdUnusedException Cannot find calendar for " +  newEvent.getCalendarReference());
+		}
+		catch (PermissionException Exception)
+		{
+			M_log.warn(this + ":postEventsForChanges PermissionException Cannot find calendar for " +  newEvent.getCalendarReference());
+		}
+	} 
 		
 }	 // CalendarAction
 
