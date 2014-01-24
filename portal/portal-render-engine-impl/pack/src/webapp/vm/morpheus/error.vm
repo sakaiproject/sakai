@@ -37,20 +37,21 @@
         #end
         <script src="/portal/scripts/portalscripts.js"></script>
         #if ( ${styleable} )
-            <script 
-                src="/sakai-preferable-tool/js/styleable.js" >
-            </script>
+            <script src="/sakai-preferable-tool/js/styleable.js"></script>
             <script>
                 window.onload = insertStyleAbleStyles;
             </script>
+            
             #if ( ${styleableStyleSheet} )
                 <style title="StyleAble">${styleableStyleSheet}</style>
             #end
+            
             #if ( ${styleableJS} )
                 <script>
-                    ${styleableJS} 
+                    ${styleableJS}
                 </script>
             #end
+            
         #end
     </head>
     <body class="portalBody">
@@ -62,75 +63,87 @@
     <!-- END Header -->
         <h2>Session</h2>
         #if ($s)
-            session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
-            <br>
+            <p>
+                session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
+            </p>
         #else
-            no session established
-            <br>
+            <p>
+                no session established
+            </p>
         #end
+        
         #if ($ts)
-            tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
-            <br>
+            <p>
+                tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
+            </p>
         #else
-            no tool session established
-            <br>
+            <p>
+                no tool session established
+            </p>
         #end
+        
         <h2>Unknown Request</h2>
         <h1>Snoop for request</h1>
         ${req.toString()}
+
         #if (${config})
             <h1>Init Parameters</h1>
-            <pre>&nbsp;
-            #foreach( $param in $params ) 
-            ${param.name} : ${param.value}
-            #end
+            <pre>
+                #foreach( $param in $params ) 
+                    ${param.name} : ${param.value}
+                #end
             </pre>
+            
             <h1>Request information:</h1>
             <pre>
-            Request method ${req.getMethod()}
-            Request URI requestUri
-            requestUriChars
-            Request protocol ${req.getProtocol()}
-            Servlet path servletPath
-            servletPathChars
-            Context path contextPath
-            contextPathChars
-            Path info pathInfo
-            pathInfoChars
-            Path translated ${req.getPathTranslated()}
-            Query string ${req.getQueryString()}
-            Content length ${req.getContentLength()}
-            Content type ${req.getContentType()}
-            Server name ${req.getServerName()}
-            Server port ${req.getServerPort()}
-            Remote user ${req.getRemoteUser()}
-            Remote address ${req.getRemoteAddr()}
-            Authorization scheme ${req.getAuthType()}
+                Request method ${req.getMethod()}
+                Request URI requestUri
+                requestUriChars
+                Request protocol ${req.getProtocol()}
+                Servlet path servletPath
+                servletPathChars
+                Context path contextPath
+                contextPathChars
+                Path info pathInfo
+                pathInfoChars
+                Path translated ${req.getPathTranslated()}
+                Query string ${req.getQueryString()}
+                Content length ${req.getContentLength()}
+                Content type ${req.getContentType()}
+                Server name ${req.getServerName()}
+                Server port ${req.getServerPort()}
+                Remote user ${req.getRemoteUser()}
+                Remote address ${req.getRemoteAddr()}
+                Authorization scheme ${req.getAuthType()}
             </pre>
         #end
+        
         <h1>Request headers</h1>
-        <pre>&nbsp;
-        #foreach( $header in $headers )
-        ${header.name} : ${header.value}
-        #end
+        <pre>
+            #foreach( $header in $headers )
+                ${header.name} : ${header.value}
+            #end
         </pre>
+        
         <h1>Servlet parameters (Single Value style):</h1>
-        <pre>&nbsp;
-        #foreach( $prameter in $parameters )
-        ${parameter.name} = ${parameter.name}
-        #end
+        <pre>
+            #foreach( $prameter in $parameters )
+                ${parameter.name} = ${parameter.name}
+            #end
         </pre>
+        
         <h1>Servlet parameters (Multiple Value style):</h1>
-        <pre>&nbsp;
-        #foreach( $parameter in $parameters ) 
-        ${parameter.name} = ${parameter.name}
-        #end
+        <pre>
+            #foreach( $parameter in $parameters ) 
+                ${parameter.name} = ${parameter.name}
+            #end
         </pre>
+        
         <h1>Request Attributes:</h1>
-        <pre>&nbsp;
-        #foreach( $attribute in $attributes ) 
-        ${attribute.name} = ${attribute.value}
-        #end
+        <pre>
+            #foreach( $attribute in $attributes ) 
+                ${attribute.name} = ${attribute.value}
+            #end
         </pre>
     <!--//END VM error.vm -->
     </body>
