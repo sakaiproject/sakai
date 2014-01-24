@@ -91,34 +91,48 @@ public class ZipLoader implements CartridgeLoader {
   unzip() throws FileNotFoundException, IOException {
     if (!unzipped) {
       BufferedOutputStream dest=null;
-      FileInputStream fis = new FileInputStream(cc);
-      ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
-      ZipEntry entry;
-      while ((entry = zis.getNextEntry())!=null) {
-        File target=new File(root, entry.getName());
-	// not sure if you can put things like .. into a zip file, but be careful
-	if (!target.getCanonicalPath().startsWith(rootPath))
-	    throw new FileNotFoundException(target.getCanonicalPath());
-        if (entry.isDirectory()) {
-          target.mkdirs();
-        } else {
-          if (target.getParentFile().exists()==false) {
-            target.getParentFile().mkdirs();
-          }
-          int count;
-          byte data[] = new byte[BUFFER];
-          FileOutputStream fos = new FileOutputStream(target);
-          dest=new BufferedOutputStream(fos, BUFFER);
-          while ((count = zis.read(data,0,BUFFER))!=-1) {
-            dest.write(data,0,count);
-          }
-          dest.flush();
-          dest.close();
-	  // System.out.println("wrote file " + target);
-        }
+      FileInputStream fis = null;
+      ZipInputStream zis = null;
+      try {
+	  fis = new FileInputStream(cc);
+	  zis = new ZipInputStream(new BufferedInputStream(fis));
+	  ZipEntry entry;
+	  while ((entry = zis.getNextEntry())!=null) {
+	      File target=new File(root, entry.getName());
+	      // not sure if you can put things like .. into a zip file, but be careful
+	      if (!target.getCanonicalPath().startsWith(rootPath))
+		  throw new FileNotFoundException(target.getCanonicalPath());
+	      if (entry.isDirectory()) {
+		  if (!target.mkdirs())
+		      throw new IOException("Unable to make temporary directory");
+	      } else {
+		  if (target.getParentFile().exists()==false) {
+		      target.getParentFile().mkdirs();
+		  }
+		  int count;
+		  byte data[] = new byte[BUFFER];
+		  FileOutputStream fos = new FileOutputStream(target);
+		  dest=new BufferedOutputStream(fos, BUFFER);
+		  while ((count = zis.read(data,0,BUFFER))!=-1) {
+		      dest.write(data,0,count);
+		  }
+		  dest.flush();
+		  dest.close();
+		  dest = null;
+		  // System.out.println("wrote file " + target);
+	      }
+	  }
+      } finally {
+	  if (zis != null) {
+	      try {zis.close();} catch (Exception ignore) {}
+	  }
+	  if (fis != null) {
+	      try {fis.close();} catch (Exception ignore) {}
+	  }
+	  if (dest != null) {
+	      try {dest.close();} catch (Exception ignore) {}
+	  }
       }
-      zis.close();
-      fis.close();
       unzipped=true;
     }
   }
@@ -141,7 +155,8 @@ public class ZipLoader implements CartridgeLoader {
     getUtilities(File the_cc, String unzip_dir) throws FileNotFoundException, IOException {
     File unzip=new File(unzip_dir,the_cc.getName());
     if (!unzip.exists()) {
-      unzip.mkdir();
+	if (!unzip.mkdir())
+	    throw new IOException("unable to make temporary directory");
     }
     return new ZipLoader(the_cc, unzip);
   }

@@ -221,9 +221,12 @@ public class CCExport {
     public boolean startExport() {
 	try {
 	    root = File.createTempFile("ccexport", "root");
-	    if (root.exists())
-		root.delete();
-	    root.mkdir();
+	    if (root.exists()) {
+		if (!root.delete())
+		    throw new IOException("unabled to delete old temp file for export");
+	    }
+	    if (!root.mkdir())
+		throw new IOException("unable to make directory for export");		
 	    errFile = new File(root, "export-errors");
 	    errStream = new PrintStream(errFile);
 	    

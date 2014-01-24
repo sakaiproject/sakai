@@ -5261,9 +5261,16 @@ public class SimplePageBean {
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
-		    if (root.exists())
-			root.delete();
-		    root.mkdir();
+		    if (root.exists()) {
+			if (!root.delete()) {
+			    setErrMessage("unable to delete temp file for load");
+			    return;
+			}
+		    }
+		    if (!root.mkdir()) {
+			setErrMessage("unable to create temp directory for load");
+			return;
+		    }
 		    BufferedInputStream bis = new BufferedInputStream(file.getInputStream());
 		    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cc));
 		    byte[] buffer = new byte[8096];

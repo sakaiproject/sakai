@@ -473,7 +473,7 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 	}
 	
 	public String getTimeDifference(long timeMillis) {
-		long difference = Math.round((System.currentTimeMillis() - timeMillis) / 1000); // In seconds
+		long difference = Math.round((System.currentTimeMillis() - timeMillis) / 1000.0d); // In seconds
 		
 		// These constants are calculated to take rounding into effect, and try to give a fairly
 		// accurate representation of the time difference using words.
@@ -485,27 +485,27 @@ public class CommentsProducer implements ViewComponentProducer, ViewParamsReport
 		}else if(difference < 90) {
 			descrip = messageLocator.getMessage("simplepage.one_min");
 		}else if(difference < 3570) { // 2 mins --> 59 mins
-			int minutes = Math.max(2, Math.round(difference / 60));
+			long minutes = Math.max(2, Math.round(difference / 60.0d));
 			descrip = messageLocator.getMessage("simplepage.x_min").replace("{}", String.valueOf(minutes));
 		}else if(difference < 7170) {
 			descrip = messageLocator.getMessage("simplepage.one_hour");
 		}else if(difference < 84600) { // 2 hours --> 23 hours
-			int hours = Math.max(2, Math.round(difference / 3600));
+			long hours = Math.max(2, Math.round(difference / 3600.0d));
 			descrip = messageLocator.getMessage("simplepage.x_hour").replace("{}", String.valueOf(hours));
 		}else if(difference < 129600) {
 			descrip = messageLocator.getMessage("simplepage.one_day");
 		}else if(difference < 2548800) { // 2 days --> 29 days
-			int days = Math.max(2, Math.round(difference / 86400));
+			long days = Math.max(2, Math.round(difference / 86400.0d));
 			descrip = messageLocator.getMessage("simplepage.x_day").replace("{}", String.valueOf(days));
 		}else if(difference < 3888000) {
 			descrip = messageLocator.getMessage("simplepage.one_month");
 		}else if(difference < 29808000) { // 2 months --> 11 months
-			int months = Math.max(2, Math.round(difference / 2592000));
+			long months = Math.max(2, Math.round(difference / 2592000.0d));
 			descrip = messageLocator.getMessage("simplepage.x_month").replace("{}", String.valueOf(months));
 		}else if(difference < 47304000) {
 			descrip = messageLocator.getMessage("simplepage.one_year");
 		}else { // 2+ years
-			int years = Math.max(2, Math.round(difference / 31536000));
+			long years = Math.max(2, Math.round(difference / 31536000.0d));
 			descrip = messageLocator.getMessage("simplepage.x_year").replace("{}", String.valueOf(years));
 		}
 		

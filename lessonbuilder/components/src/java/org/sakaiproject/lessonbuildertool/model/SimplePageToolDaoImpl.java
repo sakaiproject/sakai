@@ -939,16 +939,18 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		    return false;
 		}
 
+		// getId returns long, so this can never be null
 		Long delid = questionAnswer.getId();
 
 		// find new id number, max + 1
+		// JSON uses Long for integer values
 		List answers = (List)question.getJsonAttribute("answers");
 		Long max = -1L;
 		if (answers == null)
 		    return false;
 		for (Object a: answers) {
 		    Map answer = (Map) a;
-		    if (answer.get("id") == delid) {
+		    if (delid.equals(answer.get("id"))) {
 			answers.remove(a);
 			return true;
 		    }

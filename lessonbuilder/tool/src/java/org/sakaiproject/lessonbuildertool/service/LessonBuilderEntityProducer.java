@@ -1772,9 +1772,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    File root = null;
 	    try {
 		root = File.createTempFile("ccloader", "root");
-		if (root.exists())
-		    root.delete();
-		root.mkdir();
+		if (root.exists()) {
+		    if (!root.delete())
+			return "unable to delete temp file";
+		}
+		if (!root.mkdir())
+		    return "unable to make temp directory for load";
 
 		CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cartridge.getStoreLocation(), root.getCanonicalPath());
 		Parser parser = Parser.createCartridgeParser(cartridgeLoader);
