@@ -57,7 +57,7 @@
 			
 			<t:div styleClass="act" style="padding: 0em;">
 				<h:inputText id="inputSearchBox" value="#{UserListBean.searchKeyword}"
-					onclick="this.value=''" valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
+					valueChangeListener="#{UserListBean.processActionSearchChangeListener}"
 					size="20" title="#{msgs.bar_input_search_title}"
 					onfocus="if(this.value == '#{msgs.bar_input_search_inst}') this.value = '';"/>
 				<h:commandButton id="searchButton" action="#{UserListBean.processActionSearch}"
