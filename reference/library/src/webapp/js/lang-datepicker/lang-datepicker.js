@@ -2220,8 +2220,12 @@ isRTL:false
 				initVal = $(options.getval).val();
 			}
 
+			// finally trim the initVal and make sure it is set so we don't Dec 1969 the user
+			initVal = jQuery.trim(initVal);
+			if (!initVal) initVal = new Date();
+
 			// set localDate to the time to use, predefined or current date/time
-			localDate = getDate((initVal == undefined) ? new Date() : initVal);
+			localDate = getDate(initVal);
 		};
 
 		/**
