@@ -4,9 +4,9 @@
 ##
 <!--//START VM includePage.vm --> 
 #if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-    <div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+    <div id="container" class="portal container minimize-nav" $pageSiteType>
 #else
-    <div id="container" $pageSiteType >
+    <div id="container" class="portal container" $pageSiteType>
 #end
 #parse("/vm/morpheus/includePageBody.vm")
     </div>
