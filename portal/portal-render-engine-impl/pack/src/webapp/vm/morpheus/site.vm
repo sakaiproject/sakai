@@ -40,7 +40,7 @@
             
         #end
         
-        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="container portal outer sakaiMinimizeSiteNavigation" #else class="container portal outer" #end>
+        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="container portal outer minimize-site-nav" #else class="container portal outer" #end>
             ## Skip Nav
             #parse("/vm/morpheus/snippets/skipnav-snippet.vm")
 
