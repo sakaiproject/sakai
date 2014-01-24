@@ -1,26 +1,18 @@
 <!--//START VM includePageNav.vm -->
 <div class="divColor" id="toolMenuWrap">
-    <div id="worksiteLogo">
-        #if (${sitePages.softlyDeleted})
-            <p id="siteStatusSoftlyDeleted">${rloader.site_softly_deleted}</p>
-        #elseif (!${sitePages.pageNavPublished})
-            <p id="siteStatus">${rloader.sit_unpublished} <br/>
-                <a href="javascript:;" onclick="publishSite('${sitePages.siteId}');">${rloader.sit_publish_now}</a>
-            </p>
-        #end
-        #if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
-            <p id="siteType">$sitePages.pageNavType</p>
-        #end
-        #if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
-            <img src="$sitePages.pageNavIconUrl" alt="Worksite Logo">
-        #end
-    </div>
     #if ($sitePages.siteHTMLInclude)
         <div id="siteHTMLInclude">
             $sitePages.siteHTMLInclude
         </div>
     #end
     <h1 class="skip" id="totoolmenu">${rloader.sit_toolshead}</h1>
+    
+    #foreach ( $site in $tabsSites.tabsSites ) 
+        #if (${site.isCurrentSite})
+            <h2 title="${site.fullTitle}" class="selected current-site">${site.siteTitle}</h2>
+        #end
+    #end
+    
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}">
         <ul>
             #foreach( $page in $sitePages.pageNavTools )
@@ -34,8 +26,7 @@
                 #else
                     #if (${page.toolpopup})
                         <li>
-                            <a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" 
-                                onclick="window.open('${page.toolpopupurl}');">
+                            <a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" onclick="window.open('${page.toolpopupurl}');">
                                 <span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"></span>
                                 <span class="menuTitle">${page.pageTitle}</span>
                             </a>
@@ -109,11 +100,9 @@
         <a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
             <span id="toggleToolMax" class="show">
                 <em class="skip">${rloader.sit_toggle_nav_min}</em>
-                    &nbsp;
             </span>
             <span id="toggleNormal" class="hidden">
                 <em class="skip">${rloader.sit_toggle_nav_exp}</em>
-                &nbsp;
             </span>
         </a>
     #end    
