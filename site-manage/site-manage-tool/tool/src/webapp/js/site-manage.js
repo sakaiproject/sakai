@@ -551,8 +551,7 @@ var setupCategTools = function(){
         var msg = $('#removalAlertMessage').val();
         var yesMsg = $('#removalAlertYesMessage').val();
         var noMsg = $('#removalAlertNoMessage').val();
-
-        $(e.target).parent('li').append('<div id=\"alertBox\">' + msg + '<a href=\"#\" id=\"alertBoxYes\">Yes</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">No</a></div>');
+        $(e.target).parent('li').append('<div id=\"alertBox\">' + msg + '<a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></div>');
         $(e.target).find('#alertBox').css({
             'top': pos.top - 14,
             'left': pos.left - 150
