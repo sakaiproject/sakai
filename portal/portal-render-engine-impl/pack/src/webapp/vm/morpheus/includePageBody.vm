@@ -2,16 +2,19 @@
 ## the Page part of the standard view, with no page navigation
 ##
 ##
-<!--//END VM includePageBody.vm -->
+<!--//START VM includePageBody.vm -->
 #if ( $sitePages.pageMaxIfSingle )
+    
     #if ( $sitePages.pageNavToolsCount > 1 ) 
-        <div id="$pageWrapperClass" role="main">
+        <main id="$pageWrapperClass" role="main">
             <div id="innercontent">
     #end
+    
 #else
-    <div id="$pageWrapperClass" role="main">
+    <main id="$pageWrapperClass" role="main">
         <div id="innercontent">
 #end
+
            <div id="$pageColumnLayout">
                 #foreach ( $tool in $pageColumn0Tools ) 
                     #if ( $tool ) 
@@ -211,99 +214,99 @@
                 </div> <!-- end of div.col2of2 -->
             #end ## end of  #if ($pageTwoColumn)
         </div> <!--end of div#innercontent -->
-    </div> <!--end of div#pageWrapperClass -->
+    </main> <!--end of div#pageWrapperClass -->
     <div>
         <!-- include bottom -->
             #if ( !$pagepopup)
-                <div id="footer" role="contentinfo">
+                <footer id="footer" role="contentinfo">
                     <div class="footerExtNav">
-                    <ul id="footerLinks">
-                        #foreach ( $bn in $bottomNav )
-                            <li>
-                                <span>${bn}</span>
-                            </li>
-                        #end
-                    </ul>
-                </div>
-                <div id="footerInfo">
-                    #foreach ( $pb in $bottomNavPoweredBy )    
-                        <a href="${pb.poweredByUrl}" target="_blank">
-                            <img src="${pb.poweredByImage}" alt="${pb.poweredByAltText}">
-                            <span class="skip"> (${rloader.site_newwindow})</span>
-                        </a>
-                    #end
-                    <!-- end include Bottom -->
-                </div>
-                <div class="sakaiCopyrightInfo">${bottomNavCopyright}</div>
-                <div class="serviceInfo">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
-                #if ($showServerTime == "true")
-                    <div class="server-time-container">
-                        #if ($showPreferredTzTime == "true")
-                            ${rloader.site_preferredtime_label}
-                            <span id="preferredTime" class="server-time"></span>
-                            <br>
-                        #end
-                        ${rloader.site_servertime_label}
-                        <span id="serverTime" class="server-time"></span>
+                        <ul id="footerLinks">
+                            #foreach ( $bn in $bottomNav )
+                                <li>
+                                    <span>${bn}</span>
+                                </li>
+                            #end
+                        </ul>
                     </div>
-                    <script>
-                        // <!--
-                        updateFooterTime = (function() {
+                    <div id="footerInfo">
+                        #foreach ( $pb in $bottomNavPoweredBy )    
+                            <a href="${pb.poweredByUrl}" target="_blank">
+                                <img src="${pb.poweredByImage}" alt="${pb.poweredByAltText}">
+                                <span class="skip"> (${rloader.site_newwindow})</span>
+                            </a>
+                        #end
+                        <!-- end include Bottom -->
+                    </div>
+                    <div class="sakaiCopyrightInfo">${bottomNavCopyright}</div>
+                    <div class="serviceInfo">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
+                    #if ($showServerTime == "true")
+                        <div class="server-time-container">
                             #if ($showPreferredTzTime == "true")
-                                var preferredTzDisplay='${preferredTzDisplay}';
-                                var preferredServerDateAndGMTOffset = new Date(${preferredTzGMTOffset});
-                                var preferredLocalOffset = preferredServerDateAndGMTOffset.getTime() - (new Date()).getTime();
+                                ${rloader.site_preferredtime_label}
+                                <span id="preferredTime" class="server-time"></span>
+                                <br>
                             #end
-                            var serverTzDisplay='${serverTzDisplay}';
-                            var serverServerDateAndGMTOffset = new Date(${serverTzGMTOffset})
-                            var serverLocalOffset = serverServerDateAndGMTOffset.getTime() - (new Date()).getTime();
-                            return function() {
-                                var offsetDate = new Date((new Date()).getTime() + serverLocalOffset);
-                                var dateString = offsetDate.toUTCString()
-                                .replace(/GMT/, serverTzDisplay)
-                                .replace(/UTC/, serverTzDisplay);
-                                document.getElementById('serverTime').innerHTML = dateString;
+                            ${rloader.site_servertime_label}
+                            <span id="serverTime" class="server-time"></span>
+                        </div>
+                        <script>
+                            // <!--
+                            updateFooterTime = (function() {
                                 #if ($showPreferredTzTime == "true")
-                                    var offsetDate = new Date((new Date()).getTime() + preferredLocalOffset);
-                                    var dateString = offsetDate.toUTCString()
-                                    .replace(/GMT/, preferredTzDisplay)
-                                    .replace(/UTC/, preferredTzDisplay);
-                                    document.getElementById('preferredTime').innerHTML = dateString;
+                                    var preferredTzDisplay='${preferredTzDisplay}';
+                                    var preferredServerDateAndGMTOffset = new Date(${preferredTzGMTOffset});
+                                    var preferredLocalOffset = preferredServerDateAndGMTOffset.getTime() - (new Date()).getTime();
                                 #end
-                                setTimeout('updateFooterTime()', 1000);
-                            };
-                        })();
-                        updateFooterTime();
-                        // --> 
-                    </script>
-                #end
-                #if ( ${loggedIn})
-                    <div id="footerAppTray">
-                        #if ( $neoChat )
-                            <div id="footerAppChat" style="display:none">
-                                <a href="#" id="chatToggle">
-                                    <img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="">
-                                    ${rloader.pc_title} 
-                                    <span id="chattableCount"></span>
-                                </a>
-                                <!-- chat tray, will hold chat containers (as many as ongoing chats) -->
-                            </div>
-                        #else
-                            #if ( ${sitePages.pageNavShowPresenceLoggedIn})
-                                <h1 class="skip">${rloader.sit_presencehead}</h1>
-                                <div id="footerAppPresence">
-                                    <a href="#" id="presenceToggle">
-                                        <img src="/library/image/silk/user_green.png" style="vertical-align: middle;" alt="">
-                                        <span class="skip">Toggle users present panel</span>
+                                var serverTzDisplay='${serverTzDisplay}';
+                                var serverServerDateAndGMTOffset = new Date(${serverTzGMTOffset})
+                                var serverLocalOffset = serverServerDateAndGMTOffset.getTime() - (new Date()).getTime();
+                                return function() {
+                                    var offsetDate = new Date((new Date()).getTime() + serverLocalOffset);
+                                    var dateString = offsetDate.toUTCString()
+                                    .replace(/GMT/, serverTzDisplay)
+                                    .replace(/UTC/, serverTzDisplay);
+                                    document.getElementById('serverTime').innerHTML = dateString;
+                                    #if ($showPreferredTzTime == "true")
+                                        var offsetDate = new Date((new Date()).getTime() + preferredLocalOffset);
+                                        var dateString = offsetDate.toUTCString()
+                                        .replace(/GMT/, preferredTzDisplay)
+                                        .replace(/UTC/, preferredTzDisplay);
+                                        document.getElementById('preferredTime').innerHTML = dateString;
+                                    #end
+                                    setTimeout('updateFooterTime()', 1000);
+                                };
+                            })();
+                            updateFooterTime();
+                            // --> 
+                        </script>
+                    #end
+                    #if ( ${loggedIn})
+                        <div id="footerAppTray">
+                            #if ( $neoChat )
+                                <div id="footerAppChat" style="display:none">
+                                    <a href="#" id="chatToggle">
+                                        <img src="/library/image/silk/comment.png" style="vertical-align: middle;" alt="">
+                                        ${rloader.pc_title} 
+                                        <span id="chattableCount"></span>
                                     </a>
-                                    <span class="skip">Number of users present:</span>
-                                    <span id="presenceCount"></span>
+                                    <!-- chat tray, will hold chat containers (as many as ongoing chats) -->
                                 </div>
+                            #else
+                                #if ( ${sitePages.pageNavShowPresenceLoggedIn})
+                                    <h1 class="skip">${rloader.sit_presencehead}</h1>
+                                    <div id="footerAppPresence">
+                                        <a href="#" id="presenceToggle">
+                                            <img src="/library/image/silk/user_green.png" style="vertical-align: middle;" alt="">
+                                            <span class="skip">Toggle users present panel</span>
+                                        </a>
+                                        <span class="skip">Number of users present:</span>
+                                        <span id="presenceCount"></span>
+                                    </div>
+                                #end
                             #end
-                        #end
-                    </div>
-                </div> <!--// Q: what is this an end to? -->
-                #end  ##end to #if ( ${loggedIn})
+                        </div>
+                    #end  ##end to #if ( ${loggedIn})
+                </footer> <!--// Q: what is this an end to? A: id="footer" -->
                 #if ( $neoChat && ${loggedIn})
                     <h1 class="skip">${rloader.sit_presencehead}</h1>
                     #if ( $neoAvatar ) 
@@ -364,7 +367,7 @@
                     -->
                 </div>
                 <!-- Trimpath template for the present users list -->
-                <div id="pc_site_users_template" style="display:none;"><!--
+                <div id="pc_site_users_template" class="hidden"><!--
                     {for user in siteUsers}
                     <li class="pc_site_user">
                     {if !user.offline}
