@@ -45,19 +45,35 @@
             #parse("/vm/morpheus/snippets/skipnav-snippet.vm")
 
             <div #if ( ${tabsSites} ) class="header max ${logoSiteClass}" #else class="header min ${logoSiteClass}" #end>
+                
                 ## Header
                 #parse("/vm/morpheus/snippets/header-snippet.vm")
+                
                 #if ( ${tabsSites} )
                     ## tabs
                     #parse("/vm/morpheus/includeTabs.vm")
                 #else
-                    ## Top Login
-                    #parse("/vm/morpheus/snippets/login-snippet.vm")
+                    <nav class="header header-login">
+                        <!-- login component -->
+                        
+                            #if (!${loginTopLogin})
+                                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+                            
+                            #else
+    
+                                #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
+                                <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+    
+                            #end
+                        <!-- end login component -->
+                    </nav>
+                    
                 #end
                 
             </div>
-            
+             
             #parse("/vm/morpheus/includePageWithNav.vm")
+            
         </div>
         <!--//END VM site.vm -->
     </body>
