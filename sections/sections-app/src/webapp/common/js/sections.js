@@ -73,7 +73,6 @@ function updateOptionBoxes(externallyManaged) {
 	var selfSwitch = document.getElementById("optionsForm:selfSwitch");
 	var openSwitch = document.getElementById("optionsForm:openSwitch");
 	var openDate = document.getElementById("optionsForm:openDate");
-	var calendar = document.getElementById("calendar");
 
 	if(externallyManaged.value=='external') {
 		// Automatic section management is selected
@@ -85,14 +84,12 @@ function updateOptionBoxes(externallyManaged) {
 		openSwitch.disabled = true;
 		openDate.value = "";
 		openDate.disabled = true;
-		calendar.disabled = true;
 	} else {
 		// Manual section management is selected
 		selfJoin.disabled = false;
 		selfSwitch.disabled = false;
 		openSwitch.disabled = false;
 		openDate.disabled = false;
-		calendar.disabled = false;		
 	}
 }
 

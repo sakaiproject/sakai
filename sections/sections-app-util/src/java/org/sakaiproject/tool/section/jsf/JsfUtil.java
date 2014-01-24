@@ -24,6 +24,7 @@ import java.sql.Time;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.text.DateFormatSymbols;
+import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
@@ -72,6 +73,10 @@ public class JsfUtil {
 	 */
 	public static final String TIME_PATTERN_SHORT = "h a";
 
+	/**
+	 * This is ISO-8601 date validation
+	 */
+	public static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
 
 	/**
 	 * To cut down on configuration noise, allow access to request-scoped beans from
@@ -215,6 +220,29 @@ public class JsfUtil {
 		return sdf.format(time);
 	}
 
+	/**
+	 * Converts an ISO-8601 formatted string into a Calendar object
+	 *
+	 * @param str
+	 * @return Calendar
+	 */
+	public static Calendar convertISO8601StringToCalendar(String str) {
+		if(StringUtils.trimToNull(str) == null) {
+			return null;
+		}
+
+		SimpleDateFormat sdf = new SimpleDateFormat(JsfUtil.ISO_8601_DATE_FORMAT);
+		sdf.setTimeZone(TimeService.getLocalTimeZone());
+		try {
+			Date date = sdf.parse(str);
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(date);
+			return cal;
+		} catch (Exception e) {
+			log.warn("Bad ISO 8601 date in sections: " + str);
+		}
+		return null;
+	}
 
 	public static final  Comparator getSelectItemComparator() {
 		return new Comparator() {

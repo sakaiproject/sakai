@@ -48,9 +48,6 @@
             	<h:selectBooleanCheckbox id="openSwitch" value="#{optionsBean.openSwitch}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
                 <h:outputText value="#{msgs.section_open_info}"/>
                 <h:inputText id="openDate" value="#{optionsBean.openDate}" disabled="#{optionsBean.confirmMode ||  ! optionsBean.sectionOptionsManagementEnabled}"/>
-                <script src="/sakai-sections-tool/widget/datepicker/datepicker.js" type="text/javascript"></script>
-                <img  id="calendar" onclick="javascript:var cal = new calendar2(document.getElementById('optionsForm:openDate'), cal_gen_date2, cal_prs_date2);cal.year_scroll = true;cal.time_comp = true;cal.popup('','/sakai-sections-tool/html/');"
-                      width="16"  height="16"  style="cursor:pointer;"   src="/sakai-sections-tool/images/calendar/cal.gif"  border="0" />
 			</t:div>
         </t:div>
     
@@ -71,6 +68,18 @@
                 value="#{msgs.options_done}"
                 rendered="#{ ! optionsBean.sectionOptionsManagementEnabled}"/>
         </t:div>
+
+		<t:div style="height:340px">
+                <script type="text/javascript">
+                localDatePicker({
+                    input: '#optionsForm\\:openDate',
+                    useTime: 1,
+                    parseFormat: 'YYYY-MM-DD HH:mm:ss',
+                    val: '<h:outputText value="#{optionsBean.openDate}" />',
+                    ashidden: { iso8601: 'openDateISO8601' }
+                });
+                </script>
+		</t:div>
 
 </h:form>
 </div>

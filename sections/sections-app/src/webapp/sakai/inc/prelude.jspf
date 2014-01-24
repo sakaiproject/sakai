@@ -19,10 +19,10 @@
 		<%= request.getAttribute("sakai.html.head.css.skin") %>
 		<%= request.getAttribute("sakai.html.head.js") %>
 		<!-- Insert local js here -->
-		<script
-			language="JavaScript"
-			type="text/javascript"
-			src="${pageContext.request.contextPath}/js/sections.js">
-		</script>
+		<script type="text/javascript" src="${pageContext.request.contextPath}/js/sections.js"> </script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+        <link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
 	</head>
 	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>prepForms();setTimeout('setSectionPageFocus()',1);">

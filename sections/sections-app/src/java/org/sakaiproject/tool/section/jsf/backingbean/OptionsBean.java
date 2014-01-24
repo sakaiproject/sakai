@@ -22,6 +22,7 @@ package org.sakaiproject.tool.section.jsf.backingbean;
 
 import java.io.Serializable;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionManager;
@@ -188,26 +189,25 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 		if (openDate == null) {
 			return null;
 		} else {
-			SimpleDateFormat sd = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", new ResourceLoader().getLocale());
+			SimpleDateFormat sd = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", new ResourceLoader().getLocale());
 			sd.setTimeZone(TimeService.getLocalTimeZone());
 			return sd.format(openDate.getTime());
 		}
 	}
 
 	public void setOpenDate(String date){
-		if (date==null || date.length()==0) {
-			this.openDate=null;
-		}else{
-			SimpleDateFormat sd = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", new ResourceLoader().getLocale());
-			sd.setTimeZone(TimeService.getLocalTimeZone());
-			Calendar p = Calendar.getInstance();
-			try {
-				p.setTime(sd.parse(date));
-			} catch (Exception e){
-				JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_date_format"));
-				errorflag=true;
-			};
-			this.openDate=p;
+		String hiddenOpenDate = JsfUtil.getStringFromParam("openDateISO8601");
+		if (log.isDebugEnabled()) {
+			log.debug("Date from openDate field: " + date + ";date from hidden field=" + hiddenOpenDate);
+		}
+		Calendar cal = JsfUtil.convertISO8601StringToCalendar(hiddenOpenDate);
+		if (cal != null) {
+			this.openDate = cal;
+		}
+		else if (cal == null && StringUtils.isNotEmpty(date)) {
+			JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("error_date_format"));
+			errorflag=true;
 		}
 	}
+
 }
