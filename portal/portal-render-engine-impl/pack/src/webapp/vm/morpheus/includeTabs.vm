@@ -23,79 +23,81 @@
             <div id="mastLogin">
                 $portalLinks
                 #if (!${loginTopLogin})
+                
                     #if ($viewAsStudentLink)
                         <div id="roleSwitch">
+                        
                             #if ($roleSwitchState)
                                 <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
                             #else
+                            
                                 #if ($roleswapdropdown)
                                     <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
                                     <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>   
                                     #foreach( $role in $siteRoles)   
                                         <option value="$switchRoleUrl$role$panelString">$role</option>       
-                                    #end     
+                                    #end
                                     </select>
                                 #else
+                                
                                     <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
-                                #end
-                            #end
+                                #end ##if ($roleswapdropdown)
+                                
+                            #end ##if ($roleSwitchState)
                         </div>
-                    #end
-                    <div id="loginLinks">
+                    #end ##if ($viewAsStudentLink)
+                    
+                    <nav id="loginLinks">
                         <span class="topnav">
                             <span class="nav-menu" aria-haspopup="true">
                                 <ul class="nav-submenu subnav" role="menu">
                                     #if (${displayUserloginInfo})
+                                    
                                         #if (${tabsSites.profileToolUrl})
                                             <li class="submenuitem"><span><a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span class="toolMenuIcon submenuitem-profile"> </span> ${loginUserDispName} (${loginUserDispId})</a></span></li>
                                         #else
                                             <li class="submenuitem" role="menuitem"><span>${loginUserDispName} (${loginUserDispId})</span></li>
                                         #end
+                                        
                                     #else
                                         #if (${tabsSites.profileToolUrl})
                                             <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><span class="toolMenuIcon submenuitem-profile"> </span><span>${rloader.sit_profile}</span></a></span></li>
                                         #end
-                                    #end
+                                    #end ##if (${displayUserloginInfo})
+                                    
                                     #if (${tabsSites.prefsToolUrl})
                                         <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true" ><span class="toolMenuIcon submenuitem-prefs"> </span>${rloader.sit_preferences}</a></span></li>
                                     #end
+                                    
                                     #if (${tabsSites.worksiteToolUrl})
+                                    
                                         #if ($allowAddSite)
                                             <li class="submenuitem"><span><a id="addNewSiteLink" role="menuitem" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span class="toolMenuIcon submenuitem-new-site"> </span>${rloader.sit_newsite}</a></span></li>
                                         #end
+                                    
                                     #end
+                                    
                                     #if (${tabsSites.tutorial})
                                         <li class="submenuitem"><span><a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});"><span class="toolMenuIcon submenuitem-tutorial"> </span>${rloader.sit_tutorial}</a></span></li>
                                     #end
+                                    
                                 </ul>
                                 <span class="drop" tabindex="-1"></span>
                             </span>
                         </span>
-                        #if (${loginHasImage1}) 
-                            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" ><img src="${loginImage1}" alt="${loginMessage}"/></a>
-                        #else
-                            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" >${loginMessage}</a>
+                        
+                        #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+                        
                         #end
-                        #if (${loginHasLogInOutUrl2})
-                            #if (${loginHasImage2}) 
-                                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" ><img src="${loginImage2}" alt="${loginMessage2}"/></a>
-                            #else
-                                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" >${loginMessage2}</a>
-                            #end
-                        #end
-                    </div> <!-- end of div#loginLinks-->
+                    </nav> <!-- end of nav#loginLinks-->
                 #else ## else of #if (!${loginTopLogin})
-                    <form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
-                        <label for="eid">${loginEidWording}</label>
-                        <input name="eid" id="eid" type="text">
-                        <label for="pw">${loginPwWording}</label>
-                        <input name="pw" type="password" id="pw">
-                        <input name="submit" type="submit" id="submit" value="${loginWording}">
-                    </form>
+                    
+                    #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
+                    
                 #end ## end of #if (!${loginTopLogin})
             </div> <!--// end of div#mastLogin -->
             <!-- end login component -->
-            <div id="linkNav" role="navigation" aria-labelledby="sitetabs">
+            <nav id="linkNav" role="navigation" aria-labelledby="sitetabs">
             <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
             <script>var sakai_portal_ie_detected=false;</script>
             <!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
@@ -132,7 +134,7 @@
                     <li class="more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}" aria-haspopup="true"><span>${rloader.sit_more}</span></a></li>
                 #end
             </ul>
-        </div> <!-- /linkNav -->
+        </nav> <!-- /linkNav -->
         #if ($tabsAddLogout)
             <div class="galleryLogin">
                 <a href="$tabsLogoutUrl">${rloader.sit_log}</a>
@@ -144,11 +146,11 @@
             </div>
         #end
         #if ($tabsSites.tabsMoreSitesShow)
-            <div id="selectSite" style="display:none">
+            <div id="selectSite" class="hidden">
                 <div id="otherSiteSearch"> 
                     <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
-                    <a id="imgSearch" href="#" style="display:none"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
-                    <span id="noSearchResults" style="display:none">${rloader.sit_search_none}</span>
+                    <a id="imgSearch" href="#" class="hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
+                    <span id="noSearchResults" class="hidden">${rloader.sit_search_none}</span>
                 </div>
                 <ul id="otherSitesMenu">
                     #if (${tabsSites.worksiteToolUrl})
