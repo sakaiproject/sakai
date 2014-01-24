@@ -4,7 +4,7 @@
 ##
 <!--//START VM includePage.vm --> 
 #if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-    <div id="container" class="portal container minimize-nav" $pageSiteType>
+    <div id="container" class="portal container minimize-tool-nav" $pageSiteType>
 #else
     <div id="container" class="portal container" $pageSiteType>
 #end
