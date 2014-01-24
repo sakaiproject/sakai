@@ -1,0 +1,19 @@
+<div id="worksiteLogo">
+    
+    #if (${sitePages.softlyDeleted})
+        <p id="siteStatusSoftlyDeleted">${rloader.site_softly_deleted}</p>
+    #elseif (!${sitePages.pageNavPublished})
+        <p id="siteStatus" class="warning">${rloader.sit_unpublished}
+            <a href="javascript:;" onclick="publishSite('${sitePages.siteId}');">${rloader.sit_publish_now}</a>
+        </p>
+    #end
+    
+    #if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+        <p id="siteType">$sitePages.pageNavType</p>
+    #end
+    
+    #if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+        <img src="$sitePages.pageNavIconUrl" alt="Worksite Logo">
+    #end
+    
+</div>
