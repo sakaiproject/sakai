@@ -2115,7 +2115,7 @@ isRTL:false
 			var parseDate;
 
 			if (typeof d == 'string') {
-				window.console && console.log("string date: " + d);
+				window.console && console.log("string date: " + d + ";parseFormat: " + cfg.parseFormat);
 
 				// formatList can be added to as needed. Refer to Moment Docs for reference
 				// http://momentjs.com/docs/#/parsing/string-format/
@@ -2189,6 +2189,9 @@ isRTL:false
 						  break;
 						case "ampm":
 						  jQuery('#' + h).val(moment(d).format('A').toLowerCase());
+						  break;
+						case "iso8601":
+						  jQuery('#' + h).val(moment(d).format());
 						  break;
 					}
 				});
