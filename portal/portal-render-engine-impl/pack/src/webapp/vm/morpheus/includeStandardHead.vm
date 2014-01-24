@@ -39,7 +39,6 @@
             ${sakai_html_head_css}
         #end
         
-        <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet">
         <!--[if (lt IE 9)]>
           <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css" rel="stylesheet">
         <![endif]-->
