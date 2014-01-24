@@ -247,10 +247,10 @@ function sakaiMinimizeNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
+        $('#portalContainer').addClass('minimize-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').addClass('sakaiMinimizePageNavigation');
+        $('#container').addClass('minimize-nav');
     }
     $('#toggleToolMax').addClass('hidden').removeClass('show');
     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
@@ -261,20 +261,14 @@ function sakaiRestoreNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
+        $('#portalContainer').removeClass('minimize-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').removeClass('sakaiMinimizePageNavigation');
+        $('#container').removeClass('minimize-nav');
     }
 	$('#toggleToolMax').addClass('show').removeClass('hidden');
     $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
 	$('#toggleNormal').addClass('hidden').removeClass('show');
-    
-    // $('#toggleToolMax').show();
-    // $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
-    // $('#toggleNormal').css({
-    //     'display': 'none'
-    // });
 }
 
 function updatePresence(){
@@ -485,7 +479,7 @@ jQuery(document).ready(function(){
 		cursor: 'pointer',
 		activation: 'click',
 		closePosition: 'title',
-		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+		closeText: '<img src="/library/image/silk/cross.png" alt="close">'
     });
 
 	// Shows or hides the subsites in a popout div. This isn't used unless
@@ -570,7 +564,7 @@ var setupSiteNav = function(){
             }
         }
         else {
-            var navsubmenu = "<ul class=\"nav-submenu subnav\" role=\"menu\" style=\"display:block\">";
+            var navsubmenu = "<ul class=\"nav-submenu subnav\" role=\"menu\" class=\"show\">";
             var siteId = jqObjDrop.attr('data');
             var maxToolsInt = parseInt($('#maxToolsInt').text());
             var maxToolsText = $('#maxToolsAnchor').text();
