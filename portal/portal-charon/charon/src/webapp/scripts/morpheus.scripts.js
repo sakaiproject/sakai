@@ -247,10 +247,10 @@ function sakaiMinimizeNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').addClass('minimize-nav')
+        $('#portalContainer').addClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').addClass('minimize-nav');
+        $('#container').addClass('minimize-tool-nav');
     }
     $('#toggleToolMax').addClass('hidden').removeClass('show');
     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
@@ -261,10 +261,10 @@ function sakaiRestoreNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').removeClass('minimize-nav')
+        $('#portalContainer').removeClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').removeClass('minimize-nav');
+        $('#container').removeClass('minimize-tool-nav');
     }
 	$('#toggleToolMax').addClass('show').removeClass('hidden');
     $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
