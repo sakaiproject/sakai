@@ -180,6 +180,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    } else if (item != null && item.getType() == SimplePageItem.RESOURCE) {
 		// other item types we depend upon the underlying tool, except
 		// resources we have to do ourselves
+		// NOTE: consider doing this for BLTI also
 		if (!available) {
 		    UIOutput.make(tofill, "hiddenAlert");
 		    UIOutput.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.complete_required"));

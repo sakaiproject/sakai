@@ -2766,6 +2766,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    } else if (!"window".equals(i.getFormat())) {
 			// this is the default if format isn't valid or is missing
 			if (available && lessonEntity != null) {
+			    // I'm fairly sure checkitempermissions doesn't do anything useful for LTI,
+			    // as it isn't group aware
 				if (i.isPrerequisite()) {
 					simplePageBean.checkItemPermissions(i, true);
 				}
