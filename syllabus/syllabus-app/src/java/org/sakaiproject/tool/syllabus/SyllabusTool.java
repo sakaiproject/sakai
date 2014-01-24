@@ -669,7 +669,11 @@ public class SyllabusTool
   }
 
   public String getOpenInNewWindowAsString () throws PermissionException {
-      return (getSyllabusItem().isOpenInNewWindow()) ? "true" : null;
+	  SyllabusItem syItem = getSyllabusItem();
+	  if (syItem != null) {
+		return (syItem.isOpenInNewWindow()) ? "true" : null;
+	  }
+	  return null;
   }
 
   public void setSyllabusItem(SyllabusItem syllabusItem)
