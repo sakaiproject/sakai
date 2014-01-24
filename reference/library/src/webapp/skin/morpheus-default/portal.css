@@ -1302,6 +1302,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-sakai-createuser {
     background-position: -540px -504px;
 }
+.icon-sakai-delegatedaccess{
+    background-position: -0px -288px;
+}
+.icon-sakai-delegatedaccess-shopping{
+    background-position: -270px -90px;
+}
 /* PART 10: specific functionality: presence, chat */
 
 /* presence and chat rendering */
@@ -1713,6 +1719,34 @@ a.qtipLinkButton img {
 a.qtipLinkButton:hover {
      color: #7AA3CC !important;
 }
+
+div.qtip-titlebar{
+    border-bottom-width: 0 !important;
+    color: #fff !important;
+    background: #009DCE !important;
+    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5)) !important;
+    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
+    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
+    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
+    background: linear-gradient(top, #009DCE 0%,#007EA5 100%) !important;
+    border-bottom: 1px solid #007194 !important;	
+}
+
+.qtip{
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+
+.qtipClose{
+    float: left;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    border: none !important;
+    background: none !important;
+}
+
 /* warning displayed when js is disabled */
 #portal_js_warn {
     font-size: 1.2em;
@@ -1934,4 +1968,75 @@ html > body .ui-pnotify {
     background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
     background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
     border-bottom: 1px solid #007194;
+}
+
+/* minimize tool menu */
+
+/* when the tool menu is minimized the class "minimize-nav" gets added to the
+ * #container block, inheritance is then used to hide, move and shring elements or hide expand them
+ * in this skin we hide the text of the tool links by sliding it out of the viewport
+ * but leave the tool icons displayed - so for the sacrificed of 30 px you still have 
+ * page navigation. If you are not using icons the same effect will be achieved by setting ".minimize-nav #toolMenuWrap"
+ * to display off screen and tweaking the padding of ".minimize-nav #content"
+ * */
+/* container for tool menu display toggle control */
+
+.minimize-nav #toolMenuWrap {
+   /* display: none; uncomment if not using icons for the tool menu */
+    width: 30px;
+    overflow: hidden;
+    text-align:left;
+}
+.minimize-nav #toolMenuWrap li {
+    text-align: left;
+    overflow: hidden;
+}
+.minimize-nav  #toolMenu li.selectedTool {
+    background: #fff;
+}
+.minimize-nav  #toolMenu li.selectedTool span {
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+.minimize-nav #toolMenu li span.menuTitle, .minimize-nav #subSites li span.menuTitle {
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top: 0px !important;
+    left: 0px; 
+    padding: 0px 0px 0px 0px !important; 
+}
+.minimize-nav #toolMenu li span.toolMenuIcon, .minimize-nav #subSites li span.toolMenuIcon {
+    top:2px;
+    left:2px;   
+}
+
+.minimize-nav #toolMenu li a, .minimize-nav #subSites li a {
+    width:20px;
+    height: 16px;
+}
+/*when the tool menu is shoved away a class of .minimize-nav gets added to parent block, here we style the selected tool link so that when 
+everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
+.minimize-nav #toolMenu li.selectedTool a, .minimize-nav #toolMenu li a:hover, .minimize-nav #subSites li a:hover,.minimize-nav #toolMenu li a:focus, .minimize-nav #subSites li a:focus {
+    background: #9cd1e8;
+    background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#9cd1e8), color-stop(100%,#7bc1e1));
+    background: -webkit-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: -o-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: -ms-linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+    background: linear-gradient(top, #9cd1e8 0%,#7bc1e1 100%);
+}
+.minimize-nav #togglebar {
+    padding-left: 0em;
+    margin-top: 0em;
+    margin-left: 0;
+}
+.minimize-nav #siteStatus {
+    display: none;
+}
+.minimize-nav #content {
+    /* adjust if not using icons in tool menu */
+    padding-left: 45px;
 }
