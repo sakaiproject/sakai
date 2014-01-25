@@ -27,7 +27,6 @@ import java.util.List;
 import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
-import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.facade.AssessmentGradingFacadeQueries;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
 import org.springframework.test.AbstractTransactionalSpringContextTests;
@@ -59,34 +58,27 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 	
 	public void testSaveAssesmentGradingData() {
 		//A AssemementGradingData to work with
+		AssessmentGradingData data = new AssessmentGradingData();
 		
-		AssessmentGradingData dataBad = new AssessmentGradingData();
 		//we expect a failure on this one
 		/*FIXME this test should fail with an exception
-		 * currently the exceptions are quietly swallowed */
+		 * currently the exceptions are quietly swallowed
 		try {
-			queries.saveOrUpdateAssessmentGrading(dataBad);
-			//fail();
+			queries.saveOrUpdateAssessmentGrading(data);
+			fail();
 		}
 		catch (Exception e) {
-			//we expect this
-			//e.printStackTrace();
+			//we expect this 
 		}
+		*/
 		
-		AssessmentGradingData data = new AssessmentGradingData();
 		data.setPublishedAssessmentId(Long.valueOf(1));
 		data.setAgentId("agent");
 		data.setIsLate(false);
 		data.setForGrade(false);
 		data.setStatus(Integer.valueOf(0));
 		
-		try {
-			queries.saveOrUpdateAssessmentGrading(data);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data);
 		assertNotNull(data.getAssessmentGradingId());
 		
 		
@@ -99,13 +91,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		item1.setPublishedItemId(1L);
 		item1.setPublishedItemTextId(1L);
 		//saving the item should add an ID
-		try {
-			queries.saveItemGrading(item1);
-		} catch (SamigoDataAccessException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			fail();
-		}
+		queries.saveItemGrading(item1);
 		assertNotNull(item1.getItemGradingId());
 		
 		
@@ -121,13 +107,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 		
 		/** saving the parent should save the children **/
-		try {
-			queries.saveOrUpdateAssessmentGrading(data);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data);
 		assertNotNull(item1.getItemGradingId());
 		
 		
@@ -161,13 +141,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data.setIsLate(false);
 		data.setForGrade(false);
 		data.setStatus(Integer.valueOf(0));
-		try {
-			queries.saveOrUpdateAssessmentGrading(data);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data);
 		
 		
 		AssessmentGradingData data2 = new AssessmentGradingData();
@@ -176,13 +150,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data2.setIsLate(false);
 		data2.setForGrade(true);
 		data2.setStatus(0);
-		try {
-			queries.saveOrUpdateAssessmentGrading(data2);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data2);
 		
 		
 		
@@ -192,13 +160,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data3.setIsLate(false);
 		data3.setForGrade(true);
 		data3.setStatus(0);
-		try {
-			queries.saveOrUpdateAssessmentGrading(data3);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data3);
 		
 		ItemGradingData item1 = new ItemGradingData();
 		item1.setAgentId(data.getAgentId());
@@ -218,13 +180,7 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		data.getItemGradingSet().add(item2);
 		data.getItemGradingSet().add(item1);
 		
-		try {
-			queries.saveOrUpdateAssessmentGrading(data);
-		} catch (SamigoDataAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			fail();
-		}
+		queries.saveOrUpdateAssessmentGrading(data);
 		
 		savedId = data.getAssessmentGradingId();
 		

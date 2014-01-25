@@ -71,7 +71,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
 import org.sakaiproject.tool.assessment.data.dao.grading.StudentGradingSummaryData;
-import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -712,11 +711,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     if (itemGradingId != null) {
     	ItemGradingData itemGradingData = getItemGrading(itemGradingId);
     	itemGradingData.setAutoScore(Double.valueOf(0));
-    	try {
-			saveItemGrading(itemGradingData);
-		} catch (SamigoDataAccessException e) {
-			log.warn("error updating Item after media deletion", e);
-		}
+    	saveItemGrading(itemGradingData);
     }
   }
 
@@ -1025,7 +1020,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveItemGrading(ItemGradingData item) throws SamigoDataAccessException {
+  public void saveItemGrading(ItemGradingData item) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -1035,14 +1030,11 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       catch (Exception e) {
         log.warn("problem saving itemGrading: "+e.getMessage());
         retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-        if (retryCount == 0) {
-        	throw new SamigoDataAccessException(e);
-        }
       }
     }
   }
 
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) throws SamigoDataAccessException {
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -1056,9 +1048,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       catch (Exception e) {
         log.warn("problem inserting/updating assessmentGrading: "+e.getMessage());
         retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-        if (retryCount == 0) {
-        	throw new SamigoDataAccessException(e);
-        }
       }
     }
   }
@@ -1561,7 +1550,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
 
 
-  public void saveOrUpdateAll(Collection c) throws SamigoDataAccessException {
+  public void saveOrUpdateAll(Collection c) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
     while (retryCount > 0){ 
       try {
@@ -1571,9 +1560,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
       catch (Exception e) {
         log.warn("problem inserting assessmentGrading: "+e.getMessage());
         retryCount = persistenceHelper.retryDeadlock(e, retryCount);
-        if (retryCount == 0) {
-        	throw new SamigoDataAccessException(e);
-        }
       }
     }
   }
@@ -2963,11 +2949,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    				adata.setIsAutoSubmitted(Boolean.TRUE);
 	    				adata.setStatus(Integer.valueOf(1));
 	    				completeItemGradingData(adata, sectionSetMap);
-	    				try {
-	    					completeItemGradingData(adata, sectionSetMap);
-	    				} catch (SamigoDataAccessException e) {
-	    					log.error("problem completing ItemGradingData: "+e.getMessage());
-	    				}
 	    				updateCurrentGrade = true;
 
 	    				List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
@@ -3155,12 +3136,12 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  return startedCountsMap;
 	  }
 
-	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData) throws SamigoDataAccessException {
+	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData) {
 		  completeItemGradingData(assessmentGradingData, null);
 	  }
 			
 	  
-	  private void completeItemGradingData(AssessmentGradingData assessmentGradingData, HashMap sectionSetMap) throws SamigoDataAccessException {
+	  public void completeItemGradingData(AssessmentGradingData assessmentGradingData, HashMap sectionSetMap) {
 		  ArrayList answeredPublishedItemIdList = new ArrayList();
 		  List publishedItemIds = getPublishedItemIds(assessmentGradingData.getAssessmentGradingId());
 		  Iterator iter = publishedItemIds.iterator();
@@ -3239,7 +3220,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 	  }
 
-	  private void saveItemGradingData(AssessmentGradingData assessmentGradingData, Long publishedItemId) throws SamigoDataAccessException {
+	  private void saveItemGradingData(AssessmentGradingData assessmentGradingData, Long publishedItemId) {
 		  log.debug("Adding one ItemGradingData...");
 		  ItemGradingData itemGradingData = new ItemGradingData();
 		  itemGradingData.setAssessmentGradingId(assessmentGradingData.getAssessmentGradingId());

@@ -34,7 +34,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIfc;
 
@@ -153,19 +152,9 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getLastSubmittedOrGradedAssessmentGradingList(Long publishedAssessmentId);
 
-  /**
-   * Save an itemgrading item
-   * @param item
-   * @throws SamigoDataAccessException
-   */
-  public void saveItemGrading(ItemGradingData item) throws SamigoDataAccessException;
-  
-  /**
-   * Save or update an AssementGrading item 
-   * @param assessment
-   * @throws SamigoDataAccessException
-   */
-  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment) throws SamigoDataAccessException;
+  public void saveItemGrading(ItemGradingData item);
+
+  public void saveOrUpdateAssessmentGrading(AssessmentGradingData assessment);
 
     //public void setIsLate(AssessmentGradingData assessment);
 
@@ -191,12 +180,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public void deleteAll(Collection c);
 
-  /**
-   * Save or update all objects
-   * @param c
-   * @throws SamigoDataAccessException
-   */
-  public void saveOrUpdateAll(Collection c) throws SamigoDataAccessException;
+  public void saveOrUpdateAll(Collection c);
 
   public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(Long assessmentGradingId);
 
@@ -261,12 +245,7 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public HashMap getSubmittedCounts(String siteId);
 
-  /**
-   * Fully populate an item grading item and perform the initial save
-   * @param assessmentGradingData
-   * @throws SamigoDataAccessException
-   */
-  public void completeItemGradingData(AssessmentGradingData assessmentGradingData) throws SamigoDataAccessException;	
+  public void completeItemGradingData(AssessmentGradingData assessmentGradingData);	
   
   public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId);
   public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);

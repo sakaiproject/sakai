@@ -58,7 +58,6 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
-import org.sakaiproject.tool.assessment.data.exception.SamigoDataAccessException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
@@ -762,7 +761,7 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException, SamigoDataAccessException
+                          HashMap publishedAnswerHash, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades: data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, true, invalidFINMap, invalidSALengthList);
@@ -773,7 +772,7 @@ public class GradingService
    */
   public void storeGrades(AssessmentGradingData data, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
-                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException, SamigoDataAccessException
+                          HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) throws GradebookServiceException, FinFormatException
   {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, false, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, invalidFINMap, invalidSALengthList);
@@ -781,7 +780,7 @@ public class GradingService
   
   public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
 		  HashMap publishedItemHash, HashMap publishedItemTextHash,
-		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException, SamigoDataAccessException {
+		  HashMap publishedAnswerHash, boolean persistToDB) throws GradebookServiceException, FinFormatException {
 	  log.debug("storeGrades (not persistToDB) : data.getSubmittedDate()" + data.getSubmittedDate());
 	  storeGrades(data, regrade, pub, publishedItemHash, publishedItemTextHash, publishedAnswerHash, persistToDB, null, null);
   }
@@ -797,7 +796,7 @@ public class GradingService
   public void storeGrades(AssessmentGradingData data, boolean regrade, PublishedAssessmentIfc pub,
                           HashMap publishedItemHash, HashMap publishedItemTextHash,
                           HashMap publishedAnswerHash, boolean persistToDB, HashMap invalidFINMap, ArrayList invalidSALengthList) 
-         throws GradebookServiceException, FinFormatException, SamigoDataAccessException {
+         throws GradebookServiceException, FinFormatException {
     log.debug("****x1. regrade ="+regrade+" "+(new Date()).getTime());
     try {
       String agent = data.getAgentId();
@@ -1010,9 +1009,8 @@ public class GradingService
     } catch (GradebookServiceException ge) {
       ge.printStackTrace();
       throw ge;
-    } catch (SamigoDataAccessException sde) {
-    	throw sde;
-    } catch (Exception e) {
+    } 
+    catch (Exception e) {
       e.printStackTrace();
       throw new RuntimeException(e);
     }
@@ -1837,11 +1835,14 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
      }
   }
 
-  public void saveOrUpdateAll(Collection c) throws SamigoDataAccessException
+  public void saveOrUpdateAll(Collection c)
   {
-   
+    try {
       PersistenceService.getInstance().
         getAssessmentGradingFacadeQueries().saveOrUpdateAll(c);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
   }
 
   public PublishedAssessmentIfc getPublishedAssessmentByAssessmentGradingId(String id){
@@ -2858,13 +2859,8 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
   
   public void completeItemGradingData(AssessmentGradingData assessmentGradingData)  {
-      try {
-		PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
-		  completeItemGradingData(assessmentGradingData);
-	} catch (SamigoDataAccessException e) {
-		//Fixme this should be escalalted as a named exception so calling code handles it
-		throw new RuntimeException(e);
-	}
+      PersistenceService.getInstance().getAssessmentGradingFacadeQueries().
+      completeItemGradingData(assessmentGradingData);
   }
   
   /**
