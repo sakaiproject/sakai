@@ -346,13 +346,13 @@ public class Category implements Serializable
     				{
     					BigDecimal bdScore = new BigDecimal(score.toString());
     					total = total.add(bdScore);
-    					if(assignment.getPointsPossible() != null && !assignment.isExtraCredit() && !assignCategory.isExtraCredit())
+    					if(assignment.getPointsPossible() != null && !assignment.isExtraCredit())
     					{
     						BigDecimal bdPointsPossible = new BigDecimal(assignment.getPointsPossible().toString());
     						totalPossible = totalPossible.add(bdPointsPossible);
     						numOfAssignments ++;
     					}
-    					if(!assignment.isExtraCredit() && !assignCategory.isExtraCredit()){
+    					if(!assignment.isExtraCredit()){
     						numScored++;
     					}
     				}
