@@ -1,10 +1,6 @@
 package org.sakaiproject.sitestats.test.perf.mock;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -15,12 +11,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteAdvisor;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -312,6 +303,81 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public boolean isAllowedToJoin(String id) {
+		return false;
+	}
+
+	@Override
+	public boolean isUserLoggedIn() {
+		return false;
+	}
+
+	@Override
+	public String getJoinGroupId(String id) {
+		return null;
+	}
+
+	@Override
+	public boolean isCurrentUserMemberOfSite(String id) {
+		return false;
+	}
+
+	@Override
+	public boolean isLimitByAccountTypeEnabled(String id) {
+		return false;
+	}
+
+	@Override
+	public boolean getBooleanSiteProperty(String id, String propertyName) {
+		return false;
+	}
+
+	@Override
+	public boolean isJoinNotificationToggled(String id) {
+		return false;
+	}
+
+	@Override
+	public LinkedHashSet<String> getAllowedJoinableAccountTypeCategories() {
+		return null;
+	}
+
+	@Override
+	public List<String> getAllowedJoinableAccountTypes() {
+		return null;
+	}
+
+	@Override
+	public List<AllowedJoinableAccount> getAllowedJoinableAccounts() {
+		return null;
+	}
+
+	@Override
+	public boolean isGlobalJoinGroupEnabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isGlobalJoinNotificationEnabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isGlobalJoinExcludedFromPublicListEnabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isGlobalJoinLimitByAccountTypeEnabled() {
+		return false;
+	}
+
+	@Override
+	public boolean isGlobalJoinFromSiteBrowserEnabled() {
+		return false;
+	}
+
+	@Override
 	public boolean allowUnjoinSite(String id) {
 		// TODO Auto-generated method stub
 		return false;
@@ -360,6 +426,11 @@ public class MockSiteService implements SiteService {
 			String criteria, Map<String, String> propertyCriteria,
 			SortType sort, PagingPosition page, boolean requireDescription) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page) {
 		return null;
 	}
 
