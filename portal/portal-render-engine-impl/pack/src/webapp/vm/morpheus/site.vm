@@ -1,11 +1,12 @@
 <!--//START VM site.vm -->
 #parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
-        <span style="position:absolute;top:5px;left:5px;padding:5px;background:rgba(255,255,255,.75);color:#000;border:1px solid #000">Morpheus</span>
+        #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
         <noscript>
             <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
         </noscript>
         
+        ## Might take this out. Leaving it for now.
         #if ( ${portal_add_mobile_link} )
             <span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
         #end
