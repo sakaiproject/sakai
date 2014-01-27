@@ -34,6 +34,20 @@ public class SiteActivityImpl implements SiteActivity, Serializable {
 	private String	eventId;
 	private long	count;
 
+	@Override
+	public int compareTo(SiteActivity other) {
+		int val = siteId.compareTo(other.getSiteId());
+		if (val != 0) return val;
+		val = eventId.compareTo(other.getEventId());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(count - other.getCount());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	} 
+	
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof SiteActivityImpl)) return false;

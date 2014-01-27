@@ -104,4 +104,11 @@ public interface EventRegistryService {
 	 */
 	public List<String> getServerEventIds();
 
+	/**
+	 * Is the supplied event id a valid one.
+	 * @param eventId The event id. Eg: site.visit.
+	 * @return <code>true</code> if it's known about by site stats.
+	 */
+	public boolean isRegisteredEvent(String eventId);
+
 }

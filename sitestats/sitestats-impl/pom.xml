@@ -97,6 +97,11 @@
             <artifactId>commons-pool</artifactId>
         </dependency>
         <dependency>
+            <groupId>commons-dbcp</groupId>
+            <artifactId>commons-dbcp</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
@@ -169,16 +174,17 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId> 
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <!-- Stuck at 4.4 https://jira.springsource.org/browse/SPR-5145 -->
+            <version>4.11</version>
+        </dependency>
+        <!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc14</artifactId>
             <scope>test</scope> </dependency> -->
         <dependency>
             <groupId>dom4j</groupId>
@@ -216,6 +222,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.9.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.mock</groupId>
             <artifactId>sakai-mock</artifactId>
             <scope>test</scope>
@@ -236,13 +248,30 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
         </dependency>
-        
+
         <dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
-		
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
     </dependencies>
+    <build>
+
+        <resources>
+            <resource>
+                <directory>src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+                <excludes>
+                    <exclude>**/web.xml</exclude>
+                </excludes>
+            </resource>
+            <resource>
+                <directory>src/bundle</directory>
+            </resource>
+        </resources>
+    </build>
 
     <profiles>
         <profile>
@@ -284,12 +313,6 @@
                             <include>**/*.properties</include>
                         </includes>
                     </testResource>
-                    <testResource>
-                        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
-                        <includes>
-                            <include>hbm-db.xml</include>
-                        </includes>
-                    </testResource>
                 </testResources>
             </build>
         </profile>
@@ -301,17 +324,6 @@
             </properties>
 
             <build>
-                <resources>
-                    <resource>
-                        <directory>src/java</directory>
-                        <includes>
-                            <include>**/*.xml</include>
-                        </includes>
-                        <excludes>
-                            <exclude>**/web.xml</exclude>
-                        </excludes>
-                    </resource>
-                </resources>
 
                 <!-- Unit testing -->
                 <plugins>
@@ -333,12 +345,6 @@
                         <includes>
                             <include>**/*.xml</include>
                             <include>**/*.properties</include>
-                        </includes>
-                    </testResource>
-                    <testResource>
-                        <directory>${basedir}/../sitestats-pack/src/webapp/WEB-INF</directory>
-                        <includes>
-                            <include>hbm-db.xml</include>
                         </includes>
                     </testResource>
                 </testResources>

@@ -32,6 +32,23 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 	private long duration;
 	private Date lastVisitStartTime;
 
+	@Override
+	public int compareTo(SitePresence other) {
+		int val = siteId.compareTo(other.getSiteId());
+		if (val != 0) return val;
+		val = userId.compareTo(other.getUserId());
+		if (val != 0) return val;
+		val = Long.signum(duration - other.getDuration());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = lastVisitStartTime.compareTo(other.getLastVisitStartTime());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	}
+
+	@Override
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof SitePresenceImpl)) return false;
@@ -45,6 +62,7 @@ public class SitePresenceImpl implements SitePresence, Serializable {
 				&& lastVisitStartTime == other.getLastVisitStartTime();
 	}
 
+	@Override
 	public int hashCode() {
 		if(siteId == null) return Integer.MIN_VALUE;
 		String hashStr = this.getClass().getName() + ":" 

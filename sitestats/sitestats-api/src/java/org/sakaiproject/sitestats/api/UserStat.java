@@ -2,7 +2,11 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 
-public interface UserStat {
+/**
+ * This must be {@link java.lang.Comparable} so that the updates can be sorted before being inserted into the database
+ * to avoid deadlocks.
+ */
+public interface UserStat extends Comparable<UserStat> {
 	
 	/** Get the db row id. */
 	public long getId();

@@ -21,9 +21,11 @@ package org.sakaiproject.sitestats.api;
 
 /**
  * Represents a record from the SST_RESOURCES table.
+ * This must be {@link java.lang.Comparable} so that the updates can be sorted before being inserted into the database
+ * to avoid deadlocks.
  * @author Nuno Fernandes
  */
-public interface ResourceStat extends Stat{
+public interface ResourceStat extends Stat, Comparable<ResourceStat>{
 	/** Get the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */
 	public String getResourceRef();
 	/** Set the the resource reference (eg. '/content/group/site_id/filename.txt') this record refers to. */

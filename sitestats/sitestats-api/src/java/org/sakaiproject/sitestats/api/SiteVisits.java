@@ -18,8 +18,11 @@
  */
 package org.sakaiproject.sitestats.api;
 
-
-public interface SiteVisits extends Stat {
+/**
+ * This must be {@link java.lang.Comparable} so that the updates can be sorted before being inserted into the database
+ * to avoid deadlocks.
+ */
+public interface SiteVisits extends Stat, Comparable<SiteVisits> {
 	/** Get the total visits for this context and date. */
 	public long getTotalVisits();
 	

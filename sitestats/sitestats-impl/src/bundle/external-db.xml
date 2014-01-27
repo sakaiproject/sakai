@@ -9,7 +9,7 @@
 		<property name="mappingResources" ref="org.sakaiproject.sitestats.HibernateMappings"/>
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
 		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
-		<property name="schemaUpdate" value="@{sitestats.externalDb.auto.ddl}"/>		
+		<property name="schemaUpdate" value="@{sitestats.externalDb.auto.ddl}"/>
 		
 		<property name="cacheProvider">
 			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">

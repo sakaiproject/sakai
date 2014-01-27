@@ -34,6 +34,19 @@ public class UserStatImpl implements UserStat, Serializable {
 	private String userId;
 	private long count;
 
+	@Override
+	public int compareTo(UserStat other) {
+		int val = userId.compareTo(other.getUserId());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(count - other.getCount());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	}
+	
+	@Override
 	public boolean equals(Object o) {
 		if(o == null) return false;
 		if(!(o instanceof UserStatImpl)) return false;
@@ -44,6 +57,7 @@ public class UserStatImpl implements UserStat, Serializable {
 				&& count == other.getCount();
 	}
 
+	@Override
 	public int hashCode() {
 		String hashStr = this.getClass().getName() + ":" 
 				+ id

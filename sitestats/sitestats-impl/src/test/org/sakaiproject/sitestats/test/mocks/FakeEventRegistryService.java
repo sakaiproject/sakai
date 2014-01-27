@@ -120,4 +120,9 @@ public class FakeEventRegistryService implements EventRegistryService {
 		return new ArrayList<String>();
 	}
 
+	@Override
+	public boolean isRegisteredEvent(String eventId) {
+		return getEventIds().contains(eventId);
+	}
+
 }

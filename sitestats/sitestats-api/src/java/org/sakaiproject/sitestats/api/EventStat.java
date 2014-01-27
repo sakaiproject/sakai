@@ -20,9 +20,11 @@ package org.sakaiproject.sitestats.api;
 
 /**
  * Represents a record from the SST_EVENTS table.
+ * This must be {@link java.lang.Comparable} so that the updates can be sorted before being inserted into the database
+ * to avoid deadlocks.
  * @author Nuno Fernandes
  */
-public interface EventStat extends Stat {
+public interface EventStat extends Stat, Comparable<EventStat> {
 	/** Get the the event Id (eg. 'content.read') this record refers to. */
 	public String getEventId();
 	/** Set the the event Id (eg. 'content.read') this record refers to. */

@@ -20,7 +20,11 @@ package org.sakaiproject.sitestats.api;
 
 import java.util.Date;
 
-public interface SiteActivity {
+/**
+ * This must be {@link java.lang.Comparable} so that the updates can be sorted before being inserted into the database
+ * to avoid deadlocks.
+ */
+public interface SiteActivity extends Comparable<SiteActivity>{
 	/** Get the db row id. */
 	public long getId();
 	

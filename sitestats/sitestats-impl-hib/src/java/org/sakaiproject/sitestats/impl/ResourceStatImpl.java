@@ -68,6 +68,24 @@ public class ResourceStatImpl implements ResourceStat, Serializable {
 				&& date.equals(other.getDate());
 	}
 
+	@Override
+	public int compareTo(ResourceStat other) {
+		int val = siteId.compareTo(other.getSiteId());
+		if (val != 0) return val;
+		val = userId.compareTo(other.getUserId());
+		if (val != 0) return val;
+		val = resourceRef.compareTo(other.getResourceRef());
+		if (val != 0) return val;
+		val = resourceAction.compareTo(other.getResourceAction());
+		if (val != 0) return val;
+		val = date.compareTo(other.getDate());
+		if (val != 0) return val;
+		val = Long.signum(count - other.getCount());
+		if (val != 0) return val;
+		val = Long.signum(id - other.getId());
+		return val;
+	}
+
 	public int hashCode() {
 		if(siteId == null) return Integer.MIN_VALUE;
 		String hashStr = this.getClass().getName() + ":" 
