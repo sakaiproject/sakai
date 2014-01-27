@@ -22,6 +22,46 @@
 	#end
 	#if ($noEvent=="true")
 		## this event doesn't exist. show nothing.
+		
+	#elseif ($notOpenEvent=="true")
+		## Permission error occured. Don't show event details but show navigations.
+		<form name="navigatorform" action="#toolForm("$action")" method="post">
+		<div class="navPanel">
+			<div class="itemNav" >
+				#if ($!prevAct)
+					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
+				#else
+					<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
+				#end
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+				<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+				#if ($!nextAct)
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
+				#else
+				<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
+				#end
+			</div>
+		</div>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	<h3>$validator.escapeHtml($event.getDisplayName())</h3>
+		<div class="itemNav" >
+					<form name="navigatorform" action="#toolForm("$action")" method="post" class="inlineForm">
+						#if ($!prevAct)
+						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" />
+						#else
+						<input type="submit" name="eventSubmit_doPrev_activity" value="$tlang.getString('det.lasact')" disabled="disabled" />
+						#end
+						<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+						<a href="#" onclick="location='#toolLink("$action" "doOk")';return false;"><input type="button" value="$tlang.getString("gen.backtolist")" /></a>
+						#if ($!nextAct)
+						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" />
+						#else
+						<input type="submit" name="eventSubmit_doNext_activity" value="$tlang.getString('det.nexact')" disabled="disabled" />
+						#end
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>	
+		</div>
 	#else
 	<form name="navigatorform" action="#toolForm("$action")" method="post">
 		<div class="navPanel">

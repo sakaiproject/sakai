@@ -55,6 +55,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
 import org.sakaiproject.calendar.cover.CalendarService;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
 import org.sakaiproject.calendar.tool.CalendarActionState.LocalEvent;
 import org.sakaiproject.cheftool.Context;
@@ -2204,7 +2205,7 @@ extends VelocityPortletStateAction
 	
 	private static final String EVENT_CONTEXT_VAR = "event";
 	private static final String NO_EVENT_FLAG_CONTEXT_VAR = "noEvent";
-	
+	private static final String NOT_OPEN_EVENT_FLAG_CONTEXT_VAR = "notOpenEvent";
 	//
 	// These are variables used in the context for communication between this
 	// action class and the Velocity template.
@@ -2948,13 +2949,19 @@ extends VelocityPortletStateAction
 					entityId.append( (CalendarService.getCalendar(calEvent.getCalendarReference())).getContext() );
 					entityId.append( EntityReference.SEPARATOR );
 					entityId.append( assignmentId );
-					ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
-					if (ret != null && ret.getEntityData() != null) {
-						Object returnData = ret.getEntityData().getData();
-						assignData = (Map<String, Object>)returnData;
-					}
-					context.put("assignmenturl", (String) assignData.get("assignmentUrl"));
-					context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
+					try{
+						ActionReturn ret = entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);
+						if (ret != null && ret.getEntityData() != null) {
+							Object returnData = ret.getEntityData().getData();
+							assignData = (Map<String, Object>)returnData;
+						}
+						context.put("assignmenturl", (String) assignData.get("assignmentUrl"));
+						context.put("assignmentTitle", (String) assignData.get("assignmentTitle"));
+					}catch(SecurityException e){
+						context.put(ALERT_MSG_KEY,rb.getString("java.alert.opendate"));
+						context.put(NOT_OPEN_EVENT_FLAG_CONTEXT_VAR, TRUE_STRING);
+						return;
+ 					}
 				}
 						
 				
