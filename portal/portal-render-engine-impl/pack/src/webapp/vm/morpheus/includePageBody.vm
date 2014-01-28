@@ -3,15 +3,18 @@
 ##
 ##
 <!--//START VM includePageBody.vm -->
+
 #if ( $sitePages.pageMaxIfSingle )
     
     #if ( $sitePages.pageNavToolsCount > 1 ) 
         <main id="$pageWrapperClass" role="main">
+            #parse("/vm/morpheus/snippets/sitestatus-snippet.vm")
             <div id="innercontent">
     #end
     
 #else
     <main id="$pageWrapperClass" role="main">
+        #parse("/vm/morpheus/snippets/sitestatus-snippet.vm")  
         <div id="innercontent">
 #end
 
