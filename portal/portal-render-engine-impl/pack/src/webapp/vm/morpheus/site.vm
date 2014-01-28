@@ -43,7 +43,7 @@
         
         <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="container portal outer minimize-site-nav" #else class="container portal outer" #end>
             ## Skip Nav
-            #parse("/vm/morpheus/snippets/skipnav-snippet.vm")
+            #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
             <div #if ( ${tabsSites} ) class="header max ${logoSiteClass}" #else class="header min ${logoSiteClass}" #end>
                 
