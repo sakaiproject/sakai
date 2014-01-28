@@ -2,18 +2,28 @@
 ## the Site Tabs part of the standard view
 ##
 ##
+
 #if ( ${pageColumn0Tools} ) 
+    
     #foreach ( $tool in $pageColumn0Tools ) 
+
         #if ( $tool.breadcrumbs ) 
             #set ($portalBreadCrumbs = $tool.breadcrumbs ) 
         #end
+
     #end
+    
 #end
+
 #foreach ( $site in $tabsSites.tabsSites)
+
     #if (${site.isCurrentSite} and  $site.isChild )
         #set ($portalPwd = $site.pwd)
+
     #end
+    
 #end
+
 <!--//START VM includeTabs.vm -->
     <div class="${tabsCssClass}">
         <div id="maxToolsInt" class="hidden">$maxToolsInt</div>
@@ -21,7 +31,7 @@
         <div id="siteNav">
             <!-- login component -->
             <div id="mastLogin">
-                $portalLinks
+               
                 #if (!${loginTopLogin})
                 
                     #if ($viewAsStudentLink)
@@ -33,11 +43,12 @@
                             
                                 #if ($roleswapdropdown)
                                     <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
-                                    <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>   
+                                    <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
                                     #foreach( $role in $siteRoles)   
-                                        <option value="$switchRoleUrl$role$panelString">$role</option>       
+                                        <option value="$switchRoleUrl$role$panelString">$role</option>
                                     #end
                                     </select>
+                                
                                 #else
                                 
                                     <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
@@ -45,12 +56,14 @@
                                 
                             #end ##if ($roleSwitchState)
                         </div>
+                        
                     #end ##if ($viewAsStudentLink)
                     
                     <nav id="loginLinks">
                         <span class="topnav">
                             <span class="nav-menu" aria-haspopup="true">
                                 <ul class="nav-submenu subnav" role="menu">
+                                
                                     #if (${displayUserloginInfo})
                                     
                                         #if (${tabsSites.profileToolUrl})
@@ -60,10 +73,13 @@
                                         #end
                                         
                                     #else
+                                    
                                         #if (${tabsSites.profileToolUrl})
                                             <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><span class="toolMenuIcon submenuitem-profile"> </span><span>${rloader.sit_profile}</span></a></span></li>
                                         #end
+                                        
                                     #end ##if (${displayUserloginInfo})
+                                    
                                     
                                     #if (${tabsSites.prefsToolUrl})
                                         <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true" ><span class="toolMenuIcon submenuitem-prefs"> </span>${rloader.sit_preferences}</a></span></li>
@@ -75,7 +91,7 @@
                                             <li class="submenuitem"><span><a id="addNewSiteLink" role="menuitem" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&panel=Shortcut&sakai_action=doNew_site&sakai.state.reset=true"><span class="toolMenuIcon submenuitem-new-site"> </span>${rloader.sit_newsite}</a></span></li>
                                         #end
                                     
-                                    #end
+                                    #end ##if (${tabsSites.prefsToolUrl})
                                     
                                     #if (${tabsSites.tutorial})
                                         <li class="submenuitem"><span><a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});"><span class="toolMenuIcon submenuitem-tutorial"> </span>${rloader.sit_tutorial}</a></span></li>
@@ -88,7 +104,7 @@
                         
                         #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
                         
-                        #end
+                        ##end
                     </nav> <!-- end of nav#loginLinks-->
                 #else ## else of #if (!${loginTopLogin})
                     
@@ -196,7 +212,7 @@
                                 #end
                             </ul>
                         #end
-                    </div><!--// end of div#otherSitesCategorWrap -->
+                    </div><!--// end of #otherSitesCategorWrap -->
                 #else
                     <div id="otherSiteMenuWrap">
                          <ul id="otherSiteList" role="navigation">
