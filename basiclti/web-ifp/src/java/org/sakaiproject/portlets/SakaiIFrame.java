@@ -205,14 +205,14 @@ public class SakaiIFrame extends GenericPortlet {
 			Map<String, Object> content = null;
 			Map<String, Object> tool = null;
 			Long key = getContentIdFromSource(source);
-			if ( key < 1 ) {
+			if ( key == null ) {
 				out.println(rb.getString("get.info.notconfig"));
 				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
 				return;
 			}
 			try {
 				content = m_ltiService.getContent(key);
-				// If we are supposed ot popup (per the content), do so and optionally
+				// If we are supposed to popup (per the content), do so and optionally
 				// copy the calue into the placement to communicate with the portal
 				popup = getLongNull(content.get("newpage")) == 1;
 				if ( oldPopup != popup ) {
@@ -282,7 +282,7 @@ public class SakaiIFrame extends GenericPortlet {
 			// find the right LTIContent object for this page
 			String source = placement.getPlacementConfig().getProperty(SOURCE);
 			Long key = getContentIdFromSource(source);
-			if ( key < 1 ) {
+			if ( key == null ) {
 				out.println(rb.getString("get.info.notconfig"));
 				M_log.warn("Cannot find content id placement="+placement.getId()+" source="+source);
 				return;
@@ -391,7 +391,7 @@ public class SakaiIFrame extends GenericPortlet {
 		int pos = source.indexOf("/content:");
 		if ( pos < 1 ) return null;
 		pos = pos + "/content:".length();
-		if ( pos < source.length()-1 ) {
+		if ( pos < source.length() ) {
 			String sContentId = source.substring(pos);
 			try {
 				Long key = new Long(sContentId);
