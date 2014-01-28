@@ -75,7 +75,6 @@
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
         <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
         <property name="contentTypeImageService" ref="org.sakaiproject.content.api.ContentTypeImageService"/>
-		<property name="clusterService" ref="org.sakaiproject.cluster.api.ClusterService"/>
 		<!-- Hibernate related -->
 		<property name="sessionFactory" ref="@{sitestats.db}SitestatsSessionFactory" />
 	</bean>
