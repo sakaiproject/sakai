@@ -40,6 +40,8 @@
 
 #parse("/vm/neoskin/includePage.vm")
 
+#parse("/vm/neoskin/includeAnalytics.vm")
+
 	</div>
 </div>
 <!-- end includeSiteNav -->

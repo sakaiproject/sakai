@@ -132,6 +132,8 @@
 
 #parse("/vm/neoskin/includePageWithNav.vm")
 
+#parse("/vm/neoskin/includeAnalytics.vm")
+
 	</div>
 </div>
 <!-- end includeSiteNav -->
