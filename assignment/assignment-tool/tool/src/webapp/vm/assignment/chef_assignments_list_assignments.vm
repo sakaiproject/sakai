@@ -521,29 +521,10 @@ function allowClick(object)
 								   $!assignment.getStatus()
 								#else
 									#if ($!submission)
-										#if($assignment.isPeerAssessmentOpen())
-											##student has submitted, check if the assignment is peer assessment
-											##and if the time is available
-											#set($totalReviews = $peerAssessmentItemsMap.get($assignment.id))
-											#if($totalReviews == -1)
-												##something is wrong here, don't show anything to the user, just show the peer review start date (could be waiting for the job to run)
-												$tlang.getFormattedMessage("peerassessment.reviewStartsOn", $!assignment.closeTime.toStringLocalFull())
-											#elseif($totalReviews == 0)
-												##user has submitted every review already
-												$tlang.getString("gen.peerreview.subm4")
-											#else
-												##user still has at least one review to submit
-												<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)")">$tlang.getFormattedMessage("gen.peerreview.todo", $totalReviews, $!assignment.peerAssessmentPeriod.toStringLocalFull())</a>
-											#end
-										#elseif ($assignment.isPeerAssessmentPending() && $submission.getSubmitted())
-											##student has submitted but the review period hasn't started
-											$tlang.getFormattedMessage("peerassessment.reviewStartsOn", $!assignment.closeTime.toStringLocalFull())
-										#else
-											$submission.getStatus()
-											#if ($submission.getSubmitted()) 
-												#if ($assignment.getDueTime() && $submission.getTimeSubmitted() && $submission.getTimeSubmitted().after($assignment.getDueTime()))
-                                                                                        	<span class="highlight">$tlang.getString("gen.late2")</span>
-                                                                                	#end
+										$submission.getStatus()
+										#if ($submission.getSubmitted()) 
+											#if ($assignment.getDueTime() && $submission.getTimeSubmitted() && $submission.getTimeSubmitted().after($assignment.getDueTime()))
+                                            	<span class="highlight">$tlang.getString("gen.late2")</span>
 											#end
 										#end
 									#else
@@ -619,6 +600,162 @@ function allowClick(object)
 								</td>
 							#end
 						</tr>
+						<!-- Peer assessment rows -->
+						#if($assignment.getAllowPeerAssessment() && !($allowAddAssignment && $!view.equals('lisofass1')))
+							#set($reviews = $peerAssessmentItemsMap.get($assignment.id))
+							<!-- only show to "students" -->
+							<!-- peer assessment overview row -->
+							<tr>
+								<!-- attachments col -->
+								<td></td>
+								<!-- title col -->
+								<td>
+									<span class="indnt1">
+										$tlang.getString("peerAssessmentName")
+									</span>
+								</td>
+								#if ($!groups && $!allowGradeSubmission)
+									<!-- groups col -->
+									<td></td>
+								#end
+								<!-- status col -->
+								<td>
+									#if ($submission.getSubmitted())
+										#if($assignment.isPeerAssessmentPending())
+											<!-- peer review hasn't opened and user submitted -->
+											$tlang.getString("peerassessment.notOpen")
+										#else
+											<!-- peer review is open (or over) and user submitted 
+												status will be "not started", "incomplete", or "submitted"
+											-->
+											
+											#if(!$reviews || $reviews.size() == 0)
+												<!-- something is wrong here, don't show anything to the user, just show not open -->
+												$tlang.getString("peerassessment.notOpen")
+											#else
+												#set($completedReviews = true)
+												#set($anyDraftReviews = false)
+												#set($anyCompleteReviews = false)
+												#foreach ($review in $reviews)
+													#if(!$review.isSubmitted())
+														#set($completedReviews = false)		
+														#if($review.isDraft())
+															#set($anyDraftReviews = true)
+														#end
+													#else
+														#set($anyCompleteReviews = true)	
+													#end
+												#end
+												#if($completedReviews)
+													<!-- all reviews are completed -->
+													$tlang.getString("peerassessment.submitted")
+												#elseif($anyDraftReviews || $anyCompleteReviews)
+													<!-- some are still in draft -->
+													$tlang.getString("peerassessment.incomplete")
+												#else
+													<!-- user hasn't started -->
+													$tlang.getString("peerassessment.notStarted")
+												#end												
+											#end
+										#end
+									#else
+										<!-- submission required -->
+										$tlang.getString("peerassessment.submissionReq")
+									#end
+								</td>
+								<!-- open col -->
+								<td>
+									$!assignment.closeTime.toStringLocalFull()
+								</td>
+								<!-- due col -->
+								<td>
+									$!assignment.peerAssessmentPeriod.toStringLocalFull()
+								</td>
+								<!-- the following are empty columns as place holders -->
+								#if ($!allowGradeSubmission)
+									#if ($!view.equals('lisofass1'))
+									#if ($!showNumSubmissionColumn)
+										<!-- num submissions col -->
+										<td></td>
+									#end
+									#end
+								#end
+								#if ($withGrade && $!allowGradeSubmission)
+									<!-- grade scale col -->
+									<td></td>
+								#end
+								#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
+									<!-- remove col -->
+									<td></td>
+								#end
+							</tr>
+						
+							<!-- end peer assessment overview row -->
+							<!-- peer assessment items rows->
+							#if ($submission.getSubmitted() && $assignment.isPeerAssessmentOpen() && $reviews)
+								<!-- peer assessment is open and user has submitted, show item details
+								#set ($reviewCount = 0)
+								#foreach ($review in $reviews)
+									#set ($reviewCount = $reviewCount + 1)
+									<tr>
+										<!-- attachments col -->
+										<td></td>
+										<!-- title col -->
+										<td>
+											<span class="indnt2">
+												#if($review.isSubmitted())
+													$tlang.getFormattedMessage("peerassessment.student", $reviewCount)&nbsp;<img src="/library/image/silk/accept.png"/>
+												#else
+													<a href="#toolLinkParam("$action" "doEdit_review" "assignmentId=$validator.escapeUrl($assignmentReference)&submissionId=$validator.escapeUrl($review.getSubmissionId())")">
+														$tlang.getFormattedMessage("peerassessment.student", $reviewCount)
+													</a>
+												#end
+											</span>
+										</td>
+										#if ($!groups && $!allowGradeSubmission)
+											<!-- groups col -->
+											<td></td>
+										#end
+										<!-- status col -->
+										<td>
+											#if($review.isSubmitted())
+												$tlang.getString("peerassessment.submitted")
+											#elseif($review.isDraft())
+												$tlang.getString("peerassessment.draftInProgress")
+											#else
+												$tlang.getString("peerassessment.notStarted")
+											#end
+										</td>
+										<!-- open col -->
+										<td>
+										</td>
+										<!-- due col -->
+										<td>
+										</td>
+										<!-- the following are empty columns as place holders -->
+										#if ($!allowGradeSubmission)
+											#if ($!view.equals('lisofass1'))
+											#if ($!showNumSubmissionColumn)
+												<!-- num submissions col -->
+												<td></td>
+											#end
+											#end
+										#end
+										#if ($withGrade && $!allowGradeSubmission)
+											<!-- grade scale col -->
+											<td></td>
+										#end
+										#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
+											<!-- remove col -->
+											<td></td>
+										#end
+									</tr>
+								#end
+							#end
+						<!-- End peer assessment items rows->
+						
+						<!-- End Peer assessment rows -->
+						#end
 				#end
 			</table>
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))

@@ -71,4 +71,8 @@ public class PeerAssessmentItem implements Serializable{
 	public void setSubmitted(boolean submitted) {
 		this.submitted = submitted;
 	}
+	
+	public boolean isDraft(){
+		return !submitted && (getScore() != null || (getComment() != null && !"".equals(getComment().trim())));
+	}
 }

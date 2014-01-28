@@ -93,7 +93,7 @@ function handleEnterKeyPress(ev)
 					<span class="highlight"> -
 					$tlang.getString("gen.reviewing"):&nbsp;
 					#if(!$view_only && $assignment.getPeerAssessmentAnonEval())
-						$tlang.getString("gen.student") #$!anonNumber
+						$tlang.getString("gen.student")
 					#else
 						#set ($submitterNames = "")
 						## replace it with submitter sort names
