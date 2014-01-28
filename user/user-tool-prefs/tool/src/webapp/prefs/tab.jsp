@@ -90,13 +90,16 @@ jQuery(document).ready(function () {
         <h:outputText value="#{msgs.prefs_mouse_instructions}" escape="false"/>
     </p>
     <p>
-        <h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>  <h:outputText styleClass="skip" value="#{msgs.prefs_multitples_instructions_scru}" escape="false"/>
+        <h:outputText value="#{msgs.prefs_keyboard_instructions}" escape="false"/>
     </p>
+    <p>
+        <h:outputText styleClass="skip" value="#{msgs.prefs_multitples_instructions_scru}" escape="false"/>
     <p>
         <h:outputText value="#{msgs.prefs_multitples_instructions}" escape="false"/>
     </p>
 
     <div id="movePanel">
+        <h4 class="skip"><h:outputText value="#{msgs.prefs_multitples_instructions_panel_title}" escape="false"/></h4>
         <div id="movePanelTop" style="display:none"><a href="#" accesskey="6" title="<h:outputText value="#{msgs.tabs_move_top}"/>"><h:graphicImage value="prefs/to-top.png" alt="" /><h:outputText styleClass="skip" value="#{msgs.tabs_move_top}"/></a></div>
         <div id="movePanelTopDummy" class="dummy"><h:graphicImage value="prefs/to-top-dis.png" alt="" /></div>
         <div id="movePanelLeftRight">
