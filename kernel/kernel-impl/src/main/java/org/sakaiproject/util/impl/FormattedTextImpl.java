@@ -24,6 +24,7 @@ package org.sakaiproject.util.impl;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URI;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1061,21 +1062,32 @@ public class FormattedTextImpl implements FormattedText
     /* (non-Javadoc)
      * @see org.sakaiproject.util.api.FormattedText#validateURL(java.lang.String)
      */
+
+    private static final String PROTOCOL_PREFIX = "http:";
+    private static final String HOST_PREFIX = "http://127.0.0.1";
+    private static final String ABOUT_BLANK = "about:blank";
+
     public boolean validateURL(String urlToValidate) {
         if (StringUtils.isBlank(urlToValidate)) return false;
+
+		if ( ABOUT_BLANK.equals(urlToValidate) ) return true;
+
+        // Check if the url is "Escapable" - run through the URL-URI-URL gauntlet
+        String escapedURL = sanitizeHrefURL(urlToValidate);
+        if ( escapedURL == null ) return false;
 
         // For a protocol-relative URL, we validate with protocol attached 
         // RFC 1808 Section 4
         if ((urlToValidate.startsWith("//")) && (urlToValidate.indexOf("://") == -1))
         {
-            urlToValidate = "http:" + urlToValidate;
+            urlToValidate = PROTOCOL_PREFIX + urlToValidate;
         }
 
         // For a site-relative URL, we validate with host name and protocol attached 
         // SAK-13787 SAK-23752
         if ((urlToValidate.startsWith("/")) && (urlToValidate.indexOf("://") == -1))
         {
-            urlToValidate = "http://127.0.0.1:8080" + urlToValidate;
+            urlToValidate = HOST_PREFIX + urlToValidate;
         }
 
         // Validate the url
@@ -1083,6 +1095,69 @@ public class FormattedTextImpl implements FormattedText
         return urlValidator.isValid(urlToValidate);
     }
 
+    /* (non-Javadoc)
+     * @see org.sakaiproject.util.api.FormattedText#sanitizeHrefURL(java.lang.String)
+     */
+    public String sanitizeHrefURL(String urlToSanitize) {
+        if ( urlToSanitize == null ) return null;
+        if (StringUtils.isBlank(urlToSanitize)) return null;
+		if ( ABOUT_BLANK.equals(urlToSanitize) ) return ABOUT_BLANK;
+
+        boolean trimProtocol = false;
+        boolean trimHost = false;
+        // For a protocol-relative URL, we validate with protocol attached 
+        // RFC 1808 Section 4
+        if ((urlToSanitize.startsWith("//")) && (urlToSanitize.indexOf("://") == -1))
+        {
+            urlToSanitize = PROTOCOL_PREFIX + urlToSanitize;
+            trimProtocol = true;
+        }
+
+        // For a site-relative URL, we validate with host name and protocol attached 
+        // SAK-13787 SAK-23752
+        if ((urlToSanitize.startsWith("/")) && (urlToSanitize.indexOf("://") == -1))
+        {
+            urlToSanitize = HOST_PREFIX + urlToSanitize;
+            trimHost = true;
+        }
+
+        // KNL-1105
+        try {
+            URL rawUrl = new URL(urlToSanitize);
+            URI uri = new URI(rawUrl.getProtocol(), rawUrl.getUserInfo(), rawUrl.getHost(), 
+                rawUrl.getPort(), rawUrl.getPath(), rawUrl.getQuery(), rawUrl.getRef());
+            URL encoded = uri.toURL();
+            String retval = encoded.toString();
+
+            // Un-trim the added bits
+            if ( trimHost && retval.startsWith(HOST_PREFIX) ) 
+            {
+                retval = retval.substring(HOST_PREFIX.length());
+            }
+
+            if ( trimProtocol && retval.startsWith(PROTOCOL_PREFIX) ) 
+            {
+                retval = retval.substring(PROTOCOL_PREFIX.length());
+            }
+
+            // http://stackoverflow.com/questions/7731919/why-doesnt-uri-escape-escape-single-quotes
+            // We want these to be usable in JavaScript string values so we map single quotes
+            retval = retval.replace("'", "%27");
+            // We want anchors to work
+            retval = retval.replace("%23", "#");
+            // Sorry - these just need to come out - they cause to much trouble
+            // Note that ampersand is not encoded as it is used for parameters.
+            retval = retval.replace("&#", "");
+            retval = retval.replace("%25","%");
+            return retval;
+        } catch ( java.net.URISyntaxException e ) {
+            M_log.info("Failure during encode of href url: " + e);
+            return null;
+        } catch ( java.net.MalformedURLException e ) {
+            M_log.info("Failure during encode of href url: " + e);
+            return null;
+        }
+    }
 
     // PRIVATE STUFF
 

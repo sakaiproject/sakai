@@ -367,4 +367,25 @@ public interface FormattedText {
      */
     public boolean validateURL(String urlToValidate);
 
+    /**
+     * General utility to escape a user-entered URL for use as an attribute.
+     * The idea is that we have many places that put user-entered URLs
+     * into src="URL" or href="URL" places within our markup.  There
+     * are many "valid" URLs that are dangerous unless escaped.
+     * 
+     * Note: java.net.URLEncode.encode() is not sufficient for because
+     * it encodes the whole string including colons and slashes so
+     * http://www.sakaiproject.org/?x=Hello World becomes
+     * http%3A%2F%2Fwww.sakaiproject.org%2F%3Fx%3DHello%20World instead of
+     * http://www.sakaiproject.org/?x=Hello%20World
+     *
+     * java.net.URLEncode.encode() is designed for application/x-www-form-urlencoded
+     * data in forms and as the parameters on GET strings.  It is not suitable
+     * to encode entire URLs prior to embedding them in an href or src attribute.
+     * 
+     * @param urlToSanitize a URL that might be placed in href= or src=
+     * @return a properly escaped url
+     */
+    public String sanitizeHrefURL(String urlToSanitize);
+
 }

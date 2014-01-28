@@ -734,8 +734,65 @@ public class FormattedTextTest extends TestCase {
         assertTrue(result);
         result = formattedText.validateURL("http://localhost:8080/access/site/634cce7b-96da-4997-90b1-f99ea3c3973d");
         assertTrue(result);
+        result = formattedText.validateURL("http://127.0.0.1:8080/access/site/634cce7b-f99ea3c3973d");
+        assertTrue(result);
+        result = formattedText.validateURL("//www.dr-chuck.edu/");
+        assertTrue(result);
+        result = formattedText.validateURL("/access/zap123");
+        assertTrue(result);
+        result = formattedText.validateURL("about:blank");
+        assertTrue(result);
+        result = formattedText.validateURL("ftp://ftp.umich.edu/");
+        assertTrue(result);
+
+        // Some false things...
+        result = formattedText.validateURL("www.dr-chuck.com"); 
+        assertFalse(result);
         result = formattedText.validateURL("XXXXXXXX");
         assertFalse(result);
+    }
+
+    public void testEscapeHrefUrl() {
+        // https://jira.sakaiproject.org/browse/KNL-1105
+        String output = null;
+        output = formattedText.sanitizeHrefURL("http://www.sakaiproject.org/?x=Hello World&y=12");
+        assertTrue(output,"http://www.sakaiproject.org/?x=Hello%20World&y=12".equals(output));
+        output = formattedText.sanitizeHrefURL("http://www.abc.es#\"><script>");
+        assertTrue(output,"http://www.abc.es#%22%3E%3Cscript%3E".equals(output));
+        output = formattedText.sanitizeHrefURL("http://www.abc.es/page#anchor");
+        assertTrue(output,"http://www.abc.es/page#anchor".equals(output));
+        output = formattedText.sanitizeHrefURL("http://www.abc.es?x=2&y=3&#12;");
+        assertTrue(output,"http://www.abc.es?x=2&y=312;".equals(output));
+        output = formattedText.sanitizeHrefURL("http://nightly2.sakaiproject.org/portal/site/!gateway/page/!gateway-200/\"onmouseover='alert(\"xss\")'\"");
+        assertTrue(output,"http://nightly2.sakaiproject.org/portal/site/!gateway/page/!gateway-200/%22onmouseover=%27alert(%22xss%22)%27%22".equals(output));
+        output = formattedText.sanitizeHrefURL("http://www.abc.es/');alert('yo');");
+        assertTrue(output,"http://www.abc.es/%27);alert(%27yo%27);".equals(output));
+        output = formattedText.sanitizeHrefURL("about:blank");
+        assertTrue(output,"about:blank".equals(output));
+        output = formattedText.sanitizeHrefURL("ftp://ftp.umich.edu/");
+        assertTrue(output,"ftp://ftp.umich.edu/".equals(output));
+
+        // Try the prefixless ones...
+        output = formattedText.sanitizeHrefURL("//www.dr-chuck.com/");
+        assertTrue(output,"//www.dr-chuck.com/".equals(output));
+        output = formattedText.sanitizeHrefURL("/access/zap123");
+        assertTrue(output,"/access/zap123".equals(output));
+
+        // Things that fail
+        output = formattedText.sanitizeHrefURL("http://www.abc.es');alert('yo');");
+        assertNull(output);
+        output = formattedText.sanitizeHrefURL("www.abc.es");
+        assertNull(output);
+        output = formattedText.sanitizeHrefURL("wwwwwwwwww");
+        assertNull(output);
+        
+        //% charactesrs are valid and sanitize method should maintain them
+        output = formattedText.sanitizeHrefURL("http://www.server.com/path%20with%20whitespaces/");
+        assertTrue(output,"http://www.server.com/path%20with%20whitespaces/".equals(output));
+
+        output = formattedText.sanitizeHrefURL("http://www.server.com/path%25with%2Epercent/");
+        assertTrue(output,"http://www.server.com/path%25with%2Epercent/".equals(output));
+        
     }
 
 

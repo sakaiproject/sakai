@@ -168,4 +168,11 @@ public class FormattedText {
         return getFormattedText().validateURL(urlToValidate);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#sanitizeHrefURL(String)
+     */
+    public static String sanitizeHrefURL(String urlToSanitize) {
+        return getFormattedText().sanitizeHrefURL(urlToSanitize);
+    }
+
 }

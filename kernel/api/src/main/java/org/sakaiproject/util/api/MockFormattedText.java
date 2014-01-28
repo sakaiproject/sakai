@@ -177,4 +177,9 @@ public class MockFormattedText implements FormattedText {
         return false;
     }
 
+    public String sanitizeHrefURL(String urlToSanitize) {
+        log.warn(WARNING);
+        return urlToSanitize;
+    }
+
 }
