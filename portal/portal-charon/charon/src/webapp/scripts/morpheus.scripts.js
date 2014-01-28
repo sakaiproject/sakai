@@ -10,12 +10,12 @@ var dhtml_view_sites = function(){
     // then recast the function to the post initialized state which will run from then on
     dhtml_view_sites = function(){
         if (jQuery('#selectSite').css('display') == 'none') {
-            jQuery('div#selectSite div').show();
-            jQuery('div#selectSite').slideDown('fast', function(){
+            jQuery('#selectSite div').show();
+            jQuery('#selectSite').slideDown('fast', function(){
                 // check if $('#otherSiteList li').length > some number, then show search
                 // otherwise not
-                   if(jQuery('div#otherSitesCategorWrap').height() > 300){
-                    $('div#otherSitesCategorWrap').height(300).css({overflow:"auto"});
+                   if(jQuery('#otherSitesCategorWrap').height() > 300){
+                    $('#otherSitesCategorWrap').height(300).css({overflow:"auto"});
                 }
 
 
@@ -78,8 +78,8 @@ var dhtml_view_sites = function(){
         }
         else {
             // hide the dropdown
-            jQuery('div#selectSite div').hide();
-            jQuery('div#selectSite').slideUp('fast'); // hide the box
+            jQuery('#selectSite div').hide();
+            jQuery('#selectSite').slideUp('fast'); // hide the box
             removeDHTMLMask()
             jQuery('#otherSiteTools').remove();
             jQuery('.selectedTab').unbind('click');
@@ -90,8 +90,8 @@ var dhtml_view_sites = function(){
 }
 
 function closeDrawer() {
-    jQuery('div#selectSite div').hide();
-    jQuery('div#selectSite').slideUp('fast'); // hide the box
+    jQuery('#selectSite div').hide();
+    jQuery('#selectSite').slideUp('fast'); // hide the box
     removeDHTMLMask()
     jQuery('#otherSiteTools').remove();
     jQuery('.selectedTab').unbind('click');
