@@ -1,0 +1,18 @@
+<nav id="skipNav">
+    <ul role="menu" class="skip">
+        #if ($siteNavHasAccessibilityURL)
+            <li role="menuitem">
+                <a href="$siteNavAccessibilityURL" class="skip internal" title="${rloader.sit_accessibility}" accesskey="0">${rloader.sit_accessibility}</a>
+            </li>
+        #end
+        <li role="menuitem">
+            <a href="#tocontent" class="skip internal" title="${rloader.sit_jumpcontent}" accesskey="c">${rloader.sit_jumpcontent}</a>
+        </li>
+        <li role="menuitem">
+            <a href="#totoolmenu" class="skip internal" title="${rloader.sit_jumptools}" accesskey="l">${rloader.sit_jumptools}</a>
+        </li>
+        <li role="menuitem">
+            <a href="#sitetabs" class="skip internal" title="${rloader.sit_jumpworksite}" accesskey="w">${rloader.sit_jumpworksite}</a>
+        </li>
+    </ul>
+</nav>
