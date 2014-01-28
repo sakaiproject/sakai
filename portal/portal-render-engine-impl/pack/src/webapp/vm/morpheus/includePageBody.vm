@@ -8,13 +8,13 @@
     
     #if ( $sitePages.pageNavToolsCount > 1 ) 
         <main id="$pageWrapperClass" role="main">
-            #parse("/vm/morpheus/snippets/sitestatus-snippet.vm")
+            #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
             <div id="innercontent">
     #end
     
 #else
     <main id="$pageWrapperClass" role="main">
-        #parse("/vm/morpheus/snippets/sitestatus-snippet.vm")  
+        #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")  
         <div id="innercontent">
 #end
 
@@ -106,16 +106,7 @@
                             ${responseBody}
                             <!-- End Buffered Body Tool Content -->
                         #else
-                            #if (${tool.hasRenderResult})
-                                <div class="portletMainWrap">
-                                    ${tool.toolRenderResult.getContent()}
-                                </div>
-                            #else
-                                <div class="portletMainWrap">
-                                    <iframe name="${tool.toolPlacementIDJS}" id="${tool.toolPlacementIDJS}" title="${tool.toolTitle}" class ="portletMainIframe"height="475" width="100%" src="${tool.toolUrl}?panel=Main">
-                                    </iframe>
-                                </div>
-                            #end
+                            #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
                         #end
                         <!-- end Tool Body -->
                     #end
