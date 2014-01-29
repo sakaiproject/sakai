@@ -366,6 +366,11 @@ function handleEnterKeyPress(ev)
 								#else
 									$tlang.getString("gradingsub.usethebel1")
 								#end
+								#if($assignment.getPeerAssessmentAnonEval())
+									<div class="highlight">
+										&nbsp;$tlang.getString("grading.reminder.anon")	
+									</div>
+								#end
 							</p>
 						#end
 						<table border="0"><tr><td>

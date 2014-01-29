@@ -149,6 +149,15 @@ function submitform(id)
 				#elseif ($submissionType==2)
 				 	$tlang.getString("stuviewsubm.assattonly")
 				#end
+				#if($assignment.getAllowPeerAssessment())
+					<div class="highlight">
+						#if($assignment.getPeerAssessmentAnonEval())
+				 			$tlang.getString("stuviewsubm.peerreviewanon")
+						#else
+				 			$tlang.getString("stuviewsubm.peerreview")
+						#end
+					</div>
+				#end
 			</p>	
 		#end
 	#end
