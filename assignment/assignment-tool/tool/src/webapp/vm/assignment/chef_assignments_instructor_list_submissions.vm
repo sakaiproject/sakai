@@ -701,7 +701,13 @@
 											</span>
 											</a>
 											#if($!item.getScoreDisplay().length() > 0 || $!item.getComment().trim().length() > 0)
-												<img src="/library/image/silk/accept.png"/>
+												<span class="highlight" #if($item.isRemoved()) style="text-decoration: line-through" #end>
+													#if($item.isDraft())
+														-&nbsp;$tlang.getString("gen.dra1")
+													#else
+														<img src="/library/image/silk/accept.png"/>
+													#end
+												</span>
 											#end
 											<br/>
 										#end
