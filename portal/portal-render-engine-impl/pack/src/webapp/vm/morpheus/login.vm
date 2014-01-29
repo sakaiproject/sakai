@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="$!{locale}">
     <head>
-        <!--//START VM login.vm -->
+        <!-- START VM login.vm -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <title>${pageTitle}</title>
@@ -84,6 +84,6 @@
                 </script>
 
             #end
-        <!--//END VM login.vm -->
+        <!-- END VM login.vm -->
     </body>
 </html>
