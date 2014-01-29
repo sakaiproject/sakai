@@ -9,7 +9,7 @@
 #parse("/vm/morpheus/includeStandardHead.vm")
     ## includes <html> 
     <body class="portalBody">
-        <!--//START VM page.vm -->
+        <!-- START VM page.vm -->
         #if ( $pageTop )
         <script>
             var sakaiPortalWindow = "";
@@ -23,6 +23,6 @@
                 #parse("/vm/morpheus/includePage.vm")
             </div>
         </div>
-        <!--//END VM page.vm -->
+        <!-- END VM page.vm -->
     </body>
 </html>
