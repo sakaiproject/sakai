@@ -250,7 +250,7 @@ function sakaiMinimizeNavigation(){
         $('#portalContainer').addClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').addClass('minimize-tool-nav');
+        $('#toolMenuWrap').addClass('minimize-tool-nav');
     }
     $('#toggleToolMax').addClass('hidden').removeClass('show');
     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
@@ -264,7 +264,7 @@ function sakaiRestoreNavigation(){
         $('#portalContainer').removeClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#container').removeClass('minimize-tool-nav');
+        $('#toolMenuWrap').removeClass('minimize-tool-nav');
     }
 	$('#toggleToolMax').addClass('show').removeClass('hidden');
     $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
