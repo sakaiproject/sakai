@@ -6,7 +6,7 @@
 ## Has Page Tabs
 ##
 ##
-<!--//START VM worksite.vm -->
+<!-- START VM worksite.vm -->
 #parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
         #if ( $pageTop )
@@ -35,6 +35,6 @@
                 #parse("/vm/morpheus/includePageWithNav.vm")
             </div>
         </div>
-        <!--//END VM worksite.vm -->
+        <!-- END VM worksite.vm -->
     </body>
 </html>
