@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="$!{locale}">
     <head>
-        <!--//START VM error.vm -->
+        <!-- START VM error.vm -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link href="/portal/styles/portalstyles.css" rel="stylesheet">
@@ -145,6 +145,6 @@
                 ${attribute.name} = ${attribute.value}
             #end
         </pre>
-    <!--//END VM error.vm -->
+    <!-- END VM error.vm -->
     </body>
 </html>

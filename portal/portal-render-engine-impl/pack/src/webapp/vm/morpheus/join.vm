@@ -32,7 +32,7 @@
             #end
         #end
     </head>
-    <!--//START VM join.vm -->
+    <!-- START VM join.vm -->
     <body class="portalBody">
         #if ( $pageTop )
             <script>
@@ -70,5 +70,5 @@
             </tr> 
         </table> 
     </body>
-    <!--//END VM join.vm -->
+    <!-- END VM join.vm -->
 </html>

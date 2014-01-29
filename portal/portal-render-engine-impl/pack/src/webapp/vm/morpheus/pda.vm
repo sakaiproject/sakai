@@ -43,7 +43,7 @@
         #end
     </head>
     <body class="portalBodyPDA">
-        <!--//START VM pda.vm -->
+        <!-- START VM pda.vm -->
         #if ( $pageTop )
             <script>
                 var sakaiPortalWindow = "";
@@ -274,6 +274,6 @@
             </div>
         </footer>
     </div>
-        <!--//END VM pda.vm -->
+        <!-- END VM pda.vm -->
     </body>
 </html>
