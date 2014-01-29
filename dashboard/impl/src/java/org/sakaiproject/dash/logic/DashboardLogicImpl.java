@@ -1319,7 +1319,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 	 * @param first
 	 */
 	protected void assignTask(String task, String serverId) {
-		logger.info("Dashboard task " + task + " being handled by server: " + serverId);
+		logger.debug("Dashboard task " + task + " being handled by server: " + serverId);
 		this.taskLockServerAssignments.put(task, serverId);
 		this.taskLockExpirationTimes.put(task, new Date(System.currentTimeMillis() + TASK_LOCK_EXPIRATION_PERIOD));
 	}

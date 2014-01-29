@@ -344,13 +344,13 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			try {
 				long startTime = System.currentTimeMillis();
 				
-				logger.info("DashboardCommonLogicImpl.handleAvailabilityChecks start " + serverId);
+				logger.debug("DashboardCommonLogicImpl.handleAvailabilityChecks start " + serverId);
 				
 				List<AvailabilityCheck> checks = getAvailabilityChecksBeforeTime(currentTime );
 				nextTimeToQueryAvailabilityChecks = currentTime.getTime() + TIME_BETWEEN_AVAILABILITY_CHECKS;
 				
 				if(checks != null) {
-					logger.info("DashboardCommonLogicImpl.handleAvailabilityChecks checks size=" + checks.size());
+					logger.debug("DashboardCommonLogicImpl.handleAvailabilityChecks checks size=" + checks.size());
 					int count = 0;
 					for(AvailabilityCheck check : checks) {
 						DashboardEntityInfo dashboardEntityInfo = this.dashboardLogic.getDashboardEntityInfo(check.getEntityTypeId());
@@ -379,10 +379,10 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 						count++;
 						if (count % TASK_LOGGING_INTERVAL == 0)
 						{
-							logger.info("DashboardCommonLogicImpl.handleAvailabilityChecks processed " + count + " checks.");
+							logger.debug("DashboardCommonLogicImpl.handleAvailabilityChecks processed " + count + " checks.");
 						}
 					}
-					logger.info("DashboardCommonLogicImpl.handleAvailabilityChecks end of the loop processed " + count + " checks.");
+					logger.debug("DashboardCommonLogicImpl.handleAvailabilityChecks end of the loop processed " + count + " checks.");
 					removeAvailabilityChecksBeforeTime(currentTime);
 				}
 				
@@ -396,7 +396,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				buf.append(serverId);
 				buf.append(" Elapsed Time (ms): ");
 				buf.append(elapsedTime);
-				logger.info(buf.toString());
+				logger.debug(buf.toString());
 
 			} catch (Exception e) {
 				logger.warn(this + " handleAvailabilityChecks: ", e);
@@ -675,7 +675,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 								timeToHandleRepeatedEvents = true;
 								timeToHandleAvailabilityChecks = false;
 							} else if(timeToHandleRepeatedEvents) {
-								if(handlingRepeatedEvents) {
+								if (true){//if(handlingRepeatedEvents) {
 									if(loopTimerEnabled) {
 										loopActivity = "checkingTimeForRepeatedEvents";
 									}
@@ -1458,7 +1458,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			sakaiProxy.pushSecurityAdvisor(advisor);
 			try {
 				long startTime = System.currentTimeMillis();
-				logger.info("DashboardCommonLogicImpl.expireAndPurge start " + serverId);
+				logger.debug("DashboardCommonLogicImpl.expireAndPurge start " + serverId);
 				expireAndPurgeCalendarItems();
 				expireAndPurgeNewsItems();
 				
@@ -1474,7 +1474,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				buf.append(serverId);
 				buf.append(" Elapsed Time (ms): ");
 				buf.append(elapsedTime);
-				logger.info(buf.toString());
+				logger.debug(buf.toString());
 			} catch (Exception e) {
 				logger.warn(this + " expireAndPurge: ", e);
 			} finally {
@@ -1553,7 +1553,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			sakaiProxy.pushSecurityAdvisor(advisor);
 			try {
 				long startTime = System.currentTimeMillis();
-				logger.info("DashboardCommonLogicImpl.updateRepeatingEvents start " + serverId);
+				logger.debug("DashboardCommonLogicImpl.updateRepeatingEvents start " + serverId);
 	
 				// time to update
 				Date oldHorizon = dashboardLogic.getRepeatingEventHorizon();
@@ -1564,7 +1564,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				if(newHorizon.after(oldHorizon)) {
 					List<RepeatingCalendarItem> repeatingEvents = dao.getRepeatingCalendarItems();
 					if(repeatingEvents != null) {
-						logger.info("DashboardCommonLogicImpl.updateRepeatingEvents repeatingEvent list size=" + repeatingEvents.size() + " new horizon=" + newHorizon + " oldHorizon=" + oldHorizon);
+						logger.debug("DashboardCommonLogicImpl.updateRepeatingEvents repeatingEvent list size=" + repeatingEvents.size() + " new horizon=" + newHorizon + " oldHorizon=" + oldHorizon);
 						int count = 0;
 						for(RepeatingCalendarItem repeatingEvent: repeatingEvents) {
 							addCalendarItemsForRepeatingCalendarItem(repeatingEvent, oldHorizon, newHorizon);
@@ -1572,10 +1572,10 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 							if (count % TASK_LOGGING_INTERVAL == 0)
 							{
 								// log progress in every TASK_LOGGING_INTERVAL tasks
-								logger.info("DashboardCommonLogicImpl.updateRepeatingEvents processed " + count  + " repeating events. "); 
+								logger.debug("DashboardCommonLogicImpl.updateRepeatingEvents processed " + count  + " repeating events. "); 
 							}
 						}
-						logger.info("DashboardCommonLogicImpl.updateRepeatingEvents end of the loop processed " + count  + " repeating events. ");
+						logger.debug("DashboardCommonLogicImpl.updateRepeatingEvents end of the loop processed " + count  + " repeating events. ");
 					}
 				}
 				Integer daysBetweenHorizonUpdates = dashboardConfig.getConfigValue(DashboardConfig.PROP_DAYS_BETWEEN_HORIZ0N_UPDATES, new Integer(1));
@@ -1591,7 +1591,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				buf.append(serverId);
 				buf.append(" Elapsed Time (ms): ");
 				buf.append(elapsedTime);
-				logger.info(buf.toString());
+				logger.debug(buf.toString());
 			} catch (Exception e) {
 				logger.warn(this + " updateRepeatingEvents: ", e);
 			} finally {
@@ -1612,12 +1612,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		Integer enabled = dao.getConfigProperty(DashboardConfig.PROP_LOOP_TIMER_ENABLED);
 		if(enabled == null || enabled.intValue() == 0) {
 			if(loopTimerEnabled) {
-				logger.info("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to false");
+				logger.debug("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to false");
 			}
 			loopTimerEnabled = false;
 		} else {
 			if(! loopTimerEnabled) {
-				logger.info("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to true");
+				logger.debug("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to true");
 			}
 			loopTimerEnabled = true;
 		}
@@ -1625,7 +1625,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		if(! loopTimerEnabled) {
 			enabled = dao.getConfigProperty(propLoopTimerEnabledLocally);
 			if(enabled != null && enabled.intValue() > 0) {
-				logger.info("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to true for " + serverId);
+				logger.debug("DashboardEventProcessingThread.checkForAdminChanges loopTimerEnabled changed to true for " + serverId);
 				loopTimerEnabled = true;
 			}
 		}
