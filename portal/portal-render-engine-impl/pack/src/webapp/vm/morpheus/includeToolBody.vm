@@ -15,7 +15,7 @@
 ## the right way to fix it is to teach the OSP portal to really support
 ## JSR-168 portlets in the background document rather than in an iFrame.
 ##
-<!--//START VM includeToolBody.vm -->
+<!-- START VM includeToolBody.vm -->
 #if ( $tool )
     
     <!-- start Tool -->
@@ -26,6 +26,7 @@
             #if (${tool.toolShowResetButton})
                 <a class="portlet title-tools reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"></a>
             #end
+            
             ## <h2>${tool.toolRenderResult.getTitle()}</h2>
             ## Do not show the title in this mode because there may be a separate title above this                    
 
@@ -67,5 +68,5 @@
     
     <!-- end Tool Body -->
     
-    <!--//END VM includeToolBody.vm -->
+    <!-- END VM includeToolBody.vm -->
 #end
