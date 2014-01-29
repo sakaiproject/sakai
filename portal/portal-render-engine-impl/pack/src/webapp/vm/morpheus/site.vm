@@ -1,12 +1,12 @@
-<!--//START VM site.vm -->
-#parse("/vm/morpheus/includeStandardHead.vm")
+##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
+    #parse("/vm/morpheus/includeStandardHead.vm")
     <body class="portalBody">
         #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
         <noscript>
             <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
         </noscript>
         
-        ## Might take this out. Leaving it for now.
+        ## Might take this out. Leaving it for now. MR
         #if ( ${portal_add_mobile_link} )
             <span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
         #end
@@ -75,7 +75,7 @@
              
             #parse("/vm/morpheus/includePageWithNav.vm")
             
-        </div>
-        <!--//END VM site.vm -->
+        </div> <!-- end div.container.portal.outer -->
+        <!-- END VM site.vm -->
     </body>
 </html>
