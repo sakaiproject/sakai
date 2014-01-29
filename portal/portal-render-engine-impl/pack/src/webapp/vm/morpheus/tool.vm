@@ -1,7 +1,7 @@
-<!--//START VM tool.vm -->
+<!-- START VM tool.vm -->
 #parse("/vm/morpheus/includeStandardHead.vm")
-    <body class="portalBody">
+    <body class="portalBody tool">
         #parse("/vm/morpheus/includeToolBody.vm")
     </body>
-<!--//END VM tool.vm -->
+<!-- END VM tool.vm -->
 </html>
