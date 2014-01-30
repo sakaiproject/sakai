@@ -1,5 +1,24 @@
-<!--//START VM includePageNav.vm -->
-<div class="divColor" id="toolMenuWrap">
+<!-- START VM includePageNav.vm -->
+
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
+    <div id="toolMenuWrap" class="container nav minimize-tool-nav">
+#else
+    <div id="toolMenuWrap" class="container nav">
+#end
+    
+        <div id="togglebar" class="toogle-tools">
+            #if ( $loggedIn ) 
+                <a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
+                    <span id="toggleToolMax" class="show">
+                        <em class="skip">${rloader.sit_toggle_nav_min}</em>
+                    </span>
+                    <span id="toggleNormal" class="hidden">
+                        <em class="skip">${rloader.sit_toggle_nav_exp}</em>
+                    </span>
+                </a>
+            #end    
+        </div>
+    
     #if ($sitePages.siteHTMLInclude)
         <div id="siteHTMLInclude">
             $sitePages.siteHTMLInclude
@@ -7,6 +26,7 @@
     #end
     <h1 class="skip" id="totoolmenu">${rloader.sit_toolshead}</h1>
     
+    ## Added Site name to the 
     #foreach ( $site in $tabsSites.tabsSites ) 
         #if (${site.isCurrentSite})
             <h2 title="${site.fullTitle}" class="selected current-site">${site.siteTitle}</h2>
@@ -95,17 +115,5 @@
         </nav>
     #end
 </div>
-<div id="togglebar">
-    #if ( $loggedIn ) 
-        <a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
-            <span id="toggleToolMax" class="show">
-                <em class="skip">${rloader.sit_toggle_nav_min}</em>
-            </span>
-            <span id="toggleNormal" class="hidden">
-                <em class="skip">${rloader.sit_toggle_nav_exp}</em>
-            </span>
-        </a>
-    #end    
-</div>
-<h1 class="skip" id="tocontent">${rloader.sit_contentshead}</h1>
-<!--//END VM includePageNav.vm -->
+
+<!-- END VM includePageNav.vm -->
