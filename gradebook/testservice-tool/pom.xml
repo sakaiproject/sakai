@@ -84,7 +84,6 @@
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.2</version>
     </dependency>
 <!-- blocking unwanted transitive dependency -->
     <dependency>
