@@ -86,11 +86,9 @@
       <artifactId>commons-logging</artifactId>
       <version>${sakai.commons-logging.version}</version>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.3</version>
     </dependency>
   </dependencies>
 
