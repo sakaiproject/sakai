@@ -7,8 +7,8 @@
     
     #foreach ( $tool in $pageColumn0Tools ) 
 
-        #if ( $tool.breadcrumbs ) 
-            #set ($portalBreadCrumbs = $tool.breadcrumbs ) 
+        #if ( $tool.breadcrumbs )
+            #set ($portalBreadCrumbs = $tool.breadcrumbs )
         #end
 
     #end
@@ -19,7 +19,6 @@
 
     #if (${site.isCurrentSite} and  $site.isChild )
         #set ($portalPwd = $site.pwd)
-
     #end
     
 #end
@@ -34,28 +33,9 @@
                
                 #if (!${loginTopLogin})
                 
-                    #if ($viewAsStudentLink)
-                        <div id="roleSwitch">
+                    #if ($viewAsStudentLink)                        
                         
-                            #if ($roleSwitchState)
-                                <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
-                            #else
-                            
-                                #if ($roleswapdropdown)
-                                    <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
-                                    <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
-                                    #foreach( $role in $siteRoles)   
-                                        <option value="$switchRoleUrl$role$panelString">$role</option>
-                                    #end
-                                    </select>
-                                
-                                #else
-                                
-                                    <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
-                                #end ##if ($roleswapdropdown)
-                                
-                            #end ##if ($roleSwitchState)
-                        </div>
+                        #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
                         
                     #end ##if ($viewAsStudentLink)
                     
