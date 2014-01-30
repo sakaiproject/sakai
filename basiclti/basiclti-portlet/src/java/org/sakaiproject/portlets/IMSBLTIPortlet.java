@@ -339,7 +339,16 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		// For outcomes and LORI we check for tools in the site before offering the options
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
+		if ( "true".equals(allowOutcomes) ) {
+			String outcomeProp = getCorrectProperty(request, "allowoutcomes", "on");
+			allowOutcomes = "on".equals(outcomeProp) ? "true" : "false";
+		}
+
 		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
+		if ( "true".equals(allowLori) ) {
+			String loriProp = getCorrectProperty(request, "allowlori", "on");
+			allowLori = "on".equals(loriProp) ? "true" : "false";
+		}
 
 		boolean foundLessons = false;
 		boolean foundGradebook = false;
@@ -415,7 +424,7 @@ public class IMSBLTIPortlet extends GenericPortlet {
 
 		if ( defaultValue != null ) {
 			// System.out.println("Default "+propName+" ="+defaultValue);
-			return propValue;
+			return defaultValue;
 		}
 		// System.out.println("Fell through "+propName);
 		return null;
