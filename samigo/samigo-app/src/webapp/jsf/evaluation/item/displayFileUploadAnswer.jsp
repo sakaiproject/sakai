@@ -31,7 +31,7 @@ should be included in file importing DeliveryMessages
       <h:dataTable value="#{itemGradingArrayList.mediaArray}" var="media">
         <h:column>
           <h:outputLink title="#{evaluationMessages.t_fileUpload}" value="/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}" target="new_window">
-             <h:outputText escape="false" value="#{media.filename}" />
+             <h:outputText value="#{media.filename}" />
           </h:outputLink>
         </h:column>
         <h:column>

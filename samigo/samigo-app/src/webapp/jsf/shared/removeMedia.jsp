@@ -44,7 +44,7 @@
    <p>
      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
      <h:outputLink title="#{deliveryMessages.t_media}" value="#" onclick="window.open('#{mediaBean.mediaUrl}','new_window');" onkeypress="window.open('#{mediaBean.mediaUrl}','new_window');">
-       <h:outputText escape="false" value="#{mediaBean.filename}" />
+       <h:outputText value="#{mediaBean.filename}" />
      </h:outputLink>
    </p>
    <p class="act">

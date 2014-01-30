@@ -34,11 +34,11 @@
         
       <h:outputText escape="false" value="
 	    <embed src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" volume=\"50\" height=\"350\" width=\"400\" autostart=\"false\"/>" rendered="#{attach.isInlineVideo && !delivery.isFromPrint}"/>
-      <h:outputText escape="false" value="#{attach.filename}" rendered="#{attach.isInlineVideo && delivery.isFromPrint}"/>
+      <h:outputText value="#{attach.filename}" rendered="#{attach.isInlineVideo && delivery.isFromPrint}"/>
       
 	  <h:outputText escape="false" value="
 	    <embed src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" height=\"350\" width=\"400\"/>" rendered="#{attach.isInlineFlash && !delivery.isFromPrint}"/>
-      <h:outputText escape="false" value="#{attach.filename}" rendered="#{attach.isInlineFlash && delivery.isFromPrint}"/>  
+      <h:outputText value="#{attach.filename}" rendered="#{attach.isInlineFlash && delivery.isFromPrint}"/>  
       
 	  <h:outputText escape="false" value="
 	    <img src=\"#{delivery.protocol}/samigo-app/servlet/ShowAttachmentMedia?resourceId=#{attach.encodedResourceId}&mimeType=#{attach.mimeType}&filename=#{attach.filename}\" />" rendered="#{attach.isInlineImage}"/>
@@ -48,7 +48,7 @@
         <%@ include file="/jsf/shared/mimeicon.jsp" %>
         <f:verbatim>&nbsp;&nbsp;</f:verbatim>
         <h:outputLink value="#{attach.location}" target="new_window">
-          <h:outputText escape="false" value="#{attach.filename}" />
+          <h:outputText value="#{attach.filename}" />
         </h:outputLink>
       </h:column>
       <h:column>
@@ -56,7 +56,7 @@
         <h:outputText escape="false" value="#{attach.fileSize} #{generalMessages.kb}" rendered="#{!attach.isLink}"/>
       </h:column>
       </h:panelGrid> 
-      <h:outputText escape="false" value="#{attach.filename}" rendered="#{!attach.isMedia && delivery.isFromPrint}"/>  
+      <h:outputText value="#{attach.filename}" rendered="#{!attach.isMedia && delivery.isFromPrint}"/>  
   
     </h:column>
     </h:dataTable>

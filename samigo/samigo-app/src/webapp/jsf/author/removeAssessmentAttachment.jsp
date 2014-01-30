@@ -44,7 +44,7 @@
    <p>
      <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
      <h:outputLink title="#{authorMessages.t_attachment}" value="#" onclick="window.open('#{attachmentBean.location}','new_window');" onkeypress="window.open('#{attachmentBean.location}','new_window');">
-       <h:outputText escape="false" value="#{attachmentBean.filename}" />
+       <h:outputText value="#{attachmentBean.filename}" />
      </h:outputLink>
    </p>
    <p class="act">
