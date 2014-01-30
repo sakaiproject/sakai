@@ -431,10 +431,6 @@ public class SakaiBLTIUtil {
 				if ( "on".equals(allowSettings) ) {
 					setProperty(props,"ext_ims_lti_tool_setting_id", result_sourcedid);  
 
-					String setting = config.getProperty("toolsetting", null);
-					if ( setting != null ) {
-						setProperty(props,"ext_ims_lti_tool_setting", setting);  
-					}
 					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
 					if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
 					setProperty(props,"ext_ims_lti_tool_setting_url", service_url);  
@@ -695,20 +691,14 @@ public class SakaiBLTIUtil {
 				setProperty(lti2subst, "Result.url", result_url);
 			}
 
-			// We don't allow LTI 2 tools to have access to the old settings extension
-			// because they can use it to set it to non-JSON
+			// We continue to support the old settings for LTI 2 see SAK-25621
 			if ( allowsettings == 1 ) {
-				if ( isLTI1 ) {
-					setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
+				setProperty(ltiProps,"ext_ims_lti_tool_setting_id", result_sourcedid);  
 
-					String setting = (String) content.get(LTIService.LTI_SETTINGS);
-					if ( setting != null ) {
-						setProperty(ltiProps,"ext_ims_lti_tool_setting", setting);  
-					}
-					String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
-					if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
-					setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
-				} else {
+				String service_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lti_tool_setting_url",null);
+				if ( service_url == null ) service_url = getOurServerUrl() + LTI1_PATH;  
+				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
+				if ( ! isLTI1 ) {
 					String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
 					setProperty(lti2subst,"LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
 					setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);

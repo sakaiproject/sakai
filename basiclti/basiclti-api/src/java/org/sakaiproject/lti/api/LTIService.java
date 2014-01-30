@@ -488,7 +488,10 @@ public interface LTIService {
 		"secret:text:label=bl_secret:allowed=true:maxlength=255",
 		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin",
 		"xmlimport:text:hidden=true:maxlength=16384",
+		// LTI 2.x settings
 		"settings:text:hidden=true:maxlength=8096",
+		// Sakai LTI 1.x extension settings (see SAK-25621)
+		"settings_ext:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
 		"placementsecret:text:hidden=true:maxlength=512",
 		"oldplacementsecret:text:hidden=true:maxlength=512",
@@ -612,6 +615,7 @@ public interface LTIService {
 	static final String LTI_ALLOWSETTINGS = "allowsettings";
 	static final String LTI_ALLOWLORI = "allowlori";
 	static final String LTI_SETTINGS = "settings";
+	static final String LTI_SETTINGS_EXT = "settings_ext";
 	static final String LTI_NEWPAGE =	"newpage";
 	static final String LTI_DEBUG =	"debug";
 	static final String LTI_CUSTOM = 	"custom";

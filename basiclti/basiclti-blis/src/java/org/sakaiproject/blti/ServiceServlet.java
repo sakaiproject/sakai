@@ -512,7 +512,12 @@ System.out.println("doError="+theXml);
 			boolean success = false;
 			try { 
 				if ( "basic-lti-loadsetting".equals(lti_message_type) ) {
-					setting = pitch.getProperty(LTIService.LTI_SETTINGS);
+					setting = pitch.getProperty(LTIService.LTI_SETTINGS_EXT);
+					// Remove this after the DB conversion for SAK-25621 is completed
+					// It is harmless until LTI 2.0 starts to get heavy use.
+					if ( setting == null ) {
+						setting = pitch.getProperty(LTIService.LTI_SETTINGS);
+					}
 					if ( setting != null ) {
 						theMap.put("/message_response/setting/value", setting);
 					}
@@ -551,11 +556,11 @@ System.out.println("doError="+theXml);
 									doError(request, response, theMap, "setting.empty", "", null);
 								} else {
 									if ( setting.length() > 8096) setting = setting.substring(0,8096);
-									content.put(LTIService.LTI_SETTINGS,setting);
+									content.put(LTIService.LTI_SETTINGS_EXT,setting);
 									success = true;
 								}
 							} else if ( "basic-lti-deletesetting".equals(lti_message_type) ) {
-								content.put(LTIService.LTI_SETTINGS,null);
+								content.put(LTIService.LTI_SETTINGS_EXT,null);
 								success = true;
 							}
 							if ( success ) {
