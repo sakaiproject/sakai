@@ -95,6 +95,7 @@
                 <module>courier</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
+                <module>external-calendaring-service</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>hierarchy</module>
@@ -114,6 +115,7 @@
                 <module>rights</module>
                 <module>rwiki</module>
                 <module>sections</module>
+                <module>signup</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>syllabus</module>
@@ -177,6 +179,7 @@
                 <module>content</module>
                 <module>courier</module>
                 <module>dav</module>
+                <module>external-calendaring-service</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>login</module>
@@ -194,6 +197,7 @@
                 <module>rights</module>
                 <module>rwiki</module>
                 <module>sections</module>
+                <module>signup</module>
                 <module>site</module>
                 <module>site-manage</module>
                 <module>syllabus</module>
