@@ -239,26 +239,6 @@ public class JoinSiteDelegate
         return !isLimitByAccountTypeEnabled(site.getId()) || hasAllowedAccountTypeToJoin(user, site);
     }
     
-    
-    /** 
-     * Check if the current user is logged in
-     * 
-     * @author bjones86@uwo.ca
-     * @return true if the current user is logged in
-     */
-    public boolean isUserLoggedIn()
-	{
-        // get current user
-		User user = userDirectoryService.getCurrentUser();
-		if( user == null )
-		{
-			return false;
-		}
-        
-        // user is logged in if user id is not null and not empty
-		return user.getId() != null && !"".equals( user.getId() );
-	}
-    
     /**
      * Checks if the system and the provided site allows account types of joining users to be limited
      * 
@@ -309,8 +289,9 @@ public class JoinSiteDelegate
             	joinGroupId = rp.getProperty(SITE_PROP_JOINSITE_GROUP_ID);
             }
             
-            // If the group was not found or the group id is null or empty, revert the site property to the "noSelection" setting
-            if(site.getGroup(joinGroupId) == null)
+            // If the group was not found or the group id is null or empty (and the joiner group ID is not the 'noSelection' string), 
+            // revert the site property to the "noSelection" setting
+            if(!JOINSITE_GROUP_NO_SELECTION.equals(joinGroupId) && site.getGroup(joinGroupId) == null)
             {
                 ResourcePropertiesEdit rpe = site.getPropertiesEdit();
                 rpe.addProperty(SITE_PROP_JOINSITE_GROUP_ID, JOINSITE_GROUP_NO_SELECTION);
@@ -322,7 +303,7 @@ public class JoinSiteDelegate
                 }
                 catch(Exception e)
                 {
-                    log.error("Site " + site.getId() + " couldn not be saved during adding joiner to join group: " + e.getMessage(), e);
+                    log.error("Site " + site.getId() + " could not be saved during adding joiner to join group: " + e.getMessage(), e);
                 }
             }
         }
@@ -531,7 +512,7 @@ public class JoinSiteDelegate
      * 		The boolean property name to retrieve
      * @return true if the boolean property is found and is set to true
      */
-    public boolean getBooleanSiteProperty(String siteID, String propertyName)
+    private boolean getBooleanSiteProperty(String siteID, String propertyName)
     {
         try 
         {

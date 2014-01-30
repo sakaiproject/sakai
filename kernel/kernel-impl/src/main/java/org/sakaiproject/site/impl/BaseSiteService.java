@@ -1778,15 +1778,6 @@ public abstract class BaseSiteService implements SiteService, Observer
         // pass to the JoinDelegate method to handle the logic
         return joinSiteDelegate.isAllowedToJoin(site);
 	}
-    
-	/**
-	 * @inheritDoc
-	 */
-    public boolean isUserLoggedIn()
-    {
-        // pass to the JoinDelegate method to handle the logic
-        return joinSiteDelegate.isUserLoggedIn();
-    }
 
 	/**
 	 * @inheritDoc
@@ -1846,14 +1837,6 @@ public abstract class BaseSiteService implements SiteService, Observer
     public boolean isLimitByAccountTypeEnabled(String siteID)
     {
         return joinSiteDelegate.isLimitByAccountTypeEnabled(siteID);
-    }
-    
-    /** 
-     * @inheritDoc
-     */
-    public boolean getBooleanSiteProperty(String siteID, String propertyName)
-    {
-        return joinSiteDelegate.getBooleanSiteProperty(siteID, propertyName);
     }
     
     /** 

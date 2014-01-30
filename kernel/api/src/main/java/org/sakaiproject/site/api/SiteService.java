@@ -732,14 +732,6 @@ public interface SiteService extends EntityProducer
     boolean isAllowedToJoin(String id);
     
     /**
-     * determine if current user is actually logged into the system
-     * 
-     * @author sfoster9@uwo.ca, bjones86@uwo.ca
-     * @return true if user is logged in with an account
-     */
-    boolean isUserLoggedIn();
-    
-    /**
      * Get the group that a joining user will be added to upon joining a site, if option is available system-wide
      * 
      * @author sfoster9@uwo.ca, bjones86@uwo.ca
@@ -768,18 +760,6 @@ public interface SiteService extends EntityProducer
      * @return true if the join site is limiting account types
      */
     boolean isLimitByAccountTypeEnabled(String id);
-    
-    /**
-     * Retrieves the boolean value of a boolean site property
-     * 
-     * @author sfoster9@uwo.ca, bjones86@uwo.ca
-     * @param id 
-     * 		The site to retrieve the property from
-     * @param propertyName 
-     * 		The boolean property name to retrieve
-     * @return boolean value of the site property; true if the boolean property is found and is set to true
-     */
-    boolean getBooleanSiteProperty(String id, String propertyName);
     
     /**
      * Check if the system and the provided site has the ability to send email notifications when a user joins the site
