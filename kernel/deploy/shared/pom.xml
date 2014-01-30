@@ -115,6 +115,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+		    <groupId>commons-codec</groupId>
+		    <artifactId>commons-codec</artifactId>
+		    <scope>compile</scope>
+		</dependency>
+        <dependency>
             <groupId>commons-collections</groupId>
             <artifactId>commons-collections</artifactId>
             <scope>compile</scope>
@@ -221,6 +226,16 @@
             <artifactId>jaxen</artifactId>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.mnode.ical4j</groupId>
+            <artifactId>ical4j</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>backport-util-concurrent</groupId>
+            <artifactId>backport-util-concurrent</artifactId>
+            <scope>compile</scope>
+        </dependency>     
     </dependencies>
 
     <scm>
