@@ -91,7 +91,9 @@
                     #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
                     
                 #end ## end of #if (!${loginTopLogin})
+                
             </div> <!--  end of div#mastLogin -->
+            
             <!-- end login component -->
             <nav id="linkNav" role="navigation" aria-labelledby="sitetabs">
             <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
