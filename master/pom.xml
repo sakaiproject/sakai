@@ -433,7 +433,8 @@
       <dependency>
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
-        <version>1.5</version>
+        <version>1.8</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>zing</groupId>
@@ -509,6 +510,19 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.mnode.ical4j</groupId>
+        <artifactId>ical4j</artifactId>
+        <version>1.0.5.2</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- ical4j is dependent on backport -->
+      <dependency>
+         <groupId>backport-util-concurrent</groupId>
+         <artifactId>backport-util-concurrent</artifactId>
+         <version>3.1</version>
+         <scope>provided</scope>
+      </dependency> 
+      <dependency>
         <groupId>jaxen</groupId>
         <artifactId>jaxen</artifactId>
         <version>1.1-beta-10</version>
@@ -549,6 +563,7 @@
         <artifactId>dumbster</artifactId>
         <version>1.6</version>
       </dependency>
+      
       <!-- KERNEL -->
       <dependency>
         <groupId>org.sakaiproject.kernel</groupId>
@@ -639,7 +654,7 @@
         <artifactId>pluto-taglib</artifactId>
         <version>${sakai.pluto.version}</version>
         <scope>provided</scope>
-      </dependency>
+      </dependency>    
       <!-- Job Scheduler deploys quartz to shared. -->
       <dependency>
         <groupId>org.quartz-scheduler</groupId>
@@ -823,6 +838,12 @@
       <dependency>
         <groupId>org.sakaiproject.calendar</groupId>
         <artifactId>sakai-calendar-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.calendaring</groupId>
+        <artifactId>external-calendaring-service-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1063,6 +1084,11 @@
       <dependency>
         <groupId>org.sakaiproject.search</groupId>
         <artifactId>search-util</artifactId>
+        <version>${sakai.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.signup</groupId>
+        <artifactId>signup-api</artifactId>
         <version>${sakai.version}</version>
       </dependency>
       <dependency>
