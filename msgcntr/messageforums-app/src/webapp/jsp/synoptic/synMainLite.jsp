@@ -274,9 +274,7 @@ function mySetMainFrameHeightViewCell(id)
 						<f:verbatim><a href="" id="siteHeader" onclick="return false;"></a></f:verbatim>
 					</f:facet>
 				
-				<h:outputText value="#{msgs.syn_tool_link_begin}#{eachSite.siteUrl}';\">#{eachSite.synopticMsgcntrItem.siteTitle}</a>" 
-							escape="false" title="#{msgs.syn_goto_site}"/>
-								
+				<h:outputLink value="#{eachSite.siteUrl}" target="_parent" title="#{msgs.syn_goto_site}"><h:outputText value="#{eachSite.synopticMsgcntrItem.siteTitle}"/></h:outputLink>
 		   		</h:column>
 	
 				<h:column rendered="#{mfSynopticBeanLite.performance != '2' && !mfSynopticBeanLite.disableMessages}">
