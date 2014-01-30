@@ -2,7 +2,7 @@
 ## the Page part of the standard view, with page navigation
 ##
 ##
-<!--//START VM includePageWithNav.vm -->
+<!-- START VM includePageWithNav.vm -->
 #if ( $portalBreadCrumbs or $portalPwd ) 
     <ul id="siteHierarchy"> 
         #set ($tabTotal = 0)
@@ -32,18 +32,16 @@
     </ul>
 #end
 
-#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-    <div id="container" class="portal container minimize-tool-nav" $pageSiteType>
-#else
-    <div id="container" class="portal container" $pageSiteType>
-#end
+<div id="container" class="container portal" $pageSiteType>
 
-#if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
-    #parse("/vm/morpheus/includePageNav.vm")
-#else 
-    <!-- no page nav requested -->
-#end
+    #if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+        #parse("/vm/morpheus/includePageNav.vm")
+    #else 
+        <!-- no page nav requested -->
+    #end
 
-#parse("/vm/morpheus/includePageBody.vm")
-    </div>
-<!--//END VM includePageWithNav.vm -->
+    #parse("/vm/morpheus/includePageBody.vm")
+    
+</div>
+
+<!-- END VM includePageWithNav.vm -->
