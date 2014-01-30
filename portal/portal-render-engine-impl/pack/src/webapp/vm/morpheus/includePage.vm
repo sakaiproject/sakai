@@ -2,16 +2,12 @@
 ## the Page part of the standard view, with no page navigation
 ##
 ##
-<!--//START VM includePage.vm --> 
+<!-- START VM includePage.vm --> 
     
-    #if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-        <div id="container" class="portal container minimize-tool-nav" $pageSiteType>
-    #else
-        <div id="container" class="portal container" $pageSiteType>
-    #end
+<div id="container" class="container portal" $pageSiteType>
     
-        #parse("/vm/morpheus/includePageBody.vm")
+    #parse("/vm/morpheus/includePageBody.vm")
+
+</div>
     
-        </div>
-        
-<!--//END VM includePage.vm -->
+<!-- END VM includePage.vm -->
