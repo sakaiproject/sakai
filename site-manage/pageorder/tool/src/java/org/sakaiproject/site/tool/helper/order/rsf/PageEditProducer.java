@@ -2,6 +2,7 @@ package org.sakaiproject.site.tool.helper.order.rsf;
 
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -55,9 +56,17 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                }
             }
             
-            if (params.newConfig != null) {
+            Site site = handler.site;
+            SitePage page = site.getPage(params.pageId);
+
+            ToolConfiguration tool = null;
+            if (page.getTools().size() == 1) {
+                tool = (ToolConfiguration) page.getTools().get(0);
+            }
+
+            // TODO: Add ability to configure any arbitrary setting
+            if (tool != null && "sakai.iframe".equals(tool.getToolId()) && params.newConfig != null) {
                 try {
-                    // TODO: Add ability to configure any arbitrary setting
                     handler.setConfig(params.pageId, "source", params.newConfig);
                 }
                 catch (Exception e) {
@@ -82,8 +91,6 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                         handler.hidePage(params.pageId);
                     }
 
-                    Site site = handler.site;
-                    SitePage page = site.getPage(params.pageId);
                     String oldTitle = page.getTitle();
                     
                     mode = UIBranchContainer.make(tofill, "mode-pass:");
