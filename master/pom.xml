@@ -1090,6 +1090,7 @@
         <groupId>org.sakaiproject.signup</groupId>
         <artifactId>signup-api</artifactId>
         <version>${sakai.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.site</groupId>
