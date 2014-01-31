@@ -47,22 +47,17 @@
                                     #if (${displayUserloginInfo})
                                     
                                         #if (${tabsSites.profileToolUrl})
-                                            <li class="submenuitem"><span><a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true"><span class="toolMenuIcon submenuitem-profile"> </span> ${loginUserDispName} (${loginUserDispId})</a></span></li>
+                                            <li class="submenuitem"><a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&sakai.state.reset=true" class="login-user-icon"><span class="login-user-name">${loginUserDispName}</span> <span class="login-user-id">${loginUserDispId}</span></a></li>
+                                             
                                         #else
-                                            <li class="submenuitem" role="menuitem"><span>${loginUserDispName} (${loginUserDispId})</span></li>
-                                        #end
-                                        
-                                    #else
-                                    
-                                        #if (${tabsSites.profileToolUrl})
-                                            <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true"><span class="toolMenuIcon submenuitem-profile"> </span><span>${rloader.sit_profile}</span></a></span></li>
+                                            <li class="submenuitem" role="menuitem"><span class="login-user-name">${loginUserDispName}</span> <span class="login-user-id">${loginUserDispId}</span></li>
                                         #end
                                         
                                     #end ##if (${displayUserloginInfo})
                                     
                                     
                                     #if (${tabsSites.prefsToolUrl})
-                                        <li class="submenuitem"><span><a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true" ><span class="toolMenuIcon submenuitem-prefs"> </span>${rloader.sit_preferences}</a></span></li>
+                                        <li class="submenuitem"><span class="toolMenuIcon submenuitem-prefs"> </span><a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true" class="login-user-icon submenuitem-prefs">${rloader.sit_preferences}</a></li>
                                     #end
                                     
                                     #if (${tabsSites.worksiteToolUrl})
