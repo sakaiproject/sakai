@@ -44,6 +44,7 @@ public class GenericConverter extends AbstractConverter {
 		conversion.put("endPage", "epage");
 		conversion.put("pages", "pages");
 		conversion.put("date", "date");
+		conversion.put("isnIdentifier", "issn");
 		// DOI and ISBN should become IDs on the context object.
 		
 		// For books citation(date) -> openurl(date)
