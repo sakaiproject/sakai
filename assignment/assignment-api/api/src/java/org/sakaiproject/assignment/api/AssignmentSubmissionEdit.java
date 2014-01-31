@@ -186,6 +186,12 @@ public interface AssignmentSubmissionEdit extends AssignmentSubmission, Edit
 	 *        true if the submission has been graded, false otherwise.
 	 */
 	public void setGraded(boolean graded);
+	
+	/**
+	 * Set the grader id (this can be used to track between auto grades or instructor grades)
+	 * @param id
+	 */
+	public void setGradedBy(String id);
 
 	/**
 	 * Set the review Score for this assignment

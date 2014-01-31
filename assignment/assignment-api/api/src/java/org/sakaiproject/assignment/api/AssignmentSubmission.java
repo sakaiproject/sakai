@@ -176,6 +176,12 @@ public interface AssignmentSubmission extends Entity
 	public boolean getGraded();
 
 	/**
+	 * Get the grader id (this can be used to track between auto grades or instructor grades)
+	 * 
+	 * @return
+	 */
+	public String getGradedBy();
+	/**
 	 * Get whether the grade has been released.
 	 * 
 	 * @return True if the Submissions's grade has been released, false otherwise.

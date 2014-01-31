@@ -82,6 +82,8 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	protected String feedbacktext_html = null;
 
 	protected String graded = null;
+	
+	protected String gradedBy = null;
 
 	protected String gradereleased = null;
 
@@ -149,6 +151,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
                 submission.setAttribute("submitterid", this.submitterid);
 		submission.setAttribute("returned",this.returned);
 		submission.setAttribute("graded", this.graded);
+		submission.setAttribute("gradedBy", this.gradedBy);
 		submission.setAttribute("gradereleased", this.gradereleased);
 		submission.setAttribute("pledgeflag", this.pledgeflag);
 
@@ -418,6 +421,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					setGrade(grade);
 					
 					setGraded(StringUtils.trimToNull(attributes.getValue("graded")));
+					setGradedBy(StringUtils.trimToNull(attributes.getValue("gradedBy")));
 					setGradereleased(StringUtils.trimToNull(attributes.getValue("gradereleased")));
 					setLastmod(StringUtils.trimToNull(attributes.getValue("lastmod")));
 					String numberoffeedbackattachments = StringUtils.trimToNull(attributes.getValue("numberoffeedbackattachments"));
@@ -699,6 +703,9 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		return graded;
 	}
 
+	public String getGradedBy(){
+		return gradedBy;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#setGraded(java.lang.String)
@@ -708,6 +715,9 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		this.graded = graded;
 	}
 
+	public void setGradedBy(String gradedBy){
+		this.gradedBy = gradedBy;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.assignment.impl.conversion.impl.SerializableSubmissionAccess#getGradereleased()

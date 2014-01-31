@@ -371,58 +371,71 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	}
 	
 	public void updateScore(String submissionId){
-		List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId);
-		if(items != null){
-			//scores are stored w/o decimal points, so a score of 3.4 is stored as 34 in the DB
-			//add all the scores together and divide it by the number of scores added.  Then round.
-			Integer totalScore = 0;
-			int denominator = 0;
-			for(PeerAssessmentItem item : items){
-				if(!item.isRemoved() && item.getScore() != null){
-					totalScore += item.getScore();
-					denominator++;
+		SecurityAdvisor sa =  new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function, String reference)
+			{
+				if(AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION.equals(function)
+						|| AssignmentService.SECURE_UPDATE_ASSIGNMENT.equals(function)
+						|| AssignmentService.SECURE_ACCESS_ASSIGNMENT.equals(function)
+						|| AssignmentService.SECURE_ACCESS_ASSIGNMENT_SUBMISSION.equals(function)){
+					return SecurityAdvice.ALLOWED;
+				}else{
+					return SecurityAdvice.PASS;
 				}
 			}
-			if(denominator > 0){
-				totalScore = Math.round(totalScore/denominator);
-			}else{
-				totalScore = null;
-			}
-			
-			SecurityAdvisor sa = new SecurityAdvisor() {
-    			public SecurityAdvice isAllowed(String userId, String function, String reference)
-    			{
-    				if(AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION.equals(function)
-    						|| AssignmentService.SECURE_UPDATE_ASSIGNMENT.equals(function)){
-    					return SecurityAdvice.ALLOWED;
-    				}else{
-    					return SecurityAdvice.PASS;
-    				}
-    			}
-    		};
-			try {
-				securityService.pushAdvisor(sa);
-				AssignmentSubmissionEdit edit = assignmentService.editSubmission(submissionId);
-				String totleScoreStr = null;
-				if(totalScore != null){
-					totleScoreStr = totalScore.toString();
+		};
+		try {
+			securityService.pushAdvisor(sa);
+			//first check that submission exists and that it can be graded/override score
+			AssignmentSubmission submission = assignmentService.getSubmission(submissionId);
+			//only override grades that have never been graded or was last graded by this service
+			//this prevents this service from overriding instructor set grades, which take precedent.
+			if(submission != null && 
+					(submission.getGraded() == false || submission.getGradedBy() == null || "".equals(submission.getGradedBy().trim()) 
+					|| AssignmentPeerAssessmentService.class.getName().equals(submission.getGradedBy().trim()))){
+				List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId);
+				if(items != null){
+					//scores are stored w/o decimal points, so a score of 3.4 is stored as 34 in the DB
+					//add all the scores together and divide it by the number of scores added.  Then round.
+					Integer totalScore = 0;
+					int denominator = 0;
+					for(PeerAssessmentItem item : items){
+						if(!item.isRemoved() && item.getScore() != null){
+							totalScore += item.getScore();
+							denominator++;
+						}
+					}
+					if(denominator > 0){
+						totalScore = Math.round(totalScore/denominator);
+					}else{
+						totalScore = null;
+					}
+					AssignmentSubmissionEdit edit = assignmentService.editSubmission(submissionId);
+					String totleScoreStr = null;
+					if(totalScore != null){
+						totleScoreStr = totalScore.toString();
+					}
+					edit.setGrade(totleScoreStr);
+					edit.setGraded(true);
+					edit.setGradedBy(AssignmentPeerAssessmentService.class.getName());
+					edit.setGradeReleased(false);
+					assignmentService.commitEdit(edit);
 				}
-				edit.setGrade(totleScoreStr);
-				edit.setGraded(true);
-				edit.setGradeReleased(false);
-				assignmentService.commitEdit(edit);
-			} catch (IdUnusedException e) {
-				log.error(e.getMessage(), e);
-			} catch (InUseException e) {
-				log.error(e.getMessage(), e);
-			} catch (PermissionException e) {
-				log.error(e.getMessage(), e);
-			}finally
-            {
-            	// remove advisor
-            	securityService.popAdvisor(sa);
-            }
+			}
+		} catch (IdUnusedException e) {
+			log.error(e.getMessage(), e);
+		} catch (InUseException e) {
+			log.error(e.getMessage(), e);
+		} catch (PermissionException e) {
+			log.error(e.getMessage(), e);
+		}finally
+		{
+			// remove advisor
+			if(sa != null){
+				securityService.popAdvisor(sa);
+			}
 		}
+		
 	}
 	
 	public void setScheduledInvocationManager(

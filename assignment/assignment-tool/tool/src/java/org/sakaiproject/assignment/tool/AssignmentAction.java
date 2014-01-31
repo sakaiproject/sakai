@@ -5113,6 +5113,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// no grade input needed for the without-grade version of assignment tool
 				sEdit.setGraded(true);
+				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 				if ("return".equals(gradeOption) || "release".equals(gradeOption))
 				{
 					sEdit.setGradeReleased(true);
@@ -5122,6 +5123,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGrade("");
 				sEdit.setGraded(false);
+				sEdit.setGradedBy(null);
 				sEdit.setGradeReleased(false);
 			}
 			else
@@ -5131,10 +5133,12 @@ public class AssignmentAction extends PagedResourceActionII
 				if (grade.length() != 0)
 				{
 					sEdit.setGraded(true);
+					sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 				}
 				else
 				{
 					sEdit.setGraded(false);
+					sEdit.setGradedBy(null);
 				}
 			}
 
@@ -5151,6 +5155,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGradeReleased(true);
 				sEdit.setGraded(true);
+				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 				// clear the returned flag
 				sEdit.setReturned(false);
 				sEdit.setTimeReturned(null);
@@ -5159,6 +5164,7 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGradeReleased(true);
 				sEdit.setGraded(true);
+				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 				sEdit.setReturned(true);
 				sEdit.setTimeReturned(TimeService.newTime());
 				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
@@ -5532,6 +5538,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 							// clear the current grade and make the submission ungraded
 							sEdit.setGraded(false);
+							sEdit.setGradedBy(null);
 							sEdit.setGrade("");
 							sEdit.setGradeReleased(false);
 							
@@ -7091,6 +7098,7 @@ public class AssignmentAction extends PagedResourceActionII
 										// set the grade to be empty for now
 										sEdit.setGrade("");
 										sEdit.setGraded(false);
+										sEdit.setGradedBy(null);
 										sEdit.setGradeReleased(false);
 										sEdit.setReturned(false);
 									}
@@ -13620,6 +13628,7 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							sEdit.setGrade(grade);
 							sEdit.setGraded(true);
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -13709,6 +13718,7 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setGrade(grade);
 							sEdit.setSubmitted(true);
 							sEdit.setGraded(true);
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -13719,6 +13729,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (sEdit != null)
 						{
 							sEdit.setGraded(true);
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -14425,8 +14436,10 @@ public class AssignmentAction extends PagedResourceActionII
 								// set grade
 								String grade = StringUtils.trimToNull(w.getGrade());
 								sEdit.setGrade(grade);
-								if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade))
+								if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade)){
 									sEdit.setGraded(true);
+									sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+								}
 							}
 							
 							// release or not

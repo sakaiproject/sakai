@@ -10192,6 +10192,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected boolean m_returned;
 
 		protected boolean m_graded;
+		
+		protected String m_gradedBy;
 
 		protected boolean m_gradeReleased;
 
@@ -10449,6 +10451,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submitted = false;
 			m_returned = false;
 			m_graded = false;
+			m_gradedBy = null;
 			m_gradeReleased = false;
 			m_submittedText = "";
 			m_feedbackComment = "";
@@ -10533,6 +10536,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submitted = getBool(el.getAttribute("submitted"));
 			m_returned = getBool(el.getAttribute("returned"));
 			m_graded = getBool(el.getAttribute("graded"));
+			m_gradedBy = el.getAttribute("gradedBy");
 			m_gradeReleased = getBool(el.getAttribute("gradereleased"));
 			m_honorPledgeFlag = getBool(el.getAttribute("pledgeflag"));
 			m_hideDueDate = getBool(el.getAttribute("hideduedate"));
@@ -10864,6 +10868,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_submitted = getBool(attributes.getValue("submitted"));
 							m_returned = getBool(attributes.getValue("returned"));
 							m_graded = getBool(attributes.getValue("graded"));
+							m_gradedBy = attributes.getValue("gradedBy");
 							m_gradeReleased = getBool(attributes.getValue("gradereleased"));
 							m_honorPledgeFlag = getBool(attributes.getValue("pledgeflag"));
 							m_hideDueDate = getBool(attributes.getValue("hideduedate"));
@@ -11038,6 +11043,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			submission.setAttribute("submitted", getBoolString(m_submitted));
 			submission.setAttribute("returned", getBoolString(m_returned));
 			submission.setAttribute("graded", getBoolString(m_graded));
+			submission.setAttribute("gradedBy", m_gradedBy == null ? "" : m_gradedBy);
 			submission.setAttribute("gradereleased", getBoolString(m_gradeReleased));
 			submission.setAttribute("pledgeflag", getBoolString(m_honorPledgeFlag));
 			submission.setAttribute("hideduedate", getBoolString(m_hideDueDate));
@@ -11166,6 +11172,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_feedbackText = submission.getFeedbackText();
 			m_returned = submission.getReturned();
 			m_graded = submission.getGraded();
+			m_gradedBy = submission.getGradedBy();
 			m_gradeReleased = submission.getGradeReleased();
 			m_honorPledgeFlag = submission.getHonorPledgeFlag();
 			m_properties = new BaseResourcePropertiesEdit();
@@ -11746,6 +11753,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_graded;
 		}
+		
+		/**
+		 * Get the grader id (used to determine auto or instructor grading)
+		 */
+		public String getGradedBy(){
+			return m_gradedBy;
+		}
 
 		/**
 		 * Get the time on which the graded submission was returned; null means the response is not yet graded.
@@ -12279,6 +12293,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public void setGraded(boolean value)
 		{
 			m_graded = value;
+		}
+		
+		/**
+		 * set the grader id (used to distinguish between auto and instructor grading)
+		 */
+		public void setGradedBy(String gradedBy){
+			m_gradedBy = gradedBy;
 		}
 
 		/**
