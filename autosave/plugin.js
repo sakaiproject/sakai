@@ -9,15 +9,15 @@
     }
    
     CKEDITOR.plugins.add("autosave", {
-        lang: ['de', 'en', 'jp', 'pl', 'pt-BR', 'sv', 'zh', 'zh-cn'],
-        version: 0.6,
-        init: function (editor) {
+        lang: 'de,en,jp,pl,pt-BR,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
+        version: 0.7,
+        init: function(editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
             var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
 
             CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
 
-            CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
+            CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function() {
                 GenerateAutoSaveDialog(editor, autoSaveKey);
 
                 CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
@@ -25,17 +25,19 @@
 
             editor.on('key', startTimer);
 
-            editor.on('destroy', function () {
+            editor.on('destroy', function() {
                 SaveData(autoSaveKey, editor);
             });
-            
-            editor.on('uiSpace', function (event) {
+
+            editor.on('uiSpace', function(event) {
                 if (event.data.space == 'bottom') {
-                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="' + autoSaveMessageId(event.editor) + '"class="hidden"' + '>Auto Saved</div></div>';
+                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
+                        + autoSaveMessageId(event.editor)
+                        + '"class="hidden">'
+                        + editorInstance.lang.autosave.autoSaveMessage
+                        + '</div></div>';
                 }
             }, editor, null, 100);
-            
-            
         }
     });
     
