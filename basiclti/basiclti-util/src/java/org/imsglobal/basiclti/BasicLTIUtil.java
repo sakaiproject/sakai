@@ -121,11 +121,13 @@ public class BasicLTIUtil {
 		try {
 			oauth_consumer_key = oam.getConsumerKey();
 		} catch (Exception e) {
-            return "Unable to find consumer key";
+			return "Unable to find consumer key in message";
 		}
 
 		if ( expected_oauth_key != null && ! expected_oauth_key.equals(oauth_consumer_key) ) {
-            return "Incorrect consumer key";
+			M_log.warning("BasicLTIUtil.validateMessage Incorrect consumer key="+oauth_consumer_key+
+				" expected key="+expected_oauth_key);
+			return "Incorrect consumer key "+oauth_consumer_key;
 		}
 
 		OAuthValidator oav = new SimpleOAuthValidator();

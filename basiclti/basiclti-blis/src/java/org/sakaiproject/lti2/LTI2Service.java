@@ -609,7 +609,12 @@ System.out.println("placement_id="+placement_id);
 				return;
 			}
 			deployKey = SakaiBLTIUtil.getLongKey(deploy.get(LTIService.LTI_ID));
-		} else if ( bubble ) {
+		} else {
+			if ( tool == null ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request,response, jsonRequest, "Bad tool item", null);
+				return;
+			}
 			deployKey = SakaiBLTIUtil.getLongKey(tool.get(LTIService.LTI_DEPLOYMENT_ID));
 			if ( deployKey >= 0 ) {
 				deploy = ltiService.getDeployDao(deployKey);
@@ -686,6 +691,13 @@ System.out.println("placement_id="+placement_id);
 		} else {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request,response, jsonRequest, "Bad Setttings Scope="+scope, null);
+			return;
+		}
+
+		// Make sure we have a key and secret
+		if ( oauth_secret == null || consumer_key == null ) {
+			response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+			doErrorJSON(request,response, jsonRequest, "Key or secret is null, key="+consumer_key, null);
 			return;
 		}
 
