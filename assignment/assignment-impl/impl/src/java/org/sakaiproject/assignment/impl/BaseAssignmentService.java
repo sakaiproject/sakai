@@ -11887,8 +11887,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						// grade saved but not release yet, show this to graders
 						retVal = getGradeOrComment();
 					}else{
-						// "draft graded"
-						retVal = rb.getString("grad4");
+						// submission saved, not submitted.
+						retVal = rb.getString("gen.dra2") + " " + rb.getString("gen.inpro");
 					}
 				}
 				else	
