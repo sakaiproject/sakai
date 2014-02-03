@@ -11883,9 +11883,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							retVal = rb.getString("gen.returned");
 						}
 					}
-					else if (allowGrade)
+					else if (allowGrade){
 						// grade saved but not release yet, show this to graders
 						retVal = getGradeOrComment();
+					}else{
+						// "draft graded"
+						retVal = rb.getString("grad4");
+					}
 				}
 				else	
 				{
