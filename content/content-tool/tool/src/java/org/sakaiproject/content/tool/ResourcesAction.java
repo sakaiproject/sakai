@@ -4993,7 +4993,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		context.put("tlang",rb);
 		
-		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
+		//String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
+		String folderId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
 		context.put("folderId", folderId);
 
 		List cPath = getCollectionPath(state);
@@ -5010,6 +5012,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
+		// put the service instance into context
+		context.put("contentService", contentService);
+		context.put("displayNameProp", ResourceProperties.PROP_DISPLAY_NAME);
 		List<ContentResource> members = contentService.getAllDeletedResources(folderId);
 		
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
@@ -6384,12 +6389,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					//sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
 					//sAction.finalizeAction(reference);
-					break;
-				case RESTORE:
-					sAction.initializeAction(reference);
-					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
-					state.setAttribute(STATE_MODE, MODE_RESTORE);
-					sAction.finalizeAction(reference);
 					break;
 				case REVISE_ORDER:
 					sAction.initializeAction(reference);
@@ -9960,4 +9959,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 	}
 	
+	public void doViewTrash(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_MODE, MODE_RESTORE);
+	}
 }	// ResourcesAction
