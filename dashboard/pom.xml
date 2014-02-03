@@ -15,7 +15,7 @@
     	<parent>
         	<groupId>org.sakaiproject</groupId>
         	<artifactId>master</artifactId>
-        	<version>2.10-SNAPSHOT</version>
+        	<version>10.0-SNAPSHOT</version>
         	<relativePath>../master/pom.xml</relativePath>
     	</parent>
 	
@@ -25,117 +25,45 @@
 
 	<dependencyManagement>
 		<dependencies>
-
-            <!-- unit tests are a global dependency -->
-            <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.11</version>
-                <scope>test</scope>
-            </dependency>
-			<!-- project dependencies -->
 			<dependency>
 				<groupId>org.sakaiproject.dash</groupId>
 				<artifactId>dashboard-api</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.dash</groupId>
 				<artifactId>dashboard-app</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<scope>provided</scope>
 			</dependency>
+            <dependency>
+                <groupId>org.sakaiproject.dash</groupId>
+                <artifactId>dashboard-bundles</artifactId>
+                <version>${project.version}</version>
+                <scope>runtime</scope>
+            </dependency>
 			<dependency>
 				<groupId>org.sakaiproject.dash</groupId>
 				<artifactId>dashboard-impl</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 				<scope>runtime</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.dash</groupId>
 				<artifactId>dashboard-util</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.sakaiproject.dash</groupId>
 				<artifactId>dashboard-hbm</artifactId>
-				<version>1.0-SNAPSHOT</version>
+				<version>${project.version}</version>
                 <scope>provided</scope>
 			</dependency>
-
-			<dependency>
-				<groupId>org.sakaiproject.dash</groupId>
-				<artifactId>dashboard-bundles</artifactId>
-				<version>1.0-SNAPSHOT</version>
-				<scope>runtime</scope>
-			</dependency>
-
-			<!-- third party dependencies -->
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket</artifactId>
-				<version>1.4.17</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.wicket</groupId>
-				<artifactId>wicket-spring</artifactId>
-				<version>1.4.17</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-log4j12</artifactId>
-				<version>1.5.8</version>
-			</dependency>
-			<dependency>
-				<groupId>org.slf4j</groupId>
-				<artifactId>slf4j-api</artifactId>
-				<version>1.5.8</version>
-			</dependency>
-			<dependency>
-				<groupId>log4j</groupId>
-				<artifactId>log4j</artifactId>
-				<version>1.2.14</version>
-			</dependency>
-			<!--
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>0.11.0</version>
-				<scope>provided</scope>
-			</dependency>
--->
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring</artifactId>
-				<version>2.5.6.SEC02</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>net.sf.ehcache</groupId>
-				<artifactId>ehcache-core</artifactId>
-				<version>1.7.2</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>commons-lang</groupId>
-				<artifactId>commons-lang</artifactId>
-				<version>2.5</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
-				<groupId>commons-configuration</groupId>
-				<artifactId>commons-configuration</artifactId>
-				<version>1.6</version>
-			</dependency>
-
-			<!-- sakai dependencies -->
-
-
 		</dependencies>
 	</dependencyManagement>
 
-
+<!--
 	<repositories>
 		<repository>
 			<id>sakai-maven</id>
@@ -210,8 +138,7 @@
 			<url>http://oss.sonatype.org/content/repositories/github-releases</url>
 		</pluginRepository>
 	</pluginRepositories>
-
-
+-->
 
 	<modules>
 		<module>app</module>

@@ -17,6 +17,11 @@
 
 	<packaging>war</packaging>
 
+    <properties>
+        <apache.wicket.version>1.4.7</apache.wicket.version>
+        <slf4j.version>1.5.8</slf4j.version>
+    </properties>
+
 	<dependencies>
 
 		<!-- project dependencies -->
@@ -36,24 +41,39 @@
 			<groupId>org.sakaiproject.dash</groupId>
 			<artifactId>dashboard-util</artifactId>
 		</dependency>
-
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
 
 		<!-- third party dependencies -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
+            <version>${apache.wicket.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
+            <version>${apache.wicket.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
+            <version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>log4j</groupId>
@@ -69,30 +89,7 @@
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
 		</dependency>
-
-		<!--
-		<dependency>
-			<groupId>org.projectlombok</groupId>
-			<artifactId>lombok</artifactId>
-		</dependency>
--->
-
-		<!-- Sakai dependencies -->
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-api</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-component-manager</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject.kernel</groupId>
-			<artifactId>sakai-kernel-util</artifactId>
-		</dependency>
-
 	</dependencies>
-
 
 	<build>
 		<resources>
