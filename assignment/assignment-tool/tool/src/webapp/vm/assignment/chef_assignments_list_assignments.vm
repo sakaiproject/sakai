@@ -620,7 +620,7 @@ function allowClick(object)
 								#end
 								<!-- status col -->
 								<td>
-									#if ($submission.getSubmitted())
+									#if ($!submission)
 										#if($assignment.isPeerAssessmentPending())
 											<!-- peer review hasn't opened and user submitted -->
 											$tlang.getString("peerassessment.notOpen")
@@ -692,7 +692,7 @@ function allowClick(object)
 						
 							<!-- end peer assessment overview row -->
 							<!-- peer assessment items rows->
-							#if ($submission.getSubmitted() && $assignment.isPeerAssessmentOpen() && $reviews)
+							#if ($!submission && $assignment.isPeerAssessmentOpen() && $!reviews)
 								<!-- peer assessment is open and user has submitted, show item details
 								#set ($reviewCount = 0)
 								#foreach ($review in $reviews)
