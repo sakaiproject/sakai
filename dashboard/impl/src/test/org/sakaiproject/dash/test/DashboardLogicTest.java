@@ -327,20 +327,16 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		
 		String serverId00 = this.getUniqueIdentifier();
 		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId00);
-
 		// boolean checkTaskLock(String task)
 		String task00 = this.getUniqueIdentifier();
 		this.dashboardCommonLogic.checkTaskLock(task00);
-		
 		List<TaskLock> taskLocks = dao.getTaskLocks(task00);
 		assertNotNull(taskLocks);
 		assertEquals(1, taskLocks.size());
 		
 		String serverId01 = this.getUniqueIdentifier();
 		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId01);
-
 		this.dashboardCommonLogic.checkTaskLock(task00);
-		
 		taskLocks = dao.getTaskLocks(task00);
 		assertNotNull(taskLocks);
 		assertEquals(2, taskLocks.size());
@@ -361,7 +357,8 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		assertTrue(taskLock00.getLastUpdate().before(taskLock01.getLastUpdate()));
 		
 	}
-	public void testUpdateTaskLock(String task) {
+	
+	/*public void testUpdateTaskLock(String task) {
 		this.sakaiProxy = new SakaiProxyMock();
 		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
 		DashboardDao dao = new DashboardDaoMock();
@@ -420,7 +417,7 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		}
 		assertTrue(found);
 		
-	}
+	}*/
 	
 	protected String getUniqueIdentifier() {
 		return "unique-identifier-" + counter.incrementAndGet();
