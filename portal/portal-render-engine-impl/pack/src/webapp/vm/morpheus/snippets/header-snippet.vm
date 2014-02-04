@@ -1,0 +1,7 @@
+## Header that shows institution and/or banner logos
+<header role="banner">
+    <span class="header logo institution">
+    </span>
+    <span class="header logo banner">
+    </span>
+</header>

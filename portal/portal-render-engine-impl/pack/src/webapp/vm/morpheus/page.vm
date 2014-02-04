@@ -1,0 +1,28 @@
+## 
+## Page View.
+## Compared to Site View Page has 
+## No Header
+## No Site Tabs
+## No Page Tabs
+##
+##
+#parse("/vm/morpheus/includeStandardHead.vm")
+    ## includes <html> 
+    <body class="portalBody">
+        <!-- START VM page.vm -->
+        #if ( $pageTop )
+        <script>
+            var sakaiPortalWindow = "";
+        </script>
+        #end
+        <div id="portalOuterContainer">
+            <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="minimize-site-nav" #end >
+                ## Skip Nav
+                #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
+                
+                #parse("/vm/morpheus/includePage.vm")
+            </div>
+        </div>
+        <!-- END VM page.vm -->
+    </body>
+</html>

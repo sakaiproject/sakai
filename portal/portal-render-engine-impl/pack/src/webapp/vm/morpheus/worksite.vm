@@ -1,0 +1,40 @@
+## 
+## Worksite View.
+## Compared to Site View Worksite has 
+## No Header
+## No Site Tabs
+## Has Page Tabs
+##
+##
+<!-- START VM worksite.vm -->
+#parse("/vm/morpheus/includeStandardHead.vm")
+    <body class="portalBody">
+        #if ( $pageTop )
+            <script>
+                var sakaiPortalWindow = "";
+            </script>
+        #end
+        <div id="portalOuterContainer">
+            <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="minimize-site-nav" #end >
+                <div id="skipNav">
+                    #if ($siteNavHasAccessibilityURL)
+                        <a href="$siteNavAccessibilityURL" class="skip" title="${rloader.sit_accessibility}" accesskey="0">
+                            ${rloader.sit_accessibility}
+                        </a>
+                    #end
+                    <a href="#tocontent"  class="skip" title="${rloader.sit_jumpcontent}" accesskey="c">
+                        ${rloader.sit_jumpcontent}
+                    </a>
+                    <a href="#totoolmenu"  class="skip" title="${rloader.sit_jumptools}" accesskey="l">
+                        ${rloader.sit_jumptools}
+                    </a>
+                    <a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
+                        ${rloader.sit_jumpworksite}
+                    </a>
+                </div>
+                #parse("/vm/morpheus/includePageWithNav.vm")
+            </div>
+        </div>
+        <!-- END VM worksite.vm -->
+    </body>
+</html>

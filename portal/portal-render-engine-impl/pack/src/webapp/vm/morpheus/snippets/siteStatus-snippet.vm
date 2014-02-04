@@ -1,0 +1,9 @@
+## Moved from the tool nav to the top of the content so that it'll appear on the default mobile view 
+#if (${sitePages.softlyDeleted})
+    <span id="siteStatusSoftlyDeleted" class="site-status softly-deleted message error">${rloader.site_softly_deleted}</p>
+#elseif (!${sitePages.pageNavPublished})
+    <span id="siteStatus" class="site-status unpublished message information">
+    <h4>${rloader.sit_unpublished}</h4>
+        <button onclick="publishSite('${sitePages.siteId}');" class="active">${rloader.sit_publish_now}</button>
+    </span>
+#end

@@ -1,0 +1,47 @@
+##
+## the Page part of the standard view, with page navigation
+##
+##
+<!-- START VM includePageWithNav.vm -->
+#if ( $portalBreadCrumbs or $portalPwd ) 
+    <ul id="siteHierarchy"> 
+        #set ($tabTotal = 0)
+        #foreach ( $pwd in $portalPwd )
+            #set ($tabTotal = $tabTotal + 1)
+        #end
+        
+        #foreach ( $crumb in $portalBreadCrumbs )
+            #set ($tabTotal = $tabTotal + 1)
+        #end
+       
+        #set ($tabCountBread = 0)
+        
+        #foreach ( $pwd in $portalPwd )
+        #set ($tabCountBread = $tabCountBread + 1)
+            <li class="crumb-$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+            </li>
+        #end
+        
+        #foreach ( $pwd in $portalBreadCrumbs )
+            #set ($tabCountBread = $tabCountBread + 1)
+            <li class="crumb-$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+            </li>
+        #end
+    </ul>
+#end
+
+<div id="container" class="container portal" $pageSiteType>
+
+    #if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+        #parse("/vm/morpheus/includePageNav.vm")
+    #else 
+        <!-- no page nav requested -->
+    #end
+
+    #parse("/vm/morpheus/includePageBody.vm")
+    
+</div>
+
+<!-- END VM includePageWithNav.vm -->

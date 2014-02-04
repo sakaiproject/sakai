@@ -1,0 +1,7 @@
+<form id="loginForm" method="post" action="${loginPortalPath}/xlogin" enctype="application/x-www-form-urlencoded">
+    <label for="eid">${loginEidWording}</label>
+    <input name="eid" id="eid" type="text">
+    <label for="pw">${loginPwWording}</label>
+    <input name="pw" type="password" id="pw">
+    <input name="submit" type="submit" id="submit" value="${loginWording}">
+</form>
