@@ -1568,7 +1568,7 @@
       <plugin>
         <!-- jxr source code cross linking -->
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
+        <artifactId>maven-jxr-plugin</artifactId>
         <version>2.3</version>
         <configuration>
           <linkJavadoc>true</linkJavadoc>
