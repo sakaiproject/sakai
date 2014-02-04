@@ -71,6 +71,7 @@ public class EventSummary implements Serializable {
 	private boolean		hasAttachments	= false;
 	private List		attachments		= new ArrayList();
 	private List		attachmentsWrp	= new ArrayList();
+	private boolean 	openDateError	= false;
 	
 	
 	private static Log	 LOG = LogFactory.getLog(EventSummary.class);
@@ -294,5 +295,13 @@ public class EventSummary implements Serializable {
 	
 	private String getTimeStr(Time time) {
 		return time.toStringLocalTimeZ();
+	}
+	
+	public boolean isOpenDateError() {
+		return openDateError;
+	}
+	
+	public void setOpenDateError(boolean openDateError) {
+		this.openDateError = openDateError;
 	}
 }

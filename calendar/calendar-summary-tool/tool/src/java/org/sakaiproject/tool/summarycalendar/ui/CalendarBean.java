@@ -72,7 +72,10 @@ import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
-
+import org.sakaiproject.entitybroker.EntityBroker;
+import org.sakaiproject.entitybroker.EntityReference;
+import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
+import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 
 public class CalendarBean {
 
@@ -770,6 +773,24 @@ public class CalendarBean {
 				String eventUrl = buildEventUrl(site, event.getReference());
 				selectedEvent.setUrl(eventUrl);
 				selectedEvent.setAttachments(event.getAttachments());
+				//Checking assignment If the event is assignment due date
+				try{
+					String assignmentId = event.getField(CalendarUtil.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID);
+					if (assignmentId != null && assignmentId.trim().length() > 0)
+					{
+						StringBuilder entityId = new StringBuilder( ASSN_ENTITY_PREFIX );
+						entityId.append( assignmentId );
+						if (entityBroker == null)
+						{
+							entityBroker = (EntityBroker) ComponentManager.get("org.sakaiproject.entitybroker.EntityBroker");
+						}
+						entityBroker.executeCustomAction(entityId.toString(), ASSN_ENTITY_ACTION, null, null);						
+					}
+					
+				}catch(EntityNotFoundException e){
+					selectedEvent.setOpenDateError(true);
+				}				
+				
 				// groups
 				if(M_as.unlock("calendar.all.groups", "/site/"+calendar.getContext())){
 					Collection grps = event.getGroupObjects();
@@ -880,4 +901,8 @@ public class CalendarBean {
 	public boolean isPreferencesVisible() {
 		return M_as.unlock(CalendarService.AUTH_OPTIONS_CALENDAR, M_ca.calendarReference(getSiteId(), SiteService.MAIN_CONTAINER));
 	}
+	private final static String ASSN_ENTITY_ID     = "assignment";
+	private final static String ASSN_ENTITY_ACTION = "item";
+	private EntityBroker entityBroker;
+	private final static String ASSN_ENTITY_PREFIX = EntityReference.SEPARATOR+ASSN_ENTITY_ID+EntityReference.SEPARATOR+ASSN_ENTITY_ACTION+EntityReference.SEPARATOR;
 }

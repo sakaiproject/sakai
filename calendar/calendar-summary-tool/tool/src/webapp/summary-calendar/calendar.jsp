@@ -170,7 +170,13 @@
 		<h:panelGroup id="div_selected_event" rendered="#{CalBean.viewingSelectedEvent}" style="width:100%; padding-top: 10px; display: block">
 			<f:verbatim><h4></f:verbatim><h:outputText value="#{CalBean.selectedEvent.displayName}"/><f:verbatim></h4></f:verbatim>
 			
-			<h:panelGrid id="panel_selected_event" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="2" columnClasses="calTop,calTop"> 		
+			<h:panelGrid id="panel_selected_event_error" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="1" columnClasses="calTop" rendered="#{CalBean.selectedEvent.openDateError}">
+				<h:outputText value="#{msgs['java.alert.opendate']}" styleClass="alertMessage"/>
+				<h:panelGroup styleClass="act" style="display: block">
+					<h:commandButton value="#{msgs.back}" actionListener="#{CalBean.backToEventList}" immediate="true"/>
+				</h:panelGroup>
+			</h:panelGrid>
+			<h:panelGrid id="panel_selected_event" styleClass="sectionContainerNav" style="width:100%; padding-top: 5px;" columns="2" columnClasses="calTop,calTop" rendered="#{not CalBean.selectedEvent.openDateError}"> 		
 				<h:outputLabel for="date" value="#{msgs.date}" />
 		        <h:outputText id="date" value="#{CalBean.selectedEvent.date}" />
 				<h:outputLabel for="type" value="#{msgs.type}" />
