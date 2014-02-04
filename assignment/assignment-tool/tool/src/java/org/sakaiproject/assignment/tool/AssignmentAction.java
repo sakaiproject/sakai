@@ -5106,6 +5106,18 @@ public class AssignmentAction extends PagedResourceActionII
 		AssignmentSubmissionEdit sEdit = editSubmission(sId, "grade_submission_option", state);
 		if (sEdit != null)
 		{
+			//This logic could be done in one line, but would be harder to read, so break it out to make it easier to follow
+			boolean gradeChanged = false;
+			if((sEdit.getGrade() == null || "".equals(sEdit.getGrade().trim()))
+					&& (grade == null || "".equals(grade.trim()))){
+				//both are null, keep grade changed = false
+			}else if((sEdit.getGrade() == null || "".equals(sEdit.getGrade().trim())
+					|| (grade == null || "".equals(grade.trim())))){
+				//one is null the other isn't
+				gradeChanged = true;
+			}else if(!grade.trim().equals(sEdit.getGrade().trim())){
+				gradeChanged = true;
+			}
 			Assignment a = sEdit.getAssignment();
 			int typeOfGrade = a.getContent().getTypeOfGrade();
 
@@ -5113,7 +5125,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				// no grade input needed for the without-grade version of assignment tool
 				sEdit.setGraded(true);
-				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+				if(gradeChanged){
+					sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
+				}
 				if ("return".equals(gradeOption) || "release".equals(gradeOption))
 				{
 					sEdit.setGradeReleased(true);
@@ -5123,22 +5137,28 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGrade("");
 				sEdit.setGraded(false);
-				sEdit.setGradedBy(null);
+				if(gradeChanged){
+					sEdit.setGradedBy(null);
+				}
 				sEdit.setGradeReleased(false);
 			}
 			else
 			{
 				sEdit.setGrade(grade);
-				
+
 				if (grade.length() != 0)
 				{
 					sEdit.setGraded(true);
-					sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+					if(gradeChanged){
+						sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
+					}
 				}
 				else
 				{
 					sEdit.setGraded(false);
-					sEdit.setGradedBy(null);
+					if(gradeChanged){
+						sEdit.setGradedBy(null);
+					}
 				}
 			}
 
@@ -5155,7 +5175,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGradeReleased(true);
 				sEdit.setGraded(true);
-				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+				if(gradeChanged){
+					sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
+				}
 				// clear the returned flag
 				sEdit.setReturned(false);
 				sEdit.setTimeReturned(null);
@@ -5164,7 +5186,9 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				sEdit.setGradeReleased(true);
 				sEdit.setGraded(true);
-				sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+				if(gradeChanged){
+					sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
+				}
 				sEdit.setReturned(true);
 				sEdit.setTimeReturned(TimeService.newTime());
 				sEdit.setHonorPledgeFlag(Boolean.FALSE.booleanValue());
@@ -13628,7 +13652,7 @@ public class AssignmentAction extends PagedResourceActionII
 						{
 							sEdit.setGrade(grade);
 							sEdit.setGraded(true);
-							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -13718,7 +13742,7 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setGrade(grade);
 							sEdit.setSubmitted(true);
 							sEdit.setGraded(true);
-							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -13729,7 +13753,7 @@ public class AssignmentAction extends PagedResourceActionII
 						if (sEdit != null)
 						{
 							sEdit.setGraded(true);
-							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+							sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
 							AssignmentService.commitEdit(sEdit);
 						}
 					}
@@ -14438,7 +14462,7 @@ public class AssignmentAction extends PagedResourceActionII
 								sEdit.setGrade(grade);
 								if (grade != null && !grade.equals(rb.getString("gen.nograd")) && !"ungraded".equals(grade)){
 									sEdit.setGraded(true);
-									sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? "null" : UserDirectoryService.getCurrentUser().getId());
+									sEdit.setGradedBy(UserDirectoryService.getCurrentUser() == null ? null : UserDirectoryService.getCurrentUser().getId());
 								}
 							}
 							
