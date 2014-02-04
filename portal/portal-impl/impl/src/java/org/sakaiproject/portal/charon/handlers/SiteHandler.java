@@ -100,6 +100,8 @@ public class SiteHandler extends WorksiteHandler
 
 	private boolean useDHTMLMore = false;
 	
+	private static ResourceLoader rb = new ResourceLoader("sitenav");
+	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
 	// This can be replaced by the users myworkspace.
 	private String mutableSitename ="-";
@@ -468,8 +470,13 @@ public class SiteHandler extends WorksiteHandler
 		if (showShortDescription) {
 			rcontext.put("shortDescription", Web.escapeHtml(site.getShortDescription()));
 		}
-		rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
-
+		
+		if (SiteService.isUserSite(siteId)){
+			rcontext.put("siteTitle", rb.getString("sit_mywor"));
+		}else{
+			rcontext.put("siteTitle", Web.escapeHtml(site.getTitle()));
+		}
+		
 		addLocale(rcontext, site, session.getUserId());
 		
 		includeSiteNav(rcontext, req, session, siteId);

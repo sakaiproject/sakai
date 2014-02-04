@@ -47,6 +47,35 @@ ${responseHead}
     <title>${pageTitle}</title>
      <script type="text/javascript" src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
 #end
+<script type="text/javascript">
+    var portal = {
+        "chat": {
+            "enabled": $!{neoChat},
+            "pollInterval": $!{portalChatPollInterval},
+            "video": {}
+        },
+        "loggedIn": $!{loggedIn},
+        "portalPath": "$!{portalPath}",
+        "loggedOutUrl": "$!{loggedOutUrl}",
+        "siteId": "$!{siteId}",
+        "siteTitle": "$!{siteTitle}",
+        "shortDescription": "$!{shortDescription}",
+        "locale": "$!{locale}",
+        "user": {
+            "id": "$!{userId}",
+            "eid": "$!{userEid}"
+        },
+        "timeoutDialog": {
+            "enabled": $!{timeoutDialogEnabled},
+            "seconds": $!{timeoutDialogWarningSeconds}
+        },
+        "toggle": {
+            "allowauto": $!{portal_allow_auto_minimize},
+            "tools": $!{portal_allow_minimize_tools},
+            "sitenav": $!{portal_allow_minimize_navigation}
+        }
+    };
+</script>
 
 </head>
 <body class="portalBodyPDA">
@@ -292,6 +321,8 @@ ${responseBody}
     #end
 #end
 #end
+
+#parse("/vm/neoskin/includeAnalytics.vm")
 
 <footer id="pda-footer">
 <div id="switch-link-w">	

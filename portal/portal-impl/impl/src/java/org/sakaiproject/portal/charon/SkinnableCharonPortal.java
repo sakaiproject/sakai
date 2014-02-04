@@ -1156,6 +1156,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));
 
+        String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
+		if ( analyticsId != null ) {
+            rcontext.put("googleAnalyticsId", analyticsId);
+		    rcontext.put("googleAnalyticsDomain", 
+		        ServerConfigurationService.getString("portal.google.analytics_domain"));
+		    rcontext.put("googleAnalyticsDetail", 
+		        ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
+        }
+
 		Session s = SessionManager.getCurrentSession();
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
 		rcontext.put("userId", s.getUserId());
@@ -1706,6 +1715,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getInt("portal.chat.pollInterval", 5000));
                         rcontext.put("neoAvatar", 
 				ServerConfigurationService.getBoolean("portal.neoavatar", true));
+                        rcontext.put("neoChatVideo", 
+				ServerConfigurationService.getBoolean("portal.chat.video", true));
+                        rcontext.put("portalVideoChatTimeout", 
+				ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
 
                         if(sakaiTutorialEnabled && thisUser != null) {
