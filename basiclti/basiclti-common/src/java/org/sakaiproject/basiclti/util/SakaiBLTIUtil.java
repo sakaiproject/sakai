@@ -23,6 +23,7 @@ import java.util.Properties;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Enumeration;
 import java.net.URL;
@@ -52,6 +53,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
@@ -306,8 +308,9 @@ public class SakaiBLTIUtil {
 		setProperty(lti2subst,"Membership.role",theRole);
 
 		String realmId = SiteService.siteReference(context);
+		User user = null;
 		try {
-			User user = UserDirectoryService.getCurrentUser();
+			user = UserDirectoryService.getCurrentUser();
 			if ( user != null ) {
 				Role role = null;
 				String roleId = null;
@@ -318,6 +321,30 @@ public class SakaiBLTIUtil {
 			}
 		} catch (GroupNotDefinedException e) {
 			dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());
+		}
+
+		// Check if there are sections the user is part of (may be more than one)
+		String courseRoster = getExternalRealmId(context);
+		if ( user!= null && courseRoster != null )
+		{
+			GroupProvider groupProvider = (GroupProvider) ComponentManager.get(
+				org.sakaiproject.authz.api.GroupProvider.class);
+			String[] courseRosters = groupProvider.unpackId(courseRoster);
+			List<String> rosterList = new ArrayList<String>();
+			String userEid = user.getEid();
+			for(int i=0; i<courseRosters.length;i++) {
+				String providerId = courseRosters[i];
+				Map userRole = groupProvider.getUserRolesForGroup(providerId);
+				if (userRole.containsKey(userEid)) {
+					rosterList.add(providerId);
+				}
+			}
+			if ( rosterList.size() > 0 ) {
+				String[] sArray = new String[rosterList.size()];
+				sArray = (String[]) rosterList.toArray(sArray);
+				String providedGroups = groupProvider.packId(sArray);
+				setProperty(props,"ext_sakai_section",providedGroups);
+			}
 		}
 	}
 
