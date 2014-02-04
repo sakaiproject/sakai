@@ -308,11 +308,6 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
-	public boolean isUserLoggedIn() {
-		return false;
-	}
-
-	@Override
 	public String getJoinGroupId(String id) {
 		return null;
 	}
@@ -324,11 +319,6 @@ public class MockSiteService implements SiteService {
 
 	@Override
 	public boolean isLimitByAccountTypeEnabled(String id) {
-		return false;
-	}
-
-	@Override
-	public boolean getBooleanSiteProperty(String id, String propertyName) {
 		return false;
 	}
 
