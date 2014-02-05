@@ -358,7 +358,7 @@ $(document).ready(function() {
 			      localDatePicker({
 			      	input:'#closedate', 
 			      	useTime:1, 
-			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_DueHour:$value_CloseMin",
+			      	val:"$value_CloseYear$H$value_CloseMonth$H$value_CloseDay $value_CloseHour:$value_CloseMin",
 			      	parseFormat: 'YYYY-MM-DD HH:mm',
 			      	ashidden:{
 			      		month:"new_assignment_closemonth",
