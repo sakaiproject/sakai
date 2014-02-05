@@ -29,12 +29,16 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Locale;
+import java.util.List;
+import java.util.ArrayList;
 import java.util.regex.Pattern;
 import java.net.URL;
 import java.net.URLConnection;
@@ -49,12 +53,15 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -89,6 +96,7 @@ public class AjaxServer extends HttpServlet
    private static final String UTF8 = "UTF-8";
 
    private static MessageSource messageSource;
+   private static SiteService siteService;
 
    /** Our log (commons). */
    private static Log log = LogFactory.getLog(AjaxServer.class);
@@ -166,7 +174,7 @@ public class AjaxServer extends HttpServlet
     * @throws IOException.
     */
    
-    public String getMessage(String code, String localeName) {
+    public static String getMessage(String code, String localeName) {
 	Locale locale = null;
 
 	if (localeName != null && localeName.length() > 0) {
@@ -340,6 +348,104 @@ public class AjaxServer extends HttpServlet
 	return html;
     }
 
+    // argument is comma separated list, locale, site, group, group ...
+    public static String groupErrors(String siteId, String locale, String groupString) {
+	locale = locale.trim();
+	if (locale.length() == 0)
+	    locale = null;
+	if (siteId == null)
+	    siteId = "";
+	siteId = siteId.trim();
+	if (groupString == null)
+	    groupString = "";
+	Map<String,Set<String>> user2groups = new HashMap<String,Set<String>>();
+	Set<String> overlapGroups = new HashSet<String>();
+	String [] groupIdArray= groupString.trim().split(",");
+	List<String> groupIds = new ArrayList<String>();
+        for (String g: groupIdArray) {
+	    g = g.trim();
+	    if (g.length() > 0)
+		groupIds.add(g);
+	}
+
+	Site site = null;
+	Collection<String> users = null;
+	Collection<Group> groups = null;
+
+	try {
+	    // get all users in site and add entries to user@groups
+	    // this will have all the groups each user belongs to
+	    site = siteService.getSite(siteId);
+	    HashSet<String> siteGroup = new HashSet<String>();
+	    siteGroup.add("/site/" + siteId);
+	    users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
+	    for (String userId: users) {
+		user2groups.put(userId, null);
+	    }
+
+	    // get list of groups, either specified list or all groups in site
+	    if (groupIds.size() > 0) {
+		groups = new HashSet<Group>();
+		for (String groupId: groupIds) {
+		    groups.add(site.getGroup(groupId));
+		}
+	    } else
+		groups = site.getGroups();
+
+	    // for each group
+	    //    for each user in group
+	    //       if user already in a different group, there's an overlap
+	    //       otherwise remember this user is in this group
+	    for (Group group: groups) {
+		users = group.getUsers();
+		for (String groupUser: users) {
+		    Set<String> userGroups = user2groups.get(groupUser);
+		    if (userGroups != null) {
+			userGroups.add(group.getId());
+			overlapGroups.addAll(userGroups);
+		    } else {
+			userGroups = new HashSet<String>();
+			userGroups.add(group.getId());
+			user2groups.put(groupUser, userGroups);
+		    }
+		}
+	    }
+
+	    // now output warnings
+	    String retmessage = null;
+	    if (overlapGroups.size() > 0) {
+		String overlaps = "";
+		for (String groupId: overlapGroups) {
+		    Group group = site.getGroup(groupId);
+		    overlaps += ", " + group.getTitle();
+		}
+		retmessage = getMessage("simplepage.groupcheckoverlaps", locale).replace("{}", overlaps.substring(2));
+	    }
+	    String missing = "";
+	    for (Map.Entry<String, Set<String>> entry: user2groups.entrySet()) {
+		if (entry.getValue() == null) {
+		    String eid = UserDirectoryService.getUserEid(entry.getKey());
+		    missing += ", " + eid;
+		}
+	    }
+	    if (missing.length() > 1) {
+		if (retmessage == null)
+		    retmessage = "";
+		else
+		    retmessage += "\n\n";
+		retmessage += getMessage("simplepage.groupchecknogroups", locale).replace("{}", missing.substring(2));
+	    }
+	    if (retmessage != null)
+		return retmessage;
+	    else
+		return "ok";
+
+	} catch (Exception e) {
+	    return getMessage("simplepage.groupcheckfailed", locale).replace("{}", e.toString());
+	}
+    }	    
+
+
    @SuppressWarnings("unchecked")
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
    {
@@ -368,12 +474,21 @@ public class AjaxServer extends HttpServlet
       } else if (op.equals("filterhtml")) {
 	  String html = req.getParameter("html");
 	  out.print(filterHtml(html));
+      } else if (op.equals("getgrouperrors")) {
+	  String siteid = req.getParameter("site");
+	  String locale = req.getParameter("locale");
+	  String groups = req.getParameter("groups");
+	  out.print(groupErrors(siteid, locale, groups));
       }
       
    }
    
     public void setMessageSource(MessageSource s) {
 	messageSource = s;
+    }
+
+    public void setSiteService(SiteService s) {
+	siteService = s;
     }
 
 }

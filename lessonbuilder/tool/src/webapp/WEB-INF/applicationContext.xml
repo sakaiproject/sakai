@@ -395,6 +395,7 @@ simplePageBean.peerEvalAllowSelfGrade
         destroy-method="destroy"
         singleton="true">
       <property name="messageSource"><ref bean="messageSource"/></property>
+      <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
     </bean>
 
  </beans>
