@@ -51,14 +51,6 @@
       			<scope>runtime</scope>
     		</dependency>
 
-            <!-- sakai dependencies -->
-            <dependency>
-                <groupId>org.sakaiproject.hierarchy</groupId>
-                <artifactId>hierarchy-api</artifactId>
-                <version>1.2.7-SNAPSHOT</version>
-                <scope>provided</scope>
-            </dependency>
-			
 			<!-- third party dependencies -->
 			<dependency>
 				<groupId>org.apache.wicket</groupId>
