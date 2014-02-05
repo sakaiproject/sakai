@@ -73,6 +73,7 @@ import org.sakaiproject.util.Web;
 import org.springframework.context.MessageSource;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.SimplePage;
 
 /**
  * <p>
@@ -350,12 +351,19 @@ public class AjaxServer extends HttpServlet
 
     // argument is comma separated list, locale, site, group, group ...
     public static String groupErrors(String siteId, String locale, String groupString) {
+
 	locale = locale.trim();
 	if (locale.length() == 0)
 	    locale = null;
 	if (siteId == null)
 	    siteId = "";
 	siteId = siteId.trim();
+
+	// currently this is only needed by the instructor
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref))
+	    return getMessage("simplepage.nowrite", locale);
+	
 	if (groupString == null)
 	    groupString = "";
 	Map<String,Set<String>> user2groups = new HashMap<String,Set<String>>();
@@ -449,7 +457,7 @@ public class AjaxServer extends HttpServlet
    @SuppressWarnings("unchecked")
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
    {
-      
+
       // get the Tool
       Placement placement = ToolManager.getCurrentPlacement();
       Properties config = null;
