@@ -720,7 +720,8 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.deletestudentsubmissionexist" id="simplepage.deletestudentsubmissionexist"></p>
 			  <p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
 			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
-
+			  <p rsf:id="siteid" id="siteid"></p>
+			  <p rsf:id="locale" id="locale"></p>
 			</div>
 
 			<div id="subpage-dialog" rsf:id="subpage-dialog">
@@ -1521,11 +1522,20 @@ function resizeiframe(id) {
 		       </div>
 		       <div id="peer-eval-rows-for-submission" style="display:none;"></div>
 
+		    <div class="ui-widget" id="student-group-errors-container">
+		      <div class="ui-state-error ui-corner-all" style="padding: .7em .7em;"> 
+			<span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
+			<strong rsf:id="msg=simplepage.error_colon"></strong> 
+			<p class="lessons-messages" id="student-group-errors"></p>
+		      </div>
+		    </div>
+
                     <div class="act">
                         <input class="bold" type="submit" onclick="return true;" id="update-student" rsf:id="update-student" />
                         <input type="submit" rsf:id="cancel-student" onclick="closeStudentDialog(); return false" />
                         <input type="submit" class="deleteButton" id="delete-student-item" rsf:id="delete-student-item" />
                     </div>
+
                 </form>
 			</div>
 			

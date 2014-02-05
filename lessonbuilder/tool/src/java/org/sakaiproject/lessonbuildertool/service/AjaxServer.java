@@ -436,7 +436,7 @@ public class AjaxServer extends HttpServlet
 		retmessage += getMessage("simplepage.groupchecknogroups", locale).replace("{}", missing.substring(2));
 	    }
 	    if (retmessage != null)
-		return retmessage;
+		return "\n\n" + retmessage + "\n\n" + getMessage("simplepage.insist", locale);
 	    else
 		return "ok";
 

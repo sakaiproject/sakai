@@ -89,6 +89,9 @@
 .indent3 {
 	margin-left: 70px
 }
+.lessons-messages{
+	white-space: pre-line;
+}
 .hidden {
 	visibility: hidden
 }

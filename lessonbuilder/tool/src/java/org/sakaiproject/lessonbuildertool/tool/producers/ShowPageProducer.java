@@ -703,6 +703,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			}
 
 			UIOutput.make(tofill, "dialogDiv");
+			UIOutput.make(tofill, "siteid", simplePageBean.getCurrentSiteId());
+			UIOutput.make(tofill, "locale", M_locale.toString());
+
 		} else if (!canReadPage) {
 			return;
 		} else if (!canSeeAll) {
@@ -2147,7 +2150,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							}
 					    }
 					
-						if(!hasOwnPage) {
+						if(!hasOwnPage && simplePageBean.myStudentPageGroupsOk(i)) {
 							UIBranchContainer row = UIBranchContainer.make(tableRow, "studentRow:");
 							UIOutput.make(row, "linkRow");
 							UIOutput.make(row, "linkCell");

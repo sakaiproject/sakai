@@ -639,6 +639,7 @@ $(function() {
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
 			$("#student-group-show").hide();
+			$("#student-group-errors-container").hide();
 
 			var row = $(this).parent().parent().parent();
 			editrow = row;
@@ -814,6 +815,8 @@ $(function() {
 				$("#student-comments-max").val("");
 			}
 			
+			insist = false;
+			$("#student-group-errors").text("");
 			var position = row.position();
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
@@ -825,6 +828,26 @@ $(function() {
 			return false;
 		});
 		
+		$("#update-student").click(function(){
+			if (!insist && $("#student-group-owned").attr("checked")) {
+			    var groups = "";
+			    if ($('#student-grouplist input:checked').size() > 0) {
+				$("#student-grouplist input:checked").each(function(index) {
+					groups += "," + $(this).attr("value");
+				    });
+				groups = groups.substring(1);
+			    }
+			    var errors = getGroupErrors(groups);
+			    if (errors != "ok") {
+				$("#student-group-errors").text(errors);
+				$("#student-group-errors-container").show();
+				insist = true;
+				return false;
+			    }
+			} 
+			return true;
+		    });
+
 		$("#editgroups-student").click(function(){
 			$("#editgroups-student").hide();
 			$("#grouplist").show();
@@ -2505,6 +2528,20 @@ function resetShortanswers() {
 	$("#extraShortanswers").empty();
 }
 
+
+function getGroupErrors(groups) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax?op=getgrouperrors&site=' + 
+	msg('siteid') + '&locale=' + msg('locale') + '&groups=' + groups;
+     $.ajax({type: "GET",
+	     async: false,
+	      url: url,
+   	  success: function(data, status, hdr) { 
+		 errors = data.trim();
+	    }});
+     return errors;
+}
 
 var mimeMime = "";
 

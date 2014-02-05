@@ -5683,6 +5683,32 @@ public class SimplePageBean {
 		}
 	}
 	
+	public boolean myStudentPageGroupsOk (SimplePageItem item) {
+	    Group group = null;
+	    String groupId = null;
+	    if (item.isGroupOwned()) {
+		// all groups we are a member of
+		Collection<Group> groups = getCurrentSite().getGroupsWithMember(getCurrentUserId());
+
+		String allowedString = item.getOwnerGroups();
+		// if no group list specified, we're OK if user is in any groups
+		if (allowedString == null || allowedString.length() == 0)
+		    return groups != null && groups.size() > 0;
+
+		// otherwise have to check 
+		HashSet<String> allowedIds = new HashSet<String>(Arrays.asList(allowedString.split(",")));
+		HashSet<String> inIds = new HashSet<String>();
+		for (Group g: groups)
+		    inIds.add(g.getId());
+
+		// see if overlap between allowed and in
+		inIds.retainAll(allowedIds);
+		return inIds.size() > 0;
+	    }
+	    // if not group owned, always OK
+	    return true;
+	}
+
 	public boolean createStudentPage(long itemId) {
 		SimplePage curr = getCurrentPage();
 		User user = UserDirectoryService.getCurrentUser();
