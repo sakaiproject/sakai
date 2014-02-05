@@ -53,6 +53,7 @@ import org.sakaiproject.api.app.messageforums.OpenTopic;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.cover.ForumScheduleNotificationCover;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
@@ -915,9 +916,14 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
               }
            }
         }
+        //make sure availability flag is set properly
+        forum.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate()));
         
         getHibernateTemplate().saveOrUpdate(forum);
-
+        
+        //make sure that any open and close dates are scheduled:
+        ForumScheduleNotificationCover.scheduleAvailability(forum);
+        
         if (logEvent) {
         	if (isNew) {
         		eventTrackingService.post(eventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_FORUM_ADD, getEventMessage(forum), false));
@@ -980,6 +986,8 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
         if (topic.getPostFirst() == null) {
         	topic.setPostFirst(Boolean.FALSE);
         }
+        //make sure availability is set properly
+        topic.setAvailability(ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate()));
         
         if (topic.getId() == null) {
             
@@ -997,6 +1005,18 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
             
         } else {
             getHibernateTemplate().saveOrUpdate(topic);
+        }
+        //now schedule any jobs that are needed for the open/close dates
+        //this will require having the ID of the topic (if its a new one)
+        if(topic.getId() == null){
+        	Topic topicTmp = getTopicByUuid(topic.getUuid());
+        	if(topicTmp != null){
+        		//set the ID so that the forum scheduler can schedule any needed jobs
+        		topic.setId(topicTmp.getId());
+        	}
+        }
+        if(topic.getId() != null){
+        	ForumScheduleNotificationCover.scheduleAvailability(topic);
         }
 
         LOG.debug("saveDiscussionForumTopic executed with topicId: " + topic.getId());
