@@ -28,9 +28,8 @@
     <properties>
         <lombok.version>0.12.0</lombok.version>
         <poi.version>3.6</poi.version>
-        <spring.version>2.5.6.SEC03</spring.version>
         <velocity.version>1.7</velocity.version>
-        <yuicompressor.plugin.version>0.9</yuicompressor.plugin.version>
+        <yuicompressor.plugin.version>1.4.0</yuicompressor.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -87,11 +86,4 @@
         <url>https://source.sakaiproject.org/contrib/roster2/trunk/</url>
     </scm>
 
-    <pluginRepositories>
-        <pluginRepository>
-        	<name>oss.sonatype.org - github-releases</name>
-        	<id>oss.sonatype.org-github-releases</id>
-        	<url>http://oss.sonatype.org/content/repositories/github-releases</url>
-        </pluginRepository>
-    </pluginRepositories>
 </project>
