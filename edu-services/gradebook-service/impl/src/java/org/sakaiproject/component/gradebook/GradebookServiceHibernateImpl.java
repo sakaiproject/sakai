@@ -71,6 +71,7 @@ import org.sakaiproject.tool.gradebook.facades.Authz;
 import org.sakaiproject.tool.gradebook.CourseGradeRecord;
 import org.sakaiproject.tool.gradebook.CourseGrade;
 import org.sakaiproject.tool.gradebook.Category;
+import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -87,6 +88,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     private GradebookExternalAssessmentService externalAssessmentService;
     private Authz authz;
     private GradebookPermissionService gradebookPermissionService;
+    private EventTrackingService eventTrackingService;
+	
+    public void setEventTrackingService(EventTrackingService eventTrackingService) {
+        this.eventTrackingService = eventTrackingService;
+    }
     
 	public boolean isAssignmentDefined(final String gradebookUid, final String assignmentName)
         throws GradebookNotFoundException {
@@ -2603,6 +2609,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				// Sync database.
 				session.flush();
 				session.clear();
+
+           		// Post an event in SAKAI_EVENT table
+           		postUpdateGradeEvent(gradebookUid, assignmentName, studentUid, convertStringToDouble(score));
 				return null;
 			}
 		});
@@ -2968,4 +2977,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return matchingAssignments;
 	}
 	
+	/**
+	 * Post an event to Sakai's event table
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @param pointsEarned
+	 * @return
+	 */
+	private void postUpdateGradeEvent(String gradebookUid, String assignmentName, String studentUid, Double pointsEarned) {
+	    if (eventTrackingService != null) {
+            eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
+        }
+    }
 }
