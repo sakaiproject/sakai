@@ -1,0 +1,17 @@
+//////////////////////////////
+// THEMES: Styles that override the default styles to create a different "theme" i.e. light vs. dark theme.
+//////////////////////////////
+
+.morpheus {
+  position: absolute;
+  top:5px;
+  left:5px;
+  padding:5px;
+  background:rgba(255,255,255,.75);
+  color:#000;
+  border:1px solid #000;
+  
+  &:after {
+    content: "Morpheus";
+  }
+}
