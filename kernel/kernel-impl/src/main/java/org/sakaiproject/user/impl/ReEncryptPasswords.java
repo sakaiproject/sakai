@@ -31,6 +31,8 @@ import java.util.Properties;
 
 public class ReEncryptPasswords {
 
+	private static Properties props;
+
 	/**
 	 * Command line utility to re-encrypt all passwords in the database that use unsalted MD5.
 	 * It should be run on the command line in the sakai.home folder with both the kernel-impl
@@ -39,21 +41,29 @@ public class ReEncryptPasswords {
 	 * @throws SQLException 
 	 */
 	public static void main(String[] args) throws Exception {
-		
-		Properties props = new Properties();
-		props.load(new FileInputStream("sakai.properties"));
+
+		props = new Properties();
+		props.load(new FileInputStream(System.getProperty("sakai.properties", "sakai.properties")));
+		String location = null;
 		try {
-			props.load(new FileInputStream("local.properties"));
+			location = System.getProperty("local.properties", "local.properties");
+			props.load(new FileInputStream(location));
 		} catch (Exception e) {
-			System.out.println("Didn't load local.properties");
+			System.out.println("Didn't load local.properties: "+ location);
+		}
+		try {
+			location = System.getProperty("security.properties", "security.properties");
+			props.load(new FileInputStream(location));
+		} catch (Exception e) {
+			System.out.println("Didn't load security.properties: "+ location);
 		}
 		
 		String url, username, password, driver;
 		
-		url = props.getProperty("url@javax.sql.BaseDataSource");
-		username = props.getProperty("username@javax.sql.BaseDataSource");
-		password = props.getProperty("password@javax.sql.BaseDataSource");
-		driver = props.getProperty("driverClassName@javax.sql.BaseDataSource");
+		url = getOrBail("url@javax.sql.BaseDataSource");
+		username = getOrBail("username@javax.sql.BaseDataSource");
+		password = getOrBail("password@javax.sql.BaseDataSource");
+		driver = getOrBail("driverClassName@javax.sql.BaseDataSource");
 
 		Class.forName(driver);
 		
@@ -82,6 +92,20 @@ public class ReEncryptPasswords {
 		}
 		conn.commit();
 		System.out.println(" Users processed: "+ total+ " updated: "+ updated);
+	}
+
+	/**
+	 * Get configuration from the properties or bail out.
+	 * @param property The property to lookup.
+	 * @return The value found.
+	 * @throws java.lang.IllegalStateException If the property wasn't found.
+	 */
+	private static String getOrBail(String property) {
+		String value = props.getProperty(property);
+		if (value == null) {
+			throw new IllegalStateException("Unable to find configuration for: "+ property);
+		}
+		return value;
 	}
 
 }
