@@ -3,9 +3,24 @@
     Add your changes and overrides to the Sass files in morheus-master! 
     View the README.md in morpheus-master for more information.
 */
+/* line 5, sass/theme/warning/_morpheus.scss */
+.morpheus {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  padding: 5px;
+  background: rgba(255, 255, 255, 0.75);
+  color: #000;
+  border: 1px solid #000;
+}
+/* line 14, sass/theme/warning/_morpheus.scss */
+.morpheus:after {
+  content: "Morpheus";
+}
+
 /* PART 1 - MAIN LAYOUT BLOCKS
 /* general body - used by main portal document   */
-/* line 5, sass/portal.scss */
+/* line 6, sass/portal.scss */
 body.portalBody {
   width: 100%;
   padding: 0;
@@ -19,20 +34,20 @@ body.portalBody {
 /* inner wrapper for portal content (decorative - children are #header #container and #footer )  */
 /* wrapper for masthead and site navigation. Two possible states - not logged in (#headerMin), logged in (#headerMax)
  * this allows you to provide different user experiences for both states */
-/* line 19, sass/portal.scss */
+/* line 20, sass/portal.scss */
 #headerMax, #headerMin {
   width: 100%;
 }
 
 /* accessibility links wrapper   */
 /* wrapper for site content (includes as children #toolMenuWrap,#content and #footer)  */
-/* line 25, sass/portal.scss */
+/* line 26, sass/portal.scss */
 #container {
   background: #fff;
 }
 
 /* wrapper for #toolMenu - children are #worsiteLogo,#toolMenu  */
-/* line 29, sass/portal.scss */
+/* line 30, sass/portal.scss */
 #toolMenuWrap {
   float: left;
   width: 12em;
@@ -47,13 +62,13 @@ body.portalBody {
   margin-bottom: 30px;
 }
 
-/* line 42, sass/portal.scss */
+/* line 43, sass/portal.scss */
 #toolMenuWrap #toggler {
   display: block;
   float: right;
 }
 
-/* line 46, sass/portal.scss */
+/* line 47, sass/portal.scss */
 .toolMenuIcon {
   background-color: transparent;
   background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
@@ -69,50 +84,50 @@ body.portalBody {
   vertical-align: middle;
 }
 
-/* line 61, sass/portal.scss */
+/* line 62, sass/portal.scss */
 .menuTitle {
   margin: 5px 25px 5px 0;
   display: block;
 }
 
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
-/* line 67, sass/portal.scss */
+/* line 68, sass/portal.scss */
 #content {
   padding: .8em 0 0 13.2em;
 }
 
 /* second wrapper for content - needed by SAK-12563 */
-/* line 71, sass/portal.scss */
+/* line 72, sass/portal.scss */
 #innercontent {
   float: left;
   width: 100%;
 }
 
-/* line 75, sass/portal.scss */
+/* line 76, sass/portal.scss */
 #col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
   width: 98.5%;
   border-bottom: 2px solid #009DCE;
 }
 
-/* line 79, sass/portal.scss */
+/* line 80, sass/portal.scss */
 #col1of2 .portletMainWrap, #col2of2 .portletMainWrap {
   width: 98.5%;
   margin-bottom: .5em;
 }
 
-/* line 83, sass/portal.scss */
+/* line 84, sass/portal.scss */
 #col1 .portletTitleWrap {
   width: 99%;
   border-bottom: 2px solid #009DCE !important;
 }
 
-/* line 87, sass/portal.scss */
+/* line 88, sass/portal.scss */
 #col1 .portletMainWrap {
   width: 99%;
 }
 
 /* wrapper for footer blocks  */
-/* line 91, sass/portal.scss */
+/* line 92, sass/portal.scss */
 #footer {
   clear: both;
   background: #444;
@@ -127,7 +142,7 @@ body.portalBody {
   border-radius: 8px;
 }
 
-/* line 104, sass/portal.scss */
+/* line 105, sass/portal.scss */
 #footerLinks {
   text-align: center;
   font-size: .9em;
@@ -135,7 +150,7 @@ body.portalBody {
   padding: 0;
 }
 
-/* line 110, sass/portal.scss */
+/* line 111, sass/portal.scss */
 #footerLinks li {
   margin: 0;
   border-left: 1px solid #ccc;
@@ -144,13 +159,13 @@ body.portalBody {
   padding: 0;
 }
 
-/* line 117, sass/portal.scss */
+/* line 118, sass/portal.scss */
 #footerLinks li:first-child {
   border: none;
 }
 
 /* PART 2 - HEADER BLOCKS (BRANDING,LOGIN) */
-/* line 122, sass/portal.scss */
+/* line 123, sass/portal.scss */
 #headerMax, #headerMin {
   background: #009DCE;
   background: -moz-linear-gradient(top, #009dce 0%, #007ea5 100%);
@@ -162,7 +177,7 @@ body.portalBody {
   border-bottom: 1px solid #007194;
 }
 
-/* line 132, sass/portal.scss */
+/* line 133, sass/portal.scss */
 #headerMin {
   overflow: hidden;
 }
@@ -173,7 +188,7 @@ body.portalBody {
 /* wrapper for mast head elements - children are 2 blocks - #mastLogo,#mastBanner
  * in this skin it and the children are hidden, The gradient is specified above, the logo is specified
  * as a background image in "ul.topnav" */
-/* line 142, sass/portal.scss */
+/* line 143, sass/portal.scss */
 #mastHead {
   clear: both;
   display: block;
@@ -181,19 +196,19 @@ body.portalBody {
 
 /* container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
 that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
-/* line 148, sass/portal.scss */
+/* line 149, sass/portal.scss */
 #mastLogo {
   display: none;
 }
 
-/* line 151, sass/portal.scss */
+/* line 152, sass/portal.scss */
 #mastLogo img {
   display: none;
 }
 
 /* show #mastLogo if the user is not logged in so that we can display the logo in the usual place (the logo
 in this skin is rendered via ul.topnav, which a anon user does not see)*/
-/* line 156, sass/portal.scss */
+/* line 157, sass/portal.scss */
 #headerMin #mastLogo {
   display: block;
   background-image: url(images/logo.png);
@@ -206,12 +221,12 @@ in this skin is rendered via ul.topnav, which a anon user does not see)*/
 
 /* another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
 that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
-/* line 167, sass/portal.scss */
+/* line 168, sass/portal.scss */
 #mastBanner {
   display: none;
 }
 
-/* line 170, sass/portal.scss */
+/* line 171, sass/portal.scss */
 #mastBanner img {
   display: none;
 }
@@ -220,25 +235,25 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
  * a user is logged in. It is a container wrapping, depending on Sakai settings: 1) #loginForm:  a login form,2) a login link for CAS,3) a logout link, 4) a link to open a menu with user
  *  centered info and controls, as well as 5) a role switching control set
 */
-/* line 177, sass/portal.scss */
+/* line 178, sass/portal.scss */
 #mastLogin {
   float: right;
   padding: 17px 10px 10px;
 }
 
 /* #mastLogin #loginForm is the form for login - contains children #eid #pw #submit as well as labels for these inputs*/
-/* line 182, sass/portal.scss */
+/* line 183, sass/portal.scss */
 #loginForm {
   color: #fff;
 }
 
-/* line 185, sass/portal.scss */
+/* line 186, sass/portal.scss */
 #loginForm label {
   padding: 0 6px;
   color: #fff;
 }
 
-/* line 189, sass/portal.scss */
+/* line 190, sass/portal.scss */
 #eid, #pw {
   border: 1px solid #ccc;
   padding: 3px;
@@ -248,13 +263,13 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 
 /* #submit is rendered like the logout link, so defined there, instead of here,
  * display: block there overriden here */
-/* line 197, sass/portal.scss */
+/* line 198, sass/portal.scss */
 #submit {
   display: inline !important;
 }
 
 /* #mastLogin #loginLinks: block for login/logout links and  link to the user centered menu */
-/* line 200, sass/portal.scss */
+/* line 201, sass/portal.scss */
 #loginLinks {
   float: right;
   color: #aaa;
@@ -262,7 +277,7 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 }
 
 /* login links for CAS,logout link  */
-/* line 206, sass/portal.scss */
+/* line 207, sass/portal.scss */
 #loginLinks a, #loginLinks a:visited {
   color: #fff;
   float: right;
@@ -270,19 +285,19 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 
 /* #loginLink1 is the "login/logout" link in a CAS setup, #loginLink2 is the secondary CAS link: login for
 guests, for example */
-/* line 212, sass/portal.scss */
+/* line 213, sass/portal.scss */
 #loginLink1, #loginLink2 {
   text-decoration: none;
   margin-top: -4px !important;
 }
 
-/* line 216, sass/portal.scss */
+/* line 217, sass/portal.scss */
 #loginLink2 {
   margin: 0 5px;
 }
 
 /* main rendering for all links and the submit button */
-/* line 220, sass/portal.scss */
+/* line 221, sass/portal.scss */
 #loginLink1, #loginLink2, form#loginForm input#submit {
   display: block;
   border-radius: 5px;
@@ -299,48 +314,48 @@ guests, for example */
   border: 1px solid #005A76;
 }
 
-/* line 235, sass/portal.scss */
+/* line 236, sass/portal.scss */
 #headerMin #loginLink1, #headerMin #loginLink2 {
   margin-top: -2px;
 }
 
-/* line 238, sass/portal.scss */
+/* line 239, sass/portal.scss */
 #loginLink1:hover, #loginLink2:hover, form#loginForm input#submit:hover {
   background: #007194;
   text-decoration: none;
 }
 
 /*make secondary CAS login link (ie. Guest Login) different*/
-/* line 243, sass/portal.scss */
+/* line 244, sass/portal.scss */
 #loginLink2, #loginLink2:hover {
   background: none;
   border: none;
 }
 
-/* line 247, sass/portal.scss */
+/* line 248, sass/portal.scss */
 #loginLink2:hover {
   text-decoration: underline;
 }
 
 /* container for the link to open the user menu, and the menu itself */
-/* line 251, sass/portal.scss */
+/* line 252, sass/portal.scss */
 #loginLinks .topnav {
   float: left;
   display: block;
 }
 
-/* line 255, sass/portal.scss */
+/* line 256, sass/portal.scss */
 #loginLinks .nav-menu > span {
   display: none;
 }
 
-/* line 258, sass/portal.scss */
+/* line 259, sass/portal.scss */
 #loginLinks .nav-menu > span.drop {
   display: block !important;
 }
 
 /* link to toggle the user info and controls */
-/* line 262, sass/portal.scss */
+/* line 263, sass/portal.scss */
 #mastLogin span.drop {
   cursor: pointer;
   background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
@@ -350,7 +365,7 @@ guests, for example */
 }
 
 /* menu for user actions (could be one of several:link to profile, preferences, add a new site, view tutorial, other)*/
-/* line 270, sass/portal.scss */
+/* line 271, sass/portal.scss */
 #mastLogin ul.subnav {
   list-style: none;
   position: absolute;
@@ -365,7 +380,7 @@ guests, for example */
   z-index: 100;
 }
 
-/* line 283, sass/portal.scss */
+/* line 284, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem {
   margin: 0;
   display: block;
@@ -376,7 +391,7 @@ guests, for example */
 }
 
 /* link items in above menu (some attr/vals are same as for site tool sub-menu, and submenus in othe rsites tray so both are doubled up here)*/
-/* line 292, sass/portal.scss */
+/* line 293, sass/portal.scss */
 ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMenuIcon, #otherSiteTools li .toolMenuIcon {
   background-color: transparent;
   background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
@@ -386,13 +401,13 @@ ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMe
   top: 1px;
 }
 
-/* line 300, sass/portal.scss */
+/* line 301, sass/portal.scss */
 #mastLogin li.submenuitem a .toolMenuIcon {
   left: 5px;
   top: 1px;
 }
 
-/* line 305, sass/portal.scss */
+/* line 306, sass/portal.scss */
 ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li a {
   text-decoration: none;
   width: 180px;
@@ -405,49 +420,49 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 }
 
 /* icons for specific menu items */
-/* line 316, sass/portal.scss */
+/* line 317, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem a span.submenuitem-new-site {
   background-position: -324px -0px;
 }
 
-/* line 319, sass/portal.scss */
+/* line 320, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem a span.submenuitem-profile {
   background-position: -198px -522px;
 }
 
-/* line 322, sass/portal.scss */
+/* line 323, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem a span.submenuitem-prefs {
   background-position: -54px -126px;
 }
 
-/* line 325, sass/portal.scss */
+/* line 326, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem a span.submenuitem-tutorial {
   background-position: -54px -252px;
 }
 
-/* line 328, sass/portal.scss */
+/* line 329, sass/portal.scss */
 #mastLogin ul.subnav li.submenuitem:last-child a {
   border-bottom: none;
 }
 
 /* #mastLogin can also contain controls to toggle in/out of different roles #roleSwitch is the container for: a selct menu, links */
-/* line 332, sass/portal.scss */
+/* line 333, sass/portal.scss */
 #roleSwitch {
   float: left;
   padding: 0 5px;
 }
 
-/* line 336, sass/portal.scss */
+/* line 337, sass/portal.scss */
 #roleSwitch select {
   font-size: 0.9em;
 }
 
-/* line 339, sass/portal.scss */
+/* line 340, sass/portal.scss */
 #roleSwitch a#roleSwitchAnchor:hover {
   text-decoration: underline;
 }
 
-/* line 342, sass/portal.scss */
+/* line 343, sass/portal.scss */
 #roleSwitch label, #roleSwitch a#roleSwitchAnchor {
   text-decoration: none;
   color: #fff;
@@ -457,7 +472,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 /* PART 3 - SITE NAVIGATION - children of #siteNavWrapper
 /* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
  * the childen can be styled depending on the site type (course, project, etc). */
-/* line 350, sass/portal.scss */
+/* line 351, sass/portal.scss */
 .siteNavWrap {
   width: 100%;
   font-size: 100%;
@@ -467,7 +482,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 
 /* wrapper for the site links, link to the 'more sites' tray, logout controls - children are #mastLogin and #linkNav*/
 /* wrapper for the site link list and link to the 'more sites' tray - since the logo is displayed here on left, it is padded.*/
-/* line 359, sass/portal.scss */
+/* line 360, sass/portal.scss */
 #linkNav {
   display: block;
   padding-right: 300px;
@@ -475,7 +490,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 
 /* site tab navigation: a list right padding makes room for logo and matches width of tool menu
  * if you do not have a logo you can eliminate it to save some room */
-/* line 365, sass/portal.scss */
+/* line 366, sass/portal.scss */
 #linkNav ul.topnav {
   list-style: none;
   padding: 8px 0 5px 155px;
@@ -486,7 +501,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 }
 
 /* the individual containers for the site links, tool menu control, tool menu*/
-/* line 373, sass/portal.scss */
+/* line 374, sass/portal.scss */
 ul.topnav li {
   display: inline-block;
   /* Note: IE 7 hack and IE 8 compat mode*/
@@ -501,7 +516,7 @@ ul.topnav li {
 }
 
 /* hover treatment for site links*/
-/* line 385, sass/portal.scss */
+/* line 386, sass/portal.scss */
 ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
   border: 1px solid #005A76;
   -moz-border-radius: 3px;
@@ -510,7 +525,7 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
 }
 
 /* current site control rendering */
-/* line 392, sass/portal.scss */
+/* line 393, sass/portal.scss */
 ul.topnav li.nav-selected {
   background: #008DB9;
   background: -moz-linear-gradient(top, #008db9 0%, #007194 100%);
@@ -526,7 +541,7 @@ ul.topnav li.nav-selected {
 }
 
 /* site submenu trigger */
-/* line 406, sass/portal.scss */
+/* line 407, sass/portal.scss */
 ul.topnav li span.drop {
   width: 17px;
   margin-top: 3px;
@@ -537,7 +552,7 @@ ul.topnav li span.drop {
 }
 
 /* site submenu trigger hover, move the subnav_btn.png sprite up*/
-/* line 415, sass/portal.scss */
+/* line 416, sass/portal.scss */
 ul.topnav li span.subhover {
   background-position: center -38px;
   cursor: pointer;
@@ -545,7 +560,7 @@ ul.topnav li span.subhover {
 
 /* The menu displayed for each site link, contains the tools of the site. Also used
 in constructing menu for user links in #mastLogin, as well as the submenus for the sites in the "more sites" tray */
-/* line 421, sass/portal.scss */
+/* line 422, sass/portal.scss */
 ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
   list-style: none;
   position: absolute;
@@ -566,7 +581,7 @@ ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
 }
 
 /* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
-/* line 440, sass/portal.scss */
+/* line 441, sass/portal.scss */
 ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
   background: #f3f3f3;
   border: 1px solid #ccc;
@@ -576,14 +591,14 @@ ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
 }
 
 /* some overrides for the menu in #mastLogin */
-/* line 448, sass/portal.scss */
+/* line 449, sass/portal.scss */
 #mastLogin ul.subnav li {
   border: none;
   outline: 1px solid #ccc;
 }
 
 /* treatment for focus and hover in the site and user sub-menus, as well as submenus in other sites */
-/* line 454, sass/portal.scss */
+/* line 455, sass/portal.scss */
 ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
 #mastLogin li.submenuitem:hover, #mastLogin ul.subnav li.submenuitem a:focus, #otherSiteTools li:hover {
   text-decoration: none;
@@ -592,7 +607,7 @@ ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
 }
 
 /* link to site */
-/* line 460, sass/portal.scss */
+/* line 461, sass/portal.scss */
 ul.topnav li a {
   padding: 8px 7px 8px 8px;
   font-size: 13px;
@@ -611,19 +626,19 @@ span.topnav li ul.subnav li {
 }
 */
 /* treatment of a tool that has been hidden via Page Order tool - below takes care of tools in submenus as well as in the site tool menu */
-/* line 477, sass/portal.scss */
+/* line 478, sass/portal.scss */
 li.submenuitem span.hidden, #toolMenu li a.hidden {
   font-style: italic;
   opacity: 0.7;
 }
 
 /* "More sites" link container, link and image background container */
-/* line 482, sass/portal.scss */
+/* line 483, sass/portal.scss */
 li.more-tab {
   padding-right: 7px !important;
 }
 
-/* line 485, sass/portal.scss */
+/* line 486, sass/portal.scss */
 li.more-tab a {
   background: transparent url(images/subnav_btn_more.png) right 0px no-repeat;
   display: block;
@@ -632,13 +647,13 @@ li.more-tab a {
   margin: 0;
 }
 
-/* line 492, sass/portal.scss */
+/* line 493, sass/portal.scss */
 li.more-tab a span {
   padding-right: 15px;
 }
 
 /* container for tray that opens when "More sites" is activated, both the default and the categorized one when portal.use.dhtml.more=true in sak.props. */
-/* line 496, sass/portal.scss */
+/* line 497, sass/portal.scss */
 #selectSite {
   background: #f3f3f3;
   border-width: 0;
@@ -662,7 +677,7 @@ li.more-tab a span {
 }
 
 /* mask that gets applied to the portal when "More sites" is triggered, making the tray modal sort of*/
-/* line 518, sass/portal.scss */
+/* line 519, sass/portal.scss */
 #portalMask {
   background-color: #ffffff;
   position: absolute;
@@ -675,7 +690,7 @@ li.more-tab a span {
 }
 
 /* wrapper and menu in the "Other Sites" tray (View all Sites, Add site, Preferences [tab management])*/
-/* line 529, sass/portal.scss */
+/* line 530, sass/portal.scss */
 #otherSiteMenuWrap {
   margin: 5px;
   padding: 5px;
@@ -683,12 +698,12 @@ li.more-tab a span {
   height: 30px;
 }
 
-/* line 535, sass/portal.scss */
+/* line 536, sass/portal.scss */
 #otherSiteMenuWrap * {
   vertical-align: middle;
 }
 
-/* line 538, sass/portal.scss */
+/* line 539, sass/portal.scss */
 ul#otherSitesMenu {
   border-bottom: 1px solid #aaa;
   font-size: .9em;
@@ -696,7 +711,7 @@ ul#otherSitesMenu {
 }
 
 /* style the menu for the tray - since the publish site link is the same, doubled up here */
-/* line 544, sass/portal.scss */
+/* line 545, sass/portal.scss */
 ul#otherSitesMenu li, #siteStatus a {
   width: auto;
   font-size: 1.1em;
@@ -719,7 +734,7 @@ ul#otherSitesMenu li, #siteStatus a {
   -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, 0.2);
 }
 
-/* line 565, sass/portal.scss */
+/* line 566, sass/portal.scss */
 #otherSitesMenu li a, #otherSitesMenu li a:visited {
   display: block;
   padding: 3px;
@@ -729,24 +744,24 @@ ul#otherSitesMenu li, #siteStatus a {
 }
 
 /* since the publish site link is the same, doubled up here */
-/* line 573, sass/portal.scss */
+/* line 574, sass/portal.scss */
 #otherSitesMenu li a:hover, #siteStatus a:hover, #siteStatus a:focus {
   color: #009dce;
 }
 
 /*container and control to close the "Other sites tray"*/
-/* line 577, sass/portal.scss */
+/* line 578, sass/portal.scss */
 #otherSitesMenu #otherSiteCloseW {
   margin-left: 10px;
 }
 
-/* line 580, sass/portal.scss */
+/* line 581, sass/portal.scss */
 #otherSitesMenu #otherSiteCloseW a {
   color: #c00;
 }
 
 /* the lists in the tray (sites and controls): two types, depending on whether portal.use.dhtml.more=true in sak.props*/
-/* line 584, sass/portal.scss */
+/* line 585, sass/portal.scss */
 ul#otherSiteList {
   list-style: none;
   margin: 5px;
@@ -758,7 +773,7 @@ ul#otherSiteList {
   overflow: auto;
 }
 
-/* line 594, sass/portal.scss */
+/* line 595, sass/portal.scss */
 ul.otherSitesCategorList {
   float: none;
   clear: both;
@@ -770,7 +785,7 @@ ul.otherSitesCategorList {
  * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
  *  ul.otherSitesCategorList. This last one will appear once per each category
  */
-/* line 605, sass/portal.scss */
+/* line 606, sass/portal.scss */
 ul#otherSiteList li, ul.otherSitesCategorList li {
   background: #009DCE;
   background: -moz-linear-gradient(top, #009dce 0%, #007ea5 100%);
@@ -794,7 +809,7 @@ ul#otherSiteList li, ul.otherSitesCategorList li {
   display: block;
 }
 
-/* line 626, sass/portal.scss */
+/* line 627, sass/portal.scss */
 ul#otherSiteList li a, ul.otherSitesCategorList li a {
   display: block;
   padding: 8px;
@@ -803,12 +818,12 @@ ul#otherSiteList li a, ul.otherSitesCategorList li a {
   white-space: nowrap;
 }
 
-/* line 633, sass/portal.scss */
+/* line 634, sass/portal.scss */
 ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span {
   outline: 1px dotted #fff;
 }
 
-/* line 636, sass/portal.scss */
+/* line 637, sass/portal.scss */
 ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   width: 14em;
   display: block;
@@ -817,31 +832,31 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* search elements for flat other sites tray search */
-/* line 643, sass/portal.scss */
+/* line 644, sass/portal.scss */
 #otherSiteSearch {
   margin: 15px;
   float: left;
 }
 
-/* line 647, sass/portal.scss */
+/* line 648, sass/portal.scss */
 #otherSiteSearch span#noSearchResults {
   padding-left: 10px;
   color: #555;
 }
 
-/* line 651, sass/portal.scss */
+/* line 652, sass/portal.scss */
 #otherSiteSearch #imgSearch {
   margin-left: 5px;
 }
 
-/* line 654, sass/portal.scss */
+/* line 655, sass/portal.scss */
 #otherSiteSearch label {
   padding-right: 15px;
   font-weight: bold;
 }
 
 /* specific to  categorized view */
-/* line 659, sass/portal.scss */
+/* line 660, sass/portal.scss */
 #otherSitesCategorWrap {
   float: none;
   clear: both;
@@ -850,7 +865,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   overflow: auto;
 }
 
-/* line 666, sass/portal.scss */
+/* line 667, sass/portal.scss */
 #otherSitesCategorWrap h4 {
   float: none;
   clear: both;
@@ -863,26 +878,26 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* tool submenu for sites in the "More sites" tray (both flat and categorized)*
  * shares attr/vals with  ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools above, here are the overrides needed for this context */
-/* line 677, sass/portal.scss */
+/* line 678, sass/portal.scss */
 #otherSiteTools {
   display: block;
   z-index: 1000000;
 }
 
-/* line 681, sass/portal.scss */
+/* line 682, sass/portal.scss */
 #otherSiteTools li a {
   padding: 7px 5px 6px;
   padding-left: 25px;
   display: block;
 }
 
-/* line 686, sass/portal.scss */
+/* line 687, sass/portal.scss */
 #otherSiteTools li a:focus {
   color: #009DCE;
 }
 
 /* trigger that retrieves from entity broker the tool menu for a site in the "More sites" tray*/
-/* line 690, sass/portal.scss */
+/* line 691, sass/portal.scss */
 .toolMenus {
   width: 17px;
   height: 17px;
@@ -895,24 +910,24 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   border-left: thin solid #FFFFFF;
 }
 
-/* line 701, sass/portal.scss */
+/* line 702, sass/portal.scss */
 .toolMenus:hover {
   background: url(images/subnav_btn.png) no-repeat 10px -38px;
   cursor: pointer;
 }
 
-/* line 705, sass/portal.scss */
+/* line 706, sass/portal.scss */
 .toolMenusActive {
   background: url(images/toolMenusActive.png) no-repeat 10px -40px;
 }
 
-/* line 708, sass/portal.scss */
+/* line 709, sass/portal.scss */
 .toolMenusActive:hover {
   background: url(images/toolMenusActive.png) no-repeat 10px -5px;
 }
 
 /* site hierarchy breadcrumb  */
-/* line 712, sass/portal.scss */
+/* line 713, sass/portal.scss */
 #siteHierarchy {
   list-style: none;
   line-height: .95em;
@@ -925,34 +940,34 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   color: #aaa;
 }
 
-/* line 723, sass/portal.scss */
+/* line 724, sass/portal.scss */
 #siteHierarchy li {
   display: inline;
   padding: 0 1px 0 0;
 }
 
-/* line 727, sass/portal.scss */
+/* line 728, sass/portal.scss */
 #siteHierarchy li a, #siteHierarchy li a:visited {
   color: #009DCE;
   font-size: 1.2em;
   text-decoration: none;
 }
 
-/* line 732, sass/portal.scss */
+/* line 733, sass/portal.scss */
 #siteHierarchy li a.lastBreadCrumb {
   color: #000;
   cursor: text;
 }
 
 /* breadcrumb separator: can set display: none if needed because the list-style is taking care of it  */
-/* line 737, sass/portal.scss */
+/* line 738, sass/portal.scss */
 .breadSeparator {
   font: 1em bold "Helvetica Neue", Arial;
 }
 
 /* PART 4 - SITE TOOL LINKS - children of #toolMenuWrap
 /* wrapper for ul that lists the links to tools, and the wrapper that lists links to subsites */
-/* line 743, sass/portal.scss */
+/* line 744, sass/portal.scss */
 #toolMenu, #subSites {
   width: 12em;
   padding: 0;
@@ -961,7 +976,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   background: #f3f3f3;
 }
 
-/* line 750, sass/portal.scss */
+/* line 751, sass/portal.scss */
 #toolMenu ul, #subSites ul {
   width: auto;
   list-style: none;
@@ -971,7 +986,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* list element wrapper for all links in the tool menu list, and subsites list */
-/* line 758, sass/portal.scss */
+/* line 759, sass/portal.scss */
 #toolMenu li, #subSites li {
   margin: 0;
   width: auto;
@@ -988,14 +1003,14 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* the current tool */
-/* line 773, sass/portal.scss */
+/* line 774, sass/portal.scss */
 #toolMenu li.selectedTool a {
   color: #009DCE !important;
   cursor: default;
 }
 
 /* eliminate the normal hover effect when it is current tool */
-/* line 778, sass/portal.scss */
+/* line 779, sass/portal.scss */
 #toolMenu li.selectedTool a:hover {
   background: inherit !important;
   *background: #f3f3f3 !important;
@@ -1003,7 +1018,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* span holds the tool icon bkgnd image for left hand menu 
  * and "a" the icon for tool pull downs - here a default is provided */
-/* line 784, sass/portal.scss */
+/* line 785, sass/portal.scss */
 #toolMenu li span, #subSites li span, .submenuitem a, .otherSiteTool a {
   /*
       background-repeat: no-repeat;
@@ -1015,19 +1030,19 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* adjusting rendering of last item in the tool menu */
-/* line 796, sass/portal.scss */
+/* line 797, sass/portal.scss */
 #toolMenuWrap > div:last-of-type li:last-of-type {
   border-width: 0;
 }
 
-/* line 800, sass/portal.scss */
+/* line 801, sass/portal.scss */
 #toolMenuWrap > div:last-of-type, #toolMenuWrap > div:last-of-type ul:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type a {
   -moz-border-radius: 0 0 4px 0;
   -webkit-border-radius: 0 0 4px 0;
   border-radius: 0 0 4px 0;
 }
 
-/* line 805, sass/portal.scss */
+/* line 806, sass/portal.scss */
 #toolMenu li a:link, #toolMenu li a, #subSites li a:link, #subSites li a {
   display: block;
   text-decoration: none;
@@ -1041,7 +1056,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   position: relative;
 }
 
-/* line 817, sass/portal.scss */
+/* line 818, sass/portal.scss */
 #toolMenu li a:hover, #subSites li a:hover, #toolMenu li a:focus, #subSites li a:focus {
   text-decoration: none;
   background: #009DCE;
@@ -1055,12 +1070,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* link in tool menu that allows adding one more tool, may be disabled */
-/* line 829, sass/portal.scss */
+/* line 830, sass/portal.scss */
 #toolMenu li.moreTools {
   padding: 8px 0;
 }
 
-/* line 832, sass/portal.scss */
+/* line 833, sass/portal.scss */
 #toolMenu li.moreTools a {
   display: inline;
   padding: 2px 5px;
@@ -1072,12 +1087,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   margin-right: 6px;
 }
 
-/* line 842, sass/portal.scss */
+/* line 843, sass/portal.scss */
 #toolMenu li.moreTools a:hover {
   color: white;
 }
 
-/* line 845, sass/portal.scss */
+/* line 846, sass/portal.scss */
 #toolMenu li.moreTools a span {
   display: inline-block;
   padding-right: 0;
@@ -1085,7 +1100,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* PART 6 - SITE AFFILIATION,SITE TYPE/STATUS - children of #toolMenuWrap */
 /* site logo wrapper  */
-/* line 852, sass/portal.scss */
+/* line 853, sass/portal.scss */
 #worksiteLogo {
   height: auto;
   overflow: hidden;
@@ -1093,7 +1108,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* setting the max-width by percentage to avoid crops and permit scaling when tool menu is minimized*/
-/* line 858, sass/portal.scss */
+/* line 859, sass/portal.scss */
 #worksiteLogo img {
   display: block;
   margin: 5px auto;
@@ -1101,7 +1116,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific. Not sure what good this is so hiding it. */
-/* line 864, sass/portal.scss */
+/* line 865, sass/portal.scss */
 #siteType {
   text-align: center;
   text-transform: capitalize;
@@ -1109,7 +1124,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* wrapper for the string that Sakai will output based on site status when status is "Unpublished"  */
-/* line 870, sass/portal.scss */
+/* line 871, sass/portal.scss */
 #siteStatus {
   text-transform: capitalize;
   clear: both;
@@ -1124,7 +1139,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   margin: 0;
 }
 
-/* line 884, sass/portal.scss */
+/* line 885, sass/portal.scss */
 #siteStatusSoftlyDeleted {
   border: 1px solid #FC3;
   padding: 24px 5px 5px 5px;
@@ -1134,7 +1149,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* link to inmediately publish the site */
-/* line 893, sass/portal.scss */
+/* line 894, sass/portal.scss */
 #siteStatus a {
   text-decoration: none;
   display: block;
@@ -1146,50 +1161,50 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* PART 7 - PORTLETS - children of #content
 /* a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet   */
-/* line 904, sass/portal.scss */
+/* line 905, sass/portal.scss */
 #col1 {
   padding-right: 1em;
 }
 
-/* line 907, sass/portal.scss */
+/* line 908, sass/portal.scss */
 #col1of2 {
   width: 49%;
   float: left;
   margin: 0;
 }
 
-/* line 912, sass/portal.scss */
+/* line 913, sass/portal.scss */
 #col2of2 {
   width: 49%;
   float: right;
 }
 
-/* line 916, sass/portal.scss */
+/* line 917, sass/portal.scss */
 .portletTitle {
   width: 100%;
   height: 100%;
   overflow: hidden;
 }
 
-/* line 921, sass/portal.scss */
+/* line 922, sass/portal.scss */
 .portletTitle .action {
   padding: 2px 4px 6px 2px;
   text-align: right;
   vertical-align: middle;
 }
 
-/* line 926, sass/portal.scss */
+/* line 927, sass/portal.scss */
 .portletTitle .action a#jsr-edit {
   padding: 2px;
   background: url(images/page_edit.gif) center right no-repeat;
 }
 
-/* line 930, sass/portal.scss */
+/* line 931, sass/portal.scss */
 .portletTitle .action a#jsr-edit:hover {
   background: url(images/page_edit.gif) center right no-repeat;
 }
 
-/* line 933, sass/portal.scss */
+/* line 934, sass/portal.scss */
 .portletTitle .action img {
   margin: 0;
   vertical-align: text-bottom;
@@ -1198,7 +1213,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   height: 18px;
 }
 
-/* line 940, sass/portal.scss */
+/* line 941, sass/portal.scss */
 .portletTitle .action a {
   background: url(images/help.gif) center right no-repeat;
   text-align: left;
@@ -1209,17 +1224,17 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   outline: none;
 }
 
-/* line 949, sass/portal.scss */
+/* line 950, sass/portal.scss */
 .portletTitle .title a:focus, .portletTitle .action a:focus {
   outline: black dotted thin;
 }
 
-/* line 952, sass/portal.scss */
+/* line 953, sass/portal.scss */
 .portletTitle .action a:hover, .portletTitle .action a:focus {
   background: url(images/help_h.gif) center right no-repeat;
 }
 
-/* line 955, sass/portal.scss */
+/* line 956, sass/portal.scss */
 .portletTitle .title {
   padding: 2px 4px 6px 0;
   height: 1em;
@@ -1227,7 +1242,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   color: #000;
 }
 
-/* line 961, sass/portal.scss */
+/* line 962, sass/portal.scss */
 .portletTitle .title img {
   margin: 0;
   vertical-align: text-bottom;
@@ -1236,7 +1251,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   height: 18px;
 }
 
-/* line 968, sass/portal.scss */
+/* line 969, sass/portal.scss */
 .portletTitle .title h2 {
   display: inline;
   margin: 0;
@@ -1247,12 +1262,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   font-size: 1.2em !important;
 }
 
-/* line 977, sass/portal.scss */
+/* line 978, sass/portal.scss */
 .portletTitle .title h2 .siteTitle {
   color: #333333;
 }
 
-/* line 980, sass/portal.scss */
+/* line 981, sass/portal.scss */
 .portletTitle .title a {
   background: url(images/reload.gif) center left no-repeat;
   text-decoration: none !important;
@@ -1261,12 +1276,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   outline: none;
 }
 
-/* line 987, sass/portal.scss */
+/* line 988, sass/portal.scss */
 .portletTitle .title a:hover, .portletTitle .title a:focus {
   background: url(images/reload_h.gif) center left no-repeat;
 }
 
-/* line 990, sass/portal.scss */
+/* line 991, sass/portal.scss */
 .portletMainIframe {
   text-align: left;
   margin-bottom: .5em;
@@ -1277,13 +1292,13 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* PART 8 - FOOTER BLOCKS - descendants of #footer */
 /* wrapper for links going to external sites */
-/* line 999, sass/portal.scss */
+/* line 1000, sass/portal.scss */
 .footerExtNav {
   padding-top: 5px;
   padding-bottom: 5px;
 }
 
-/* line 1003, sass/portal.scss */
+/* line 1004, sass/portal.scss */
 .footerExtNav a, .footerExtNav a:link, .footerExtNav A:visited {
   color: #333;
   font-size: 1em;
@@ -1291,7 +1306,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   margin: 1em;
 }
 
-/* line 1009, sass/portal.scss */
+/* line 1010, sass/portal.scss */
 .footerExtNav a:hover {
   color: #444;
   text-decoration: underline;
@@ -1299,25 +1314,25 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* the links displayed inside the wrapper above  */
 /* a second wrapper - server info,build,etc  */
-/* line 1015, sass/portal.scss */
+/* line 1016, sass/portal.scss */
 #footerInfo {
   display: none;
 }
 
-/* line 1018, sass/portal.scss */
+/* line 1019, sass/portal.scss */
 #footerInfo img {
   margin-top: .5em;
   margin-bottom: .5em;
 }
 
-/* line 1022, sass/portal.scss */
+/* line 1023, sass/portal.scss */
 .serviceInfo {
   font-size: .9em;
   color: #333;
 }
 
 /* a third wrapper - reserved for copyright blurbs  */
-/* line 1027, sass/portal.scss */
+/* line 1028, sass/portal.scss */
 .sakaiCopyrightInfo {
   padding: 5px 0;
   font-size: .9em;
@@ -1325,470 +1340,470 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* PART 9 - Tool Icons - applies to both left hand menu and submenus, as well as to submenus of sites in "Other sites" tray */
-/* line 1035, sass/portal.scss */
+/* line 1036, sass/portal.scss */
 .icon-osp-evaluation {
   background-position: -252px -504px;
 }
 
-/* line 1038, sass/portal.scss */
+/* line 1039, sass/portal.scss */
 .icon-osp-glossary {
   background-position: -468px -486px;
 }
 
-/* line 1041, sass/portal.scss */
+/* line 1042, sass/portal.scss */
 .icon-osp-matrix, .icon-osp-exposedmatrix {
   background-position: -558px -450px;
 }
 
-/* line 1044, sass/portal.scss */
+/* line 1045, sass/portal.scss */
 .icon-osp-presentation {
   background-position: -234px -54px;
 }
 
-/* line 1047, sass/portal.scss */
+/* line 1048, sass/portal.scss */
 .icon-osp-presLayout {
   background-position: -198px -270px;
 }
 
-/* line 1050, sass/portal.scss */
+/* line 1051, sass/portal.scss */
 .icon-osp-presTemplate {
   background-position: -54px -18px;
 }
 
-/* line 1053, sass/portal.scss */
+/* line 1054, sass/portal.scss */
 .icon-osp-style {
   background-position: -360px -450px;
 }
 
-/* line 1056, sass/portal.scss */
+/* line 1057, sass/portal.scss */
 .icon-osp-wizard, .icon-osp-exposedwizard {
   background-position: -270px -522px;
 }
 
-/* line 1059, sass/portal.scss */
+/* line 1060, sass/portal.scss */
 .icon-sakai-announcements {
   background-position: -324px -216px;
 }
 
-/* line 1062, sass/portal.scss */
+/* line 1063, sass/portal.scss */
 .icon-sakai-chat {
   background-position: -558px -504px;
 }
 
-/* line 1065, sass/portal.scss */
+/* line 1066, sass/portal.scss */
 .icon-sakai-datapoint {
   background-position: -180px -108px;
 }
 
-/* line 1068, sass/portal.scss */
+/* line 1069, sass/portal.scss */
 .icon-sakai-discussion {
   background-position: -324px -126px;
 }
 
-/* line 1071, sass/portal.scss */
+/* line 1072, sass/portal.scss */
 .icon-sakai-dropbox {
   background-position: -216px -234px;
 }
 
-/* line 1074, sass/portal.scss */
+/* line 1075, sass/portal.scss */
 .icon-sakai-emailtemplateservice {
   background-position: -162px -198px;
 }
 
-/* line 1077, sass/portal.scss */
+/* line 1078, sass/portal.scss */
 .icon-sakai-gmt {
   background-position: -54px -36px;
 }
 
-/* line 1080, sass/portal.scss */
+/* line 1081, sass/portal.scss */
 .icon-sakai-help {
   background-position: -54px -252px;
 }
 
-/* line 1083, sass/portal.scss */
+/* line 1084, sass/portal.scss */
 .icon-sakai-iframe {
   background-position: -432px -360px;
 }
 
-/* line 1086, sass/portal.scss */
+/* line 1087, sass/portal.scss */
 .icon-sakai-iframe-site {
   background-position: -162px -252px;
 }
 
-/* line 1089, sass/portal.scss */
+/* line 1090, sass/portal.scss */
 .icon-sakai-web-168 {
   background-position: -270px -0px;
 }
 
-/* line 1092, sass/portal.scss */
+/* line 1093, sass/portal.scss */
 .icon-sakai-mailbox {
   background-position: -90px -198px;
 }
 
-/* line 1095, sass/portal.scss */
+/* line 1096, sass/portal.scss */
 .icon-sakai-messages {
   background-position: -252px -126px;
 }
 
-/* line 1098, sass/portal.scss */
+/* line 1099, sass/portal.scss */
 .icon-sakai-metaobj {
   background-position: -162px -0px;
 }
 
-/* line 1101, sass/portal.scss */
+/* line 1102, sass/portal.scss */
 .icon-sakai-membership {
   background-position: -432px -234px;
 }
 
-/* line 1104, sass/portal.scss */
+/* line 1105, sass/portal.scss */
 .icon-sakai-news {
   background-position: -432px -396px;
 }
 
-/* line 1107, sass/portal.scss */
+/* line 1108, sass/portal.scss */
 .icon-sakai-podcasts {
   background-position: -450px -252px;
 }
 
-/* line 1110, sass/portal.scss */
+/* line 1111, sass/portal.scss */
 .icon-sakai-postem {
   background-position: -450px -162px;
 }
 
-/* line 1113, sass/portal.scss */
+/* line 1114, sass/portal.scss */
 .icon-sakai-preferences {
   background-position: -54px -126px;
 }
 
-/* line 1116, sass/portal.scss */
+/* line 1117, sass/portal.scss */
 .icon-sakai-rutgers-linktool {
   background-position: -36px -0px;
 }
 
-/* line 1119, sass/portal.scss */
+/* line 1120, sass/portal.scss */
 .icon-sakai-sections {
   background-position: -522px -234px;
 }
 
-/* line 1122, sass/portal.scss */
+/* line 1123, sass/portal.scss */
 .icon-sakai-singleuser {
   background-position: -522px -504px;
 }
 
-/* line 1125, sass/portal.scss */
+/* line 1126, sass/portal.scss */
 .icon-sakai-syllabus {
   background-position: -90px -414px;
 }
 
-/* line 1128, sass/portal.scss */
+/* line 1129, sass/portal.scss */
 .icon-blogger {
   background-position: -522px -36px;
 }
 
-/* line 1131, sass/portal.scss */
+/* line 1132, sass/portal.scss */
 .icon-sakai-assignment-grades, .icon-sakai-assignment2 {
   background-position: -324px -324px;
 }
 
-/* line 1134, sass/portal.scss */
+/* line 1135, sass/portal.scss */
 .icon-sakai-forums, .icon-sakai-jforum-tool {
   background-position: -324px -126px;
 }
 
-/* line 1137, sass/portal.scss */
+/* line 1138, sass/portal.scss */
 .icon-sakai-gradebook-tool, .icon-sakai-gradebook-gwt-rpc {
   background-position: -126px -396px;
 }
 
-/* line 1140, sass/portal.scss */
+/* line 1141, sass/portal.scss */
 .icon-sakai-mailtool {
   background-position: -198px -198px;
 }
 
-/* line 1143, sass/portal.scss */
+/* line 1144, sass/portal.scss */
 .icon-sakai-poll {
   background-position: -540px -90px;
 }
 
-/* line 1146, sass/portal.scss */
+/* line 1147, sass/portal.scss */
 .icon-sakai-sitestats {
   background-position: -540px -90px;
 }
 
-/* line 1149, sass/portal.scss */
+/* line 1150, sass/portal.scss */
 .icon-sakai-sitestats-admin {
   background-position: -180px -108px;
 }
 
-/* line 1152, sass/portal.scss */
+/* line 1153, sass/portal.scss */
 .icon-sakai-presentation {
   background-position: -234px -306px;
 }
 
-/* line 1155, sass/portal.scss */
+/* line 1156, sass/portal.scss */
 .icon-sakai-profile {
   background-position: -198px -522px;
 }
 
-/* line 1158, sass/portal.scss */
+/* line 1159, sass/portal.scss */
 .icon-sakai-reports {
   background-position: -270px -396px;
 }
 
-/* line 1161, sass/portal.scss */
+/* line 1162, sass/portal.scss */
 .icon-sakai-resetpass {
   background-position: -0px -270px;
 }
 
-/* line 1164, sass/portal.scss */
+/* line 1165, sass/portal.scss */
 .icon-sakai-resources {
   background-position: -450px -216px;
 }
 
-/* line 1167, sass/portal.scss */
+/* line 1168, sass/portal.scss */
 .icon-sakai-rwiki {
   background-position: -324px -342px;
 }
 
-/* line 1170, sass/portal.scss */
+/* line 1171, sass/portal.scss */
 .icon-sakai-samigo, .icon-sakai-mneme-admin, .icon-sakai-mneme {
   background-position: -540px -360px;
 }
 
-/* line 1173, sass/portal.scss */
+/* line 1174, sass/portal.scss */
 .icon-sakai-schedule {
   background-position: -504px -72px;
 }
 
-/* line 1176, sass/portal.scss */
+/* line 1177, sass/portal.scss */
 .icon-sakai-search {
   background-position: -306px -216px;
 }
 
-/* line 1179, sass/portal.scss */
+/* line 1180, sass/portal.scss */
 .icon-sakai-siteinfo {
   background-position: -324px -0px;
 }
 
-/* line 1182, sass/portal.scss */
+/* line 1183, sass/portal.scss */
 .icon-sakai-sitesetup {
   background-position: -324px -0px;
 }
 
-/* line 1185, sass/portal.scss */
+/* line 1186, sass/portal.scss */
 .icon-sakai-site-roster {
   background-position: -144px -522px;
 }
 
-/* line 1188, sass/portal.scss */
+/* line 1189, sass/portal.scss */
 .icon-sakai-synoptic-messagecenter {
   background-position: -252px -126px;
 }
 
-/* line 1191, sass/portal.scss */
+/* line 1192, sass/portal.scss */
 .icon-sakai-conferencing {
   background-position: -396px -522px;
 }
 
-/* line 1194, sass/portal.scss */
+/* line 1195, sass/portal.scss */
 .icon-sakai-profile2 {
   background-position: -144px -522px;
 }
 
-/* line 1197, sass/portal.scss */
+/* line 1198, sass/portal.scss */
 .icon-sakai-summary-calendar {
   background-position: -504px -72px;
 }
 
-/* line 1200, sass/portal.scss */
+/* line 1201, sass/portal.scss */
 .icon-sakai-synoptic-announcement {
   background-position: -324px -216px;
 }
 
-/* line 1203, sass/portal.scss */
+/* line 1204, sass/portal.scss */
 .icon-sakai-synoptic-chat {
   background-position: -558px -504px;
 }
 
-/* line 1206, sass/portal.scss */
+/* line 1207, sass/portal.scss */
 .icon-sakai-subsite {
   background-position: -288px -108px;
 }
 
-/* line 1209, sass/portal.scss */
+/* line 1210, sass/portal.scss */
 .icon-sakai-iframe-service {
   background-position: -162px -252px;
 }
 
-/* line 1212, sass/portal.scss */
+/* line 1213, sass/portal.scss */
 .icon-sakai-iframe-myworkspace {
   background-position: -162px -252px;
 }
 
-/* line 1215, sass/portal.scss */
+/* line 1216, sass/portal.scss */
 .icon-sakai-basiclti {
   background-position: -270px -0px;
 }
 
-/* line 1218, sass/portal.scss */
+/* line 1219, sass/portal.scss */
 .icon-sakai-basiclti-admin {
   background-position: -270px -0px;
 }
 
-/* line 1221, sass/portal.scss */
+/* line 1222, sass/portal.scss */
 .icon-sakai-lessonbuildertool {
   background-position: -36px -54px;
 }
 
-/* line 1224, sass/portal.scss */
+/* line 1225, sass/portal.scss */
 .icon-my-libintro, .icon-my-libguides {
   background-position: -450px -36px;
 }
 
-/* line 1227, sass/portal.scss */
+/* line 1228, sass/portal.scss */
 .icon-sakai-see-all-tools {
   background-position: -126px -72px;
 }
 
-/* line 1230, sass/portal.scss */
+/* line 1231, sass/portal.scss */
 .icon-sakai-signup {
   background-position: -468px -162px;
 }
 
-/* line 1233, sass/portal.scss */
+/* line 1234, sass/portal.scss */
 .icon-sakai-privacy {
   background-position: -522px -198px;
 }
 
-/* line 1236, sass/portal.scss */
+/* line 1237, sass/portal.scss */
 .icon-sakai-rsf-evaluation {
   background-position: -324px -324px;
 }
 
-/* line 1239, sass/portal.scss */
+/* line 1240, sass/portal.scss */
 .icon-sakai-iclicker, .icon-sakai-turningtool {
   background-position: -396px -72px;
 }
 
-/* line 1242, sass/portal.scss */
+/* line 1243, sass/portal.scss */
 .icon-sakai-bbb, .icon-sakai-rutgers-connect, .icon-portlet-\/sakai-elluminate-tool-sakai-elluminate {
   background-position: -432px -234px;
 }
 
-/* line 1245, sass/portal.scss */
+/* line 1246, sass/portal.scss */
 .icon-sakai-melete {
   background-image: url(../../image/sakai/tool-icons/sakai.melete.png);
 }
 
-/* line 1248, sass/portal.scss */
+/* line 1249, sass/portal.scss */
 .icon-sakai-blogwow {
   background-position: -0px -18px;
 }
 
-/* line 1251, sass/portal.scss */
+/* line 1252, sass/portal.scss */
 .icon-sakai-scormcloud {
   background-position: -90px -414px;
 }
 
-/* line 1254, sass/portal.scss */
+/* line 1255, sass/portal.scss */
 .icon-sakai-njvidbrowser {
   background-position: -144px -216px;
 }
 
-/* line 1257, sass/portal.scss */
+/* line 1258, sass/portal.scss */
 .icon-role-enter {
   background-position: -432px -18px;
 }
 
-/* line 1260, sass/portal.scss */
+/* line 1261, sass/portal.scss */
 .icon-role-exit {
   background-position: -270px -18px;
 }
 
-/* line 1263, sass/portal.scss */
+/* line 1264, sass/portal.scss */
 .icon-sakai-add-tool {
   background-position: 0 0;
 }
 
 /* admin tools  */
-/* line 1268, sass/portal.scss */
+/* line 1269, sass/portal.scss */
 .icon-sakai-users {
   background-position: -324px -234px;
 }
 
-/* line 1271, sass/portal.scss */
+/* line 1272, sass/portal.scss */
 .icon-sakai-aliases {
   background-position: -288px -468px;
 }
 
-/* line 1274, sass/portal.scss */
+/* line 1275, sass/portal.scss */
 .icon-sakai-sites {
   background-position: -72px -0px;
 }
 
-/* line 1277, sass/portal.scss */
+/* line 1278, sass/portal.scss */
 .icon-sakai-realms {
   background-position: -558px -432px;
 }
 
-/* line 1280, sass/portal.scss */
+/* line 1281, sass/portal.scss */
 .icon-sakai-online {
   background-position: -306px -396px;
 }
 
-/* line 1283, sass/portal.scss */
+/* line 1284, sass/portal.scss */
 .icon-sakai-memory {
   background-position: -378px -414px;
 }
 
-/* line 1286, sass/portal.scss */
+/* line 1287, sass/portal.scss */
 .icon-sakai-archive {
   background-position: -180px -342px;
 }
 
-/* line 1289, sass/portal.scss */
+/* line 1290, sass/portal.scss */
 .icon-sakai-scheduler {
   background-position: -450px -108px;
 }
 
-/* line 1292, sass/portal.scss */
+/* line 1293, sass/portal.scss */
 .icon-sakai-su {
   background-position: -36px -522px;
 }
 
-/* line 1295, sass/portal.scss */
+/* line 1296, sass/portal.scss */
 .icon-sakai-usermembership {
   background-position: -504px -180px;
 }
 
-/* line 1298, sass/portal.scss */
+/* line 1299, sass/portal.scss */
 .icon-sakai-motd {
   background-position: -162px -252px;
 }
 
-/* line 1301, sass/portal.scss */
+/* line 1302, sass/portal.scss */
 .icon-sakai-sitebrowser {
   background-position: -468px -522px;
 }
 
-/* line 1304, sass/portal.scss */
+/* line 1305, sass/portal.scss */
 .icon-sakai-createuser {
   background-position: -540px -504px;
 }
 
-/* line 1307, sass/portal.scss */
+/* line 1308, sass/portal.scss */
 .icon-sakai-delegatedaccess {
   background-position: -0px -288px;
 }
 
-/* line 1310, sass/portal.scss */
+/* line 1311, sass/portal.scss */
 .icon-sakai-delegatedaccess-shopping {
   background-position: -270px -90px;
 }
 
 /* PART 10: specific functionality: presence, chat */
 /* presence and chat rendering */
-/* line 1316, sass/portal.scss */
+/* line 1317, sass/portal.scss */
 #presenceArea {
   background-color: #fff;
   border: 1px solid #ccc;
@@ -1800,14 +1815,14 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* wrapper for all elements of presence display   */
-/* line 1327, sass/portal.scss */
+/* line 1328, sass/portal.scss */
 #presenceWrapper {
   width: 100%;
   height: 100%;
 }
 
 /* wrapper for title of iframe ("Users present")*/
-/* line 1332, sass/portal.scss */
+/* line 1333, sass/portal.scss */
 #presenceTitle, #pc_title {
   color: #000;
   border-bottom: 1px solid #ccc;
@@ -1819,7 +1834,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   font-weight: bold;
 }
 
-/* line 1342, sass/portal.scss */
+/* line 1343, sass/portal.scss */
 #presenceTitle div, #pc_title div {
   position: absolute;
   top: 0px;
@@ -1832,7 +1847,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   border-left: 1px solid #ccc;
 }
 
-/* line 1353, sass/portal.scss */
+/* line 1354, sass/portal.scss */
 #presenceTitle div a, #pc_title div a {
   width: 100%;
   height: 100%;
@@ -1844,7 +1859,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   font-size: 0;
 }
 
-/* line 1363, sass/portal.scss */
+/* line 1364, sass/portal.scss */
 #pc_title div {
   position: absolute;
   top: 0px;
@@ -1859,39 +1874,39 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 /* this used to be an iframe, hence the name  */
-/* line 1376, sass/portal.scss */
+/* line 1377, sass/portal.scss */
 #presenceIframe {
   height: 242px;
   width: 100%;
   overflow: auto;
 }
 
-/* line 1381, sass/portal.scss */
+/* line 1382, sass/portal.scss */
 .presenceList {
   list-style: none;
   margin: 3px !important;
   padding: 0;
 }
 
-/* line 1386, sass/portal.scss */
+/* line 1387, sass/portal.scss */
 .presenceList li.inChat {
   background: url(images/chatpresicon.png) right center no-repeat !important;
 }
 
-/* line 1389, sass/portal.scss */
+/* line 1390, sass/portal.scss */
 .presenceList li {
   padding: 3px 16px 3px 2px !important;
 }
 
 /* list item when the user is an a chat room is a link to that chat room */
-/* line 1393, sass/portal.scss */
+/* line 1394, sass/portal.scss */
 .presenceList li a {
   color: #009DCE;
   text-decoration: none;
 }
 
 /* main container for presence and portal chat.*/
-/* line 1399, sass/portal.scss */
+/* line 1400, sass/portal.scss */
 #footerAppTray {
   font-size: .9em;
   position: fixed;
@@ -1912,20 +1927,20 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   *width: 30px;
 }
 
-/* line 1418, sass/portal.scss */
+/* line 1419, sass/portal.scss */
 #footerAppTray #chattableCount {
   font-size: 80%;
   margin-left: 10px;
   outline: none;
 }
 
-/* line 1423, sass/portal.scss */
+/* line 1424, sass/portal.scss */
 #footerAppTray #presenceCount {
   font-size: 80%;
   outline: none;
 }
 
-/* line 1427, sass/portal.scss */
+/* line 1428, sass/portal.scss */
 #footerAppTray span.present {
   margin: -2px 0 0 5px !important;
   border: 2px solid #fff;
@@ -1940,12 +1955,12 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   display: inline;
 }
 
-/* line 1440, sass/portal.scss */
+/* line 1441, sass/portal.scss */
 #footerAppTray span.empty {
   display: none;
 }
 
-/* line 1443, sass/portal.scss */
+/* line 1444, sass/portal.scss */
 #footerAppPresence {
   height: 100%;
   width: auto;
@@ -1957,7 +1972,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   white-space: nowrap;
 }
 
-/* line 1453, sass/portal.scss */
+/* line 1454, sass/portal.scss */
 #footerAppChat {
   vertical-align: bottom;
   color: #000;
@@ -1966,14 +1981,14 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   width: 200px;
 }
 
-/* line 1460, sass/portal.scss */
+/* line 1461, sass/portal.scss */
 #presenceToggle {
   color: white;
   text-decoration: none;
   text-align: center;
 }
 
-/* line 1466, sass/portal.scss */
+/* line 1467, sass/portal.scss */
 #chatToggle {
   display: block;
   padding: 6px 6px 5px 6px;
@@ -1983,18 +1998,18 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
   font-weight: bold;
 }
 
-/* line 1474, sass/portal.scss */
+/* line 1475, sass/portal.scss */
 #presenceToggle:focus, #chatToggle:focus {
   outline: 1px dotted #000;
 }
 
-/* line 1477, sass/portal.scss */
+/* line 1478, sass/portal.scss */
 .workspace #footerAppPresence {
   display: none;
   border: none;
 }
 
-/* line 1481, sass/portal.scss */
+/* line 1482, sass/portal.scss */
 #chattableCount {
   display: inline-block;
   vertical-align: middle !important;
@@ -2006,7 +2021,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 
 /* PART 11: Utilities */
 /* Privacy Popup Styles */
-/* line 1492, sass/portal.scss */
+/* line 1493, sass/portal.scss */
 div#privacy_tool_popup {
   position: absolute;
   background: #fff;
@@ -2020,7 +2035,7 @@ div#privacy_tool_popup {
   padding: 5px 5px 5px 10px;
 }
 
-/* line 1504, sass/portal.scss */
+/* line 1505, sass/portal.scss */
 div#privacy_overlay {
   position: absolute;
   top: 0;
@@ -2034,7 +2049,7 @@ div#privacy_overlay {
 }
 
 /* used to hide various blocks from sighted users that are in the source to help with accessibility  */
-/* line 1517, sass/portal.scss */
+/* line 1518, sass/portal.scss */
 .portalBody .skip {
   display: inline !important;
   position: fixed !important;
@@ -2047,7 +2062,7 @@ div#privacy_overlay {
 }
 
 /* jump-to links, tabbing into focus treatment  */
-/* line 1529, sass/portal.scss */
+/* line 1530, sass/portal.scss */
 #skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
   text-decoration: none;
   font-size: 120%;
@@ -2071,7 +2086,7 @@ div#privacy_overlay {
 }
 
 /* append the value of the accesskey attr to the text*/
-/* line 1551, sass/portal.scss */
+/* line 1552, sass/portal.scss */
 .internalSkip:after {
   content: " [" attr(accesskey) "]";
 }
@@ -2085,7 +2100,7 @@ div#privacy_overlay {
  * to display off screen and tweaking the padding of ".sakaiMinimizePageNavigation #content"
  * */
 /* container for tool menu display toggle control */
-/* line 1563, sass/portal.scss */
+/* line 1564, sass/portal.scss */
 #togglebar {
   float: left;
   width: 13px;
@@ -2094,12 +2109,12 @@ div#privacy_overlay {
 }
 
 /* hover effect for control */
-/* line 1570, sass/portal.scss */
+/* line 1571, sass/portal.scss */
 #togglebar .toggleToolMenuHover {
   background-position: 0 0 !important;
 }
 
-/* line 1573, sass/portal.scss */
+/* line 1574, sass/portal.scss */
 #togglebar #toggleToolMax {
   background: url(images/toggleClose.png) -2px 0 no-repeat;
   padding: 4px;
@@ -2107,7 +2122,7 @@ div#privacy_overlay {
   height: 50px;
 }
 
-/* line 1579, sass/portal.scss */
+/* line 1580, sass/portal.scss */
 #togglebar #toggleNormal {
   background: url(images/toggleOpen.png) -2px 0 no-repeat;
   padding: 4px;
@@ -2115,12 +2130,12 @@ div#privacy_overlay {
   height: 50px;
 }
 
-/* line 1585, sass/portal.scss */
+/* line 1586, sass/portal.scss */
 a#toggleToolMenu {
   text-decoration: none;
 }
 
-/* line 1589, sass/portal.scss */
+/* line 1590, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenuWrap {
   /* display: none; uncomment if not using icons for the tool menu */
   width: 30px;
@@ -2128,24 +2143,24 @@ a#toggleToolMenu {
   text-align: left;
 }
 
-/* line 1595, sass/portal.scss */
+/* line 1596, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenuWrap li {
   text-align: left;
   overflow: hidden;
 }
 
-/* line 1599, sass/portal.scss */
+/* line 1600, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool {
   background: #fff;
 }
 
-/* line 1602, sass/portal.scss */
+/* line 1603, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool span {
   -moz-opacity: 0.5;
   opacity: 0.5;
 }
 
-/* line 1606, sass/portal.scss */
+/* line 1607, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li span.menuTitle, .sakaiMinimizePageNavigation #subSites li span.menuTitle {
   display: inline !important;
   position: fixed !important;
@@ -2157,13 +2172,13 @@ a#toggleToolMenu {
   padding: 0px 0px 0px 0px !important;
 }
 
-/* line 1616, sass/portal.scss */
+/* line 1617, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li span.toolMenuIcon, .sakaiMinimizePageNavigation #subSites li span.toolMenuIcon {
   top: 2px;
   left: 2px;
 }
 
-/* line 1621, sass/portal.scss */
+/* line 1622, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
   width: 20px;
   height: 16px;
@@ -2171,7 +2186,7 @@ a#toggleToolMenu {
 
 /*when the tool menu is shoved away a class of .sakaiMinimizePageNavigation gets added to parent block, here we style the selected tool link so that when 
 everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
-/* line 1627, sass/portal.scss */
+/* line 1628, sass/portal.scss */
 .sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover, .sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
   background: #9cd1e8;
   background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
@@ -2182,26 +2197,26 @@ everything except the tool icon is gone it is still distincts as the current too
   background: linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
 }
 
-/* line 1636, sass/portal.scss */
+/* line 1637, sass/portal.scss */
 .sakaiMinimizePageNavigation #togglebar {
   padding-left: 0em;
   margin-top: 0em;
   margin-left: 0;
 }
 
-/* line 1641, sass/portal.scss */
+/* line 1642, sass/portal.scss */
 .sakaiMinimizePageNavigation #siteStatus {
   display: none;
 }
 
-/* line 1644, sass/portal.scss */
+/* line 1645, sass/portal.scss */
 .sakaiMinimizePageNavigation #content {
   /* adjust if not using icons in tool menu */
   padding-left: 45px;
 }
 
 /* portal timeout display*/
-/* line 1649, sass/portal.scss */
+/* line 1650, sass/portal.scss */
 #timeout_alert_body {
   font-size: 130%;
   position: fixed;
@@ -2224,13 +2239,13 @@ everything except the tool icon is gone it is still distincts as the current too
   width: auto;
 }
 
-/* line 1670, sass/portal.scss */
+/* line 1671, sass/portal.scss */
 #timeout_alert_body p {
   margin: 0;
   padding: 0 5px 10px;
 }
 
-/* line 1674, sass/portal.scss */
+/* line 1675, sass/portal.scss */
 #timeout_alert_body input {
   padding: 3px !important;
   border: 1px solid #ccc !important;
@@ -2250,7 +2265,7 @@ everything except the tool icon is gone it is still distincts as the current too
 }
 
 /* Qtip overrides used by tutorial*/
-/* line 1693, sass/portal.scss */
+/* line 1694, sass/portal.scss */
 a.qtipLinkButton {
   right: 0px;
   top: 85px;
@@ -2277,17 +2292,17 @@ a.qtipLinkButton {
   letter-spacing: normal !important;
 }
 
-/* line 1718, sass/portal.scss */
+/* line 1719, sass/portal.scss */
 a.qtipLinkButton img {
   vertical-align: bottom;
 }
 
-/* line 1721, sass/portal.scss */
+/* line 1722, sass/portal.scss */
 a.qtipLinkButton:hover {
   color: #7AA3CC !important;
 }
 
-/* line 1725, sass/portal.scss */
+/* line 1726, sass/portal.scss */
 div.qtip-titlebar {
   border-bottom-width: 0 !important;
   color: #fff !important;
@@ -2301,13 +2316,13 @@ div.qtip-titlebar {
   border-bottom: 1px solid #007194 !important;
 }
 
-/* line 1738, sass/portal.scss */
+/* line 1739, sass/portal.scss */
 .qtip {
   font-size: inherit !important;
   line-height: inherit !important;
 }
 
-/* line 1743, sass/portal.scss */
+/* line 1744, sass/portal.scss */
 .qtipClose {
   float: left;
   position: absolute;
@@ -2318,7 +2333,7 @@ div.qtip-titlebar {
 }
 
 /* warning displayed when js is disabled */
-/* line 1753, sass/portal.scss */
+/* line 1754, sass/portal.scss */
 #portal_js_warn {
   font-size: 1.2em;
   background: #c00;
@@ -2336,24 +2351,24 @@ div.qtip-titlebar {
   border-top-right-radius: 5px;
 }
 
-/* line 1770, sass/portal.scss */
+/* line 1771, sass/portal.scss */
 .portletTitle .action a.tool-directurl {
   padding: 2px;
   background: url(/library/image/silk/link.png) center right no-repeat;
 }
 
-/* line 1775, sass/portal.scss */
+/* line 1776, sass/portal.scss */
 .portletTitle .action a.tool-directurl:hover {
   background: url(/library/image/silk/link.png) center right no-repeat;
 }
 
-/* line 1779, sass/portal.scss */
+/* line 1780, sass/portal.scss */
 .direct-url-wrap {
   font-size: 85%;
   color: #555;
 }
 
-/* line 1784, sass/portal.scss */
+/* line 1785, sass/portal.scss */
 .direct-url-wrap textarea {
   color: #000;
   overflow: auto;
@@ -2362,7 +2377,7 @@ div.qtip-titlebar {
 }
 
 /* Time in the portal footer */
-/* line 1792, sass/portal.scss */
+/* line 1793, sass/portal.scss */
 .server-time-container {
   /*position: absolute;*/
   right: 0px;
@@ -2370,13 +2385,13 @@ div.qtip-titlebar {
   text-align: right;
 }
 
-/* line 1799, sass/portal.scss */
+/* line 1800, sass/portal.scss */
 .server-time {
   font-weight: bold;
 }
 
 /*back to mobile link*/
-/* line 1805, sass/portal.scss */
+/* line 1806, sass/portal.scss */
 #mobile-portal-link {
   display: block;
   position: absolute;
@@ -2389,7 +2404,7 @@ div.qtip-titlebar {
   border-radius: 5px;
 }
 
-/* line 1816, sass/portal.scss */
+/* line 1817, sass/portal.scss */
 #mobile-portal-link a, #mobile-portal-link a:visited {
   color: #0077B5;
   font-size: 120%;
@@ -2397,7 +2412,7 @@ div.qtip-titlebar {
 }
 
 /* -- Notice */
-/* line 1824, sass/portal.scss */
+/* line 1825, sass/portal.scss */
 .ui-pnotify {
   top: 15px;
   right: 105px;
@@ -2408,17 +2423,17 @@ div.qtip-titlebar {
 }
 
 /* Hides position: fixed from IE6 */
-/* line 1833, sass/portal.scss */
+/* line 1834, sass/portal.scss */
 html > body .ui-pnotify {
   position: fixed;
 }
 
-/* line 1836, sass/portal.scss */
+/* line 1837, sass/portal.scss */
 .ui-pnotify .ui-pnotify-shadow {
   box-shadow: 0px 2px 10px rgba(50, 50, 50, 0.5);
 }
 
-/* line 1839, sass/portal.scss */
+/* line 1840, sass/portal.scss */
 .ui-pnotify-container {
   background-position: 0 0;
   padding: .8em;
@@ -2430,35 +2445,35 @@ html > body .ui-pnotify {
   border-radius: 4px;
 }
 
-/* line 1848, sass/portal.scss */
+/* line 1849, sass/portal.scss */
 .ui-pnotify-container.alert-error {
   border-color: #cd0a0a;
   color: #cd0a0a;
   background: #fef1ec url(/library/js/jquery-ui-latest/css/smoothness/images/ui-bg_glass_95_fef1ec_1x400.png) 50% 50% repeat-x;
 }
 
-/* line 1855, sass/portal.scss */
+/* line 1856, sass/portal.scss */
 .ui-pnotify-container .ui-icon-alert {
   background-position: 0 -144px;
 }
 
-/* line 1858, sass/portal.scss */
+/* line 1859, sass/portal.scss */
 .alert-error h1, .alert-error h2, .alert-error h3, .alert-error h4, .alert-error h5, .alert-error h6 {
   color: #cd0a0a;
 }
 
-/* line 1861, sass/portal.scss */
+/* line 1862, sass/portal.scss */
 .ui-pnotify-sharp {
   border-radius: 0;
 }
 
-/* line 1864, sass/portal.scss */
+/* line 1865, sass/portal.scss */
 .ui-pnotify-closer, .ui-pnotify-sticker {
   float: right;
   margin-left: .2em;
 }
 
-/* line 1868, sass/portal.scss */
+/* line 1869, sass/portal.scss */
 .ui-pnotify-title {
   display: block;
   margin: 0 0 .4em;
@@ -2466,19 +2481,19 @@ html > body .ui-pnotify {
   text-rendering: optimizelegibility;
 }
 
-/* line 1874, sass/portal.scss */
+/* line 1875, sass/portal.scss */
 .ui-pnotify-text {
   display: block;
 }
 
-/* line 1877, sass/portal.scss */
+/* line 1878, sass/portal.scss */
 .ui-pnotify-icon, .ui-pnotify-icon span {
   display: block;
   float: left;
   margin-right: .2em;
 }
 
-/* line 1882, sass/portal.scss */
+/* line 1883, sass/portal.scss */
 .ui-pnotify-icon span, .ui-pnotify-closer span, .ui-pnotify-sticker span {
   background-image: url(/library/js/jquery-ui-latest/css/smoothness/images/ui-icons_cd0a0a_256x240.png);
   width: 16px;
@@ -2489,23 +2504,23 @@ html > body .ui-pnotify {
   text-indent: -99999px;
 }
 
-/* line 1891, sass/portal.scss */
+/* line 1892, sass/portal.scss */
 .ui-pnotify-icon span.icon-warning-sign {
   background-position: -16px -144px;
 }
 
-/* line 1894, sass/portal.scss */
+/* line 1895, sass/portal.scss */
 .ui-pnotify-closer span {
   background-position: -80px -128px;
 }
 
-/* line 1897, sass/portal.scss */
+/* line 1898, sass/portal.scss */
 .ui-pnotify-sticker span {
   background-position: -144px -144px;
 }
 
 /* -- History Pulldown */
-/* line 1901, sass/portal.scss */
+/* line 1902, sass/portal.scss */
 .ui-pnotify-history-container {
   position: absolute;
   top: 0;
@@ -2519,39 +2534,39 @@ html > body .ui-pnotify {
   z-index: 10000;
 }
 
-/* line 1913, sass/portal.scss */
+/* line 1914, sass/portal.scss */
 .ui-pnotify-history-container .ui-pnotify-history-header {
   padding: 2px;
   text-align: center;
 }
 
-/* line 1917, sass/portal.scss */
+/* line 1918, sass/portal.scss */
 .ui-pnotify-history-container button {
   cursor: pointer;
   display: block;
   width: 100%;
 }
 
-/* line 1922, sass/portal.scss */
+/* line 1923, sass/portal.scss */
 .ui-pnotify-history-container .ui-pnotify-history-pulldown {
   display: block;
   margin: 0 auto;
 }
 
 /* Alternate stack initial positioning. */
-/* line 1927, sass/portal.scss */
+/* line 1928, sass/portal.scss */
 .ui-pnotify.stack-topleft, .ui-pnotify.stack-bottomleft {
   left: 25px;
   right: auto;
 }
 
-/* line 1931, sass/portal.scss */
+/* line 1932, sass/portal.scss */
 .ui-pnotify.stack-bottomright, .ui-pnotify.stack-bottomleft {
   bottom: 25px;
   top: auto;
 }
 
-/* line 1935, sass/portal.scss */
+/* line 1936, sass/portal.scss */
 .ui-pnotify .picon {
   background-color: transparent;
   background-repeat: no-repeat;
@@ -2560,8 +2575,126 @@ html > body .ui-pnotify {
   height: 17px;
 }
 
-/* line 1942, sass/portal.scss */
+/* line 1943, sass/portal.scss */
 .ui-pnotify-title {
   line-height: 17px;
   min-height: 17px;
+}
+
+/*! 
+    Temp Morpheus styles 
+*/
+/* line 1954, sass/portal.scss */
+.hidden,
+#togglebar #toggleNormal.hidden,
+#togglebar #toggleToolMax.hidden {
+  display: none;
+}
+
+/* line 1960, sass/portal.scss */
+.show,
+#togglebar #toggleNormal.show,
+#togglebar #toggleToolMax.show {
+  display: block;
+}
+
+/* line 1964, sass/portal.scss */
+.header.max, .header.min {
+  background: #009DCE;
+  background: -moz-linear-gradient(top, #009dce 0%, #007ea5 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #009dce), color-stop(100%, #007ea5));
+  background: -webkit-linear-gradient(top, #009dce 0%, #007ea5 100%);
+  background: -o-linear-gradient(top, #009dce 0%, #007ea5 100%);
+  background: -ms-linear-gradient(top, #009dce 0%, #007ea5 100%);
+  background: linear-gradient(top, #009dce 0%, #007ea5 100%);
+  border-bottom: 1px solid #007194;
+}
+
+/* minimize tool menu */
+/* when the tool menu is minimized the class "minimize-tool-nav" gets added to the	 
+* #container block, inheritance is then used to hide, move and shring elements or hide expand them	 
+* in this skin we hide the text of the tool links by sliding it out of the viewport	 
+* but leave the tool icons displayed - so for the sacrificed of 30 px you still have	 
+* page navigation. If you are not using icons the same effect will be achieved by setting ".minimize-tool-nav #toolMenuWrap"	 
+* to display off screen and tweaking the padding of ".minimize-tool-nav #content"	 
+* */
+/* container for tool menu display toggle control */
+/* line 1984, sass/portal.scss */
+.minimize-tool-nav #toolMenuWrap {
+  /* display: none; uncomment if not using icons for the tool menu */
+  width: 30px;
+  overflow: hidden;
+  text-align: left;
+}
+
+/* line 1991, sass/portal.scss */
+.minimize-tool-nav #toolMenuWrap li {
+  text-align: left;
+  overflow: hidden;
+}
+
+/* line 1996, sass/portal.scss */
+.minimize-tool-nav #toolMenu li.selectedTool {
+  background: #fff;
+}
+
+/* line 2000, sass/portal.scss */
+.minimize-tool-nav #toolMenu li.selectedTool span {
+  -moz-opacity: 0.5;
+  opacity: 0.5;
+}
+
+/* line 2005, sass/portal.scss */
+.minimize-tool-nav #toolMenu li span.menuTitle, .minimize-tool-nav #subSites li span.menuTitle {
+  display: inline !important;
+  position: fixed !important;
+  height: 1px !important;
+  width: 1px !important;
+  overflow: hidden !important;
+  top: 0px !important;
+  left: 0px;
+  padding: 0px 0px 0px 0px !important;
+}
+
+/* line 2016, sass/portal.scss */
+.minimize-tool-nav #toolMenu li span.toolMenuIcon, .minimize-tool-nav #subSites li span.toolMenuIcon {
+  top: 2px;
+  left: 2px;
+}
+
+/* line 2021, sass/portal.scss */
+.minimize-tool-nav #toolMenu li a, .minimize-tool-nav #subSites li a {
+  width: 20px;
+  height: 16px;
+}
+
+/*when the tool menu is shoved away a class of .minimize-tool-nav gets added to parent block, here we style the selected tool link so that when	 
+everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
+/* line 2028, sass/portal.scss */
+.minimize-tool-nav #toolMenu li.selectedTool a, .minimize-tool-nav #toolMenu li a:hover, .minimize-tool-nav #subSites li a:hover, .minimize-tool-nav #toolMenu li a:focus, .minimize-tool-nav #subSites li a:focus {
+  background: #9cd1e8;
+  background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9cd1e8), color-stop(100%, #7bc1e1));
+  background: -webkit-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+  background: -o-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+  background: -ms-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+  background: linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);
+}
+
+/* line 2038, sass/portal.scss */
+.minimize-tool-nav #togglebar {
+  padding-left: 0em;
+  margin-top: 0em;
+  margin-left: 0;
+}
+
+/* line 2044, sass/portal.scss */
+.minimize-tool-nav #siteStatus {
+  display: none;
+}
+
+/* line 2048, sass/portal.scss */
+.minimize-tool-nav #content {
+  /* adjust if not using icons in tool menu */
+  padding-left: 45px;
 }
