@@ -1,0 +1,75 @@
+//////////////////////////////
+// EXTENDABLES: For Base styles 
+//////////////////////////////
+
+%btn-all {
+  width: auto;
+  text-align: center;
+  font-family: $button-font-family;
+  font-size: inherit;
+  font-weight: normal;
+  font-style: normal;
+  @include border-outline(border, $button-border-width, $button-border-style, $button-border-color);
+  cursor: pointer;
+  @include margin-padding(padding, $button-padding);
+  line-height: 1;
+  @include border-radius($button-border-radius);
+}
+
+%button {
+  @extend %btn-all;
+  @include simple-background-gradient($button-color, $button-gradient-pos, $button-gradient-stop-1, $button-gradient-stop-2);
+  @include text-shadow($button-text-shadow);
+  &:hover,
+  &:focus {
+    @include text-shadow($button-hover-text-shadow);
+    @include simple-background-gradient($button-hover-color, $button-hover-gradient-pos, $button-hover-gradient-stop-1, $button-hover-gradient-stop-2);
+  }  
+  &:active {
+    @include text-shadow($button-active-text-shadow);
+    @include simple-background-gradient($button-active-color, $button-active-gradient-pos, $button-active-gradient-stop-1, $button-active-gradient-stop-2);
+  }
+}
+
+%button-active {
+  @extend %btn-all;
+  @include text-shadow($button-action-text-shadow);
+  @include simple-background-gradient($button-action-color, $button-action-gradient-pos, $button-action-gradient-stop-1, $button-action-gradient-stop-2);
+  &:hover,
+  &:focus {
+    @include text-shadow($button-action-hover-text-shadow);
+    @include simple-background-gradient($button-action-hover-color, $button-action-hover-gradient-pos, $button-action-hover-gradient-stop-1, $button-action-hover-gradient-stop-2);
+  }
+  &:active {
+    @include text-shadow($button-action-active-text-shadow);
+    @include simple-background-gradient($button-action-active-color, $button-action-active-gradient-pos, $button-action-active-gradient-stop-1, $button-action-active-gradient-stop-2);
+  }
+}
+
+%button-cancel {
+  @extend %btn-all;
+  @include text-shadow($button-cancel-text-shadow);
+  @include simple-background-gradient($button-cancel-color, $button-cancel-gradient-pos, $button-cancel-gradient-stop-1, $button-cancel-gradient-stop-2);
+  &:hover,
+  &:focus {
+    @include text-shadow($button-cancel-hover-text-shadow);
+    @include simple-background-gradient($button-cancel-hover-color, $button-cancel-hover-gradient-pos, $button-cancel-hover-gradient-stop-1, $button-cancel-hover-gradient-stop-2);
+  }
+  &:active {
+    @include text-shadow($button-cancel-active-text-shadow);
+    @include simple-background-gradient($button-cancel-active-color, $button-cancel-active-gradient-pos, $button-cancel-active-gradient-stop-1, $button-cancel-active-gradient-stop-2);
+  }
+}
+
+%button-disabled {
+  @extend %btn-all;
+  @include text-shadow($button-disabled-text-shadow);
+  opacity: $button-disabled-opacity;
+  @include simple-background-gradient($button-disabled-color, $button-disabled-gradient-pos, $button-disabled-gradient-stop-1, $button-disabled-gradient-stop-2);
+  &:hover,
+  &:focus,
+  &:active {
+    @include text-shadow($button-disabled-text-shadow);
+    @extend %button-disabled;
+  } 
+}

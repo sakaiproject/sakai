@@ -1,0 +1,18 @@
+//////////////////////////////
+// LAYOUT: Layout dependent css and media queries only 
+//////////////////////////////
+
+@import "_portal_variables";
+
+#portalOuterContainer {
+  width: 100%;
+  overflow: hidden;
+  display: table;
+  background: $portal-background;
+}
+
+#container {
+  //background: $container-background; 
+  width: 100%;
+  display: table;
+}

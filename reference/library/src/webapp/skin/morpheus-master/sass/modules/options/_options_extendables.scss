@@ -1,0 +1,22 @@
+//////////////////////////////
+// EXTENDABLES: For Modules 
+//////////////////////////////
+
+%options {
+  list-style: $options-list-style;
+  @include border-outline(border, $options-border-width, $options-border-style, $options-border-color);
+  li {
+    text-indent: $options-li-text-indent;
+    font-family: $options-li-font-family;
+    text-transform: $options-li-text-transform;
+    letter-spacing: $options-li-letter-spacing;
+    font-weight: $options-li-font-weight;
+    @include margin-padding(margin, $options-li-margin);
+    @include margin-padding(padding, $options-li-padding);
+    @include border-outline(border, $options-li-border-width, $options-li-border-style, $options-li-border-color);
+  }
+  a {
+    display: block;
+    @include border-outline(border, $options-a-border-width, $options-a-border-style, $options-a-border-color);
+  }
+}

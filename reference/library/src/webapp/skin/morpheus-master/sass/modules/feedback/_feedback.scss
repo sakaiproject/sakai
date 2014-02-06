@@ -1,0 +1,16 @@
+//////////////////////////////
+// MODULES: Component styles that are layout independent 
+//////////////////////////////
+
+@import "_feedback_variables";
+@import "_feedback_extendables";
+
+.feedback {
+  @extend %feedback;
+  &.error {
+    @extend %error;
+  }
+  &.warning {
+    @extend %warning;
+  }
+}

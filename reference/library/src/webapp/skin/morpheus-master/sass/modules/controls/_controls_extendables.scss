@@ -1,0 +1,26 @@
+//////////////////////////////
+// EXTENDABLES: For Modules 
+//////////////////////////////
+
+%controls {
+  font-family: $controls-font-family;
+  display: inline-block;
+  font-size: $controls-font-size;
+  @include margin-padding(padding, $controls-padding);
+  line-height: 1;
+  @include border-outline(border, $controls-border-width, $controls-border-style, $controls-border-color);
+  @include border-radius($controls-border-radius);
+  background-clip: padding-box;
+  &:link,
+  &:visited {
+    @include simple-background-gradient($controls-visited-color, $controls-visited-gradient-pos, $controls-visited-gradient-stop-1, $controls-visited-gradient-stop-2);
+  }
+  &:hover,
+  &:focus {
+    outline: none;
+    @include simple-background-gradient($controls-hover-color, $controls-hover-gradient-pos, $controls-hover-gradient-stop-1, $controls-hover-gradient-stop-2);
+  }
+  &:active {
+    @include simple-background-gradient($controls-active-color, $controls-active-gradient-pos, $controls-active-gradient-stop-1, $controls-active-gradient-stop-2);
+  }
+}

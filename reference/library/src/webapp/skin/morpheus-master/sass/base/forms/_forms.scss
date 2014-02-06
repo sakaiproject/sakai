@@ -1,0 +1,24 @@
+//////////////////////////////
+// BASE: Base element styles 
+//////////////////////////////
+
+@import "_forms_variables";
+@import "_forms_extendables";
+
+label {
+  cursor: pointer;
+}
+input[type],
+textarea,
+select {
+  @extend %formstyle;
+}
+input[type="checkbox"],
+input[type="radio"],
+input[type="image"] {
+  width: auto;
+}
+input[required],
+textarea[required] {
+  border-color: $forms-required-border-color;
+}

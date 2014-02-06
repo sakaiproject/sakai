@@ -1,0 +1,15 @@
+//////////////////////////////
+// VARIABLES: For layout breakpoints 
+//////////////////////////////
+
+// https://github.com/Team-Sass/breakpoint/wiki/Respond-To
+$breakpoint-to-ems: true;
+
+$breakpoints: 'extra-wide' (1281px 1680px),
+              'wide' (801px 1280px),
+              'full navigation' (801px, 'no-query' true),
+              'narrow navigation' (360px 800px),
+              'tablet landscape, medium-land' (801px 1024px, orientation landscape),
+              'tablet portrait, medium-port' (500px 800px, orientation portrait),
+              'phone landscape, sm-land' (361px 499px, orientation landscape),
+              'phone portrait, sm-port' (361px 499px, orientation portrait);

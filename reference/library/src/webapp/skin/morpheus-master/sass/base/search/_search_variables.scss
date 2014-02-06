@@ -1,0 +1,22 @@
+//////////////////////////////
+// VARIABLES: For Base styles 
+//////////////////////////////
+
+/// Search 
+$search-border-radius: 1em !default;
+$search-background-color: #fff !default;
+$search-padding: 0 0.75em !default;
+$search-border-width: false !default; 
+$search-border-style: solid !default;
+$search-border-color: #ccc !default;
+//// Search Input
+$search-input-border-width: false !default; 
+$search-input-border-style: solid !default;
+$search-input-border-color: #ccc !default;
+$search-input-border-radius: 0 !default;
+//// Search Input Image
+$search-image-background-color: $search-background-color !default;
+$search-image-width: 0.9375em !default;
+$search-image-top: 0.2em !default;
+$search-image-right: 0.6em !default;
+$search-image-padding: 0.2em 0.2em !default;             

@@ -1,0 +1,37 @@
+//////////////////////////////
+// EXTENDABLES: For Modules 
+//////////////////////////////
+
+%pagination {
+  font-family: $pagination-font-family;
+  li {
+    display: $pagination-li-display;
+    @include margin-padding(margin, $pagination-li-margin, $pagination-li-margin-pos);
+    text-indent: $pagination-text-indent;
+  }
+  a {
+    display: $pagination-a-display;
+    @include margin-padding(padding, $pagination-a-padding);
+    line-height: $pagination-a-line-height;
+    @include margin-padding(margin, $pagination-a-margin);
+    @include border-outline(border, $pagination-a-border-width, $pagination-a-border-style, $pagination-a-border-color);
+    @include border-radius($pagination-a-border-radius);
+    background-clip: padding-box;
+    &:link,
+    &:visited {
+      color: $pagination-link-color;
+      background-color: $pagination-link-background-color;
+    }
+    &[href]:hover,
+    &[href]:focus {
+      color: $pagination-link-hover-color;
+      background-color: $pagination-link-hover-background-color;
+      @include border-outline(border, $pagination-a-border-width, $pagination-a-border-style, $pagination-a-border-color);
+    }
+    &:active {
+      color: $pagination-link-active-color;
+      background-color: $pagination-link-active-background-color;
+      @include border-outline(border, $pagination-a-border-width, $pagination-a-border-style, $pagination-a-border-color);
+    }
+  }
+}

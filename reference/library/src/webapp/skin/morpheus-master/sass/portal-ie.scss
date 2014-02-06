@@ -1,0 +1,15 @@
+@charset "UTF-8";
+
+$legacy-support-for-ie8: true;
+
+// No need to calculate ems that aren't being used
+$breakpoint-to-ems: false;
+
+// Will not print media queries
+$breakpoint-no-queries: true;
+
+// Will print No Query Fallbacks
+// https://github.com/Team-Sass/breakpoint/wiki/No-Query-Fallbacks
+$breakpoint-no-query-fallbacks: true;
+
+@import "portal";

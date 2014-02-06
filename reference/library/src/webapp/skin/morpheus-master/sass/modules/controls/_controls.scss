@@ -1,0 +1,10 @@
+//////////////////////////////
+// MODULES: Component styles that are layout independent 
+//////////////////////////////
+
+@import "_controls_variables";
+@import "_controls_extendables";
+
+a.control {
+  @extend %controls;
+}

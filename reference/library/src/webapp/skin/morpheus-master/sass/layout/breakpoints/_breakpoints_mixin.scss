@@ -1,0 +1,19 @@
+//////////////////////////////
+// MIXINS: For Layout 
+//////////////////////////////
+
+// add a background to the media query indicator - dev only 
+// Cause you can't extend silently from a media query 
+@mixin breakpoint-background {
+  line-height: 1.25em;
+  padding: .25em 1em;
+  margin: 0 0 .25em 0;
+  background: rgba(#d00, .5);
+  color: #ddd;
+  z-index: 100;
+  position: absolute;
+  top: 1;
+  left: 20px;
+  @include border-radius(.5em);
+  //float:left;
+}

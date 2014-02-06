@@ -1,0 +1,67 @@
+//////////////////////////////
+// MIXINS: Mixins should have arguments. Otherwise use extendables...
+//////////////////////////////
+
+@mixin simple-background-gradient($color, $background-gradient-pos, $background-gradient-1, $background-gradient-2) {
+  color: $color;
+  // provide background color for older IEs
+  background-color: background-color-mix($background-gradient-1, $background-gradient-2);
+  @include background-image(linear-gradient($background-gradient-pos, $background-gradient-1, $background-gradient-2));
+}
+
+@mixin border-outline($type: border, $width: 1px, $style: solid, $color: #333, $offset: false) {
+  @include border-outline-check($type, $width, $style, $color, $offset);
+  @if $width == 'none' {
+      #{$type}: $width;
+  } @else if $width == false {
+  } @else {
+    #{$type}: {
+      width: $width;
+      style: $style;
+      color: $color;
+      @if $type == 'outline' and $offset {
+        offset: $offset;
+      }
+    }
+  }
+}
+
+@mixin border-outline-check($type, $width, $style, $color, $offset) {
+  @if $type == 'border' and $offset {
+    @warn "#{$type} does not use offset";
+  }
+  @if $type == 'outline' { // wish this was cleaner! there's probably a better way to do this.
+    $widths: length($width);
+    $styles: length($style);
+    $colors: length($color);
+    $offsets: length($offset);
+    @if $widths > 1 or $styles > 1 or $colors > 1 or $offsets > 1   {
+       @warn "You cannot use mulitple values for #{$type} - only the first value will be used!";
+    }
+  }  
+}
+
+@mixin margin-padding($type, $amount: false, $side: false) {
+  @if $side {
+    #{$type}-#{$side}: $amount;
+  } @else {
+    #{$type}: $amount;
+  }
+}
+
+@mixin type-size($size, $leading: false) {
+  font-size: $size;
+  @if $leading { line-height: $leading; }
+}
+
+@mixin bold-italic-uppercase-variant($bold :default, $italic: false, $uppercase: false, $variant: false) {
+  @if $bold { font-weight: bold; } @else { font-weight: normal; }
+  @if $italic { font-style: italic; }
+  @if $uppercase { text-transform: uppercase; }
+  @if $variant { font-variant: small-caps; }
+}
+
+@mixin content-before-after($content, $before: default, $after:false ) {
+  @if $before { &:before { content: $content; } }
+  @if $after { &:after { content: $content; } }
+}

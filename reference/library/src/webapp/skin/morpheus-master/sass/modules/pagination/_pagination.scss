@@ -1,0 +1,10 @@
+//////////////////////////////
+// MODULES: Component styles that are layout independent 
+//////////////////////////////
+
+@import "_pagination_variables";
+@import "_pagination_extendables";
+
+.pagination {
+  @extend %pagination;
+}

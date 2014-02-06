@@ -1,0 +1,78 @@
+//////////////////////////////
+// VARIABLES: For Base styles 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+/// Buttons
+$button-font-family: $secondary-font !default;
+$button-padding: 0.5em 1em !default;
+$button-border-width: 1px !default; 
+$button-border-style: solid !default;
+$button-border-color: #666 !default;
+$button-border-radius: 1em !default;
+$button-color: #fff !default;
+$button-text-shadow: 0 -1px 0 rgba(#fff, 0.25) !default;
+$button-gradient-pos: top !default;
+$button-gradient-stop-1: #47a !default;
+$button-gradient-stop-2: #258 !default;
+//// Hover & Focus
+$button-hover-color: $button-color !default;
+$button-hover-text-shadow: 0 -1px 0 rgba(#fff, 0.25) !default;
+$button-hover-gradient-pos: $button-gradient-pos !default;
+$button-hover-gradient-stop-1: #d04 !default;
+$button-hover-gradient-stop-2: #b02 !default;
+//// Active
+$button-active-color: $button-color !default;
+$button-active-text-shadow: -1px 0 0 rgba(#fff, 0.25) !default;
+$button-active-gradient-pos: $button-gradient-pos !default;
+$button-active-gradient-stop-1: #800 !default;
+$button-active-gradient-stop-2: #a00 !default;
+//// Action
+$button-action-color: #fff !default;
+$button-action-text-shadow: -1px -1px 0 rgba(#000, 0.25) !default;
+$button-action-gradient-pos: $button-gradient-pos !default;
+$button-action-gradient-stop-1: #007ae5 !default;
+$button-action-gradient-stop-2: #005fb3 !default;
+//// Action Hover & Focus
+$button-action-hover-color: #fff !default;
+$button-action-hover-text-shadow: -1px -1px 0 rgba(#000, 0.25) !default;
+$button-action-hover-gradient-pos: $button-gradient-pos !default;
+$button-action-hover-gradient-stop-1: #004480 !default;
+$button-action-hover-gradient-stop-2: #004b8c !default;
+//// Action Active
+$button-action-active-color: #fff !default;
+$button-action-active-text-shadow: -1px -1px 0 rgba(#000, 0.25) !default;
+$button-action-active-gradient-pos: $button-gradient-pos !default;
+$button-action-active-gradient-stop-1: #003059 !default;
+$button-action-active-gradient-stop-2: #004b8c !default;
+//// Cancel
+$button-cancel-color: #fff !default;
+$button-cancel-text-shadow: 0 -1px 0 rgba(#000, 0.25) !default;
+$button-cancel-gradient-pos: $button-gradient-pos !default;
+$button-cancel-gradient-stop-1: #ee5f5b !default;
+$button-cancel-gradient-stop-2: #bd362f !default;
+//// Cancel Hover & Focus
+$button-cancel-hover-color: #fff !default;
+$button-cancel-hover-text-shadow: -1px -1px 0 rgba(#000, 0.25) !default;
+$button-cancel-hover-gradient-pos: $button-gradient-pos !default;
+$button-cancel-hover-gradient-stop-1: #a32f29 !default;
+$button-cancel-hover-gradient-stop-2: #d63e36 !default;
+//// Cancel Active
+$button-cancel-active-color: #fff !default;
+$button-cancel-active-text-shadow: -1px -1px 0 rgba(#000, 0.25) !default;
+$button-cancel-active-gradient-pos: $button-gradient-pos !default;
+$button-cancel-active-gradient-stop-1: #7a231f !default;
+$button-cancel-active-gradient-stop-2: #ad322b !default;
+//// disabled
+$button-disabled-color: #333 !default;
+$button-disabled-opacity: .75 !default;
+$button-disabled-text-shadow: 0 -1px 0 rgba(#000, 0.25) !default;
+$button-disabled-gradient-pos: $button-gradient-pos !default;
+$button-disabled-gradient-stop-1: #E6E6E6 !default;
+$button-disabled-gradient-stop-2: #E6E6E6 !default;  

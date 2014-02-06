@@ -1,0 +1,155 @@
+//////////////////////////////
+// BASE: Base element styles 
+//////////////////////////////
+
+@import "_typography_variables";
+
+h1 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h1-font-bold, $h1-font-italic, $h1-font-uppercase, $h1-font-variant);
+  @include type-size($h1-font-size, $h1-line-height);
+  @include margin-padding(padding, $h1-padding, $h1-padding-pos);
+  @include margin-padding(margin, $h1-margin, $h1-margin-pos);
+  color: $h1-color;
+  @include border-outline(border, $h1-border-width, $h1-border-style, $h1-border-color);
+}
+h2 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h2-font-bold, $h2-font-italic, $h2-font-uppercase, $h2-font-variant);
+  @include type-size($h2-font-size, $h2-line-height);
+  @include margin-padding(padding, $h2-padding, $h2-padding-pos);
+  @include margin-padding(margin, $h2-margin, $h2-margin-pos);
+  color: $h2-color;
+  @include border-outline(border, $h2-border-width, $h2-border-style, $h2-border-color);
+}
+h3 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h3-font-bold, $h3-font-italic, $h3-font-uppercase, $h3-font-variant);
+  @include type-size($h3-font-size, $h3-line-height);
+  @include margin-padding(padding, $h3-padding, $h3-padding-pos);
+  @include margin-padding(margin, $h3-margin, $h3-margin-pos);
+  color: $h3-color;
+  @include border-outline(border, $h3-border-width, $h3-border-style, $h3-border-color);
+}
+h4 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h4-font-bold, $h4-font-italic, $h4-font-uppercase, $h4-font-variant);
+  @include type-size($h4-font-size, $h4-line-height);
+  @include margin-padding(padding, $h4-padding, $h4-padding-pos);
+  @include margin-padding(margin, $h4-margin, $h4-margin-pos);
+  color: $h4-color;
+  @include border-outline(border, $h4-border-width, $h4-border-style, $h4-border-color);
+}
+h5 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h5-font-bold, $h5-font-italic, $h5-font-uppercase, $h5-font-variant);
+  @include type-size($h5-font-size, $h5-line-height);
+  @include margin-padding(padding, $h5-padding, $h5-padding-pos);
+  @include margin-padding(margin, $h5-margin, $h5-margin-pos);
+  color: $h5-color;
+  @include border-outline(border, $h5-border-width, $h5-border-style, $h5-border-color);
+}
+h6 {
+  font-family: $header-font-family;
+  @include bold-italic-uppercase-variant($h6-font-bold, $h6-font-italic, $h6-font-uppercase, $h6-font-variant);
+  @include type-size($h6-font-size, $h6-line-height);
+  @include margin-padding(padding, $h6-padding, $h6-padding-pos);
+  @include margin-padding(margin, $h6-margin, $h6-margin-pos);
+  color: $h6-color;
+  @include border-outline(border, $h6-border-width, $h6-border-style, $h6-border-color);
+}
+b, strong {
+  font-weight: bold;
+}
+i, em {
+  font-style: italic;
+}
+hr {
+  @include border-outline(border, $hr-border-width, $hr-border-style, $hr-border-color);
+  height: $hr-height;
+  background: $hr-background;
+  background-color: $hr-background-rgba;
+}
+p, ul, ol, hr, table, form, fieldset {
+  @include margin-padding(margin, $element-margin);
+}
+// removed by Meyer reset! why?
+ol {
+  list-style-type: decimal;
+}
+ul {
+  list-style-type: disc;
+}
+li {
+  list-style-position: $li-list-style-position;
+  @include margin-padding(margin, $li-margin, $li-margin-pos);
+  text-indent: $li-text-indent;
+}
+blockquote {
+  @include margin-padding(margin, $blockquote-margin);
+  @include border-outline(border, $blockquote-border-width, $blockquote-border-style, $blockquote-border-color);
+  @include margin-padding(padding, $blockquote-padding);
+  font-family: $blockquote-font-family;
+  @include bold-italic-uppercase-variant($blockquote-font-bold, $blockquote-font-italic, $blockquote-font-uppercase, $blockquote-font-variant);
+  @include type-size($blockquote-font-size, $blockquote-line-height);
+  letter-spacing: $blockquote-letter-spacing;
+  color: $blockquote-color;
+  border-color: $blockquote-border-rgba;
+  @include border-radius($blockquote-border-radius);
+  em {
+    @include bold-italic-uppercase-variant($blockquote-em-font-bold, $blockquote-em-font-italic, $blockquote-em-font-uppercase, $blockquote-em-font-variant);
+  }
+}
+figcaption {
+  font-family: $figcaption-font-family;
+  @include bold-italic-uppercase-variant($figcaption-font-bold, $figcaption-font-italic, $figcaption-font-uppercase, $figcaption-font-variant);
+  @include type-size($figcaption-font-size, $figcaption-line-height);
+  color: $figcaption-color;
+}
+article > p,
+article section > p {
+  @include type-size($article-font-size, $article-line-height);
+  word-spacing: $article-word-spacing;
+  @include margin-padding(margin, $article-margin);
+/*  Does this improve the reading experience?
+  -webkit-hyphens: auto;
+  -moz-hyphens: auto;
+  hyphens: auto;
+  text-align: justify;
+*/
+}
+article footer+p:first-letter,
+article section>h2+p:first-letter,
+article section>p:first-child:first-letter,
+h1+p:first-letter {
+  display: $article-fl-display;
+  float: $article-fl-float;
+  font-family: $article-fl-font-family;
+  @include bold-italic-uppercase-variant($article-fl-font-bold, $article-fl-font-italic, $article-fl-font-uppercase, $article-fl-font-variant);
+  @include type-size($article-fl-font-size, $article-fl-line-height);
+  letter-spacing: $article-fl-letter-spacing;
+  @include margin-padding(margin, $article-fl-margin, $article-fl-margin-pos);
+  color: $article-fl-color;
+  @include border-outline(border, $article-fl-border-width, $article-fl-border-style, $article-fl-border-color);
+}
+time {
+  display: $time-display;
+  text-align: $time-text-align;
+  font-family: $time-font-family;
+  @include bold-italic-uppercase-variant($time-font-bold, $time-font-italic, $time-font-uppercase, $time-font-variant);
+  @include type-size($time-font-size, $time-line-height);
+  letter-spacing: $time-letter-spacing;
+  color: $time-color;
+  @include content-before-after($time-content);
+}
+
+pre {
+  @extend %force-wrap;
+  @include margin-padding(margin, $pre-margin, $pre-margin-pos);
+  @include margin-padding(padding, $pre-padding);
+  @include border-outline(border, $pre-border-width, $pre-border-style, $pre-border-color);
+  @include border-radius($pre-border-radius);
+  font-family: $pre-font-family;
+  @include type-size($pre-font-size, $pre-line-height);
+  @include simple-background-gradient($pre-color, $pre-gradient-pos, $pre-gradient-stop-1, $pre-gradient-stop-2);
+}

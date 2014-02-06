@@ -1,0 +1,30 @@
+//////////////////////////////
+// BASE: Base element styles 
+//////////////////////////////
+
+@import "_links_variables";
+
+a {
+  color: $link-color;
+  text-decoration: $link-text-decoration;
+  @include border-outline(border, $link-border-width, $link-border-style, $link-border-color);
+  &:link,
+  &:visited {
+    color: $link-visited-link-color;
+    @include border-outline(border, $link-visited-border-width, $link-visited-border-style, $link-visited-border-color);
+  }
+  &[href]:hover,
+  &[href]:focus {
+    color: $link-hover-link-color;
+    text-decoration: $link-hover-text-decoration;
+    @include border-outline(border, $link-hover-border-width, $link-hover-border-style, $link-hover-border-color);
+  }
+  &:active {
+    color: $link-active-link-color;
+    @include border-outline(border, $link-active-border-width, $link-active-border-style, $link-active-border-color);
+  } 
+  .logo &, h1 &, h2 &, h3 & {
+    color: $headers-link-color;
+    @include border-outline(border, $logo-headers-border-width, $logo-headers-border-style, $logo-headers-border-color);
+  }
+}

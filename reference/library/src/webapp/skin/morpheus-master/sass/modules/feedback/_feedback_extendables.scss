@@ -1,0 +1,35 @@
+//////////////////////////////
+// EXTENDABLES: For Modules 
+//////////////////////////////
+
+%feedback {
+  @include margin-padding(padding, $feedback-padding);
+  @include margin-padding(margin, $feedback-margin);
+  color: $feedback-color;
+  background-color: $feedback-background;
+  @include border-outline(border, $feedback-border-width, $feedback-border-style, $feedback-border-color);
+  @include border-radius($feedback-border-radius);
+  background-clip: padding-box;
+  a {
+    color: $feedback-color;
+    @include bold-italic-uppercase-variant($feedback-a-font-bold, $feedback-a-font-italic, $feedback-a-font-uppercase, $feedback-a-font-variant);
+  }
+}
+
+%error {
+  background-color: $feedback-error-background;
+  color: $feedback-error-color;
+  border-color: $feedback-error-border-color;
+  a {
+    color: $feedback-error-color;
+  }
+}
+
+%warning {
+  background-color: $feedback-warning-background;
+  color: $feedback-warning-color;
+  border-color: $feedback-warning-border-color;
+  a {
+    color: $feedback-warning-color;
+  }
+}
