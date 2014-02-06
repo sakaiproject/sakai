@@ -1,4 +1,5 @@
 /* line 1, sass/portalchat.scss */
+/* line 2, sass/portalchat.scss */
 #pc {
   width: 200px;
   font-family: 'Helvetica Neue', Arial;
@@ -16,11 +17,13 @@
 }
 
 /* line 16, sass/portalchat.scss */
+/* line 19, sass/portalchat.scss */
 #pc h5 {
   margin-bottom: 5px !important;
 }
 
 /* line 19, sass/portalchat.scss */
+/* line 24, sass/portalchat.scss */
 #pc_chat_window_container {
   position: fixed;
   /* The chats container is placed just to the left of the connections menu */
@@ -31,11 +34,13 @@
 }
 
 /* line 27, sass/portalchat.scss */
+/* line 34, sass/portalchat.scss */
 #pc_chat_close {
   padding: 0 !important;
 }
 
 /* line 30, sass/portalchat.scss */
+/* line 39, sass/portalchat.scss */
 .pc_chat_window {
   height: 300px;
   width: 256px;
@@ -47,6 +52,7 @@
 }
 
 /* line 39, sass/portalchat.scss */
+/* line 50, sass/portalchat.scss */
 #pc_title {
   font-weight: bold;
   border-bottom: 1px solid #ccc;
@@ -57,11 +63,13 @@
 }
 
 /* line 47, sass/portalchat.scss */
+/* line 60, sass/portalchat.scss */
 #pc_people {
   display: none;
 }
 
 /* line 50, sass/portalchat.scss */
+/* line 65, sass/portalchat.scss */
 .pc_users_wrapper {
   padding: 5px;
   clear: both;
@@ -69,6 +77,7 @@
 }
 
 /* line 55, sass/portalchat.scss */
+/* line 72, sass/portalchat.scss */
 #pc_connections_wrapper {
   padding: 5px;
   clear: both;
@@ -78,6 +87,7 @@
 }
 
 /* line 62, sass/portalchat.scss */
+/* line 81, sass/portalchat.scss */
 #pc_connections_label, #pc_site_users_label {
   padding: 2px 0;
   margin: 0;
@@ -88,6 +98,7 @@
 }
 
 /* line 70, sass/portalchat.scss */
+/* line 91, sass/portalchat.scss */
 #pc_site_users {
   font-size: 90%;
   height: 100%;
@@ -98,6 +109,7 @@
 }
 
 /* line 78, sass/portalchat.scss */
+/* line 101, sass/portalchat.scss */
 #pc_users {
   overflow: auto;
   list-style: none;
@@ -106,12 +118,14 @@
 }
 
 /* line 84, sass/portalchat.scss */
+/* line 109, sass/portalchat.scss */
 #pc_users h5 {
   margin: 0;
   padding: 0;
 }
 
 /* line 88, sass/portalchat.scss */
+/* line 115, sass/portalchat.scss */
 #pc_connections {
   list-style: none;
   padding: 0;
@@ -119,6 +133,7 @@
 }
 
 /* line 93, sass/portalchat.scss */
+/* line 122, sass/portalchat.scss */
 .pc_connection, .pc_site_user {
   clear: both;
   height: 100%;
@@ -128,11 +143,13 @@
 }
 
 /* line 100, sass/portalchat.scss */
+/* line 131, sass/portalchat.scss */
 .pc_connection_image, .pc_user_image {
   display: none !important;
 }
 
 /* line 103, sass/portalchat.scss */
+/* line 136, sass/portalchat.scss */
 .pc_connection_display_name, .pc_site_display_name {
   padding: 0;
   display: block;
@@ -141,6 +158,7 @@
 }
 
 /* line 109, sass/portalchat.scss */
+/* line 144, sass/portalchat.scss */
 .pc_site_display_name {
   width: 140px;
   font-size: 10pt !important;
@@ -148,6 +166,7 @@
 }
 
 /* line 114, sass/portalchat.scss */
+/* line 151, sass/portalchat.scss */
 .pc_display_status_bullet {
   float: left;
   display: inline-block;
@@ -156,6 +175,7 @@
 }
 
 /* line 120, sass/portalchat.scss */
+/* line 159, sass/portalchat.scss */
 .pc_connection_image, .pc_user_image {
   vertical-align: middle;
   display: block;
@@ -163,6 +183,7 @@
 }
 
 /* line 125, sass/portalchat.scss */
+/* line 166, sass/portalchat.scss */
 #pc_options {
   overflow: hidden;
   font-size: 90%;
@@ -170,22 +191,26 @@
 }
 
 /* line 130, sass/portalchat.scss */
+/* line 173, sass/portalchat.scss */
 .pc_minimised {
   margin-top: 260px;
 }
 
 /* line 133, sass/portalchat.scss */
+/* line 178, sass/portalchat.scss */
 .pc_maximised {
   margin-top: 0px;
   font-family: 'Helvetica Neue', Arial;
 }
 
 /* line 137, sass/portalchat.scss */
+/* line 184, sass/portalchat.scss */
 .pc_connection_chat_title {
   padding: 3px;
 }
 
 /* line 140, sass/portalchat.scss */
+/* line 189, sass/portalchat.scss */
 .pc_connection_chat_title_avt, .pc_connection_chat_title_no_avt {
   font-size: 14px;
   font-weight: bold;
@@ -199,6 +224,7 @@
 }
 
 /* line 151, sass/portalchat.scss */
+/* line 202, sass/portalchat.scss */
 .pc_connection_chat_title_avt img.pc_connection_chat_title_avt {
   vertical-align: text-top;
   position: relative;
@@ -211,12 +237,14 @@
 }
 
 /* line 164, sass/portalchat.scss */
+/* line 214, sass/portalchat.scss */
 .pc_connection_chat_title_avt a:link, .pc_connection_chat_title_no_avt a:link, .pc_connection_chat_title_avt a:visited, .pc_connection_chat_title_no_avt a:visited {
   color: #000;
   text-decoration: none;
 }
 
 /* line 168, sass/portalchat.scss */
+/* line 220, sass/portalchat.scss */
 .pc_connection_chat_title_avt img, .pc_connection_chat_title_no_avt img {
   position: absolute;
   border: none;
@@ -225,17 +253,20 @@
 }
 
 /* line 174, sass/portalchat.scss */
+/* line 228, sass/portalchat.scss */
 .pc_connection_chat_title_avt div {
   float: left;
   margin: 3px;
 }
 
 /* line 178, sass/portalchat.scss */
+/* line 234, sass/portalchat.scss */
 .pc_connection_chat_title_no_avt {
   height: auto;
 }
 
 /* line 181, sass/portalchat.scss */
+/* line 239, sass/portalchat.scss */
 .pc_message_panel {
   padding: 0px;
   background: white;
@@ -245,6 +276,7 @@
 }
 
 /* line 188, sass/portalchat.scss */
+/* line 248, sass/portalchat.scss */
 .pc_message_panel li {
   margin: 2px 0;
   vertical-align: text-top;
@@ -257,6 +289,7 @@
 }
 
 /* line 198, sass/portalchat.scss */
+/* line 260, sass/portalchat.scss */
 .pc_message_panel li img {
   vertical-align: text-top;
   /*TODO: remove width here when using server-scaled avatar, add;;
@@ -275,6 +308,7 @@
 }
 
 /* line 214, sass/portalchat.scss */
+/* line 278, sass/portalchat.scss */
 .pc_editor_wrapper {
   padding: 5px 5px 0px 7px;
   background: #f3f3f3;
@@ -283,6 +317,7 @@
 }
 
 /* line 220, sass/portalchat.scss */
+/* line 286, sass/portalchat.scss */
 .pc_editor {
   width: 236px;
   margin-top: 2px;
@@ -290,6 +325,7 @@
 }
 
 /* line 225, sass/portalchat.scss */
+/* line 293, sass/portalchat.scss */
 .pc_displayname {
   display: block;
   font-weight: bold;
@@ -299,12 +335,14 @@
 }
 
 /* line 232, sass/portalchat.scss */
+/* line 302, sass/portalchat.scss */
 .pc_displayname + .pc_message {
   margin-left: -20px;
   margin-top: 3px;
 }
 
 /* line 236, sass/portalchat.scss */
+/* line 308, sass/portalchat.scss */
 .pc_message {
   /*TODO: width of message will also depend on server-scaled avatar;;
   * width: ;*/
@@ -316,6 +354,7 @@
  * positioning
    */
 /* line 245, sass/portalchat.scss */
+/* line 319, sass/portalchat.scss */
 .pc_messagedate {
   font-size: 90%;
   color: #555;
@@ -325,12 +364,14 @@
 }
 
 /* line 252, sass/portalchat.scss */
+/* line 328, sass/portalchat.scss */
 .pc_user_link {
   margin-left: 5px;
   text-decoration: none !important;
 }
 
 /* line 256, sass/portalchat.scss */
+/* line 334, sass/portalchat.scss */
 .pc_new_message {
   background-color: #fcc6c6;
   background: -webkit-gradient(linear, left top, left bottom, from(#eeeeee), to(#fcc6c6));
@@ -342,12 +383,14 @@
 }
 
 /* line 265, sass/portalchat.scss */
+/* line 345, sass/portalchat.scss */
 #pc_showoffline_connections_checkbox, #pc_go_offline_checkbox {
   margin-right: 3px;
   margin-left: -1px;
 }
 
 /* line 269, sass/portalchat.scss */
+/* line 351, sass/portalchat.scss */
 .pc_pinged_popup {
   display: none;
   color: #fff;
