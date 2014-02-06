@@ -67,6 +67,7 @@ public interface Reference
 
 	/**
 	 * Access the context id, if any.
+	 * Typically this is the site in which the entity is contained, although other contexts are possible.
 	 * 
 	 * @return the context id, if any.
 	 */
