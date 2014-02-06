@@ -238,12 +238,18 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 		m_contentTypeDisplayNames = null;
 
 		m_contentTypeExtensions = null;
+		
+		if (m_contentTypes != null) 
+		{
+			m_contentTypes.clear();
+			m_contentTypes = null;
+		}
 
-		m_contentTypes.clear();
-		m_contentTypes = null;
-
-		m_mimetypes.clear();
-		m_mimetypes = null;
+		if (m_mimetypes != null)
+		{
+			m_mimetypes.clear();
+			m_mimetypes = null;
+		}
 
 		M_log.info("destroy()");
 
