@@ -61,25 +61,36 @@
 			#foreach($root in $this_site)
 				#set($collectionMembers = $root.members)
 				#set($count = 1)
+				#set($currentFolderId=$rootFolderId)
 				#foreach($member in $collectionMembers)
 					#set($collectionId=$contentService.getContainingCollectionId($member.id))
-					
 					#if (!$!collectionId.equals($currentFolderId))
-						#set($collection=$contentService.getCollection($currentFolderId))
-						#set($currentFolderId=$collectionId)
 						## set the depth to indent child resource items
-						#set($depth=$contentService.getDepth($collectionId, $rootFolderId))
-						## adjust the indetation, so that the top-level folder does not get indentation.
-						#set($depth = $depth - 1)
-						#set($width="$depth$unit")
-						<tr>
-							<td></td>
-							<td style="text-indent:$width">
-								<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-								$collection.getProperties().getProperty($displayNameProp)
-							</td>
-							<td colspan="2"></td>
-						</tr>
+						#set($relativePath=$member.id.replace($currentFolderId, ""))
+						##$relativePath
+						#set($relativePathArray=$relativePath.split('/'))
+						#set($relativePathArraySize=$relativePathArray.size())
+						#set($indexCount=1)
+						#foreach($folderId in $relativePathArray)
+							#if ($indexCount < $relativePathArraySize)
+								#set($currentFolderId=$currentFolderId + $folderId+'/')
+								#set($collection=$contentService.getCollection($currentFolderId))
+								<tr>
+									<td>					
+									</td>
+									<td style="text-indent:$width">
+										<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+										$collection.getProperties().getProperty($displayNameProp)
+									</td>
+									<td colspan="2"></td>
+								</tr>
+								#set($indexCount=$indexCount+1)
+								#set($depth=$contentService.getDepth($collectionId, $rootFolderId))
+								## adjust the indetation, so that the top-level folder does not get indentation.
+								#set($depth = $depth - 1)
+								#set($width="$depth$unit")
+							#end
+						#end
 						## increase the depth to indent the child resources items
 						#set($depth = $depth + 1)
 						#set($width="$depth$unit")
