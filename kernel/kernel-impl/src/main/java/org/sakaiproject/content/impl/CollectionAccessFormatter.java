@@ -21,6 +21,7 @@
 
 package org.sakaiproject.content.impl;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
 import java.util.Collections;
@@ -42,8 +43,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 
@@ -73,7 +72,7 @@ public class CollectionAccessFormatter
 				res.sendError(HttpServletResponse.SC_NOT_FOUND);
 				return;
 			} 
-			catch ( java.io.IOException e ) 
+			catch ( IOException e )
 			{
 				return;
 			}
@@ -99,9 +98,8 @@ public class CollectionAccessFormatter
 			String[] parts= StringUtils.split(x.getId(), Entity.SEPARATOR);
 			
 			// Is this a site folder (Resources or Dropbox)? If so, get the site skin
-			
-			if (x.getId().startsWith(org.sakaiproject.content.api.ContentHostingService.COLLECTION_SITE) ||
-				x.getId().startsWith(org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX)) {
+			if (x.getId().startsWith(ContentHostingService.COLLECTION_SITE) ||
+				x.getId().startsWith(ContentHostingService.COLLECTION_DROPBOX)) {
 				if (parts.length > 1) {
 					String siteId = parts[1];
 					try {
@@ -204,14 +202,13 @@ public class CollectionAccessFormatter
 					// Relativize the URL (canonical item URL relative to canonical collection URL). 
 					// Inter alias this will preserve alternate access paths via aliases, e.g. /web/
 					
-					URI contentUri = new URI(contentUrl);			
+					URI contentUri = new URI(contentUrl);
 					URI relativeUri = baseUri.relativize(contentUri);
 					contentUrl = relativeUri.toString();
 					
 					if (isCollection)
 					{
 						// Folder
-
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
 						if ((desc == null)  || desc.equals(""))
 							desc = "";
@@ -224,18 +221,6 @@ public class CollectionAccessFormatter
 					else
 					{
 						// File
-
-						/*
-						String createdBy = getUserProperty(properties, ResourceProperties.PROP_CREATOR).getDisplayName();
-						Time modTime = properties.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-						String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
-						
-						ContentResource contentResource = (ContentResource) content;
-
-						long filesize = ((contentResource.getContentLength() - 1) / 1024) + 1;
-						String filetype = contentResource.getContentType();
-						 */
-
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
 						if ((desc == null) || desc.equals(""))
 							desc = "";
@@ -248,10 +233,9 @@ public class CollectionAccessFormatter
 								+ "</a>" + desc + "</li>");
 					}
 				}
-				catch (Exception ignore)
+				catch (Exception e)
 				{
-					// TODO - what types of failures are being caught here?
-
+					M_log.info("Problem rendering item falling back to default rendering: "+ x.getId()+ ", "+ e.getMessage());
 					out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + Validator.escapeHtml(xs)
 							+ "</a></li>");
 				}
@@ -270,25 +254,5 @@ public class CollectionAccessFormatter
 			if (printedDiv) out.println("</div>");
 			out.println("</body></html>");
 		}
-	}
-
-	/**
-	 * @deprecated - no references to this method found
-	 */
-	protected static User getUserProperty(ResourceProperties props, String name)
-	{
-		// String id = props.getProperty(name);
-		// if (id != null)
-		// {
-		// try
-		// {
-		// return UserDirectoryService.getUser(id);
-		// }
-		// catch (UserNotDefinedException e)
-		// {
-		// }
-		// }
-
-		return null;
 	}
 }
