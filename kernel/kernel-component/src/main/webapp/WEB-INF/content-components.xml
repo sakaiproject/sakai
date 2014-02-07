@@ -38,7 +38,8 @@
         <property name="timeService">				<ref bean="org.sakaiproject.time.api.TimeService"/>						</property>
         <property name="sessionManager">			<ref bean="org.sakaiproject.tool.api.SessionManager"/>					</property>
         <property name="toolManager">				<ref bean="org.sakaiproject.tool.api.ToolManager"/>						</property>
-        <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>	
+        <property name="userDirectoryService"> 		<ref bean="org.sakaiproject.user.api.UserDirectoryService"/>			</property>
+        <property name="collectionAccessFormatter">	<ref bean="org.sakaiproject.content.impl.CollectionAccessFormatter"/>	</property>
         <property name="contentHostingHandlerResolver"><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 		<property name="collectionSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"/></property>
         <property name="resourceSerializer"><ref bean="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"/></property>
@@ -75,12 +76,21 @@
             <ref bean="org.sakaiproject.content.impl.HtmlPageFilter"/>
           </list>
         </property>
-  	</bean>
+    </bean>
+
+    <bean id="org.sakaiproject.content.impl.CollectionAccessFormatter"
+          class="org.sakaiproject.content.impl.CollectionAccessFormatter">
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
 
 	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
 			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl"
 			singleton="true">
 	</bean>
+
+
 
 <!--
 	<bean id="uk.ac.cam.caret.ContentHostingHandlerFileSystemImpl.0000"

@@ -33,7 +33,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -44,25 +44,40 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.api.FormattedText;
 
 /**
  * <p>
  * CollectionAccessFormatter is formatter for collection access.
  * </p>
  */
-@SuppressWarnings("deprecation")
 public class CollectionAccessFormatter
 {
 	private static final Log M_log = LogFactory.getLog(CollectionAccessFormatter.class);
 
+	private FormattedText formattedText;
+	private ServerConfigurationService serverConfigurationService;
+	private SiteService siteService;
+
+	public void setFormattedText(FormattedText formattedText) {
+		this.formattedText = formattedText;
+	}
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
 
 	/**
 	 * Format the collection as an HTML display.
+	 * Ths ContentHostingService is passed in here to handle the cyclic dependency between the BaseContentService
+	 * and this class.
 	 */
-	@SuppressWarnings({ "unchecked" })
-	public static void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res, ResourceLoader rb,
-			String accessPointTrue, String accessPointFalse, ContentHostingService contentHostingService, SiteService siteService)
+	public void format(ContentCollection x, Reference ref, HttpServletRequest req, HttpServletResponse res, ResourceLoader rb,
+			ContentHostingService contentHostingService)
 	{
 		// do not allow directory listings for /attachments and its subfolders  
 		if (contentHostingService.isAttachmentResource(x.getId()))
@@ -92,8 +107,8 @@ public class CollectionAccessFormatter
 			out = res.getWriter();
 
 			ResourceProperties pl = x.getProperties();
-			String webappRoot = ServerConfigurationService.getServerUrl();
-			String skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
+			String webappRoot = serverConfigurationService.getServerUrl();
+			String skinRepo = serverConfigurationService.getString("skin.repo", "/library/skin");
 			String skinName = "default";
 			String[] parts= StringUtils.split(x.getId(), Entity.SEPARATOR);
 			
@@ -118,7 +133,7 @@ public class CollectionAccessFormatter
 			out.println("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\" \"http://www.w3.org/TR/html4/loose.dtd\">");
 			out.println("<html><head>");
 			out.println("<title>" + rb.getFormattedMessage("colformat.pagetitle", 
-					new Object[]{ Validator.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME))}) + "</title>");
+					new Object[]{ formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME))}) + "</title>");
 			out.println("<link href=\"" + webappRoot + skinRepo+ "/" + skinName + 
 			"/access.css\" type=\"text/css\" rel=\"stylesheet\" media=\"screen\">");
 			out.println("<script src=\"" + webappRoot
@@ -130,7 +145,7 @@ public class CollectionAccessFormatter
 			out.println("<div class=\"directoryIndex\">");
 
 			// for content listing it's best to use a real title
-			out.println("<h3>" + Validator.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME)) + "</h3>");
+			out.println("<h3>" + formattedText.escapeHtml(pl.getProperty(ResourceProperties.PROP_DISPLAY_NAME)) + "</h3>");
 			out.println("<p id=\"toggle\"><a id=\"toggler\" href=\"#\">" + rb.getString("colformat.showhide") + "</a></p>");
 			String folderdesc = pl.getProperty(ResourceProperties.PROP_DESCRIPTION);
 			if (folderdesc != null && !folderdesc.equals("")) out.println("<div class=\"textPanel\">" + folderdesc + "</div>");
@@ -210,33 +225,33 @@ public class CollectionAccessFormatter
 					{
 						// Folder
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-						if ((desc == null)  || desc.equals(""))
+						if (desc == null)
 							desc = "";
 						else
 							desc = "<div class=\"textPanel\">" +  desc + "</div>";
 						out.println("<li class=\"folder\"><a href=\"" + contentUrl + "\">"
-								+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 								+ "</a>" + desc + "</li>");
 					}
 					else
 					{
 						// File
 						String desc = properties.getProperty(ResourceProperties.PROP_DESCRIPTION);
-						if ((desc == null) || desc.equals(""))
+						if (desc == null)
 							desc = "";
 						else
-							desc = "<div class=\"textPanel\">" + Validator.escapeHtml(desc) + "</div>";
+							desc = "<div class=\"textPanel\">" + formattedText.escapeHtml(desc) + "</div>";
 						String resourceType = content.getResourceType().replace('.', '_');
 						out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank class=\""
 								+ resourceType+"\">"
-								+ Validator.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
+								+ formattedText.escapeHtml(properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME))
 								+ "</a>" + desc + "</li>");
 					}
 				}
 				catch (Exception e)
 				{
 					M_log.info("Problem rendering item falling back to default rendering: "+ x.getId()+ ", "+ e.getMessage());
-					out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + Validator.escapeHtml(xs)
+					out.println("<li class=\"file\"><a href=\"" + contentUrl + "\" target=_blank>" + formattedText.escapeHtml(xs)
 							+ "</a></li>");
 				}
 			}

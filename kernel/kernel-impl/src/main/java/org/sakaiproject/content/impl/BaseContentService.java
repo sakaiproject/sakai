@@ -457,6 +457,20 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		m_securityService = service;
 	}
 
+	/** Dependency: CollectionAccessFormatter. */
+	protected CollectionAccessFormatter m_collectionAccessFormatter = null;
+
+	/**
+	 * Dependency: CollectionAccessFormatter.
+	 *
+	 * @param service
+	 *        The CollectionAccessFormatter.
+	 */
+	public void setCollectionAccessFormatter(CollectionAccessFormatter service)
+	{
+		m_collectionAccessFormatter = service;
+	}
+
 	/**
 	 * Set the site quota.
 	 * 
@@ -7132,8 +7146,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		try
 		{
 			// use the helper
-			CollectionAccessFormatter.format(collection, ref, req, res, rb, getAccessPoint(true), getAccessPoint(false), this,
-					m_siteService);
+			m_collectionAccessFormatter.format(collection, ref, req, res, rb, this);
 
 			// track event
 			// eventTrackingService.post(eventTrackingService.newEvent(EVENT_RESOURCE_READ, collection.getReference(), false));
