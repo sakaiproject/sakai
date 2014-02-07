@@ -121,7 +121,17 @@
         <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
             <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
         </form>
-
+		<p class="act">
+			
+			<input type="button" name="finish" id="finish" disabled=true
+			onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';" 
+			 value="$tlang.getString("label.continue")" accesskey="x" />
+			
+			<input type="button" name="cancel" 
+			onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" 
+			value="$tlang.getString("label.cancel")" accesskey="x" />
+			
+		</p>
     #end
 
 </div>
