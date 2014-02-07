@@ -82,7 +82,7 @@ public class URLUtils
 	 */
 
 	// The characters we should never expect to see in a pathInfo
-	public static String BAD_PATH_URL_CHARS = "\"'<>&";
+	public static String BAD_PATH_URL_CHARS = "\"'<>";
 
 	public static String getSafePathInfo(HttpServletRequest req)
 	{
