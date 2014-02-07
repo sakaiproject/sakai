@@ -109,24 +109,18 @@ public class CollectionAccessFormatter
 			ResourceProperties pl = x.getProperties();
 			String webappRoot = serverConfigurationService.getServerUrl();
 			String skinRepo = serverConfigurationService.getString("skin.repo", "/library/skin");
-			String skinName = "default";
+			String siteId = null;
 			String[] parts= StringUtils.split(x.getId(), Entity.SEPARATOR);
 			
 			// Is this a site folder (Resources or Dropbox)? If so, get the site skin
 			if (x.getId().startsWith(ContentHostingService.COLLECTION_SITE) ||
 				x.getId().startsWith(ContentHostingService.COLLECTION_DROPBOX)) {
 				if (parts.length > 1) {
-					String siteId = parts[1];
-					try {
-						Site site = siteService.getSite(siteId);
-						if (site.getSkin() != null) {
-							skinName = site.getSkin();
-						}
-					} catch (IdUnusedException e) {
-						// Cannot get site - ignore it
-					}
+					siteId = parts[1];
 				}
 			}
+			String skinName = siteService.getSiteSkin(siteId);
+
 
 			// Output the headers
 			
