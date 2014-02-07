@@ -629,6 +629,13 @@ optgroup::-moz-focus-inner {
   }
 }
 
+@media (min-width: 50.0625em) {
+  /* line 50, sass/layout/portal/_portal.scss */
+  h2.selected.current-site {
+    display: none;
+  }
+}
+
 /* PART 1 - MAIN LAYOUT BLOCKS
 /* general body - used by main portal document   */
 /* line 21, sass/portal.scss */

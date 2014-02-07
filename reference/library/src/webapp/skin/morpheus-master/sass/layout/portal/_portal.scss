@@ -46,3 +46,18 @@ main {
     padding: .8em 0 0 13.2em;
   }
 }
+
+
+
+h2.selected.current-site {
+  
+  @include respond-to('narrow navigation') {
+    
+  }
+
+  // hide title in the full nav view
+  @include respond-to('full navigation') {
+    display: none;
+  }
+  
+}

@@ -606,6 +606,11 @@ main {
   padding: .8em 0 0 13.2em;
 }
 
+/* line 50, sass/layout/portal/_portal.scss */
+h2.selected.current-site {
+  display: none;
+}
+
 /* PART 1 - MAIN LAYOUT BLOCKS
 /* general body - used by main portal document   */
 /* line 21, sass/portal.scss */
