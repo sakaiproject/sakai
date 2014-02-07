@@ -552,8 +552,6 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
     protected void indexContent(EntityContentProducer ecp, String reference){
         try {
-            //updating was causing issues, so doing delete and re-add
-            deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
             prepareIndexAdd(reference, ecp, true);
         } catch (NoContentException e) {
             deleteDocument(e);
