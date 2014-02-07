@@ -1,0 +1,3 @@
+## Morpheus sanity check: Displays Morpheus on the top left to show that we're using the right templates. DEV only! Remove or hide from production!!
+
+<span class="morpheus"></span>

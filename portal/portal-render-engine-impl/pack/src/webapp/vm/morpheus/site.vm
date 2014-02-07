@@ -1,0 +1,81 @@
+##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
+    #parse("/vm/morpheus/includeStandardHead.vm")
+    <body class="portalBody">
+        #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
+        <noscript>
+            <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
+        </noscript>
+        
+        ## Might take this out. Leaving it for now. MR
+        #if ( ${portal_add_mobile_link} )
+            <span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
+        #end
+        
+        #if ( $pageTop )
+            <script>
+                var sakaiPortalWindow = "";
+                $(document).ready(function() {
+                    setupSkipNav();
+                });
+            </script>
+        #end
+        
+        #if ( !${loginTopLogin} )
+        
+            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
+                <script>
+                    $(document).ready(function() {
+                        var toggleClass=""
+                        
+                        #if ( ${portal_allow_minimize_tools} )
+                            toggleClass="toggleTools"
+                        #end
+                        
+                        #if ( ${portal_allow_minimize_navigation} )
+                            toggleClass= toggleClass + "toggleNav"
+                        #end
+                            setupToolToggle(toggleClass);
+                    });
+                </script>
+            #end
+            
+        #end
+        
+        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="container portal outer minimize-site-nav" #else class="container portal outer" #end>
+            ## Skip Nav
+            #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
+
+            <div #if ( ${tabsSites} ) class="header max ${logoSiteClass}" #else class="header min ${logoSiteClass}" #end>
+                
+                ## Header
+                #parse("/vm/morpheus/snippets/header-snippet.vm")
+                
+                #if ( ${tabsSites} )
+                    ## tabs
+                    #parse("/vm/morpheus/includeTabs.vm")
+                #else
+                    <nav class="header header-login">
+                        <!-- login component -->
+                        
+                            #if (!${loginTopLogin})
+                                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+                            
+                            #else
+    
+                                #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
+                                <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
+    
+                            #end
+                        <!-- end login component -->
+                    </nav>
+                    
+                #end
+                
+            </div>
+             
+            #parse("/vm/morpheus/includePageWithNav.vm")
+            
+        </div> <!-- end div.container.portal.outer -->
+        <!-- END VM site.vm -->
+    </body>
+</html>

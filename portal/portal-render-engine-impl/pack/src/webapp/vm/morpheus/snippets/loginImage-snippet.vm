@@ -1,0 +1,31 @@
+<ul class="loginlinks" role="menu">
+
+    #if (${displayUserloginInfo})
+        <span class="login-user login-user-info"><span class="login-user-name">${loginUserDispName}</span> <span class="login-user-id">${loginUserDispId}</span></span>
+    #end
+
+    #if (${loginHasImage1}) 
+        <li role="menuitem">
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="login-link login-link-1 login-link-image"><img src="${loginImage1}" alt="${loginMessage}"></a>
+        </li>
+    #else
+        <li role="menuitem">
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="login-link login-link-1 login-link-message">${loginMessage}</a>
+        </li>
+    #end
+    
+    #if (${loginHasLogInOutUrl2})
+    
+        #if (${loginHasImage2}) 
+            <li role="menuitem">
+                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="login-link login-link-2 login-link-image"><img src="${loginImage2}" alt="${loginMessage2}"></a>
+            </li>
+        #else
+            <li role="menuitem">
+                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="login-link login-link-2 login-link-message">${loginMessage2}</a>
+            </li>
+        #end
+        
+    #end
+    
+</ul>
