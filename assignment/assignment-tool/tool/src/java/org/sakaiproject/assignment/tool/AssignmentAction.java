@@ -13849,7 +13849,7 @@ public class AssignmentAction extends PagedResourceActionII
 			    * if user has both SECURE_ADD_ASSIGNMENT_SUBMISSION
 			    * and SECURE_GRADE_ASSIGNMENT_SUBMISSION permission (TAs and Instructors)
 		            */
-			    if (m_securityService.unlock(_the_user,AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION,s.getId()) && !m_securityService.unlock(_the_user,AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,s.getId())) {
+			    if (m_securityService.unlock(_the_user,AssignmentService.SECURE_ADD_ASSIGNMENT_SUBMISSION,s.getReference()) && !m_securityService.unlock(_the_user,AssignmentService.SECURE_GRADE_ASSIGNMENT_SUBMISSION,s.getReference())) {
 	                      retVal.add(populate_ids ? _the_user.getId(): _the_user.getDisplayName() + " (" + _sb.toString() + ")");
 			    };
 	                } catch (UserNotDefinedException _unde) {
