@@ -1,6 +1,21 @@
 @import "theme/warning/_warning";
 @import "theme/warning/_morpheus";
 
+@import "compass/typography";
+@import "compass/css3";
+
+@import "partials/_browsers";
+@import "partials/_extendables";
+@import "partials/_functions";
+@import "partials/_mixins";
+@import "partials/_colors";
+
+@import "compass-pattern-primer";
+
+@import "layout/breakpoints/_breakpoints";
+
+@import "layout/portal/_portal";
+
 /* PART 1 - MAIN LAYOUT BLOCKS
 /* general body - used by main portal document   */
 body.portalBody {
@@ -66,7 +81,7 @@ body.portalBody {
 }
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
 #content {
-    padding: .8em 0 0 13.2em;
+    //padding: .8em 0 0 13.2em;
 }
 /* second wrapper for content - needed by SAK-12563 */
 #innercontent {
@@ -358,7 +373,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 #siteNav {}
 /* wrapper for the site link list and link to the 'more sites' tray - since the logo is displayed here on left, it is padded.*/
 #linkNav {
-    display: block;
+    //display: block;
     padding-right: 300px;
 }
 /* site tab navigation: a list right padding makes room for logo and matches width of tool menu
