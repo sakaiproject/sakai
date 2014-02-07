@@ -1,5 +1,5 @@
 ## Get the tool title: replace the spaces with hyphens and make it lowercase so that we have a unique class
-#set ($toolTitleClass = ${tool.toolTitle.replace(' ', '-').toLowerCase()})
+#set ($toolTitleClass = ${tool.toolTitle.replace(/\s+/g, '-').toLowerCase()})
 
 #if (${tool.hasRenderResult})
     <div class="portlet portlet-main wrapper ${toolTitleClass}">
