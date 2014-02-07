@@ -730,6 +730,8 @@ public class LessonBuilderAccessService {
 						}
 					}
 					
+                                        // Track event - only for full reads
+                                        eventTrackingService.post(eventTrackingService.newEvent(ContentHostingService.EVENT_RESOURCE_READ, resource.getReference(null), false));
 
 		        }
 		        else 
