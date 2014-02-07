@@ -691,7 +691,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
 		context.put("instr_uploads", instr_uploads);
 
-        Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", false);
+        Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", true);
         context.put("dragAndDrop", dragAndDrop);
 
 //		int max_bytes = 1024 * 1024;
