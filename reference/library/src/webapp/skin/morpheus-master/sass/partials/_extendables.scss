@@ -1,0 +1,51 @@
+//////////////////////////////
+// EXTENDABLES: Common reusable classes. Go extend yourself!
+//////////////////////////////
+
+%element-invisible {
+  // http://snook.ca/archives/html_and_css/hiding-content-for-accessibility
+  position: absolute !important;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 {
+    // IE6, IE7 
+    clip: rect(1px 1px 1px 1px); 
+  }
+  clip: rect(1px, 1px, 1px, 1px);
+}
+
+%break-word {
+  // http://css-tricks.com/almanac/properties/w/word-break/
+  -ms-word-break: break-all;
+  word-break: break-all;
+  word-break: break-word;
+  word-break: hyphenate;
+  @include hyphens(auto);
+}
+
+%group {
+  // http://css-tricks.com/snippets/css/clear-fix/
+  &:after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 {
+    // For IE 6/7 (trigger hasLayout) 
+    zoom: 1; 
+  }
+}
+
+// reworking of compass @include force-wrap
+%force-wrap {
+  //@include force-wrap; // this is the output 
+  white-space: pre;
+  white-space: pre-wrap;
+  //white-space: pre-line; // removes indentation -- was breaking content
+  white-space: -pre-wrap;
+  white-space: -o-pre-wrap;
+  white-space: -moz-pre-wrap;
+  white-space: -hp-pre-wrap;
+  word-wrap: break-word; 
+}

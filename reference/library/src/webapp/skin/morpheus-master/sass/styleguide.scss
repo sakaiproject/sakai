@@ -1,0 +1,20 @@
+// import the global style sheet
+@import 'global';
+
+// Add the Color Guide (adds a lot of css not needed for production)
+@import 'toolkit/colours';  // tint-stack, shade-stack etc
+@import "singularitygs"; // require for generate-colour-guide mixin
+
+@include generate-colour-guide($black, $primary, $secondary, $tertiary, $quadrary);
+
+// Styling for the pattern-primer.html page
+.pattern {
+  clear: both;
+  overflow: hidden; 
+  padding: .5em 1em;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.pattern .display {
+  width: 100%;
+}

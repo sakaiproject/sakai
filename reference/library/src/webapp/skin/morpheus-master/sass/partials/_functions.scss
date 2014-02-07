@@ -1,0 +1,11 @@
+//////////////////////////////
+// FUNCTIONS: Functions should take arguments and return values...
+//////////////////////////////
+
+@function calc-em($target-px, $context) {
+  @return ($target-px / $context) * 1em;
+}
+
+@function background-color-mix($background-gradient-1, $background-gradient-2) {
+  @return mix($background-gradient-1, $background-gradient-2);
+}

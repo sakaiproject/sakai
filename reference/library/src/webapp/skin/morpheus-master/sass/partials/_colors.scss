@@ -1,0 +1,27 @@
+//////////////////////////////
+// COLORS: Create a color scheme
+//////////////////////////////
+@import 'toolkit';  // tint-stack, shade-stack etc 
+
+// Example color scheme
+  
+$primary-color: #693 !default;
+$black-value: #333 !default;
+
+$cs-primary:            $primary-color;
+// Primary color, can be any color you can use in CSS, plus CMYK from Color Schemer
+$cs-scheme:             accented-analogic;
+// Options: mono, complement, triad, tetrad, analogic, accented-analogic
+$cs-hue-offset:         20;
+// Options: 0-100;
+$cs-brightness-offset:  0;
+// Options: 0-100;
+$cs-color-model:        ryb;
+// Options: rgb, ryb
+
+
+$black:     tint-stack($black-value);
+$primary:   tint-stack(cs-primary());
+$secondary: tint-stack(cs-secondary());
+$tertiary:  tint-stack(cs-tertiary());
+$quadrary:  tint-stack(cs-quadrary());

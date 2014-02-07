@@ -1,0 +1,21 @@
+//////////////////////////////
+// BASE: Base element styles 
+//////////////////////////////
+
+@import "_page_variables";
+
+html {
+  @include border-outline(border, $html-border-width, $html-border-style, $html-border-color);
+  background-color: $html-background-color;
+}
+body {
+  background-color: $body-background-color;
+  background: $body-background-rgba;
+  @include margin-padding(margin, $body-margin);
+  @include margin-padding(padding, $body-padding);
+  @include type-size($body-font-size, $body-line-height);
+  font-family: $body-font-family;
+  color: $body-color;
+  @include border-outline(border, $body-border-width, $body-border-style, $body-border-color);
+  border-color: $body-border-color-rgba;
+}

@@ -1,0 +1,63 @@
+//////////////////////////////
+// LAYOUT: Layout dependent css and media queries only 
+//////////////////////////////
+
+@import "_portal_variables";
+
+//#portalOuterContainer {
+//  width: 100%;
+//  overflow: hidden;
+//  display: table;
+//  background: $portal-background;
+//}
+//
+//#container {
+//  //background: $container-background; 
+//  width: 100%;
+//  display: table;
+//}
+
+.container.nav {
+  
+  @include respond-to('narrow navigation') {
+    display: none;
+  }
+}
+
+#linkNav {
+
+  
+  @include respond-to('narrow navigation') {
+    display: none;
+  }
+  
+  @include respond-to('full navigation') {
+    display: block;
+  }
+}
+
+main {
+
+  @include respond-to('narrow navigation') {
+    padding: .8em 0 0 0;
+  }
+  
+  @include respond-to('full navigation') {
+    padding: .8em 0 0 13.2em;
+  }
+}
+
+
+
+h2.selected.current-site {
+  
+  @include respond-to('narrow navigation') {
+    
+  }
+
+  // hide title in the full nav view
+  @include respond-to('full navigation') {
+    display: none;
+  }
+  
+}

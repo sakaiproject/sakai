@@ -11,7 +11,6 @@ var timeToNextPlot = 0;
 var barToPlot = 1;
 var secondsPerBar = 100;
 var recordingStopped = false;
-var recordingStarted = false;
 
   function __log(e, data) {
     log.innerHTML += "\n" + e + " " + (data || '');
@@ -31,65 +30,7 @@ var recordingStarted = false;
     }
   }
 
-function microphoneCheck(stream) {
-  if (audio_context) {
-    $('#volumemeter').show();
-    var h = $('#volumemeter').height();
-    var w = $('#volumemeter').width();
-
-    // connect to the user input; the lower the smoothing, the more variation in the meter
-    analyzerNode = audio_context.createAnalyser();
-    analyzerNode.smoothingTimeConstant = 0.2;
-    analyzerNode.fftSize = 256;
-    input.connect( analyzerNode );
-
-    var volumeCanvas = document.getElementById('volumemeter');
-    var vCtx  = volumeCanvas.getContext('2d');
-    vCtx.fillStyle = '#333';
-	vCtx.fillRect(0,0,w,h);
-          
-    var intervalId = setInterval(
-      function() {
-        // Once the user starts recording, hide the mic check and stop this loop
-        if (recordingStarted) {
-          $('#audio-mic-check').hide();
-          clearInterval(intervalId);
-        }
-
-        var freqByteData = new Float32Array(analyzerNode.frequencyBinCount);
-        analyzerNode.getFloatFrequencyData(freqByteData); 
-
-        // compute an average volume
-        var values = 0;
-        for (var i = 0; i < freqByteData.length; i++) {
-          values += freqByteData[i];
-        }
-        var average = Math.round(values / freqByteData.length) + 120;
-
-        var grad = vCtx.createLinearGradient(w/10,h*0.2,w/10,h*0.95);
-		grad.addColorStop(0,'red');
-		grad.addColorStop(-6/-72,'yellow');
-		grad.addColorStop(1,'green');
-		// fill the grey background
-		vCtx.fillStyle = '#555';
-		vCtx.fillRect(0,0,w,h);
-		vCtx.fillStyle = grad;
-		// draw the current volume
-		vCtx.fillRect(0,h,w, average*-1);
-      }, 500 // rinse and repeat every half second
-    );
-  }
-}
-
 function audioAnalyzer(time) {
-  // We are resetting the state of the audio visualization if a user is doing another attempt
-  if (time == 0) {
-    console.log('Resetting analyzer canvas');
-    analyserContext = false;
-    timeToNextPlot = 0;
-    barToPlot = 1;
-  }
-
   if (!analyserContext) {
     var canvas = document.getElementById('audio-analyzer');
     $(canvas).show();
@@ -97,10 +38,6 @@ function audioAnalyzer(time) {
     canvasHeight = canvas.height;
 	secondsPerBar = Math.floor ( (maxSeconds*1000) / canvasWidth );
     analyserContext = canvas.getContext('2d');
-
-    // make the background black
-    analyserContext.fillStyle = "black";
-    analyserContext.fillRect ( 0, 0, canvasWidth, canvasHeight);
 
     // draw a horizontal line down the middle
     analyserContext.fillStyle = "blue";
@@ -122,12 +59,11 @@ function audioAnalyzer(time) {
         values += freqByteData[i];
       }
       average = values / freqByteData.length;
+      timeToNextPlot = timeToNextPlot + secondsPerBar;
 
       analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*1) );
       analyserContext.fillRect ( barToPlot, canvasHeight/2, 1, Math.floor(average*-1) );
-
       barToPlot = barToPlot + 1;
-      timeToNextPlot = time + secondsPerBar;
     }
   }
 
@@ -135,10 +71,7 @@ function audioAnalyzer(time) {
 }
 
   function enableRecording(stream) {
-      // enable the mic check and record buttons
-      $('#mic-check').prop('disabled','').fadeTo('slow', 1.0);
       $('#audio-record').prop('disabled','').fadeTo('slow', 1.0);
-
       if (stream) {
           //Save the input for later
           input = audio_context.createMediaStreamSource(stream);
@@ -161,12 +94,11 @@ function audioAnalyzer(time) {
           console.log('Recorder initialized.');
 
           // initialize the audio analysis
-          audioAnalyzer(0);
+          audioAnalyzer();
       }
 
   }
 
-  // This is a recording timer
   function startTimer() {
     timer = setInterval(function() {
       timeRemaining--;
@@ -186,28 +118,7 @@ function audioAnalyzer(time) {
     }, 1000); 
   }
 
-  // This is a playback timer (just simulating)
-  function playbackTimer(secsToCount) {
-    var secsTaken = 0;
-
-    timer = setInterval(function() {
-      secsTaken++;
-      minsTaken = Math.floor(secsTaken / 60);
-      secsToDisplay = secsTaken - (minsTaken * 60);
-
-      $('#audio-timer').text( minsTaken + ":" + (secsToDisplay < 10 ? "0" : "") + secsToDisplay );
-      $('#audio-timer').css("left", timerStartPosition + (secsTaken * scrubberMultiple));
-
-      if (secsTaken >= secsToCount) {
-        clearInterval(timer);
-        console.log('MaxSeconds of playback reached');
-      } 
-    }, 1000); 
-  }
-
   function startRecording(button) {
-    recordingStarted = true;
-    recordingStopped = false;
 	
     //Try to stop/reload previous recording
     if (userMediaSupport) {
@@ -455,9 +366,6 @@ function audioAnalyzer(time) {
         }
         catch (err) {}
     }
-
-    // Start the playback timer
-    playbackTimer(timeTaken);
   }
 
   function drawBuffer(width, height, context, data) {
@@ -543,7 +451,6 @@ $(document).ready(function() {
     // disable record button until the user grants microphone approval
     $('#audio-record').prop('disabled','disabled').fadeTo('slow', 0.5);
     $('#audio-play').prop('disabled','disabled').fadeTo('slow', 0.5);
-    $('#mic-check').fadeTo('fast', 0.2);
 
     if (userMediaSupport) {
 

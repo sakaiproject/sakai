@@ -1,0 +1,34 @@
+//////////////////////////////
+// VARIABLES: For Modules 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+// Controls
+$controls-font-family: $secondary-font !default;
+$controls-font-size: 1.5em !default;
+$controls-padding: 0.5em 0.75em !default; 
+$controls-border-width: false !default; 
+$controls-border-style: solid !default;
+$controls-border-color: #666 !default;
+$controls-border-radius: 0.25em !default;
+/// Visited
+$controls-visited-color: $button-color !default;
+$controls-visited-gradient-pos: $button-gradient-pos !default;
+$controls-visited-gradient-stop-1: #47a !default;
+$controls-visited-gradient-stop-2: #258 !default;
+/// Hover
+$controls-hover-color: $button-color !default;
+$controls-hover-gradient-pos: $button-gradient-pos !default;
+$controls-hover-gradient-stop-1: #d04 !default;
+$controls-hover-gradient-stop-2: #b02 !default;
+/// Active
+$controls-active-color: $button-color !default;
+$controls-active-gradient-pos: $button-gradient-pos !default;
+$controls-active-gradient-stop-1: #800 !default;
+$controls-active-gradient-stop-2: #a00 !default;

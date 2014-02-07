@@ -1,0 +1,51 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    breakpoint (2.0.7)
+      compass (>= 0.12.1)
+      sass (>= 3.2.0)
+    chunky_png (1.2.9)
+    color-schemer (0.2.8)
+      compass-blend-modes (~> 0.0.2)
+    compass (0.12.2)
+      chunky_png (~> 1.2)
+      fssm (>= 0.2.7)
+      sass (~> 3.1)
+    compass-blend-modes (0.0.2)
+      compass
+    compass-normalize (1.4.3)
+      compass (>= 0.12.0)
+    compass-pattern-primer (0.4.3)
+      compass (~> 0.12.2)
+      compass-normalize (~> 1.4.3)
+      compass_formalize (~> 0.0.5)
+      meyer-reset (~> 2.0.0)
+      sass (~> 3.2.12)
+      toolkit (~> 1.3.5)
+    compass_formalize (0.0.5)
+      compass (>= 0.10.0)
+    fssm (0.2.10)
+    meyer-reset (2.0.0)
+      compass (>= 0.10.5)
+    sass (3.2.12)
+    sassy-strings (1.0.0)
+      compass (>= 0.12.2)
+    singularitygs (1.1.2)
+      breakpoint (>= 2.0.1)
+      compass (>= 0.12.2)
+      sass (>= 3.2.1)
+    toolkit (1.3.8)
+      breakpoint (>= 2.0.6)
+      color-schemer (>= 0.2.7)
+      compass (>= 0.12.2)
+      sassy-strings (>= 1.0.0)
+      singularitygs (>= 1.1.2)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  compass (= 0.12.2)
+  compass-pattern-primer (= 0.4.3)
+  sass (= 3.2.12)
+  toolkit (= 1.3.8)

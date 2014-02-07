@@ -1,0 +1,25 @@
+//////////////////////////////
+// BASE: Base element styles 
+//////////////////////////////
+
+@import "_search_variables";
+
+[role="search"] {
+  position: relative;
+  background-color: $search-background-color;
+  @include border-outline(border, $search-border-width, $search-border-style, $search-border-color);
+  @include margin-padding(padding, $search-padding);
+  @include border-radius($search-border-radius);
+  input[type="search"], input {
+    @include border-outline(border, $search-input-border-width, $search-input-border-style, $search-input-border-color);
+    @include border-radius($search-input-border-radius);
+  }
+  input[type="image"] {
+    background-color: $search-image-background-color;
+    position: absolute;
+    width: $search-image-width;
+    top: $search-image-top;
+    right: $search-image-right;
+    @include margin-padding(padding, $search-image-padding);
+  }
+}                                

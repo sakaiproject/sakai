@@ -1,0 +1,44 @@
+//////////////////////////////
+// LAYOUT: Temp helpers to show breakpoints on the interface DEV only
+//////////////////////////////
+
+@import "_breakpoints_variables";
+@import "_breakpoints_mixin";
+
+//
+//#headerMax:before {
+//  @include respond-to('full navigation') {
+//    @include breakpoint-back;
+//    content: 'Full Navigation';
+//  }
+//}
+//#headerMax:before {
+//  @include respond-to('narrow navigation') {
+//    @include breakpoint-back;
+//    content: 'Narrow Navigation';
+//  }
+//}
+//#headerMax:after {
+//  @include respond-to('extra-wide') {
+//    @include breakpoint-back;
+//    content: 'Extra-Wide';
+//  }
+//}
+//#headerMax:after {
+//  @include respond-to('wide') {
+//    @include breakpoint-back;
+//    content: 'Wide';
+//  }
+//}
+//
+//#headerMax:after {
+//  @include respond-to('tablet portrait, medium', 'screen') {
+//    content: 'tablet portrait, medium';
+//  }
+//}
+//
+//#headerMax:after {
+//  @include respond-to('phone landscape, sm-land', 'print') {
+//    content: 'phone landscape, sm-land, Wide in Print';
+//  }
+//}                              

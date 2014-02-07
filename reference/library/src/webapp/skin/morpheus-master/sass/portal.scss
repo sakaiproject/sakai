@@ -1,3 +1,21 @@
+@import "theme/warning/_warning";
+@import "theme/warning/_morpheus";
+
+@import "compass/typography";
+@import "compass/css3";
+
+@import "partials/_browsers";
+@import "partials/_extendables";
+@import "partials/_functions";
+@import "partials/_mixins";
+@import "partials/_colors";
+
+@import "compass-pattern-primer";
+
+@import "layout/breakpoints/_breakpoints";
+
+@import "layout/portal/_portal";
+
 /* PART 1 - MAIN LAYOUT BLOCKS
 /* general body - used by main portal document   */
 body.portalBody {
@@ -63,7 +81,7 @@ body.portalBody {
 }
 /* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
 #content {
-    padding: .8em 0 0 13.2em;
+    //padding: .8em 0 0 13.2em;
 }
 /* second wrapper for content - needed by SAK-12563 */
 #innercontent {
@@ -355,7 +373,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 #siteNav {}
 /* wrapper for the site link list and link to the 'more sites' tray - since the logo is displayed here on left, it is padded.*/
 #linkNav {
-    display: block;
+    //display: block;
     padding-right: 300px;
 }
 /* site tab navigation: a list right padding makes room for logo and matches width of tool menu
@@ -594,7 +612,7 @@ ul.otherSitesCategorList {
     clear: both;
     height:100%;
     margin:0;
-    overflow:
+    // missing arguement overflow:
 }
 /* list of sites in the "More sites" tray (both flat and categorized via s.p. "portal.use.dhtml.more=true" *), since there
  * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
@@ -1402,7 +1420,6 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     line-height: 1.2em;
     text-align: center;
     padding: 0;
-    z-index: 9999;
     border: 1px solid #ccc;
     border-width: 1px 1px 0 1px;
     background: #eeeeee;
@@ -1463,7 +1480,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 
 #chatToggle {
-    display: inline;
+    display: block;
     padding: 6px 6px 5px 6px;
     color: #222;
     text-decoration: none;
@@ -1941,4 +1958,109 @@ html > body .ui-pnotify {
 .ui-pnotify-title {
   line-height: 17px;
   min-height: 17px;
+}
+
+/*! 
+    Temp Morpheus styles 
+*/
+	 
+.hidden,	 
+#togglebar #toggleNormal.hidden,	 
+#togglebar #toggleToolMax.hidden {	 
+  display: none;	 
+}	 
+ 
+.show,	 
+#togglebar #toggleNormal.show,	 
+#togglebar #toggleToolMax.show {	 
+  display: block;	 
+}	 
+ 	 
+.header.max, .header.min {	 
+  background: #009DCE;	 
+  background: -moz-linear-gradient(top, #009dce 0%, #007ea5 100%);	 
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #009dce), color-stop(100%, #007ea5));	 
+  background: -webkit-linear-gradient(top, #009dce 0%, #007ea5 100%);	 
+  background: -o-linear-gradient(top, #009dce 0%, #007ea5 100%);	 
+  background: -ms-linear-gradient(top, #009dce 0%, #007ea5 100%);	 
+  background: linear-gradient(top, #009dce 0%, #007ea5 100%);	 
+  border-bottom: 1px solid #007194;	 
+}	 
+
+/* minimize tool menu */	 
+/* when the tool menu is minimized the class "minimize-tool-nav" gets added to the	 
+* #container block, inheritance is then used to hide, move and shring elements or hide expand them	 
+* in this skin we hide the text of the tool links by sliding it out of the viewport	 
+* but leave the tool icons displayed - so for the sacrificed of 30 px you still have	 
+* page navigation. If you are not using icons the same effect will be achieved by setting ".minimize-tool-nav #toolMenuWrap"	 
+* to display off screen and tweaking the padding of ".minimize-tool-nav #content"	 
+* */	 
+/* container for tool menu display toggle control */	 
+.minimize-tool-nav #toolMenuWrap {	 
+  /* display: none; uncomment if not using icons for the tool menu */	 
+  width: 30px;	 
+  overflow: hidden;	 
+  text-align: left;	 
+}	 
+
+.minimize-tool-nav #toolMenuWrap li {	 
+  text-align: left;	 
+  overflow: hidden;	 
+}	 
+
+.minimize-tool-nav #toolMenu li.selectedTool {	 
+  background: #fff;	 
+}	 
+
+.minimize-tool-nav #toolMenu li.selectedTool span {	 
+  -moz-opacity: 0.5;	 
+  opacity: 0.5;	 
+}	 
+
+.minimize-tool-nav #toolMenu li span.menuTitle, .minimize-tool-nav #subSites li span.menuTitle {	 
+  display: inline !important;	 
+  position: fixed !important;	 
+  height: 1px !important;	 
+  width: 1px !important;	 
+  overflow: hidden !important;	 
+  top: 0px !important;	 
+  left: 0px;	 
+  padding: 0px 0px 0px 0px !important;	 
+}	 
+
+.minimize-tool-nav #toolMenu li span.toolMenuIcon, .minimize-tool-nav #subSites li span.toolMenuIcon {	 
+  top: 2px;	 
+  left: 2px;	 
+}	 
+
+.minimize-tool-nav #toolMenu li a, .minimize-tool-nav #subSites li a {	 
+  width: 20px;	 
+  height: 16px;	 
+}	 
+
+/*when the tool menu is shoved away a class of .minimize-tool-nav gets added to parent block, here we style the selected tool link so that when	 
+everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/	 
+.minimize-tool-nav #toolMenu li.selectedTool a, .minimize-tool-nav #toolMenu li a:hover, .minimize-tool-nav #subSites li a:hover, .minimize-tool-nav #toolMenu li a:focus, .minimize-tool-nav #subSites li a:focus {	 
+  background: #9cd1e8;	 
+  background: -moz-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);	 
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #9cd1e8), color-stop(100%, #7bc1e1));	 
+  background: -webkit-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);	 
+  background: -o-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);	 
+  background: -ms-linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);	 
+  background: linear-gradient(top, #9cd1e8 0%, #7bc1e1 100%);	 
+}	 
+
+.minimize-tool-nav #togglebar {	 
+  padding-left: 0em;	 
+  margin-top: 0em;	 
+  margin-left: 0;	 
+}	 
+
+.minimize-tool-nav #siteStatus {	 
+  display: none;	 
+}	 
+
+.minimize-tool-nav #content {	 
+  /* adjust if not using icons in tool menu */	 
+  padding-left: 45px;	 
 }

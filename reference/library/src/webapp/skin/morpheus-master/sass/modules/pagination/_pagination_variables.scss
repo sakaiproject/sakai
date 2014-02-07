@@ -1,0 +1,36 @@
+//////////////////////////////
+// VARIABLES: For Modules 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+// Pagination
+$pagination-font-family: $secondary-font !default;
+$pagination-text-indent: 0 !default;
+/// Pagination li
+$pagination-li-margin: 0 !default;
+$pagination-li-margin-pos: left !default;
+$pagination-li-display: inline !default;
+/// Pagination a
+$pagination-a-display: inline-block !default;
+$pagination-a-padding: 0.5em 1em !default;
+$pagination-a-margin: 0.1em !default;
+$pagination-a-border-radius: 0.25em !default;
+$pagination-a-line-height: 1em !default;
+$pagination-a-border-width: 1px !default;
+$pagination-a-border-style: solid !default;
+$pagination-a-border-color: #666 !default;
+/// Pagination links
+$pagination-link-color: #fff !default;
+$pagination-link-background-color: #369 !default;
+//// hover
+$pagination-link-hover-color: $pagination-link-color !default;
+$pagination-link-hover-background-color: #c03 !default;
+//// Active
+$pagination-link-active-color: $pagination-link-color !default;
+$pagination-link-active-background-color: #900 !default;

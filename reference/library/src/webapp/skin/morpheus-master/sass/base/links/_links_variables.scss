@@ -1,0 +1,38 @@
+//////////////////////////////
+// VARIABLES: For Base styles 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+// Links
+$link-color: #369 !default;
+$link-text-decoration: none !default;
+$link-border-width: 0 0 1px 0 !default;
+$link-border-style: dotted !default;
+$link-border-color: $link-color !default;
+/// Visited
+$link-visited-link-color: $link-color !default;
+$link-visited-border-width: $link-border-width !default;
+$link-visited-border-style: $link-border-style !default;
+$link-visited-border-color: $link-border-color !default;
+/// Hover
+$link-hover-text-decoration: underline !default;
+$link-hover-link-color: #c03 !default;
+$link-hover-border-width: $link-border-width !default;
+$link-hover-border-style: $link-border-style !default;
+$link-hover-border-color: $link-hover-link-color !default;
+/// Active
+$link-active-link-color: #900 !default;
+$link-active-border-width: $link-border-width !default;
+$link-active-border-style: $link-border-style !default;
+$link-active-border-color: $link-active-link-color !default;
+/// Logo and Headers
+$headers-link-color: $link-color !default;
+$logo-headers-border-width: false !default;
+$logo-headers-border-style: $link-border-style !default;
+$logo-headers-border-color: $link-active-link-color !default;

@@ -80,8 +80,8 @@ function showTutorialPage(url, opts){
 									{
 										// javascript to run after hiding
 										$(response.data.selection).qtip("destroy");
-                                        //pass the focus to top of page, make invisible
-                                        $('#skipNav').attr('tabindex','-1').focus();
+                                        //pass the focus to top of page
+                                        $('#skipNav a:first').focus();
 									},
 									show: function(e)
 									{
@@ -94,7 +94,6 @@ function showTutorialPage(url, opts){
 											}, 10000);
 										}
 									},
-                                    visible : function() {  $('.qtip-title').attr('tabindex','-1').focus(); },
 									render: function() {
                                            var api = this;
                                             $(window).bind('keydown', function(e) {

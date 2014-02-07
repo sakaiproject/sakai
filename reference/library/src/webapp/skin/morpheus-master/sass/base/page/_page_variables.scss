@@ -1,0 +1,35 @@
+//////////////////////////////
+// VARIABLES: For Base styles 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+// Typography 
+$body-font-family: Palatino, Cambria, Georgia, serif !default;
+$secondary-font: Calibri, 'Helvetica Neue', Arial, sans-serif !default;
+$header-font-family: $body-font-family !default;
+$monospaced-font-family: Monaco, "Bitstream Vera Sans Mono", "Lucida Console", monospace !default;
+
+/// html
+$html-border-width: 0.5em 0 0 0 !default;
+$html-border-style: solid !default;
+$html-border-color: #693 !default;
+$html-background-color: #eee !default;
+
+/// body
+$body-background-color: #fefefe !default;
+$body-background-rgba: rgba(255,255,255,0.9) !default;
+$body-margin: 0 2.5% !default;
+$body-padding: 0 2.5% !default;
+$body-font-size: 100% !default;
+$body-line-height: 1.875em !default;
+$body-color: #333 !default;
+$body-border-width: 0 1px 0 1px !default;
+$body-border-style: solid !default;
+$body-border-color: #ddd !default;
+$body-border-color-rgba: rgba(0,0,0,0.13) !default;

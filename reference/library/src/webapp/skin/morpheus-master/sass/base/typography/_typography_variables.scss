@@ -1,0 +1,199 @@
+//////////////////////////////
+// VARIABLES: For Base styles 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+/// Headers
+//// h1
+$h1-font-bold: false !default; // normal
+$h1-font-italic: false !default; // normal
+$h1-font-uppercase: false !default; // normal
+$h1-font-variant: false !default; // normal
+$h1-font-size: 2.5em !default;
+$h1-line-height: 1.125em !default;
+$h1-padding: 1em !default;
+$h1-padding-pos: top !default;
+$h1-margin: 0.3em !default;
+$h1-margin-pos: bottom !default;
+$h1-color: #444 !default;
+$h1-border-width: 0 0 0.2em 0 !default; 
+$h1-border-style: solid !default;
+$h1-border-color: #693 !default;
+//// h2
+$h2-font-bold: false !default; // normal
+$h2-font-italic: false !default; // normal
+$h2-font-uppercase: false !default; // normal
+$h2-font-variant: false !default; // normal
+$h2-font-size: 1.875em !default;
+$h2-line-height: 1.5em !default;
+$h2-padding: 0.8333em !default;
+$h2-padding-pos: top !default;
+$h2-margin: 0.7em !default;
+$h2-margin-pos: bottom !default;
+$h2-color: #555 !default; 
+$h2-border-width: 0 0 0.13333em 0 !default; 
+$h2-border-style: solid !default;
+$h2-border-color: #693 !default;
+//// h3
+$h3-font-bold: false !default; // normal
+$h3-font-italic: false !default; // normal
+$h3-font-uppercase: false !default; // normal
+$h3-font-variant: false !default; // normal
+$h3-font-size: 1.5625em !default;
+$h3-line-height: 1.4em !default;
+$h3-padding: 1em !default;
+$h3-padding-pos: top !default;
+$h3-margin: 0.7em !default;
+$h3-margin-pos: bottom !default;
+$h3-color: #666 !default;
+$h3-border-width: 0 0 0.1em 0 !default; 
+$h3-border-style: solid !default;
+$h3-border-color: #693 !default;
+//// h4
+$h4-font-bold: false !default; // normal
+$h4-font-italic: false !default; // normal
+$h4-font-uppercase: false !default; // normal
+$h4-font-variant: false !default; // normal
+$h4-font-size: 1.25em !default;
+$h4-line-height: 1.5em !default;
+$h4-padding: 1em !default;
+$h4-padding-pos: top !default;
+$h4-margin: 1em !default;
+$h4-margin-pos: bottom !default;
+$h4-color: #777 !default; 
+$h4-border-width: false !default; 
+$h4-border-style: solid !default;
+$h4-border-color: #693 !default;
+//// h5
+$h5-font-bold: false !default; // normal
+$h5-font-italic: false !default; // normal
+$h5-font-uppercase: false !default; // normal
+$h5-font-variant: false !default; // normal
+$h5-font-size: 1.125em !default;
+$h5-line-height: 1.6667em !default;
+$h5-padding: 1.1111em !default;
+$h5-padding-pos: top !default;
+$h5-margin: 0 !default;
+$h5-margin-pos: false !default;
+$h5-color: #888 !default;
+$h5-border-width: false !default; 
+$h5-border-style: solid !default;
+$h5-border-color: #693 !default;
+//// h6
+$h6-font-bold: false !default; // normal
+$h6-font-italic: false !default; // normal
+$h6-font-uppercase: false !default; // normal
+$h6-font-variant: false !default; // normal
+$h6-font-size: inherit !default;
+$h6-line-height: inherit !default;
+$h6-padding: 1em !default;
+$h6-padding-pos: top !default;
+$h6-margin: 0 !default;
+$h6-margin-pos: false !default;
+$h6-color: #999 !default; 
+$h6-border-width: false !default; 
+$h6-border-style: solid !default;
+$h6-border-color: #693 !default;
+/// hr 
+$hr-border-width: false !default; 
+$hr-border-style: solid !default;
+$hr-border-color: #333 !default;
+$hr-height: 0.1em !default;
+$hr-background: #ccc !default;
+$hr-background-rgba: rgba(0,0,0,0.2) !default;
+/// p, ul, ol, hr, table, form, fieldset
+$element-margin: 1.25em 0 !default;
+/// li
+$li-list-style-position: inside !default;
+$li-margin: 1em !default;
+$li-margin-pos: left !default;
+$li-text-indent: -1em !default;
+/// blockquote
+$blockquote-margin: 1em !default;
+$blockquote-font-family: $body-font-family !default;
+$blockquote-padding: 0 1em !default;
+$blockquote-font-bold: false !default; // normal
+$blockquote-font-italic: true !default; // italic
+$blockquote-font-uppercase: false !default; // normal
+$blockquote-font-variant: false !default; // normal
+$blockquote-font-size: 1.25em !default;
+$blockquote-line-height: 1.5em !default;
+$blockquote-letter-spacing: 0.05em !default;
+$blockquote-color: #888 !default;
+$blockquote-border-width: 0.1em 0 0.1em 0 !default;
+$blockquote-border-style: solid !default;
+$blockquote-border-color: #ccc !default;
+$blockquote-border-rgba: rgba(0,0,0,0.2) !default;
+$blockquote-border-radius: 0.25em !default;
+/// blockquote em
+$blockquote-em-font-bold: false !default; // normal
+$blockquote-em-font-italic: false !default; // normal
+$blockquote-em-font-uppercase: false !default; // normal
+$blockquote-em-font-variant: false !default; // normal
+/// figcaption
+$figcaption-font-family: $body-font-family !default;
+$figcaption-font-bold: false !default; // normal
+$figcaption-font-italic: true !default; // italic
+$figcaption-font-uppercase: false !default; // normal
+$figcaption-font-variant: false !default; // normal
+$figcaption-font-size: 0.857em !default;
+$figcaption-line-height: 1.4286em !default;
+$figcaption-color: #666 !default;
+/// article
+$article-font-size: 1.125em !default;
+$article-line-height: 1.6667em !default;
+$article-word-spacing: 0.1em !default;
+$article-margin: 1.1111em 0 !default;
+/// article:first-letter
+$article-fl-display: inline-block !default;
+$article-fl-float: left !default;
+$article-fl-font-family: $secondary-font !default;
+$article-fl-font-bold: true !default; // bold
+$article-fl-font-italic: false !default; // normal
+$article-fl-font-uppercase: false !default; // normal
+$article-fl-font-variant: false !default; // normal
+$article-fl-font-size: 3.5em !default;
+$article-fl-line-height: 1em !default;
+$article-fl-letter-spacing: -0.025em !default;
+$article-fl-margin: 0.075em !default;
+$article-fl-margin-pos: right !default;
+$article-fl-background-color: #fff !default;
+$article-fl-color: #333 !default;
+$article-fl-border-width: false !default;
+$article-fl-border-style: solid !default;
+$article-fl-border-color: #333 !default;
+/// time
+$time-display: block !default;
+$time-text-align: right !default;
+$time-font-family: $body-font-family !default;
+$time-font-bold: false !default; // normal
+$time-font-italic: false !default; // normal
+$time-font-uppercase: true !default; // uppercase
+$time-font-variant: false !default; // normal
+$time-font-size: 0.75em !default;
+$time-line-height: 1.6667em !default;
+$time-letter-spacing: 0.2em !default;
+$time-color: #888 !default;
+$time-content: '—' !default;
+/// pre
+$pre-font-family: $monospaced-font-family !default;
+$pre-margin: 1em !default;
+$pre-margin-pos: false !default;
+$pre-padding: 2em !default;
+$pre-padding-pos: false !default;
+$pre-border-width: false !default;
+$pre-border-style: solid !default;
+$pre-border-color: #ddd !default;
+$pre-color: #333 !default;
+$pre-gradient-pos: top !default;
+$pre-gradient-stop-1: #ccc !default;
+$pre-gradient-stop-2: #eee !default;
+$pre-border-radius: 2em !default;
+$pre-font-size: inherit !default;
+$pre-line-height: false !default;

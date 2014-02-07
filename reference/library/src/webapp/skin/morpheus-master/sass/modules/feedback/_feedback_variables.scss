@@ -1,0 +1,32 @@
+//////////////////////////////
+// VARIABLES: For Modules 
+//////////////////////////////
+
+
+
+
+//////////////////////////////
+// DEFAULT VARIABLES
+//////////////////////////////
+
+// Feedback
+$feedback-background: #ffffcc !default;
+$feedback-padding: 0.125em 1em !default;
+$feedback-margin: 1em 0 !default;
+$feedback-color: inherit !default; 
+$feedback-border-width: 0.125em 0 0 0 !default;
+$feedback-border-style: solid !default;
+$feedback-border-color: #cccc99 !default;
+$feedback-border-radius: 0.25em !default;
+$feedback-a-font-bold: true !default; // bold
+$feedback-a-font-italic: false !default;
+$feedback-a-font-uppercase: false !default;
+$feedback-a-font-variant: false !default;
+/// Feedback Error
+$feedback-error-background: #ffcccc !default;
+$feedback-error-color: inherit !default;
+$feedback-error-border-color: #cc9999 !default;
+/// Feedback Warning
+$feedback-warning-background: #FFF7BD !default;
+$feedback-warning-color: inherit !default;
+$feedback-warning-border-color: #947D72 !default;
