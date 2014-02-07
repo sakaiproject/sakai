@@ -1086,6 +1086,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					boolean isInline = (i.getType() == SimplePageItem.BLTI && "inline".equals(i.getFormat()));
 
 					UIOutput linktd = UIOutput.make(tableRow, "item-td");
+					
+					UIOutput contentCol = UIOutput.make(tableRow, "contentCol");
+					// BLTI seems to require explicit specificaiton for column width. Otherwise
+					// we get 300 px wide. Don't know why. Doesn't happen to other iframes
+					if (isInline)
+					    contentCol.decorate(new UIFreeAttributeDecorator("style", "width:100%"));
+
 					UIBranchContainer linkdiv = null;
 					if (!isInline) {
 					    linkdiv = UIBranchContainer.make(tableRow, "link-div:");
