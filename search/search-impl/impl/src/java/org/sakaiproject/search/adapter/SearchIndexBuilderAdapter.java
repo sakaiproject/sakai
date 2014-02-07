@@ -24,7 +24,7 @@ public class SearchIndexBuilderAdapter implements SearchIndexBuilder {
     /**
      * Defaults to the elastic search implementation if nothing was provided.
      */
-    private static final String DEFAULT_IMPL = "org.sakaiproject.search.component.service.impl.SearchIndexBuilderImpl";
+    private static final String DEFAULT_IMPL = "org.sakaiproject.search.elasticsearch.ElasticSearchIndexBuilder";
     private final SearchIndexBuilder searchIndexBuilder;
 
     public SearchIndexBuilderAdapter() {

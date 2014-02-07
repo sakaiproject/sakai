@@ -24,7 +24,7 @@ public class SearchServiceAdapter implements SearchService {
     /**
      * Defaults to the elastic search implementation if nothing was provided.
      */
-    private static final String DEFAULT_IMPL = "org.sakaiproject.search.component.service.impl.ConcurrentSearchServiceImpl";
+    private static final String DEFAULT_IMPL = "org.sakaiproject.search.elasticsearch.ElasticSearchService";
     private final SearchService searchService;
 
     public SearchServiceAdapter() {
