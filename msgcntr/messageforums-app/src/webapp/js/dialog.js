@@ -46,7 +46,7 @@ var dialogutil = dialogutil || {};
 	};
 
 	dialogutil.closeDialog = function(divId, frameId) {
-		$("#" + frameId).removeAttr("src");
+		$("#" + frameId).removeProp("src");
 		$("#" + divId).dialog('destroy');
 		$("#" + divId).hide();
 		dialogutil.turnOffPortalOverlay();
@@ -97,7 +97,7 @@ var dialogutil = dialogutil || {};
 	}
 
 	dialogutil.replaceBodyOnLoad = function (newOnLoad, contextObject) {
-		$("body", contextObject.document).attr("onload", newOnLoad);
+		$("body", contextObject.document).prop("onload", newOnLoad);
 	}
 
 

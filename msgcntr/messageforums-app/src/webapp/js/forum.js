@@ -278,10 +278,10 @@ var instrumentThreads = function(target){
     var threadCount = 0;
     $('#' + target).children('tbody').children('tr').each(function(index){
         //remove "New messages" message if this is the only message in the thread
-        if (($(this).prev('.hierItemBlock').size() === 1) & ($(this).attr('class') !== undefined)) {
+        if (($(this).prev('.hierItemBlock').size() === 1) & ($(this).prop('class') !== undefined)) {
             $(this).prev().find('span.childrenNewThread').remove();
         }
-        if (($(this).next('.hierItemBlock').size() === 1) & ($(this).attr('class') !== undefined)) {
+        if (($(this).next('.hierItemBlock').size() === 1) & ($(this).prop('class') !== undefined)) {
             $(this).find('span.childrenNewThread').remove();
         }
         if ($(this).next().size() === 0) {
@@ -290,7 +290,7 @@ var instrumentThreads = function(target){
         
         //add same class to all messg. in a thread so we can remove the "New messages" message in
         //thread seed after all of the messgs in the thread have been marked as read (in doAjax)
-        if ($(this).attr('class') === "hierItemBlock") {
+        if ($(this).prop('class') === "hierItemBlock") {
             threadCount = threadCount + 1;
         }
         $(this).addClass('thread' + threadCount)
@@ -299,7 +299,7 @@ var instrumentThreads = function(target){
 
 function setupMessageNav(messageType){
 	$('.messagesThreaded tr').each(function(rowIndex){
-		$(this).attr('rowCount',rowIndex)
+		$(this).prop('rowCount',rowIndex)
 		});
     if ($("." + messageType).size() >= 1) {
         if (messageType == "messageNew") {
@@ -325,13 +325,13 @@ function setupMessageNav(messageType){
                 $(this).css({
                     cursor: "pointer"
                 });
-                $(this).attr("title", tonext);
+                $(this).prop("title", tonext);
                 $(this).click(function(){
 					//in message type is "New" find next new by crawling the DOM
 					// (real next one may have been marked as read, so no longer news)
 					if (messageType === 'messageNew') {
 						//var thisIndex = $('tr').index(parentRow);
-						var thisIndex = parseInt($(parentRow).attr('rowCount')) + 1;
+						var thisIndex = parseInt($(parentRow).prop('rowCount')) + 1;
 						// jq1.2 version 
 						//document.location = "#" + $(parentRow).nextAll('.' + messageType + 'Next').eq(0).find('a.messageNewAnchor').attr('name');
 						//jq1.1 version
@@ -351,13 +351,13 @@ function setupMessageNav(messageType){
                 $('#messNavHolder a').click(function(e){
                     //new method to avoid FF4 internal linking behaviours MSGCNTR-544
                     e.preventDefault();
-                    var targetPosPrep=$(this).attr('href').replace('#','');
+                    var targetPosPrep=$(this).prop('href').replace('#','');
                     var targetPos = $('a[name=' + targetPosPrep + ']').position();
                     window.parent.scrollTo(0, targetPos.top);        
                 })
             }
             else {
-                $(this).attr("title", last);
+                $(this).prop("title", last);
             }
         });
     }
@@ -368,7 +368,7 @@ function setupMessageNav(messageType){
 
 
 function doAjax(messageId, topicId, self){
-    $(self).attr('src', '/library/image/sakai/spinner.gif');
+    $(self).prop('src', '/library/image/sakai/spinner.gif');
     $.ajax({
         type: "GET",
         url: document.forms[0].action,
@@ -379,7 +379,7 @@ function doAjax(messageId, topicId, self){
                     var thisRow = $(self).parents('tr');
                     //only do this if in subject only view
                     if ($(self).parent('td').size() === 1) {
-                        var thisTheadClassArr = $(thisRow).attr('class').split(' ');
+                        var thisTheadClassArr = $(thisRow).prop('class').split(' ');
                         var thisThread = thisTheadClassArr[thisTheadClassArr.length - 1];
                         $('.' + thisThread).find('em').text($('.' + thisThread).find('em').text() - 1);
 						//hide "New Messages" in thread seed if all messages have been marked as "read"
@@ -805,15 +805,18 @@ function resizeFrameForDialog()
 $(document).ready(function() {			
 	$('.authorProfile').each(function() {
 		$(this).qtip({ 
-			content: {text: '<h:outputText value="#{msgs.loading_wait}" />',
-				url: $(this).attr('href'), title: {	text: '<h:outputText value="#{msgs.cdfm_profile_information}" />',button: '[ X ]' }
+			content: {
+				ajax: {
+					url: $(this).prop('href'),
+					type: 'GET'
+				}
 			},
 			position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
 			show: { when: 'click', solo: true, effect: {length:0} },
 			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
-			style: { tip: true, border: {color:'#687E9C'}, name: 'light', width: 570 }
+			style: { classes: 'msgcntr-profile-qtip' }
 		});
-		$(this).attr('href', 'javascript:;');
+		$(this).prop('href', 'javascript:;');
 	});
 });	
 

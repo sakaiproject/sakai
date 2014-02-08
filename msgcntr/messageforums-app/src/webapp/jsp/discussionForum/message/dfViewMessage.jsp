@@ -11,6 +11,7 @@
 		<h:form id="msgForum" styleClass="specialLink">
 			<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 			<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+			<link rel="stylesheet" type="text/css" href="/library/js/jquery/qtip/jquery.qtip-latest.min.css" />
 			<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 			<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
@@ -45,8 +46,6 @@
 					});
 			</script>
 
-<script type="text/javascript">
-</script>
 			<%--breadcrumb and thread nav grid--%>
 			<h:panelGrid columns="2" width="100%" styleClass="navPanel">
 				<h:panelGroup>

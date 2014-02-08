@@ -602,15 +602,13 @@ img.authorImage {
     background:#eee;
     text-decoration:none;
 }
-.qtip-content{
-	max-height: 200px;
-	overflow: auto !important;
+div.msgcntr-profile-qtip {
+	max-height: 220px;
+    max-width: 640px;
+    background-color: #fff;
 }
-.profile2-profile{
-	width: 500px !important;
-}
-.profile2-profile-content{
-	width: 270px !important;
+.qtip-content .profile2-profile-content{
+	width: 270px;
 }
 .createTopicsForGroupsPanel {
     margin-left: 3em;
