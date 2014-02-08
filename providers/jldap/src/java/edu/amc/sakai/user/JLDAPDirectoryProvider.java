@@ -31,8 +31,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
@@ -92,8 +90,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/** Default LDAP maximum number of objects to query for */
 	public static final int DEFAULT_BATCH_SIZE = 200;
 
-	public static final boolean DEFAULT_CASE_SENSITIVE_CACHE_KEYS = false;
-	
 	public static final boolean DEFAULT_ALLOW_AUTHENTICATION = true;
 	
 	public static final boolean DEFAULT_AUTHENTICATE_WITH_PROVIDER_FIRST = false;
@@ -170,17 +166,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	private Map<String,String> attributeMappings;
 
-	private MemoryService memoryService;
-	
-	/**
-	 * Cache of {@link LdapUserData} objects, keyed by eid. 
-	 * {@link cacheTtl} controls TTL. 
-	 * 
-	 * TODO: This is a naive implementation: cache
-	 * is completely isolated on each app node.
-	 */
-	private Cache userCache;
-
 	/** Handles LDAPConnection allocation */
 	private LdapConnectionManager ldapConnectionManager;
 
@@ -194,8 +179,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/**
 	 * Defaults to an anon-inner class which handles {@link LDAPEntry}(ies)
 	 * by passing them to {@link #mapLdapEntryOntoUserData(LDAPEntry)}, the
-	 * result of which is passed to {@link #cacheUserData(LdapUserData)}
-	 * and returned;
+	 * result of which is returned.
 	 */
 	protected LdapEntryMapper defaultLdapEntryMapper = new LdapEntryMapper() {
 
@@ -203,14 +187,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		// yields multiple records
 		public Object mapLdapEntry(LDAPEntry searchResult, int resultNum) {
 			LdapUserData cacheRecord = mapLdapEntryOntoUserData(searchResult);
-			cacheUserData(cacheRecord);
 			return cacheRecord;
 		}
 
 	};
 
-	private boolean caseSensitiveCacheKeys = DEFAULT_CASE_SENSITIVE_CACHE_KEYS;
-	
 	/**
 	 * Flag for allowing/disallowing authentication on a global basis
 	 */
@@ -242,7 +223,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		if ( M_log.isDebugEnabled() ) {
 			M_log.debug("init()");
 		}
-		userCache = memoryService.newCache(getClass().getName()+".userCache");
+
 		// We don't want to allow people to break their config by setting the batch size to be more than the maxResultsSize.
 		if (batchSize > maxResultSize) {
 			batchSize = maxResultSize;
@@ -354,18 +335,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.debug("destroy()");
 		}
 
-		clearCache();
-	}
-
-	/**
-	 * Resets the internal {@link LdapUserData} cache
-	 */
-	public void clearCache() {
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("clearCache()");
-		}
-
-		userCache.clear();
 	}
 
 	/**
@@ -647,15 +616,8 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					//proceed ahead with this (perhaps the final) iteration
 					//usersToSearchInLDAP needs to be processed unless empty
 				} else {
-					// Check the cache before sending the request to LDAP
-					LdapUserData cachedUserData = getCachedUserEntry(eid);
-					if ( cachedUserData == null ) {
 						usersToSearchInLDAP.put(eid, userEdit);
 						cnt++;
-					} else {
-						// populate userEdit with cached ldap data:
-						mapUserDataOntoUserEdit(cachedUserData, userEdit);
-					}
 				}
 				
 				// We need to make sure this query isn't larger than maxQuerySize
@@ -673,9 +635,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 						if (StringUtils.isEmpty(ldapEid)) {
 							continue;
 						}
-						if (!(caseSensitiveCacheKeys)) {
 							ldapEid = ldapEid.toLowerCase();
-						}
 
 						UserEdit ue = usersToSearchInLDAP.get(ldapEid);
 						mapUserDataOntoUserEdit(ldapUserData, ue);
@@ -804,16 +764,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			M_log.debug("getUserByEid(): [eid = " + eid + "]");
 		}
 
-		LdapUserData cachedUserData = getCachedUserEntry(eid);
-		boolean foundCachedUserData = cachedUserData != null;
-
-		if ( foundCachedUserData ) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("getUserByEid(): found cached user [eid = " + eid + "]");
-			}
-			return cachedUserData;
-		}
-		
 		if ( !(isSearchableEid(eid)) ) {
 			if ( M_log.isInfoEnabled() ) {
 				M_log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [" + eid + "]");
@@ -1124,86 +1074,15 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 
 		if ( M_log.isDebugEnabled() ) {
 			//  std. UserEdit impl has no meaningful toString() impl
-			M_log.debug("mapUserDataOntoUserEdit() [cache record = " + userData + "]");
+			M_log.debug("mapUserDataOntoUserEdit() [userData = " + userData + "]");
 		}
 
 		// delegate to the LdapAttributeMapper since it knows the most
 		// about how the LdapUserData instance was originally populated
 		ldapAttributeMapper.mapUserDataOntoUserEdit(userData, userEdit);
 		
-		// This is not an entirely satisfactory solution, but it's important
-		// for all attribute mapping to respect this configuration (SAK-12705),
-		// so we centralized the logic rather than rely on swappable attribute 
-		// mapping plugins. We decided to override the EID casing when mapping
-		// to UserEdits rather than when mapping to LdapUserDatas since we
-		// felt it was better to keep the caching of LDAP data and the mapping
-		// of that data to Sakai-consumable values as separate concerns.
-		//
-		// One wonders if a better solution might be to enforce case-sentivity 
-		// rules where they matter, though, which is currenty in the UDS.
-		if ( !(caseSensitiveCacheKeys) ) {
-			userEdit.setEid(toCaseInsensitiveCacheKey(userData.getEid()));
-		}
+			userEdit.setEid(StringUtils.lowerCase(userData.getEid()));
 	}
-
-	/**
-	 * Retrieve a user record from the cache.
-	 * 
-	 * @param eid the cache key
-	 * @return a user cache record, or null if a cache miss
-	 */
-	protected LdapUserData getCachedUserEntry(String eid) {
-
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("getCachedUserEntry(): [eid = " + eid + "]");
-		}
-		if ( !(caseSensitiveCacheKeys) ) {
-			eid = toCaseInsensitiveCacheKey(eid);
-		}
-		LdapUserData cachedUserEntry = (LdapUserData) userCache.get(eid);
-		
-		if (cachedUserEntry != null) {
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("getCachedUserEntry(): [found entry = " + cachedUserEntry.toString() + "]");
-			}
-			
-			return cachedUserEntry;
-		}
-
-		return null;
-	}
-
-	/**
-	 * Add a {@link LdapUserData} object to the cache. Responsible
-	 * for the setting the freshness timestamp.
-	 * 
-	 * @param user the {@link LdapUserData} to add to the cache
-	 */
-	protected void cacheUserData(LdapUserData user){
-		String eid = user.getEid();
-
-		if ( eid == null ) {
-			throw new IllegalArgumentException("Attempted to cache a user record without an eid [UserData = " + user + "]");
-		}
-		user.setTimeStamp(System.currentTimeMillis());
-
-		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("cacheUserData(): [user record = " + user + "]");
-		}
-
-		if ( !(caseSensitiveCacheKeys) ) {
-			eid = toCaseInsensitiveCacheKey(eid);
-		}
-
-		userCache.put(eid, user);
-	}
-
-	protected String toCaseInsensitiveCacheKey(String eid) {
-		if ( eid == null ) {
-			return null;
-		}
-		return eid.toLowerCase();
-	} 
 
 	/**
 	 * {@inheritDoc}
@@ -1520,31 +1399,12 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 	/**
-	 * Set the cache key case-sensitivity behavior. Defaults to
-	 * {@link #DEFAULT_CASE_SENSITIVE_CACHE_KEYS}. At this writing, 
-	 * the cache is keyed exclusively by <code>User.eid</code> values.
-	 * 
-	 * @see #cacheUserData(LdapUserData)
-	 * @see #getCachedUserEntry(String)
-	 * @see #defaultLdapEntryMapper
+	 * Used to set the cache key case-sensitivity behavior. 
 	 * @param caseSensitive
+	 * @deprecated
 	 */
 	public void setCaseSensitiveCacheKeys(boolean caseSensitive) {
-		this.caseSensitiveCacheKeys = caseSensitive;	
-	}
-
-	/**
-	 * Access the cache key case-sensitivity behavior. Defaults to
-	 * {@link #DEFAULT_CASE_SENSITIVE_CACHE_KEYS}. At this writing, 
-	 * the cache is keyed exclusively by <code>User.eid</code> values.
-	 * 
-	 * @see #cacheUserData(LdapUserData)
-	 * @see #getCachedUserEntry(String)
-	 * @see #defaultLdapEntryMapper
-	 * @return boolean
-	 */
-	public boolean isCaseSensitiveCacheKeys() {
-		return caseSensitiveCacheKeys;
+		M_log.warn("DEPRECATION WARNING: caseSensitiveCacheKeys is deprecated. Please remove it from your jldap-beans.xml configuration.");
 	}
 
 	/**
@@ -1672,12 +1532,12 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		}
 	}
 
-	public MemoryService getMemoryService() {
-		return memoryService;
-	}
-
-	public void setMemoryService(MemoryService memoryService) {
-		this.memoryService = memoryService;
+	/**
+	 * User caching is done centrally in the UserDirectoryService.callCache
+	 * @deprecated
+	**/
+	public void setMemoryService(org.sakaiproject.memory.api.MemoryService ignore) {
+		M_log.warn("DEPRECATION WARNING: memoryService is deprecated. Please remove it from your jldap-beans.xml configuration.");
 	}
 
 	/** 

@@ -7,9 +7,8 @@
 		class="edu.amc.sakai.user.JLDAPDirectoryProvider" init-method="init"
 		destroy-method="destroy" singleton="true">
 		
-		<property name="memoryService">
-			<ref bean="org.sakaiproject.memory.api.MemoryService"/>
-		</property>
+		<!-- Setting a MemoryService in JLDAP is deprecated! 
+			Caching is done centrally in the UserDirectoryService.callCache -->
 		
 		<!-- Required. Host name or address of your LDAP server -->
 		<property name="ldapHost">
@@ -97,16 +96,13 @@
 		</property -->
 
 		<!-- Setting a cacheTTL in jldap-beans.xml is longer supported! 
-			 If you are attempting to modify the JLDAP provider cache, you should use this format in sakai.properties:
-			 memory.edu.amc.sakai.user.JLDAPDirectoryProvider.userCache=timeToLiveSeconds=3600,timeToIdleSeconds=0,maxElementsInMemory=5000
+			 If you are attempting to cache your users for one hour instead of the default of 5 minutes, 
+			 set the central UserDirectoryService.callCache
+			 memory.org.sakaiproject.user.api.UserDirectoryService.callCache=timeToLiveSeconds=3600
 		-->
 
-		<!-- Optional. Control case-sensitivity of cache keys (User.eid values).
-		     Defaults to false. (Note that this is a departure from historical
-		     behavior.) -->
-		<property name="caseSensitiveCacheKeys">
-			<value>false</value>
-		</property>
+		<!-- Setting caseSensitiveCacheKeys is no longer supported!
+			 We assume that user jdoe is the same as user JDoe!! -->
 		
 		<!--  Optional. Control the return value of 
 		      JLDAPDirectoryProvider.authenticateWithProviderFirst(String)

@@ -50,8 +50,6 @@ public class LdapUserData
 	private String type;
 	
 	private Properties properties;
-
-	private long timeStamp;
 	
 
 	/**
@@ -148,23 +146,6 @@ public class LdapUserData
 	}
 
 	/**
-	 * @return Returns the timeStamp.
-	 */
-	public long getTimeStamp()
-	{
-		return timeStamp;
-	}
-
-	/**
-	 * @param timeStamp
-	 *        The timeStamp to set.
-	 */
-	public void setTimeStamp(long timeStamp)
-	{
-		this.timeStamp = timeStamp;
-	}
-
-	/**
 	 * @return Returns the user's properties
 	 */
 	public Properties getProperties() {
@@ -204,7 +185,6 @@ public class LdapUserData
 			.append("lastName",lastName)
 			.append("email",email)
 			.append("type",type)
-			.append("timeStamp", timeStamp)
 			.append("properties",properties)
 			.toString();
 	}

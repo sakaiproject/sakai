@@ -361,8 +361,7 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 	public void mapUserDataOntoUserEdit(LdapUserData userData, UserEdit userEdit) {
 		
 		if ( M_log.isDebugEnabled() ) {
-			M_log.debug("mapUserDataOntoUserEdit(): [cache record = " + 
-					userData + "]");
+			M_log.debug("mapUserDataOntoUserEdit(): [userData = " + userData + "]");
 		}
 		
 		userEdit.setEid(userData.getEid());

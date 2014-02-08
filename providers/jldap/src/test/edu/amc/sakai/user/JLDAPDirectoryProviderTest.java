@@ -83,7 +83,6 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		searchResults = (LDAPSearchResults) mockSearchResults.proxy();
 		mockEntry = mock(LDAPEntry.class);
 		entry = (LDAPEntry)mockEntry.proxy();
-		provider.setMemoryService(new TestMemoryService());
 		
 		mockConnManager.expects(once()).method("setConfig").with(same(provider));
 		mockConnManager.expects(once()).method("init");
@@ -128,161 +127,6 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		mockConnManager.expects(once()).method("returnConnection").with(same(conn));
 	}
 
-	public void testSupportsCaseSensitiveCacheKeys() {
-		// some "local constants"
-		final String EID = "some-eid";
-		
-		// some additional fixture setup
-		provider.setCaseSensitiveCacheKeys(true);
-		LdapUserData cachedObject = new LdapUserData();
-		cachedObject.setEid(EID); // dont care about any other attribs
-		provider.cacheUserData(cachedObject);
-		
-		// the code exercise
-		LdapUserData retrievedObject = 
-			provider.getCachedUserEntry(EID);
-		
-		assertSame("Should have failed to find cached objecct", cachedObject, 
-				retrievedObject);
-	
-	}
-	
-	
-	public void testSupportsCaseSensitiveCacheKeys_Negative() {
-		
-		// some "local constants"
-		final String CACHED_EID = "some-eid";
-		final String MIXED_CASE_EID = "sOmE-eId";
-		
-		// some additional fixture setup
-		provider.setCaseSensitiveCacheKeys(true);
-		LdapUserData cachedObject = new LdapUserData();
-		cachedObject.setEid(CACHED_EID); // dont care about any other attribs
-		provider.cacheUserData(cachedObject);
-		
-		// the code exercise
-		LdapUserData retrievedObject = 
-			provider.getCachedUserEntry(MIXED_CASE_EID);
-		
-		assertNull("Should have failed to find cached objecct", retrievedObject);
-	
-	}
-	
-	public void testSupportsCaseInsensitiveCacheKeys() {
-		
-		// some "local constants"
-		final String CACHED_EID = "some-eid";
-		final String MIXED_CASE_EID = "sOmE-eId";
-		
-		// some additional fixture setup
-		provider.setCaseSensitiveCacheKeys(false);
-		LdapUserData cachedObject = new LdapUserData();
-		cachedObject.setEid(CACHED_EID); // dont care about any other attribs
-		provider.cacheUserData(cachedObject);
-		
-		// the code exercise
-		LdapUserData retrievedObject = 
-			provider.getCachedUserEntry(MIXED_CASE_EID);
-		
-		assertSame("Should have ignored cache key case", 
-				cachedObject, retrievedObject);
-		
-	}
-	
-	public void testSupportsCaseInsensitiveCacheKeys_Negative() {
-		
-		// some "local constants"
-		final String CACHED_EID = "some-eid";
-		
-		// some additional fixture setup
-		provider.setCaseSensitiveCacheKeys(false);
-		LdapUserData cachedObject = new LdapUserData();
-		cachedObject.setEid(CACHED_EID); // dont care about any other attribs
-		provider.cacheUserData(cachedObject);
-		
-		// the code exercise
-		LdapUserData retrievedObject = 
-			provider.getCachedUserEntry(CACHED_EID + "X");
-		
-		assertNull("Should have ignored cache key case", retrievedObject);
-		
-	}
-	
-	/**
-	 * Verifies behaviors which, when not implemented correctly, resulted in the
-	 * bug described by <a href="http://bugs.sakaiproject.org/jira/browse/SAK-12705">SAK-12705</a>.
-	 * Essentially, the problem is that the UDS "trusts" the EIDs returned from
-	 * the UDP and places them in persistent and transient caches as-is, regardless
-	 * of either component's case-sensitivity configuration. This can lead to
-	 * orphaned user IDs in some cases. See the Jira ticket for more detail. 
-	 */
-	public void testForcesEIDsToUniformCaseIfConfiguredForCaseInsensitiveCacheKeys() {
-		
-		// Exercises mapUserDataOntoUserEdit() since that method should be invoked
-		// for all user lookup operations. Other test methods in this class
-		// verify that that is indeed the case.
-		
-		// some "local constants"
-		final String MIXED_CASE_EID = "SoMe-EiD";
-		// toCaseInsensitiveCacheKey() behavior is directly tested elsewhere
-		final String UNIFORM_CASE_EID = provider.toCaseInsensitiveCacheKey(MIXED_CASE_EID);
-		
-		// fixture/expectation setup
-		provider.setCaseSensitiveCacheKeys(false);
-		LdapUserData cachedUserData = new LdapUserData();
-		cachedUserData.setEid(MIXED_CASE_EID);
-		UserEdit expectedUserEdit = new UserEditStub();
-		expectedUserEdit.setEid(UNIFORM_CASE_EID);
-		UserEdit actualUserEdit = new UserEditStub();
-		mockAttributeMapper.expects(once()).method("mapUserDataOntoUserEdit").
-			with(same(cachedUserData), same(actualUserEdit)).
-			will(setEidOnReceivedUserEdit());
-		
-		// the code exercise
-		provider.mapUserDataOntoUserEdit(cachedUserData, actualUserEdit);
-		
-		assertEquals("Should have forced the UserEdit's EID to a consistent case", 
-				expectedUserEdit, actualUserEdit);
-	}
-	
-	/**
-	 * Tests the inverse of {@link #testForcesEIDsToUniformCaseIfConfiguredForCaseInsensitiveCacheKeys()}.
-	 */
-	public void testReturnsMixedCaseEIDsIfConfiguredForCaseSensitiveCacheKeys() {
-		// some "local constants"
-		final String MIXED_CASE_EID = "SoMe-EiD";
-		
-		// fixture/expectation setup
-		provider.setCaseSensitiveCacheKeys(true);
-		LdapUserData cachedUserData = new LdapUserData();
-		cachedUserData.setEid(MIXED_CASE_EID);
-		UserEdit expectedUserEdit = new UserEditStub();
-		expectedUserEdit.setEid(MIXED_CASE_EID);
-		UserEdit actualUserEdit = new UserEditStub();
-		mockAttributeMapper.expects(once()).method("mapUserDataOntoUserEdit").
-			with(same(cachedUserData), same(actualUserEdit)).
-			will(setEidOnReceivedUserEdit());
-		
-		// the code exercise
-		provider.mapUserDataOntoUserEdit(cachedUserData, actualUserEdit);
-		
-		assertEquals("Should not have modified the user's EID (i.e. the UserEdit should have a mixed-case EID)", 
-				expectedUserEdit, actualUserEdit);
-	}
-	
-	/**
-	 * Verifies that forcing a String to a case-insensitive cache key results
-	 * in a lower-cased String 
-	 */
-	public void testToCaseInsensitiveCacheKey() {
-		// some "local constants"
-		final String MIXED_CASE_EID = "SoMe-EiD";
-		final String UNIFORM_CASE_EID = MIXED_CASE_EID.toLowerCase();
-		
-		assertEquals("Should have forced string to lower case", 
-				UNIFORM_CASE_EID, provider.toCaseInsensitiveCacheKey(MIXED_CASE_EID));
-	}
-	
 	public void testGetUserDispatch() {
 		// special treatment of the actual test impl so it
 		// can be reused for other provider config tests, e.g
@@ -354,16 +198,11 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 	 * @throws LDAPException 
 	 */
 	public void testNonUserEditMappingGetUserByEidDispatch() throws LDAPException {
-		final Mock mockDoGetCachedUserEntry = mock(VarargsMethod.class);
-		final VarargsMethod doGetCachedUserEntry = (VarargsMethod) mockDoGetCachedUserEntry.proxy();
 		final Mock mockDoIsSearchableEid = mock(VarargsMethod.class);
 		final VarargsMethod doIsSearchableEid = (VarargsMethod)mockDoIsSearchableEid.proxy();
 		final Mock mockDoSearchDirectoryForSingleEntry = mock(VarargsMethod.class);
 		final VarargsMethod doSearchDirectoryForSingleEntry = (VarargsMethod)mockDoSearchDirectoryForSingleEntry.proxy();
 		provider = new JLDAPDirectoryProvider() {
-			protected LdapUserData getCachedUserEntry(String eid) {
-				return (LdapUserData)doGetCachedUserEntry.call(eid);
-			}
 			protected boolean isSearchableEid(String eid) {
 				return (Boolean)doIsSearchableEid.call(eid);
 			}
@@ -382,11 +221,8 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		String eidFilter = "(uid=" + eid + ")";
 		LdapUserData userData = new LdapUserData();
 		userData.setEid(eid);
-		mockDoGetCachedUserEntry.expects(once()).method("call").
-			with(eq(new Object[] {eid})).will(returnValue(null)); // ? verify early return if cached value found
 		mockDoIsSearchableEid.expects(once()).method("call").
 			with(eq(new Object[] {eid})).
-			after(mockDoGetCachedUserEntry, "call").
 			will(returnValue(Boolean.TRUE));
 		mockAttributeMapper.expects(once()).method("getFindUserByEidFilter").
 			with(eq(eid)).after(mockDoIsSearchableEid, "call").
@@ -398,7 +234,6 @@ public class JLDAPDirectoryProviderTest extends MockObjectTestCase {
 		
 		assertSame(userData, provider.getUserByEid(eid, conn));
 		
-		mockDoGetCachedUserEntry.verify();
 		mockDoIsSearchableEid.verify();
 		mockDoSearchDirectoryForSingleEntry.verify();
 	}
