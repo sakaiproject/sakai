@@ -1217,7 +1217,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		boolean isMobileDevice = s.getAttribute("is_mobile_device") != null ? ((Boolean) s.getAttribute("is_mobile_device")).booleanValue():false;
 		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isMobileDevice ) ) ;
 		
-		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", false));
+		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
 		
 		return rcontext;
