@@ -21,11 +21,19 @@
 
 package org.sakaiproject.tomcat.jdbc.pool;
 
+import java.lang.management.ManagementFactory;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
+
+import javax.management.InstanceAlreadyExistsException;
+import javax.management.MBeanRegistrationException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.NotCompliantMBeanException;
+import javax.management.ObjectName;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -44,11 +52,18 @@ public class SakaiBasicDataSource extends DataSource
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SakaiBasicDataSource.class);
 
+	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
+
 	/** Configuration: to rollback each connection when returned to the pool. */
 	protected boolean m_rollbackOnReturn = false;
 	//Needed for DBCP compat
 	private boolean poolPreparedStatements;
 	private int maxOpenPreparedStatements;
+
+	public MBeanServer getMBeanServer()
+	{
+		return mBeanServer;
+	}
 
 	public void setMaxOpenPreparedStatements(int maxOpenPreparedStatements) {
 		M_log.info("MaxOpenPreparedStatments not used");
@@ -113,7 +128,7 @@ public class SakaiBasicDataSource extends DataSource
 	 * @exception SQLException
 	 *            if the object pool cannot be created.
 	 */
-	protected void init() throws SQLException
+	protected void init() throws MalformedObjectNameException, MBeanRegistrationException, NotCompliantMBeanException, SQLException, InstanceAlreadyExistsException
 	{
 		M_log.info("init()");
 		// Load the JDBC driver class
@@ -142,8 +157,6 @@ public class SakaiBasicDataSource extends DataSource
 			connectionPool.setTestWhileIdle(false);
 		} 
 
-//		connectionPool.setJmxEnabled(jmxEnabled);
-		
 		// Set up statement pool, if desired
 		// What did this do??
 		/*
@@ -168,6 +181,14 @@ public class SakaiBasicDataSource extends DataSource
 		}
 		
 		setPoolProperties(connectionPool);
+
+		// Register an MBean so that we can view statistics on the pool via JMX
+		ObjectName on = new ObjectName("TomcatJDBC:type=statistics,application=TomcatJDBCSakaiPool");
+		if (!mBeanServer.isRegistered(on)) {
+			M_log.info("Registering Tomcat JDBC pool with JMX " + mBeanServer);
+			mBeanServer.registerMBean(getPool().getJmxPool(), on);
+		}
+		
 		
 		//Does it need any of this??
 		/*
