@@ -85,15 +85,6 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.util.FormattedText;
 
-import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
-import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 
 import org.imsglobal.pox.IMSPOXRequest;
@@ -183,7 +174,7 @@ public class ServiceServlet extends HttpServlet {
 			String theXml = XMLMap.getXML(theMap, true);
 			PrintWriter out = response.getWriter();
 			out.println(theXml);
-System.out.println("doError="+theXml);
+			M_log.info("doError="+theXml);
 		}
 
 	@Override
@@ -339,6 +330,12 @@ System.out.println("doError="+theXml);
 				return;
 			}
 
+			// Perform the Outcomee first because we use the SakaiBLTIUtil code for this
+			if ( "basicoutcome".equals(message_type) ) {
+				processOutcome(request, response, lti_message_type, sourcedid, theMap);
+				return;
+			}
+
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
 				doError(request, response, theMap, "outcomes.missing", "sourcedid", null);
@@ -354,18 +351,6 @@ System.out.println("doError="+theXml);
 			String oauth_consumer_key = request.getParameter("oauth_consumer_key");
 			if(BasicLTIUtil.isBlank(oauth_consumer_key)) {
 				doError(request, response, theMap, "outcomes.missing", "oauth_consumer_key", null);
-				return;
-			}
-
-			// Sadly not supported easily using the Gradebook API - may have to dig
-			// deeper later
-			if ( BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult") ) {
-				theMap.put("/message_response/statusinfo/codemajor", "Unsupported");
-				theMap.put("/message_response/statusinfo/severity", "Error");
-				theMap.put("/message_response/statusinfo/codeminor", "cannotdelete");
-				String theXml = XMLMap.getXML(theMap, true);
-				PrintWriter out = response.getWriter();
-				out.println(theXml);
 				return;
 			}
 
@@ -486,8 +471,6 @@ System.out.println("doError="+theXml);
 			}
 
 			// Perform the message-specific handling
-			if ( "basicoutcome".equals(message_type) ) processOutcome(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
-
 			if ( "toolsetting".equals(message_type) ) processSetting(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
 
 			if ( "roster".equals(message_type) ) processRoster(request, response, lti_message_type, site, siteId, placement_id, pitch, user_id, theMap);
@@ -591,93 +574,49 @@ System.out.println("doError="+theXml);
 		}
 
 	protected void processOutcome(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, 
-			Site site, String siteId, String placement_id, Properties pitch,
-			String user_id,  Map<String, Object> theMap)
+			String lti_message_type, String sourcedid, Map<String, Object> theMap)
 		throws java.io.IOException
 		{
-			// Make sure the user exists in the site
-			boolean userExistsInSite = false;
-			try {
-				Member member = site.getMember(user_id);
-				if(member != null ) userExistsInSite = true;
-			} catch (Exception e) {
-				M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
-				doError(request, response, theMap, "outcome.site.membership", "", e);
-				return;
-			}
-
-			// Make sure the placement is configured to receive grades
-			String assignment = pitch.getProperty("assignment");
-			M_log.debug("ASSN="+assignment);
-			if ( assignment == null ) {
-				doError(request, response, theMap, "outcome.no.assignment", "", null);
-				return;
-			}
-
-			// Look up the assignment so we can find the max points
-			GradebookService g = (GradebookService)  ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-
-			SakaiBLTIUtil.pushAdvisor();
-			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
-			SakaiBLTIUtil.popAdvisor();
-
-			if ( assignmentObject == null ) {
-				doError(request, response, theMap, "outcome.no.assignment", "", null);
-				return;
-			}
-
 			// Things look good - time to process the grade
 			boolean isRead = BasicLTIUtil.equals(lti_message_type, "basic-lis-readresult");
+			boolean isDelete = BasicLTIUtil.equals(lti_message_type, "basic-lis-deleteresult");
 
 			String result_resultscore_textstring = request.getParameter("result_resultscore_textstring");
+			String result_resultdata_text = request.getParameter("result_resultdata_text");
 
 			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead ) {
 				doError(request, response, theMap, "outcomes.missing", "result_resultscore_textstring", null);
 				return;
 			}
 
-			// We don't need to retrieve the assignments and check if it 
-			// is a valid column because if the column is wrong, we 
-			// will get an exception below
-
-			// Lets store or retrieve the grade using the securityadvisor
-			Session sess = SessionManager.getCurrentSession();
 			String theGrade = null;
-			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
+			Object retval = null;
 
 			try {
-				// Indicate "who" is setting this grade - needs to be a real user account
-				String gb_user_id = ServerConfigurationService.getString(
-						"basiclti.outcomes.userid", "admin");
-				String gb_user_eid = ServerConfigurationService.getString(
-						"basiclti.outcomes.usereid", gb_user_id);
-				sess.setUserId(gb_user_id);
-				sess.setUserEid(gb_user_eid);
 				Double dGrade;
 				if ( isRead ) {
-					theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
-					dGrade = new Double(theGrade);
-					dGrade = dGrade / assignmentObject.getPoints();
+					retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+					if ( ! (retval instanceof Map) ) {
+						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						return;
+					}
+					Map grade = (Map) retval;
+					dGrade = (Double) grade.get("grade");
 					theMap.put("/message_response/result/resultscore/textstring", dGrade.toString());
+					theMap.put("/message_response/result/resultdata/text", (String) grade.get("comment"));
+                } else if ( isDelete ) {
+                    retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
 				} else { 
 					dGrade = new Double(result_resultscore_textstring);
-					dGrade = dGrade * assignmentObject.getPoints();
-					g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
-					M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + 
-						" score="+ result_resultscore_textstring);
+					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 				}
 				success = true;
 				theMap.put("/message_response/statusinfo/codemajor", "Success");
 				theMap.put("/message_response/statusinfo/severity", "Status");
 				theMap.put("/message_response/statusinfo/codeminor", "fullsuccess");
 			} catch (Exception e) {
-				doError(request, response, theMap, "outcome.grade.fail", "siteId="+siteId, e);
-			} finally {
-				sess.invalidate(); // Make sure to leave no traces
-				SakaiBLTIUtil.popAdvisor();
+				doError(request, response, theMap, "outcome.grade.fail", "", e);
 			}
 
 			if ( ! success ) return;
@@ -760,6 +699,7 @@ System.out.println("doError="+theXml);
 			String theXml = XMLMap.getXML(theMap, true);
 			PrintWriter out = response.getWriter();
 			out.println(theXml);
+			M_log.debug(theXml);
 		}
 
 	/* IMS POX XML versions of this service */
@@ -787,7 +727,6 @@ System.out.println("doError="+theXml);
             }
 			out.println(output);
 			M_log.debug(output);
-System.out.println("doErrorXML="+output);
 		}
 
 
@@ -858,6 +797,12 @@ System.out.println("doErrorXML="+output);
 			// No point continuing without a sourcedid
 			if(BasicLTIUtil.isBlank(sourcedid)) {
 				doErrorXML(request, response, pox, "outcomes.missing", "sourcedid", null);
+				return;
+			}
+
+			// Handle the outcomes here using the new SakaiBLTIUtil code
+			if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
+				processOutcomeXml(request, response, lti_message_type, sourcedid, pox);
 				return;
 			}
 
@@ -964,9 +909,8 @@ System.out.println("doErrorXML="+output);
 
 			String placementLori = pitch.getProperty("allowlori");
 
-			if ( allowOutcomes != null && "basicoutcome".equals(message_type) ) {
-				processOutcomeXml(request, response, lti_message_type, site, siteId, pitch, user_id, pox);
-			} else if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
+			// Outcomes handled above
+			if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
 				processCourseStructureXml(request, response, lti_message_type, siteId, pox);
 			} else if ( allowLori != null && "on".equals(placementLori) && "addstructure".equals(message_type) ) {
 				processAddResourceXML(request, response, lti_message_type, siteId, pox);
@@ -1309,42 +1253,9 @@ System.out.println("doErrorXML="+output);
 	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, 
-			Site site, String siteId, Properties pitch,
-			String user_id, IMSPOXRequest pox)
+			String lti_message_type, String sourcedid, IMSPOXRequest pox)
 		throws java.io.IOException
 		{
-			// Make sure the user exists in the site
-			boolean userExistsInSite = false;
-			try {
-				Member member = site.getMember(user_id);
-				if(member != null ) userExistsInSite = true;
-			} catch (Exception e) {
-				M_log.warn(e.getLocalizedMessage() + " siteId="+siteId, e);
-				doErrorXML(request, response, pox, "outcome.site.membership", "", e);
-				return;
-			}
-
-			// Make sure the placement is configured to receive grades
-			String assignment = pitch.getProperty("assignment");
-			M_log.debug("ASSN="+assignment);
-			if ( assignment == null ) {
-				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
-				return;
-			}
-
-			// Look up the assignment so we can find the max points
-			GradebookService g = (GradebookService)  ComponentManager
-				.get("org.sakaiproject.service.gradebook.GradebookService");
-
-			SakaiBLTIUtil.pushAdvisor();
-			Assignment assignmentObject = getOrMakeAssignment(assignment, siteId, g);
-			SakaiBLTIUtil.popAdvisor();
-
-			if ( assignmentObject == null ) {
-				doErrorXML(request, response, pox, "outcome.no.assignment", "", null);
-				return;
-			}
 
 			// Things look good - time to process the grade
 			boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
@@ -1352,7 +1263,9 @@ System.out.println("doErrorXML="+output);
 
 			Map<String,String> bodyMap = pox.getBodyMap();
 			String result_resultscore_textstring = bodyMap.get("/resultRecord/result/resultScore/textString");
+			String result_resultdata_text = bodyMap.get("/resultRecord/result/resultData/text");
 			String sourced_id = bodyMap.get("/resultRecord/result/sourcedId");
+			// System.out.println("comment="+result_resultdata_text);
 			// System.out.println("grade="+result_resultscore_textstring);
 
 			if(BasicLTIUtil.isBlank(result_resultscore_textstring) && ! isRead && ! isDelete ) {
@@ -1362,43 +1275,33 @@ System.out.println("doErrorXML="+output);
 
 			// Lets return an XML Response
 			Map<String,Object> theMap = new TreeMap<String,Object>();
-
-			// We don't need to retrieve the assignments and check if it 
-			// is a valid column because if the column is wrong, we 
-			// will get an exception below
-
-			// Lets store or retrieve the grade using the securityadvisor
-			Session sess = SessionManager.getCurrentSession();
 			String theGrade = null;
-			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 			String message = null;
+			Object retval = null;
 
 			try {
-				// Indicate "who" is setting this grade - needs to be a real user account
-				String gb_user_id = ServerConfigurationService.getString(
-						"basiclti.outcomes.userid", "admin");
-				String gb_user_eid = ServerConfigurationService.getString(
-						"basiclti.outcomes.usereid", gb_user_id);
-				sess.setUserId(gb_user_id);
-				sess.setUserEid(gb_user_eid);
 				Double dGrade;
 				if ( isRead ) {
-					theGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+					retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
+					if ( ! (retval instanceof Map) ) {
+						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						return;
+					}
+					Map grade = (Map) retval;
 					String sGrade = "";
-					if ( theGrade != null && theGrade.length() > 0 ) {
-						dGrade = new Double(theGrade);
-						dGrade = dGrade / assignmentObject.getPoints();
+					dGrade = (Double) grade.get("grade");
+					if ( dGrade != null ) {
 						sGrade = dGrade.toString();
 					}
+
 					theMap.put("/readResultResponse/result/sourcedId", sourced_id);
 					theMap.put("/readResultResponse/result/resultScore/textString", sGrade);
 					theMap.put("/readResultResponse/result/resultScore/language", "en");
+					theMap.put("/readResultResponse/result/resultData/text", (String) grade.get("comment"));
 					message = "Result read";
 				} else if ( isDelete ) { 
-					// It would be nice to empty it out but we can't
-					g.setAssignmentScore(siteId, assignment, user_id, null, "External Outcome");
-					M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
+					retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
 					theMap.put("/deleteResultResponse", "");
 					message = "Result deleted";
 				} else { 
@@ -1406,19 +1309,15 @@ System.out.println("doErrorXML="+output);
 					if ( dGrade < 0.0 || dGrade > 1.0 ) {
 						throw new Exception("Grade out of range");
 					}
-					dGrade = dGrade * assignmentObject.getPoints();
-					g.setAssignmentScore(siteId, assignment, user_id, dGrade, "External Outcome");
-
-					M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ result_resultscore_textstring);
+					dGrade = new Double(result_resultscore_textstring);
+					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 					theMap.put("/replaceResultResponse", "");
 					message = "Result replaced";
 				}
+
 				success = true;
 			} catch (Exception e) {
-				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage()+" siteId="+siteId, e);
-			} finally {
-				sess.invalidate(); // Make sure to leave no traces
-				SakaiBLTIUtil.popAdvisor();
+				doErrorXML(request, response, pox, "outcome.grade.fail", e.getMessage(), e);
 			}
 
 			if ( !success ) return;
@@ -1431,49 +1330,9 @@ System.out.println("doErrorXML="+output);
 			response.setContentType("application/xml");
 			PrintWriter out = response.getWriter();
 			out.println(output);
+			M_log.debug(output);
 		}
 
-		public Assignment getOrMakeAssignment(String assignment, String siteId, GradebookService g )
-		{
-			Assignment assignmentObject = null;
-
-			try {
-				List gradebookAssignments = g.getAssignments(siteId);
-				for (Iterator i=gradebookAssignments.iterator(); i.hasNext();) {
-					Assignment gAssignment = (Assignment) i.next();
-					if ( gAssignment.isExternallyMaintained() ) continue;
-					if ( assignment.equals(gAssignment.getName()) ) { 
-						assignmentObject = gAssignment;
-						break;
-					}
-				}
-			} catch (Exception e) {
-				assignmentObject = null; // Just to make double sure
-			}
-
-			// Attempt to add assignment to grade book
-			if ( assignmentObject == null && g.isGradebookDefined(siteId) ) {
-				try {
-					assignmentObject = new Assignment();
-					assignmentObject.setPoints(Double.valueOf(100));
-					assignmentObject.setExternallyMaintained(false);
-					assignmentObject.setName(assignment);
-					assignmentObject.setReleased(true);
-					assignmentObject.setUngraded(false);
-					g.addAssignment(siteId, assignmentObject);
-					M_log.info("Added assignment: "+assignment);
-				}
-				catch (ConflictingAssignmentNameException e) {
-					M_log.warn("ConflictingAssignmentNameException while adding assignment" + e.getMessage());
-					assignmentObject = null; // Just to make double sure
-				}
-				catch (Exception e) {
-					M_log.warn("GradebookNotFoundException (may be because GradeBook has not yet been added to the Site) " + e.getMessage());
-					M_log.warn(this + ":addGradeItem " + e.getMessage());
-				}
-			}
-			return assignmentObject;
-		}
 
 	public void destroy() {
 
