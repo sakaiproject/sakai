@@ -108,7 +108,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private Boolean						enableResourceStats						= null;
 	private Boolean						enableSitePresences						= null;
 	private Boolean 				    visitsInfoAvailable						= null;
-	private boolean						enableServerWideStats					= false;
+	private boolean						enableServerWideStats					= true;
 	private boolean						countFilesUsingCHS						= true;
 	private String						chartBackgroundColor					= "white";
 	private boolean						chartIn3D								= true;
