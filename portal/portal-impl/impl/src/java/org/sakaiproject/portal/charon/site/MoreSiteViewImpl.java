@@ -81,7 +81,7 @@ public class MoreSiteViewImpl extends DefaultSiteViewImpl
 	@Override
 	protected void processMySites()
 	{
-		boolean useDHTMLMore =  Boolean.valueOf(serverConfigurationService.getBoolean("portal.use.dhtml.more", false));
+		boolean useDHTMLMore =  Boolean.valueOf(serverConfigurationService.getBoolean("portal.use.dhtml.more", true));
 		if (useDHTMLMore)
 		{
 			List<Site> allSites = new ArrayList<Site>();

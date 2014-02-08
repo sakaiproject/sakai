@@ -114,7 +114,7 @@ public class SiteHandler extends WorksiteHandler
 		configuredTabsToDisplay = ServerConfigurationService.getInt(
 				Portal.CONFIG_DEFAULT_TABS, 5);
 		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
-				"portal.use.dhtml.more", false));
+				"portal.use.dhtml.more", true));
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
