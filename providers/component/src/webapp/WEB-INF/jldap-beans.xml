@@ -225,6 +225,13 @@
 			</map>
 		</property -->
 		
+		<!-- If any of the values need manipulating with message formats they can be set here. -->
+		<!-- property name="valueMappings">
+			<map>
+				<entry key="displayId"><value>{0}@example.edu</value></entry>
+			</map>
+		</property -->
+
 		<!-- Several options for calculating Sakai user types based
 		on LDAP attributes. Defaults to an instance of EmptyStringUserTypeMapper -->
 		<property name="userTypeMapper">
