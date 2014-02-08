@@ -36,6 +36,7 @@ OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php e
 </p><p>
 Grade to Send to LMS: <input type="text" name="grade" value="<?php echo(htmlent_utf8($_REQUEST['grade']));?>"/>
 (i.e. 0.95)<br/>
+Comment to Send to LMS: <input type="text" name="comment" size="60" value="<?php echo($_REQUEST['comment']);?>"/>(extension)<br/>
 <input type='submit' name='submit' value="Send Grade">
 <input type='submit' name='submit' value="Read Grade">
 <input type='submit' name='submit' value="Delete Grade"></br>
@@ -71,6 +72,11 @@ if ( $_REQUEST['submit'] == "Send Grade" && isset($_REQUEST['grade'] ) ) {
 	array('SOURCEDID', 'GRADE', 'OPERATION','MESSAGE'), 
 	array($sourcedid, $_REQUEST['grade'], $operation, uniqid()), 
 	getPOXGradeRequest());
+    if ( strlen($_REQUEST['comment']) > 0 ) {
+        $postBody = str_replace("</resultScore>",
+        "</resultScore>\n<resultData>\n<text>\n".$_REQUEST['comment'].
+        "\n</text>\n</resultData>", $postBody);
+    }
 } else if ( $_REQUEST['submit'] == "Read Grade" ) {
     $operation = 'readResultRequest';
     $postBody = str_replace(
