@@ -21,6 +21,7 @@
 						<h:inputText
 							id="titleInput"
 							required="true"
+							maxlength="99"
 							value="#{section.title}"/>
 					</h:panelGroup>
 
