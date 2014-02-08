@@ -91,6 +91,8 @@
 		<property name="overflowToDisk" value="false" />
 		<property name="diskPersistent" value="false" />
 		<!-- We keep this forever (unless someone manually clears the caches. -->
+		<property name="timeToIdle" value="0" />
+		<property name="timeToLive" value="0" />
 		<property name="eternal" value="true" />
 	</bean>
 
