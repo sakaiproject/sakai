@@ -54,7 +54,9 @@ Status: <select name="status">
 -->
 Grade to Send to LMS: <input type="text" name="grade" value="<?php echo($_REQUEST['grade']);?>"/>
 (e.g. 0.95)<br/>
+<?php  if ( strpos($_REQUEST['accepted'],"text") !== false ) { ?>
 Comment to Send to LMS: <input type="text" name="comment" size="60" value="<?php echo($_REQUEST['comment']);?>"/><br/>
+<?php } ?>
 <input type='submit' name='submit' value="Send Grade"/>
 <input type='submit' name='submit' value="Read Grade"/>
 <input type='submit' name='submit' value="Delete Grade"/>
@@ -104,8 +106,11 @@ if ( strpos($url,"imsblis/outcomes/") > 0 ) {
 $data = array(
   'lti_message_type' => $message,
   'sourcedid' => $_REQUEST['sourcedid'],
-  'result_resultscore_textstring' => $_REQUEST['grade'],
-  'result_resultdata_text' => $_REQUEST['comment']);
+  'result_resultscore_textstring' => $_REQUEST['grade']);
+
+if ( isset($_REQUEST['comment']) ) {
+  $data['result_resultdata_text'] = $_REQUEST['comment'];
+}
 
 if (isset($_REQUEST['status']) && (strlen($_REQUEST['status']) > 0)) {
   $data['result_statusofresult'] = $_REQUEST['status'];

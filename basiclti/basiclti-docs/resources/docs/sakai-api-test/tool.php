@@ -41,7 +41,8 @@ if ( $context->valid ) {
         print '<a href="common/tool_provider_outcome.php?sourcedid='.urlencode($sourcedid);
         print '&key='.urlencode($_POST['oauth_consumer_key']);
         print '&seret=secret';
-        print '&url='.urlencode($_POST['lis_outcome_service_url']).'">';
+        print '&url='.urlencode($_POST['lis_outcome_service_url']);
+        print '&accepted='.urlencode($_POST['ext_outcome_data_values_accepted']).'">';
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
 		$found = true;
     }
@@ -100,6 +101,7 @@ if ( $context->valid ) {
         print "<p>\n";
         print '<a href="ext/setoutcome.php?sourcedid='.$sourcedid;
         print '&key='.urlencode($_POST['oauth_consumer_key']);
+        print '&accepted='.urlencode($_POST['ext_outcome_data_values_accepted']);
         print '&url='.urlencode($_POST['ext_ims_lis_basic_outcome_url']).'">';
         print 'Test Sakai Outcome API</a>.</p>'."\n";
 		$found = true;
