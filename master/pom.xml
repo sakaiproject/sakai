@@ -83,7 +83,7 @@
     <sakai.commons.fileupload.version>1.2.1</sakai.commons.fileupload.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
-    <sakai.ehcache.version>2.5.1</sakai.ehcache.version>
+    <sakai.ehcache.version>2.6.8</sakai.ehcache.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
