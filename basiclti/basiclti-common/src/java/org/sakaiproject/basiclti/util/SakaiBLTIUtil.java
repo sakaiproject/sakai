@@ -445,6 +445,7 @@ public class SakaiBLTIUtil {
 
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
 					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
+					setProperty(props,"ext_outcome_data_values_accepted", "text");  // SAK-25696
 
 					// New Basic Outcomes URL
 					String outcome_url = ServerConfigurationService.getString("basiclti.consumer.ext_ims_lis_basic_outcome_url",null);
@@ -1088,7 +1089,7 @@ public class SakaiBLTIUtil {
 
 	// Boolean.TRUE - Grade deleted
     public static Object deleteGrade(String sourcedid, HttpServletRequest request, 
-		LTIService ltiService, Double grade, String comment)
+		LTIService ltiService)
 	{
 		return handleGradebook(sourcedid, request, ltiService, false, true, null, null);
 	}
