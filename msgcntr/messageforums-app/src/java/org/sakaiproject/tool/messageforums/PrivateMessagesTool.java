@@ -2077,6 +2077,7 @@ private   int   getNum(char letter,   String   a)
     	pMsg= constructMessage(true, null) ;
     }
     
+    pMsg.setExternalEmail(booleanEmailOut);
     Map<User, Boolean> recipients = getRecipients();
     
     prtMsgManager.sendPrivateMessage(pMsg, recipients, isSendEmail()); 
@@ -2196,6 +2197,7 @@ private   int   getNum(char letter,   String   a)
     }
     dMsg.setDraft(Boolean.TRUE);
     dMsg.setDeleted(Boolean.FALSE);
+    dMsg.setExternalEmail(booleanEmailOut);
 
     prtMsgManager.sendPrivateMessage(dMsg, getRecipients(), isSendEmail()); 
 

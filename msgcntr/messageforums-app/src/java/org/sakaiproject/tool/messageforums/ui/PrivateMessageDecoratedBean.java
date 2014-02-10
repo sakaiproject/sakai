@@ -219,6 +219,9 @@ public class PrivateMessageDecoratedBean
   public boolean getIsPreviewForward() {
 	  return isPreviewForward;
   }
+  public boolean getExternalEmail(){
+	  return this.msg.getExternalEmail();
+  }  
   public void setIsPreviewForward(boolean isPreviewForward) {
 	  this.isPreviewForward = isPreviewForward;
   }

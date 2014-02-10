@@ -151,6 +151,7 @@
             </th>
             <td>           	
             	 <h:outputText value="#{PrivateMessagesTool.detailMsg.recipientsAsText}" />
+            	 <h:outputText value=", (#{msgs.pvt_sent_as_email})" rendered="#{PrivateMessagesTool.detailMsg.msg.externalEmail}"/>
             </td>
           </tr>
           <f:subview id="bccRecipients" rendered="#{ForumTool.userId == PrivateMessagesTool.detailMsg.msg.createdBy && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != null && PrivateMessagesTool.detailMsg.recipientsAsTextBcc != ''}">
