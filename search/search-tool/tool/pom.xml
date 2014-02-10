@@ -82,7 +82,7 @@
     <dependency>
       <groupId>org.apache.velocity</groupId>
       <artifactId>velocity</artifactId>
-      <version>1.6.3</version>
+      <version>${sakai.velocity.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
