@@ -2155,6 +2155,8 @@ public class DiscussionForumTool
     
     setEditMode(true);
     setPermissionMode(PERMISSION_MODE_TOPIC);
+    permissions=null;
+    
     DiscussionTopic topic = null;
     if(getExternalParameterByKey(TOPIC_ID) != null && !"".equals(getExternalParameterByKey(TOPIC_ID))){
 	    topic = (DiscussionTopic) forumManager
