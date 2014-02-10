@@ -197,7 +197,7 @@
 			</h:panelGrid>       
 		  
 		  <h4><h:outputText value="#{msgs.pvt_message}" /></h4>
-			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{PrivateMessagesTool.composeBody}" id="pvt_message_body" rows="#{ForumTool.editorRows}" cols="120"> 
+			<sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" value="#{PrivateMessagesTool.composeBody}" id="pvt_message_body" rows="#{ForumTool.editorRows}" cols="132"> 
 				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 	    

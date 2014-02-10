@@ -216,7 +216,7 @@
 			<h4><h:outputText value="#{msgs.pvt_message}" /></h4>
 	        <sakai:panel_edit>
 	          <sakai:doc_section>
-			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="120" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 
+			  <sakai:inputRichText textareaOnly="#{PrivateMessagesTool.mobileSession}" rows="#{ForumTool.editorRows}" cols="132" id="df_compose_body" value="#{PrivateMessagesTool.replyToBody}">	 
 				  <f:validateLength maximum="65000"/>
 			  </sakai:inputRichText>
 	         </sakai:doc_section>    

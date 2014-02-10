@@ -72,7 +72,7 @@
 	            <h:outputText value="#{msgs.cdfm_message}" />
 			<f:verbatim></h4></f:verbatim>	
 			<h:message for="df_compose_body" styleClass="messageAlert" id="bodyErrorMessages" />
-            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="120">
+            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="#{ForumTool.editorRows}" cols="132">
 				<f:validateLength maximum="65000"/>
 			</sakai:inputRichText>
 	      

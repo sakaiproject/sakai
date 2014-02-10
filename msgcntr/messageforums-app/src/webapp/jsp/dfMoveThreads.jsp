@@ -89,7 +89,7 @@
                 
             <span style="margin-left:3em"><img src="/library/image/silk/table_add.png" />&nbsp;<h:outputText value="#{msgs.cdfm_message_count}" />:&nbsp;<span  id="counttotal"> </span></span>
     
-            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="120">
+            <sakai:inputRichText value="#{ForumTool.composeBody}" id="df_compose_body" rows="22" cols="132">
                 <f:validateLength maximum="65000"/>
             </sakai:inputRichText>
             
