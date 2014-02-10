@@ -126,6 +126,17 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 				M_log.debug("init(): created default value mapper [mapper = " +
 						valueMappings + "]");
 			}
+		} else {
+			// Check we have good value mappings and throw any out that aren't (warning user).
+			Iterator<Entry<String, MessageFormat>> iterator = valueMappings.entrySet().iterator();
+			while (iterator.hasNext()) {
+				Entry<String, MessageFormat> entry = iterator.next();
+				if (entry.getValue().getFormats().length != 1) {
+					iterator.remove();
+					M_log.warn(String.format("Removed value mapping as it didn't have one format: %s -> %s",
+							entry.getKey(), entry.getValue().toPattern()));
+				}
+			}
 		}
 	}
 	
@@ -271,14 +282,14 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
             LdapUserData userData, String logicalAttrName) {
         
         String attrValue = attribute.getStringValue();
-        MessageFormat format = (MessageFormat) valueMappings.get(logicalAttrName);
-        if (format != null) {
-        	format = (MessageFormat)format.clone();
-			if ( M_log.isDebugEnabled() ) {
-				M_log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
-						attrValue + "; format=" + format.toString() + "]");
-			}
-        	attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
+        MessageFormat format = valueMappings.get(logicalAttrName);
+        if (format != null && attrValue != null) {
+            format = (MessageFormat)format.clone();
+            if ( M_log.isDebugEnabled() ) {
+                M_log.debug("mapLdapAttributeOntoUserData(): value mapper [attrValue = " +
+                        attrValue + "; format=" + format.toString() + "]");
+            }
+            attrValue = (String)(format.parse(attrValue, new ParsePosition(0))[0]);
         }
         
         if ( M_log.isDebugEnabled() ) {
