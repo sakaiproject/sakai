@@ -13961,7 +13961,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if(fileFromUpload == null)
 		{
 			// "The user submitted a file to upload but it was too big!"
-			addAlert(state, rb.getFormattedMessage("uploadall.size", new Object[]{max_file_size_mb}));
+			addAlert(state, rb.getFormattedMessage("size.exceeded", new Object[]{max_file_size_mb}));
 		}
 		else 
 		{	
