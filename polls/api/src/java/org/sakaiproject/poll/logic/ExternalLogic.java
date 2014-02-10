@@ -205,6 +205,13 @@ public interface ExternalLogic {
 	public boolean isResultsChartEnabled();
 	
 	/**
+	 * Are the public access options available to the Instructor?
+	 * poll.allow.public.access=true|false, default false
+	 * @return
+	 */
+	public boolean isShowPublicAccess();
+
+	/**
 	 * Is the current user using a mobile browser?
 	 * @return
 	 */

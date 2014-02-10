@@ -262,10 +262,17 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		/*
 		 * access options
 		 */
-		UIMessage.make(newPoll,"poll_access_label","new_poll_access_label");
-		UIBoundBoolean.make(newPoll, "access-public", "poll.isPublic", poll.getIsPublic());
+		UIMessage pollAccessLabel = UIMessage.make(newPoll,"poll_access_label","new_poll_access_label");
+		UIBoundBoolean accessPublic = UIBoundBoolean.make(newPoll, "access-public", "poll.isPublic", poll.getIsPublic());
+		UIMessage newPollAccessPublicLabel = UIMessage.make(newPoll, "new_poll_access_public_label", "new_poll_access_public");
 		
-
+		// SAK-25399: Do not display the public access by default
+		if(!externalLogic.isShowPublicAccess()) {
+			newPoll.remove(pollAccessLabel);		
+			newPoll.remove(accessPublic);
+			newPoll.remove(newPollAccessPublicLabel);
+		}
+		
 		String[] minVotes = new String[]{"0","1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		String[] maxVotes = new String[]{"1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"};
 		UISelect min = UISelect.make(newPoll,"min-votes",minVotes,"#{poll.minOptions}",Integer.toString(poll.getMinOptions()));

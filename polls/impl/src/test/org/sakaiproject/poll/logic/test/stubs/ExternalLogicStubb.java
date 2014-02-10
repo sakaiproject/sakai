@@ -187,6 +187,11 @@ public class ExternalLogicStubb implements ExternalLogic {
 		return false;
 	}
 
+	public boolean isShowPublicAccess() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
 	public boolean isMobileBrowser() {
 		// TODO Auto-generated method stub
 		return false;

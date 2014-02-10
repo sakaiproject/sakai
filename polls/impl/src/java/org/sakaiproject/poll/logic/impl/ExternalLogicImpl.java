@@ -500,6 +500,9 @@ public class ExternalLogicImpl implements ExternalLogic {
 		return serverConfigurationService.getBoolean("poll.results.chart.enabled", false);
 	}
 	
+	public boolean isShowPublicAccess() {
+		return serverConfigurationService.getBoolean("poll.allow.public.access", false);
+	}
 	
 	public boolean isMobileBrowser() {
 		Session session = sessionManager.getCurrentSession();
