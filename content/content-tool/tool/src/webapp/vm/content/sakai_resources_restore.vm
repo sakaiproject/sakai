@@ -1,7 +1,4 @@
 ## version: $Id$
-<!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<!-- this is the reorder template -->
-
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
@@ -35,14 +32,15 @@
 						</span>
 				</div>
 			</div>	
+            <p class="instruction">$tlang.getString("restore.instruct")</p>
 
-		<table class="listHier lines nolines" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
+		<table class="listHier lines centerLines" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
 			<tbody>
 			<tr>
-				<th id="checkboxes" >
+				<th id="checkboxes">
 						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
+							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
 				</th>
 				<th id="title">
 					$tlang.getString("gen.title")
@@ -51,7 +49,7 @@
 					$tlang.getString("gen.lastby")
 				</th>
 				<th id="modified">
-					$tlang.getString("gen.last")
+					$tlang.getString("restore.removed")
 				</th>
 			</tr>
 			## for indentation
@@ -68,11 +66,11 @@
 				## no need to show the root folder
 				#if (!$folderId.equals($rootFolderId))
 					<tr>
-						<td>					
+						<td class="attach">
 						</td>
 						<td style="text-indent:$width">
-							<img src = "#imageLink("sakai/dir_openminus.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-							$folderName
+							<h4><img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+							$folderName</h4>
 						</td>
 						<td colspan="2"></td>
 					</tr>
@@ -81,20 +79,20 @@
 				#set($resourceDepth=$folderDepth+1)
 				#set($width="$resourceDepth$unit")
 				#foreach($member in $folderItemList)
-					<tr class="sortable">
+					<tr>
 						<td headers="checkboxes">
 						#set($collectionId=$contentService.getContainingCollectionId($member.id))
-							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/>						
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $member.name</label>
 						</td>
 						<td headers="title" style="text-indent: $width" class="specialLink">
-							<h4>
+							<h5>
 								#if($member.isFolder())
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder1')">
 								#else
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0" alt="">
 								#end
 								$member.name
-							</h4>	
+							</h5>	
 						</td>
 						<td headers="creator">
 							$member.modifiedBy
@@ -193,11 +191,13 @@
 			var removeButton = document.getElementById("remove-button");
 			if(caller && caller.checked && caller.checked == true)
 			{
-				counter.value = parseInt(counter.value) + 1;
+                counter.value = parseInt(counter.value) + 1;
+                caller.parentNode.parentNode.className = "selectedSelected";
 			}
 			else
 			{
 				counter.value = parseInt(counter.value) - 1;
+                caller.parentNode.parentNode.className = "";
 			}
 			
 			if(counter.value > 0)
