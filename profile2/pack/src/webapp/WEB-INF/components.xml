@@ -238,6 +238,17 @@
 				<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_sv_SE.xml</value>
 				<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_sv_SE.xml</value>
 				<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_sv_SE.xml</value>
+
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-messageReply_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionRequest_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-connectionConfirm_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallEventNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostMyWallNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallPostConnectionWallNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-wallStatusNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-worksiteNew_es_ES.xml</value>
+        		<value>org/sakaiproject/profile2/emailtemplates/template-profileChangeNotification_es_ES.xml</value>
       		</list>      
     	</constructor-arg>
   	</bean>
