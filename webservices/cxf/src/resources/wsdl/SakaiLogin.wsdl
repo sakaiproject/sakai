@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions targetNamespace="SakaiLogin" xmlns:apachesoap="http://xml.apache.org/xml-soap" xmlns:impl="SakaiLogin" xmlns:intf="SakaiLogin" xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:wsdlsoap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+<!--WSDL created by Apache Axis version: 1.4
+Built on Apr 22, 2006 (06:55:48 PDT)-->
+
+   <wsdl:message name="logoutResponse">
+
+      <wsdl:part name="logoutReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="logoutRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="loginToServerRequest">
+
+      <wsdl:part name="id" type="xsd:string"/>
+
+      <wsdl:part name="pw" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="loginRequest">
+
+      <wsdl:part name="id" type="xsd:string"/>
+
+      <wsdl:part name="pw" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="loginResponse">
+
+      <wsdl:part name="loginReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="loginToServerResponse">
+
+      <wsdl:part name="loginToServerReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:portType name="SakaiLogin">
+
+      <wsdl:operation name="login" parameterOrder="id pw">
+
+         <wsdl:input message="impl:loginRequest" name="loginRequest"/>
+
+         <wsdl:output message="impl:loginResponse" name="loginResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="logout" parameterOrder="sessionid">
+
+         <wsdl:input message="impl:logoutRequest" name="logoutRequest"/>
+
+         <wsdl:output message="impl:logoutResponse" name="logoutResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="loginToServer" parameterOrder="id pw">
+
+         <wsdl:input message="impl:loginToServerRequest" name="loginToServerRequest"/>
+
+         <wsdl:output message="impl:loginToServerResponse" name="loginToServerResponse"/>
+
+      </wsdl:operation>
+
+   </wsdl:portType>
+
+   <wsdl:binding name="SakaiLoginSoapBinding" type="impl:SakaiLogin">
+
+      <wsdlsoap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+
+      <wsdl:operation name="login">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="loginRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="loginResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="SakaiLogin" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="logout">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="logoutRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="logoutResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="SakaiLogin" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="loginToServer">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="loginToServerRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="loginToServerResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="SakaiLogin" use="encoded"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+   </wsdl:binding>
+
+   <wsdl:service name="SakaiLoginService">
+
+      <wsdl:port binding="impl:SakaiLoginSoapBinding" name="SakaiLogin">
+
+         <wsdlsoap:address location="http://localhost:8080//SakaiLogin.jws"/>
+
+      </wsdl:port>
+
+   </wsdl:service>
+
+</wsdl:definitions>

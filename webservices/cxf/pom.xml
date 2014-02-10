@@ -1,0 +1,129 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>Sakai Soap (CXF)</name>
+    <groupId>org.sakaiproject.webservices</groupId>
+    <artifactId>sakai-soap</artifactId>
+
+    <packaging>war</packaging>
+
+    <parent>
+        <groupId>org.sakaiproject.webservices</groupId>
+        <artifactId>webservices</artifactId>
+        <version>10.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <cxf.version>2.7.8</cxf.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+        </dependency-->
+
+        <!--  Sakai dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-qti</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!--  external dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>src/generated/</sourceRoot>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <extraargs>
+                                        <extraarg>-impl</extraarg>
+                                        <!--extraarg>-p com.blah</extraarg-->
+                                        <!--extraarg>-verbose</extraarg-->
+                                        <!--extraarg>-autoNameResolution</extraarg-->
+
+                                    </extraargs>
+                                    <wsdl>${basedir}/src/resources/wsdl/SakaiLogin.wsdl</wsdl>
+
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
