@@ -5092,11 +5092,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 				}
 			}
+			
+			context.put("folderIds", folderIds);
+			context.put("folderMap", folderMap);
+			context.put("rootFolderId", rootFolderId);
+			
+			// restore item list not empty
+			context.put("noRestoreItems", Boolean.FALSE);
 		}
+		else
+		{
+			// restore item list empty
+			context.put("noRestoreItems", Boolean.TRUE);
+		}
+
 		context.put ("this_site", rootTitle);
-		context.put("folderIds", folderIds);
-		context.put("folderMap", folderMap);
-		context.put("rootFolderId", rootFolderId);
 		
 
 		return TEMPLATE_RESTORE;

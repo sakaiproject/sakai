@@ -32,8 +32,8 @@
 						</span>
 				</div>
 			</div>	
-            <p class="instruction">$tlang.getString("restore.instruct")</p>
-
+		#if (!$noRestoreItems)
+            	<p class="instruction">$tlang.getString("restore.instruct")</p>
 		<table class="listHier lines centerLines" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
 			<tbody>
@@ -106,6 +106,10 @@
 			#end
 			</tbody>
 		</table>
+		#else
+			<div class="messageInformation">$tlang.get("restore.empty")</div>
+		#end
+		
 		<input type="hidden" id="selectAll-count" value="0" />
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
