@@ -588,13 +588,20 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	{
 		// check the cache
 		String ref = aliasReference(alias);
-		if ((m_callCache != null) && (m_callCache.containsKey(ref)))
+		if (m_callCache != null)
 		{
 			String t = (String) m_callCache.get(ref);
-			if ( t != null ) {
+			if ( t != null )
+			{
 				return t;
-			} 
-			M_log.warn("Null Cache Entry found, should not happen, please nottify Ian Boston, thanks, SAK-12447, line 547 BaseAliasService ref="+ref);
+			}
+			else
+			{
+				if (m_callCache.containsKey(ref))
+				{
+					M_log.warn("Null Cache Entry found, should not happen SAK-12447 ref="+ref);
+				}
+			}
 		}
 
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
@@ -603,7 +610,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		// cache
 		if (m_callCache != null) {
 			if ( a.getTarget() != null ) {
-				m_callCache.put(ref, a.getTarget(), m_cacheSeconds);
+				m_callCache.put(ref, a.getTarget());
 			}
 		}
 
