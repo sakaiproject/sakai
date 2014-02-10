@@ -4993,10 +4993,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		context.put("tlang",rb);
 		
-		//String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
-		String folderId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+		String rootFolderId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 
-		context.put("folderId", folderId);
+		context.put("rootFolderId", rootFolderId);
 
 		List cPath = getCollectionPath(state);
 		context.put ("collectionPath", cPath);
@@ -5007,7 +5006,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		String need_to_expand_all = (String) state.getAttribute(STATE_NEED_TO_EXPAND_ALL);
 
 		Set highlightedItems = new TreeSet();
-		List all_roots = new ArrayList();
 		List this_site = new ArrayList();
 
 		// find the ContentHosting service
@@ -5015,52 +5013,127 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// put the service instance into context
 		context.put("contentService", contentService);
 		context.put("displayNameProp", ResourceProperties.PROP_DISPLAY_NAME);
-		List<ContentResource> members = contentService.getAllDeletedResources(folderId);
+		List<ContentResource> members = contentService.getAllDeletedResources(rootFolderId);
 		
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
 		
+		// this is a list of folder ids; sequence matters here
+		List<String> folderIds = new ArrayList<String>();
+		// initialized with the site root folder id
+		folderIds.add(rootFolderId);
+		
+		// this map holds folder id as the hash key, and folder attributes (e.g. depth, folder name, et al.) as the hashed value
+		HashMap<String, ResourcesBrowseItem> folderMap = new HashMap<String, ResourcesBrowseItem>();
+		
+		// iterate through the deleted resources
 		if(members != null && members.size() > 0)
 		{
-			ResourcesBrowseItem root = new ResourcesBrowseItem("ID",folderId,"");
-			List items = new LinkedList();
 			for(ContentResource resource: members) {   
-				ResourceProperties props = resource.getProperties();
-				String itemType = ((ContentResource)resource).getContentType();
-				String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-				ResourcesBrowseItem newItem = new ResourcesBrowseItem(resource.getId(), itemName, itemType);
-				try
-				{
-					Time modTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-					String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
-					newItem.setModifiedTime(modifiedTime);
-				}
-				catch(Exception e)
-				{
-					String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
-					newItem.setModifiedTime(modifiedTimeString);
-				}
-				try
-				{
-					String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
-					newItem.setModifiedBy(modifiedBy);
-				}
-				catch(Exception e)
-				{
-					String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
-					newItem.setModifiedBy(modifiedBy);
-				}
 
-				items.add(newItem);
+				ResourcesBrowseItem newItem = getResourcesBrowseItem(resource);
+				
+				ContentCollection collection = resource.getContainingCollection();
+				if (collection != null)
+				{
+					String collectionId = collection.getId();
+					
+					if (!folderIds.contains(collectionId))
+					{
+						String currentFolderId = rootFolderId;
+						String path = collectionId.replace(rootFolderId, "");
+						String pathParts[]=path.split("/");
+						// iterate all the parent folders until reaching the site root collection level
+						// update folderIds and folderMap objects
+						for (int i=0; i < pathParts.length;i++)
+						{
+							currentFolderId += pathParts[i] + "/";
+							try
+							{
+								ContentCollection currentFolder = contentService.getCollection(currentFolderId);
+								if (!folderIds.contains(currentFolderId))
+								{
+									// add the folder id into collection
+									folderIds.add(currentFolderId);
+								}
+								
+								if (!folderMap.containsKey(currentFolderId))
+								{
+									// update the HashMap for folder attributes, with folder name and folder depth
+									String displayName = currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+									int depth = contentService.getDepth(currentFolderId, rootFolderId);
+									ResourcesBrowseItem fItem = new ResourcesBrowseItem(currentFolderId, displayName, "folder");
+									fItem.setDepth(depth);
+									folderMap.put(currentFolderId, fItem);
+								}
+							}
+							catch (IdUnusedException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+							catch (TypeException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+							catch (PermissionException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+						}
+					}
+					
+					if (folderMap.containsKey(collectionId))
+					{
+						// add current item into the members list
+						ResourcesBrowseItem attributes = folderMap.get(collectionId);
+						List<ResourcesBrowseItem> itemList = new ArrayList<ResourcesBrowseItem>();
+						itemList.add(newItem);
+						attributes.addMembers(itemList);
+						folderMap.put(collectionId, attributes);
+					}
+				}
 			}
-			root.setName(rootTitle);
-			root.addMembers(items);
-			this_site.add(root);
-			all_roots.add(root);
 		}
-		context.put ("this_site", this_site);
+		context.put ("this_site", rootTitle);
+		context.put("folderIds", folderIds);
+		context.put("folderMap", folderMap);
+		context.put("rootFolderId", rootFolderId);
 		
 
 		return TEMPLATE_RESTORE;
+	}
+
+	/**
+	 * get an ResourcesBrowseItem object based on a given ContentResource object
+	 * @param resource
+	 * @return
+	 */
+	private ResourcesBrowseItem getResourcesBrowseItem(ContentResource resource) {
+		ResourceProperties props = resource.getProperties();
+		String itemType = ((ContentResource)resource).getContentType();
+		String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		ResourcesBrowseItem newItem = new ResourcesBrowseItem(resource.getId(), itemName, itemType);
+		try
+		{
+			Time modTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
+			newItem.setModifiedTime(modifiedTime);
+		}
+		catch(Exception e)
+		{
+			String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			newItem.setModifiedTime(modifiedTimeString);
+		}
+		try
+		{
+			String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+			newItem.setModifiedBy(modifiedBy);
+		}
+		catch(Exception e)
+		{
+			String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+			newItem.setModifiedBy(modifiedBy);
+		}
+		return newItem;
 	}
 
 	/**
@@ -9964,4 +10037,5 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		state.setAttribute(STATE_MODE, MODE_RESTORE);
 	}
+	
 }	// ResourcesAction
