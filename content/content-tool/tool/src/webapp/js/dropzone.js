@@ -1176,7 +1176,7 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       };
       //daniel.merino AT unavarra.es: This check avoids drag and drop of folders (zero bytes "files" with empty type and undefined fullPath attribute) in a browser that does not support them.
       console.log("Dropzone.prototype.addFile - File with size "+file.size+", fullpath "+file.fullPath+", type "+file.type+", kind "+file.kind+" and status "+file.status);
-      if ((file.size===0) && (file.type==="") && (file.fullPath==="undefined"))
+      if ((!file.size) && (!file.type) && (!file.fullPath))
       {
   	  	alert("Folder upload is not supported by your current browser. Currently, only Chrome 21 or upper allows it.");
       }

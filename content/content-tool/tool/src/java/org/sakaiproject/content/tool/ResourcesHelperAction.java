@@ -1944,14 +1944,16 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		String uploadFileName=null;
 		String collectionName=null;
+		
+		String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
 
 		if (!("undefined".equals(fullPath)))
 		{
 			//Received a file that is inside an uploaded folder 
 			//Try to create a collection with this folder and to add the file inside it after
 			File myfile = new File(fullPath);
-			String fileName = myfile.getName();
-			collectionName = getRootId()+myfile.getParent();
+			String fileName = myfile.getName();			
+			collectionName=resourceGroup+myfile.getParent();
 
 			//AFAIK it is not possible to check undoubtedly if a collection exists
 			//isCollection() only tests if name is valid and checkCollection() returns void type
@@ -1996,8 +1998,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				}
 				else
 				{
-					String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
-					
 					//Method getUniqueFileName was added to change external name of uploaded resources if they exist already in the collection, just the same way that their internal id.
 					//However, that is not the way Resources tool works. Internal id is changed but external name is the same for every copy of the same file.
 					//So I disable this method call, though it can be enabled again if desired.
@@ -2138,13 +2138,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		logger.debug("Returning collection: "+cc.getId());
 		return cc;
 	}
-
-	private String getRootId()
-	{
-		Placement pl = ToolManager.getCurrentPlacement();
-		String siteId = pl.getContext();
-		return ContentHostingService.getSiteCollection(siteId);
-	} 
 
 /*
 	private String getUniqueFileName(String uploadFileName, String resourceGroup) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.TypeException
