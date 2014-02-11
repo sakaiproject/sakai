@@ -5,7 +5,7 @@
 
     <name>Sakai Soap (CXF)</name>
     <groupId>org.sakaiproject.webservices</groupId>
-    <artifactId>sakai-soap</artifactId>
+    <artifactId>sakai-ws</artifactId>
 
     <packaging>war</packaging>
 
@@ -105,7 +105,7 @@
                 </includes>
             </resource>
         </resources>
-        <plugins>
+        <!--plugins>
             <plugin>
                 <groupId>org.apache.cxf</groupId>
                 <artifactId>cxf-codegen-plugin</artifactId>
@@ -134,7 +134,7 @@
                     </execution>
                 </executions>
             </plugin>
-        </plugins>
+        </plugins-->
     </build>
 
 </project>

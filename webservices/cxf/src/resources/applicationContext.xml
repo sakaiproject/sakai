@@ -31,14 +31,26 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     address="/SakaiScript"/>
 
 
-    <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLoginImpl" init-method="init">
+    <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
 
-    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScriptImpl" init-method="init">
+    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
     </bean>
 
 
