@@ -47,171 +47,160 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <!-- TEMP -->
-                <module>deploy</module>
-            
-                <!-- Indie services -->
-                <module>kernel</module>
-                <module>common</module>
-                <module>content-review</module>
-                <module>edu-services</module>
-                <module>emailtemplateservice</module>
-                <module>entitybroker</module>
-                <module>jsf</module>
-                <module>sakai-mock</module>
-                <module>userauditservice</module>
-                <module>webservices</module>
-                
-                <!-- Indie tools -->
-                <module>basiclti</module>
-                <module>jobscheduler</module>
-                <module>lessonbuilder</module>
-                <module>mailsender</module>
-                <module>msgcntr</module>
-                <module>polls</module>
-                <module>profile2</module>
-                <module>reset-pass</module>
-                <module>samigo</module>
-                <module>search</module>
-                <module>shortenedurl</module>
-                <module>sitestats</module>
-                
-                <!-- Monolithic Sakai -->
-                <!-- <module>kernel-deploy</module> -->
                 <module>master</module>
-                <!-- <module>core-deploy</module> -->
-                <!-- <module>jstl-shared-deploy</module> -->
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
                 <module>authz</module>
+                <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
+                <module>common</module>
                 <module>config</module>
                 <module>content</module>
+                <module>content-review</module>
                 <module>courier</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
+                <module>deploy</module>
+                <module>edu-services</module>
+                <module>emailtemplateservice</module>
+                <module>entitybroker</module>
                 <module>external-calendaring-service</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>hierarchy</module>
+                <module>jobscheduler</module>
+                <module>jsf</module>
+                <module>kernel</module>
+                <module>lessonbuilder</module>
                 <module>login</module>
                 <module>mailarchive</module>
+                <module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
+                <module>msgcntr</module>
                 <module>osp</module>
                 <module>podcasts</module>
+                <module>polls</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
+                <module>profile2</module>
                 <module>providers</module>
                 <module>reference</module>
-                <module>roster2</module>
+                <module>reset-pass</module>
                 <module>rights</module>
+                <module>roster2</module>
                 <module>rwiki</module>
+                <module>sakai-mock</module>
+                <module>samigo</module>
+                <module>search</module>
                 <module>sections</module>
+                <module>shortenedurl</module>
                 <module>signup</module>
                 <module>site</module>
                 <module>site-manage</module>
+                <module>sitestats</module>
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
                 <module>tool</module>
                 <module>user</module>
+                <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                <module>webservices</module>
             </modules>
         </profile>
         <profile>
             <id>experimental</id>
             <modules>
-                <!-- TEMP -->
-                <module>deploy</module>
-            
-                <!-- Indie services -->
-                <module>kernel</module>
-                <module>common</module>
-                <module>content-review</module>
-                <module>edu-services</module>
-                <module>emailtemplateservice</module>
-                <module>entitybroker</module>
-                <module>jsf</module>
-                <module>sakai-mock</module>
-                <module>userauditservice</module>
-                <module>webservices</module>
-                
-                <!-- Indie tools -->
-                <module>basiclti</module>
-                <module>jobscheduler</module>
-                <module>lessonbuilder</module>
-                <module>mailsender</module>
-                <module>msgcntr</module>
-                <module>polls</module>
-                <module>profile2</module>
-                <module>reset-pass</module>
-                <module>samigo</module>
-                <module>search</module>
-                <module>shortenedurl</module>
-                <module>sitestats</module>
-                
-                <!-- Monolithic Sakai -->
-                <!-- <module>kernel-deploy</module> -->
                 <module>master</module>
-                <!-- <module>core-deploy</module> -->
-                <!-- <module>jstl-shared-deploy</module> -->
                 <module>access</module>
                 <module>alias</module>
                 <module>announcement</module>
                 <module>archive</module>
                 <module>assignment</module>
+                <module>assignment2</module>
                 <module>authz</module>
+                <module>basiclti</module>
                 <module>calendar</module>
                 <module>chat</module>
                 <module>citations</module>
+                <module>clog</module>
+                <module>clogdashboardintegration</module>
+                <module>common</module>
                 <module>config</module>
                 <module>content</module>
+                <module>content-review</module>
                 <module>courier</module>
+                <module>dashboard</module>
                 <module>dav</module>
                 <module>delegatedaccess</module>
+                <module>deploy</module>
+                <module>edu-services</module>
+                <module>emailtemplateservice</module>
+                <module>endorsed</module>
+                <module>entitybroker</module>
+                <module>evaluation</module>
                 <module>external-calendaring-service</module>
+                <module>formbuilder</module>
                 <module>gradebook</module>
                 <module>help</module>
                 <module>hierarchy</module>
+                <module>jobscheduler</module>
+                <module>jsf</module>
+                <module>kernel</module>
+                <module>lessonbuilder</module>
                 <module>login</module>
                 <module>mailarchive</module>
+                <module>mailsender</module>
                 <module>memory</module>
                 <module>message</module>
                 <module>metaobj</module>
+                <module>msgcntr</module>
                 <module>osp</module>
                 <module>podcasts</module>
+                <module>polls</module>
                 <module>portal</module>
                 <module>postem</module>
                 <module>presence</module>
+                <module>profile2</module>
                 <module>providers</module>
                 <module>reference</module>
+                <module>reports</module>
+                <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
                 <module>rwiki</module>
-                <module>sections</module>
+                <module>sakai-mock</module>
+				<module>samigo</module>
+				<module>search</module>
+				<module>sections</module>
+                <module>shortenedurl</module>
                 <module>signup</module>
                 <module>site</module>
                 <module>site-manage</module>
+                <module>sitestats</module>
                 <module>syllabus</module>
                 <module>taggable</module>
                 <module>textarea</module>
                 <module>tool</module>
                 <module>user</module>
+                <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
                 <module>warehouse</module>
                 <module>web</module>
+                <module>webservices</module>
+                <module>yaft</module>
             </modules>
         </profile>
         
