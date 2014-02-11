@@ -3,8 +3,14 @@ package org.sakaiproject.webservices;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
@@ -76,8 +82,13 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author Mark Norton
 	 */
-	public String getVirtualRoot (String sessionid)  {
-		Session session = establishSession(sessionid);
+    @WebMethod
+    @Path("/getVirtualRoot")
+    @Produces("text/plain")
+    @GET
+    public String getVirtualRoot(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session session = establishSession(sessionid);
 		return ContentHosting.VIRTUAL_ROOT_ID;
 	}
 	
@@ -91,8 +102,14 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author David Horwitz
 	 */
-	public long getSiteCollectionSize(String sessionid, String context) {
-		try {
+    @WebMethod
+    @Path("/getSiteCollectionSize")
+    @Produces("text/plain")
+    @GET
+    public long getSiteCollectionSize(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context) {
+        try {
 			//establish the session
 			Session s = establishSession(sessionid);
 			String collectionId = getCollectionId(context);
@@ -117,8 +134,13 @@ public class ContentHosting extends AbstractWebService {
 	 * TODO - do we want element/attributes as the XML or nodes/childnodes like the rest of the web services?
 	 *
 	 */
-	public String getAllSitesCollectionSize(String sessionid) {
-		try {
+    @WebMethod
+    @Path("/getAllSitesCollectionSize")
+    @Produces("text/plain")
+    @GET
+    public String getAllSitesCollectionSize(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        try {
 		
 			Session s = establishSession(sessionid);
 			List sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, null, null, null, SortType.TITLE_ASC, null);
@@ -161,8 +183,15 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author David Horwitz
 	 */
-	public String createTopFolder(String sessionId, String context, String name) {			
-		String collectionId = getCollectionId(context);
+    @WebMethod
+    @Path("/createTopFolder")
+    @Produces("text/plain")
+    @GET
+    public String createTopFolder(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context,
+            @WebParam(name = "name", partName = "name") @QueryParam("name") String name) {
+        String collectionId = getCollectionId(context);
 		return createFolder(sessionId, collectionId, name);
 	}
 
@@ -176,9 +205,16 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author David Horwitz
 	 */
-	public String createFolder(String sessionid, String collectionId, String name) {
-	
-		try {
+    @WebMethod
+    @Path("/createFolder")
+    @Produces("text/plain")
+    @GET
+    public String createFolder(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "collectionId", partName = "collectionId") @QueryParam("collectionId") String collectionId,
+            @WebParam(name = "name", partName = "name") @QueryParam("name") String name) {
+
+        try {
 			//establish the session
 			Session s = establishSession(sessionid);
 
@@ -215,10 +251,20 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author David Horwitz
 	 */
-	public String createContentItem(String sessionid, String name, String collectionId, String contentMime, 
-		String description, String type, boolean binary) {
-	
-		try {
+    @WebMethod
+    @Path("/createContentItem")
+    @Produces("text/plain")
+    @GET
+    public String createContentItem(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "name", partName = "name") @QueryParam("name") String name,
+            @WebParam(name = "collectionId", partName = "collectionId") @QueryParam("collectionId") String collectionId,
+            @WebParam(name = "contentMime", partName = "contentMime") @QueryParam("contentMime") String contentMime,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "binary", partName = "binary") @QueryParam("binary") boolean binary) {
+
+        try {
 			//establish the session
 			Session s = establishSession(sessionid);
 
@@ -262,9 +308,18 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author David Horwitz
 	 */
-	public String updateContentItem(String sessionid, String resourceId, String contentMime, String type, boolean binary) {
-	
-		try {
+    @WebMethod
+    @Path("/updateContentItem")
+    @Produces("text/plain")
+    @GET
+    public String updateContentItem(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "resourceId", partName = "resourceId") @QueryParam("resourceId") String resourceId,
+            @WebParam(name = "contentMime", partName = "contentMime") @QueryParam("contentMime") String contentMime,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "binary", partName = "binary") @QueryParam("binary") boolean binary) {
+
+        try {
 			//establish the session
 			Session s = establishSession(sessionid);
 
@@ -298,8 +353,14 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author Mark Norton
 	 */
-	public String deleteResource(String sessionId, String resourceId) {			
-		try {
+    @WebMethod
+    @Path("/deleteResource")
+    @Produces("text/plain")
+    @GET
+    public String deleteResource(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "resourceId", partName = "resourceId") @QueryParam("resourceId") String resourceId) {
+        try {
 			//establish the session
 			Session s = establishSession(sessionId);
 
@@ -329,8 +390,14 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author Mark Norton
 	 */
-	public String getContentData(String sessionid, String resourceId)  {
-		String encodedData = null;
+    @WebMethod
+    @Path("/getContentData")
+    @Produces("text/plain")
+    @GET
+    public String getContentData(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "resourceId", partName = "resourceId") @QueryParam("resourceId") String resourceId) {
+        String encodedData = null;
 	
 		try {
 			//establish the session
@@ -364,8 +431,16 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author Mark Norton
 	 */
-	public String getResources (String sessionid, String id)  {
-		Session session = establishSession(sessionid);
+
+    @WebMethod
+    @Path("/getResources")
+    @Produces("text/plain")
+    @GET
+    public String getResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "id", partName = "id") @QueryParam("id") String id) {
+
+        Session session = establishSession(sessionid);
 		String ret = "";
 
 		Document dom = Xml.createDocument();
@@ -456,8 +531,14 @@ public class ContentHosting extends AbstractWebService {
 	 *
 	 *	@author Mark Norton
 	 */
-	public String getInfo (String sessionid, String id)  {
-		Session session = establishSession(sessionid);
+    @WebMethod
+    @Path("/getInfo")
+    @Produces("text/plain")
+    @GET
+    public String getInfo(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "id", partName = "id") @QueryParam("id") String id) {
+        Session session = establishSession(sessionid);
 		String ret = "";
 
 		Document dom = Xml.createDocument();
@@ -599,13 +680,24 @@ public class ContentHosting extends AbstractWebService {
 	}
 	
 	// Return XML document listing all resources user has in default (My Workspace) site
-	public String getMyWorkspaceResources (String sessionid)  {
-		return getUserResources( sessionid, null );
+    @WebMethod
+    @Path("/getMyWorkspaceResources")
+    @Produces("text/plain")
+    @GET
+    public String getMyWorkspaceResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        return getUserResources( sessionid, null );
  	}
 
 	// Return XML document listing all resources user has in (optional) site
-	public String getUserResources (String sessionid, String siteId)  {
-		Session session = establishSession(sessionid);
+    @WebMethod
+    @Path("/getUserResources")
+    @Produces("text/plain")
+    @GET
+    public String getUserResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteId", partName = "siteId") @QueryParam("siteId") String siteId) {
+        Session session = establishSession(sessionid);
 		String collectionId = null;
 	
 		if ( siteId == null || siteId.equals("") ) {
@@ -656,8 +748,16 @@ public class ContentHosting extends AbstractWebService {
 	 *
      *	@author Paul Dagnall
 	 */
-	public String syncResources ( String sessionid, String siteidsource, String siteiddest)  {
-		Session session = establishSession(sessionid);
+
+    @WebMethod
+    @Path("/syncResources")
+    @Produces("text/plain")
+    @GET
+    public String syncResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteidsource", partName = "siteidsource") @QueryParam("siteidsource") String siteidsource,
+            @WebParam(name = "siteiddest", partName = "siteiddest") @QueryParam("siteiddest") String siteiddest) {
+        Session session = establishSession(sessionid);
 		
 		try {
 			//check only admin

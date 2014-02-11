@@ -34,14 +34,20 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="ContentHostingRS" address="/contenthosting">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.ContentHosting"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
 
     <jaxws:endpoint id="SakaiLogin"
                     implementor="#org.sakaiproject.webservices.SakaiLogin"
-                    address="/SakaiLogin"/>
+                    address="/Login"/>
 
     <jaxws:endpoint id="SakaiScript"
                     implementor="#org.sakaiproject.webservices.SakaiScript"
-                    address="/SakaiScript"/>
+                    address="/Sakai"/>
 
     <jaxws:endpoint id="Assignments"
                     implementor="#org.sakaiproject.webservices.Assignments"
