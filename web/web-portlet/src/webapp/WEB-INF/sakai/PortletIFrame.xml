@@ -21,6 +21,13 @@
 		
 		<!-- Allow multiple instances of this tool within one site -->
 		<configuration name="allowMultipleInstances" value="true" /> 
+
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.revise" />
+
 		
 	</tool>
 
@@ -37,6 +44,12 @@
 
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.service.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.service.revise" />
+
 	</tool>
 
 	<tool
@@ -52,6 +65,13 @@
 		<!-- Allow this to be set -->
 		<configuration name="functions.require" /> 
 
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.myworkspace.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.myworkspace.revise" />
+
+
 	</tool>
 
     <tool
@@ -66,6 +86,13 @@
 
         <!-- Allow this to be set -->
         <configuration name="functions.require" />
+
+        <!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+        <configuration name="webcontent.read" value="webcontent.site.read" />
+
+        <!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+        <configuration name="webcontent.revise" value="webcontent.site.revise" />
+
     </tool>
 
 </registration>

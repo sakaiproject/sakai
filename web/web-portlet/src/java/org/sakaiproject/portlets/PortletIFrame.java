@@ -120,6 +120,12 @@ public class PortletIFrame extends GenericPortlet {
 
 	private static final Log M_log = LogFactory.getLog(PortletIFrame.class);
 
+	/** Event for accessing the web-content tool */
+	protected final static String EVENT_ACCESS_WEB_CONTENT = "webcontent.read";
+	
+	/** Event for modifying the web-content tool configuration */
+	protected final static String EVENT_REVISE_WEB_CONTENT = "webcontent.revise";
+	
 	// This is old-style internationalization (i.e. not dynamic based
 	// on user preference) to do that would make this depend on
 	// Sakai Unique APIs. :(
@@ -417,7 +423,8 @@ public class PortletIFrame extends GenericPortlet {
 				    if (ets != null) {
 				        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+URLEncoder.encode(url, "UTF-8");
 				        eventRef = StringUtils.abbreviate(eventRef, 240); // ensure the ref won't pass 255 chars
-				        ets.post(ets.newEvent("webcontent.read", eventRef, false));
+				        String etsProperty = (StringUtils.trimToNull(config.getProperty(EVENT_ACCESS_WEB_CONTENT)) != null) ? config.getProperty(EVENT_ACCESS_WEB_CONTENT) : EVENT_ACCESS_WEB_CONTENT;
+				        ets.post(ets.newEvent(etsProperty, eventRef, false));
 				    }
 				}
 
@@ -678,8 +685,6 @@ public class PortletIFrame extends GenericPortlet {
 		    }
 		    context.put("height", height);
 
-	    	// TODO: tracking event
-		
 		    // output the max limit 
 		    context.put("max_length_title", MAX_TITLE_LENGTH);
 		    context.put("max_length_info_url", MAX_SITE_INFO_URL_LENGTH);
@@ -689,6 +694,17 @@ public class PortletIFrame extends GenericPortlet {
             if (SPECIAL_WORKSITE.equals(special)) template = "/vm/edit-site.vm";
             if (SPECIAL_ANNOTATEDURL.equals(special)) template = "/vm/edit-annotatedurl.vm";
             // System.out.println("EDIT TEMP="+template+" special="+special);
+
+			// capture the revise events
+			if (placement != null && placement.getContext() != null && placement.getId() != null) {
+			    EventTrackingService ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+			    if (ets != null) {
+			        String eventRef = "/web/"+placement.getContext()+"/id/"+placement.getId()+"/url/"+URLEncoder.encode(source, "UTF-8");
+			        eventRef = StringUtils.abbreviate(eventRef, 240); // ensure the ref won't pass 255 chars
+			        String etsProperty = (StringUtils.trimToNull(config.getProperty(EVENT_REVISE_WEB_CONTENT)) != null) ? config.getProperty(EVENT_REVISE_WEB_CONTENT) : EVENT_REVISE_WEB_CONTENT;
+					ets.post(ets.newEvent(etsProperty, eventRef, false));
+			    }
+			}
 
 			vHelper.doTemplate(vengine, template, context, out);
 
