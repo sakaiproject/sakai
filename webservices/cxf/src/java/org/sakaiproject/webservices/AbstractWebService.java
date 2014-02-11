@@ -1,5 +1,8 @@
 package org.sakaiproject.webservices;
 
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -25,9 +28,11 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
+import org.sakaiproject.id.api.IdManager;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Created by jbush on 2/11/14.
@@ -59,6 +64,7 @@ public class AbstractWebService {
     protected SchedulerManager schedulerManager;
     protected ShortenedUrlService shortenedUrlService;
     protected SamLiteService samLiteService;
+    protected IdManager idManager;
 
     
     @WebMethod(exclude = true)
@@ -81,6 +87,17 @@ public class AbstractWebService {
         s.setActive();
         sessionManager.setCurrentSession(s);
         return s;
+    }
+ 
+    /**
+     * Get the IP related to this request
+     *
+     * @return the request remote address
+     */
+    protected String getUserIp() {
+        Message message = PhaseInterceptorChain.getCurrentMessage();
+        HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
+        return request.getRemoteAddr();
     }
 
     @WebMethod(exclude = true)
@@ -196,5 +213,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setSamLiteService(SamLiteService samLiteService) {
         this.samLiteService = samLiteService;
+    }
+
+    @WebMethod(exclude = true)
+    public void setIdManager(IdManager idManager) {
+        this.idManager = idManager;
     }
 }
