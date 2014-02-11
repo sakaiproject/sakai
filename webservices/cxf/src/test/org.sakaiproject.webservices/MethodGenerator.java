@@ -1,7 +1,6 @@
 package org.sakaiproject.webservices;
 
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
-import com.thoughtworks.paranamer.CachingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import org.junit.Test;
 
@@ -17,21 +16,30 @@ public class MethodGenerator {
     public void generate() {
         Class clazz = SakaiScript.class;
         for (Method method : clazz.getMethods() ){
+            if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
+                continue;
+            }
             System.out.println("@WebMethod");
             System.out.println("public " +  method.getName() + "(");
             Paranamer paranamer = new BytecodeReadingParanamer();
 
-            String[] parameterNames = paranamer.lookupParameterNames(method);
-            Class[] types = method.getParameterTypes();
-            int i=0;
-            for (String name : parameterNames) {
-                System.out.print("@WebParam(name = \"" + name + "\", partName = \"" + name + "\") " + types[i].getSimpleName());
-                if (i + 1 != parameterNames.length) {
-                    System.out.println(",");
-                } else {
-                    System.out.println(") {");
+            try {
+                String[] parameterNames = paranamer.lookupParameterNames(method);
+
+
+                Class[] types = method.getParameterTypes();
+                int i=0;
+                for (String name : parameterNames) {
+                    System.out.print("@WebParam(name = \"" + name + "\", partName = \"" + name + "\") " + types[i].getSimpleName());
+                    if (i + 1 != parameterNames.length) {
+                        System.out.println(",");
+                    } else {
+                        System.out.println(") {");
+                    }
+                    i++;
                 }
-                i++;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
         }
