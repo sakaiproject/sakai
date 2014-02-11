@@ -16,25 +16,25 @@ http://cxf.apache.org/schemas/jaxws.xsd">
   <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
     <!-- JAX-RS -->
-    <jaxrs:server id="SakaiLoginRS" address="/login">
+    <jaxrs:server id="SakaiLoginRS" address="/rest/login">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.SakaiLogin"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="SakaiScriptRS" address="/sakai">
+    <jaxrs:server id="SakaiScriptRS" address="/rest/sakai">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.SakaiScript"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="AssignmentsRS" address="/assignments">
+    <jaxrs:server id="AssignmentsRS" address="/rest/assignments">
         <jaxrs:serviceBeans>
             <ref bean="org.sakaiproject.webservices.Assignments"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
-    <jaxrs:server id="ContentHostingRS" address="/contenthosting">
+    <jaxrs:server id="ContentHostingRS" address="/rest/contenthosting">
          <jaxrs:serviceBeans>
              <ref bean="org.sakaiproject.webservices.ContentHosting"/>
          </jaxrs:serviceBeans>
@@ -47,23 +47,23 @@ http://cxf.apache.org/schemas/jaxws.xsd">
 
     <jaxws:endpoint id="SakaiLogin"
                     implementor="#org.sakaiproject.webservices.SakaiLogin"
-                    address="/Login"/>
+                    address="/soap/login"/>
 
     <jaxws:endpoint id="SakaiScript"
                     implementor="#org.sakaiproject.webservices.SakaiScript"
-                    address="/Sakai"/>
+                    address="/soap/sakai"/>
 
     <jaxws:endpoint id="Assignments"
                     implementor="#org.sakaiproject.webservices.Assignments"
-                    address="/Assignments"/>
+                    address="/soap/assignments"/>
 
     <jaxws:endpoint id="ContentHosting"
                     implementor="#org.sakaiproject.webservices.ContentHosting"
-                    address="/ContentHosting"/>
+                    address="/soap/contenthosting"/>
 
     <jaxws:endpoint id="MessageForums"
                     implementor="#org.sakaiproject.webservices.MessageForums"
-                    address="/MessageForums"/>
+                    address="/soap/messageforums"/>
 
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
