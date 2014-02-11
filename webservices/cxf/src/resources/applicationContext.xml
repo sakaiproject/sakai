@@ -41,6 +41,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
      </jaxrs:server>
 
 
+    <jaxws:endpoint id="SakaiJob"
+                    implementor="#org.sakaiproject.webservices.SakaiJob"
+                    address="/SakaiJob"/>
+
     <jaxws:endpoint id="SakaiLogin"
                     implementor="#org.sakaiproject.webservices.SakaiLogin"
                     address="/Login"/>
@@ -82,11 +86,13 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="messageForumsTypeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
         <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.ContentHosting" class="org.sakaiproject.webservices.ContentHosting" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.MessageForums" class="org.sakaiproject.webservices.MessageForums" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiJob" class="org.sakaiproject.webservices.SakaiJob" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 

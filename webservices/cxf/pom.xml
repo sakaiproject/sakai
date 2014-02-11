@@ -92,6 +92,12 @@
             <groupId>org.sakaiproject.msgcntr</groupId>
             <artifactId>messageforums-api</artifactId>
         </dependency>
+        <dependency>
+          <groupId>org.quartz-scheduler</groupId>
+          <artifactId>quartz</artifactId>
+          <version>${sakai.quartz.version}</version>
+          <scope>provided</scope>
+        </dependency> 
         <!--  external dependencies -->
         <dependency>
             <groupId>log4j</groupId>

@@ -5,6 +5,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.AreaManager;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -53,6 +54,7 @@ public class AbstractWebService {
     protected MessageForumsTypeManager messageForumsTypeManager;
     protected AreaManager areaManager;
     protected ThreadLocalManager threadLocalManager;
+    protected SchedulerManager schedulerManager;
 
     
     @WebMethod(exclude = true)
@@ -175,5 +177,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
         this.threadLocalManager = threadLocalManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setSchedulerManager(SchedulerManager schedulerManager) {
+        this.schedulerManager = schedulerManager;
     }
 }
