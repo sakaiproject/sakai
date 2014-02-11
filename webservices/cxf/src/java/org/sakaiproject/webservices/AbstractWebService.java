@@ -23,6 +23,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -55,6 +56,7 @@ public class AbstractWebService {
     protected AreaManager areaManager;
     protected ThreadLocalManager threadLocalManager;
     protected SchedulerManager schedulerManager;
+    protected ShortenedUrlService shortenedUrlService;
 
     
     @WebMethod(exclude = true)
@@ -182,5 +184,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setSchedulerManager(SchedulerManager schedulerManager) {
         this.schedulerManager = schedulerManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setShortenedUrlService(ShortenedUrlService shortenedUrlService) {
+        this.shortenedUrlService = shortenedUrlService;
     }
 }

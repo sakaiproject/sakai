@@ -80,6 +80,11 @@
             <groupId>org.sakaiproject.calendar</groupId>
             <artifactId>sakai-calendar-api</artifactId>
         </dependency>
+		<dependency>
+	      	<groupId>org.sakaiproject.shortenedurl</groupId>
+	      	<artifactId>shortenedurl-api</artifactId>
+	      	<version>${project.version}</version>
+	    </dependency>
         <dependency>
             <groupId>org.sakaiproject.assignment</groupId>
             <artifactId>sakai-assignment-api</artifactId>

@@ -52,6 +52,11 @@ http://cxf.apache.org/schemas/jaxws.xsd">
          </jaxrs:serviceBeans>
      </jaxrs:server>
 
+    <jaxrs:server id="ShortenedUrlRS" address="/rest/shortenedurl">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.ShortenedUrl"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
 
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
@@ -77,6 +82,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     implementor="#org.sakaiproject.webservices.MessageForums"
                     address="/soap/messageforums"/>
 
+    <jaxws:endpoint id="ShortenedUrl"
+                    implementor="#org.sakaiproject.webservices.ShortenedUrl"
+                    address="/soap/shortenedurl"/>
+
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -99,6 +108,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
         <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
         <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
@@ -107,5 +117,6 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     <bean id="org.sakaiproject.webservices.SakaiJob" class="org.sakaiproject.webservices.SakaiJob" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.ShortenedUrl" class="org.sakaiproject.webservices.ShortenedUrl" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 
 </beans>
