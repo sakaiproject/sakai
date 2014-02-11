@@ -1,5 +1,5 @@
-## Get the tool title: replace the spaces with hyphens and make it lowercase so that we have a unique class
-#set ($toolTitleClass = ${tool.toolTitle.replace(/\s+/g, '-').toLowerCase()})
+## Get the tool title: replace the spaces with hyphens and make it lowercase so that we have a unique class http://stackoverflow.com/questions/2932392/java-how-to-replace-2-or-more-spaces-with-single-space-in-string-and-delete-lead
+#set($toolTitleClass = ${tool.toolTitle.trim().replaceAll(" +", '-').toLowerCase()})
 
 #if (${tool.hasRenderResult})
     <div class="portlet portlet-main wrapper ${toolTitleClass}">
