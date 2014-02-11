@@ -24,6 +24,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
+import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -57,6 +58,7 @@ public class AbstractWebService {
     protected ThreadLocalManager threadLocalManager;
     protected SchedulerManager schedulerManager;
     protected ShortenedUrlService shortenedUrlService;
+    protected SamLiteService samLiteService;
 
     
     @WebMethod(exclude = true)
@@ -189,5 +191,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setShortenedUrlService(ShortenedUrlService shortenedUrlService) {
         this.shortenedUrlService = shortenedUrlService;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setSamLiteService(SamLiteService samLiteService) {
+        this.samLiteService = samLiteService;
     }
 }

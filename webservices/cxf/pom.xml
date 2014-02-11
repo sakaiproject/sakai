@@ -99,6 +99,14 @@
             <artifactId>messageforums-api</artifactId>
         </dependency>
         <dependency>
+          <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
           <groupId>org.quartz-scheduler</groupId>
           <artifactId>quartz</artifactId>
           <version>${sakai.quartz.version}</version>
