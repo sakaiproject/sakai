@@ -1,0 +1,3805 @@
+package org.sakaiproject.webservices;
+
+import java.lang.String;
+import java.lang.Throwable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.calendar.api.Calendar;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.util.ArrayUtil;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.Xml;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+
+import javax.servlet.http.HttpServletRequest;
+
+/**
+ *   SakaiScript.jws 
+ *   
+ *   A set of administrative web services for Sakai
+ * 
+ */
+ 
+public class SakaiScriptImpl implements SakaiScript {
+	
+private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+
+private static final String ADMIN_SITE_REALM = "/site/!admin";
+private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
+private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
+
+
+private AuthzGroupService authzGroupService;
+private CalendarService calendarService;
+private EventTrackingService eventTrackingService;
+private SecurityService securityService;
+private ServerConfigurationService serverConfigurationService;
+private SessionManager sessionManager;
+private SiteService siteService;
+private ToolManager toolManager;
+private UsageSessionService usageSessionService;
+private UserDirectoryService userDirectoryService;
+private ContentHostingService contentHostingService;
+private EntityManager entityManager;
+private PreferencesService preferencesService;
+
+/**
+ * Setup dependencies
+ */
+public void init() {
+	authzGroupService = (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
+	calendarService = (CalendarService) ComponentManager.get(CalendarService.class.getName());
+	eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class.getName());
+	securityService = (SecurityService) ComponentManager.get(SecurityService.class.getName());
+	serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
+	sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
+	siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
+	toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+	usageSessionService = (UsageSessionService) ComponentManager.get(UsageSessionService.class.getName());
+	userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
+	contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+	entityManager = (EntityManager) ComponentManager.get(EntityManager.class.getName());
+    preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class.getName());
+    
+}
+	
+/**
+ * Get the Session related to the given sessionid
+ * @param sessionid		the id of the session to retrieve
+ * @return				the session, if it is active
+ * @throws RuntimeException	if session is inactive
+ */
+private Session establishSession(String sessionid) 
+{
+	Session s = sessionManager.getSession(sessionid);
+
+	if (s == null)
+	{
+		throw new RuntimeException("Session \""+sessionid+"\" is not active");
+	}
+	s.setActive();
+	sessionManager.setCurrentSession(s);
+	return s;
+}
+
+/**
+ * Check if a session is active
+ * 
+ * @param sessionid			the id of the session to check
+ * @return					the sessionid if active, or "null" if not.
+ */
+public String checkSession(String sessionid) {
+	
+	Session s = sessionManager.getSession(sessionid);
+	
+	if (s == null){
+		return "null";
+	}
+	else{
+		return sessionid;
+	}
+}
+
+
+    /**
+ * Create a new user account
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the new user
+ * @param	firstname		the new user's first name
+ * @param	lastname		the new user's last name
+ * @param	email			the new user's email address
+ * @param	type			the type of account (ie registered, guest etc). Should either match one of the !user.template.XXX realms (where XXX is the type) or be blank to inherit the !user.template permission
+ * @param	password		the password for the new user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ * This is the preferred method of adding user accounts whereby their internal ID is automatically assigned a UUID.
+ *
+ */
+public String addNewUser2( String sessionid, String eid, String firstname, String lastname, String email, String type, String password) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	if (!securityService.isSuperUser())
+	{
+		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+        throw new RuntimeException("NonSuperUser trying to add accounts: " + session.getUserId());
+	}
+	try {
+
+		User addeduser = null;
+		addeduser = userDirectoryService.addUser(null, eid, firstname, lastname, email, password, type, null);
+	
+	}
+	catch (Exception e) {  
+		LOG.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
+        return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Create a new user account
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	id				the id of the new user that will be used internally by Sakai
+ * @param	eid				the login username (ie jsmith26) of the new user
+ * @param	firstname		the new user's first name
+ * @param	lastname		the new user's last name
+ * @param	email			the new user's email address
+ * @param	type			the type of account (ie registered, guest etc). Should either match one of the !user.template.XXX realms (where XXX is the type) or be blank to inherit the !user.template permission
+ * @param	password		the password for the new user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ * 
+ * This form of addUser() should only be used when you need control over the user's internal ID. Otherwise use the other form.
+ * 
+ */
+public String addNewUser( String sessionid, String id ,String eid, String firstname, String lastname, String email, String type, String password) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	if (!securityService.isSuperUser())
+	{
+		LOG.warn("NonSuperUser trying to add accounts: " + session.getUserId());
+        throw new RuntimeException("NonSuperUser trying to add accounts: " + session.getUserId());
+	}
+	try {
+
+		User addeduser = null;
+		addeduser = userDirectoryService.addUser(id, eid, firstname, lastname, email, password, type, null);
+	
+	}
+	catch (Exception e) {  
+		LOG.warn("WS addNewUser(): " + e.getClass().getName() + " : " + e.getMessage());
+        return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove a user account
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user whose account you want to remove
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String removeUser( String sessionid, String eid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		UserEdit userEdit = null;
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userDirectoryService.removeUser(userEdit);
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a user's account details
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
+ * @param	firstname		the updated firstname for the user
+ * @param	lastname		the updated last name for the user
+ * @param	email			the updated email address for the user
+ * @param	type			the updated user type
+ * @param	password		the updated password for the user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ * Note that if you only want to change individual properties of a user's account like their email address or password, see the related web services.
+ *
+ */
+public String changeUserInfo( String sessionid, String eid, String firstname, String lastname, String email, String type, String password) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	UserEdit userEdit = null;
+	try {
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userEdit.setFirstName(firstname);
+		userEdit.setLastName(lastname);
+		userEdit.setEmail(email);
+		userEdit.setType(type);
+		userEdit.setPassword(password);
+		userDirectoryService.commitEdit(userEdit);
+	}
+	catch (Exception e) {
+		userDirectoryService.cancelEdit(userEdit);
+		LOG.error("WS removeUser(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a user's firstname/lastname
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
+ * @param	firstname		the updated firstname for the user
+ * @param	lastname		the updated last name for the user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String changeUserName( String sessionid, String eid, String firstname, String lastname) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	UserEdit userEdit = null;
+	try {
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userEdit.setFirstName(firstname);
+		userEdit.setLastName(lastname);
+		userDirectoryService.commitEdit(userEdit);
+	}
+	catch (Exception e) {
+		userDirectoryService.cancelEdit(userEdit);
+		LOG.error("WS changeUserName(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a user's email address
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
+ * @param	email			the updated email address for the user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String changeUserEmail( String sessionid, String eid, String email) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	UserEdit userEdit = null;
+	try {
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userEdit.setEmail(email);
+		userDirectoryService.commitEdit(userEdit);
+	}
+	catch (Exception e) { 
+		userDirectoryService.cancelEdit(userEdit);
+		LOG.error("WS changeUserEmail(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a user's user type
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
+ * @param	type			the updated user type. See addNewUser() for an explanation of what this field means
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String changeUserType( String sessionid, String eid, String type) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	UserEdit userEdit = null;
+	try {
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userEdit.setType(type);
+		userDirectoryService.commitEdit(userEdit);
+	}
+	catch (Exception e) { 
+		userDirectoryService.cancelEdit(userEdit);
+		LOG.error("WS changeUserType(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a user's password
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	eid				the login username (ie jsmith26) of the user you want to edit
+ * @param	password		the password for the user
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String changeUserPassword( String sessionid, String eid, String password) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	UserEdit userEdit = null;
+	try {
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		userEdit = userDirectoryService.editUser(userid);
+		userEdit.setPassword(password);
+		userDirectoryService.commitEdit(userEdit);
+	}
+	catch (Exception e) {
+		userDirectoryService.cancelEdit(userEdit);
+		LOG.error("WS changeUserPassword(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Get a user's email address based on their session id
+ *
+ * @param	sessionid		the session id of the user who's email address you wish to retrieve
+ * @return		        	the email address for the user
+ * @throws	RuntimeException
+ *
+ */
+public String getUserEmailForCurrentUser( String sessionid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	User user = userDirectoryService.getCurrentUser();
+	return user.getEmail();
+}
+
+/**
+ * Gets the email address for a given user
+ *
+ * Differs from original above as that one uses the session to get the email address hence you must know this in advance or be logged in to the web services
+ * with that user. This uses a userid as well so we could be logged in as admin and retrieve the email address for any user.
+ * 
+ * @param	sessionid	the id of a valid session
+ * @param	userid		the login username (ie jsmith26) of the user you want the email address for
+ * @return				the email address for the user
+ * @throws	RuntimeException	
+ *
+ */
+public String getUserEmail( String sessionid, String userid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = userDirectoryService.getUserByEid(userid);
+		return user.getEmail();
+	} catch (Exception e) {  
+		LOG.error("WS getUserEmail() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+	}
+}
+
+/**
+ * Get a user's display name based on their session id
+ *
+ * @param	sessionid		the session id of the user who's display name you wish to retrieve
+ * @return		        	success or exception message
+ * @throws	RuntimeException
+ *
+ */
+public String getUserDisplayNameForCurrentUser( String sessionid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	User user = userDirectoryService.getCurrentUser();
+	return user.getDisplayName();
+}
+
+/**
+ * Gets the display name for a given user 
+ *
+ * Differs from original above as that one uses the session to get the displayname hence you must know this in advance or be logged in to the web services
+ * with that user. This uses a userid as well so we could be logged in as admin and retrieve the display name for any user.
+ * 
+ * @param	sessionid	the id of a valid session
+ * @param	userid		the login username (ie jsmith26) of the user you want the display name for
+ * @return				the display name for the user
+ * @throws	RuntimeException	
+ *
+ */
+public String getUserDisplayName( String sessionid, String userid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = userDirectoryService.getUserByEid(userid);
+		return user.getDisplayName();
+	} catch (Exception e) {  
+	 	LOG.error("WS getUserDisplayName() failed for user: " + userid + " : " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+	}
+}
+
+/**
+ * Create user-group to specified worksite (as if it had been added in Worksite Setup)
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site you want the group created in
+ * @param 	grouptitle 	the name of the new group
+ * @param 	groupdesc 	the description of the new group
+ * @return groupid 		if successful/exception
+ *
+ */
+private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
+public String addGroupToSite( String sessionid, String siteid, String grouptitle, String groupdesc ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	try
+	{
+		Site site = siteService.getSite(siteid);
+		Group group = site.addGroup();
+		group.setTitle(grouptitle);
+		group.setDescription(groupdesc);
+		group.getProperties().addProperty(GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+		
+		// SAK-22849 clear the provider id
+		group.setProviderGroupId(null);
+		
+		// SAK-22849 clear the role provider id property
+		group.getProperties().removeProperty("group_prop_role_providerid");
+
+		siteService.save(site);
+		return group.getId();
+	}
+	catch (Exception e)
+	{
+		LOG.error("WS addGroupToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+
+	}
+} 
+
+/**
+ * Add member to specified worksite group
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site that the group is in
+ * @param 	groupid 	the id of the group you want to add the user to
+ * @param 	userid 		the internal userid of the member to add
+ * @return 	true 		if successful/exception
+ *
+ * TODO: This is not returning false if it fails (ie if user isn't in site to begin with). SAK-15334
+ */
+public boolean addMemberToGroup( String sessionid, String siteid, String groupid, String userid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	try
+	{
+		Site site = siteService.getSite(siteid);
+		Group group = site.getGroup(groupid);
+		if ( group == null )
+			return false;
+	
+		Role r = site.getUserRole(userid);
+		Member m = site.getMember(userid);
+		group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true,	false);
+		siteService.save(site);
+		return true;
+	}
+	catch (Exception e)
+	{
+		LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return false;
+	}
+}
+
+/** 
+ * Get list of groups in a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site to retrieve the group list for
+ * @return		        	xml doc of the list of groups, title and description
+ * @throws	RuntimeException		returns <exception /> string if exception encountered and logs it	
+ *
+ */
+public String getGroupsInSite(String sessionid, String siteid) {
+	
+	Session s = establishSession(sessionid);
+		
+	try {
+		
+		Site site = siteService.getSite(siteid);
+	
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+	
+	
+		for (Iterator iter = site.getGroups().iterator(); iter.hasNext();) {
+			Group group = (Group) iter.next();
+			
+			Node groupNode = dom.createElement("group");
+			
+			Node groupId = dom.createElement("id");
+			groupId.appendChild(dom.createTextNode(group.getId()));
+			
+			Node groupTitle = dom.createElement("title");
+			groupTitle.appendChild(dom.createTextNode(group.getTitle()));
+			
+			Node groupDesc = dom.createElement("description");
+			groupDesc.appendChild(dom.createTextNode(group.getDescription()));
+			
+			groupNode.appendChild(groupId);
+			groupNode.appendChild(groupTitle);
+			groupNode.appendChild(groupDesc);
+
+            Node propertiesNode = dom.createElement("properties");
+            groupNode.appendChild(propertiesNode);
+            ResourceProperties groupProperties = group.getProperties();
+            if (groupProperties != null) {
+                for (Iterator propertiesIter = groupProperties.getPropertyNames(); propertiesIter.hasNext(); ){
+                    Node propertyNode = dom.createElement("property");
+
+                    String propertyName = (String)propertiesIter.next();
+                    Object propertyValue =(Object)groupProperties.get(propertyName);
+
+                    Node propertyNameNode = dom.createElement("propertyName");
+                    propertyNameNode.appendChild(dom.createTextNode(propertyName));
+                    Node propertyValueNode = dom.createElement("propertyValue");
+                    propertyValueNode.appendChild(dom.createTextNode(propertyValue.toString()));
+
+                    propertyNode.appendChild(propertyNameNode);
+                    propertyNode.appendChild(propertyValueNode);
+                    propertiesNode.appendChild(propertyNode);
+                }
+        }
+
+			list.appendChild(groupNode);
+			
+				
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.error("WS getGroupsInSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+}
+
+/**
+ * Create a new authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the new authzgroup
+ * @return					success or exception message
+ *
+ */
+public String addNewAuthzGroup(String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = null;
+		authzgroup = authzGroupService.addAuthzGroup(authzgroupid);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove
+ * @return					success or exception message
+ *
+ */
+public String removeAuthzGroup( String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		authzGroupService.removeAuthzGroup(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Add a role to an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to add the role to
+ * @param 	roleid		 	the id of the role to add
+ * @param 	description 	the description for the new role
+ * @return					success or exception message
+ *
+ */
+public String addNewRoleToAuthzGroup( String sessionid, String authzgroupid, String roleid, String description) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.addRole(roleid);
+		role.setDescription(description);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewRoleToAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove all roles that exist in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the roles from
+ * @return					success or exception message
+ *
+ */
+ public String removeAllRolesFromAuthzGroup( String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		authzgroup.removeRoles();
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeAllRolesFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove a role from an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the role from
+ * @param 	roleid		 	the id of the role to remove
+ * @return					success or exception message
+ *
+ * Note: This web service has been modified, see SAK-15334
+ */
+public String removeRoleFromAuthzGroup( String sessionid, String authzgroupid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
+			//log warning, but still continue so as not to break any existing implementations
+			LOG.warn("WS removeRoleFromAuthzGroup(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+		}
+		authzgroup.removeRole(roleid);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeRoleFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Add a function to a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to add a function to
+ * @param	functionname	the name of the new function eg content.new
+ * @return					success or exception message
+ *
+ * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
+ */
+public String allowFunctionForRole( String sessionid, String authzgroupid, String roleid, String functionname) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	// check that ONLY super user's are accessing this (see SAK-18494)
+	if (!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS allowFunctionForRole(): Permission denied. Restricted to super users.");
+	}
+
+	try {
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.allowFunction(functionname);
+		authzGroupService.save(authzgroup);
+	}
+	catch (Exception e) {  
+		LOG.error("WS allowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove all functions from a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to remove the functions from
+ * @return					success or exception message
+ *
+ */
+public String disallowAllFunctionsForRole( String sessionid, String authzgroupid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.disallowAll();
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS disallowAllFunctionsForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove a function from a role in an authzgroup (realm)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role is in
+ * @param 	roleid		 	the id of the role to remove the function from
+ * @param	functionname	the name of the function to remove
+ * @return					success or exception message
+ *
+ * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
+ */
+public String disallowFunctionForRole( String sessionid, String authzgroupid, String roleid, String functionname) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.disallowFunction(functionname);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS disallowFunctionForRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Edit a role's description
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup that the role exists in
+ * @param 	roleid		 	the id of the role to edit
+ * @param 	description 	the updated description for the role
+ * @return					success or exception message
+ *
+ */
+public String setRoleDescription( String sessionid, String authzgroupid, String roleid, String description) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		Role role = authzgroup.getRole(roleid);
+		role.setDescription(description);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS setRoleDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Add a user to an authgroup with the given role
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid	 			the login username (ie jsmith26) of the user you want to add
+ * @param 	authzgroupid 	the id of the authzgroup to add the user to
+ * @param 	roleid		 	the id of the role to add the user to in the authzgroup
+ * @return					success or exception message
+ *
+ * Note: This web service has been modified, see SAK-15334
+ */
+public String addMemberToAuthzGroupWithRole( String sessionid, String eid, String authzgroupid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
+			//log warning and return error as it would return success even if it failed
+			LOG.error("WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+			return "WS addMemberToAuthzGroupWithRole(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
+		}
+		
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		authzgroup.addMember(userid,roleid,true,false);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addMemberToAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove a user from an authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid	 			the login username (ie jsmith26) of the user you want to remove
+ * @param 	authzgroupid 	the id of the authzgroup to remove the user from
+ * @return					success or exception message
+ *
+ */
+ public String removeMemberFromAuthzGroup( String sessionid, String eid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		authzgroup.removeMember(userid);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeMemberFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove all users from an authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to remove the users from
+ * @return					success or exception message
+ *
+ */
+ public String removeAllMembersFromAuthzGroup( String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup realmEdit = authzGroupService.getAuthzGroup(authzgroupid);
+		realmEdit.removeMembers();
+		authzGroupService.save(realmEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeAllMembersFromAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Set the role that allows maintenance on the given authgroup
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	authzgroupid 	the id of the authzgroup to edit
+ * @param 	roleid		 	the id of the role to to set
+ * @return					success or exception message
+ *
+ * Note: This web service has been modified, see SAK-15334
+ */
+ public String setRoleForAuthzGroupMaintenance( String sessionid, String authzgroupid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		//check Role exists
+		Role role = authzgroup.getRole(roleid);
+		if(role == null) {
+			LOG.warn("WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid);
+			return "WS setRoleForAuthzGroupMaintenance(): authzgroup: " + authzgroupid + " does not contain role: " + roleid;
+		}
+		
+		authzgroup.setMaintainRole(roleid);
+		authzGroupService.save(authzgroup);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS setRoleForAuthzGroupMaintenance(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Add a user to a site with a given role
+ *
+ * @param 	sessionid 	the id of a valid session
+ * @param 	siteid 		the id of the site to add the user to
+ * @param 	eid		 	the login username (ie jsmith26) of the user you want to add to the site
+ * @param 	roleid		the id of the role to to give the user in the site
+ * @return				success or exception message
+ *
+ * TODO: fix for if the role doesn't exist in the site, it is still returning success - SAK-15334
+ */
+public String addMemberToSiteWithRole(String sessionid, String siteid, String eid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		Site site = siteService.getSite(siteid);
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		site.addMember(userid,roleid,true,false);
+		siteService.save(site);
+	}
+	catch (Exception e) {  
+		LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+
+    /**
+ * Create a new site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the new site (ie test123)
+ * @param 	title 			the title of the new site
+ * @param 	description 	the full description for the new site
+ * @param 	shortdesc 		the short description for the new site
+ * @param 	iconurl 		the url to an icon for the site (on the default skin should not be more than 100px wide)
+ * @param 	infourl 		the url to a page of information about the site (this is added to the Site Information portlet)
+ * @param 	joinable 		should this site be joinable?
+ * @param 	joinerrole 		if joinable, the role to assign users that join this site
+ * @param 	published 		should this site be made available to participants of the site now? 
+ * @param 	publicview 		should this site be shown on the public list of sites?
+ * @param 	skin 			the id of the skin for this site, from the list in /library/skin/SKIN
+ * @param 	type 			the type of site ie project, course, etc, or any type defined as !site.template.TYPE. If blank will inherit !site.template roles/permissions
+ * @return					success or exception message
+ *
+ * Note that this will create an empty site with no tools. If you would like to create a site from a template, ie inherit its tool structure (not content), see copySite()
+ *
+ */
+public String addNewSite( String sessionid, String siteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+	    // check description
+	    if (description != null) {
+	        StringBuilder alertMsg = new StringBuilder();
+	        description = FormattedText.processFormattedText(description, alertMsg);
+	        if (description == null) {
+	        	throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
+	        }
+	    }            
+	    
+		Site siteEdit = null;
+		siteEdit = siteService.addSite(siteid, type);
+		siteEdit.setTitle(title);
+		siteEdit.setDescription(description);
+		siteEdit.setShortDescription(shortdesc);
+		siteEdit.setIconUrl(iconurl);
+		siteEdit.setInfoUrl(infourl);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPublished(published);
+		siteEdit.setPubView(publicview);
+		siteEdit.setSkin(skin);
+		siteEdit.setType(type);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Remove a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to remove
+ * @return					success or exception message
+ *
+ */
+public String removeSite( String sessionid, String siteid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteService.removeSite(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removeSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Create a new site based on another site. This will copy its tool structure, but not its content
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteidtocopy	the id of the site to base this new site on
+ * @param 	siteid 			the id of the new site (ie test123)
+ * @param 	title 			the title of the new site
+ * @param 	description 	the full description for the new site
+ * @param 	shortdesc 		the short description for the new site
+ * @param 	iconurl 		the url to an icon for the site (on the default skin should not be more than 100px wide)
+ * @param 	infourl 		the url to a page of information about the site (this is added to the Site Information portlet)
+ * @param 	joinable 		should this site be joinable?
+ * @param 	joinerrole 		if joinable, the role to assign users that join this site
+ * @param 	published 		should this site be made available to participants of the site now? 
+ * @param 	publicview 		should this site be shown on the public list of sites?
+ * @param 	skin 			the id of the skin for this site, from the list in /library/skin/SKIN
+ * @param 	type 			the type of site ie project, course, etc, or any type defined as !site.template.TYPE. If blank will inherit !site.template roles/permissions
+ * @return					success or exception message
+ *
+ */
+public String copySite( String sessionid, String siteidtocopy, String newsiteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site site = siteService.getSite(siteidtocopy);
+		
+		// If not admin, check maintainer membership in the source site
+		if (!securityService.isSuperUser(session.getUserId()) && 
+			!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+			LOG.warn("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+			throw new RuntimeException("WS copySite(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+		}
+		
+	    // check description
+	    if (description != null) {
+	        StringBuilder alertMsg = new StringBuilder();
+	        description = FormattedText.processFormattedText(description, alertMsg);
+	        if (description == null) {
+	        	throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
+	        }
+	    }            
+	    
+		Site siteEdit = siteService.addSite(newsiteid, site);
+		siteEdit.setTitle(title);
+		siteEdit.setDescription(description);
+		siteEdit.setShortDescription(shortdesc);
+		siteEdit.setIconUrl(iconurl);
+		siteEdit.setInfoUrl(infourl);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPublished(published);
+		siteEdit.setPubView(publicview);
+		siteEdit.setSkin(skin);
+		siteEdit.setType(type);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS copySite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Create a new page in a site. A page holds one or more tools and is shown in the main navigation section. You will still need to add tools to this page.
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the new page
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @return					success or exception message
+ *
+ */
+public String addNewPageToSite( String sessionid, String siteid, String pagetitle, int pagelayout) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		SitePage sitePageEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		sitePageEdit = siteEdit.addPage();
+		sitePageEdit.setTitle(pagetitle);
+		sitePageEdit.setLayout(pagelayout);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+
+    /**
+ * Remove a page from a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to remove the page from
+ * @param 	pagetitle 		the title of the page to remove
+ * @return					success or exception message
+ *
+ * TODO: fix for if the page title is blank it removes nothing and is still returning success - SAK-15334
+ * TODO: fix for ConcurrentModficationException being thrown - SAK-15337. Is this because it removes via pagetitle but can allow multiple page titles of the same name?
+ */
+public String removePageFromSite( String sessionid, String siteid, String pagetitle) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		ArrayList remPages = new ArrayList();
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+			{
+				remPages.add(pageEdit);
+			}
+		}
+
+		for (Iterator i = remPages.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			siteEdit.removePage(pageEdit);
+		}
+
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS removePageFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Add a new tool to a page in a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the page to add the tool to
+ * @param 	tooltitle 		the title of the new tool (ie Resources)
+ * @param 	toolid 			the id of the new tool (ie sakai.resources)
+ * @param 	layouthints 	where on the page this tool should be added, in 'row, col' and 0 based, ie first column, first tool='0,0'; Second column third tool = '1,2'
+ * @return					success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
+public String addNewToolToPage( String sessionid, String siteid, String pagetitle, String tooltitle, String toolid, String layouthints) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = siteService.getSite(siteid);
+		
+		// Check that the tool is visible (not stealthed) and available for this site type (category)
+		if (!securityService.isSuperUser(session.getUserId())) {
+
+			Set categories = new HashSet<String>();
+			Set<Tool> visibleTools = toolManager.findTools(categories, null);
+			
+			boolean toolVisible = false;
+			for (Tool tool : visibleTools) {
+				if (tool.getId().equals(toolid)) {
+					toolVisible = true;
+				}
+			}
+			
+			if (!toolVisible) {
+				LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
+				throw new RuntimeException("WS addNewToolToPage(): Permission denied. Must be super user to add a stealthed tool to a site.");
+			}
+
+			categories.add(siteEdit.getType());		
+			Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+			boolean toolAvailable = false;
+			for (Tool tool : availableTools) {
+				if (tool.getId().equals(toolid)) {
+					toolAvailable = true;
+				}
+			}
+			
+			if (!toolAvailable) {
+				LOG.warn("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+				throw new RuntimeException("WS addNewToolToPage(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+			}
+		}
+				
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+			{
+				ToolConfiguration tool = pageEdit.addTool();
+				Tool t = tool.getTool();
+				
+				tool.setTool(toolid, toolManager.getTool(toolid));
+				tool.setTitle(tooltitle);
+				//toolEdit.setTitle(tooltitle);
+				//toolEdit.setToolId(toolid);
+				tool.setLayoutHints(layouthints);
+			}
+		}
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewToolToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Add a property to a tool on a page in a site
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the page the tool exists in
+ * @param 	tooltitle 		the title of the tool to add the property to
+ * @param 	propname 		the name of the property
+ * @param 	propvalue 		the value of the property
+ * @return					success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
+public String addConfigPropertyToTool( String sessionid, String siteid, String pagetitle, String tooltitle, String propname, String propvalue) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = siteService.getSite(siteid);
+		List pageEdits = siteEdit.getPages();
+		for (Iterator i = pageEdits.iterator(); i.hasNext();)
+		{
+			SitePage pageEdit = (SitePage) i.next();
+			if (pageEdit.getTitle().equals(pagetitle))
+			{
+				List toolEdits = pageEdit.getTools();
+				for (Iterator j = toolEdits.iterator(); j.hasNext();)
+				{
+					ToolConfiguration tool = (ToolConfiguration) j.next();
+					Tool t = tool.getTool();
+					if (tool.getTitle().equals(tooltitle))
+					{
+						Properties propsedit = tool.getPlacementConfig();
+						propsedit.setProperty(propname, propvalue);
+					}
+				}
+			}
+		}
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS addConfigPropertyToTool(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Add a property to a page in a site
+ *
+ * @param   sessionid       the id of a valid session
+ * @param   siteid          the id of the site to add the page to
+ * @param   pagetitle       the title of the page the tool exists in
+ * @param   propname        the name of the property
+ * @param   propvalue       the value of the property
+ * @return                  success or exception message
+ *
+ * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
+ */
+public String addConfigPropertyToPage( String sessionid, String siteid, String pagetitle, String propname, String propvalue) throws RuntimeException
+{
+    Session session = establishSession(sessionid);
+
+    try {
+
+        Site siteEdit = siteService.getSite(siteid);
+        List pageEdits = siteEdit.getPages();
+        for (Iterator i = pageEdits.iterator(); i.hasNext();)
+        {
+            SitePage pageEdit = (SitePage) i.next();
+            if (pageEdit.getTitle().equals(pagetitle))
+            {   
+                ResourcePropertiesEdit propsedit = pageEdit.getPropertiesEdit();
+                propsedit.addProperty(propname, propvalue); // is_home_page = true
+            }
+        }
+        siteService.save(siteEdit);
+
+    }
+    catch (Exception e) {
+        LOG.error("WS addConfigPropertyToPage(): " + e.getClass().getName() + " : " + e.getMessage());
+        return e.getClass().getName() + " : " + e.getMessage();
+    }
+    return "success";
+}
+
+
+/**
+ * Check if a user exists (either as an account in Sakai or in any external provider)
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid 			the login username (ie jsmith26) of the user to check for
+ * @return					true/false
+ *
+ */
+public boolean checkForUser(String sessionid, String eid) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+		User u = null;
+		String userid = userDirectoryService.getUserByEid(eid).getId();
+		u = userDirectoryService.getUser(userid);
+		if (u != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForUser(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+/**
+ * Check if a site exists
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to check for
+ * @return					true/false
+ *
+ */
+ public boolean checkForSite(String sessionid, String siteid) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+		Site site = null;
+		site = siteService.getSite(siteid);
+		if (site != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+/**
+ * Check if a user exists in the authzgroup (or site) with the given role
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	eid 			the login username (ie jsmith26) of the user to check for
+ * @param 	authzgroupid 	the id of the authzgroup to check in. If this is a site it should be of the form /site/SITEID
+ * @param 	role 			the id of the role for the user in the site
+ * @return					true/false
+ *
+ */
+public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, String authzgroupid, String role) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS checkForMemberInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+	}
+
+	try {
+		AuthzGroup authzgroup = null; 
+		authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		if (authzgroup == null) {
+			return false;
+		} else {
+			String userid = userDirectoryService.getUserByEid(eid).getId();
+			return authzgroup.hasRole(userid, role);
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForMemberInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+/**
+ * Return XML document listing all sites user has read or write access based on their session id.
+ *
+ * @param 	sessionid 		the session id of a user who's list of sites you want to retrieve
+ * @return					xml or an empty list <list/>. The return XML format is below:
+ *<list>
+ *	<item>
+ *		<siteId>!admin</siteId>
+ *		<siteTitle>Administration Workspace</siteTitle>
+ *	</item>
+ *	<item>
+ *		...
+ *	</item>
+ *	...
+ *</list>
+ *
+ */
+public String getSitesCurrentUserCanAccess(String sessionid) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	try 
+	{
+		List allSites = siteService.getSites(SelectionType.ACCESS, null, null,
+														  null, SortType.TITLE_ASC, null);
+		List moreSites = siteService.getSites(SelectionType.UPDATE, null, null,
+															null, SortType.TITLE_ASC, null);
+		
+		if ((allSites == null || moreSites == null) || (allSites.size() == 0 && moreSites.size() == 0)) {
+			return "<list/>";
+		}
+
+		// Remove duplicates and combine two lists
+		allSites.removeAll( moreSites );
+		allSites.addAll( moreSites );
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Iterator i = allSites.iterator(); i.hasNext();)
+		{
+		   Site site = (Site)i.next();
+			Node item = dom.createElement("item");
+			Node siteId = dom.createElement("siteId");
+			siteId.appendChild( dom.createTextNode(site.getId()) );
+			Node siteTitle = dom.createElement("siteTitle");
+			siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+			
+			item.appendChild(siteId);
+			item.appendChild(siteTitle);
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) 
+	{
+		LOG.error("WS getSitesUserCanAccess(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+	}
+}
+
+/**
+ * Return XML document listing all sites the given user has read or write access to. 
+ *
+ * @param 	sessionid 		the session id of a super user
+ * @param   userid			eid (eg jsmith26) if the user you want the list for
+ * @return
+ * @throws RuntimeException		if not super user or any other error occurs from main method
+ */
+public String getSitesUserCanAccess(String sessionid, String userid) throws RuntimeException
+{
+	
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForWSUser(sessionid, userid, true);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(newsessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getSitesCurrentUserCanAccess(newsessionid);
+	
+}
+
+/**
+ * Return XML document listing all sites user has read or write access based on their session id, including My Workspace sites
+ *
+ * @param 	sessionid 		the session id of a user who's list of sites you want to retrieve
+ * @return					xml or an empty list <list/>. The return XML format is below:
+ * <list>
+ *	<item>
+ *		<siteId>!admin</siteId>
+ *		<siteTitle>Administration Workspace</siteTitle>
+ *	</item>
+ *	<item>
+ *		...
+ *	</item>
+ *	...
+ *</list>
+ *
+ */
+
+public String getAllSitesForCurrentUser(String sessionid) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	try 
+	{
+		List<Site> allSites = siteService.getSites(SelectionType.ACCESS, null, null,null, SortType.TITLE_ASC, null);
+		List<Site> moreSites = siteService.getSites(SelectionType.UPDATE, null, null,null, SortType.TITLE_ASC, null);
+
+		// Remove duplicates and combine
+		allSites.removeAll( moreSites );
+		allSites.addAll( moreSites );
+		
+		try {
+			Site myWorkspace = siteService.getSiteVisit(siteService.getUserSiteId(s.getUserId()));
+			allSites.add(myWorkspace);
+		} catch (Exception e) {
+			LOG.error("WS getAllSitesForUser(): cannot add My Workspace site: " + e.getClass().getName() + " : " + e.getMessage());
+		}
+		
+		if (allSites == null || (allSites.size() == 0)) {
+			return "<list/>";
+		}
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Site site: allSites){
+			
+			Node item = dom.createElement("item");
+			Node siteId = dom.createElement("siteId");
+			siteId.appendChild( dom.createTextNode(site.getId()) );
+			Node siteTitle = dom.createElement("siteTitle");
+			siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+			
+			item.appendChild(siteId);
+			item.appendChild(siteTitle);
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) 
+	{
+		LOG.error("WS getAllSitesForUser(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+	}
+}
+
+
+/**
+ * Return XML document listing all sites user has read or write access based on their session id, including My Workspace sites
+ *
+ * @param 	sessionid 		the session id of a super user
+ * @param   userid			eid (eg jsmith26) if the user you want the list for
+ * @return
+ * @throws RuntimeException		if not super user or any other error occurs from main method
+ */
+public String getAllSitesForUser(String sessionid, String userid) throws RuntimeException
+{
+	
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForWSUser(sessionid, userid, true);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(newsessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getAllSitesForCurrentUser(newsessionid);
+}
+
+
+/** 
+* Get a site's title 
+* 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the title of 
+* @return				title of the site or string containing error 
+* @
+* 
+*/ 
+public String getSiteTitle(String sessionid, String siteid) { 
+	
+	Session s = establishSession(sessionid); 
+
+	String siteTitle = ""; 
+
+	try { 
+		Site site = siteService.getSite(siteid); 
+		siteTitle = site.getTitle(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteTitle; 
+}
+
+/** 
+* Get a site's description 
+* 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the description of 
+* @return				description of the site or string containing error 
+* @throws	RuntimeException 
+* 
+*/ 
+public String getSiteDescription(String sessionid, String siteid) { 
+
+	Session s = establishSession(sessionid); 
+
+	String siteDescription = ""; 
+	
+	try { 
+		Site site = siteService.getSite(siteid); 
+		siteDescription = site.getDescription(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteDescription; 
+}
+
+
+/** 
+* Get a site's skin 
+* 
+* @param	sessionid	the id of a valid session
+* @param	siteid		the id of the site you want the skin of 
+* @return				description of the site or string containing error 
+* @throws	RuntimeException 
+* 
+*/ 
+public String getSiteSkin(String sessionid, String siteid) { 
+
+	Session s = establishSession(sessionid); 
+
+	String siteSkin = ""; 
+	
+	try { 
+		Site site = siteService.getSite(siteid); 
+		siteSkin = site.getSkin(); 
+	} 
+	catch (Exception e) { 
+		LOG.error("WS getSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	
+	return siteSkin; 
+}
+
+
+    /**
+ * Get a site's joinable status
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want the joinable status of
+ * @return		        true if joinable, false if not or error (and logs any errors)
+ * @throws	RuntimeException	
+ *
+ */
+public boolean isSiteJoinable(String sessionid, String siteid) {
+	Session s = establishSession(sessionid);
+	
+	try {
+		Site site = siteService.getSite(siteid);
+		if(site.isJoinable()) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS isSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+
+/**
+ * Change the title of a site
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to change the title of
+ * @param	title		the new title
+ * @return		        success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteTitle(String sessionid, String siteid, String title) {
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setTitle(title);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteTitle(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Change the skin of a site
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to change the skin of
+ * @param	title		the new skin value (make sure its in /library/skin/<yourskin>)
+ * @return		        success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteSkin(String sessionid, String siteid, String skin) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setSkin(skin);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteSkin(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Make a site joinable or not, depending on the params sent
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to change the status of
+ * @param	joinable		boolean if its joinable or not
+ * @param	joinerrole		the role that users who join the site will be given
+ * @param	publicview		boolean if the site is to be public or not. if its joinable it should probably be public so people can find it, but if its public it doesnt necessarily need to be joinable.
+ * @return		        	success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteJoinable(String sessionid, String siteid, boolean joinable, String joinerrole, boolean publicview) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setJoinable(joinable);
+		siteEdit.setJoinerRole(joinerrole);
+		siteEdit.setPubView(publicview);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteJoinable(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Change the icon of a site (top left hand corner of site)
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid	    the id of the site you want to change the icon of
+ * @param	title	    the new icon value (publically accessible url - suggest its located in Resources for the site or another public location)
+ * @return		        success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteIconUrl(String sessionid, String siteid, String iconurl) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setIconUrl(iconurl);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) { 
+		LOG.error("WS changeSiteIconUrl(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Change the description of a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid	   		the id of the site you want to change the title of
+ * @param	description	    the new description
+ * @return		       		success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteDescription( String sessionid, String siteid, String description) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		
+	    // check description
+	    if (description != null) {
+	        StringBuilder alertMsg = new StringBuilder();
+	        description = FormattedText.processFormattedText(description, alertMsg);
+	        if (description == null) {
+	        	throw new RuntimeException("Site description markup rejected: " + alertMsg.toString());
+	        }
+	    }            
+	    
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setDescription(description);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Get a custom property of a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to get the property from
+ * @param	propname		the name of the property you want
+ * @return		        	the property or blank if not found/property is blank
+ * @throws	RuntimeException	
+ * 
+ */
+public String getSiteProperty(String sessionid, String siteid, String propname) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//get site handle
+		Site site = siteService.getSite(siteid);
+		
+		//get list of properties for this site
+		ResourceProperties props = site.getProperties();
+		
+		//get the property that we wanted, as a string. this wont return multi valued ones
+		//would need to use getPropertyList() for that, but then need to return XML since its a list.
+		String propvalue = props.getProperty(propname);
+		return propvalue;	
+		
+	}
+	catch (Exception e) {
+		LOG.error("WS getSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "";
+	}
+}
+
+
+/**
+ * Set a custom property for a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to set the property for
+ * @param	propname		the name of the property you want to set
+ * @param	propvalue		the name of the property you want to set
+ * @return		        	success if true or exception
+ * @throws	RuntimeException	
+ *
+ */
+public String setSiteProperty(String sessionid, String siteid, String propname, String propvalue) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	if (!securityService.isSuperUser())
+	{
+		LOG.warn("WS setSiteProperty(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS setSiteProperty(): Permission denied. Restricted to super users.");
+	}
+
+	try {
+		//get site handle
+		Site site = siteService.getSite(siteid);
+		
+		//get properties in edit mode
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+		
+		//add property
+		props.addProperty(propname, propvalue);
+		
+		//save site
+		siteService.save(site);
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS setSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Remove a custom property for a site
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	siteid			the id of the site you want to remove the property from
+ * @param	propname		the name of the property you want to remove
+ * @return		        	success if true or exception
+ * @throws	RuntimeException	
+ *
+ */
+public String removeSiteProperty( String sessionid, String siteid, String propname) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//get site handle
+		Site site = siteService.getSite(siteid);
+		
+		//get properties in edit mode
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+		
+		//remove property
+		//if the property doesn't exist it will still return success. this is fine.
+		props.removeProperty(propname);
+		
+		//save site
+		siteService.save(site);
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS removeSiteProperty(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/**
+ * Check if a role exists in a given authzgroup
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @param	roleid			the id of the role you want to check for
+ * @return		        	true/false
+ * @throws	RuntimeException	
+ *
+ */
+public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, String roleid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//open authzgroup
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		//see if we can get the role in this authzgroup. will either return the Role, or null
+		Role role = authzgroup.getRole(roleid);
+		if(role != null) {
+			return true;
+		}
+		return false;
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForRoleInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+/**
+ * Check if a given authzgroup lacks roles
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @return		        	true/false
+ * @throws	RuntimeException	
+ *
+ */
+public boolean checkForEmptyRolesInAuthzGroup(String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		//open authzgroup
+		AuthzGroup authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		boolean roleEmpty = authzgroup.isEmpty();
+		return roleEmpty;
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForEmptyRolesInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+
+    /**
+ * Search all the users that match this criteria in id or email, first or last name, returning
+ * a subset of records within the record range given (sorted by sort name).
+ * As of September 2008, the Sakai API that does the searching is not searching provided users
+ * nor limiting the returned results (ie first and last are ignored)
+ *
+ * This web service is returning everything it receives correctly though, so when
+ * userDirectoryService.searchUsers() is amended, this will be even more complete.
+ *
+ * See: SAK-6792 and SAK-14268 for the relevant JIRA tickets.
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	criteria		the search criteria.
+ * @param	first			the first record position to return.
+ * @param	last			the last record position to return.
+ * @return		        	xml doc of list of records
+ * @throws	RuntimeException	
+ *
+ */
+public String searchForUsers(String sessionid, String criteria, int first, int last) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+
+	try {
+	
+		//validate input
+		if(("").equals(criteria)) {
+			LOG.warn("WS searchForUsers(): no search criteria");
+			return "<exception/>";
+		}
+		
+		if(first == 0 || last == 0) {
+			LOG.warn("WS searchForUsers(): invalid ranges");
+			return "<exception/>";
+		}
+	
+	
+		List users = userDirectoryService.searchUsers(criteria, first, last);
+		List externalUsers = userDirectoryService.searchExternalUsers(criteria, first, last);
+		users.addAll(externalUsers);
+				
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		
+		for (Iterator i = users.iterator(); i.hasNext();) {
+			User user = (User) i.next();
+			
+			try {
+									
+				Node userNode = dom.createElement("user");
+				
+				Node userId = dom.createElement("id");
+				userId.appendChild(dom.createTextNode(user.getId()));
+				
+				Node userEid = dom.createElement("eid");
+				userEid.appendChild(dom.createTextNode(user.getEid()));
+					
+				Node userName = dom.createElement("name");
+				userName.appendChild(dom.createTextNode(user.getDisplayName()));
+				
+				Node userEmail = dom.createElement("email");
+				userEmail.appendChild(dom.createTextNode(user.getEmail()));
+					
+				userNode.appendChild(userId);
+				userNode.appendChild(userEid);
+				userNode.appendChild(userName);
+				userNode.appendChild(userEmail);
+				list.appendChild(userNode);
+					
+			} catch (Exception e) {
+				//log this error and continue to the next user, otherwise we get nothing
+				LOG.warn("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+			}
+			
+		}
+		
+		//add total size node (nice attribute to save the end user doing an XSLT count every time)
+		Node total = dom.createElement("total");
+		total.appendChild(dom.createTextNode(Integer.toString(users.size())));
+		list.appendChild(total);
+				
+		return Xml.writeDocumentToString(dom);
+	
+	}
+	catch (Exception e) {
+		LOG.error("WS searchForUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+}
+
+
+/**
+ * Check if an authzgroup exists, similar to checkForSite, but does authzgroup instead
+ * (e.g. might be used to check if !site.template exists which checkForSite() cannot do.)
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup you want to check
+ * @return		        	true if exists, false if not or error. 
+ * @throws	RuntimeException	
+ *
+ */
+public boolean checkForAuthzGroup(String sessionid, String authzgroupid) throws RuntimeException
+{
+	Session s = establishSession(sessionid);
+	
+	try {
+
+		AuthzGroup authzgroup = null;
+		authzgroup = authzGroupService.getAuthzGroup(authzgroupid);
+		if (authzgroup != null) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	catch (Exception e) {
+		LOG.error("WS checkForAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+
+    /**
+ * Removes a member from a given site, similar to removeMembeForAuthzGroup but acts on Site directly
+ *
+ * @param	sessionid	the id of a valid session
+ * @param	siteid		the id of the site you want to remove the user from
+ * @return				success or string containing error 
+ * @throws	RuntimeException	
+ *
+ */
+public String removeMemberFromSite(String sessionid, String siteid, String eid) {
+
+    Session session = establishSession(sessionid);
+
+    try {
+        Site site = siteService.getSite(siteid);
+        String userid = userDirectoryService.getUserByEid(eid).getId();
+        site.removeMember(userid);
+        siteService.save(site);
+    } catch (Exception e) {
+    	LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
+        return e.getClass().getName() + " : " + e.getMessage();
+    }
+    return "success";
+}
+
+
+
+/**
+ * Check if a user is in a particular authzgroup
+ *
+ * @param	sessionid		the id of a valid session, generally the admin user
+ * @param	authzgroupid	the id of the authzgroup or site you want to check (if site: /site/SITEID)
+ * @param	eid	        	the userid of the person you want to check
+ * @return		        	true if in site, false if not or error. 
+ * @throws	RuntimeException	
+ *
+ */
+public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, String eid) {
+	Session s = establishSession(sessionid);
+	
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS checkForUserInAuthzGroup(): Permission denied. Restricted to super users.");
+	}
+
+	try {		
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
+		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
+			String id = (String) i.next();
+			User user = userDirectoryService.getUser(id);
+			if(user.getEid().equals(eid)) {
+				return true;
+			}
+		}
+		return false;		
+	}
+	catch (Exception e) {
+	    LOG.error("WS checkForUserInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return false;
+	}
+}
+
+
+/** 
+ * Get list of users in an authzgroup with the given role(s)
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup, site or group you want to get the users in (if site: /site/SITEID, if group: /site/SITEID/group/GROUPID)
+ * @param	authzgrouproles	the roles that you want to filter on (string with commas as delimiters)
+ * @return		        	xml doc of the list of users, display name and roleid
+ * @throws	RuntimeException		returns <exception /> string if exception encountered and logs it	
+ *
+ */
+public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid, String authzgrouproles) {
+	
+	Session s = establishSession(sessionid);
+		
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS getUsersInAuthzGroupWithRole(): Permission denied. Restricted to super users.");
+	}
+	
+	try {
+		
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+
+		//get the authzgroup role(s)
+		String[] authzgrouprolesArr = StringUtils.split(authzgrouproles, ',');
+		List<String> authzgrouprolesList = Arrays.asList(authzgrouprolesArr);
+
+		//iterate over each role in the list...
+		for (Iterator j = authzgrouprolesList.iterator(); j.hasNext(); ) {
+			String role = (String) j.next();
+		
+			//now get all the users in the authzgroup with this role and add to xml doc
+			for (Iterator k = azg.getUsersHasRole(role).iterator(); k.hasNext(); ) {
+				String id = (String) k.next();
+	
+				try {
+					User user = userDirectoryService.getUser(id);				
+					Node userNode = dom.createElement("user");
+					Node userId = dom.createElement("id");
+					userId.appendChild(dom.createTextNode(user.getEid()));
+					Node userName = dom.createElement("name");
+					userName.appendChild(dom.createTextNode(user.getDisplayName()));
+					Node userRole = dom.createElement("role");
+					userRole.appendChild(dom.createTextNode(role));
+					
+					userNode.appendChild(userId);
+					userNode.appendChild(userName);
+					userNode.appendChild(userRole);
+					list.appendChild(userNode);
+					
+				} catch (Exception e) {
+					//Exception with this user, log the error, skip this user and continue to the next
+					LOG.warn("WS getUsersInAuthzGroupWithRole(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+				}
+			}
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.error("WS getUsersInAuthzGroupWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+
+	}
+}
+
+
+/**
+ * Gets list of ALL users in an authzgroup
+ *
+ * 
+ * @param	sessionid		the id of a valid session
+ * @param	authzgroupid	the id of the authzgroup, site or group you want to get the users in (if site: /site/SITEID, if group: /site/SITEID/group/GROUPID)
+ * @return					xml doc of the list of users, display name and roleid
+ * @throws	RuntimeException		returns <exception /> string if exception encountered	
+ *
+ *
+ */
+public String getUsersInAuthzGroup(String sessionid, String authzgroupid) {
+	
+	Session s = establishSession(sessionid);
+	
+	if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
+		LOG.warn("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS getUsersInAuthzGroup(): Permission denied. Restricted to super users.");
+	}
+
+	try {
+		
+		AuthzGroup azg = authzGroupService.getAuthzGroup(authzgroupid);
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		
+		for (Iterator i = azg.getUsers().iterator(); i.hasNext(); ) {
+			String id = (String) i.next();
+			try {
+				User user = userDirectoryService.getUser(id);
+				
+				//wrapping user node
+				Node userNode = dom.createElement("user");
+				
+				//id child node
+				Node userId = dom.createElement("id");
+				userId.appendChild(dom.createTextNode(user.getEid()));
+				
+				//name child node
+				Node userName = dom.createElement("name");
+				userName.appendChild(dom.createTextNode(user.getDisplayName()));
+				
+				//role child node
+				Node userRole = dom.createElement("role");
+				String role = azg.getUserRole(id).getId();
+				userRole.appendChild(dom.createTextNode(role));
+				
+				//add all clicd nodes into the parent node
+				userNode.appendChild(userId);
+				userNode.appendChild(userName);
+				userNode.appendChild(userRole);
+				list.appendChild(userNode);
+				
+			} catch (Exception e) {
+				//Exception with this user, log the error, skip this user and continue to the next
+				LOG.warn("WS getUsersInAuthzGroup(): error processing user " + id + " : " + e.getClass().getName() + " : " + e.getMessage());
+			}
+		}
+		return Xml.writeDocumentToString(dom);
+	}
+	catch (Exception e) {
+        LOG.error("WS getUsersInAuthzGroup(): " + e.getClass().getName() + " : " + e.getMessage());
+		return "<exception/>";
+	}
+}
+
+
+
+
+    /**
+ * Copy the calendar events from one site to another
+ *
+ * @param	sessionid		the id of a valid session
+ * @param	sourceSiteId	the id of the site containing the calendar entries you want copied from
+ * @param	targetSiteId	the id of the site you want to copy the calendar entries to
+ * @return		        	success or exception
+ * @throws	RuntimeException		
+ *
+ */
+public String copyCalendarEvents(String sessionid, String sourceSiteId, String targetSiteId) { 
+
+	Session session = establishSession(sessionid); 
+	
+	//setup source and target calendar strings
+	String calId1 = "/calendar/calendar/"+sourceSiteId+"/main"; 
+	String calId2 = "/calendar/calendar/"+targetSiteId+"/main"; 
+	
+	Calendar calendar1 = null;
+	CalendarEdit calendar2 = null;
+	try { 
+		//get calendars
+		calendar1 = calendarService.getCalendar(calId1); 
+		calendar2 = calendarService.editCalendar(calId2); 
+	
+		//for every event in calendar1, add it to calendar2
+		List eventsList = calendar1.getEvents(null, null); 
+	
+		for (Iterator i = eventsList.iterator(); i.hasNext();) { 
+			CalendarEvent cEvent = (CalendarEvent) i.next();
+			CalendarEventEdit cedit = calendar2.addEvent();
+			cedit.setRange(cEvent.getRange()); 
+			cedit.setDisplayName(cEvent.getDisplayName()); 
+			cedit.setDescription(cEvent.getDescription()); 
+			cedit.setType(cEvent.getType()); 
+			cedit.setLocation(cEvent.getLocation()); 
+			cedit.setDescriptionFormatted(cEvent.getDescriptionFormatted()); 
+			cedit.setRecurrenceRule(cEvent.getRecurrenceRule()); 
+			calendar2.commitEvent(cedit); 
+			//LOG.warn(cEvent.getDisplayName()); 
+		}
+		//save calendar 2
+		calendarService.commitCalendar(calendar2); 
+		
+	} catch (Exception e) { 
+		calendarService.cancelCalendar(calendar2);
+		LOG.error("WS copyCalendarEvents(): error " + e.getClass().getName() + " : " + e.getMessage()); 
+		return e.getClass().getName() + " : " + e.getMessage(); 
+	} 
+	return "success"; 
+} 
+
+/** 
+* Get a user's type (for their account)
+* 
+* @param	sessionid	the id of a valid session
+* @param	userid		the userid of the person you want the type for
+* @return				type if set or blank
+* @throws	RuntimeException 
+* 
+*/ 
+public String getUserType( String sessionid, String userid ) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	try {
+		User user = userDirectoryService.getUserByEid(userid);
+		return user.getType();
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserType() failed for user: " + userid);
+		return "";
+	}
+	
+}
+
+
+/** 
+ * Adds a tool to all My Workspace sites
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @param	toolid			the id of the tool you want to add (ie sakai.profile2)
+ * @param	pagetitle		the title of the page shown in the site navigation
+ * @param	tooltitle		the title of the tool shown in the main portlet
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		integer specifying the position within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ *
+ * @return		        	success or exception
+ * @throws	RuntimeException		
+ *
+ * Sakai properties:
+ * 	#specify the list of users to ignore separated by a comma, no spaces. Defaults to 'admin,postmaster'.
+ *	webservice.specialUsers=admin,postmaster
+ *
+ */
+public String addNewToolToAllWorkspaces(String sessionid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY admin is accessing this	
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS addNewToolToAllWorkspaces() failed. Restricted to admin users.");
+		throw new RuntimeException("WS failed. Restricted to admin users.");
+	}
+	
+	try {
+	
+		//get special users
+		String config = serverConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String[] items = StringUtils.split(config, ',');
+		List<String> specialUsers = Arrays.asList(items);
+		
+		//now get all users
+		List<String> allUsers = new ArrayList<String>();
+		List<User> users = userDirectoryService.getUsers();
+		for (Iterator i = users.iterator(); i.hasNext();) { 
+			User user = (User) i.next();
+			allUsers.add(user.getId());
+		}
+		
+		//remove special users
+		allUsers.removeAll(specialUsers);
+		
+		//now add a page to each site, and the tool to that page
+		for (Iterator j = allUsers.iterator(); j.hasNext();) { 
+			String userid = StringUtils.trim((String)j.next());
+			
+			LOG.info("Processing user:" + userid);
+		
+			String myWorkspaceId = siteService.getUserSiteId(userid);
+		
+			Site siteEdit = null;
+			SitePage sitePageEdit = null;
+			
+			try {
+				siteEdit = siteService.getSite(myWorkspaceId);
+			} catch (IdUnusedException e) {
+				LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
+				continue;
+			}
+			
+			sitePageEdit = siteEdit.addPage();
+			sitePageEdit.setTitle(pagetitle);
+			sitePageEdit.setLayout(pagelayout);
+			
+			//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+			//deal with this here and just set to the number of pages - 1 so its at the bottom.
+			int numPages = siteEdit.getPages().size();
+			if(position > numPages) {
+				position = numPages-1;
+			}
+			
+			sitePageEdit.setPosition(position);
+			sitePageEdit.setPopup(popup);
+			
+			ToolConfiguration tool = sitePageEdit.addTool();
+			Tool t = tool.getTool();
+			
+			tool.setTool(toolid, toolManager.getTool(toolid));
+			tool.setTitle(tooltitle);
+			
+			siteService.save(siteEdit);
+			LOG.info("Page added for user:" + userid);
+
+		}
+		return "success";
+	}
+	catch (Exception e) {  
+		LOG.error("WS addNewToolToAllWorkspaces(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+}
+
+/**
+ * Copies a role from one authzgroup to another. Useful for mass population/synchronisation 
+ *
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
+ * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
+ * 
+ * @param	sessionid			the sessionid of a valid session for the admin user
+ * @param	authzgroupid1		the authgroupid of the site you want to copy the role FROM
+ * @param	authzgroupid2		the authgroupid of the site you want to copy the role TO
+ * @param	roleid				the id of the role you want to copy
+ * @param	description			the description of the new role
+ * @param	removeBeforeSync	if synchronising roles, whether or not to remove the functions from the target role before adding the set in. This will
+ * 								mean that no additional permissions will remain, if they already exist in that role
+ * @return					success or RuntimeException
+ * @throws	RuntimeException		if not a super user, if new role cannot be created, if functions differ after the new role is made
+ *
+ */
+public String copyRole2( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description, boolean removeBeforeSync) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	Set existingfunctions;
+	Set newfunctions;
+	Set existingroles;
+	ArrayList existingroleids;
+	Iterator iRoles;
+	boolean createRole = false;
+	Role role2;
+	
+	//check that ONLY super user's are accessing this	
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS copyRole(): Permission denied. Restricted to super users.");
+	}
+
+	try {
+		//open authzgroup1
+		AuthzGroup authzgroup1 = authzGroupService.getAuthzGroup(authzgroupid1);
+		//get role that we want to copy
+		Role role1 = authzgroup1.getRole(roleid);
+		//get functions that are in this role
+		existingfunctions = role1.getAllowedFunctions();
+		
+		LOG.warn("WS copyRole(): existing functions in role " + roleid + " in " + authzgroupid1 + ": " + new ArrayList(existingfunctions).toString());
+		
+		//open authzgroup2
+		AuthzGroup authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
+		//get roles in authzgroup2
+		existingroles = authzgroup2.getRoles();
+		
+		existingroleids = new ArrayList();
+
+		//iterate over roles, get the roleId from the role, add to arraylist for checking
+		for (iRoles = existingroles.iterator(); iRoles.hasNext();) {
+	    	Role existingrole = (Role)iRoles.next();
+	    	existingroleids.add(existingrole.getId());
+        }
+		LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
+
+	
+		//if this roleid exists in the authzgroup already...
+		if(existingroleids.contains(roleid)) {
+			LOG.warn("WS copyRole(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
+		} else {
+			LOG.warn("WS copyRole(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
+		
+			//create this role in authzgroup2
+			role2 = authzgroup2.addRole(roleid);
+			//save authzgroup change
+			authzGroupService.save(authzgroup2);
+			
+			//reopen authzgroup2 for checking
+			authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
+			
+			//check the role was actually created by getting set again and iterating
+			existingroles = authzgroup2.getRoles();
+			
+			existingroleids = new ArrayList();
+
+			//iterate over roles, get the roleId from the role, add to arraylist for checking
+			for (iRoles = existingroles.iterator(); iRoles.hasNext();) {
+				Role existingrole = (Role)iRoles.next();
+				existingroleids.add(existingrole.getId());
+			}
+
+			LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
+			
+			//if role now exists, ok, else fault.
+			if(existingroleids.contains(roleid)) {
+				LOG.warn("WS copyRole(): role " + roleid + " was created in " + authzgroupid2 + ".");
+			} else {
+				LOG.warn("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+				throw new RuntimeException("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+			}
+		
+		}
+		
+		//get this role
+		role2 = authzgroup2.getRole(roleid);
+
+		//if removing permissions before syncing (SAK-18019)
+		if(removeBeforeSync){
+			role2.disallowAll();
+		}
+		
+		//add Set of functions to this role
+		role2.allowFunctions(existingfunctions);
+		
+		//set description
+		role2.setDescription(description);
+		
+		//save authzgroup change
+		authzGroupService.save(authzgroup2);
+		
+		//reopen authzgroup2 for checking
+		authzgroup2 = authzGroupService.getAuthzGroup(authzgroupid2);
+		
+		//get role we want to check
+		role2 = authzgroup2.getRole(roleid);
+		//get Set of functions that are now in this role
+		newfunctions = role2.getAllowedFunctions();
+		
+		//compare existingfunctions with newfunctions to see that they match
+		if(newfunctions.containsAll(existingfunctions)) {
+			LOG.warn("WS copyRole(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
+		} else {
+			LOG.warn("WS copyRole(): functions in roles differ after addition.");
+			throw new RuntimeException("WS copyRole(): functions in roles differ after addition.");
+		}
+	
+	}
+	catch (Exception e) {  
+		 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Copies a role from one authzgroup to another. Useful for mass population/synchronisation 
+ *
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
+ * The authzgroup arguments for sites should start with /site/SITEID, likewise for site groups etc
+ * 
+ * @param	sessionid			the sessionid of a valid session for the admin user
+ * @param	authzgroupid1		the authgroupid of the site you want to copy the role FROM
+ * @param	authzgroupid2		the authgroupid of the site you want to copy the role TO
+ * @param	roleid				the id of the role you want to copy
+ * @param	description			the description of the new role
+ * @return						success or RuntimeException
+ * @throws	RuntimeException			if not a super user, if new role cannot be created, if functions differ after the new role is made
+ *
+ */
+public String copyRole( String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description) throws RuntimeException
+{
+	return copyRole2(sessionid, authzgroupid1, authzgroupid2, roleid, description, false);
+	
+}
+
+
+/** 
+ * Gets all user accounts as XML. Currently returns userId, eid, displayName and type.
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @return		        	XML or exception
+ * @throws	RuntimeException		
+ *
+ * Optional sakai.properties:
+ * 	#specify the list of users to ignore separated by a comma, no spaces. Defaults to 'admin,postmaster'.
+ *	webservice.specialUsers=admin,postmaster
+ *
+ */
+public String getAllUsers(String sessionid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY admin is accessing this	
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS getAllUsers() failed. Restricted to admin users.");
+		throw new RuntimeException("WS failed. Restricted to admin users.");
+	}
+	
+	try {
+	
+		//get special users
+		String config = serverConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
+		String[] items = StringUtils.split(config, ',');
+		List<String> specialUsers = Arrays.asList(items);
+		
+		//get all users
+		List<User> allUsers = userDirectoryService.getUsers();
+		
+		//check size
+		if(allUsers == null || allUsers.size() == 0) {
+			return "<list/>";
+		}
+		
+		Document dom = Xml.createDocument();
+		Node list = dom.createElement("list");
+		dom.appendChild(list);
+		for (Iterator i = allUsers.iterator(); i.hasNext();) { 
+			User user = (User) i.next();
+			
+			//skip if this user is in the specialUser list
+			if(specialUsers.contains(user.getEid())) {
+				continue;
+			}
+			
+			Node item = dom.createElement("item");
+			Node userId = dom.createElement("userId");
+			userId.appendChild(dom.createTextNode(user.getId()));
+			Node eid = dom.createElement("eid");
+			eid.appendChild(dom.createTextNode(user.getEid()));
+			Node displayName = dom.createElement("displayName");
+			displayName.appendChild(dom.createTextNode(user.getDisplayName()));
+			Node type = dom.createElement("type");
+			type.appendChild(dom.createTextNode(user.getType()));
+			
+			item.appendChild(userId);
+			item.appendChild(eid);
+			item.appendChild(displayName);
+			item.appendChild(type);
+			list.appendChild(item);
+		}
+		
+		return Xml.writeDocumentToString(dom);
+
+	}
+	catch (Exception e) {  
+		LOG.error("WS getAllUsers(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return "<exception/>";
+	}
+	
+}
+
+/**
+ * Creates and returns the session ID for a given user. 
+ *
+ * The sessionid argument must be a valid session for a super user ONLY otherwise it will fail.
+ * The userid argument must be the EID (ie jsmith) of a valid user.
+ * This new sessionid can then be used with getSitesUserCanAccess() to get the sites for the given user.
+ * 
+ * @param	sessionid	the sessionid of a valid session for a super user
+ * @param	eid			the eid of the user you want to create a session for
+ * @param	wsonly		should the session created be tied to the web services only?
+ * 						the initial implementation of this will just set an attribute on the Session that identifies it as originating from the web services.
+ * 						but in essence it will be just like a normal session. However this attribute is used elsewhere for filtering for these web service sessions.
+ * @return				the sessionid for the user specified
+ * @throws	RuntimeException	if any data is missing,
+ * 						not super user, 
+ * 						or session cannot be established
+ */
+public String getSessionForWSUser(String sessionid, String eid, boolean wsonly) {
+	
+	Session session = establishSession(sessionid);
+	
+	//check that ONLY super user's are accessing this	
+	if(!securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS getSessionForUser(): Permission denied. Restricted to super users.");
+		throw new RuntimeException("WS getSessionForUser(): Permission denied. Restricted to super users.");
+	}
+	
+	try {
+				
+		//check for empty userid
+		if (StringUtils.isBlank(eid)) {
+			LOG.warn("WS getSessionForUser() failed. Param eid empty.");
+			throw new RuntimeException("WS failed. Param eid empty.");
+		}
+		
+		//if dealing with web service sessions, re-use is ok
+		if(wsonly) {
+			//do we already have a web service session for the given user? If so, reuse it.
+			List<Session> existingSessions = sessionManager.getSessions();
+			for(Session existingSession: existingSessions){
+				if(StringUtils.equals(existingSession.getUserEid(), eid)) {
+					
+					//check if the origin attribute, if set, is set for web services
+					String origin = (String)existingSession.getAttribute(SESSION_ATTR_NAME_ORIGIN);
+					if(StringUtils.equals(origin, SESSION_ATTR_VALUE_ORIGIN_WS)) {
+						LOG.warn("WS getSessionForUser() reusing existing session for: " + eid + ", session=" + existingSession.getId());
+						return existingSession.getId();
+					}
+				}
+			}
+		}
+		
+		//get ip address for establishing session
+        Message message = PhaseInterceptorChain.getCurrentMessage();
+        HttpServletRequest request = (HttpServletRequest) message.get(AbstractHTTPDestination.HTTP_REQUEST);
+        String ipAddress = request.getRemoteAddr();
+		
+		//start a new session
+		Session newsession = sessionManager.startSession();
+        sessionManager.setCurrentSession(newsession);
+		
+		//inject this session with new user values
+		User user = userDirectoryService.getUserByEid(eid);
+		newsession.setUserEid(eid);
+		newsession.setUserId(user.getId());
+		
+		//if wsonly, inject the origin attribute
+		if(wsonly) {
+			newsession.setAttribute(SESSION_ATTR_NAME_ORIGIN, SESSION_ATTR_VALUE_ORIGIN_WS);
+			LOG.warn("WS getSessionForUser() set origin attribute on session: " + newsession.getId());
+		}
+		
+		//register the session with presence
+        UsageSession usagesession = usageSessionService.startSession(user.getId(),ipAddress,"SakaiScript.jws getSessionForUser()");
+        
+        // update the user's externally provided realm definitions
+        authzGroupService.refreshUser(user.getId());
+
+        // post the login event
+        eventTrackingService.post(eventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN_WS, null, true));
+		
+		if (newsession == null){
+			LOG.warn("WS getSessionForUser() failed. Unable to establish session for userid=" + eid + ", ipAddress=" + ipAddress);
+			throw new RuntimeException("WS failed. Unable to establish session");
+		} else {
+			LOG.warn("WS getSessionForUser() OK. Established session for userid=" + eid + ", session=" + newsession.getId() + ", ipAddress=" + ipAddress);
+			return newsession.getId();
+		}
+	}
+	catch (Exception e) {  
+	 return e.getClass().getName() + " : " + e.getMessage();
+	}
+	
+}
+
+/**
+ * Alternate (original) form of getSessionForUser that creates normal sessions for users.
+ * @param	sessionid	the sessionid of a valid session for a super user
+ * @param	eid		the eid of the user you want to create a session for
+ * @return				the sessionid for the user specified
+ * @throws	RuntimeException	if any data is missing,
+ * 						not super user, 
+ * 						or session cannot be established
+ */
+public String getSessionForUser(String sessionid, String eid) throws RuntimeException
+{
+	return getSessionForWSUser(sessionid, eid, false);
+}
+
+
+
+/**
+ * Create a new page in a site. A page holds one or more tools and is shown in the main navigation section. You will still need to add tools to this page.
+ *
+ * @param 	sessionid 		the id of a valid session
+ * @param 	siteid 			the id of the site to add the page to
+ * @param 	pagetitle 		the title of the new page
+ * @param 	pagelayout 		single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		and integer specifying the position within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ * @return					success or exception message
+ *
+ */
+public String addNewPageToSite2(String sessionid, String siteid, String pagetitle, int pagelayout, int position, boolean popup) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+
+		Site siteEdit = null;
+		SitePage sitePageEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		sitePageEdit = siteEdit.addPage();
+		sitePageEdit.setTitle(pagetitle);
+		sitePageEdit.setLayout(pagelayout);
+		
+		//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+		//deal with this here and just set to the number of pages - 1 so its at the bottom.
+		int numPages = siteEdit.getPages().size();
+		if(position > numPages) {
+			position = numPages-1;
+		}		
+		
+		sitePageEdit.setPosition(position);
+		sitePageEdit.setPopup(popup);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Gets the user ID for a given eid.
+ *
+ * @param	sessionid	the sessionid of a valid session for a super user or the sessionid for the user making the request for their own user ID
+ * @param	eid			the login username (ie jsmith26) of the user you want the user ID for
+ * @return				the user ID (generally a UUID) for the user specified or an empty string ""
+ * @throws	RuntimeException	if not a super user and the eid supplied does not match the eid of the session, if user does not exist
+ *
+ */ 
+public String getUserId(String sessionid, String eid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	//if eids don't match and we aren't a super user, abort	
+	if(!StringUtils.equals(eid, session.getUserEid()) && !securityService.isSuperUser(session.getUserId())) {
+		LOG.warn("WS getUserId(): Permission denied. Restricted to super users or own user.");
+		throw new RuntimeException("WS getUserId(): Permission denied. Restricted to super users or own user.");
+	}
+	
+	try {
+		return userDirectoryService.getUserId(eid);
+	} catch (Exception e) {  
+	 	LOG.warn("WS getUserId() failed for user: " + eid);
+		return "";
+	}
+}
+
+
+    /**
+ * Gets the user ID associated with the sessionid
+ * 
+ * @param sessionid		sessionid for a valid session.
+ * @return				the user ID (generally a UUID) for the user associated with the given session, or an empty string ""
+ * @throws RuntimeException	
+ */
+public String getUserIdForCurrentUser(String sessionid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	try {
+		return session.getUserId();
+	} catch (Exception e) {  
+		e.printStackTrace();
+	 	LOG.warn("WS getUserId() failed for session: " + sessionid);
+		return "";
+	}
+}
+
+/**
+ * Return XML document listing all pages and tools in those pages for a given site.
+ * The session id must be of a valid, active user in that site, or a super user, or it will throw an exception.
+ * If a page is hidden in a site, the page and all tools in that page will be skipped from the returned document, as they are in the portal.
+ * Super user's can request any site to retrieve the full list.
+ *
+ * @param 	sessionid 		the session id of a user in a site, or a super user
+ * @param 	siteid 			the site to retrieve the information for
+ * @return					xml or an empty list <site/>. The return XML format is below:
+ *<site id="9ec48d9e-b690-4090-a300-10a44ed7656e">
+ *	<pages>
+ *		<page id="ec1b0ab8-90e8-4d4d-bf64-1e586035f08f">
+ *			<page-title>Home</page-title>
+ *			<tools>
+ *				<tool id="dafd2a4d-8d3f-4f4c-8e12-171968b259cd">
+ *					<tool-id>sakai.iframe.site</tool-id>
+ *					<tool-title>Site Information Display</tool-title>
+ *				</tool>
+ *				...
+ *			</tools>
+ *		</page>
+ *		<page>
+ *			...
+ *		</page>
+ *		...
+ *  </pages>
+ *</site>
+ *
+ * @throws	RuntimeException	if not a super user and the user attached to the session is not in the site, if site does not exist
+ *
+ */
+public String getPagesAndToolsForSiteForCurrentUser(String sessionid, String siteid) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	//check if site exists
+	Site site;
+	try {
+		site = siteService.getSite(siteid);
+	} catch (Exception e) {
+		LOG.warn("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
+		throw new RuntimeException("WS getPagesAndToolsForSite(): Error looking up site: " + siteid + ":" + e.getClass().getName() + " : " + e.getMessage());
+	}
+	
+	String userId = session.getUserId();
+	
+	//check if super user
+	boolean isSuperUser = false;
+	if(securityService.isSuperUser(userId)) {
+		isSuperUser = true;
+	}
+	
+	//if not super user, check user is a member of the site, and get their Role
+	Role role;
+	if(!isSuperUser) {
+		Member member = site.getMember(userId);
+		if(member == null || !member.isActive()) {
+			LOG.warn("WS getPagesAndToolsForSite(): User: " + userId + " does not exist in site : " + siteid);
+			throw new RuntimeException("WS getPagesAndToolsForSite(): User: " + userId + " does not exist in site : " + siteid);
+		}
+		role = member.getRole();
+	}
+	
+	
+	
+	//get list of pages in the site, if none, return empty list
+	List<SitePage> pages = site.getPages();
+	if(pages.isEmpty()) {
+		return "<site id=\"" + site.getId() + "\"/>";
+	}
+	
+	//site node
+	Document dom = Xml.createDocument();
+	Element siteNode = dom.createElement("site");
+	Attr siteIdAttr = dom.createAttribute("id");
+	siteIdAttr.setNodeValue(site.getId());
+	siteNode.setAttributeNode(siteIdAttr);
+	
+	//pages node
+	Element pagesNode = dom.createElement("pages");
+	
+	for(SitePage page: pages) {
+		
+		//page node
+		Element pageNode = dom.createElement("page");
+		Attr pageIdAttr = dom.createAttribute("id");
+		pageIdAttr.setNodeValue(page.getId());
+		pageNode.setAttributeNode(pageIdAttr);
+		
+		//pageTitle
+		Element pageTitleNode = dom.createElement("page-title");
+		pageTitleNode.appendChild(dom.createTextNode(page.getTitle()));
+		
+		//get tools in page
+		List<ToolConfiguration> tools = page.getTools();
+		
+		Element toolsNode = dom.createElement("tools");
+		
+		boolean includePage = true;
+		for(ToolConfiguration toolConfig: tools) {
+			//if we not a superAdmin, check the page properties
+			//if any tool on this page is hidden, skip the rest of the tools and exclude this page from the output
+			//this makes the behaviour consistent with the portal
+			
+			//if not superUser, process  tool function requirements
+			if(!isSuperUser) {
+			
+				//skip processing tool if we've skipped tools previously on this page
+				if(!includePage) {
+					continue;
+				}
+				
+				//skip this tool if not visible, ultimately hiding the whole page
+				if(!toolManager.isVisible(site, toolConfig)) {
+					includePage = false;
+					break;
+				}
+			}
+			
+			//if we got this far, add the details about the tool to the document
+			Element toolNode = dom.createElement("tool");
+			
+			//tool uuid
+			Attr toolIdAttr = dom.createAttribute("id");
+			toolIdAttr.setNodeValue(toolConfig.getId());
+			toolNode.setAttributeNode(toolIdAttr);
+			
+			//registration (eg sakai.profile2)
+			Element toolIdNode = dom.createElement("tool-id");
+			toolIdNode.appendChild(dom.createTextNode(toolConfig.getToolId()));
+			toolNode.appendChild(toolIdNode);
+			
+			Element toolTitleNode = dom.createElement("tool-title");
+			toolTitleNode.appendChild(dom.createTextNode(toolConfig.getTitle()));
+			toolNode.appendChild(toolTitleNode);
+	
+			toolsNode.appendChild(toolNode);
+			
+		}
+		
+		//if the page is not hidden, add the elements
+		if(includePage) {
+			pageNode.appendChild(pageTitleNode);
+			pageNode.appendChild(toolsNode);
+			pagesNode.appendChild(pageNode);
+		}
+	}
+	
+	//add the main nodes
+	siteNode.appendChild(pagesNode);
+	dom.appendChild(siteNode);
+	
+	return Xml.writeDocumentToString(dom);
+}
+
+/**
+ * Alternative method signature which will first get a session for the given user, 
+ * and then get the list of pages & tools visible to that user in the site.
+ * 
+ * @param sessionid		must be a valid session for a superuser
+ * @param userid		eid, eg jsmith26
+ * @param siteid		site to get the list for.
+ * @return
+ * @throws RuntimeException
+ */
+public String getPagesAndToolsForSite(String sessionid, String userid, String siteid) throws RuntimeException
+{
+	
+	//get a session for the other user, reuse if possible
+	String newsessionid = getSessionForWSUser(sessionid, userid, true);
+	
+	//might be an exception that was returned, so check session is valid.
+	Session session = establishSession(newsessionid);
+	
+	//ok, so hand over to main method to get the list for us
+	return getPagesAndToolsForSiteForCurrentUser(newsessionid, siteid);
+	
+}
+
+/**
+ * Copy the resources from a site to another site.
+ *
+ * @param 	sessionid 			the id of a valid session
+ * @param 	sourcesiteid		the id of the source site
+ * @param 	destinationsiteid 	the id of the destiny site
+ * @return						success or exception message
+ *
+ */
+public String copyResources( String sessionid, String sourcesiteid, String destinationsiteid ) throws RuntimeException{
+
+	Session session = establishSession(sessionid);
+
+	try {
+
+		//check if both sites exist
+		Site site = siteService.getSite(sourcesiteid);
+		site = siteService.getSite(destinationsiteid);
+
+		// If not admin, check maintainer membership in the source site
+		if (!securityService.isSuperUser(session.getUserId()) && 
+			!securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+			LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+			throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+		}
+
+		//transfer content
+		transferCopyEntities(
+			"sakai.resources",
+			contentHostingService.getSiteCollection(sourcesiteid),
+			contentHostingService.getSiteCollection(destinationsiteid));
+
+	}
+	catch (Exception e) {  
+		LOG.error("WS copyResources(): " + e.getClass().getName() + " : " + e.getMessage());
+		return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+/**
+ * Change the short description of a site
+ *
+ * @param	sessionid			the id of a valid session
+ * @param	siteid	   			the id of the site you want to change the title of
+ * @param	shortDescription	the new short description
+ * @return		       			success or string containing error
+ * @throws	RuntimeException	
+ *
+ */
+public String changeSiteShortDescription( String sessionid, String siteid, String shortDescription) {
+	
+	Session session = establishSession(sessionid);
+	
+	try {
+		
+	    // check short description
+	    if (shortDescription != null) {
+	        StringBuilder alertMsg = new StringBuilder();
+	        shortDescription = FormattedText.processFormattedText(shortDescription, alertMsg);
+	        if (shortDescription == null) {
+	        	throw new RuntimeException("Site short description markup rejected: " + alertMsg.toString());
+	        }
+	    }            
+	    
+		Site siteEdit = null;
+		siteEdit = siteService.getSite(siteid);
+		siteEdit.setShortDescription(shortDescription);
+		siteService.save(siteEdit);
+	
+	}
+	catch (Exception e) {  
+		LOG.error("WS changeSiteShortDescription(): " + e.getClass().getName() + " : " + e.getMessage());
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+	return "success";
+}
+
+
+/** 
+ * Adds a tool to a site, includes adding a page.
+ *
+ * @param	sessionid		the id of a valid session for the admin user
+ * @param	siteid			the id of the site to add the page to
+ * @param	toolid			the id of the tool you want to add (ie sakai.profile2)
+ * @param	pagetitle		the desired title for the page shown in the site navigation. If null, will use default from tool configuration.
+ * @param	tooltitle		the desired title for the tool shown in the main portlet.  If null, will use default from tool configuration. Custom tool titles only respected if you also have a custom page title.
+ * @param 	pagelayout 		if you want the page to be single or double column (0 or 1). Any other value will revert to 0.
+ * @param	position		integer specifying the position of this page within other pages on the site (0 means top, for right at the bottom a large enough number, ie 99)
+ * @param	popup			boolean for if it should be a popup window or not
+ *
+ * @return		        	success or exception
+ * @throws	RuntimeException		
+ *
+ */
+public String addToolAndPageToSite(String sessionid, String siteid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) throws RuntimeException
+{
+	Session session = establishSession(sessionid);
+	
+	//do we want a custom title, or use the defaults from the tool?
+	boolean customTitle = false;
+	if(StringUtils.isNotBlank(pagetitle)) {
+		customTitle=true;
+	}
+	
+	try {
+		
+		//get site
+		Site siteEdit = siteService.getSite(siteid);
+		
+		//add the page
+		SitePage sitePageEdit = siteEdit.addPage();
+		
+		if(customTitle) {
+			sitePageEdit.setTitle(pagetitle);
+			sitePageEdit.setTitleCustom(true);
+		}
+		sitePageEdit.setLayout(pagelayout);
+			
+		//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+		//deal with this here and just set to the number of pages - 1 so its at the bottom.
+		int numPages = siteEdit.getPages().size();
+		if(position > numPages) {
+			position = numPages-1;
+		}
+			
+		sitePageEdit.setPosition(position);
+		sitePageEdit.setPopup(popup);
+		
+		// Check that the tool is visible (not stealthed) and available for this site type (category)
+		if (!securityService.isSuperUser(session.getUserId())) {
+
+			Set categories = new HashSet<String>();
+			Set<Tool> visibleTools = toolManager.findTools(categories, null);
+			
+			boolean toolVisible = false;
+			for (Tool tool : visibleTools) {
+				if (tool.getId().equals(toolid)) {
+					toolVisible = true;
+				}
+			}
+			
+			if (!toolVisible) {
+				LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
+				throw new RuntimeException("WS addToolAndPageToSite(): Permission denied. Must be super user to add a stealthed tool to a site.");
+			}
+
+			categories.add(siteEdit.getType());		
+			Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+			boolean toolAvailable = false;
+			for (Tool tool : availableTools) {
+				if (tool.getId().equals(toolid)) {
+					toolAvailable = true;
+				}
+			}
+			
+			if (!toolAvailable) {
+				LOG.warn("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+				throw new RuntimeException("WS addToolAndPageToSite(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+			}
+		}
+		
+		//add the tool
+		ToolConfiguration tool = sitePageEdit.addTool();
+			
+		tool.setTool(toolid, toolManager.getTool(toolid));
+		
+		//set custom tool title if we have a custom page title and custom tool title is sent, otherwise set default from tool config
+		if(customTitle && StringUtils.isNotBlank(tooltitle)) {
+			tool.setTitle(tooltitle);
+		} else {
+			tool.setTitle(toolManager.getTool(toolid).getTitle());
+		}
+			
+		siteService.save(siteEdit);
+		LOG.info("Page and tool added for site:" + siteid);
+		
+		return "success";
+	}
+	catch (Exception e) {  
+		LOG.error("WS addToolAndPageToSite(): " + e.getClass().getName() + " : " + e.getMessage());
+		e.printStackTrace();
+	 	return e.getClass().getName() + " : " + e.getMessage();
+	}
+}
+
+
+/**
+ * Get a user property.
+ * 
+ * @param sessionid		valid session
+ * @param eid			id of the user to query
+ * @param propertyName	name of the property to retrieve
+ * @return
+ * @throws RuntimeException
+ */
+public String getUserProperty(String sessionid, String eid, String propertyName) throws RuntimeException
+{
+    Session session = establishSession(sessionid);
+    try {
+        User user = userDirectoryService.getUserByEid(eid);
+        return user.getProperties().getProperty(propertyName);
+    } catch (Exception e) {
+        LOG.error("WS getUserProperty() failed for user: " + eid + " : " + e.getClass().getName() + " : " + e.getMessage());
+        return "";
+    }
+}
+
+/**
+ * Find Sites that have a particular propertySet regardless of the value - Returns empty <list/> if not found
+ *
+ * @param sessionid		valid session
+ * @param propertyName		name of the property to search for.
+ * @return Sites as xml
+ */
+public String findSitesByProperty(String sessionid, String propertyName) {
+	//register the session with presence
+	Session s = establishSession(sessionid);
+
+	Map propertyCriteria = new HashMap();
+	
+	// search for anything that has propertyName set, "%" will do it
+	propertyCriteria.put(propertyName, "%");
+	return findSites(propertyCriteria);
+}
+
+/**
+ * Find Sites with a property set to a specified value - Returns empty <list/> if not found
+ *
+ * @param sessionid		valid session
+ * @param propertyName		name of the property to search for
+ * @param propertyValue	value that the property much have to satisfy the query
+ * @return Sites as xml
+ */
+public String findSitesByPropertyValue(String sessionid, String propertyName, String propertyValue) {
+	//register the session with presence
+	Session s = establishSession(sessionid);
+	
+	Map propertyCriteria = new HashMap();
+
+	propertyCriteria.put(propertyName, propertyValue);
+	return findSites(propertyCriteria);
+}
+
+/**
+ * Helper method to find sites based on a property criteria
+ * 
+ * @param propertyCriteria	site properties with values that wil lbe used in the search
+ * @returnSites as xml
+ */
+private String findSites(Map propertyCriteria) {
+
+     Document dom = Xml.createDocument();
+     Node list = dom.createElement("list");
+     dom.appendChild(list);
+
+     try {
+         List siteList = siteService.getSites(SelectionType.ANY, null, null,
+                 propertyCriteria, SortType.NONE, null);
+
+         if (siteList != null && siteList.size() > 0) {
+             for (Iterator i=siteList.iterator(); i.hasNext();) {
+                 Site site = (Site) i.next();
+                 Node item = dom.createElement("site");
+                 Node siteId = dom.createElement("siteId");
+                 siteId.appendChild( dom.createTextNode(site.getId()) );
+                 Node siteTitle = dom.createElement("siteTitle");
+                 siteTitle.appendChild( dom.createTextNode(site.getTitle()) );
+                 item.appendChild(siteId);
+                 item.appendChild(siteTitle);
+                 if (site.getProperties() != null) {
+                     for (Iterator j= site.getProperties().getPropertyNames(); j.hasNext(); ) {
+                         String name = (String) j.next();
+                         Node siteProperty = dom.createElement(name);
+                         siteProperty.appendChild( dom.createTextNode((String)site.getProperties().get(name)) );
+                         item.appendChild(siteProperty);
+                     }
+                 }
+                 list.appendChild(item);
+             }
+         }
+     } catch (Throwable t) {
+             LOG.warn(this + ".findSite: Error encountered" + t.getMessage(), t);
+     }
+
+     return Xml.writeDocumentToString(dom);
+ }
+
+
+
+ /**
+  * Get the placement ID for a given tool in the given site
+  * 
+  * @param sessionid	valid session
+  * @param siteId		ID of the site we are looking at
+  * @param toolId		tool id eg. "sakai.gradebook.gwt.rpc", we are looking for
+  * @return first placement id found in the site for the given tool. If the tool/site is not found, the response will be empty.
+  * @throws RuntimeException
+  */
+ public String getPlacementId(String sessionid, String siteId, String toolId) {
+     // register the session with presence
+     Session s = establishSession(sessionid);
+     try {
+         Site site = siteService.getSite(siteId);
+         // LOG.warn("found site" + siteId);
+         if (site != null) {
+
+             ToolConfiguration toolConfiguration = site.getToolForCommonId(toolId);
+             if (toolConfiguration != null) {
+                 return toolConfiguration.getId();
+             }
+
+         }
+     } catch (Throwable t) {
+         LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
+     }
+     return null;
+
+ }
+ 
+ /**
+  * Copy the content from a site to another site. It creates a list of tools in the source site and transfers that content
+  * to the destination site.
+  *
+  * @param 	sessionid 			the id of a valid session
+  * @param 	sourcesiteid		the id of the source site
+  * @param 	destinationsiteid 	the id of the destiny site
+  * @return						success or exception message
+  */
+ public String copySiteContent(String sessionid, String sourcesiteid, String destinationsiteid) throws RuntimeException{
+
+ 	Session session = establishSession(sessionid);
+
+ 	try {
+
+ 		//check if both sites exist
+ 		Site site = siteService.getSite(sourcesiteid);
+ 		site = siteService.getSite(destinationsiteid);
+
+ 		//check if super user
+ 		boolean isSuperUser = false;
+ 		if (securityService.isSuperUser(session.getUserId())) {
+ 			isSuperUser = true;
+ 		}
+
+ 		// If not admin, check maintainer membership in the source site
+ 		if (!isSuperUser && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+ 			LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+ 			throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+ 		}
+
+ 		List<SitePage> pages = site.getPages();
+ 		Set<String> toolIds = new HashSet();
+ 		for(SitePage page: pages) {
+
+ 			//get tools in page
+ 			List<ToolConfiguration> tools = page.getTools();
+ 			boolean includePage = true;
+ 			for(ToolConfiguration toolConfig: tools) {
+ 				//if we not a superAdmin, check the page properties
+ 				//if any tool on this page is hidden, skip the rest of the tools and exclude this page from the output
+ 				//this makes the behaviour consistent with the portal
+
+ 				//if not superUser, process  tool function requirements
+ 				if(!isSuperUser) {
+
+ 					//skip processing tool if we've skipped tools previously on this page
+ 					if(!includePage) {
+ 						continue;
+ 					}
+
+ 					//skip this tool if not visible, ultimately hiding the whole page
+ 					if(!toolManager.isVisible(site, toolConfig)) {
+ 						includePage = false;
+ 						break;
+ 					}
+ 				}
+ 				toolIds.add(toolConfig.getToolId());
+ 			}
+ 		}
+
+ 		for (String toolId : toolIds) {
+ 			//transfer content
+ 			transferCopyEntities(
+ 				toolId,
+ 				contentHostingService.getSiteCollection(sourcesiteid),
+ 				contentHostingService.getSiteCollection(destinationsiteid));
+ 		}
+ 	}
+ 	catch (Exception e) {
+ 		LOG.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+ 		return e.getClass().getName() + " : " + e.getMessage();
+ 	}
+ 	return "success";
+ }
+ 
+ /**
+   * Copy the content from a site to another site for only the content of the specified tool
+   *
+   * @param 	sessionid 			the id of a valid session
+   * @param 	sourcesiteid		the id of the source site
+   * @param 	destinationsiteid 	the id of the destiny site
+   * @param 	toolid		        the tool id for which content should be copied
+   * @return						success or exception message
+  */
+ public String copySiteContentForTool(String sessionid, String sourcesiteid, String destinationsiteid, String toolid) throws RuntimeException{
+
+ 	Session session = establishSession(sessionid);
+
+ 	try {
+ 		//check if both sites exist
+ 		Site site = siteService.getSite(sourcesiteid);
+ 		site = siteService.getSite(destinationsiteid);
+
+ 		// If not admin, check maintainer membership in the source site
+ 		if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference())) {
+ 			LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+ 			throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+ 		}
+
+ 		//transfer content
+ 		transferCopyEntities(
+ 			toolid,
+ 			contentHostingService.getSiteCollection(sourcesiteid),
+ 			contentHostingService.getSiteCollection(destinationsiteid));
+ 	}
+ 	catch (Exception e) {
+ 		LOG.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+ 		return e.getClass().getName() + " : " + e.getMessage();
+ 	}
+ 	return "success";
+ }
+
+
+    public String setUserLanguage(String sessionid, String eid, String lang) {
+        Session session = establishSession(sessionid);
+        try {
+            String userid = userDirectoryService.getUserByEid(eid).getId();
+            PreferencesEdit m_edit = null;
+            try {
+                m_edit = preferencesService.edit(userid);
+            } catch (IdUnusedException e) {
+                try {
+                    m_edit = preferencesService.add(userid);
+                } catch (Exception ee) {
+                    LOG.error("WS setUserLanguage(): " + ee.getClass().getName() + " : " + ee.getMessage());
+                }
+            } catch (Exception e) {
+                LOG.error("WS setUserLanguage(): " + e.getClass().getName() + " : " + e.getMessage());
+            }
+            if (m_edit != null) {
+                ResourcePropertiesEdit props = m_edit.getPropertiesEdit(ResourceLoader.APPLICATION_ID);
+                props.addProperty(ResourceLoader.LOCALE_KEY, getLocaleFromString(lang).toString());
+                preferencesService.commit(m_edit);
+            }
+        } catch (Exception e) {
+            LOG.error("WS setUserLanguage(): " + e.getClass().getName() + " : " + e.getMessage());
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+        return "success";
+    }
+
+    private Locale getLocaleFromString(String localeString) {
+        String[] locValues = localeString.trim().split("_");
+        if (locValues.length >= 3)
+            return new Locale(locValues[0], locValues[1], locValues[2]);
+        // language, country, variant 
+        else if (locValues.length == 2)
+            return new Locale(locValues[0], locValues[1]);
+        // language, country 
+        else if (locValues.length == 1) 
+            return new Locale(locValues[0]);
+        // language 
+        else 
+            return Locale.getDefault();
+    }
+
+    /**
+     * Transfer a copy of all entites from another context for any entity
+     * producer that claims this tool id.
+     *
+     * @param toolId      The tool id.
+     * @param fromContext The context to import from.
+     * @param toContext   The context to import into.
+     */
+    private void transferCopyEntities(String toolId, String fromContext, String toContext) {
+        // offer to all EntityProducers
+        for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext(); ) {
+            EntityProducer ep = (EntityProducer) i.next();
+            if (ep instanceof EntityTransferrer) {
+                try {
+                    EntityTransferrer et = (EntityTransferrer) ep;
+
+                    // if this producer claims this tool id
+                    if (ArrayUtil.contains(et.myToolIds(), toolId)) {
+                        et.transferCopyEntities(fromContext, toContext, new ArrayList());
+                    }
+                } catch (Throwable t) {
+                    LOG.warn(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
+                }
+            }
+        }
+    }
+
+
+}

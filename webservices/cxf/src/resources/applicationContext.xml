@@ -1,16 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:jaxws="http://cxf.apache.org/jaxws"
-       xsi:schemaLocation=" http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+  xmlns:jaxws="http://cxf.apache.org/jaxws"
+  xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxrs
+http://cxf.apache.org/schemas/jaxrs.xsd
+http://cxf.apache.org/jaxws
+http://cxf.apache.org/schemas/jaxws.xsd">
 
+  <import resource="classpath:META-INF/cxf/cxf.xml" />
+  <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
+  <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
 
-    <import resource="classpath:META-INF/cxf/cxf.xml"/>
-    <import resource="classpath:META-INF/cxf/cxf-servlet.xml"/>
+    <!-- JAX-RS -->
+    <jaxrs:server id="SakaiLoginRS" address="/">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiLogin"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxws:endpoint id="SakaiLogin"
                     implementor="#org.sakaiproject.webservices.SakaiLogin"
                     address="/SakaiLogin"/>
+
+    <jaxws:endpoint id="SakaiScript"
+                    implementor="#org.sakaiproject.webservices.SakaiScript"
+                    address="/SakaiScript"/>
+
 
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLoginImpl" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -18,5 +37,9 @@
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
+
+    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScriptImpl" init-method="init">
+    </bean>
+
 
 </beans>

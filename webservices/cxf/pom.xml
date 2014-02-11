@@ -20,6 +20,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-frontend-jaxws</artifactId>
@@ -70,7 +76,10 @@
             <artifactId>scheduler-api</artifactId>
             <scope>provided</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
         <!--  external dependencies -->
         <dependency>
             <groupId>log4j</groupId>
@@ -80,6 +89,10 @@
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
         </dependency>
     </dependencies>
 
@@ -102,17 +115,15 @@
                         <id>generate-sources</id>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <sourceRoot>src/generated/</sourceRoot>
                             <wsdlOptions>
                                 <wsdlOption>
                                     <extraargs>
                                         <extraarg>-impl</extraarg>
-                                        <!--extraarg>-p com.blah</extraarg-->
-                                        <!--extraarg>-verbose</extraarg-->
-                                        <!--extraarg>-autoNameResolution</extraarg-->
+                                        <extraarg>-autoNameResolution</extraarg>
 
                                     </extraargs>
                                     <wsdl>${basedir}/src/resources/wsdl/SakaiLogin.wsdl</wsdl>
+                                    <wsdl>${basedir}/src/resources/wsdl/SakaiScript.wsdl</wsdl>
 
                                 </wsdlOption>
                             </wsdlOptions>
