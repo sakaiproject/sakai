@@ -42,6 +42,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     implementor="#org.sakaiproject.webservices.Assignments"
                     address="/Assignments"/>
 
+    <jaxws:endpoint id="ContentHosting"
+                    implementor="#org.sakaiproject.webservices.ContentHosting"
+                    address="/ContentHosting"/>
+
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -60,6 +64,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.ContentHosting" class="org.sakaiproject.webservices.ContentHosting" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 
