@@ -3,29 +3,79 @@
 <!--WSDL created by Apache Axis version: 1.4
 Built on Apr 22, 2006 (06:55:48 PDT)-->
 
-   <wsdl:message name="addNewPageToSiteResponse">
+   <wsdl:message name="copySiteContentForOneToolResponse">
 
-      <wsdl:part name="addNewPageToSiteReturn" type="xsd:string"/>
+      <wsdl:part name="copySiteContentForOneToolReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="setUserLanguageRequest">
+   <wsdl:message name="getCurrentUserEmailRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="eid" type="xsd:string"/>
+   </wsdl:message>
 
-      <wsdl:part name="lang" type="xsd:string"/>
+   <wsdl:message name="addMemberToSiteWithRoleResponse">
+
+      <wsdl:part name="addMemberToSiteWithRoleReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="removeSiteResponse">
+   <wsdl:message name="changeSiteDescriptionRequest">
 
-      <wsdl:part name="removeSiteReturn" type="xsd:string"/>
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="description" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="changeUserNameRequest">
+   <wsdl:message name="getSitesCurrentUserCanAccessRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewSiteResponse">
+
+      <wsdl:part name="addNewSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeSitePropertyResponse">
+
+      <wsdl:part name="removeSitePropertyReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addMemberToGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="groupid" type="xsd:string"/>
+
+      <wsdl:part name="userid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSitesUserCanAccessResponse">
+
+      <wsdl:part name="getSitesUserCanAccessReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewUserRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
@@ -35,41 +85,35 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       <wsdl:part name="lastname" type="xsd:string"/>
 
+      <wsdl:part name="email" type="xsd:string"/>
+
+      <wsdl:part name="type" type="xsd:string"/>
+
+      <wsdl:part name="password" type="xsd:string"/>
+
    </wsdl:message>
 
-   <wsdl:message name="getUserIdResponse1">
-
-      <wsdl:part name="getUserIdReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserIdRequest">
+   <wsdl:message name="changeSiteJoinableRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-   </wsdl:message>
+      <wsdl:part name="siteid" type="xsd:string"/>
 
-   <wsdl:message name="removeAuthzGroupResponse">
+      <wsdl:part name="joinable" type="xsd:boolean"/>
 
-      <wsdl:part name="removeAuthzGroupReturn" type="xsd:string"/>
+      <wsdl:part name="joinerrole" type="xsd:string"/>
 
-   </wsdl:message>
-
-   <wsdl:message name="getSessionForUserResponse1">
-
-      <wsdl:part name="getSessionForUserReturn" type="xsd:string"/>
+      <wsdl:part name="publicview" type="xsd:boolean"/>
 
    </wsdl:message>
 
-   <wsdl:message name="checkForUserRequest">
+   <wsdl:message name="getGroupsInSiteResponse">
 
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
+      <wsdl:part name="getGroupsInSiteReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="setRoleForAuthzGroupMaintenanceRequest">
+   <wsdl:message name="allowFunctionForRoleRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
@@ -77,99 +121,59 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       <wsdl:part name="roleid" type="xsd:string"/>
 
-   </wsdl:message>
-
-   <wsdl:message name="getSessionForUserResponse">
-
-      <wsdl:part name="getSessionForUserReturn" type="xsd:string"/>
+      <wsdl:part name="functionname" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getSitePropertyResponse">
+   <wsdl:message name="copySiteContentResponse">
 
-      <wsdl:part name="getSitePropertyReturn" type="xsd:string"/>
+      <wsdl:part name="copySiteContentReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="removeAllRolesFromAuthzGroupRequest">
+   <wsdl:message name="copyCalendarEventsRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
+      <wsdl:part name="sourceSiteId" type="xsd:string"/>
+
+      <wsdl:part name="targetSiteId" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getUsersInAuthzGroupRequest">
+   <wsdl:message name="getUserPropertyRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getPlacementIdResponse">
-
-      <wsdl:part name="getPlacementIdReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyResourcesResponse">
-
-      <wsdl:part name="copyResourcesReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyResourcesRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="sourcesiteid" type="xsd:string"/>
-
-      <wsdl:part name="destinationsiteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="isSiteJoinableResponse">
-
-      <wsdl:part name="isSiteJoinableReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeMemberFromSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
 
       <wsdl:part name="eid" type="xsd:string"/>
 
-   </wsdl:message>
-
-   <wsdl:message name="addMemberToGroupResponse">
-
-      <wsdl:part name="addMemberToGroupReturn" type="xsd:boolean"/>
+      <wsdl:part name="propertyName" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getUserDisplayNameRequest1">
+   <wsdl:message name="copyRoleRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-   </wsdl:message>
+      <wsdl:part name="authzgroupid1" type="xsd:string"/>
 
-   <wsdl:message name="getAllUsersResponse">
+      <wsdl:part name="authzgroupid2" type="xsd:string"/>
 
-      <wsdl:part name="getAllUsersReturn" type="xsd:string"/>
+      <wsdl:part name="roleid" type="xsd:string"/>
 
-   </wsdl:message>
+      <wsdl:part name="description" type="xsd:string"/>
 
-   <wsdl:message name="checkForUserInAuthzGroupResponse">
-
-      <wsdl:part name="checkForUserInAuthzGroupReturn" type="xsd:boolean"/>
+      <wsdl:part name="removeBeforeSync" type="xsd:boolean"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getSessionForUserRequest1">
+   <wsdl:message name="getAllSitesForUserResponse">
+
+      <wsdl:part name="getAllSitesForUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSessionForUserRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
@@ -179,7 +183,357 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    </wsdl:message>
 
-   <wsdl:message name="disallowAllFunctionsForRoleRequest">
+   <wsdl:message name="addNewToolToAllWorkspacesRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="toolid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="tooltitle" type="xsd:string"/>
+
+      <wsdl:part name="pagelayout" type="xsd:int"/>
+
+      <wsdl:part name="position" type="xsd:int"/>
+
+      <wsdl:part name="popup" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="isSiteJoinableRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForUserResponse">
+
+      <wsdl:part name="checkForUserReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUsersInAuthzGroupWithRoleResponse">
+
+      <wsdl:part name="getUsersInAuthzGroupWithRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getGroupsInSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUsersInAuthzGroupResponse">
+
+      <wsdl:part name="getUsersInAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPlacementIdRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteId" type="xsd:string"/>
+
+      <wsdl:part name="toolId" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkSessionRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserIdResponse">
+
+      <wsdl:part name="getUserIdReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteSkinRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="skin" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addConfigPropertyToToolResponse">
+
+      <wsdl:part name="addConfigPropertyToToolReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeUserResponse">
+
+      <wsdl:part name="removeUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForEmptyRolesInAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForSiteResponse">
+
+      <wsdl:part name="checkForSiteReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteDescriptionResponse">
+
+      <wsdl:part name="getSiteDescriptionReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="disallowAllFunctionsForRoleResponse">
+
+      <wsdl:part name="disallowAllFunctionsForRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="findSitesByPropertyValueRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="propertyName" type="xsd:string"/>
+
+      <wsdl:part name="propertyValue" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserInfoResponse">
+
+      <wsdl:part name="changeUserInfoReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAllSitesForCurrentUserResponse">
+
+      <wsdl:part name="getAllSitesForCurrentUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewUserWithSpecificIdResponse">
+
+      <wsdl:part name="addNewUserWithSpecificIdReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSitePropertyRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="propname" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserPasswordResponse">
+
+      <wsdl:part name="changeUserPasswordReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removePageFromSiteResponse">
+
+      <wsdl:part name="removePageFromSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeUserRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="findSitesByPropertyRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="propertyName" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getNormalSessionForUserRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copySiteContentForOneToolRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="sourcesiteid" type="xsd:string"/>
+
+      <wsdl:part name="destinationsiteid" type="xsd:string"/>
+
+      <wsdl:part name="toolid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteShortDescriptionRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="shortDescription" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addGroupToSiteResponse">
+
+      <wsdl:part name="addGroupToSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getCurrentUserDisplayNameResponse">
+
+      <wsdl:part name="getCurrentUserDisplayNameReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserTypeResponse">
+
+      <wsdl:part name="changeUserTypeReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserTypeRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="type" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserEmailResponse">
+
+      <wsdl:part name="changeUserEmailReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addConfigPropertyToPageRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="propname" type="xsd:string"/>
+
+      <wsdl:part name="propvalue" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserIdForCurrentUserResponse">
+
+      <wsdl:part name="getUserIdForCurrentUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeMemberFromAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewPageToSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="pagelayout" type="xsd:int"/>
+
+      <wsdl:part name="position" type="xsd:int"/>
+
+      <wsdl:part name="popup" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSitesCurrentUserCanAccessResponse">
+
+      <wsdl:part name="getSitesCurrentUserCanAccessReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewToolToAllWorkspacesResponse">
+
+      <wsdl:part name="addNewToolToAllWorkspacesReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserTypeResponse">
+
+      <wsdl:part name="getUserTypeReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteTitleResponse">
+
+      <wsdl:part name="getSiteTitleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="disallowFunctionForRoleResponse">
+
+      <wsdl:part name="disallowFunctionForRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserDisplayNameResponse">
+
+      <wsdl:part name="getUserDisplayNameReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForRoleInAuthzGroupRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
@@ -189,13 +543,177 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    </wsdl:message>
 
-   <wsdl:message name="removeMemberFromSiteResponse">
+   <wsdl:message name="searchForUsersResponse">
 
-      <wsdl:part name="removeMemberFromSiteReturn" type="xsd:string"/>
+      <wsdl:part name="searchForUsersReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getUserTypeRequest">
+   <wsdl:message name="setRoleDescriptionResponse">
+
+      <wsdl:part name="setRoleDescriptionReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewAuthzGroupResponse">
+
+      <wsdl:part name="addNewAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addGroupToSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="grouptitle" type="xsd:string"/>
+
+      <wsdl:part name="groupdesc" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removePageFromSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteSkinResponse">
+
+      <wsdl:part name="changeSiteSkinReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyCalendarEventsResponse">
+
+      <wsdl:part name="copyCalendarEventsReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setSitePropertyResponse">
+
+      <wsdl:part name="setSitePropertyReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteTitleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAllUsersRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForRoleInAuthzGroupResponse">
+
+      <wsdl:part name="checkForRoleInAuthzGroupReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForUserInAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeSitePropertyRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="propname" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPagesAndToolsForSiteResponse">
+
+      <wsdl:part name="getPagesAndToolsForSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserEmailResponse">
+
+      <wsdl:part name="getUserEmailReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeMemberFromAuthzGroupResponse">
+
+      <wsdl:part name="removeMemberFromAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteSkinRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="allowFunctionForRoleResponse">
+
+      <wsdl:part name="allowFunctionForRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeAllMembersFromAuthzGroupResponse">
+
+      <wsdl:part name="removeAllMembersFromAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyRoleSimpleResponse">
+
+      <wsdl:part name="copyRoleSimpleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getCurrentUserEmailResponse">
+
+      <wsdl:part name="getCurrentUserEmailReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewSimplePageToSiteResponse">
+
+      <wsdl:part name="addNewSimplePageToSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserDisplayNameRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
@@ -203,175 +721,229 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    </wsdl:message>
 
-   <wsdl:message name="addMemberToSiteWithRoleRequest">
+   <wsdl:message name="searchForUsersRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="criteria" type="xsd:string"/>
+
+      <wsdl:part name="first" type="xsd:int"/>
+
+      <wsdl:part name="last" type="xsd:int"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyRoleResponse">
+
+      <wsdl:part name="copyRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeRoleFromAuthzGroupResponse">
+
+      <wsdl:part name="removeRoleFromAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setSitePropertyRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="siteid" type="xsd:string"/>
 
-      <wsdl:part name="eid" type="xsd:string"/>
+      <wsdl:part name="propname" type="xsd:string"/>
 
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewPageToSiteResponse1">
-
-      <wsdl:part name="addNewPageToSiteReturn" type="xsd:string"/>
+      <wsdl:part name="propvalue" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="setRoleDescriptionRequest">
+   <wsdl:message name="getAllSitesForUserRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-      <wsdl:part name="description" type="xsd:string"/>
+      <wsdl:part name="userid" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="addNewUserResponse">
+   <wsdl:message name="changeSiteDescriptionResponse">
 
-      <wsdl:part name="addNewUserReturn" type="xsd:string"/>
+      <wsdl:part name="changeSiteDescriptionReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getSiteDescriptionRequest">
+   <wsdl:message name="addNewUserWithSpecificIdRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteTitleResponse">
-
-      <wsdl:part name="changeSiteTitleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeRoleFromAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addToolAndPageToSiteResponse">
-
-      <wsdl:part name="addToolAndPageToSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForMemberInAuthzGroupWithRoleResponse">
-
-      <wsdl:part name="checkForMemberInAuthzGroupWithRoleReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForMemberInAuthzGroupWithRoleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
+      <wsdl:part name="id" type="xsd:string"/>
 
       <wsdl:part name="eid" type="xsd:string"/>
 
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
+      <wsdl:part name="firstname" type="xsd:string"/>
 
-      <wsdl:part name="role" type="xsd:string"/>
+      <wsdl:part name="lastname" type="xsd:string"/>
 
-   </wsdl:message>
+      <wsdl:part name="email" type="xsd:string"/>
 
-   <wsdl:message name="getUserEmailResponse1">
-
-      <wsdl:part name="getUserEmailReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteTitleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="title" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUsersInAuthzGroupWithRoleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="authzgrouproles" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addMemberToAuthzGroupWithRoleResponse">
-
-      <wsdl:part name="addMemberToAuthzGroupWithRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForAuthzGroupResponse">
-
-      <wsdl:part name="checkForAuthzGroupReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteJoinableResponse">
-
-      <wsdl:part name="changeSiteJoinableReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeAllMembersFromAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addMemberToAuthzGroupWithRoleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserPasswordRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
+      <wsdl:part name="type" type="xsd:string"/>
 
       <wsdl:part name="password" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getPagesAndToolsForSiteRequest">
+   <wsdl:message name="findSitesByPropertyResponse">
+
+      <wsdl:part name="findSitesByPropertyReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewToolToPageRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="siteid" type="xsd:string"/>
 
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="tooltitle" type="xsd:string"/>
+
+      <wsdl:part name="toolid" type="xsd:string"/>
+
+      <wsdl:part name="layouthints" type="xsd:string"/>
+
    </wsdl:message>
 
-   <wsdl:message name="addConfigPropertyToPageResponse">
+   <wsdl:message name="removeAllRolesFromAuthzGroupResponse">
 
-      <wsdl:part name="addConfigPropertyToPageReturn" type="xsd:string"/>
+      <wsdl:part name="removeAllRolesFromAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForEmptyRolesInAuthzGroupResponse">
+
+      <wsdl:part name="checkForEmptyRolesInAuthzGroupReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPagesAndToolsForSiteForUserResponse">
+
+      <wsdl:part name="getPagesAndToolsForSiteForUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserPropertyResponse">
+
+      <wsdl:part name="getUserPropertyReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteIconUrlResponse">
+
+      <wsdl:part name="changeSiteIconUrlReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewToolToPageResponse">
+
+      <wsdl:part name="addNewToolToPageReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSitesUserCanAccessRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="userid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkSessionResponse">
+
+      <wsdl:part name="checkSessionReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteShortDescriptionResponse">
+
+      <wsdl:part name="changeSiteShortDescriptionReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addToolAndPageToSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="toolid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="tooltitle" type="xsd:string"/>
+
+      <wsdl:part name="pagelayout" type="xsd:int"/>
+
+      <wsdl:part name="position" type="xsd:int"/>
+
+      <wsdl:part name="popup" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewRoleToAuthzGroupResponse">
+
+      <wsdl:part name="addNewRoleToAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setRoleForAuthzGroupMaintenanceResponse">
+
+      <wsdl:part name="setRoleForAuthzGroupMaintenanceReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteSkinResponse">
+
+      <wsdl:part name="getSiteSkinReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserInfoRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="firstname" type="xsd:string"/>
+
+      <wsdl:part name="lastname" type="xsd:string"/>
+
+      <wsdl:part name="email" type="xsd:string"/>
+
+      <wsdl:part name="type" type="xsd:string"/>
+
+      <wsdl:part name="password" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPagesAndToolsForSiteForUserRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="userid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copySiteResponse">
+
+      <wsdl:part name="copySiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserNameResponse">
+
+      <wsdl:part name="changeUserNameReturn" type="xsd:string"/>
 
    </wsdl:message>
 
@@ -407,49 +979,63 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    </wsdl:message>
 
-   <wsdl:message name="addNewSiteRequest">
+   <wsdl:message name="getPagesAndToolsForSiteRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="title" type="xsd:string"/>
-
-      <wsdl:part name="description" type="xsd:string"/>
-
-      <wsdl:part name="shortdesc" type="xsd:string"/>
-
-      <wsdl:part name="iconurl" type="xsd:string"/>
-
-      <wsdl:part name="infourl" type="xsd:string"/>
-
-      <wsdl:part name="joinable" type="xsd:boolean"/>
-
-      <wsdl:part name="joinerrole" type="xsd:string"/>
-
-      <wsdl:part name="published" type="xsd:boolean"/>
-
-      <wsdl:part name="publicview" type="xsd:boolean"/>
-
-      <wsdl:part name="skin" type="xsd:string"/>
-
-      <wsdl:part name="type" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="changeSiteIconUrlRequest">
+   <wsdl:message name="addConfigPropertyToPageResponse">
+
+      <wsdl:part name="addConfigPropertyToPageReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copySiteContentRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="siteid" type="xsd:string"/>
+      <wsdl:part name="sourcesiteid" type="xsd:string"/>
 
-      <wsdl:part name="iconurl" type="xsd:string"/>
+      <wsdl:part name="destinationsiteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyRoleSimpleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid1" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid2" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+      <wsdl:part name="description" type="xsd:string"/>
 
    </wsdl:message>
 
    <wsdl:message name="findSitesByPropertyValueResponse">
 
       <wsdl:part name="findSitesByPropertyValueReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addConfigPropertyToToolRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="tooltitle" type="xsd:string"/>
+
+      <wsdl:part name="propname" type="xsd:string"/>
+
+      <wsdl:part name="propvalue" type="xsd:string"/>
 
    </wsdl:message>
 
@@ -495,933 +1081,339 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
    </wsdl:message>
 
-   <wsdl:message name="addConfigPropertyToToolRequest">
+   <wsdl:message name="changeSiteIconUrlRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="siteid" type="xsd:string"/>
 
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="tooltitle" type="xsd:string"/>
-
-      <wsdl:part name="propname" type="xsd:string"/>
-
-      <wsdl:part name="propvalue" type="xsd:string"/>
+      <wsdl:part name="iconurl" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="copySiteContentRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="sourcesiteid" type="xsd:string"/>
-
-      <wsdl:part name="destinationsiteid" type="xsd:string"/>
-
-      <wsdl:part name="toolid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSiteSkinResponse">
-
-      <wsdl:part name="getSiteSkinReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserInfoRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="firstname" type="xsd:string"/>
-
-      <wsdl:part name="lastname" type="xsd:string"/>
-
-      <wsdl:part name="email" type="xsd:string"/>
-
-      <wsdl:part name="type" type="xsd:string"/>
-
-      <wsdl:part name="password" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="setRoleForAuthzGroupMaintenanceResponse">
-
-      <wsdl:part name="setRoleForAuthzGroupMaintenanceReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewRoleToAuthzGroupResponse">
-
-      <wsdl:part name="addNewRoleToAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addToolAndPageToSiteRequest">
+   <wsdl:message name="addNewSiteRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="siteid" type="xsd:string"/>
 
-      <wsdl:part name="toolid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="tooltitle" type="xsd:string"/>
-
-      <wsdl:part name="pagelayout" type="xsd:int"/>
-
-      <wsdl:part name="position" type="xsd:int"/>
-
-      <wsdl:part name="popup" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkSessionResponse">
-
-      <wsdl:part name="checkSessionReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSitesUserCanAccessRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="userid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyRoleRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid1" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid2" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
+      <wsdl:part name="title" type="xsd:string"/>
 
       <wsdl:part name="description" type="xsd:string"/>
 
-      <wsdl:part name="removeBeforeSync" type="xsd:boolean"/>
+      <wsdl:part name="shortdesc" type="xsd:string"/>
 
-   </wsdl:message>
+      <wsdl:part name="iconurl" type="xsd:string"/>
 
-   <wsdl:message name="changeSiteShortDescriptionResponse">
-
-      <wsdl:part name="changeSiteShortDescriptionReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserNameResponse">
-
-      <wsdl:part name="changeUserNameReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copySiteResponse">
-
-      <wsdl:part name="copySiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserPropertyResponse">
-
-      <wsdl:part name="getUserPropertyReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getPagesAndToolsForSiteResponse1">
-
-      <wsdl:part name="getPagesAndToolsForSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeAllRolesFromAuthzGroupResponse">
-
-      <wsdl:part name="removeAllRolesFromAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForEmptyRolesInAuthzGroupResponse">
-
-      <wsdl:part name="checkForEmptyRolesInAuthzGroupReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copySiteContentResponse1">
-
-      <wsdl:part name="copySiteContentReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewToolToPageRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="tooltitle" type="xsd:string"/>
-
-      <wsdl:part name="toolid" type="xsd:string"/>
-
-      <wsdl:part name="layouthints" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteDescriptionResponse">
-
-      <wsdl:part name="changeSiteDescriptionReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="findSitesByPropertyResponse">
-
-      <wsdl:part name="findSitesByPropertyReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyRoleResponse1">
-
-      <wsdl:part name="copyRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewToolToPageResponse">
-
-      <wsdl:part name="addNewToolToPageReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteIconUrlResponse">
-
-      <wsdl:part name="changeSiteIconUrlReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserDisplayNameRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="userid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getAllSitesForUserRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyRoleResponse">
-
-      <wsdl:part name="copyRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeRoleFromAuthzGroupResponse">
-
-      <wsdl:part name="removeRoleFromAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="setSitePropertyRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="propname" type="xsd:string"/>
-
-      <wsdl:part name="propvalue" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="searchForUsersRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="criteria" type="xsd:string"/>
-
-      <wsdl:part name="first" type="xsd:int"/>
-
-      <wsdl:part name="last" type="xsd:int"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeSitePropertyRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="propname" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForUserInAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getAllUsersRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getPagesAndToolsForSiteRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="userid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSitesUserCanAccessRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForRoleInAuthzGroupResponse">
-
-      <wsdl:part name="checkForRoleInAuthzGroupReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSiteTitleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copySiteContentRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="sourcesiteid" type="xsd:string"/>
-
-      <wsdl:part name="destinationsiteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="setSitePropertyResponse">
-
-      <wsdl:part name="setSitePropertyReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyCalendarEventsResponse">
-
-      <wsdl:part name="copyCalendarEventsReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeAllMembersFromAuthzGroupResponse">
-
-      <wsdl:part name="removeAllMembersFromAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="allowFunctionForRoleResponse">
-
-      <wsdl:part name="allowFunctionForRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserEmailResponse">
-
-      <wsdl:part name="getUserEmailReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeMemberFromAuthzGroupResponse">
-
-      <wsdl:part name="removeMemberFromAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSiteSkinRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getPagesAndToolsForSiteResponse">
-
-      <wsdl:part name="getPagesAndToolsForSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="setRoleDescriptionResponse">
-
-      <wsdl:part name="setRoleDescriptionReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addGroupToSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="grouptitle" type="xsd:string"/>
-
-      <wsdl:part name="groupdesc" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewAuthzGroupResponse">
-
-      <wsdl:part name="addNewAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getAllSitesForUserRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="userid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="searchForUsersResponse">
-
-      <wsdl:part name="searchForUsersReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserDisplayNameResponse">
-
-      <wsdl:part name="getUserDisplayNameReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForRoleInAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserIdRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removePageFromSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteSkinResponse">
-
-      <wsdl:part name="changeSiteSkinReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserTypeRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="type" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserEmailResponse">
-
-      <wsdl:part name="changeUserEmailReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserTypeResponse">
-
-      <wsdl:part name="changeUserTypeReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addGroupToSiteResponse">
-
-      <wsdl:part name="addGroupToSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="disallowFunctionForRoleResponse">
-
-      <wsdl:part name="disallowFunctionForRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserTypeResponse">
-
-      <wsdl:part name="getUserTypeReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSiteTitleResponse">
-
-      <wsdl:part name="getSiteTitleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewToolToAllWorkspacesResponse">
-
-      <wsdl:part name="addNewToolToAllWorkspacesReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeMemberFromAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addConfigPropertyToPageRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="propname" type="xsd:string"/>
-
-      <wsdl:part name="propvalue" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewPageToSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="pagelayout" type="xsd:int"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSitePropertyRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="propname" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewUserRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="firstname" type="xsd:string"/>
-
-      <wsdl:part name="lastname" type="xsd:string"/>
-
-      <wsdl:part name="email" type="xsd:string"/>
-
-      <wsdl:part name="type" type="xsd:string"/>
-
-      <wsdl:part name="password" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserPasswordResponse">
-
-      <wsdl:part name="changeUserPasswordReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removePageFromSiteResponse">
-
-      <wsdl:part name="removePageFromSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewPageToSiteRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="pagelayout" type="xsd:int"/>
-
-      <wsdl:part name="position" type="xsd:int"/>
-
-      <wsdl:part name="popup" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeUserInfoResponse">
-
-      <wsdl:part name="changeUserInfoReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteShortDescriptionRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="shortDescription" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="findSitesByPropertyRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="propertyName" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeUserRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserIdResponse">
-
-      <wsdl:part name="getUserIdReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getPlacementIdRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteId" type="xsd:string"/>
-
-      <wsdl:part name="toolId" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUsersInAuthzGroupResponse">
-
-      <wsdl:part name="getUsersInAuthzGroupReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkSessionRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="findSitesByPropertyValueRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="propertyName" type="xsd:string"/>
-
-      <wsdl:part name="propertyValue" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="disallowAllFunctionsForRoleResponse">
-
-      <wsdl:part name="disallowAllFunctionsForRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForEmptyRolesInAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForSiteResponse">
-
-      <wsdl:part name="checkForSiteReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSiteDescriptionResponse">
-
-      <wsdl:part name="getSiteDescriptionReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteSkinRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="skin" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeUserResponse">
-
-      <wsdl:part name="removeUserReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addConfigPropertyToToolResponse">
-
-      <wsdl:part name="addConfigPropertyToToolReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getAllSitesForUserResponse">
-
-      <wsdl:part name="getAllSitesForUserReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getSessionForUserRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="isSiteJoinableRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewToolToAllWorkspacesRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="toolid" type="xsd:string"/>
-
-      <wsdl:part name="pagetitle" type="xsd:string"/>
-
-      <wsdl:part name="tooltitle" type="xsd:string"/>
-
-      <wsdl:part name="pagelayout" type="xsd:int"/>
-
-      <wsdl:part name="position" type="xsd:int"/>
-
-      <wsdl:part name="popup" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserPropertyRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="eid" type="xsd:string"/>
-
-      <wsdl:part name="propertyName" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyRoleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid1" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid2" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-      <wsdl:part name="description" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copySiteContentResponse">
-
-      <wsdl:part name="copySiteContentReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="copyCalendarEventsRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="sourceSiteId" type="xsd:string"/>
-
-      <wsdl:part name="targetSiteId" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="setUserLanguageResponse">
-
-      <wsdl:part name="setUserLanguageReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewUserResponse1">
-
-      <wsdl:part name="addNewUserReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUsersInAuthzGroupWithRoleResponse">
-
-      <wsdl:part name="getUsersInAuthzGroupWithRoleReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getGroupsInSiteRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getUserEmailRequest1">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="checkForUserResponse">
-
-      <wsdl:part name="checkForUserReturn" type="xsd:boolean"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getAllSitesForUserResponse1">
-
-      <wsdl:part name="getAllSitesForUserReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeSitePropertyResponse">
-
-      <wsdl:part name="removeSitePropertyReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="removeAuthzGroupRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addNewSiteResponse">
-
-      <wsdl:part name="addNewSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="allowFunctionForRoleRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="authzgroupid" type="xsd:string"/>
-
-      <wsdl:part name="roleid" type="xsd:string"/>
-
-      <wsdl:part name="functionname" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="getGroupsInSiteResponse">
-
-      <wsdl:part name="getGroupsInSiteReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="changeSiteJoinableRequest">
-
-      <wsdl:part name="sessionid" type="xsd:string"/>
-
-      <wsdl:part name="siteid" type="xsd:string"/>
+      <wsdl:part name="infourl" type="xsd:string"/>
 
       <wsdl:part name="joinable" type="xsd:boolean"/>
 
       <wsdl:part name="joinerrole" type="xsd:string"/>
 
+      <wsdl:part name="published" type="xsd:boolean"/>
+
       <wsdl:part name="publicview" type="xsd:boolean"/>
+
+      <wsdl:part name="skin" type="xsd:string"/>
+
+      <wsdl:part name="type" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="addNewUserRequest">
+   <wsdl:message name="checkForAuthzGroupResponse">
+
+      <wsdl:part name="checkForAuthzGroupReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addMemberToAuthzGroupWithRoleResponse">
+
+      <wsdl:part name="addMemberToAuthzGroupWithRoleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getNormalSessionForUserResponse">
+
+      <wsdl:part name="getNormalSessionForUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUsersInAuthzGroupWithRoleRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="id" type="xsd:string"/>
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="authzgrouproles" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteTitleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="title" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForMemberInAuthzGroupWithRoleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="role" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserPasswordRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="password" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addMemberToAuthzGroupWithRoleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteJoinableResponse">
+
+      <wsdl:part name="changeSiteJoinableReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeAllMembersFromAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeSiteTitleResponse">
+
+      <wsdl:part name="changeSiteTitleReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewUserResponse">
+
+      <wsdl:part name="addNewUserReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getSiteDescriptionRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="setRoleDescriptionRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+      <wsdl:part name="description" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAllSitesForCurrentUserRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addToolAndPageToSiteResponse">
+
+      <wsdl:part name="addToolAndPageToSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addNewSimplePageToSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="pagetitle" type="xsd:string"/>
+
+      <wsdl:part name="pagelayout" type="xsd:int"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForMemberInAuthzGroupWithRoleResponse">
+
+      <wsdl:part name="checkForMemberInAuthzGroupWithRoleReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeRoleFromAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeMemberFromSiteRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="isSiteJoinableResponse">
+
+      <wsdl:part name="isSiteJoinableReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyResourcesResponse">
+
+      <wsdl:part name="copyResourcesReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getPlacementIdResponse">
+
+      <wsdl:part name="getPlacementIdReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="copyResourcesRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="sourcesiteid" type="xsd:string"/>
+
+      <wsdl:part name="destinationsiteid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUsersInAuthzGroupRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserIdForCurrentUserRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserTypeRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="userid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addMemberToSiteWithRoleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="siteid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeMemberFromSiteResponse">
+
+      <wsdl:part name="removeMemberFromSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="checkForUserInAuthzGroupResponse">
+
+      <wsdl:part name="checkForUserInAuthzGroupReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getAllUsersResponse">
+
+      <wsdl:part name="getAllUsersReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="disallowAllFunctionsForRoleRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="addMemberToGroupResponse">
+
+      <wsdl:part name="addMemberToGroupReturn" type="xsd:boolean"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeAuthzGroupResponse">
+
+      <wsdl:part name="removeAuthzGroupReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getCurrentUserDisplayNameRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="getUserIdRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="eid" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="removeSiteResponse">
+
+      <wsdl:part name="removeSiteReturn" type="xsd:string"/>
+
+   </wsdl:message>
+
+   <wsdl:message name="changeUserNameRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
 
       <wsdl:part name="eid" type="xsd:string"/>
 
@@ -1429,123 +1421,267 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       <wsdl:part name="lastname" type="xsd:string"/>
 
-      <wsdl:part name="email" type="xsd:string"/>
+   </wsdl:message>
 
-      <wsdl:part name="type" type="xsd:string"/>
+   <wsdl:message name="addNewPageToSiteResponse">
 
-      <wsdl:part name="password" type="xsd:string"/>
+      <wsdl:part name="addNewPageToSiteReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getSitesUserCanAccessResponse">
-
-      <wsdl:part name="getSitesUserCanAccessReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addMemberToGroupRequest">
+   <wsdl:message name="removeAllRolesFromAuthzGroupRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="siteid" type="xsd:string"/>
-
-      <wsdl:part name="groupid" type="xsd:string"/>
-
-      <wsdl:part name="userid" type="xsd:string"/>
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getUserDisplayNameResponse1">
+   <wsdl:message name="getSessionForUserResponse">
 
-      <wsdl:part name="getUserDisplayNameReturn" type="xsd:string"/>
-
-   </wsdl:message>
-
-   <wsdl:message name="addMemberToSiteWithRoleResponse">
-
-      <wsdl:part name="addMemberToSiteWithRoleReturn" type="xsd:string"/>
+      <wsdl:part name="getSessionForUserReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="getSitesUserCanAccessResponse1">
+   <wsdl:message name="getSitePropertyResponse">
 
-      <wsdl:part name="getSitesUserCanAccessReturn" type="xsd:string"/>
+      <wsdl:part name="getSitePropertyReturn" type="xsd:string"/>
 
    </wsdl:message>
 
-   <wsdl:message name="changeSiteDescriptionRequest">
+   <wsdl:message name="checkForUserRequest">
 
       <wsdl:part name="sessionid" type="xsd:string"/>
 
-      <wsdl:part name="siteid" type="xsd:string"/>
+      <wsdl:part name="eid" type="xsd:string"/>
 
-      <wsdl:part name="description" type="xsd:string"/>
+   </wsdl:message>
+
+   <wsdl:message name="setRoleForAuthzGroupMaintenanceRequest">
+
+      <wsdl:part name="sessionid" type="xsd:string"/>
+
+      <wsdl:part name="authzgroupid" type="xsd:string"/>
+
+      <wsdl:part name="roleid" type="xsd:string"/>
 
    </wsdl:message>
 
    <wsdl:portType name="SakaiScript">
 
-      <wsdl:operation name="checkSession" parameterOrder="sessionid">
+      <wsdl:operation name="getUserId" parameterOrder="sessionid eid">
 
-         <wsdl:input message="impl:checkSessionRequest" name="checkSessionRequest"/>
+         <wsdl:input message="impl:getUserIdRequest" name="getUserIdRequest"/>
 
-         <wsdl:output message="impl:checkSessionResponse" name="checkSessionResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserInfo" parameterOrder="sessionid eid firstname lastname email type password">
-
-         <wsdl:input message="impl:changeUserInfoRequest" name="changeUserInfoRequest"/>
-
-         <wsdl:output message="impl:changeUserInfoResponse" name="changeUserInfoResponse"/>
+         <wsdl:output message="impl:getUserIdResponse" name="getUserIdResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="changeUserName" parameterOrder="sessionid eid firstname lastname">
+      <wsdl:operation name="removeUser" parameterOrder="sessionid eid">
 
-         <wsdl:input message="impl:changeUserNameRequest" name="changeUserNameRequest"/>
+         <wsdl:input message="impl:removeUserRequest" name="removeUserRequest"/>
 
-         <wsdl:output message="impl:changeUserNameResponse" name="changeUserNameResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserEmail" parameterOrder="sessionid eid email">
-
-         <wsdl:input message="impl:changeUserEmailRequest" name="changeUserEmailRequest"/>
-
-         <wsdl:output message="impl:changeUserEmailResponse" name="changeUserEmailResponse"/>
+         <wsdl:output message="impl:removeUserResponse" name="removeUserResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="changeUserType" parameterOrder="sessionid eid type">
+      <wsdl:operation name="removeRoleFromAuthzGroup" parameterOrder="sessionid authzgroupid roleid">
 
-         <wsdl:input message="impl:changeUserTypeRequest" name="changeUserTypeRequest"/>
+         <wsdl:input message="impl:removeRoleFromAuthzGroupRequest" name="removeRoleFromAuthzGroupRequest"/>
 
-         <wsdl:output message="impl:changeUserTypeResponse" name="changeUserTypeResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserPassword" parameterOrder="sessionid eid password">
-
-         <wsdl:input message="impl:changeUserPasswordRequest" name="changeUserPasswordRequest"/>
-
-         <wsdl:output message="impl:changeUserPasswordResponse" name="changeUserPasswordResponse"/>
+         <wsdl:output message="impl:removeRoleFromAuthzGroupResponse" name="removeRoleFromAuthzGroupResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="addGroupToSite" parameterOrder="sessionid siteid grouptitle groupdesc">
+      <wsdl:operation name="copyRole" parameterOrder="sessionid authzgroupid1 authzgroupid2 roleid description removeBeforeSync">
 
-         <wsdl:input message="impl:addGroupToSiteRequest" name="addGroupToSiteRequest"/>
+         <wsdl:input message="impl:copyRoleRequest" name="copyRoleRequest"/>
 
-         <wsdl:output message="impl:addGroupToSiteResponse" name="addGroupToSiteResponse"/>
+         <wsdl:output message="impl:copyRoleResponse" name="copyRoleResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="getGroupsInSite" parameterOrder="sessionid siteid">
+      <wsdl:operation name="getPlacementId" parameterOrder="sessionid siteId toolId">
 
-         <wsdl:input message="impl:getGroupsInSiteRequest" name="getGroupsInSiteRequest"/>
+         <wsdl:input message="impl:getPlacementIdRequest" name="getPlacementIdRequest"/>
 
-         <wsdl:output message="impl:getGroupsInSiteResponse" name="getGroupsInSiteResponse"/>
+         <wsdl:output message="impl:getPlacementIdResponse" name="getPlacementIdResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteProperty" parameterOrder="sessionid siteid propname">
+
+         <wsdl:input message="impl:getSitePropertyRequest" name="getSitePropertyRequest"/>
+
+         <wsdl:output message="impl:getSitePropertyResponse" name="getSitePropertyResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeSiteProperty" parameterOrder="sessionid siteid propname">
+
+         <wsdl:input message="impl:removeSitePropertyRequest" name="removeSitePropertyRequest"/>
+
+         <wsdl:output message="impl:removeSitePropertyResponse" name="removeSitePropertyResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserEmail" parameterOrder="sessionid userid">
+
+         <wsdl:input message="impl:getUserEmailRequest" name="getUserEmailRequest"/>
+
+         <wsdl:output message="impl:getUserEmailResponse" name="getUserEmailResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserDisplayName" parameterOrder="sessionid userid">
+
+         <wsdl:input message="impl:getUserDisplayNameRequest" name="getUserDisplayNameRequest"/>
+
+         <wsdl:output message="impl:getUserDisplayNameResponse" name="getUserDisplayNameResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserType" parameterOrder="sessionid userid">
+
+         <wsdl:input message="impl:getUserTypeRequest" name="getUserTypeRequest"/>
+
+         <wsdl:output message="impl:getUserTypeResponse" name="getUserTypeResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteTitle" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:getSiteTitleRequest" name="getSiteTitleRequest"/>
+
+         <wsdl:output message="impl:getSiteTitleResponse" name="getSiteTitleResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeAuthzGroup" parameterOrder="sessionid authzgroupid">
+
+         <wsdl:input message="impl:removeAuthzGroupRequest" name="removeAuthzGroupRequest"/>
+
+         <wsdl:output message="impl:removeAuthzGroupResponse" name="removeAuthzGroupResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteDescription" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:getSiteDescriptionRequest" name="getSiteDescriptionRequest"/>
+
+         <wsdl:output message="impl:getSiteDescriptionResponse" name="getSiteDescriptionResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForUser" parameterOrder="sessionid eid">
+
+         <wsdl:input message="impl:checkForUserRequest" name="checkForUserRequest"/>
+
+         <wsdl:output message="impl:checkForUserResponse" name="checkForUserResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForSite" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:checkForSiteRequest" name="checkForSiteRequest"/>
+
+         <wsdl:output message="impl:checkForSiteResponse" name="checkForSiteResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeSite" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:removeSiteRequest" name="removeSiteRequest"/>
+
+         <wsdl:output message="impl:removeSiteResponse" name="removeSiteResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteSkin" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:getSiteSkinRequest" name="getSiteSkinRequest"/>
+
+         <wsdl:output message="impl:getSiteSkinResponse" name="getSiteSkinResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addMemberToGroup" parameterOrder="sessionid siteid groupid userid">
+
+         <wsdl:input message="impl:addMemberToGroupRequest" name="addMemberToGroupRequest"/>
+
+         <wsdl:output message="impl:addMemberToGroupResponse" name="addMemberToGroupResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewUser" parameterOrder="sessionid eid firstname lastname email type password">
+
+         <wsdl:input message="impl:addNewUserRequest" name="addNewUserRequest"/>
+
+         <wsdl:output message="impl:addNewUserResponse" name="addNewUserResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllUsers" parameterOrder="sessionid">
+
+         <wsdl:input message="impl:getAllUsersRequest" name="getAllUsersRequest"/>
+
+         <wsdl:output message="impl:getAllUsersResponse" name="getAllUsersResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserProperty" parameterOrder="sessionid eid propertyName">
+
+         <wsdl:input message="impl:getUserPropertyRequest" name="getUserPropertyRequest"/>
+
+         <wsdl:output message="impl:getUserPropertyResponse" name="getUserPropertyResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewSite" parameterOrder="sessionid siteid title description shortdesc iconurl infourl joinable joinerrole published publicview skin type">
+
+         <wsdl:input message="impl:addNewSiteRequest" name="addNewSiteRequest"/>
+
+         <wsdl:output message="impl:addNewSiteResponse" name="addNewSiteResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserIdForCurrentUser" parameterOrder="sessionid">
+
+         <wsdl:input message="impl:getUserIdForCurrentUserRequest" name="getUserIdForCurrentUserRequest"/>
+
+         <wsdl:output message="impl:getUserIdForCurrentUserResponse" name="getUserIdForCurrentUserResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPagesAndToolsForSiteForUser" parameterOrder="sessionid userid siteid">
+
+         <wsdl:input message="impl:getPagesAndToolsForSiteForUserRequest" name="getPagesAndToolsForSiteForUserRequest"/>
+
+         <wsdl:output message="impl:getPagesAndToolsForSiteForUserResponse" name="getPagesAndToolsForSiteForUserResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getNormalSessionForUser" parameterOrder="sessionid eid">
+
+         <wsdl:input message="impl:getNormalSessionForUserRequest" name="getNormalSessionForUserRequest"/>
+
+         <wsdl:output message="impl:getNormalSessionForUserResponse" name="getNormalSessionForUserResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewUserWithSpecificId" parameterOrder="sessionid id eid firstname lastname email type password">
+
+         <wsdl:input message="impl:addNewUserWithSpecificIdRequest" name="addNewUserWithSpecificIdRequest"/>
+
+         <wsdl:output message="impl:addNewUserWithSpecificIdResponse" name="addNewUserWithSpecificIdResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copyRoleSimple" parameterOrder="sessionid authzgroupid1 authzgroupid2 roleid description">
+
+         <wsdl:input message="impl:copyRoleSimpleRequest" name="copyRoleSimpleRequest"/>
+
+         <wsdl:output message="impl:copyRoleSimpleResponse" name="copyRoleSimpleResponse"/>
 
       </wsdl:operation>
 
@@ -1565,19 +1701,19 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="allowFunctionForRole" parameterOrder="sessionid authzgroupid roleid functionname">
-
-         <wsdl:input message="impl:allowFunctionForRoleRequest" name="allowFunctionForRoleRequest"/>
-
-         <wsdl:output message="impl:allowFunctionForRoleResponse" name="allowFunctionForRoleResponse"/>
-
-      </wsdl:operation>
-
       <wsdl:operation name="removeAllRolesFromAuthzGroup" parameterOrder="sessionid authzgroupid">
 
          <wsdl:input message="impl:removeAllRolesFromAuthzGroupRequest" name="removeAllRolesFromAuthzGroupRequest"/>
 
          <wsdl:output message="impl:removeAllRolesFromAuthzGroupResponse" name="removeAllRolesFromAuthzGroupResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="allowFunctionForRole" parameterOrder="sessionid authzgroupid roleid functionname">
+
+         <wsdl:input message="impl:allowFunctionForRoleRequest" name="allowFunctionForRoleRequest"/>
+
+         <wsdl:output message="impl:allowFunctionForRoleResponse" name="allowFunctionForRoleResponse"/>
 
       </wsdl:operation>
 
@@ -1653,19 +1789,83 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="addNewPageToSite" parameterOrder="sessionid siteid pagetitle pagelayout">
+      <wsdl:operation name="checkForMemberInAuthzGroupWithRole" parameterOrder="sessionid eid authzgroupid role">
 
-         <wsdl:input message="impl:addNewPageToSiteRequest" name="addNewPageToSiteRequest"/>
+         <wsdl:input message="impl:checkForMemberInAuthzGroupWithRoleRequest" name="checkForMemberInAuthzGroupWithRoleRequest"/>
 
-         <wsdl:output message="impl:addNewPageToSiteResponse" name="addNewPageToSiteResponse"/>
+         <wsdl:output message="impl:checkForMemberInAuthzGroupWithRoleResponse" name="checkForMemberInAuthzGroupWithRoleResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="addNewPageToSite" parameterOrder="sessionid siteid pagetitle pagelayout position popup">
+      <wsdl:operation name="checkSession" parameterOrder="sessionid">
 
-         <wsdl:input message="impl:addNewPageToSiteRequest1" name="addNewPageToSiteRequest1"/>
+         <wsdl:input message="impl:checkSessionRequest" name="checkSessionRequest"/>
 
-         <wsdl:output message="impl:addNewPageToSiteResponse1" name="addNewPageToSiteResponse1"/>
+         <wsdl:output message="impl:checkSessionResponse" name="checkSessionResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserInfo" parameterOrder="sessionid eid firstname lastname email type password">
+
+         <wsdl:input message="impl:changeUserInfoRequest" name="changeUserInfoRequest"/>
+
+         <wsdl:output message="impl:changeUserInfoResponse" name="changeUserInfoResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserName" parameterOrder="sessionid eid firstname lastname">
+
+         <wsdl:input message="impl:changeUserNameRequest" name="changeUserNameRequest"/>
+
+         <wsdl:output message="impl:changeUserNameResponse" name="changeUserNameResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserEmail" parameterOrder="sessionid eid email">
+
+         <wsdl:input message="impl:changeUserEmailRequest" name="changeUserEmailRequest"/>
+
+         <wsdl:output message="impl:changeUserEmailResponse" name="changeUserEmailResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserType" parameterOrder="sessionid eid type">
+
+         <wsdl:input message="impl:changeUserTypeRequest" name="changeUserTypeRequest"/>
+
+         <wsdl:output message="impl:changeUserTypeResponse" name="changeUserTypeResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserPassword" parameterOrder="sessionid eid password">
+
+         <wsdl:input message="impl:changeUserPasswordRequest" name="changeUserPasswordRequest"/>
+
+         <wsdl:output message="impl:changeUserPasswordResponse" name="changeUserPasswordResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addGroupToSite" parameterOrder="sessionid siteid grouptitle groupdesc">
+
+         <wsdl:input message="impl:addGroupToSiteRequest" name="addGroupToSiteRequest"/>
+
+         <wsdl:output message="impl:addGroupToSiteResponse" name="addGroupToSiteResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getGroupsInSite" parameterOrder="sessionid siteid">
+
+         <wsdl:input message="impl:getGroupsInSiteRequest" name="getGroupsInSiteRequest"/>
+
+         <wsdl:output message="impl:getGroupsInSiteResponse" name="getGroupsInSiteResponse"/>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewSimplePageToSite" parameterOrder="sessionid siteid pagetitle pagelayout">
+
+         <wsdl:input message="impl:addNewSimplePageToSiteRequest" name="addNewSimplePageToSiteRequest"/>
+
+         <wsdl:output message="impl:addNewSimplePageToSiteResponse" name="addNewSimplePageToSiteResponse"/>
 
       </wsdl:operation>
 
@@ -1701,11 +1901,11 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="checkForMemberInAuthzGroupWithRole" parameterOrder="sessionid eid authzgroupid role">
+      <wsdl:operation name="getSitesCurrentUserCanAccess" parameterOrder="sessionid">
 
-         <wsdl:input message="impl:checkForMemberInAuthzGroupWithRoleRequest" name="checkForMemberInAuthzGroupWithRoleRequest"/>
+         <wsdl:input message="impl:getSitesCurrentUserCanAccessRequest" name="getSitesCurrentUserCanAccessRequest"/>
 
-         <wsdl:output message="impl:checkForMemberInAuthzGroupWithRoleResponse" name="checkForMemberInAuthzGroupWithRoleResponse"/>
+         <wsdl:output message="impl:getSitesCurrentUserCanAccessResponse" name="getSitesCurrentUserCanAccessResponse"/>
 
       </wsdl:operation>
 
@@ -1717,27 +1917,19 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="getSitesUserCanAccess" parameterOrder="sessionid">
+      <wsdl:operation name="getAllSitesForCurrentUser" parameterOrder="sessionid">
 
-         <wsdl:input message="impl:getSitesUserCanAccessRequest1" name="getSitesUserCanAccessRequest1"/>
+         <wsdl:input message="impl:getAllSitesForCurrentUserRequest" name="getAllSitesForCurrentUserRequest"/>
 
-         <wsdl:output message="impl:getSitesUserCanAccessResponse1" name="getSitesUserCanAccessResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getAllSitesForUser" parameterOrder="sessionid">
-
-         <wsdl:input message="impl:getAllSitesForUserRequest" name="getAllSitesForUserRequest"/>
-
-         <wsdl:output message="impl:getAllSitesForUserResponse" name="getAllSitesForUserResponse"/>
+         <wsdl:output message="impl:getAllSitesForCurrentUserResponse" name="getAllSitesForCurrentUserResponse"/>
 
       </wsdl:operation>
 
       <wsdl:operation name="getAllSitesForUser" parameterOrder="sessionid userid">
 
-         <wsdl:input message="impl:getAllSitesForUserRequest1" name="getAllSitesForUserRequest1"/>
+         <wsdl:input message="impl:getAllSitesForUserRequest" name="getAllSitesForUserRequest"/>
 
-         <wsdl:output message="impl:getAllSitesForUserResponse1" name="getAllSitesForUserResponse1"/>
+         <wsdl:output message="impl:getAllSitesForUserResponse" name="getAllSitesForUserResponse"/>
 
       </wsdl:operation>
 
@@ -1877,7 +2069,7 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="getSessionForUser" parameterOrder="sessionid eid">
+      <wsdl:operation name="getSessionForUser" parameterOrder="sessionid eid wsonly">
 
          <wsdl:input message="impl:getSessionForUserRequest" name="getSessionForUserRequest"/>
 
@@ -1885,11 +2077,11 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="getSessionForUser" parameterOrder="sessionid eid wsonly">
+      <wsdl:operation name="addNewPageToSite" parameterOrder="sessionid siteid pagetitle pagelayout position popup">
 
-         <wsdl:input message="impl:getSessionForUserRequest1" name="getSessionForUserRequest1"/>
+         <wsdl:input message="impl:addNewPageToSiteRequest" name="addNewPageToSiteRequest"/>
 
-         <wsdl:output message="impl:getSessionForUserResponse1" name="getSessionForUserResponse1"/>
+         <wsdl:output message="impl:addNewPageToSiteResponse" name="addNewPageToSiteResponse"/>
 
       </wsdl:operation>
 
@@ -1898,14 +2090,6 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
          <wsdl:input message="impl:getPagesAndToolsForSiteRequest" name="getPagesAndToolsForSiteRequest"/>
 
          <wsdl:output message="impl:getPagesAndToolsForSiteResponse" name="getPagesAndToolsForSiteResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getPagesAndToolsForSite" parameterOrder="sessionid userid siteid">
-
-         <wsdl:input message="impl:getPagesAndToolsForSiteRequest1" name="getPagesAndToolsForSiteRequest1"/>
-
-         <wsdl:output message="impl:getPagesAndToolsForSiteResponse1" name="getPagesAndToolsForSiteResponse1"/>
 
       </wsdl:operation>
 
@@ -1949,7 +2133,7 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="copySiteContent" parameterOrder="sessionid sourcesiteid destinationsiteid toolid">
+      <wsdl:operation name="copySiteContent" parameterOrder="sessionid sourcesiteid destinationsiteid">
 
          <wsdl:input message="impl:copySiteContentRequest" name="copySiteContentRequest"/>
 
@@ -1957,235 +2141,27 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       </wsdl:operation>
 
-      <wsdl:operation name="copySiteContent" parameterOrder="sessionid sourcesiteid destinationsiteid">
+      <wsdl:operation name="copySiteContentForOneTool" parameterOrder="sessionid sourcesiteid destinationsiteid toolid">
 
-         <wsdl:input message="impl:copySiteContentRequest1" name="copySiteContentRequest1"/>
+         <wsdl:input message="impl:copySiteContentForOneToolRequest" name="copySiteContentForOneToolRequest"/>
 
-         <wsdl:output message="impl:copySiteContentResponse1" name="copySiteContentResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="setUserLanguage" parameterOrder="sessionid eid lang">
-
-         <wsdl:input message="impl:setUserLanguageRequest" name="setUserLanguageRequest"/>
-
-         <wsdl:output message="impl:setUserLanguageResponse" name="setUserLanguageResponse"/>
+         <wsdl:output message="impl:copySiteContentForOneToolResponse" name="copySiteContentForOneToolResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="getUserId" parameterOrder="sessionid">
+      <wsdl:operation name="getCurrentUserDisplayName" parameterOrder="sessionid">
 
-         <wsdl:input message="impl:getUserIdRequest" name="getUserIdRequest"/>
+         <wsdl:input message="impl:getCurrentUserDisplayNameRequest" name="getCurrentUserDisplayNameRequest"/>
 
-         <wsdl:output message="impl:getUserIdResponse" name="getUserIdResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserId" parameterOrder="sessionid eid">
-
-         <wsdl:input message="impl:getUserIdRequest1" name="getUserIdRequest1"/>
-
-         <wsdl:output message="impl:getUserIdResponse1" name="getUserIdResponse1"/>
+         <wsdl:output message="impl:getCurrentUserDisplayNameResponse" name="getCurrentUserDisplayNameResponse"/>
 
       </wsdl:operation>
 
-      <wsdl:operation name="getPlacementId" parameterOrder="sessionid siteId toolId">
+      <wsdl:operation name="getCurrentUserEmail" parameterOrder="sessionid">
 
-         <wsdl:input message="impl:getPlacementIdRequest" name="getPlacementIdRequest"/>
+         <wsdl:input message="impl:getCurrentUserEmailRequest" name="getCurrentUserEmailRequest"/>
 
-         <wsdl:output message="impl:getPlacementIdResponse" name="getPlacementIdResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteTitle" parameterOrder="sessionid siteid">
-
-         <wsdl:input message="impl:getSiteTitleRequest" name="getSiteTitleRequest"/>
-
-         <wsdl:output message="impl:getSiteTitleResponse" name="getSiteTitleResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteDescription" parameterOrder="sessionid siteid">
-
-         <wsdl:input message="impl:getSiteDescriptionRequest" name="getSiteDescriptionRequest"/>
-
-         <wsdl:output message="impl:getSiteDescriptionResponse" name="getSiteDescriptionResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForUser" parameterOrder="sessionid eid">
-
-         <wsdl:input message="impl:checkForUserRequest" name="checkForUserRequest"/>
-
-         <wsdl:output message="impl:checkForUserResponse" name="checkForUserResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForSite" parameterOrder="sessionid siteid">
-
-         <wsdl:input message="impl:checkForSiteRequest" name="checkForSiteRequest"/>
-
-         <wsdl:output message="impl:checkForSiteResponse" name="checkForSiteResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeAuthzGroup" parameterOrder="sessionid authzgroupid">
-
-         <wsdl:input message="impl:removeAuthzGroupRequest" name="removeAuthzGroupRequest"/>
-
-         <wsdl:output message="impl:removeAuthzGroupResponse" name="removeAuthzGroupResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeRoleFromAuthzGroup" parameterOrder="sessionid authzgroupid roleid">
-
-         <wsdl:input message="impl:removeRoleFromAuthzGroupRequest" name="removeRoleFromAuthzGroupRequest"/>
-
-         <wsdl:output message="impl:removeRoleFromAuthzGroupResponse" name="removeRoleFromAuthzGroupResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyRole" parameterOrder="sessionid authzgroupid1 authzgroupid2 roleid description">
-
-         <wsdl:input message="impl:copyRoleRequest" name="copyRoleRequest"/>
-
-         <wsdl:output message="impl:copyRoleResponse" name="copyRoleResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyRole" parameterOrder="sessionid authzgroupid1 authzgroupid2 roleid description removeBeforeSync">
-
-         <wsdl:input message="impl:copyRoleRequest1" name="copyRoleRequest1"/>
-
-         <wsdl:output message="impl:copyRoleResponse1" name="copyRoleResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserType" parameterOrder="sessionid userid">
-
-         <wsdl:input message="impl:getUserTypeRequest" name="getUserTypeRequest"/>
-
-         <wsdl:output message="impl:getUserTypeResponse" name="getUserTypeResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addMemberToGroup" parameterOrder="sessionid siteid groupid userid">
-
-         <wsdl:input message="impl:addMemberToGroupRequest" name="addMemberToGroupRequest"/>
-
-         <wsdl:output message="impl:addMemberToGroupResponse" name="addMemberToGroupResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewUser" parameterOrder="sessionid id eid firstname lastname email type password">
-
-         <wsdl:input message="impl:addNewUserRequest" name="addNewUserRequest"/>
-
-         <wsdl:output message="impl:addNewUserResponse" name="addNewUserResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewUser" parameterOrder="sessionid eid firstname lastname email type password">
-
-         <wsdl:input message="impl:addNewUserRequest1" name="addNewUserRequest1"/>
-
-         <wsdl:output message="impl:addNewUserResponse1" name="addNewUserResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeUser" parameterOrder="sessionid eid">
-
-         <wsdl:input message="impl:removeUserRequest" name="removeUserRequest"/>
-
-         <wsdl:output message="impl:removeUserResponse" name="removeUserResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeSiteProperty" parameterOrder="sessionid siteid propname">
-
-         <wsdl:input message="impl:removeSitePropertyRequest" name="removeSitePropertyRequest"/>
-
-         <wsdl:output message="impl:removeSitePropertyResponse" name="removeSitePropertyResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteProperty" parameterOrder="sessionid siteid propname">
-
-         <wsdl:input message="impl:getSitePropertyRequest" name="getSitePropertyRequest"/>
-
-         <wsdl:output message="impl:getSitePropertyResponse" name="getSitePropertyResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserEmail" parameterOrder="sessionid userid">
-
-         <wsdl:input message="impl:getUserEmailRequest" name="getUserEmailRequest"/>
-
-         <wsdl:output message="impl:getUserEmailResponse" name="getUserEmailResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserEmail" parameterOrder="sessionid">
-
-         <wsdl:input message="impl:getUserEmailRequest1" name="getUserEmailRequest1"/>
-
-         <wsdl:output message="impl:getUserEmailResponse1" name="getUserEmailResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserDisplayName" parameterOrder="sessionid userid">
-
-         <wsdl:input message="impl:getUserDisplayNameRequest" name="getUserDisplayNameRequest"/>
-
-         <wsdl:output message="impl:getUserDisplayNameResponse" name="getUserDisplayNameResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserDisplayName" parameterOrder="sessionid">
-
-         <wsdl:input message="impl:getUserDisplayNameRequest1" name="getUserDisplayNameRequest1"/>
-
-         <wsdl:output message="impl:getUserDisplayNameResponse1" name="getUserDisplayNameResponse1"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeSite" parameterOrder="sessionid siteid">
-
-         <wsdl:input message="impl:removeSiteRequest" name="removeSiteRequest"/>
-
-         <wsdl:output message="impl:removeSiteResponse" name="removeSiteResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteSkin" parameterOrder="sessionid siteid">
-
-         <wsdl:input message="impl:getSiteSkinRequest" name="getSiteSkinRequest"/>
-
-         <wsdl:output message="impl:getSiteSkinResponse" name="getSiteSkinResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserProperty" parameterOrder="sessionid eid propertyName">
-
-         <wsdl:input message="impl:getUserPropertyRequest" name="getUserPropertyRequest"/>
-
-         <wsdl:output message="impl:getUserPropertyResponse" name="getUserPropertyResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getAllUsers" parameterOrder="sessionid">
-
-         <wsdl:input message="impl:getAllUsersRequest" name="getAllUsersRequest"/>
-
-         <wsdl:output message="impl:getAllUsersResponse" name="getAllUsersResponse"/>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewSite" parameterOrder="sessionid siteid title description shortdesc iconurl infourl joinable joinerrole published publicview skin type">
-
-         <wsdl:input message="impl:addNewSiteRequest" name="addNewSiteRequest"/>
-
-         <wsdl:output message="impl:addNewSiteResponse" name="addNewSiteResponse"/>
+         <wsdl:output message="impl:getCurrentUserEmailResponse" name="getCurrentUserEmailResponse"/>
 
       </wsdl:operation>
 
@@ -2195,1369 +2171,19 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
       <wsdlsoap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
 
-      <wsdl:operation name="checkSession">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkSessionRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkSessionResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserInfo">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeUserInfoRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeUserInfoResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserName">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeUserNameRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeUserNameResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserEmail">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeUserEmailRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeUserEmailResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserType">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeUserTypeRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeUserTypeResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeUserPassword">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeUserPasswordRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeUserPasswordResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addGroupToSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addGroupToSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addGroupToSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getGroupsInSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getGroupsInSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getGroupsInSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewRoleToAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewRoleToAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewRoleToAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="allowFunctionForRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="allowFunctionForRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="allowFunctionForRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeAllRolesFromAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeAllRolesFromAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeAllRolesFromAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="disallowAllFunctionsForRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="disallowAllFunctionsForRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="disallowAllFunctionsForRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="disallowFunctionForRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="disallowFunctionForRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="disallowFunctionForRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="setRoleDescription">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="setRoleDescriptionRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="setRoleDescriptionResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addMemberToAuthzGroupWithRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addMemberToAuthzGroupWithRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addMemberToAuthzGroupWithRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeMemberFromAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeMemberFromAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeMemberFromAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeAllMembersFromAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeAllMembersFromAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeAllMembersFromAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="setRoleForAuthzGroupMaintenance">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="setRoleForAuthzGroupMaintenanceRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="setRoleForAuthzGroupMaintenanceResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addMemberToSiteWithRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addMemberToSiteWithRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addMemberToSiteWithRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copySite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copySiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copySiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewPageToSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewPageToSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewPageToSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewPageToSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewPageToSiteRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewPageToSiteResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removePageFromSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removePageFromSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removePageFromSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewToolToPage">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewToolToPageRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewToolToPageResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addConfigPropertyToTool">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addConfigPropertyToToolRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addConfigPropertyToToolResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addConfigPropertyToPage">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addConfigPropertyToPageRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addConfigPropertyToPageResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForMemberInAuthzGroupWithRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForMemberInAuthzGroupWithRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForMemberInAuthzGroupWithRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSitesUserCanAccess">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSitesUserCanAccessRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSitesUserCanAccessResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSitesUserCanAccess">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSitesUserCanAccessRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSitesUserCanAccessResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getAllSitesForUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getAllSitesForUserRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getAllSitesForUserResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getAllSitesForUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getAllSitesForUserRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getAllSitesForUserResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="isSiteJoinable">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="isSiteJoinableRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="isSiteJoinableResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteTitle">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteTitleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteTitleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteSkin">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteSkinRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteSkinResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteJoinable">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteJoinableRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteJoinableResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteIconUrl">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteIconUrlRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteIconUrlResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteDescription">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteDescriptionRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteDescriptionResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="setSiteProperty">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="setSitePropertyRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="setSitePropertyResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForRoleInAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForRoleInAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForRoleInAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForEmptyRolesInAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForEmptyRolesInAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForEmptyRolesInAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="searchForUsers">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="searchForUsersRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="searchForUsersResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeMemberFromSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeMemberFromSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeMemberFromSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForUserInAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForUserInAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForUserInAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUsersInAuthzGroupWithRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getUsersInAuthzGroupWithRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getUsersInAuthzGroupWithRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUsersInAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getUsersInAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getUsersInAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyCalendarEvents">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copyCalendarEventsRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copyCalendarEventsResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewToolToAllWorkspaces">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewToolToAllWorkspacesRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewToolToAllWorkspacesResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSessionForUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSessionForUserRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSessionForUserResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSessionForUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSessionForUserRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSessionForUserResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getPagesAndToolsForSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getPagesAndToolsForSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getPagesAndToolsForSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getPagesAndToolsForSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getPagesAndToolsForSiteRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getPagesAndToolsForSiteResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyResources">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copyResourcesRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copyResourcesResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="changeSiteShortDescription">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="changeSiteShortDescriptionRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="changeSiteShortDescriptionResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addToolAndPageToSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addToolAndPageToSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addToolAndPageToSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="findSitesByProperty">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="findSitesByPropertyRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="findSitesByPropertyResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="findSitesByPropertyValue">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="findSitesByPropertyValueRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="findSitesByPropertyValueResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copySiteContent">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copySiteContentRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         wsdl:output name="copySiteContentResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copySiteContent">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copySiteContentRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copySiteContentResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="setUserLanguage">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="setUserLanguageRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="setUserLanguageResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
       <wsdl:operation name="getUserId">
 
          <wsdlsoap:operation soapAction=""/>
 
          <wsdl:input name="getUserIdRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getUserIdResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserId">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getUserIdRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getUserIdResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getPlacementId">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getPlacementIdRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getPlacementIdResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteTitle">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSiteTitleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSiteTitleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getSiteDescription">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getSiteDescriptionRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getSiteDescriptionResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForUserRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForUserResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="checkForSite">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="checkForSiteRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="checkForSiteResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="removeRoleFromAuthzGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="removeRoleFromAuthzGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="removeRoleFromAuthzGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copyRoleRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copyRoleResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="copyRole">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="copyRoleRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="copyRoleResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserType">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getUserTypeRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getUserTypeResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addMemberToGroup">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addMemberToGroupRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addMemberToGroupResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewUserRequest">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewUserResponse">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="addNewUser">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="addNewUserRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="addNewUserResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3569,31 +2195,67 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="removeUserRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="removeUserResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
       </wsdl:operation>
 
-      <wsdl:operation name="removeSiteProperty">
+      <wsdl:operation name="removeRoleFromAuthzGroup">
 
          <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:input name="removeSitePropertyRequest">
+         <wsdl:input name="removeRoleFromAuthzGroupRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
-         <wsdl:output name="removeSitePropertyResponse">
+         <wsdl:output name="removeRoleFromAuthzGroupResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copyRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copyRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copyRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPlacementId">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getPlacementIdRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getPlacementIdResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3605,13 +2267,31 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="getSitePropertyRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getSitePropertyResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeSiteProperty">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeSitePropertyRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeSitePropertyResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3623,31 +2303,13 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="getUserEmailRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getUserEmailResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
-
-         </wsdl:output>
-
-      </wsdl:operation>
-
-      <wsdl:operation name="getUserEmail">
-
-         <wsdlsoap:operation soapAction=""/>
-
-         <wsdl:input name="getUserEmailRequest1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
-
-         </wsdl:input>
-
-         <wsdl:output name="getUserEmailResponse1">
-
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3659,31 +2321,121 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="getUserDisplayNameRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getUserDisplayNameResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
       </wsdl:operation>
 
-      <wsdl:operation name="getUserDisplayName">
+      <wsdl:operation name="getUserType">
 
          <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:input name="getUserDisplayNameRequest1">
+         <wsdl:input name="getUserTypeRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
-         <wsdl:output name="getUserDisplayNameResponse1">
+         <wsdl:output name="getUserTypeResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteTitle">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getSiteTitleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getSiteTitleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSiteDescription">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getSiteDescriptionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getSiteDescriptionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3695,13 +2447,13 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="removeSiteRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="removeSiteResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3713,31 +2465,49 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="getSiteSkinRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getSiteSkinResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
       </wsdl:operation>
 
-      <wsdl:operation name="getUserProperty">
+      <wsdl:operation name="addMemberToGroup">
 
          <wsdlsoap:operation soapAction=""/>
 
-         <wsdl:input name="getUserPropertyRequest">
+         <wsdl:input name="addMemberToGroupRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
-         <wsdl:output name="getUserPropertyResponse">
+         <wsdl:output name="addMemberToGroupResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3749,13 +2519,31 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="getAllUsersRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="getAllUsersResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserProperty">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getUserPropertyRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getUserPropertyResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
@@ -3767,13 +2555,1183 @@ Built on Apr 22, 2006 (06:55:48 PDT)-->
 
          <wsdl:input name="addNewSiteRequest">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
 
          </wsdl:input>
 
          <wsdl:output name="addNewSiteResponse">
 
-            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws" use="encoded"/>
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUserIdForCurrentUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getUserIdForCurrentUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getUserIdForCurrentUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPagesAndToolsForSiteForUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getPagesAndToolsForSiteForUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getPagesAndToolsForSiteForUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getNormalSessionForUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getNormalSessionForUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getNormalSessionForUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewUserWithSpecificId">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewUserWithSpecificIdRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewUserWithSpecificIdResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copyRoleSimple">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copyRoleSimpleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copyRoleSimpleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewRoleToAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewRoleToAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewRoleToAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeAllRolesFromAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeAllRolesFromAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeAllRolesFromAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="allowFunctionForRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="allowFunctionForRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="allowFunctionForRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="disallowAllFunctionsForRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="disallowAllFunctionsForRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="disallowAllFunctionsForRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="disallowFunctionForRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="disallowFunctionForRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="disallowFunctionForRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="setRoleDescription">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="setRoleDescriptionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="setRoleDescriptionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addMemberToAuthzGroupWithRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addMemberToAuthzGroupWithRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addMemberToAuthzGroupWithRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeMemberFromAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeMemberFromAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeMemberFromAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeAllMembersFromAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeAllMembersFromAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeAllMembersFromAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="setRoleForAuthzGroupMaintenance">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="setRoleForAuthzGroupMaintenanceRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="setRoleForAuthzGroupMaintenanceResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addMemberToSiteWithRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addMemberToSiteWithRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addMemberToSiteWithRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copySite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copySiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copySiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForMemberInAuthzGroupWithRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForMemberInAuthzGroupWithRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForMemberInAuthzGroupWithRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkSession">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkSessionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkSessionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserInfo">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeUserInfoRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeUserInfoResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserName">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeUserNameRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeUserNameResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserEmail">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeUserEmailRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeUserEmailResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserType">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeUserTypeRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeUserTypeResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeUserPassword">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeUserPasswordRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeUserPasswordResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addGroupToSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addGroupToSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addGroupToSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getGroupsInSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getGroupsInSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getGroupsInSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewSimplePageToSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewSimplePageToSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewSimplePageToSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removePageFromSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removePageFromSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removePageFromSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewToolToPage">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewToolToPageRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewToolToPageResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addConfigPropertyToTool">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addConfigPropertyToToolRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addConfigPropertyToToolResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addConfigPropertyToPage">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addConfigPropertyToPageRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addConfigPropertyToPageResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSitesCurrentUserCanAccess">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getSitesCurrentUserCanAccessRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getSitesCurrentUserCanAccessResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSitesUserCanAccess">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getSitesUserCanAccessRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getSitesUserCanAccessResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllSitesForCurrentUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getAllSitesForCurrentUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getAllSitesForCurrentUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getAllSitesForUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getAllSitesForUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getAllSitesForUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="isSiteJoinable">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="isSiteJoinableRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="isSiteJoinableResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteTitle">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteTitleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteTitleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteSkin">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteSkinRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteSkinResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteJoinable">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteJoinableRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteJoinableResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteIconUrl">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteIconUrlRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteIconUrlResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteDescription">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteDescriptionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteDescriptionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="setSiteProperty">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="setSitePropertyRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="setSitePropertyResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForRoleInAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForRoleInAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForRoleInAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForEmptyRolesInAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForEmptyRolesInAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForEmptyRolesInAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="searchForUsers">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="searchForUsersRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="searchForUsersResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="removeMemberFromSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="removeMemberFromSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="removeMemberFromSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="checkForUserInAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="checkForUserInAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="checkForUserInAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUsersInAuthzGroupWithRole">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getUsersInAuthzGroupWithRoleRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getUsersInAuthzGroupWithRoleResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getUsersInAuthzGroup">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getUsersInAuthzGroupRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getUsersInAuthzGroupResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copyCalendarEvents">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copyCalendarEventsRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copyCalendarEventsResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewToolToAllWorkspaces">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewToolToAllWorkspacesRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewToolToAllWorkspacesResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getSessionForUser">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getSessionForUserRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getSessionForUserResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addNewPageToSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addNewPageToSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addNewPageToSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getPagesAndToolsForSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getPagesAndToolsForSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getPagesAndToolsForSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copyResources">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copyResourcesRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copyResourcesResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="changeSiteShortDescription">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="changeSiteShortDescriptionRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="changeSiteShortDescriptionResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="addToolAndPageToSite">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="addToolAndPageToSiteRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="addToolAndPageToSiteResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="findSitesByProperty">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="findSitesByPropertyRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="findSitesByPropertyResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="findSitesByPropertyValue">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="findSitesByPropertyValueRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="findSitesByPropertyValueResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copySiteContent">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copySiteContentRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copySiteContentResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="copySiteContentForOneTool">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="copySiteContentForOneToolRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="copySiteContentForOneToolResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getCurrentUserDisplayName">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getCurrentUserDisplayNameRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getCurrentUserDisplayNameResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
+
+         </wsdl:output>
+
+      </wsdl:operation>
+
+      <wsdl:operation name="getCurrentUserEmail">
+
+         <wsdlsoap:operation soapAction=""/>
+
+         <wsdl:input name="getCurrentUserEmailRequest">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://DefaultNamespace"/>
+
+         </wsdl:input>
+
+         <wsdl:output name="getCurrentUserEmailResponse">
+
+            <wsdlsoap:body encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" namespace="http://localhost:8080/sakai-axis/SakaiScript.jws"/>
 
          </wsdl:output>
 
