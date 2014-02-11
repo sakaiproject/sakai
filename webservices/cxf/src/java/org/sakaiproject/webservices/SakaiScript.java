@@ -1,5 +1,25 @@
 package org.sakaiproject.webservices;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -7,23 +27,16 @@ import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.PhaseInterceptorChain;
 import org.apache.cxf.transport.http.AbstractHTTPDestination;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -36,9 +49,7 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.FormattedText;
@@ -47,25 +58,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
-
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
 
 /**
  * SakaiScript.jws
@@ -82,20 +74,6 @@ public class SakaiScript extends AbstractWebService {
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
     private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
-
-
-    private AuthzGroupService authzGroupService;
-    private CalendarService calendarService;
-    private EventTrackingService eventTrackingService;
-    private SecurityService securityService;
-    private ServerConfigurationService serverConfigurationService;
-    private SiteService siteService;
-    private ToolManager toolManager;
-    private UsageSessionService usageSessionService;
-    private UserDirectoryService userDirectoryService;
-    private ContentHostingService contentHostingService;
-    private EntityManager entityManager;
-
 
     /**
      * Check if a session is active
@@ -4115,58 +4093,5 @@ public class SakaiScript extends AbstractWebService {
         }
     }
 
-    @WebMethod(exclude = true)
-    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
-        this.authzGroupService = authzGroupService;
-    }
 
-    @WebMethod(exclude = true)
-    public void setCalendarService(CalendarService calendarService) {
-        this.calendarService = calendarService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setEventTrackingService(EventTrackingService eventTrackingService) {
-        this.eventTrackingService = eventTrackingService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setSiteService(SiteService siteService) {
-        this.siteService = siteService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setToolManager(ToolManager toolManager) {
-        this.toolManager = toolManager;
-    }
-
-    @WebMethod(exclude = true)
-    public void setUsageSessionService(UsageSessionService usageSessionService) {
-        this.usageSessionService = usageSessionService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setContentHostingService(ContentHostingService contentHostingService) {
-        this.contentHostingService = contentHostingService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setEntityManager(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
 }

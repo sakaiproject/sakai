@@ -1,17 +1,5 @@
 package org.sakaiproject.webservices;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.cxf.message.Message;
-import org.apache.cxf.phase.PhaseInterceptorChain;
-import org.apache.cxf.transport.http.AbstractHTTPDestination;
-import org.sakaiproject.component.api.ServerConfigurationService;
-
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
-
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
@@ -22,16 +10,20 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.cxf.message.Message;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.user.api.User;
+
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
 public class SakaiLogin extends AbstractWebService {
 
     private static final Log LOG = LogFactory.getLog(SakaiLogin.class);
-
-    private ServerConfigurationService serverConfigurationService;
-    private UsageSessionService usageSessionService;
-    private UserDirectoryService userDirectoryService;
-
 
     /**
      * Login with the supplied credentials and return the session string which can be used in subsequent web service calls, ie via SakaiScript
@@ -127,18 +119,4 @@ public class SakaiLogin extends AbstractWebService {
         return login(id, pw) + "," + serverConfigurationService.getString("webservices.directurl", serverConfigurationService.getString("serverUrl"));
     }
 
-    @WebMethod(exclude = true)
-    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
-        this.serverConfigurationService = serverConfigurationService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setUsageSessionService(UsageSessionService usageSessionService) {
-        this.usageSessionService = usageSessionService;
-    }
-
-    @WebMethod(exclude = true)
-    public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-        this.userDirectoryService = userDirectoryService;
-    }
 }

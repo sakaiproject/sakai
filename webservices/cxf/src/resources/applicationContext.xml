@@ -30,15 +30,11 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     implementor="#org.sakaiproject.webservices.SakaiScript"
                     address="/SakaiScript"/>
 
+    <jaxws:endpoint id="Assignments"
+                    implementor="#org.sakaiproject.webservices.Assignments"
+                    address="/Assignments"/>
 
-    <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init">
-        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
-        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
-        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
-        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    </bean>
-
-    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init">
+    <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
         <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
@@ -51,7 +47,12 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
     </bean>
 
+    <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 
 </beans>
