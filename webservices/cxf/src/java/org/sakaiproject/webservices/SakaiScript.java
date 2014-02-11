@@ -53,6 +53,10 @@ import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -126,13 +130,17 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException This is the preferred method of adding user accounts whereby their internal ID is automatically assigned a UUID.
      */
     @WebMethod
-    public String addNewUser(@WebParam(name = "sessionid", partName = "sessionid")String sessionid,
-                             @WebParam(name = "eid", partName = "eid")String eid,
-                             @WebParam(name = "firstname", partName = "firstname")String firstname,
-                             @WebParam(name = "lastname", partName = "lastname")String lastname,
-                             @WebParam(name = "email", partName = "email")String email,
-                             @WebParam(name = "type", partName = "type")String type,
-                             @WebParam(name = "password", partName = "password")String password) {
+    @Path("/addNewUser")
+    @Produces("text/plain")
+    @GET
+    public String addNewUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "firstname", partName = "firstname") @QueryParam("firstname") String firstname,
+            @WebParam(name = "lastname", partName = "lastname") @QueryParam("lastname") String lastname,
+            @WebParam(name = "email", partName = "email") @QueryParam("email") String email,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "password", partName = "password") @QueryParam("password") String password) {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {

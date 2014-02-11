@@ -4,6 +4,9 @@ import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import org.junit.Test;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import java.lang.reflect.Method;
 
 /**
@@ -15,12 +18,15 @@ public class MethodGenerator {
     @Test
     public void generate() {
         Class clazz = SakaiScript.class;
-        for (Method method : clazz.getMethods() ){
+        for (Method method : clazz.getMethods()) {
             if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
                 continue;
             }
             System.out.println("@WebMethod");
-            System.out.println("public " +  method.getName() + "(");
+            System.out.println("@Path(\"/" + method.getName() + "\")");
+            System.out.println("@Produces(\"text/plain\")");
+            System.out.println("@GET");
+            System.out.println("public " + method.getReturnType().getSimpleName() + " " + method.getName() + "(");
             Paranamer paranamer = new BytecodeReadingParanamer();
 
             try {
@@ -28,13 +34,13 @@ public class MethodGenerator {
 
 
                 Class[] types = method.getParameterTypes();
-                int i=0;
+                int i = 0;
                 for (String name : parameterNames) {
-                    System.out.print("@WebParam(name = \"" + name + "\", partName = \"" + name + "\") " + types[i].getSimpleName());
+                    System.out.print("@WebParam(name = \"" + name + "\", partName = \"" + name + "\") @QueryParam(\"" + name + "\") " + types[i].getSimpleName() + " " + name);
                     if (i + 1 != parameterNames.length) {
                         System.out.println(",");
                     } else {
-                        System.out.println(") {");
+                        System.out.println(") {\n");
                     }
                     i++;
                 }
