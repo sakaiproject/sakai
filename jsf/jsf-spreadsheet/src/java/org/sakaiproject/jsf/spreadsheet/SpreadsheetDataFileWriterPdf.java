@@ -8,8 +8,10 @@ import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 
 import com.lowagie.text.BadElementException;
 import com.lowagie.text.Cell;
@@ -18,16 +20,19 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
+import com.lowagie.text.FontFactory;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Rectangle;
 import com.lowagie.text.Table;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfWriter;
 
 public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 	private static final Log log = LogFactory.getLog(SpreadsheetDataFileWriterCsv.class);
 	private List<List<String>> studentInfo = new ArrayList<List<String>>();
 	private static final int MAX_COLUMNS = 8;
-	private static final Font BOLD_FONT = new Font(Font.COURIER, 10, Font.BOLD);
+	
+	private static Font font, boldFont;
 
 	public void writeDataToResponse(List<List<Object>> spreadsheetData, String fileName, HttpServletResponse response) {
 		response.setContentType("application/pdf");
@@ -75,8 +80,8 @@ public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 								c1 = getHeaderCell(studentInfo.get(rowDataIndex).get(0));
 								c2 = getHeaderCell(studentInfo.get(rowDataIndex).get(1));
 							}else{
-								c1 = new Cell(new Chunk(studentInfo.get(rowDataIndex).get(0), BOLD_FONT));
-								c2 = new Cell(new Chunk(studentInfo.get(rowDataIndex).get(1), BOLD_FONT));
+								c1 = new Cell(new Chunk(studentInfo.get(rowDataIndex).get(0), getBoldFont()));
+								c2 = new Cell(new Chunk(studentInfo.get(rowDataIndex).get(1), getBoldFont()));
 							}
 							t.addCell(c1);
 							t.addCell(c2);
@@ -100,9 +105,9 @@ public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 								
 							}else{
 								if(startIndex == 0 && (i == 0 || i == 1)){
-									c = new Cell(new Chunk(sb.toString(), BOLD_FONT));
+									c = new Cell(new Chunk(sb.toString(), getBoldFont()));
 								}else{
-									c = new Cell(sb.toString());	
+									c = new Cell(new Chunk(sb.toString(), getFont()));	
 								}							
 							}
 							t.addCell(c);
@@ -135,11 +140,42 @@ public class SpreadsheetDataFileWriterPdf implements SpreadsheetDataFileWriter {
 	
 	private Cell getHeaderCell(String headerTxt) throws BadElementException{
 		//set header cells:								
-		Cell c = new Cell(new Chunk(headerTxt, BOLD_FONT));
+		Cell c = new Cell(new Chunk(headerTxt, getBoldFont()));
 		c.setHeader(true);
 		c.setBackgroundColor(Color.LIGHT_GRAY);
 		
 		return c;
+	}
+	
+	private static void initFont() {
+		String fontName = ServerConfigurationService.getString("pdf.default.font");
+		if (StringUtils.isNotBlank(fontName)) {
+			FontFactory.registerDirectories();
+			if (FontFactory.isRegistered(fontName)) {
+				font = FontFactory.getFont(fontName, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+				boldFont = FontFactory.getFont(fontName, BaseFont.IDENTITY_H, BaseFont.EMBEDDED, 10, Font.BOLD);
+			} else {
+				log.warn("Can not find font: " + fontName);
+			}
+		}
+		if (font == null) {
+			font = new Font();
+			boldFont = new Font(Font.COURIER, 10, Font.BOLD);
+		}
+	}
+	
+	private static Font getFont() {
+		if (font == null) {
+			initFont();
+		}
+		return font;
+	}
+	
+	private static Font getBoldFont() {
+		if (boldFont == null) {
+			initFont();
+		}
+		return boldFont;
 	}
 	
 }
