@@ -15,6 +15,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 @WebService
+@SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
 public class SakaiLogin extends AbstractWebService {
 
     private static final Log LOG = LogFactory.getLog(SakaiLogin.class);

@@ -70,6 +70,7 @@ import java.util.Set;
  */
 
 @WebService
+@SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
 public class SakaiScript extends AbstractWebService {
 
     private static final Log LOG = LogFactory.getLog(SakaiScript.class);
