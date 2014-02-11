@@ -566,4 +566,19 @@
        	
         <eventParserTip for="contextId" separator="/" index="2"/>
     </tool>
+
+	<tool
+		toolId="sakai.iframe"
+		selected="true"
+		additionalToolIds="sakai.iframe.service,sakai.iframe.myworkspace,sakai.iframe.site">
+        <event eventId="webcontent.read" selected="true"/>
+        <event eventId="webcontent.revise" selected="true"/>
+        <event eventId="webcontent.service.read" selected="true"/>
+        <event eventId="webcontent.service.revise" selected="true"/>
+        <event eventId="webcontent.myworkspace.read" selected="true"/>
+        <event eventId="webcontent.myworkspace.revise" selected="true"/>
+        <event eventId="webcontent.site.read" selected="true"/>
+        <event eventId="webcontent.site.revise" selected="true"/>
+        <eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
 </toolEventsDef>
