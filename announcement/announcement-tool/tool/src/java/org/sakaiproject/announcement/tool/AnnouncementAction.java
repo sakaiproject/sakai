@@ -2458,6 +2458,12 @@ public class AnnouncementAction extends PagedResourceActionII
                                 ret = null;
 						        M_log.info("Assignment " + assignmentReference + " not found" + e.getMessage());
                             }
+							catch (SecurityException e) {
+								ret = null;
+								if (M_log.isDebugEnabled()) {
+									M_log.debug("Assignment " + assignmentReference + " not found" + e.getMessage());
+								}
+							}
                             if (ret != null && ret.getEntityData() != null) {
                                 Object returnData = ret.getEntityData().getData();
                                 assignData = (Map<String, Object>)returnData;
