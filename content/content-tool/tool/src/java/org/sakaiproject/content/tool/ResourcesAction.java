@@ -5019,11 +5019,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		// this is a list of folder ids; sequence matters here
 		List<String> folderIds = new ArrayList<String>();
-		// initialized with the site root folder id
-		folderIds.add(rootFolderId);
-		
+
 		// this map holds folder id as the hash key, and folder attributes (e.g. depth, folder name, et al.) as the hashed value
 		HashMap<String, ResourcesBrowseItem> folderMap = new HashMap<String, ResourcesBrowseItem>();
+		
+		// initialize folderIds list and folderMap for site root folder
+		folderIds.add(rootFolderId);
+		ResourcesBrowseItem fItem = getResourceBrowseItemForFolder(rootTitle,
+									contentService.getDepth(rootFolderId, rootFolderId),
+									rootFolderId);
+		folderMap.put(rootFolderId, fItem);
 		
 		// iterate through the deleted resources
 		if(members != null && members.size() > 0)
@@ -5059,10 +5064,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 								if (!folderMap.containsKey(currentFolderId))
 								{
 									// update the HashMap for folder attributes, with folder name and folder depth
-									String displayName = currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-									int depth = contentService.getDepth(currentFolderId, rootFolderId);
-									ResourcesBrowseItem fItem = new ResourcesBrowseItem(currentFolderId, displayName, "folder");
-									fItem.setDepth(depth);
+									fItem = getResourceBrowseItemForFolder(currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME),
+																contentService.getDepth(currentFolderId, rootFolderId),
+																currentFolderId);
 									folderMap.put(currentFolderId, fItem);
 								}
 							}
@@ -5110,6 +5114,20 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 
 		return TEMPLATE_RESTORE;
+	}
+
+	/**
+	 * return a ResourcesBrowseItem for given folder
+	 * @param displayName
+	 * @param depth
+	 * @param currentFolderId
+	 * @return
+	 */
+	private ResourcesBrowseItem getResourceBrowseItemForFolder(String displayName, int depth, String currentFolderId) {
+		ResourcesBrowseItem fItem;
+		fItem = new ResourcesBrowseItem(currentFolderId, displayName, "folder");
+		fItem.setDepth(depth);
+		return fItem;
 	}
 
 	/**
