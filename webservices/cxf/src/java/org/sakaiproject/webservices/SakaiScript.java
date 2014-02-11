@@ -74,7 +74,7 @@ import java.util.Set;
  */
 
 @WebService
-@SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
+@SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class SakaiScript extends AbstractWebService {
 
     private static final Log LOG = LogFactory.getLog(SakaiScript.class);
@@ -97,7 +97,6 @@ public class SakaiScript extends AbstractWebService {
     private EntityManager entityManager;
 
 
-
     /**
      * Check if a session is active
      *
@@ -105,7 +104,12 @@ public class SakaiScript extends AbstractWebService {
      * @return the sessionid if active, or "null" if not.
      */
     @WebMethod
-    public String checkSession(@WebParam(name = "sessionid", partName = "sessionid") String sessionid) {
+    @Path("/checkSession")
+    @Produces("text/plain")
+    @GET
+    public String checkSession(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+
 
         Session s = sessionManager.getSession(sessionid);
 
@@ -174,7 +178,18 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException This form of addUser() should only be used when you need control over the user's internal ID. Otherwise use the other form.
      */
     @WebMethod
-    public String addNewUserWithInternalId(String sessionid, String id, String eid, String firstname, String lastname, String email, String type, String password) {
+    @Path("/addNewUserWithInternalId")
+    @Produces("text/plain")
+    @GET
+    public String addNewUserWithInternalId(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "id", partName = "id") @QueryParam("id") String id,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "firstname", partName = "firstname") @QueryParam("firstname") String firstname,
+            @WebParam(name = "lastname", partName = "lastname") @QueryParam("lastname") String lastname,
+            @WebParam(name = "email", partName = "email") @QueryParam("email") String email,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "password", partName = "password") @QueryParam("password") String password) {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
@@ -202,7 +217,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String removeUser(String sessionid, String eid) {
+    @Path("/removeUser")
+    @Produces("text/plain")
+    @GET
+    public String removeUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -231,7 +251,17 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException Note that if you only want to change individual properties of a user's account like their email address or password, see the related web services.
      */
     @WebMethod
-    public String changeUserInfo(String sessionid, String eid, String firstname, String lastname, String email, String type, String password) {
+    @Path("/changeUserInfo")
+    @Produces("text/plain")
+    @GET
+    public String changeUserInfo(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "firstname", partName = "firstname") @QueryParam("firstname") String firstname,
+            @WebParam(name = "lastname", partName = "lastname") @QueryParam("lastname") String lastname,
+            @WebParam(name = "email", partName = "email") @QueryParam("email") String email,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type,
+            @WebParam(name = "password", partName = "password") @QueryParam("password") String password) {
         Session session = establishSession(sessionid);
 
         UserEdit userEdit = null;
@@ -263,7 +293,14 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeUserName(String sessionid, String eid, String firstname, String lastname) {
+    @Path("/changeUserName")
+    @Produces("text/plain")
+    @GET
+    public String changeUserName(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "firstname", partName = "firstname") @QueryParam("firstname") String firstname,
+            @WebParam(name = "lastname", partName = "lastname") @QueryParam("lastname") String lastname) {
         Session session = establishSession(sessionid);
 
         UserEdit userEdit = null;
@@ -291,7 +328,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeUserEmail(String sessionid, String eid, String email) {
+    @Path("/changeUserEmail")
+    @Produces("text/plain")
+    @GET
+    public String changeUserEmail(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "email", partName = "email") @QueryParam("email") String email) {
         Session session = establishSession(sessionid);
 
         UserEdit userEdit = null;
@@ -318,7 +361,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeUserType(String sessionid, String eid, String type) {
+    @Path("/changeUserType")
+    @Produces("text/plain")
+    @GET
+    public String changeUserType(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type) {
         Session session = establishSession(sessionid);
 
         UserEdit userEdit = null;
@@ -345,7 +394,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeUserPassword(String sessionid, String eid, String password) {
+    @Path("/changeUserPassword")
+    @Produces("text/plain")
+    @GET
+    public String changeUserPassword(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "password", partName = "password") @QueryParam("password") String password) {
         Session session = establishSession(sessionid);
 
         UserEdit userEdit = null;
@@ -370,7 +425,11 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getUserEmailForCurrentUser(String sessionid) {
+    @Path("/getUserEmailForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getUserEmailForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session session = establishSession(sessionid);
         User user = userDirectoryService.getCurrentUser();
         return user.getEmail();
@@ -388,7 +447,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getUserEmail(String sessionid, String userid) {
+    @Path("/getUserEmail")
+    @Produces("text/plain")
+    @GET
+    public String getUserEmail(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(userid);
@@ -407,7 +471,11 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getUserDisplayNameForCurrentUser(String sessionid) {
+    @Path("/getUserDisplayNameForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getUserDisplayNameForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session session = establishSession(sessionid);
         User user = userDirectoryService.getCurrentUser();
         return user.getDisplayName();
@@ -425,7 +493,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getUserDisplayName(String sessionid, String userid) {
+    @Path("/getUserDisplayName")
+    @Produces("text/plain")
+    @GET
+    public String getUserDisplayName(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(userid);
@@ -448,7 +521,14 @@ public class SakaiScript extends AbstractWebService {
     private static final String GROUP_PROP_WSETUP_CREATED = "group_prop_wsetup_created";
 
     @WebMethod
-    public String addGroupToSite(String sessionid, String siteid, String grouptitle, String groupdesc) {
+    @Path("/addGroupToSite")
+    @Produces("text/plain")
+    @GET
+    public String addGroupToSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "grouptitle", partName = "grouptitle") @QueryParam("grouptitle") String grouptitle,
+            @WebParam(name = "groupdesc", partName = "groupdesc") @QueryParam("groupdesc") String groupdesc) {
         Session session = establishSession(sessionid);
         try {
             Site site = siteService.getSite(siteid);
@@ -484,7 +564,14 @@ public class SakaiScript extends AbstractWebService {
      * TODO: This is not returning false if it fails (ie if user isn't in site to begin with). SAK-15334
      */
     @WebMethod
-    public boolean addMemberToGroup(String sessionid, String siteid, String groupid, String userid) {
+    @Path("/addMemberToGroup")
+    @Produces("text/plain")
+    @GET
+    public boolean addMemberToGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "groupid", partName = "groupid") @QueryParam("groupid") String groupid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session session = establishSession(sessionid);
         try {
             Site site = siteService.getSite(siteid);
@@ -512,7 +599,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException returns <exception /> string if exception encountered and logs it
      */
     @WebMethod
-    public String getGroupsInSite(String sessionid, String siteid) {
+    @Path("/getGroupsInSite")
+    @Produces("text/plain")
+    @GET
+    public String getGroupsInSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
 
@@ -583,8 +675,14 @@ public class SakaiScript extends AbstractWebService {
      * @param authzgroupid the id of the new authzgroup
      * @return success or exception message
      */
+
     @WebMethod
-    public String addNewAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/addNewAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String addNewAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -608,7 +706,12 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String removeAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/removeAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String removeAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -633,7 +736,14 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String addNewRoleToAuthzGroup(String sessionid, String authzgroupid, String roleid, String description) {
+    @Path("/addNewRoleToAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String addNewRoleToAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
         Session session = establishSession(sessionid);
 
         try {
@@ -658,7 +768,12 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String removeAllRolesFromAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/removeAllRolesFromAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String removeAllRolesFromAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -685,7 +800,13 @@ public class SakaiScript extends AbstractWebService {
      * Note: This web service has been modified, see SAK-15334
      */
     @WebMethod
-    public String removeRoleFromAuthzGroup(String sessionid, String authzgroupid, String roleid) {
+    @Path("/removeRoleFromAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String removeRoleFromAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -719,7 +840,14 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String allowFunctionForRole(String sessionid, String authzgroupid, String roleid, String functionname) {
+    @Path("/allowFunctionForRole")
+    @Produces("text/plain")
+    @GET
+    public String allowFunctionForRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "functionname", partName = "functionname") @QueryParam("functionname") String functionname) {
         Session session = establishSession(sessionid);
 
         // check that ONLY super user's are accessing this (see SAK-18494)
@@ -749,7 +877,13 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String disallowAllFunctionsForRole(String sessionid, String authzgroupid, String roleid) {
+    @Path("/disallowAllFunctionsForRole")
+    @Produces("text/plain")
+    @GET
+    public String disallowAllFunctionsForRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -778,7 +912,14 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if the functionname doesn't exist, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String disallowFunctionForRole(String sessionid, String authzgroupid, String roleid, String functionname) {
+    @Path("/disallowFunctionForRole")
+    @Produces("text/plain")
+    @GET
+    public String disallowFunctionForRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "functionname", partName = "functionname") @QueryParam("functionname") String functionname) {
         Session session = establishSession(sessionid);
 
         try {
@@ -805,7 +946,14 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String setRoleDescription(String sessionid, String authzgroupid, String roleid, String description) {
+    @Path("/setRoleDescription")
+    @Produces("text/plain")
+    @GET
+    public String setRoleDescription(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
         Session session = establishSession(sessionid);
 
         try {
@@ -834,7 +982,14 @@ public class SakaiScript extends AbstractWebService {
      * Note: This web service has been modified, see SAK-15334
      */
     @WebMethod
-    public String addMemberToAuthzGroupWithRole(String sessionid, String eid, String authzgroupid, String roleid) {
+    @Path("/addMemberToAuthzGroupWithRole")
+    @Produces("text/plain")
+    @GET
+    public String addMemberToAuthzGroupWithRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -868,7 +1023,13 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String removeMemberFromAuthzGroup(String sessionid, String eid, String authzgroupid) {
+    @Path("/removeMemberFromAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String removeMemberFromAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -893,7 +1054,12 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String removeAllMembersFromAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/removeAllMembersFromAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String removeAllMembersFromAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -920,7 +1086,13 @@ public class SakaiScript extends AbstractWebService {
      * Note: This web service has been modified, see SAK-15334
      */
     @WebMethod
-    public String setRoleForAuthzGroupMaintenance(String sessionid, String authzgroupid, String roleid) {
+    @Path("/setRoleForAuthzGroupMaintenance")
+    @Produces("text/plain")
+    @GET
+    public String setRoleForAuthzGroupMaintenance(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -956,7 +1128,14 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if the role doesn't exist in the site, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String addMemberToSiteWithRole(String sessionid, String siteid, String eid, String roleid) {
+    @Path("/addMemberToSiteWithRole")
+    @Produces("text/plain")
+    @GET
+    public String addMemberToSiteWithRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -992,7 +1171,23 @@ public class SakaiScript extends AbstractWebService {
      * Note that this will create an empty site with no tools. If you would like to create a site from a template, ie inherit its tool structure (not content), see copySite()
      */
     @WebMethod
-    public String addNewSite(String sessionid, String siteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) {
+    @Path("/addNewSite")
+    @Produces("text/plain")
+    @GET
+    public String addNewSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "shortdesc", partName = "shortdesc") @QueryParam("shortdesc") String shortdesc,
+            @WebParam(name = "iconurl", partName = "iconurl") @QueryParam("iconurl") String iconurl,
+            @WebParam(name = "infourl", partName = "infourl") @QueryParam("infourl") String infourl,
+            @WebParam(name = "joinable", partName = "joinable") @QueryParam("joinable") boolean joinable,
+            @WebParam(name = "joinerrole", partName = "joinerrole") @QueryParam("joinerrole") String joinerrole,
+            @WebParam(name = "published", partName = "published") @QueryParam("published") boolean published,
+            @WebParam(name = "publicview", partName = "publicview") @QueryParam("publicview") boolean publicview,
+            @WebParam(name = "skin", partName = "skin") @QueryParam("skin") String skin,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1036,7 +1231,12 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String removeSite(String sessionid, String siteid) {
+    @Path("/removeSite")
+    @Produces("text/plain")
+    @GET
+    public String removeSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1072,7 +1272,24 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String copySite(String sessionid, String siteidtocopy, String newsiteid, String title, String description, String shortdesc, String iconurl, String infourl, boolean joinable, String joinerrole, boolean published, boolean publicview, String skin, String type) {
+    @Path("/copySite")
+    @Produces("text/plain")
+    @GET
+    public String copySite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteidtocopy", partName = "siteidtocopy") @QueryParam("siteidtocopy") String siteidtocopy,
+            @WebParam(name = "newsiteid", partName = "newsiteid") @QueryParam("newsiteid") String newsiteid,
+            @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "shortdesc", partName = "shortdesc") @QueryParam("shortdesc") String shortdesc,
+            @WebParam(name = "iconurl", partName = "iconurl") @QueryParam("iconurl") String iconurl,
+            @WebParam(name = "infourl", partName = "infourl") @QueryParam("infourl") String infourl,
+            @WebParam(name = "joinable", partName = "joinable") @QueryParam("joinable") boolean joinable,
+            @WebParam(name = "joinerrole", partName = "joinerrole") @QueryParam("joinerrole") String joinerrole,
+            @WebParam(name = "published", partName = "published") @QueryParam("published") boolean published,
+            @WebParam(name = "publicview", partName = "publicview") @QueryParam("publicview") boolean publicview,
+            @WebParam(name = "skin", partName = "skin") @QueryParam("skin") String skin,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1126,7 +1343,14 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String addNewPageToSite(String sessionid, String siteid, String pagetitle, int pagelayout) {
+    @Path("/addNewPageToSite")
+    @Produces("text/plain")
+    @GET
+    public String addNewPageToSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "pagelayout", partName = "pagelayout") @QueryParam("pagelayout") int pagelayout) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1158,7 +1382,13 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for ConcurrentModficationException being thrown - SAK-15337. Is this because it removes via pagetitle but can allow multiple page titles of the same name?
      */
     @WebMethod
-    public String removePageFromSite(String sessionid, String siteid, String pagetitle) {
+    @Path("/removePageFromSite")
+    @Produces("text/plain")
+    @GET
+    public String removePageFromSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1203,7 +1433,16 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String addNewToolToPage(String sessionid, String siteid, String pagetitle, String tooltitle, String toolid, String layouthints) {
+    @Path("/addNewToolToPage")
+    @Produces("text/plain")
+    @GET
+    public String addNewToolToPage(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "tooltitle", partName = "tooltitle") @QueryParam("tooltitle") String tooltitle,
+            @WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid,
+            @WebParam(name = "layouthints", partName = "layouthints") @QueryParam("layouthints") String layouthints) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1282,7 +1521,16 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String addConfigPropertyToTool(String sessionid, String siteid, String pagetitle, String tooltitle, String propname, String propvalue) {
+    @Path("/addConfigPropertyToTool")
+    @Produces("text/plain")
+    @GET
+    public String addConfigPropertyToTool(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "tooltitle", partName = "tooltitle") @QueryParam("tooltitle") String tooltitle,
+            @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname,
+            @WebParam(name = "propvalue", partName = "propvalue") @QueryParam("propvalue") String propvalue) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1325,7 +1573,15 @@ public class SakaiScript extends AbstractWebService {
      * TODO: fix for if any values (except sessionid and siteid) are blank or invalid, it is still returning success - SAK-15334
      */
     @WebMethod
-    public String addConfigPropertyToPage(String sessionid, String siteid, String pagetitle, String propname, String propvalue) {
+    @Path("/addConfigPropertyToPage")
+    @Produces("text/plain")
+    @GET
+    public String addConfigPropertyToPage(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname,
+            @WebParam(name = "propvalue", partName = "propvalue") @QueryParam("propvalue") String propvalue) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1357,7 +1613,12 @@ public class SakaiScript extends AbstractWebService {
      * @return true/false
      */
     @WebMethod
-    public boolean checkForUser(String sessionid, String eid) {
+    @Path("/checkForUser")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -1383,7 +1644,12 @@ public class SakaiScript extends AbstractWebService {
      * @return true/false
      */
     @WebMethod
-    public boolean checkForSite(String sessionid, String siteid) {
+    @Path("/checkForSite")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -1410,7 +1676,14 @@ public class SakaiScript extends AbstractWebService {
      * @return true/false
      */
     @WebMethod
-    public boolean checkForMemberInAuthzGroupWithRole(String sessionid, String eid, String authzgroupid, String role) {
+    @Path("/checkForMemberInAuthzGroupWithRole")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForMemberInAuthzGroupWithRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "role", partName = "role") @QueryParam("role") String role) {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
@@ -1450,7 +1723,11 @@ public class SakaiScript extends AbstractWebService {
      * </list>
      */
     @WebMethod
-    public String getSitesCurrentUserCanAccess(String sessionid) {
+    @Path("/getSitesCurrentUserCanAccess")
+    @Produces("text/plain")
+    @GET
+    public String getSitesCurrentUserCanAccess(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -1500,7 +1777,12 @@ public class SakaiScript extends AbstractWebService {
      * @		if not super user or any other error occurs from main method
      */
     @WebMethod
-    public String getSitesUserCanAccess(String sessionid, String userid) {
+    @Path("/getSitesUserCanAccess")
+    @Produces("text/plain")
+    @GET
+    public String getSitesUserCanAccess(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
 
         //get a session for the other user, reuse if possible
         String newsessionid = getSessionForUser(sessionid, userid, true);
@@ -1531,7 +1813,11 @@ public class SakaiScript extends AbstractWebService {
      */
 
     @WebMethod
-    public String getAllSitesForCurrentUser(String sessionid) {
+    @Path("/getAllSitesForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getAllSitesForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -1587,7 +1873,12 @@ public class SakaiScript extends AbstractWebService {
      * @		if not super user or any other error occurs from main method
      */
     @WebMethod
-    public String getAllSitesForUser(String sessionid, String userid) {
+    @Path("/getAllSitesForUser")
+    @Produces("text/plain")
+    @GET
+    public String getAllSitesForUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
 
         //get a session for the other user, reuse if possible
         String newsessionid = getSessionForUser(sessionid, userid, true);
@@ -1609,7 +1900,12 @@ public class SakaiScript extends AbstractWebService {
      * @
      */
     @WebMethod
-    public String getSiteTitle(String sessionid, String siteid) {
+    @Path("/getSiteTitle")
+    @Produces("text/plain")
+    @GET
+    public String getSiteTitle(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
 
@@ -1634,8 +1930,14 @@ public class SakaiScript extends AbstractWebService {
      * @return description of the site or string containing error
      * @throws RuntimeException
      */
+
     @WebMethod
-    public String getSiteDescription(String sessionid, String siteid) {
+    @Path("/getSiteDescription")
+    @Produces("text/plain")
+    @GET
+    public String getSiteDescription(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
 
@@ -1662,7 +1964,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getSiteSkin(String sessionid, String siteid) {
+    @Path("/getSiteSkin")
+    @Produces("text/plain")
+    @GET
+    public String getSiteSkin(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
 
@@ -1689,7 +1996,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public boolean isSiteJoinable(String sessionid, String siteid) {
+    @Path("/isSiteJoinable")
+    @Produces("text/plain")
+    @GET
+    public boolean isSiteJoinable(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -1716,7 +2028,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteTitle(String sessionid, String siteid, String title) {
+    @Path("/changeSiteTitle")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteTitle(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "title", partName = "title") @QueryParam("title") String title) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1743,7 +2061,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteSkin(String sessionid, String siteid, String skin) {
+    @Path("/changeSiteSkin")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteSkin(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "skin", partName = "skin") @QueryParam("skin") String skin) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1772,7 +2096,15 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteJoinable(String sessionid, String siteid, boolean joinable, String joinerrole, boolean publicview) {
+    @Path("/changeSiteJoinable")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteJoinable(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "joinable", partName = "joinable") @QueryParam("joinable") boolean joinable,
+            @WebParam(name = "joinerrole", partName = "joinerrole") @QueryParam("joinerrole") String joinerrole,
+            @WebParam(name = "publicview", partName = "publicview") @QueryParam("publicview") boolean publicview) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1802,7 +2134,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteIconUrl(String sessionid, String siteid, String iconurl) {
+    @Path("/changeSiteIconUrl")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteIconUrl(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "iconurl", partName = "iconurl") @QueryParam("iconurl") String iconurl) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1830,7 +2168,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteDescription(String sessionid, String siteid, String description) {
+    @Path("/changeSiteDescription")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteDescription(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1867,7 +2211,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getSiteProperty(String sessionid, String siteid, String propname) {
+    @Path("/getSiteProperty")
+    @Produces("text/plain")
+    @GET
+    public String getSiteProperty(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1900,7 +2250,14 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String setSiteProperty(String sessionid, String siteid, String propname, String propvalue) {
+    @Path("/setSiteProperty")
+    @Produces("text/plain")
+    @GET
+    public String setSiteProperty(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname,
+            @WebParam(name = "propvalue", partName = "propvalue") @QueryParam("propvalue") String propvalue) {
         Session session = establishSession(sessionid);
 
         if (!securityService.isSuperUser()) {
@@ -1939,7 +2296,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String removeSiteProperty(String sessionid, String siteid, String propname) {
+    @Path("/removeSiteProperty")
+    @Produces("text/plain")
+    @GET
+    public String removeSiteProperty(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "propname", partName = "propname") @QueryParam("propname") String propname) {
         Session session = establishSession(sessionid);
 
         try {
@@ -1974,7 +2337,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public boolean checkForRoleInAuthzGroup(String sessionid, String authzgroupid, String roleid) {
+    @Path("/checkForRoleInAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForRoleInAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -2004,7 +2373,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public boolean checkForEmptyRolesInAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/checkForEmptyRolesInAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForEmptyRolesInAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -2040,7 +2414,14 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String searchForUsers(String sessionid, String criteria, int first, int last) {
+    @Path("/searchForUsers")
+    @Produces("text/plain")
+    @GET
+    public String searchForUsers(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "criteria", partName = "criteria") @QueryParam("criteria") String criteria,
+            @WebParam(name = "first", partName = "first") @QueryParam("first") int first,
+            @WebParam(name = "last", partName = "last") @QueryParam("last") int last) {
         Session session = establishSession(sessionid);
 
 
@@ -2124,7 +2505,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public boolean checkForAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/checkForAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
         Session s = establishSession(sessionid);
 
         try {
@@ -2152,7 +2538,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String removeMemberFromSite(String sessionid, String siteid, String eid) {
+    @Path("/removeMemberFromSite")
+    @Produces("text/plain")
+    @GET
+    public String removeMemberFromSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
 
         Session session = establishSession(sessionid);
 
@@ -2179,7 +2571,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public boolean checkForUserInAuthzGroup(String sessionid, String authzgroupid, String eid) {
+    @Path("/checkForUserInAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUserInAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session s = establishSession(sessionid);
 
         if (ADMIN_SITE_REALM.equalsIgnoreCase(authzgroupid) && !securityService.isSuperUser(s.getUserId())) {
@@ -2214,7 +2612,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException returns <exception /> string if exception encountered and logs it
      */
     @WebMethod
-    public String getUsersInAuthzGroupWithRole(String sessionid, String authzgroupid, String authzgrouproles) {
+    @Path("/getUsersInAuthzGroupWithRole")
+    @Produces("text/plain")
+    @GET
+    public String getUsersInAuthzGroupWithRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid,
+            @WebParam(name = "authzgrouproles", partName = "authzgrouproles") @QueryParam("authzgrouproles") String authzgrouproles) {
 
         Session s = establishSession(sessionid);
 
@@ -2282,7 +2686,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException returns <exception /> string if exception encountered
      */
     @WebMethod
-    public String getUsersInAuthzGroup(String sessionid, String authzgroupid) {
+    @Path("/getUsersInAuthzGroup")
+    @Produces("text/plain")
+    @GET
+    public String getUsersInAuthzGroup(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid", partName = "authzgroupid") @QueryParam("authzgroupid") String authzgroupid) {
 
         Session s = establishSession(sessionid);
 
@@ -2349,7 +2758,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String copyCalendarEvents(String sessionid, String sourceSiteId, String targetSiteId) {
+    @Path("/copyCalendarEvents")
+    @Produces("text/plain")
+    @GET
+    public String copyCalendarEvents(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "sourceSiteId", partName = "sourceSiteId") @QueryParam("sourceSiteId") String sourceSiteId,
+            @WebParam(name = "targetSiteId", partName = "targetSiteId") @QueryParam("targetSiteId") String targetSiteId) {
 
         Session session = establishSession(sessionid);
 
@@ -2400,7 +2815,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String getUserType(String sessionid, String userid) {
+    @Path("/getUserType")
+    @Produces("text/plain")
+    @GET
+    public String getUserType(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(userid);
@@ -2429,7 +2849,17 @@ public class SakaiScript extends AbstractWebService {
      *                          webservice.specialUsers=admin,postmaster
      */
     @WebMethod
-    public String addNewToolToAllWorkspaces(String sessionid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) {
+    @Path("/addNewToolToAllWorkspaces")
+    @Produces("text/plain")
+    @GET
+    public String addNewToolToAllWorkspaces(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "tooltitle", partName = "tooltitle") @QueryParam("tooltitle") String tooltitle,
+            @WebParam(name = "pagelayout", partName = "pagelayout") @QueryParam("pagelayout") int pagelayout,
+            @WebParam(name = "position", partName = "position") @QueryParam("position") int position,
+            @WebParam(name = "popup", partName = "popup") @QueryParam("popup") boolean popup) {
         Session session = establishSession(sessionid);
 
         //check that ONLY admin is accessing this	
@@ -2522,7 +2952,16 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException if not a super user, if new role cannot be created, if functions differ after the new role is made
      */
     @WebMethod
-    public String copyRole2(String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description, boolean removeBeforeSync) {
+    @Path("/copyRole2")
+    @Produces("text/plain")
+    @GET
+    public String copyRole2(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid1", partName = "authzgroupid1") @QueryParam("authzgroupid1") String authzgroupid1,
+            @WebParam(name = "authzgroupid2", partName = "authzgroupid2") @QueryParam("authzgroupid2") String authzgroupid2,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "removeBeforeSync", partName = "removeBeforeSync") @QueryParam("removeBeforeSync") boolean removeBeforeSync) {
         Session session = establishSession(sessionid);
 
         Set existingfunctions;
@@ -2535,7 +2974,7 @@ public class SakaiScript extends AbstractWebService {
 
         //check that ONLY super user's are accessing this	
         if (!securityService.isSuperUser(session.getUserId())) {
-            LOG.warn("WS copyRole(): Permission denied. Restricted to super users.");
+            LOG.warn("WS copyRole2(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS copyRole(): Permission denied. Restricted to super users.");
         }
 
@@ -2561,14 +3000,14 @@ public class SakaiScript extends AbstractWebService {
                 Role existingrole = (Role) iRoles.next();
                 existingroleids.add(existingrole.getId());
             }
-            LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
+            LOG.warn("WS copyRole2(): existing roles in " + authzgroupid2 + ": " + existingroleids.toString());
 
 
             //if this roleid exists in the authzgroup already...
             if (existingroleids.contains(roleid)) {
-                LOG.warn("WS copyRole(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
+                LOG.warn("WS copyRole2(): role " + roleid + " exists in " + authzgroupid2 + ". This role will updated.");
             } else {
-                LOG.warn("WS copyRole(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
+                LOG.warn("WS copyRole2(): role " + roleid + " does not exist in " + authzgroupid2 + ". This role will be created.");
 
                 //create this role in authzgroup2
                 role2 = authzgroup2.addRole(roleid);
@@ -2589,14 +3028,14 @@ public class SakaiScript extends AbstractWebService {
                     existingroleids.add(existingrole.getId());
                 }
 
-                LOG.warn("WS copyRole(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
+                LOG.warn("WS copyRole2(): existing roles in " + authzgroupid2 + " after addition: " + existingroleids.toString());
 
                 //if role now exists, ok, else fault.
                 if (existingroleids.contains(roleid)) {
-                    LOG.warn("WS copyRole(): role " + roleid + " was created in " + authzgroupid2 + ".");
+                    LOG.warn("WS copyRole2(): role " + roleid + " was created in " + authzgroupid2 + ".");
                 } else {
-                    LOG.warn("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
-                    throw new RuntimeException("WS copyRole(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+                    LOG.warn("WS copyRole2(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
+                    throw new RuntimeException("WS copyRole2(): role " + roleid + " could not be created in " + authzgroupid2 + ".");
                 }
 
             }
@@ -2628,9 +3067,9 @@ public class SakaiScript extends AbstractWebService {
 
             //compare existingfunctions with newfunctions to see that they match
             if (newfunctions.containsAll(existingfunctions)) {
-                LOG.warn("WS copyRole(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
+                LOG.warn("WS copyRole2(): functions added successfully to role " + roleid + " in " + authzgroupid2 + ".");
             } else {
-                LOG.warn("WS copyRole(): functions in roles differ after addition.");
+                LOG.warn("WS copyRole2(): functions in roles differ after addition.");
                 throw new RuntimeException("WS copyRole(): functions in roles differ after addition.");
             }
 
@@ -2655,7 +3094,15 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException if not a super user, if new role cannot be created, if functions differ after the new role is made
      */
     @WebMethod
-    public String copyRole(String sessionid, String authzgroupid1, String authzgroupid2, String roleid, String description) {
+    @Path("/copyRole")
+    @Produces("text/plain")
+    @GET
+    public String copyRole(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "authzgroupid1", partName = "authzgroupid1") @QueryParam("authzgroupid1") String authzgroupid1,
+            @WebParam(name = "authzgroupid2", partName = "authzgroupid2") @QueryParam("authzgroupid2") String authzgroupid2,
+            @WebParam(name = "roleid", partName = "roleid") @QueryParam("roleid") String roleid,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description) {
         return copyRole2(sessionid, authzgroupid1, authzgroupid2, roleid, description, false);
 
     }
@@ -2671,7 +3118,11 @@ public class SakaiScript extends AbstractWebService {
      *                          webservice.specialUsers=admin,postmaster
      */
     @WebMethod
-    public String getAllUsers(String sessionid) {
+    @Path("/getAllUsers")
+    @Produces("text/plain")
+    @GET
+    public String getAllUsers(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session session = establishSession(sessionid);
 
         //check that ONLY admin is accessing this	
@@ -2750,7 +3201,13 @@ public class SakaiScript extends AbstractWebService {
      *                          or session cannot be established
      */
     @WebMethod
-    public String getSessionForUser(String sessionid, String eid, boolean wsonly) {
+    @Path("/getSessionForUser")
+    @Produces("text/plain")
+    @GET
+    public String getSessionForUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "wsonly", partName = "wsonly") @QueryParam("wsonly") boolean wsonly) {
 
         Session session = establishSession(sessionid);
 
@@ -2838,7 +3295,12 @@ public class SakaiScript extends AbstractWebService {
      *                          or session cannot be established
      */
     @WebMethod
-    public String getSessionForCurrentUser(String sessionid, String eid) {
+    @Path("/getSessionForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getSessionForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         return getSessionForUser(sessionid, eid, false);
     }
 
@@ -2855,7 +3317,16 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String addNewPageToSiteWithPosition(String sessionid, String siteid, String pagetitle, int pagelayout, int position, boolean popup) {
+    @Path("/addNewPageToSiteWithPosition")
+    @Produces("text/plain")
+    @GET
+    public String addNewPageToSiteWithPosition(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "pagelayout", partName = "pagelayout") @QueryParam("pagelayout") int pagelayout,
+            @WebParam(name = "position", partName = "position") @QueryParam("position") int position,
+            @WebParam(name = "popup", partName = "popup") @QueryParam("popup") boolean popup) {
         Session session = establishSession(sessionid);
 
         try {
@@ -2893,7 +3364,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException if not a super user and the eid supplied does not match the eid of the session, if user does not exist
      */
     @WebMethod
-    public String getUserId(String sessionid, String eid) {
+    @Path("/getUserId")
+    @Produces("text/plain")
+    @GET
+    public String getUserId(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
         Session session = establishSession(sessionid);
 
         //if eids don't match and we aren't a super user, abort	
@@ -2918,7 +3394,11 @@ public class SakaiScript extends AbstractWebService {
      * @
      */
     @WebMethod
-    public String getUserIdForCurrentUser(String sessionid) {
+    @Path("/getUserIdForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getUserIdForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
         Session session = establishSession(sessionid);
 
         try {
@@ -2960,7 +3440,12 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException if not a super user and the user attached to the session is not in the site, if site does not exist
      */
     @WebMethod
-    public String getPagesAndToolsForSiteForCurrentUser(String sessionid, String siteid) {
+    @Path("/getPagesAndToolsForSiteForCurrentUser")
+    @Produces("text/plain")
+    @GET
+    public String getPagesAndToolsForSiteForCurrentUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
         Session session = establishSession(sessionid);
 
         //check if site exists
@@ -3093,7 +3578,13 @@ public class SakaiScript extends AbstractWebService {
      * @
      */
     @WebMethod
-    public String getPagesAndToolsForSite(String sessionid, String userid, String siteid) {
+    @Path("/getPagesAndToolsForSite")
+    @Produces("text/plain")
+    @GET
+    public String getPagesAndToolsForSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         //get a session for the other user, reuse if possible
         String newsessionid = getSessionForUser(sessionid, userid, true);
@@ -3115,7 +3606,13 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String copyResources(String sessionid, String sourcesiteid, String destinationsiteid) {
+    @Path("/copyResources")
+    @Produces("text/plain")
+    @GET
+    public String copyResources(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
+            @WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid) {
 
         Session session = establishSession(sessionid);
 
@@ -3155,7 +3652,13 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String changeSiteShortDescription(String sessionid, String siteid, String shortDescription) {
+    @Path("/changeSiteShortDescription")
+    @Produces("text/plain")
+    @GET
+    public String changeSiteShortDescription(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "shortDescription", partName = "shortDescription") @QueryParam("shortDescription") String shortDescription) {
 
         Session session = establishSession(sessionid);
 
@@ -3198,7 +3701,18 @@ public class SakaiScript extends AbstractWebService {
      * @throws RuntimeException
      */
     @WebMethod
-    public String addToolAndPageToSite(String sessionid, String siteid, String toolid, String pagetitle, String tooltitle, int pagelayout, int position, boolean popup) {
+    @Path("/addToolAndPageToSite")
+    @Produces("text/plain")
+    @GET
+    public String addToolAndPageToSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid,
+            @WebParam(name = "pagetitle", partName = "pagetitle") @QueryParam("pagetitle") String pagetitle,
+            @WebParam(name = "tooltitle", partName = "tooltitle") @QueryParam("tooltitle") String tooltitle,
+            @WebParam(name = "pagelayout", partName = "pagelayout") @QueryParam("pagelayout") int pagelayout,
+            @WebParam(name = "position", partName = "position") @QueryParam("position") int position,
+            @WebParam(name = "popup", partName = "popup") @QueryParam("popup") boolean popup) {
         Session session = establishSession(sessionid);
 
         //do we want a custom title, or use the defaults from the tool?
@@ -3299,7 +3813,13 @@ public class SakaiScript extends AbstractWebService {
      * @
      */
     @WebMethod
-    public String getUserProperty(String sessionid, String eid, String propertyName) {
+    @Path("/getUserProperty")
+    @Produces("text/plain")
+    @GET
+    public String getUserProperty(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid,
+            @WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName) {
         Session session = establishSession(sessionid);
         try {
             User user = userDirectoryService.getUserByEid(eid);
@@ -3318,7 +3838,12 @@ public class SakaiScript extends AbstractWebService {
      * @return Sites as xml
      */
     @WebMethod
-    public String findSitesByProperty(String sessionid, String propertyName) {
+    @Path("/findSitesByProperty")
+    @Produces("text/plain")
+    @GET
+    public String findSitesByProperty(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName) {
         //register the session with presence
         Session s = establishSession(sessionid);
 
@@ -3338,7 +3863,13 @@ public class SakaiScript extends AbstractWebService {
      * @return Sites as xml
      */
     @WebMethod
-    public String findSitesByPropertyValue(String sessionid, String propertyName, String propertyValue) {
+    @Path("/findSitesByPropertyValue")
+    @Produces("text/plain")
+    @GET
+    public String findSitesByPropertyValue(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "propertyName", partName = "propertyName") @QueryParam("propertyName") String propertyName,
+            @WebParam(name = "propertyValue", partName = "propertyValue") @QueryParam("propertyValue") String propertyValue) {
         //register the session with presence
         Session s = establishSession(sessionid);
 
@@ -3403,7 +3934,13 @@ public class SakaiScript extends AbstractWebService {
      * @
      */
     @WebMethod
-    public String getPlacementId(String sessionid, String siteId, String toolId) {
+    @Path("/getPlacementId")
+    @Produces("text/plain")
+    @GET
+    public String getPlacementId(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteId", partName = "siteId") @QueryParam("siteId") String siteId,
+            @WebParam(name = "toolId", partName = "toolId") @QueryParam("toolId") String toolId) {
         // register the session with presence
         Session s = establishSession(sessionid);
         try {
@@ -3434,7 +3971,13 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String copySiteContent(String sessionid, String sourcesiteid, String destinationsiteid) {
+    @Path("/copySiteContent")
+    @Produces("text/plain")
+    @GET
+    public String copySiteContent(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
+            @WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid) {
 
         Session session = establishSession(sessionid);
 
@@ -3510,7 +4053,14 @@ public class SakaiScript extends AbstractWebService {
      * @return success or exception message
      */
     @WebMethod
-    public String copySiteContentForTool(String sessionid, String sourcesiteid, String destinationsiteid, String toolid) {
+    @Path("/copySiteContentForTool")
+    @Produces("text/plain")
+    @GET
+    public String copySiteContentForTool(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
+            @WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid,
+            @WebParam(name = "toolid", partName = "toolid") @QueryParam("toolid") String toolid) {
 
         Session session = establishSession(sessionid);
 

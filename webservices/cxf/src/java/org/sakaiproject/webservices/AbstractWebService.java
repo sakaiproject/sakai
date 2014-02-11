@@ -5,7 +5,6 @@ import org.sakaiproject.tool.api.SessionManager;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
 
 /**
  * Created by jbush on 2/11/14.
