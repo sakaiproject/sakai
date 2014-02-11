@@ -40,10 +40,22 @@ http://cxf.apache.org/schemas/jaxws.xsd">
          </jaxrs:serviceBeans>
      </jaxrs:server>
 
+    <jaxrs:server id="MessageForumRS" address="/rest/messageforums">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.MessageForums"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
+    <jaxrs:server id="SakaiJobRS" address="/rest/job">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.SakaiJob"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
 
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
-                    address="/SakaiJob"/>
+                    address="/soap/job"/>
 
     <jaxws:endpoint id="SakaiLogin"
                     implementor="#org.sakaiproject.webservices.SakaiLogin"

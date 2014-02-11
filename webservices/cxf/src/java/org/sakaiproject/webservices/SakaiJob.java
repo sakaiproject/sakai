@@ -1,7 +1,13 @@
 package org.sakaiproject.webservices;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +39,13 @@ public class SakaiJob extends AbstractWebService {
      * @return
      * @
      */
-    public String deleteJob(String sessionId, String name)  {
+    @WebMethod
+    @Path("/deleteJob")
+    @Produces("text/plain")
+    @GET
+    public String deleteJob(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "name", partName = "name") @QueryParam("name") String name) {
         Session session = establishSession(sessionId);
         if (!securityService.isSuperUser()) {
             LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
@@ -56,8 +68,14 @@ public class SakaiJob extends AbstractWebService {
      * @return
      * @
      */
-    public String createJob(String sessionId, String name, String type)  {
-
+    @WebMethod
+    @Path("/createJob")
+    @Produces("text/plain")
+    @GET
+    public String createJob(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "name", partName = "name") @QueryParam("name") String name,
+            @WebParam(name = "type", partName = "type") @QueryParam("type") String type) {
         Session session = establishSession(sessionId);
         if (!securityService.isSuperUser()) {
             LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());
@@ -91,7 +109,13 @@ public class SakaiJob extends AbstractWebService {
      * @return
      * @
      */
-    public String runJob(String sessionId, String jobName)  {
+    @WebMethod
+    @Path("/runJob")
+    @Produces("text/plain")
+    @GET
+    public String runJob(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "jobName", partName = "jobName") @QueryParam("jobName") String jobName) {
         Session session = establishSession(sessionId);
         if (!securityService.isSuperUser()) {
             LOG.warn("NonSuperUser trying to collect configuration: " + session.getUserId());

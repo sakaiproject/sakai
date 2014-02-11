@@ -17,7 +17,7 @@ public class MethodGenerator {
 
     @Test
     public void generate() {
-        Class clazz = MessageForums.class;
+        Class clazz = SakaiJob.class;
         for (Method method : clazz.getMethods()) {
             if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
                 continue;
