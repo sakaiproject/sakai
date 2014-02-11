@@ -1,5 +1,10 @@
 package org.sakaiproject.webservices;
 
+import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsForumManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
+import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
+import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
@@ -11,6 +16,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -41,6 +47,13 @@ public class AbstractWebService {
     protected UserDirectoryService userDirectoryService;
     protected ContentHostingService contentHostingService;
     protected EntityManager entityManager;
+    protected DiscussionForumManager discussionForumManager;
+    protected MessageForumsForumManager messageForumsForumManager;
+    protected MessageForumsMessageManager messageForumsMessageManager;
+    protected MessageForumsTypeManager messageForumsTypeManager;
+    protected AreaManager areaManager;
+    protected ThreadLocalManager threadLocalManager;
+
     
     @WebMethod(exclude = true)
     public void init() {
@@ -132,5 +145,35 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setToolManager(ToolManager toolManager) {
         this.toolManager = toolManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setDiscussionForumManager(DiscussionForumManager discussionForumManager) {
+        this.discussionForumManager = discussionForumManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setMessageForumsForumManager(MessageForumsForumManager messageForumsForumManager) {
+        this.messageForumsForumManager = messageForumsForumManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setMessageForumsMessageManager(MessageForumsMessageManager messageForumsMessageManager) {
+        this.messageForumsMessageManager = messageForumsMessageManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setMessageForumsTypeManager(MessageForumsTypeManager messageForumsTypeManager) {
+        this.messageForumsTypeManager = messageForumsTypeManager;
+    }
+    
+    @WebMethod(exclude = true)
+    public void setAreaManager(AreaManager areaManager) {
+        this.areaManager = areaManager;
+    }
+
+    @WebMethod(exclude = true)
+    public void setThreadLocalManager(ThreadLocalManager threadLocalManager) {
+        this.threadLocalManager = threadLocalManager;
     }
 }

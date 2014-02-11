@@ -51,6 +51,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     implementor="#org.sakaiproject.webservices.ContentHosting"
                     address="/ContentHosting"/>
 
+    <jaxws:endpoint id="MessageForums"
+                    implementor="#org.sakaiproject.webservices.MessageForums"
+                    address="/MessageForums"/>
+
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -66,10 +70,17 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+        <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        <property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        <property name="messageForumsMessageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        <property name="messageForumsTypeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.ContentHosting" class="org.sakaiproject.webservices.ContentHosting" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.MessageForums" class="org.sakaiproject.webservices.MessageForums" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
     <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 
