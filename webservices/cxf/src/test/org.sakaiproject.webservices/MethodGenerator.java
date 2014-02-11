@@ -17,7 +17,7 @@ public class MethodGenerator {
 
     @Test
     public void generate() {
-        Class clazz = SakaiScript.class;
+        Class clazz = Assignments.class;
         for (Method method : clazz.getMethods()) {
             if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
                 continue;

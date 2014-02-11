@@ -28,6 +28,11 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="AssignmentsRS" address="/assignments">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.Assignments"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
 
     <jaxws:endpoint id="SakaiLogin"

@@ -1,45 +1,23 @@
 package org.sakaiproject.webservices;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
-import javax.jws.WebMethod;
-import javax.jws.WebService;
-import javax.jws.soap.SOAPBinding;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
 import org.sakaiproject.assignment.api.AssignmentEdit;
+import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentSubmissionEdit;
-import org.sakaiproject.assignment.api.AssignmentService;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -47,20 +25,29 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Xml;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 @WebService
 @SOAPBinding(style= SOAPBinding.Style.RPC, use= SOAPBinding.Use.LITERAL)
@@ -71,10 +58,16 @@ public class Assignments extends AbstractWebService {
     /** The maximum trial number to get an uniq assignment title in gradebook */
     private static final int MAXIMUM_ATTEMPTS_FOR_UNIQUENESS = 100;
     private static final String NEW_ASSIGNMENT_ADD_TO_GRADEBOOK = "new_assignment_add_to_gradebook";
-    
-    public String getAssignmentsForContext(String sessionid, String context) {
-    	
-    	try {
+
+    @WebMethod
+    @Path("/getAssignmentsForContext")
+    @Produces("text/plain")
+    @GET
+    public String getAssignmentsForContext(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context) {
+
+        try {
     		//establish the session
     		Session s = establishSession(sessionid);
     		
@@ -146,9 +139,15 @@ public class Assignments extends AbstractWebService {
     	return "<assignments/ >";
     }
 
-    public String getSubmissionsForAssignment(String sessionId,String assignmentId) {
-    	
-    	try {
+
+    @WebMethod
+    @Path("/getSubmissionsForAssignment")
+    @Produces("text/plain")
+    @GET
+    public String getSubmissionsForAssignment(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
+        try {
     		
     		Session s = establishSession(sessionId);
     		Assignment assign = assignmentService.getAssignment(assignmentId);
@@ -199,8 +198,17 @@ public class Assignments extends AbstractWebService {
     	
     }
 
-    public String setAssignmentGradeCommentforUser (String sessionId, String assignmentId, String userId, String comment, String grade) {
-    	//establish the session
+    @WebMethod
+    @Path("/setAssignmentGradeCommentforUser")
+    @Produces("text/plain")
+    @GET
+    public String setAssignmentGradeCommentforUser(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId,
+            @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
+            @WebParam(name = "comment", partName = "comment") @QueryParam("comment") String comment,
+            @WebParam(name = "grade", partName = "grade") @QueryParam("grade") String grade) {
+        //establish the session
     	
     	try 
     	{		
@@ -259,10 +267,24 @@ public class Assignments extends AbstractWebService {
     	}
     	
     	return "success";
-    }	
+    }
 
-    public String createAssignment(String sessionId, String context, String title, long dueTime, long openTime, long closeTime, int maxPoints, int gradeType, String instructions, int subType) 
-    {
+    @WebMethod
+    @Path("/createAssignment")
+    @Produces("text/plain")
+    @GET
+    public String createAssignment(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context,
+            @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
+            @WebParam(name = "dueTime", partName = "dueTime") @QueryParam("dueTime") long dueTime,
+            @WebParam(name = "openTime", partName = "openTime") @QueryParam("openTime") long openTime,
+            @WebParam(name = "closeTime", partName = "closeTime") @QueryParam("closeTime") long closeTime,
+            @WebParam(name = "maxPoints", partName = "maxPoints") @QueryParam("maxPoints") int maxPoints,
+            @WebParam(name = "gradeType", partName = "gradeType") @QueryParam("gradeType") int gradeType,
+            @WebParam(name = "instructions", partName = "instructions") @QueryParam("instructions") String instructions,
+            @WebParam(name = "subType", partName = "subType") @QueryParam("subType") int subType) {
+
     	
     	LOG.info("creating assignment in " + context);
     	try {
@@ -350,9 +372,15 @@ public class Assignments extends AbstractWebService {
     	
     }
 
-    public String setAssignmentAcceptUntil(String sessionId, String assignmentId) {
-    	LOG.info("setting accept until time for assignment: " + assignmentId);
-    	try {
+    @WebMethod
+    @Path("/setAssignmentAcceptUntil")
+    @Produces("text/plain")
+    @GET
+    public String setAssignmentAcceptUntil(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId) {
+        LOG.info("setting accept until time for assignment: " + assignmentId);
+        try {
     		Session s = establishSession(sessionId);
     		AssignmentEdit assignment = assignmentService.editAssignment(assignmentId);
     		LOG.debug("got assignment: " + assignment.getTitle());
@@ -371,12 +399,16 @@ public class Assignments extends AbstractWebService {
     // This is a copy of the code in AssignmentAction.java
 
     /**
-     * integration with gradebook
-     * @param state
-     * @param assignmentRef Assignment reference
-     * @param newAssignment Is this a new assignment that needs to be added into Gradebook?
-     * @param submissionRef Any submission need to be update?
-     * @param add
+     *
+     * @param assignmentRef
+     * @param associateGradebookAssignment
+     * @param addUpdateRemoveAssignment
+     * @param newAssignment_title
+     * @param newAssignment_maxPoints
+     * @param newAssignment_dueTime
+     * @param submissionRef
+     * @param updateRemoveSubmission
+     * @param context
      */
     protected void integrateGradebook( String assignmentRef, String associateGradebookAssignment, String addUpdateRemoveAssignment, String newAssignment_title, int newAssignment_maxPoints, Time newAssignment_dueTime, String submissionRef, String updateRemoveSubmission, String context)
     {
@@ -644,11 +676,18 @@ public class Assignments extends AbstractWebService {
     }	// isGradebookDefined()
 
 
-
-
-    public String createSubmission(String sessionId, String context, String assignmentId, String userId, long time) {
-    	LOG.info("createSubmission( "+ sessionId + ", "+ context + " , "+ assignmentId +" , "+  userId + "," + time+")");
-    	try {
+    @WebMethod
+    @Path("/createSubmission")
+    @Produces("text/plain")
+    @GET
+    public String createSubmission(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context,
+            @WebParam(name = "assignmentId", partName = "assignmentId") @QueryParam("assignmentId") String assignmentId,
+            @WebParam(name = "userId", partName = "userId") @QueryParam("userId") String userId,
+            @WebParam(name = "time", partName = "time") @QueryParam("time") long time) {
+        LOG.info("createSubmission( " + sessionId + ", " + context + " , " + assignmentId + " , " + userId + "," + time + ")");
+        try {
     		//establish the session
     		Session s = establishSession(sessionId);
     		Assignment assign = assignmentService.getAssignment(assignmentId);
@@ -684,10 +723,20 @@ public class Assignments extends AbstractWebService {
     }
 
 
-    public String addSubmissionAttachment(String sessionId, String context,
-    		String submissionId, String attachmentName,
-    		String attachmentMimeType, String attachmentData) {
-    	try {
+    @WebMethod
+    @Path("/addSubmissionAttachment")
+    @Produces("text/plain")
+    @GET
+    public String addSubmissionAttachment(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context,
+            @WebParam(name = "submissionId", partName = "submissionId") @QueryParam("submissionId") String submissionId,
+            @WebParam(name = "attachmentName", partName = "attachmentName") @QueryParam("attachmentName") String attachmentName,
+            @WebParam(name = "attachmentMimeType", partName = "attachmentMimeType") @QueryParam("attachmentMimeType") String attachmentMimeType,
+            @WebParam(name = "attachmentData", partName = "attachmentData") @QueryParam("attachmentData") String attachmentData) {
+
+
+        try {
     		// establish the session
     		Session s = establishSession(sessionId);
     		AssignmentSubmissionEdit sub = assignmentService.editSubmission(submissionId);
@@ -762,9 +811,14 @@ public class Assignments extends AbstractWebService {
     } // displayGrade
 
 
-    public String undeleteAssignments(String sessionId, String context) {
-
-    	try {
+    @WebMethod
+    @Path("/undeleteAssignments")
+    @Produces("text/plain")
+    @GET
+    public String undeleteAssignments(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId,
+            @WebParam(name = "context", partName = "context") @QueryParam("context") String context) {
+        try {
     		//establish the session
     		Session s = establishSession(sessionId);
     			    
