@@ -3422,6 +3422,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		if (EVENT_SITE_USER_INVALIDATE.equals(eventType))
 		{
+			// KNL-1171: always clear the cache for the user as the Site below may have been deleted
+			clearUserCacheForUser(event.getUserId());
+
 			try {
 				Site site = getSite(event.getResource());
 				clearUserCacheForSite(site);
