@@ -62,37 +62,37 @@ limitations under the License.
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-radeox</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-rwiki-model</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-rwiki-util</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-rwiki-diff</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-search-util</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${sakai.version}</version>
         <type>jar</type>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-rwiki-impl</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>${project.version}</version>
         <type>jar</type>
       </dependency>
     </dependencies>
