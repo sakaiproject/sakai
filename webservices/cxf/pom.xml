@@ -1,0 +1,189 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>Sakai Soap (CXF)</name>
+    <groupId>org.sakaiproject.webservices</groupId>
+    <artifactId>sakai-ws</artifactId>
+
+    <packaging>war</packaging>
+
+    <parent>
+        <groupId>org.sakaiproject.webservices</groupId>
+        <artifactId>webservices</artifactId>
+        <version>10.0-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <cxf.version>2.7.8</cxf.version>
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-frontend-jaxws</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-transports-http-jetty</artifactId>
+            <version>${cxf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <!--dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+        </dependency-->
+
+        <!--  Sakai dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.samigo</groupId>
+            <artifactId>samigo-qti</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
+		<dependency>
+	      	<groupId>org.sakaiproject.shortenedurl</groupId>
+	      	<artifactId>shortenedurl-api</artifactId>
+	      	<version>${project.version}</version>
+            <scope>provided</scope>
+	    </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.assignment</groupId>
+            <artifactId>sakai-assignment-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.msgcntr</groupId>
+            <artifactId>messageforums-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-api</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.samigo</groupId>
+          <artifactId>samigo-services</artifactId>
+        </dependency>
+        <dependency>
+          <groupId>org.quartz-scheduler</groupId>
+          <artifactId>quartz</artifactId>
+          <version>${sakai.quartz.version}</version>
+          <scope>provided</scope>
+        </dependency> 
+        <!--  external dependencies -->
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.16</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+        	<groupId>com.thoughtworks.paranamer</groupId>
+        	<artifactId>paranamer</artifactId>
+        	<version>2.6</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+        	<groupId>junit</groupId>
+        	<artifactId>junit</artifactId>
+        	<version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/resources</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+        </resources>
+        <plugins>
+            <!--plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>${cxf.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <extraargs>
+                                        <extraarg>-impl</extraarg>
+                                        <extraarg>-autoNameResolution</extraarg>
+
+                                    </extraargs>
+                                    <wsdl>${basedir}/src/resources/wsdl/SakaiLogin.wsdl</wsdl>
+                                    <wsdl>${basedir}/src/resources/wsdl/SakaiScript.wsdl</wsdl>
+
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin-->
+
+        </plugins>
+    </build>
+
+</project>

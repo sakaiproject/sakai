@@ -45,6 +45,7 @@
     
     <modules>
         <module>axis</module>
+        <module>cxf</module>
         <module>util</module>
     </modules>
     

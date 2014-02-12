@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:jaxws="http://cxf.apache.org/jaxws"
+       xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans.xsd
+http://cxf.apache.org/jaxrs
+http://cxf.apache.org/schemas/jaxrs.xsd
+http://cxf.apache.org/jaxws
+http://cxf.apache.org/schemas/jaxws.xsd">
+
+  <import resource="classpath:META-INF/cxf/cxf.xml" />
+  <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
+  <import resource="classpath:META-INF/cxf/cxf-servlet.xml" />
+
+    <!-- JAX-RS -->
+    <jaxrs:server id="SakaiLoginRS" address="/rest/login">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiLogin"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="SakaiScriptRS" address="/rest/sakai">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiScript"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="AssignmentsRS" address="/rest/assignments">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.Assignments"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="ContentHostingRS" address="/rest/contenthosting">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.ContentHosting"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
+    <jaxrs:server id="MessageForumRS" address="/rest/messageforums">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.MessageForums"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
+    <jaxrs:server id="SakaiJobRS" address="/rest/job">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.SakaiJob"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
+    <jaxrs:server id="ShortenedUrlRS" address="/rest/shortenedurl">
+         <jaxrs:serviceBeans>
+             <ref bean="org.sakaiproject.webservices.ShortenedUrl"/>
+         </jaxrs:serviceBeans>
+     </jaxrs:server>
+
+    <jaxrs:server id="TestsAndQuizzesRS" address="/rest/testsandquizzes">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.TestsAndQuizzes"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="SakaiPortalLoginRS" address="/rest/portallogin">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiPortalLogin"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxws:endpoint id="SakaiJob"
+                    implementor="#org.sakaiproject.webservices.SakaiJob"
+                    address="/soap/job"/>
+
+    <jaxws:endpoint id="SakaiLogin"
+                    implementor="#org.sakaiproject.webservices.SakaiLogin"
+                    address="/soap/login"/>
+
+    <jaxws:endpoint id="SakaiPortalLogin"
+                    implementor="#org.sakaiproject.webservices.SakaiPortalLogin"
+                    address="/soap/portallogin"/>
+
+    <jaxws:endpoint id="SakaiScript"
+                    implementor="#org.sakaiproject.webservices.SakaiScript"
+                    address="/soap/sakai"/>
+
+    <jaxws:endpoint id="Assignments"
+                    implementor="#org.sakaiproject.webservices.Assignments"
+                    address="/soap/assignments"/>
+
+    <jaxws:endpoint id="ContentHosting"
+                    implementor="#org.sakaiproject.webservices.ContentHosting"
+                    address="/soap/contenthosting"/>
+
+    <jaxws:endpoint id="MessageForums"
+                    implementor="#org.sakaiproject.webservices.MessageForums"
+                    address="/soap/messageforums"/>
+
+    <jaxws:endpoint id="ShortenedUrl"
+                    implementor="#org.sakaiproject.webservices.ShortenedUrl"
+                    address="/soap/shortenedurl"/>
+
+    <jaxws:endpoint id="TestsAndQuizzes"
+                    implementor="#org.sakaiproject.webservices.TestsAndQuizzes"
+                    address="/soap/testsandquizzes"/>
+
+    <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+        <property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+        <property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService"/>
+        <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+        <property name="discussionForumManager" ref="org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"/>
+        <property name="messageForumsForumManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsForumManager"/>
+        <property name="messageForumsMessageManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"/>
+        <property name="messageForumsTypeManager" ref="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
+        <property name="areaManager" ref="org.sakaiproject.api.app.messageforums.AreaManager"/>
+        <property name="threadLocalManager" ref="org.sakaiproject.thread_local.api.ThreadLocalManager"/>
+        <property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager"/>
+        <property name="shortenedUrlService" ref="org.sakaiproject.shortenedurl.api.ShortenedUrlService"/>
+        <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
+        <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.ContentHosting" class="org.sakaiproject.webservices.ContentHosting" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.MessageForums" class="org.sakaiproject.webservices.MessageForums" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiJob" class="org.sakaiproject.webservices.SakaiJob" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiLogin" class="org.sakaiproject.webservices.SakaiLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiPortalLogin" class="org.sakaiproject.webservices.SakaiPortalLogin" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.SakaiScript" class="org.sakaiproject.webservices.SakaiScript" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.ShortenedUrl" class="org.sakaiproject.webservices.ShortenedUrl" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+    <bean id="org.sakaiproject.webservices.TestsAndQuizzes" class="org.sakaiproject.webservices.TestsAndQuizzes" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+
+</beans>
