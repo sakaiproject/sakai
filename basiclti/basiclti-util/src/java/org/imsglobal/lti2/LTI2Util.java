@@ -566,9 +566,8 @@ public class LTI2Util {
 		while (e.hasMoreElements()) {
 			String key = (String) e.nextElement();
 			String value =  custom.getProperty(key);
-			if ( value == null || (! value.startsWith("$")) || value.length() < 1 ) continue;
-			String subst = value.trim().substring(1);
-			String newValue = lti2subst.getProperty(subst);
+			if ( value == null || value.length() < 1 ) continue;
+			String newValue = lti2subst.getProperty(value);
 			if ( newValue == null ||  newValue.length() < 1 ) continue;
 			setProperty(custom, key, (String) newValue);
 		}
