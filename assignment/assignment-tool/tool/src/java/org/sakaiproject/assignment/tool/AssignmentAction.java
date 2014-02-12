@@ -5018,7 +5018,20 @@ public class AssignmentAction extends PagedResourceActionII
 					assignmentPeerAssessmentService.savePeerAssessmentItem(item);
 					if(item.getScore() != null){
 						//item was part of the calculation, re-calculate
-						assignmentPeerAssessmentService.updateScore(submissionId);
+						boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
+						if(saved){
+							//we need to make sure the GB is updated correctly (or removed)
+							String assignmentId = item.getAssignmentId();
+							if(assignmentId != null){
+								Assignment a = getAssignment(assignmentId, "saveReviewGradeForm", state);
+								if(a != null){
+									String aReference = a.getReference();
+									String associateGradebookAssignment = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+									// update grade in gradebook
+									integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
+								}
+							}
+						}
 					}
 					state.setAttribute(GRADE_SUBMISSION_DONE, Boolean.TRUE);
 					state.setAttribute(PEER_ASSESSMENT_REMOVED_STATUS, item.isRemoved());
@@ -10126,7 +10139,20 @@ public class AssignmentAction extends PagedResourceActionII
 							assignmentPeerAssessmentService.savePeerAssessmentItem(item);
 							if(scoreChanged){
 								//need to re-calcuate the overall score:
-								assignmentPeerAssessmentService.updateScore(submissionId);
+								boolean saved = assignmentPeerAssessmentService.updateScore(submissionId);
+								if(saved){
+									//we need to make sure the GB is updated correctly (or removed)
+									String assignmentId = (String) state.getAttribute(VIEW_ASSIGNMENT_ID);
+									if(assignmentId != null){
+										Assignment a = getAssignment(assignmentId, "saveReviewGradeForm", state);
+										if(a != null){
+											String aReference = a.getReference();
+											String associateGradebookAssignment = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+											// update grade in gradebook
+											integrateGradebook(state, aReference, associateGradebookAssignment, null, null, null, -1, null, submissionId, "update", -1);
+										}
+									}
+								}
 							}
 							state.setAttribute(GRADE_SUBMISSION_DONE, Boolean.TRUE);
 							if("submit".equals(gradeOption)){

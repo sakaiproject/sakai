@@ -24,5 +24,10 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 	
 	public List<PeerAssessmentItem> getPeerAssessmentItems(Collection<String> submissionsIds);
 	
-	public void updateScore(String submissionId);
+	/**
+	 * returns true if the score was updated and saved
+	 * @param submissionId
+	 * @return
+	 */
+	public boolean updateScore(String submissionId);
 }

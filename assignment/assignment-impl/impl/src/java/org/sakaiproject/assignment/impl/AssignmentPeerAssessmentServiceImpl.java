@@ -370,7 +370,8 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 		}
 	}
 	
-	public void updateScore(String submissionId){
+	public boolean updateScore(String submissionId){
+		boolean saved = false;
 		SecurityAdvisor sa =  new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function, String reference)
 			{
@@ -410,16 +411,31 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 					}else{
 						totalScore = null;
 					}
-					AssignmentSubmissionEdit edit = assignmentService.editSubmission(submissionId);
 					String totleScoreStr = null;
 					if(totalScore != null){
 						totleScoreStr = totalScore.toString();
 					}
-					edit.setGrade(totleScoreStr);
-					edit.setGraded(true);
-					edit.setGradedBy(AssignmentPeerAssessmentService.class.getName());
-					edit.setGradeReleased(false);
-					assignmentService.commitEdit(edit);
+					boolean changed = false;
+					if((totleScoreStr == null || "".equals(totleScoreStr)) && (submission.getGrade() == null || "".equals(submission.getGrade()))){
+						//scores are both null, nothing changed
+					}else if((totleScoreStr != null && !"".equals(totleScoreStr)) && (submission.getGrade() == null || "".equals(submission.getGrade()))){
+						//one score changed, update
+						changed = true;
+					}else if((totleScoreStr == null || "".equals(totleScoreStr)) && (submission.getGrade() != null && !"".equals(submission.getGrade()))){
+						//one score changed, update
+						changed = true;
+					}else if(!totleScoreStr.equals(submission.getGrade())){
+						changed = true;
+					}
+					if(changed){
+						AssignmentSubmissionEdit edit = assignmentService.editSubmission(submissionId);
+						edit.setGrade(totleScoreStr);
+						edit.setGraded(true);
+						edit.setGradedBy(AssignmentPeerAssessmentService.class.getName());
+						edit.setGradeReleased(false);
+						assignmentService.commitEdit(edit);
+						saved = true;
+					}
 				}
 			}
 		} catch (IdUnusedException e) {
@@ -435,7 +451,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				securityService.popAdvisor(sa);
 			}
 		}
-		
+		return saved;
 	}
 	
 	public void setScheduledInvocationManager(
