@@ -44,7 +44,12 @@ public class GalleryImageRenderer extends Panel {
 			add(new ContextImage("img",new Model(ProfileConstants.UNAVAILABLE_IMAGE)));
 			return;
 		}
-
+		else if (sakaiProxy.getResource(imageResourceId) == null) {
+			// may have been deleted in CHS
+			add(new ContextImage("img",new Model(ProfileConstants.UNAVAILABLE_IMAGE)));
+			return;
+		}
+	
 		final byte[] imageBytes = sakaiProxy.getResource(imageResourceId).getBytes();
 		
 		if (imageBytes != null && imageBytes.length > 0) {
