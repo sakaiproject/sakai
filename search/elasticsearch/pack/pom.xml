@@ -44,13 +44,4 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>Sonatype</id>
-            <name>Sonatype</name>
-            <url>http://oss.sonatype.org/content/repositories/releases/</url>
-        </repository>
-    </repositories>
-
 </project>
