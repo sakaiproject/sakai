@@ -160,7 +160,7 @@ public class ListItem
 	 * @param addFilter TODO
 	 * @return
 	 */
-	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, ExpandedCollections expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
+	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String>expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
 		ListItem item = null;
 			
@@ -237,7 +237,7 @@ public class ListItem
 						}
 					}
 	         	}
-			if(expandedCollections.getSet().contains(entity.getId()))
+			if(expandedCollections.contains(entity.getId()))
 				{
 					item.setExpanded(true);
 	

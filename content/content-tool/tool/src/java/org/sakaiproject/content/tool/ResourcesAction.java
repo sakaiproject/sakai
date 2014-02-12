@@ -52,6 +52,7 @@ import java.util.Stack;
 import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1441,7 +1442,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 
 				// try to expand the collection
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(collectionId);
 
 				state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
@@ -1565,7 +1566,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 
 				// try to expand the collection
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(collectionId);
 
 				// reset the copy flag
@@ -1712,7 +1713,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 
 			// try to expand the collection
-			ExpandedCollections expandedCollections = getExpandedCollections(state);
+			Set<String> expandedCollections = getExpandedCollections(state);
 			expandedCollections.add(collectionId);
 
 			// reset the copy flag
@@ -2584,7 +2585,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		Map expandedFolderSortMap = setStateAttributeExpandedFolderSortMap(state);
 		
-		ExpandedCollections expandedCollections = getExpandedCollections(state);
+		Set<String> expandedCollections = getExpandedCollections(state);
 
 		List newItems = new LinkedList();
 		try
@@ -2595,7 +2596,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			// get the collection
 			collection = contentService.getCollection(collectionId);
-			if(need_to_expand_all || expandedCollections.getSet().contains(collectionId))
+			if(need_to_expand_all || expandedCollections.contains(collectionId))
 			{
 				Comparator comparator = null;
 				if(userSelectedSort != null)
@@ -4346,7 +4347,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			List<String> items_to_be_moved = (List<String>) state.getAttribute(STATE_ITEMS_TO_BE_MOVED);
 			
 			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
-			ExpandedCollections expandedCollections = getExpandedCollections(state);
+			Set<String> expandedCollections = getExpandedCollections(state);
 			expandedCollections.add(collectionId);
 
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
@@ -4441,7 +4442,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						if(contentService.COLLECTION_DROPBOX.equals(siteCollection.getEntity().getContainingCollection().getId()))
 						{
 							// check whether it's expanded
-							if(need_to_expand_all || expandedCollections.getSet().contains(siteCollection.getId()))
+							if(need_to_expand_all || expandedCollections.contains(siteCollection.getId()))
 							{
 								// in that case, show the "hot folder" widget
 								showHotDropboxWidget = true;
@@ -5041,7 +5042,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("folderId", folderId);
 		
 		// save expanded folder lists
-		ExpandedCollections expandedCollections = getExpandedCollections(state);
+		Set<String> expandedCollections = getExpandedCollections(state);
 		Map expandedFolderSortMap = (Map) state.getAttribute(STATE_EXPANDED_FOLDER_SORT_MAP);
 
 		// create temporary expanded folder lists for this invocation of getListView
@@ -5049,7 +5050,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		Map tempExpandedFolderSortMap = new HashMap();
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, tempExpandedFolderSortMap);
 		state.removeAttribute(STATE_EXPANDED_COLLECTIONS);
-		ExpandedCollections tempExpandedCollections = getExpandedCollections(state);
+		Set<String> tempExpandedCollections = getExpandedCollections(state);
 		tempExpandedCollections.add(folderId);
 
 		Set highlightedItems = new TreeSet();
@@ -5060,9 +5061,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		// restore expanded folder lists 
 		state.removeAttribute(STATE_EXPANDED_COLLECTIONS);
-		ExpandedCollections newExpandedCollections = getExpandedCollections(state);
-		newExpandedCollections.addAll(expandedCollections.getSet());
-		newExpandedCollections.addAll(tempExpandedCollections.getSet());
+		Set<String> newExpandedCollections = getExpandedCollections(state);
+		newExpandedCollections.addAll(expandedCollections);
+		newExpandedCollections.addAll(tempExpandedCollections);
 		expandedFolderSortMap.putAll(tempExpandedFolderSortMap);
 		state.setAttribute(STATE_EXPANDED_FOLDER_SORT_MAP, expandedFolderSortMap);
 
@@ -5677,7 +5678,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		logger.debug(this + ".doCollapse_collection()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ExpandedCollections expandedItems = getExpandedCollections(state);
+		Set<String> expandedItems = getExpandedCollections(state);
 		Map folderSortMap = setStateAttributeExpandedFolderSortMap(state);
 
 		//get the ParameterParser from RunData
@@ -5694,7 +5695,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_SELECTIONS, selectedSet);
 
 		SortedSet newSet = new TreeSet();
-		Iterator l = expandedItems.getSet().iterator();
+		Iterator l = expandedItems.iterator();
 		while (l.hasNext ())
 		{
 			// remove the collection id and all of the subcollections
@@ -5966,7 +5967,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 		
 						// show folder if in hierarchy view
-						ExpandedCollections expandedCollections = getExpandedCollections(state);
+						Set<String> expandedCollections = getExpandedCollections(state);
 						expandedCollections.add(collectionId);
 		
 						state.setAttribute(STATE_MODE, MODE_LIST);
@@ -6442,7 +6443,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		logger.debug(this + ".doExpand_collection()");
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
-		ExpandedCollections expandedItems = getExpandedCollections(state);
+		Set<String> expandedItems = getExpandedCollections(state);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -6948,12 +6949,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
 			
-			ExpandedCollections expandedCollections = getExpandedCollections(state);
+			Set<String> expandedCollections = getExpandedCollections(state);
 			
 			Map sortMap = Collections.synchronizedMap(setStateAttributeExpandedFolderSortMap(state));
 			
 			// sync over sortMap removal
-			Iterator it = expandedCollections.getSet().iterator();
+			Iterator it = expandedCollections.iterator();
 			synchronized (sortMap)
 			{
 				while(it.hasNext())
@@ -6968,7 +6969,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			
 			SortedSet newExpandedCollections = new TreeSet<String>();
-			for(String id: expandedCollections.getSet())
+			for(String id: expandedCollections)
 				{
 				if(!id.startsWith(collectionId))
 					{
@@ -7001,13 +7002,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/**
 	 * get/init state attribute STATE_EXPANDED_COLLECTIONS
 	 * @param state
-	 * @return An {@link ExpandedCollections} but never <code>null</code>.
+	 * @return An {@link Set} but never <code>null</code>.
 	 */
-	private static ExpandedCollections getExpandedCollections(SessionState state) {
-		ExpandedCollections current = (ExpandedCollections) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
+	private static Set<String> getExpandedCollections(SessionState state) {
+		Set<String> current = (Set<String>) state.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(current == null)
 		{
-			current = new ExpandedCollections();
+			// We use a CopyOnWrite Set so that we don't have to do any sychronization when iterating over it.
+			// Switching to HashSet results in runaway threads and concurrentmodificationsexceptions (from iterating).
+			current = new CopyOnWriteArraySet<String>();
 			state.setAttribute(STATE_EXPANDED_COLLECTIONS, current);
 		}
 		return current;
@@ -7342,7 +7345,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					
 					ContentHostingService.commitCollection(collection);
 					
-					ExpandedCollections expandedCollections = getExpandedCollections(state);
+					Set<String> expandedCollections = getExpandedCollections(state);
 					expandedCollections.add(folderId);
 					
 					Comparator comparator = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
@@ -7738,7 +7741,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(resources != null && ! resources.isEmpty())
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -7749,7 +7752,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			if(folders != null && ! folders.isEmpty())
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -7764,7 +7767,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			else
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(pipe.getContentEntity().getId());
 				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 			}
@@ -7772,7 +7775,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			break;
 		case CREATE_BY_HELPER:
 			if(!pipe.isErrorEncountered() && !pipe.isActionCanceled()) {
-				ExpandedCollections expandedCollections = getExpandedCollections(state);
+				Set<String> expandedCollections = getExpandedCollections(state);
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -8286,7 +8289,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					
 					slAction.finalizeAction(ref);
 					
-					ExpandedCollections expandedCollections = getExpandedCollections(state);
+					Set<String> expandedCollections = getExpandedCollections(state);
 					expandedCollections.add(collectionId);
 				}
 				
@@ -8601,7 +8604,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		List<ListItem> other_sites = new ArrayList<ListItem>();
 
 		String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
-		ExpandedCollections expandedCollections = getExpandedCollections(state);
+		Set<String> expandedCollections = getExpandedCollections(state);
 		
 		Comparator userSelectedSort = (Comparator) state.getAttribute(STATE_LIST_VIEW_SORT);
 		

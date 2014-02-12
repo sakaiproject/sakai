@@ -39,6 +39,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -436,7 +437,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(resources != null && ! resources.isEmpty())
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+				Set<String> expandedCollections = getExpandedCollections(toolSession);
 				expandedCollections.add(resources.get(0).getContainingCollection().getId());
 								
 				List<AttachItem> new_items = (List<AttachItem>) toolSession.getAttribute(STATE_ADDED_ITEMS);
@@ -478,7 +479,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(folders != null && ! folders.isEmpty())
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+				Set<String> expandedCollections = getExpandedCollections(toolSession);
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -488,7 +489,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			if(urls != null && ! urls.isEmpty())
 			{
 				// expand folder
-				ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+				Set<String> expandedCollections = getExpandedCollections(toolSession);
 				expandedCollections.add(pipe.getContentEntity().getId());
 			}
 			toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
@@ -631,7 +632,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				throw ex;
 			}
 
-			ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+			Set<String> expandedCollections = getExpandedCollections(toolSession);
 			expandedCollections.add(collectionId);
 
 			ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
@@ -2106,7 +2107,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 				toolSession.removeAttribute(ResourceToolAction.ACTION_PIPE);
 
 				// show folder if in hierarchy view
-				ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+				Set<String> expandedCollections = getExpandedCollections(toolSession);
 				expandedCollections.add(collectionId);
 				
 				if(checkSelctItemFilter(resource, state))
@@ -2377,7 +2378,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doExpand_collection(RunData data) throws IdUnusedException, TypeException, PermissionException
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ExpandedCollections expandedItems = getExpandedCollections(toolSession);
+		Set<String> expandedItems = getExpandedCollections(toolSession);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
@@ -2394,14 +2395,14 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doCollapse_collection(RunData data)
 	{
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ExpandedCollections expandedItems = getExpandedCollections(toolSession);
+		Set<String> expandedItems = getExpandedCollections(toolSession);
 
 		//get the ParameterParser from RunData
 		ParameterParser params = data.getParameters ();
 		String collectionId = params.getString("collectionId");
 
 		SortedSet newSet = new TreeSet();
-		for (String id : expandedItems.getSet())
+		for (String id : expandedItems)
 		{
 			if (id.indexOf(collectionId)==-1)
 			{
@@ -3037,7 +3038,7 @@ public class FilePickerAction extends PagedResourceHelperAction
 			collectionId = homeCollectionId;
 		}
 
-		ExpandedCollections expandedCollections = getExpandedCollections(toolSession);
+		Set<String> expandedCollections = getExpandedCollections(toolSession);
 		
 		Comparator userSelectedSort = (Comparator) toolSession.getAttribute(STATE_LIST_VIEW_SORT);
 		
@@ -3174,9 +3175,9 @@ public class FilePickerAction extends PagedResourceHelperAction
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			state.setAttribute(STATE_COLLECTION_ID, collectionId);
-			ExpandedCollections currentMap = getExpandedCollections(toolSession);
+			Set<String> currentMap = getExpandedCollections(toolSession);
 			SortedSet<String> newCurrentMap = new TreeSet<String>();
-			for(String id: currentMap.getSet())
+			for(String id: currentMap)
 			{
 				if(!id.startsWith(collectionId))
 				{
@@ -3355,11 +3356,11 @@ public class FilePickerAction extends PagedResourceHelperAction
 	 * @param state The tool session to get the object from or create it in.
 	 * @return An {@link ExpandedCollections} but never <code>null</code>.
 	 */
-	private static ExpandedCollections getExpandedCollections(ToolSession session) {
-		ExpandedCollections current = (ExpandedCollections) session.getAttribute(STATE_EXPANDED_COLLECTIONS);
+	private static Set<String> getExpandedCollections(ToolSession session) {
+		Set<String> current = (Set<String>) session.getAttribute(STATE_EXPANDED_COLLECTIONS);
 		if(current == null)
 		{
-			current = new ExpandedCollections();
+			current = new CopyOnWriteArraySet<String>();
 			session.setAttribute(STATE_EXPANDED_COLLECTIONS, current);
 		}
 		return current;
