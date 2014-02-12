@@ -37,10 +37,16 @@
     */
 
 		function getWordCount(htmlData) {
-				var matches = htmlData.replace(/<[^<|>]+?>|&nbsp;/gi,' ').replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x').match(/\b/g);
+				var matches = htmlData
+				matches = matches.replace(/<[^<|>]+?>|&nbsp;/gi,' ')
+				matches = matches.replace(/[\u0080-\u202e\u2030-\u205f\u2061-\ufefe\uff00-\uffff]/g,'x')
+				//Quote should still be matched
+				matches = matches.replace(/&quot;/g,'"')
+				//Match on word boundary followed by spaces or punctuations
+				matches = matches.match(/\b[\s?!,.):"]+/g);
 				var count = 0;
 				if(matches) {
-						count = matches.length/2;
+						count = matches.length;
 				}
 				return count;
 		}
