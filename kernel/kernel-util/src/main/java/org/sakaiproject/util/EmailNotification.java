@@ -70,11 +70,11 @@ import org.w3c.dom.Element;
 @SuppressWarnings({"deprecation","rawtypes","unchecked"})
 public class EmailNotification implements NotificationAction
 {
-	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
-	private final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
-	private final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
+	protected final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
+	protected final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
+	protected final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
 
-	private final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
+	protected final String MIME_ADVISORY = "This message is for MIME-compliant mail readers.";
 
 	/** The related site id. */
 	protected String m_siteId = null;
