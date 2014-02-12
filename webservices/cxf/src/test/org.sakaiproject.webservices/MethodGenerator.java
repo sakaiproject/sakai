@@ -13,11 +13,16 @@ import java.lang.reflect.Method;
  * Created by jbush on 2/11/14.
  */
 
+/**
+ * helpful utility for migrating from axis, this guy will output the method signatures
+ * for a class once we've brought the jws file forward, so its just a copy and past
+ * affair to get all the annotations in place.
+ */
 public class MethodGenerator {
 
     @Test
     public void generate() {
-        Class clazz = ShortenedUrl.class;
+        Class clazz = SakaiPortalLogin.class;
         for (Method method : clazz.getMethods()) {
             if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
                 continue;

@@ -1,7 +1,13 @@
 package org.sakaiproject.webservices;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -83,7 +89,17 @@ public class SakaiPortalLogin extends AbstractWebService {
      * @return Session ID of successful login.
      * @ if there are any problems logging in.
      */
-    public String loginAndCreate(String id, String pw, String firstName, String lastName, String eMail)  {
+    @WebMethod
+    @Path("/loginAndCreate")
+    @Produces("text/plain")
+    @GET
+    public String loginAndCreate(
+            @WebParam(name = "id", partName = "id") @QueryParam("id") String id,
+            @WebParam(name = "pw", partName = "pw") @QueryParam("pw") String pw,
+            @WebParam(name = "firstName", partName = "firstName") @QueryParam("firstName") String firstName,
+            @WebParam(name = "lastName", partName = "lastName") @QueryParam("lastName") String lastName,
+            @WebParam(name = "eMail", partName = "eMail") @QueryParam("eMail") String eMail) {
+
         String ipAddress = getUserIp();
 
         String portalSecret = serverConfigurationService.getString("webservice.portalsecret");
@@ -162,7 +178,14 @@ public class SakaiPortalLogin extends AbstractWebService {
      * @return Session ID of successful login.
      * @ if there are any problems logging in.
      */
-    public String login(String id,String pw)  {
+
+    @WebMethod
+    @Path("/login")
+    @Produces("text/plain")
+    @GET
+    public String login(
+            @WebParam(name = "id", partName = "id") @QueryParam("id") String id,
+            @WebParam(name = "pw", partName = "pw") @QueryParam("pw") String pw) {
         LOG.debug("SakaiPortalLogin.login()");
         return loginAndCreate(id, pw, null, null, null);
     }

@@ -1,41 +1,41 @@
 package org.sakaiproject.webservices;
 
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.ByteArrayInputStream;
-import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.exception.IdUnusedException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
-import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
+import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.util.FormattedText;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
 import javax.jws.WebService;
 import javax.jws.soap.SOAPBinding;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import org.xml.sax.SAXException;
-import org.w3c.dom.Document;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Expose Test and Quizzes via web services
@@ -64,8 +64,19 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 *						WS TestsAndQuizzes.createAssessmentFromText(): SamLiteService.createDocument() returned a null QTI Document
 	 *
 	 */
-	public boolean createAssessmentFromText(String sessionid, String siteid, String siteproperty, String title, String description, String template, String textdata) {
-		Session session = establishSession(sessionid); 
+    @WebMethod
+    @Path("/createAssessmentFromText")
+    @Produces("text/plain")
+    @GET
+    public boolean createAssessmentFromText(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
+            @WebParam(name = "title", partName = "title") @QueryParam("title") String title,
+            @WebParam(name = "description", partName = "description") @QueryParam("description") String description,
+            @WebParam(name = "template", partName = "template") @QueryParam("template") String template,
+            @WebParam(name = "textdata", partName = "textdata") @QueryParam("textdata") String textdata) {
+        Session session = establishSession(sessionid);
 		Document document = null;
 
 		QuestionGroup questionGroup = samLiteService.parse(FormattedText.escapeHtml(title, false), FormattedText.escapeHtml(description, false), FormattedText.escapeHtml(textdata, false));
@@ -94,8 +105,16 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 *						WS TestsAndQuizzes.createAssessmentFromXml(): " + e.getMessage
 	 *
 	 */
-	public boolean createAssessmentFromExport(String sessionid, String siteid, String siteproperty, String xmlstring) {
-		Session session = establishSession(sessionid); 
+    @WebMethod
+    @Path("/createAssessmentFromExport")
+    @Produces("text/plain")
+    @GET
+    public boolean createAssessmentFromExport(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
+            @WebParam(name = "xmlstring", partName = "xmlstring") @QueryParam("xmlstring") String xmlstring) {
+        Session session = establishSession(sessionid);
 		Document document = null;
 		InputStream inputStream = null;
 
@@ -145,8 +164,17 @@ public class TestsAndQuizzes extends AbstractWebService {
 	 *						WS TestsAndQuizzes.createAssessmentFromXml(): XmlUtil.createDocument() IOException: 
 	 *
 	 */
-	public boolean createAssessmentFromExportFile(String sessionid, String siteid, String siteproperty, String xmlfile) {
-		Session session = establishSession(sessionid); 
+
+    @WebMethod
+    @Path("/createAssessmentFromExportFile")
+    @Produces("text/plain")
+    @GET
+    public boolean createAssessmentFromExportFile(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid,
+            @WebParam(name = "siteproperty", partName = "siteproperty") @QueryParam("siteproperty") String siteproperty,
+            @WebParam(name = "xmlfile", partName = "xmlfile") @QueryParam("xmlfile") String xmlfile) {
+        Session session = establishSession(sessionid);
 		Document document = null;
 
 		try {

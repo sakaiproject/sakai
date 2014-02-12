@@ -58,6 +58,18 @@ http://cxf.apache.org/schemas/jaxws.xsd">
          </jaxrs:serviceBeans>
      </jaxrs:server>
 
+    <jaxrs:server id="TestsAndQuizzesRS" address="/rest/testsandquizzes">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.TestsAndQuizzes"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
+    <jaxrs:server id="SakaiPortalLoginRS" address="/rest/portallogin">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiPortalLogin"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
                     address="/soap/job"/>
