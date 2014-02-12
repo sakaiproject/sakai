@@ -1284,7 +1284,7 @@ public class ServiceServlet extends HttpServlet {
 				if ( isRead ) {
 					retval = SakaiBLTIUtil.getGrade(sourcedid, request, ltiService);
 					if ( ! (retval instanceof Map) ) {
-						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
 						return;
 					}
 					Map grade = (Map) retval;
@@ -1302,7 +1302,7 @@ public class ServiceServlet extends HttpServlet {
 				} else if ( isDelete ) { 
 					retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
 					if ( retval instanceof String ) {
-						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
 						return;
 					}
 					theMap.put("/deleteResultResponse", "");
@@ -1315,7 +1315,7 @@ public class ServiceServlet extends HttpServlet {
 					dGrade = new Double(result_resultscore_textstring);
 					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
 					if ( retval instanceof String ) {
-						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						doErrorXML(request, response, pox, "outcomes.fail", (String) retval, null);
 						return;
 					}
 					theMap.put("/replaceResultResponse", "");
