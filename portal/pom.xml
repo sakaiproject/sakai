@@ -81,7 +81,7 @@
             <dependency>
                 <groupId>org.sakaiproject.metaobj</groupId>
                 <artifactId>sakai-metaobj-tool-lib</artifactId>
-                <version>10.0-SNAPSHOT</version>
+                <version>${sakai.version}</version>
             </dependency>
             <dependency>
                 <groupId>jtidy</groupId>
