@@ -57,84 +57,84 @@
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-composite-component</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-manager-api</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-type-api</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-edu-person-api</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-common-composite-component-data</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-privacy-hbm</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-privacy-api</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-privacy-impl</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>archive-api</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>archive-impl2</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>archive-impl</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>import-impl</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-import-content</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>common-cartridge</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
         <artifactId>sakai-archive-import</artifactId>
-        <version>10.0-SNAPSHOT</version><!-- ProjectVersion -->
+        <version>${project.version}</version>
       </dependency>
       <!-- external dependencies -->
       <dependency>
