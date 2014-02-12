@@ -23,11 +23,14 @@
 
 package org.sakaiproject.lessonbuildertool.tool.producers;
 
+import java.net.URLEncoder;
+
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.view.TrackerViewParameters;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -62,6 +65,13 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		simplePageToolDao = s;
 	}
 
+	private static LessonBuilderAccessService lessonBuilderAccessService;
+
+	public void setLessonBuilderAccessService (LessonBuilderAccessService a) {
+	    if (lessonBuilderAccessService == null)
+		lessonBuilderAccessService = a;
+	}
+
 	public MessageLocator messageLocator;
 
 	public void setMessageLocator(MessageLocator s) {
@@ -93,7 +103,12 @@ public class LinkTrackerProducer implements ViewComponentProducer, ViewParamsRep
 		if (i != null && simplePageBean.isItemAvailable(i)) {
 
 		    simplePageBean.track(itemId, null);
-		    String js = "window.location = \"" + StringEscapeUtils.escapeJavaScript(params.getURL()) + "\"";
+
+		    String URL = params.getURL();
+		    if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
+			URL = "/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
+
+		    String js = "window.location = \"" + StringEscapeUtils.escapeJavaScript(URL) + "\"";
 		    if (params.getRefresh())
 			js = "window.top.opener.location.reload(true);" + js;
 		    UIVerbatim.make(tofill, "redirect", js);

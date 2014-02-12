@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.StringTokenizer;
+import java.util.Vector;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.logging.Log;
@@ -105,6 +106,8 @@ public class LessonBuilderAccessService {
 	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
+   
+	public static final String COPYRIGHT_ACCEPTED_REFS_ATTR = "Access.Copyright.Accepted";
 
 	LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
 
@@ -572,8 +575,12 @@ public class LessonBuilderAccessService {
 					} catch (TypeException e) {
 						throw new EntityNotDefinedException(id);
 					}
-					// no copyright enforcement, I don't think
 
+					// we only do copyright on resources. I.e. not on inline things,which are MULTIMEDIA
+					if (item.getType() == SimplePageItem.RESOURCE && 
+					    needsCopyright(resource))
+					    throw new EntityCopyrightException(resource.getReference());
+  
 					try {
 					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
 						long len = (long)resource.getContentLength();
@@ -1270,5 +1277,61 @@ public class LessonBuilderAccessService {
 		return false;
 	}
 
+    /* this is a public service, used by other modules */
+	public boolean needsCopyright (String sakaiId) {
+	    try {
+		ContentResource resource = contentHostingService.getResource(sakaiId);
+		return needsCopyright(resource);
+	    } catch (Exception e) {
+		return false;
+	    }
+	}
+
+	public boolean needsCopyright (ContentResource resource) {
+
+	    try {
+		ResourceProperties props = resource.getProperties();
+		boolean requiresCopyrightAgreement = 
+		    props.getProperty(ResourceProperties.PROP_COPYRIGHT_ALERT) != null;
+
+		if (!requiresCopyrightAgreement)
+		    return false;
+		
+		// requires copyright agreement. See if user has agreed
+
+		Collection accepted = (Collection) sessionManager.getCurrentSession().getAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR);
+		// if no collection, initialize it
+		if (accepted == null) {
+		    accepted = new Vector();
+		    sessionManager.getCurrentSession().setAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR, accepted);
+		}
+		
+		// now see if user has accepted copyright
+                if (!accepted.contains(resource.getReference()))
+		    return true;
+
+	    } catch (Exception e) {
+		// if we can't get the resource, attempt to enforce copyright
+		// will almost certainly fail, so fall through to false
+	    }
+
+	    return false;
+	}
+
+	public void acceptCopyright (String sakaiId) {
+	    try {
+		Collection accepted = (Collection) sessionManager.getCurrentSession().getAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR);
+		// if no collection, initialize it
+		if (accepted == null) {
+		    accepted = new Vector();
+		    sessionManager.getCurrentSession().setAttribute(COPYRIGHT_ACCEPTED_REFS_ATTR, accepted);
+		}
+		
+		accepted.add(contentHostingService.getReference(sakaiId));
+
+	    } catch (Exception e) {
+		// if can't find session or reference, not much we can do
+	    }
+	}
 
 }

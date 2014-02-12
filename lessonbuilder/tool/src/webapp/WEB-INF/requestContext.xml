@@ -124,6 +124,7 @@
 		</property>
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 	</bean>
 
 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.RemovePageProducer" >
@@ -243,6 +244,7 @@
 		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
 		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
 	</bean>
 	
 	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">

@@ -51,6 +51,8 @@ import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import java.net.URLEncoder;
+
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
@@ -102,6 +104,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer;
 import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
@@ -470,7 +473,8 @@ public class SimplePageBean {
 	private SiteService siteService;
 	private SimplePageToolDao simplePageToolDao;
 	private LessonsAccess lessonsAccess;
-	
+        private LessonBuilderAccessService lessonBuilderAccessService;
+
 	private MessageLocator messageLocator;
 	public void setMessageLocator(MessageLocator x) {
 	    messageLocator = x;
@@ -1313,6 +1317,9 @@ public class SimplePageBean {
 		lessonsAccess = a;
 	}
 
+	public void setLessonBuilderAccessService(LessonBuilderAccessService a) {
+		lessonBuilderAccessService = a;
+	}
 
 	public List<SimplePageItem>  getItemsOnPage(long pageid) {
 		List<SimplePageItem>items = itemsCache.get(pageid);
@@ -1595,7 +1602,10 @@ public class SimplePageBean {
 	    		// if the user has passed.
 	    		if (!isItemAvailable(nextItem, nextItem.getPageId()))
 	    			view.setRecheck("true");
-	    		view.setSource(nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner()));
+			String URL = nextItem.getItemURL(getCurrentSiteId(), getCurrentPage().getOwner());
+			if (lessonBuilderAccessService.needsCopyright(nextItem.getSakaiId()))
+			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + nextItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
+	    		view.setSource(URL);
 	    		view.viewID = ShowItemProducer.VIEW_ID;
 	    	} else {
 	    		view.setSendingPage(Long.valueOf(item.getPageId()));
@@ -1669,7 +1679,12 @@ public class SimplePageBean {
 				view.setPath("push");  // item to page, have to push the page
 		} else if (itemType == SimplePageItem.RESOURCE) { // must be a samepage resource
 			view.setSendingPage(Long.valueOf(item.getPageId()));
-			view.setSource(prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner()));
+			String URL = prevItem.getItemURL(getCurrentSiteId(),getCurrentPage().getOwner());
+			// this is unlikely but possible. If you don't accept the copyright, go on and
+			// then go back, this will trigger
+			if (lessonBuilderAccessService.needsCopyright(prevItem.getSakaiId()))
+			    URL = "/access/require?ref=" + URLEncoder.encode("/content" + prevItem.getSakaiId()) + "&url=" + URLEncoder.encode(URL.substring(7));
+			view.setSource(URL);
 			view.viewID = ShowItemProducer.VIEW_ID;
 		}else if(itemType == SimplePageItem.STUDENT_CONTENT) {
 			view.setSendingPage(prevEntry.pageId);

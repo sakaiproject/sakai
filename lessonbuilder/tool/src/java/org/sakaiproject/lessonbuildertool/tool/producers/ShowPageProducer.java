@@ -168,7 +168,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
 	private ToolManager toolManager;
 	public TextInputEvolver richTextEvolver;
-	private LessonBuilderAccessService lessonBuilderAccessService;
+	private static LessonBuilderAccessService lessonBuilderAccessService;
 	
 	private Map<String,String> imageToMimeMap;
 	public void setImageToMimeMap(Map<String,String> map) {
@@ -2627,7 +2627,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				if (available) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
-					params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
+					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
+					    params.setSource("/access/require?ref=" + URLEncoder.encode("/content" + i.getSakaiId()) + "&url=" + URLEncoder.encode(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()).substring(7)));
+					else
+					    params.setSource(i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
@@ -2904,6 +2907,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	public void setLessonBuilderAccessService (LessonBuilderAccessService a) {
+	    if (lessonBuilderAccessService == null)
 		lessonBuilderAccessService = a;
 	}
 
