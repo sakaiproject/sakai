@@ -150,8 +150,8 @@ public class ListItem
 	 * @param entity
 	 * @param parent
 	 * @param registry
-	 * @param expandAll
-	 * @param expandedFolders
+	 * @param expandAll Should we expand all the contained collections inside this one.
+	 * @param expandedCollections
 	 * @param items_to_be_moved
 	 * @param items_to_be_copied
 	 * @param depth
@@ -160,10 +160,8 @@ public class ListItem
 	 * @param addFilter TODO
 	 * @return
 	 */
-	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
+	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, ExpandedCollections expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
-		Set<String> expandedFoldersSync = Collections.synchronizedSet(expandedFolders);
-		
 		ListItem item = null;
 			
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
@@ -211,9 +209,6 @@ public class ListItem
         	// permissions are determined by group(s)
         	item.setPermissions(ResourcesAction.getPermissions(entity.getId(), null));
         }
-
-        synchronized(expandedFoldersSync)
-        {
 	        if(isCollection)
 	        {
 	        	ContentCollection collection = (ContentCollection) entity;
@@ -235,14 +230,14 @@ public class ListItem
 							{
 								expandAction.initializeAction(item.m_reference);
 								
-					       		expandedFoldersSync.add(entity.getId());
+							expandedCollections.add(entity.getId());
 					       		
 					       		expandAction.finalizeAction(item.m_reference);
 							}
 						}
 					}
 	         	}
-	 			if(expandedFoldersSync.contains(entity.getId()))
+			if(expandedCollections.getSet().contains(entity.getId()))
 				{
 					item.setExpanded(true);
 	
@@ -302,7 +297,7 @@ public class ListItem
 							continue;
 						}
 	
-		        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFoldersSync, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
+					ListItem child = getListItem(childEntity, item, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
 		        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
 		        		{
 		        			child.setSelectedForCopy(true);
@@ -324,7 +319,6 @@ public class ListItem
 				//this.members = coll.getMembers();
 				item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
 	        }
-        }
         List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
         List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
 
