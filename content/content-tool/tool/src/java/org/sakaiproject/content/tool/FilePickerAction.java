@@ -813,8 +813,6 @@ public class FilePickerAction extends PagedResourceHelperAction
 
 				context.put("pagesize", toolSession.getAttribute(STATE_PAGESIZE));
 			}
-
-			context.put("expandedCollections", expandedCollections.getSet());
 		}
 		catch (IdUnusedException e)
 		{

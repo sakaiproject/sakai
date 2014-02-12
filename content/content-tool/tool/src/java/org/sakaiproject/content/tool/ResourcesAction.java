@@ -4348,7 +4348,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			boolean need_to_expand_all = Boolean.TRUE.toString().equals((String)state.getAttribute(STATE_NEED_TO_EXPAND_ALL));
 			ExpandedCollections expandedCollections = getExpandedCollections(state);
 			expandedCollections.add(collectionId);
-			context.put("expandedCollections", expandedCollections.getSet());
 
 			ContentCollection collection = ContentHostingService.getCollection(collectionId);
 			
@@ -6968,7 +6967,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			}
 			
-			// sync over currentMap removal
 			SortedSet newExpandedCollections = new TreeSet<String>();
 			for(String id: expandedCollections.getSet())
 				{
