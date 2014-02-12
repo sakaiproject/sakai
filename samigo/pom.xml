@@ -86,7 +86,7 @@
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
                 <artifactId>jsf-spreadsheet</artifactId>
-                <version>${sakai.jsf.version}</version>
+                <version>${sakai.version}</version>
             </dependency>
 	    <dependency>
                 <groupId>org.apache.commons</groupId>
