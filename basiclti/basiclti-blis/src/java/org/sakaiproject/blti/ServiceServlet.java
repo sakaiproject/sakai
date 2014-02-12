@@ -1256,7 +1256,6 @@ public class ServiceServlet extends HttpServlet {
 			String lti_message_type, String sourcedid, IMSPOXRequest pox)
 		throws java.io.IOException
 		{
-
 			// Things look good - time to process the grade
 			boolean isRead = BasicLTIUtil.equals(lti_message_type, "readResultRequest");
 			boolean isDelete = BasicLTIUtil.equals(lti_message_type, "deleteResultRequest");

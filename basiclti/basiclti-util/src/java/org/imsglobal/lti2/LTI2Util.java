@@ -549,7 +549,7 @@ public class LTI2Util {
 			String fixed = (String) parameter.get("fixed");
 			String variable = (String) parameter.get("variable");
 			if ( variable != null ) {
-				setProperty(custom, name, "$"+variable);
+				setProperty(custom, name, variable);
 				continue;
 			}
 			if ( fixed != null ) {
