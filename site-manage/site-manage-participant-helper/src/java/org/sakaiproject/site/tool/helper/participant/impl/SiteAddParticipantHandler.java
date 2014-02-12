@@ -33,6 +33,7 @@ import org.sakaiproject.site.util.SiteTypeUtil;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.UserNotificationProvider;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolManager;
@@ -104,6 +105,12 @@ public class SiteAddParticipantHandler {
     
     public Site site = null;
     
+	public String csrfToken = null;
+	public String getCsrfToken() {
+		Object sessionAttr = sessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+		return (sessionAttr!=null)?sessionAttr.toString():"";
+	}
+
 	public String officialAccountParticipant = null;
 	public String getOfficialAccountParticipant() {
 		return officialAccountParticipant;
@@ -120,6 +127,10 @@ public class SiteAddParticipantHandler {
 		this.userDirectoryService = userDirectoryService;
 	}
 
+	public void setCsrfToken(String csrfToken) {
+		this.csrfToken = csrfToken;
+	}
+	
 	public void setOfficialAccountParticipant(String officialAccountParticipant) {
 		this.officialAccountParticipant = officialAccountParticipant;
 	}
@@ -343,11 +354,20 @@ public class SiteAddParticipantHandler {
         return "done";
     }
     
+    private boolean validCsrfToken() {
+		return StringUtils.equals(csrfToken, getCsrfToken());
+    }
+    
     /**
      * get role choice and go to difference html page based on that
      * @return
      */
     public String processGetParticipant() {
+    	if (!validCsrfToken()) {
+    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
+    		return "";
+    	}
+
     	// reset errors
     	resetTargettedMessageList();
     	// reset user list
@@ -381,6 +401,11 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processSameRoleContinue() {
+    	if (!validCsrfToken()) {
+    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
+    		return null;
+    	}
+
     	targettedMessageList.clear();
     	if (sameRoleChoice == null)
     	{
@@ -432,7 +457,11 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processDifferentRoleContinue() {
-	
+    	if (!validCsrfToken()) {
+    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
+    		return null;
+		}
+
 		resetTargettedMessageList();
 		if (!authzGroupService.allowUpdate("/site/" + siteId)) {
 		    Set<String> roles = new HashSet<String>();
@@ -493,7 +522,10 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processEmailNotiContinue() {
-
+    	if (!validCsrfToken()) {
+    		targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
+    		return "";
+    	}
     	resetTargettedMessageList();
         return "continue";
     }
@@ -650,7 +682,10 @@ public class SiteAddParticipantHandler {
      * @return
      */
     public String processConfirmContinue() {
-    	
+    	if (!validCsrfToken()) {
+			targettedMessageList.addMessage(new TargettedMessage("java.badcsrftoken", null, TargettedMessage.SEVERITY_ERROR));
+    	}
+
     	List<String> validationUsers = new ArrayList<String>();
     	resetTargettedMessageList();
     	if (site == null)

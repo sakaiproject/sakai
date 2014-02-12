@@ -24,6 +24,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
@@ -100,6 +101,8 @@ public class EmailNotiProducer implements ViewComponentProducer, NavigationCaseR
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
         
     	UIForm emailNotiForm = UIForm.make(content, "emailNoti-form");
+    	// csrf token
+    	UIInput.make(emailNotiForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
     	// role choice
     	String[] values = new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString()};

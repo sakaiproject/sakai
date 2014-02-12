@@ -27,6 +27,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
@@ -85,6 +86,8 @@ public class SameRoleProducer implements ViewComponentProducer, NavigationCaseRe
     	UIBranchContainer content = UIBranchContainer.make(tofill, "content:");
         
     	UIForm sameRoleForm = UIForm.make(content, "sameRole-form");
+    	// csrf token
+    	UIInput.make(sameRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
     	// role choice 
 	    StringList roleItems = new StringList();

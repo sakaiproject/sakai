@@ -25,6 +25,7 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIForm;
@@ -110,6 +111,8 @@ public class ConfirmProducer implements ViewComponentProducer, NavigationCaseRep
         }
         
     	UIForm confirmForm = UIForm.make(content, "confirm", "");
+    	// csrf token
+    	UIInput.make(confirmForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	List<UserRoleEntry> userTable = handler.userRoleEntries;
     	// list of users        
         for (UserRoleEntry userRoleEntry:userTable) {

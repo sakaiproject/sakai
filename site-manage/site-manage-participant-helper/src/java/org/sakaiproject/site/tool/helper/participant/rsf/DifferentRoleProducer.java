@@ -26,6 +26,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.flow.ARIResult;
@@ -96,6 +97,8 @@ public class DifferentRoleProducer implements ViewComponentProducer, NavigationC
 	    }
         
     	UIForm differentRoleForm = UIForm.make(content, "differentRole-form");
+    	// csrf token
+    	UIInput.make(differentRoleForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	
         // list of users
         String curItemNum = null;

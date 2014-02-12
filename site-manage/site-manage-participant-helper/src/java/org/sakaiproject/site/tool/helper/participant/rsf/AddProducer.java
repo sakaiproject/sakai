@@ -88,7 +88,8 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
 	    }
         
     	UIForm participantForm = UIForm.make(content, "participant-form");
-    	
+    	// csrf token
+    	UIInput.make(participantForm, "csrfToken", "#{siteAddParticipantHandler.csrfToken}", handler.csrfToken);
     	// official participant
     	UIInput.make(participantForm, "officialAccountParticipant", "#{siteAddParticipantHandler.officialAccountParticipant}", handler.officialAccountParticipant);
     	UIOutput.make(participantForm, "officialAccountSectionTitle", messageLocator.getMessage("officialAccountSectionTitle"));
