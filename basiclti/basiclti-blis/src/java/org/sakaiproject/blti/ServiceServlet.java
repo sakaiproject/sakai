@@ -1301,6 +1301,10 @@ public class ServiceServlet extends HttpServlet {
 					message = "Result read";
 				} else if ( isDelete ) { 
 					retval = SakaiBLTIUtil.deleteGrade(sourcedid, request, ltiService);
+					if ( retval instanceof String ) {
+						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						return;
+					}
 					theMap.put("/deleteResultResponse", "");
 					message = "Result deleted";
 				} else { 
@@ -1310,6 +1314,10 @@ public class ServiceServlet extends HttpServlet {
 					}
 					dGrade = new Double(result_resultscore_textstring);
 					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, result_resultdata_text);
+					if ( retval instanceof String ) {
+						doError(request, response, theMap, "outcome.fail", (String) retval, null);
+						return;
+					}
 					theMap.put("/replaceResultResponse", "");
 					message = "Result replaced";
 				}
