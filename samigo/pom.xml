@@ -74,14 +74,14 @@
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
                 <artifactId>sections-impl-standalone</artifactId>
-                <version>${sakai.edu-services.version}</version>
+                <version>${sakai.version}</version>
                 <scope>provided</scope>
             </dependency>
             <!-- Sakai-embedded version -->
             <dependency>
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
                 <artifactId>sections-impl</artifactId>
-                <version>${sakai.edu-services.version}</version>
+                <version>${sakai.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.jsf</groupId>
