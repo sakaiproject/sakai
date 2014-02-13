@@ -168,7 +168,7 @@ confirmation dialog
 			<div class="tier2">
 				<h:outputText value="#{authorMessages.calc_question_example2}" />
 			</div>
-			<div class="longtext">Additional Information</div>
+			<div class="longtext"><h:outputLabel value="#{authorMessages.calc_question_additional_label}" /></div>
 			<div class="tier2">
 				<ul>
 					<li><h:outputText value="#{authorMessages.calc_question_answer_variance}" /></li>
