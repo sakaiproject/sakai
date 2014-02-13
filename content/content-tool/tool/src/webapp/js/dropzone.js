@@ -1136,23 +1136,35 @@ require.register("dropzone/lib/dropzone.js", function(exports, require, module){
       }
       return _results;
     };
-
+    
+    //daniel.merino AT unavarra.es - Replace handleItems of Dropzone 3.7.4 with function addFilesFromItems from Dropzone 3.8.4
+    //Due to an issue of Chrome 32 under Windows that is fixed in this replacement.
+    //More info at https://github.com/enyo/dropzone/issues/285
     Dropzone.prototype.handleItems = function(items) {
-      var entry, item, _i, _len;
-      for (_i = 0, _len = items.length; _i < _len; _i++) {
-        item = items[_i];
-        if (item.webkitGetAsEntry != null) {
-          entry = item.webkitGetAsEntry();
-          if (entry.isFile) {
-            this.addFile(item.getAsFile());
-          } else if (entry.isDirectory) {
-            this.addDirectory(entry, entry.name);
+        var entry, item, _i, _len, _results;
+        _results = [];
+        for (_i = 0, _len = items.length; _i < _len; _i++) {
+          item = items[_i];
+          if ((item.webkitGetAsEntry != null) && (entry = item.webkitGetAsEntry())) {
+            if (entry.isFile) {
+              _results.push(this.addFile(item.getAsFile()));
+            } else if (entry.isDirectory) {
+              _results.push(this.addDirectory(entry, entry.name));
+            } else {
+              _results.push(void 0);
+            }
+          } else if (item.getAsFile != null) {
+            if ((item.kind == null) || item.kind === "file") {
+              _results.push(this.addFile(item.getAsFile()));
+            } else {
+              _results.push(void 0);
+            }
+          } else {
+            _results.push(void 0);
           }
-        } else {
-          this.addFile(item.getAsFile());
         }
-      }
-    };
+        return _results;
+    };	
 
     Dropzone.prototype.accept = function(file, done) {
       if (file.size > this.options.maxFilesize * 1024 * 1024) {
