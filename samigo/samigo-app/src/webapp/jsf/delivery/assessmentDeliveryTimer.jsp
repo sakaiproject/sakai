@@ -32,7 +32,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 
 <f:verbatim> <span id="bar"></f:verbatim>
-<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseFloat ge delivery.timeElapseAfterFileUploadFloat}">
+<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload == null || delivery.timeElapseDouble ge delivery.timeElapseAfterFileUploadDouble}">
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapse}"
@@ -43,7 +43,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
     expireScript="document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:elapsed'].value=loaded; document.forms[0].elements['takeAssessmentForm:assessmentDeliveryHeading:outoftime'].value='true'; clickSubmitForGrade();" />
 </h:panelGroup>
 
-<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseFloat lt delivery.timeElapseAfterFileUploadFloat}">
+<h:panelGroup rendered="#{delivery.timeElapseAfterFileUpload != null && delivery.timeElapseDouble lt delivery.timeElapseAfterFileUploadDouble}">
 <samigo:timerBar height="15" width="300"
     wait="#{delivery.timeLimit}"
     elapsed="#{delivery.timeElapseAfterFileUpload}"
