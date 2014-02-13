@@ -251,11 +251,8 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 			UILabelTargetDecorator.targetLabel(pollDescr, itemDescr);
 		}
 
-		UIInput voteOpen = UIInput.make(newPoll, "openDate:", "poll.voteOpen");
-		UIInput voteClose = UIInput.make(newPoll, "closeDate:", "poll.voteClose");
-		dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
-		dateevolver.evolveDateInput(voteOpen, poll.getVoteOpen());
-		dateevolver.evolveDateInput(voteClose, poll.getVoteClose());
+		UIInput voteOpen = UIInput.make(newPoll, "openDate-iso8601", "poll.voteOpenStr", poll.getVoteOpenStr());
+		UIInput voteClose = UIInput.make(newPoll, "closeDate-iso8601", "poll.voteCloseStr", poll.getVoteCloseStr());
 		//UILabelTargetDecorator.targetLabel(pollOpen, voteOpen);
 		//UILabelTargetDecorator.targetLabel(pollClose, voteClose);
 

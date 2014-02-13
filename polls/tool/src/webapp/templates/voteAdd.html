@@ -11,6 +11,30 @@
 <script rsf:id="scr=portal-matter" type="text/javascript"
 	language="JavaScript" src="/library/js/headscripts.js"></script>
 	<link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all" />
+	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+	<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+	<script type="text/javascript">
+		$( document ).ready(function() {
+			localDatePicker({
+				input:'#opendate',
+				useTime:1,
+				parseFormat: 'YYYY-MM-DD HH:mm:ss',
+				getval: '#openDate-iso8601',
+				ashidden: { iso8601: 'openDate-iso8601' }
+			});
+
+			localDatePicker({
+				input:'#closedate',
+				useTime:1,
+				parseFormat: 'YYYY-MM-DD HH:mm:ss',
+				getval: '#closeDate-iso8601',
+				ashidden: { iso8601: 'closeDate-iso8601' }
+			});
+		});
+	</script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -45,17 +69,19 @@
 <table>
 	<tr>
 		<td><label for="openDate:1:date-field"><span class="reqStarInline">*</span><span rsf:id="msg=new_poll_open_label">Opening</span></label></td>
-		<td><span rsf:id="openDate:"> <input type="text"
-			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
-			size="12" maxlength="10" /> <img src="../images/calendar.gif"
-			alt="calendar" /> </span></td>
+		<td><input rsf:id="openDate-iso8601" type="hidden"
+			id="voteOpen" name="voteOpen" value="MM/DD/YYYY"
+			size="25" maxlength="25" /> 
+			<input type="text" id="opendate" name="opendate" />
+		</td>
 	</tr>
 	<tr>
 		<td> <label for ="closeDate:1:date-field"><span class="reqStarInline">*</span><span	rsf:id="msg=new_poll_close_label">Closing Date</span></label></td>
-		<td><span rsf:id="closeDate:"> <input type="text"
-			id="start_date_dummy" name="start_date_dummy" value="MM/DD/YYYY"
-			size="12" maxlength="10" /> <img src="../images/calendar.gif"
-			alt="calendar" /> </span></td>
+		<td><input rsf:id="closeDate-iso8601" type="hidden"
+			id="voteClose" name="voteClose" value="MM/DD/YYYY"
+			size="25" maxlength="25" />
+			<input type="text" id="closedate" name="closedate" />
+		</td>
 	</tr>
 </table>
 
