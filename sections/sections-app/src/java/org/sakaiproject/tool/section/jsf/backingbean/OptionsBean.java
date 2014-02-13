@@ -126,6 +126,11 @@ public class OptionsBean extends CourseDependentBean implements Serializable {
 			// Update the open date
 			if (!openSwitch) {this.openDate=null;};
 			getSectionManager().setOpenDate(courseUuid,openDate);
+			//Warn the user to select an option to allow students enroll in sections
+			if (!selfRegister && !selfSwitch && (openDate != null)) {
+			   	JsfUtil.addErrorMessage(JsfUtil.getLocalizedMessage("options_internally_manage_warning"));
+				return null;
+			}			
 		}
 		
 		// TODO Customize the message depending on the action taken
