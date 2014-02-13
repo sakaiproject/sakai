@@ -85,7 +85,7 @@
 			$tlang.getString('uploadall.instruction2')(<a href="$downloadTemplateUrl" title="$!tlang.getString('downall')">$tlang.getString('uploadall.instruction3')</a>) $tlang.getString('uploadall.instruction4')
 		#end
 	</p>
-	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;">
+	<form id="uploadAllForm" name="uploadAllForm" action="#toolForm('AssignmentAction')" method="post" onsubmit="return true;" enctype="multipart/form-data">
 			<input type="hidden" name="sakai_action" id="sakai_action" value="doUpload_all" />
 			<input type="hidden" name="flow" id="flow" value="upload" />
 			<input type="hidden" name="assignmentReference" id="assignmentReference" value="$aRef" />
@@ -149,7 +149,7 @@
 						onclick="javascript:invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly');" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
-						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doDownload_upload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
+						onclick="javascript:showNotif('submitnotif','uploadButton','uploadAllForm');document.getElementById('uploadAllForm').action='#toolLinkParam($action "doDownload_upload_all" "flow=upload&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
 			#end	
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
 						onclick="document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
