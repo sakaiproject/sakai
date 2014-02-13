@@ -1,4 +1,4 @@
-test<!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<!-- resources/sakai_create_uploads.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
 <link rel="stylesheet" type="text/css" href="/sakai-content-tool/css/dropzone.css">
 <div class="portletBody specialLink">
 	<h3>
