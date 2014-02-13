@@ -1542,11 +1542,17 @@ public class DeliveryActionListener
         if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("true"))
         {
+          if (rb == null) { 	 
+        	rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+          }
           answer.setText(rb.getString("true_msg"));
         }
         if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("false"))
         {
+          if (rb == null) { 	 
+        	rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+          }
           answer.setText(rb.getString("false_msg"));
 
         }
