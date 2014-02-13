@@ -132,7 +132,7 @@ public class UserPage  extends BaseTreePage{
 						Site site = sakaiProxy.getSiteByRef(nodeModel.getNode().title);
 						if(site != null){
 							//redirect the user to the site
-							target.appendJavascript("window.open('" + site.getUrl() + "')");
+							target.appendJavascript("popupWindow('" + site.getUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
 						}
 					}
 				}else{

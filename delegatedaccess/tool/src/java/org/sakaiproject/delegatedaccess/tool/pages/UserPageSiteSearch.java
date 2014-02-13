@@ -364,7 +364,7 @@ public class UserPageSiteSearch extends BasePage {
 					public void onClick(AjaxRequestTarget target) {
 						if(siteSearchResult.getSiteUrl() != null){
 							//redirect the user to the site
-							target.appendJavascript("window.open('" + siteSearchResult.getSiteUrl() + "')");
+							target.appendJavascript("popupWindow('" + siteSearchResult.getSiteUrl() + "', '" + new StringResourceModel("popupBlockWarning", null).getObject() + "')");
 						}
 					}
 				};
