@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- ExternalCalendaringService -->
+	<bean id="org.sakaiproject.calendaring.api.ExternalCalendaringService"
+    	class="org.sakaiproject.calendaring.api.ExternalCalendaringServiceImpl"
+    	init-method="init">
+    	
+    	<property name="sakaiProxy" ref="org.sakaiproject.calendaring.logic.SakaiProxy" />
+      
+    </bean>
+    	
+	<!--  Mock of SakaiProxy -->
+ 	<bean id="org.sakaiproject.calendaring.logic.SakaiProxy"
+    	class="org.sakaiproject.calendaring.mocks.MockSakaiProxy" />
+    
+</beans>

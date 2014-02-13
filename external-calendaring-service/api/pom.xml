@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>external-calendaring-service</artifactId>
+        <groupId>org.sakaiproject.calendaring</groupId>
+        <version>10.0-SNAPSHOT</version>
+    </parent>
+    	
+	<name>External Calendaring Service :: API</name>
+	<groupId>org.sakaiproject.calendaring</groupId>
+	<artifactId>external-calendaring-service-api</artifactId>
+	<packaging>jar</packaging>
+
+	<properties>
+    	<deploy.target>shared</deploy.target>
+  	</properties>
+  	
+  	<dependencies>
+    	<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.calendar</groupId>
+            <artifactId>sakai-calendar-api</artifactId>
+        </dependency>
+        <dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+   		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+		<dependency>
+      		<groupId>org.mnode.ical4j</groupId>
+      		<artifactId>ical4j</artifactId>
+    	</dependency>
+    	<dependency>
+			<groupId>backport-util-concurrent</groupId>
+			<artifactId>backport-util-concurrent</artifactId>
+		</dependency>
+	</dependencies>
+	
+	<build />	 
+</project>
