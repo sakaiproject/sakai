@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+   <pomVersion>3</pomVersion>
+   <extend>../../master/project.xml</extend>
+   <name>sakai-hierarchy-api</name>
+   <groupId>sakaiproject</groupId>
+   <id>sakai-hierarchy-api</id>
+   <currentVersion>${sakai.version}</currentVersion>
+   <organization>
+      <name>CARET, Cambridge University</name>
+      <url>http://caret.cam.ac.uk/</url>
+   </organization>
+   <inceptionYear>2007</inceptionYear>
+
+   <!-- must deploy the service API to shared -->
+   <properties>
+      <deploy.type>jar</deploy.type>
+      <deploy.target>shared</deploy.target>
+   </properties>
+
+   <dependencies>
+
+      <!-- Sakai plugin so we can run maven builds from this directory -->
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai</artifactId>
+         <version>${sakai.plugin.version}</version>
+         <type>plugin</type>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <sourceDirectory>src/java</sourceDirectory>
+      <resources>
+          <!-- HBM files -->
+          <resource>
+              <directory>${basedir}/src/java</directory>
+              <includes>
+                  <include>**/*.xml</include>
+              </includes>
+          </resource>
+      </resources>
+   </build>
+
+</project>
+

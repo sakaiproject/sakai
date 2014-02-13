@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/3.0.0"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/3.0.0 http://maven.apache.org/maven-v3_0_0.xsd">
+   <pomVersion>3</pomVersion>
+   <extend>../../master/project.xml</extend>
+   <name>sakai-hierarchy-pack</name>
+   <groupId>sakaiproject</groupId>
+   <id>sakai-hierarchy-pack</id>
+   <currentVersion>${sakai.version}</currentVersion>
+   <organization>
+      <name>Sakai Project</name>
+      <url>http://www.sakaiproject.org/</url>
+   </organization>
+   <inceptionYear>2006</inceptionYear>
+
+   <!-- you must deploy your pack to components -->
+   <properties>
+      <deploy.type>components</deploy.type>
+   </properties>
+
+   <!-- the components pack should include the service impl 
+      in the war bundle and the components.xml file 
+      (which is basically a spring-config file with a special name) -->
+   <dependencies>
+
+      <!-- Sakai plugin so we can run maven builds from this directory -->
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai</artifactId>
+         <version>${sakai.plugin.version}</version>
+         <type>plugin</type>
+      </dependency>
+
+      <!-- Internal dependencies -->
+      <dependency>
+         <groupId>sakaiproject</groupId>
+         <artifactId>sakai-hierarchy-impl</artifactId>
+         <version>${sakai.version}</version>
+         <properties>
+            <war.bundle>true</war.bundle>
+         </properties>
+      </dependency>
+
+      <!-- generic DAO -->
+      <dependency>
+         <groupId>generic-dao</groupId>
+         <artifactId>generic-dao</artifactId>
+         <version>0.9.7</version>
+         <properties>
+            <war.bundle>true</war.bundle>
+         </properties>
+      </dependency>
+
+   </dependencies>
+
+   <build>
+      <!-- Nothing to build here, 
+         Sakai copies everything in the WEB-INF directory to components for you -->
+   </build>
+
+</project>

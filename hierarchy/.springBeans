@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<version>1</version>
+	<pluginVersion><![CDATA[2.0.5.v200805211800]]></pluginVersion>
+	<configSuffixes>
+		<configSuffix><![CDATA[xml]]></configSuffix>
+	</configSuffixes>
+	<enableImports><![CDATA[false]]></enableImports>
+	<configs>
+		<config>pack/src/webapp/WEB-INF/components.xml</config>
+		<config>pack/src/webapp/WEB-INF/spring-hibernate.xml</config>
+		<config>impl/src/test/hibernate-test.xml</config>
+		<config>pack/src/webapp/WEB-INF/sakai-hibernate.xml</config>
+	</configs>
+	<configSets>
+		<configSet>
+			<name><![CDATA[RUN]]></name>
+			<allowBeanDefinitionOverriding>true</allowBeanDefinitionOverriding>
+			<incomplete>false</incomplete>
+			<configs>
+				<config>pack/src/webapp/WEB-INF/components.xml</config>
+				<config>pack/src/webapp/WEB-INF/sakai-hibernate.xml</config>
+				<config>pack/src/webapp/WEB-INF/spring-hibernate.xml</config>
+			</configs>
+		</configSet>
+		<configSet>
+			<name><![CDATA[TEST]]></name>
+			<allowBeanDefinitionOverriding>true</allowBeanDefinitionOverriding>
+			<incomplete>false</incomplete>
+			<configs>
+				<config>impl/src/test/hibernate-test.xml</config>
+				<config>pack/src/webapp/WEB-INF/spring-hibernate.xml</config>
+			</configs>
+		</configSet>
+	</configSets>
+</beansProjectDescription>
