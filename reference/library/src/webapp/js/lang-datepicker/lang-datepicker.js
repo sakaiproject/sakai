@@ -2068,7 +2068,9 @@ isRTL:false
 	if(this.options.ashidden !== undefined) {
 		var inp = this.options.input;
 		jQuery.each(this.options.ashidden, function(i, h) {
-			jQuery(inp).after('<input type="hidden" name="' + h + '" id="' + h + '" value="">');
+			if ($('#' + h).length < 1) {
+				jQuery(inp).after('<input type="hidden" name="' + h + '" id="' + h + '" value="">');
+			}
 		});
 	}
 
