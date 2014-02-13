@@ -51,7 +51,20 @@
 				$(".ui-dialog-titlebar", $(this).parent()).hide(); 
 				$(this).css("background", "#EEEEEE");
 			}
-		});
+		});		
+		
+		$('#time-due-warning').dialog({
+			autoOpen: false,
+			width: 330,
+			modal: true,
+			resizable: false,
+			draggable: false,
+			closeOnEscape: false,
+	        open: function (event,ui) { 
+	        	$(".ui-dialog-titlebar", $(this).parent()).hide(); 
+				$(this).css("background", "#EEEEEE");
+			}
+		});		
 	});
 
 	function showTimerWarning() {
@@ -64,4 +77,22 @@
 		setTimeout(submitfunction,5000);
 		return false;
 	}
+	
+	function showTimeDueWarning() {
+		$('#time-due-warning').dialog('open');
+		return false;
+	}
+	
+	function show30MinWarning() {
+		$('#time-30-warning').dialog({
+			modal: true,
+			resizable: false,
+			draggable: false,
+			width: 250,
+			open: function (event,ui) { 
+				$(this).css("background", "#EEEEEE");
+			}
+		});
+	}
+	
 </script>

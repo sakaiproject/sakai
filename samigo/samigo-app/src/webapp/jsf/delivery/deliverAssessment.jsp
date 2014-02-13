@@ -112,7 +112,7 @@
  
       </head>
 	
-      <body onload="<%= request.getAttribute("html.body.onload") %>; setLocation(); checkRadio(); SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:save', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true); setTimeout('setLocation2()',2)" >
+      <body onload="<%= request.getAttribute("html.body.onload") %>; setLocation(); checkRadio(); SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, true); setTimeout('setLocation2()',2)" >
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
@@ -148,7 +148,30 @@
 				<div id="squaresWaveG_8" class="squaresWaveG">
 				</div>
 			</div>
-			
+		</div>
+		
+		<div id="time-30-warning" style="display:none;text-align:center">
+		<h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{delivery.useDueDate}">
+                <f:param value="#{delivery.dayDueDateString}"/>
+        </h:outputFormat>
+        <h:outputFormat value="#{deliveryMessages.time_30_warning}" escape="false" rendered="#{!delivery.useDueDate}">
+                <f:param value="#{delivery.dayRetractDateString}"/>
+        </h:outputFormat>
+        <br /><br /><br />
+        <h:outputText value="#{deliveryMessages.five_minutes_left2}" escape="false"/>
+        <br />
+		</div>
+		
+		
+		<div id="time-due-warning" style="display:none;text-align:center" >
+				<h:outputText value="#{deliveryMessages.time_due_warning_1}" escape="false"/>
+				<br/><br />
+				<button type="button" onclick="clickSubmit();"><h:outputText value="#{deliveryMessages.button_submit}" escape="false"/></button>
+				<br /><br />	
+				<a href="#" onclick="clickDoNotSubmit();"><h:outputText value="<u>#{deliveryMessages.link_do_not_submit}</u>" escape="false"/></a>
+				<br /><br />
+				<h:outputText value="#{deliveryMessages.time_due_warning_2}" escape="false"/>
+				<br /><br />
 		</div>
  
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
@@ -290,6 +313,8 @@ document.links[newindex].onclick();
    rendered ="#{delivery.assessmentGrading.submittedDate!=null}"/>
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered ="#{delivery.assessmentGrading.submittedDate==null}"/>
+<h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
+<h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
 
 <!-- DONE BUTTON FOR PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -554,6 +579,10 @@ document.links[newindex].onclick();
 
   </h:panelGrid>
 </h:panelGrid>
+
+   <h:commandButton id="autoSave" type="submit" value="" style="display: none"
+   action="#{delivery.auto_save}" rendered="#{delivery.actionString=='takeAssessment'
+                  || delivery.actionString=='takeAssessmentViaUrl'}" />
 
 	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
 	</h:commandLink>

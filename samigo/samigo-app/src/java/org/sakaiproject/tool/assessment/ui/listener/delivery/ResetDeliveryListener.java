@@ -70,5 +70,11 @@ public class ResetDeliveryListener implements ActionListener
     bean.setTimeLimit("0");
     bean.setNumberRetake(-1);
     bean.setActualNumberRetake(-1);
+    bean.setHasShowTimeWarning(false);
+    bean.setShowTimeWarning(false);
+    bean.setTurnIntoTimedAssessment(false);
+    bean.setSkipFlag(false);
+    bean.setUseDueDate(true);
+    bean.setSubmitFromTimeoutPopup(false);
   }
 }

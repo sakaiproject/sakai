@@ -270,11 +270,18 @@ public class DeliveryBean
   
   private boolean isFromPrint;
 
+  private boolean showTimeWarning;
+  private boolean hasShowTimeWarning;
+  private boolean turnIntoTimedAssessment;
+  private boolean useDueDate;
+  private boolean submitFromTimeoutPopup;
+  private boolean  skipFlag;
+  
   private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
-  
+
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
-  
+
   /**
    * Creates a new DeliveryBean object.
    */
@@ -1077,6 +1084,25 @@ public class DeliveryBean
     return retractDate;
   }
 
+  public String getDayRetractDateString()
+  {
+    String dateString = "";
+    if (retractDate == null) {
+      return dateString;
+    }
+
+    try {
+      TimeUtil tu = new TimeUtil();
+      dateString = tu.getDisplayDateTime(dayDisplayFormat, retractDate);
+    }
+    catch (Exception ex) {
+      // we will leave it as an empty string
+      log.warn("Unable to format date.");
+      ex.printStackTrace();
+    }
+    return dateString;
+  }
+  
   public void setRetractDate(java.util.Date retractDate)
   {
     this.retractDate = retractDate;
@@ -1425,15 +1451,19 @@ public class DeliveryBean
 
   public String submitForGradeFromTimer()
   {
-	    return submitForGrade(true);
+	    return submitForGrade(true, false);
   }
   
   public String submitForGrade()
   {
-    return submitForGrade(false);
+    return submitForGrade(false, false);
   }
   
-  private String submitForGrade(boolean isFromTimer) {
+  public String submitFromTimeoutPopup() {
+ 	  return submitForGrade(false, true);
+  }
+   
+  private String submitForGrade(boolean isFromTimer, boolean submitFromTimeoutPopup) {
 	try{
 	  if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "editAssessment";
@@ -1441,16 +1471,27 @@ public class DeliveryBean
 	  
 	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.click_sub", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
 
-	  String nextAction = checkBeforeProceed(true, isFromTimer);
-	  log.debug("***** next Action="+nextAction);
-	  
-	  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.checked", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+	  if (!submitFromTimeoutPopup) {
 
-	  if (!("safeToProceed").equals(nextAction)){
-		  return nextAction;
+		  String nextAction = checkBeforeProceed(true, isFromTimer);
+		  log.debug("***** next Action="+nextAction);
+
+		  EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.submit.checked", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + adata.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED)); 
+
+
+		  if (!("safeToProceed").equals(nextAction)){
+			  return nextAction;
+		  }
 	  }
-
 	  setForGrade(true);
+	  
+	  if (submitFromTimeoutPopup) {
+		  setSubmitFromTimeoutPopup(true);
+	  }
+	  else {
+		  setSubmitFromTimeoutPopup(false);
+	  }
+	  
 	  SessionUtil.setSessionTimeout(FacesContext.getCurrentInstance(), this, false);
 
 	  syncTimeElapsedWithServer();
@@ -1606,6 +1647,7 @@ public class DeliveryBean
 		  }
 	  }
 
+	  skipFlag = true;
 	  DeliveryActionListener l2 = new DeliveryActionListener();
 	  l2.processAction(null);
 	  return "confirmsubmit";
@@ -1659,13 +1701,23 @@ public class DeliveryBean
 	  return "confirmsubmit";
   }
 
-  public String saveAndExit()
+  public String saveAndExit() {
+	  return saveAndExit(true);
+  }
+  
+  public String saveNoCheck() {
+	  return saveAndExit(false);
+  }
+  
+  public String saveAndExit(boolean needToCheck)
   {
-    String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
-    if (!("safeToProceed").equals(nextAction)){
-      return nextAction;
-    }
+	  if (needToCheck) {  
+		  String nextAction = checkBeforeProceed();
+		  log.debug("***** next Action="+nextAction);
+		  if (!("safeToProceed").equals(nextAction)){
+			  return nextAction;
+		  }
+	  }
 
     FacesContext context = FacesContext.getCurrentInstance();
     SessionUtil.setSessionTimeout(context, this, false);
@@ -1692,11 +1744,24 @@ public class DeliveryBean
     }
     
     String returnValue = "saveForLaterWarning";
-    if (this.actionMode == TAKE_ASSESSMENT_VIA_URL)
-    { // if this is access via url, display quit message
-      log.debug("**anonymous login, go to quit");
-      returnValue = "anonymousQuit";
+    if (needToCheck) {
+    	if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) {
+    		returnValue = "anonymousQuit";
+    	}
+    	else {
+    		returnValue = "saveForLaterWarning";
+    	}
     }
+    else {
+    	if (this.actionMode == TAKE_ASSESSMENT_VIA_URL) {
+    		returnValue = "notSubmitted";
+    	}
+    	else {
+    		returnValue = "select";
+    	}
+    }
+    
+    
 
     SelectActionListener l2 = new SelectActionListener();
     l2.processAction(null);
@@ -1794,15 +1859,22 @@ public class DeliveryBean
     reload = false;
     return "takeAssessment";
   }
-
+  
+  public String auto_save()
+  {
+	  skipFlag = true;
+	  return save_work();
+  }
+  
   public String save_work()
   {
+
 	  String nextAction = checkBeforeProceed();
 	  log.debug("***** next Action="+nextAction);
 	  if (!("safeToProceed").equals(nextAction)){
 		  return nextAction;
 	  }
-
+	  
 	  forGrade = false;
 
 	  if (this.actionMode == TAKE_ASSESSMENT
@@ -2341,6 +2413,7 @@ public class DeliveryBean
     // false => do not reset the entire current delivery.pageContents.
     // we will do it ourselves and only update the question that this media
     // is attached to
+    skipFlag = true;
     dlistener.processAction(null, false);
     if (newItemGradingData)
       attachToItemContentBean(itemGradingData, questionId);
@@ -3052,11 +3125,7 @@ public class DeliveryBean
     if (adata!=null){
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
-    PublishedAssessmentService pubService = new PublishedAssessmentService();
-    int totalSubmitted = (pubService.getTotalSubmission(AgentFacade.getAgentString(), 
-                          getPublishedAssessment().getPublishedAssessmentId().toString())).intValue();
-    log.debug("***totalSubmitted="+totalSubmitted);
-
+    
     // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
@@ -3082,8 +3151,9 @@ public class DeliveryBean
     
     log.debug("check 4");
     // check 4: check for multiple window & browser trick 
+    boolean discrepancyInData = false;
     if (assessmentGrading!=null && !checkDataIntegrity(assessmentGrading)){
-      return ("discrepancyInData");
+      discrepancyInData = true;
     }
 
     log.debug("check 5");
@@ -3096,7 +3166,7 @@ public class DeliveryBean
 
     log.debug("check 6");
     // check 6: is it need to resubmit? If yes, we don't check on submission number, dates, or time.
-    if (isNeedResubmit()){
+    if (isNeedResubmit() && !discrepancyInData){
         return "safeToProceed";
     }
     
@@ -3108,7 +3178,7 @@ public class DeliveryBean
     	
     log.debug("check 7");
     // check 7: any submission attempt left?
-    if (!getHasSubmissionLeft(totalSubmitted, numberRetake)){
+    if (!getHasSubmissionLeft(numberRetake)){
       return "noSubmissionLeft";
     }
 
@@ -3123,8 +3193,8 @@ public class DeliveryBean
    	// longer than due date,) for either case, we want to redirect to the normal "submision successful page" after submitting.
     if (pastDueDate()){
     	// If Accept Late and there is no submission yet, go through
-    	if (acceptLateSubmission && totalSubmitted == 0) {
-    		log.debug("Accept Late Submission && totalSubmitted == 0");
+    	if (acceptLateSubmission && totalSubmissions == 0) {
+    		log.debug("Accept Late Submission && totalSubmissions == 0");
     	}
     	else {
     		log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
@@ -3154,12 +3224,17 @@ public class DeliveryBean
     	}
     }
 
+    if (discrepancyInData){
+        return ("discrepancyInData");
+    }
+    
     log.debug("check9");
     // check 9: is timed assessment? and time has expired?
-    if (isTimeRunning() && timeExpired()){ 
+    if (isTimeRunning() && timeExpired() && !turnIntoTimedAssessment){ 
       return "timeExpired";
     }
-    else return "safeToProceed";
+    
+    return "safeToProceed";
   }
   
   public String checkFromViaUrlLogin(){
@@ -3174,7 +3249,7 @@ public class DeliveryBean
 	  return checkBeforeProceed(isSubmitForGrade, isFromTimer, false);
   }
 
-  private boolean getHasSubmissionLeft(int totalSubmitted, int numberRetake){
+  private boolean getHasSubmissionLeft(int numberRetake){
     boolean hasSubmissionLeft = false;
     int maxSubmissionsAllowed = 9999;
     if ( (Boolean.FALSE).equals(publishedAssessment.getAssessmentAccessControl().getUnlimitedSubmissions())){
@@ -3186,7 +3261,7 @@ public class DeliveryBean
     	  settings = settingsDeliveryBean; 
       }
     }
-    if (totalSubmitted < maxSubmissionsAllowed + numberRetake){
+    if (totalSubmissions < maxSubmissionsAllowed + numberRetake){
       hasSubmissionLeft = true;
     } 
     return hasSubmissionLeft;
@@ -3396,14 +3471,7 @@ public class DeliveryBean
 	    this.assessmentGradingId = assessmentGradingId;
 	  }
 
-	  // This is for SAK-9505
-	  // Preview is fixed for SAK-11474
-	  // If not during preview, dueDate is not null, Late Submission is not allowed, and not during a retake
-	  // we reset the time limit to the smaller one of
-	  // 1. assessment "time limit" and 2. the difference of due date and current. 
-	  public String updateTimeLimit(String timeLimit) {
-  	    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-	        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+	  public String updateTimeLimit(String timeLimit, String timeBeforeDueRetract) {  
   	    if (numberRetake == -1 || actualNumberRetake == -1) {
 		    	GradingService gradingService = new GradingService();
 		    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
@@ -3413,23 +3481,77 @@ public class DeliveryBean
 		 }
 		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
-			if (dueDate != null && !acceptLateSubmission) {
-				int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
-				if (timeBeforeDue < Integer.parseInt(timeLimit)) {
-					return String.valueOf(timeBeforeDue);
-				}
+			if (timeBeforeDueRetract != null) {
+				timeLimit = timeBeforeDueRetract;
 			}
-
-			if (retractDate != null) {
-				int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
-				if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
-					return String.valueOf(timeBeforeRetract);
-				}
+			else {
+				timeLimit = getTimeBeforeDueRetract(timeLimit);
 			}
 		}
 		
 		return timeLimit;
 	  }
+	  
+	  public String getTimeBeforeDueRetract(String timeLimit) {
+		  boolean acceptLateSubmission = AssessmentAccessControlIfc.
+				  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+		  
+		  String finalTimeLimit = timeLimit;
+		  if (dueDate != null) {
+			  if (!acceptLateSubmission) {
+				  finalTimeLimit = getTimeBeforeDue(timeLimit);
+			  }
+			  else {
+				  if (totalSubmissions > 0) {
+					  finalTimeLimit = getTimeBeforeDue(timeLimit);
+				  }
+				  else {
+					  if (retractDate != null) {
+						  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+						  useDueDate = false;
+					  }
+				  }
+			  }
+		  }
+		  else {
+			  if (retractDate != null) {
+				  finalTimeLimit = getTimeBeforeRetract(timeLimit);
+				  useDueDate = false;
+			  }
+		  }
+		 
+		  return finalTimeLimit;
+	  }
+	  
+	  private String getTimeBeforeDue(String timeLimit) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
+			  int timeBeforeDue  = Math.round((dueDate.getTime() - beginTime.getTime())/1000.0f);
+			  if (timeBeforeDue < Integer.parseInt(timeLimit)) {
+				  timeLimit = String.valueOf(timeBeforeDue);
+			  }
+		  }
+		  else {
+			  int timeBeforeDue  = Math.round((dueDate.getTime() - System.currentTimeMillis())/1000.0f);
+			  timeLimit = String.valueOf(timeBeforeDue);
+		  }
+		  
+		  return timeLimit;
+	  }
+	  
+	  private String getTimeBeforeRetract(String timeLimit) {
+		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
+			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
+			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
+				  timeLimit = String.valueOf(timeBeforeRetract);
+			  }
+		  }
+		  else {
+			  int timeBeforeRetract  = Math.round((retractDate.getTime() - System.currentTimeMillis())/1000.0f);
+			  timeLimit = String.valueOf(timeBeforeRetract);
+		  }
+		  return timeLimit;
+	  }
+	  
 	  
 	  private boolean isTimedAssessment() {
 		  if (this.getPublishedAssessment().getAssessmentAccessControl().getTimeLimit().equals(Integer.valueOf(0))) {
@@ -3658,5 +3780,62 @@ public class DeliveryBean
 	  public int getActualNumberRetake() {
 		  return actualNumberRetake;
 	  }
+	  public boolean getShowTimeWarning()
+	  {
+	    return showTimeWarning;
+	  }
+
+	  public void setShowTimeWarning(boolean showTimeWarning)
+	  {
+	    this.showTimeWarning = showTimeWarning;
+	  }
+	  
+	  public boolean getHasShowTimeWarning()
+	  {
+	    return hasShowTimeWarning;
+	  }
+
+	  public void setHasShowTimeWarning(boolean hasShowTimeWarning)
+	  {
+	    this.hasShowTimeWarning = hasShowTimeWarning;
+	  }
+	  
+	  public boolean getTurnIntoTimedAssessment()
+	  {
+	    return turnIntoTimedAssessment;
+	  }
+
+	  public void setTurnIntoTimedAssessment(boolean turnIntoTimedAssessment)
+	  {
+	    this.turnIntoTimedAssessment = turnIntoTimedAssessment;
+	  }
+	  
+	  public boolean getUseDueDate()
+	  {
+	    return useDueDate;
+	  }
+
+	  public void setUseDueDate(boolean useDueDate)
+	  {
+	    this.useDueDate = useDueDate;
+	  }
+
+	  public boolean getsubmitFromTimeoutPopup() {
+		  return submitFromTimeoutPopup;
+	  }
+
+	  public void setSubmitFromTimeoutPopup(boolean submitFromTimeoutPopup) {
+		  this.submitFromTimeoutPopup = submitFromTimeoutPopup;
+	  }
+	  
+	  public void setSkipFlag(boolean skipFlag) {
+		  this.skipFlag = skipFlag;
+	  }
+	  
+	  public boolean getSkipFlag() {
+		  return skipFlag;
+	  }
+	  
+	  
 }
 

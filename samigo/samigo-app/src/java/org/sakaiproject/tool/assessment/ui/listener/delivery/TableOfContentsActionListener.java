@@ -93,6 +93,7 @@ public class TableOfContentsActionListener implements ActionListener
 	  }
 	  
       DeliveryActionListener d = new DeliveryActionListener();
+      delivery.setSkipFlag(true);
       d.processAction(ae);
       delivery.setOutcome("tableOfContents");
     }

@@ -52,6 +52,7 @@ public class AssessmentGradingData implements java.io.Serializable
 	private Set<ItemGradingData> itemGradingSet = new HashSet<ItemGradingData>();
 	private Date attemptDate;
 	private Integer timeElapsed;
+	private Boolean submitFromTimeoutPopup;
 	private int totalSubmitted;
 	private Long publishedAssessmentId;
 	private String publishedAssessmentTitle;
@@ -325,7 +326,15 @@ public class AssessmentGradingData implements java.io.Serializable
 	public void setTimeElapsed(Integer timeElapsed) {
 		this.timeElapsed = timeElapsed;
 	}
+	
+	public Boolean getSubmitFromTimeoutPopup() {
+		return submitFromTimeoutPopup;
+	}
 
+	public void setSubmitFromTimeoutPopup(Boolean submitFromTimeoutPopup) {
+		this.submitFromTimeoutPopup = submitFromTimeoutPopup;
+	}
+	
 	public int getTotalSubmitted() {
 		return totalSubmitted;
 	}

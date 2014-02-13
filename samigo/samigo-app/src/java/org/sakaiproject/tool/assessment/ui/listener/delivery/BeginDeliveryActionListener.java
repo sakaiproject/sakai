@@ -309,7 +309,6 @@ public class BeginDeliveryActionListener implements ActionListener
 
     // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
     setTimedAssessment(delivery, pubAssessment);
-
   }
 
   private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
@@ -323,7 +322,8 @@ public class BeginDeliveryActionListener implements ActionListener
 
     	try {
     		if (control.getTimeLimit() != null) {
-    			delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString()));
+    			String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(control.getTimeLimit().toString());
+    			delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString(), timeBeforeDueRetract));
     			int seconds = control.getTimeLimit().intValue();
     			int hour = 0;
     			int minute = 0;
@@ -347,7 +347,6 @@ public class BeginDeliveryActionListener implements ActionListener
         delivery.setTimerId(null);
         delivery.setTimeLimit("0");
       }
-
   }
 
   private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){

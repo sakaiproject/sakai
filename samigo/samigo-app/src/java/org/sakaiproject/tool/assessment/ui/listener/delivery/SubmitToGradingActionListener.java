@@ -418,8 +418,9 @@ public class SubmitToGradingActionListener implements ActionListener {
 				adata.setItemGradingSet(updateItemGradingSet);
 			}
 		}
-
-		adata.setIsLate(isLate(publishedAssessment));
+		
+		adata.setSubmitFromTimeoutPopup(delivery.getsubmitFromTimeoutPopup());
+		adata.setIsLate(isLate(publishedAssessment, delivery.getsubmitFromTimeoutPopup()));
 		adata.setForGrade(Boolean.valueOf(delivery.getForGrade()));
 		
 		// If this assessment grading data has been updated (comments or adj. score) by grader and then republic and allow student to resubmit
@@ -840,8 +841,13 @@ public class SubmitToGradingActionListener implements ActionListener {
     }
 
    
-	private Boolean isLate(PublishedAssessmentIfc pub) {
+	private Boolean isLate(PublishedAssessmentIfc pub, boolean submitFromTimeoutPopup) {
 		AssessmentAccessControlIfc a = pub.getAssessmentAccessControl();
+		// If submit from timeout popup, we don't record LATE
+		if(submitFromTimeoutPopup) {
+			return Boolean.FALSE;
+		}		
+		
 		if (a.getDueDate() != null && a.getDueDate().before(new Date()))
 			return Boolean.TRUE;
 		else

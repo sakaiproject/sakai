@@ -53,7 +53,12 @@ clearInterval(Pid);
 window.status='';
 //if(ns4)PBouter.visibility="hide";
 //else PBouter.style.visibility="hidden";
-action();
+if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+	action();
+}
+else {	
+	action2();
+}
 }
 
 //THIS FUNCTION BY MIKE HALL OF BRAINJAR.COM
@@ -68,13 +73,26 @@ return layer;
  }
 return null;
 }
-
+var showTimeWarning = document.getElementById('takeAssessmentForm:showTimeWarning').value;
+//alert("showTimeWarning=" + showTimeWarning);
 function progressBarInit(){
 PBouter=(ns4)?findlayer('PBouter',document):(ie4)?document.all['PBouter']:document.getElementById('PBouter');
 PBdone=(ns4)?PBouter.document.layers['PBdone']:(ie4)?document.all['PBdone']:document.getElementById('PBdone');
 resizeEl(PBdone,0,0,barheight-2,0);
-if(ns4)PBouter.visibility="show";
-else PBouter.style.visibility="visible";
+
+if (document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+	//alert("showTimeWarning=" + document.getElementById('takeAssessmentForm:hasTimeLimit').value);
+	if(ns4)PBouter.visibility="show";
+	else PBouter.style.visibility="visible";
+}
+else {
+	if (showTimeWarning=="true") {
+		//alert("You have less than 30 min...");
+		show30MinWarning();
+	}
+	//PBouter.display="none";
+	//PBdone.display="none";
+}
 Pid=setInterval('progressTimerBar()', 100);
 startTimer();
 }
@@ -121,8 +139,10 @@ function showCountDown(){
   var presentH=present.getHours();
   var presentM=present.getMinutes();
   var presentS=present.getSeconds();
-
+  //alert("present=" + ":" + presentH + ":" + presentM + ":" + presentS + ", end=" + endH + ":" + endM + ":" + endS);
   var theTime=((endH*3600)+(endM*60)+endS) -((presentH*3600)+(presentM*60)+presentS);
+  //alert("theTime=" +theTime);
+  
   if (theTime >= 86400) {
 	  theTime = theTime - 86400;
   }
@@ -131,7 +151,7 @@ function showCountDown(){
 	stopTimer();
 	//alert('theTime=' + theTime);
   }
-  else {  
+  else {
     var remainH=Math.floor(theTime/3600);
     var remainM=Math.floor((theTime%3600)/60);
     var remainS=(theTime%3600)%60;
@@ -141,10 +161,12 @@ function showCountDown(){
     if(remainM<=9) m='0';
     if(remainS<=9) s='0';
     remainTime=remainH+':'+m+remainM+':'+s+remainS; // remaining time
-    document.getElementById('timer').innerHTML=remainTime;
+    if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+    	document.getElementById('timer').innerHTML=remainTime;
+    }
     if(running){
-      if(!pauseTiming==true)
-      timerID=setTimeout("showCountDown()",1000);
+      if(!pauseTiming==true){
+      timerID=setTimeout("showCountDown()",1000);}
     }
   }
 }
@@ -161,7 +183,7 @@ function progressTimerBar(){
 	//alert("remainTime=" + remainTime);
     window.status="Loaded....";
     var setRedBar = false;
-    if(waitTime>300){ //waitTime is the timeLimit and it is in second
+    if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true" && waitTime>300){ //waitTime is the timeLimit and it is in second
 		if(remainTime==300){ //waitTime is the timeLimit and it is in second
 		setRedBar = true;
 		//alert('You have 5 minutes left. "a"');
@@ -187,7 +209,9 @@ function progressTimerBar(){
 }
 
 function stopTimer(){
-  document.getElementById('timer').innerHTML="Time's up";
+  if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+    document.getElementById('timer').innerHTML="Time's up";
+  }
   clearTimeout(timerID);
 running=false;
 hidebar(); 

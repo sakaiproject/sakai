@@ -45,11 +45,7 @@ public class TimerBarTag
 
   private String id = null;
   private String expireScript;
-  private String expireMessage1;
-  private String expireMessage2;
-  private String fiveMinutesMessage1;
-  private String fiveMinutesMessage2;
-  
+  private String expireScript2;
 
   //private TagUtil util;
   private String elapsed;
@@ -98,10 +94,6 @@ public class TimerBarTag
     TagUtil.setInteger(component, "wait", wait);
     TagUtil.setInteger(component, "elapsed", elapsed);
     TagUtil.setString(component, "expireScript", expireScript);
-    TagUtil.setString(component, "expireMessage1", expireMessage1);
-    TagUtil.setString(component, "expireMessage2", expireMessage2);
-    TagUtil.setString(component, "fiveMinutesMessage1", fiveMinutesMessage1);
-    TagUtil.setString(component, "fiveMinutesMessage2", fiveMinutesMessage2);
   }
   public String getWidth()
   {
@@ -134,41 +126,6 @@ public class TimerBarTag
   public void setExpireScript(String expireScript)
   {
     this.expireScript = expireScript;
-  }
-  public String getExpireMessage1()
-  {
-    return expireMessage1;
-  }
-  public void setExpireMessage1(String expireMessage1)
-  {
-    this.expireMessage1 = expireMessage1;
-  }
-  
-  public String getExpireMessage2()
-  {
-    return expireMessage2;
-  }
-  public void setExpireMessage2(String expireMessage2)
-  {
-    this.expireMessage2 = expireMessage2;
-  }
-  
-  public String getFiveMinutesMessage1()
-  {
-    return fiveMinutesMessage1;
-  }
-  public void setFiveMinutesMessage1(String fiveMinutesMessage1)
-  {
-    this.fiveMinutesMessage1 = fiveMinutesMessage1;
-  }
-
-  public String getFiveMinutesMessage2()
-  {
-    return fiveMinutesMessage2;
-  }
-  public void setFiveMinutesMessage2(String fiveMinutesMessage2)
-  {
-    this.fiveMinutesMessage2 = fiveMinutesMessage2;
   }
   
 }

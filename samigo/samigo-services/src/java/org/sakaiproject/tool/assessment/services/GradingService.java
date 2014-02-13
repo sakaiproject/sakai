@@ -1778,12 +1778,19 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
   }
 
   private void setIsLate(AssessmentGradingData data, PublishedAssessmentIfc pub){
-    if (pub.getAssessmentAccessControl() != null
-      && pub.getAssessmentAccessControl().getDueDate() != null &&
-          pub.getAssessmentAccessControl().getDueDate().before(new Date()))
-          data.setIsLate(Boolean.TRUE);
-    else
-      data.setIsLate( Boolean.valueOf(false));
+	  // If submit from timeout popup, we don't record LATE
+	  if (data.getSubmitFromTimeoutPopup()) {
+		  data.setIsLate( Boolean.valueOf(false));
+	  }
+	  else {
+		  if (pub.getAssessmentAccessControl() != null
+				  && pub.getAssessmentAccessControl().getDueDate() != null &&
+				  pub.getAssessmentAccessControl().getDueDate().before(new Date()))
+			  data.setIsLate(Boolean.TRUE);
+		  else
+			  data.setIsLate( Boolean.valueOf(false));
+	  }
+	  
     if (data.getForGrade().booleanValue())
       data.setStatus( Integer.valueOf(1));
     

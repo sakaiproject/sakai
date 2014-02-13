@@ -668,6 +668,10 @@
       <to-view-id>/jsf/delivery/noLateSubmission.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>notSubmitted</from-outcome>
+      <to-view-id>/jsf/delivery/notSubmitted.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>isRemoved</from-outcome>
       <to-view-id>/jsf/delivery/isRemoved.jsp</to-view-id>
     </navigation-case>

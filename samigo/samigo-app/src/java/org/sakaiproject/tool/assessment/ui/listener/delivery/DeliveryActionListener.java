@@ -2437,10 +2437,41 @@ public class DeliveryActionListener
     int timeLimit = 0;
     AssessmentAccessControlIfc control = publishedAssessment.getAssessmentAccessControl();
     AssessmentGradingData ag = delivery.getAssessmentGrading();
+
     delivery.setBeginTime(ag.getAttemptDate());
-    if (delivery.getHasTimeLimit() && control != null && control.getTimeLimit()!=null) {
+    String timeLimitInSetting = control.getTimeLimit().toString();
+    String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
+    boolean isTimedAssessmentBySetting = delivery.getHasTimeLimit() && 
+    		control.getTimeLimit() != null && control.getTimeLimit().intValue() > 0;
+    //boolean turnIntoTimedAssessment = false;
+    boolean releaseToAnonymouse = control.getReleaseTo() != null && control.getReleaseTo().indexOf("Anonymous Users")> -1;
+    
+    // Turn into timed assessment if:
+    // 1. Not release to anonymous users
+    // 2. Not from Auto Save, File Upload, or Table of Content (skipFlag == true)
+    // 3. Not during Retake
+    // 4. Not a timed assessment (timed assessment setting is not selected)
+    // 5. time limit less than 30 min
+    if (!delivery.getTurnIntoTimedAssessment() && !releaseToAnonymouse && !delivery.getSkipFlag() && delivery.getActualNumberRetake() >= delivery.getNumberRetake() && 
+    		!isTimedAssessmentBySetting && (!"0".equals(timeBeforeDueRetract) && Integer.parseInt(timeBeforeDueRetract) <= 1800)) {
+    	delivery.setTurnIntoTimedAssessment(true);
+    }
+    
+    // reset skipFlag
+    delivery.setSkipFlag(false);  
+    
+    delivery.setTurnIntoTimedAssessment(delivery.getTurnIntoTimedAssessment());
+    if (delivery.getTurnIntoTimedAssessment() && !delivery.getHasShowTimeWarning()) {
+    	delivery.setShowTimeWarning(true);
+    	delivery.setHasShowTimeWarning(true);
+    }
+    else {
+    	delivery.setShowTimeWarning(false);
+    }
+
+    if (isTimedAssessmentBySetting) {
     	if (fromBeginAssessment) {
-    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(publishedAssessment.getAssessmentAccessControl().getTimeLimit().toString()));
+    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
     	}
     	else {
     		if (delivery.getTimeLimit() != null) {
@@ -2448,29 +2479,24 @@ public class DeliveryActionListener
     		}
     	}
     }
-      
+    else if (delivery.getTurnIntoTimedAssessment()) {
+   		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
+    }
+    
+
     if (timeLimit==0) 
       delivery.setTimeRunning(false);
     else{
       delivery.setTimeRunning(true);
       delivery.setTimeLimit(timeLimit+"");
 
-      //if assessment is half done, load setting saved in DB,
+      // if assessment is half done, load setting saved in DB,
       // else set time elapsed as 0
-      //AssessmentGradingData ag = delivery.getAssessmentGrading();
-      //delivery.setBeginTime(ag.getAttemptDate());
       if (delivery.isTimeRunning() && delivery.getBeginAssessment()){
-    	//int timeElapsed  = Math.round((double)((new Date()).getTime() - ag.getAttemptDate().getTime())/1000.0d); //in sec
-    	//delivery.setTimeElapse(String.valueOf(timeElapsed));
-        /*
-    	if (ag.getTimeElapsed() != null){
-          delivery.setTimeElapse(ag.getTimeElapsed().toString());
-        }
-        else{  // this is a new timed assessment
-          delivery.setTimeElapse("0");
-        }
-        */
-        queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment, isFirstTimeBegin);
+    	// no backend timer for non-timed assessment  
+    	if (!delivery.getTurnIntoTimedAssessment()) {
+    		queueTimedAssessment(delivery, timeLimit, fromBeginAssessment, publishedAssessment, isFirstTimeBegin);
+    	}
         delivery.setBeginAssessment(false);
       }
       else{ // in midst of assessment taking, sync it with timedAG

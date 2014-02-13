@@ -118,6 +118,12 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n  var action = function()");
          writer.write("\n {");
          writer.write ("\n showTimerExpiredWarning (function (){");
+         writer.write("\n   " + attrMap.get("expireScript") + "clickSubmitForGrade();");
+         writer.write("\n });}");
+         writer.write("\n");
+         writer.write("\n  var action2 = function()");
+         writer.write("\n {");
+         writer.write ("\n showTimeDueWarning (function (){");
          writer.write("\n   " + attrMap.get("expireScript") + ";");
          writer.write("\n });}");
          writer.write("\n");
@@ -125,7 +131,6 @@ public class TimerBarRenderer extends Renderer
          writer.write("\n");
          writer.write("\n  var fiveMinutesAction = function()");
          writer.write("\n {");
-         //writer.write("\n  alert('"  + attrMap.get("fiveMinutesMessage1") + "\\n\\n" + attrMap.get("fiveMinutesMessage2") + "');");   
          writer.write("\n showTimerWarning();");
          writer.write("\n }");
          writer.write("\n");

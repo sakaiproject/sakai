@@ -662,10 +662,13 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       
       results.setComments(FormattedText.convertFormattedTextToPlaintext(gdata.getComments()));
       
+      results.setIsLate(gdata.getIsLate());
+      
       Date dueDate = null;
       PublishedAccessControl ac = (PublishedAccessControl) p.getAssessmentAccessControl();
       if (ac!=null)
         dueDate = ac.getDueDate();
+      /*
       if (dueDate == null || gdata.getSubmittedDate() == null || gdata.getSubmittedDate().before(dueDate)) {   
         results.setIsLate(Boolean.FALSE);
       }
@@ -676,6 +679,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
         // LATE_SUBMISSION as a status. Comment out the following line for this reason.
         //results.setStatus(AssessmentGradingIfc.LATE_SUBMISSION);
       }
+      */
       
       if (gdata.getIsAutoSubmitted() != null && gdata.getIsAutoSubmitted().equals(Boolean.TRUE)) {
     	  results.setIsAutoSubmitted(true);

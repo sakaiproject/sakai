@@ -32,6 +32,10 @@ public class SaCharCountListener implements ActionListener
 		}
 		StringBuffer redrawAnchorName = new StringBuffer("p");
 
+		if (delivery.getHasShowTimeWarning()) {
+			delivery.setShowTimeWarning(false);
+		}
+		
 		Iterator iter = delivery.getPageContents().getPartsContents().iterator();
 		while (iter.hasNext()) {
 			SectionContentsBean part = (SectionContentsBean) iter.next();
