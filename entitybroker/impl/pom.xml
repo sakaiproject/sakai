@@ -53,6 +53,10 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-jdbc</artifactId>
         </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+        </dependency>
         <!-- generic DAO -->
         <dependency>
             <groupId>org.sakaiproject</groupId>
