@@ -175,7 +175,7 @@ public abstract class StaticHandler extends BasePortalHandler
 		catch (IOException ex)
 		{
 			log.info("Failed to send portal content ", ex);
-			res.sendError(404, ex.getMessage());
+			res.sendError(404, URLUtils.getSafePathInfo(req));
 		}
 
 	}
