@@ -755,12 +755,20 @@ public class DashboardLogicImpl implements DashboardLogic {
 		if(logger.isDebugEnabled()) {
 			logger.debug("removing calendar links and calendar item for " + entityReference);
 		}
+		
+		String calendarTimeLabelKey = null;
+		
 		List<CalendarItem> items = dao.getCalendarItems(entityReference);
 		if(items != null && items.size() > 0) {
 			for(CalendarItem item : items) {
-			if(logger.isDebugEnabled()) {
-				logger.debug("removing calendar links and calendar item for item: " + item);
-			}
+				if(logger.isDebugEnabled()) {
+					logger.debug("removing calendar links and calendar item for item: " + item);
+				}
+				
+				if (calendarTimeLabelKey == null)
+				{
+					calendarTimeLabelKey = item.getCalendarTimeLabelKey();
+				}
 			
 				if(logger.isDebugEnabled()) {
 					logger.debug("removing calendar links for item: " + item);
@@ -770,6 +778,19 @@ public class DashboardLogicImpl implements DashboardLogic {
 					logger.debug("removing calendar item: " + item);
 				}
 				dao.deleteCalendarItem(item.getId());
+			}
+		}
+		
+		// find out whether this is associated with repeating calendar item 
+		RepeatingCalendarItem rItem = dao.getRepeatingCalendarItem(entityReference, calendarTimeLabelKey);
+		if (rItem != null)
+		{
+			// find out whether there is any associated CalendarItem with this RepeatingCalendarItem object
+			List<CalendarItem> rItems = dao.getCalendarItems(rItem);
+			if (rItems == null || rItems.size() == 0)
+			{
+				// if there is no more associated CalendarItem, remove the RepeatingCalendarItem itself
+				dao.deleteRepeatingEvent(rItem.getId());
 			}
 		}
 	}

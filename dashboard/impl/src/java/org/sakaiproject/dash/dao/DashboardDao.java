@@ -576,5 +576,12 @@ public interface DashboardDao {
 	public boolean addTaskLock(TaskLock taskLock);
 
 	public boolean updateTaskLock(String task, String serverId, Date lastUpdate);
+	
+	/**
+	 * delete the CalendarRepeatingEvent entry based on id
+	 * @param id
+	 * @return
+	 */
+	public boolean deleteRepeatingEvent(Long id);
 
 }

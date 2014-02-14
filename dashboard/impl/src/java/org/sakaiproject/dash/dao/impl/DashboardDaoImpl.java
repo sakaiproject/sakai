@@ -2262,4 +2262,23 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 		return thisAM;
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteRepeatingEvent(java.lang.Long)
+	 */
+	public boolean deleteRepeatingEvent(Long id) {
+		if(log.isDebugEnabled()) {
+			log.debug("deleteRepeatingEvent( " + id + ")");
+		}
+		
+		try {
+			getJdbcTemplate().update(getStatement("delete.RepeatingEvent.by.id"),
+				new Object[]{id}
+			);
+			return true;
+		} catch (DataAccessException ex) {
+           log.warn("deleteRepeatingEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
+           return false;
+		}		
+	}
 }
