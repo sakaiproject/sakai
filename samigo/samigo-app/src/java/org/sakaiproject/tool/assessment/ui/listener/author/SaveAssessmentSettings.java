@@ -338,7 +338,6 @@ public class SaveAssessmentSettings
     updateAttachment(assessment.getAssessmentAttachmentList(), assessmentSettings.getAttachmentList(),(AssessmentIfc)assessment.getData(), true);
     EventTrackingService.post(EventTrackingService.newEvent("sam.setting.edit", "siteId=" + AgentFacade.getCurrentSiteId() + ", assessmentId=" + assessmentSettings.getAssessmentId(), true));
     
-    //added by gopalrc, 6 Nov 2007
     AuthzQueriesFacadeAPI authz = PersistenceService.getInstance().getAuthzQueriesFacade();
     if (assessmentSettings.getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
         authz.removeAuthorizationByQualifierAndFunction(assessmentId.toString(), "TAKE_ASSESSMENT");

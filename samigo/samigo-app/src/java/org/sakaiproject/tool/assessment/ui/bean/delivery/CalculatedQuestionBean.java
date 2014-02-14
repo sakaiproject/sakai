@@ -23,6 +23,8 @@ package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
+
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -34,7 +36,7 @@ public class CalculatedQuestionBean
     private ItemTextIfc itemText;
     private ItemGradingData data;
 	private String response;
-	private ArrayList choices;
+	private List choices;
 	private String text;
 	private String feedback;
 	private AnswerIfc answer;
@@ -83,7 +85,7 @@ public class CalculatedQuestionBean
 	        data = new ItemGradingData();
 	        data.setPublishedItemId(parent.getItemData().getItemId());
 	        data.setPublishedItemTextId(itemText.getId());
-	        ArrayList items = parent.getItemGradingDataArray();
+	        List<ItemGradingData> items = parent.getItemGradingDataArray();
 	        items.add(data);
 	        parent.setItemGradingDataArray(items);
 	    }
@@ -94,10 +96,10 @@ public class CalculatedQuestionBean
 	    if (newresp.equals("0")) {
 	    	data.setPublishedAnswerId(null);
 	    }
-	    Iterator iter = itemText.getAnswerSet().iterator();
+	    Iterator<AnswerIfc> iter = itemText.getAnswerSet().iterator();
 	    while (iter.hasNext())
 	    {
-	        AnswerIfc answer = (AnswerIfc) iter.next();
+	        AnswerIfc answer = iter.next();
 	        if (answer.getId().toString().equals(newresp))
 	        {
 	            data.setPublishedAnswerId(answer.getId());
@@ -106,12 +108,12 @@ public class CalculatedQuestionBean
 	    }
 	}
 
-	public ArrayList getChoices()
+	public List getChoices()
 	{
 	    return choices;
 	}
 
-	public void setChoices(ArrayList newch)
+	public void setChoices(List newch)
 	{
 	    choices = newch;
 	}

@@ -54,6 +54,7 @@ public class PersistenceHelper {
 		int index3 = errorMessage.indexOf("SQL state [41000]"); // mysql deadlock
 		if (index > -1 || index2 > -1 || index3 > -1){
 			retryCount--;
+			log.info("deadlock detected (" + e.getMessage() + ") retry count is now" + retryCount);
 			try {
 				int ideadlockInterval = deadlockInterval.intValue();
 				Thread.currentThread().sleep(ideadlockInterval);

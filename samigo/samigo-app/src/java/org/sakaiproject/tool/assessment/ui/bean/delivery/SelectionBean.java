@@ -21,12 +21,11 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -49,7 +48,6 @@ public class SelectionBean {
 
 	private String feedback;
 
-	private String responseId;
 
 	public ItemContentsBean getItemContentsBean() {
 		return parent;
@@ -82,7 +80,7 @@ public class SelectionBean {
 				data = new ItemGradingData();
 				data.setPublishedItemId(parent.getItemData().getItemId());
 				data.setPublishedItemTextId(itemText.getId());
-				ArrayList items = parent.getItemGradingDataArray();
+				List<ItemGradingData> items = parent.getItemGradingDataArray();
 				items.add(data);
 				parent.setItemGradingDataArray(items);
 			}

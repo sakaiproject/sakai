@@ -85,13 +85,6 @@ public interface SectionAwareServiceHelper{
   */
 	public boolean isSectionMemberInRoleStudent(String sectionId, String studentId);
 
-	
-	/**
-	 * added by gopalrc - Jan 2008
-	 * @param siteid
-	 * @param userUid
-	 * @return
-	 */
 	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId);
 	
 }

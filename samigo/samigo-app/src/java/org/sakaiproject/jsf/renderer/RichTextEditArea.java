@@ -37,7 +37,6 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.tool.cover.ToolManager; 
 import org.sakaiproject.util.EditorConfiguration;
@@ -88,6 +87,7 @@ public class RichTextEditArea extends Renderer
     ResponseWriter writer = context.getResponseWriter();
 
     Object value = null;
+    String identity = (String) component.getAttributes().get("identity");
     String reset = (String) component.getAttributes().get("reset");
     if (reset == null || !reset.equals("true")) {
     	if (component instanceof UIInput)
@@ -180,18 +180,18 @@ public class RichTextEditArea extends Renderer
     String justArea = (String) component.getAttributes().get("justArea");
 
     if (editor.equalsIgnoreCase("FCKeditor") || editor.equalsIgnoreCase("ckeditor")) {	
-      encodeFCK(writer, contextPath, (String) value, outCol, 
+      encodeFCK(writer, contextPath, (String) value, identity, outCol, 
               outRow, justArea, clientId, valueHasRichText, hasToggle); 
     }
     else 
     {
-      encodeHtmlarea(writer, contextPath, (String) value, outCol + "px", outRow + "px", 
+      encodeHtmlarea(writer, contextPath, (String) value, identity, outCol + "px", outRow + "px", 
               tmpCol, tmpRow, lineOfToolBar, justArea, clientId);
     }
   }
 
 
-  private void encodeHtmlarea(ResponseWriter writer, String contextPath, String value, String outCol, 
+  private void encodeHtmlarea(ResponseWriter writer, String contextPath, String value, String identity, String outCol, 
            String outRow, String tmpCol, String tmpRow, int lineOfToolBar, String justArea, String clientId) throws IOException
   {
 
@@ -212,7 +212,9 @@ public class RichTextEditArea extends Renderer
       writer.write(clientId);
       writer.write("_textinput\" id=\"");
       writer.write(clientId);
-      writer.write("_textinput\" disabled>");
+      writer.write("_textinput\" ");
+      writer.write(getIdentityAttribute(identity));
+      writer.write("disabled>");
       writer.write( (String) value);
       writer.write("</textarea>\n");
       if ( (tmpCol != null) && (tmpRow != null))
@@ -286,7 +288,8 @@ public class RichTextEditArea extends Renderer
         writer.write(clientId);
         writer.write("_textinput\" id=\"");
         writer.write(clientId);
-        writer.write("_textinput\"");
+        writer.write("_textinput\" ");
+        writer.write(getIdentityAttribute(identity));
         writer.write("></textarea>\n");
 
         if (lineOfToolBar == 3)
@@ -344,7 +347,9 @@ public class RichTextEditArea extends Renderer
         writer.write(clientId);
         writer.write("_textinput\" id=\"");
         writer.write(clientId);
-        writer.write("_textinput\">");
+        writer.write("_textinput\" ");
+        writer.write(getIdentityAttribute(identity));
+        writer.write(">");
         writer.write( (String) value);
         writer.write("</textarea>\n");
         if (lineOfToolBar == 3)
@@ -401,7 +406,7 @@ public class RichTextEditArea extends Renderer
   }
 
    
-  private void encodeFCK(ResponseWriter writer, String contextPath, String value, String outCol, 
+  private void encodeFCK(ResponseWriter writer, String contextPath, String value, String identity, String outCol, 
          String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle) throws IOException
   {
 	  //come up w/ rows/cols for the textarea if needed
@@ -429,7 +434,7 @@ public class RichTextEditArea extends Renderer
         	value = FormattedText.escapeHtmlFormattedTextarea((String) value);
     }
     
-    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
+    writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" " + getIdentityAttribute(identity) + " rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
     writer.write((String) value);
     writer.write("</textarea>");
     if (shouldToggle) {
@@ -663,5 +668,16 @@ public class RichTextEditArea extends Renderer
 	*/
     org.sakaiproject.jsf.component.RichTextEditArea comp = (org.sakaiproject.jsf.component.RichTextEditArea) component;
     comp.setSubmittedValue(finalValue);
+  }
+  
+  private String getIdentityAttribute(String identity){
+	  if(identity != null){
+		  StringBuilder buf = new StringBuilder(" identity=\"");
+		  buf.append(identity);
+		  buf.append("\" ");
+		  return buf.toString();
+      }else{
+    	  return " ";
+      }
   }
 }

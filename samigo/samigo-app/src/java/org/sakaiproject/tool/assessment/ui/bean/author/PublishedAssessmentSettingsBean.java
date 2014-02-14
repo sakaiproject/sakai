@@ -1451,7 +1451,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
   }
 
 	  /**
-	 * gopalrc Nov 2007
 	 * Returns all groups for site
 	 * @return
 	 */
@@ -1486,7 +1485,6 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}
 
 	/**
-	 * gopalrc Nov 2007
 	 * Returns the total number of groups for this site
 	 * @return
 	 */
@@ -1506,13 +1504,11 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 	}
 
 	/**
-	 * gopalrc Nov 2007
 	 * The authorized groups
 	 */
 	private String[] groupsAuthorized;
 
 	/**
-	 * gopalrc Nov 2007
 	 * Returns the groups to which this assessment is released
 	 * @return
 	 */

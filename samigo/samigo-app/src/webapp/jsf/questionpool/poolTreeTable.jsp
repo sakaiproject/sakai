@@ -240,7 +240,7 @@ lydial: in 2.2, use Display Name instead of ownerId, since ownerId now returns t
        <h:outputText value="#{questionPoolMessages.remove_chbox}"/>
      </f:facet>
 
-<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value ="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
+<h:selectManyCheckbox onclick="checkUpdate()" onkeypress="checkUpdate()" id="removeCheckbox" value="#{questionpool.destPools}" rendered="#{pool.ownerId==questionpool.agentId}">
 
 	<f:selectItem itemValue="#{pool.questionPoolId}"  itemLabel=""/>
 </h:selectManyCheckbox>

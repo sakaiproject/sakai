@@ -123,7 +123,7 @@ public class StudentScoreUpdateListener
         while (iter2.hasNext())
         {
           ItemContentsBean question = (ItemContentsBean) iter2.next();
-          ArrayList gradingarray = question.getItemGradingDataArray();
+          List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
           log.debug("****1. pub questionId = " + question.getItemData().getItemId());
           log.debug("****2. Gradingarray length = " + gradingarray.size());
           // Create a new one if we need it.
@@ -304,11 +304,11 @@ public class StudentScoreUpdateListener
     		while (iter2.hasNext())
     		{
     			ItemContentsBean question = (ItemContentsBean) iter2.next();
-    			ArrayList gradingarray = question.getItemGradingDataArray();
+    			List<ItemGradingData> gradingarray = question.getItemGradingDataArray();
     			log.debug("Gradingarray length2 = " + gradingarray.size());
-    			Iterator iter3 = gradingarray.iterator();
+    			Iterator<ItemGradingData> iter3 = gradingarray.iterator();
     			while (iter3.hasNext()) {
-    				ItemGradingData itemGradingData = (ItemGradingData) iter3.next();
+    				ItemGradingData itemGradingData = iter3.next();
     				List oldList = itemGradingData.getItemGradingAttachmentList();
     				List newList = question.getItemGradingAttachmentList();
     				if ((oldList == null || oldList.size() == 0 ) && (newList == null || newList.size() == 0)) {

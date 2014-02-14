@@ -1207,7 +1207,7 @@ public class AssessmentSettingsBean
 			  date = Integer.parseInt(dateArray[1]);
 			  month = Integer.parseInt(dateArray[0]);
 			  year = Integer.parseInt(dateArray[2].substring(0, 4));
-		  }		  
+		  }
 	  }
 	  catch(NumberFormatException  ne){
 		  log.error("NumberFormatException: " + ne.getMessage());
@@ -1409,7 +1409,6 @@ public class AssessmentSettingsBean
       return false;
   }
 
-  //modified gopalrc - Nov 2007
   public SelectItem[] getPublishingTargets(){
     HashMap targets = ptHelper.getTargets();
     Set e = targets.keySet();
@@ -1647,7 +1646,6 @@ public class AssessmentSettingsBean
   }
 
   /**
-   * gopalrc Nov 2007
    * Returns all groups for site
    * @return
    */
@@ -1681,7 +1679,6 @@ public class AssessmentSettingsBean
   
   
   /**
-   * gopalrc Nov 2007
    * Returns the total number of groups for this site
    * @return
    */
@@ -1701,14 +1698,12 @@ public class AssessmentSettingsBean
   }
 
   /**
-   * gopalrc Nov 2007
    * The authorized groups
    */
   private String[] groupsAuthorized;
   private boolean noGroupSelectedError;
   
   /**
-   * gopalrc Nov 2007
    * Returns the groups to which this assessment is released
    * @return
    */
@@ -1742,7 +1737,6 @@ public class AssessmentSettingsBean
   
   /** 
    * To compensate for strange stateful behaviour of this bean
-   * added by gopalrc Nov 2007
    * 
    * TODO: troubleshoot stateful behaviour if time allows
    * - found that it's due to the bean having "session" scope

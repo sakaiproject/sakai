@@ -57,7 +57,6 @@
  *
  */
 
- 
 var checkflag = "false";
 
 function checkAll(field) {
@@ -212,6 +211,28 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick();
 }
 
+function clickAddEmiAnswerOptionsLink(){
+	var newindex = 0;
+	for (i=0; i<document.links.length; i++) {
+	  if ( document.links[i].id.indexOf("hiddenAddEmiAnswerOptionsActionlink") >=0){
+	    newindex = i;
+	    break;
+	  }
+	}
+	document.links[newindex].onclick();
+}
+
+function clickAddEmiQuestionAnswerCombinationsLink(){
+	var newindex = 0;
+	for (i=0; i<document.links.length; i++) {
+	  if ( document.links[i].id.indexOf("hiddenAddEmiQuestionAnswerCombinationsActionlink") >=0){
+	    newindex = i;
+	    break;
+	  }
+	}
+	document.links[newindex].onclick();
+}
+
 function countNum(){
   var spanList= document.getElementsByTagName("SPAN");
   var count=1;
@@ -297,7 +318,7 @@ function applyMenuListener(pulldown) {
 	
 	// hide the match if needed
 	$pulldownHolder.change();
-};
+}
 
 //consolidate common used functions here for assessment settings
 //improve feedback UI, get rid of page reload bugid:5574 -Qu 10/31/2013

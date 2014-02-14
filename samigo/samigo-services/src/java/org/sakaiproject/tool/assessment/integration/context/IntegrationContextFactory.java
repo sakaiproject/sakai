@@ -66,6 +66,25 @@ public abstract class IntegrationContextFactory
     log.debug("instance="+instance);
     return instance;
   }
+  
+  public static IntegrationContextFactory getTestInstance()
+  {
+	    log.debug("IntegrationContextFactory.getTestInstance()");
+	    if (instance==null)
+	    {
+	      try
+	      {
+	        FactoryUtil.setUseLocator(false);
+	        instance = FactoryUtil.lookup();
+	      }
+	      catch (Exception ex)
+	      {
+	        log.error("Unable to read integration context: " + ex);
+	      }
+	    }
+	    log.debug("instance="+instance);
+	    return instance;
+	  }
 
   // the factory api
   public abstract boolean isIntegrated();

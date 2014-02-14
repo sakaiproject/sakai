@@ -131,7 +131,6 @@ font-size:1.2em
     text-align:right;
 }
 
-/* added gopalrc - Jan 2008  */
 .detailedStatsCorrectAnswerText {
     font-weight: bold;
 }
@@ -142,7 +141,6 @@ font-size:1.2em
 	font-weight: bold;
 }
 
-/* added gopalrc - Jan 2008  */
 .detailedStatsCorrectAnswerText {
     font-weight: bold;
 }
@@ -304,6 +302,30 @@ li.last {
         border: 0 none;
 }
 
+/* Simple Borders for EMI Tables=====================*/
+table.simpleBorder {
+	border-bottom: 1px solid #ccc;
+	background-color: white;
+	vertical-align: top; 
+}
+table.simpleBorder td {
+	padding: 4px;
+	border-top: 1px solid #ccc;
+	background-color: white;
+	vertical-align: top; 
+}
+table.noBorder {
+	background-color: white;
+	vertical-align: top; 
+	border: 1px solid #fff;
+}
+table.noBorder td {
+	padding: 4px;
+	background-color: white;
+	vertical-align: top; 
+	border: 1px solid #fff;
+}
+
 #samigo-create-container {
 	margin-bottom: 20px;
 }
@@ -378,6 +400,29 @@ tr.list-row-even td, tr.list-row-odd td {
 }
 #tabs .ui-widget-content a:hover {
 	text-decoration: underline;
+}
+#divider {
+	background: none repeat scroll 0 0 #88D0E8;
+	height: 150px;
+	width: 1px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+.iconAdd {
+      background: url("/library/image/silk/add.png") no-repeat scroll 0 0 transparent;
+      padding-left: 20px;
+}
+.iconAttach {
+      background: url("/library/image/silk/attach.png") no-repeat scroll 0 0 transparent;
+      padding-left: 20px;
+}
+.greyBox {
+      background: none repeat-x scroll 50% 50% #F6F6F6;
+      border: 1px solid #eee;
+      padding: 8px;
+}
+.alignTop {
+      vertical-align: top;
 }
 
 tbody tr td.center{
@@ -456,13 +501,25 @@ a.hideDivision {
     color: #404040;
     font-family: Arial,Helvetica,sans-serif;
 }
-
+.placeholder
+{
+  color: #aaa;
+}
 .submissionInfoCol1{
     width: 200px; 
 }
 
 .submissionInfoCol2{
     width: 650px; 
+}
+
+.mcAnswerText {
+	display:inline-table;
+	width: 80%;
+}
+
+.mcColumn1 {
+  	width: 40px;
 }
 
 #jqueryui-accordion .ui-accordion-content {

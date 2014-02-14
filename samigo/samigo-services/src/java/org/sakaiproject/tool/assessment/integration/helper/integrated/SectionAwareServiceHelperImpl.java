@@ -96,14 +96,6 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 
-	
-
-	/**
-	 * added by gopalrc - Jan 2008
-	 * @param siteid
-	 * @param userUid
-	 * @return
-	 */
 	public List getGroupReleaseEnrollments(String siteid, String userUid, String publishedAssessmentId) {
 		List availEnrollments = getAvailableEnrollments(siteid, userUid);
 		List enrollments = new ArrayList();
@@ -129,22 +121,11 @@ public class SectionAwareServiceHelperImpl extends AbstractSectionsImpl implemen
 		return enrollments;
 	}
 	
-	
-	/**
-	 * added by gopalrc - Jan 2008
-	 */
 	private SiteService siteService;
 	public void setSiteService(SiteService siteService) {
 		this.siteService = siteService;
 	}
 	
-
-	/**
-	 * added by gopalrc - Jan 2008
-	 * @param userId
-	 * @param siteId
-	 * @return
-	 */
 	private boolean isUserInReleaseGroup(String userId, String siteId, String publishedAssessmentId) {
 		//String functionName="assessment.takeAssessment";
 		Collection siteGroups = null;

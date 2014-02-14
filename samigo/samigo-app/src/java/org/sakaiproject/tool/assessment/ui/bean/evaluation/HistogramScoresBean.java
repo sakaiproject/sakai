@@ -32,8 +32,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -63,11 +61,9 @@ public class HistogramScoresBean
   private String questionNumber;
   private String allSubmissions;
   private String partNumber;//Note: this is sequence number
-  private Integer parts;//???
   private String mean;
   private String median;
   private String mode;
-  private String highestRange;
   private String standDev;
   private String lowerQuartile; //medidan of lowest-median
   private String upperQuartile; //median of median-highest
@@ -89,8 +85,6 @@ public class HistogramScoresBean
   private boolean randomType;   // true = has at least one random draw part
   private List<PublishedSectionData> assesmentParts = new ArrayList<PublishedSectionData>();
   private List<SelectItem> selectItemParts = new ArrayList<SelectItem>();
-  
-  private static Log log = LogFactory.getLog(HistogramScoresBean.class);
 
 
   /**
@@ -837,22 +831,17 @@ publishedId = ppublishedId;
     histogramBars = bars;
   }
 
-  
-  // Below Added by gopalrc - Nov 2007
   /**
-   * added by gopalrc Nov 2007
    * Students in the upper 25%
    */
   private Map upperQuartileStudents;
   
   /**
-   * added by gopalrc Nov 2007
    * Students in the lower 25%
    */
   private Map lowerQuartileStudents;
 
   /**
-   * gopalrc - Nov 2007
    * The maximum number of answers per question
    * for this assessment (for detailed stats layout)
    */
@@ -860,13 +849,10 @@ publishedId = ppublishedId;
 
   
   /**
-   * gopalrc Dec 2007
    * The HistogramQuestionScores for detailed Statistics for 
    */
-  private Collection detailedStatistics;
+  private List<HistogramQuestionScoresBean> detailedStatistics;
 
-  
-  
   public void addToUpperQuartileStudents(String agentId) {
 	  if (upperQuartileStudents == null) {
 		  upperQuartileStudents = new HashMap();
@@ -959,11 +945,11 @@ publishedId = ppublishedId;
 	  this.maxNumberOfAnswers = maxNumberOfAnswers;
   }
 
-  public Collection getDetailedStatistics() {
+  public List<HistogramQuestionScoresBean> getDetailedStatistics() {
 	return detailedStatistics;
   }
 
-  public void setDetailedStatistics(Collection detailedStatistics) {
+  public void setDetailedStatistics(List<HistogramQuestionScoresBean> detailedStatistics) {
 	this.detailedStatistics = detailedStatistics;
   }
 	

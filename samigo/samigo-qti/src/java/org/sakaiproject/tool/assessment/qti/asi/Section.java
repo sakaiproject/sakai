@@ -24,10 +24,8 @@
 package org.sakaiproject.tool.assessment.qti.asi;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -39,9 +37,13 @@ import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import org.sakaiproject.tool.assessment.data.dao.assessment.AttachmentData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -62,7 +64,6 @@ public class Section extends ASIBaseClass
 {
   private static Log log = LogFactory.getLog(Section.class);
   public String basePath;
-  private Map items;
 
   /**
    * Explicitly setting serialVersionUID insures future versions can be
@@ -102,13 +103,14 @@ public class Section extends ASIBaseClass
    * set section ident (id)
    * @param ident
    */
-  public void setIdent(String ident)
+  @SuppressWarnings("unchecked")
+public void setIdent(String ident)
   {
     String xpath = "section";
-    List list = this.selectNodes(xpath);
+    List<Element> list = this.selectNodes(xpath);
     if (list.size() > 0)
     {
-      Element element = (Element) list.get(0);
+      Element element = list.get(0);
       element.setAttribute("ident", ident);
     }
   }
@@ -116,13 +118,14 @@ public class Section extends ASIBaseClass
    * set section title
    * @param title
    */
-  public void setTitle(String title)
+  @SuppressWarnings("unchecked")
+public void setTitle(String title)
   {
     String xpath = "section";
-    List list = this.selectNodes(xpath);
+    List<Element> list = this.selectNodes(xpath);
     if (list.size() > 0)
     {
-      Element element = (Element) list.get(0);
+      Element element = list.get(0);
       element.setAttribute("title", escapeXml(title));
     }
   }
@@ -150,144 +153,15 @@ public class Section extends ASIBaseClass
     setFieldentry("ATTACHMENT", getAttachment(section));
     
     // items
-    ArrayList items = section.getItemArray();
-    addItems(items);
+    addItems(section.getItemArray());
   }
-
-//  /**
-//   * @deprecated hardcoded to support only QTIVersion.VERSION_1_2
-//   * select and order
-//   */
-//  public void selectAndOrder()
-//  {
-//    log.debug("selectAndOrder()");
-//    ArrayList selectedList = this.selectItems();
-//    this.orderItems(selectedList);
-//    ArrayList selectedSections = this.selectSections(basePath);
-//    this.orderSections(basePath, selectedSections, QTIVersion.VERSION_1_2);
-//  }
-
-  /**
-   * select items
-   *
-   * @return return arraylist of items
-   */
   
-  /*
-  private ArrayList selectItems()
-  {
-    log.debug("selectItems()");
-
-    ArrayList items = new ArrayList();
-
-    //    try
-    //    {
-    String xpath = basePath + "/" + QTIConstantStrings.SELECTION_ORDERING +
-                   "/";
-    String selectionXPath = xpath + QTIConstantStrings.SELECTION;
-    String orderingXPath = xpath + QTIConstantStrings.ORDER;
-
-    List selectNodes = this.selectNodes(selectionXPath);
-    List orderNodes = this.selectNodes(orderingXPath);
-
-    int selectNodeSize = selectNodes.size();
-    for (int i = 0; i < selectNodeSize; i++)
-    {
-      Element selectElement = (Element) selectNodes.get(i);
-  //      items.addAll(processSelectElement(selectElement));
-    }
-
-    if (selectNodeSize == 0)
-    {
-      items.addAll(this.getAllItems());
-    }
-
-    //    }
-    //    catch(Exception ex)
-    //    {
-    //      log.error(ex.getMessage(), ex);
-    //    }
-    removeItems();
-
-    return items;
-  }
-*/
-
-  /**
-   * get all items
-   *
-   * @return list of items
-   */
-  /*
-  private List getAllItems()
-  {
-    log.debug("getAllItems()");
-
-    String xpath = basePath + "/" + QTIConstantStrings.ITEM;
-
-    return this.selectNodes(xpath);
-  }
-
-*/
-  /**
-   * remove items
-   */
-  /*
-  private void removeItems()
-  {
-    log.debug("removeItems()");
-
-    String xpath = basePath + "/" + QTIConstantStrings.ITEM;
-    this.removeElement(xpath);
-  }
-*/
-  /**
-   * order items
-   *
-   * @param items list of items
-   */
-  /*
-  private void orderItems(ArrayList items)
-  {
-    if (log.isDebugEnabled())
-    {
-      log.debug("orderItems(ArrayList " + items + ")");
-    }
-
-    String xpath = basePath + "/" + QTIConstantStrings.SELECTION_ORDERING +
-                   "/";
-    String orderingXPath = xpath + QTIConstantStrings.ORDER;
-    List orderNodes = this.selectNodes(orderingXPath);
-    if ( (orderNodes != null) && (orderNodes.size() > 0))
-    {
-      Element order = (Element) orderNodes.get(0);
-      String orderType = order.getAttribute(QTIConstantStrings.ORDER_TYPE);
-      if ("Random".equalsIgnoreCase(orderType))
-      {
-        //Randomly order items.
-        long seed = System.currentTimeMillis();
-        Random rand = new Random(seed);
-        int size = items.size();
-        for (int i = 0; i < size; i++)
-        {
-          int randomNum = rand.nextInt(size);
-          Object temp = items.get(i);
-          items.set(i, items.get(randomNum));
-          items.set(randomNum, temp);
-          log.debug("switch item " + i + " with " + randomNum);
-        }
-      }
-    }
-
-    addItems(items);
-  }
-*/
   /**
    * Add item list to this section document.
    *
    * @param items list of ItemDataIfc
    */
-  private void addItems(ArrayList items)
+  private void addItems(List<ItemDataIfc> items)
   {
     if (log.isDebugEnabled())
     {
@@ -301,10 +175,8 @@ public class Section extends ASIBaseClass
     try
     {
       String xpath = basePath;
-      for (int i = 0; i < items.size(); i++)
+      for (ItemDataIfc item: items)
       {
-        ItemDataIfc item = (ItemDataIfc) items.get(i);
-        //TypeIfc type = item.getType();
         Long type = item.getTypeId();
         Item itemXml;
         if ( (TypeIfc.MULTIPLE_CHOICE_SURVEY).equals(type))
@@ -325,7 +197,7 @@ public class Section extends ASIBaseClass
         // update item data
         itemXml.setIdent(item.getItemIdString());
         itemXml.update(item);
-        Element itemElement = (Element) itemXml.getDocument().
+        Element itemElement = itemXml.getDocument().
                               getDocumentElement();
         log.debug(
           "Item ident is: " + itemElement.getAttribute("ident"));
@@ -491,7 +363,7 @@ public class Section extends ASIBaseClass
    *
    * @param itemRefIds list of ref ids
    */
-  public void orderItemRefs(ArrayList itemRefIds)
+  public void orderItemRefs(List<String> itemRefIds)
   {
     if (log.isDebugEnabled())
     {
@@ -502,7 +374,7 @@ public class Section extends ASIBaseClass
     int size = itemRefIds.size();
     for (int i = 0; i < size; i++)
     {
-      this.addItemRef( (String) itemRefIds.get(i));
+      this.addItemRef(itemRefIds.get(i));
     }
   }
 
@@ -522,7 +394,8 @@ public class Section extends ASIBaseClass
    *
    * @return list of section refs
    */
-  public List getSectionRefs()
+  @SuppressWarnings("unchecked")
+public List<Element> getSectionRefs()
   {
     log.debug("getSectionRefs()");
     String xpath = basePath + "/" + QTIConstantStrings.SECTIONREF;
@@ -535,14 +408,14 @@ public class Section extends ASIBaseClass
    *
    * @return list of section ref ids
    */
-  public List getSectionRefIds()
+  public List<String> getSectionRefIds()
   {
-    List refs = this.getSectionRefs();
-    List ids = new ArrayList();
+    List<Element> refs = this.getSectionRefs();
+    List<String> ids = new ArrayList<String>();
     int size = refs.size();
     for (int i = 0; i < size; i++)
     {
-      Element ref = (Element) refs.get(0);
+      Element ref = refs.get(0);
       String idString = ref.getAttribute(QTIConstantStrings.LINKREFID);
       ids.add(idString);
     }
@@ -569,26 +442,17 @@ public class Section extends ASIBaseClass
   }
   
   private String getAttachment(SectionDataIfc section) {
-	  Set attachmentSet = (Set) section.getSectionAttachmentSet();
-   	  if (attachmentSet != null && attachmentSet.size() != 0) { 
-   		Iterator iter = attachmentSet.iterator();
-   		AttachmentData attachmentData = null;
-   		StringBuffer attachment = new StringBuffer();
-   		while (iter.hasNext())
-   		{
-   			attachmentData = (AttachmentData) iter.next();
-   			attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
-   			attachment.append("|");
-   			attachment.append(attachmentData.getFilename());
-   			attachment.append("|");
-   			attachment.append(attachmentData.getMimeType());
-   			attachment.append("\n");
-   		}
-   		return attachment.toString();
+	  Set<SectionAttachmentIfc> attachmentSet = section.getSectionAttachmentSet();
+	  StringBuilder attachment = new StringBuilder();
+	  for(SectionAttachmentIfc attachmentData: attachmentSet){
+   		attachment.append(attachmentData.getResourceId().replaceAll(" ", ""));
+   		attachment.append("|");
+   		attachment.append(attachmentData.getFilename());
+   		attachment.append("|");
+   		attachment.append(attachmentData.getMimeType());
+   		attachment.append("\n");
    	  }
-   	  else {
-   		return null;
-   	  }
+	  return attachment.toString();
   }
 }
 

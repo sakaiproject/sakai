@@ -39,8 +39,7 @@ public interface AuthzQueriesFacadeAPI
   public void removeAuthorizationByQualifier(String qualifierId, boolean isPublishedAssessment);
 
   /**
-   * Removes an authorization for a specified qualifier and function
-   * added by gopalrc - Nov 2007 
+   * Removes an authorization for a specified qualifier and function 
    * @param qualifierId
    * @param functionId
    */
@@ -49,7 +48,6 @@ public interface AuthzQueriesFacadeAPI
   /**
    * Removes an authorization for a specified agent, qualifier and function
    * TODO: This should be optimized into a single SQL call for a set of agents (groups)
-   * added by gopalrc - Nov 2007 
    * @param agentId
    * @param qualifierId
    */

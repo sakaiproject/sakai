@@ -37,6 +37,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
@@ -144,6 +146,8 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public int getQuestionSize(final Long assessmentId);
 
+	public HashMap getQuestionSizeMap();
+	
 	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
 	public void saveOrUpdate(AssessmentFacade assessment);
@@ -193,6 +197,11 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public void removeItemAttachment(Long itemAttachmentId);
 
+	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
+			String resourceId, String filename, String protocolboolean, boolean isEditPendingAssessmentFlow);
+
+	public void removeItemTextAttachment(Long itemTextAttachmentId);
+	
 	public void updateAssessmentLastModifiedInfo(
 			AssessmentFacade assessment);
 

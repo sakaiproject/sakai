@@ -23,12 +23,16 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 public interface ItemTextIfc
-    extends java.io.Serializable
+    extends Comparable<ItemTextIfc>, java.io.Serializable
 {
+  public static Long EMI_THEME_TEXT_SEQUENCE = Long.valueOf(-1);
+  public static Long EMI_ANSWER_OPTIONS_SEQUENCE = Long.valueOf(-2);
+  public static Long EMI_LEAD_IN_TEXT_SEQUENCE = Long.valueOf(-3);
+ 
   Long getId();
 
   void setId(Long id);
@@ -45,11 +49,40 @@ public interface ItemTextIfc
 
   void setText(String text);
 
-  Set getAnswerSet();
+  Set<AnswerIfc> getAnswerSet();
 
-  void setAnswerSet(Set answerSet);
+  void setAnswerSet(Set<AnswerIfc> answerSet);
 
-  ArrayList getAnswerArray();
+  List<AnswerIfc> getAnswerArray();
 
-  ArrayList getAnswerArraySorted();
+  List<AnswerIfc> getAnswerArraySorted();
+  
+  Set<ItemTextAttachmentIfc> getItemTextAttachmentSet();
+
+  void setItemTextAttachmentSet(Set<ItemTextAttachmentIfc> itemTextAttachmentSet);
+
+  List<ItemTextAttachmentIfc> getItemTextAttachmentList();
+
+    /**
+     * This is an actual EMI Question Item (i.e. not Theme or Lead In Text or
+     * Complete Answer Options List)
+     *
+     * @return
+     * @since 2.10
+     */
+    public boolean isEmiQuestionItemText();
+
+    /**
+     * Get the number of required option
+     *
+     * @return the number of required options or 1 if not defined
+     * @since 2.10
+     */
+    public Integer getRequiredOptionsCount();
+
+    public void setRequiredOptionsCount(Integer requiredOptionsCount);
+
+    public String getEmiCorrectOptionLabels();
+
+    public boolean getHasAttachment();
 }

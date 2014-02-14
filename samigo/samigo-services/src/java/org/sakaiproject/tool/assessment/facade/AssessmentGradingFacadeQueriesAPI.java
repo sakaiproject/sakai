@@ -53,6 +53,15 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getAllAssessmentGradingData(Long publishedId);
 
+  /**
+   * Get all answers for a a particular published item
+   * This is needed by certain question types like EMI
+   * @param assesmentGradingId
+   * @param publishedItemId
+   * @return an list of all the items or an empty list if none
+   */
+  public List<ItemGradingData> getAllItemGradingDataForItemInGrading(final Long assesmentGradingId, final Long publishedItemId);
+  
   public HashMap getItemScores(Long publishedId, Long itemId, String which);
   
   public HashMap getItemScores(Long publishedId, Long itemId, String which, boolean loadItemGradingAttachment);

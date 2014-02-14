@@ -24,8 +24,11 @@
 package org.sakaiproject.tool.assessment.qti.helper.item;
 
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 
@@ -51,6 +54,7 @@ public interface ItemHelperIfc
   public static final long ITEM_MCMC_SS = TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue();
   public static final long ITEM_TF = TypeIfc.TRUE_FALSE.longValue();
   public static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
+  public static final long ITEM_EMI = TypeIfc.EXTENDED_MATCHING_ITEMS.longValue();
   public static final long ITEM_MXSURVEY = TypeIfc.MATRIX_CHOICES_SURVEY.longValue();
   public static final long ITEM_CALCQ = TypeIfc.CALCULATED_QUESTION.longValue(); // CALCULATED_QUESTION
 
@@ -67,10 +71,12 @@ public interface ItemHelperIfc
     "Fill In the Blank",
     "Numeric Response",
     "Matching",
+    "Extended Matching Items",
     "Matrix Choices Survey",
     "Calculated Question", // CALCULATED_QUESTION
   };
 
+  
   /**
    * Get Item Xml for a given item type as a Long .
    * @param type item type as a Long  
@@ -171,15 +177,44 @@ public interface ItemHelperIfc
    * @param itemXml
    * @param itemText text to be updated
    */
-  public void setItemTexts(ArrayList itemTextList, Item itemXml);
-
+  public void setItemTexts(List<ItemTextIfc> itemTextList, Item itemXml);
+	
+  /**
+   * Set the label for the item.
+   * @param itemLabel
+   * @param itemXml
+   */
+  public void setItemLabel(String itemLabel, Item itemXml);
+  
   /**
    * Set the (usually instructional text) for trhe item.
    * @param itemText
    * @param itemXml
    */
   public void setItemText(String itemText, Item itemXml);
+  
+  /**
+   * Set the (usually instructional text) for the item for the specified flow.
+   * @param itemText
+   * @param itemXml
+   */
+  public void setItemText(String itemText, String flowClass, Item itemXml);
 
+  /**
+   * Set the presentation label.
+   * 
+   * @param presentationLabel
+   * @param itemXml
+   */
+  public void setPresentationLabel(String presentationLabel, Item itemXml);
+  
+  /**
+   * Set the public void Presentation Flow Response Ident
+   * @param presentationFlowResponseIdent
+   * @param itemXml
+   */
+  public void setPresentationFlowResponseIdent(String presentationFlowResponseIdent, Item itemXml);
+  
   /**
    * @param itemXml
    * @return type as string
@@ -190,11 +225,13 @@ public interface ItemHelperIfc
    * Set the answer texts for item.
    * @param itemTextList the text(s) for item
    */
-  public void setAnswers(ArrayList itemTextList, Item itemXml);
+  public void setAnswers(List<ItemTextIfc> itemTextList, Item itemXml);
 
   /**
    * Set the feedback texts for item.
    * @param itemTextList the text(s) for item
    */
-  public void setFeedback(ArrayList itemTextList, Item itemXml);
+  public void setFeedback(List<ItemTextIfc> itemTextList, Item itemXml);
+
+  public void setAttachments(Set<? extends AttachmentIfc> attachmentSet, Item item);
 }

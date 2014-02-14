@@ -196,7 +196,7 @@ public class AuthoringHelperTest {
           log.debug("ITEM MAP=" + itemMap);
 
           ItemFacade item = new ItemFacade();
-          exHelper.updateItem(item, itemMap);
+          exHelper.updateItem(item, itemXml, itemMap);
           // make sure required fields are set
           item.setCreatedBy(me);
           item.setCreatedDate(assessment.getCreatedDate());
@@ -286,7 +286,7 @@ public class AuthoringHelperTest {
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
       Map itemMap = exHelper.mapItem(itemXml);
 //      log.debug("ITEM MAP=" + itemMap);
-      exHelper.updateItem(item, itemMap);
+      exHelper.updateItem(item, itemXml, itemMap);
       //ItemService itemService = new ItemService();
       log.info("updating item");
 //      itemService.saveItem(item);

@@ -20,6 +20,9 @@
  **********************************************************************************/
 
 package org.sakaiproject.tool.assessment.data.dao.assessment;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 
@@ -29,7 +32,7 @@ import java.util.*;
 import org.apache.log4j.*;
 
 public class PublishedItemText
-    implements Serializable, ItemTextIfc, Comparable {
+    implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -39,6 +42,9 @@ public class PublishedItemText
   private Long sequence;
   private String text;
   private Set answerSet;
+
+  private Set itemTextAttachmentSet;
+  private Integer requiredOptionsCount;
 
   public PublishedItemText() {}
 
@@ -113,9 +119,67 @@ public class PublishedItemText
     return list;
   }
 
-  public int compareTo(Object o) {
-      PublishedItemText a = (PublishedItemText)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(ItemTextIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
+  
+	public Set getItemTextAttachmentSet() {
+		return itemTextAttachmentSet;
+	}
 
+	public void setItemTextAttachmentSet(Set itemTextAttachmentSet) {
+		this.itemTextAttachmentSet = itemTextAttachmentSet;
+	}
+
+	public List getItemTextAttachmentList() {
+		ArrayList list = new ArrayList();
+		if (itemTextAttachmentSet != null) {
+			Iterator iter = itemTextAttachmentSet.iterator();
+			while (iter.hasNext()) {
+				ItemTextAttachmentIfc a = (ItemTextAttachmentIfc) iter.next();
+				list.add(a);
+			}
+		}
+		return list;
+	}
+	
+	  // for EMI - Attachments at Answer Level
+	  public boolean getHasAttachment(){
+	    if (itemTextAttachmentSet != null && itemTextAttachmentSet.size() >0)
+	      return true;
+	    else
+	      return false;    
+	  }
+	
+	  //This is an actual EMI Question Item 
+	  //(i.e. not Theme or Lead In Text or the complete Answer Options list) 
+	  public boolean isEmiQuestionItemText() {
+		  return getSequence() > 0;
+	  }
+
+		public Integer getRequiredOptionsCount() {
+			if (requiredOptionsCount == null) {
+				return Integer.valueOf(1);
+			}
+			return requiredOptionsCount;
+		}
+
+		public void setRequiredOptionsCount(Integer requiredOptionsCount) {
+			this.requiredOptionsCount = requiredOptionsCount;
+		}
+
+		public String getEmiCorrectOptionLabels() {
+			if (!item.getTypeId().equals(TypeD.EXTENDED_MATCHING_ITEMS)) return null;
+			if (!this.isEmiQuestionItemText()) return null;
+			if (answerSet==null) return null;
+			String correctOptionLabels = "";
+			Iterator iter = getAnswerArraySorted().iterator();
+			while (iter.hasNext()) {
+				AnswerIfc answer = (AnswerIfc)iter.next();
+				if (answer.getIsCorrect()) {
+					correctOptionLabels += answer.getLabel();
+				}
+			}
+			return correctOptionLabels;	
+		}
 }

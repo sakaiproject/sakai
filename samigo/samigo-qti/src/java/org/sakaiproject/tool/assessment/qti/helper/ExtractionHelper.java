@@ -25,6 +25,7 @@ package org.sakaiproject.tool.assessment.qti.helper;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -33,16 +34,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.Map.Entry;
+import java.util.TreeSet;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.jdom.input.DOMBuilder;
-import org.jdom.output.XMLOutputter;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 //import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
@@ -51,7 +50,10 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SecuredIPAddress;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -61,6 +63,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -71,6 +75,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
 import org.sakaiproject.tool.assessment.qti.asi.ASIBaseClass;
 import org.sakaiproject.tool.assessment.qti.asi.Assessment;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
+import org.sakaiproject.tool.assessment.qti.asi.PrintUtil;
 import org.sakaiproject.tool.assessment.qti.asi.Section;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
@@ -82,16 +87,10 @@ import org.sakaiproject.tool.assessment.qti.util.Iso8601TimeInterval;
 import org.sakaiproject.tool.assessment.qti.util.XmlMapper;
 import org.sakaiproject.tool.assessment.qti.util.XmlUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -115,6 +114,7 @@ public class ExtractionHelper
       "extractAssessment.xsl";
   private static final String SECTION_TRANSFORM = "extractSection.xsl";
   private static final String ITEM_TRANSFORM = "extractItem.xsl";
+  private static final String ITEM_EMI_TRANSFORM = "extractEMIItem.xsl";
   public static final String REMOVE_NAMESPACE_TRANSFORM = "removeDefaultNamespaceFromQTI.xsl";
   private static Log log = LogFactory.getLog(ExtractionHelper.class);
 
@@ -267,6 +267,11 @@ public class ExtractionHelper
   {
     return map(ITEM_TRANSFORM, itemXml, isRespondus);
   }
+  
+  public Map mapEMIItem(Item itemXml, boolean isRespondus)
+  {
+	  return map(ITEM_EMI_TRANSFORM, itemXml, isRespondus);
+  }
 
   /**
    * Helper method
@@ -407,6 +412,7 @@ public class ExtractionHelper
     return (ASSESSMENT_TRANSFORM.equals(transform)) ||
             SECTION_TRANSFORM.equals(transform) ||
             ITEM_TRANSFORM.equals(transform) ||
+            ITEM_EMI_TRANSFORM.equals(transform) ||
             REMOVE_NAMESPACE_TRANSFORM.equals(transform) ? true : false;
   }
 
@@ -828,7 +834,7 @@ public class ExtractionHelper
     }
     
     // Timed Assessment
-    if (duration != null)
+    if (duration != null && !duration.trim().isEmpty())
     {
       try
       {
@@ -1483,14 +1489,25 @@ public class ExtractionHelper
    * @param item the item, which will  be persisted
    * @param itemMap the extracted properties
    */
-  public void updateItem(ItemFacade item, Map itemMap)
+  public void updateItem(ItemFacade item, Item itemXml)
   {
-	  updateItem(item, itemMap, false);
+	  updateItem(item, itemXml, false);
   }
   
-  public void updateItem(ItemFacade item, Map itemMap, boolean isRespondus)
+  public void updateItem(ItemFacade item, Item itemXml, boolean isRespondus)
   {
-    // type and title
+	  Map itemMap = mapItem(itemXml, isRespondus);
+	  updateItem(item, itemXml, itemMap, isRespondus);
+  }
+	  
+  public void updateItem(ItemFacade item, Item itemXml, Map itemMap)
+  {
+	  updateItem(item, itemXml, itemMap, false);
+  }
+  
+  public void updateItem(ItemFacade item, Item itemXml, Map itemMap, boolean isRespondus)
+  {
+	// type and title
     String title = (String) itemMap.get("title");
     item.setDescription(title);
 
@@ -1588,6 +1605,10 @@ public class ExtractionHelper
     else if (TypeIfc.MATRIX_CHOICES_SURVEY.longValue() == typeId.longValue())
     {
     	addMatrixSurveyTextAndAnswers(item, itemMap);
+    }
+    else if (TypeIfc.EXTENDED_MATCHING_ITEMS.longValue() == typeId.longValue())
+    {
+    	addExtendedMatchingItemsTextAndAnswers(item, itemXml, itemMap);
     }
     else if (TypeIfc.CALCULATED_QUESTION.longValue() == typeId.longValue()) {
         addCalculatedQuestionAnswers(item, itemMap);
@@ -2787,7 +2808,7 @@ public class ExtractionHelper
           itemText.setSequence(Long.valueOf(i + 1));
           
           // associate answers with the text
-          Set<Answer> answerSet = new HashSet<Answer>();
+          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
           for (int j = 0; j < variableNames.size(); j++) {
               String varMin = variableMins.get(j);
               String varMax = variableMaxs.get(j);
@@ -2832,7 +2853,7 @@ public class ExtractionHelper
           itemText.setSequence(Long.valueOf(variableNames.size() + i + 1));
           
           // associate answers with the text
-          Set<Answer> answerSet = new HashSet<Answer>();
+          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
           for (int j = 0; j < variableNames.size(); j++) {
               String varMin = variableMins.get(j);
               String varMax = variableMaxs.get(j);
@@ -2952,4 +2973,185 @@ public class ExtractionHelper
   {
     this.unzipLocation = unzipLocation;
   }
+  
+  //------------- EMI -------------------//
+	private String get(Map itemMap, String key) {
+		return ((String) itemMap.get(key)).trim();
+	}
+
+	private List<String> getList(Map itemMap, String key) {
+		return (List<String>) itemMap.get(key);
+	}
+
+	private void addExtendedMatchingItemsTextAndAnswers(ItemFacade item, Item itemXml,
+			Map itemMap) {
+		itemMap = mapEMIItem(itemXml, false);
+		Set<ItemTextIfc> itemTextSet = new TreeSet<ItemTextIfc>();
+		item.setItemTextSet(itemTextSet);
+		item.setStatus(ItemDataIfc.ACTIVE_STATUS);
+		// Theme text
+		itemTextSet.add(new ItemText((ItemData) item.getData(),
+				ItemTextIfc.EMI_THEME_TEXT_SEQUENCE, get(itemMap, "theme"),
+				null));
+		// attachments
+//		item.setItemAttachmentSet(makeEMIAttachments(item,
+////				getList(itemMap, "richOptionAttachImage"),
+////				getList(itemMap, "richOptionAttachAudio"),
+////				getList(itemMap, "richOptionAttachVideo"),
+//				getList(itemMap, "richOptionAttach")));
+		// options
+		boolean simple = "Simple".equals(get(itemMap, "answerOptions")) ? true
+				: false;
+		item.setAnswerOptionsSimpleOrRich(simple ? ItemDataIfc.ANSWER_OPTIONS_SIMPLE
+				: ItemDataIfc.ANSWER_OPTIONS_RICH);
+		Map<String, String> optionMap = new HashMap<String, String>();
+		if (simple) {
+			itemTextSet.add(makeEMISimpleOptions(item,
+					getList(itemMap, "options"), optionMap));
+			item.setAnswerOptionsRichCount(0);
+		} else {// rich
+			itemTextSet.add(makeEMIRichOptions(item,
+					get(itemMap, "richOptionText"),
+					getList(itemMap, "options"), optionMap));
+		}
+		// Leadin text
+		itemTextSet.add(new ItemText((ItemData) item.getData(),
+				ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE, get(itemMap, "leadin"),
+				null));
+		// score
+		item.setScore(Double.valueOf(get(itemMap, "score")));
+		item.setDiscount(Double.valueOf(get(itemMap, "discount")));
+		// items
+		itemTextSet.addAll(makeEMIItems(item, getList(itemMap, "items"),
+				optionMap));
+	}
+
+	private Set<ItemAttachmentIfc> makeEMIAttachments(ItemFacade item,
+			List<String> attachList) {
+		if(attachList == null || attachList.isEmpty()){
+			return null;
+		}
+		Set<ItemAttachmentIfc> attachSet = new TreeSet<ItemAttachmentIfc>();
+		for(String attach: attachList){
+			attach = attach.trim();
+			int index = attach.indexOf("[");
+			String fileName = attach.substring(0, index);
+			attach = attach.substring(index);
+			index = attach.indexOf("]");
+			String mimeType = attach.substring(1, index);
+			index = attach.indexOf("(");
+			attach = attach.substring(index);
+			index = attach.indexOf(")");
+			Long size = Long.valueOf(attach.substring(1, index));
+			attach = attach.substring(index+1);
+			String location = attach;
+			String resourceId = location.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
+			attachSet.add(new ItemAttachment(null, item, resourceId, 
+					fileName, mimeType, size, null, location, 
+					false, ItemAttachmentIfc.ACTIVE_STATUS, null, null, null, null));
+		}
+		return attachSet;
+	}
+
+	private ItemText makeEMISimpleOptions(ItemFacade item,
+			List<String> options, Map<String, String> optionMap) {
+		ItemText itemText = new ItemText((ItemData) item.getData(),
+				ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE, "", null);
+		Set<AnswerIfc> answerSet = new TreeSet<AnswerIfc>();
+		itemText.setAnswerSet(answerSet);
+		long seq = 1;
+		for (String option : options) {
+			option = option.trim();
+			String text = option.substring(3).trim();
+			Answer a = new Answer(itemText, text, seq++, option.substring(1, 2));
+			a.setIsCorrect(false);
+			answerSet.add(a);
+			optionMap.put(option.substring(1, 2), text);
+		}
+		return itemText;
+	}
+
+	private ItemText makeEMIRichOptions(ItemFacade item, String richText,
+			List<String> options, Map<String, String> optionMap) {
+		item.setAnswerOptionsRichCount(options.size());
+		for (String option : options) {
+			option = option.trim().substring(1, 2);
+			optionMap.put(option, option);
+		}
+		ItemText itemText = new ItemText((ItemData) item.getData(),
+				ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE, richText, null);
+		return itemText;
+	}
+
+	private Set<ItemText> makeEMIItems(ItemFacade item, List<String> items,
+			Map<String, String> optionMap) {
+		Set<ItemText> itemTextSet = new TreeSet<ItemText>();
+		long seq = 1;
+		for (String itemdata : items) {
+			itemdata = itemdata.trim();
+			int index = itemdata.indexOf("|");
+			int required = Integer.valueOf(itemdata.substring(1, index));
+			itemdata = itemdata.substring(index + 1).trim();
+			index = itemdata.indexOf("]");
+			String grade = itemdata.substring(0, index);
+			itemdata = itemdata.substring(index + 1).trim();
+			index = itemdata.indexOf("@ATTACH@");
+			String text = itemdata.substring(0, index).trim();
+			itemdata = itemdata.substring(index + "@ATTACH@".length()).trim();
+			Set<AnswerIfc> answers = new TreeSet<AnswerIfc>();
+			ItemText itemText = new ItemText((ItemData) item.getData(), seq++,
+					text, answers);
+			itemText.setRequiredOptionsCount(required);
+			index = itemdata.indexOf("@ANSWERS@");
+//			itemText.setItemTextAttachmentSet(makeEMIItemTextAttachmentSet(itemText, itemdata.substring(0, index)));
+			itemTextSet.add(itemText);
+			itemdata = itemdata.substring(index + "@ANSWERS@".length()).trim();
+			index = itemdata.indexOf("[");
+			long answerSeq = 1;
+			while (index != -1) {
+				String label = itemdata.substring(1, 2);
+				itemdata = itemdata.substring(3).trim();
+				boolean correct = itemdata.startsWith("CORRECT");
+				index = itemdata.indexOf(")");
+				double score = Double.valueOf(itemdata.substring(
+						itemdata.indexOf("|") + 1, index));
+				answers.add(new Answer(itemText, optionMap.get(label),
+						answerSeq++, label, correct, grade, correct?score:0.0, null,
+						correct?0.0:-score));
+				itemdata = itemdata.substring(index + 1).trim();
+				index = itemdata.indexOf("[");
+			}
+		}
+		return itemTextSet;
+	}
+
+	private Set<ItemTextAttachmentIfc> makeEMIItemTextAttachmentSet(
+			ItemText itemText,  String attachments) {
+		attachments = attachments.trim();
+		if(attachments.length() == 0){
+			return null;
+		}
+		List<String> attachList = Arrays.asList(attachments.split("@"));
+		Set<ItemTextAttachmentIfc> attachSet = new TreeSet<ItemTextAttachmentIfc>();
+		for(String attach: attachList){
+			attach = attach.trim();
+			if(attach.length() == 0) continue;
+			int index = attach.indexOf("[");
+			String fileName = attach.substring(0, index);
+			attach = attach.substring(index);
+			index = attach.indexOf("]");
+			String mimeType = attach.substring(1, index);
+			index = attach.indexOf("(");
+			attach = attach.substring(index);
+			index = attach.indexOf(")");
+			Long size = Long.valueOf(attach.substring(1, index));
+			attach = attach.substring(index+1);
+			String location = attach;
+			String resourceId = location.replace("%2B", "+").replace("%20", " ").replace("/access/content", "");
+			attachSet.add(new ItemTextAttachment(null, itemText, resourceId, 
+					fileName, mimeType, size, null, location, 
+					false, ItemTextAttachmentIfc.ACTIVE_STATUS, null, null, null, null));
+		}
+		return attachSet;
+	}
 }

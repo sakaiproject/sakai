@@ -50,7 +50,7 @@
 ----------------------------------*/
 .ui-widget { font-size: 1em; }
 .ui-widget input, .ui-widget select, .ui-widget textarea, .ui-widget button { font-size: 1em; }
-.ui-widget-content { border: 1px solid #dddddd; background: #fff url(images/ui-bg_highlight-soft_100_eeeeee_1x100.png) 50% top repeat-x; color: #333333; }
+.ui-widget-content { border: 1px solid #dddddd; background: #fff url(images/ui-bg_highlight-soft_100_eeeeee_1x100.png) 50% top repeat-x; color: black; }
 .ui-widget-content a { color: #333333; }
 .ui-widget-header { background-color: orange; color: #ffffff; font-weight: bold; }
 #tabs .ui-widget-header { background-color: #eeeeee; color: #ffffff; font-weight: bold; }
@@ -353,8 +353,8 @@
     height: 200px; /*must have*/
 }/* Dialog
 ----------------------------------*/
-.ui-dialog { position: relative; padding: .2em; width: 300px; }
-.ui-dialog .ui-dialog-titlebar { padding: .5em .3em .3em 1em; position: relative;  }
+.ui-dialog { position: relative; padding: .2em; width: 300px; background: none repeat scroll 0 0 white; }
+.ui-dialog .ui-dialog-titlebar { padding: .5em .3em .3em 1em; position: relative; background-color: #009DCE; }
 .ui-dialog .ui-dialog-title { float: left; margin: .1em 0 .2em; } 
 .ui-dialog .ui-dialog-titlebar-close { position: absolute; right: .3em; top: 50%; width: 19px; margin: -10px 0 0 0; padding: 1px; height: 18px; }
 .ui-dialog .ui-dialog-titlebar-close span { display: block; margin: 1px; }

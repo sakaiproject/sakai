@@ -25,15 +25,19 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 
 public class ItemText
-    implements Serializable, ItemTextIfc, Comparable {
-  static Category errorLogger = Category.getInstance("errorLogger");
+    implements Serializable, ItemTextIfc, Comparable<ItemTextIfc> {
+  static Logger errorLogger = Logger.getLogger("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
 
@@ -41,11 +45,14 @@ public class ItemText
   private ItemDataIfc item;
   private Long sequence;
   private String text;
-  private Set answerSet;
+  private Set<AnswerIfc> answerSet;
 
+  private Set<ItemTextAttachmentIfc> itemTextAttachmentSet;
+  private Integer requiredOptionsCount;
+  
   public ItemText() {}
 
-  public ItemText(ItemData item, Long sequence, String text, Set answerSet) {
+  public ItemText(ItemData item, Long sequence, String text, Set<AnswerIfc> answerSet) {
     this.item = item;
     this.sequence = sequence;
     this.text = text;
@@ -84,11 +91,11 @@ public class ItemText
     this.text = text;
   }
 
-  public Set getAnswerSet() {
+  public Set<AnswerIfc> getAnswerSet() {
     return answerSet;
   }
 
-  public void setAnswerSet(Set answerSet) {
+  public void setAnswerSet(Set<AnswerIfc> answerSet) {
     this.answerSet = answerSet;
   }
 
@@ -101,24 +108,84 @@ public class ItemText
     in.defaultReadObject();
   }
 
-  public ArrayList getAnswerArray() {
-    ArrayList list = new ArrayList();
-    Iterator iter = answerSet.iterator();
-    while (iter.hasNext()){
-      list.add(iter.next());
-    }
+  public List<AnswerIfc> getAnswerArray() {
+    List<AnswerIfc> list = new ArrayList<AnswerIfc>();
+    list.addAll(answerSet);
     return list;
   }
 
-  public int compareTo(Object o) {
-      ItemText a = (ItemText)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(ItemTextIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
 
-  public ArrayList getAnswerArraySorted() {
-    ArrayList list = getAnswerArray();
+  public List<AnswerIfc> getAnswerArraySorted() {
+    List<AnswerIfc> list = getAnswerArray();
     Collections.sort(list);
     return list;
   }
+  
+	public Set<ItemTextAttachmentIfc> getItemTextAttachmentSet() {
+		return itemTextAttachmentSet;
+	}
 
+	public void setItemTextAttachmentSet(Set<ItemTextAttachmentIfc> itemTextAttachmentSet) {
+		this.itemTextAttachmentSet = itemTextAttachmentSet;
+	}
+
+	public List<ItemTextAttachmentIfc> getItemTextAttachmentList() {
+		ArrayList<ItemTextAttachmentIfc> list = new ArrayList<ItemTextAttachmentIfc>();
+		if (itemTextAttachmentSet != null) {
+			Iterator<ItemTextAttachmentIfc> iter = itemTextAttachmentSet.iterator();
+			while (iter.hasNext()) {
+				ItemTextAttachmentIfc a = iter.next();
+				list.add(a);
+			}
+		}
+		return list;
+	}
+  
+	  // for EMI - Attachments at Answer Level
+	  public boolean getHasAttachment(){
+	    if (itemTextAttachmentSet != null && itemTextAttachmentSet.size() >0)
+	      return true;
+	    else
+	      return false;    
+	  }
+	
+	  //This is an actual EMI Question Item 
+	  //(i.e. not Theme or Lead In Text or the complete Answer Options list) 
+	  public boolean isEmiQuestionItemText() {
+		  return getSequence() > 0;
+	  }
+
+	public Integer getRequiredOptionsCount() {
+		if (requiredOptionsCount == null) {
+			return Integer.valueOf(1);
+		}
+		
+		return requiredOptionsCount;
+	}
+
+	public void setRequiredOptionsCount(Integer requiredOptionsCount) {
+		this.requiredOptionsCount = requiredOptionsCount;
+	}
+	
+	public String getEmiCorrectOptionLabels() {
+		if (!item.getTypeId().equals(TypeD.EXTENDED_MATCHING_ITEMS)) return null;
+		if (!this.isEmiQuestionItemText()) return null;
+		if (answerSet==null) return null;
+		String correctOptionLabels = "";
+		Iterator<AnswerIfc> iter = getAnswerArraySorted().iterator();
+		while (iter.hasNext()) {
+			AnswerIfc answer = iter.next();
+			if (answer.getIsCorrect()) {
+				correctOptionLabels += answer.getLabel();
+			}
+		}
+		return correctOptionLabels;	
+	}
+	
+	public String toString(){
+		return getText();
+	}
 }

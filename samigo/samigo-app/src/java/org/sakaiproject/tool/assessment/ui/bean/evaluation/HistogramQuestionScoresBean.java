@@ -104,6 +104,9 @@ public class HistogramQuestionScoresBean
   private boolean randomType;   // this part is a random draw part
 
   private static Log log = LogFactory.getLog(HistogramQuestionScoresBean.class);
+  
+  private Long subQuestionSequence;
+  private boolean showIndividualAnswersInDetailedStatistics;
 
   /**
    * Creates a new HistogramQuestionScoresBean object.
@@ -895,26 +898,39 @@ public class HistogramQuestionScoresBean
     randomType= param;
   }
 
-  
-  
-  // Below added by gopalrc Nov 2007
-
   /**
-   * added by gopalrc Nov 2007
    * 
    * The set of students with all answers correct for this question
    */
   private Set studentsWithAllCorrect;
 
+  
   /**
-   * added by gopalrc Nov 2007
+   * @param studentsWithAllCorrect
+   */
+  public void setStudentsWithAllCorrect(Set studentsWithAllCorrect) {
+	this.studentsWithAllCorrect = studentsWithAllCorrect;
+  }
+
+
+
+/**
    * 
    * The set of students who responded to this question
    */
   private Set studentsResponded;
   
+  
   /**
-   * added by gopalrc Nov 2007
+   * @param studentsResponded
+   */
+  public void setStudentsResponded(Set studentsResponded) {
+	this.studentsResponded = studentsResponded;
+  }
+
+
+
+/**
    * 
    * Percentage of students in the overall upper 25%
    * who got this question right
@@ -922,7 +938,6 @@ public class HistogramQuestionScoresBean
   private String percentCorrectFromUpperQuartileStudents;
   
   /**
-   * added by gopalrc Nov 2007
    * 
    * Percentage of students in the overall lower 25%
    * who got this question right
@@ -930,14 +945,12 @@ public class HistogramQuestionScoresBean
   private String percentCorrectFromLowerQuartileStudents;
 
   /**
-   * added by gopalrc Nov 2007
    * 
    * Discrimination value of this question
    */
   private String discrimination;
   
   /**
-   * added by gopalrc Dec 2007
    * 
    * Count of selected answer frequencies 
    * plus numberOfStudentsWithZeroAnswers
@@ -945,14 +958,12 @@ public class HistogramQuestionScoresBean
   private String n;
   
   /**
-   * added by gopalrc Dec 2007
    * 
    * Number of students who selected no answer 
    */
   private int numberOfStudentsWithZeroAnswers = 0;
   
   /**
-   * added by gopalrc Dec 2007
    * 
    * The published item (question) id
    */
@@ -960,7 +971,6 @@ public class HistogramQuestionScoresBean
 
   
   /**
-   * added by gopalrc Dec 2007
    * 
    * The published item (question) id
    */
@@ -1128,6 +1138,21 @@ public class HistogramQuestionScoresBean
 		  return responses;
 	  }
   }
+
+  public Long getSubQuestionSequence() {
+	return subQuestionSequence;
+  }
+
+  public void setSubQuestionSequence(Long subQuestionSequence) {
+	this.subQuestionSequence = subQuestionSequence;
+  }
   
-  
+  public boolean getShowIndividualAnswersInDetailedStatistics() {
+	return showIndividualAnswersInDetailedStatistics;
+  }
+
+  public void setShowIndividualAnswersInDetailedStatistics(
+		boolean showIndividualAnswersInDetailedStatistics) {
+	this.showIndividualAnswersInDetailedStatistics = showIndividualAnswersInDetailedStatistics;
+  }
 }

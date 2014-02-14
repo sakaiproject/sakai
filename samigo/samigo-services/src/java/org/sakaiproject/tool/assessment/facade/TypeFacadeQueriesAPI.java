@@ -53,7 +53,7 @@ public interface TypeFacadeQueriesAPI
    * This method return Type with a specified typeId, used by
    * ItemFacade.getItemType()
    * @param typeId
-   * @return org.osid.shared.Type
+   * @return org.osid.shared.Type or null if no types of that id
    */
   public Type getTypeById(Long typeId);
 

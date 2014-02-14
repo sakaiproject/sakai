@@ -127,6 +127,7 @@
 	<dependency>
             <groupId>javax.servlet.jsp</groupId>
             <artifactId>jsp-api</artifactId>
+	    <scope>provided</scope>
         </dependency>
 	<dependency>
             <groupId>javax.servlet</groupId>
@@ -179,6 +180,7 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-webmvc</artifactId>
+	    <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>struts</groupId>

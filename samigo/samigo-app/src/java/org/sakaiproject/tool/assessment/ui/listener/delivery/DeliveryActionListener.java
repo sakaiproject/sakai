@@ -153,7 +153,7 @@ public class DeliveryActionListener
       }
       // Clear elapsed time, set not timed out
       clearElapsedTime(delivery);
- 
+
       // set show student score
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
@@ -365,7 +365,7 @@ public class DeliveryActionListener
                   // this returns a HashMap with (publishedItemId, itemGrading)
                   itemGradingHash = service.getLastItemGradingData(id, agent); //
                   log.debug("**** DeliveryActionListener #1");
-                  
+
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
                 	  log.debug("**** DeliveryActionListener #1a");
                 	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
@@ -892,10 +892,10 @@ public class DeliveryActionListener
 
       //questionCount = secFacade.getItemSet().size();
       // need to  get ItemArraySort, insteand of getItemSet, to return corr number for random draw parts
-      ArrayList itemlist = secFacade.getItemArray();
+      List<ItemDataIfc> itemlist = secFacade.getItemArray();
       long seed = getSeed(secFacade, delivery, (long) AgentFacade.getAgentString().hashCode());
 
-      ArrayList sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
+      List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(secFacade, itemlist, seed); 
       questionCount = sortedlist.size();
 
       if ((delivery.getNoQuestions() || questionCount != 0) && itemIndex > (questionCount - 1) && sectionCount == sectionIndex) {
@@ -971,8 +971,8 @@ public class DeliveryActionListener
     // daisy change to use this existing constructor instead 11/09/05
     SectionContentsBean sec = new SectionContentsBean(part);
 
-    ArrayList itemSet = null;
-    ArrayList itemlist = part.getItemArray();
+    List<ItemDataIfc> itemSet = null;
+    List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = 0;
     if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
       StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
@@ -1064,9 +1064,9 @@ public class DeliveryActionListener
 
     //SectionContentsBean sec = new SectionContentsBean();
     SectionContentsBean sec = new SectionContentsBean(part);
-    ArrayList itemlist = part.getItemArray();
+    List<ItemDataIfc> itemlist = part.getItemArray();
     long seed = getSeed(part, delivery, (long) AgentFacade.getAgentString().hashCode());
-    ArrayList itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
+    List<ItemDataIfc> itemSet= getItemArraySortedWithRandom(part, itemlist, seed);
 
     sec.setQuestions(itemSet.size());
 
@@ -1201,6 +1201,7 @@ public class DeliveryActionListener
         item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
         item.getTypeId().equals(TypeIfc.AUDIO_RECORDING) ||
         item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
+
     {
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
@@ -1227,8 +1228,8 @@ public class DeliveryActionListener
     	// this doesn't happen very often. 
     	
     	
-    	ArrayList itemgradingList = itemBean.getItemGradingDataArray();
-    	Iterator iterAnswer = itemgradingList.iterator();
+    	List<ItemGradingData> itemgradingList = itemBean.getItemGradingDataArray();
+    	Iterator<ItemGradingData> iterAnswer = itemgradingList.iterator();
     	boolean haswronganswer =true;
     	HashMap fibmap = new HashMap();
     	int mcmc_match_counter = 0;
@@ -1240,11 +1241,11 @@ public class DeliveryActionListener
     	
     	//calculate total # of correct answers. 
     	int correctAnswers = 0;
-    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    	if ((item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) || (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
     		Iterator itemTextIter = item.getItemTextArray().iterator();
     		while (itemTextIter.hasNext()){
     			ItemTextIfc itemText = (ItemTextIfc) itemTextIter.next();
-    			ArrayList answerArray = itemText.getAnswerArray();
+    			List answerArray = itemText.getAnswerArray();
     			
     			if (answerArray != null){
     				for (int indexAnswer =0; indexAnswer<answerArray.size(); indexAnswer++){
@@ -1262,7 +1263,7 @@ public class DeliveryActionListener
     	while (iterAnswer.hasNext())
     	{
     		
-    		ItemGradingData data = (ItemGradingData) iterAnswer.next();
+    		ItemGradingData data = iterAnswer.next();
     		
     		  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     		  
@@ -1288,7 +1289,7 @@ public class DeliveryActionListener
     				  log.debug("should not come to here");
     			  }
     		  }
-    		  else if  ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
+    		  else if  ((item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) || (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )||(item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) )||(item.getTypeId().equals(TypeIfc.MATCHING) )){
       		    if ((answer !=null) && (answer.getIsCorrect() == null || !answer.getIsCorrect().booleanValue())){
     		    	haswronganswer =true;
     		    	
@@ -1309,7 +1310,7 @@ public class DeliveryActionListener
     		  }
     		   
     	}
-    	if ((item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
+    	if ( (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) || (item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) )|| (item.getTypeId().equals(TypeIfc.MATCHING) )){
     		if (mcmc_match_counter==correctAnswers){
     			haswronganswer=false;
     		}
@@ -1348,6 +1349,8 @@ public class DeliveryActionListener
 
     ArrayList myanswers = new ArrayList();
     ResourceLoader rb = null;
+	rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+
     // Generate the answer key
     String key = "";
     Iterator key1 = item.getItemTextArraySorted().iterator();
@@ -1363,6 +1366,26 @@ public class DeliveryActionListener
       // get duplicates.
       ItemTextIfc text = (ItemTextIfc) key1.next();
       Iterator key2 = null;
+
+      if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS) && text.isEmiQuestionItemText())
+      {
+    	  //changes for VULA-1861 - EMI answer key format in delivery is confusing
+    	  int correctAnswerCnt = 0;
+    	  Iterator answersIter =  text.getAnswerArraySorted().iterator();
+    	  while (answersIter.hasNext()) {
+    	    AnswerIfc answer = (AnswerIfc) answersIter.next();
+    	    if(answer.getIsCorrect()) {
+    	    	correctAnswerCnt += 1;
+    	    }
+    	  }    		
+    	  String required=null;    	  
+    	  if (text.getRequiredOptionsCount() != null && text.getRequiredOptionsCount().intValue() < correctAnswerCnt) {
+    		  required=text.getRequiredOptionsCount().toString();
+        	  key += " | " + text.getSequence() + ": " + required + " " + rb.getString("of") + " ";
+    	  } else {
+        	  key += " | " + text.getSequence() + ": ";
+    	  }
+      }
 
       // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
       if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
@@ -1423,6 +1446,7 @@ public class DeliveryActionListener
             && (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION) ||
+                item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS) ||
                 item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY) ||
                 item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)))
         {
@@ -1445,6 +1469,7 @@ public class DeliveryActionListener
               {
                 addition = Integer.toString(j) + ":";
               }
+
               if ("".equals(key))
               {
                 key += addition + answer.getLabel();
@@ -1455,7 +1480,13 @@ public class DeliveryActionListener
               }
             }
           }
-          
+          	
+          if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS) && text.isEmiQuestionItemText()
+        		  && answer.getIsCorrect())
+          {
+        	  key += answer.getLabel();
+          }
+
           //multiple choice partial credit:
           if (item.getTypeId().equals(TypeIfc.MULTIPLE_CHOICE) && item.getPartialCreditFlag()){
         	  Double pc =  Double.valueOf(answer.getPartialCredit());
@@ -1516,6 +1547,12 @@ public class DeliveryActionListener
         }
       }
     }
+    
+    if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS))
+    {
+  	  key += " | ";
+    }
+
     itemBean.setKey(key);
 
     // Delete this
@@ -1531,13 +1568,15 @@ public class DeliveryActionListener
         item.getTypeId().equals(TypeIfc.MATCHING))
     {
       Iterator iter = myanswers.iterator();
+      SelectionBean selectionBean = null;
+      
       while (iter.hasNext())
       {
-        SelectionBean selectionBean = new SelectionBean();
-        selectionBean.setItemContentsBean(itemBean);
         AnswerIfc answer = (AnswerIfc) iter.next();
+    	selectionBean = new SelectionBean();
+        selectionBean.setItemContentsBean(itemBean);
         selectionBean.setAnswer(answer);
-
+        
         // It's saved lower case in the db -- this is a kludge
         if (item.getTypeId().equals(TypeIfc.TRUE_FALSE) && // True/False
             answer.getText().equals("true"))
@@ -1633,7 +1672,7 @@ public class DeliveryActionListener
         {
           answers.add(selectionBean);
         }
-      }
+      } //end while
     }
     // Delete this
     itemBean.setAnswers(answers);
@@ -1642,7 +1681,10 @@ public class DeliveryActionListener
     if (item.getTypeId().equals(TypeIfc.MATCHING)) // matching
     {
       populateMatching(item, itemBean, publishedAnswerHash);
-
+    }
+    else if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS))
+    {
+        populateEMI(item, itemBean, publishedAnswerHash);
     }
     else if (item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)) // fill in the blank
     {
@@ -1670,6 +1712,77 @@ public class DeliveryActionListener
     }
     
     return itemBean;
+  }
+
+  // This method treats EMI in a similar way as multiple MCMR questions
+  public void populateEMI(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
+  {
+    Iterator itemTextIter = item.getItemTextArraySorted().iterator();
+    //int j = 1;
+    ArrayList beans = new ArrayList();
+    ArrayList newAnswers = null;
+    
+    // Iterate through the PublishedItemTexts
+    // Each ItemText represents a sub-question question
+    // and is used to populate a MatchingBean
+    while (itemTextIter.hasNext())
+    {
+      ItemTextIfc text = (ItemTextIfc) itemTextIter.next();
+      
+      //Don't use the non-question item ItemTexts
+      //i.e. ones which do not contain actual question-answer combos
+ 	  if (!text.isEmiQuestionItemText()) continue;
+
+      MatchingBean mbean = new MatchingBean();
+      newAnswers = new ArrayList();
+      mbean.setText(text.getText());
+      mbean.setItemSequence(text.getSequence() + "");
+
+      mbean.setItemText(text);
+      mbean.setItemContentsBean(bean);
+
+      Iterator itemTextAnwersIter = text.getAnswerArraySorted().iterator();
+     
+      int i = 0;
+
+      ResourceLoader rb = null;
+      if (rb == null) { 	 
+  		rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+  	  }
+     
+      // Now add the user responses (ItemGrading)
+      int responseCount = 0;
+      ArrayList userResponseLabels = new ArrayList();
+      Iterator itemGradingIter = bean.getItemGradingDataArray().iterator();
+      while (itemGradingIter.hasNext())
+      {
+        ItemGradingData data = (ItemGradingData) itemGradingIter.next();
+        if (data.getPublishedItemTextId().equals(text.getId()))
+        {
+            // We found an existing grading data for this itemtext (sub-question)
+            // mbean.setItemGradingData(data);
+            AnswerIfc pubAnswer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId()); 
+            if (pubAnswer != null) {
+            	userResponseLabels.add(pubAnswer.getLabel());
+            	data.setPublishedAnswerId(pubAnswer.getId());
+            }
+        }
+      }
+
+      //Sort the user Response Labels and create the response string
+      Collections.sort(userResponseLabels);
+      String previousResponse = "";
+      Iterator sortedLabels = userResponseLabels.iterator();
+      while (sortedLabels.hasNext()) {
+    	  previousResponse += sortedLabels.next().toString();
+      }
+      mbean.setResponse(previousResponse);
+      beans.add(mbean);
+    }
+    
+    bean.setMatchingArray(beans);
+    bean.setAnswers(newAnswers); // Change the answers to just text
+    bean.setIsMultipleItems(beans.size() > 1);
   }
 
   public void populateMatching(ItemDataIfc item, ItemContentsBean bean, HashMap publishedAnswerHash)
@@ -1793,17 +1906,17 @@ public class DeliveryActionListener
         fbean.setText("");
       fbean.setHasInput(true);
 
-      ArrayList datas = bean.getItemGradingDataArray();
+      List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
       {
         fbean.setIsCorrect(false);
       }
       else
       {
-        Iterator iter2 = datas.iterator();
+        Iterator<ItemGradingData> iter2 = datas.iterator();
         while (iter2.hasNext())
         {
-          ItemGradingData data = (ItemGradingData) iter2.next();
+          ItemGradingData data = iter2.next();
           if ((data.getPublishedAnswerId()!=null) && data.getPublishedAnswerId().equals(answer.getId()))
           {
             fbean.setItemGradingData(data);
@@ -1943,17 +2056,17 @@ public class DeliveryActionListener
         fbean.setText("");
       fbean.setHasInput(true);
 
-      ArrayList datas = bean.getItemGradingDataArray();
+      List<ItemGradingData> datas = bean.getItemGradingDataArray();
       if (datas == null || datas.isEmpty())
       {
         fbean.setIsCorrect(false);
       }
       else
       {
-        Iterator iter2 = datas.iterator();
+        Iterator<ItemGradingData> iter2 = datas.iterator();
         while (iter2.hasNext())
         {
-          ItemGradingData data = (ItemGradingData) iter2.next();
+          ItemGradingData data = iter2.next();
           
           
           log.debug(" " + data.getPublishedAnswerId() + " = " + answer.getId());
@@ -2003,8 +2116,8 @@ public class DeliveryActionListener
 	  ArrayList matrixArray = new ArrayList();
 
 	  List<Integer> columnIndexList = new ArrayList<Integer>();
-	  ArrayList itemTextArray = item.getItemTextArraySorted();
-	  ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted(); 
+	  List itemTextArray = item.getItemTextArraySorted();
+	  List answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted(); 
 	  MatrixSurveyBean mbean = null;
 
 	  List<String> stringList = new ArrayList<String>();
@@ -2034,7 +2147,7 @@ public class DeliveryActionListener
 	  for(int i=0; i<iList.size(); i++)
 	  {	
 		  ItemTextIfc text = iList.get(i);
-		  ArrayList answers = ((ItemTextIfc)itemTextArray.get(i)).getAnswerArraySorted();
+		  List answers = ((ItemTextIfc)itemTextArray.get(i)).getAnswerArraySorted();
 		  List<AnswerIfc> alist = new ArrayList<AnswerIfc>();
 		  List<String> slist = new ArrayList<String>();
 		  for(int j= 0; j<answers.size(); j++)
@@ -2051,10 +2164,10 @@ public class DeliveryActionListener
 		  mbean.setItemContentsBean(bean);
 		  mbean.setAnswerArray(answerIfcs);
 		  mbean.setAnswerSid(answerSid);
-		  ArrayList itemGradingArray = bean.getItemGradingDataArray();
+		  List<ItemGradingData> itemGradingArray = bean.getItemGradingDataArray();
 		  for (int k=0; k< itemGradingArray.size(); k++)
 		  {
-			  ItemGradingData data = (ItemGradingData)itemGradingArray.get(k);
+			  ItemGradingData data = itemGradingArray.get(k);
 			  if((data.getPublishedItemTextId()).longValue() == text.getId().longValue()){
 				  mbean.setItemGradingData(data);
 				  if (data.getPublishedAnswerId() != null)
@@ -2207,7 +2320,7 @@ public class DeliveryActionListener
           }
           fbean.setHasInput(true); // input box
 
-          ArrayList<ItemGradingData> datas = bean.getItemGradingDataArray();
+          List<ItemGradingData> datas = bean.getItemGradingDataArray();
           if (datas == null || datas.isEmpty())
           {
               fbean.setIsCorrect(false);
@@ -2404,7 +2517,7 @@ public class DeliveryActionListener
     		SectionDataIfc section = (SectionDataIfc) i1.next();
     		Iterator i2 = null;
 
-    		ArrayList itemlist = section.getItemArray();
+    		List<ItemDataIfc> itemlist = section.getItemArray();
     		long seed = 0;
     		if (delivery.getActionMode()==DeliveryBean.GRADE_ASSESSMENT) {
     			StudentScoresBean studentscorebean = (StudentScoresBean) ContextUtil.lookupBean("studentScores");
@@ -2413,7 +2526,7 @@ public class DeliveryActionListener
     		else {
     			seed = getSeed(section, delivery, (long) AgentFacade.getAgentString().hashCode());
     		}
-    		ArrayList sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
+    		List<ItemDataIfc> sortedlist = getItemArraySortedWithRandom(section, itemlist, seed);
     		i2 = sortedlist.iterator();
 
     		while (i2.hasNext()) {
@@ -2621,7 +2734,7 @@ public class DeliveryActionListener
   
   /* this method takes the list returned from the data/dao class, and checks for part type and returns a sorted list of items. If part type is not random then return the original list
   */
-  private ArrayList getItemArraySortedWithRandom(SectionDataIfc part, ArrayList list, long seed) {
+  private List<ItemDataIfc> getItemArraySortedWithRandom(SectionDataIfc part, List<ItemDataIfc> list, long seed) {
 
     Integer numberToBeDrawn= null;
 

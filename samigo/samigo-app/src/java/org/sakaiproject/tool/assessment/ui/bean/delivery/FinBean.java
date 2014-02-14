@@ -23,7 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -88,7 +88,7 @@ public class FinBean
       data.setPublishedItemId(parent.getItemData().getItemId());
       data.setPublishedItemTextId(answer.getItemText().getId());
       data.setPublishedAnswerId(answer.getId());
-      ArrayList items = parent.getItemGradingDataArray();
+      List<ItemGradingData> items = parent.getItemGradingDataArray();
       items.add(data);
       parent.setItemGradingDataArray(items);
     }

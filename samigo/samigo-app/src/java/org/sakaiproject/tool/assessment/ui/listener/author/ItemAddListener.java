@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.text.DateFormat;
@@ -40,8 +38,8 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-import org.apache.commons.lang.StringUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -55,10 +53,12 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.services.FinFormatException;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -86,10 +86,9 @@ import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolDataBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
-import org.sakaiproject.util.FormattedText;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoices;
 import org.sakaiproject.tool.assessment.data.dao.assessment.FavoriteColChoicesItem;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>Title: Samigo</p>
@@ -120,6 +119,7 @@ public class ItemAddListener
 
     ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     ItemBean item = itemauthorbean.getCurrentItem();
+    item.setEmiVisibleItems("0");
     String iText = ContextUtil.stringWYSIWYG(item.getItemText());
     String iInstruction = ContextUtil.stringWYSIWYG(item.getInstruction());
     String iType = item.getItemType();
@@ -137,7 +137,10 @@ public class ItemAddListener
 			return;
     	}
     }   
-   
+
+    if(iType.equals(TypeFacade.EXTENDED_MATCHING_ITEMS.toString()))
+    	checkEMI();
+    
     if(iType.equals(TypeFacade.MULTIPLE_CHOICE.toString()))
 	checkMC(true);
 
@@ -294,7 +297,116 @@ public class ItemAddListener
     itemauthorbean.setItemTypeString("");
   }
     
+	public void checkEMI() {
+		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil
+				.lookupBean("itemauthor");
+		ItemBean item = itemauthorbean.getCurrentItem();
+		FacesContext context = FacesContext.getCurrentInstance();
 
+		boolean missingOrInvalidAnswerOptionLabels = false;
+		boolean blankSimpleOptionText = false;
+		boolean tooFewAnswerOptions = false;
+		boolean richTextOptionsError = false;
+		
+		if(item.getAnswerOptionsSimpleOrRich().equals("2")) {//Simple Paste
+			if (item.getEmiAnswerOptionsPaste() != null
+					&& !item.getEmiAnswerOptionsPaste().trim().equals("")) {
+				item.populateEmiAnswerOptionsFromPasted();
+			}
+			item.setAnswerOptionsSimpleOrRich(ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString());
+		}//no else here. we need to go into the next if!
+		if (item.getAnswerOptionsSimpleOrRich().equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString())) {
+
+			List<AnswerBean> answerOptions = item.getEmiAnswerOptionsClean();
+			String txt = "";
+			Iterator<AnswerBean> iter = answerOptions.iterator();
+			while (iter.hasNext()) {
+				AnswerBean answerbean = iter.next();
+				txt = answerbean.getText().trim();
+				if ((txt == null) || (txt.equals(""))) {
+					blankSimpleOptionText = true;
+				}
+			} // end of while
+		}
+		else { // Rich Options
+			String richText = ContextUtil.stringWYSIWYG(item.getEmiAnswerOptionsRich());;
+			if (richText.toLowerCase().replaceAll("<^[^(img)]*?>", "").trim()
+					.equals("")) {
+				item.setEmiAnswerOptionsRich("");
+			}
+			if (item.getEmiAnswerOptionsRich().equals("") && !itemauthorbean.getHasAttachment()) {
+				richTextOptionsError = true;
+			}
+		}
+		
+		String availableOptionLabels = item.getEmiAnswerOptionLabelsSorted();
+		if (availableOptionLabels.length()<2) {
+			tooFewAnswerOptions = true;
+		}
+		else if (!availableOptionLabels.startsWith("A") || !ItemDataIfc.ANSWER_OPTION_LABELS.contains(availableOptionLabels)) {
+			missingOrInvalidAnswerOptionLabels = true;
+		}
+		
+		// Validate Correct Option Labels here because these require cross-field
+		// validation
+		List qaCombos = (List) item.getEmiQuestionAnswerCombinationsClean();
+		Iterator qaCombosIter = qaCombos.iterator();
+		int invalidQACombos = 0;
+		while (qaCombosIter.hasNext()) {
+			AnswerBean qaCombo = (AnswerBean) qaCombosIter.next();
+			boolean isValidQACombo = qaCombo.isValidCorrectOptionLabels(availableOptionLabels, context);
+			if (!isValidQACombo) invalidQACombos++;
+		}
+
+		if (!error) {
+			if (blankSimpleOptionText) {
+				String simpleTextOptionsBlank_err = ContextUtil
+						.getLocalizedString(
+								"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+								"simple_text_options_blank_error");
+				context.addMessage(null, new FacesMessage(simpleTextOptionsBlank_err));
+				error = true;
+			}			
+			
+			if (tooFewAnswerOptions) {
+				String answerList_err = ContextUtil
+						.getLocalizedString(
+								"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+								"answerList_error");
+				context.addMessage(null, new FacesMessage(answerList_err));
+				error = true;
+			} 
+			
+			if (missingOrInvalidAnswerOptionLabels) {
+				String answerOptionLabelError = ContextUtil
+						.getLocalizedString(
+								"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+								"missing_or_invalid_answer_options_labels_error");
+				context.addMessage(null, new FacesMessage(answerOptionLabelError + ": "
+						+ availableOptionLabels));
+				error = true;
+			}
+			
+			if (richTextOptionsError) {
+				String richOptions_err = ContextUtil
+						.getLocalizedString(
+								"org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+								"rich_text_options_error");
+				context.addMessage(null, new FacesMessage(richOptions_err));
+				error = true;
+			}			
+			
+			if (invalidQACombos > 0) {
+				error = true;
+			}
+		}
+
+		if (error) {
+			item.setOutcome("emiItem");
+			item.setPoolOutcome("emiItem");
+		}
+	}
+	
   public void checkMC(boolean isSingleSelect){
 	  ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 	  ItemBean item =itemauthorbean.getCurrentItem();
@@ -607,6 +719,11 @@ public class ItemAddListener
 
       item.setTypeId(Long.valueOf(bean.getItemType()));
 
+  	  if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+	    item.setAnswerOptionsSimpleOrRich(Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()));
+	    item.setAnswerOptionsRichCount(Integer.valueOf(bean.getAnswerOptionsRichCount()));
+  	  }
+      
       item.setCreatedBy(AgentFacade.getAgentString());
       item.setCreatedDate(new Date());
       item.setLastModifiedBy(AgentFacade.getAgentString());
@@ -654,22 +771,26 @@ public class ItemAddListener
               }
               if ((bean.getGeneralFeedback() != null)) {
                 	updateItemFeedback(item, ItemFeedbackIfc.GENERAL_FEEDBACK, stripPtags(bean.getGeneralFeedback()));
-              }
+           }
       }
       else {
-    	  //prepare itemText, including answers
-    	  if (item.getTypeId().equals(TypeFacade.MATCHING)) {
-    		  item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
-    	  } else if(item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
+        	//prepare itemText, including answers
+    	  	if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+                item.setItemTextSet(prepareTextForEMI(item, bean, itemauthor));
+    	  	}
+    	  	else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
+                item.setItemTextSet(prepareTextForMatching(item, bean, itemauthor));
+            }
+			else if(item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
               item.setItemTextSet(prepareTextForCalculatedQuestion(item, bean, itemauthor));
-    	  }
-    	  else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
-    		  item.setItemTextSet(prepareTextForMatrixChoice(item, bean, itemauthor));
-    	  }
-    	  else {
-    		  item.setItemTextSet(prepareText(item, bean, itemauthor));
-    	  }
-    	  
+    	    }
+    	  	else if(item.getTypeId().equals(TypeFacade.MATRIX_CHOICES_SURVEY)) {
+    	  		item.setItemTextSet(prepareTextForMatrixChoice(item, bean, itemauthor));
+    	  	}
+            else { //Other Types
+                item.setItemTextSet(prepareText(item, bean, itemauthor));
+            }
+    	  	
             // prepare MetaData
             item.setItemMetaDataSet(prepareMetaData(item, bean));
 
@@ -696,6 +817,17 @@ public class ItemAddListener
        // added by daisyf, 10/10/06
        updateAttachment(item.getItemAttachmentList(), itemauthor.getAttachmentList(),
                         (ItemDataIfc)item.getData(), true);
+
+	  	if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+	  		Iterator emiItemIter = itemauthor.getCurrentItem().getEmiQuestionAnswerCombinationsClean().iterator();
+	  		while (emiItemIter.hasNext()) {
+	  		   AnswerBean answerBean = (AnswerBean)emiItemIter.next();
+	  		   ItemTextIfc itemText = item.getItemTextBySequence(answerBean.getSequence());
+	  	       updateItemTextAttachment(answerBean.getAttachmentList(),
+	  	    		 itemText, true);
+	  		}
+	  	}
+
        item = delegate.getItem(item.getItemId().toString());
 
 
@@ -826,6 +958,17 @@ public class ItemAddListener
           // added by daisyf, 10/10/06
           updateAttachment(item.getItemAttachmentList(), itemauthor.getAttachmentList(),
                            (ItemDataIfc)item.getData(), isEditPendingAssessmentFlow);
+          
+  	  	if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+  	  		Iterator emiItemIter = itemauthor.getCurrentItem().getEmiQuestionAnswerCombinationsClean().iterator();
+  	  		while (emiItemIter.hasNext()) {
+  	  		   AnswerBean answerBean = (AnswerBean)emiItemIter.next();
+  	  		   ItemTextIfc itemText = item.getItemTextBySequence(answerBean.getSequence());
+  	  	       updateItemTextAttachment(answerBean.getAttachmentList(),
+  	  	    		 itemText, isEditPendingAssessmentFlow);
+  	  		}
+  	  	}
+
           item = delegate.getItem(item.getItemId().toString());
 
         }
@@ -920,7 +1063,7 @@ public class ItemAddListener
 
 	  // loop through matches for in validAnswers list and add all to this choice
 	  Iterator<MatchItemBean>answeriter = validAnswers.iterator();	  
-	  HashSet<Answer> answerSet = new HashSet<Answer>();
+	  Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
 	  while (answeriter.hasNext()) {
 		  Answer answer = null;
 		  MatchItemBean answerbean = (MatchItemBean) answeriter.next();
@@ -955,11 +1098,11 @@ public class ItemAddListener
 	  }
 	  choicetext.setAnswerSet(answerSet);
 	  return choicetext;
-
   }
-
+  
   private HashSet prepareTextForMatching(ItemFacade item, ItemBean bean,
 		  ItemAuthorBean itemauthor) {
+	  // looping through matchItemBean
 	  ArrayList<MatchItemBean>matchItemBeanList = bean.getMatchItemBeanList();
 	  HashSet<ItemText> textSet = new HashSet<ItemText>();
 	  
@@ -971,9 +1114,131 @@ public class ItemAddListener
 	  }
 	  return textSet;
   }
+  
+  /**
+   * Updated and refactored - Aug 2010
+   * Prepare Text for Extended Matching Item Questions
+   * @param item
+   * @param bean
+   * @param itemauthor
+   * @return
+   */
+  private HashSet prepareTextForEMI(ItemFacade item, ItemBean bean,
+			ItemAuthorBean itemauthor) {
+	  
+		HashSet textSet = new HashSet();
+		HashSet answerSet1 = new HashSet();
+	  
+	  	// ///////////////////////////////////////////////////////////
+		//
+		// 1. save Theme and Lead-In Text and Answer Options
+		//  
+		// ///////////////////////////////////////////////////////////
+		ItemTextIfc textTheme = new ItemText();
+		textTheme.setItem(item.getData());
+		textTheme.setSequence(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE);
+		textTheme.setText(bean.getItemText());
+		
+		ItemTextIfc textAnswerOptions = new ItemText();
+		textAnswerOptions.setItem(item.getData());
+		textAnswerOptions.setSequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);
+		textAnswerOptions.setText(bean.getEmiAnswerOptionsRich());
+
+		ItemTextIfc textLeadIn = new ItemText();
+		textLeadIn.setItem(item.getData());
+		textLeadIn.setSequence(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE);
+		textLeadIn.setText(bean.getLeadInStatement());
+		
+		// ///////////////////////////////////////////////////////////
+		//
+		// 2. save Answer Options - emiAnswerOptions
+		// with ItemText  (seq=ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE).
+		// These will be used to construct the actual answers.
+		// ///////////////////////////////////////////////////////////
+		Iterator iter = bean.getEmiAnswerOptionsClean().iterator();
+		AnswerIfc answer = null;
+		while (iter.hasNext()) {
+			AnswerBean answerbean = (AnswerBean) iter.next();
+			answer = new Answer(textAnswerOptions, stripPtags(answerbean.getText()),
+					answerbean.getSequence(), answerbean.getLabel(),
+					Boolean.FALSE, null,
+					null, null, null, null);
+			answerSet1.add(answer);
+		}
+		
+		textAnswerOptions.setAnswerSet(answerSet1);
+		textSet.add(textTheme);
+		textSet.add(textAnswerOptions);
+		textSet.add(textLeadIn);
+
+		// ///////////////////////////////////////////////////////////
+		//
+		// 3. Prepare and save actual answers from answer components 
+		// (emiAnswerOptions and emiQuestionAnswerCombinations)
+		// ///////////////////////////////////////////////////////////
+                @SuppressWarnings("unchecked")
+		List<AnswerBean> emiQuestionAnswerCombinations = bean.getEmiQuestionAnswerCombinationsClean();
+                int answerCombinations = emiQuestionAnswerCombinations.size();
+                iter = emiQuestionAnswerCombinations.iterator();
+		AnswerBean qaCombo = null;
+		Double itemScore = 0.0;
+		while (iter.hasNext()) {
+			qaCombo = (AnswerBean) iter.next();
+			
+			ItemTextIfc itemText = new ItemText();
+			itemText.setItem(item.getData());
+			itemText.setSequence(qaCombo.getSequence());
+			itemText.setText(qaCombo.getText());
+			int requiredOptions = (Integer.valueOf(qaCombo.getRequiredOptionsCount())).intValue();
+			if (requiredOptions == 0) {
+				requiredOptions = qaCombo.correctOptionsCount();
+			}
+			itemText.setRequiredOptionsCount(requiredOptions);
+			itemScore += qaCombo.getScore();
+
+			//for emi the score per correct answer is itemTotal/requiredOptions
+			//the discount is 1/2 the negative of that for answers more then required
+			HashSet answerSet = new HashSet();
+			
+			if (Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()).equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE) ) {
+				Iterator selectionOptions = textAnswerOptions.getAnswerArraySorted().iterator();
+				while (selectionOptions.hasNext()) {
+					AnswerIfc selectOption = (AnswerIfc) selectionOptions.next();
+					answerSet.add(getAnswer(qaCombo, itemText, selectOption.getText(),
+							selectOption.getSequence(), selectOption.getLabel(), requiredOptions));
+				}
+			}
+			else { // ANSWER_OPTION_RICH
+				int answerOptionsCount = Integer.valueOf(bean.getAnswerOptionsRichCount());
+				for (int i=0; i<answerOptionsCount; i++) {
+					String label = ItemDataIfc.ANSWER_OPTION_LABELS.substring(i, i+1);
+					answerSet.add(getAnswer(qaCombo, itemText, label,
+							Long.valueOf(i), label, requiredOptions));
+				}
+			}
+			itemText.setAnswerSet(answerSet);
+			textSet.add(itemText);
+			
+		}
+		item.setScore(itemScore);
+		return textSet;
+	}
+  
+	private AnswerIfc getAnswer(AnswerBean qaCombo, ItemTextIfc itemText, String text, Long sequence, String label, int requiredOptions) {
+		String correctLabels = qaCombo.getCorrectOptionLabels();
+		int correctRequiredCount = correctLabels.length()<requiredOptions?correctLabels.length():requiredOptions;
+		boolean isCorrect = qaCombo.getCorrectOptionLabels().contains(label);
+
+		// item option score
+		Double score = qaCombo.getScore() / correctRequiredCount;
+		
+		return new Answer(itemText, text,
+				sequence, label, isCorrect,
+				qaCombo.getScoreUserSet() ? "user" : "auto", 
+				isCorrect ? score : 0.0, null, isCorrect ? 0.0 : -score / 2, null);
+	}
 
   private String[] returnMatrixChoices(ItemBean bean,String str){
-
 	  String[] result=null,temp=null;
 	  if ("row".equals(str))
 		  temp = bean.getRowChoices().split(System.getProperty("line.separator"));
@@ -1218,7 +1483,7 @@ public class ItemAddListener
 
 		return textSet;
 	} 
-
+	
 	  /**
 	   * prepareTextForCalculatedqQestion takes the formulas and variables that are 
 	   * stored in CalculatedQuestionFormulaBeans and CalculatedQuestionVariableBeans
@@ -1267,7 +1532,7 @@ public class ItemAddListener
 	          Long sequence = varFormula.getSequence();
 	          choiceText.setSequence(sequence);
 	          
-	          HashSet<Answer> answerSet = new HashSet<Answer>();
+	          Set<AnswerIfc> answerSet = new HashSet<AnswerIfc>();
 	          
 	          // loop through all variables and formulas to create all answers for the ItemText object
 	          for (CalculatedQuestionAnswerIfc curVarFormula : list) {
@@ -1310,6 +1575,11 @@ public class ItemAddListener
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.MATCHING)) {
 		  preparePublishedTextForMatching(item, bean, delegate);
+	  }
+	  else if (item.getTypeId().equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+		  item.setAnswerOptionsSimpleOrRich(Integer.valueOf(item.getAnswerOptionsSimpleOrRich()));
+		  item.setAnswerOptionsRichCount(Integer.valueOf(item.getAnswerOptionsRichCount()));
+		  preparePublishedTextForEMI(item, bean, delegate);		  
 	  }
 	  else if (item.getTypeId().equals(TypeFacade.CALCULATED_QUESTION)) {
 	      preparePublishedTextForCalculatedQueston(item, bean, delegate);
@@ -1778,8 +2048,158 @@ public class ItemAddListener
 			delegate.deleteSet(toBeRemovedTextSet);
 		}
   }
+  
+  /**
+   * Prepare Text for Extended Matching Item Questions
+   * @param item
+   * @param bean
+   * @param itemauthor
+   * @return
+   */
+  private void preparePublishedTextForEMI(ItemFacade item,
+			ItemBean bean, ItemService delegate) {
+	  
+		HashSet textSet = new HashSet();
+		HashSet answerSet1 = new HashSet();
+	  
+	  	// ///////////////////////////////////////////////////////////
+		//
+		// 1. save Theme and Lead-In Text and Answer Options
+		//  
+		// ///////////////////////////////////////////////////////////
+		ItemTextIfc textTheme = new PublishedItemText();
+		textTheme.setItem(item.getData());
+		textTheme.setSequence(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE);
+		textTheme.setText(bean.getItemText());
+		
+		ItemTextIfc textAnswerOptions = new PublishedItemText();
+		textAnswerOptions.setItem(item.getData());
+		textAnswerOptions.setSequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);
+		textAnswerOptions.setText(bean.getEmiAnswerOptionsRich());
 
+		ItemTextIfc textLeadIn = new PublishedItemText();
+		textLeadIn.setItem(item.getData());
+		textLeadIn.setSequence(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE);
+		textLeadIn.setText(bean.getLeadInStatement());
+		
+		// ///////////////////////////////////////////////////////////
+		//
+		// 2. save Answer Options - emiAnswerOptions
+		// with ItemText  (seq=ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE).
+		// These will be used to construct the actual answers.
+		// ///////////////////////////////////////////////////////////
+		Iterator iter = bean.getEmiAnswerOptionsClean().iterator();
+		AnswerIfc answer = null;
+		while (iter.hasNext()) {
+			AnswerBean answerbean = (AnswerBean) iter.next();
+			answer = new PublishedAnswer(textAnswerOptions,
+					stripPtags(answerbean.getText()), answerbean
+					.getSequence(), answerbean.getLabel(),
+					Boolean.FALSE, null, null, null, null, null);
+			answerSet1.add(answer);
+		}
+		
+		textAnswerOptions.setAnswerSet(answerSet1);
+		textSet.add(textTheme);
+		textSet.add(textAnswerOptions);
+		textSet.add(textLeadIn);
+		
+		// ///////////////////////////////////////////////////////////
+		//
+		// 3. Prepare and save actual answers from answer components 
+		// (emiAnswerOptions and emiQuestionAnswerCombinations)
+		// ///////////////////////////////////////////////////////////
+		int numberOfCorrectAnswersRequired = 0;
+		double correctAnswerScore = 0.0;
+		
+		iter = bean.getEmiQuestionAnswerCombinationsClean().iterator();
+		AnswerBean qaCombo = null;
+		while (iter.hasNext()) {
+			qaCombo = (AnswerBean) iter.next();
+			
+			ItemTextIfc itemText = new PublishedItemText();
+			itemText.setItem(item.getData());
+			itemText.setSequence(qaCombo.getSequence());
+			itemText.setText(qaCombo.getText());
+			itemText.setRequiredOptionsCount(Integer.valueOf(qaCombo.getRequiredOptionsCount()));
+			
+			int requiredOptions = (Integer.valueOf(qaCombo.getRequiredOptionsCount())).intValue();
+			if (requiredOptions == 0) {
+				requiredOptions = qaCombo.correctOptionsCount();
+			}
+			numberOfCorrectAnswersRequired += requiredOptions;
+			
+			HashSet answerSet = new HashSet();
+			
+			if (Integer.valueOf(bean.getAnswerOptionsSimpleOrRich()).equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE) ) {
+				Iterator selectionOptions = textAnswerOptions.getAnswerArraySorted().iterator();
+				while (selectionOptions.hasNext()) {
+					AnswerIfc selectOption = (AnswerIfc) selectionOptions.next();
+					boolean isCorrect = qaCombo.getCorrectOptionLabels().contains(selectOption.getLabel());
 
+					Double discount = 0.0;
+					if (!isCorrect) {
+						discount = Double.valueOf(bean.getItemDiscount());
+					}
+					AnswerIfc actualAnswer = new PublishedAnswer(itemText,
+							selectOption.getText(), selectOption
+							.getSequence(), selectOption.getLabel(),
+							isCorrect, null, null, null,
+							discount, null);
+					
+					answerSet.add(actualAnswer);
+				}
+			}
+			else { // ANSWER_OPTION_RICH
+				int answerOptionsCount = Integer.valueOf(bean.getAnswerOptionsRichCount());
+				for (int i=0; i<answerOptionsCount; i++) {
+					String label = ItemDataIfc.ANSWER_OPTION_LABELS.substring(i, i+1);
+					boolean isCorrect = qaCombo.getCorrectOptionLabels().contains(label);
+					
+					Double discount = 0.0;
+					if (!isCorrect) {
+						discount = Double.valueOf(bean.getItemDiscount());
+					}
+					AnswerIfc actualAnswer = new PublishedAnswer(itemText,
+							label, Long.valueOf(i), label,
+							isCorrect, null, null, null,
+							discount, null);
+	
+				    answerSet.add(actualAnswer);
+				}
+			}
+			itemText.setAnswerSet(answerSet);
+			textSet.add(itemText);
+		}
+
+		//now calculate and save the answer scores
+		if (numberOfCorrectAnswersRequired != 0) {
+			correctAnswerScore = (Double.valueOf(bean.getItemScore())).doubleValue() / (double)numberOfCorrectAnswersRequired;
+		}
+		double answerScore = 0;
+		Iterator textSetIter = textSet.iterator();
+		while (textSetIter.hasNext()) {
+			ItemTextIfc itemText = (ItemTextIfc)textSetIter.next();
+			if (!itemText.isEmiQuestionItemText()) continue;
+			Iterator answerSetIter = itemText.getAnswerSet().iterator();
+			AnswerIfc actualAnswer = null;
+			while (answerSetIter.hasNext()) {
+				actualAnswer = (AnswerIfc)answerSetIter.next();
+				if (actualAnswer.getIsCorrect()==null || !actualAnswer.getIsCorrect()) {
+					answerScore = 0;
+				}
+				else {
+					answerScore = correctAnswerScore;
+				}
+				actualAnswer.setScore(Double.valueOf(answerScore));
+			}
+		}
+
+      Set oldTextSet = item.getItemTextSet();
+	  item.setItemTextSet(textSet);
+	  delegate.deleteSet(oldTextSet);
+	}
+  
   private void preparePublishedTextForOthers(ItemFacade item, ItemBean bean) {
 	  ItemTextIfc text = null;
 	  Set textSet = item.getItemTextSet();
@@ -2229,15 +2649,36 @@ public class ItemAddListener
     }
   }
 
+  private void updateItemTextAttachment(List newList, ItemTextIfc itemText, boolean pendingOrPool){
+	    if (newList == null || newList.size() == 0) return;
+	    List list = new ArrayList();
+	    for (int i=0; i<newList.size(); i++){
+	      ItemTextAttachmentIfc a = (ItemTextAttachmentIfc)newList.get(i);
+	      // new attachments
+	      a.setAttachmentId(null);  
+	      a.setItemText(itemText);
+	      list.add(a);
+	    }      
+	    // save new ones
+	    AssessmentService service;
+	    if (pendingOrPool) {
+	    	service = new AssessmentService();
+	    }
+	    else {
+	    	service = new PublishedAssessmentService();
+	    }
+	    service.saveOrUpdateAttachments(list);
+  }
+  
   private HashMap getAttachmentIdHash(List list){
     HashMap map = new HashMap();
     for (int i=0; i<list.size(); i++){
-      ItemAttachmentIfc a = (ItemAttachmentIfc)list.get(i);
+      AttachmentIfc a = (AttachmentIfc)list.get(i);
       map.put(a.getAttachmentId(), a);
     }
     return map;
   }
-  
+
   private void updateItemFeedback(ItemFacade item, String feedbackTypeId, String feedbackText) {
 	  Set itemFeedbackSet = item.getItemFeedbackSet();
 	  if ((itemFeedbackSet == null || itemFeedbackSet.size() == 0)) {

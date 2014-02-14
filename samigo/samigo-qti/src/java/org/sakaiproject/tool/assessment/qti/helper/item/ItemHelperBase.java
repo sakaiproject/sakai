@@ -62,6 +62,7 @@ public abstract class ItemHelperBase
   protected static final long ITEM_MATCHING = TypeIfc.MATCHING.longValue();
   protected static final long ITEM_MXSURVEY = TypeIfc.MATRIX_CHOICES_SURVEY.longValue();
   protected static final long ITEM_CALCQ = TypeIfc.CALCULATED_QUESTION.longValue(); // CALCULATED_QUESTION
+  protected static final long ITEM_EMI = TypeIfc.EXTENDED_MATCHING_ITEMS.longValue();
 
   /**
    * We will have a versioned AuthoringXml in subclasses.
@@ -260,6 +261,10 @@ public abstract class ItemHelperBase
     else if (ITEM_MATCHING == typeId)
     {
       template = AuthoringXml.ITEM_MATCHING;
+    }
+    else if (ITEM_EMI == typeId)
+    {
+      template = AuthoringXml.ITEM_EMI;
     }
     else if (ITEM_MXSURVEY == typeId)
     {

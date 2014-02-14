@@ -24,6 +24,8 @@
     <property name="score" type="double" column="SCORE" not-null="false" />
     <property name="partialCreditFlag" type="boolean" column="PARTIAL_CREDIT_FLAG" not-null="false"/>
     <property name="discount" type="double" column="DISCOUNT" not-null="false" />
+    <property name="answerOptionsRichCount" type="integer" column="ANSWER_OPTIONS_RICH_COUNT" not-null="false" />
+    <property name="answerOptionsSimpleOrRich" type="integer" column="ANSWER_OPTIONS_SIMPLE_OR_RICH" not-null="false" />
     <property name="hint" type="string" length="4000" column="HINT" not-null="false" />
     <property name="hasRationale" type="boolean" column="HASRATIONALE" not-null="false" />
     <property name="status" type="integer" column="STATUS" not-null="true" />
@@ -69,10 +71,15 @@
     <many-to-one name="item" class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"
       column="ITEMID" not-null="true" index="SAM_ITEMTEXT_ITEMID_I" />
     <property name="sequence" type="long" column="SEQUENCE" not-null="true" />
-<property name="text" type="materialized_clob" column="TEXT" not-null="false" />
-    <set name="answerSet" table="SAM_ANSWER_T" cascade="all" inverse="true" lazy="false" order-by="sequence asc" batch-size="50">
+    <property name="text" type="text" column="TEXT" not-null="false" />
+	<property name="requiredOptionsCount" type="integer" column="REQUIRED_OPTIONS_COUNT" not-null="false" />
+    <set name="answerSet" table="SAM_ANSWER_T" cascade="all" inverse="true" lazy="false" order-by="sequence asc">
        <key column="ITEMTEXTID"/>
        <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.Answer"/>
+    </set>
+    <set name="itemTextAttachmentSet" table="SAM_ATTACHMENT_T" cascade="all" order-by="createdDate asc" inverse="true" lazy="false">
+       <key column="ITEMTEXTID"/>
+       <one-to-many class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment"/>
     </set>
   </class>
 
@@ -174,6 +181,12 @@
       discriminator-value="3" lazy="false" > 
       <many-to-one name="item" column="ITEMID" not-null="false"
         class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemData"/>
+    </subclass>
+
+    <subclass name="org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment"
+      discriminator-value="5" lazy="false" > 
+      <many-to-one name="itemText" column="ITEMTEXTID" not-null="false"
+        class="org.sakaiproject.tool.assessment.data.dao.assessment.ItemText"/>
     </subclass>
 
   </class>

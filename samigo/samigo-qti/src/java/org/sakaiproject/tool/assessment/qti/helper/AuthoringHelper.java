@@ -547,6 +547,9 @@ public class AuthoringHelper
       return false;
   }
 
+  protected String getAgentString(){
+	  return AgentFacade.getAgentString();
+  }
 
   public AssessmentFacade createImportedAssessment(Document document, String unzipLocation, String templateId, boolean isRespondus, ArrayList failedMatchingQuestions, String siteId)
   {
@@ -556,7 +559,7 @@ public class AuthoringHelper
     try
     {
       // we need to know who we are
-      String me = AgentFacade.getAgentString();
+      String me = getAgentString();
 
       // create the assessment
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
@@ -671,17 +674,14 @@ public class AuthoringHelper
         {
           log.debug("items=" + itemList.size());
           Item itemXml = (Item) itemList.get(itm);
-          Map itemMap = exHelper.mapItem(itemXml, isRespondus);
 
           ItemFacade item = new ItemFacade();
-          if (itemMap != null) {
-        	  try {
-        		  exHelper.updateItem(item, itemMap, isRespondus);
-        	  }
-        	  catch (RespondusMatchingException rme) {
-        		  if (failedMatchingQuestions != null) {
-        			  failedMatchingQuestions.add(itm + 1);
-        		  }
+          try {
+        	  exHelper.updateItem(item, itemXml, isRespondus);
+          }
+          catch (RespondusMatchingException rme) {
+        	  if (failedMatchingQuestions != null) {
+        		  failedMatchingQuestions.add(itm + 1);
         	  }
           }
           // make sure required fields are set
@@ -831,10 +831,9 @@ public class AuthoringHelper
            {
                log.debug("items=" + itemList.size());
                Item itemXml = (Item) itemList.get(itm);
-               Map itemMap = exHelper.mapItem(itemXml);
 
                ItemFacade item = new ItemFacade();
-               exHelper.updateItem(item, itemMap);
+               exHelper.updateItem(item, itemXml);
                // make sure required fields are set
                item.setCreatedBy(me);
                item.setCreatedDate(questionpool.getLastModified());
@@ -881,8 +880,7 @@ public class AuthoringHelper
       // create the item
       ExtractionHelper exHelper = new ExtractionHelper(this.qtiVersion);
       Item itemXml = new Item(document, QTIVersion.VERSION_1_2);
-      Map itemMap = exHelper.mapItem(itemXml);
-      exHelper.updateItem(item, itemMap);
+      exHelper.updateItem(item, itemXml);
       ItemService itemService = new ItemService();
       itemService.saveItem(item);
     }

@@ -70,10 +70,9 @@ public class SortQuestionListListener
     ArrayList list= null;
     if (getItems != null && getItems.trim().equals("false")){
     	log.debug("Do not getItems: getItems = " + getItems);
-    }
-    else {
-    	if (qpid==null ||("").equals(qpid)){
-    		list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
+    } else {
+		if (qpid == null || ("").equals(qpid.trim())){
+			list = delegate.getAllItemsSorted(questionpoolbean.getCurrentPool().getId(), orderBy, ascending);
     	}
     	else{
     		list = delegate.getAllItemsSorted(Long.valueOf(qpid),orderBy, ascending);

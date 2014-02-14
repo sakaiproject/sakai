@@ -27,6 +27,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +61,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
@@ -272,6 +274,11 @@ public class AssessmentService {
 	public int getQuestionSize(String assessmentId) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getQuestionSize(new Long(assessmentId));
+	}
+	
+	public HashMap getQuestionSizeMap() {
+		return PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.getQuestionSizeMap();
 	}
 	
 	public void update(AssessmentFacade assessment) {
@@ -631,6 +638,31 @@ public class AssessmentService {
 	public void removeItemAttachment(String attachmentId) {
 		PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.removeItemAttachment(new Long(attachmentId));
+	}
+
+	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
+			String resourceId, String filename, String protocol) {
+		return createItemTextAttachment(itemText, resourceId,
+					filename, protocol, true);
+	}
+
+	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
+			String resourceId, String filename, String protocol, boolean isEditPendingAssessmentFlow) {
+		ItemTextAttachmentIfc attachment = null;
+		try {
+			AssessmentFacadeQueriesAPI queries = PersistenceService
+					.getInstance().getAssessmentFacadeQueries();
+			attachment = queries.createItemTextAttachment(itemText, resourceId,
+					filename, protocol, isEditPendingAssessmentFlow);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachment;
+	}
+	
+	public void removeItemTextAttachment(String attachmentId) {
+		PersistenceService.getInstance().getAssessmentFacadeQueries()
+				.removeItemTextAttachment(new Long(attachmentId));
 	}
 
 	public void updateAssessmentLastModifiedInfo(

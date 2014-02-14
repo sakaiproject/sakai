@@ -31,6 +31,7 @@ import java.util.List;
 import javax.faces.model.SelectItem;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader; 
 
@@ -63,11 +64,28 @@ private static final String msgResource =
   private boolean showSurvey;
   private boolean showFillInTheBlank;
   private boolean showFillInNumeric;
+  private boolean showExtendedMatchingItems;
   private boolean selectFromQuestionPool;
   private boolean selectFromQuestionBank;
   private boolean showMatrixSurvey;
   private boolean showCalculatedQuestion; // CALCULATED_QUESTION
 
+  /**
+   * Should we show extended matching items question?
+   * @return if true
+   */
+  public boolean isShowExtendedMatchingItems()
+  {
+    return showExtendedMatchingItems;
+  }
+  /**
+   * Set whether extended matching items should be shown.
+   */
+  public void setShowExtendedMatchingItems(boolean showExtendedMatchingItems)
+  {
+    this.showExtendedMatchingItems = showExtendedMatchingItems;
+  }
+  
   /**
    * Should we show file upload question?
    * @return if true
@@ -285,41 +303,55 @@ private static final String msgResource =
     
 
     if (isShowAllMultipleChoice())
-      list.add(new SelectItem("1",
+      list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE),
         getResourceDisplayName("multiple_choice_type")));
     
     if (showSurvey)
-      list.add(new SelectItem("3",
+      list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE_SURVEY),
         getResourceDisplayName("multiple_choice_surv")));
     
     if (showMatrixSurvey)
-    	list.add(new SelectItem("13", getResourceDisplayName("matrix_choices_surv")));
+    	list.add(new SelectItem(String.valueOf(TypeIfc.MATRIX_CHOICES_SURVEY),
+    			getResourceDisplayName("matrix_choices_surv")));
 
     if (showEssay)
-      list.add(new SelectItem("5", getResourceDisplayName("short_answer_essay")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.ESSAY_QUESTION),
+    		  getResourceDisplayName("short_answer_essay")));
 
     if (showFillInTheBlank)
-      list.add(new SelectItem("8", getResourceDisplayName("fill_in_the_blank")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.FILL_IN_BLANK),
+    		  getResourceDisplayName("fill_in_the_blank")));
 
-if (showFillInNumeric)
-      list.add(new SelectItem("11", getResourceDisplayName("fill_in_numeric")));
+    if (showFillInNumeric)
+      list.add(new SelectItem(String.valueOf(TypeIfc.FILL_IN_NUMERIC),
+    		  getResourceDisplayName("fill_in_numeric")));
+    
     if (showMatching)
-      list.add(new SelectItem("9", getResourceDisplayName("matching")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.MATCHING),
+    		  getResourceDisplayName("matching")));
 
     if (showTrueFalse)
-      list.add(new SelectItem("4", getResourceDisplayName("true_false")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.TRUE_FALSE),
+    		  getResourceDisplayName("true_false")));
 
     if (showAudio)
-      list.add(new SelectItem("7", getResourceDisplayName("audio_recording")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.AUDIO_RECORDING),
+    		  getResourceDisplayName("audio_recording")));
 
     if (showFileUpload)
-      list.add(new SelectItem("6", getResourceDisplayName("file_upload")));
+      list.add(new SelectItem(String.valueOf(TypeIfc.FILE_UPLOAD),
+    		  getResourceDisplayName("file_upload")));
 
+    // resource display name in AuthorMessages.properties
+    if (showExtendedMatchingItems)
+        list.add(new SelectItem(String.valueOf(TypeIfc.EXTENDED_MATCHING_ITEMS),
+      		  getResourceDisplayName("extended_matching_items")));
+    
     if (selectFromQuestionPool)
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
     if (showCalculatedQuestion)
-        list.add(new SelectItem("15", getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
+        list.add(new SelectItem(String.valueOf(TypeIfc.CALCULATED_QUESTION), getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden

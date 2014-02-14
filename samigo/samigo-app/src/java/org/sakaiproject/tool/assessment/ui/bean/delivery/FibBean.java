@@ -23,7 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -42,7 +42,7 @@ public class FibBean
   private String text;
   private boolean isCorrect;
   private boolean hasInput;
-
+  
   public ItemContentsBean getItemContentsBean()
   {
     return parent;
@@ -82,18 +82,18 @@ public class FibBean
 
   public void setResponse(String newresp)
   {
-    response = newresp;
-    if (data == null)
-    {
-      data = new ItemGradingData();
-      data.setPublishedItemId(parent.getItemData().getItemId());
-      data.setPublishedItemTextId(answer.getItemText().getId());
-      data.setPublishedAnswerId(answer.getId());
-      ArrayList items = parent.getItemGradingDataArray();
-      items.add(data);
-      parent.setItemGradingDataArray(items);
-    }
-    data.setAnswerText(newresp);
+        response = newresp;
+	    if (data == null)
+	    {
+	      data = new ItemGradingData();
+	      data.setPublishedItemId(parent.getItemData().getItemId());
+	      data.setPublishedItemTextId(answer.getItemText().getId());
+	      data.setPublishedAnswerId(answer.getId());
+	      List<ItemGradingData> items = parent.getItemGradingDataArray();
+	      items.add(data);
+	      parent.setItemGradingDataArray(items);
+	    }
+	    data.setAnswerText(newresp);
   }
 
   public String getText()

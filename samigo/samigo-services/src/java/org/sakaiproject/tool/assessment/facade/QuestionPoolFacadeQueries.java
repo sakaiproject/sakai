@@ -1322,6 +1322,9 @@ public class QuestionPoolFacadeQueries
       item.setHasRationale(itemData.getHasRationale());
       item.setTriesAllowed(itemData.getTriesAllowed());
       item.setDuration(itemData.getDuration());
+      item.setAnswerOptionsRichCount(itemData.getAnswerOptionsRichCount());
+      item.setAnswerOptionsSimpleOrRich(itemData.getAnswerOptionsSimpleOrRich());
+      item.setDescription(itemData.getDescription());
 
       item.setItemTextSet(copyItemText(item.getData(), itemData));
       item.setItemMetaDataSet(copyMetaData(item.getData(), itemData));
@@ -1350,6 +1353,7 @@ public class QuestionPoolFacadeQueries
 	    	  toItemText.setItem(toItemData);
 	    	  toItemText.setSequence(fromItemText.getSequence());
 	    	  toItemText.setText(fromItemText.getText());
+                  toItemText.setRequiredOptionsCount(fromItemText.getRequiredOptionsCount());
 	    	  
 	    	  HashSet toAnswerSet = new HashSet();
 	    	  Set fromAnswerSet = fromItemText.getAnswerSet();
@@ -1357,7 +1361,9 @@ public class QuestionPoolFacadeQueries
 	    	  while (answerIter.hasNext()) {
 	    		  Answer fromAnswer = (Answer) answerIter.next();
 	    		  Answer toAnswer = new Answer(toItemText, fromAnswer.getText(), fromAnswer.getSequence(), fromAnswer.getLabel(),
-	    				  fromAnswer.getIsCorrect(), fromAnswer.getGrade(), fromAnswer.getScore(), fromAnswer.getPartialCredit(), fromAnswer.getDiscount());
+	    				  fromAnswer.getIsCorrect(), fromAnswer.getGrade(), fromAnswer.getScore(), fromAnswer.getPartialCredit(), fromAnswer.getDiscount(), 
+	    				  //fromAnswer.getCorrectOptionLabels(), 
+	    				  null);
 	    		  
 	    		  HashSet toAnswerFeedbackSet = new HashSet();
 	    		  Set fromAnswerFeedbackSet = fromAnswer.getAnswerFeedbackSet();

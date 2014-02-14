@@ -272,6 +272,13 @@
     <body-content>JSP</body-content>
     <description>
     </description>
+    
+    <attribute>
+      <name>identity</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>a identity for the textarea field</description>
+    </attribute>
 
     <attribute>
       <name>value</name>

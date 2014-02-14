@@ -62,7 +62,9 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemAttachment;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
@@ -78,6 +80,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
@@ -765,16 +769,15 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				sb2.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
 				sb2.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
 				sb2.append("and z.functionId=? and z.agentIdString=? ");
-				sb2.append("group by a.assessmentBaseId ");
 				Query q2 = session.createQuery(sb2.toString());
 				q2.setString(0, "EDIT_ASSESSMENT");
 				q2.setString(1, siteAgentId);
 				return q2.list();
 			};
 		};
-		List questionSizeList = getHibernateTemplate().executeFind(hcb2);
-		Iterator iter = questionSizeList.iterator();
-		while (iter.hasNext()) {
+		List size = getHibernateTemplate().executeFind(hcb2);
+		Iterator iter = size.iterator();
+		if (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next();
 			questionSizeMap.put(o[0], o[1]);
 		}
@@ -899,6 +902,31 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		} else {
 			return 0;
 		}
+	}
+	
+	public HashMap getQuestionSizeMap() {
+		HashMap questionSizeMap = new HashMap();
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				StringBuilder sb = new StringBuilder("select a.assessmentBaseId, count(i) ");
+				sb.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
+				sb.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
+				sb.append("and z.functionId=? and z.agentIdString=? ");
+				Query q = session.createQuery(sb.toString());
+				q.setString(1, "EDIT_ASSESSMENT");
+				q.setString(2, AgentFacade.getCurrentSiteId());
+				return q.list();
+			};
+		};
+		List size = getHibernateTemplate().executeFind(hcb);
+		
+		Iterator iter = size.iterator();
+		if (iter.hasNext()) {
+			Object o[] = (Object[]) iter.next();
+			questionSizeMap.put(o[0], o[1]);
+		}
+		return questionSizeMap;
 	}
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {
@@ -1499,6 +1527,30 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 	}
+
+	public void removeItemTextAttachment(Long itemTextAttachmentId) {
+		ItemTextAttachment itemTextAttachment = (ItemTextAttachment) getHibernateTemplate()
+				.load(ItemTextAttachment.class, itemTextAttachmentId);
+		ItemTextIfc itemText = itemTextAttachment.getItemText();
+		// String resourceId = itemAttachment.getResourceId();
+		int retryCount = PersistenceService.getInstance().getRetryCount()
+				.intValue();
+		while (retryCount > 0) {
+			try {
+				if (itemText != null) { // need to dissociate with item before
+					// deleting in Hibernate 3
+					Set set = itemText.getItemTextAttachmentSet();
+					set.remove(itemTextAttachment);
+					getHibernateTemplate().delete(itemTextAttachment);
+					retryCount = 0;
+				}
+			} catch (Exception e) {
+				log.warn("problem delete itemAttachment: " + e.getMessage());
+				retryCount = PersistenceService.getInstance().retryDeadlock(e,
+						retryCount);
+			}
+		}
+	}
 	
 	public void updateAssessmentLastModifiedInfo(
 			AssessmentFacade assessment) {
@@ -1536,6 +1588,56 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					attach = new PublishedItemAttachment();
 				}
 				attach.setItem(item);
+				attach.setResourceId(resourceId);
+				attach.setMimeType(cr.getContentType());
+				// we want to display kb, so divide by 1000 and round the result
+				attach.setFileSize(fileSizeInKB(cr.getContentLength()));
+				if (cr.getContentType().lastIndexOf("url") > -1) {
+					isLink = Boolean.TRUE;
+					if (!filename.toLowerCase().startsWith("http")) {
+						String adjustedFilename = "http://" + filename;
+						attach.setFilename(adjustedFilename);
+					} else {
+						attach.setFilename(filename);
+					}
+				} else {
+					attach.setFilename(filename);
+				}
+				attach.setIsLink(isLink);
+				attach.setStatus(ItemAttachmentIfc.ACTIVE_STATUS);
+				attach.setCreatedBy(p.getProperty(p.getNamePropCreator()));
+				attach.setCreatedDate(new Date());
+				attach.setLastModifiedBy(p.getProperty(p
+						.getNamePropModifiedBy()));
+				attach.setLastModifiedDate(new Date());
+				attach.setLocation(getRelativePath(cr.getUrl(), protocol));
+				// getHibernateTemplate().save(attach);
+			}
+		} catch (PermissionException pe) {
+			pe.printStackTrace();
+		} catch (IdUnusedException ie) {
+			ie.printStackTrace();
+		} catch (TypeException te) {
+			te.printStackTrace();
+		}
+		return attach;
+	}
+
+	public ItemTextAttachmentIfc createItemTextAttachment(ItemTextIfc itemText,
+			String resourceId, String filename, String protocol, boolean isEditPendingAssessmentFlow) {
+		ItemTextAttachmentIfc attach = null;
+		Boolean isLink = Boolean.FALSE;
+		try {
+			ContentResource cr = AssessmentService.getContentHostingService().getResource(resourceId);
+			if (cr != null) {
+				ResourceProperties p = cr.getProperties();
+				if (isEditPendingAssessmentFlow) {
+					attach = new ItemTextAttachment();
+				}
+				else {
+					attach = new PublishedItemTextAttachment();
+				}
+				attach.setItemText(itemText);
 				attach.setResourceId(resourceId);
 				attach.setMimeType(cr.getContentType());
 				// we want to display kb, so divide by 1000 and round the result
@@ -2155,7 +2257,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					// itemFeedbackSet later
 					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
-					.getItemTextSet());
+					.getItemTextSet(), protocol);
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item
 					.getItemMetaDataSet());
 			Set newItemFeedbackSet = prepareItemFeedbackSet(newItem, item
@@ -2166,6 +2268,8 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newItem.setItemMetaDataSet(newItemMetaDataSet);
 			newItem.setItemFeedbackSet(newItemFeedbackSet);
 			newItem.setItemAttachmentSet(newItemAttachmentSet);
+			newItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
+			newItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
 			h.add(newItem);
 		}
 		return h;
@@ -2176,7 +2280,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return prepareItemSet(newSection, itemSet, protocol, null);
 	}
 	
-	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet) {
+	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol) {
 		log.debug("new item text size = " + itemTextSet.size());
 		HashSet h = new HashSet();
 		Iterator k = itemTextSet.iterator();
@@ -2188,6 +2292,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			Set newAnswerSet = prepareAnswerSet(newItemText, itemText
 					.getAnswerSet());
 			newItemText.setAnswerSet(newAnswerSet);
+			
+			Set itemTextAttachmentSet = this.prepareItemTextAttachmentSet(newItemText, 
+					itemText.getItemTextAttachmentSet(), protocol);
+			newItemText.setItemTextAttachmentSet(itemTextAttachmentSet);
+			newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
+
 			h.add(newItemText);
 		}
 		return h;
@@ -2250,11 +2360,46 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		}
 		return h;
 	}
+	
+	// EMI ItemText attachments
+	public Set prepareItemTextAttachmentSet(ItemText newItemText,
+			Set itemTextAttachmentSet, String protocol) {
+		HashSet h = new HashSet();
+		Iterator o = itemTextAttachmentSet.iterator();
+		while (o.hasNext()) {
+			ItemTextAttachment itemTextAttachment = (ItemTextAttachment) o.next();
+			try {
+				// create a copy of the resource
+				AssessmentService service = new AssessmentService();
+				ContentResource cr_copy = service.createCopyOfContentResource(
+						itemTextAttachment.getResourceId(), itemTextAttachment
+								.getFilename());
+				// get relative path
+				String url = getRelativePath(cr_copy.getUrl(), protocol);
 
+				ItemTextAttachment newItemTextAttachment = new ItemTextAttachment(null,
+						newItemText, cr_copy.getId(), itemTextAttachment.getFilename(),
+						itemTextAttachment.getMimeType(), itemTextAttachment
+								.getFileSize(),
+						itemTextAttachment.getDescription(), url, itemTextAttachment
+								.getIsLink(), itemTextAttachment.getStatus(),
+						itemTextAttachment.getCreatedBy(), itemTextAttachment
+								.getCreatedDate(), itemTextAttachment
+								.getLastModifiedBy(), itemTextAttachment
+								.getLastModifiedDate());
+				h.add(newItemTextAttachment);
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+			}
+		}
+		return h;
+	}
+	
 	public Set prepareItemAttachmentSet(ItemData newItem,
 			Set itemAttachmentSet, String protocol) {
 		return prepareItemAttachmentSet(newItem, itemAttachmentSet, protocol, null);
 	}
+
 	public Set prepareSectionAttachmentSet(SectionData newSection,
 			Set sectionAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
@@ -2333,7 +2478,9 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			Answer answer = (Answer) l.next();
 			Answer newAnswer = new Answer(newItemText, answer.getText(), answer
 					.getSequence(), answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
+					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), 
+					//answer.getCorrectOptionLabels(), 
+					null);
 			Set newAnswerFeedbackSet = prepareAnswerFeedbackSet(newAnswer,
 					answer.getAnswerFeedbackSet());
 			newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

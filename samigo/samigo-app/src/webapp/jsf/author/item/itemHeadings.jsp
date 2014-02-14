@@ -23,6 +23,7 @@ Headings for item edit pages, needs to have msg=AuthorMessages.properties.
 **********************************************************************************/
 --%>
 -->
+<!-- Core files -->
 <script type="text/JavaScript">
 function changeTypeLink(field){
 
@@ -37,6 +38,11 @@ for (i=0; i<document.links.length; i++) {
 document.links[newindex].onclick();
 }
 
+//Display the EMI question example
+function displayEMIHelp(){
+	window.open('../../../../../../samigo-app/emi/help.txt', '_blank', 'location=no,menubar=no,status=no,toolbar=no');
+}
+//-->
 </script>
 <h:form id="itemFormHeading">
 <%-- The following hidden fields echo some of the data in the item form
@@ -155,6 +161,13 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
 <h:commandLink id="hiddenlink" action="#{itemauthor.doit}" value="">
 </h:commandLink>
 
+&nbsp;
+<h:outputLink title="#{authorMessages.example_emi_question}" value="#" rendered="#{itemauthor.currentItem.itemType == 14}" 
+		onclick="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" 
+		onkeypress="javascript:window.open('/samigo-app/jsf/author/item/emiWhatsThis.faces','EMIWhatsThis','width=800,height=660,scrollbars=yes, resizable=yes');" >
+	<h:outputText  value=" (#{authorMessages.example_emi_question})"/>
+</h:outputLink>
+
 <h:message rendered="#{questionpool.importToAuthoring == 'true' && itemauthor.target == 'assessment'}" for="changeQType1" infoClass="messageSamigo" warnClass="validation" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 <h:message rendered="#{questionpool.importToAuthoring == 'false' && itemauthor.target == 'assessment'}" for="changeQType2" infoClass="messageSamigo" warnClass="messageSamigo" errorClass="messageSamigo" fatalClass="messageSamigo"/>
 </div>
@@ -177,6 +190,7 @@ listener set selectFromQuestionPool, eliminating the rendered attribute
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 7}" value="#{authorMessages.audio_recording}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 6}" value="#{authorMessages.file_upload}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 10}" value="#{authorMessages.import_from_q}"/>
+     <h:outputText rendered="#{itemauthor.currentItem.itemType== 14}" value="#{authorMessages.extended_matching_items}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 13}" value="#{authorMessages.matrix_choices_surv}"/>
      <h:outputText rendered="#{itemauthor.currentItem.itemType== 15}" value="#{authorMessages.calculated_question}"/><!-- // CALCULATED_QUESTION -->
    </b>

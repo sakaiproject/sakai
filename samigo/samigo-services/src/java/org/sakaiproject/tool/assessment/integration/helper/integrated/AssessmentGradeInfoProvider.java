@@ -36,6 +36,8 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProviderCompat;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
@@ -60,10 +62,16 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     private GradebookExternalAssessmentService geaService;
     private UserDirectoryService userDirectoryService;
     private SiteService siteService;
+    private MemoryService memoryService;
 
+    private Cache groupedCache;
+    private Cache pubAssessmentCache;
+    
     public void init() {
         log.info("INIT and Register Samigo AssessmentGradeInfoProvider");
         geaService.registerExternalAssignmentProvider(this);
+        groupedCache = memoryService.newCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.groupedCache");
+        pubAssessmentCache = memoryService.newCache("org.sakaiproject.tool.assessment.integration.helper.integrated.AssessmentGradeInfoProvider.pubAssessmentCache");
     }
 
     public void destroy() {
@@ -75,17 +83,28 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return "samigo";
     }
 
+    
     private PublishedAssessmentIfc getPublishedAssessment(String id) {
+
+    	if (pubAssessmentCache.containsKey(id)) {
+    		if (log.isDebugEnabled()) {
+    			log.debug("returning assesment " + id + " from cache");
+    		}
+    		return (PublishedAssessmentIfc)pubAssessmentCache.get(id);
+    	}
+
         PublishedAssessmentService pas = new PublishedAssessmentService();
         PublishedAssessmentIfc a;
         try {
             a = pas.getPublishedAssessment(id);
+            pubAssessmentCache.put(id, a);
         } catch (Exception e) {
             // NumberFormatException is thrown on non-numeric IDs
             if (log.isDebugEnabled()) {
                 log.debug("Assessment lookup failed for ID: " + id + " -- " + e.getMessage());
             }
             a = null;
+            pubAssessmentCache.put(id, null);
         }
         return a;
     }
@@ -97,10 +116,19 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
         return getPublishedAssessment(id) != null;
     }
 
+    
     public boolean isAssignmentGrouped(String id) {
         if (log.isDebugEnabled()) {
             log.debug("Samigo provider isAssignmentGrouped: " + id);
         }
+        
+        if (groupedCache.containsKey(id)) {
+        	if (log.isDebugEnabled()) {
+        		log.debug("returning grouped value from cache: " + id);
+        	}
+        	return (Boolean)groupedCache.get(id);
+        }
+        
         PublishedAssessmentService pas = new PublishedAssessmentService();
         boolean grouped = false;
         try {
@@ -111,6 +139,7 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
                 log.debug("Assignment lookup failed for ID: " + id + " -- " + e.getMessage());
             }
         }
+        groupedCache.put(id, grouped);
         return grouped;
     }
 
@@ -388,5 +417,9 @@ public class AssessmentGradeInfoProvider implements ExternalAssignmentProvider, 
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
+    
+    public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
 }
 

@@ -13,6 +13,7 @@
 
 <itemData>
   <ident><xsl:value-of select="//item/@ident" /></ident>
+  <label><xsl:value-of select="//item/@label" /></label>
   <title><xsl:value-of select="//item/@title" /></title>
   <duration><xsl:value-of select="//item/duration" /></duration>
   <instruction></instruction>
@@ -20,6 +21,7 @@
   <createdDate></createdDate>
   <lastModifiedBy></lastModifiedBy>
   <lastModifiedDate></lastModifiedDate>
+  <presentationLabel><xsl:value-of select="//item/presentation/@label" /></presentationLabel>
   <score>
     <xsl:value-of
       select="//resprocessing/outcomes/decvar[@varname='SCORE']/@maxvalue"/>

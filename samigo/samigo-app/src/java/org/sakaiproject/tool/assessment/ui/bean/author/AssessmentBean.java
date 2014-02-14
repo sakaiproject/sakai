@@ -63,7 +63,7 @@ public class AssessmentBean  implements Serializable {
   private String assessmentId;
   private String title;
   // ArrayList of SectionContentsBean
-  private ArrayList sections = new ArrayList(); // this contains list of SectionFacde
+  private List<SectionContentsBean> sections = new ArrayList<SectionContentsBean>(); // this contains list of SectionFacde
   private ArrayList sectionList = new ArrayList(); // this contains list of javax.faces.model.SelectItem
   private ArrayList otherSectionList = new ArrayList(); // contains SectionItem of section except the current section
   private ArrayList partNumbers = new ArrayList();
@@ -99,10 +99,10 @@ public class AssessmentBean  implements Serializable {
       this.title = assessment.getTitle();
 
       // work out the question side & total point
-      this.sections = new ArrayList();
-      ArrayList sectionArray = assessment.getSectionArraySorted();
+      this.sections = new ArrayList<SectionContentsBean>();
+      List<? extends SectionDataIfc> sectionArray = assessment.getSectionArraySorted();
       for (int i=0; i<sectionArray.size(); i++){
-        SectionDataIfc section = (SectionDataIfc)sectionArray.get(i);
+        SectionDataIfc section = sectionArray.get(i);
         SectionContentsBean sectionBean = new SectionContentsBean(section);
         this.sections.add(sectionBean);
       }
@@ -132,7 +132,7 @@ public class AssessmentBean  implements Serializable {
     this.title = title;
   }
 
-  public ArrayList getSections() {
+  public List<SectionContentsBean> getSections() {
     return sections;
   }
 
@@ -243,12 +243,12 @@ public class AssessmentBean  implements Serializable {
    * This set a list of SelectItem (sectionId, title) for selection box
    * @param list
    */
-  public void setSectionList(ArrayList list){
+  public void setSectionList(List<? extends SectionDataIfc> list){
     //this.assessmentTemplateIter = new AssessmentTemplateIteratorFacade(list);
     this.sectionList = new ArrayList();
     try{
       for (int i=0; i<list.size();i++){
-        SectionDataIfc f = (SectionDataIfc) list.get(i);
+        SectionDataIfc f = list.get(i);
         // sorry, cannot do f.getAssessmentTemplateId() 'cos such call requires
         // "data" which we do not have in this case. The template list parsed
         // to this method contains merely assesmentBaseId (in this case is the templateId)

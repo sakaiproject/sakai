@@ -334,6 +334,10 @@
       <value>true</value>
     </managed-property>
     <managed-property>
+      <property-name>showExtendedMatchingItems</property-name>
+      <value>true</value>
+    </managed-property>
+    <managed-property>
       <property-name>selectFromQuestionBank</property-name>
       <value>false</value>
     </managed-property>
@@ -1010,6 +1014,10 @@
       <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
     </navigation-case>
     <navigation-case>
+      <from-outcome>emiItem</from-outcome>
+      <to-view-id>/jsf/author/item/extendedMatchingItems.jsp</to-view-id>
+    </navigation-case>
+    <navigation-case>
       <from-outcome>matrixChoicesSurveyItem</from-outcome>
       <to-view-id>/jsf/author/item/matrixChoicesSurvey.jsp</to-view-id>
     </navigation-case>
@@ -1406,6 +1414,5 @@
 			org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter
 		</converter-class>
 	</converter>
-
 
 </faces-config>

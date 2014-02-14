@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -74,7 +75,7 @@ public class PublishedAssessmentFacade
   private EvaluationModelIfc publishedEvaluationModel;
   private AssessmentFeedbackIfc publishedFeedback;
   private Set publishedMetaDataSet;
-  private HashMap publishedMetaDataMap = new HashMap();
+  private Map<String, String> publishedMetaDataMap = new HashMap<String, String>();
   private Set publishedSectionSet;
   private Set publishedSecuredIPAddressSet;
   // the following properties is added for the "Convenient Constructor"
@@ -98,8 +99,6 @@ public class PublishedAssessmentFacade
   private int submittedCount;
   private Date lastNeedResubmitDate;
   private boolean activeStatus;
-  
-  // added by gopalrc Nov 2007
   private String releaseToGroups;
   private ArrayList releaseToGroupsList = new ArrayList();
   private int enrolledStudentCount;
@@ -117,7 +116,6 @@ public class PublishedAssessmentFacade
   }
 
   // constructor that whole min. info, used for listing
-  // amended by gopalrc Nov 2007 to include releaseToGroups
   public PublishedAssessmentFacade(Long id, String title, String releaseTo,
                                  Date startDate, Date dueDate, String releaseToGroups){
 	  this(id, title, releaseTo, startDate, dueDate, releaseToGroups, null, null);
@@ -146,7 +144,7 @@ public class PublishedAssessmentFacade
 	  this.status = status;
 	  this.lastModifiedDate = lastModifiedDate;
 	  this.lastModifiedBy = lastModifiedBy;
-	  this.releaseToGroups = releaseToGroups; // added by gopalrc Nov 2007
+	  this.releaseToGroups = releaseToGroups;
 	  if (releaseToGroups != null && !releaseToGroups.trim().equals("")) {
 		  setReleaseToGroupsList();
 	  }
@@ -697,7 +695,7 @@ public class PublishedAssessmentFacade
     Iterator iter = this.publishedSectionSet.iterator();
     while (iter.hasNext()){
       SectionDataIfc s = (SectionDataIfc) iter.next();
-      ArrayList list = s.getItemArray();
+      List<ItemDataIfc> list = s.getItemArray();
       Iterator iter2 = null;
       if ((s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE)!=null) && (s.getSectionMetaDataByLabel(SectionDataIfc.AUTHOR_TYPE
 ).equals(SectionDataIfc.RANDOM_DRAW_FROM_QUESTIONPOOL.toString())))
@@ -761,10 +759,6 @@ public class PublishedAssessmentFacade
 	    return (String)this.publishedMetaDataMap.get(HASMETADATAFORQUESTIONS);
   }
 
-  /**
-   * added by gopalrc - Nov 2007
-   * @return
-   */
   public String getReleaseToGroups() {
 	    return this.releaseToGroups;
   }

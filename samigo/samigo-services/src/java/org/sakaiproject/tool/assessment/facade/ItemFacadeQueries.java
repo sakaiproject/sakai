@@ -496,7 +496,7 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
 	  try {
 		  item = (ItemData) getHibernateTemplate().load(ItemData.class, itemId);
 	  } catch (DataAccessException e) {
-		  log.warn("unable to retrieve item " + itemId + " due to:" + e);
+		  log.warn("unable to retrieve item " + itemId + " due to:", e);
 		  return null;
 	  }
 	  return new ItemFacade(item);

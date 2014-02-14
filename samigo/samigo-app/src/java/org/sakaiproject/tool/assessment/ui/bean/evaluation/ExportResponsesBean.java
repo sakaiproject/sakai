@@ -72,7 +72,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	 */
 	private static final long serialVersionUID = 2854656853283125977L;
 	/**
-	 * gopalrc - Jan 2008
 	 * Marks the beginning of each new sheet.
 	 * If absent, treat as a single-sheet workbook. 
 	 */
@@ -164,15 +163,7 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
 	
 	public void exportExcel(ActionEvent event){
         log.debug("exporting as Excel: assessment id =  " + getAssessmentId());
-        
-        /*
-        SpreadsheetUtil.downloadSpreadsheetData(getSpreadsheetData(), 
-        		getDownloadFileName(), 
-        		new SpreadsheetDataFileWriterXls());
-		*/
-        
-        // changed from above by gopalrc - Jan 2008
-        // to allow local customization of spreadsheet output
+        // allow local customization of spreadsheet output
         FacesContext faces = FacesContext.getCurrentInstance();
         HttpServletResponse response = (HttpServletResponse)faces.getExternalContext().getResponse();
         response.reset();	// Eliminate the added-on stuff
@@ -186,13 +177,10 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
     	TotalScoresBean totalScores = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     	Map useridMap = totalScores.getUserIdMap(TotalScoresBean.CALLED_FROM_EXPORT_LISTENER);
     	
-        // gopalrc Dec 2007
         HistogramListener histogramListener = new HistogramListener();
   	  	Iterator detailedStats = histogramListener.getDetailedStatisticsSpreadsheetData(assessmentId).iterator(); 
-  	  	//boolean showPartAndTotalScoreSpreadsheetColumns = (Boolean) detailedStats.next();
   	  	detailedStats.next();
   	  	boolean showPartAndTotalScoreSpreadsheetColumns = true;
-  	  	//boolean showDiscriminationColumn = (Boolean) detailedStats.next();
   		boolean showDetailedStatisticsSheet = (Boolean) detailedStats.next();
   	  	
   	  	String audioMessage = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","audio_message");
@@ -228,7 +216,6 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   	  	}
 
         PublishedAssessmentService pubService = new PublishedAssessmentService();
-  	  	// gopalrc - Nov 2007
         if (showPartAndTotalScoreSpreadsheetColumns) {
 	  	  	int numberOfSections = pubService.getPublishedSectionCount(Long.valueOf(assessmentId)).intValue();
 	  	  	if (numberOfSections > 1) {
@@ -247,21 +234,18 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
   	  	
   	    list.add(0,headerList);
   	  	
-        // gopalrc - Jan 2008 - New Sheet Marker
   		ArrayList<Object> newSheetList;
   	  	newSheetList = new ArrayList<Object>();
   	  	newSheetList.add(NEW_SHEET_MARKER);
   	  	newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","responses"));
   	  	list.add(0, newSheetList);
 
-        // gopalrc - Jan 2008 - New Sheet Marker
   	  	if (showDetailedStatisticsSheet) {
   	  		newSheetList = new ArrayList<Object>();
   	  		newSheetList.add(NEW_SHEET_MARKER);
   	  		newSheetList.add(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","item_analysis"));
   	  		list.add(newSheetList);
 
-  	  		// gopalrc Dec 2007
         	while (detailedStats.hasNext()) {
         		list.add((List)detailedStats.next());
         	}

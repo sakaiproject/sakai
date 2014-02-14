@@ -38,11 +38,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -54,14 +54,17 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Expression;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
@@ -82,6 +85,7 @@ import org.sakaiproject.tool.assessment.data.ifc.grading.StudentGradingSummaryIf
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
+import org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob;
 import org.sakaiproject.tool.assessment.services.GradebookServiceException;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceHelper;
@@ -1552,6 +1556,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
   public void saveOrUpdateAll(Collection c) {
     int retryCount = persistenceHelper.getRetryCount().intValue();
+    
+    c.removeAll(Collections.singleton(null));
     while (retryCount > 0){ 
       try {
         getHibernateTemplate().saveOrUpdateAll(c);
@@ -1758,6 +1764,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 	    return assessmentGradings;
   }
+  
+	public List<ItemGradingData> getAllItemGradingDataForItemInGrading(
+			final Long assesmentGradingId,  final Long publishedItemId) {
+		if (assesmentGradingId == null) {
+			throw new IllegalArgumentException("assesmentGradingId cant' be null");
+		}
+		
+		if (publishedItemId == null) {
+			throw new IllegalArgumentException("publishedItemId cant' be null");
+		}
+		
+		List assessmentGradings = getSession().createCriteria(ItemGradingData.class)
+		.add(Restrictions.eq("assessmentGradingId", assesmentGradingId))
+		.add(Restrictions.eq("publishedItemId", publishedItemId)).list();
+		
+		return assessmentGradings;
+	}
   
   public HashMap getSiteSubmissionCountHash(final String siteId) {
 	  HashMap siteSubmissionCountHash = new HashMap();
@@ -2080,7 +2103,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  ArrayList finalList = new ArrayList(2);
 	  PublishedAssessmentService pubService = new PublishedAssessmentService();
 	  
-	  // gopalrc - Nov 2007
 	  HashSet publishedAssessmentSections = pubService.getSectionSetForAssessment(Long.valueOf(publishedAssessmentId));
 	  Double zeroDouble = new Double(0.0);
 	  HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pubService.getPublishedAssessment(publishedAssessmentId));
@@ -2105,7 +2127,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	  Iterator assessmentGradingIter = list.iterator();	  
 	  while(assessmentGradingIter.hasNext()) {
 		  
-		  // gopalrc Nov 2007
 		  // create new section-item-scores structure for this assessmentGrading
 		  Iterator sectionsIter = publishedAssessmentSections.iterator();
 		  HashMap sectionItems = new HashMap();
@@ -2170,7 +2191,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 
 		  if (canBeExported) {
-			  //gopalrc - Dec 2007
 			  int sectionScoreColumnStart = responseList.size();
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
 				  Double finalScore = assessmentGradingData.getFinalScore();
@@ -2232,16 +2252,16 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  //boolean isAudioFileUpload = false;
 				  boolean isFinFib = false;
 
-				  // gopalrc - Dec 2007
 				  double itemScore = 0.0d;
 
                   //Add the missing sequences!
+                                  //To manage emi answers, could help with others too
+                                  Map<Long, String> emiAnswerText = new TreeMap<Long, String>();
 				  for (Object ooo: l) {
 					  grade = (ItemGradingData)ooo;
 					  if (grade == null || EmptyItemGrading.class.isInstance(grade)) {
 						  continue;
 					  }
-					  // gopalrc - Dec 2007
 					  if (grade!=null && grade.getAutoScore()!=null) {
 						  itemScore += grade.getAutoScore().doubleValue();
 					  }
@@ -2262,7 +2282,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
 							  if (answer != null) {
-								  sequence = answer.getSequence();
+							      sequence = answer.getSequence();
 							  }
 						  }
 
@@ -2272,7 +2292,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  }
 						  thistext = sequence + ": " + temptext;
 
-						  if (count == 0)
+                                                  if (count == 0)
 							  maintext = thistext;
 						  else
 							  maintext = maintext + "|" + thistext;
@@ -2307,6 +2327,49 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 							  maintext = maintext + "|" + thistext;
 
 						  count++;
+					  }
+					  else if (typeId.equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) { 
+						  log.debug("EXTENDED_MATCHING_ITEMS");
+						  String thistext = "";
+
+						  // for some question types we have another text field
+						  Long answerid = grade.getPublishedAnswerId();
+						  String temptext = "No Answer";
+						  Long sequence = null;
+
+						  if (answerid != null) {
+							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
+							  if (answer != null) {
+							  	temptext = answer.getLabel();
+							  	if (temptext == null) {
+									  temptext = "No Answer";
+							  	}
+							  	sequence = answer.getItemText().getSequence();
+							  }
+						  }
+
+						  if (sequence == null) {
+							  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+							  if (itemTextIfc != null) {
+							  	sequence = itemTextIfc.getSequence();
+							  }
+						  }
+
+						  if (sequence != null) {
+                              			  	thistext = emiAnswerText.get(sequence);
+                              			  	if(thistext == null){
+                                 				thistext = temptext;
+                              			  	}else{
+                              			 		thistext = thistext + temptext;
+                              			  	}
+                              			  	emiAnswerText.put(sequence, thistext);
+						  } else {
+							// Orphaned answer: the answer item to which it refers was removed after the assessment was taken,
+							// as a result of editing the published assessment. This behaviour should be fixed, i.e. it should
+							// not be possible to get orphaned answer item references in the database.
+							sequence = new Long(99);
+							emiAnswerText.put(sequence, "Item Removed");
+						  }
 					  }
 					  else if (typeId.equals(TypeIfc.AUDIO_RECORDING)) {
 						  log.debug("AUDIO_RECORDING");
@@ -2363,6 +2426,18 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  }
 				  } // inner for - answers
 
+
+                                  if(!emiAnswerText.isEmpty()){
+                                    if(maintext == null){
+                                        maintext = "";
+                                    }
+                                    for(Entry<Long, String> entry: emiAnswerText.entrySet()){
+                                        maintext = maintext + "|" + entry.getKey().toString() + ":" + entry.getValue();
+                                    }
+                                    if(maintext.startsWith("|")){
+                                        maintext = maintext.substring(1);
+                                    }
+                                  }
                   Integer sectionSequenceNumber = null;
                   if(grade == null || EmptyItemGrading.class.isInstance(grade)){
                   	sectionSequenceNumber = EmptyItemGrading.class.cast(grade).getSectionSequence();
@@ -2409,7 +2484,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  }	    		   
 			  } // outer for - questions
 
-			  // gopalrc - Dec 2007
 			  if (showPartAndTotalScoreSpreadsheetColumns) {
 				  if (sectionScores.size() > 1) {
 					  Iterator keys = sectionScores.keySet().iterator();
@@ -2455,7 +2529,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   
   
   /**
-   * gopalrc - added Dec 2007
    * @param sectionItems
    * @param sectionScores
    * @param grade
@@ -2505,36 +2578,46 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			Long aanswerid = agrade.getPublishedAnswerId();
 			Long banswerid = bgrade.getPublishedAnswerId();
 
+			AnswerIfc aanswer=null;
+			AnswerIfc banswer=null;
+			
 			if (aanswerid != null && banswerid != null) {
-				AnswerIfc aanswer = (AnswerIfc) publishedAnswerHash
+				aanswer = (AnswerIfc) publishedAnswerHash
 						.get(aanswerid);
-				AnswerIfc banswer = (AnswerIfc) publishedAnswerHash
+				banswer = (AnswerIfc) publishedAnswerHash
 						.get(banswerid);
 
 				if (aanswer == null || banswer == null) {
-					return 0;
+					return (aanswer == null ? -1: 1);
 				}
 				else {
-					if (aanswer != null) {
-						aindex = aanswer.getSequence();
-					} else {
-						return -1;
+					//For EMI, use this test
+					if (aanswer.getItem() != null &&
+							TypeIfc.EXTENDED_MATCHING_ITEMS.equals(aanswer.getItem().getTypeId()) &&
+							banswer.getItem() != null &&
+							TypeIfc.EXTENDED_MATCHING_ITEMS.equals(banswer.getItem().getTypeId())) {
+						Long aTextSeq = aanswer.getItemText().getSequence();
+						Long bTextSeq = banswer.getItemText().getSequence();
+						if (!aTextSeq.equals(bTextSeq)) {
+							return aTextSeq.compareTo(bTextSeq);
+						}
+						else {
+							return aanswer.getLabel().compareToIgnoreCase(banswer.getLabel());
+						}
 					}
-					if (banswer != null) {
-						bindex = banswer.getSequence();
-					} else {
-						return 1;
-					}
+					
+					aindex = aanswer.getSequence();
+					bindex = banswer.getSequence();
 				}
 			}
-
-			if (aindex < bindex)
+			
+			if (aindex < bindex){
 				return -1;
-			else if (aindex > bindex)
+			}else if (aindex > bindex){
 				return 1;
-			else
+			}else{
 				return 0;
-
+			}
 		}
 	}
 

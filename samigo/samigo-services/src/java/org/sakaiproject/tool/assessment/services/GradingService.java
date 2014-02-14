@@ -42,6 +42,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -804,19 +805,19 @@ public class GradingService
       // note that this itemGradingSet is a partial set of answer submitted. it contains only 
       // newly submitted answers, updated answers and MCMR/FIB/FIN answers ('cos we need the old ones to
       // calculate scores for new ones)
-      Set itemGradingSet = data.getItemGradingSet();
+      Set<ItemGradingData> itemGradingSet = data.getItemGradingSet();
       if (itemGradingSet == null)
-        itemGradingSet = new HashSet();
+        itemGradingSet = new HashSet<ItemGradingData>();
       log.debug("****itemGrading size="+itemGradingSet.size());
       
-      List<Object> tempItemGradinglist = new ArrayList<Object>(itemGradingSet);
+      List<ItemGradingData> tempItemGradinglist = new ArrayList<ItemGradingData>(itemGradingSet);
       
       // CALCULATED_QUESTION - if this is a calc question. Carefully sort the list of answers
       if (isCalcQuestion(tempItemGradinglist, publishedItemHash)) {
-	      Collections.sort(tempItemGradinglist, new Comparator(){
-	    	  public int compare(Object o1, Object o2) {
-	    		  ItemGradingData gradeData1 = (ItemGradingData) o1;
-	    		  ItemGradingData gradeData2 = (ItemGradingData) o2;
+	      Collections.sort(tempItemGradinglist, new Comparator<ItemGradingData>(){
+	    	  public int compare(ItemGradingData o1, ItemGradingData o2) {
+	    		  ItemGradingData gradeData1 = o1;
+	    		  ItemGradingData gradeData2 = o2;
 	    		  
 	    		  // protect against blank ones in samigo initial setup.
 	    		  if (gradeData1 == null) return -1; 
@@ -828,16 +829,19 @@ public class GradingService
 	      });
       }
       
-      Iterator iter = tempItemGradinglist.iterator();
+      Iterator<ItemGradingData> iter = tempItemGradinglist.iterator();
 
-      // fibAnswersMap contains a map of HashSet of answers for a FIB item,
+      // fibEmiAnswersMap contains a map of HashSet of answers for a FIB or EMI item,
       // key =itemid, value= HashSet of answers for each item.  
-      // This is used to keep track of answers we have already used for 
+      // For FIB: This is used to keep track of answers we have already used for
       // mutually exclusive multiple answer type of FIB, such as 
       // The flag of the US is {red|white|blue},{red|white|blue}, and {red|white|blue}.
       // so if the first blank has an answer 'red', the 'red' answer should 
-      // not be included in the answers for the other mutually exclusive blanks. 
-      HashMap fibAnswersMap= new HashMap();
+      // not be included in the answers for the other mutually exclusive blanks.
+      // For EMI: This keeps track of how many answers were given so we don't give
+      // extra marks for to many answers.
+      Map fibEmiAnswersMap = new HashMap();
+      Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap = new HashMap<Long, Map<Long,Set<EMIScore>>>();
       
       //change algorithm based on each question (SAK-1930 & IM271559) -cwen
       HashMap totalItems = new HashMap();
@@ -847,7 +851,7 @@ public class GradingService
       int calcQuestionAnswerSequence = 1; // sequence of answers for CALCULATED_QUESTION
       while(iter.hasNext())
       {
-        ItemGradingData itemGrading = (ItemGradingData) iter.next();
+        ItemGradingData itemGrading = iter.next();
         
         // CALCULATED_QUESTION - We increment this so we that calculated 
         // questions can know where we are in the sequence of answers.
@@ -872,7 +876,7 @@ public class GradingService
         //itemGrading.setSubmittedDate(new Date());
         itemGrading.setAgentId(agent);
         itemGrading.setOverrideScore(Double.valueOf(0));
-        
+
         if (itemType == 5 && itemGrading.getAnswerText() != null) {
         	String processedAnswerText = itemGrading.getAnswerText().replaceAll("\r", "").replaceAll("\n", "");
         	if (processedAnswerText.length() > 32000) {
@@ -885,7 +889,7 @@ public class GradingService
         // note that totalItems & fibAnswersMap would be modified by the following method
         try {
         	autoScore = getScoreByQuestionType(itemGrading, item, itemType, publishedItemTextHash, 
-                               totalItems, fibAnswersMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence );
+                               totalItems, fibEmiAnswersMap, emiScoresMap, publishedAnswerHash, regrade, calcQuestionAnswerSequence);
         }
         catch (FinFormatException e) {
         	autoScore = 0d;
@@ -903,7 +907,7 @@ public class GradingService
         }
         
         log.debug("**!regrade, autoScore="+autoScore);
-        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType))
+        if (!(TypeIfc.MULTIPLE_CORRECT).equals(itemType) && !(TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType))
           totalItems.put(itemId, Double.valueOf(autoScore));
         
         if (regrade && TypeIfc.AUDIO_RECORDING.equals(itemType))
@@ -925,6 +929,8 @@ public class GradingService
       }
       
       log.debug("****x3. "+(new Date()).getTime());
+      
+      List<ItemGradingData> emiItemGradings = new ArrayList<ItemGradingData>();
       // the following procedure ensure total score awarded per question is no less than 0
       // this probably only applies to MCMR question type - daisyf
       iter = itemGradingSet.iterator();
@@ -937,7 +943,7 @@ public class GradingService
       double itemScore = -1;
       while(iter.hasNext())
       {
-        ItemGradingData itemGrading = (ItemGradingData) iter.next();
+        ItemGradingData itemGrading = iter.next();
         itemId = itemGrading.getPublishedItemId();
         ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
       //SAM-1724 it's possible the item is not in the hash -DH
@@ -950,6 +956,13 @@ public class GradingService
         mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
         itemScore = item.getScore();
         //double autoScore = (double) 0;
+        
+        // this does not apply to EMI
+        // just create a short-list and handle differently below
+        if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType2)) {
+            emiItemGradings.add(itemGrading);
+        	continue;
+        }
 
         double eachItemScore = ((Double) totalItems.get(itemId)).doubleValue();
         if((eachItemScore < 0) && !((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)))
@@ -966,6 +979,57 @@ public class GradingService
         	mcmcAllOrNothingCheck.put(itemId, new Double[]{accumulatedScore, item.getScore()});
         }
       }
+      
+      log.debug("****x3.1 "+(new Date()).getTime());
+
+      // Loop 1: this procedure ensure total score awarded per EMI item
+      // is correct
+      // For emi's there are multiple gradings per item per question,
+      // for the grading we only know scores after grading so we need
+      // to reset the grading score here to the correct scores
+      // this currently only applies to EMI question type
+      if (emiItemGradings != null && !emiItemGradings.isEmpty()) {
+    	  Map<Long, Map<Long, Map<Long, EMIScore>>> emiOrderedScoresMap = reorderEMIScoreMap(emiScoresMap);
+    	  iter = emiItemGradings.iterator();
+    	  while (iter.hasNext()) {
+    		  ItemGradingData itemGrading = iter.next();
+
+    		  //SAM-2016 check for Nullity
+    		  if (itemGrading == null) {
+    			  log.warn("Map contains null itemgrading!");
+    			  continue;
+    		  }
+    		  
+    		  Map<Long, Map<Long, EMIScore>> innerMap = emiOrderedScoresMap
+    				  .get(itemGrading.getPublishedItemId()); 
+    		  
+    		  if (innerMap == null) {
+    			  log.warn("Inner map is empty!");
+    			  continue;
+    		  }
+    		  
+    		  Map<Long, EMIScore> scoreMap = innerMap
+    				  .get(itemGrading.getPublishedItemTextId());
+    		  
+    		  if (scoreMap == null) {
+    			  log.warn("Score map is empty!");
+    			  continue;
+    		  }
+    		  
+     		  EMIScore score = scoreMap
+    				  .get(itemGrading.getPublishedAnswerId());
+    		if (score == null) {
+    			//its possible! SAM-2016 
+    			log.warn("we can't find a score for answer: " + itemGrading.getPublishedAnswerId());
+    			continue;
+    		}
+    		  itemGrading.setAutoScore(emiOrderedScoresMap
+    				  .get(itemGrading.getPublishedItemId())
+    				  .get(itemGrading.getPublishedItemTextId())
+    				  .get(itemGrading.getPublishedAnswerId()).effectiveScore);
+    	  }
+      }
+      
       // if it's MCMS and Not Partial Credit and the score isn't 100% (totalAutoScoreCheck != itemScore),
       // that means the user didn't answer all of the correct answers only.  
       // We need to set their score to 0 for all ItemGrading items
@@ -974,7 +1038,7 @@ public class GradingService
     		  //reset all scores to 0 since the user didn't get all correct answers
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
-    			  ItemGradingData itemGrading = (ItemGradingData) iter.next();
+    			  ItemGradingData itemGrading = iter.next();
     			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
     				  itemGrading.setAutoScore(Double.valueOf(0));
     			  }
@@ -1064,8 +1128,8 @@ public class GradingService
   }
   
   private double getScoreByQuestionType(ItemGradingData itemGrading, ItemDataIfc item,
-                                       Long itemType, HashMap publishedItemTextHash, 
-                                       HashMap totalItems, HashMap fibAnswersMap,
+                                       Long itemType, Map publishedItemTextHash, 
+                                       Map totalItems, Map fibAnswersMap, Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap,
                                        HashMap publishedAnswerHash, boolean regrade,
                                        int calcQuestionAnswerSequence) throws FinFormatException {
     //double score = (double) 0;
@@ -1097,7 +1161,7 @@ public class GradingService
               break;
       case 2: // MC Multiple Correct
               ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemGrading.getPublishedItemTextId());
-              ArrayList answerArray = itemText.getAnswerArray();
+              List answerArray = itemText.getAnswerArray();
               int correctAnswers = 0;
               if (answerArray != null){
                 for (int i =0; i<answerArray.size(); i++){
@@ -1197,6 +1261,9 @@ public class GradingService
           }
           break;
 
+      case 14: // EMI
+    	  autoScore = getEMIScore(itemGrading, itemId, totalItems, emiScoresMap, publishedItemTextHash, publishedAnswerHash);
+          break;
       case 5: // SAQ
       case 6: // file upload
       case 7: // audio recording
@@ -1218,14 +1285,14 @@ public class GradingService
     return autoScore;
   }
 
-  /**
+/**
    * This grades multiple choice and true false questions.  Since
    * multiple choice/multiple select has a separate ItemGradingData for
    * each choice, they're graded the same way the single choice are.
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public double getAnswerScore(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getAnswerScore(ItemGradingData data, Map publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null) {
@@ -1237,7 +1304,7 @@ public class GradingService
     {
     	// return (double) 0;
     	// Para que descuente (For discount)
-    	if ((TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
+    	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
     		return (Math.abs(answer.getDiscount().doubleValue()) * ((double) -1));
     	}else{
     		return (double) 0;
@@ -1397,8 +1464,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 -. multiple answer, mutually exclusive, wildcard , case insensitive
 
   */
-  
-  public double getFIBScore(ItemGradingData data, HashMap fibmap,  ItemDataIfc itemdata, HashMap publishedAnswerHash)
+  public double getFIBScore(ItemGradingData data, Map fibmap,  ItemDataIfc itemdata, Map publishedAnswerHash)
   {
     String studentanswer = "";
     boolean matchresult = false;
@@ -1556,8 +1622,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
     return matchresult;
   }
   
-  
-  public double getFINScore(ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
+  public double getFINScore(ItemGradingData data,  ItemDataIfc itemdata, Map publishedAnswerHash) throws FinFormatException
   {
 	  data.setIsCorrect(Boolean.FALSE);
 	  double totalScore = (double) 0;
@@ -1570,7 +1635,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
   }
 	  
-  public boolean getFINResult (ItemGradingData data,  ItemDataIfc itemdata, HashMap publishedAnswerHash) throws FinFormatException
+  public boolean getFINResult (ItemGradingData data,  ItemDataIfc itemdata, Map publishedAnswerHash) throws FinFormatException
   {
 	  String studentanswer = "";
 	  boolean range;
@@ -1717,7 +1782,83 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  }
 
 	  return map;
-  }
+	}
+
+  /**
+   * EMI score processing
+   * 
+   */
+	private double getEMIScore(ItemGradingData itemGrading, Long itemId,
+			Map totalItems, Map<Long, Map<Long, Set<EMIScore>>> emiScoresMap,
+			Map publishedItemTextHash, Map publishedAnswerHash) {
+
+		log.debug("getEMIScore( " + itemGrading +", " + itemId);
+		double autoScore = 0.0;
+		if (!totalItems.containsKey(itemId)) {
+			totalItems.put(itemId, new HashMap());
+			emiScoresMap.put(itemId, new HashMap<Long, Set<EMIScore>>());
+		}
+
+		autoScore = getAnswerScore(itemGrading, publishedAnswerHash);
+		AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading
+				.getPublishedAnswerId());
+		if (answer == null) {
+			//its possible we have an orphaned object ...
+			log.warn("could not find answer: " + itemGrading
+					.getPublishedAnswerId() + ", for item " + itemGrading.getItemGradingId());
+			return 0.0;
+		}
+		Long itemTextId = itemGrading.getPublishedItemTextId();
+
+		// update the fibEmiAnswersMap so we can keep track
+		// of how many answers were given
+		Map<Long, Set<EMIScore>> emiItemScoresMap = emiScoresMap.get(itemId);
+		// place the answer scores in a sorted set.
+		// so now we can mark the correct ones and discount the extra incorrect
+		// ones.
+		Set<EMIScore> scores = null;
+		if (emiItemScoresMap.containsKey(itemTextId)) {
+			scores = emiItemScoresMap.get(itemTextId);
+		} else {
+			scores = new TreeSet<EMIScore>();
+			emiItemScoresMap.put(itemTextId, scores);
+		}
+		scores.add(new EMIScore(itemId, itemTextId, itemGrading
+				.getPublishedAnswerId(), answer.getIsCorrect(), autoScore));
+
+		ItemTextIfc itemText = (ItemTextIfc) publishedItemTextHash.get(itemTextId);
+		int numberCorrectAnswers = itemText.getEmiCorrectOptionLabels()
+				.length();
+		Integer requiredCount = itemText.getRequiredOptionsCount();
+		// re-calculate the scores over for the whole item
+		autoScore = 0.0;
+		int c = 0;
+		for (EMIScore s : scores) {
+			c++;
+			s.effectiveScore = 0.0;
+			if (c <= numberCorrectAnswers && c <= requiredCount) {
+				// if correct and in count then add score
+				s.effectiveScore = s.correct ? s.score : 0.0;
+			} else if (c > numberCorrectAnswers) {
+				// if incorrect and over count add discount
+				s.effectiveScore = !s.correct ? s.score : 0.0;
+			}
+			if (autoScore + s.effectiveScore < 0.0) {
+				// the current item tipped it to negative,
+				// we cannot do this, so add zero
+				s.effectiveScore = 0.0;
+			}
+			autoScore += s.effectiveScore;
+		}
+
+		// override score
+		if (itemGrading.getOverrideScore() != null)
+			autoScore += itemGrading.getOverrideScore().doubleValue();
+
+		HashMap totalItemTextScores = (HashMap) totalItems.get(itemId);
+		totalItemTextScores.put(itemTextId, Double.valueOf(autoScore));
+		return autoScore;
+	}
   /**
    * CALCULATED_QUESTION
    * Returns a double score value for the ItemGrading element being scored for a Calculated Question
@@ -1768,8 +1909,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
   }
   
-  
-  public double getTotalCorrectScore(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getTotalCorrectScore(ItemGradingData data, Map publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
     if (answer == null || answer.getScore() == null)
@@ -1963,6 +2103,13 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	      e.printStackTrace();
 	    }
 	    return results;
+  }
+  
+  
+  public List<ItemGradingData> getAllItemGradingDataForItemInGrading(Long assesmentGradingId, Long publihsedItemId) {
+	  List<ItemGradingData> results = new ArrayList<ItemGradingData>();
+	  results = PersistenceService.getInstance().getAssessmentGradingFacadeQueries().getAllItemGradingDataForItemInGrading(assesmentGradingId, publihsedItemId);
+	  return results;
   }
   
   public HashMap getSiteSubmissionCountHash(String siteId) {
@@ -2878,7 +3025,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
    * Choices should be given negative score values if one wants them
    * to lose points for the wrong choice.
    */
-  public double getAnswerScoreMCQ(ItemGradingData data, HashMap publishedAnswerHash)
+  public double getAnswerScoreMCQ(ItemGradingData data, Map publishedAnswerHash)
   {
 	  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());
 	  if (answer == null || answer.getScore() == null) {
@@ -2888,6 +3035,33 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		  return (answer.getItem().getScore().doubleValue()); //--mustansar 
 	  }
 	  return (answer.getItem().getScore().doubleValue()*answer.getPartialCredit().doubleValue())/100d;
+  }
+  
+  /**
+   *  Reoder a map of EMI scores
+   * @param emiScoresMap
+   * @return
+   */
+  private Map<Long, Map<Long, Map<Long, EMIScore>>> reorderEMIScoreMap(Map<Long, Map<Long,Set<EMIScore>>> emiScoresMap){
+	  Map<Long, Map<Long, Map<Long, EMIScore>>> scoresMap = new HashMap<Long, Map<Long, Map<Long, EMIScore>>>();
+	  for(Map<Long,Set<EMIScore>> emiItemScoresMap: emiScoresMap.values()){
+		  for(Set<EMIScore> scoreSet: emiItemScoresMap.values()){
+			  for(EMIScore s: scoreSet){
+				  Map<Long, Map<Long, EMIScore>> scoresItem = scoresMap.get(s.itemId);
+				  if(scoresItem == null){
+					  scoresItem = new HashMap<Long, Map<Long, EMIScore>>();
+					  scoresMap.put(s.itemId, scoresItem);
+				  }
+				  Map<Long, EMIScore> scoresItemText = scoresItem.get(s.itemTextId);
+				  if(scoresItemText == null){
+					  scoresItemText = new HashMap<Long, EMIScore>();
+					  scoresItem.put(s.itemTextId, scoresItemText);
+				  }
+				  scoresItemText.put(s.answerId, s);
+			  }
+		  }
+	  }
+	  return scoresMap;
   }
 	
   	/**
@@ -2922,7 +3096,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	public boolean isDistractor(ItemTextIfc itemText) {
 		// look for items that do not have any correct answers
 		boolean hasCorrectAnswer = false;
-		ArrayList<AnswerIfc> answers = itemText.getAnswerArray();
+		List<AnswerIfc> answers = itemText.getAnswerArray();
 		Iterator<AnswerIfc> answerIter = answers.iterator();
 		while (answerIter.hasNext()) {
 			AnswerIfc answer = answerIter.next();
@@ -2935,4 +3109,84 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	}
 }
 
+/**
+ * A EMI score
+ * @author jsmith
+ *
+ */
+class EMIScore implements Comparable<EMIScore>{
+	long itemId = 0L;
+	long itemTextId = 0L;
+	long answerId = 0L;
+	boolean correct = false;
+	double score = 0.0;
+	double effectiveScore = 0.0;
+	
+	/**
+	 * Create an EMI Score object
+	 * @param itemId
+	 * @param itemTextId
+	 * @param answerId
+	 * @param correct
+	 * @param score
+	 */
+	public EMIScore(Long itemId, Long itemTextId, Long answerId, boolean correct, Double score){
+		this.itemId = itemId == null? 0L : itemId.longValue();
+		this.itemTextId = itemTextId == null? 0L : itemTextId.longValue();
+		this.answerId = answerId == null? 0L : answerId.longValue();
+		this.correct = correct;
+		this.score = score == null? 0L : score.doubleValue();
+	}
+
+	public int compareTo(EMIScore o) {
+		//we want the correct higher scores first
+		if(correct == o.correct){
+			int c = Double.compare(o.score, score);
+			if (c == 0){
+				if(itemId != o.itemId){
+					return (int)(itemId - o.itemId);
+				}
+				if(itemTextId != o.itemTextId){
+					return (int)(itemTextId - o.itemTextId);
+				}
+				if(answerId != o.answerId){
+					return (int)(answerId - o.answerId);
+				}
+				return hashCode() - o.hashCode();
+			}else{
+				return c;
+			}
+		}else{
+			return correct?-1:1;
+		}
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + (int)itemId;
+		result = prime * result + (int)itemTextId;
+		result = prime * result + (int)answerId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) return false;
+		if (this == obj) return true;
+		if (getClass() != obj.getClass()){
+			return false;
+		}
+		EMIScore other = (EMIScore) obj;
+		return (itemId == other.itemId && 
+				itemTextId == other.itemTextId &&
+				answerId == other.answerId);
+	}
+	
+	@Override
+	public String toString() {
+		return itemId + ":" + itemTextId + ":" + answerId + "(" + correct + ":" + score + ":" + effectiveScore + ")";
+	}
+}
 

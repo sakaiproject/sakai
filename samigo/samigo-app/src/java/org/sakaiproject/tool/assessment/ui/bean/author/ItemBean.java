@@ -26,21 +26,22 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.List;
 
 import org.sakaiproject.util.ResourceLoader;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
-import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
 
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -80,6 +81,20 @@ public class ItemBean
   private String corrAnswer;  // store text value for single correct answer, as in true/false , mcsc, also used for essay's model answer
   private ArrayList multipleChoiceAnswers;  // store List of answers multiple choice items, ArrayList of AnswerBean
   private String additionalChoices = "0";  // additonal multiple choice answers to be add. for the select menu
+  private List<AnswerBean> emiAnswerOptions;  // ArrayList of AnswerBean - store List of possible options for an EMI question's anwers
+  private String additionalEmiAnswerOptions = "3";  //Additonal options for an EMI question's answers - Jul 2010 forced to 3, no longer selected from a list
+  private String leadInStatement;
+  private ArrayList emiQuestionAnswerCombinations;  //ArrayList of AnswerBean - store List of possible options for an EMI question's anwers
+  private String additionalEmiQuestionAnswerCombinations = "3";  // additonal options for an EMI question's answers  - Jul 2010 forced to 3, no longer selected from a list
+  private String emiVisibleItems = "0"; //The number of visible EMI items
+  private String emiAnswerOptionsRich;
+  private String emiAnswerOptionsPaste;
+  private String answerOptionsRichCount = "0";
+  private String answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString();
+  
+  public static final int DEFAULT_MAX_NUMBER_EMI_OPTIONS_FOR_UI = 26; 
+  public static final int DEFAULT_MAX_NUMBER_EMI_ITEMS_FOR_UI = 60; //Twice the actual number to allow for javascript add/delete 
+  
   private int totalMCAsnwers;
   private CalculatedQuestionBean calculatedQuestion;
   
@@ -167,14 +182,17 @@ public class ItemBean
     {
 	return outcome;
     }
+ 
     public void setOutcome(String outcome)
     {
 	this.outcome=outcome;
     }
+    
  public String getPoolOutcome()
     {
 	return poolOutcome;
     }
+ 
     public void setPoolOutcome(String poolOutcome)
     {
 	this.poolOutcome=poolOutcome;
@@ -198,6 +216,7 @@ public class ItemBean
   {
     return itemType;
   }
+  
   public void setItemType(String param)
   {
     this.itemType= param;
@@ -208,6 +227,7 @@ public class ItemBean
   {
     return itemText;
   }
+  
   public void setItemText(String itemText)
   {
     this.itemText = itemText;
@@ -321,6 +341,7 @@ public class ItemBean
   {
     return corrAnswer;
   }
+  
   /**
    * set correct answer for True/False
    * @param answers ordered array of correct answers
@@ -462,6 +483,7 @@ public class ItemBean
   {
     this.choiceCorrectArray[n] = correctChoice;
   }
+  
   /**
    * for audio recording
    * @return maximum time for recording
@@ -470,6 +492,7 @@ public class ItemBean
   {
     return maxRecordingTime;
   }
+  
   /**
    * for audio recording
    * @param maxRecordingTime maximum time for recording
@@ -478,6 +501,7 @@ public class ItemBean
   {
     this.maxRecordingTime = maxRecordingTime;
   }
+  
   /**
    * for audio recording
    * @return maximum attempts
@@ -627,6 +651,7 @@ public class ItemBean
   {
     return timeAllowed;
   }
+  
   public void setTimeAllowed(String param)
   {
     this.timeAllowed= param;
@@ -636,6 +661,7 @@ public class ItemBean
   {
     return numAttempts;
   }
+  
   public void setNumAttempts(String param)
   {
     this.numAttempts= param;
@@ -769,6 +795,7 @@ public class ItemBean
   public String getInstruction() {
     return instruction;
   }
+  
   public void setInstruction(String param) {
     this.instruction= param;
   }
@@ -994,7 +1021,6 @@ public class ItemBean
    */
   public void setOrigSection(String param) {
     this.origSection= param;
-
   }
 
   public ArrayList getMultipleChoiceAnswers() {
@@ -1036,32 +1062,6 @@ public class ItemBean
 	}
 
   }
-/*  
-//  this doesn't seem to be used
-  public void addChoices(ValueChangeEvent event) {
-        // build a default list of 4 choices, a, b, c, d,
-	FacesContext context = FacesContext.getCurrentInstance();
-	String newvalue = (String) event.getNewValue();
-	ArrayList list = getMultipleChoiceAnswers(); // get existing list
-	if (list!=null) {
-		// add additional answer bean
-		int currentsize = list.size();
-        	int newlength = currentsize+ new Integer(newvalue).intValue();
-        	for (int i=currentsize; i<newlength; i++){
-                	AnswerBean answerbean = new AnswerBean();
-              		answerbean.setSequence(new Long(i+1));
-                	answerbean.setLabel(AnswerBean.choiceLabels[i]);
-                	list.add(answerbean);
-
-        	}
-        }
-	setMultipleChoiceAnswers(list);
-	setAdditionalChoices("0");
-
-
-
-  }
-*/
 
   public String addChoicesAction() {
         // build a default list of 4 choices, a, b, c, d,
@@ -1322,29 +1322,6 @@ public class ItemBean
     return "matchingItem";
   }
 
-  
-
-
-/* not used
-
-  public ArrayList getMultipleChoiceAnswerSelectList() {
-
-	ArrayList list = getMultipleChoiceAnswers();
-      Iterator iter = list.iterator();
-      while(iter.hasNext())
-      {
-      SelectItem selection = new SelectItem();
-	AnswerBean answerbean = (AnswerBean)iter.next();
-      selection.setLabel(answerbean.getLabel());
-      selection.setValue(answerbean.getLabel());
-      list.add(selection);
-    }
-
-    return list;
-  }
-
-*/
-
    
   /**
    * for fib, case sensitive for grading?
@@ -1475,6 +1452,53 @@ public class ItemBean
 		}
 	}
 
+    //************ EMI Answer Options******************
+    
+    public void setEmiAnswerOptions(List<AnswerBean> list)
+    {
+    	this.emiAnswerOptions= list;
+    }
+    
+    // Modified for Javascript Add/Remove 
+    public List<AnswerBean> getEmiAnswerOptions() {
+    	if (emiAnswerOptions==null) {
+    		emiAnswerOptions = new ArrayList<AnswerBean>();
+    	}
+    	int defaultlength = DEFAULT_MAX_NUMBER_EMI_OPTIONS_FOR_UI;
+    	// build or extend the list of items 26 a-z
+    	// for efficiency, these will now be shown/hidden using javascript
+		if (emiAnswerOptions.size() < defaultlength) {
+			List<AnswerBean> list = new ArrayList<AnswerBean>();
+			list.addAll(emiAnswerOptions);
+			for (int i=emiAnswerOptions.size(); i<defaultlength; i++ ) {
+    			AnswerBean answerbean = new AnswerBean();
+           		answerbean.setSequence( Long.valueOf(i+1));
+				answerbean.setLabel(AnswerBean.getChoiceLabels()[i]);
+				list.add(answerbean);
+			}
+			emiAnswerOptions = list;
+		}
+		return emiAnswerOptions;
+    }
+    	
+    public List<AnswerBean> getEmiAnswerOptionsClean() {
+    	List<AnswerBean> list = new ArrayList<AnswerBean>();
+    	if (emiAnswerOptions!=null) {
+        	list.addAll(emiAnswerOptions);
+    	}
+		for (int i=list.size()-1; i>=0; i--) {
+			AnswerBean answerbean = (AnswerBean)list.get(i);
+			if (answerbean.getText() == null || answerbean.getText().trim().equals("")) {
+				list.remove(i);
+			}
+			else {
+				break;
+			}
+		}
+		emiAnswerOptions = list;
+		return list;
+    }    
+    
 	public boolean isPartialCreditEnabled() {
 		if (partialCreditEnabledChecked) {
 			return partialCreditEnabled;
@@ -1491,9 +1515,8 @@ public class ItemBean
 	}
     
 	public void togglePartialCredit(ValueChangeEvent event) {
-
 		String switchEvent = (String) event.getNewValue();
-
+	    
 		if (Boolean.parseBoolean(switchEvent)) {
 			setPartialCreditFlag("true");
 			this.resetPartialCreditValues();
@@ -1505,7 +1528,98 @@ public class ItemBean
 		}
 	}
 
-	public void resetPartialCreditValues() {
+    public String populateEmiAnswerOptionsFromPasted() {
+    	String pasted = getEmiAnswerOptionsPaste();
+    	if (pasted == null || pasted.trim().equals("")) return "emiItem";
+    	
+    	ArrayList list = new ArrayList();
+    	String[] pastedOptions = getEmiAnswerOptionsPaste().split("\n");
+    	int labelCount = 0;
+		for (int i=0; i<pastedOptions.length; i++) {
+			if (pastedOptions[i]==null || pastedOptions[i].trim().equals("")) continue;
+			AnswerBean answerbean = new AnswerBean();
+       		answerbean.setSequence( Long.valueOf(i+1));
+       		answerbean.setLabel(AnswerBean.getChoiceLabels()[labelCount++]);
+       		answerbean.setText(pastedOptions[i]);
+      		list.add(answerbean);
+		}
+    	
+    	setEmiAnswerOptions(list);
+    	this.setEmiAnswerOptionsPaste(null);
+        return "emiItem";
+    }
+
+    //*************** EMI Lead In Statement **********************
+    public String getLeadInStatement() {
+    	return leadInStatement;
+    }
+
+    public void setLeadInStatement(String leadInStatement) {
+    	this.leadInStatement = leadInStatement;
+    }
+
+  //*************** EMI Question-Answer Combinations **********************
+    
+    public void setEmiQuestionAnswerCombinations(ArrayList list)
+    {
+    	this.emiQuestionAnswerCombinations = list;
+    }
+
+    public void setEmiQuestionAnswerCombinationsUI(ArrayList list)
+    {
+    	this.emiQuestionAnswerCombinations = list;
+    }
+
+    // Modified for Javascript Add/Remove
+    public ArrayList getEmiQuestionAnswerCombinationsUI() {
+    	if (emiQuestionAnswerCombinations==null) {
+    		emiQuestionAnswerCombinations = new ArrayList();
+    	}
+    	int defaultlength = DEFAULT_MAX_NUMBER_EMI_ITEMS_FOR_UI;
+    	// build or extend the list of items 26 a-z
+    	// for efficiency, these will now be shown/hidden using javascript
+		if (emiQuestionAnswerCombinations.size() < defaultlength) {
+			ArrayList list = new ArrayList();
+			list.addAll(emiQuestionAnswerCombinations);
+			for (int i=list.size(); i<defaultlength; i++ ) {
+    			AnswerBean answerbean = new AnswerBean();
+           		answerbean.setSequence(Long.valueOf(i+1));
+				answerbean.setLabel(answerbean.getSequence().toString());
+				list.add(answerbean);
+			}
+			emiQuestionAnswerCombinations=list;
+		}
+		return emiQuestionAnswerCombinations;
+    }
+    
+    public ArrayList getEmiQuestionAnswerCombinationsClean() {
+    	String removeLabel = "X";
+    	ArrayList list = new ArrayList();
+    	if (emiQuestionAnswerCombinations!=null) {
+        	list.addAll(emiQuestionAnswerCombinations);
+    	}
+    	ArrayList cleanSortedList = new ArrayList();
+    	for (int i=0; i<list.size(); i++) {
+    		AnswerBean emiItem = (AnswerBean)list.get(i);
+    		if (emiItem==null || emiItem.getLabel().trim().equals(removeLabel)) continue;
+    		//must have either text or attachment
+    		if ((emiItem.getText()==null || emiItem.getText().trim().equals(""))
+    			&& !emiItem.getHasAttachment()) continue;
+    		emiItem.setSequence(Long.valueOf(emiItem.getLabel()));
+    		cleanSortedList.add(emiItem);
+    	}
+    	Collections.sort(cleanSortedList);
+    	for (int i=0; i<cleanSortedList.size(); i++) {
+    		AnswerBean emiItem = (AnswerBean)cleanSortedList.get(i);
+    		int seq = i+1;
+    		emiItem.setSequence(Long.valueOf(seq));
+    		emiItem.setLabel(""+seq);
+    	}
+    	emiQuestionAnswerCombinations=cleanSortedList;
+    	return cleanSortedList;
+    }
+
+    public void resetPartialCreditValues() {
 
 		ArrayList answersList = this.getMultipleChoiceAnswers();
 		Iterator iter = answersList.iterator();
@@ -1545,6 +1659,80 @@ public class ItemBean
 
 	public void settotalMCAnswers() {
 		this.totalMCAsnwers = this.multipleChoiceAnswers.size();
+	}
+
+	public String getEmiAnwerOptionLabels() {
+		String simpleOrRich = this.getAnswerOptionsSimpleOrRich();
+		String emiAnswerOptionLabels = "";
+		if (simpleOrRich.equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE.toString())) {
+			Iterator iter = getEmiAnswerOptionsClean().iterator();
+			while (iter.hasNext()) {
+				AnswerBean answerBean = (AnswerBean) iter.next();
+				emiAnswerOptionLabels += answerBean.getLabel();
+			}
+		}
+		else { // ANSWER_OPTIONS_RICH
+			emiAnswerOptionLabels = ItemDataIfc.ANSWER_OPTION_LABELS.substring(0, Integer.valueOf(this.getAnswerOptionsRichCount()));
+		}
+		return emiAnswerOptionLabels.toUpperCase();
+	}
+	
+	public String getEmiAnswerOptionLabelsSorted() {
+		String emiAnswerOptionLabels = getEmiAnwerOptionLabels();
+		if (emiAnswerOptionLabels.trim() == "") return emiAnswerOptionLabels;
+		// Rich Options are Generated - So will always be sorted
+		if (getAnswerOptionsSimpleOrRich().equals(ItemDataIfc.ANSWER_OPTIONS_RICH.toString())) return emiAnswerOptionLabels;
+		
+		ArrayList optionLabels = new ArrayList();
+		for (int i=0; i<emiAnswerOptionLabels.length(); i++) {
+			optionLabels.add(emiAnswerOptionLabels.substring(i, i+1));
+		}
+		Collections.sort(optionLabels);
+		String emiAnswerOptionLabelsSorted = "";
+		for (int i=0; i<emiAnswerOptionLabels.length(); i++) {
+			emiAnswerOptionLabelsSorted += optionLabels.get(i).toString();
+		}
+		return emiAnswerOptionLabelsSorted;
+	}
+
+	public String getEmiAnswerOptionsRich() {
+		return emiAnswerOptionsRich;
+	}
+
+	public void setEmiAnswerOptionsRich(String emiAnswerOptionsRich) {
+		this.emiAnswerOptionsRich = emiAnswerOptionsRich;
+	}
+
+	public String getEmiAnswerOptionsPaste() {
+		return emiAnswerOptionsPaste;
+	}
+
+	public void setEmiAnswerOptionsPaste(String emiAnswerOptionsPaste) {
+		this.emiAnswerOptionsPaste = emiAnswerOptionsPaste;
+	}
+
+	public String getAnswerOptionsSimpleOrRich() {
+		return answerOptionsSimpleOrRich;
+	}
+
+	public void setAnswerOptionsSimpleOrRich(String answerOptionsSimpleOrRich) {
+		this.answerOptionsSimpleOrRich = answerOptionsSimpleOrRich;
+	}
+
+	public String getAnswerOptionsRichCount() {
+		return answerOptionsRichCount;
+	}
+
+	public void setAnswerOptionsRichCount(String answerOptionsRichCount) {
+		this.answerOptionsRichCount = answerOptionsRichCount;
+	}
+
+	public void setEmiVisibleItems(String emiVisibleItems) {
+		this.emiVisibleItems = emiVisibleItems;
+	}
+
+	public String getEmiVisibleItems() {
+		return emiVisibleItems;
 	}
 	
 	//sam-939

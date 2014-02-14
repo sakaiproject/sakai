@@ -21,5 +21,9 @@ public class Answer {
 		return text;
 	}
 	
-	
+	public void postProcessing(int questionType) {
+		if (questionType == Question.EXTENDED_MATCHING_ITEMS_QUESTION) {
+			text = text.substring(text.lastIndexOf("[")+1, text.lastIndexOf("]")).trim();
+		}
+	}
 }

@@ -684,6 +684,12 @@ public final class XmlUtil
       return StringUtils.replaceEach(value, new String[]{"<", ">"}, new String[]{"&lt;", "&gt;"});
   }
 
+  /**
+ * @param myString
+ * @return
+ * @deprecated use convertToSingleCDATA
+ */
+@Deprecated
   public static String convertStrforCDATA(String myString)
   {
 	  StringBuffer sbuff = new StringBuffer("<![CDATA[");
@@ -704,6 +710,10 @@ public final class XmlUtil
 	  sbuff.append("]]>");
 	  return sbuff.toString();
   } 
+  
+  public static String convertToSingleCDATA(String text){
+	  return "<![CDATA[" + text + "]]>";
+  }
   
   private static void setDocumentBuilderFactoryFeatures(
 	  DocumentBuilderFactory builderFactory) throws ParserConfigurationException {

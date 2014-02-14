@@ -23,12 +23,12 @@
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 public  interface AnswerIfc
-    extends java.io.Serializable
+    extends Comparable<AnswerIfc>, java.io.Serializable
 {
   Long getId();
 
@@ -75,15 +75,15 @@ public  interface AnswerIfc
   
   Double getPartialCredit();
 
-  Set getAnswerFeedbackSet();
+  Set<AnswerFeedbackIfc> getAnswerFeedbackSet();
 
-  ArrayList getAnswerFeedbackArray();
+  List<AnswerFeedbackIfc> getAnswerFeedbackArray();
 
-  void setAnswerFeedbackSet(Set answerFeedbackSet);
+  void setAnswerFeedbackSet(Set<AnswerFeedbackIfc> answerFeedbackSet);
 
   String getAnswerFeedback(String typeId);
 
-  HashMap getAnswerFeedbackMap();
+  HashMap<String, String> getAnswerFeedbackMap();
 
   String getCorrectAnswerFeedback();
 

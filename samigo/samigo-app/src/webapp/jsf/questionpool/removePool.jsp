@@ -45,7 +45,7 @@
      </h:panelGroup>
      <div class="tier1">
        <h3><h:outputText value="#{questionPoolMessages.p_names}"/></h3>
-       <h:dataTable id ="table" value="#{questionpool.poolsToDelete}"
+       <h:dataTable id="table" value="#{questionpool.poolsToDelete}"
     var="pool" >
  	 <h:column>
 		<h:outputText styleClass="bold" escape="false" value="#{pool.displayName}"/>

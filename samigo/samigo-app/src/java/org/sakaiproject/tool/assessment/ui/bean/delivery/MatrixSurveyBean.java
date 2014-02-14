@@ -21,10 +21,7 @@
 
 package org.sakaiproject.tool.assessment.ui.bean.delivery;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-
-//import javax.faces.model.SelectItem;
+import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
@@ -108,7 +105,7 @@ public class MatrixSurveyBean
     if (newresp != null)
     {
     	//1. remove all the old selections with the same Itemtextid(row)from ItemGradingDataArray 
-    	ArrayList items = parent.getItemGradingDataArray();
+    	List<ItemGradingData> items = parent.getItemGradingDataArray();
     	for(int i = 0; i<items.size(); i++)
     	{
     		ItemGradingData gradingData = (ItemGradingData) items.get(i);

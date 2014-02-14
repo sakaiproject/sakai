@@ -66,6 +66,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.ItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAnswerFeedback;
@@ -79,6 +80,7 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemText;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemTextAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionAttachment;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -392,7 +394,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					// itemFeedbackSet later
 					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set publishedItemTextSet = preparePublishedItemTextSet(
-					publishedItem, item.getItemTextSet());
+					publishedItem, item.getItemTextSet(), protocol);
 			Set publishedItemMetaDataSet = preparePublishedItemMetaDataSet(
 					publishedItem, item.getItemMetaDataSet());
 			Set publishedItemFeedbackSet = preparePublishedItemFeedbackSet(
@@ -403,13 +405,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			publishedItem.setItemMetaDataSet(publishedItemMetaDataSet);
 			publishedItem.setItemFeedbackSet(publishedItemFeedbackSet);
 			publishedItem.setItemAttachmentSet(publishedItemAttachmentSet);
+			publishedItem.setAnswerOptionsRichCount(item.getAnswerOptionsRichCount());
+			publishedItem.setAnswerOptionsSimpleOrRich(item.getAnswerOptionsSimpleOrRich());
+			
 			h.add(publishedItem);
 		}
 		return h;
 	}
 
 	public Set preparePublishedItemTextSet(PublishedItemData publishedItem,
-			Set itemTextSet) {
+			Set itemTextSet, String protocol) {
 		log.debug("**published item text size = " + itemTextSet.size());
 		HashSet h = new HashSet();
 		Iterator k = itemTextSet.iterator();
@@ -422,6 +427,11 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			Set publishedAnswerSet = preparePublishedAnswerSet(
 					publishedItemText, itemText.getAnswerSet());
 			publishedItemText.setAnswerSet(publishedAnswerSet);
+			
+			Set publishedItemTextAttachmentSet = this.preparePublishedItemTextAttachmentSet(publishedItemText, 
+					itemText.getItemTextAttachmentSet(), protocol);
+			publishedItemText.setItemTextAttachmentSet(publishedItemTextAttachmentSet);
+			publishedItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
 			h.add(publishedItemText);
 		}
 		return h;
@@ -496,6 +506,40 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return h;
 	}
 
+	public Set preparePublishedItemTextAttachmentSet(
+			PublishedItemText publishedItemText, Set itemTextAttachmentSet,
+			String protocol) {
+		HashSet h = new HashSet();
+		Iterator o = itemTextAttachmentSet.iterator();
+		while (o.hasNext()) {
+			ItemTextAttachment itemTextAttachment = (ItemTextAttachment) o.next();
+			try {
+				// create a copy of the resource
+				AssessmentService service = new AssessmentService();
+				ContentResource cr_copy = service.createCopyOfContentResource(
+						itemTextAttachment.getResourceId(), itemTextAttachment
+								.getFilename());
+				// get relative path
+				String url = getRelativePath(cr_copy.getUrl(), protocol);
+
+				PublishedItemTextAttachment publishedItemTextAttachment = new PublishedItemTextAttachment(
+						null, publishedItemText, cr_copy.getId(), itemTextAttachment
+								.getFilename(), itemTextAttachment.getMimeType(),
+						itemTextAttachment.getFileSize(), itemTextAttachment
+								.getDescription(), url, itemTextAttachment
+								.getIsLink(), itemTextAttachment.getStatus(),
+						itemTextAttachment.getCreatedBy(), itemTextAttachment
+								.getCreatedDate(), itemTextAttachment
+								.getLastModifiedBy(), itemTextAttachment
+								.getLastModifiedDate());
+				h.add(publishedItemTextAttachment);
+			} catch (Exception e) {
+				log.warn(e.getMessage());
+			}
+		}
+		return h;
+	}
+	
 	public String getRelativePath(String url, String protocol) {
 		// replace whitespace with %20
 		url = replaceSpace(url);
@@ -591,7 +635,9 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			PublishedAnswer publishedAnswer = new PublishedAnswer(
 					publishedItemText, answer.getText(), answer.getSequence(),
 					answer.getLabel(), answer.getIsCorrect(),
-					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
+					answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), 
+					//answer.getCorrectOptionLabels(), 
+					null);
 			Set publishedAnswerFeedbackSet = preparePublishedAnswerFeedbackSet(
 					publishedAnswer, answer.getAnswerFeedbackSet());
 			publishedAnswer.setAnswerFeedbackSet(publishedAnswerFeedbackSet);
@@ -743,7 +789,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public void createAuthorization(PublishedAssessmentData p) {
-		// conditional processing added by gopalrc Nov 2007
+		// conditional processing
 		if (p.getAssessmentAccessControl().getReleaseTo()!= null 
 				&& p.getAssessmentAccessControl().getReleaseTo()
 				.equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS)) {
@@ -810,7 +856,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 	
 	/**
-	 * added by gopalrc Nov 2007
 	 * Creates Authorizations for Selected Groups
 	 * @param p
 	 */
@@ -938,7 +983,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	public List getNumberOfSubmissionsOfAllAssessmentsByAgent(
 			final String agentId, final String siteId) {
 
-		// modified by gopalrc to take account of group release
 		final ArrayList groupIds = getSiteGroupIdsForSubmittingAgent(agentId, siteId);
 
 		if (groupIds.size() > 0) {
@@ -1362,7 +1406,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	
 	// added by daisy - please check the logic - I based this on the
 	// getBasicInfoOfAllActiveAssessment
-	// modified by gopalrc - Nov 2007
 	// to include release to selected groups
 	/**
 	 * 
@@ -2102,7 +2145,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(
 			final String agentId, final String siteId, boolean allAssessments) {
 		
-		// modified by gopalrc to take account of group release
+		// take account of group release
 		final ArrayList groupIds = getSiteGroupIdsForCurrentUser(siteId);
 		// sorted by submittedData DESC
 		final String order_last = " order by p.publishedAssessmentId DESC, a.submittedDate DESC";
@@ -2388,7 +2431,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 	  
 	/**
-	 * Modified by gopalrc - Jan 2008
 	 * to take account of difference in obtaining question count
 	 * between randomized and non-randomized questions
 	 */  
@@ -2413,7 +2455,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	/**
-	 * gopalrc - Jan 2008
 	 * @param publishedAssessmentId
 	 * @return
 	 */
@@ -2444,7 +2485,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	/**
-	 * gopalrc - Jan 2008
 	 * @param publishedAssessmentId
 	 * @return
 	 */
@@ -2469,12 +2509,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return (Integer) list.get(0);
 	}
 	
-	
-	/**
-	 * added by gopalrc - Nov 2007
-	 * @param publishedAssessmentId
-	 * @return
-	 */
 	public Integer getPublishedSectionCount(final Long publishedAssessmentId) {
 		final HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session)
@@ -2653,13 +2687,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		this.siteService = siteService;
 	}
 	
-	
-	/**
-	 * added by gopalrc - Nov 2007
-`	 * TODO: should perhaps bemoved to SiteService
-	 * @param siteId
-	 * @return
-	 */
 	private ArrayList getSiteGroupIdsForSubmittingAgent(String agentId, String siteId) {
 
 		final ArrayList<String> groupIds = new ArrayList<String>();
@@ -2693,19 +2720,12 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return groupIds;
 	}
 	
-	/**
-	 * added by gopalrc - Nov 2007
-`	 * TODO: should perhaps bemoved to SiteService
-	 * @param siteId
-	 * @return
-	 */
 	private ArrayList getSiteGroupIdsForCurrentUser(final String siteId) {
 		String currentUserId = UserDirectoryService.getCurrentUser().getId();
 		return getSiteGroupIdsForSubmittingAgent(currentUserId, siteId);
 	}
 		
 	/**
-	 * added by gopalrc November 2007
 	 * 
 	 * @param assessmentId
 	 * @return
@@ -2775,7 +2795,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	
 
 	  /**
-	   * added by gopalrc Nov 2007
 	   * Returns all groups for site
 	   * @return
 	   */
@@ -2786,7 +2805,6 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	
 	  /**
-	   * added by gopalrc - Jan 2008
 	   * @param publishedAssessmentId
 	   * @return
 	   */

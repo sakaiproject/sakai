@@ -83,6 +83,7 @@ file = File Upload
   public static final String ESSAY_ALT = "Essay";
   public static final String AUDIO = "Audio Recording";
   public static final String FILE = "File Upload";
+  public static final String EMI = "Extended Matching Items";
   public static final String MATRIX = "Survey Matrix";
   public static final String CALCQ =  "Calculated Question"; // CALCULATED_QUESTION - 15
 
@@ -111,7 +112,7 @@ file = File Upload
   // I'm just adding an "" to make FIN the itemTypes[11].  This is used in ItemTypeExtractionStrategy.getValidType()
   
   public static final String[] itemTypes =
-  { /*0*/"Unknown Type", MCSC, MCMC, SURVEY, TF, /*5*/ESSAY, FILE, AUDIO, FIB, MATCHING, /*10*/"", FIN, MCMCSS, MATRIX, /*14*/"", /*15*/CALCQ };
+  { "Unknown Type", MCSC, MCMC, SURVEY, TF, ESSAY, FILE, AUDIO, FIB, MATCHING,"", FIN, MCMCSS, MATRIX, EMI, CALCQ};
   
 
   // Feedback Type

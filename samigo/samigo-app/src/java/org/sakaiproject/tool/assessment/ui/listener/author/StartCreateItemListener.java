@@ -211,6 +211,10 @@ log.debug("after getting item.getItemType() ");
                 case 13:
                         nextpage = "matrixChoicesSurveyItem";
                         break;
+                case 14:
+                    nextpage = "emiItem";
+                    break;
+                    
                 case 9:
      			MatchItemBean matchitem = new MatchItemBean();
 

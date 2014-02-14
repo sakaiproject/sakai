@@ -168,6 +168,8 @@ public class QTIConstantStrings
   public static final  String PROMPT = "prompt";
   public static final  String FIBTYPE = "fibtype";
   public static final  String FINTYPE = "fintype";
+  public static final  String EMITYPE = "emitype";
+  
   public static final  String ORIENTATION = "orientation";
   public static final  String LOWERBOUND = "lowerbound";
   public static final  String UPPERBOUND = "upperbound";

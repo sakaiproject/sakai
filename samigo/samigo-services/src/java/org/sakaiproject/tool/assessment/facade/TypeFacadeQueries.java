@@ -79,7 +79,7 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
      * This method return Type with a specified typeId, used by
      * ItemFacade.getItemType()
      * @param typeId
-     * @return org.osid.shared.Type
+     * @return org.osid.shared.Type or null if no types of that id
      */
     public Type getTypeById(Long typeId){
     	//pbd hack
@@ -88,6 +88,11 @@ public class TypeFacadeQueries extends HibernateDaoSupport implements TypeFacade
     	
     	// end pbd hack
 	TypeFacade typeFacade = getTypeFacadeById(typeId);
+	//SAM-1792 this could be a request for an unkown type
+	if (typeFacade == null) {
+		log.warn("Unable to find Item Type: " + typeId.toString());
+		return null;
+	}
 	TypeExtension type = new TypeExtension(typeFacade.getAuthority(),
 					       typeFacade.getDomain(),
 					       typeFacade.getKeyword(),

@@ -33,7 +33,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
       <f:selectItem itemValue="1"/>
     </h:selectManyCheckbox>
   </f:facet>
-  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value ="#{questionpool.destItems}">
+  <h:selectManyCheckbox immediate="true" id="removeCheckbox" onclick="checkUpdate()" onkeypress="checkUpdate()"  value="#{questionpool.destItems}">
     <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
   </h:selectManyCheckbox>
 </h:column>
@@ -67,7 +67,9 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
       </f:facet>
 
 <h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
-    <h:outputText escape="false" value="#{question.textHtmlStripped}" />
+
+    <h:outputText escape="false" value="#{question.themeText}" rendered="#{question.typeId == 14}"/>
+    <h:outputText escape="false" value="#{question.textHtmlStripped}" rendered="#{question.typeId ne 14}"/>
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
     <f:param name="itemid" value="#{question.itemId}"/>
@@ -131,6 +133,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
      <h:outputText rendered="#{question.typeId== 9}" value="#{authorMessages.matching}"/>
      <h:outputText rendered="#{question.typeId== 11}" value="#{authorMessages.fill_in_numeric}"/>
      <h:outputText rendered="#{question.typeId== 12}" value="#{authorMessages.multiple_choice_type}"/>
+     <h:outputText rendered="#{question.typeId== 14}" value="#{authorMessages.extended_matching_items}"/>
      <h:outputText rendered="#{question.typeId== 13}" value="#{authorMessages.matrix_choice_surv}"/>
      <h:outputText rendered="#{question.typeId== 15}" value="#{authorMessages.calculated_question}"/><!-- // CALCULATED_QUESTION -->
 
@@ -140,7 +143,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
       <f:facet name="header">
         <h:outputText value="#{questionPoolMessages.impToAuthor}"/>
       </f:facet>
- 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value ="#{questionpool.destItems}">
+ 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
  	  </h:selectManyCheckbox>
      </h:column>

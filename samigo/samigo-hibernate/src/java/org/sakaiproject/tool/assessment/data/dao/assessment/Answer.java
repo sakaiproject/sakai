@@ -26,6 +26,8 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
+import org.sakaiproject.tool.assessment.samlite.api.Question;
 import org.apache.log4j.*;
 import java.io.Serializable;
 import java.io.IOException;
@@ -35,7 +37,7 @@ import java.util.Iterator;
 import java.util.HashMap;
 
 public class Answer
-    implements Serializable, AnswerIfc, Comparable {
+    implements Serializable, AnswerIfc, Comparable<AnswerIfc>, Cloneable { 
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -53,9 +55,14 @@ public class Answer
   private Double  partialCredit; //partial credit
   private Set answerFeedbackSet;
   private HashMap answerFeedbackMap;
-  private ItemData dat=new ItemData();
+  private ItemData dat=new ItemData();  
+
   public Answer() {}
 
+  public Answer(ItemTextIfc itemText, String text, Long sequence, String label) {
+	  this(itemText, text, sequence, label, null, null, null, null, null);
+  }
+  
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
                 Boolean isCorrect, String grade, Double score, Double partialCredit, Double discount) {
     this.itemText = itemText;
@@ -69,7 +76,7 @@ public class Answer
     this.discount=discount;
     this.partialCredit=partialCredit;
   }
-
+	
   public Answer(ItemTextIfc itemText, String text, Long sequence, String label,
                 Boolean isCorrect, String grade, Double score, Double partialCredit, Double discount,
                 Set answerFeedbackSet) {
@@ -231,9 +238,8 @@ public class Answer
     return getAnswerFeedback(AnswerFeedbackIfc.ANSWER_FEEDBACK);
   }
 
-  public int compareTo(Object o) {
-      Answer a = (Answer)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(AnswerIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
 
   //Huong's adding for checking not empty feedback
@@ -258,13 +264,17 @@ public class Answer
 
 	  return dat.isNotEmpty(getText());
   }
-
+	
   //--mustansar for partial credit
   public Double getPartialCredit(){
 	  return partialCredit;
   }
-
+	
   public void setPartialCredit(Double pCredit ){
 	  this.partialCredit=pCredit;
   } 
+
+	protected Answer clone() throws CloneNotSupportedException {
+		return (Answer)super.clone();
+	}
 }

@@ -73,6 +73,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern startOfQuestionNumericPattern;
 	private Pattern pointsPattern;
 	
+	private Pattern extendedMatchingCorrectAnswersPattern;
+	
 	public void init() {	
 		// Initialization		
 		startOfQuestionNumericPattern = Pattern.compile("^(\\d+\\.|\\)|\\]\\s*)", Pattern.CASE_INSENSITIVE);
@@ -80,6 +82,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		correctMultipleChoicePattern = Pattern.compile("^\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		correctFillInPattern = Pattern.compile("^\\*\\s*(.*)");
 		answerPattern = Pattern.compile("^([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
+		
+		// REGEX: ^(\d+\.+ ).*\[[a-z[ ,]]*\].* - start with digits point space then string containing brackets with [a-z] commas or spaces 
+		extendedMatchingCorrectAnswersPattern = Pattern.compile("^(\\d+\\.+ ).*\\[[a-z[ ,]]*\\].*", Pattern.CASE_INSENSITIVE);
 	} 
 	
 	public Question saveLast(QuestionGroup questionGroup, Question question) {
@@ -91,6 +96,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 			// If it doesn't have points yet, it's not going to get any
 			if (!question.hasPoints())
 				question.setQuestionPoints("0");
+			question.postProcessing();
 			questionGroup.addQuestion(question);
 		}
 		
@@ -166,15 +172,17 @@ public class SamLiteServiceImpl implements SamLiteService {
 				Matcher startOfQuestionMatcher = startOfQuestionPattern.matcher(line);
 				Matcher startOfQuestionNumericMatcher = startOfQuestionNumericPattern.matcher(line);
 				Matcher pointsMatcher = pointsPattern.matcher(line);				
+				Matcher extendedMatchingCorrectAnswersMatcher = extendedMatchingCorrectAnswersPattern.matcher(line);
 				
 				// The question can begin with the word 'Question'
 				boolean isQuestionStart = startOfQuestionMatcher.find();
 				// Or it can begin with a number followed by a delimitor
-				boolean isQuestionNumericStart = startOfQuestionNumericMatcher.find();
+				boolean isQuestionNumericStart = startOfQuestionNumericMatcher.find(); 
 				// Some users may prefer to delineate questions with just the points line
 				boolean isJustPoints = pointsMatcher.find();
+				boolean isEMICorrectAnswerLine = extendedMatchingCorrectAnswersMatcher.find(); 
 				
-				if (isQuestionStart || isQuestionNumericStart || isJustPoints) {
+				if (!isEMICorrectAnswerLine && (isQuestionStart || isQuestionNumericStart || isJustPoints)) {
 					question = saveLast(questionGroup, question);
 					
 					if (isQuestionStart)
@@ -207,18 +215,25 @@ public class SamLiteServiceImpl implements SamLiteService {
 	}
 	
 	
-	private void parseLine(Question question, String line) {				
-		boolean isEndOfQuestion = endQuestionPattern.matcher(line).find();
+	private void parseLine(Question question, String line) {		
+  		boolean isEndOfQuestion = endQuestionPattern.matcher(line).find();
 		boolean isCorrectAnswer = correctAnswerPattern.matcher(line).lookingAt();
 		Matcher answerMatcher = answerPattern.matcher(line);
 		boolean isAnswer = answerMatcher.find();
 		boolean isEmptyTrue = unnecessaryTruePattern.matcher(line).find();
 		boolean isEmptyFalse = unnecessaryFalsePattern.matcher(line).find();		
-					
+		
+		boolean isEMICorrectAnswer = extendedMatchingCorrectAnswersPattern.matcher(line).find();
+		
 		if (isEndOfQuestion) {
 			// Do nothing, we just want to ignore this line
 		} else if (isAnswer) {
 			question.addAnswer(answerMatcher.group(1), answerMatcher.group(2), false);
+		} else if (isEMICorrectAnswer) {
+	  		question.setQuestionType(Question.EXTENDED_MATCHING_ITEMS_QUESTION);
+	  		String answerId = line.substring(0, line.indexOf("."));
+	  		String questionAnswers = (line.substring(line.indexOf(".")+1)).trim();
+			question.addAnswer(answerId, questionAnswers, true);
 		} else if (isCorrectAnswer) {
 			Matcher multipleChoiceMatcher = correctMultipleChoicePattern.matcher(line);
 			boolean isMC = multipleChoiceMatcher.find();
@@ -425,6 +440,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		case Question.TRUE_FALSE_QUESTION:
 			processTrueFalseQuestion(section, question);
 			break;
+		case Question.EXTENDED_MATCHING_ITEMS_QUESTION:
+			processExtendedMatchingItemsQuestion(section, question);
+			break;
 		default:
 			// TODO: Notify the user that this question didn't work...	
 		};
@@ -586,6 +604,37 @@ public class SamLiteServiceImpl implements SamLiteService {
 		}
 	}
 	
+	private void processExtendedMatchingItemsQuestion(SectionType section, Question question) {
+		ItemType item = section.addNewItem();
+		item.setTitle(question.getQuestionTypeAsString());
+		
+		ItemmetadataType itemMetaData = item.addNewItemmetadata();
+		QtimetadataType qtiMetaData = itemMetaData.addNewQtimetadata();
+		
+		buildMetaDataField(qtiMetaData, "qmd_itemtype", question.getQuestionTypeAsString());
+		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
+		buildMetaDataField(qtiMetaData, "hasRationale", "False");
+		
+		ItemrubricType itemRubric = item.addNewItemrubric();
+		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();
+		mattext.setCharset("UTF-8");
+		mattext.setTexttype("text/plain");
+
+		buildPresentationAndResponseLid(item, question, "Resp001", "EMIQ", ResponseLidType.Rcardinality.MULTIPLE);
+		
+		addRespProcessing(item, question, "EMIQ");
+		
+		int numberOfAnswers = question.getAnswers().size();
+		char c = 'A';
+		for (int i=0;i<numberOfAnswers;i++) {	
+			buildItemFeedback(item, String.valueOf(c) + "1");
+			c++;
+		}
+		
+		buildItemFeedback(item, "Correct");
+		buildItemFeedback(item, "InCorrect");
+	}
+        
 	private void processTrueFalseQuestion(SectionType section, Question question) {
 		ItemType item = section.addNewItem();
 		item.setTitle("True-False");

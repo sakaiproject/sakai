@@ -27,6 +27,13 @@ INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
     VALUES (13 , 'stanford.edu' ,'assessment.item' ,'Matrix Choices Survey' ,NULL ,1 ,1 ,
     SYSDATE ,1 ,SYSDATE);   
     
+INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
+    "DESCRIPTION" ,
+    "STATUS" ,"CREATEDBY" ,"CREATEDDATE" ,"LASTMODIFIEDBY" ,
+    "LASTMODIFIEDDATE" )
+    VALUES (14 , 'stanford.edu' ,'assessment.item' ,'Extended Matching_Items' ,NULL ,1 ,1 ,
+    SYSDATE ,1 ,SYSDATE); 
+
 -- SAM-1255    
 Update SAM_ASSESSEVALUATION_T
 Set ANONYMOUSGRADING = 2

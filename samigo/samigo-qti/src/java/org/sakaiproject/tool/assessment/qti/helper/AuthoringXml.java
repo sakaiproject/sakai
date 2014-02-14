@@ -92,7 +92,8 @@ public class AuthoringXml
   public static final String ITEM_MATCHING = "matchTemplate.xml";
   public static final String ITEM_MXSURVEY = "mxSurveyTemplate.xml";
   public static final String ITEM_CALCQ = "calculatedQuestionTemplate.xml"; // CALCULATED_QUESTION
-  
+  public static final String ITEM_EMI = "emiTemplate.xml";
+
   public static final String SURVEY_10 = SURVEY_PATH + "10.xml";
   public static final String SURVEY_5 = SURVEY_PATH + "5.xml";
   public static final String SURVEY_AGREE = SURVEY_PATH + "AGREE.xml";

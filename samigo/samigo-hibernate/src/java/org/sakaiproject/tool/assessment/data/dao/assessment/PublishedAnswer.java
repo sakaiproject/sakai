@@ -34,7 +34,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PublishedAnswer
-    implements Serializable, AnswerIfc, Comparable {
+    implements Serializable, AnswerIfc, Comparable<AnswerIfc>, Cloneable { 
   
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -232,9 +232,8 @@ public class PublishedAnswer
     return getAnswerFeedback(AnswerFeedbackIfc.ANSWER_FEEDBACK);
   }
 
-  public int compareTo(Object o) {
-      PublishedAnswer a = (PublishedAnswer)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(AnswerIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
 
   	public boolean getGeneralAnswerFbIsNotEmpty() {
@@ -251,6 +250,10 @@ public class PublishedAnswer
 
 	public boolean getTextIsNotEmpty() {
 		return publishedItemData.isNotEmpty(getText());
+	}
+	
+	protected PublishedAnswer clone() throws CloneNotSupportedException {
+		return (PublishedAnswer)super.clone();
 	}
 	
 	//--mustansar for partial credit

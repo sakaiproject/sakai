@@ -958,7 +958,6 @@ public class DeliveryBean
         sb.append("         - Session is null. Cannot determine user.\n");
       }
       sb.append("         - Published Assessment ID: ");
-      
       if (publishedAssessment == null) {
         sb.append("<null>\n");
       }
@@ -3434,7 +3433,7 @@ public class DeliveryBean
 				List pageToolList = page.getTools();
 				//toolId = ((ToolConfiguration) pageToolList.get(0)).getTool().getId();
 				
-				// gopalrc - Jan 2008 - issue with null tool
+				//  issue with null tool
 				if (pageToolList.get(0)==null && ((ToolConfiguration) pageToolList.get(0)).getTool()==null) {
 					continue;
 				}

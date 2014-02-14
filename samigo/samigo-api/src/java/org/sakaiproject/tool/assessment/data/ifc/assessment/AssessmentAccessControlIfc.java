@@ -64,8 +64,7 @@ public interface AssessmentAccessControlIfc
   // lateHandling
   public static Integer ACCEPT_LATE_SUBMISSION = Integer.valueOf(1);
   public static Integer NOT_ACCEPT_LATE_SUBMISSION = Integer.valueOf(2);
-  
-  // gopalrc - group release
+  // group release
   public static String RELEASE_TO_SELECTED_GROUPS = "Selected Groups";
 
   Long getId();

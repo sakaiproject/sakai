@@ -3,6 +3,7 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.ArrayList;
 import java.util.Formatter;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
@@ -45,11 +46,11 @@ public class SaCharCountListener implements ActionListener
 			while (iter2.hasNext()) {
 				ItemContentsBean item = (ItemContentsBean) iter2.next();
 				ItemDataIfc itemData = item.getItemData();
-				ArrayList itemGradingDataArray = item.getItemGradingDataArray();
+				List<ItemGradingData> itemGradingDataArray = item.getItemGradingDataArray();
 				if (itemGradingDataArray != null && itemGradingDataArray.size() != 0) {
-					Iterator iter3 = itemGradingDataArray.iterator();
+					Iterator<ItemGradingData> iter3 = itemGradingDataArray.iterator();
 					while (iter3.hasNext()) {
-						ItemGradingData itemGrading = (ItemGradingData) iter3.next();
+						ItemGradingData itemGrading = iter3.next();
 						if (itemData != null) {
 							if (itemId.equals(itemData.getItemIdString()) && itemGrading.getAnswerText() != null) {
 								if (itemGrading.getAnswerText() != null) {

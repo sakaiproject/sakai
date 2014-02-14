@@ -19,8 +19,6 @@
  *
  **********************************************************************************/
 
-
-
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,15 +34,20 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>Title: Samigo</p>
@@ -77,14 +80,33 @@ public class ResetItemAttachmentListener
 
     ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     String itemId = itemauthorBean.getItemId();
-    if (itemId !=null && !("").equals(itemId)){
-      ItemDataIfc item = itemService.getItem(itemId);
-      log.debug("*** item attachment="+item.getItemAttachmentList());
-      resetItemAttachment(itemauthorBean.getResourceHash(), item.getItemAttachmentList(), assessmentService);
-    }
-    else{
-      resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList(), assessmentService);
-    }
+
+//    Object aBean = itemauthorBean.getCurrentAnswer();
+    AnswerBean answerBean = itemauthorBean.getCurrentAnswer();
+
+    if (answerBean == null) {
+	    if (itemId !=null && !("").equals(itemId)){
+	      ItemDataIfc item = itemService.getItem(itemId);
+	      log.debug("*** item attachment="+item.getItemAttachmentList());
+	      resetItemAttachment(itemauthorBean.getResourceHash(), item.getItemAttachmentList(), assessmentService);
+	    }
+	    else{
+	      resetItemAttachment(itemauthorBean.getResourceHash(), new ArrayList(), assessmentService);
+	    }
+	}
+	else {
+	    Long sequence = answerBean.getSequence();
+	    if (itemId !=null && !("").equals(itemId)){
+	      ItemDataIfc item = itemService.getItem(itemId);
+	      ItemTextIfc itemText = item.getItemTextBySequence(sequence);
+	      //log.debug("*** item attachment="+item.getItemAttachmentList());
+	      resetItemTextAttachment(answerBean.getResourceHash(), itemText.getItemTextAttachmentList(), assessmentService);
+	    }
+	    else{
+	      resetItemTextAttachment(answerBean.getResourceHash(), new ArrayList(), assessmentService);
+	    }
+		
+	}
   }
 
     private void resetItemAttachment(HashMap resourceHash, List attachmentList, AssessmentService service){
@@ -166,6 +188,44 @@ public class ResetItemAttachmentListener
     }
   }
   */
+    
+    private void resetItemTextAttachment(HashMap resourceHash, List attachmentList, AssessmentService service){
+        // 1. we need to make sure that attachment removed/added by file picker 
+        //    will be restored/remove when user cancels the entire modification
+        if (attachmentList != null){
+          for (int i=0; i<attachmentList.size(); i++){
+             AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+             try{
+               ContentResource cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
+    	 }
+             catch (PermissionException e) {
+               log.warn("PermissionException from ContentHostingService:"+e.getMessage());
+             }
+             catch (IdUnusedException e) {
+               log.warn("IdUnusedException from ContentHostingService:"+e.getMessage());
+               // <-- bad sign, 
+               // use case: ContentHosting deleted the resource
+               // and user cancel out all the modification
+               // including those that CHS has removed
+               // according to Glenn , it is a bug in CHS.
+               // so we would just do clean up to avoid having attachments
+               // points to empty resources
+               log.warn("***2.removing an empty item attachment association, attachmentId="+attach.getAttachmentId());
+               service.removeItemTextAttachment(attach.getAttachmentId().toString());
 
+               /* forget it #1
+               if (resourceHash!=null){
+                 ContentResource old_cr = (ContentResource) resourceHash.get(attach.getResourceId());
+                 if (old_cr!=null){ 
+                   resourceHash.remove(attach.getResourceId());
+    	     }
+    	   }
+               */
+             }
+             catch (TypeException e) {
+        	   log.warn("TypeException from ContentHostingService:"+e.getMessage());
+    	 }
+          }
+        }
+    }
  }
-

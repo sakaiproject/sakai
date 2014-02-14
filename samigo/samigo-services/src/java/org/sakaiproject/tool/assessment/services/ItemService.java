@@ -282,7 +282,9 @@ public class ItemService
       Answer newAnswer = new Answer(
           newItemText, answer.getText(), answer.getSequence(),
           answer.getLabel(),
-      	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), null);
+      	  answer.getIsCorrect(), answer.getGrade(), answer.getScore(), answer.getPartialCredit(), answer.getDiscount(), 
+      	  //answer.getCorrectOptionLabels(), 
+      	  null);
       Set newAnswerFeedbackSet = copyAnswerFeedbackSet(
           newAnswer, answer.getAnswerFeedbackSet());
       newAnswer.setAnswerFeedbackSet(newAnswerFeedbackSet);

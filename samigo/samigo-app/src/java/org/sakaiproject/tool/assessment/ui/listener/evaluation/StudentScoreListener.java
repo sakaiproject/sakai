@@ -26,6 +26,7 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -166,10 +167,10 @@ public class StudentScoreListener
 				  while (iter2.hasNext()) {
 					  ItemContentsBean itemContentsBean = (ItemContentsBean) iter2.next();
 					  if (itemContentsBean != null) {
-						  ArrayList itemGradingDataArray = itemContentsBean.getItemGradingDataArray();
-						  Iterator iter3 = itemGradingDataArray.iterator();
+						  List<ItemGradingData> itemGradingDataArray = itemContentsBean.getItemGradingDataArray();
+						  Iterator<ItemGradingData> iter3 = itemGradingDataArray.iterator();
 						  while (iter3.hasNext()) {
-							  ItemGradingData itemGradingData = (ItemGradingData) iter3.next();
+							  ItemGradingData itemGradingData = iter3.next();
 							  itemContentsMap.put(itemGradingData.getItemGradingId(), itemContentsBean);
 						  }
 					  }

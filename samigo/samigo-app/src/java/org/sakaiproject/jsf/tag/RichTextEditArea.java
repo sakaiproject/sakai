@@ -29,6 +29,7 @@ import javax.faces.context.FacesContext;
 
 public class RichTextEditArea extends UIComponentTag
 {
+  private String identity;
   private String value;
   private String columns;
   private String rows;
@@ -36,6 +37,16 @@ public class RichTextEditArea extends UIComponentTag
   private String hasToggle;
   private String reset;
 
+  public void setIdentity(String newIdentity)
+  {
+	  identity = newIdentity;
+  }
+
+  public String getIdentity()
+  {
+    return identity;
+  }
+  
   public void setValue(String newValue)
   {
     value = newValue;
@@ -109,6 +120,7 @@ public class RichTextEditArea extends UIComponentTag
 	protected void setProperties(UIComponent component)
 	{
 		super.setProperties(component);
+	setString(component, "identity", identity);
     setString(component, "value", value);
     setString(component, "columns", columns);
     setString(component, "rows", rows);
@@ -120,6 +132,7 @@ public class RichTextEditArea extends UIComponentTag
 	public void release()
 	{
     super.release();
+    identity = null;
     value = null;
     columns = null;
     rows = null;

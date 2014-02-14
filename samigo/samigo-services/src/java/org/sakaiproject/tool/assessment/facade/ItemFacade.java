@@ -39,6 +39,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemText;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemFeedbackIfc;
@@ -53,7 +55,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * ItemFacade implements ItemDataIfc that encapsulates our out of bound (OOB)
  * agreement.
  */
-public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
+public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
   private static Log log = LogFactory.getLog(ItemFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -92,6 +94,11 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
   protected TypeFacade itemTypeFacade;
   protected Set itemAttachmentSet;
   protected String itemAttachmentMetaData;
+  protected String themeText;
+  protected String leadInText;
+  protected Integer answerOptionsRichCount;
+  protected Integer answerOptionsSimpleOrRich;
+
   
   /** ItemFacade is the class that is exposed to developer
    *  It contains some of the useful methods specified in
@@ -142,6 +149,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
     this.itemFeedbackSet = getItemFeedbackSet();
     this.hasRationale= data.getHasRationale();//rshastri :SAK-1824
     this.itemAttachmentSet = getItemAttachmentSet();
+    this.answerOptionsRichCount = getAnswerOptionsRichCount();
+    this.answerOptionsSimpleOrRich = getAnswerOptionsSimpleOrRich();
   }
 
     /*
@@ -1004,9 +1013,8 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
    return ((ItemData)this.data).getAnswerKey();
   }
 
-  public int compareTo(Object o) {
-      ItemFacade a = (ItemFacade)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(ItemDataIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
 
   public Set getItemAttachmentSet() {
@@ -1045,6 +1053,60 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 	  return itemAttachmentMetaData;
   }
   
+  public String getLeadInText() {
+    try {
+        this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+        throw new DataFacadeException(ex.getMessage());
+    }
+    this.leadInText = data.getLeadInText();
+	return leadInText;
+  }
+
+  public String getThemeText() {
+    try {
+        this.data = (ItemDataIfc) item.getData();
+    }
+    catch (AssessmentException ex) {
+        throw new DataFacadeException(ex.getMessage());
+    }
+	this.themeText = data.getThemeText();
+	return themeText;
+  }
+
+  // total number of correct EMI answers
+	public int getNumberOfCorrectEmiOptions() {
+	   try {
+	        this.data = (ItemDataIfc) item.getData();
+	    }
+	    catch (AssessmentException ex) {
+	        throw new DataFacadeException(ex.getMessage());
+	   }
+ 	   return data.getNumberOfCorrectEmiOptions();
+	}  
+  
+	// available option labels for EMI answers
+	public String getEmiAnswerOptionLabels() {
+		   try {
+		        this.data = (ItemDataIfc) item.getData();
+		    }
+		    catch (AssessmentException ex) {
+		        throw new DataFacadeException(ex.getMessage());
+		   }
+	 	   return data.getEmiAnswerOptionLabels();
+	}
+	
+	public boolean isValidEmiAnswerOptionLabel(String label) {
+		   try {
+		        this.data = (ItemDataIfc) item.getData();
+		    }
+		    catch (AssessmentException ex) {
+		        throw new DataFacadeException(ex.getMessage());
+		   }
+	 	   return data.isValidEmiAnswerOptionLabel(label);
+	}
+	
   public void setPartialCreditFlag(Boolean partialCreditFlag){
 	  this.partialCreditFlag=partialCreditFlag;
 	  this.data.setPartialCreditFlag(partialCreditFlag);
@@ -1060,4 +1122,86 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable {
 	  }
 	  return this.data.getPartialCreditFlag();
   }
+  
+	public List getEmiAnswerOptions() {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getEmiAnswerOptions();
+	}
+
+	public List getEmiQuestionAnswerCombinations() {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getEmiQuestionAnswerCombinations();
+	}
+
+	public ItemTextIfc getItemTextBySequence(Long itemTextSequence) {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getItemTextBySequence(itemTextSequence);
+	}
+	
+	public Integer getAnswerOptionsRichCount() {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getAnswerOptionsRichCount();
+	}
+
+	public void setAnswerOptionsRichCount(Integer answerOptionsRichCount) {
+		this.answerOptionsRichCount = answerOptionsRichCount;
+		this.data.setAnswerOptionsRichCount(answerOptionsRichCount);
+	}	  
+	  
+	public Integer getAnswerOptionsSimpleOrRich() {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getAnswerOptionsSimpleOrRich();
+	}
+
+	public void setAnswerOptionsSimpleOrRich(Integer answerOptionsSimpleOrRich) {
+		this.answerOptionsSimpleOrRich = answerOptionsSimpleOrRich;
+		this.data.setAnswerOptionsSimpleOrRich(answerOptionsSimpleOrRich);
+	}
+
+	public String getEmiAnswerOptionsRichText() {
+		try {
+			this.data = (ItemDataIfc) item.getData();
+		} catch (AssessmentException ex) {
+			throw new DataFacadeException(ex.getMessage());
+		}
+		return this.data.getEmiAnswerOptionsRichText();
+	}
+	
+	  public boolean getIsAnswerOptionsSimple() {
+			try {
+				this.data = (ItemDataIfc) item.getData();
+			} catch (AssessmentException ex) {
+				throw new DataFacadeException(ex.getMessage());
+			}
+			return this.data.getIsAnswerOptionsSimple();
+	  }
+
+	  public boolean getIsAnswerOptionsRich() {
+			try {
+				this.data = (ItemDataIfc) item.getData();
+			} catch (AssessmentException ex) {
+				throw new DataFacadeException(ex.getMessage());
+			}
+			return this.data.getIsAnswerOptionsRich();
+	  }
 }

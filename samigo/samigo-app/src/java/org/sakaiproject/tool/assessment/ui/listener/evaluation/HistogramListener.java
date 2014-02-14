@@ -5,14 +5,15 @@ package org.sakaiproject.tool.assessment.ui.listener.evaluation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
 import javax.faces.context.FacesContext;
@@ -27,6 +28,7 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -36,6 +38,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
@@ -162,8 +165,6 @@ public class HistogramListener
   }
 
   /**
-   * modified by gopalrc Nov 2007
-   * 
    * Calculate the detailed statistics
    * 
    * This will populate the HistogramScoresBean with the data associated with the
@@ -190,11 +191,10 @@ public class HistogramListener
         	log.error("SAK-16437 happens!! publishedId = " + publishedId + ", agentId = " + AgentFacade.getAgentString());
         }
         
-    	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+    	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
         ResourceLoader rbEval = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
         String assessmentName = "";
 
-		  // gopalrc Dec 2007
 		  histogramScores.clearLowerQuartileStudents();
 		  histogramScores.clearUpperQuartileStudents();
 
@@ -216,7 +216,7 @@ public class HistogramListener
           for(AssessmentGradingData agd: allscores){
           	agd.setItemGradingSet(delegate.getItemGradingSet(String.valueOf(agd.getAssessmentGradingId())));
           }
-          if (allscores.size() == 0) {
+          if (allscores.isEmpty()) {
 			// Similar case in Bug 1537, but clicking Statistics link instead of assignment title.
 			// Therefore, redirect the the same page.
 			delivery.setOutcome("reviewAssessmentError");
@@ -259,14 +259,10 @@ public class HistogramListener
 			  return false;
 		  }
 		  
-		  /*
-		   * gopalrc - moved up from (1)
-		   */
 		  // here scores contain AssessmentGradingData 
 		  Map assessmentMap = getAssessmentStatisticsMap(scores);
 
 		  /*
-		   * gopalrc Nov 2007
 		   * find students in upper and lower quartiles 
 		   * of assessment scores
 		   */ 
@@ -276,9 +272,7 @@ public class HistogramListener
 		  int numSubmissions = scores.size();
 		  //int percent27 = ((numSubmissions*10*27/100)+5)/10; // rounded
 		  int percent27 = numSubmissions*27/100; // rounded down
-		  if (percent27 == 0) percent27 = 1; // gopalrc - check this - only relevant for very small samples
-		  //double q1 = Double.valueOf((String) assessmentMap.get("q1")).doubleValue();
-		  //double q3 = Double.valueOf((String) assessmentMap.get("q3")).doubleValue();
+		  if (percent27 == 0) percent27 = 1; 
 		  for (int i=0; i<percent27; i++) {
 			  histogramScores.addToLowerQuartileStudents(((AssessmentGradingData)
 					  submissionsSortedForDiscrim.get(i)).getAgentId());
@@ -324,8 +318,8 @@ public class HistogramListener
 
 			  assessmentName = pub.getTitle();
 
-			  ArrayList parts = pub.getSectionArraySorted();
-                          histogramScores.setAssesmentParts(parts);
+			  List<? extends SectionDataIfc> parts = pub.getSectionArraySorted();
+                          histogramScores.setAssesmentParts((List<PublishedSectionData>)parts);
 			  ArrayList info = new ArrayList();
 			  Iterator partsIter = parts.iterator();
 			  int secseq = 1;
@@ -389,21 +383,21 @@ public class HistogramListener
 				  }
 				  if (section.getSequence() == null)
 					  section.setSequence(Integer.valueOf(secseq++));
-				  String title = rb.getString("p") + " "
+				  String title = rb.getString("part") + " "
 				  + section.getSequence().toString();
-				  title += ", " + rb.getString("q") + " ";
-				  ArrayList itemset = section.getItemArraySortedForGrading();
+				  title += ", " + rb.getString("question") + " ";
+				  List<ItemDataIfc> itemset = section.getItemArraySortedForGrading();
 				  int seq = 1;
-				  Iterator itemsIter = itemset.iterator();
+				  Iterator<ItemDataIfc> itemsIter = itemset.iterator();
 
 				  // Iterate through the assessment questions (items)
 				  while (itemsIter.hasNext()) {
 					  HistogramQuestionScoresBean questionScores = new HistogramQuestionScoresBean();
-					  questionScores.setNumberOfParts(parts.size()); // gopalrc
+					  questionScores.setNumberOfParts(parts.size()); 
 					  //if this part is a randompart , then set randompart = true
 					  questionScores.setRandomType(isRandompart);
                       questionScores.setPoolName(poolName);
-					  ItemDataIfc item = (ItemDataIfc) itemsIter.next();
+					  ItemDataIfc item = itemsIter.next();
 
 					  //String type = delegate.getTextForId(item.getTypeId());
 					  String type = getType(item.getTypeId().intValue());
@@ -429,17 +423,23 @@ public class HistogramListener
                       questionScores.setItemId(item.getItemId());
 					  questionScores.setTitle(title + item.getSequence().toString()
 							  + " (" + type + ")");
-					  questionScores.setQuestionText(item.getText());
+					  
+					  if (item.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) { // emi question
+						  questionScores.setQuestionText(item.getLeadInText());
+					  }
+					  else {
+						  questionScores.setQuestionText(item.getText());
+					  }
+					  
 					  questionScores.setQuestionType(item.getTypeId().toString());
 					  //totalpossible = totalpossible + item.getScore().doubleValue();
 					  //ArrayList responses = null;
 
+					  //for each question (item) in the published assessment's current part/section
 					  determineResults(pub, questionScores, (ArrayList) itemScores
 							  .get(item.getItemId()));
 					  questionScores.setTotalScore(item.getScore().toString());
 
-
-					  // below - gopalrc Nov 2007
 					  questionScores.setN(""+numSubmissions);
 					  questionScores.setItemId(item.getItemId());
 					  Set studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
@@ -519,8 +519,6 @@ public class HistogramListener
                               questionScores.setDiscrimination(rbEval.getString("na"));
                           }
 					  }
-					  // above - gopalrc Nov 2007
-
 
 					  info.add(questionScores);
 				  } // end-while - items
@@ -532,38 +530,59 @@ public class HistogramListener
 			  histogramScores.setInfo(info);
 			  histogramScores.setRandomType(hasRandompart);
 
-			  // below - gopalrc Dec 2007
 			  int maxNumOfAnswers = 0;
-			  ArrayList detailedStatistics = new ArrayList();
+			  List<HistogramQuestionScoresBean> detailedStatistics = new ArrayList<HistogramQuestionScoresBean>();
 			  Iterator infoIter = info.iterator();
 			  while (infoIter.hasNext()) {
 				  HistogramQuestionScoresBean questionScores = (HistogramQuestionScoresBean)infoIter.next();
-				  if (questionScores.getQuestionType().equals("1") 
-						  || questionScores.getQuestionType().equals("2")
-						  || questionScores.getQuestionType().equals("3")
-						  || questionScores.getQuestionType().equals("4")
-						  || questionScores.getQuestionType().equals("8")
-						  || questionScores.getQuestionType().equals("9")
-						  || questionScores.getQuestionType().equals("11")
-						  || questionScores.getQuestionType().equals("12")
-						  || questionScores.getQuestionType().equals("15")
+				  if (questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString()) 
+						  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.MATCHING.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())
+						  || questionScores.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())
 						) {
+					  questionScores.setShowIndividualAnswersInDetailedStatistics(true);
 					  detailedStatistics.add(questionScores);
 					  if (questionScores.getHistogramBars() != null) {
 						  maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
 					  }
 				  }
+				  //i.e. for EMI questions we add detailed stats for the whole
+				  //question as well as for the sub-questions
+				  if (questionScores.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) 
+				  ) {
+					  questionScores.setShowIndividualAnswersInDetailedStatistics(false);
+					  detailedStatistics.addAll(questionScores.getInfo());
+					  
+					  Iterator subInfoIter = questionScores.getInfo().iterator();
+					  while (subInfoIter.hasNext()) {
+						  HistogramQuestionScoresBean subQuestionScores = (HistogramQuestionScoresBean) subInfoIter.next();
+						  if (subQuestionScores.getHistogramBars() != null) {
+							  subQuestionScores.setN(questionScores.getN());
+							  maxNumOfAnswers = subQuestionScores.getHistogramBars().length >maxNumOfAnswers ? subQuestionScores.getHistogramBars().length : maxNumOfAnswers;
+						  }
+					  }
+/*					  
+					  Object numberOfStudentsWithZeroAnswers = numberOfStudentsWithZeroAnswersForQuestion.get(questionScores.getItemId());
+					  if (numberOfStudentsWithZeroAnswers == null) {
+						  questionScores.setNumberOfStudentsWithZeroAnswers(0);
+					  }
+					  else {
+						  questionScores.setNumberOfStudentsWithZeroAnswers( ((Integer) numberOfStudentsWithZeroAnswersForQuestion.get(questionScores.getItemId())).intValue() );
+					  }
+*/					  
+				  }
+				  
+				  
 			  }
+		      //VULA-1948: sort the detailedStatistics list by Question Label
+			  sortQuestionScoresByLabel(detailedStatistics);
 			  histogramScores.setDetailedStatistics(detailedStatistics);
 			  histogramScores.setMaxNumberOfAnswers(maxNumOfAnswers);
-			  // above - gopalrc Dec 2007
-
-
-			  /*
-			   * gopalrc - moved up (1)
-				// here scores contain AssessmentGradingData 
-				Map assessmentMap = getAssessmentStatisticsMap(scores);
-			   */
 
 			  // test to see if it gets back empty map
 			  if (assessmentMap.isEmpty()) {
@@ -642,6 +661,14 @@ public class HistogramListener
 	  return true;
   }
 
+  /**
+   * For each question (item) in the published assessment's current part/section
+   * determine the results by calculating statistics for whole question or 
+   * individual answers depending on the question type
+   * @param pub
+   * @param qbean
+   * @param itemScores
+   */
   private void determineResults(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
     ArrayList<ItemGradingData> itemScores)
   {
@@ -665,26 +692,35 @@ public class HistogramListener
       qbean.setNumResponses(responses);
       qbean.setNumberOfStudentsWithZeroAnswers(numStudentsWithZeroAnswers);
 
-    if (qbean.getQuestionType().equals("1") ||  // mcsc
-        qbean.getQuestionType().equals("2") ||  // mcmcms
-        qbean.getQuestionType().equals("12") ||  // mcmcss
-        qbean.getQuestionType().equals("3") ||  // mc survey
-        qbean.getQuestionType().equals("4") || // tf
-        qbean.getQuestionType().equals("9") || // matching
-        qbean.getQuestionType().equals("8") || // Fill in the blank
-    	qbean.getQuestionType().equals("11") ||  //  Numeric Response
-        qbean.getQuestionType().equals("15") || // CALCULATED_QUESTION
-    	qbean.getQuestionType().equals("13"))  // matrix survey 
+    if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString()) ||  // mcsc
+        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString()) ||  // mcmcms
+        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString()) ||  // mcmcss
+        qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()) ||  // mc survey
+        qbean.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString()) || // tf
+        qbean.getQuestionType().equals(TypeIfc.MATCHING.toString()) || // matching
+        qbean.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString()) || // Fill in the blank
+        qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) || // Extended Matching Items
+    	qbean.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString()) ||  //  Numeric Response
+        qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString()) || // CALCULATED_QUESTION
+    	qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString()))  // matrix survey 
       doAnswerStatistics(pub, qbean, itemScores);
-    if (qbean.getQuestionType().equals("5") || // essay
-        qbean.getQuestionType().equals("6") || // file upload
-        qbean.getQuestionType().equals("7")) // audio recording
+    if (qbean.getQuestionType().equals(TypeIfc.ESSAY_QUESTION.toString()) || // essay
+        qbean.getQuestionType().equals(TypeIfc.FILE_UPLOAD.toString()) || // file upload
+        qbean.getQuestionType().equals(TypeIfc.AUDIO_RECORDING.toString())) // audio recording
       doScoreStatistics(qbean, itemScores);
 
   }
 
+  /**
+   * For each question where statistics are required for seperate answers, 
+   * this method calculates the answer statistics by calling a different
+   * getXXXScores() method for each question type.
+   * @param pub
+   * @param qbean
+   * @param scores
+   */
   private void doAnswerStatistics(PublishedAssessmentIfc pub, HistogramQuestionScoresBean qbean,
-    ArrayList scores)
+    List<ItemGradingData> scores)
   {
 	
 //    Don't return here. This will cause questions to be displayed inconsistently on the stats page
@@ -704,40 +740,534 @@ public class HistogramListener
 
     //int numAnswers = 0;
     ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(qbean.getItemId());
-    ArrayList text = item.getItemTextArraySorted();
-    ArrayList answers = null;
-    if (!qbean.getQuestionType().equals("9")) // matching
+    List text = item.getItemTextArraySorted();
+    List answers = null;
+    
+	//keys number of correct answers required by sub-question (ItemText)
+	HashMap emiRequiredCorrectAnswersCount = null;
+    if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString())) { //EMI
+    	emiRequiredCorrectAnswersCount = new HashMap();
+    	answers = new ArrayList();
+    	for (int i=0; i<text.size(); i++) { 
+    	    ItemTextIfc iText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[i]).getId());
+        	if (iText.isEmiQuestionItemText()) {
+        		boolean requireAllCorrectAnswers = true;
+        		int numCorrectAnswersRequired = 0;
+        		if (iText.getRequiredOptionsCount()!=null && iText.getRequiredOptionsCount().intValue()>0) {
+        			requireAllCorrectAnswers = false;
+        			numCorrectAnswersRequired = iText.getRequiredOptionsCount().intValue();
+        		}
+        		if (iText.getAnswerArraySorted() == null) continue;
+        		Iterator ansIter = iText.getAnswerArraySorted().iterator();
+        		while (ansIter.hasNext()) {
+        			AnswerIfc answer = (AnswerIfc)ansIter.next();
+        			answers.add(answer);
+        			if (requireAllCorrectAnswers && answer.getIsCorrect()) {
+        				numCorrectAnswersRequired++;
+        			}
+        		}
+    			emiRequiredCorrectAnswersCount.put(iText.getId(), Integer.valueOf(numCorrectAnswersRequired));
+    	    }
+    	}
+    }
+    else if (!qbean.getQuestionType().equals(TypeIfc.MATCHING.toString())) // matching
     {
       ItemTextIfc firstText = (ItemTextIfc) publishedItemTextHash.get(((ItemTextIfc) text.toArray()[0]).getId());
       answers = firstText.getAnswerArraySorted();
     }
    
-    if (qbean.getQuestionType().equals("1")) // mcsc
+    if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE.toString())) // mcsc
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("2")) // mcmc
+    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT.toString())) // mcmc
       getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("12")) 
+    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.toString())) 
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("3"))
+    else if (qbean.getQuestionType().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY.toString()))
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("4")) // tf
+    else if (qbean.getQuestionType().equals(TypeIfc.TRUE_FALSE.toString())) // tf
       getTFMCScores(publishedAnswerHash, scores, qbean, answers);
-    else if ((qbean.getQuestionType().equals("8"))||(qbean.getQuestionType().equals("11")) )
+    else if ((qbean.getQuestionType().equals(TypeIfc.FILL_IN_BLANK.toString()))||(qbean.getQuestionType().equals(TypeIfc.FILL_IN_NUMERIC.toString())) )
       getFIBMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
     //else if (qbean.getQuestionType().equals("11"))
     //    getFINMCMCScores(publishedItemHash, publishedAnswerHash, scores, qbean, answers);
-    else if (qbean.getQuestionType().equals("9"))
+    else if (qbean.getQuestionType().equals(TypeIfc.MATCHING.toString()))
       getMatchingScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
-    else if (qbean.getQuestionType().equals("15")) // CALCULATED_QUESTION
-        getCalculatedQuestionScores(scores, qbean, text);
-    else if (qbean.getQuestionType().equals("13")) // matrix survey question
+    else if (qbean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()))
+        getEMIScores(publishedItemHash, publishedAnswerHash, emiRequiredCorrectAnswersCount, scores, qbean, answers);
+    else if (qbean.getQuestionType().equals(TypeIfc.MATRIX_CHOICES_SURVEY.toString())) // matrix survey question
       getMatrixSurveyScores(publishedItemTextHash, publishedAnswerHash, scores, qbean, text);
+    else if (qbean.getQuestionType().equals(TypeIfc.CALCULATED_QUESTION.toString())) // CALCULATED_QUESTION
+        getCalculatedQuestionScores(scores, qbean, text);
   }
 
+  /**
+   * calculates statistics for EMI questions
+   */
+  private void getEMIScores(HashMap publishedItemHash,
+			HashMap publishedAnswerHash, HashMap emiRequiredCorrectAnswersCount, List scores,
+			HistogramQuestionScoresBean qbean, List answers) {
+		ResourceLoader rb = new ResourceLoader(
+				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
+		
+		// Answers keyed by answer-id
+		HashMap answersById = new HashMap();
+		
+		//keys the number of student responses selecting a particular answer
+		//by the Answer ID
+		HashMap results = new HashMap();
+		
+		//keys Answer-IDs by subQuestion/ItemTextSequence-answerSequence (concatenated)
+		HashMap sequenceMap = new HashMap();
+		
+		//list of answers for each sub-question/ItemText
+		ArrayList subQuestionAnswers = null;
+		
+		//Map which keys above lists by the sub-question/ItemText sequence
+		HashMap subQuestionAnswerMap = new HashMap();
+		
+		//Create a Map where each Sub-Question's Answers-ArrayList 
+		//is keyed by sub-question and answer sequence 
+		Iterator iter = answers.iterator();
+		while (iter.hasNext()) {
+			AnswerIfc answer = (AnswerIfc) iter.next();
+			answersById.put(answer.getId(), answer);
+			results.put(answer.getId(), Integer.valueOf(0));
+			sequenceMap.put(answer.getItemText().getSequence() + "-" + answer.getSequence(), answer.getId());
+			Long subQuestionSequence = answer.getItemText().getSequence();
+			Object subSeqAns = subQuestionAnswerMap.get(subQuestionSequence);
+			if (subSeqAns == null) {
+				subQuestionAnswers = new ArrayList();
+				subQuestionAnswerMap.put(subQuestionSequence, subQuestionAnswers);
+			}
+			else {
+				subQuestionAnswers = (ArrayList) subSeqAns;
+			}
+			subQuestionAnswers.add(answer);
+		}
 
+		//Iterate through the student answers (ItemGradingData)
+		iter = scores.iterator();
+		//Create a map that keys all the responses/answers (ItemGradingData) 
+		//for this question from a specific student (assessment)
+		//by the id of that assessment (AssessmentGradingData)
+		HashMap responsesPerStudentPerQuestionMap = new HashMap();
+		//and do the same for seperate sub-questions
+		HashMap responsesPerStudentPerSubQuestionMap = new HashMap();
+		while (iter.hasNext()) {
+			ItemGradingData data = (ItemGradingData) iter.next();
+			//Get the published answer that corresponds to the student's reponse
+			AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data
+					.getPublishedAnswerId());
+			//This should always be the case as only valid responses 
+			//from the list of available options are allowed 
+			if (answer != null) {
+				// log.info("Gopal: looking for " + answer.getId());
+				// found a response
+				Integer num = null;
+				// num is a counter for the number of responses that select this published answer
+				try {
+					// we found a response, now get existing count from the
+					// hashmap
+					num = (Integer) results.get(answer.getId());
+
+				} catch (Exception e) {
+					log.warn("No results for " + answer.getId());
+				}
+				
+				//If this published answer has not been selected before
+				if (num == null)
+					num = Integer.valueOf(0);
+
+				//Now create a map that keys all the responses (ItemGradingData) 
+				//for this question from a specific student (or assessment)
+				//by the id of that assessment (AssessmentGradingData)
+				ArrayList studentResponseList = (ArrayList) responsesPerStudentPerQuestionMap
+						.get(data.getAssessmentGradingId());
+				if (studentResponseList == null) {
+					studentResponseList = new ArrayList();
+				}
+				studentResponseList.add(data);
+				responsesPerStudentPerQuestionMap.put(data.getAssessmentGradingId(),
+						studentResponseList);
+				
+				//Do the same for the sub-questions
+				String key = data.getAssessmentGradingId() + "-" + answer.getItemText().getId();
+				ArrayList studentResponseListForSubQuestion = (ArrayList) responsesPerStudentPerSubQuestionMap
+					.get(key);
+				if (studentResponseListForSubQuestion == null) {
+					studentResponseListForSubQuestion = new ArrayList();
+				}
+				studentResponseListForSubQuestion.add(data);
+				responsesPerStudentPerSubQuestionMap.put(key, studentResponseListForSubQuestion);
+				
+				
+				results.put(answer.getId(), Integer.valueOf(
+							num.intValue() + 1));
+			}
+		}
+		
+		HistogramBarBean[] bars = new HistogramBarBean[results.keySet().size()];
+		int[] numarray = new int[results.keySet().size()];
+		
+		//List of "ItemText.sequence-Answer.sequence"
+		List<String> sequenceList = new ArrayList<String>();
+		iter = answers.iterator();
+		while (iter.hasNext()) {
+			AnswerIfc answer = (AnswerIfc) iter.next();
+			sequenceList.add(answer.getItemText().getSequence() + "-" + answer.getSequence());
+		}
+                // sort the sequence
+		Collections.sort(sequenceList, new Comparator<String>(){
+
+                    public int compare(String o1, String o2) {
+                        Integer a1 = Integer.valueOf(o1.substring(0, o1.indexOf("-")));
+                        Integer a2 = Integer.valueOf(o2.substring(0, o1.indexOf("-")));
+                        int val = a1.compareTo(a2);
+                        if(val != 0){
+                            return val;
+                        }
+                        a1 = Integer.valueOf(o1.substring(o1.indexOf("-")+1));
+                        a2 = Integer.valueOf(o2.substring(o1.indexOf("-")+1));
+                        return a1.compareTo(a2);
+                    }
+                });
+		// iter = results.keySet().iterator();
+		iter = sequenceList.iterator();
+		int i = 0;
+		int responses = 0;
+		int correctresponses = 0;
+		while (iter.hasNext()) {
+			String sequenceId = (String) iter.next();
+			Long answerId = (Long) sequenceMap.get(sequenceId);
+			AnswerIfc answer = (AnswerIfc) answersById.get(answerId);
+			int num = ((Integer) results.get(answerId)).intValue();
+			numarray[i] = num;
+			bars[i] = new HistogramBarBean();
+			if (answer != null) {
+				bars[i].setSubQuestionSequence(answer.getItemText().getSequence());
+				if (answer.getItem().getIsAnswerOptionsSimple()) {
+					bars[i].setLabel(answer.getItemText().getSequence() + ". " + answer.getLabel() + "  " + answer.getText());
+				}
+				else { //rich text or attachment options
+					bars[i].setLabel(answer.getItemText().getSequence() + ". " + answer.getLabel());
+				}
+
+				if (answer.getLabel().equals("A")) {
+					String title = rb.getString("item") + " " + answer.getItemText().getSequence();
+					String text = answer.getItemText().getText();
+					if (text != null && !text.equals(null)) {
+						title += " : " + text;
+						bars[i].setTitle(title);
+					}
+				}
+				bars[i].setIsCorrect(answer.getIsCorrect());
+			}
+			
+			bars[i].setNumStudentsText(num + " " + rb.getString("responses"));
+			bars[i].setNumStudents(num);
+			i++;
+		}// end while
+
+		responses = responsesPerStudentPerQuestionMap.size();
+		
+		//Determine the number of students with all correct responses for the whole question
+		for (Iterator it = responsesPerStudentPerQuestionMap.entrySet().iterator(); it.hasNext();) {
+			Map.Entry entry = (Map.Entry) it.next();
+			ArrayList resultsForOneStudent = (ArrayList) entry.getValue();
+
+			boolean hasIncorrect = false;
+			Iterator listiter = resultsForOneStudent.iterator();
+
+			// iterate through the results for one student
+			// for this question (qbean)
+			while (listiter.hasNext()) {
+				ItemGradingData item = (ItemGradingData) listiter.next();
+				
+				// only answered choices are created in the
+				// ItemGradingData_T, so we need to check
+				// if # of checkboxes the student checked is == the number
+				// of correct answers
+				// otherwise if a student only checked one of the multiple
+				// correct answers,
+				// it would count as a correct response
+				try {
+					int corranswers = 0;
+					Iterator answeriter = answers.iterator();
+					while (answeriter.hasNext()) {
+						AnswerIfc answerchoice = (AnswerIfc) answeriter
+								.next();
+						if (answerchoice.getIsCorrect().booleanValue()) {
+							corranswers++;
+						}
+					}
+					if (resultsForOneStudent.size() != corranswers) {
+						hasIncorrect = true;
+						break;
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new RuntimeException(
+							"error calculating emi question.");
+				}
+
+				// now check each answer
+				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(item
+						.getPublishedAnswerId());
+				if (answer != null
+						&& (answer.getIsCorrect() == null || (!answer
+								.getIsCorrect().booleanValue()))) {
+					hasIncorrect = true;
+					break;
+				}
+			}
+
+			if (!hasIncorrect) {
+				correctresponses = correctresponses + 1;
+				qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+			}
+			qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
+		} // end for - number of students with all correct responses for the whole question
+		
+		// NEW
+		int[] heights = calColumnHeight(numarray, responses);
+		// int[] heights = calColumnHeight(numarray);
+		for (i = 0; i < bars.length; i++)
+		{
+			try
+			{
+				bars[i].setColumnHeight(Integer.toString(heights[i]));
+			}
+			catch(NullPointerException npe)
+			{
+				log.warn("null column height " + npe);
+			}
+		}
+
+		qbean.setHistogramBars(bars);
+		qbean.setNumResponses(responses);
+		if (responses > 0)
+			qbean.setPercentCorrect(Integer.toString((int) (((double) correctresponses / (double) responses) * 100)));
+		
+		HashMap numStudentsWithAllCorrectPerSubQuestion = new HashMap();
+		HashMap studentsWithAllCorrectPerSubQuestion = new HashMap();
+		HashMap studentsRespondedPerSubQuestion = new HashMap();
+		Iterator studentSubquestionResponseKeyIter = responsesPerStudentPerSubQuestionMap.keySet().iterator();
+		while (studentSubquestionResponseKeyIter.hasNext()) {
+			String key = (String)studentSubquestionResponseKeyIter.next();
+			ArrayList studentResponseListForSubQuestion = (ArrayList) responsesPerStudentPerSubQuestionMap
+			.get(key);
+			if (studentResponseListForSubQuestion != null && !studentResponseListForSubQuestion.isEmpty()) {
+				ItemGradingData response1 = (ItemGradingData)studentResponseListForSubQuestion.get(0);
+				Long subQuestionId = ((AnswerIfc)publishedAnswerHash.get(response1.getPublishedAnswerId())).getItemText().getId();
+				
+				Set studentsResponded = (Set)studentsRespondedPerSubQuestion.get(subQuestionId);
+				if (studentsResponded == null) studentsResponded = new TreeSet();
+				studentsResponded.add(response1.getAgentId());
+				studentsRespondedPerSubQuestion.put(subQuestionId, studentsResponded);
+				
+				boolean hasIncorrect = false;
+				//numCorrectSubQuestionAnswers = (Integer) correctAnswersPerSubQuestion.get(subQuestionId);
+				Integer numCorrectSubQuestionAnswers = (Integer) emiRequiredCorrectAnswersCount.get(subQuestionId);
+				
+				if (studentResponseListForSubQuestion.size() < numCorrectSubQuestionAnswers.intValue()) {
+					hasIncorrect = true;
+					continue;
+				}
+				//now check each answer
+				Iterator studentResponseIter = studentResponseListForSubQuestion.iterator();
+				while (studentResponseIter.hasNext()) {
+					ItemGradingData response = (ItemGradingData)studentResponseIter.next();
+					AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(response
+							.getPublishedAnswerId());
+					if (answer != null
+							&& (answer.getIsCorrect() == null || (!answer
+									.getIsCorrect().booleanValue()))) {
+						hasIncorrect = true;
+						break;
+					}
+				}
+				if (hasIncorrect) continue;	
+				Integer numWithAllCorrect = (Integer)numStudentsWithAllCorrectPerSubQuestion.get(subQuestionId);
+				if (numWithAllCorrect == null) {
+					numWithAllCorrect = Integer.valueOf(0);
+				}
+				numStudentsWithAllCorrectPerSubQuestion.put(subQuestionId, Integer.valueOf(numWithAllCorrect.intValue() + 1));
+				
+				Set studentsWithAllCorrect = (Set)studentsWithAllCorrectPerSubQuestion.get(subQuestionId);
+				if (studentsWithAllCorrect == null) studentsWithAllCorrect = new TreeSet();
+				studentsWithAllCorrect.add(response1.getAgentId());
+				studentsWithAllCorrectPerSubQuestion.put(subQuestionId, studentsWithAllCorrect);
+
+			}
+			
+		}
+		
+		//Map ItemText sequences to Ids
+		HashMap itemTextSequenceIdMap = new HashMap();
+		Iterator answersIter = answers.iterator();
+		while (answersIter.hasNext()) {
+			AnswerIfc answer = (AnswerIfc)answersIter.next();
+			itemTextSequenceIdMap.put(answer.getItemText().getSequence(), answer.getItemText().getId());
+		}
+		
+		//Now select the the bars for each sub-questions	
+		Set subQuestionKeySet = subQuestionAnswerMap.keySet();
+		ArrayList subQuestionKeyList = new ArrayList();
+		subQuestionKeyList.addAll(subQuestionKeySet);
+		Collections.sort(subQuestionKeyList);
+		Iterator subQuestionIter = subQuestionKeyList.iterator();
+		ArrayList subQuestionInfo = new ArrayList(); //List of sub-question HistogramQuestionScoresBeans - for EMI sub-questions
+		  // Iterate through the assessment questions (items)
+		  while (subQuestionIter.hasNext()) {
+			  Long subQuestionSequence = (Long)subQuestionIter.next();
+			  
+			  //While qbean is the HistogramQuestionScoresBean for the entire question
+			  //questionScores are the HistogramQuestionScoresBeans for each sub-question
+			  HistogramQuestionScoresBean questionScores = new HistogramQuestionScoresBean();
+			  questionScores.setSubQuestionSequence(subQuestionSequence);
+			  
+			  // Determine the number of bars (possible answers) for this sub-question
+			  int numBars = 0;
+			  for (int j=0; j<bars.length; j++) {
+				  if (bars[j].getSubQuestionSequence().equals(subQuestionSequence)) {
+					  numBars++;
+				  }
+			  }
+			  //Now create an array of that size
+			  //and populate it with the bars for this sub-question
+			  HistogramBarBean[] subQuestionBars = new HistogramBarBean[numBars];
+			  int subBar = 0;
+			  for (int j=0; j<bars.length; j++) {
+				  if (bars[j].getSubQuestionSequence().equals(subQuestionSequence)) {
+					  subQuestionBars[subBar++]=bars[j];
+				  }
+			  }
+			  
+			  questionScores.setShowIndividualAnswersInDetailedStatistics(true);
+			  questionScores.setHistogramBars(subQuestionBars);
+			  questionScores.setNumberOfParts(qbean.getNumberOfParts());
+			  //if this part is a randompart , then set randompart = true
+			  questionScores.setRandomType(qbean.getRandomType());
+
+			  questionScores.setPartNumber(qbean.getPartNumber());
+			  questionScores.setQuestionNumber(qbean.getQuestionNumber()+"-"+subQuestionSequence);
+			  
+			  questionScores.setQuestionText(qbean.getQuestionText());
+			  
+			  questionScores.setQuestionType(qbean.getQuestionType());
+			  
+			  questionScores.setN(qbean.getN());
+			  questionScores.setItemId(qbean.getItemId());
+			 
+			  //This boild down to the number of AssessmentGradingData
+			  //So should be the same for whole and sub questions
+			  questionScores.setNumResponses(qbean.getNumResponses());
+
+			  Long subQuestionId = (Long)itemTextSequenceIdMap.get(subQuestionSequence);
+			  if (questionScores.getNumResponses() > 0) { 
+ 				  Integer numWithAllCorrect = (Integer)numStudentsWithAllCorrectPerSubQuestion.get(subQuestionId);
+ 				  if (numWithAllCorrect != null) correctresponses = numWithAllCorrect.intValue();
+				  questionScores.setPercentCorrect(Integer.toString((int) (((double) correctresponses / (double) responses) * 100)));
+			  }
+			  Set studentsWithAllCorrect = (Set)studentsWithAllCorrectPerSubQuestion.get(subQuestionId);
+			  questionScores.setStudentsWithAllCorrect(studentsWithAllCorrect);
+			  
+			  Set studentsResponded = (Set)studentsRespondedPerSubQuestion.get(subQuestionId);
+			  questionScores.setStudentsResponded(studentsResponded);
+			    
+			  subQuestionAnswers = (ArrayList) subQuestionAnswerMap.get(subQuestionSequence);
+			  Iterator answerIter = subQuestionAnswers.iterator();
+			  Double totalScore = new Double(0);
+			  while (answerIter.hasNext()) {
+				  AnswerIfc subQuestionAnswer = (AnswerIfc) answerIter.next();
+				  totalScore += (subQuestionAnswer==null||subQuestionAnswer.getScore()==null?0.0:subQuestionAnswer.getScore());
+				  
+			  }
+			  questionScores.setTotalScore(totalScore.toString());
+			  
+			  HistogramScoresBean histogramScores = (HistogramScoresBean) ContextUtil.lookupBean(
+                "histogramScores");	
+			    
+			  Iterator keys = responsesPerStudentPerSubQuestionMap.keySet().iterator();
+			  int numSubmissions = 0;
+			  while (keys.hasNext()) {
+				  String assessmentAndSubquestionId = (String)keys.next(); 
+				  if (assessmentAndSubquestionId.endsWith("-"+subQuestionId)) numSubmissions++;
+			  }
+			  int percent27 = numSubmissions*27/100; // rounded down
+			  if (percent27 == 0) percent27 = 1;
+			  
+			  studentsWithAllCorrect = questionScores.getStudentsWithAllCorrect();
+			  studentsResponded = questionScores.getStudentsResponded();
+			  if (studentsWithAllCorrect == null || studentsResponded == null || 
+					  studentsWithAllCorrect.isEmpty() || studentsResponded.isEmpty()) {
+				  questionScores.setPercentCorrectFromUpperQuartileStudents("0");
+				  questionScores.setPercentCorrectFromLowerQuartileStudents("0");
+				  questionScores.setDiscrimination("0.0");
+			  }
+			  else {
+				  int numStudentsWithAllCorrectFromUpperQuartile = 0;
+				  int numStudentsWithAllCorrectFromLowerQuartile = 0;
+				  Iterator studentsIter = studentsWithAllCorrect.iterator();
+				  while (studentsIter.hasNext()) {
+					  String agentId = (String) studentsIter.next();
+					  if (histogramScores.isUpperQuartileStudent(agentId)) {
+						  numStudentsWithAllCorrectFromUpperQuartile++;
+					  }
+					  if (histogramScores.isLowerQuartileStudent(agentId)) {
+						  numStudentsWithAllCorrectFromLowerQuartile++;
+					  }
+				  }
+				  int numStudentsRespondedFromUpperQuartile = 0;
+				  int numStudentsRespondedFromLowerQuartile = 0;
+				  studentsIter = studentsResponded.iterator();
+				  while (studentsIter.hasNext()) {
+					  String agentId = (String) studentsIter.next();
+					  if (histogramScores.isUpperQuartileStudent(agentId)) {
+						  numStudentsRespondedFromUpperQuartile++;
+					  }
+					  if (histogramScores.isLowerQuartileStudent(agentId)) {
+						  numStudentsRespondedFromLowerQuartile++;
+					  }
+				  }
+				  
+				  double percentCorrectFromUpperQuartileStudents = 
+					  ((double) numStudentsWithAllCorrectFromUpperQuartile / 
+							  (double) percent27) * 100d;
+
+				  double percentCorrectFromLowerQuartileStudents = 
+					  ((double) numStudentsWithAllCorrectFromLowerQuartile / 
+							  (double) percent27) * 100d;
+
+				  questionScores.setPercentCorrectFromUpperQuartileStudents(
+						  Integer.toString((int) percentCorrectFromUpperQuartileStudents));
+				  questionScores.setPercentCorrectFromLowerQuartileStudents(
+						  Integer.toString((int) percentCorrectFromLowerQuartileStudents));
+
+				  double numResponses = (double)questionScores.getNumResponses();
+
+				  double discrimination = ((double)numStudentsWithAllCorrectFromUpperQuartile -								  
+						  (double)numStudentsWithAllCorrectFromLowerQuartile)/(double)percent27 ;
+				  
+				  // round to 2 decimals
+				  if (discrimination > 999999 || discrimination < -999999) {
+					  questionScores.setDiscrimination("NaN");
+				  }
+				  else {
+					  discrimination = ((int) (discrimination*100.00)) / 100.00;
+					  questionScores.setDiscrimination(Double.toString(discrimination));
+				  }
+			  }
+
+			  subQuestionInfo.add(questionScores);
+		  } // end-while - items
+		qbean.setInfo(subQuestionInfo);
+		
+	}
+  
   private void getFIBMCMCScores(HashMap publishedItemHash,
-			HashMap publishedAnswerHash, ArrayList scores,
-			HistogramQuestionScoresBean qbean, ArrayList answers) {
+			HashMap publishedAnswerHash, List scores,
+			HistogramQuestionScoresBean qbean, List answers) {
 		ResourceLoader rb = new ResourceLoader(
 				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		HashMap texts = new HashMap();
@@ -875,10 +1405,10 @@ public class HistogramListener
 					// it would count as a correct response
 
 					try {
-						ArrayList itemTextArray = ((ItemDataIfc) publishedItemHash
+						List itemTextArray = ((ItemDataIfc) publishedItemHash
 								.get(item.getPublishedItemId()))
 								.getItemTextArraySorted();
-						ArrayList answerArray = ((ItemTextIfc) itemTextArray
+						List answerArray = ((ItemTextIfc) itemTextArray
 								.get(0)).getAnswerArraySorted();
 
 						int corranswers = 0;
@@ -917,10 +1447,8 @@ public class HistogramListener
 			if (!hasIncorrect) {
 				correctresponses = correctresponses + 1;
 				
-				// gopalrc - Nov 2007
 				qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
 			}
-			// gopalrc - Dec 2007
 			qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
 		}
 		// NEW
@@ -1038,8 +1566,8 @@ public class HistogramListener
 	 * correctresponses/(double) responses) * 100))); }
 	 */
 
-  private void getTFMCScores(HashMap publishedAnswerHash, ArrayList scores,
-			HistogramQuestionScoresBean qbean, ArrayList answers) {
+  private void getTFMCScores(HashMap publishedAnswerHash, List scores,
+			HistogramQuestionScoresBean qbean, List answers) {
 		ResourceLoader rb = new ResourceLoader(
 				"org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 		HashMap texts = new HashMap();
@@ -1087,7 +1615,6 @@ public class HistogramListener
 				results.put(answer.getId(), Integer.valueOf(num.intValue() + 1));
 				
 				
-				// gopalrc - Nov 2007
 				// this should work because for tf/mc(single)
 				// questions, there should be at most 
 				// one submitted answer per student/assessment
@@ -1095,7 +1622,6 @@ public class HistogramListener
 						&& answer.getIsCorrect().booleanValue()) {
 					qbean.addStudentWithAllCorrect(data.getAgentId()); 
 				}
-				// gopalrc - Nov 2007
 				qbean.addStudentResponded(data.getAgentId()); 
 
 			}
@@ -1181,7 +1707,7 @@ public class HistogramListener
 
 
 
-private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, ArrayList labels) {
+private void getCalculatedQuestionScores(List<ItemGradingData> scores, HistogramQuestionScoresBean qbean, List labels) {
     final String CORRECT = "Correct";
     final String INCORRECT = "Incorrect";
     final int COLUMN_MAX_HEIGHT = 600;
@@ -1249,7 +1775,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 }
 
   private void getMatchingScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash,
-    ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
+		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
 	ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
@@ -1366,17 +1892,12 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
       if (!hasIncorrect) {
         correctresponses = correctresponses + 1;
 
-        // gopalrc - Nov 2007
 		qbean.addStudentWithAllCorrect(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
 	  }
-	  // gopalrc - Dec 2007
 	  qbean.addStudentResponded(((ItemGradingData)resultsForOneStudent.get(0)).getAgentId()); 
 
 
     }
-
-
-
 
     //NEW
     int[] heights = calColumnHeight(numarray, qbean.getNumResponses());
@@ -1397,7 +1918,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   }
 
   private void getMatrixSurveyScores(HashMap publishedItemTextHash, HashMap publishedAnswerHash, 
-		  ArrayList scores, HistogramQuestionScoresBean qbean, ArrayList labels)
+		  List scores, HistogramQuestionScoresBean qbean, List labels)
   {
 	  HashMap texts = new HashMap();
 	  HashMap rows = new HashMap();
@@ -1634,7 +2155,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // depending on data's instanceof 
 
     Iterator iter = scoreList.iterator();
-    ArrayList floats = new ArrayList();
+    ArrayList doubles = new ArrayList();
     while (iter.hasNext())
     {
       Object data = iter.next();
@@ -1643,7 +2164,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     	  if (finalScore == null) {
     		  finalScore = Double.valueOf("0");
     	  }
-        floats.add(finalScore);
+        doubles.add(finalScore);
       }
       else
       {
@@ -1654,13 +2175,13 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
         if (((ItemGradingData) data).getOverrideScore() != null)
           overrideScore =
             ((ItemGradingData) data).getOverrideScore().doubleValue();
-        floats.add(Double.valueOf(autoScore + overrideScore));
+        doubles.add(Double.valueOf(autoScore + overrideScore));
       }
     }
 
-    if (floats.isEmpty())
-      floats.add(new Double(0.0));
-    Object[] array = floats.toArray();
+    if (doubles.isEmpty())
+      doubles.add(new Double(0.0));
+    Object[] array = doubles.toArray();
     Arrays.sort(array);
 
     double[] scores = new double[array.length];
@@ -2189,50 +2710,49 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
   private String getType(int typeId) {
 	  ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.EvaluationMessages");
 	  ResourceLoader rc = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.CommonMessages");
-	  if (typeId == 1) {
+	  if (typeId == TypeIfc.MULTIPLE_CHOICE.intValue()) {
 		  return rc.getString("multiple_choice_sin");
 	  }
-	  if (typeId == 2) {
+	  if (typeId == TypeIfc.MULTIPLE_CORRECT.intValue()) {
 		  return rc.getString("multipl_mc_ms");
 	  }
-	  if (typeId == 12) {
+	  if (typeId == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.intValue()) {
 		  return rc.getString("multipl_mc_ss");
 	  }
-	  if (typeId == 3) {
+	  if (typeId == TypeIfc.MULTIPLE_CHOICE_SURVEY.intValue()) {
 		  return rb.getString("q_mult_surv");
 	  }
-	  if (typeId == 4) {
+	  if (typeId == TypeIfc.TRUE_FALSE.intValue()) {
 		  return rb.getString("q_tf");
 	  }
-	  if (typeId == 5) {
+	  if (typeId == TypeIfc.ESSAY_QUESTION.intValue()) {
 		  return rb.getString("q_short_ess");
 	  }
-	  if (typeId == 6) {
+	  if (typeId == TypeIfc.FILE_UPLOAD.intValue()) {
 		  return rb.getString("q_fu");
 	  }
-	  if (typeId == 7) {
+	  if (typeId == TypeIfc.AUDIO_RECORDING.intValue()) {
 		  return rb.getString("q_aud");
 	  }
-	  if (typeId == 8) {
+	  if (typeId == TypeIfc.FILL_IN_BLANK.intValue()) {
 		  return rb.getString("q_fib");
 	  }
-	  if (typeId == 9) {
+	  if (typeId == TypeIfc.MATCHING.intValue()) {
 		  return rb.getString("q_match");
 	  }
-	  if (typeId == 11) {
+	  if (typeId == TypeIfc.FILL_IN_NUMERIC.intValue()) {
 		  return rb.getString("q_fin");
 	  }
-	  if (typeId == 13) {
+	  if (typeId == TypeIfc.EXTENDED_MATCHING_ITEMS.intValue()) {
+		  return rb.getString("q_emi");
+	  }
+	  if (typeId == TypeIfc.MATRIX_CHOICES_SURVEY.intValue()) {
 		  return rb.getString("q_matrix_choices_surv");
 	  }
 	  return "";
   }
   
-  
-  
   /**
-   * added by gopalrc - Dec 2007
-   * 
    * Standard process action method.
    * @param ae ActionEvent
    * @throws AbortProcessingException
@@ -2256,7 +2776,8 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     }
     
     ArrayList spreadsheetRows = new ArrayList();
-    Collection detailedStatistics = bean.getDetailedStatistics();
+    List<HistogramQuestionScoresBean> detailedStatistics = bean.getDetailedStatistics();
+    
     spreadsheetRows.add(bean.getShowPartAndTotalScoreSpreadsheetColumns());
     //spreadsheetRows.add(bean.getShowDiscriminationColumn());
     
@@ -2316,9 +2837,9 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     for (char colHeader=65; colHeader < 65+bean.getMaxNumberOfAnswers(); colHeader++) {
         headerList.add(String.valueOf(colHeader));
     }
-    spreadsheetRows.add(headerList);
-    
-    
+    spreadsheetRows.add(headerList);      
+	//VULA-1948: sort the detailedStatistics list by Question Label
+    sortQuestionScoresByLabel(detailedStatistics);       
     Iterator detailedStatsIter = detailedStatistics.iterator();
     ArrayList statsLine = null;
     while (detailedStatsIter.hasNext()) {
@@ -2387,18 +2908,24 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
    		statsLine.add(dVal);
     	
     	
-    	for (int i=0; i<questionBean.getHistogramBars().length; i++) {
-    		try {
-    		if (questionBean.getHistogramBars()[i].getIsCorrect()) {
-           		statsLine.add(ExportResponsesBean.FORMAT_BOLD);
-    		}
-       		dVal = Double.parseDouble("" + questionBean.getHistogramBars()[i].getNumStudents() );
-       		statsLine.add(dVal);
-    		}
-    		catch (NullPointerException npe) {
-    			log.warn("questionBean.getHistogramBars()[" + i + "] is null. " + npe);
-    		}
-    	}
+   		for (int i=0; i<questionBean.getHistogramBars().length; i++) {
+   			try {
+   	   			if (questionBean.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString())
+   	   					&& !questionBean.getQuestionLabel().contains("-")) {
+   	   				statsLine.add(" ");
+   	   			}
+   				else {
+   					if (questionBean.getHistogramBars()[i].getIsCorrect()) {
+   						statsLine.add(ExportResponsesBean.FORMAT_BOLD);
+   					}
+   					dVal = Double.parseDouble("" + questionBean.getHistogramBars()[i].getNumStudents() );
+   					statsLine.add(dVal);
+   				}
+   			}
+   			catch (NullPointerException npe) {
+   				log.warn("questionBean.getHistogramBars()[" + i + "] is null. " + npe);
+   			}
+   		}
     	
     	spreadsheetRows.add(statsLine);
     }
@@ -2407,7 +2934,74 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     
   }
 
-    private List<AssessmentGradingData> filterGradingData(List<AssessmentGradingData> submissionsSortedForDiscrim, Long itemId) {
+  
+  /**
+   * This method sort the detailedStatistics List by Question Label value
+   * 
+   * @param detailedStatistics
+   */
+	private void sortQuestionScoresByLabel(List<HistogramQuestionScoresBean> detailedStatistics) {
+		//VULA-1948: sort the detailedStatistics list by Question Label
+		Collections.sort(detailedStatistics, new Comparator<HistogramQuestionScoresBean>() {
+
+			@Override
+			public int compare(HistogramQuestionScoresBean arg0, HistogramQuestionScoresBean arg1) {
+
+				HistogramQuestionScoresBean bean1 = (HistogramQuestionScoresBean) arg0;
+				HistogramQuestionScoresBean bean2 = (HistogramQuestionScoresBean) arg1;
+
+				String lable1 = bean1.getQuestionLabel();
+				String lable2 = bean2.getQuestionLabel();
+
+				if (bean1.getNumberOfParts() > 1 && bean2.getNumberOfParts() > 1) {
+
+					if (Integer.valueOf(lable1.substring(1, lable1.indexOf("-"))).compareTo(
+							Integer.valueOf(lable2.substring(1, lable2.indexOf("-")))) > 0) {
+						return 1;
+					} else if (Integer.valueOf(lable1.substring(1, lable1.indexOf("-"))).compareTo(
+							Integer.valueOf(lable2.substring(1, lable2.indexOf("-")))) < 0) {
+						return -1;
+					}
+
+					lable1 = lable1.substring(lable1.indexOf("-") + 1, lable1.length());
+					lable2 = lable2.substring(lable2.indexOf("-") + 1, lable2.length());
+				}
+
+				if (lable1.indexOf("-") == -1 && lable2.indexOf("-") == -1) {
+					return Integer.valueOf(lable1.substring(1)).compareTo(Integer.valueOf(lable2.substring(1)));
+
+				} else if (lable1.indexOf("-") == -1 && lable2.indexOf("-") != -1) {
+					int val = Integer.valueOf(lable1.substring(1)).compareTo(
+							Integer.valueOf(lable2.substring(1, lable2.lastIndexOf("-"))));
+					if (val == 0) {
+						val = -1;
+					}
+					return val;
+
+				} else if (lable1.indexOf("-") != -1 && lable2.indexOf("-") == -1) {
+					int val = Integer.valueOf(lable1.substring(1, lable1.lastIndexOf("-"))).compareTo(
+							Integer.valueOf(lable2.substring(1)));
+					if (val == 0) {
+						val = 1;
+					}
+					return val;
+
+				} else if (lable1.indexOf("-") != -1 && lable2.indexOf("-") != -1) {
+					int val = Integer.valueOf(lable1.substring(1, lable1.lastIndexOf("-"))).compareTo(
+							Integer.valueOf(lable2.substring(1, lable2.lastIndexOf("-"))));
+					if (val == 0) {
+						val = Integer.valueOf(lable1.substring(lable1.lastIndexOf("-") + 1, lable1.length())).compareTo(
+								Integer.valueOf(lable2.substring(lable2.lastIndexOf("-") + 1, lable2.length())));
+					}
+					return val;
+				}
+				return lable1.substring(1).compareTo(lable2.substring(1));
+
+			}
+		});
+	}
+
+	private List<AssessmentGradingData> filterGradingData(List<AssessmentGradingData> submissionsSortedForDiscrim, Long itemId) {
         List<AssessmentGradingData> submissionsForItemSortedForDiscrim = new ArrayList<AssessmentGradingData>();
         for(AssessmentGradingData agd: submissionsSortedForDiscrim){
             Set<ItemGradingData> itemGradings = agd.getItemGradingSet();

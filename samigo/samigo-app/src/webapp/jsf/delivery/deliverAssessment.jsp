@@ -431,6 +431,13 @@ document.links[newindex].onclick();
            <%@ include file="/jsf/delivery/item/deliverMultipleChoiceMultipleCorrect.jsp" %>
            </f:subview>
           </h:panelGroup>
+          
+          <h:panelGroup rendered="#{question.itemData.typeId == 14}">
+           <f:subview id="deliverExtendedMatchingItems">
+           <%@ include file="/jsf/delivery/item/deliverExtendedMatchingItems.jsp" %>
+           </f:subview>
+          </h:panelGroup>
+          
           <h:panelGroup rendered="#{question.itemData.typeId == 5}">
            <f:subview id="deliverShortAnswer">
            <%@ include file="/jsf/delivery/item/deliverShortAnswer.jsp" %>

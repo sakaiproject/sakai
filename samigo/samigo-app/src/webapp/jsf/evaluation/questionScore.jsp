@@ -278,12 +278,18 @@ function hiddenLinkOnClick(){
          <f:verbatim></span></f:verbatim>
      </h:panelGroup>
      <h:panelGroup rendered="#{questionScores.typeId == '12'}">
-         <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
+		 <h:outputText value="#{evaluationMessages.part} #{questionScores.partName}#{evaluationMessages.column} #{evaluationMessages.question} #{question.sequence}" />
          <f:verbatim><span style="font-weight:normal !important;"></f:verbatim>
          <h:outputText value=" - #{commonMessages.multipl_mc_ss} (#{questionScores.maxPoint})"/>
          <f:verbatim></span></f:verbatim>
-     </h:panelGroup>
-     <f:verbatim></h4></div></f:verbatim>
+      </h:panelGroup>
+    <h:panelGroup rendered="#{questionScores.typeId == '14'}">
+      <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_emi}"/>
+    </h:panelGroup>   
+    <h:panelGroup rendered="#{questionScores.typeId == '15'}"><!-- // CALCULATED_QUESTION -->
+      <h:outputText value="#{evaluationMessages.question}#{question.sequence} - #{evaluationMessages.q_cq}"/>
+    </h:panelGroup>
+      <f:verbatim></h4></div></f:verbatim>
     </h:column>
   </h:dataTable>
 
@@ -334,6 +340,11 @@ function hiddenLinkOnClick(){
   <h:panelGroup rendered="#{questionScores.typeId == '4'}">
     <f:subview id="displayTrueFalse">
     <%@ include file="/jsf/evaluation/item/displayTrueFalse.jsp" %>
+    </f:subview>
+  </h:panelGroup>
+  <h:panelGroup rendered="#{questionScores.typeId == '14'}">
+    <f:subview id="displayExtendedMatchingItems">
+    <%@ include file="/jsf/evaluation/item/displayExtendedMatchingItems.jsp" %>
     </f:subview>
   </h:panelGroup>
   <h:panelGroup rendered="#{questionScores.typeId == '13'}">

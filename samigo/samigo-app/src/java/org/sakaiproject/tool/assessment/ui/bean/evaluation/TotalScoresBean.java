@@ -66,14 +66,14 @@ public class TotalScoresBean
   private String assessmentId;
   private String publishedId;
 
-  public static final String RELEASED_SECTIONS_GROUPS_SELECT_VALUE = "-2"; // added by gopalrc - Jan 2008
+  public static final String RELEASED_SECTIONS_GROUPS_SELECT_VALUE = "-2";
   
   public static final String ALL_SECTIONS_SELECT_VALUE = "-1";
   public static final String ALL_SUBMISSIONS = "3";
   public static final String LAST_SUBMISSION = "2";
   public static final String HIGHEST_SUBMISSION = "1";
 
-  // gopalrc - indicates which listeber getUserIdMap() is called from
+  // indicates which listeber getUserIdMap() is called from
   public static final int CALLED_FROM_SUBMISSION_STATUS_LISTENER = 1;  
   public static final int CALLED_FROM_QUESTION_SCORE_LISTENER = 2;  
   public static final int CALLED_FROM_TOTAL_SCORE_LISTENER = 3;  
@@ -107,9 +107,6 @@ public class TotalScoresBean
   private boolean hasRandomDrawPart;
   private String scoringOption;
   
-  
-  // modified by gopalrc - Jan 2008
-  //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;
 
   private List sectionFilterSelectItems;
@@ -136,7 +133,7 @@ public class TotalScoresBean
   private boolean isTimedAssessment = false;
   private boolean acceptLateSubmission = false;
 
-  private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
+  private Boolean releasedToGroups = null;
   private Map userIdMap;
   
   private boolean isAutoScored = false;
@@ -270,16 +267,6 @@ public class TotalScoresBean
   public void setPublishedId(String ppublishedId)
   {
     publishedId = ppublishedId;
-
-    /*
-    //added by gopalrc - Jan 2007
-	if (isReleasedToGroups()) {
-		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
-	}
-	else {
-		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
-	}
-	*/
   }
 
   /**
@@ -696,7 +683,6 @@ public class TotalScoresBean
 
 
   public String getSelectedSectionFilterValue() {
-	  // lazy initialization added by gopalrc - Jan 2008  
 	  if (selectedSectionFilterValue == null) {
 		  if (isReleasedToGroups()) {
 			  setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -709,7 +695,6 @@ public class TotalScoresBean
   }
 
   public void setSelectedSectionFilterValue(String param ) {
-	// gopalrc added null check  
     if ( param!=null && (selectedSectionFilterValue==null ||  
     	!param.equals(this.selectedSectionFilterValue))) {
 			this.selectedSectionFilterValue = param;
@@ -752,7 +737,6 @@ public class TotalScoresBean
 	  
 	    List filterSelectItems = new ArrayList();
 
-	    // added by gopalrc - Jan 2008
 		if (isReleasedToGroups()) {
 			filterSelectItems.add(new SelectItem(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE, ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages", "released_sections_groups")));
 		}
@@ -773,7 +757,6 @@ public class TotalScoresBean
 	    // being deleted, throw it back to the default value (meaning everyone).
 	    int selectedSectionVal = new Integer(selectedSectionFilterValue).intValue();
 	    if ((selectedSectionVal >= 0) && (selectedSectionVal >= availableSections.size())) {
-	    	// condition added by gopalrc - Jan 2008
 	    	if (isReleasedToGroups()) {
 	    		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
 	    	}
@@ -820,7 +803,6 @@ public class TotalScoresBean
     	    	    && "true".equalsIgnoreCase(anonymous))) {
         enrollments = getAvailableEnrollments(false);
     }
-    // added by gopalrc - Jan 2008
     else if (getSelectedSectionFilterValue().trim().equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE)) {
     	enrollments = getGroupReleaseEnrollments();
     }
@@ -858,7 +840,7 @@ public class TotalScoresBean
 
   private String getSelectedSectionUid(String uid) {
     if (uid.equals(ALL_SECTIONS_SELECT_VALUE) 
-    		|| uid.equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) ){ // gopalrc - Jan 2008
+    		|| uid.equals(RELEASED_SECTIONS_GROUPS_SELECT_VALUE) ){
       return null;
     } else {
       CourseSection section = (CourseSection)(availableSections.get(new Integer(uid).intValue()));
@@ -871,7 +853,6 @@ public class TotalScoresBean
   }
   
   /**
-   * calledFrom param added by gopalrc 
    * @param calledFrom - where this method is called from
    * @return
    */
@@ -1140,7 +1121,6 @@ public class TotalScoresBean
 
 	/**
 	 * Is this assessment group scoped?
-	 * added by gopalrc - jan 2008
 	 * @return
 	 */
 	public boolean isReleasedToGroups() {

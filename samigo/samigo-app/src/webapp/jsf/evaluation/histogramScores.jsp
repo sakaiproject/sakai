@@ -256,10 +256,21 @@ $Id$
         			alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
        			</h:graphicImage>
 
-                <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
+        <f:verbatim><h4></f:verbatim>
+          <h:outputText value="#{bar.title}" escape="false" rendered="#{bar.title ne ''}"/>
+        <f:verbatim></h4></f:verbatim>
+
+       <h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
+        alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
+       </h:graphicImage>
+
+       <h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
+        alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
+       </h:graphicImage>
+
+       <h:graphicImage url="/images/reddot.gif" height="12" width="#{bar.columnHeight}"/>
                 <h:outputText value=" #{bar.numStudentsText}" />
               </h:panelGroup>
-              
               <h:panelGroup>
               	<h:graphicImage width="12" height="12" url="/images/delivery/spacer.gif" />
               	<h:outputText value="#{bar.label}" escape="false" >
@@ -286,7 +297,7 @@ $Id$
           </h:column>
         </h:dataTable>
 
-        <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching -->
+        <!-- 1-2=mcmc 3=mcsc 4=tf 5=essay 6=file 7=audio 8=FIB 9=matching 14=emi -->
 
         <h:panelGrid columns="2" rendered="#{item.questionType == '5' or item.questionType == '6' or item.questionType == '7'}">
 
@@ -304,8 +315,8 @@ $Id$
        <h:panelGrid columns="2" rendered="#{item.questionType == '3' or item.questionType == '13'}">
           <h:outputLabel for="responses1" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses1" value="#{item.numResponses}" />
-        </h:panelGrid>
-        <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '12' or item.questionType == '15'}" columnClasses="alignLeft,aligntRight"><!-- // CALCULATED_QUESTION -->
+         </h:panelGrid>
+         <h:panelGrid columns="2" rendered="#{item.questionType == '1' or  item.questionType == '2' or  item.questionType == '4' or  item.questionType == '8' or item.questionType == '9' or item.questionType == '11' or item.questionType == '12' or item.questionType == '14' or item.questionType == '15'}" columnClasses="alignLeft,aligntRight">
              <h:outputLabel for="responses2" value="#{evaluationMessages.responses}" />
           <h:outputText id="responses2" value="#{item.numResponses}" />
           <h:outputLabel for="percentCorrect" value="#{evaluationMessages.percentCorrect}" />

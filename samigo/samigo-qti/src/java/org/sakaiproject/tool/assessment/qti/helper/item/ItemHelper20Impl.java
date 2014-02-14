@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.qti.asi.Item;
 import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
@@ -190,7 +191,7 @@ public class ItemHelper20Impl extends ItemHelperBase
    * @param itemXml
    * @param itemText text to be updated
    */
-  public void setItemTexts(ArrayList itemTextList, Item itemXml)
+  public void setItemTexts(List<ItemTextIfc> itemTextList, Item itemXml)
   {
     String xPath = "assessmentItem/itemBody";
     if (itemTextList.size() < 1)
@@ -249,7 +250,7 @@ public class ItemHelper20Impl extends ItemHelperBase
    * @param itemTextList the text(s) for item
    */
 
-  public void setAnswers(ArrayList itemTextList, Item itemXml)
+  public void setAnswers(List<ItemTextIfc> itemTextList, Item itemXml)
   {
     // other types either have no answer or include them in their template
     if (!itemXml.isMatching() && !itemXml.isFIB() && !itemXml.isFIN() &&
@@ -317,7 +318,7 @@ public class ItemHelper20Impl extends ItemHelperBase
    * @param itemTextList the text(s) for item
    */
 
-  public void setFeedback(ArrayList itemTextList, Item itemXml)
+  public void setFeedback(List<ItemTextIfc> itemTextList, Item itemXml)
   {
     String xpath =
       "assessmentItem/itemBody/choiceInteraction/<simpleChoice/feedbackInline";
@@ -439,8 +440,29 @@ public class ItemHelper20Impl extends ItemHelperBase
   public void addIncorrectAnswer(String incorrectAnswerLabel, Item itemXml)
   {
   }
-
+	
+  public void setItemLabel(String itemLabel, Item itemXml){
+	  //todo
+  }
+  
   public void setItemText(String itemText, Item itemXml)
   { //todo
   }
+  
+  public void setItemText(String itemText, String flowClass, Item itemXml){
+	  //todo
+  }
+  
+  public void setPresentationLabel(String presentationLabel, Item itemXml){
+	  //todo
+  }
+  
+  public void setPresentationFlowResponseIdent(String presentationFlowResponseIdent, Item itemXml){
+	  //todo
+  }
+
+public void setAttachments(Set<? extends AttachmentIfc> attachmentSet, Item item) {
+	// todo
+	
+}
 }

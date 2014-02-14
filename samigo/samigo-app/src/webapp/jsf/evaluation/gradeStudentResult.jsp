@@ -243,6 +243,13 @@ function toPoint(id)
                 <%@ include file="/jsf/delivery/item/deliverTrueFalse.jsp" %>
               </f:subview>
             </h:panelGroup>
+            
+            <h:panelGroup rendered="#{question.itemData.typeId == 14}">
+              <f:subview id="deliverExtendedMatchingItems">
+                <%@ include file="/jsf/delivery/item/deliverExtendedMatchingItems.jsp" %>
+              </f:subview>
+            </h:panelGroup>
+            
             <h:panelGroup rendered="#{question.itemData.typeId == 13}">
               <f:subview id="deliverMatrixChoicesSurvey">
                 <%@ include file="/jsf/delivery/item/deliverMatrixChoicesSurvey.jsp" %>

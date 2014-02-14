@@ -728,7 +728,7 @@ public class SelectActionListener
     String showScore = "na";
     // must meet 2 conditions: hasFeedback==true && feedback.getShowStudentScore()==true
     AssessmentFeedbackIfc f= (AssessmentFeedbackIfc)feedbackHash.get(a.getPublishedAssessmentId());
-    if (f!=null){
+    if (f!=null && f.getFeedbackComponentOption()!=null) { 
       boolean showScorecore = (Boolean.TRUE).equals(f.getShowStudentScore()) || Integer.valueOf(1).equals(f.getFeedbackComponentOption());
       if (showScorecore && "show".equals(hasFeedback))
         showScore = "show";

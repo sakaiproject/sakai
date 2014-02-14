@@ -48,6 +48,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
@@ -142,7 +144,11 @@ public class ItemAuthorBean
 
   // for navigation
   private String outcome;
-  /**
+  
+  // for EMI attachments
+  private AnswerBean currentAnswer;
+  
+/**
    * Creates a new ItemAuthorBean object.
    */
   public ItemAuthorBean()
@@ -692,12 +698,12 @@ public class ItemAuthorBean
     
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     AssessmentBean assessbean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-    ArrayList sectionSet = assessbean.getSections();
-    Iterator iter = sectionSet.iterator();
+    List<SectionContentsBean> sectionSet = assessbean.getSections();
+    Iterator<SectionContentsBean> iter = sectionSet.iterator();
     int i =0;
     while (iter.hasNext()){
       i = i + 1;
-      SectionContentsBean part = (SectionContentsBean) iter.next();
+      SectionContentsBean part = iter.next();
       SelectItem selection = new SelectItem();
 
       // need to filter out all the random draw parts
@@ -771,12 +777,12 @@ public class ItemAuthorBean
 				"org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 		AssessmentBean assessbean = (AssessmentBean) ContextUtil
 				.lookupBean("assessmentBean");
-		ArrayList sectionSet = assessbean.getSections();
-		Iterator iter = sectionSet.iterator();
+		List<SectionContentsBean> sectionSet = assessbean.getSections();
+		Iterator<SectionContentsBean> iter = sectionSet.iterator();
 		int i = 0;
 		while (iter.hasNext()) {
 			i = i + 1;
-			SectionContentsBean part = (SectionContentsBean) iter.next();
+			SectionContentsBean part = iter.next();
 
 			// need to filter out all the random draw parts
 			if (part.getSectionAuthorType().equals(
@@ -1111,6 +1117,10 @@ public class ItemAuthorBean
   public String addAttachmentsRedirect() {
     // 1. load resources into session for resources mgmt page
     //    then redirect to resources mgmt page
+	
+	// not EMI item (ItemText) attachment  
+	setCurrentAnswer(null);
+ 
     try	{
       prepareMCcorrAnswers();
       List filePickerList = prepareReferenceList(attachmentList);
@@ -1124,7 +1134,7 @@ public class ItemAuthorBean
     }
     return getOutcome();
   }
-
+  
   /* called by SamigoJsfTool.java on exit from file picker */
   public void setItemAttachment(){
 	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -1289,4 +1299,11 @@ public class ItemAuthorBean
 	  }
   }
 
+   public AnswerBean getCurrentAnswer() {
+		return currentAnswer;
+   }
+
+  public void setCurrentAnswer(AnswerBean currentAnswer) {
+	this.currentAnswer = currentAnswer;
+  }
 }

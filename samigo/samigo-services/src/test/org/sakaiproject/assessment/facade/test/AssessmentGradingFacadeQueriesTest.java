@@ -23,6 +23,7 @@
 package org.sakaiproject.assessment.facade.test;
 
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.SessionFactory;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
@@ -40,7 +41,9 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 	/** our query object */
 	AssessmentGradingFacadeQueries queries = null;
 	Long savedId = null;
-		
+	Long item1Id = null;
+	Long item2Id = null;
+	
 	protected void onSetUpInTransaction() throws Exception {
 		queries = new AssessmentGradingFacadeQueries();
 		queries.setSessionFactory((SessionFactory)applicationContext.getBean("sessionFactory"));
@@ -110,9 +113,14 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		queries.saveOrUpdateAssessmentGrading(data);
 		assertNotNull(item1.getItemGradingId());
 		
-		
-		
-		
+		Set set = data.getItemGradingSet();
+		set.add(null);
+		try {
+		queries.saveOrUpdateAll(set);
+		} catch (Exception e) {
+			e.printStackTrace();
+			fail();
+		}
 	}
 	
 	public void testLoad() {
@@ -186,4 +194,43 @@ public class AssessmentGradingFacadeQueriesTest extends AbstractTransactionalSpr
 		
 	}
 	
+	
+	public void testGetAllItemGradingDataForItemInGrading() {
+		try {
+			queries.getAllItemGradingDataForItemInGrading(null , null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			//we expect this
+		} catch (Exception ex) {
+			fail();
+		}
+		
+		try {
+			queries.getAllItemGradingDataForItemInGrading(999l , null);
+			fail();
+		} catch (IllegalArgumentException e) {
+			//we expect this
+		} catch (Exception ex) {
+			fail();
+		}
+		
+		try {
+			queries.getAllItemGradingDataForItemInGrading(null , 999l);
+			fail();
+		} catch (IllegalArgumentException e) {
+			//we expect this
+		} catch (Exception ex) {
+			fail();
+		}
+		
+		List<ItemGradingData> vals = queries.getAllItemGradingDataForItemInGrading(999l , 999l);
+		assertNotNull(vals);
+		assertEquals(0, vals.size());
+		
+		loadData();
+		
+		vals = queries.getAllItemGradingDataForItemInGrading(savedId , 2L);
+		assertNotNull(vals);
+		assertEquals(1, vals.size());
+	}
 }

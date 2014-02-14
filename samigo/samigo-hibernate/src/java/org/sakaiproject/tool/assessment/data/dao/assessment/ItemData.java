@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
@@ -24,8 +24,8 @@ import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
 public class ItemData
     implements java.io.Serializable,
-    ItemDataIfc, Comparable {
-  static Category errorLogger = Category.getInstance("errorLogger");
+    ItemDataIfc, Comparable<ItemDataIfc> {
+  static Logger errorLogger = Logger.getLogger("errorLogger");
   static ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");
 
   private static final long serialVersionUID = 7526471155622776147L;
@@ -51,12 +51,18 @@ public class ItemData
   private Date createdDate;
   private String lastModifiedBy;
   private Date lastModifiedDate;
-  private Set itemTextSet;
-  private Set itemMetaDataSet;
-  private Set itemFeedbackSet;
-  private Set itemAttachmentSet;
+  private Set<ItemTextIfc> itemTextSet;
+  private Set<ItemMetaDataIfc> itemMetaDataSet;
+  private Set<ItemFeedbackIfc> itemFeedbackSet;
+  private Set<ItemAttachmentIfc> itemAttachmentSet;
 
-  public ItemData() {}
+  // for EMI question
+  private String themeText;
+  private String leadInText;
+  private Integer answerOptionsRichCount;
+  private Integer answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE;
+  
+public ItemData() {}
 
   // this constructor should be deprecated, it is missing triesAllowed
   public ItemData(SectionDataIfc section, Integer sequence,
@@ -65,7 +71,7 @@ public class ItemData
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet, Boolean partialCreditFlag ) {
+                  Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet, Boolean partialCreditFlag ) {
     this.section = section;
     this.sequence = sequence;
     this.duration = duration;
@@ -94,7 +100,7 @@ public class ItemData
                   Boolean hasRationale, Integer status, String createdBy,
                   Date createdDate, String lastModifiedBy,
                   Date lastModifiedDate,
-                  Set itemTextSet, Set itemMetaDataSet, Set itemFeedbackSet,
+                  Set<ItemTextIfc> itemTextSet, Set<ItemMetaDataIfc> itemMetaDataSet, Set<ItemFeedbackIfc> itemFeedbackSet,
                   Integer triesAllowed, Boolean partialCreditFlag) {
     this.section = section;
     this.sequence = sequence;
@@ -363,27 +369,27 @@ public class ItemData
     this.lastModifiedDate = lastModifiedDate;
   }
 
-  public Set getItemTextSet() {
+  public Set<ItemTextIfc> getItemTextSet() {
     return itemTextSet;
   }
 
-  public void setItemTextSet(Set itemTextSet) {
+  public void setItemTextSet(Set<ItemTextIfc> itemTextSet) {
     this.itemTextSet = itemTextSet;
   }
 
-  public Set getItemMetaDataSet() {
+  public Set<ItemMetaDataIfc> getItemMetaDataSet() {
     return itemMetaDataSet;
   }
 
-  public void setItemMetaDataSet(Set itemMetaDataSet) {
+  public void setItemMetaDataSet(Set<ItemMetaDataIfc> itemMetaDataSet) {
     this.itemMetaDataSet = itemMetaDataSet;
   }
 
-  public Set getItemFeedbackSet() {
+  public Set<ItemFeedbackIfc> getItemFeedbackSet() {
     return itemFeedbackSet;
   }
 
-  public void setItemFeedbackSet(Set itemFeedbackSet) {
+  public void setItemFeedbackSet(Set<ItemFeedbackIfc> itemFeedbackSet) {
     this.itemFeedbackSet = itemFeedbackSet;
   }
 
@@ -396,9 +402,9 @@ public class ItemData
     in.defaultReadObject();
   }
 
-  public void addItemText(String text, Set answerSet) {
+  public void addItemText(String text, Set<AnswerIfc> answerSet) {
     if (this.itemTextSet == null) {
-      this.itemTextSet = new HashSet();
+      this.itemTextSet = new HashSet<ItemTextIfc>();
     }
     Long sequence =Long.valueOf(this.itemTextSet.size()+1);
     ItemText itemText = new ItemText(this, sequence, text, answerSet);
@@ -406,18 +412,18 @@ public class ItemData
   }
 
   public String getItemMetaDataByLabel(String label) {
-    for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
-      ItemMetaData imd = (ItemMetaData) i.next();
-      if (imd.getLabel().equals(label)) {
-        return (String) imd.getEntry();
-      }
-    }
-    return null;
+	  for (Iterator<ItemMetaDataIfc> i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+		  ItemMetaData imd = (ItemMetaData) i.next();
+		  if (imd.getLabel().equals(label)) {
+			  return (String) imd.getEntry();
+		  }
+	  }
+	  return null;
   }
 
   public void addItemMetaData(String label, String entry) {
     if (this.itemMetaDataSet == null) {
-      setItemMetaDataSet(new HashSet());
+      setItemMetaDataSet(new HashSet<ItemMetaDataIfc>());
     }
     this.itemMetaDataSet.add(new ItemMetaData(this, label, entry));
   }
@@ -458,26 +464,26 @@ public class ItemData
   }
 
   public String getItemFeedback(String typeId) {
-    for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
-      ItemFeedback itemFeedback = (ItemFeedback) i.next();
-      if (itemFeedback.getTypeId().equals(typeId)) {
-        return (String) itemFeedback.getText();
-      }
-    }
-    return null;
+	  for (Iterator<ItemFeedbackIfc> i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+		  ItemFeedback itemFeedback = (ItemFeedback) i.next();
+		  if (itemFeedback.getTypeId().equals(typeId)) {
+			  return (String) itemFeedback.getText();
+		  }
+	  }
+	  return null;
   }
 
   public void addItemFeedback(String typeId, String text) {
     if (this.itemFeedbackSet == null) {
-      setItemFeedbackSet(new HashSet());
+      setItemFeedbackSet(new HashSet<ItemFeedbackIfc>());
     }
     this.itemFeedbackSet.add(new ItemFeedback(this, typeId, text));
   }
 
   public void removeFeedbackByType(String typeId) {
     if (itemFeedbackSet != null) {
-      for (Iterator i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
-        ItemFeedback itemFeedback = (ItemFeedback) i.next();
+      for (Iterator<ItemFeedbackIfc> i = this.itemFeedbackSet.iterator(); i.hasNext(); ) {
+        ItemFeedbackIfc itemFeedback = i.next();
         if (itemFeedback.getTypeId().equals(typeId)) {
           //this.itemFeedbackSet.remove(itemFeedback);
           i.remove();
@@ -490,8 +496,8 @@ public class ItemData
   public void removeMetaDataByType(String label) {
    try {
     if (itemMetaDataSet!= null) {
-      for (Iterator i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
-        ItemMetaData itemMetaData= (ItemMetaData) i.next();
+      for (Iterator<ItemMetaDataIfc> i = this.itemMetaDataSet.iterator(); i.hasNext(); ) {
+        ItemMetaDataIfc itemMetaData= i.next();
         if (itemMetaData.getLabel().equals(label)) {
           //this.itemMetaDataSet.remove(itemMetaData);
           i.remove();
@@ -516,23 +522,23 @@ public class ItemData
       return Boolean.FALSE;
     }
 
-    Set answerSet = null;
+    Set<AnswerIfc> answerSet = null;
 
-    Set set = this.getItemTextSet();
-    Iterator iter = set.iterator();
+    Set<ItemTextIfc> set = this.getItemTextSet();
+    Iterator<ItemTextIfc> iter = set.iterator();
     if (iter.hasNext())
     {
-      answerSet = ( (ItemTextIfc) iter.next()).getAnswerSet();
+      answerSet = iter.next().getAnswerSet();
     }
 
     // if the FIRST answer is CORRECT, the true false question is TRUE
     // Note that this is implementation dependent
     if (answerSet != null)
     {
-      Iterator aiter = answerSet.iterator();
+      Iterator<AnswerIfc> aiter = answerSet.iterator();
       if (aiter.hasNext())
       {
-        AnswerIfc answer = (AnswerIfc) aiter.next();
+        AnswerIfc answer = aiter.next();
         return answer.getIsCorrect();
       }
     }
@@ -552,12 +558,24 @@ public class ItemData
              || getTypeId().equals(TypeIfc.CALCULATED_QUESTION)
              || getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY))
        return instruction;
-     Set set = this.getItemTextSet();
-     Iterator iter = set.iterator();
+     Set<ItemTextIfc> set = this.getItemTextSet();
+     Iterator<ItemTextIfc> iter = set.iterator();
 
      while (iter.hasNext())
      {
-       ItemTextIfc itemText = (ItemTextIfc) iter.next();
+       ItemTextIfc itemText = iter.next();
+       
+       //if EMI use only the first textItem's text for display (sequence = 0)
+       if (this.getTypeId().equals(TypeIfc.EXTENDED_MATCHING_ITEMS)) {
+    	   if (!itemText.getSequence().equals(Long.valueOf(0))) {
+    		   continue;
+    	   }
+    	   else {
+    		   text = itemText.getText();
+    		   break;
+    	   }
+       }
+       
        text += "" + itemText.getText(); //each text add it in
 
        if (this.getTypeId().equals(TypeIfc.FILL_IN_BLANK))
@@ -565,14 +583,14 @@ public class ItemData
          // Roses are ____. Violets are ____.
          text = text.replaceAll("\\{","__");
          text = text.replaceAll("\\}","__");
-      }
+       }
        
         if (this.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))
        { //e.g. Roses are {}. Violets are {}. replace as
          // Roses are ____. Violets are ____.
     	 text = text.replaceAll("\\{","__");
          text = text.replaceAll("\\}","__");
-      }
+       }
     }
     return text;
   }
@@ -589,17 +607,19 @@ public class ItemData
       return null;
   }
 
-  public ArrayList getItemTextArray() {
-    ArrayList list = new ArrayList();
-    Iterator iter = itemTextSet.iterator();
-    while (iter.hasNext()){
-      list.add(iter.next());
+  public List<ItemTextIfc> getItemTextArray() {
+    ArrayList<ItemTextIfc> list = new ArrayList<ItemTextIfc>();
+    if(itemTextSet != null){
+    	Iterator<ItemTextIfc> iter = itemTextSet.iterator();
+    	while (iter.hasNext()){
+    		list.add(iter.next());
+    	}
     }
     return list;
   }
 
-  public ArrayList getItemTextArraySorted() {
-    ArrayList list = getItemTextArray();
+  public List<ItemTextIfc> getItemTextArraySorted() {
+    List<ItemTextIfc> list = getItemTextArray();
     Collections.sort(list);
     return list;
   }
@@ -619,19 +639,40 @@ public class ItemData
    * Added by Huong Nguyen for other types as well.
    */
   public String getAnswerKey(){
+	  
    String answerKey="";
-   ArrayList itemTextArray = getItemTextArraySorted();
+   List<ItemTextIfc> itemTextArray = getItemTextArraySorted();
    if (itemTextArray.size()==0)
      return answerKey;
 
-   ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();
-   HashMap h = new HashMap();
+	if (this.getTypeId().equals(TypeD.EXTENDED_MATCHING_ITEMS)) {
+		Iterator<ItemTextIfc> itemTextIter = itemTextArray.iterator();
+		while (itemTextIter.hasNext()) {
+			ItemTextIfc itemText = itemTextIter.next();
+			if (itemText.isEmiQuestionItemText()) {
+			   answerKey += itemText.getSequence() + ":";
+			   List<AnswerIfc> emiItems = itemText.getAnswerArraySorted();
+			   Iterator<AnswerIfc> emiItemsIter = emiItems.iterator();
+			   while (emiItemsIter.hasNext()) {
+				   AnswerIfc answer = emiItemsIter.next();
+				   if (answer.getIsCorrect()) {
+					   answerKey += answer.getLabel();
+				   }
+			   }
+			   answerKey += " ";
+			}
+		}
+		return answerKey;
+	}
+   
+   List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();
+   HashMap<String, String> h = new HashMap<String, String>();
 
    for (int i=0; i<itemTextArray.size();i++){
-	   ItemTextIfc text = (ItemTextIfc)itemTextArray.get(i);
-	   ArrayList answers = text.getAnswerArraySorted();
+	   ItemTextIfc text = itemTextArray.get(i);
+	   List<AnswerIfc> answers = text.getAnswerArraySorted();
 	   for (int j=0; j<answers.size();j++){
-		   AnswerIfc a = (AnswerIfc)answers.get(j);
+		   AnswerIfc a = answers.get(j);
 		   if (!this.getPartialCreditFlag() && (Boolean.TRUE).equals(a.getIsCorrect())){
 			   String pair = (String)h.get(a.getLabel());
 			   if(!this.getTypeId().equals(TypeD.MATCHING))
@@ -681,11 +722,11 @@ public class ItemData
 		   }
 	   }
    }
-
+   
    if (this.getTypeId().equals(TypeD.MATCHING))
-       {
+   {
 	   for (int k=0; k<answerArray.size();k++)
-	       {
+	   {
 		   AnswerIfc a = (AnswerIfc)answerArray.get(k);
 		   String pair = (String)h.get(a.getLabel());
 		   //if answer is not a match to any text, just print answer label
@@ -697,19 +738,17 @@ public class ItemData
 		   else
 
 		       answerKey = pair;
-	       }
-       }
+	   }
+   }
 
 
 
    return answerKey;
 
-
   }
 
-  public int compareTo(Object o) {
-      ItemData a = (ItemData)o;
-      return sequence.compareTo(a.sequence);
+  public int compareTo(ItemDataIfc o) {
+      return sequence.compareTo(o.getSequence());
   }
 
   public boolean getGeneralItemFbIsNotEmpty(){
@@ -741,20 +780,20 @@ public class ItemData
    return false;
   }
 
-  public Set getItemAttachmentSet() {
+  public Set<ItemAttachmentIfc> getItemAttachmentSet() {
     return itemAttachmentSet;
   }
 
-  public void setItemAttachmentSet(Set itemAttachmentSet) {
+  public void setItemAttachmentSet(Set<ItemAttachmentIfc> itemAttachmentSet) {
     this.itemAttachmentSet = itemAttachmentSet;
   }
 
-  public List getItemAttachmentList() {
-    ArrayList list = new ArrayList();
+  public List<ItemAttachmentIfc> getItemAttachmentList() {
+    ArrayList<ItemAttachmentIfc> list = new ArrayList<ItemAttachmentIfc>();
     if (itemAttachmentSet !=null ){
-      Iterator iter = itemAttachmentSet.iterator();
+      Iterator<ItemAttachmentIfc> iter = itemAttachmentSet.iterator();
       while (iter.hasNext()){
-        ItemAttachmentIfc a = (ItemAttachmentIfc)iter.next();
+        ItemAttachmentIfc a = iter.next();
         list.add(a);
       }
     }
@@ -771,15 +810,176 @@ public class ItemData
   public void setPartialCreditFlag(Boolean particalCreditFlag) {
 	  this.partialCreditFlag = particalCreditFlag;	
   }
+  
+  public String getLeadInText() {
+	if (leadInText == null) {
+		setThemeAndLeadInText();
+	}
+	return leadInText;
+  }
+
+  public String getThemeText() {
+	if (themeText == null) {
+		setThemeAndLeadInText();
+	}
+	return themeText;
+  }
+
+  private void setThemeAndLeadInText() {
+	if (TypeD.EXTENDED_MATCHING_ITEMS.equals(getTypeId())) {
+		boolean themeTextIsSet = false, leadInTextIsSet = false;
+		if(itemTextSet == null){
+			return;
+		}
+		Iterator<ItemTextIfc> iter = itemTextSet.iterator();
+		while (iter.hasNext()) {
+			ItemTextIfc itemText= (ItemTextIfc) iter.next();
+			if (itemText.getSequence().equals(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE)) {
+				themeText = itemText.getText();
+				themeTextIsSet = true;
+			}
+			if (itemText.getSequence().equals(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE)) {
+				leadInText = itemText.getText();
+				leadInTextIsSet = true;
+			}
+			
+			if (themeTextIsSet && leadInTextIsSet) {
+				return;
+			}
+		}
+	}
+  }
+  
+  // total number of correct EMI answers
+	public int getNumberOfCorrectEmiOptions() {
+		int count=0;
+		if (itemTextSet == null){
+			return count;
+		}
+		Iterator<ItemTextIfc> itemTextIter = itemTextSet.iterator();
+		while (itemTextIter.hasNext()) {
+			ItemTextIfc itemText = itemTextIter.next();
+			if (!itemText.isEmiQuestionItemText()) continue;
+			Iterator<AnswerIfc> answerIter = itemText.getAnswerSet().iterator();
+			while (answerIter.hasNext()) {
+				AnswerIfc answer = answerIter.next();
+				if (answer.getIsCorrect()) count++;
+			}
+		}
+		return count;
+	}
+	
+	// available option labels for EMI answers
+	public String getEmiAnswerOptionLabels() {
+		String emiAnswerOptionLabels = null;
+		if (TypeD.EXTENDED_MATCHING_ITEMS.equals(getTypeId())) {
+			if (getIsAnswerOptionsSimple()) {
+				emiAnswerOptionLabels = "";
+				if (getEmiAnswerOptions() != null) {
+					Iterator<AnswerIfc> iter = getEmiAnswerOptions().iterator();
+					while (iter.hasNext()) {
+						AnswerIfc answer = iter.next();
+						emiAnswerOptionLabels += answer.getLabel();
+					}
+				}
+			}
+			else { // Rich
+				emiAnswerOptionLabels = ItemDataIfc.ANSWER_OPTION_LABELS.substring(0, getAnswerOptionsRichCount().intValue());
+			}
+		}
+		return emiAnswerOptionLabels;
+	}
+	
+	public boolean isValidEmiAnswerOptionLabel(String label) {
+		if (label == null) return false;
+		String validOptionLabels = getEmiAnswerOptionLabels();
+		if (label.length()==1 && validOptionLabels.contains(label)) {
+			return true;
+		}
+		return false;
+	}
+
+	  public List<AnswerIfc> getEmiAnswerOptions() {
+		  if (!typeId.equals(TypeD.EXTENDED_MATCHING_ITEMS)) return null;
+		  ItemTextIfc itemText = getItemTextBySequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);  
+		  if (itemText != null) {
+			    return itemText.getAnswerArraySorted();
+		  }
+		  return null;
+	  }
+	  
+	  public List<ItemTextIfc> getEmiQuestionAnswerCombinations() {
+		  if (!typeId.equals(TypeD.EXTENDED_MATCHING_ITEMS)) return null;
+		  Iterator<ItemTextIfc> iter = getItemTextArraySorted().iterator();
+		  ArrayList<ItemTextIfc> emiQuestionAnswerCombinations = new ArrayList<ItemTextIfc>();
+		  while (iter.hasNext()) {
+			  ItemTextIfc itemText = iter.next();
+			  if (itemText.isEmiQuestionItemText()) {
+				  emiQuestionAnswerCombinations.add(itemText);
+			  }
+		  }
+		  return emiQuestionAnswerCombinations;
+	  }
+	  
+	  public ItemTextIfc getItemTextBySequence(Long itemTextSequence) {
+		  ItemTextIfc itemText = null;  
+		  if(itemTextSet == null){
+			  return null;
+		  }
+		  Iterator<ItemTextIfc> itemTextIter = itemTextSet.iterator();
+		  while (itemTextIter.hasNext()) {
+			  itemText = itemTextIter.next();
+			  if (itemText.getSequence().equals(itemTextSequence)) {
+				  return itemText;
+			  }
+		  }
+		  return null;
+	  }
+
+	public Integer getAnswerOptionsRichCount() {
+		return answerOptionsRichCount;
+	}
+
+	public void setAnswerOptionsRichCount(Integer answerOptionsRichCount) {
+		this.answerOptionsRichCount = answerOptionsRichCount;
+	}	  
+	  
+	public Integer getAnswerOptionsSimpleOrRich() {
+		if (answerOptionsSimpleOrRich==null) {
+			answerOptionsSimpleOrRich = ItemDataIfc.ANSWER_OPTIONS_SIMPLE;
+		}
+		return answerOptionsSimpleOrRich;
+	}
+
+	public void setAnswerOptionsSimpleOrRich(Integer answerOptionsSimpleOrRich) {
+		this.answerOptionsSimpleOrRich = answerOptionsSimpleOrRich;
+	}
+	  
+  public String getEmiAnswerOptionsRichText() {
+	  if (!typeId.equals(TypeD.EXTENDED_MATCHING_ITEMS)) return null;
+	  ItemTextIfc itemText = getItemTextBySequence(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE);  
+	  if (itemText != null) {
+		    return itemText.getText();
+	  }
+	  return null;
+  }
+  
+  public boolean getIsAnswerOptionsSimple() {
+	  return this.getAnswerOptionsSimpleOrRich().equals(ItemDataIfc.ANSWER_OPTIONS_SIMPLE);
+  }
+
+  public boolean getIsAnswerOptionsRich() {
+	  return this.getAnswerOptionsSimpleOrRich().equals(ItemDataIfc.ANSWER_OPTIONS_RICH);
+  }
 
   public String[] getRowChoices(){
 
-	  ArrayList itemTextArray = getItemTextArraySorted();
+	  List<ItemTextIfc> itemTextArray = getItemTextArraySorted();
 
 	  List<String> stringList = new ArrayList<String>();
 
 	  for(int i=0; i<itemTextArray.size();i++) {
-		  String str = ((ItemTextIfc) itemTextArray.get(i)).getText();
+		  String str = itemTextArray.get(i).getText();
 		  if(str!= null && str.length() > 0) {
 			  stringList.add(str);
 		  }
@@ -793,12 +993,12 @@ public class ItemData
   public List<Integer> getColumnIndexList() {
 
 	  List<Integer> columnIndexList = new ArrayList<Integer>();
-	  ArrayList itemTextArray = getItemTextArraySorted();
-	  ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();  
+	  List<ItemTextIfc> itemTextArray = getItemTextArraySorted();
+	  List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();  
 	  List<String> stringList = new ArrayList<String>();
 
 	  for(int i=0; i<answerArray.size();i++) {
-		  String str = ((AnswerIfc) answerArray.get(i)).getText();
+		  String str = answerArray.get(i).getText();
 		  if(str!= null && str.length() > 0) {
 			  stringList.add(str);
 		  }
@@ -810,8 +1010,8 @@ public class ItemData
   }
 
   public String[] getColumnChoices() {
-	  ArrayList itemTextArray = getItemTextArraySorted();
-	  ArrayList answerArray = ((ItemTextIfc)itemTextArray.get(0)).getAnswerArraySorted();   
+	  List<ItemTextIfc> itemTextArray = getItemTextArraySorted();
+	  List<AnswerIfc> answerArray = itemTextArray.get(0).getAnswerArraySorted();   
 	  List<String> stringList = new ArrayList<String>();
 
 	  for(int i=0; i<answerArray.size();i++) {

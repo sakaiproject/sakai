@@ -92,7 +92,6 @@ public class QuestionScoresBean
   private HashMap scoresByItem;
   private static Log log = LogFactory.getLog(QuestionScoresBean.class);
 
-  // modified by gopalrc - Jan 2008
   //private String selectedSectionFilterValue = TotalScoresBean.ALL_SECTIONS_SELECT_VALUE;
   private String selectedSectionFilterValue = null;
   
@@ -115,8 +114,8 @@ public class QuestionScoresBean
   private Map userIdMap;
   private HashMap agentResultsByItemGradingId;
   private boolean isAnyItemGradingAttachmentListModified;
-  private Boolean releasedToGroups = null; // added by gopalrc - Jan 2008
-
+  private Boolean releasedToGroups = null;
+  
   /**
    * Creates a new QuestionScoresBean object.
    */
@@ -291,15 +290,6 @@ public class QuestionScoresBean
   public void setPublishedId(String ppublishedId)
   {
     publishedId = ppublishedId;
-    /*
-    //added by gopalrc - Jan 2007
-	if (isReleasedToGroups()) {
-		setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
-	}
-	else {
-		setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
-	}
-    */
   }
 
   /**
@@ -774,7 +764,7 @@ public class QuestionScoresBean
 
 
   public String getSelectedSectionFilterValue() {
-	  // lazy initialization added by gopalrc - Jan 2008  
+	  // lazy initialization
 	  if (selectedSectionFilterValue == null) {
 		  if (isReleasedToGroups()) {
 			  setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
@@ -939,18 +929,7 @@ public void clear(ActionEvent event) {
 		this.haveModelShortAnswer = haveModelShortAnswer;
 	}
 
-	/**
-	 * added by gopalrc - jan 2008
-	 * @return
-	 */
 	public boolean isReleasedToGroups() {
-/*		
-		if (releasedToGroups == null) {
-	    	PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	    	releasedToGroups = publishedAssessmentService.isReleasedToGroups(publishedId);
-		}
-		return releasedToGroups;
-*/
 		return this.getPublishedAssessment().getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControl.RELEASE_TO_SELECTED_GROUPS);
 	}
 	

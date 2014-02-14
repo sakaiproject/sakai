@@ -282,14 +282,6 @@ public class LoginServlet
     return isMember;
   }
   
-  /**
-   * added by gopalrc - Nov 2007
-   * 
-   * @param pub
-   * @param req
-   * @param res
-   * @return
-   */
   private boolean checkMembershipForGroupRelease(PublishedAssessmentFacade pub,
 	       HttpServletRequest req, HttpServletResponse res){
 	    boolean isMember=false;
@@ -323,13 +315,6 @@ public class LoginServlet
 	    return isMember;
   }
     
-  /**
-   * added by gopalrc - Nov 2007
-   * 
-   * @param authorizedGroupId
-   * @param userGroups
-   * @return
-   */
   private boolean isUserInAuthorizedGroup(String authorizedGroupId, Collection userGroups) {
 	  if (userGroups==null || userGroups.isEmpty() 
 			  || authorizedGroupId==null || authorizedGroupId.equals("")) {

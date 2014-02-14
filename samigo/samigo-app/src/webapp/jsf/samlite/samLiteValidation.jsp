@@ -134,6 +134,15 @@
 		 				<h:panelGroup rendered="#{question.questionType == 40}">
           					<h:outputText value="#{question.correctAnswer}"/>
           				</h:panelGroup>
+          				
+          				<h:panelGroup rendered="#{question.questionType == 50}">
+           					<h:dataTable value="#{question.answers}" var="answer">
+						        <h:column>
+						          	<h:outputText value="#{answer.id}. #{answer.text}" escape="false"/>
+						        </h:column>
+						    </h:dataTable>
+          				</h:panelGroup>
+          				
 		 			</h:panelGrid>
 				</h:column>
 		 	</h:dataTable> 

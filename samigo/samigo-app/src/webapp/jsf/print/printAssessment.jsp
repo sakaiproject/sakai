@@ -226,6 +226,9 @@ document.links[newindex].onclick();
                 <h:panelGroup rendered="#{question.itemData.typeId == 13}">
                   <%@ include file="/jsf/print/preview_item/MatrixChoicesSurvey.jsp" %>
                 </h:panelGroup>
+				<h:panelGroup rendered="#{question.itemData.typeId == 14}">
+		           <%@ include file="/jsf/print/preview_item/ExtendedMatchingItems.jsp" %>
+		        </h:panelGroup>
                 <h:outputText escape="false" value="<hr />"
 					rendered="#{!(part.number == pdfAssessment.sizeDeliveryParts && question.number == pdfAssessment.totalQuestions) && (printSettings.showKeys || printSettings.showKeysFeedback) }" />
               </h:panelGroup>

@@ -32,6 +32,9 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.edit_p}"/></title>
 
+      <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	  <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
+      <link type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" rel="Stylesheet" media="all" />
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/JavaScript">
@@ -83,7 +86,7 @@ function textCounter(field, maxlimit) {
   <h:outputText id="ownerfield" value="#{questionpool.currentPool.owner}"/>
 
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}"  for="orgfield" value="#{questionPoolMessages.dept}"/>
-  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt() " id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="orgfield" size="30" maxlength="255" value="#{questionpool.currentPool.organizationName}" rendered="!#{questionpool.currentPool.showParentPools}"/>
     
   <h:outputLabel rendered="!#{questionpool.currentPool.showParentPools}" for="descfield" value="#{questionPoolMessages.desc}" />
   <h:inputTextarea readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt();textCounter(this,255);" id="descfield" rendered="!#{questionpool.currentPool.showParentPools}" value="#{questionpool.currentPool.description}" cols="40" rows="6"
@@ -99,10 +102,10 @@ function textCounter(field, maxlimit) {
                   onmouseover="textCounter(this,255);"
 />
 
-  <h:outputLabel for="objfield" value="#{questionPoolMessages.obj} " rendered="!#{questionpool.currentPool.showParentPools}"/>
+  <h:outputLabel for="objfield" value="#{questionPoolMessages.obj}" rendered="!#{questionpool.currentPool.showParentPools}"/>
   <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="objfield" size="30" maxlength="255" value="#{questionpool.currentPool.objectives}" rendered="!#{questionpool.currentPool.showParentPools}"/>
 
-  <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords} " rendered="!#{questionpool.currentPool.showParentPools}" />
+  <h:outputLabel for="keyfield" value="#{questionPoolMessages.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
   <h:inputText readonly="#{questionpool.importToAuthoring == 'true' || questionpool.owner!=questionpool.currentPool.owner}" onchange="inIt()" id="keyfield" size="30" maxlength="255" value="#{questionpool.currentPool.keywords}" rendered="!#{questionpool.currentPool.showParentPools}" />
 
   <h:inputHidden id="createdDate" value="#{questionpool.currentPool.dateCreated}">
@@ -110,7 +113,7 @@ function textCounter(field, maxlimit) {
   </h:inputHidden>
 </h:panelGrid>
 <div style="margin-top:1em;margin-bottom:2.5em">
-  <h:commandButton id="Update"   rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
+  <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   </h:commandButton>
 </div>
@@ -152,9 +155,9 @@ function textCounter(field, maxlimit) {
 <h:panelGrid width="100%" columns="2" columnClasses="h3text,navList">
 <h:panelGroup >
 <h:outputText value="#{questionpool.currentPool.numberOfQuestions}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions >1}" value=" #{questionPoolMessages.qs}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==1}" value=" #{questionPoolMessages.q}"/>
-<h:outputText rendered ="#{questionpool.currentPool.numberOfQuestions ==0}" value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfQuestions >1}" value=" #{questionPoolMessages.qs}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfQuestions ==1}" value=" #{questionPoolMessages.q}"/>
+<h:outputText rendered="#{questionpool.currentPool.numberOfQuestions ==0}" value=" #{questionPoolMessages.qs}"/>
 </h:panelGroup>
 <h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{questionPoolMessages.add}"/>
@@ -164,7 +167,7 @@ function textCounter(field, maxlimit) {
 </h4>
   <div class="tier2">
 <div class="navIntraToolLink">
-  <h:commandButton id="removeSubmit"   rendered="#{questionpool.importToAuthoring == 'false'}"  action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
+  <h:commandButton id="removeSubmit" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
   </h:commandButton>
  
@@ -205,7 +208,7 @@ function textCounter(field, maxlimit) {
 <!-- for importing questions from pool to authoring -->
 <!-- disable copy button once clicked.  show processing... -->
 
-  <h:commandButton id="import"   rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
+  <h:commandButton id="import" rendered="#{(questionpool.importToAuthoring == 'true') && (questionpool.currentPool.numberOfQuestions > 0)}" action="#{questionpool.doit}"
    onclick="disableImport(); showNotif('submitnotif',this.name,'editform');" onkeypress="disableImport(); showNotif('submitnotif',this.name,'editform');"
         value="#{questionPoolMessages.copy}">
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />

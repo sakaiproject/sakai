@@ -44,6 +44,8 @@ private int numStudents;
   private String rangeInfo;
   private String label;
   private Boolean isCorrect;
+  private Long subQuestionSequence;
+  private String title;
   private ItemBarBean[] itemBars;
   
   public void setItemBars(ArrayList<ItemBarBean> items){
@@ -57,8 +59,8 @@ private int numStudents;
   public ItemBarBean[] getItemBars(){
 	  return this.itemBars;
   }
-	  
-  /**
+
+/**
     *
     * @param numStudents int
     */
@@ -164,5 +166,19 @@ private int numStudents;
      return Validator.bcheck(isCorrect, false);
    }
 
+   public Long getSubQuestionSequence() {
+ 	return subQuestionSequence;
+   }
 
+   public void setSubQuestionSequence(Long subQuestionSequence) {
+ 	this.subQuestionSequence = subQuestionSequence;
+   }
+
+   public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
 }

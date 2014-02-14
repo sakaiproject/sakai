@@ -160,7 +160,9 @@ public class ItemTypeExtractionStrategy
     // start with item title
     if (titleItemType != null)
     {
-      if (isExactType(titleItemType)) itemType = titleItemType;
+      if (isExactType(titleItemType)){
+    	  return titleItemType;
+      }
       titleItemType = guessType(titleItemType);
       if (titleItemType != null) itemType = titleItemType;
     }
@@ -168,7 +170,9 @@ public class ItemTypeExtractionStrategy
     // next try to figure out from qmd_itemtype metadata
     if (qmdItemType != null)
     {
-      if (isExactType(qmdItemType)) itemType = qmdItemType;
+      if (isExactType(qmdItemType)){
+    	  return qmdItemType;
+      }
       qmdItemType = guessType(qmdItemType);
       if (qmdItemType != null) itemType = qmdItemType;
     }
@@ -242,6 +246,11 @@ public class ItemTypeExtractionStrategy
              toGuess.indexOf("upload") != -1)
     {
       itemType = AuthoringConstantStrings.FILE;
+    }
+    else if (toGuess.indexOf("extended") != -1 &&
+    		toGuess.indexOf("matching") != -1)
+    {
+    	itemType = AuthoringConstantStrings.EMI;
     }
     else if (toGuess.indexOf("match") != -1)
     {

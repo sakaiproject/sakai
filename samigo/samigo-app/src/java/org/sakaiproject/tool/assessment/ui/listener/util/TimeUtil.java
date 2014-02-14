@@ -32,7 +32,6 @@ import java.util.TimeZone;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.time.cover.TimeService;
-
 /**
  * <p>Description: Time conversion utility class</p>
  */
@@ -52,7 +51,7 @@ public class TimeUtil
 
 
   /**
-  * Convert a String reprepsentation of date and time in the client TimeZone 
+  * Convert a String representation of date and time in the client TimeZone 
   * to Date representation of date and time  in server TimeZone
   * before saving to DB.
   * tz1 is the client timezone,  tz2 is the server timezone
@@ -75,7 +74,7 @@ public class TimeUtil
 
 
   /**
-  * Convert a Date reprepsentation of date and time in the server TimeZone 
+  * Convert a Date representation of date and time in the server TimeZone 
   * to String representation of date and time  in client TimeZone
   * used for display. 
   * tz1 is the client timezone,  tz2 is the server timezone
@@ -119,7 +118,7 @@ public class TimeUtil
 
 
   /**
-  * Convert a Date reprepsentation of date and time to String in the client timezone for display
+  * Convert a Date representation of date and time to String in the client timezone for display
   */
 
   public String getDisplayDateTime(SimpleDateFormat ndf, Date serverDate ){
@@ -141,7 +140,7 @@ public class TimeUtil
       }
     }
     catch (RuntimeException e){
-      log.warn("can not format the Date to a string");
+      log.warn("can not format the Date to a string", e);
     }
     return displayDate;
   }

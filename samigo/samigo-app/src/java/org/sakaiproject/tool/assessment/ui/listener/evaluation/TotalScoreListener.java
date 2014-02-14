@@ -318,25 +318,6 @@ public class TotalScoreListener
       ArrayList scores = new ArrayList();  
       ArrayList students_not_submitted= new ArrayList();  
       
-      /*
-      // if for anonymous, reset totalscorebean.getselectedsectionfiltervalue = ALL_SECTIONS_SELECT_VALUE 
-    if ("true".equalsIgnoreCase(bean.getAnonymous())){
-      //reset sectionaware pulldown to -1 all sections
-      //bean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
-      
-      // changed from above by gopalrc - Jan 2008
-    	//PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-	    //  boolean groupRelease = publishedAssessmentService.isReleasedToGroups(bean.getPublishedId());
-    	boolean groupRelease = p.getAssessmentAccessControl().getReleaseTo().equals(AssessmentAccessControlIfc.RELEASE_TO_SELECTED_GROUPS);
-	  	if (groupRelease) {
-	  		bean.setSelectedSectionFilterValue(TotalScoresBean.RELEASED_SECTIONS_GROUPS_SELECT_VALUE);
-	  	}
-	  	else {
-	  		bean.setSelectedSectionFilterValue(TotalScoresBean.ALL_SECTIONS_SELECT_VALUE);
-	  	}
-      
-    }
-       */
       Map useridMap= bean.getUserIdMap(TotalScoresBean.CALLED_FROM_TOTAL_SCORE_LISTENER);
       ArrayList agents = new ArrayList();
       prepareAgentResultList(bean, p, scores, students_not_submitted, useridMap);

@@ -15,6 +15,10 @@
 	<version>10.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+	
 	<modules>
 		<module>samigo-api</module>
 		<module>samigo-app</module>
@@ -34,17 +38,34 @@
 		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</developerConnection>
 		<url>https://source.sakaiproject.org/svn/sam/trunk</url>
 	</scm>
-	
+
 	<distributionManagement>
-        <site>
+		<site>
             <id>sakai-site</id>
             <name>Sakai release Site</name>
             <url>scpexe://source.sakaiproject.org/var/www/html/release/samigo/${project.version}</url>
         </site>
-    </distributionManagement>
-    
+	</distributionManagement>
+
 	<dependencyManagement>
         <dependencies>
+            <dependency>
+            	<groupId>org.sakaiproject.samigo</groupId>
+            	<artifactId>samigo-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.samigo</groupId>
+            	<artifactId>samigo-services</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+	    </dependency>
+            <dependency>
+            	<groupId>org.sakaiproject.samigo</groupId>
+	        <artifactId>samigo-app</artifactId>
+                <version>${project.version}</version>
+	    </dependency>
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-cp</artifactId>
@@ -63,6 +84,36 @@
                 <artifactId>samigo-qti</artifactId>
                 <version>${project.version}</version>
                 <type>jar</type>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-import</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-deploy</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-assembly</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-shared</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-help</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-pack</artifactId>
+                <version>${project.version}</version>
             </dependency>
             <!-- Samigo Lite -->
             <dependency>

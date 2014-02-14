@@ -98,7 +98,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
       Set itemSet, String protocol);
 
   public Set preparePublishedItemTextSet(PublishedItemData publishedItem,
-      Set itemTextSet);
+      Set itemTextSet, String protocol);
 
   public Set preparePublishedItemMetaDataSet(PublishedItemData publishedItem,
       Set itemMetaDataSet);
@@ -320,13 +320,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
  
   public Integer getPublishedItemCount(Long publishedAssessmentId);
   
-  /**
-   * added by gopalrc - Nov 2007
-   * @param publishedAssessmentId
-   * @return
-   */
   public Integer getPublishedSectionCount(final Long publishedAssessmentId);
-  
   
   public PublishedAttachmentData getPublishedAttachmentData(Long attachmentId);
 
@@ -344,11 +338,6 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public void saveOrUpdatePublishedAccessControl(AssessmentAccessControlIfc publishedAccessControl);
 
-  /**
-   * added by gopalrc - Jan 2008
-   * @param publishedAssessmentId
-   * @return
-   */
   public List getReleaseToGroupIdsForPublishedAssessment(final String publishedAssessmentId);
   
   public Integer getPublishedAssessmentStatus(Long publishedAssessmentId);

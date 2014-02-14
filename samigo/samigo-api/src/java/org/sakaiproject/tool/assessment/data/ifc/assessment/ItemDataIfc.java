@@ -22,15 +22,15 @@
 
 
 package org.sakaiproject.tool.assessment.data.ifc.assessment;
-import java.util.ArrayList;
+
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
 
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 
-public interface ItemDataIfc extends java.io.Serializable {
+
+public interface ItemDataIfc extends Comparable<ItemDataIfc>, java.io.Serializable {
 
   public static Integer ACTIVE_STATUS = Integer.valueOf(1);
   public static Integer INACTIVE_STATUS = Integer.valueOf(0);
@@ -115,19 +115,19 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   void setLastModifiedDate(Date lastModifiedDate);
 
-  Set getItemTextSet();
+  Set<ItemTextIfc> getItemTextSet();
 
-  void setItemTextSet(Set itemTextSet) ;
+  void setItemTextSet(Set<ItemTextIfc> itemTextSet) ;
 
-  void addItemText(String itemText, Set answerSet);
+  void addItemText(String itemText, Set<AnswerIfc> answerSet);
 
-  Set getItemMetaDataSet();
+  Set<ItemMetaDataIfc> getItemMetaDataSet();
 
-  void setItemMetaDataSet(Set itemMetaDataSet);
+  void setItemMetaDataSet(Set<ItemMetaDataIfc> itemMetaDataSet);
 
-  Set getItemFeedbackSet();
+  Set<ItemFeedbackIfc> getItemFeedbackSet();
 
-  void setItemFeedbackSet(Set itemFeedbackSet);
+  void setItemFeedbackSet(Set<ItemFeedbackIfc> itemFeedbackSet);
 
   String getItemMetaDataByLabel(String label);
 
@@ -159,15 +159,40 @@ public interface ItemDataIfc extends java.io.Serializable {
 
   TypeIfc getType();
 
-  ArrayList getItemTextArray();
+  List<ItemTextIfc> getItemTextArray();
 
-  ArrayList getItemTextArraySorted();
+  List<ItemTextIfc> getItemTextArraySorted();
 
   String getAnswerKey();
 
-  Set getItemAttachmentSet();
+  Set<ItemAttachmentIfc> getItemAttachmentSet();
 
-  void setItemAttachmentSet(Set itemAttachmentSet);
+  void setItemAttachmentSet(Set<ItemAttachmentIfc> itemAttachmentSet);
 
-  List getItemAttachmentList();
+  List<ItemAttachmentIfc> getItemAttachmentList();
+  
+  String getLeadInText();
+  String getThemeText();
+  //public ItemTextIfc getEmiAnswerComponentsItemText();
+  public int getNumberOfCorrectEmiOptions();
+  public String getEmiAnswerOptionLabels();
+  public boolean isValidEmiAnswerOptionLabel(String label);
+
+  public List<AnswerIfc> getEmiAnswerOptions();
+  public List<ItemTextIfc> getEmiQuestionAnswerCombinations();
+
+  public ItemTextIfc getItemTextBySequence(Long itemTextSequence);
+  public Integer getAnswerOptionsRichCount();
+  public void setAnswerOptionsRichCount(Integer answerOptionsRichCount);
+  
+  // for EMI
+  public static final String ANSWER_OPTION_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+  public static final String ANSWER_OPTION_VALID_DELIMITERS = " ,;:.";
+  public static final Integer ANSWER_OPTIONS_SIMPLE = 0;
+  public static final Integer ANSWER_OPTIONS_RICH = 1;
+  public Integer getAnswerOptionsSimpleOrRich();
+  public void setAnswerOptionsSimpleOrRich(Integer answerOptionsSimpleOrRich);  
+  public String getEmiAnswerOptionsRichText();
+  public boolean getIsAnswerOptionsSimple();
+  public boolean getIsAnswerOptionsRich();
 }

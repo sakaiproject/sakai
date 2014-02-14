@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -41,6 +42,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -197,6 +199,9 @@ public class ItemModifyListener implements ActionListener
       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.MATCHING)) {
     	  populateItemTextForMatching(itemauthorbean, itemfacade, bean);
       }
+      else if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) {
+    	  populateItemTextForEMI(itemauthorbean, itemfacade, bean);
+      }
       else if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.CALCULATED_QUESTION)) {
           populateItemTextForCalculatedQuestion(itemauthorbean, itemfacade, bean);          
       }
@@ -211,7 +216,7 @@ public class ItemModifyListener implements ActionListener
       List attachmentList = itemfacade.getData().getItemAttachmentList(); 
       itemauthorbean.setAttachmentList(attachmentList);
       itemauthorbean.setResourceHash(null);
-
+      
       int itype=0; // default to true/false
       if (itemauthorbean.getItemType()!=null) {
                 itype = new Integer(itemauthorbean.getItemType()).intValue();
@@ -256,7 +261,7 @@ public class ItemModifyListener implements ActionListener
                 case 11:
                     itemauthorbean.setItemTypeString("Fill In Numeric");  //  need to get it from properties file
                     nextpage = "fillInNumericItem";
-                    break;
+                    break;                    
                 case 9:
                         itemauthorbean.setItemTypeString("Matching");  //  need to get it from properties file
                         MatchItemBean matchitem = new MatchItemBean();
@@ -272,6 +277,10 @@ public class ItemModifyListener implements ActionListener
                 	    itemauthorbean.setItemTypeString("Matrix Choices Survey");  //  need to get it from properties file
                 	    nextpage = "matrixChoicesSurveyItem";
                 	    break;
+                case 14:
+                	itemauthorbean.setItemTypeString("Extended Matching Items");  //  need to get it from properties file
+                	nextpage = "emiItem";
+                	break;
                 case 15: // CALCULATED_QUESTION
                     itemauthorbean.setItemTypeString("Calculated Question");  //  need to get it from properties file
                     MatchItemBean variableItem = new MatchItemBean();
@@ -282,7 +291,7 @@ public class ItemModifyListener implements ActionListener
     }
     catch(RuntimeException e)
     {
-      e.printStackTrace();
+        log.error("Could not populate ItemBean", e);
       return false;
     }
 
@@ -307,128 +316,125 @@ public class ItemModifyListener implements ActionListener
   }
 
   private void populateItemText(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
+	  Set itemtextSet = itemfacade.getItemTextSet();
+	  Iterator iter = itemtextSet.iterator();
 
-    Set itemtextSet = itemfacade.getItemTextSet();
-    Iterator iter = itemtextSet.iterator();
-    while (iter.hasNext()){
-       ItemTextIfc  itemText = (ItemTextIfc) iter.next();
-       bean.setItemText(itemText.getText());
+	  while (iter.hasNext()){
+		  ItemTextIfc  itemText = (ItemTextIfc) iter.next();
+		  
+		  /////////////////////////////////////////////////////////////
+		  // Get current Answers choices
+		  /////////////////////////////////////////////////////////////
+		  bean.setItemText(itemText.getText());
 
-/////////////////////////////////////////////////////////////
-// Get current Answers choices
-/////////////////////////////////////////////////////////////
+		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.TRUE_FALSE)) {
 
+			  Set answerSet = itemText.getAnswerSet();
+			  Iterator iter1 = answerSet.iterator();
+			  while (iter1.hasNext()){
 
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.TRUE_FALSE)) {
+				  // should only be one element in the Set, except for Matching
 
-       Set answerSet = itemText.getAnswerSet();
-       Iterator iter1 = answerSet.iterator();
-       while (iter1.hasNext()){
+				  AnswerIfc answer = (AnswerIfc) iter1.next();
+				  if (answer.getIsCorrect() != null &&
+						  answer.getIsCorrect().booleanValue()){
+					  bean.setCorrAnswer(answer.getText());
+				  }
+			  }
+		  }
 
-       // should only be one element in the Set, except for Matching
+		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.ESSAY_QUESTION)) {
 
-    	   AnswerIfc answer = (AnswerIfc) iter1.next();
-         if (answer.getIsCorrect() != null &&
-             answer.getIsCorrect().booleanValue()){
-	   bean.setCorrAnswer(answer.getText());
-   	 }
-       }
-       }
+			  Set answerSet = itemText.getAnswerSet();
+			  Iterator iter1 = answerSet.iterator();
+			  while (iter1.hasNext()){
 
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.ESSAY_QUESTION)) {
+				  // should only be one element in the Set, except for Matching
 
-       Set answerSet = itemText.getAnswerSet();
-       Iterator iter1 = answerSet.iterator();
-       while (iter1.hasNext()){
+				  AnswerIfc answer = (AnswerIfc) iter1.next();
+				  bean.setCorrAnswer(answer.getText());
+				  // get answerfeedback
+				  Set feedbackSet=  answer.getAnswerFeedbackSet();
+				  Iterator iter2 = feedbackSet.iterator();
+				  while (iter2.hasNext()){
+					  bean.setCorrFeedback(((AnswerFeedbackIfc)iter2.next()).getText() );
+				  }
 
-       // should only be one element in the Set, except for Matching
+			  }
 
-    	   AnswerIfc answer = (AnswerIfc) iter1.next();
-         bean.setCorrAnswer(answer.getText());
-	// get answerfeedback
-         Set feedbackSet=  answer.getAnswerFeedbackSet();
-         Iterator iter2 = feedbackSet.iterator();
-         while (iter2.hasNext()){
-		bean.setCorrFeedback(((AnswerFeedbackIfc)iter2.next()).getText() );
- 	 }
-
-       }
-
-       }
-
-
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_BLANK)) {
-
-// restore the original question text, which includes answers in the braces.
-
-       String orig = itemText.getText();
-       String replaced = null;
-       Set answerSet = itemText.getAnswerSet();
-       Iterator iter1 = answerSet.iterator();
-       //need to check sequence no, since this answerSet returns answers in random order
-       int count = answerSet.size();
-       String[] answerArray = new String[count];
-       while (iter1.hasNext()){
-    	   AnswerIfc answerobj = (AnswerIfc) iter1.next();
-         String answer = answerobj.getText();
-         Long seq = answerobj.getSequence();
-         if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
-           answerArray[seq.intValue()-1] = answer;
-	 }
- 	 else {
-           answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
-	 }
-
-       }
-       for (int i=0; i<answerArray.length; i++) {
-    	   	// due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325587  
-    	   	// we need to call Matcher.quoteReplacement()
-    	   replaced = orig.replaceFirst("\\{\\}", java.util.regex.Matcher.quoteReplacement("{"+answerArray[i]+"}"));
-    	   orig = replaced;
-       }
-
-       bean.setItemText(replaced);
+		  }
 
 
-       } //fib
-       
-       if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_NUMERIC)) {
+		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_BLANK)) {
 
-//    	 restore the original question text, which includes answers in the braces.
+			  // restore the original question text, which includes answers in the braces.
 
-    	       String orig = itemText.getText();
-    	       String replaced = null;
-    	       Set answerSet = itemText.getAnswerSet();
-    	       Iterator iter1 = answerSet.iterator();
-    	       //need to check sequence no, since this answerSet returns answers in random order
-    	       int count = answerSet.size();
-    	       String[] answerArray = new String[count];
-    	       while (iter1.hasNext()){
-    	    	   AnswerIfc answerobj = (AnswerIfc) iter1.next();
-    	         String answer = answerobj.getText();
-    	         Long seq = answerobj.getSequence();
-    	         if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
-    	           answerArray[seq.intValue()-1] = answer;
-    		 }
-    	 	 else {
-    	           answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
-    		 }
+			  String orig = itemText.getText();
+			  String replaced = null;
+			  Set answerSet = itemText.getAnswerSet();
+			  Iterator iter1 = answerSet.iterator();
+			  //need to check sequence no, since this answerSet returns answers in random order
+			  int count = answerSet.size();
+			  String[] answerArray = new String[count];
+			  while (iter1.hasNext()){
+				  AnswerIfc answerobj = (AnswerIfc) iter1.next();
+				  String answer = answerobj.getText();
+				  Long seq = answerobj.getSequence();
+				  if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
+					  answerArray[seq.intValue()-1] = answer;
+				  }
+				  else {
+					  answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
+				  }
 
-    	       }
-    	       for (int i=0; i<answerArray.length; i++) {
-    		 replaced = orig.replaceFirst("\\{\\}", "{"+answerArray[i]+"}");
-    	         orig = replaced;
-    	       }
+			  }
+			  for (int i=0; i<answerArray.length; i++) {
+		    		  // due to http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=6325587  
+		    	 	  // we need to call Matcher.quoteReplacement()
+			    	  replaced = orig.replaceFirst("\\{\\}", java.util.regex.Matcher.quoteReplacement("{"+answerArray[i]+"}"));
+				  orig = replaced;
+			  }
 
-    	       bean.setItemText(replaced);
+			  bean.setItemText(replaced);
 
 
-    	       } //fin
-       
-       
-       
+		  } //fib
 
-       if ((Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) || (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) ) {
+		  if (new Long(itemauthorbean.getItemType()).equals(TypeFacade.FILL_IN_NUMERIC)) {
+
+			  //    	 restore the original question text, which includes answers in the braces.
+
+			  String orig = itemText.getText();
+			  String replaced = null;
+			  Set answerSet = itemText.getAnswerSet();
+			  Iterator iter1 = answerSet.iterator();
+			  //need to check sequence no, since this answerSet returns answers in random order
+			  int count = answerSet.size();
+			  String[] answerArray = new String[count];
+			  while (iter1.hasNext()){
+				  AnswerIfc answerobj = (AnswerIfc) iter1.next();
+				  String answer = answerobj.getText();
+				  Long seq = answerobj.getSequence();
+				  if ( (answerArray[seq.intValue()-1] == null ) || (answerArray[seq.intValue()-1].equals("")) ) {
+					  answerArray[seq.intValue()-1] = answer;
+				  }
+				  else {
+					  answerArray[seq.intValue()-1] = answerArray[seq.intValue()-1] + " | " + answer;
+				  }
+
+			  }
+			  for (int i=0; i<answerArray.length; i++) {
+				  replaced = orig.replaceFirst("\\{\\}", "{"+answerArray[i]+"}");
+				  orig = replaced;
+			  }
+
+			  bean.setItemText(replaced);
+
+
+		  } //fin
+
+
+	if ((Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) || (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) ) {
 	 Set answerobjlist = itemText.getAnswerSet();
          String afeedback =  "" ;
 	 Iterator iter1 = answerobjlist.iterator();
@@ -472,50 +478,193 @@ public class ItemModifyListener implements ActionListener
 		answerbeanlist.add(answerbean);
          }
 
-	// set correct choice for single correct
-       if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
-	 Iterator iter2 = correctlist.iterator();
-         while(iter2.hasNext())
-	 {
-	   AnswerBean corrbean= (AnswerBean) iter2.next();
-		// should only have one correct answer
-		bean.setCorrAnswer(corrbean.getLabel());
-	   break;
-	 }
-	}
+         
+/*         
+		  if ((Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) ||(Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT)) || (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) ) {
+			  Set answerobjlist = itemText.getAnswerSet();
+			  String afeedback =  "" ;
+			  Iterator iter1 = answerobjlist.iterator();
+			  ArrayList answerbeanlist = new ArrayList();
+			  ArrayList correctlist = new ArrayList();
+			  //need to check sequence no, since this answerSet returns answers in random order
+			  int count = answerobjlist.size();
+			  AnswerIfc[] answerArray = new AnswerIfc[count];
+			  while(iter1.hasNext())
+			  {
+				  AnswerIfc answerobj = (AnswerIfc) iter1.next();
+				  Long seq = answerobj.getSequence();
+				  answerArray[seq.intValue()-1] = answerobj;
+			  }
+			  for (int i=0; i<answerArray.length; i++) {
+				  Set feedbackSet = answerArray[i].getAnswerFeedbackSet();
+				  // contains only one element in the Set
+				  if (feedbackSet.size() == 1) {
+					  AnswerFeedbackIfc afbobj=(AnswerFeedbackIfc) feedbackSet.iterator().next();
+					  afeedback = afbobj.getText();
+				  }
+				  AnswerBean answerbean = new AnswerBean();
+				  answerbean.setText(answerArray[i].getText());
+				  answerbean.setSequence(answerArray[i].getSequence());
+				  answerbean.setLabel(answerArray[i].getLabel());
+				  answerbean.setFeedback(afeedback);
+				  answerbean.setIsCorrect(answerArray[i].getIsCorrect());
+				  if (answerbean.getIsCorrect() != null &&
+						  answerbean.getIsCorrect().booleanValue()) {
+					  correctlist.add(answerbean);
+				  }
+				  answerbeanlist.add(answerbean);
+			  }
+*/
 
-	// set correct choice for multiple correct
-       if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
-	int corrsize = correctlist.size();
-	String[] corrchoices = new String[corrsize];
-	Iterator iter3 = correctlist.iterator();
-        int counter =  0;
-        while(iter3.hasNext())
-	{
-	    corrchoices[counter]=  ((AnswerBean)iter3.next()).getLabel();
-	    counter++;
-        }
-	bean.setCorrAnswers(corrchoices);
-       }
+			  // set correct choice for single correct
+			  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CHOICE)) {
+				  Iterator iter2 = correctlist.iterator();
+				  while(iter2.hasNext())
+				  {
+					  AnswerBean corrbean= (AnswerBean) iter2.next();
+					  // should only have one correct answer
+					  bean.setCorrAnswer(corrbean.getLabel());
+					  break;
+				  }
+			  }
+
+			  // set correct choice for multiple correct
+			  if (Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT) || Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION)) {
+				  int corrsize = correctlist.size();
+				  String[] corrchoices = new String[corrsize];
+				  Iterator iter3 = correctlist.iterator();
+				  int counter =  0;
+				  while(iter3.hasNext())
+				  {
+					  corrchoices[counter]=  ((AnswerBean)iter3.next()).getLabel();
+					  counter++;
+				  }
+				  bean.setCorrAnswers(corrchoices);
+			  }
 
 
-	 bean.setMultipleChoiceAnswers(answerbeanlist);
+			  bean.setMultipleChoiceAnswers(answerbeanlist);
 
 
-       } // mc
+		  } // mc
+		  
+		  /////////////////////////////////////////////////////////////
+		  // Finish Answers
+		  /////////////////////////////////////////////////////////////
 
-/////////////////////////////////////////////////////////////
-// Finish Answers
-/////////////////////////////////////////////////////////////
-
-    } // looping through itemtextSet , only loop once for these types,
+	  } // looping through itemtextSet , only loop once for these types,
   }
 
-  private void populateItemTextForMatrix(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean){
+  private void populateItemTextForEMI(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean)  {
+	  if (!Long.valueOf(itemauthorbean.getItemType()).equals(TypeFacade.EXTENDED_MATCHING_ITEMS)) return;
+	  
+	  bean.setAnswerOptionsRichCount(itemfacade.getAnswerOptionsRichCount()==null?"0":itemfacade.getAnswerOptionsRichCount().toString());
+	  bean.setAnswerOptionsSimpleOrRich(itemfacade.getAnswerOptionsSimpleOrRich().toString());
+	  
+	  Set itemtextSet = itemfacade.getItemTextSet();
+	  Iterator iter = itemtextSet.iterator();
 
+	  ArrayList qaComboList = new ArrayList();
+
+	  while (iter.hasNext()){
+		  ItemTextIfc  itemText = (ItemTextIfc) iter.next();
+		  
+		  /////////////////////////////////////////////////////////////
+		  // Get current Answers choices
+		  /////////////////////////////////////////////////////////////
+			  if (itemText.getSequence().equals(ItemTextIfc.EMI_THEME_TEXT_SEQUENCE)) {
+				  bean.setItemText(itemText.getText());
+				  continue;
+			  }
+			  else if (itemText.getSequence().equals(ItemTextIfc.EMI_LEAD_IN_TEXT_SEQUENCE)) {
+				  bean.setLeadInStatement(itemText.getText());
+				  continue;
+			  }
+			  else if (itemText.getSequence().equals(ItemTextIfc.EMI_ANSWER_OPTIONS_SEQUENCE)) {
+				  bean.setEmiAnswerOptionsRich(itemText.getText());
+				  ArrayList answerOptionsList = new ArrayList();
+				  Set answerobjlist = itemText.getAnswerSet();
+				  Iterator ansIter = answerobjlist.iterator();
+				  while(ansIter.hasNext())
+				  {
+					  AnswerIfc answerobj = (AnswerIfc) ansIter.next();
+					  AnswerBean answerbean = new AnswerBean();
+					  answerbean.setText(answerobj.getText());
+					  answerbean.setSequence(answerobj.getSequence());
+					  answerbean.setLabel(answerobj.getLabel());
+					  answerOptionsList.add(answerbean);
+				  }
+				  Collections.sort(answerOptionsList);
+				  bean.setEmiAnswerOptions(answerOptionsList);
+				  continue;
+			  }
+			  else { // Actual Answers - EMI QA Combo Items
+				  AnswerBean answerbean = new AnswerBean();
+				  answerbean.setText(itemText.getText());
+				  answerbean.setSequence(itemText.getSequence());
+				  answerbean.setLabel(itemText.getSequence().toString());
+				  answerbean.setRequiredOptionsCount(itemText.getRequiredOptionsCount().toString());
+				  
+				  Set answerobjlist = itemText.getAnswerSet();
+				  String afeedback =  "" ;
+				  Iterator ansIter = answerobjlist.iterator();
+				  //need to check sequence no, since this answerSet returns answers in random order
+				  int count = answerobjlist.size();
+				  AnswerIfc[] answerArray = new AnswerIfc[count];
+				  int seq = 0;
+				  List correctAnswerOptions = new ArrayList();
+				  Double itemAnswerScore = 0.0;
+				  boolean itemScoreUserSet = false;
+				  while(ansIter.hasNext())
+				  {
+					  AnswerIfc answerobj = (AnswerIfc) ansIter.next();
+					  if (answerobj.getIsCorrect()) {
+						  correctAnswerOptions.add(answerobj.getLabel());
+						  itemAnswerScore = answerobj.getScore();
+						  itemScoreUserSet = "user".equals(answerobj.getGrade());
+					  }
+				  }
+				  if(itemAnswerScore == null){
+					  itemAnswerScore = 0.0;
+				  }
+				  int correctRequiredCount = correctAnswerOptions.size()<itemText.getRequiredOptionsCount().intValue()?
+						  correctAnswerOptions.size():itemText.getRequiredOptionsCount().intValue();
+				  answerbean.setScore(((double)Math.round((itemAnswerScore * correctRequiredCount)*100))/100);
+				  answerbean.setScoreUserSet(itemScoreUserSet);
+				  Collections.sort(correctAnswerOptions);
+				  Iterator correctAnsLabels = correctAnswerOptions.iterator();
+				  String correctOptionLabels = "";
+				  while(correctAnsLabels.hasNext())
+				  {
+					  correctOptionLabels += (String) correctAnsLabels.next();
+					  /*
+					  if (correctAnsLabels.hasNext()) {
+						  correctOptionLabels += ",";
+					  }
+					  */
+				  }
+				  answerbean.setCorrectOptionLabels(correctOptionLabels);
+
+			      List attachmentList = itemfacade.getItemTextBySequence(answerbean.getSequence()).getItemTextAttachmentList();
+				  answerbean.setAttachmentList(attachmentList);
+				  answerbean.setResourceHash(null);
+				  qaComboList.add(answerbean);
+			  }
+			  continue;
+		  
+		  /////////////////////////////////////////////////////////////
+		  // Finish Answers
+		  /////////////////////////////////////////////////////////////
+
+	  } // looping through itemtextSet , only loop once for these types,
+
+	  Collections.sort(qaComboList);
+	  bean.setEmiQuestionAnswerCombinations(qaComboList);
+}
+
+  private void populateItemTextForMatrix(ItemAuthorBean itemauthorbean, ItemFacade itemfacade, ItemBean bean){
 	  Set itemtextSet = itemfacade.getItemTextSet();
 	  Iterator iter = itemtextSet.iterator();    
-
 	  StringBuffer rowChoices = new StringBuffer();
 	  while (iter.hasNext()){
 		  ItemTextIfc  itemText = (ItemTextIfc) iter.next();
