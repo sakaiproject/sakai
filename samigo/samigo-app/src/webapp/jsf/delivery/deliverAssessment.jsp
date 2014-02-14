@@ -116,10 +116,7 @@
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
-       <div id="timer-warning" style="display:none" title="&nbsp;<span class='skip'>
-         <h:outputText value="#{deliveryMessages.five_minutes_left1} " />
-	     <h:outputText value="#{deliveryMessages.five_minutes_left2}" />
-	     <h:outputText value="#{deliveryMessages.five_minutes_left3}" /></span>">
+       <div id="timer-warning" style="display:none">
       	 <h:panelGrid columns="1" rowClasses="TableColumn, TableColumnLeft, TableColumnLeft" width="100%"  border="0">
            <h:outputText value="<b>#{deliveryMessages.five_minutes_left1}</b>" escape="false"/>
       	   <h:outputText value="<br/>#{deliveryMessages.five_minutes_left2}" escape="false"/>
