@@ -907,4 +907,12 @@ public class DashboardDaoMock implements DashboardDao {
 	public int addCalendarLinks(List<CalendarLink> calendarLinks) {
 		return 0;
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#deleteRepeatingEvent(java.lang.Long)
+	 */
+	public boolean deleteRepeatingEvent(java.lang.Long id) {
+		// TODO Auto-generated method stub
+		return Boolean.FALSE;
+	}
 }
