@@ -199,17 +199,29 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	{
 		String value = getString(key);
 
-		if (value.length() == 0) return dflt;
+		int originalLength = value.length();
+		if (originalLength == 0) return dflt;
 
 		try
 		{
+			value = value.trim();
+			if (originalLength != value.length())
+			{
+				M_log.warn("getInt(key, dflt) bundle name=" + this.baseName +
+						", locale=" + getLocale() + ", key=" +
+						key + ", dflt=" + dflt+ ", Trailing whitespace trimmed.");
+			}
 			return Integer.parseInt(value);
 		}
 		catch (NumberFormatException e)
 		{
-			// ignore
-			return dflt;
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("getInt(key, dflt) bundle name=" + this.baseName +
+						", locale=" + getLocale() + ", key=" +
+						key + ", dflt=" + dflt+ ", NumberFormatException");
+			}
 		}
+		return dflt;
 	}
    
 	/**
