@@ -503,8 +503,8 @@ public class EmailNotification implements NotificationAction
 		{
 			if (option == NotificationService.PREF_NONE)
 			{
-				String type = EntityManager.newReference(resourceFilter).getType();
-				if (type != null)
+			    String type = getType(resourceFilter);
+			    if (type != null)
 				{
 					if ("org.sakaiproject.mailarchive.api.MailArchiveService".equals(type))
 					{
@@ -642,7 +642,7 @@ public class EmailNotification implements NotificationAction
 		}
 
 		// try the preference for the resource type service responsibile for resources of this notification
-		String type = EntityManager.newReference(resourceFilter).getType();
+		String type = getType(resourceFilter);
 		if (type != null)
 		{
 			props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
@@ -665,6 +665,16 @@ public class EmailNotification implements NotificationAction
 	}
 
 	/**
+	 * Given a resourceFilter, get the associated type. See {@link org.sakaiproject.entity.impl.ReferenceComponent#getType}
+	 *
+	 * @param resourceFilter the resourceFilter to get the type from
+	 * @return the resourceFilter's type
+	 */
+	protected String getType(String resourceFilter) {
+	    return EntityManager.newReference(resourceFilter).getType();
+	}
+
+    /**
 	 * Find the header line that begins with the header parameter
 	 * 
 	 * @param header
