@@ -46,7 +46,7 @@ public interface ContentCollection
 	* ContentCollection objects.
 	* @return a List of the full objects of the members of the collection.
 	*/
-	public List getMemberResources();
+	public List<ContentEntity> getMemberResources();
 
 	/**
 	* Access the size of all the resource body bytes within this collection in Kbytes.

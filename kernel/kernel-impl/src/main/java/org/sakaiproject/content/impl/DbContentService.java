@@ -1285,7 +1285,7 @@ public class DbContentService extends BaseContentService
         /**
          * Get a list of all getCollections within a collection.
          */
-        public List getCollections(ContentCollection collection)
+        public List<ContentCollectionEdit> getCollections(ContentCollection collection)
         {
             boolean goin = in();
             try
@@ -1307,7 +1307,7 @@ public class DbContentService extends BaseContentService
                      * accept(Object o) { // o is a String, the collection id return StringUtil.referencePath((String) o).equals(target); } } );
                      */
 
-                    List collections = (List) threadLocalManager.get("getCollections@" + target);
+                    List<ContentCollectionEdit> collections = (List<ContentCollectionEdit>) threadLocalManager.get("getCollections@" + target);
                     if (collections == null)
                     {
                         collections = m_collectionStore.getAllResourcesWhere("IN_COLLECTION", target);
@@ -1541,7 +1541,7 @@ public class DbContentService extends BaseContentService
             }
         }
 
-        public List getResources(ContentCollection collection)
+        public List<ContentResourceEdit> getResources(ContentCollection collection)
         {
             boolean goin = in();
             try
@@ -1563,7 +1563,7 @@ public class DbContentService extends BaseContentService
                      * accept(Object o) { // o is a String, the resource id return StringUtil.referencePath((String) o).equals(target); } } );
                      */
 
-                    List resources = (List) threadLocalManager.get("getResources@" + target);
+                    List<ContentResourceEdit> resources = (List<ContentResourceEdit>) threadLocalManager.get("getResources@" + target);
                     if (resources == null)
                     {
                         resources = m_resourceStore.getAllResourcesWhere("IN_COLLECTION", target);
