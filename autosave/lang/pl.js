@@ -8,7 +8,7 @@ CKEDITOR.plugins.setLang('autosave', 'pl', {
     title: 'Porównanie tymczasowo zapisanej zawartości z zawartością wczytaną w witrynie',
     loadedContent: 'Zawartość wczytania',
     autoSavedContent: 'Zawartość zapisana automatycznie (z: \'',
-	ok: 'Wczytaj zawartość zapisaną automatycznie',
+	ok: 'Yes, load auto-saved content',
 	no: 'No',
 	diffType: 'Widok porównawczy:',
 	sideBySide: 'Obok siebie',

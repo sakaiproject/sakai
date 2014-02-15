@@ -8,7 +8,7 @@ CKEDITOR.plugins.setLang('autosave', 'de', {
     title: 'Temp. Gespeichert Inhalt vergleichen',
     loadedContent: 'Geladener Inhalt',
     autoSavedContent: 'Autom. Gespeicherten Inhalt (vom: \'',
-    ok: 'Lade Autom. Gespeicherten Inhalt',
+    ok: 'Ja, Lade Autom. Gespeicherten Inhalt',
     no: 'Nein',
 	diffType: 'Diff Anzeigetyp:',
     sideBySide: 'Nebeneinander',
