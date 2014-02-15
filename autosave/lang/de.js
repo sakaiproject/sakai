@@ -9,7 +9,8 @@ CKEDITOR.plugins.setLang('autosave', 'de', {
     loadedContent: 'Geladener Inhalt',
     autoSavedContent: 'Autom. Gespeicherten Inhalt (vom: \'',
     ok: 'Lade Autom. Gespeicherten Inhalt',
-    diffType: 'Diff Anzeigetyp:',
+    no: 'Nein',
+	diffType: 'Diff Anzeigetyp:',
     sideBySide: 'Nebeneinander',
     inline: 'Inline'
 });

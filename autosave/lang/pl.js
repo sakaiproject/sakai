@@ -9,6 +9,7 @@ CKEDITOR.plugins.setLang('autosave', 'pl', {
     loadedContent: 'Zawartość wczytania',
     autoSavedContent: 'Zawartość zapisana automatycznie (z: \'',
 	ok: 'Wczytaj zawartość zapisaną automatycznie',
+	no: 'No',
 	diffType: 'Widok porównawczy:',
 	sideBySide: 'Obok siebie',
 	inline: 'Osadzony'

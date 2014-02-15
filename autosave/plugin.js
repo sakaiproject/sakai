@@ -10,7 +10,7 @@
    
     CKEDITOR.plugins.add("autosave", {
         lang: 'de,en,jp,pl,pt-BR,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
-        version: 0.7,
+        version: 0.8,
         init: function(editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
             var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
@@ -127,7 +127,7 @@
                     {
                         id: 'cancel',
                         type: 'button',
-                        label: editorInstance.lang.common.cancel,
+                        label: editorInstance.lang.autosave.no,
                         'class': 'cke_dialog_ui_button_cancel',
                         onClick: function (evt) {
                             var dialog = evt.data.dialog;
@@ -210,7 +210,7 @@
             newTextLines: newtxt,
             opcodes: opcodes,
             baseTextName: editorInstance.lang.autosave.loadedContent,
-            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format('LLL')) + '\')',
+            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format('LLL')) + '\'',
             contextSize: 3,
             viewType: dialog.getContentElement('general', 'diffType').getValue() == "inline" ? 1 : 0
         }).outerHTML + '</div>');

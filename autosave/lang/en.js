@@ -4,12 +4,13 @@ For licensing, see LICENSE.html or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang('autosave', 'en', {
 	autoSaveMessage: 'Auto Saved',
-    loadSavedContent: 'There is a auto-saved version of this content (From "{0}") found. Do you want to open the Compare Dialog, where you can decide to load the auto saved Content?',
-    title: 'Compare Temp. Saved Content with the Loaded Content of the Site',
-    loadedContent: 'Loaded Content',
-    autoSavedContent: 'Auto. Saved Content (From: \'',
-	ok: 'Load Auto. Saved Content',
-	diffType: 'Diff View Type:',
-	sideBySide: 'Side by Side',
-	inline: 'Inline'
+    loadSavedContent: 'An auto-saved version of this content from "{0}" has been found. Would you like to compare content versions and choose which one to load?',
+    title: 'Compare auto-saved content with that loaded from the website',
+    loadedContent: 'Loaded content',
+    autoSavedContent: 'Auto-saved content from: \'',
+	ok: 'Load auto-saved content',
+	no: 'No',
+	diffType: 'Choose view type:',
+	sideBySide: 'Side by side view',
+	inline: 'Inline view'
 });
