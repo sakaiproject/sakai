@@ -155,7 +155,7 @@
                 <f:param value="#{delivery.dayRetractDateString}"/>
         </h:outputFormat>
         <br /><br /><br />
-        <h:outputText value="#{deliveryMessages.five_minutes_left2}" escape="false"/>
+        <h:outputText value="#{deliveryMessages.time_30_warning_2}" escape="false"/>
         <br />
 		</div>
 		

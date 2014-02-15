@@ -29,6 +29,9 @@
      var five_minutes_left = "<h:outputText value="#{deliveryMessages.five_minutes_left1} "/><h:outputText value="#{deliveryMessages.five_minutes_left2} " /><h:outputText value="#{deliveryMessages.five_minutes_left3}" />";
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
 
+     var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
+     var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
+     
      $(document).ready(function(){
 	
 		$("input[type='submit']").click(function() { 
@@ -71,6 +74,7 @@
 	        open: function (event,ui) { 
 	        	$(".ui-dialog-titlebar", $(this).parent()).hide(); 
 				$(this).css("background", "#EEEEEE");
+				$(".ui-dialog-title").append("<span class='skip'>" + time_due_warning + "</span>");
 			}
 		});		
 	});
@@ -99,6 +103,7 @@
 			width: 250,
 			open: function (event,ui) { 
 				$(this).css("background", "#EEEEEE");
+				$(".ui-dialog-title").append("<span class='skip'>" + time_30_warning + "</span>");
 			}
 		});
 	}
