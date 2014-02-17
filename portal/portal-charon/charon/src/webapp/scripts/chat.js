@@ -93,7 +93,7 @@
                     portal.chat.handleSecurityError();
                 }
 
-                alert("Failed to send message. Reason: " + textStatus + ". Error: " + error);
+                alert(portal.chat.translations.server_error_send + textStatus + portal.chat.translations.server_error_send_error + error);
             }
         });
     };
@@ -671,7 +671,7 @@
 				if (portal.chat.connectionErrors >= 2) {
 					portal.chat.clearGetLatestDataInterval();
 					portal.chat.connectionErrors = 0;
-					alert("getLatestMessages: It looks like the chat server is unavailable. Check your network connection.");
+                    alert(portal.chat.translations.server_unavailable);
 				} else { 
 					portal.chat.connectionErrors = portal.chat.connectionErrors + 1;
 				}
@@ -716,7 +716,7 @@
 				if (portal.chat.connectionErrors >= 2) {
 					portal.chat.clearGetLatestDataInterval();
 					portal.chat.connectionErrors = 0;
-					alert("pingConnection: It looks like the chat server is unavailable. Check your network connection.");
+                    alert(portal.chat.translations.server_unavailable);
 				} else { 
 					portal.chat.connectionErrors = portal.chat.connectionErrors + 1;
 				}

@@ -19,6 +19,11 @@
             "enabled": $!{neoChat},
             "pollInterval": $!{portalChatPollInterval},
             "video": {}
+            "translations": {
+                "server_unavailable": "${rloader.pc_chat_server_unavailable}",
+                "server_error_send" : "${rloader.pc_chat_server_error_send}",
+                "server_error_send_error": "${rloader.pc_chat_server_error_send_error}"
+            },
         },
         "loggedIn": $!{loggedIn},
         "portalPath": "$!{portalPath}",
