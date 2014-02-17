@@ -41,9 +41,9 @@
 	</contributors>
 
 	<scm>
-		<connection>scm:https://source.sakaiproject.org/contrib/signup/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/contrib/signup/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/contrib/signup/trunk</url>
+		<connection>scm:https://source.sakaiproject.org/svn/signup/trunk</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/signup/trunk</developerConnection>
+		<url>https://source.sakaiproject.org/svn/signup/trunk</url>
 	</scm>
 
 	<properties>
