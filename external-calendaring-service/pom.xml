@@ -41,9 +41,9 @@
     </modules>
     
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/external-calendaring-service/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/external-calendaring-service/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/external-calendaring-service/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/external-calendaring-service/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/external-calendaring-service/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/external-calendaring-service/trunk</url>
     </scm>
 	
 	<dependencyManagement>
