@@ -34,6 +34,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import java.sql.Connection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
@@ -1258,14 +1260,67 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    
 	}
     
-    // should throw an error if the property isn't there
+    // return 1 if we found something, 0 if not
+    // this is only going to find something once per site, typically.
+    // so it's best to optimize for the normal case that nothing is there
+    // initialy this called
+    // dbWriteCount("delete from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields, null, null, false);
+    // but that doesn't exist in 2.8.
 
 	public int clearNeedsFixup(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
 
-	    return sqlService.dbWriteCount("delete from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields, 
-					null, null, false);
+	    List<String> needsList = sqlService.dbRead("select VALUE from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields, null);
+	    
+	    // normal case -- no flag
+	    if (needsList == null || needsList.size() == 0)
+		return 0;
+	    
+
+	    // there is a flag, do something more carefully avoiding race conditions
+	    //   There is a possible timing issue if someone copies data into the site after the
+	    // last test. If so, we'll get it next time someone uses the site.
+	    // we need to be provably sure that if the flag is set, this code returns 1 exactly once.
+	    // I believe that is the case.
+
+	    int retval = 0;
+	    Connection conn = null;
+	    boolean wasCommit = true;
+
+	    try {
+		conn = sqlService.borrowConnection();
+		needsList = sqlService.dbRead(conn, "select VALUE from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup' for update", fields, null);
+		wasCommit = conn.getAutoCommit();
+		conn.setAutoCommit(false);
+
+		if (needsList != null && needsList.size() > 0) {
+		    retval = 1;
+		    sqlService.dbWrite(conn, "delete from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields);
+		}
+		
+		conn.commit();
+
+	// I don't think we need to handle errrors explicitly. They will result in
+	// returning 0, which is about the best we can do
+	    } catch (Exception e) {
+	    } finally {
+
+		if (conn != null) {
+
+		    try {
+			conn.setAutoCommit(wasCommit);
+		    } catch (Exception e) {
+			System.out.println("transact: (setAutoCommit): " + e);
+		    }
+  
+		    sqlService.returnConnection(conn);
+		}
+
+	    }
+
+	    return retval;
+
 	}
 
 }

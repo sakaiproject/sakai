@@ -386,7 +386,9 @@ public class AjaxServer extends HttpServlet
 	    site = siteService.getSite(siteId);
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
+	    // not in 2.8   users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
+	    users = AuthzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+
 	    for (String userId: users) {
 		user2groups.put(userId, null);
 	    }

@@ -43,7 +43,6 @@ import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.SessionManager;

@@ -60,10 +60,11 @@
     <profiles>
         <profile>
           <id>10</id>
+    
           <activation>
             <activeByDefault>true</activeByDefault>
           </activation>
-    
+
           <properties>
 	    <!-- new pom.xml files that use materialied_clob, for new hibernate -->
 	    <hbms>newhbm</hbms>
@@ -182,6 +183,17 @@
 		<groupId>org.sakaiproject.samigo</groupId>
 		<artifactId>samigo-qti</artifactId>
 		<version>${sakai.samigo.version}</version>
+	      </dependency>
+              <dependency>
+		<groupId>org.sakaiproject.msgcntr</groupId>
+		<artifactId>messageforums-api</artifactId>
+		<version>${sakai.msgcntr.version}</version>
+		<scope>provided</scope>
+              </dependency>
+	      <dependency>
+		<groupId>net.sf.ehcache</groupId>
+		<artifactId>ehcache-core</artifactId>
+		<version>1.6.1</version>
 	      </dependency>
 	    </dependencies>
 	  </dependencyManagement>
