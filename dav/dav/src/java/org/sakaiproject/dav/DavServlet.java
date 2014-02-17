@@ -125,11 +125,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
@@ -1465,7 +1461,7 @@ public class DavServlet extends HttpServlet
 		}
 
 		@SuppressWarnings("unchecked")
-		public Iterator<Entity> list(String id)
+		public Iterator<ContentEntity> list(String id)
 		{
 			try
 			{
@@ -1476,8 +1472,8 @@ public class DavServlet extends HttpServlet
 				return null;
 			}
 			if (M_log.isDebugEnabled()) M_log.debug("DirContextSAKAI.list getting collection members and iterator");
-			List<Entity> members = collection.getMemberResources();
-			Iterator<Entity> it = members.iterator();
+			List<ContentEntity> members = collection.getMemberResources();
+			Iterator<ContentEntity> it = members.iterator();
 			return it;
 		}
 	}
@@ -2277,10 +2273,10 @@ public class DavServlet extends HttpServlet
 				if ((resources.isCollection) && (depth > 0))
 				{
 
-					Iterator<Entity> it = resources.list(currentPath);
+					Iterator<ContentEntity> it = resources.list(currentPath);
 					while (it.hasNext())
 					{
-						Entity mbr = (Entity) it.next();
+						Entity mbr = it.next();
 						String resourceName = getResourceNameSAKAI(mbr);
 
 						String newPath = currentPath;
