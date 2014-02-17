@@ -29,9 +29,9 @@
     </modules>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/delegatedaccess/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/delegatedaccess/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/delegatedaccess/trunk</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/delegatedaccess/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/delegatedaccess/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/delegatedaccess/trunk</url>
     </scm>
 	
 	<dependencyManagement>
