@@ -456,6 +456,10 @@ RESTful, ActionsExecutable {
         String roleId = null;
         boolean includeSites = true;
         boolean includeGroups = false;
+        
+        //SAK-25710 hold a map of each sites type so we can look them up later (entityId, siteType)
+        Map<String,String> siteTypes = new HashMap<String,String>();
+        
         if (search == null) {
             search = new Search();
         }
@@ -533,7 +537,9 @@ RESTful, ActionsExecutable {
                     Member sm = site.getMember(userId);
                     if (sm != null) {
                         if (includeSites) {
-                            members.add(new EntityMember(sm, site.getReference(), null));
+                        	EntityMember em = new EntityMember(sm, site.getReference(), null);
+                            members.add(em);
+                        	siteTypes.put(em.getId(), site.getType());
                         }
                         // also check the groups
                         if (includeGroups) {
@@ -598,7 +604,13 @@ RESTful, ActionsExecutable {
         // now we put the members into entity data objects
         ArrayList<EntityData> l = new ArrayList<EntityData>();
         for (EntityMember em : sortedMembers) {
-            EntityData ed = new EntityData(new EntityReference(PREFIX, em.getId()), null, em);
+                    	
+            //SAK-25710 add site type as a property
+            Map<String,Object> props = new HashMap<String,Object>();
+            String siteType = siteTypes.get(em.getId());
+            props.put("siteType", siteType);
+                        
+            EntityData ed = new EntityData(new EntityReference(PREFIX, em.getId()), null, em, props);
             l.add(ed);
         }
         return l;

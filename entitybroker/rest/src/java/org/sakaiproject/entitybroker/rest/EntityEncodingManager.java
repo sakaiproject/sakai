@@ -776,6 +776,7 @@ public class EntityEncodingManager {
                             entityProps.put(ENTITY_TITLE, entityData.getDisplayTitle());
                         }
                     }
+                    entityProps.putAll(entityData.getEntityProperties());
                 }
             }
             // do the encoding
