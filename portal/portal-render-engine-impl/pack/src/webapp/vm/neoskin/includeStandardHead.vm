@@ -18,7 +18,7 @@
         "chat": {
             "enabled": $!{neoChat},
             "pollInterval": $!{portalChatPollInterval},
-            "video": {}
+            "video": {},
             "translations": {
                 "server_unavailable": "${rloader.pc_chat_server_unavailable}",
                 "server_error_send" : "${rloader.pc_chat_server_error_send}",
