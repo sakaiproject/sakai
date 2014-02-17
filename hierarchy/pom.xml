@@ -76,9 +76,9 @@
     </contributors>
 
     <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/contrib/caret/hierarchy/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/contrib/caret/hierarchy/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/contrib/caret/hierarchy/?root=contrib</url>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/hierarchy/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/hierarchy/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/hierarchy/</url>
     </scm>
 
     <dependencyManagement>
