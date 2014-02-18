@@ -19,7 +19,7 @@
 	<parent>
 		<groupId>org.sakaiproject.reset-pass</groupId>
 		<artifactId>reset-pass</artifactId>
-		<version>10.0-SNAPSHOT</version>
+		<version>11-SNAPSHOT</version>
 	</parent>
 	<dependencies>
 
