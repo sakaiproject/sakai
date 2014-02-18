@@ -86,6 +86,7 @@
              
      <bean id="org.sakaiproject.util.api.LinkMigrationHelper"
              class="org.sakaiproject.util.impl.LinkMigrationHelperImpl"
-             init-method="init" singleton="true" />
-             
+             init-method="init" singleton="true">
+         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+     </bean>
 </beans>

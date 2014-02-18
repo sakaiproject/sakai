@@ -5,29 +5,36 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 import java.util.Map.Entry;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.util.api.LinkMigrationHelper;
 
 
 
-public class LinkMigrationHelperImpl implements org.sakaiproject.util.api.LinkMigrationHelper{
-	private final String ESCAPED_SPACE= "%"+"20";
-	private final String ASSIGNMENT_LINK_SIG = "assignment";
-	private final String FORUM_LINK_SIG = "forum";
+public class LinkMigrationHelperImpl implements LinkMigrationHelper {
 
-	
 	private static final Log LOG = LogFactory.getLog(LinkMigrationHelperImpl.class);
+	private static final String ESCAPED_SPACE= "%"+"20";
+
+	private ServerConfigurationService serverConfigurationService;
+
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
 
 	public void init(){
 		
 	}
-	
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public String bracketAndNullifySelectedLinks(String m) throws Exception {
 		
-		String lbTmp = ServerConfigurationService.getString("LinkMigrationHelper.linksToBracket","assignment,forum");
+		String lbTmp = serverConfigurationService.getString("LinkMigrationHelper.linksToBracket","assignment,forum");
 		String[] linksToBracket = lbTmp.split(",");
-		String lnTmp = ServerConfigurationService.getString("LinkMigrationHelper.linksToNullify","sam_pub,/posts/");
+		String lnTmp = serverConfigurationService.getString("LinkMigrationHelper.linksToNullify","sam_pub,/posts/");
 		String[] linksToNullify = lnTmp.split(",");
 		List existingLinks = findLinks(m);
 		Iterator l = existingLinks.iterator();
@@ -53,12 +60,11 @@ public class LinkMigrationHelperImpl implements org.sakaiproject.util.api.LinkMi
 				replacementBuffer.append("] ");
 				replacementBuffer.append(after);
 				m=replacementBuffer.toString();
-				
-			}			
-		}		
+			}
+		}
 		return m;
 	}
-	
+
 	private boolean matchLink(String link, String[] matches){
 		
 		for(int s = 0; s< matches.length; s++){
@@ -67,11 +73,14 @@ public class LinkMigrationHelperImpl implements org.sakaiproject.util.api.LinkMi
 		}
 		return false;
 	}
-	
-	public String migrateAllLinks(Set entrySet, String msgBody){
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String migrateAllLinks(Set<Entry<String,String>> entrySet, String msgBody){
 		Iterator<Entry<String, String>> entryItr = entrySet.iterator();
 		while(entryItr.hasNext()) {
-			Entry<String, String> entry = (Entry<String, String>) entryItr.next();
+			Entry<String, String> entry = entryItr.next();
 			String fromContextRef = entry.getKey();
 			String targetContextRef = entry.getValue();
 			msgBody =migrateOneLink(fromContextRef, targetContextRef, msgBody);
@@ -79,26 +88,23 @@ public class LinkMigrationHelperImpl implements org.sakaiproject.util.api.LinkMi
 		try {
 			msgBody = bracketAndNullifySelectedLinks(msgBody);
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
 			LOG.debug ("Forums LinkMigrationHelper.editLinks failed" + e);
 		}
 		return msgBody;
 	}
-	
-	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody){
 
-		
+	/**
+	 * {@inheritDoc}
+	 */
+	public String migrateOneLink(String fromContextRef, String targetContextRef, String msgBody){
 		fromContextRef=fromContextRef.replace(" ",ESCAPED_SPACE);
 		targetContextRef = targetContextRef.replace(" ",ESCAPED_SPACE);
-//		logger.debug("fromContextRef:"+fromContextRef+"="+entry.getValue());
-//		logger.debug("entry.getValue="+entry.getValue());
 		if(msgBody.contains(fromContextRef)){
-//			logger.debug("found a match");
 			msgBody = msgBody.replace(fromContextRef, targetContextRef);
-		}								
+		}
 		return msgBody;
 	}
-	
+
 	private List findLinks(String msgBody) throws Exception {
 		
 		Vector links = new Vector();
@@ -129,13 +135,6 @@ public class LinkMigrationHelperImpl implements org.sakaiproject.util.api.LinkMi
 		int contentStart = link.indexOf(">");
 		int contentEnd = link.indexOf("</a>", contentStart);
 		return link.substring(contentStart+1, contentEnd);
-	}
-	
-	private String findLinkEntire(String link) throws Exception {
-		int contentStart = link.indexOf("<");
-		int contentEnd = link.indexOf("</a>", contentStart);
-		return link.substring(contentStart+1, contentEnd);
-
 	}
 
 }

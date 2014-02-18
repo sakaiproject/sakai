@@ -7826,24 +7826,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void updateEntityReferences(String toContext, Map transversalMap){
 		//TODO: is there any content that needs reference updates?
 		String fromContext = (String) transversalMap.get("/fromContext");
-		String fromSiteId = siteIdExtract(fromContext);
 		String thisKey = null;
-		try {					
-			Vector targetResourceList = new Vector();
-			String targetContext = "/group/"+toContext+"/";
-//			List thisTargetResourceList = getAllResources(targetContext);
+		try {
 			List thisTargetResourceList = getAllResources(fromContext);
 			Iterator sourceResourceIterator = thisTargetResourceList.iterator();
-			String tId = null;
-			String rContent = null;
+			String tId;
+			String rContent;
 			while(sourceResourceIterator.hasNext()){
 				ContentResource thisContentResource = (ContentResource) sourceResourceIterator.next();
 				tId = thisContentResource.getId();
 				String sourceType = thisContentResource.getContentType();
-				boolean contentChanged = false;
-				String targetId = null;
 				if(sourceType.startsWith("text/html")){
-//					String oldReference = siteIdSplice(tId, fromSiteId);
 					String oldReference = tId;
 					tId = siteIdSplice(tId, toContext);
 					ContentResource oldSiteContentResource = getResource(oldReference);
@@ -7856,7 +7849,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						if(!oldValue.equals("/fromContext")){
 							String newValue = "";
 							newValue = (String) transversalMap.get(oldValue);
-							targetId = (String) transversalMap.get(oldValue);
 							if(newValue.length()>0){
 								rContent = linkMigrationHelper.migrateOneLink(oldValue, newValue, rContent);
 								}
@@ -7895,8 +7887,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.warn(this + thisKey, e3);
 		} catch (ServerOverloadException e4) {
 			M_log.warn(this + thisKey, e4);
-//		}catch(OverQuotaException e5){
-//			M_log.warn(this + thisKey, e5);
 		}
 		
 	}
