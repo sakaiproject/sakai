@@ -26,7 +26,7 @@ package org.sakaiproject.exception;
  * PermissionException indicates an invalid unlock attempt by a user for a lock and a resource.
  * </p>
  */
-public class PermissionException extends Exception
+public class PermissionException extends SakaiException
 {
 	/** The id of the user. */
 	private String m_user = null;
