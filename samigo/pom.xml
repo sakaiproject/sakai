@@ -5,14 +5,14 @@
     <parent>
         <groupId>org.sakaiproject</groupId>
         <artifactId>master</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
 	
 	<name>Sakai Samigo Project (base POM)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo</artifactId>
-	<version>10.0-SNAPSHOT</version>
+	<version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
     
     <properties>
