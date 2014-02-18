@@ -37,6 +37,8 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.section.api.coursemanagement.Course;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -69,8 +71,14 @@ public class AddSectionsBean extends CourseDependentBean implements SectionEdito
 		if(log.isDebugEnabled()) log.debug("sections = " + sections);
 		if(log.isDebugEnabled()) log.debug("sectionsChanged = " + sectionsChanged);
 
-		numSectionsSelectItems = new ArrayList<SelectItem>(10);
-		for(int i=0; i < 10;) {
+		ComponentManager cm = org.sakaiproject.component.cover.ComponentManager.getInstance();
+		ServerConfigurationService serverConfigurationService = (ServerConfigurationService) cm.get(ServerConfigurationService.class); 
+
+		int limit = serverConfigurationService.getInt("sections.maxgroups.category", 10);
+		if (limit <= 0) limit = 10;
+
+		numSectionsSelectItems = new ArrayList<SelectItem>(limit);
+		for(int i = 0; i < limit;) {
 			Integer currVal = ++i;
 			numSectionsSelectItems.add(new SelectItem(currVal));
 		}
