@@ -27,7 +27,7 @@
 
     <properties>
         <lombok.version>0.12.0</lombok.version>
-        <poi.version>3.6</poi.version>
+        <poi.version>3.9</poi.version>
         <velocity.version>1.7</velocity.version>
         <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
