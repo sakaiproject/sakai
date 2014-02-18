@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,6 +40,8 @@ import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.presence.api.PresenceService;
+import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
@@ -61,9 +62,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	
 	public final static String ENTITY_PREFIX = "portal-chat";
 	
-    /* SAK-20565. Gets set to false if Profile2 isn't available */
-    private boolean connectionsAvailable = true;
-    
     /* Setting used to configure if site users should be available in the chat. */
     private boolean showSiteUsers = true;
     
@@ -72,14 +70,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
     private boolean isVideoEnabled = false;
 
     private final List<PortalVideoServer> iceServers = new ArrayList<PortalVideoServer>();
-
-    /* SAK-20565. We now use reflection to call the profile connection methods */
-    private Object profileServiceObject = null;
-    private Method getConnectionsForUserMethod = null;
-    private Method getUuidMethod = null;
-    private Method setProfileMethod = null;
-    private Method setPrivacyMethod = null;
-    private Method setPreferencesMethod = null;
 
     private PortalChatPermittedHelper portalChatPermittedHelper;
 	public void setPortalChatPermittedHelper(PortalChatPermittedHelper portalChatPermittedHelper) {
@@ -100,7 +90,12 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	public void setPresenceService(PresenceService presenceService) {
 		this.presenceService = presenceService;
 	}
-	
+
+    private ProfileConnectionsLogic profileConnectionsLogic = null;
+    public void setProfileConnectionsLogic(ProfileConnectionsLogic profileConnectionsLogic) {
+        this.profileConnectionsLogic = profileConnectionsLogic;
+    }
+
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
@@ -190,51 +185,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
         
         int heartbeatMapSize = serverConfigurationService.getInt("portalchat.heartbeatmap.size",1000);
         heartbeatMap = new ConcurrentHashMap<String,UserMessage>(heartbeatMapSize,0.75F,64);
-
-        // SAK-20565. Get handles on the profile2 connections methods if available. If not, unset the connectionsAvailable flag.
-        ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
-        profileServiceObject = componentManager.get("org.sakaiproject.profile2.service.ProfileService");
-            
-        if (profileServiceObject != null) {
-            try {
-                getConnectionsForUserMethod = profileServiceObject.getClass().getMethod("getConnectionsForUser",new Class[] {String.class});
-                try {
-                    Class personClass = Class.forName("org.sakaiproject.profile2.model.Person");
-                    try {
-                        getUuidMethod = personClass.getMethod("getUuid",null);
-                    } catch (Exception e) {
-                        logger.warn("Failed to set getUuidMethod");
-                    }
-                    try {
-                        Class clazz = Class.forName("org.sakaiproject.profile2.model.UserProfile");
-                        setProfileMethod = personClass.getMethod("setProfile",new Class[] {clazz});
-                    } catch (Exception e) {
-                        logger.warn("Failed to set setProfileMethod");
-                    }
-                    try {
-                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePrivacy");
-                        setPrivacyMethod = personClass.getMethod("setPrivacy",new Class[] {clazz});
-                    } catch (Exception e) {
-                        logger.warn("Failed to set setPrivacyMethod");
-                    }
-                    try {
-                        Class clazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
-                        setPreferencesMethod = personClass.getMethod("setPreferences",new Class[] {clazz});
-                    } catch (Exception e) {
-                        logger.warn("Failed to set setPreferencesMethod");
-                    }
-                } catch (Exception e) {
-                    logger.error("Failed to find Person class. Connections will NOT be available in portal chat.",e);
-                    connectionsAvailable = false;
-                }
-            } catch (Exception e) {
-                logger.warn("Failed to set getConnectionsForUserMethod. Connections will NOT be available in portal chat.");
-                connectionsAvailable = false;
-            }
-        } else {
-            logger.warn("Failed to find ProfileService interface. Connections will NOT be available in portal chat.");
-            connectionsAvailable = false;
-        }
     }
     
     public void destroy() {
@@ -252,50 +202,34 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      *
      * @returns A list of Person instances cunningly disguised as lowly Objects
      */
-    private List<Object> getConnectionsForUser(String uuid) {
+    private List<Person> getConnectionsForUser(String uuid) {
 
-        List<Object> connections = new ArrayList<Object>();
+        List<Person> connections = profileConnectionsLogic.getConnectionsForUser(uuid);
 
-        if (connectionsAvailable == false) {
-            return connections;
+        List<Person> filteredConnections = new ArrayList<Person>();
+
+        for (Person person : connections) {
+
+            // Only sparsify and add the connection if that person is allowed
+            // to use portal chat.
+            if (portalChatPermittedHelper.checkChatPermitted(person.getUuid())) {
+
+                // We null all the person stuff to reduce the download size
+                try {
+                    person.setProfile(null);
+                    person.setPrivacy(null);
+                    person.setPreferences(null);
+                    
+                } catch (Exception e) {
+                    logger.error("Failed to sparsify Person instance. Skipping this person ...",e);
+                    continue;
+                }
+
+            	filteredConnections.add(person);
+            }
         }
 
-        try {
-            connections = (List<Object>) getConnectionsForUserMethod.invoke(profileServiceObject,new Object[] {uuid});
-        } catch (Exception e) {
-            logger.error("Failed to invoke the getConnectionsForUser method. Returning an empty connections list ...", e);
-        }
-
-        List<Object> connectionsWithPermissions = new ArrayList<Object>();
-        for (Object personObject : connections) {
-
-            String connectionUuid = null;
-
-            try {
-            	connectionUuid = (String) getUuidMethod.invoke(personObject,null);
-                
-                // Null all the person stuff to reduce the download size
-                if (setProfileMethod != null) {
-                    setProfileMethod.invoke(personObject,new Object[] {null});
-                }
-                if (setPrivacyMethod != null) {
-                    setPrivacyMethod.invoke(personObject,new Object[] {null});
-                }
-                if (setPreferencesMethod != null) {
-                    setPreferencesMethod.invoke(personObject,new Object[] {null});
-                }
-                
-            } catch (Exception e) {
-                logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
-                continue;
-            }
-
-            // Only add the connection if that person is allowed to use portal chat.
-            if (portalChatPermittedHelper.checkChatPermitted(connectionUuid)) {
-            	connectionsWithPermissions.add(personObject);
-            }
-        }        
-        return connectionsWithPermissions;
+        return filteredConnections;
     }
 
 	public String getEntityPrefix() {
@@ -551,34 +485,15 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 			}
         }
 		
-		List<Object> connections = getConnectionsForUser(currentUser.getId());
+		List<Person> connections = getConnectionsForUser(currentUser.getId());
 		
 		List<PortalChatUser> onlineConnections = new ArrayList<PortalChatUser>(connections.size());
 		
 		Date now = new Date();
 		
-		for (Object personObject : connections) {
+		for (Person person : connections) {
 
-            String uuid = null;
-
-            try {
-                uuid = (String) getUuidMethod.invoke(personObject,null);
-                
-                // Null all the person stuff to reduce the download size
-                if (setProfileMethod != null) {
-                    setProfileMethod.invoke(personObject,new Object[] {null});
-                }
-                if (setPrivacyMethod != null) {
-                    setPrivacyMethod.invoke(personObject,new Object[] {null});
-                }
-                if (setPreferencesMethod != null) {
-                    setPreferencesMethod.invoke(personObject,new Object[] {null});
-                }
-                
-            } catch (Exception e) {
-                logger.error("Failed to invoke getUuid on a Person instance. Skipping this person ...",e);
-                continue;
-            }
+            String uuid = person.getUuid();
 			
 			UserMessage lastHeartbeat = heartbeatMap.get(uuid);
 			
@@ -613,13 +528,14 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		data.put("online", onlineConnections);
 		data.put("showSiteUsers", showSiteUsers);
 		data.put("presentUsers", presentUsers);
-		data.put("connectionsAvailable", connectionsAvailable);
+		data.put("connectionsAvailable", true);
 		
 		return data;
 	}
 
 	// Return plain messages and add video messages to video list
 	public List<UserMessage> splitMessages(List<UserMessage> source, List<UserMessage> video) {
+
 		List<UserMessage> plain = source;
 		if (isVideoEnabled) {
 			plain = new ArrayList<UserMessage>();
@@ -635,6 +551,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	}
 	
     private void sendClearMessage(String userId) {
+
         if (clustered) {
             try {
             	
