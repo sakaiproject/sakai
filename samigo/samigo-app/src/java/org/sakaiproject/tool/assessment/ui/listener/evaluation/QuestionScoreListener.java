@@ -544,8 +544,11 @@ public class QuestionScoreListener implements ActionListener,
 						// upload, Audio, FIB, Fill in Numeric
 						// These question type use itemGrading.answetText to
 						// store information about their answer
-						if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) && gdataAnswer == null) {
+						if ((bean.getTypeId().equals("8") || bean.getTypeId().equals("11") || bean.getTypeId().equals("14")) && gdataAnswer == null) {
 							answerText = "";
+						} 
+						else if (bean.getTypeId().equals("14")) {//gopalrc - EMI
+							answerText = gdataPubItemText.getSequence() + ": " + gdataAnswer.getLabel();
 						}
 						else {
 							answerText = gdata.getAnswerText();
