@@ -5,13 +5,13 @@
     <parent>
         <groupId>org.sakaiproject.pack</groupId>
         <artifactId>pack</artifactId>
-        <version>10.0-SNAPSHOT</version>
+        <version>11-SNAPSHOT</version>
     </parent>
 
     <name>Sakai Pack Binary</name>
     <groupId>org.sakaiproject.pack</groupId>
     <artifactId>pack-bin</artifactId>
-    <version>10.0-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <organization>
