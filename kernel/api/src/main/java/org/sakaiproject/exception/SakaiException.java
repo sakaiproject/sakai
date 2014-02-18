@@ -67,6 +67,7 @@ public class SakaiException extends Exception
 		return m_id;
 	}
 
+	@Override
 	public String toString()
 	{
 		return super.toString() + " id: " + m_id;
