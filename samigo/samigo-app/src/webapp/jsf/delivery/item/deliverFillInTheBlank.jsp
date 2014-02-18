@@ -39,7 +39,7 @@ should be included in file importing DeliveryMessages
       <h:graphicImage alt="#{deliveryMessages.alt_correct}" id="ximage"
         rendered="#{delivery.feedback eq 'true' &&
                     delivery.feedbackComponent.showCorrectResponse &&
-                    answer.answer.score gt 0 && answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/crossmark.gif">
+                    answer.isCorrect != null && !answer.isCorrect && answer.hasInput && !delivery.noFeedback=='true'}" url="/images/crossmark.gif">
       </h:graphicImage>
       <h:inputText size="20" rendered="#{answer.hasInput 
 		&& delivery.actionString !='gradeAssessment' 
