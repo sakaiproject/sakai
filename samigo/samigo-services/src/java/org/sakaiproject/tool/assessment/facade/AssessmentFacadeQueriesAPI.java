@@ -146,8 +146,6 @@ public interface AssessmentFacadeQueriesAPI {
 
 	public int getQuestionSize(final Long assessmentId);
 
-	public HashMap getQuestionSizeMap();
-	
 	public void deleteAllSecuredIP(AssessmentIfc assessment);
 
 	public void saveOrUpdate(AssessmentFacade assessment);

@@ -27,7 +27,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -274,11 +273,6 @@ public class AssessmentService {
 	public int getQuestionSize(String assessmentId) {
 		return PersistenceService.getInstance().getAssessmentFacadeQueries()
 				.getQuestionSize(new Long(assessmentId));
-	}
-	
-	public HashMap getQuestionSizeMap() {
-		return PersistenceService.getInstance().getAssessmentFacadeQueries()
-				.getQuestionSizeMap();
 	}
 	
 	public void update(AssessmentFacade assessment) {

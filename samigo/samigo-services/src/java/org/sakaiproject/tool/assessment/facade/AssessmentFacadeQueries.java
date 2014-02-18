@@ -769,15 +769,16 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				sb2.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
 				sb2.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
 				sb2.append("and z.functionId=? and z.agentIdString=? ");
+				sb2.append("group by a.assessmentBaseId ");
 				Query q2 = session.createQuery(sb2.toString());
 				q2.setString(0, "EDIT_ASSESSMENT");
 				q2.setString(1, siteAgentId);
 				return q2.list();
 			};
 		};
-		List size = getHibernateTemplate().executeFind(hcb2);
-		Iterator iter = size.iterator();
-		if (iter.hasNext()) {
+		List questionSizeList = getHibernateTemplate().executeFind(hcb2);
+		Iterator iter = questionSizeList.iterator();
+		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next();
 			questionSizeMap.put(o[0], o[1]);
 		}
@@ -902,31 +903,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		} else {
 			return 0;
 		}
-	}
-	
-	public HashMap getQuestionSizeMap() {
-		HashMap questionSizeMap = new HashMap();
-		HibernateCallback hcb = new HibernateCallback() {
-			public Object doInHibernate(Session session)
-					throws HibernateException, SQLException {
-				StringBuilder sb = new StringBuilder("select a.assessmentBaseId, count(i) ");
-				sb.append("from ItemData i, SectionData s,  AssessmentData a, AuthorizationData z ");
-				sb.append("where a = s.assessment and s = i.section and a.assessmentBaseId = z.qualifierId ");
-				sb.append("and z.functionId=? and z.agentIdString=? ");
-				Query q = session.createQuery(sb.toString());
-				q.setString(1, "EDIT_ASSESSMENT");
-				q.setString(2, AgentFacade.getCurrentSiteId());
-				return q.list();
-			};
-		};
-		List size = getHibernateTemplate().executeFind(hcb);
-		
-		Iterator iter = size.iterator();
-		if (iter.hasNext()) {
-			Object o[] = (Object[]) iter.next();
-			questionSizeMap.put(o[0], o[1]);
-		}
-		return questionSizeMap;
 	}
 
 	public void deleteAllSecuredIP(AssessmentIfc assessment) {
