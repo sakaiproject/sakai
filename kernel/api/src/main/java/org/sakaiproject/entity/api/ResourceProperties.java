@@ -130,6 +130,9 @@ public interface ResourceProperties extends Serializable
 	/** Property for calendar event associated with an assignment's due date (user settable). [String] */
 	static final String PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID = "CHEF:assignment_duedate_calender_event_id";
 
+	/** Property for additional calendar event associated with an assignment's due date (user settable). [String] */
+	static final String PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID = "CHEF:assignment_duedate_additional_calendar_event_id";
+	
 	/** Property for announcement message id associated with an assignment's open date (user settable). [String] */
 	static final String PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID = "CHEF:assignment_opendate_announcement_message_id";
 
