@@ -12,6 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -41,6 +42,7 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.presence.api.PresenceService;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
+import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -62,7 +64,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	
 	public final static String ENTITY_PREFIX = "portal-chat";
 	
-    /* Setting used to configure if site users should be available in the chat. */
     private boolean showSiteUsers = true;
     
     private int pollInterval = 5000;
@@ -94,6 +95,11 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
     private ProfileConnectionsLogic profileConnectionsLogic = null;
     public void setProfileConnectionsLogic(ProfileConnectionsLogic profileConnectionsLogic) {
         this.profileConnectionsLogic = profileConnectionsLogic;
+    }
+
+    private ProfileMessagingLogic profileMessagingLogic = null;
+    public void setProfileMessagingLogic(ProfileMessagingLogic profileMessagingLogic) {
+        this.profileMessagingLogic = profileMessagingLogic;
     }
 
 	private ServerConfigurationService serverConfigurationService;
@@ -189,8 +195,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
     
     public void destroy() {
     	
-    	logger.debug("DESTROY!!!!!");
-    	
     	if (clusterChannel != null && clusterChannel.isConnected()) {
     		// This calls disconnect() first
     		clusterChannel.close();
@@ -263,15 +267,6 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 			throw new IllegalArgumentException("You can't chat with yourself");
 		}
 		
-		final Date now = new Date();
-
-		final UserMessage lastHeartbeat = heartbeatMap.get(to);
-		
-		if (lastHeartbeat == null) return "OFFLINE";
-			
-		if ((now.getTime() - lastHeartbeat.timestamp) >= pollInterval)
-			return "OFFLINE";
-
 		String message = (String) params.get("message");
 
 		if (message == null) {
@@ -280,6 +275,17 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 
         // Sakai plays the role of signalling server in the WebRTC architecture.
 		boolean isVideoSignal = "true".equals(params.get("video"));
+
+		final UserMessage lastHeartbeat = heartbeatMap.get(to);
+		
+		if (lastHeartbeat == null || ((new Date()).getTime() - lastHeartbeat.timestamp) >= pollInterval) {
+            // If this is not a video signal, send a message via the profile's
+            // messaging function
+            if (!isVideoSignal) {
+                profileMessagingLogic.sendNewMessage(to,currentUser.getId(), UUID.randomUUID().toString(), rb.getString("profile_message_subject"), message);
+            }
+			return "OFFLINE";
+        }
 
         if(logger.isDebugEnabled()) {
             logger.debug("message: " + message);
