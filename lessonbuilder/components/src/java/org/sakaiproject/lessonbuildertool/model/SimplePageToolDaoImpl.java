@@ -220,21 +220,31 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	}
 
 
+    // warning: only the id and html fields will be filled out
+    // we had serious performance issues with an earlier version, so I'm doing it without hibernate
 	public List<SimplePageItem> findTextItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
-	    List<String> ids = sqlService.dbRead("select b.id from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 5", fields, null);
+	    List<SimplePageItem> items = sqlService.dbRead("select b.id,b.html from lesson_builder_pages a,lesson_builder_items b where a.siteId = ? and a.pageId = b.pageId and b.type = 5", fields, new SqlReader() {
+		    public Object readSqlResultRecord(ResultSet result) {
+    			try {
+			    SimplePageItem item = new SimplePageItemImpl();
+			    item.setId(result.getLong(1));
+			    item.setHtml(result.getString(2));
+			    return item;
+    			} catch (SQLException e) {
+			    log.warn("findTextItemsInSite: " + e);
+			    return null;
+    			}
+		    }
+		});
 
-	    List<SimplePageItem> result = new ArrayList<SimplePageItem>();
-	    
-	    if (result != null) {
-		for (String id: ids) {
-		    SimplePageItem i = findItem(new Long(id));
-		    result.add(i);
-		}
-	    }
-	    return result;
+	    return items;
 	}
+
+    // because they don't come from hibernate, you can't use update on them.
+    // we need to be able to update the HTML field
+
 
     public PageData findMostRecentlyVisitedPage(final String userId, final String toolId) {
     	Object [] fields = new Object[4];
