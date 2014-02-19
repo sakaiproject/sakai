@@ -386,20 +386,24 @@ function audioAnalyzer(time) {
       function() {
         $('#audio-statusbar').css('width', ((closeSoon/5)*(maxWidth)) + 'px');
         if (closeSoon > 5) {
-            if (CKEDITOR) {
+            var ckeditor_loaded = false;
+            for (var instances in CKEDITOR.instances) {
+              ckeditor_loaded = true;
+            }
+
+            if (ckeditor_loaded) {
                 curdialog = CKEDITOR.dialog.getCurrent()
                 //Might have closed the dialog
                 if (curdialog) {
-					curdialog.hide();
+                  curdialog.hide();
                 }
-                //Stop timer
-                clearInterval(closer);
             }
             else { 
                 window.close();
-                //Stop timer
-                clearInterval(closer);
             }
+
+            //Stop timer
+            clearInterval(closer);
         }
         closeSoon++;
       }
