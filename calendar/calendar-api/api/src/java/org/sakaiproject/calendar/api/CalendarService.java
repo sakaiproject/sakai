@@ -181,6 +181,8 @@ public interface CalendarService
 	/** The Reference type for an "Opaque URL" URL. */
 	public static final String REF_TYPE_CALENDAR_OPAQUEURL = "opaq";
 	
+	/** Bean id to retrieve an additional calendar service from the Component Manager */
+	public static final String ADDITIONAL_CALENDAR = "org.sakaiproject.additional.calendar";
 	/**
 	* Return a List of all the defined calendars.
 	* @return a List of Calendar objects (may be empty)
@@ -405,6 +407,7 @@ public interface CalendarService
 	 */
 	public String calendarOpaqueUrlReference(Reference ref);
 	
+	public String getToolId();
 }	// CalendarService
 
 

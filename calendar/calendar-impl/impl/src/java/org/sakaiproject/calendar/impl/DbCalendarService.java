@@ -272,6 +272,10 @@ public class DbCalendarService
 		}
 
 	}   // DbStorage
+	// Returns the calendar tool id string.
+	public String getToolId(){
+		return "sakai.schedule";		
+	}
 
 }	// DbCachedCalendarService
 
