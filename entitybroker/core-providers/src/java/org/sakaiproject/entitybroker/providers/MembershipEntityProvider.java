@@ -34,6 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.email.api.EmailService;
@@ -72,8 +73,13 @@ RESTful, ActionsExecutable {
     private static Log log = LogFactory.getLog(MembershipEntityProvider.class);
 
     private SiteService siteService;
+    private AuthzGroupService authzGroupService;
 
-    public void setSiteService(SiteService siteService) {
+    public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
+	public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
 
@@ -278,7 +284,36 @@ RESTful, ActionsExecutable {
         }
         return responseHeaders;
     }
+    
+    @EntityCustomAction(action = "fastroles", viewKey = "")
+    public List <EntityData> getMembershipRoles(EntityView view, Map<String, Object> params) {
+    	String userId = view.getPathSegment(2);
+    	String currentUserId = userEntityProvider.getCurrentUser(null).getId();
 
+    	if (userId == null)
+    		userId = currentUserId;
+   		//If they specified a user and they're not admin
+        boolean userCurrent = userId.equals(currentUserId);
+        if (!userCurrent && !developerHelperService.isUserAdmin(currentUserId)) {
+            throw new SecurityException(
+                    "Only admin can access other user memberships, current user ("
+                            + currentUserId + ") cannot access ref: " + userId);
+        }
+
+        Map <String, String> userRoles = authzGroupService.getUserRoles(userId, null);
+        List <EntityData> edl = new ArrayList <EntityData> ();
+        
+        for (String site : userRoles.keySet()) {
+        	//userId::site:siteId'
+            EntityMember em = new EntityMember(userId, site, userRoles.get(site), true, null); 
+            EntityData ed = new EntityData(new EntityReference(PREFIX, em.getId()), null, em, null);
+//        	EntityData ed = new EntityData(new EntityReference(PREFIX, userId+":"+site.replace('/', ':')), null, props, null);
+        	edl.add(ed);
+        }
+
+        return edl;
+    }
+ 
     @EntityCustomAction(action = "group", viewKey = "")
     public List<EntityData> getGroupMemberships(EntityView view, Map<String, Object> params) {
         String groupId = view.getPathSegment(2);
