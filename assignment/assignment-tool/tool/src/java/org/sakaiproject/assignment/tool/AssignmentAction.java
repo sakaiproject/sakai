@@ -242,9 +242,15 @@ public class AssignmentAction extends PagedResourceActionII
 	/** The calendar object */
 	private static final String CALENDAR = "calendar";
 	
+	/** Additional calendar service */
+	private static final String ADDITIONAL_CALENDAR = "additonal_calendar";
+	
 	/** The calendar tool */
 	private static final String CALENDAR_TOOL_EXIST = "calendar_tool_exisit";
 
+	/** Additional calendar tool */
+	private static final String ADDITIONAL_CALENDAR_TOOL_EXIST = "additional_calendar_tool_exisit";
+	
 	/** The announcement tool */
 	private static final String ANNOUNCEMENT_TOOL_EXIST = "announcement_tool_exist";
 	
@@ -2252,7 +2258,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("name_GradePoints", NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("name_Description", NEW_ASSIGNMENT_DESCRIPTION);
 		// do not show the choice when there is no Schedule tool yet
-		if (state.getAttribute(CALENDAR) != null)
+		if (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null)
 			context.put("name_CheckAddDueDate", ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE);
 
 		context.put("name_CheckHideDueDate", NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE);
@@ -2351,7 +2357,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		// don't show the choice when there is no Schedule tool yet
-		if (state.getAttribute(CALENDAR) != null)
+		if (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null)
 			context.put("value_CheckAddDueDate", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE));
 		
 		context.put("value_CheckHideDueDate", state.getAttribute(NEW_ASSIGNMENT_CHECK_HIDE_DUE_DATE));
@@ -6134,7 +6140,7 @@ public class AssignmentAction extends PagedResourceActionII
 				checkForFormattingErrors);
 		state.setAttribute(NEW_ASSIGNMENT_DESCRIPTION, description);
 
-		if (state.getAttribute(CALENDAR) != null)
+		if (state.getAttribute(CALENDAR) != null || state.getAttribute(ADDITIONAL_CALENDAR) != null)
 		{
 			// calendar enabled for the site
 			if (params.getString(ResourceProperties.NEW_ASSIGNMENT_CHECK_ADD_DUE_DATE) != null
@@ -7854,150 +7860,200 @@ public class AssignmentAction extends PagedResourceActionII
 
 	private void integrateWithCalendar(SessionState state, AssignmentEdit a, String title, Time dueTime, String checkAddDueTime, Time oldDueTime, ResourcePropertiesEdit aPropertiesEdit) 
 	{
+		// Integrate with Sakai calendar tool
 		Calendar c = (Calendar) state.getAttribute(CALENDAR);
-		if (c != null)
+		
+		integrateWithCalendarTool(state, a, title, dueTime, checkAddDueTime,
+				oldDueTime, aPropertiesEdit, c, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+		
+		// Integrate with additional calendar tool if deployed.
+		Calendar additionalCal = (Calendar) state.getAttribute(ADDITIONAL_CALENDAR); 
+		
+		if (additionalCal != null){
+			integrateWithCalendarTool(state, a, title, dueTime, checkAddDueTime,
+					oldDueTime, aPropertiesEdit, additionalCal, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
+		}
+	}
+
+
+	// Checks to see if due date event in assignment properties exists on the calendar. 
+	// If so, remove it and then add a new due date event to the calendar. Then update assignment property
+	// with new event id.
+	private void integrateWithCalendarTool(SessionState state, AssignmentEdit a, String title, Time dueTime, String checkAddDueTime, Time oldDueTime, ResourcePropertiesEdit aPropertiesEdit, Calendar c, String dueDateProperty) {
+		if (c == null){
+			return;
+		}
+		String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+		String oldEventId = aPropertiesEdit.getProperty(dueDateProperty);
+		CalendarEvent e = null;
+
+		if (dueDateScheduled != null || oldEventId != null)
 		{
-			String dueDateScheduled = a.getProperties().getProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-			String oldEventId = aPropertiesEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-			CalendarEvent e = null;
-
-			if (dueDateScheduled != null || oldEventId != null)
+			// find the old event
+			boolean found = false;
+			if (oldEventId != null)
 			{
-				// find the old event
-				boolean found = false;
-				if (oldEventId != null)
+				try
 				{
-					try
-					{
-						e = c.getEvent(oldEventId);
-						found = true;
-					}
-					catch (IdUnusedException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender The old event has been deleted: event id=" + oldEventId + ". ");
-					}
-					catch (PermissionException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender You do not have the permission to view the schedule event id= "
-								+ oldEventId + ".");
-					}
+					e = c.getEvent(oldEventId);
+					found = true;
 				}
-				else
+				catch (IdUnusedException ee)
 				{
-					TimeBreakdown b = oldDueTime.breakdownLocal();
-					// TODO: check- this was new Time(year...), not local! -ggolden
-					Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-					Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-					try
-					{
-						Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
-								.iterator();
-
-						while ((!found) && (events.hasNext()))
-						{
-							e = (CalendarEvent) events.next();
-							if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
-							{
-								found = true;
-							}
-						}
-					}
-					catch (PermissionException ignore)
-					{
-						// ignore PermissionException
-					}
+					M_log.warn(this + ":integrateWithCalendarTool The old event has been deleted: event id=" + oldEventId + ". " + c.getClass().getName());
 				}
-
-				if (found)
+				catch (PermissionException ee)
 				{
-					// remove the founded old event
-					try
-					{
-						c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-					}
-					catch (PermissionException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + rb.getFormattedMessage("cannotrem", new Object[]{title}));
-					}
-					catch (InUseException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + rb.getString("somelsis_calendar"));
-					}
-					catch (IdUnusedException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + rb.getFormattedMessage("cannotfin6", new Object[]{e.getId()}));
-					}
+					M_log.warn(this + ":integrateWithCalendarTool You do not have the permission to view the schedule event id= "
+							+ oldEventId + ". " + c.getClass().getName());
 				}
 			}
-
-			if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
+			else
 			{
-				// commit related properties into Assignment object
-				AssignmentEdit aEdit = editAssignment(a.getReference(), "integrateWithCalendar", state, false);
-				if (aEdit != null)
+				TimeBreakdown b = oldDueTime.breakdownLocal();
+				// TODO: check- this was new Time(year...), not local! -ggolden
+				Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+				Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+				try
 				{
-					try
-					{
-						e = null;
-						CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
-						Collection eGroups = new ArrayList();
+					Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null)
+							.iterator();
 
-						if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+					while ((!found) && (events.hasNext()))
+					{
+						e = (CalendarEvent) events.next();
+						if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
 						{
-							eAccess = CalendarEvent.EventAccess.GROUPED;
-							Collection groupRefs = aEdit.getGroups();
-
-							// make a collection of Group objects from the collection of group ref strings
-							Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-							for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
-							{
-								String groupRef = (String) iGroupRefs.next();
-                                                                Group _aGroup = site.getGroup(groupRef);
-                                                                if (_aGroup != null) eGroups.add(_aGroup);
-							}
+							found = true;
 						}
-						e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
-								/* title */rb.getString("gen.due") + " " + title,
-								/* description */rb.getFormattedMessage("assign_due_event_desc", new Object[]{title, dueTime.toStringLocalFull()}),
-								/* type */rb.getString("deadl"),
-								/* location */"",
-								/* access */ eAccess,
-								/* groups */ eGroups,
-								/* attachments */aEdit.getContent().getAttachments());
-
-						aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
-						if (e != null)
-						{
-							aEdit.getProperties().addProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID, e.getId());
-
-		                     // edit the calendar ojbject and add an assignment id field
-	                        CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
-	                                
-	                        edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
-	                        
-	                        c.commitEvent(edit);
-						}
-						// TODO do we care if the event is null?
-						
 					}
-					catch (IdUnusedException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + ee.getMessage());
-					}
-					catch (PermissionException ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + rb.getString("cannotfin1"));
-					}
-					catch (Exception ee)
-					{
-						M_log.warn(this + ":integrateWithCalender " + ee.getMessage());
-					}
-					// try-catch
-
-
-					AssignmentService.commitEdit(aEdit);
 				}
-			} // if
+				catch (PermissionException ignore)
+				{
+					// ignore PermissionException
+				}
+			}
+			if (found){
+				removeOldEvent(title, c, e);
+			}
+			
+		}
+
+		if (checkAddDueTime.equalsIgnoreCase(Boolean.TRUE.toString()))
+		{
+			updateAssignmentWithEventId(state, a, title, dueTime, c,
+					dueDateProperty);
+		}
+	}
+
+
+	/**
+	 * Add event to calendar and then persist the event id to the assignment properties 
+	 * @param state
+	 * @param a AssignmentEdit
+	 * @param title Event title
+	 * @param dueTime Assignment due date/time
+	 * @param c Calendar
+	 * @param dueDateProperty Property name specifies the appropriate calendar
+	 */
+	private void updateAssignmentWithEventId(SessionState state, AssignmentEdit a, String title, Time dueTime, Calendar c,
+			String dueDateProperty) {
+		CalendarEvent e;
+		// commit related properties into Assignment object
+		AssignmentEdit aEdit = editAssignment(a.getReference(), "updateAssignmentWithEventId", state, false);
+		if (aEdit != null)
+		{
+			try
+			{
+				e = null;
+				CalendarEvent.EventAccess eAccess = CalendarEvent.EventAccess.SITE;
+				Collection eGroups = new ArrayList();
+
+				if (aEdit.getAccess().equals(Assignment.AssignmentAccess.GROUPED))
+				{
+					eAccess = CalendarEvent.EventAccess.GROUPED;
+					Collection groupRefs = aEdit.getGroups();
+
+					// make a collection of Group objects from the collection of group ref strings
+					Site site = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+					for (Iterator iGroupRefs = groupRefs.iterator(); iGroupRefs.hasNext();)
+					{
+						String groupRef = (String) iGroupRefs.next();
+		                                                Group _aGroup = site.getGroup(groupRef);
+		                                                if (_aGroup != null) eGroups.add(_aGroup);
+					}
+				}
+				e = c.addEvent(/* TimeRange */TimeService.newTimeRange(dueTime.getTime(), /* 0 duration */0 * 60 * 1000),
+						/* title */rb.getString("gen.due") + " " + title,
+						/* description */rb.getFormattedMessage("assign_due_event_desc", new Object[]{title, dueTime.toStringLocalFull()}),
+						/* type */rb.getString("deadl"),
+						/* location */"",
+						/* access */ eAccess,
+						/* groups */ eGroups,
+						/* attachments */aEdit.getContent().getAttachments());
+
+				aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
+				if (e != null)
+				{
+					aEdit.getProperties().addProperty(dueDateProperty, e.getId());
+
+		             // edit the calendar object and add an assignment id field
+		            addAssignmentIdToCalendar(a, c, e);
+				}
+				// TODO do we care if the event is null?
+				
+			}
+			catch (IdUnusedException ee)
+			{
+				M_log.warn(this + ":updateAssignmentWithEventId " + ee.getMessage());
+			}
+			catch (PermissionException ee)
+			{
+				M_log.warn(this + ":updateAssignmentWithEventId " + rb.getString("cannotfin1"));
+			}
+			catch (Exception ee)
+			{
+				M_log.warn(this + ":updateAssignmentWithEventId " + ee.getMessage());
+			}
+			// try-catch
+
+
+			AssignmentService.commitEdit(aEdit);
+		}
+	}
+
+	// Persist the assignment id to the calendar
+	private void addAssignmentIdToCalendar(AssignmentEdit a, Calendar c, CalendarEvent e) throws IdUnusedException, PermissionException,InUseException {
+		
+		if (c!= null && e != null && a != null){
+			CalendarEventEdit edit = c.getEditEvent(e.getId(), org.sakaiproject.calendar.api.CalendarService.EVENT_ADD_CALENDAR);
+	        
+			edit.setField(AssignmentConstants.NEW_ASSIGNMENT_DUEDATE_CALENDAR_ASSIGNMENT_ID, a.getId());
+			
+			c.commitEvent(edit);
+		}
+	}
+
+	// Remove an existing event from the calendar
+	private void removeOldEvent(String title, Calendar c, CalendarEvent e) {
+		// remove the found old event
+		if (c != null && e != null){
+			try
+			{
+				c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
+			}
+			catch (PermissionException ee)
+			{
+				M_log.warn(this + ":removeOldEvent " + rb.getFormattedMessage("cannotrem", new Object[]{title}));
+			}
+			catch (InUseException ee)
+			{
+				M_log.warn(this + ":removeOldEvent " + rb.getString("somelsis_calendar"));
+			}
+			catch (IdUnusedException ee)
+			{
+				M_log.warn(this + ":removeOldEvent " + rb.getFormattedMessage("cannotfin6", new Object[]{e.getId()}));
+			}
 		}
 	}
 
@@ -9083,76 +9139,72 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			// remove the associated calendar event
 			Calendar c = (Calendar) state.getAttribute(CALENDAR);
-			if (c != null)
+			removeCalendarEventFromCalendar(state, aEdit, pEdit, title, c, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+			
+			// remove the associated event from the additional calendar
+			Calendar additionalCalendar = (Calendar) state.getAttribute(ADDITIONAL_CALENDAR);
+			removeCalendarEventFromCalendar(state, aEdit, pEdit, title, additionalCalendar, ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
+
+		}
+	}
+
+
+	// Retrieves the calendar event associated with the due date and removes it from the calendar.
+	private void removeCalendarEventFromCalendar(SessionState state, AssignmentEdit aEdit, ResourcePropertiesEdit pEdit, String title, Calendar c, String dueDateProperty) {
+		if (c != null)
+		{
+			// already has calendar object
+			// get the old event
+			CalendarEvent e = null;
+			boolean found = false;
+			String oldEventId = pEdit.getProperty(dueDateProperty);
+			if (oldEventId != null)
 			{
-				// already has calendar object
-				// get the old event
-				CalendarEvent e = null;
-				boolean found = false;
-				String oldEventId = pEdit.getProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-				if (oldEventId != null)
+				try
 				{
-					try
-					{
-						e = c.getEvent(oldEventId);
-						found = true;
-					}
-					catch (IdUnusedException ee)
-					{
-						// no action needed for this condition
-						M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
-					}
-					catch (PermissionException ee)
-					{
-						M_log.warn(this + ":removeCalendarEvent " + ee.getMessage());
-					}
+					e = c.getEvent(oldEventId);
+					found = true;
 				}
-				else
+				catch (IdUnusedException ee)
 				{
-					TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
-					// TODO: check- this was new Time(year...), not local! -ggolden
-					Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
-					Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
-					try
+					// no action needed for this condition
+					M_log.warn(this + ":removeCalendarEventFromCalendar " + ee.getMessage());
+				}
+				catch (PermissionException ee)
+				{
+					M_log.warn(this + ":removeCalendarEventFromCalendar " + ee.getMessage());
+				}
+			}
+			else
+			{
+				TimeBreakdown b = aEdit.getDueTime().breakdownLocal();
+				// TODO: check- this was new Time(year...), not local! -ggolden
+				Time startTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 0, 0, 0, 0);
+				Time endTime = TimeService.newTimeLocal(b.getYear(), b.getMonth(), b.getDay(), 23, 59, 59, 999);
+				try
+				{
+					Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
+					while ((!found) && (events.hasNext()))
 					{
-						Iterator events = c.getEvents(TimeService.newTimeRange(startTime, endTime), null).iterator();
-						while ((!found) && (events.hasNext()))
+						e = (CalendarEvent) events.next();
+						if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
 						{
-							e = (CalendarEvent) events.next();
-							if (((String) e.getDisplayName()).indexOf(rb.getString("gen.assig") + " " + title) != -1)
-							{
-								found = true;
-							}
+							found = true;
 						}
 					}
-					catch (PermissionException pException)
-					{
-						addAlert(state, rb.getFormattedMessage("cannot_getEvents", new Object[]{c.getReference()}));
-					}
 				}
-				// remove the founded old event
-				if (found)
+				catch (PermissionException pException)
 				{
-					// found the old event delete it
-					try
-					{
-						c.removeEvent(c.getEditEvent(e.getId(), CalendarService.EVENT_REMOVE_CALENDAR));
-						pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
-						pEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
-					}
-					catch (PermissionException ee)
-					{
-						M_log.warn(this + ":removeCalendarEvent " + rb.getFormattedMessage("cannotrem", new Object[]{title}));
-					}
-					catch (InUseException ee)
-					{
-						M_log.warn(this + ":removeCalendarEvent " + rb.getString("somelsis_calendar"));
-					}
-					catch (IdUnusedException ee)
-					{
-						M_log.warn(this + ":removeCalendarEvent " + rb.getFormattedMessage("cannotfin6", new Object[]{e.getId()}));
-					}
+					addAlert(state, rb.getFormattedMessage("cannot_getEvents", new Object[]{c.getReference()}));
 				}
+			}
+			// remove the found old event
+			if (found)
+			{
+				// found the old event delete it
+				removeOldEvent(title, c, e);
+				pEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
+				pEdit.removeProperty(dueDateProperty);
 			}
 		}
 	}
@@ -10624,50 +10676,79 @@ public class AssignmentAction extends PagedResourceActionII
 		/** The calendar tool  */
 		if (state.getAttribute(CALENDAR_TOOL_EXIST) == null)
 		{
-			if (!siteHasTool(siteId, "sakai.schedule"))
-			{
-				state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.FALSE);
-				state.removeAttribute(CALENDAR);
-			}
-			else
-			{
-				state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.TRUE);
-				if (state.getAttribute(CALENDAR) == null )
+			CalendarService cService = org.sakaiproject.calendar.cover.CalendarService.getInstance();
+			if (cService != null){
+				if (!siteHasTool(siteId, cService.getToolId()))
+				{
+					state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.FALSE);
+					state.removeAttribute(CALENDAR);
+				}
+				else
 				{
 					state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.TRUE);
-
-					CalendarService cService = org.sakaiproject.calendar.cover.CalendarService.getInstance();
-					state.setAttribute(STATE_CALENDAR_SERVICE, cService);
-	
-					String calendarId = ServerConfigurationService.getString("calendar", null);
-					if (calendarId == null)
+					if (state.getAttribute(CALENDAR) == null )
 					{
-						calendarId = cService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
-						try
+						state.setAttribute(CALENDAR_TOOL_EXIST, Boolean.TRUE);
+						state.setAttribute(STATE_CALENDAR_SERVICE, cService);
+		
+						String calendarId = ServerConfigurationService.getString("calendar", null);
+						if (calendarId == null)
 						{
-							state.setAttribute(CALENDAR, cService.getCalendar(calendarId));
-						}
-						catch (IdUnusedException e)
-						{
-							state.removeAttribute(CALENDAR);
-							M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
-						}
-						catch (PermissionException e)
-						{
-							state.removeAttribute(CALENDAR);
-							M_log.info(this + ":initState No permission to get the calender. " + e.getMessage());
-						}
-						catch (Exception ex)
-						{
-							state.removeAttribute(CALENDAR);
-							M_log.info(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
-							
+							calendarId = cService.calendarReference(siteId, SiteService.MAIN_CONTAINER);
+							try
+							{
+								state.setAttribute(CALENDAR, cService.getCalendar(calendarId));
+							}
+							catch (IdUnusedException e)
+							{
+								state.removeAttribute(CALENDAR);
+								M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
+							}
+							catch (PermissionException e)
+							{
+								state.removeAttribute(CALENDAR);
+								M_log.info(this + ":initState No permission to get the calender. " + e.getMessage());
+							}
+							catch (Exception ex)
+							{
+								state.removeAttribute(CALENDAR);
+								M_log.info(this + ":initState Assignment : Action : init state : calendar exception : " + ex.getMessage());
+								
+							}
 						}
 					}
 				}
 			}
 		}
 			
+		/** Additional Calendar tool */ 
+		if (state.getAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST) == null)
+		{
+			// Get a handle to the Google calendar service class from the Component Manager. It will be null if not deployed.
+			CalendarService additionalCalendarService = (CalendarService)ComponentManager.get(CalendarService.ADDITIONAL_CALENDAR);
+			if (additionalCalendarService != null){
+				// If tool is not used/used on this site, we set the appropriate flag in the state.
+				if (!siteHasTool(siteId, additionalCalendarService.getToolId()))
+				{
+					state.setAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST, Boolean.FALSE);
+					state.removeAttribute(ADDITIONAL_CALENDAR);
+				}
+				else
+				{
+					state.setAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST, Boolean.TRUE);
+					if (state.getAttribute(ADDITIONAL_CALENDAR) == null )
+					{
+						try {
+							state.setAttribute(ADDITIONAL_CALENDAR, additionalCalendarService.getCalendar(null));
+						} catch (IdUnusedException e) {
+							M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
+						} catch (PermissionException e) {
+							M_log.info(this + ":initState No permission to get the calendar. " + e.getMessage());
+						}
+					}
+				}
+			}
+		}
 
 		/** The Announcement tool  */
 		if (state.getAttribute(ANNOUNCEMENT_TOOL_EXIST) == null)
