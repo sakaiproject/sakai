@@ -65,6 +65,7 @@ function microphoneCheck(stream) {
           values += freqByteData[i];
         }
         var average = Math.round(values / freqByteData.length) + 120;
+        if (navigator.mozGetUserMedia) average = average + 30;
 
         var grad = vCtx.createLinearGradient(w/10,h*0.2,w/10,h*0.95);
 		grad.addColorStop(0,'red');
