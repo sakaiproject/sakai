@@ -34,11 +34,8 @@ should be included in file importing DeliveryMessages
 	    <h:column>
 
         <h:outputText escape="false" value="
-        	<object>
-        		<param name=\"autostart\" value=\"false\"/>
-        		<param name=\"autoplay\" value=\"false\"/>
-        		<param name=\"controller\" value=\"true\"/>         
-        		<embed src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\" volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\" autoplay=\"false\" controller=\"true\" type=\"audio/basic\"/>
+        	<audio controls=\"controls\">
+        		<source src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\" type=\"audio/wav\"/>
         	</object>" 
         />
 

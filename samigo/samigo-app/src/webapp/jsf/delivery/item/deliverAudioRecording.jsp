@@ -44,12 +44,9 @@ should be included in file importing DeliveryMessages
   <h:panelGrid cellpadding="10" columns="1">
     <h:panelGroup>
 		<h:outputText escape="false" value="
-        	<object>
-        		<param name=\"autostart\" value=\"false\"/>
-        		<param name=\"autoplay\" value=\"false\"/>
-        		<param name=\"controller\" value=\"true\"/>         
-        		<embed src=\"#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}\" volume=\"50\" height=\"25\" width=\"300\" autostart=\"false\" autoplay=\"false\" controller=\"true\" type=\"audio/basic\"/>
-        	</object>" 
+        	<audio controls=\"controls\">
+        		<source src=\"#{delivery.protocol}/samigo-app/servlet/ShowMedia?mediaId=#{question.mediaArray[0].mediaId}\" type=\"audio/wav\"/>
+        	</audio>" 
         />
 
       <f:verbatim><br /></f:verbatim>
