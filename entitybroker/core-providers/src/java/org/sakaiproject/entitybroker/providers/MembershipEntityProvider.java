@@ -287,31 +287,15 @@ RESTful, ActionsExecutable {
     
     @EntityCustomAction(action = "fastroles", viewKey = "")
     public List <EntityData> getMembershipRoles(EntityView view, Map<String, Object> params) {
+    	//Can be ID or EID
     	String userId = view.getPathSegment(2);
-    	String currentUserId = userEntityProvider.getCurrentUser(null).getId();
-
-    	if (userId == null)
-    		userId = currentUserId;
-   		//If they specified a user and they're not admin
-        boolean userCurrent = userId.equals(currentUserId);
-        if (!userCurrent && !developerHelperService.isUserAdmin(currentUserId)) {
-            throw new SecurityException(
-                    "Only admin can access other user memberships, current user ("
-                            + currentUserId + ") cannot access ref: " + userId);
-        }
-
-        Map <String, String> userRoles = authzGroupService.getUserRoles(userId, null);
-        List <EntityData> edl = new ArrayList <EntityData> ();
+    	//Don't include member details
+    	Search s = new Search("includeMemberDetails",false);
+    	if (userId != null) {
+    		s.addRestriction(new Restriction(CollectionResolvable.SEARCH_USER_REFERENCE,userId));
+    	}
+        return getEntities(new EntityReference(PREFIX, ""), s);
         
-        for (String site : userRoles.keySet()) {
-        	//userId::site:siteId'
-            EntityMember em = new EntityMember(userId, site, userRoles.get(site), true, null); 
-            EntityData ed = new EntityData(new EntityReference(PREFIX, em.getId()), null, em, null);
-//        	EntityData ed = new EntityData(new EntityReference(PREFIX, userId+":"+site.replace('/', ':')), null, props, null);
-        	edl.add(ed);
-        }
-
-        return edl;
     }
  
     @EntityCustomAction(action = "group", viewKey = "")
@@ -491,6 +475,8 @@ RESTful, ActionsExecutable {
         String roleId = null;
         boolean includeSites = true;
         boolean includeGroups = false;
+        //Include details about the membership, has a performance impact
+        boolean includeMemberDetails = true;
         
         //SAK-25710 hold a map of each sites type so we can look them up later (entityId, siteType)
         Map<String,String> siteTypes = new HashMap<String,String>();
@@ -520,6 +506,11 @@ RESTful, ActionsExecutable {
             Restriction incGroups = search.getRestrictionByProperty("includeGroups");
             if (incGroups != null) {
                 includeGroups = incGroups.getBooleanValue();
+            }
+            
+            Restriction incMemberDetails = search.getRestrictionByProperty("includeMemberDetails");
+            if (incMemberDetails != null) {
+                includeMemberDetails = incMemberDetails.getBooleanValue();
             }
         }
         if (locationReference == null && userId == null) {
@@ -562,36 +553,47 @@ RESTful, ActionsExecutable {
             }
 
             // Is there a faster way to do this? I really truly hope so -AZ
+            // Only if you don't care about getMember details -MJ
             try {
-                if (!userCurrent) {
-                    developerHelperService.setCurrentUser("/user/" + userId);
-                }
-                List<Site> sites = siteService.getSites(SelectionType.ACCESS, null, null, null,
-                        null, null);
-                for (Site site : sites) {
-                    Member sm = site.getMember(userId);
-                    if (sm != null) {
-                        if (includeSites) {
-                        	EntityMember em = new EntityMember(sm, site.getReference(), null);
-                            members.add(em);
-                        	siteTypes.put(em.getId(), site.getType());
-                        }
-                        // also check the groups
-                        if (includeGroups) {
-                            Collection<Group> groups = site.getGroups();
-                            for (Group group : groups) {
-                                Member gm = group.getMember(userId);
-                                if (gm != null) {
-                                    members.add(new EntityMember(gm, group.getReference(), null));
-                                }
-                            }
-                        }
-                    }
-                }
-            } finally {
-                if (!userCurrent) {
-                    developerHelperService.restoreCurrentUser();
-                }
+            	if (!userCurrent) {
+            		developerHelperService.setCurrentUser("/user/" + userId);
+            	}
+            	List<Site> sites = siteService.getSites(SelectionType.ACCESS, null, null, null,
+            			null, null);
+            	if (includeMemberDetails) {
+            		for (Site site : sites) {
+            			Member sm = site.getMember(userId);
+            			if (sm != null) {
+            				if (includeSites) {
+            					EntityMember em = new EntityMember(sm, site.getReference(), null);
+            					members.add(em);
+            					siteTypes.put(em.getId(), site.getType());
+            				}
+            				// also check the groups
+            				if (includeGroups) {
+            					Collection<Group> groups = site.getGroups();
+            					for (Group group : groups) {
+            						Member gm = group.getMember(userId);
+            						if (gm != null) {
+            							members.add(new EntityMember(gm, group.getReference(), null));
+            						}
+            					}
+            				}
+            			}
+            		} 
+            	}
+            	else  {
+         		    Map <String, String> userRoles = authzGroupService.getUserRoles(userId, null);
+            		for (Site site : sites) {
+            			EntityMember em = new EntityMember(userId, site.getReference(), userRoles.get(site.getReference()), true, null); 
+            			members.add(em);
+            		}
+            	}
+            }
+            finally {
+            	if (!userCurrent) {
+            		developerHelperService.restoreCurrentUser();
+            	}
             }
         }
         ArrayList<EntityMember> sortedMembers = new ArrayList<EntityMember>();
