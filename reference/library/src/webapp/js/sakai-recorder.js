@@ -306,7 +306,7 @@ function audioAnalyzer(time) {
     console.log('seconds: ' + maxSeconds + ";remain: " + timeRemaining);
     var duration = maxSeconds - timeRemaining;
     var attempts = attemptsAllowed - attemptsRemaining;
-    var agentId = navigator.userAgent
+    // agentId is the Samigo agentId and is not the browser user agent
 
     if (postUrl) {
         var url  = postUrl + "&agent=" + agentId + "&lastDuration=" + duration + "&suffix=" + "au" + "&attempts=" + attempts;
