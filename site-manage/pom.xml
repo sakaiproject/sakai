@@ -137,11 +137,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-	      <groupId>org.projectlombok</groupId>
-	      <artifactId>lombok</artifactId>
-	      <version>0.10.6</version>
-	      <scope>provided</scope>
-	    </dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>1.12.4</version>
+                <scope>provided</scope>
+            </dependency>
 	    <dependency>
 	      <groupId>net.sf.opencsv</groupId>
 	      <artifactId>opencsv</artifactId>
