@@ -774,6 +774,8 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
  		if(categories==null){
  			categories= new ArrayList<SelectItem>();
  			categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 			//remove option 'All'
+ 			categories.remove(0);
  			categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
  	}
  		return categories;
