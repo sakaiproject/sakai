@@ -44,4 +44,6 @@
     
 </div>
 
+    #parse("/vm/morpheus/includeFooter.vm")
+    
 <!-- END VM includePageWithNav.vm -->

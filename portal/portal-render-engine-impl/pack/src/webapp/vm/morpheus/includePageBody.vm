@@ -180,6 +180,4 @@
 
     </main> <!--end of div#pageWrapperClass -->
     
-    #parse("/vm/morpheus/includeFooter.vm")
-    
 <!-- END VM includePageBody.vm -->
