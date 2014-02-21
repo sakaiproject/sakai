@@ -511,6 +511,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			M_log.warn("PermissionsAction.doSave: user did not submit with a POST! IP=" + data.getRequest().getRemoteAddr());
+			return;
+		}
+
 		// only save the view realm's roles
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
 		if (edit == null)
