@@ -74,7 +74,7 @@ public class SignupSorter {
 			public int compare(SelectItem one, SelectItem another) {
 				int comparison = Collator.getInstance().compare(one.getLabel(),
 						another.getLabel());
-				return comparison == 0 ? sortSelectItemComparator.compare(one, another) : comparison;
+				return comparison;
 			}
 		};
 		
@@ -82,7 +82,7 @@ public class SignupSorter {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getMeeting().getTitle(),
 						another.getMeeting().getTitle());
-				return comparison == 0 ? sortTitleComparator.compare(one, another) : comparison;
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
 
@@ -90,7 +90,7 @@ public class SignupSorter {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getMeeting().getLocation(),
 						another.getMeeting().getLocation());
-				return comparison == 0 ? sortLocationComparator.compare(one, another) : comparison;
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
 		
@@ -98,14 +98,14 @@ public class SignupSorter {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getMeeting().getCategory(),
 						another.getMeeting().getCategory());
-				return comparison == 0 ? sortCategoryComparator.compare(one, another) : comparison;
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
 
 		sortOwnerComparator = new Comparator<SignupMeetingWrapper>() {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getCreator(), another.getCreator());
-				return comparison == 0 ? sortOwnerComparator.compare(one, another) : comparison;
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
 
@@ -128,7 +128,7 @@ public class SignupSorter {
 		sortStatusComparator = new Comparator<SignupMeetingWrapper>() {
 			public int compare(SignupMeetingWrapper one, SignupMeetingWrapper another) {
 				int comparison = Collator.getInstance().compare(one.getAvailableStatus(), another.getAvailableStatus());
-				return comparison == 0 ? sortStatusComparator.compare(one, another) : comparison;
+				return comparison == 0 ? sortDateComparator.compare(one, another) : comparison;
 			}
 		};
 	}
