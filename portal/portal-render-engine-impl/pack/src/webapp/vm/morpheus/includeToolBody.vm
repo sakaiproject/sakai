@@ -49,10 +49,10 @@
     
         <nav class="portlet portlet-title wrapper">
             #if (${tool.toolShowResetButton})
-                <a class="title-tools reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}"></a>
+                <h2><a class="portlet title-tools reset title" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
+            #else
+                 <h2>${tool.toolTitle}</h2>
             #end
-
-            <h2><a class="portlet title-tools title" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
 
             #if (${tool.toolShowHelpButton})
                 <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
