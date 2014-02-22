@@ -101,8 +101,8 @@
 	    </copy>
 	
 	    <echo message="[INFO] add ECL license." />
-	    <copy file="${basedir}/../../ECLv2.txt"
-	        tofile="${basedir}/target/pack/ECLv2.txt"
+	    <copy file="${basedir}/../../LICENSE"
+	        tofile="${basedir}/target/pack/LICENSE"
 	        overwrite="true" />
 	</target>
 	
@@ -139,7 +139,7 @@
 	        <tarfileset
 	            dir="${basedir}/target/pack/"
 	            prefix="/">
-	            <include name="ECLv2.txt" />
+	            <include name="LICENSE" />
 	        </tarfileset>
 	    </tar>
 	
@@ -181,7 +181,7 @@
 	        <zipfileset
 	            dir="${basedir}/target/pack/"
 	            prefix="/">
-	            <include name="ECLv2.txt" />
+	            <include name="LICENSE" />
 	        </zipfileset>
 	    </zip>
 	
