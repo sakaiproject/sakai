@@ -14,6 +14,7 @@
         init: function(editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
             var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
+            var saveOnDestroy = editor.config.autosave_saveOnDestroy != null ? editor.autosave_saveOnDestroy : false;
 
             CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
 
@@ -26,7 +27,9 @@
             editor.on('key', startTimer);
 
             editor.on('destroy', function() {
-                SaveData(autoSaveKey, editor);
+                if (saveOnDestroy) {
+                    SaveData(autoSaveKey, editor);
+                }
             });
 
             editor.on('uiSpace', function(event) {
