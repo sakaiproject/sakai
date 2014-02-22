@@ -1,14 +1,8 @@
-# Simple RSS Portlet
+# RSS Portlet for Sakai
 
-An RSS/Atom feed reader portlet.
+An RSS/Atom feed reader portlet for Sakai, based on http://github.com/steveswinsburg/simple-rss-portlet but modified for a Sakai build.
 
 ### Features
 * Renders all forms of RSS and Atom feeds
 * Prioritises and displays images contained in the feed
 * Feeds and images are cached for quick access
-* Can be setup as a portlet publishing type to allow multiple pre configured portlets to be deployed.
-* Supports the CONFIG mode for run-time configuration
-* Designed to be a drop in replacement for the deprecated CSyndFeed channel (uses the same markup).
-
-For more information, including a configuration and installation guide, project roadmap and screenshots, see:
-<https://wiki.jasig.org/display/PLT/Simple+RSS+Portlet>
