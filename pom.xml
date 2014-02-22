@@ -4,18 +4,19 @@
   
   	<groupId>org.jasig.portlet</groupId>
   	<artifactId>simple-rss-portlet</artifactId>
-  	<name>Simple RSS portlet for uPortal</name>
+  	<name>RSS portlet for Sakai</name>
   	<description>An RSS/Atom feed reader.</description>
   	<url>https://wiki.jasig.org/display/PLT/Simple+RSS+Portlet</url>
   	
   	<version>1.2.3-SNAPSHOT</version>
   	<packaging>war</packaging>
   	
-  	<parent>
-        <groupId>org.jasig.parent</groupId>
-        <artifactId>jasig-parent</artifactId>
-        <version>35</version>
-    </parent>
+    <parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+  	</parent>
   	
     <inceptionYear>2011</inceptionYear>
 	
@@ -33,18 +34,13 @@
 			<email>steve.swinsburg@gmail.com</email>
 		</developer>
 	</developers>
-	
-	<organization>
-        <name>Division of Information, Australian National University</name>
-        <url>http://information.anu.edu.au/information/</url>
-    </organization>
 
   	<scm>
 		<connection>scm:git:git@github.com:steveswinsburg/simple-rss-portlet.git</connection>
 		<developerConnection>scm:git:git@github.com:steveswinsburg/simple-rss-portlet.git</developerConnection>
 		<url>https://github.com/steveswinsburg/simple-rss-portlet</url>
 	  <tag>HEAD</tag>
-  </scm> 
+  	</scm> 
 
     <dependencies>
   		
@@ -107,7 +103,8 @@
 		<dependency>
 			<groupId>net.sf.ehcache</groupId>
 			<artifactId>ehcache-core</artifactId>
-			<version>2.3.0</version>
+			<version>2.6.8</version>
+			<scope>compile</scope>
 		</dependency>
 		<dependency>
             <groupId>org.slf4j</groupId>
@@ -170,6 +167,10 @@
 				</excludes>
 			</resource>
 		</resources>
+		
+		<!-- specify for non standard builds -->
+		<sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+
 		<plugins>
 			<!-- Include docs directory in webapp -->
 			<plugin>
@@ -183,6 +184,9 @@
               				<targetPath>docs</targetPath>
            				</resource>
          		 	</webResources>
+         		 	<!-- specify these so non standard builds can find the resources -->
+         		 	<warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+         		 	<webXml>${basedir}/src/main/webapp/WEB-INF/web.xml</webXml> 
 				</configuration>
 			</plugin>
 			
@@ -269,6 +273,44 @@
 					<url>${jasig-site-dist-base}/simple-rss-portlet/${project.version}</url>
         		</site>
     		</distributionManagement>
+		</profile>
+		
+		<!-- special profile to automatically add the pluto invoker config to the built webapp, and to specify the final name of the webapp
+		This means you can just drop the war file into tomcat/webapps and it is ready to go -->
+		<profile>
+			<id>sakai-pluto-assemble</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+			<build>
+				<finalName>${war.name}</finalName>
+				<plugins>
+					<!-- Configure maven-war-plugin to use the updated web.xml that the pluto plugin creates -->
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>2.2</version>
+						<configuration>
+							<webXml>${project.build.directory}/pluto-resources/web.xml</webXml>
+						</configuration>
+					</plugin>
+
+					<!-- Bind 'pluto:assemble' goal to 'generate-resources' lifecycle -->
+					<plugin>
+						<groupId>org.apache.pluto</groupId>
+						<artifactId>maven-pluto-plugin</artifactId>
+						<version>1.1.7</version>
+						<executions>
+							<execution>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>assemble</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
 		</profile>
 	</profiles>
 	  
