@@ -49,7 +49,7 @@
     
         <nav class="portlet portlet-title wrapper">
             #if (${tool.toolShowResetButton})
-                <h2><a class="portlet title-tools reset title" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
+                <h2><a class="portlet title-tools title reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
             #else
                  <h2>${tool.toolTitle}</h2>
             #end
