@@ -30,75 +30,41 @@ ul.makeMenu li {
 <![endif]><![endif]-->
 
 #**#
+<style type="text/css">
+    .dropdown-toggle {
+        padding:6px 6px !important;
+    }
+    #columnTog a.colHide .hideIcon {
+        visibility:hidden;
+    }
+    
+    #columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
+        display:inline;
+    }
+    #columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
+        display:none
+    }
+</style>
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 <!-- // -->
 </script>
+
+<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js">
+<!-- // -->
+</script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+<!-- // -->
+</script>
+
+
 <script type="text/javascript">
 $(document).ready(function() {
-	if ($('#content_print_result_url').length)
-	{
-		window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
-	}
-	jQuery('.portletBody').click(function(e) { 
-	
-		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
-			$('.makeMenuChild').hide();
-		}
-			else
-			{
-				if( e.target.className =='dropdn' ){
-			$('.makeMenuChild').hide();
-			$(e.target).parent('li').find('ul').show().find('li:first a').focus();
 
-}
-				else{
-			$('.makeMenuChild').hide();
-			$(e.target).find('ul').show().find('li:first a').focus();
-			}}
-	});
-	$('.toggleDescription').click(function(e){
-	    e.preventDefault();
-	    $('.descPanel').css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	    $(this).next('div').css({
-	        'top': e.pageY + 10,
-	        'left': e.pageX + 10,
-	        'cursor': 'pointer',
-	        'display': 'block'
-	    }).attr({
-	        'aria-hidden': 'false',
-	        'tabindex': '0'
-	    });
-	});
-	$('.descPanel').blur(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});
-	$('.descPanel').click(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});	
 	})
 </script>
 #**#
+
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
@@ -136,6 +102,21 @@ $(document).ready(function() {
 	#if ($content_print_status_failure)
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
+    
+    <div class="btn-group pull-right btn-group-xs">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Show/Hide
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" id="columnTog" style="z-index:100000">
+          <li><a id="accessTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Access</a></li>
+          <li><a id="creatorTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Created by</a></li>
+          <li><a id="modifiedTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Modified</a></li>
+          <li><a id="sizeTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Size</a></li>
+          <li role="presentation" class="divider"></li>
+          <li><a id="allTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;All of above</a></li>
+        </ul>
+    </div>
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
@@ -232,6 +213,7 @@ $(document).ready(function() {
 						</span>
 					#end
 				</div>
+
 				#if($showHotDropboxWidget)
 					<div class="listNav">
 						<span class="instruction">
@@ -253,7 +235,7 @@ $(document).ready(function() {
 			######################  Column labels, sort controls, expand/collapse all  ##############
 			<caption class="skip"  style="display:none">$clang.getString("sh.listcap")</caption>
 			<tr>
-				<th id="expansion" style="border:none">
+				<th id="expansion" class="attach">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
@@ -266,7 +248,7 @@ $(document).ready(function() {
 						</a>								 
 					#end
 				</th>
-				<th id="checkboxes"  style="border:none">
+				<th id="checkboxes" class="attach">
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$clang.getString("list.select")"
 						onclick="javascript:toggleSelectAll(this, 'selectedMembers'); adjustShowHideCount(this)" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
 
@@ -293,10 +275,10 @@ $(document).ready(function() {
 				<th id="actions3"    style="border:none">
 					##$tlang.getString("gen.actions")
 				</th>
-				<th id="access"  style="border:none">
+				<th id="access" class="access" style="border:none">
 					$clang.getString("gen.access")
 				</th>
-				<th id="creator"  style="border:none">
+				<th id="creator" class="creator" style="border:none">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortaut')">
 						$clang.getString("gen.created")
@@ -309,7 +291,7 @@ $(document).ready(function() {
 						#end 
 					</a>
 				</th>
-				<th id="modified"  style="border:none">
+				<th id="modified" class="modified" style="border:none">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortdate')">
 						$clang.getString("gen.last1")
@@ -322,7 +304,7 @@ $(document).ready(function() {
 						#end 
 					</a>
 				</th>
-				<th id="size"  style="border:none">
+				<th id="size" class="size" style="border:none">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortsize')">
 						$clang.getString("gen.size")
@@ -509,7 +491,7 @@ $(document).ready(function() {
 
 						</td>
 					#if($item.depth > 0)
-						<td headers="access" title="$item.effectiveGroupsLabel">
+						<td headers="access" class="access" title="$item.effectiveGroupsLabel">
 							#if($item.isPubviewInherited() || $item.isPubview())
 								$tlang.getString("access.public")
 							#elseif($item.isDropbox())
@@ -520,13 +502,13 @@ $(document).ready(function() {
 								$tlang.getString("access.site")
 							#end
 						</td>
-						<td headers="creator">
+						<td headers="creator" class="creator">
 							$validator.escapeHtml($item.createdBy)
 						</td>
-						<td headers="modified">
+						<td headers="modified" class="modified">
 							$item.ModifiedTime
 						</td>
-						<td headers="size">
+						<td headers="size" class="size">
 							$item.size
 						</td>
 					#else
