@@ -845,7 +845,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.COMPRESS_ZIP_FOLDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.EXPAND_ZIP_ARCHIVE);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.RESTORE);
 		
 		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
 		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
@@ -4608,6 +4607,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("labeler", new ResourceTypeLabeler());
 		
 		contentPrintResultIntoContext(data, context, state);
+		
+		// whether the user can revise any resources in this site
+		// used for showing the restore deleted files interface
+		context.put("canReviseAny", canReviseAny());
 		
 		return TEMPLATE_NEW_LIST;
 

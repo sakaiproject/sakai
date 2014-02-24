@@ -123,8 +123,10 @@ $(document).ready(function() {
 				#if($showQuota)
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doShowQuota" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('list.quota')">$clang.getString("list.quota")</a></span></li>
 				#end
-				## view Trash area
-				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
+				#if($canReviseAny)
+					## view restore deleted resources area if the user has revise permission
+					<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
+				#end
 			</ul>
 	#end 
 	#if ($alertMessage)
