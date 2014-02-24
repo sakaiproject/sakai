@@ -83,7 +83,7 @@
     <sakai.commons.fileupload.version>1.3.1</sakai.commons.fileupload.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
-    <sakai.ehcache.version>2.6.8</sakai.ehcache.version>
+    <sakai.ehcache.version>2.6.6</sakai.ehcache.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
@@ -457,7 +457,7 @@
       <dependency>
         <groupId>net.sf.ehcache</groupId>
         <artifactId>ehcache-core</artifactId>
-        <version>2.6.8</version>
+        <version>2.6.6</version>
         <scope>provided</scope>
       </dependency>
       <!-- needed by Ehcache (and jackrabbit) -->
