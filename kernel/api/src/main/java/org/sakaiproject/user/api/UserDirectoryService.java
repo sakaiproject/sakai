@@ -123,6 +123,9 @@ public interface UserDirectoryService extends EntityProducer
 	 * This is controlled by a {@link PasswordPolicyProvider} and 
 	 * enabled via sakai config properties (user.password.policy=true), Default: false
 	 * 
+	 * If disabled then the enum returned will indicate PasswordRating.PASSED_DEFAULT
+	 * (and the checked() method on the enum will return false)
+	 * 
 	 * See default.sakai.properties or KNL-1123 for more details
 	 * 
 	 * @param password the password to be validated

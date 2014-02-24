@@ -43,12 +43,24 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
 
     /** value for minimum password entropy */
     private static final int DEFAULT_MIN_ENTROPY = 16;
+    
+    /** value for medium password entropy multiplier */
+    private static final int DEFAULT_MEDIUM_ENTROPY = 32;
+    
+    /** value for high password entropy multiplier */
+    private static final int DEFAULT_HIGH_ENTROPY = 48;
 
     /** value for maximum password sequence length */
     private static final int DEFAULT_MAX_SEQ_LENGTH = 3;
 
     /** sakai.property for minimum password entropy */
     private static final String SAK_PROP_MIN_PASSWORD_ENTROPY = "user.password.minimum.entropy";
+    
+    /** sakai.property for medium password entropy multiplier */
+    private static final String SAK_PROP_MEDIUM_PASSWORD_ENTROPY = "user.password.medium.entropy";
+    
+    /** sakai.property for high password entropy multiplier */
+    private static final String SAK_PROP_HIGH_PASSWORD_ENTROPY = "user.password.high.entropy";
 
     /** sakai.property for maximum password sequence length */
     private static final String SAK_PROP_MAX_PASSWORD_SEQ_LENGTH = "user.password.maximum.sequence.length";
@@ -67,10 +79,15 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
 
     /** value for minimum password entropy */
     private int minEntropy = DEFAULT_MIN_ENTROPY;
+    
+    /** value for medium password entropy multiplier */
+    private int mediumEntropy = DEFAULT_MEDIUM_ENTROPY;
+    
+    /** value for high password entropy multiplier */
+    private int highEntropy = DEFAULT_HIGH_ENTROPY;
 
     /** value for maximum password sequence length */
     private int maxSequenceLength = DEFAULT_MAX_SEQ_LENGTH;
-
 
     /**
      * Default zero-arg constructor
@@ -99,9 +116,21 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
         }
         if (serverConfigurationService != null) {
             minEntropy = serverConfigurationService.getInt(SAK_PROP_MIN_PASSWORD_ENTROPY, minEntropy);
+            mediumEntropy = serverConfigurationService.getInt(SAK_PROP_MEDIUM_PASSWORD_ENTROPY, mediumEntropy);
+            highEntropy = serverConfigurationService.getInt(SAK_PROP_HIGH_PASSWORD_ENTROPY, highEntropy);
             maxSequenceLength = serverConfigurationService.getInt(SAK_PROP_MAX_PASSWORD_SEQ_LENGTH, maxSequenceLength);
+            if (maxSequenceLength < 0) {
+            	maxSequenceLength = 0;
+            }
+            if (mediumEntropy < minEntropy) {
+            	mediumEntropy = DEFAULT_MEDIUM_ENTROPY;
+            }
+            if (highEntropy < mediumEntropy) {
+            	highEntropy = DEFAULT_HIGH_ENTROPY;
+            }
         }
-        logger.info("PasswordPolicyProviderDefaultImpl.init(): minEntropy="+minEntropy+", maxSequenceLength="+maxSequenceLength);
+        logger.info("PasswordPolicyProviderDefaultImpl.init(): minEntropy="+minEntropy+", mediumEntropy="+mediumEntropy+
+        		", highEntropy="+highEntropy+", maxSequenceLength="+maxSequenceLength);
     }
 
     /**
@@ -128,8 +157,8 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
             String userDisplayID = user.getDisplayId();
             if (userDisplayID != null) {
                 int length = userDisplayID.length();
-                for (int i = 0; i < length - (maxSequenceLength - 1); i++) {
-                    String sub = userDisplayID.substring(i, i + maxSequenceLength);
+                for (int i = 0; i < length - maxSequenceLength; i++) {
+                    String sub = userDisplayID.substring(i, i + (maxSequenceLength + 1));
                     if (password.indexOf(sub) > -1) {
                         return PasswordRating.FAILED; // SHORT CIRCUIT
                     }
@@ -150,8 +179,16 @@ public class PasswordPolicyProviderDefaultImpl implements PasswordPolicyProvider
             return PasswordRating.FAILED; // SHORT CIRCUIT
         }
 
-        // The password has passed all requirements, therefore the password is valid
-        return PasswordRating.PASSED_UNRATED;
+        // The password has passed all requirements; determine the strength of the password and return the appropriate flag
+        if (strength >= highEntropy) {
+        	return PasswordRating.STRONG;
+        }
+        else if (strength >= mediumEntropy) {
+        	return PasswordRating.MODERATE;
+        }
+        else {
+        	return PasswordRating.WEAK;
+        }
     }
 
     /**
