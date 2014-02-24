@@ -98,7 +98,20 @@ $(document).ready(function() {
 	});	
 	})
 </script>
-#**#
+
+<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js">
+<!-- // -->
+</script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+<!-- // -->
+</script>
+
+<script src="/sakai-content-tool/js/jstree/dist/jstree.min.js"></script>
+<link rel="stylesheet" href="/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" />
+
+
+
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
@@ -136,6 +149,14 @@ $(document).ready(function() {
 	#if ($content_print_status_failure)
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
+    <div class="btn-group pull-right">
+      <button id="navigate" type="button" class="btn btn-default btn-sm">
+        Navigate <span class="caret"></span>
+      </button>
+      <div id="navigatePanel" class="dropdown-menu pull-right" role="menu" style="height:500px;width:500px;overflow:auto">
+      </div>
+    </div>
+
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
