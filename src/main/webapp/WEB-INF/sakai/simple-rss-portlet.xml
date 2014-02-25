@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <registration>
 
-	<tool id="sakai.simple.rss" title="News Portlet" description="For displaying RSS feeds">
+	<tool id="sakai.simple.rss" title="RSS Portlet" description="For displaying RSS feeds">
 
 		<category name="course" />
 		<category name="project" />
