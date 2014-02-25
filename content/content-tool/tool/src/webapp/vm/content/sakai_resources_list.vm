@@ -231,7 +231,7 @@ $(document).ready(function() {
 		#end
 				
 		######################  Heirarchical list of resource folders/items  ##############
-		<table class="listHier lines centerLines" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
+		<table class="table table-striped listHier table-hover centerLines" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
 			<caption class="skip"  style="display:none">$clang.getString("sh.listcap")</caption>
 			<tr>
@@ -270,9 +270,6 @@ $(document).ready(function() {
 					##$tlang.getString("gen.actions")
 				</th>
 				<th id="actions2"    style="border:none">
-					##$tlang.getString("gen.actions")
-				</th>
-				<th id="actions3"    style="border:none">
 					##$tlang.getString("gen.actions")
 				</th>
 				<th id="access" class="access" style="border:none">
@@ -450,46 +447,33 @@ $(document).ready(function() {
 					
 					
 					<td headers="actions2" class="attach">
-					#if($item.addActions && !$item.addActions.isEmpty())
-
-							<ul style="margin:0;display:block;z-index:$addCount" class="makeMenu" role="menubar">
-							<li class="menuOpen" tabindex="0" role="menuitem" aria-haspopup="true" aria-label="$tlang.getString("button.add"): $validator.escapeHtml(${item.name}) $item.hoverText">
-									&nbsp;$tlang.getString("button.add") 
-								<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"  alt="$tlang.getString("button.add")"  class="dropdn"/> 
-									<ul class="makeMenuChild" role="menu">
-										#foreach($action in $item.addActions)
-											<li><a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
-										#end
-									</ul>
-
-									</li>
-
-								</ul>
-
-							#end
-
-						</td>
-					<td headers="actions3" class="attach">
-
-					#if($item.otherActions && !$item.otherActions.isEmpty())
-							<ul style="margin:0;display:block;z-index:$actionCount" class="makeMenu" role="menubar">
-								<li class="menuOpen" role="menuitem" tabindex="0" aria-label="$tlang.getString("button.actions"): $validator.escapeHtml(${item.name}) $item.hoverText">
-									&nbsp;$tlang.getString("button.actions")
-									<img src = "#imageLink("sakai/icon-dropdn.gif")" border="0"   alt="$tlang.getString("button.actions")" class="dropdn"/>									
-									<ul class="makeMenuChild" role="menu">
-										#foreach($action in $item.otherActions)
-											<li>
-												<a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
-													$labeler.getLabel($action)
-												</a>
-											</li>
-										#end
-									</ul>
-								</li>
-							</ul>
-						#end
-
-						</td>
+                        <div class="btn-group  pull-right">
+                            <button type="button" class="btn btn-default dropdown-toggle  btn-xs" data-toggle="dropdown">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu row">
+                                #if($item.addActions && !$item.addActions.isEmpty())
+                                    <li role="presentation" class="dropdown-header">Add</li>
+                                    #foreach($action in $item.addActions)
+                                        <li><a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+                                    #end
+                                #end
+                                #if($item.addActions && !$item.addActions.isEmpty() && $item.otherActions && !$item.otherActions.isEmpty())
+                                    <li class="divider"></li>
+                                #end
+                                #if($item.otherActions && !$item.otherActions.isEmpty())
+                                    <li role="presentation" class="dropdown-header">Actions</li>
+                                    #foreach($action in $item.otherActions)
+                                    <li>
+                                        <a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+                                            $labeler.getLabel($action)
+                                        </a>
+                                    </li>
+                                    #end
+                                #end
+                            </ul>
+                        </div>
+					</td>
 					#if($item.depth > 0)
 						<td headers="access" class="access" title="$item.effectiveGroupsLabel">
 							#if($item.isPubviewInherited() || $item.isPubview())
@@ -512,8 +496,15 @@ $(document).ready(function() {
 							$item.size
 						</td>
 					#else
-						<td colspan="4">
-						</td>
+                        <td class="access">
+                        </td>
+                        <td class="creator">
+                        </td>
+                        <td class="modified">
+                        </td>
+                        <td class="size">
+                        </td>						
+
 					#end
 				</tr>
 				#end ## if !$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) 
@@ -761,7 +752,7 @@ $(document).ready(function() {
 			############################################# end of "Other sites" section 
 		
 		</table>
-		<div id="bottompadding" style="height:12em"> </div> 
+		<div id="bottompadding" style="height:35em"> </div> 
 		
 		#foreach($key in $listActions.keySet())
 			<input type="hidden" id="${key}-count" value="$counter.getValue("${key}selected")" />

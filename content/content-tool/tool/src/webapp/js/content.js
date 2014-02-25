@@ -1,6 +1,5 @@
 var setupColumnToggle = function(){
     var cols = ['accessTog', 'creatorTog', 'modifiedTog', 'sizeTog', 'allTog']
-    var colspan = 0;
     $.each(cols, function(i, val){
         var target = val.replace('Tog', '');
         if (readDOMVal(target) === 'true') {
@@ -11,15 +10,8 @@ var setupColumnToggle = function(){
         else {
             $('#' + val).attr('data-status', 'hide');
             $('#' + val).attr('class', 'colHide');
-            ++colspan
         }
     });
-    if (colspan <= 1) {
-        $('.colspan').hide();
-    }
-    else {
-        $('.colspan').show();
-    }
     
     $('#columnTog a').click(function(e){
         e.preventDefault(e);
@@ -34,7 +26,6 @@ var setupColumnToggle = function(){
                     $('#' + val).attr('class', 'colHide');
                     writeDOMVal(target, 'false');
                 });
-                $('.colspan').show();
             }
             else {
                 $(this).attr('data-status', 'show');
@@ -45,7 +36,6 @@ var setupColumnToggle = function(){
                     $('#' + val).attr('data-status', 'show');
                     $('#' + val).attr('class', 'colShow');
                     writeDOMVal(target, 'true');
-                    $('.colspan').hide();
                 });
             }
         }
@@ -57,20 +47,12 @@ var setupColumnToggle = function(){
                 $(this).attr('class', 'colHide');
                 $('.' + target).show();
                 writeDOMVal(target, 'false');
-                ++colspan
             }
             else {
                 $(this).attr('data-status', 'show');
                 $(this).attr('class', 'colShow');
                 $('.' + target).hide();
                 writeDOMVal(target, 'true');
-                --colspan
-            }
-            if (colspan === 1) {
-                $('.colspan').hide();
-            }
-            else {
-                $('.colspan').show();
             }
         }
     });
