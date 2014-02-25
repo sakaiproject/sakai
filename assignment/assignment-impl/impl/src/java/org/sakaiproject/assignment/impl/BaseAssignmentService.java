@@ -155,7 +155,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
 import org.sakaiproject.util.EmptyIterator;
 import org.sakaiproject.util.EntityCollections;
@@ -4564,6 +4563,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public byte[] getGradesSpreadsheet(String ref) throws IdUnusedException, PermissionException
 	{
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		if (getGradesSpreadsheet(out, ref)) {
+			return out.toByteArray();
+		}
+		return null;
+	}
+
+	/**
+	 * Access and output the grades spreadsheet for the reference, either for an assignment or all assignments in a context.
+	 *
+	 * @param out
+	 *        The outputStream to stream the grades spreadsheet into.
+	 * @param ref
+	 *        The reference, either to a specific assignment, or just to an assignment context.
+	 * @return Whether the grades spreadsheet is successfully output.
+	 * @throws IdUnusedException
+	 *         if there is no object with this id.
+	 * @throws PermissionException
+	 *         if the current user is not allowed to access this.
+	 */
+	public boolean getGradesSpreadsheet(final OutputStream out, final String ref)
+			throws IdUnusedException, PermissionException {
+		boolean retVal = false;
 		String typeGradesString = REF_TYPE_GRADES + Entity.SEPARATOR;
 		String context = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length());
 
@@ -4594,7 +4616,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (!allowGradeAny)
 		{
 			// not permitted to download the spreadsheet
-			return null;
+			return false;
 		}
 		else
 		{
@@ -4850,17 +4872,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
 			// output
-			Blob b = new Blob();
 			try
 			{
-				wb.write(b.outputStream());
+				wb.write(out);
+				retVal = true;
 			}
 			catch (IOException e)
 			{
 				M_log.warn(" getGradesSpreadsheet Can not output the grade spread sheet for reference= " + ref);
 			}
 			
-			return b.getBytes();
+			return retVal;
 		}
 
 	} // getGradesSpreadsheet
@@ -6120,11 +6142,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 						else if (REF_TYPE_GRADES.equals(ref.getSubType()))
 						{
-							// get the grades spreadsheet blob
-							byte[] spreadsheet = getGradesSpreadsheet(ref.getReference());
-	
-							if (spreadsheet != null)
-							{
 								res.setContentType("application/vnd.ms-excel");
 								res.setHeader("Content-Disposition", "attachment; filename = export_grades_file.xls");
 	
@@ -6132,7 +6149,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								try
 								{
 									out = res.getOutputStream();
-									out.write(spreadsheet);
+									getGradesSpreadsheet(out, ref.getReference());
 									out.flush();
 									out.close();
 								}
@@ -6154,7 +6171,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										}
 									}
 								}
-							}
 						}
 						else
 						{

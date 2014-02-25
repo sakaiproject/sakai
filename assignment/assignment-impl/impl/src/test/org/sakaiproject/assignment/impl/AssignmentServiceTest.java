@@ -26,6 +26,7 @@ import java.lang.StringBuilder;
 import java.lang.Runtime;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.IOException;
 
@@ -34,7 +35,6 @@ import java.util.zip.ZipOutputStream;
 
 import org.sakaiproject.entity.api.Entity;
 
-import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.StringUtil;
 
 
@@ -174,11 +174,10 @@ public class AssignmentServiceTest extends TestCase
 	protected void zipWithFlushing(boolean flushing)
 	{
 		String assignmentTitle = "Test Assignment Title";
-		Blob b = new Blob();
 		
 		try
 		{
-			ZipOutputStream out = new ZipOutputStream(b.outputStream());
+			ZipOutputStream out = new ZipOutputStream(new ByteArrayOutputStream());
 
 			// create the folder structor - named after the assignment's title
 			String root = assignmentTitle + Entity.SEPARATOR;
