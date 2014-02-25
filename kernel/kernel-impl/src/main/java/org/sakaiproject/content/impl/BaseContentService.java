@@ -158,7 +158,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.Blob;
 import org.sakaiproject.util.DefaultEntityHandler;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
@@ -8808,11 +8807,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * @exception ServerOverloadException
 	 *            if the server is configured to write the resource body to the filesystem and the save fails.
 	 * @return a new ContentResource object, or null if it was not created.
+	 * @deprecated Use {@link #mergeResource(Element, InputStream)}. (KNL-898)
 	 */
 	protected ContentResource mergeResource(Element element) throws PermissionException, InconsistentException, IdInvalidException,
 	OverQuotaException, ServerOverloadException
 	{
-		return mergeResource(element, null);
+		return mergeResource(element, (InputStream) null);
 
 	} // mergeResource
 
@@ -8821,7 +8821,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * 
 	 * @param element
 	 *        The XML DOM element containing the collection definition.
-	 * @param body
+	 * @param in
 	 *        The body bytes.
 	 * @exception PermissionException
 	 *            if the user does not have permission to add a resource.
