@@ -103,20 +103,6 @@ $(document).ready(function() {
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
     
-    <div class="btn-group pull-right btn-group-xs">
-        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-          Show/Hide
-          <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" id="columnTog" style="z-index:100000">
-          <li><a id="accessTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Access</a></li>
-          <li><a id="creatorTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Created by</a></li>
-          <li><a id="modifiedTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Modified</a></li>
-          <li><a id="sizeTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Size</a></li>
-          <li role="presentation" class="divider"></li>
-          <li><a id="allTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;All of above</a></li>
-        </ul>
-    </div>
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
@@ -229,7 +215,22 @@ $(document).ready(function() {
 				#end
 			</div>	
 		#end
-				
+
+    <div class="btn-group pull-right btn-group-xs">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          Show/Hide
+          <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" id="columnTog" style="z-index:100000">
+          <li><a id="accessTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Access</a></li>
+          <li><a id="creatorTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Created by</a></li>
+          <li><a id="modifiedTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Modified</a></li>
+          <li><a id="sizeTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Size</a></li>
+          <li role="presentation" class="divider"></li>
+          <li><a id="allTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;All of above</a></li>
+        </ul>
+    </div>
+
 		######################  Heirarchical list of resource folders/items  ##############
 		<table class="table table-striped listHier table-hover centerLines" cellspacing="0" border="0"  summary="$clang.getString("sh.listsum")">
 			######################  Column labels, sort controls, expand/collapse all  ##############
