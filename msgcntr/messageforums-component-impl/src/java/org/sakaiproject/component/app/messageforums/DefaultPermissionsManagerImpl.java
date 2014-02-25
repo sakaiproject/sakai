@@ -60,14 +60,21 @@ public class DefaultPermissionsManagerImpl
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS)) {
          functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_GROUPS);
      }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS);
+     }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES)) {
          functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_ROLES);
-     }     
+     }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS);
+     }
+     if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS)) {
+         functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS);
+     }
      if (!registered.contains(DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS)) {
          functionManager.registerFunction(DefaultPermissionsManager.MESSAGE_FUNCTION_VIEW_HIDDEN_GROUPS);
      }
-
-     
      
 /*    functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_FORUM);
     functionManager.registerFunction(DefaultPermissionsManager.FUNCTION_NEW_TOPIC);

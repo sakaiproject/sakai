@@ -50,7 +50,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
 import org.sakaiproject.util.ResourceLoader;
 
 public class MembershipManagerImpl implements MembershipManager{
@@ -255,9 +254,9 @@ public class MembershipManagerImpl implements MembershipManager{
 		//FIXME Is this expected behavior?  If so it should be documented - LDS
     	LOG.error(e.getMessage(), e);
 	}
-        
+
+	boolean viewHiddenGroups = getPrtMsgManager().isAllowToViewHiddenGroups();
     if(getPrtMsgManager().isAllowToFieldGroups()){
-    	boolean viewHiddenGroups = getPrtMsgManager().isAllowToViewHiddenGroups();
     	/** handle groups */
     	if (currentSite == null)
     		throw new IllegalStateException("Site currentSite == null!");
@@ -271,7 +270,9 @@ public class MembershipManagerImpl implements MembershipManager{
     			//member.setName(currentGroup.getTitle() + " Group");
     			member.setName(rl.getFormattedMessage("participants_group_desc",new Object[]{currentGroup.getTitle()}));
     			member.setGroup(currentGroup);
-    			returnMap.put(member.getId(), member);
+                if (!isGroupAlreadyInMap(returnMap, member)) {
+                    returnMap.put(member.getId(), member);
+                }
     		}
     	}
     }
@@ -295,56 +296,117 @@ public class MembershipManagerImpl implements MembershipManager{
     	}
     }
     
-    /** handle users */
-    if (realm == null)
-			throw new IllegalStateException("AuthzGroup realm == null!");
-    Set users = realm.getMembers();
-    if (users == null)
-			throw new RuntimeException("Could not obtain members from realm!");
+    if(getPrtMsgManager().isAllowToFieldUsers()){
+        /** handle users */
+        if (realm == null)
+    			throw new IllegalStateException("AuthzGroup realm == null!");
+        Set users = realm.getMembers();
+        if (users == null)
+    			throw new RuntimeException("Could not obtain members from realm!");
+        
+        /** create our HashSet of user ids */
+        for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
+          Member member = (Member) userIterator.next();
+          String userId = member.getUserId();
+          Role userRole = member.getRole();   
+          addUsertoMemberItemMap(returnMap, realm, userId, userRole, MembershipItem.TYPE_USER);
+        }
+    }    
     
-    /** create our HashSet of user ids */
-    for (Iterator userIterator = users.iterator(); userIterator.hasNext();){
-      Member member = (Member) userIterator.next();
-      String userId = member.getUserId();
-      Role userRole = member.getRole();            
-      
-      User user = null;
-      try{
-      	if(realm.getMember(userId) != null && realm.getMember(userId).isActive())
-      	{
-      		user = userDirectoryService.getUser(userId);
-      	}
-      } catch (UserNotDefinedException e) {
-		// TODO Auto-generated catch block
-    	// e.printStackTrace();
-    	LOG.warn(" User " + userId + " not defined");
-	  }            
-      
-      if(user != null)
-      {
-      	MembershipItem memberItem = MembershipItem.getInstance();
-      	memberItem.setType(MembershipItem.TYPE_USER);
-      	if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
-      		memberItem.setName(user.getSortName() + " (" + user.getDisplayId() + ")");
-      	}
-      	else {
-      		memberItem.setName(user.getSortName());
-      	}
-      	memberItem.setUser(user);
-      	memberItem.setRole(userRole);             
+		if (getPrtMsgManager().isAllowToFieldMyGroups()) {
+			try {
+				Collection<Group> groups = siteService.getSite(toolManager.getCurrentPlacement().getContext())
+						.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+				if (groups != null) {
+					for (Group group : groups) {
+                        MembershipItem member = MembershipItem.getInstance();
+						member.setType(MembershipItem.TYPE_MYGROUPS);
+						member.setName(rl.getFormattedMessage("participants_group_desc",
+										new Object[] { group.getTitle() }));
+						member.setGroup(group);
 
-      	// Don't want admin as part of the list
-      	if(!"admin".equals(userId))
-      	{                                       
-  			returnMap.put(memberItem.getId(), memberItem);
-      	}                                
-      }
-    }
- 
+						if (!isGroupAlreadyInMap(returnMap, member)) {
+                            returnMap.put(member.getId(), member);
+						}
+					}
+				}
+			} catch (IdUnusedException e) {
+				LOG.warn("Unable to retrieve site to determine current user's groups.");
+			}
+		}
+
+		if (getPrtMsgManager().isAllowToFieldMyGroupMembers()) {
+
+			try {
+				Collection<Group> groups = siteService.getSite(toolManager.getCurrentPlacement().getContext())
+						.getGroupsWithMember(userDirectoryService.getCurrentUser().getId());
+				if (groups != null) {
+					for (Group group : groups) {
+						Set<Member> groupMembers = group.getMembers();
+						for (Member groupMember : groupMembers) {
+							addUsertoMemberItemMap(returnMap, realm, groupMember.getUserId(), groupMember.getRole(),
+									MembershipItem.TYPE_MYGROUPMEMBERS);
+						}
+					}
+				}
+			} catch (IdUnusedException e) {
+				LOG.warn("Unable to retrieve site to determine current user's group members.");
+			}
+		}
+
     // set FERPA status for all items in map - allCourseUsers
     // needed by PrivacyManager to determine status
+    
     return setPrivacyStatus(getAllCourseUsers(), returnMap);
   }
+
+	private void addUsertoMemberItemMap(Map returnMap, AuthzGroup realm, String userId, Role userRole, Integer memberItemType) {
+		if (!isUserAlreadyInMap(returnMap, userId)) {
+
+			User user = null;
+			try {
+				if (realm.getMember(userId) != null && realm.getMember(userId).isActive()) {
+					user = userDirectoryService.getUser(userId);
+				}
+			} catch (UserNotDefinedException e) {
+				LOG.warn(" User " + userId + " not defined");
+			}
+
+			// Don't want admin as part of the list
+			if (user != null && !"admin".equals(userId)) {
+				MembershipItem memberItem = MembershipItem.getInstance();
+				memberItem.setType(memberItemType);
+				if (ServerConfigurationService.getBoolean("msg.displayEid", true)) {
+					memberItem.setName(user.getSortName() + " (" + user.getDisplayId() + ")");
+				} else {
+					memberItem.setName(user.getSortName());
+				}
+				memberItem.setUser(user);
+				memberItem.setRole(userRole);
+                returnMap.put(memberItem.getId(), memberItem);
+			}
+		}
+	}
+
+	private boolean isGroupAlreadyInMap(Map<String, MembershipItem> returnMap, MembershipItem membershipItem) {
+		for(MembershipItem m: returnMap.values()){
+            if((m.getType() == MembershipItem.TYPE_GROUP || 
+                    m.getType() == MembershipItem.TYPE_MYGROUPS) &&
+                    m.getName().equals(membershipItem.getName())){
+                return true;
+            }
+        }
+        return false;
+	}
+
+	private boolean isUserAlreadyInMap(Map<String, MembershipItem> returnMap, String userId) {
+		for(MembershipItem m: returnMap.values()){
+            if(m.getUser() != null && m.getUser().getId().equals(userId)){
+                return true;
+            }
+        }
+        return false;
+	}
   
   private boolean containsId(String searchId, List<String> ids){
 	  if(ids != null && searchId != null){
@@ -400,20 +462,15 @@ public class MembershipManagerImpl implements MembershipManager{
       		//user does not exits
       		continue;
       	}
-      
-      if(user != null)
-      {
-      	MembershipItem memberItem = MembershipItem.getInstance();
-      	memberItem.setType(MembershipItem.TYPE_USER);
-      	memberItem.setName(user.getSortName());
-      	memberItem.setUser(user);
-      	memberItem.setRole(userRole);             
-
-      	if(!"admin".equals(userId))
-      	{                                               
-      		userMap.put(memberItem.getId(), memberItem);                
-      	}
-      }
+      	 if(user != null && !"admin".equals(userId))
+         {
+         	MembershipItem memberItem = MembershipItem.getInstance();
+         	memberItem.setType(MembershipItem.TYPE_USER);
+         	memberItem.setName(user.getSortName());
+         	memberItem.setUser(user);
+         	memberItem.setRole(userRole);     
+     		userMap.put(memberItem.getId(), memberItem);     
+         }
     }
     
     return convertMemberMapToList(userMap);

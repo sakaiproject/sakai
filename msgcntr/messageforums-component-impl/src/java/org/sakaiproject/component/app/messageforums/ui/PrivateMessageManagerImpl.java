@@ -1783,6 +1783,59 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
       return false;
   } 
   
+  @Override
+  public boolean isAllowToFieldUsers() {
+	  LOG.debug("isAllowToFieldUsers()");
+	  return isAllowToFieldUsers(UserDirectoryService.getCurrentUser());
+  }
+  
+  private boolean isAllowToFieldUsers(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldUsers(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_USERS, getContextSiteId());
+    else
+      return false;
+  }
+  
+  @Override
+  public boolean isAllowToFieldMyGroups() {
+	  LOG.debug("isAllowToFieldMyGroups()");
+	  return isAllowToFieldMyGroups(UserDirectoryService.getCurrentUser());
+  }
+
+  private boolean isAllowToFieldMyGroups(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldMyGroups(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPS, getContextSiteId());
+    else
+      return false;
+  }
+  
+  @Override
+  public boolean isAllowToFieldMyGroupMembers() {
+	  LOG.debug("isAllowToFieldMyGroupMembers()");
+	  return isAllowToFieldMyGroupMembers(UserDirectoryService.getCurrentUser());
+  }
+
+  private boolean isAllowToFieldMyGroupMembers(User user)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("isAllowToFieldMyGroupMembers(User " + user + ")");
+    }
+    if (user != null)
+      return SecurityService.unlock(user, DefaultPermissionsManager.MESSAGE_FUNCTION_ALLOW_TO_FIELD_MYGROUPMEMBERS, getContextSiteId());
+    else
+      return false;
+  }
 
   /**
    * @return siteId

@@ -38,7 +38,8 @@ import org.sakaiproject.user.api.User;
    public static final Integer TYPE_ROLE = Integer.valueOf(2);
    public static final Integer TYPE_GROUP = Integer.valueOf(3);
    public static final Integer TYPE_USER = Integer.valueOf(4);   
-   
+   public static final Integer TYPE_MYGROUPS = Integer.valueOf(5);   
+   public static final Integer TYPE_MYGROUPMEMBERS = Integer.valueOf(6);    
    
    public static final String ALL_PARTICIPANTS_DESC = "All Participants";
    public static final String NOT_SPECIFIED_DESC = "Not Specified";

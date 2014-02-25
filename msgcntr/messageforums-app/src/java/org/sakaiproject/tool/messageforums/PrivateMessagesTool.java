@@ -4614,7 +4614,7 @@ private   int   getNum(char letter,   String   a)
 					  }
 				  }
 			  }
-			  else if (MembershipItem.TYPE_GROUP.equals(item.getType())){
+			  else if (MembershipItem.TYPE_GROUP.equals(item.getType()) || MembershipItem.TYPE_MYGROUPS.equals(item.getType())){
 				  for (Iterator g = allCourseUsers.iterator(); g.hasNext();){
 					  MembershipItem member = (MembershipItem) g.next();            
 					  Set groupMemberSet = item.getGroup().getMembers();
@@ -4626,7 +4626,7 @@ private   int   getNum(char letter,   String   a)
 					  }            
 				  }
 			  }
-			  else if (MembershipItem.TYPE_USER.equals(item.getType())){
+			  else if (MembershipItem.TYPE_USER.equals(item.getType()) || MembershipItem.TYPE_MYGROUPMEMBERS.equals(item.getType())){
 				  returnSet.put(item.getUser(), bcc);
 			  } 
 			  else{
