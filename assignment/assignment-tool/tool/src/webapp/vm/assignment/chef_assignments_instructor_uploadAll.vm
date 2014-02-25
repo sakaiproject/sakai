@@ -49,6 +49,10 @@
 			}
 			else
 			{
+				if (document.getElementById('withoutFolders') && document.getElementById('withoutFolders').checked)
+				{
+						extraInfoArray[extraInfoArray.length]="withoutFolders=true";
+				}
 				accessPointUrl = accessPointUrl + "?";
 				for(i=0; i<extraInfoArray.length; i++) 
 				{ 
@@ -128,7 +132,15 @@
 			 ## feedback attachments
 				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" #if($!hasFeedbackAttachment)checked="checked"#end />
 				<label for="feedbackAttachments">$tlang.getString("download.feedback.attachment")</label><br/>
+			<br/>
+			## SAK-19147 output without folders
+			#if ($!download && $enableFlatDownload)
+				<input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" #if($!withoutFolders)checked="checked"#end />
+				<label for="withoutFolders">$tlang.getString("uploadall.folders.no")</label><br/>
+			#end
+
 			</p>
+				
 			#if (!$download)
 				<h4>$tlang.getString("uploadall.releaseOption")</h4>
 				<div class="checkbox  indnt2">
@@ -166,7 +178,8 @@
 				var elements = document.getElementsByName(elementName);
 				if(elements)
 				{
-					for(var i = 0; i < elements.length; i++)
+					//SAK-19147 don't toggle last "Save all submissions in one folder"
+					for(var i = 0; i < elements.length -1; i++)
 					{
 						elements[i].checked = newValue;
 					}

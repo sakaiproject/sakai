@@ -5260,6 +5260,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		boolean withFeedbackText = false;
 		boolean withFeedbackComment = false;
 		boolean withFeedbackAttachment = false;
+		
+		boolean withoutFolders = false;
 
 		String viewString = "";
 		String contextString = "";
@@ -5304,6 +5306,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					// feedback attachment
 					withFeedbackAttachment = true;
+				}
+				else if (token.contains("withoutFolders"))
+				{
+					// feedback attachment
+					withoutFolders = true;
 				}
 				else if (token.contains("contextString"))
 				{
@@ -5397,7 +5404,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				if (allowGradeSubmission(aRef))
 				{
 					zipSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), 
-									new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment);
+							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders);
 	
 					if (exceptionMessage.length() > 0)
 					{
@@ -5643,7 +5650,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	    }
 	}
 
-	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment) 
+	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders)
 	{
 	    ZipOutputStream out = null;
 		try {
@@ -5728,17 +5735,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
 								submittedText = s.getSubmittedText();
 		
-								submittersName = submittersName.concat("/");
+								if (!withoutFolders)
+								{
+									submittersName = submittersName.concat("/");
+								}
+								else
+								{
+									submittersName = submittersName.concat("_");
+								}
 									
 								// record submission timestamp
-								if (s.getSubmitted() && s.getTimeSubmitted() != null)
+								if (!withoutFolders)
 								{
-									ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
-									out.putNextEntry(textEntry);
-									byte[] b = (s.getTimeSubmitted().toString()).getBytes();
-									out.write(b);
-									textEntry.setSize(b.length);
-									out.closeEntry();
+									if (s.getSubmitted() && s.getTimeSubmitted() != null)
+									{
+										ZipEntry textEntry = new ZipEntry(submittersName + "timestamp.txt");
+										out.putNextEntry(textEntry);
+										byte[] b = (s.getTimeSubmitted().toString()).getBytes();
+										out.write(b);
+										textEntry.setSize(b.length);
+										out.closeEntry();
+									}
 								}
 								
 								// create the folder structure - named after the submitter's name
@@ -5748,7 +5765,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									if (withStudentSubmissionText)
 									{
 										// create the text file only when a text submission is allowed
-										ZipEntry textEntry = new ZipEntry(submittersName + submittersString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE);
+										String submittersNameString = submittersName + submittersString;
+										
+										//remove folder name if Download All is without user folders
+										if (withoutFolders)
+										{
+											submittersNameString = submittersName;
+										}
+										ZipEntry textEntry = new ZipEntry(submittersNameString + "_submissionText" + ZIP_SUBMITTED_TEXT_FILE_TYPE); 
 										out.putNextEntry(textEntry);
 										byte[] text = submittedText.getBytes();
 										out.write(text);
@@ -5774,11 +5798,23 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									// include student submission attachment
 									if (withStudentSubmissionAttachment)
 									{
-										// create a attachment folder for the submission attachments
-										String sSubAttachmentFolder = submittersName + rb.getString("stuviewsubm.submissatt") + "/";
-										sSubAttachmentFolder = escapeInvalidCharsEntry(sSubAttachmentFolder);
-										ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
-										out.putNextEntry(sSubAttachmentFolderEntry);
+										//remove "/" that creates a folder if Download All is without user folders
+										String sSubAttachmentFolder = submittersName + rb.getString("stuviewsubm.submissatt");//jh + "/";
+										if (!withoutFolders)
+										{
+											// create a attachment folder for the submission attachments
+											sSubAttachmentFolder = submittersName + rb.getString("stuviewsubm.submissatt") + "/";
+											sSubAttachmentFolder = escapeInvalidCharsEntry(sSubAttachmentFolder);
+											ZipEntry sSubAttachmentFolderEntry = new ZipEntry(sSubAttachmentFolder);
+											out.putNextEntry(sSubAttachmentFolderEntry);
+
+										}
+										else
+										{
+											sSubAttachmentFolder = sSubAttachmentFolder + "_";
+											//submittersName = submittersName.concat("_");
+										}
+
 										// add all submission attachment into the submission attachment folder
 										zipAttachments(out, submittersName, sSubAttachmentFolder, s.getSubmittedAttachments());
 										out.closeEntry();
@@ -5799,10 +5835,18 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								if (withFeedbackAttachment)
 								{
 									// create an attachment folder for the feedback attachments
-									String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment") + "/";
-									feedbackSubAttachmentFolder = escapeInvalidCharsEntry(feedbackSubAttachmentFolder);
-									ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
-									out.putNextEntry(feedbackSubAttachmentFolderEntry);
+									String feedbackSubAttachmentFolder = submittersName + rb.getString("download.feedback.attachment");
+									if (!withoutFolders)
+									{
+										feedbackSubAttachmentFolder = feedbackSubAttachmentFolder + "/";
+										ZipEntry feedbackSubAttachmentFolderEntry = new ZipEntry(feedbackSubAttachmentFolder);
+										out.putNextEntry(feedbackSubAttachmentFolderEntry);
+									}
+									else
+									{
+										submittersName = submittersName.concat("_");
+									}
+								
 									// add all feedback attachment folder
 									zipAttachments(out, submittersName, feedbackSubAttachmentFolder, s.getFeedbackAttachments());
 									out.closeEntry();
@@ -12363,7 +12407,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			try {
 				ContentResource cr = getFirstAcceptableAttachement(attachments);
 				Assignment ass = this.getAssignment();
-				if (ass != null)
+				if (ass != null && cr != null)
 				{
 					contentReviewService.queueContent(null, null, ass.getReference(), cr.getId());
 				}

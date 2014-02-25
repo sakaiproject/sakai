@@ -797,6 +797,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String UPLOAD_ALL_HAS_COMMENTS= "upload_all_has_comments";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_TEXT= "upload_all_has_feedback_text";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT = "upload_all_has_feedback_attachment";
+	private static final String UPLOAD_ALL_WITHOUT_FOLDERS = "upload_all_without_folders";
 	private static final String UPLOAD_ALL_RELEASE_GRADES = "upload_all_release_grades";
 	
 	// this is to track whether the site has multiple assignment, hence if true, show the reorder link
@@ -4192,6 +4193,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
 		context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
 		context.put("releaseGrades", state.getAttribute(UPLOAD_ALL_RELEASE_GRADES));
+		// SAK-19147
+		context.put("withoutFolders", state.getAttribute(UPLOAD_ALL_WITHOUT_FOLDERS));
+		context.put("enableFlatDownload", ServerConfigurationService.getBoolean("assignment.download.flat", false));
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("contextString", contextString);
 		context.put("accessPointUrl", (ServerConfigurationService.getAccessUrl()).concat(AssignmentService.submissionsZipReference(
@@ -14099,6 +14103,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
+					state.removeAttribute(UPLOAD_ALL_WITHOUT_FOLDERS);
 					state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
 				}
 				else
@@ -14115,6 +14120,9 @@ public class AssignmentAction extends PagedResourceActionII
 					boolean hasComment = uploadAll_readChoice(choices, "feedbackComments");
 					// feedback attachment
 					boolean hasFeedbackAttachment = uploadAll_readChoice(choices, "feedbackAttachments");
+					// folders
+					//boolean withoutFolders = params.getString("withoutFolders") != null ? params.getBoolean("withoutFolders") : false;
+					boolean withoutFolders = uploadAll_readChoice(choices, "withoutFolders"); // SAK-19147
 					// release
 					boolean	releaseGrades = params.getString("release") != null ? params.getBoolean("release") : false;
 					
@@ -14124,6 +14132,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
+					state.setAttribute(UPLOAD_ALL_WITHOUT_FOLDERS, Boolean.valueOf(withoutFolders));
 					state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 					
 					// constructor the hashmap for all submission objects
@@ -14819,6 +14828,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
 		state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
+		state.removeAttribute(UPLOAD_ALL_WITHOUT_FOLDERS);
 		state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
 		
 	}
