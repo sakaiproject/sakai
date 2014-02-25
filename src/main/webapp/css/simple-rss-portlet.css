@@ -46,6 +46,7 @@
     display: block;
     width: 100%;
     margin-bottom: 1em;
+    /*margin-left: -40px;*/ /* since we are in a list, negate the indent */
 }
 
 /* reduce the amount of white space around the headings of feeds */
@@ -63,6 +64,6 @@
 
 .news-source {
 	font-weight: bold;
-	font-size: x-large;
+	font-size: larger;
 }
 
