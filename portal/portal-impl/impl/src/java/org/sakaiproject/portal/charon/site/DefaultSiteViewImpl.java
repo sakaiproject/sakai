@@ -181,7 +181,6 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 				mySites.add(currentSelectedSite);
 			}
 		}
-
 		
 		processMySites();
 
@@ -189,50 +188,32 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		String preferencesToolId = serverConfigurationService.getString("portal.preferencestool","sakai.preferences");
 		String worksiteToolId = serverConfigurationService.getString("portal.worksitetool","sakai.sitesetup");
 
-        // SAK-22390. Need to make sure that the current user has permission to create a site.
-        boolean canAddSite = false;
-        try {
-            // See if current user is super duper and say yes if so
-            canAddSite = SecurityService.isSuperUser(session.getUserId());
-            if(!canAddSite) {
-                // Not super duper. Test the user template realm.
-                String type = UserDirectoryService.getUser(session.getUserId()).getType();
-                AuthzGroup ag = AuthzGroupService.getAuthzGroup("!user.template." + type);
-                Role role = ag.getRole(".auth");
-                canAddSite = role.isAllowed("site.add.course") || role.isAllowed("site.add.portfolio") || role.isAllowed("site.add.project");
-            }
-        } catch(Exception e) {
-            LOG.warn("Failed to set canAddSite for current user. Defaulting to false ...");
-        }
-
  		String profileToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
-                if ( myWorkspaceSiteId != null ) for (Iterator iSi = mySites.iterator(); iSi.hasNext();)
-                {
-                        Site s = (Site) iSi.next();
-                        if ( !myWorkspaceSiteId.equals(s.getId()) ) continue;
-                	List pages = siteHelper.getPermittedPagesInOrder(s);
-                	for (Iterator iPg = pages.iterator(); iPg.hasNext();)
-                	{
-                        	SitePage p = (SitePage) iPg.next();
-				List<ToolConfiguration> pTools = p.getTools();
-                        	Iterator iPt = pTools.iterator();
-                        	while (iPt.hasNext())
-                        	{
-                                	ToolConfiguration placement = (ToolConfiguration) iPt.next();
-					if ( profileToolId.equals(placement.getToolId()) ) {
-                				profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-					}
-					if ( preferencesToolId.equals(placement.getToolId()) ) {
-                				prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-					}
-					if ( worksiteToolId.equals(placement.getToolId()) ) {
-                				worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
-					}
-				}
-			}
-		}
+        if ( myWorkspaceSiteId != null ) {
+            for (Iterator iSi = mySites.iterator(); iSi.hasNext();) {
+                Site s = (Site) iSi.next();
+                if (myWorkspaceSiteId.equals(s.getId()) ) {
+                    List pages = siteHelper.getPermittedPagesInOrder(s);
+                    for (Iterator iPg = pages.iterator(); iPg.hasNext();) {
+                        SitePage p = (SitePage) iPg.next();
+                        List<ToolConfiguration> pTools = p.getTools();
+                        Iterator iPt = pTools.iterator();
+                        while (iPt.hasNext()) {
+                            ToolConfiguration placement = (ToolConfiguration) iPt.next();
+                            if ( profileToolId.equals(placement.getToolId()) ) {
+                                profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                            } else if ( preferencesToolId.equals(placement.getToolId()) ) {
+                                prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                            } else if ( worksiteToolId.equals(placement.getToolId()) ) {
+                                worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
 		if ( profileToolUrl != null ) {
 			renderContextMap.put("profileToolUrl", profileToolUrl);
@@ -243,9 +224,9 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
 		}
-		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)){
+		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)) {
 			renderContextMap.put("tutorial", true);
-		}else{
+		} else {
 			renderContextMap.put("tutorial", false);
 		}
 		List<Map> l = siteHelper.convertSitesToMaps(request, mySites, prefix,
