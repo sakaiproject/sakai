@@ -623,7 +623,12 @@ function allowClick(object)
 									#if ($!submission)
 										#if($assignment.isPeerAssessmentPending())
 											<!-- peer review hasn't opened and user submitted -->
-											$tlang.getString("peerassessment.notOpen")
+											#if ($submission.getSubmitted())
+												$tlang.getString("peerassessment.notOpen")
+											#else
+												<!-- user has only submitted a draft, tell the user submission is required to encourage submission (although technically it isn't) -->
+												$tlang.getString("peerassessment.submissionReq")
+											#end
 										#else
 											<!-- peer review is open (or over) and user submitted 
 												status will be "not started", "incomplete", or "submitted"
