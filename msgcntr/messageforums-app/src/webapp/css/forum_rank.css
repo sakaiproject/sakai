@@ -145,7 +145,6 @@ Licenses.
     cursor: pointer;
     padding: 6px;
     border-bottom: 1px solid #999;
-    background-image: url(../images/checkbox-off.gif);
     background-repeat: no-repeat;
     background-position: 6px 6px;
 }
@@ -164,7 +163,6 @@ Licenses.
 
 .sakai-ppkr-source-list div.selected {
 	background-color: #FFD;
-    background-image: url(../images/checkbox-on.gif);
 }
 
 .sakai-ppkr-source-list div.key-highlight, #collection div.key-highlight {
@@ -180,11 +178,9 @@ Licenses.
 
 .sakai-ppkr-collection-list div {
 	padding-right: 24px;
-	background: white url(../images/remove-dim.png) 98% 6px no-repeat;
 }
 
 .sakai-ppkr-collection-list div:hover {
-	background: #FFD url(../images/remove.png) 98% 6px no-repeat;
 }
 
 .sakai-ppkr-btn-add-all, .sakai-ppkr-btn-remove-all {
