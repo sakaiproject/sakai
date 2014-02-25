@@ -95,6 +95,7 @@
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
+                <module>rss</module>
                 <module>rwiki</module>
                 <module>sakai-mock</module>
                 <module>samigo</module>
