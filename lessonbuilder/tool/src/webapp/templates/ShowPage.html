@@ -347,6 +347,7 @@ function resizeiframe(id) {
                       <div class="description" rsf:id="description5"></div>
                       <div style="display:none" rsf:id="mimetype3" class="mm-type"></div>
                       <div style="display:none" rsf:id="current-item-id3" class="mm-itemid"></div>
+                      <div style="display:none" rsf:id="item-prereq2" class="prerequisite-info"></div>
                       <div style="display:none" rsf:id="item-groups2" class="item-groups"></div>
                       <span style="display:none" rsf:id="item-path" class="item-path"></span>
                       </div>
@@ -362,6 +363,7 @@ function resizeiframe(id) {
                         <div class="description" rsf:id="description2"></div>
                         <div style="display:none" rsf:id="mimetype2" class="mm-type"></div>
                         <div style="display:none" rsf:id="current-item-id4" class="mm-itemid"></div>
+                        <div style="display:none" rsf:id="item-prereq3" class="prerequisite-info"></div>
                         <div style="display:none" rsf:id="item-groups3" class="item-groups"></div>
                         <span style="display:none" rsf:id="item-path" class="item-path"></span>
                       </div>
@@ -379,6 +381,7 @@ function resizeiframe(id) {
                       <div style="display:none" rsf:id="currentYoutubeWidth" class="mm-width"></div>
                       <div class="description" rsf:id="description4"></div>
                       <div style="display:none" rsf:id="current-item-id5" class="mm-itemid"></div>
+                      <div style="display:none" rsf:id="item-prereq4" class="prerequisite-info"></div>
                       <div style="display:none" rsf:id="item-groups4" class="item-groups"></div>
                      <span style="display:none" rsf:id="item-path" class="item-path"></span>
                     </div>
@@ -567,6 +570,7 @@ function resizeiframe(id) {
                     
                     <div rsf:id="questionSpan" class="right-col">
                         <div class="questionDiv" rsf:id="questionDiv">
+			    <div rsf:id="questionitem-group-titles" class="item-group-titles"></div>
                             <div class="statusCol">
                                 <img class="status-image icon-image" rsf:id="questionStatus" />
                             </div>
@@ -628,6 +632,7 @@ function resizeiframe(id) {
                         <span style="display:none" rsf:id="questionGradebookTitle" class="questionGradebookTitle"></span>
                         <span style="display:none" rsf:id="questionitem-required" class="questionitem-required"></span>
                         <span style="display:none" rsf:id="questionitem-prerequisite" class="questionitem-prerequisite"></span>
+			<span style="display:none" rsf:id="questionitem-groups" class="item-groups"></span>
                         <span style="display:none" rsf:id="questionCorrectText" class="questionCorrectText"></span>
                         <span style="display:none" rsf:id="questionIncorrectText" class="questionIncorrectText"></span>
                     </div>
@@ -999,6 +1004,11 @@ function resizeiframe(id) {
                         <p id="editgroups-mm" class="edit-group">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
+                        <p class="checkbox">
+                          <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
+                          <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                        </p>
+
                     </div>
                     <input type="hidden" rsf:id="multimedia-item-id" id="multimedia-item-id" />
                     
@@ -1269,6 +1279,11 @@ function resizeiframe(id) {
                         <p rsf:id="editgroups-youtube" id="editgroups-youtube">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
+                        <p class="checkbox">
+                            <input type="checkbox" name="youtube-prerequisite" id="youtube-prerequisite" rsf:id="youtube-prerequisite" />
+                            <label for="youtube-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                        </p>
+
                     <p class="act">     
                         <input class="bold" type="submit" onclick="event.returnValue = checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim()); return checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim());" id="update-youtube" rsf:id="update-youtube" />
                         <input type="submit" rsf:id="cancel-youtube" onclick="closeYoutubeDialog(); return false" />
@@ -1313,8 +1328,8 @@ function resizeiframe(id) {
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
                         <p class="checkbox">
-                            <input type="checkbox" name="question-prerequisite" id="question-prerequisite" rsf:id="question-prerequisite" />
-                            <label for="question-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                            <input type="checkbox" name="mm-prerequisite" id="mm-prerequisite" rsf:id="mm-prerequisite" />
+                            <label for="mm-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                         </p>
                        <p class="act">  
                             <input class="bold" type="submit" onclick="event.returnValue = checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim()); return checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim());" id="update-movie" rsf:id="update-movie" />
@@ -1641,6 +1656,9 @@ function resizeiframe(id) {
                             </p>
                         </div>
                     </div>
+                    <p id="question-editgroups" class="edit-group">
+                      <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+                    </p>
                     <p class="act">
                         <input class="bold" type="submit" onclick="return prepareQuestionDialog();" id="update-question" rsf:id="update-question" />
                         <input type="submit" rsf:id="cancel-question" onclick="closeQuestionDialog(); return false" />

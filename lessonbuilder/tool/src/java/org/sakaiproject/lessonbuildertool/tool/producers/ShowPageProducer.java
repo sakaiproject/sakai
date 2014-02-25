@@ -1205,6 +1205,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					// note that a lot of the info here is used by the
 					// javascript that prepares
 					// the jQuery dialogs
+					String itemGroupString = null;
+					boolean entityDeleted = false;
+					boolean notPublished = false;
 					if (canEditPage) {
 						UIOutput.make(tableRow, "edit-td");
 						UILink.make(tableRow, "edit-link", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
@@ -1215,10 +1218,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						// popup dialog
 						UIOutput.make(tableRow, "prerequisite-info", String.valueOf(i.isPrerequisite()));
 
-						String itemGroupString = null;
-						boolean entityDeleted = false;
-						boolean notPublished = false;
-						
 						if (i.getType() == SimplePageItem.ASSIGNMENT) {
 							// the type indicates whether scoring is letter
 							// grade, number, etc.
@@ -1328,6 +1327,60 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIVerbatim.make(tableRow, "item-path", getItemPath(i));
 						}
 
+					} // end of canEditPage
+
+					if (canSeeAll) {
+						// haven't set up itemgroupstring yet
+						if (!canEditPage) {
+						    if (!i.getSakaiId().equals(SimplePageItem.DUMMY)) {
+							LessonEntity lessonEntity = null;
+							switch (i.getType()) {
+							case SimplePageItem.ASSIGNMENT:
+							    lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
+							    if (lessonEntity != null)
+								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
+							    if (!lessonEntity.objectExists())
+								entityDeleted = true;
+							    break;
+							case SimplePageItem.ASSESSMENT:
+							    lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
+							    if (lessonEntity != null)
+								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
+							    else 
+								notPublished = quizEntity.notPublished(i.getSakaiId());
+							    if (!lessonEntity.objectExists())
+								entityDeleted = true;
+							    break;
+							case SimplePageItem.FORUM:
+							    lessonEntity = forumEntity.getEntity(i.getSakaiId());
+							    if (lessonEntity != null)
+								itemGroupString = simplePageBean.getItemGroupString(i, lessonEntity, true);
+							    if (!lessonEntity.objectExists())
+								entityDeleted = true;
+							    break;
+							case SimplePageItem.BLTI:
+							    if (bltiEntity != null)
+								lessonEntity = bltiEntity.getEntity(i.getSakaiId());
+							    if (lessonEntity != null)
+								itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							    if (!lessonEntity.objectExists())
+								entityDeleted = true;
+							    break;
+							case SimplePageItem.PAGE:
+							    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+							    break;
+							case SimplePageItem.RESOURCE:
+							    try {
+								itemGroupString = simplePageBean.getItemGroupStringOrErr(i, null, true);
+							    } catch (IdUnusedException e) {
+								itemGroupString = "";
+								entityDeleted = true;
+							    }
+							    break;
+							}
+						    }
+						}
+
 						String releaseString = simplePageBean.getReleaseString(i);
 						if (itemGroupString != null || releaseString != null || entityDeleted || notPublished) {
 							if (itemGroupString != null)
@@ -1356,7 +1409,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							if (itemGroupString != null)
 							    UIOutput.make(tableRow, (isInline ? "item-group-titles-div" : "item-group-titles"), itemGroupString);
 						}
-					}
+
+					} // end of canSeeAll
+
 					// the following are for the inline item types. Multimedia
 					// is the most complex because
 					// it can be IMG, IFRAME, or OBJECT, and Youtube is treated
@@ -1495,7 +1550,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							    item.decorate(new UIFreeAttributeDecorator("height", height.getOld()));
 						    }
 					    } else {
-					        UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
+					        UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 						// Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 					    }
@@ -1506,6 +1561,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "imageWidth", getOrig(width));
 							UIOutput.make(tableRow, "mimetype2", mimeType);
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
+							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -1558,7 +1614,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						    item.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.youtube_player")));
 						    item.decorate(new UIFreeAttributeDecorator("src", youtubeUrl));
 						} else {
-						    UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.textItemUnavailable"));
+						    UIComponent notAvailableText = UIOutput.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
 						    // Grey it out
 						    notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-text-item"));
 						}
@@ -1569,6 +1625,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "currentYoutubeHeight", getOrig(height));
 							UIOutput.make(tableRow, "currentYoutubeWidth", getOrig(width));
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
+							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
 
 							UIOutput.make(tableRow, "youtube-td");
 							UILink.make(tableRow, "youtube-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
@@ -1783,6 +1840,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    // this is fallthrough for html or an explicit mm display type (i.e. embed code)
 					    // odd types such as MS word will be handled by the AV code, and presented as <OBJECT>
 
+					    if(canSeeAll || simplePageBean.isItemAvailable(i)) {
+						    
+
 						// definition of resizeiframe, at top of page
 						if (!iframeJavascriptDone && getOrig(height).equals("auto")) {
 							UIOutput.make(tofill, "iframeJavascript");
@@ -1838,12 +1898,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "iframeHeight", getOrig(height));
 							UIOutput.make(tableRow, "iframeWidth", getOrig(width));
 							UIOutput.make(tableRow, "mimetype3", mimeType);
+							UIOutput.make(tableRow, "item-prereq2", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
 						UIOutput.make(tableRow, "description5", i.getDescription());
+					    } else {
+
+					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
+                            // Grey it out
+						notAvailableText.decorate(new UIFreeAttributeDecorator("class", "disabled-multimedia-item"));
+					    }
+
 					}
 
 					// end of multimedia object
@@ -2175,6 +2243,20 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIInternalLink.make(row, "linkLink", messageLocator.getMessage("simplepage.add-page"), eParams);
 						}
 					
+						String itemGroupString = null;
+						// do before canEditAll because we need itemGroupString in it
+						if (canSeeAll) {
+						    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+						    System.out.println("itemGroupstring " + itemGroupString);
+						    if (itemGroupString != null) {
+							String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+							if (itemGroupTitles != null) {
+							    itemGroupTitles = "[" + itemGroupTitles + "]";
+							}
+							UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
+						    }
+						}
+
 						if(canEditPage) {
 							// Checks to make sure that the comments are graded and that we didn't
 							// just come from a grading pane (would be confusing)
@@ -2271,20 +2353,28 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								UILink link = UIInternalLink.make(tableRow, "peer-eval-stats-link", view);
 							}
 							
-							String itemGroupString = simplePageBean.getItemGroupString(i, null, true);
 							if (itemGroupString != null) {
-								String itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
-								if (itemGroupTitles != null) {
-									itemGroupTitles = "[" + itemGroupTitles + "]";
-								}
 								UIOutput.make(tableRow, "student-groups", itemGroupString);
-								UIOutput.make(tableRow, "item-group-titles7", itemGroupTitles);
 							}
 							UIOutput.make(tableRow, "student-owner-groups", simplePageBean.getItemOwnerGroupString(i));
 							UIOutput.make(tableRow, "student-group-owned", (i.isGroupOwned()?"true":"false"));
 						}
 					}
 				}else if(i.getType() == SimplePageItem.QUESTION) {
+				 	String itemGroupString = null;
+					String itemGroupTitles = null;
+					if (canSeeAll) {
+					    itemGroupString = simplePageBean.getItemGroupString(i, null, true);
+					    if (itemGroupString != null)
+						itemGroupTitles = simplePageBean.getItemGroupTitles(itemGroupString, i);
+					    if (itemGroupTitles != null) {
+						itemGroupTitles = "[" + itemGroupTitles + "]";
+					    }
+					    if (canEditPage)
+						UIOutput.make(tableRow, "item-groups", itemGroupString);
+					    if (itemGroupTitles != null)
+						UIOutput.make(tableRow, "questionitem-group-titles", itemGroupTitles);
+					}
 					SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(i.getId(), simplePageBean.getCurrentUserId());
 					
 					UIOutput.make(tableRow, "questionSpan");
@@ -2416,6 +2506,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIOutput.make(tableRow, "questionGradebookTitle", String.valueOf(i.getGradebookTitle()));
 						UIOutput.make(tableRow, "questionitem-required", String.valueOf(i.isRequired()));
 						UIOutput.make(tableRow, "questionitem-prerequisite", String.valueOf(i.isPrerequisite()));
+						UIOutput.make(tableRow, "questionitem-groups", itemGroupString);
 						UIOutput.make(tableRow, "questionCorrectText", String.valueOf(i.getAttribute("questionCorrectText")));
 						UIOutput.make(tableRow, "questionIncorrectText", String.valueOf(i.getAttribute("questionIncorrectText")));
 						
@@ -3440,6 +3531,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "description2-label", messageLocator.getMessage("simplepage.description_label"));
 		UIInput.make(form, "description2", "#{simplePageBean.description}");
 
+		UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
+
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
 		fileparams.setSender(currentPage.getPageId());
 		fileparams.setResourceType(true);
@@ -3472,6 +3565,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-youtube-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteYoutubeItem}");
 		UICommand.make(form, "update-youtube", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateYoutube}");
 		UICommand.make(form, "cancel-youtube", messageLocator.getMessage("simplepage.cancel"), null);
+		UIBoundBoolean.make(form, "youtube-prerequisite", "#{simplePageBean.prerequisite}",false);
 		
 		if(currentPage.getOwner() == null) {
 			UIOutput.make(form, "editgroups-youtube");
@@ -3496,7 +3590,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-resource-movie", messageLocator.getMessage("simplepage.change_resource"), fileparams);
 
-		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",false);
+		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}",false);
 
 		UICommand.make(form, "delete-movie-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-movie", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateMovie}");

@@ -485,6 +485,12 @@ $(function() {
 			    }
 			}
 
+			if(row.find(".prerequisite-info").text() === 'true') {
+			    $('#youtube-prerequisite').attr('checked','checked');
+			} else {
+			    $('#youtube-prerequisite').removeAttr('checked');
+			}
+
 			var itemid = row.find(".mm-item-id").text();
 			
 			$("#youtubeEditId").val(row.find(".youtube-id").text());
@@ -541,9 +547,9 @@ $(function() {
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
 			if(row.find(".movie-prerequisite").text() === 'true') {
-			    $('#question-prerequisite').attr('checked','checked');
+			    $('#mm-prerequisite').attr('checked','checked');
 			} else {
-			    $('#question-prerequisite').removeAttr('checked');
+			    $('#mm-prerequisite').removeAttr('checked');
 			}
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
@@ -923,6 +929,15 @@ $(function() {
 		$('.question-link').click(function(){
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
+
+			$("#question-editgroups").after($("#grouplist"));
+			$("#question-editgroups").hide();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#question-editgroups").show();
+			    $("#grouplist").show();
+			}
+
 			var position =  $(this).position();
 
 			$('#question-error-container').hide();
@@ -951,6 +966,7 @@ $(function() {
 			oldloc = $(this);
 			$('#question-dialog').dialog('open');
 			checksize($('#subpage-dialog'));
+			$("#grouplist").hide();
 			return false;
 		});
 		
@@ -959,8 +975,21 @@ $(function() {
 		$(".edit-question").click(function(){
 			closeDropdowns();
 			
+			$("#question-editgroups").after($("#grouplist"));
+			$("#question-editgroups").hide();
+
 			var row = $(this).parent().parent().parent();
 			
+			var groups = row.find(".item-groups").text();
+			var grouplist = $("#grouplist");
+			if ($('#grouplist input').size() > 0) {
+			    $("#question-editgroups").show();
+			    $("#grouplist").show();
+			    if (groups != null) {
+				checkgroups(grouplist, groups);
+			    }
+			}
+
 			var itemId = row.find(".question-id").text();
 			$("#questionEditId").val(itemId);
 			
@@ -1085,9 +1114,15 @@ $(function() {
 			oldloc = $(this);
 			$('#question-dialog').dialog('open');
 			checksize($("#question-dialog"));
+			$("#grouplist").hide();
 			return false;
 		});
 		
+		$("#question-editgroups").click(function(){
+			$("#question-editgroups").hide();
+			$("#grouplist").show();
+		    });
+
 		$('#change-resource-movie').click(function(){
 			closeMovieDialog();
 			mm_test_reset();
@@ -1552,6 +1587,12 @@ $(function() {
 			    if (groups != null) {
 				checkgroups(grouplist, groups);
 			    }
+			}
+
+			if(row.find(".prerequisite-info").text() === 'true') {
+			    $('#multi-prerequisite').attr('checked','checked');
+			} else {
+			    $('#multi-prerequisite').removeAttr('checked');
 			}
 
 			$("#height").val(row.find(".mm-height").text());

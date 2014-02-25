@@ -2880,6 +2880,7 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.TEXT
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
+		         && i.getType() != SimplePageItem.QUESTION
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
@@ -2915,6 +2916,7 @@ public class SimplePageBean {
 	       case SimplePageItem.TEXT:
 	       case SimplePageItem.PAGE:
 	       case SimplePageItem.COMMENTS:
+	       case SimplePageItem.QUESTION:
 	       case SimplePageItem.STUDENT_CONTENT:
 		   return getLBItemGroups(i); // for all native LB objects
 	       default:
@@ -3089,6 +3091,7 @@ public class SimplePageBean {
 	   case SimplePageItem.PAGE:
 	   case SimplePageItem.BLTI:
 	   case SimplePageItem.COMMENTS:
+	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
 	   }
@@ -3404,6 +3407,7 @@ public class SimplePageBean {
 			i.setAlt(alt);
 			i.setDescription(description);
 			i.setHtml(mimetype);
+			i.setPrerequisite(this.prerequisite);
 			update(i);
 			setItemGroups(i, selectedGroups);
 			return "success";
@@ -5417,6 +5421,8 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
+		item.setPrerequisite(this.prerequisite);
+
 		update(item);
 
 		setItemGroups(item, selectedGroups);
@@ -6037,6 +6043,8 @@ public class SimplePageBean {
 		
 		update(item);
 		
+		setItemGroups(item, selectedGroups);
+
 		regradeAllQuestionResponses(item.getId());
 		
 		return "success";
