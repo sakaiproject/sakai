@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL:  $
- * $Id:  $
+ * $URL$
+ * $Id$
  ***********************************************************************************
  *
  * Copyright (c) 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 Sakai Foundation
@@ -120,6 +120,7 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
      * Make an impl from something that implements ConfigItem by copying the field values
      * @param ci a ci object
      */
+    @SuppressWarnings("unused")
     public ConfigItemImpl(ConfigItem ci) {
         this(ci.getName(), ci.getValue(), ci.getType(), ci.getDescription(), ci.getSource(), ci.getDefaultValue(),
                 ci.getRequested(), ci.getChanged(), null, ci.isRegistered(), ci.isDefaulted(), ci.isSecured(), ci.isDynamic());
@@ -190,7 +191,7 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
         return this.changed;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "unused"})
     public <T> T getTypedValue() {
         return (T) this.value;
     }
@@ -202,13 +203,18 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
      */
     @Override
     public ConfigItem copy() {
-        ConfigItem ci = new ConfigItemImpl(this.name, this.value, this.type, this.description, this.source, this.defaultValue, 
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        ConfigItem ci = new ConfigItemImpl(this.name, this.value, this.type, this.description, this.source, this.defaultValue,
                 this.requested, this.changed, this.history, this.registered, this.defaulted, this.secured, this.dynamic);
         return ci;
     }
 
     protected String setValue(Object value) {
-        return setObjectValue(value, false);
+        String type = setObjectValue(value, false);
+        if (value != null) {
+            this.type = type;
+        }
+        return type;
     }
 
     protected void setSource(String source) {
@@ -216,22 +222,35 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
     }
 
     protected String setDefaultValue(Object value) {
+        //noinspection RedundantIfStatement
         if (value == null) {
             this.defaulted = false;
         } else {
             this.defaulted = true;
         }
-        return setObjectValue(value, true);
+        String type = setObjectValue(value, true);
+        if (value != null) {
+            if (this.type == null || !this.type.equals(type) || this.type.equals(ServerConfigurationService.TYPE_STRING)) {
+                this.type = type;
+            }
+        }
+        return type;
     }
 
     protected void setDescription(String desc) {
         this.description = desc;
     }
 
+    @SuppressWarnings("unused")
     protected void setDynamic(boolean dynamic) {
         this.dynamic = dynamic;
     }
 
+    /**
+     * @param value the value to set (if null this will remove the setting)
+     * @param isDefault if true then this is setting the default value
+     * @return the config type of the value using ServerConfigurationService.TYPE_* constants
+     */
     private String setObjectValue(Object value, boolean isDefault) {
         String type = ServerConfigurationService.TYPE_STRING;
         if (value != null) {
@@ -251,7 +270,7 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
                 }
                 type = ServerConfigurationService.TYPE_INT;
             } else if (value instanceof Boolean) {
-                boolean bool = ((Boolean) value).booleanValue();
+                boolean bool = (Boolean) value;
                 if (isDefault) {
                     this.defaultValue = bool;
                 } else {
@@ -317,7 +336,11 @@ public class ConfigItemImpl extends BasicConfigItem implements ConfigItem, Compa
         return name + " => "+ciVal+"  "+(registered?"R":"U")+","+(defaulted?"D":"N")+":(" + type + " [" + source + "] " + requested + ", " + changed + ", "+history+")";
     }
 
+    @SuppressWarnings("NullableProblems")
     public int compareTo(ConfigItem ci) {
+        if (ci == null) {
+            throw new NullPointerException("Cannot compare this to a null value");
+        }
         return this.name.compareToIgnoreCase(ci.getName());
     }
 

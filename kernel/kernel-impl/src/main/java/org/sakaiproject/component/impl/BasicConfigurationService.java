@@ -161,7 +161,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     private ApplicationContext applicationContext;
     public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
         this.applicationContext = applicationContext;
-    };
+    }
 
     /**
      * Final initialization, once all dependencies are set.
@@ -175,6 +175,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         String securedKeys = getRawProperty("config.secured.key.names");
         if (securedKeys != null) {
             String[] keys = securedKeys.split(",");
+            //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < keys.length; i++) {
                 String key = StringUtils.trimToNull(keys[i]);
                 if (key != null) {
@@ -403,6 +404,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         //set in sakai.properties
         String rv = getConfig("portalPath", "/portal"); //(String) properties.get("portalPath");
 
+        @SuppressWarnings("UnnecessaryLocalVariable")
         String portalUrl = getServerUrl() + rv;
 
         return portalUrl;
@@ -538,6 +540,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 value = StringUtils.trimToNull(ci.getValue().toString());
             } else {
                 // if the default value is set then we will return that instead
+                //noinspection StatementWithEmptyBody
                 if (ci.getDefaultValue() != null) {
                     value = StringUtils.trimToNull(ci.getDefaultValue().toString());
                 } else {
@@ -714,7 +717,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
         if (StringUtils.isEmpty(value)) return dflt;
 
-        return Boolean.valueOf(value).booleanValue();
+        return Boolean.valueOf(value);
     }
 
     /**
@@ -914,8 +917,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                  // add group to category(s)
                  String groupCategories = StringUtils.trimToNull(g_element.getAttribute("category"));
                  if (groupCategories != null) {
-                    List<String> list = new ArrayList<String>(Arrays.asList(groupCategories.split(",")));
-                    for(Iterator<String> itr = list.iterator(); itr.hasNext();) {
+                     List<String> list = new ArrayList<String>(Arrays.asList(groupCategories.split(",")));
+                     //noinspection ForLoopReplaceableByForEach
+                     for(Iterator<String> itr = list.iterator(); itr.hasNext();) {
                        String catName = itr.next();
                        List groupCategoryList = (List) m_toolGroupCategories.get(catName);
                        if (groupCategoryList==null) {
@@ -1113,6 +1117,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         localesSet.add(Locale.getDefault());
         if (!ArrayUtils.isEmpty(locales)) {
             // convert from strings to Locales
+            //noinspection ForLoopReplaceableByForEach
             for (int i = 0; i < locales.length; i++) {
                 localesSet.add(getLocaleFromString(locales[i]));
             }
@@ -1145,6 +1150,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
         @Override
         public boolean equals(Object obj) {
+            //noinspection SimplifiableIfStatement
             if (obj instanceof LocaleComparator) {
                 return super.equals(obj);
             } else {
@@ -1268,6 +1274,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                     if (listener != null) {
                         try {
                             ConfigItem rvci = listener.changing(currentCI, configItem);
+                            //noinspection StatementWithEmptyBody
                             if (rvci == null) {
                                 // continue
                             } else if (rvci instanceof BlockingConfigItem) {
@@ -1378,7 +1385,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
      * @see org.sakaiproject.component.api.ServerConfigurationService#getConfig(java.lang.String, java.lang.Object)
      */
     public <T> T getConfig(String name, T defaultValue) {
-        T returnValue = defaultValue;
+        T returnValue;
         Object value = null;
         ConfigItem ci = configurationItems.get(name);
         if (ci != null && ci.getValue() != null) {
@@ -1395,7 +1402,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 int intValue = this.getInt(name, num);
                 returnValue = (T) Integer.valueOf(intValue);
             } else if (defaultValue instanceof Boolean) {
-                boolean bool = ((Boolean) defaultValue).booleanValue();
+                boolean bool = (Boolean) defaultValue;
                 boolean boolValue = this.getBoolean(name, bool);
                 returnValue = (T) Boolean.valueOf(boolValue);
             } else if (defaultValue instanceof String) {

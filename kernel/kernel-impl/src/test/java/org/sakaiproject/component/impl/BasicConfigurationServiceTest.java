@@ -32,7 +32,9 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
+import org.sakaiproject.util.BasicConfigItem;
 
 /**
  * Used for testing protected methods in the BasicConfigurationService
@@ -258,6 +260,21 @@ public class BasicConfigurationServiceTest extends TestCase {
         basicConfigurationService.addConfigItem( booleanVal4, SOURCE);
         boolean booleanValue4 = basicConfigurationService.getBoolean("booleanVal4", false);
         assertEquals(false, booleanValue4);    
+    }
+
+    public void testKNL_1137() {
+        // verify that types are handled correctly for 
+        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal1", "string", SOURCE));
+        assertEquals(ServerConfigurationService.TYPE_STRING, basicConfigurationService.getConfigItem("defaultedVal1").getType());
+
+        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal2", 123, SOURCE));
+        assertEquals(ServerConfigurationService.TYPE_INT, basicConfigurationService.getConfigItem("defaultedVal2").getType());
+
+        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal3", new String[]{"AZ","BZ"}, SOURCE));
+        assertEquals(ServerConfigurationService.TYPE_ARRAY, basicConfigurationService.getConfigItem("defaultedVal3").getType());
+
+        basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal4", true, SOURCE));
+        assertEquals(ServerConfigurationService.TYPE_BOOLEAN, basicConfigurationService.getConfigItem("defaultedVal4").getType());
     }
 
 }
