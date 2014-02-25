@@ -2539,8 +2539,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					fields[1] = uar.userId;
 					fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleGroup3_2Sql(), uar.role);
-					fields[3] = uar.active;
-					fields[4] = uar.provided;
+					fields[3] = uar.active ? "1" : "0"; // KNL-1099
+					fields[4] = uar.provided ? "1" : "0"; // KNL-1099
 
 					m_sql.dbWrite(sql, fields);
 				}
