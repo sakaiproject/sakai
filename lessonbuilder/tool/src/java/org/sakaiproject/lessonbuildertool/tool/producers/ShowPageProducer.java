@@ -952,6 +952,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			postedCommentId = findMostRecentComment();
 		}
 
+		boolean showDownloads = (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") == null);
+
 		//
 		//
 		// MAIN list of items
@@ -1639,7 +1641,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 
 			    UIOutput.make(tableRow, "movie-link-div");
-			    UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
+			    if (showDownloads)
+				UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
 
                             //	if (allowSessionId)
                             //  movieUrl = movieUrl + "?sakai.session=" + SessionManager.getCurrentSession().getId();
@@ -1720,7 +1723,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                     UIOutput.make(tableRow, "wmode");
 
                                 UIOutput.make(tableRow, "movieURLInject").decorate(new UIFreeAttributeDecorator("value", movieUrl));
-                                if (!isMp4) {
+                                if (!isMp4 && showDownloads) {
                                     UIOutput.make(tableRow, "noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
                                     UIOutput.make(tableRow, "noplugin-br");
                                     UILink.make(tableRow, "noplugin", i.getName(), movieUrl);
@@ -1751,8 +1754,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 if (!useEmbed) {
                                     UIOutput.make(tableRow, "mp4-inject").decorate(new UIFreeAttributeDecorator("value", i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner())));
 
-                                    UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
-                                    UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
+				    if (showDownloads) {
+					UIOutput.make(tableRow, "mp4-noplugin-p", messageLocator.getMessage("simplepage.noplugin"));
+					UILink.make(tableRow, "mp4-noplugin", i.getName(), i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner()));
+				    }
                                 }
                             }
                         } else {
@@ -3568,6 +3573,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(form, "cssDefaultInstructions", messageLocator.getMessage("simplepage.css-default-instructions"));
 			UIOutput.make(form, "cssUploadLabel", messageLocator.getMessage("simplepage.css-upload-label"));
 			UIOutput.make(form, "cssUpload");
+			UIBoundBoolean.make(form, "nodownloads", 
+					    "#{simplePageBean.nodownloads}", 
+					    (simplePageBean.getCurrentSite().getProperties().getProperty("lessonbuilder-nodownloadlinks") != null));
 		}
 		UIInput.make(form, "page-points", "#{simplePageBean.points}", pointString);
 

@@ -283,6 +283,7 @@ public class SimplePageBean {
 	private boolean hidePage;
 	private Date releaseDate;
 	private boolean hasReleaseDate;
+	private boolean nodownloads;
 
 	private String redirectSendingPage = null;
 	private String redirectViewId = null;
@@ -651,6 +652,9 @@ public class SimplePageBean {
 		this.hasReleaseDate = hasReleaseDate;
 	}
 
+	public void setNodownloads(boolean n) {
+		this.nodownloads = n;
+	}
         public void setImporttop(boolean i) {
 	    this.importtop = i;
 	}
@@ -3463,6 +3467,19 @@ public class SimplePageBean {
 			}
 			if (add)
 			    page.setGradebookPoints(newPoints);
+			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
+			if (oldDownloads != nodownloads) {
+			    if (oldDownloads)
+				site.getPropertiesEdit().removeProperty("lessonbuilder-nodownloadlinks");
+			    else if (nodownloads)
+				site.getPropertiesEdit().addProperty("lessonbuilder-nodownloadlinks", "true");
+			    try {
+				siteService.save(site);
+			    } catch (Exception e) {
+				log.error("editTitle unable to save site " + e);
+			    }
+
+			}
 		}
 
 		if (pageTitle != null && pageItem.getPageId() == 0) {

@@ -1170,7 +1170,12 @@ function resizeiframe(id) {
                         <input type="file" name="cssUpload" rsf:id="cssUpload" class="edit-multimedia-input" />
                         <p class="instruction" rsf:id="cssDefaultInstructions"></p>
                     </p>
-                    <hr /><br />
+                    <hr />
+		    <p class="indnt1">
+                      <input type="checkbox" name="nodownloads" id="nodownloads" rsf:id="nodownloads"/>
+		      <label for="nodownloads" rsf:id="msg=simplepage.dont-show-downloads"></label>
+		    </p>
+		    <br />
                     </div>
                     <p class="act">
                         <input class="bold" type="submit"  onclick="event.returnValue = checkEditTitleForm(); return checkEditTitleForm();" rsf:id="create-title" />
