@@ -24,9 +24,8 @@
 
 <div class="simple-rss-portlet">
 
-	<div class="portlet-msg-error">
-		<h2><c:out value="${errorHeading}" /></h2>
-		<br class="clear"> 
+	<div class="alertMessage">
+		<h3><c:out value="${errorHeading}" /></h3>
 		<p>
 			<c:choose>
 				<c:when test="${not empty errorLink}">

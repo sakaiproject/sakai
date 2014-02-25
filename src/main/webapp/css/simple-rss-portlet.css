@@ -35,6 +35,7 @@
 
 
 /** overrides for CSyndFeed **/
+/** Sakai version **/
 .news-item-img {
 	float:left;
 	margin-right: 10px;
@@ -43,7 +44,6 @@
 
 .news-items li {
     display: block;
-    float: left;
     width: 100%;
     margin-bottom: 1em;
 }
@@ -61,17 +61,8 @@
 	margin-top: 1em;
 }
 
-/* downtime notice css. aligns the elements.
-this is constrained so it fits on a 1280w 2 column layout but degrades ok
-on a 1024 screen  */
-.downtime-label {
-	display:inline-block;
-	float:left;
-	width:70px;
-}
-
-.downtime-content {
-	display:inline-block;
-	width:350px;
+.news-source {
+	font-weight: bold;
+	font-size: x-large;
 }
 
