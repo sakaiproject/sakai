@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -66,6 +67,22 @@ public class BaseRole implements Role
 	/** Active flag. */
 	protected boolean m_active = false;
 
+	/**
+	 * creates a new BaseRole, based on a SimpleRole which was exported in a previous
+	 * step, in order to support distributed cluster caching.  BaseRole cannot be serialized by
+	 * distributed caches because of ClassLoader issues.
+	 * @param map
+	 */
+	public BaseRole(SimpleRole role) {
+		if (role != null) {
+			m_id = role.getId();
+			m_locks = role.getLocks();
+			m_description = role.getDescription();
+			m_providerOnly = role.isProviderOnly();
+			m_active = role.isActive();
+		}
+	}
+	
 	/**
 	 * Construct.
 	 * 
@@ -326,6 +343,22 @@ public class BaseRole implements Role
 		int compare = getId().compareTo(((Role) obj).getId());
 
 		return compare;
+	}
+	
+	/**
+	 * exports the contents of BaseRole to a primitive Map, which can be Serialized
+	 * if necessary to support Terracotta cluster caching.  BaseRole cannot be serialized by
+	 * Terracotta because of classloader issues.
+	 * @return
+	 */
+	public SimpleRole exportToSimpleRole() {
+		SimpleRole role = new SimpleRole();
+		role.setId(m_id);
+		role.setLocks(m_locks);
+		role.setDescription(m_description);
+		role.setProviderOnly(m_providerOnly);
+		role.setActive(m_active);
+		return role;
 	}
 
 	/**

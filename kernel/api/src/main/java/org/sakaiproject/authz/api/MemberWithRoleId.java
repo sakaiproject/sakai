@@ -19,20 +19,25 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.authz.impl;
+package org.sakaiproject.authz.api;
 
-import org.sakaiproject.authz.api.Member;
+import java.io.Serializable;
 
 /**
  * An class used in the membership cache in RealmRoleGroupCache
  * The cache key is userId String, 
  * and cache value is of MemberWithRoleId object, which contains information of roleId, provided, active 
  * KNL-1037
+ *
+ * Moved this to API (shared) so it can be serializable for distribution
+ * KNL-1184
  * 
  * @author zqian
  */
-class MemberWithRoleId
-{
+public class MemberWithRoleId implements Serializable {
+
+    static final long serialVersionUID = 1L;
+
     protected String roleId = null;
     protected boolean provided = false;
     protected boolean active = true;
@@ -79,4 +84,5 @@ class MemberWithRoleId
     {
         this.active = active;
     }
+
 }

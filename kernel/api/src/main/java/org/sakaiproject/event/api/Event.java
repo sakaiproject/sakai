@@ -21,6 +21,7 @@
 
 package org.sakaiproject.event.api;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -28,7 +29,7 @@ import java.util.Date;
  * Event represents a single significant activity by the end-user.
  * </p>
  */
-public interface Event
+public interface Event extends Serializable
 {
 	/**
 	 * Access the event id string
