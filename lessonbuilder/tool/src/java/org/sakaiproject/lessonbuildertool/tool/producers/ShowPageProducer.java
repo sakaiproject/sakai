@@ -3297,9 +3297,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 
 		for (GroupEntry entry : groups) {
-			if (entry.name.startsWith("Access: ")) {
-				continue;
-			}
 			values.add(entry.id);
 			if (groupsSet != null && groupsSet.contains(entry.id)) {
 				initValues.add(entry.id);
@@ -3318,9 +3315,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		int index = 0;
 		for (GroupEntry entry : groups) {
-			if (entry.name.startsWith("Access: ")) {
-				continue;
-			}
 			UIBranchContainer row = UIBranchContainer.make(tofill, prefix + "select-group-list:");
 			UISelectChoice.make(row, prefix + "select-group", select.getFullID(), index);
 

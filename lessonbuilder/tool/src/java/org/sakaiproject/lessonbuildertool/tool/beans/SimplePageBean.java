@@ -2452,8 +2452,13 @@ public class SimplePageBean {
 					}
 					if (lessonEntity != null) {
 					    String groups = getItemGroupString (i, lessonEntity, true);
-					    ourGroupName = "Access: " + getNameOfSakaiItem(i);
-					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName);
+					    ourGroupName = messageLocator.getMessage("simplepage.access-group").replace("{}", getNameOfSakaiItem(i));
+					    // this can produce duplicate names. Searches are actually done based
+					    // on entity reference, not title, so this is acceptable though confusing
+					    // to users. But using object ID's for the name would be just as confusing.
+					    if (ourGroupName.length() > 99) 
+						ourGroupName = ourGroupName.substring(0, 99);
+					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, i.getSakaiId());
 					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group
@@ -3237,7 +3242,7 @@ public class SimplePageBean {
        }
 
     // sort the list, since it will typically be presented
-    // to the user
+    // to the user. This skips our access groups
        public List<GroupEntry> getCurrentGroups() {
 	   if (currentGroups != null)
 	       return currentGroups;
@@ -3246,6 +3251,9 @@ public class SimplePageBean {
 	   Collection<Group> groups = site.getGroups();
 	   List<GroupEntry> groupEntries = new ArrayList<GroupEntry>();
 	   for (Group g: groups) {
+	       if (g.getProperties().getProperty("lessonbuilder_ref") != null ||
+		   g.getTitle().startsWith("Access: "))
+		   continue;
 	       GroupEntry e = new GroupEntry();
 	       e.name = g.getTitle();
 	       e.id = g.getId();
@@ -5786,7 +5794,8 @@ public class SimplePageBean {
 			    for (Group g: groups) {
 				if (allowedGroups != null && ! allowedGroups.contains(g.getId()))
 				    continue;
-				if (allowedGroups == null && g.getTitle().startsWith("Access: "))
+
+				if (allowedGroups == null && (g.getProperties().getProperty("lessonbuilder_ref") != null || g.getTitle().startsWith("Access: ")))
 				    continue;
 				GroupEntry e = new GroupEntry();
 				e.name = g.getTitle();

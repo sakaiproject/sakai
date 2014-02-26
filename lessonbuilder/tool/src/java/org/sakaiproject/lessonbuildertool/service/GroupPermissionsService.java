@@ -84,6 +84,9 @@ public class GroupPermissionsService {
 	}
 
 	public static String makeGroup(String siteId, String title) throws IOException {
+	    return makeGroup(siteId, title, null);
+	}
+	public static String makeGroup(String siteId, String title, String ref) throws IOException {
 		Site site = null;
 		AuthzGroup realm = null;
 
@@ -99,6 +102,18 @@ public class GroupPermissionsService {
 		// see if group exists. must be visible
 		Collection<Group> allGroups = site.getGroups();
 		for (Group group: allGroups) {
+		    // ref is null for groups that aren't access groups, e.g. "Mentor"
+		    if (ref != null) {
+			// unfortunately old groups won't have this. If it's there, use it, 
+			// otherwise use title
+			String groupRef = group.getProperties().getProperty("lessonbuilder_ref");
+			if (groupRef != null) {
+			    if (groupRef.equals(ref))
+				return group.getId();
+			    else 
+				continue;
+			}
+		    }
 		    if (title.equals(group.getTitle())) {
 			if (group.getProperties().getProperty("group_prop_wsetup_created") != null) {
 			    return group.getId();
@@ -122,13 +137,16 @@ public class GroupPermissionsService {
 			}
 		}
 
-		// do we need to check whether title is unique? I'm hopnig not, since we
-		// will generate only one group per test or assignment
+		// do we need to check whether title is unique? In theory we can
+		// create 2 goups with the same title, e.g. if we have to truncate the title
+		// since we match based on the property, this is weird but acceptable
 		group.setTitle(title);
 
+		// this is the key we actually use
+		if (ref != null)
+		    group.getProperties().addProperty("lessonbuilder_ref", ref);
 		// needed to get it to show in the UI
 		group.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
-
 		try {
 			SiteService.save(site);
 		} catch (IdUnusedException e) {
