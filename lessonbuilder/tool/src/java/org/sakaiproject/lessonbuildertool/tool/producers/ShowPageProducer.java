@@ -1817,6 +1817,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    }
                                 }
                             }
+			    UIOutput.make(tableRow, "description3", i.getDescription());
                         } else {
 					        UIVerbatim notAvailableText = UIVerbatim.make(tableRow, "notAvailableText", messageLocator.getMessage("simplepage.multimediaItemUnavailable"));
                             // Grey it out
@@ -1835,7 +1836,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UILink.make(tableRow, "edit-movie", messageLocator.getMessage("simplepage.editItem"), "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
-						UIOutput.make(tableRow, "description3", i.getDescription());
 					} else {
 					    // this is fallthrough for html or an explicit mm display type (i.e. embed code)
 					    // odd types such as MS word will be handled by the AV code, and presented as <OBJECT>
