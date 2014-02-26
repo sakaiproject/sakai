@@ -8978,8 +8978,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (ServerConfigurationService.getBoolean(
 				SiteHelper.WSETUP_TRACK_ROSTER_CHANGE, false)) {
 			// event for each individual update
-			for (String roster : rosters) {
-				EventTrackingService.post(EventTrackingService.newEvent(event, "roster="+roster, true));
+			if (rosters != null) {
+				for (String roster : rosters) {
+					EventTrackingService.post(EventTrackingService.newEvent(event, "roster="+roster, true));
+				}
 			}
 		}
 	}
