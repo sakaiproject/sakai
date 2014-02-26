@@ -29,73 +29,14 @@ ul.makeMenu li {
 </style>
 <![endif]><![endif]-->
 
-#**#
+
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 <!-- // -->
 </script>
 <script type="text/javascript">
 $(document).ready(function() {
-	if ($('#content_print_result_url').length)
-	{
-		window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
-	}
-	jQuery('.portletBody').click(function(e) { 
-	
-		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
-			$('.makeMenuChild').hide();
-		}
-			else
-			{
-				if( e.target.className =='dropdn' ){
-			$('.makeMenuChild').hide();
-			$(e.target).parent('li').find('ul').show().find('li:first a').focus();
 
-}
-				else{
-			$('.makeMenuChild').hide();
-			$(e.target).find('ul').show().find('li:first a').focus();
-			}}
-	});
-	$('.toggleDescription').click(function(e){
-	    e.preventDefault();
-	    $('.descPanel').css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	    $(this).next('div').css({
-	        'top': e.pageY + 10,
-	        'left': e.pageX + 10,
-	        'cursor': 'pointer',
-	        'display': 'block'
-	    }).attr({
-	        'aria-hidden': 'false',
-	        'tabindex': '0'
-	    });
-	});
-	$('.descPanel').blur(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});
-	$('.descPanel').click(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});	
+
 	})
 </script>
 
@@ -103,6 +44,7 @@ $(document).ready(function() {
 <!-- // -->
 </script>
 <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
 <script type="text/javascript" src="/sakai-content-tool/js/content.js">
 <!-- // -->
 </script>
@@ -149,11 +91,18 @@ $(document).ready(function() {
 	#if ($content_print_status_failure)
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
-    <div class="btn-group pull-right">
-      <button id="navigate" type="button" class="btn btn-default btn-sm">
+    <div class="btn-group pull-right dropdown keep-open">
+      <button id="navigate" type="button" class="btn btn-default btn-sm" data-toggle="dropdown">
         Navigate <span class="caret"></span>
       </button>
-      <div id="navigatePanel" class="dropdown-menu pull-right" role="menu" style="height:500px;width:500px;overflow:auto">
+      <div id="navigatePanel" class="dropdown-menu pull-right" role="menu">
+          <div class="navigatePanelControls" style="padding:0 10px 5px 5px;border-bottom:1px solid #ccc">
+            <button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
+            <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button>
+            <input type="text" id="navigatePanelSearch" />
+            <p class="close">&times;</p>
+          </div>
+	        <div id="navigatePanelInner"></div> 
       </div>
     </div>
 
@@ -161,7 +110,7 @@ $(document).ready(function() {
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
 			<input type="hidden" value="$content_print_result_url" id="content_print_result_url" />
-			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />
+			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />z
 		#end
 		<input type="hidden" name="source" id="source" value="0" />
 		<input type="hidden" name="collectionId" id="collectionId" value="$validator.escapeHtml($collectionId)" />

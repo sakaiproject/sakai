@@ -1,0 +1,6 @@
+#navigatePanel {
+	height:500px;width:500px;overflow:auto
+}
+#navigatePanel p.close{
+	margin:0 10px;
+}

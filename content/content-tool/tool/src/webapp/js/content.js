@@ -1,8 +1,7 @@
 $.ajaxSetup({
-  cache:false,
-  dataType:"json"
+    cache: false,
+    dataType: "json"
 });
-
 //not used - the data should come sorted, but it does not
 //left here in case all else fails
 var sortJSON = function(data, key){
@@ -123,7 +122,7 @@ var renderHierarchyWithJsonTree = function(data){
         var parentFolder = pathArray.join('/');
         //good lord - this is hard wired to the mercury site -double plus bad
         if (parentFolder === undefined || parentFolder === '' || parentFolder === '/content/group/' + siteId) {
-            parentFolder = "#";
+            parentFolder = '_content_group_' + siteId + '_';
         }
         else {
             parentFolder = parentFolder.replace(/\//g, "_") + '_';
@@ -135,43 +134,52 @@ var renderHierarchyWithJsonTree = function(data){
         //adding this object to the collection
         data.content_collection.push(newItem);
     });
+    var root = {};
+    root.id = '_content_group_' + siteId + '_';
+    root.parent = '#';
+    root.text = siteId;
+    data.content_collection.push(root);
     
-    //invoke jsTree with the massaged data
-    $('#navigatePanel').on('changed.jstree', function(e, data){
-        //event listener
-        // this will return the path after a lot of imbecilic string massaging
-        var selectedId = data.selected[0];
-        
-        //here we are using the bogus appended string to decide 
-        // if this is a folder or a darn document
-        if (selectedId.indexOf('fileitem') === 0) {
-            //more exciting string wrangling
-            var launchURL = selectedId.replace(/_/g, "\/").replace('fileitem', '/access/');
-            window.open(launchURL);
-        }
-        else {
-            //what is the folderUrl? only more string strangling will tell
-            var folderUrl = selectedId.replace(/_/g, "\/").replace('/content', '');
-            // here we are populating the form associated with resources list
-            $('#sakai_action').val('doNavigate');
-            $('#collectionId').val(folderUrl);
-            $('#navRoot').val('');
-            // and after populating the values we submit the form to navigate
-            // to the folder
-            $('#showForm').submit();
-        }
-    }).jstree({
-        'core': {
-            'data': data.content_collection,
-            'themes': {
-                'theme': 'default',
-                'dots': false,
-                'icons': true
-            },
-            'plugins': ['sort']
-        }
+    $(function(){
+        $("#navigatePanelInner").on('changed.jstree', function(e, data){
+            //event after
+            // this will return the path after a lot of imbecilic string massaging
+            var selectedId = data.selected[0];
+            
+            //here we are using the bogus appended string to decide 
+            // if this is a folder or a darn document
+            if (selectedId.indexOf('fileitem') === 0) {
+                //more exciting string wrangling
+                var launchURL = selectedId.replace(/_/g, "\/").replace('fileitem', '/access/');
+                window.open(launchURL);
+            }
+            else {
+                //what is the folderUrl? only more string strangling will tell
+                var folderUrl = selectedId.replace(/_/g, "\/").replace('/content', '');
+                // here we are populating the form associated with resources list
+                $('#sakai_action').val('doNavigate');
+                $('#collectionId').val(folderUrl);
+                $('#navRoot').val('');
+                // and after populating the values we submit the form to navigate
+                // to the folder
+                $('#showForm').submit();
+            }
+        }).jstree({
+            'core': {
+                'data': data.content_collection,
+                'themes': {
+                    'theme': 'default',
+                    'dots': false,
+                    'icons': true
+                },
+                "search": {
+                    "case_insensitive": true
+                },
+                "plugins": ["themes", "html_data", "search", "adv_search"]
+            }
+        });
     });
-    
+    $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId + '_');
     $('#navigatePanel').fadeIn('slow');
 };
 
@@ -179,6 +187,26 @@ $(document).ready(function(){
     if ($('#content_print_result_url').length) {
         window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
     }
+    $('.portletBody').click(function(e){
+        if (e.target.className != 'menuOpen' && e.target.className != 'dropdn') {
+            $('.makeMenuChild').hide();
+        }
+        else {
+            if (e.target.className == 'dropdn') {
+                $('.makeMenuChild').hide();
+                $(e.target).parent('li').find('ul').show().find('li:first a').focus();
+                
+            }
+            else {
+                $('.makeMenuChild').hide();
+                $(e.target).find('ul').show().find('li:first a').focus();
+            }
+        }
+    });
+    
+    $('#navigatePanel p.close').on('click', function(){
+        $('.keep-open').removeClass('open');
+    });
     $('.toggleDescription').click(function(e){
         e.preventDefault();
         $('.descPanel').css({
@@ -219,13 +247,22 @@ $(document).ready(function(){
             'tabindex': '-1'
         });
     });
+    
+    $('#navigatePanelInnerCollapse').on('click', function(){
+        $('#navigatePanelInner').jstree('close_all');
+    });
+    $('#navigatePanelInnerExpand').on('click', function(){
+        $('#navigatePanelInner').jstree('open_all');
+    });
+    
+    
     // this should come from a context variable you bonehead
     //ye gods
     var collId = $('#collectionId').val();
     collId = collId.substring(0, collId.length - 1);
     var url = '/direct/content/' + collId.replace('/group/', '/site/') + '.json';
     $('#navigate').click(function(){
-        if ($('#navigatePanel ul').length === 0) {
+        if ($('#navigatePanelInner ul').length === 0) {
             var jqxhr = $.getJSON(url, function(data){
                 renderHierarchyWithJsonTree(data);
             }).done(function(){
@@ -234,5 +271,21 @@ $(document).ready(function(){
             });
         }
     });
+    
+    $('.dropdown-backdrop').on('click', function(e){
+        $('.dropdown-toggle').dropdown();
+    });
+    
+    $('.dropdown.keep-open').on({
+        "shown.bs.dropdown": function(){
+            $(this).data('closable', true);
+        },
+        "click": function(){
+            $(this).data('closable', false);
+        },
+        "hide.bs.dropdown": function(){
+            return $(this).data('closable');
+        }
+    });
+    
 });
-
