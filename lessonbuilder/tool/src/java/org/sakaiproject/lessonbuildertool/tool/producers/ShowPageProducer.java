@@ -2432,7 +2432,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIInput shortanswerInput = UIInput.make(questionForm, "shortanswerInput", "#{simplePageBean.questionResponse}");
 						if(!isAvailable || response != null) {
 							shortanswerInput.decorate(new UIDisabledDecorator());
-							if(response.getShortanswer() != null) {
+							if(response != null && response.getShortanswer() != null) {
 								shortanswerInput.setValue(response.getShortanswer());
 							}
 						}
