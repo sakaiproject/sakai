@@ -61,4 +61,10 @@ public interface SiteHelper {
 	 * this is a property name to indicate whether the Site Info tool should log the following user membership change events
 	 */
 	static final String WSETUP_TRACK_USER_MEMBERSHIP_CHANGE = "wsetup.track.user.membership.change";
+
+	/**
+	 * this is a property name to indicate whether the Site Info tool should log the roster change events
+	 */
+	static final String WSETUP_TRACK_ROSTER_CHANGE = "wsetup.track.roster.change";
+	
 }

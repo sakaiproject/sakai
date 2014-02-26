@@ -6317,6 +6317,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 
 			sendSiteNotification(state, getStateSite(state), providerCourseList);
+			//Track add changes
+			trackRosterChanges(org.sakaiproject.site.api.SiteService.EVENT_SITE_ROSTER_ADD,providerCourseList);
 		}
 
 		if (manualAddNumber != 0) {
@@ -8870,6 +8872,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							.listIterator(); i.hasNext();) {
 						providerCourseList.remove((String) i.next());
 					}
+
+					//Track provider deletes, seems like the only place to do it. If a confirmation is ever added somewhere, don't do this.
+					trackRosterChanges(org.sakaiproject.site.api.SiteService.EVENT_SITE_ROSTER_REMOVE,providerCourseDeleteList);
 					state.setAttribute(SITE_PROVIDER_COURSE_LIST,
 							providerCourseList);
 				}
@@ -8963,6 +8968,21 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	}// actionFor Template
+	
+	/**
+	 * 
+	 * @param action
+	 * @param providers
+	 */
+	private void trackRosterChanges(String event, List <String> rosters) {
+		if (ServerConfigurationService.getBoolean(
+				SiteHelper.WSETUP_TRACK_ROSTER_CHANGE, false)) {
+			// event for each individual update
+			for (String roster : rosters) {
+				EventTrackingService.post(EventTrackingService.newEvent(event, "roster="+roster, true));
+			}
+		}
+	}
 
 	/**
 	 * import not-provided users from selected sites
