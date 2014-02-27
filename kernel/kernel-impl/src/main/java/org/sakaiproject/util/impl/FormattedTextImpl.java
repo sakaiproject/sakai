@@ -354,8 +354,9 @@ public class FormattedTextImpl implements FormattedText
                     CleanResults cr = as.scan(strFromBrowser);
                     if (cr.getNumberOfErrors() > 0) {
                         // TODO currently no way to get internationalized versions of error messages
-                        for (Object errorMsg : cr.getErrorMessages()) {
-                            formattedTextErrors.append(errorMsg.toString() + "<br/>");
+                        for (String errorMsg : cr.getErrorMessages()) {
+                            String i18nErrorMsg = new String(errorMsg.getBytes("ISO-8859-1"),"UTF8");
+                            formattedTextErrors.append(i18nErrorMsg + "<br/>");
                         }
                     }
                     val = cr.getCleanHTML();
