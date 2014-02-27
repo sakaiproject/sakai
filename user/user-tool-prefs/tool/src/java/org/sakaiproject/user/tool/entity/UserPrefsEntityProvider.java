@@ -30,6 +30,7 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -42,9 +43,16 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.tool.UserPrefsTool;
+
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
+
 
 public class UserPrefsEntityProvider extends AbstractEntityProvider implements CoreEntityProvider, RESTful, RequestStorable {
 
@@ -53,7 +61,16 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	private PreferencesService preferencesService;
 	private SessionManager sessionManager;
 	private RequestStorage requestStorage;
+	private UserDirectoryService userDirectoryService;
 	
+	public UserDirectoryService getUserDirectoryService() {
+		return userDirectoryService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
 	public void init() {
 		log.info("init()");
 	}
@@ -62,7 +79,14 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 		return PREFIX;
 	}
 	public boolean entityExists(String id) {
-		return true;
+		log.debug(this + " entityExists() " + id);
+		boolean rv = false;
+		Preferences p = preferencesService.getPreferences(id);
+		if (p != null)
+		{
+			rv = true;
+		}
+		return rv;
 	}
 
 	public String createEntity(EntityReference ref, Object entity,
@@ -79,12 +103,79 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
 		// TODO Auto-generated method stub
+		String queryString = (String) params.get("queryString");
+		if (queryString != null)
+		{
+			String[] parts = queryString.split("=");
+			if (parts != null && parts.length==2)
+			{
+				String key = parts[0];
+				String val = parts[1];
+				String userId = getUserId();
+				PreferencesEdit m_edit = getPreferencesEdit(userId);
+				
+				ResourcePropertiesEdit props = m_edit.getPropertiesEdit("resourcesColumn:");
+				props.addProperty(key, val); // Save the permission to see if it changes the next time they sign in
+				
+				preferencesService.commit(m_edit);
+			}
+			
+		}
 
 	}
+	
+    /**
+	 * Set editing mode on for user and add user if not existing
+	 */
+	private PreferencesEdit getPreferencesEdit(String userId) {
+
+		PreferencesEdit m_edit = null;
+		try {
+			m_edit = preferencesService.edit(userId);
+		} catch (IdUnusedException e) {
+			try {
+				m_edit = preferencesService.add(userId);
+			} catch (Exception ee) {
+				log.error("getPreferencesEdit: " + ee.getMessage());
+				return null;
+			}
+		} catch (InUseException e) {
+			log.error("getPreferencesEdit: " + e.getMessage());
+			return null;
+		} catch (PermissionException e) {
+			log.error("getPreferencesEdit: " + e.getMessage());
+			return null;
+		}
+		
+		return m_edit;
+	}
+	
 
 	public Object getEntity(EntityReference ref) {
-		// TODO Auto-generated method stub
-		return null;
+		
+		Entity rv = null;
+		
+		if (ref != null)
+		{
+			log.debug(this + ".getEntity() " + ref.getReference());
+			
+			if (PREFIX.equals(ref.getPrefix()))
+			{
+				String userId = ref.getId();
+				rv = preferencesService.getPreferences(userId);
+				if (rv == null)
+				{
+					try {
+						rv = preferencesService.add(userId);
+					} catch (Exception ee) {
+						log.error(" getEntity: " + ee.getMessage());
+					}
+				}
+				
+			}
+		}
+			
+		return rv;
 	}
 
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
