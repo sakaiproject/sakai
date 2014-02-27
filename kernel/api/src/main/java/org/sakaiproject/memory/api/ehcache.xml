@@ -297,10 +297,10 @@
     created programmtically using CacheManager.add(String cacheName)
     -->
     <defaultCache
-            maxElementsInMemory="10000"
+            maxElementsInMemory="5000"
             eternal="false"
-            timeToIdleSeconds="300"
-            timeToLiveSeconds="300"
+            timeToIdleSeconds="360"
+            timeToLiveSeconds="600"
             diskPersistent="false"
             maxElementsOnDisk="0"
             statistics="true"
@@ -333,24 +333,21 @@
 
     <!-- Place configuration for your caches following -->
 
-    <cache 
-      name="org.hibernate.cache.UpdateTimestampsCache"
-      maxElementsInMemory="10000"
-      eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="300"
-      overflowToDisk="false"
-      statistics="true"
-      />
+   <!-- this cache tracks the timestamps of the most recent updates to particular tables.
+    It is important that the cache timeout of the underlying cache implementation be set to a
+    higher value than the timeouts of any of the query caches. In fact, it is recommended that
+    the the underlying cache not be configured for expiry at all. -->
+   <cache name="org.hibernate.cache.UpdateTimestampsCache"
+      maxElementsInMemory="6000"
+      eternal="true"
+      overflowToDisk="false" />
 
-    <cache 
-      name="org.hibernate.cache.StandardQueryCache"
-      maxElementsInMemory="10000"
+    <!-- this cache stores the actual objects pulled out of the DB by hibernate -->
+    <cache name="org.hibernate.cache.StandardQueryCache"
+      maxElementsInMemory="12000"
       eternal="false"
-      timeToIdleSeconds="300"
-      timeToLiveSeconds="300"
-      overflowToDisk="false"
-      statistics="true"
-      />
+      timeToIdleSeconds="600"
+      timeToLiveSeconds="1200"
+      overflowToDisk="false" />
 
 </ehcache>

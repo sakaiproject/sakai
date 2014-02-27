@@ -73,7 +73,7 @@ public class MemoryServiceTest extends TestCase
 		usageSessionService = new MockUsageSessionService();
 		authzGroupService = new MockAuthzGroupService();
 		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService, authzGroupService, serverConfigurationService );
-		cacheManager = new CacheManager(this.getClass().getResourceAsStream("ehcache.xml"));
+		cacheManager = new CacheManager(this.getClass().getResourceAsStream("ehcache-test.xml"));
 		basicMemoryService.setCacheManager(cacheManager);
 	}
 
