@@ -188,6 +188,10 @@
             <artifactId>lombok</artifactId>
             <version>0.11.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
 		<!-- Non-Spring testing dependencies -->
 		<dependency>
