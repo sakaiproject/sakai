@@ -34,7 +34,7 @@
 				<h:panelGrid columns="3">
 					<!-- view range dropdown -->
 					<h:panelGroup>
-						<h:outputText value="#{msgs.events_dropdownbox_title}&nbsp;" escape="false"/>
+						<h:outputLabel value="#{msgs.events_dropdownbox_title}&nbsp;"  for="viewByRange"/>
 						<h:selectOneMenu id="viewByRange" value="#{SignupMeetingsBean.viewDateRang}" valueChangeListener="#{SignupMeetingsBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{SignupMeetingsBean.viewDropDownList}"/>
 						</h:selectOneMenu>
@@ -43,7 +43,7 @@
 					<!-- filter by category dropdown -->
 					<h:panelGroup>
 						<h:panelGroup styleClass="padLeft"> 
-							<h:outputText value="#{msgs.filter_by_category}&nbsp;" escape="false"/>
+							<h:outputLabel value="#{msgs.filter_by_category}&nbsp;" for="viewByCategory"/>
 							<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
 								<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
 							</h:selectOneMenu>
