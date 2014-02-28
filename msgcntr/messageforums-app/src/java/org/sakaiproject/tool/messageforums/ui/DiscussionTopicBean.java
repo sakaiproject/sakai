@@ -27,6 +27,9 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.faces.context.FacesContext;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -84,7 +87,7 @@ public class DiscussionTopicBean
   private String openDate = "";
   private String closeDate = "";
 
-  private SimpleDateFormat datetimeFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
+  private SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
   
   private List messages = new ArrayList();
 
@@ -1090,9 +1093,10 @@ public class DiscussionTopicBean
 	}	  
 
 	public void setOpenDate(String openDateStr){
-		if(!"".equals(openDateStr) && openDateStr != null){
+		if(StringUtils.isNotBlank(openDateStr)) {
 			try{
-				Date openDate = (Date) datetimeFormat.parse(openDateStr);
+				String hiddenOpenDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("openDateISO8601");
+				Date openDate = (Date) datetimeFormat.parse(hiddenOpenDate);
 				topic.setOpenDate(openDate);
 			}catch (ParseException e) {
 				LOG.error("Couldn't convert open date", e);
@@ -1112,9 +1116,10 @@ public class DiscussionTopicBean
 	}	  
 
 	public void setCloseDate(String closeDateStr){
-		if(!"".equals(closeDateStr) && closeDateStr != null){
+		if(StringUtils.isNotBlank(closeDateStr)) {
 			try{
-				Date CloseDate = (Date) datetimeFormat.parse(closeDateStr);
+				String hiddenCloseDate = (String)FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("closeDateISO8601");
+				Date CloseDate = (Date) datetimeFormat.parse(hiddenCloseDate);
 				topic.setCloseDate(CloseDate);
 			}catch (ParseException e) {
 				LOG.error("Couldn't convert Close date", e);

@@ -227,11 +227,15 @@
  		<script type="text/javascript">
  		      localDatePicker({
  		      	input:'.openDate', 
+ 		      	ashidden: { iso8601: 'openDateISO8601' },
+ 		      	getval:'.openDate',
  		      	useTime:1 
  		      });
 
  		      localDatePicker({
  		      	input:'.closeDate', 
+ 		      	ashidden: { iso8601: 'closeDateISO8601' },
+ 		      	getval:'.closeDate',
  		      	useTime:1 
  		      });
  		</script>
