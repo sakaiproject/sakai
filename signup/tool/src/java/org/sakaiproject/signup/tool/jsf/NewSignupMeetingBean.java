@@ -493,6 +493,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
  		if(categories ==null){
  			categories = new ArrayList<SelectItem>();
  			categories.addAll(Utilities.getSignupMeetingsBean().getAllCategories());
+ 			categories.remove(0);//remove the 'All' default value from the list
  			categories.add(0, new SelectItem(Utilities.rb.getString("select_category")));
  		}
  		return categories;
