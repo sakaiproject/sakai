@@ -1484,7 +1484,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				if (REF_TYPE_CALENDAR.equals(subType) || 
 						 REF_TYPE_CALENDAR_PDF.equals(subType) || 
 						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
-						 REF_TYPE_CALENDAR_ICAL.equals(subType) ||
+						 REF_TYPE_CALENDAR_SUBSCRIPTION.equals(subType) ||
 						 REF_TYPE_CALENDAR_OPAQUEURL.equals(subType))
 				{
 					// next is the context id
