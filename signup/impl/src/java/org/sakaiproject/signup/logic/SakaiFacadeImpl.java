@@ -309,7 +309,14 @@ public class SakaiFacadeImpl implements SakaiFacade {
 				dispFirstName = StringUtils.lowerCase(dispFirstName, rb.getLocale());
 				dispFirstName = StringUtils.capitalize(dispFirstName);
 			}
-			String displayname = dispLastName +", " + dispFirstName;
+			String displayname = null;
+			if(( dispLastName ==null || dispLastName.isEmpty()) && (dispFirstName ==null || dispFirstName.isEmpty()) ){
+				//Case: local user can have no first and last names
+				displayname = userDirectoryService.getUser(userId).getDisplayId();
+			}
+			else{
+				displayname = dispLastName +", " + dispFirstName;
+			}
 
 			return displayname;
 		} catch (UserNotDefinedException e) {
