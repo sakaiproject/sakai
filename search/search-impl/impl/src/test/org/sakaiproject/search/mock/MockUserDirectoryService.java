@@ -244,6 +244,11 @@ public class MockUserDirectoryService implements UserDirectoryService
 		return new MockUser(eid);
 	}
 
+	@Override
+	public User getUserByAid(String aid) throws UserNotDefinedException {
+		return null;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.user.api.UserDirectoryService#getUserEid(java.lang.String)
 	 */
