@@ -145,6 +145,11 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 		return new FakeUser();
 	}
 
+	@Override
+	public User getUserByAid(String aid) throws UserNotDefinedException {
+		return new FakeUser();
+	}
+
 	public String getUserEid(String arg0) throws UserNotDefinedException {
 		return (new FakeUser()).getEid();
 	}
