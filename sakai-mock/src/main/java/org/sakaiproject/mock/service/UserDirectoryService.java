@@ -154,6 +154,11 @@ public class UserDirectoryService implements
 		return users.get(eid);
 	}
 
+	@Override
+	public User getUserByAid(String aid) throws UserNotDefinedException {
+		throw new UserNotDefinedException(aid);
+	}
+
 	public String getUserEid(String id) throws UserNotDefinedException {
 		return null;
 	}
