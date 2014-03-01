@@ -1,4 +1,5 @@
 /**********************************************************************************
+/**********************************************************************************
  * $URL$
  * $Id$
  ***********************************************************************************
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.AuthenticationManager;
 import org.sakaiproject.user.api.ContextualUserDisplayService;
 import org.sakaiproject.user.api.DisplayAdvisorUDP;
@@ -1278,6 +1280,30 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @inheritDoc
 	 */
+ 	public User getUserByAid(String aid) throws UserNotDefinedException
+ 	{
+		if (m_provider instanceof AuthenticationIdUDP)
+		{
+			UserEdit user = new BaseUserEdit();
+			if (((AuthenticationIdUDP)m_provider).getUserbyAid(aid, user))
+			{
+				String id = m_storage.checkMapForId(user.getEid());
+				user.setId(id);
+				ensureMappedIdForProvidedUser(user);
+				putCachedUser(user.getReference(), user);
+				return user;
+			}
+			throw new UserNotDefinedException(aid);
+		}
+		else
+		{
+			return getUserByEid(aid);
+		}
+ 	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public List<User> getUsers()
 	{
 		List<User> users = m_storage.getAll();
@@ -1662,7 +1688,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			// locally stored users.
 			try
 			{
-				user = (UserEdit)getUserByEid(loginId);
+				user = (UserEdit)getUserByAid(loginId);
 			} catch (UserNotDefinedException e)
 			{
 				return null;

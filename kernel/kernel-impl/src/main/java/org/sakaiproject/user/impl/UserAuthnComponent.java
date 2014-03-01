@@ -138,7 +138,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			// accept, so now lookup the user in our database.
 			try
 			{
-				User user = userDirectoryService().getUserByEid(evidence.getIdentifier());
+				User user = userDirectoryService().getUserByAid(evidence.getIdentifier());
 				String disabled = user.getProperties().getProperty("disabled");
 				if (disabled != null && "true".equals(disabled))
 				{

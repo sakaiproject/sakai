@@ -90,6 +90,14 @@ public class UserDirectoryService
 		return service.getUserByEid(param0);
 	}
 
+	public static org.sakaiproject.user.api.User getUserByAid(java.lang.String param0) throws org.sakaiproject.user.api.UserNotDefinedException
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserByAid(param0);
+	}
+
 	public static java.util.List getUsers(java.util.Collection param0)
 	{
 		org.sakaiproject.user.api.UserDirectoryService service = getInstance();

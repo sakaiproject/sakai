@@ -26,10 +26,15 @@ package org.sakaiproject.user.api;
  * Indicates that the provider will provide user data along with authentication,
  * allowing the user's authentication login name to differ from the user's
  * enterprise integration ID (EID).
- * 
+ *
  * This interface is tailored for institutions which pick up other provided user
  * data as a side-effect of authentication. Authentication-only services would be
  * better described through an AuthenticationEidProvider interface.
+ *
+ * This interface only works where you are having users enter their username and
+ * password into the Sakai login box. If you have authentication performed by the
+ * servlet container or web server then you need to use
+ * {@link org.sakaiproject.user.api.AuthenticationIdUDP}.
  */
 public interface AuthenticatedUserProvider {
 	/**
@@ -39,6 +44,7 @@ public interface AuthenticatedUserProvider {
 	 *            the ID passed to the authentication system, such as a Kerberos
 	 *            prinicipal name
 	 * @param password
+	 *         the password entered by the user
 	 * @return user data, or null if the user was not authenticated; the user
 	 *         record's "id" field will generally be null so that it can be
 	 *         filled in by the Sakai user directory service

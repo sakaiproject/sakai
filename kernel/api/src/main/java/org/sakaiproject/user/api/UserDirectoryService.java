@@ -362,6 +362,18 @@ public interface UserDirectoryService extends EntityProducer
 	User getUserByEid(String eid) throws UserNotDefinedException;
 
 	/**
+	 * Access a user object, given an authentication ID. This is used when integrating with a authenitcation system that doesn't 
+	 * use the EID to authenticate the user.
+	 * 
+	 * @param aid
+	 *        The user authentication ID.
+	 * @return A user object containing the user information
+	 * @exception UserNotDefinedException
+	 *            if not found
+	 */
+	User getUserByAid(String aid) throws UserNotDefinedException;
+
+	/**
 	 * Find the user eid from a user id.
 	 * 
 	 * @param id
