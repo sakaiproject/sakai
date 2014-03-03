@@ -206,7 +206,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		Reference ref = entityManager().newReference(target);
 		if (ref.getType().equals(SiteService.APPLICATION_ID))
 		{
-			return siteService().allowUpdateSite(ref.getId());
+			// For all site references (page/site/group check against the actual site. We don't use the context because
+			// site references have a context of null.
+			return siteService().allowUpdateSite(ref.getContainer());
 		}
 
 		// TODO: fake this dependency (MailArchiveService.APPLICATION_ID) to keep the mailarchive dependencies away -ggolden
