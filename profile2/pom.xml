@@ -27,7 +27,6 @@
     <wicketstuff.objectautocomplete.version>1.4.21</wicketstuff.objectautocomplete.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
-    <lombok.version>1.12.4</lombok.version>
   </properties>
 
   <modules>
@@ -133,12 +132,6 @@
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
         <version>${log4j.version}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.projectlombok</groupId>
-        <artifactId>lombok</artifactId>
-        <version>${lombok.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
