@@ -124,28 +124,10 @@
 			<description>default|short|medium|long|full</description>
 		</attribute>
 		<attribute>
-			<name>locale</name>
-			<required>false</required>
-			<rtexprvalue>false</rtexprvalue>
-			<description>locale</description>
-		</attribute>
-		<attribute>
-			<name>pattern</name>
-			<required>false</required>
-			<rtexprvalue>false</rtexprvalue>
-			<description>Custom formatting pattern</description>
-		</attribute>
-		<attribute>
 			<name>timeStyle</name>
 			<required>false</required>
 			<rtexprvalue>false</rtexprvalue>
 			<description>default|short|medium|long|full</description>
-		</attribute>
-		<attribute>
-			<name>timeZone</name>
-			<required>false</required>
-			<rtexprvalue>false</rtexprvalue>
-			<description>timeZone</description>
 		</attribute>
 		<attribute>
 			<name>type</name>

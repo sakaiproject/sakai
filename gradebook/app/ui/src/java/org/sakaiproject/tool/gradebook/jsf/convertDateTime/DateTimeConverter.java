@@ -52,6 +52,8 @@ public class DateTimeConverter extends javax.faces.convert.DateTimeConverter {
 		TimeZone m_timeZone = TimeService.getLocalTimeZone();
 		Locale m_locale = new ResourceLoader().getLocale();
 
+		//TODO: Probably would be useful to do something here relating to a pattern for i18n display too
+		//setPattern("");
 		setTimeZone(m_timeZone);
     	setLocale(m_locale);
      }
@@ -91,6 +93,16 @@ public class DateTimeConverter extends javax.faces.convert.DateTimeConverter {
 			return new Locale(locValues[0]); // language
 		else
 			return Locale.getDefault();
+	}
+
+	public void setDateStyle(String dateStyle) {
+		super.setDateStyle(dateStyle);
+	}
+	public void setTimeStyle(String timeStyle) {
+		super.setTimeStyle(timeStyle);
+	}
+	public void setType(String type) {
+		super.setType(type);
 	}
 
 
