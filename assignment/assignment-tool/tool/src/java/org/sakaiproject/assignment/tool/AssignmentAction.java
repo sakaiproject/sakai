@@ -9285,6 +9285,7 @@ public class AssignmentAction extends PagedResourceActionII
 				ResourcePropertiesEdit aPropertiesEdit = aEdit.getPropertiesEdit();
 				aPropertiesEdit.removeProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED);
 				aPropertiesEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_CALENDAR_EVENT_ID);
+				aPropertiesEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_DUEDATE_ADDITIONAL_CALENDAR_EVENT_ID);
 				aPropertiesEdit.removeProperty(NEW_ASSIGNMENT_OPEN_DATE_ANNOUNCED);
 				aPropertiesEdit.removeProperty(ResourceProperties.PROP_ASSIGNMENT_OPENDATE_ANNOUNCEMENT_MESSAGE_ID);
 				aPropertiesEdit.removeProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
