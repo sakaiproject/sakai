@@ -46,7 +46,7 @@
                     <%-- title --%>
                     <h:panelGroup styleClass="titleText" >
                         <h:outputText value="#{msgs.star_character}" style="color:#B11;"/>
-                        <h:outputText value="#{msgs.event_name}"   escape="false"/>            
+                        <h:outputLabel value="#{msgs.event_name}" for="name"/>            
                     </h:panelGroup>                
                     <h:panelGroup>                    
                         <h:inputText id="name" size="40" value="#{NewSignupMeetingBean.signupMeeting.title}" styleClass="editText" required="true"  >
@@ -57,7 +57,7 @@
 					</h:panelGroup> 
 					
 					<%-- organiser --%>
-					<h:outputText value="#{msgs.event_owner}" styleClass="titleText" escape="false"/>
+					<h:outputLabel value="#{msgs.event_owner}" styleClass="titleText" for="creatorUserId"/>
 					<h:panelGroup>
 						 <h:selectOneMenu id="creatorUserId" value="#{NewSignupMeetingBean.creatorUserId}">
 							<f:selectItems value="#{NewSignupMeetingBean.instructors}"/>
@@ -164,8 +164,8 @@
 					
 					<%-- end time --%>
 					<h:panelGroup styleClass="titleText">
-						<h:outputText value="#{msgs.star_character}" style="color:#B11;" />					
-						<h:outputText value="#{msgs.event_end_time}" escape="false"/>
+						<h:outputText value="#{msgs.star_character}" style="color:#B11;" />
+						<h:outputText value="#{msgs.event_end_time}" escape="false"/>					
 					</h:panelGroup>
         			<h:panelGroup styleClass="editText">
 						<t:inputDate id="endTime" type="both" ampm="true" value="#{NewSignupMeetingBean.signupMeeting.endTime}" timeZone="#{UserTimeZone.userTimeZoneStr}"
@@ -177,7 +177,7 @@
 					<%--  meeting frequency --%>
                     <h:panelGroup>
 						<h:outputText value="#{msgs.star_character}" style="color:#B11;" />  
-                     	<h:outputText styleClass="titleText" value="#{msgs.event_recurrence}"  />  
+                     	<h:outputLabel styleClass="titleText" value="#{msgs.event_recurrence}" for="recurSelector"/>  
                     </h:panelGroup>                          
 					<h:panelGroup>                            
 						<h:selectOneMenu id="recurSelector" value="#{NewSignupMeetingBean.repeatType}" styleClass="titleText" onchange="isShowCalendar(value); sakai.toggleExactDateVisibility(); return false;">
@@ -215,7 +215,7 @@
                 	 
 		    		<%-- signup begin --%>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_1">              
-                    	<h:outputText value="#{msgs.event_signup_begins}" escape="false" styleClass="titleText"/>
+                    	<h:outputLabel value="#{msgs.event_signup_begins}" styleClass="titleText" for="signupBegins"/>
                     </h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_2">
 						<h:inputText id="signupBegins" value="#{NewSignupMeetingBean.signupBegins}" size="2" required="true" onkeyup="sakai.updateSignupBeginsExact();">
@@ -237,7 +237,7 @@
                 
                 	<%-- signup end --%>
 					<h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_3">
-                    	<h:outputText value="#{msgs.event_signup_deadline2}" escape="false" styleClass="titleText"/>
+                    	<h:outputLabel value="#{msgs.event_signup_deadline2}" styleClass="titleText" for="signupDeadline"/>
                    	</h:panelGroup>
                     <h:panelGroup styleClass="signupBDeadline" id="signup_beginDeadline_4">
                         <h:inputText id="signupDeadline" value="#{NewSignupMeetingBean.deadlineTime}" size="2" required="true" onkeyup="sakai.updateSignupEndsExact();">
@@ -276,8 +276,7 @@
 						<h:panelGroup>
 							<h:selectBooleanCheckbox id="siteSelection" value="#{NewSignupMeetingBean.currentSite.selected}" disabled="#{!NewSignupMeetingBean.currentSite.allowedToCreate}"
 								onclick="currentSiteSelection();"/>
-							<h:outputText value="#{NewSignupMeetingBean.currentSite.signupSite.title}" styleClass="longtext"/>
-							<h:outputText value="#{msgs.event_current_site}" style="margin-left:3px" escape="false"/>
+							<h:outputLabel for="siteSelection" value="#{NewSignupMeetingBean.currentSite.signupSite.title} #{msgs.event_current_site}"/>
 						</h:panelGroup>
 						<h:dataTable id="currentSiteGroups" value="#{NewSignupMeetingBean.currentSite.signupGroupWrappers}" var="currentGroup" styleClass="meetingTypeTable">
 							<h:column>
@@ -339,11 +338,11 @@
 								<h:panelGrid columns="2" id="mutipleCh" styleClass="mi" columnClasses="miCol1,miCol2">   
 									<h:outputText id="maxAttendeesPerSlot" style="display:none" value="#{NewSignupMeetingBean.maxAttendeesPerSlot}"></h:outputText>
 									<h:outputText id="maxSlots" style="display:none" value="#{NewSignupMeetingBean.maxSlots}"></h:outputText>   
-								    <h:outputText value="#{msgs.event_num_slot_avail_for_signup}" />
+								    <h:outputLabel value="#{msgs.event_num_slot_avail_for_signup}" for="numberOfSlot"/>
 									<h:inputText  id="numberOfSlot" value="#{NewSignupMeetingBean.numberOfSlots}" size="2" styleClass="editText" onkeyup="getSignupDuration();return false;" style="margin-left:12px" />
-									<h:outputText value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" escape="false"/>                    
+									<h:outputLabel value="#{msgs.event_num_participant_per_timeslot}" styleClass="titleText" for="numberOfAttendees"/>                    
 									<h:inputText id="numberOfAttendees" value="#{NewSignupMeetingBean.numberOfAttendees}" styleClass="editText" size="2" style="margin-left:12px" onkeyup="validateAttendee();return false;" />
-									<h:outputText value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" escape="false"/>
+									<h:outputLabel value="#{msgs.event_duration_each_timeslot_not_bold}" styleClass="titleText" for="currentTimeslotDuration"/>
 									<h:inputText id='currentTimeslotDuration' value="0" styleClass='longtext_red' size="2" onkeyup="this.blur();" style="margin-left:12px" onmouseup="this.blur();" />             
 								</h:panelGrid>          
 							
@@ -362,6 +361,7 @@
 							    
 									<h:panelGrid columns="1">       
 										<h:panelGroup rendered="true" styleClass="meetingMaxAttd">                      
+											<h:outputLabel value="#{msgs.tab_max_attendee}" styleClass="titleText skip" for="maxAttendee"/>                    
 											<h:inputText id="maxAttendee" value="#{NewSignupMeetingBean.maxOfAttendees}" size="2" styleClass="editText" onkeyup="validateParticipants();return false;"/>	                                 
 										</h:panelGroup>
 										<h:outputText value="&nbsp;" styleClass="titleText" escape="false"/>

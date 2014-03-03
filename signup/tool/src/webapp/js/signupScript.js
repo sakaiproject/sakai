@@ -78,11 +78,13 @@
 			if(inputTag.style.display!="none"){				
 				dropdownTag.style.display="none";
 				dropdownTag.disabled=true;
+				inputTag.focus();
 			}
 			else{
 				dropdownTag.style.display="";
 				dropdownTag.disabled=false;
 				inputTag.value='';
+				dropdownTag.focus();
 			}
 		}
 	}
