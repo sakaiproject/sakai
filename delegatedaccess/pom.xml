@@ -74,12 +74,6 @@
 				 <scope>provided</scope>
 			</dependency>
 			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.12.4</version>
-				<scope>provided</scope>
-			</dependency>
-			<dependency>
 				<groupId>net.sf.ehcache</groupId>
 				<artifactId>ehcache-core</artifactId>
 				<version>1.7.2</version>
