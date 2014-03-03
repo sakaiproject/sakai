@@ -13,18 +13,6 @@
     <converter>
        <converter-id>org.sakaiproject.tool.gradebook.jsf.convertDateTime.DateTimeConverter</converter-id>
        <converter-class>org.sakaiproject.tool.gradebook.jsf.convertDateTime.DateTimeConverter</converter-class>
-	   <property>
-		   <property-name>dateStyle</property-name>
-		   <value>default</value>
-	   </property>
-	   <property>
-		   <property-name>timeStyle</property-name>
-		   <value>default</value>
-	   </property>
-	   <property>
-		   <property-name>type</property-name>
-		   <value>date</value>
-	   </property>
     </converter>
 
 </faces-config>
