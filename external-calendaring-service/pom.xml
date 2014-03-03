@@ -67,14 +67,6 @@
       			<version>${project.version}</version>
       			<scope>runtime</scope>
     		</dependency>
-
-			<!-- third party dependencies -->
-			<dependency>
-				<groupId>org.projectlombok</groupId>
-				<artifactId>lombok</artifactId>
-				<version>1.12.4</version>
-				<scope>provided</scope>
-			</dependency>
 			
        	 	<!-- test dependencies -->
     		<dependency>
