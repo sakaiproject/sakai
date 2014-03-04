@@ -512,13 +512,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	public void setTimeService(TimeService timeService) {
 		this.timeService = timeService;
 	}
-	
+
 	private UserDirectoryService userDirectoryService;
 	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
 		this.userDirectoryService = userDirectoryService;
 	}
-	
-	
+
 	/** Configuration: cache, or not. */
 	protected boolean m_caching = false;
 
@@ -6708,6 +6707,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 * Process the access request for a resource.
 	 * 
 	 * @param req
+	 * @param req
 	 * @param res
 	 * @param ref
 	 * @param copyrightAcceptedRefs
@@ -6727,10 +6727,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!allowGetResource(ref.getId()))
 			throw new EntityPermissionException(sessionManager.getCurrentSessionUserId(), AUTH_RESOURCE_READ, ref.getReference());
 
-		BaseResourceEdit resource = null;
+		ContentResource resource = null;
 		try
 		{
-			resource = (BaseResourceEdit) getResource(ref.getId());
+			resource = getResource(ref.getId());
 		}
 		catch (IdUnusedException e)
 		{
@@ -6746,9 +6746,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 
 		// if this entity requires a copyright agreement, and has not yet been set, get one
-		if (resource.requiresCopyrightAgreement() && !copyrightAcceptedRefs.contains(resource.getReference()))
+		if (((BaseResourceEdit)resource).requiresCopyrightAgreement() && !copyrightAcceptedRefs.contains(resource.getReference()))
 		{
 			throw new EntityCopyrightException(ref.getReference());
+		}
+		
+		// Wrap up the resource if we need to.
+		for (ContentFilter filter: m_outputFilters)
+		{
+			resource = filter.wrap(resource);
 		}
 
 		try
@@ -6858,13 +6864,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						{
 							throw new IdUnusedException(ref.getReference());
 						}
-						for (ContentFilter filter: m_outputFilters)
-						{
-							if (filter.isFiltered(resource))
-							{
-								res = filter.wrap(res, resource);
-							}
-						}
 	
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
@@ -6961,14 +6960,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 							{
 								throw new IdUnusedException(ref.getReference());
 							}
-							for (ContentFilter filter: m_outputFilters)
-							{
-								if (filter.isFiltered(resource))
-								{
-									res = filter.wrap(res, resource);
-								}
-							}
-				
+
 							// set the buffer of the response to match what we are reading from the request
 							if (len < STREAM_BUFFER_SIZE)
 							{

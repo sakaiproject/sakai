@@ -1,9 +1,9 @@
 /**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/api/src/main/java/org/sakaiproject/content/api/ContentEntity.java $
- * $Id: ContentEntity.java 51317 2008-08-24 04:38:02Z csev@umich.edu $
+ * $URL: $
+ * $Id: $
  ***********************************************************************************
  *
- * Copyright (c) 2006, 2007, 2008 Sakai Foundation
+ * Copyright (c) 2010, 2011, 2012, 2013, 2014 Sakai Foundation
  *
  * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,12 +20,7 @@
  **********************************************************************************/
 package org.sakaiproject.content.impl;
 
-import java.io.IOException;
 import java.text.MessageFormat;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentFilter;
@@ -94,39 +89,25 @@ public class HtmlPageFilter implements ContentFilter {
 		return enabled && ("text/html".equals(resource.getContentType())) && ((addHtml == null) || (!addHtml.equals("no") || addHtml.equals("yes")));
 	}
 
-	public HttpServletResponse wrap(final HttpServletResponse response, final ContentResource content) {
+	public ContentResource wrap(final ContentResource content) {
+		if (!isFiltered(content)) {
+			return content;
+		}
 		Reference contentRef = entityManager.newReference(content.getReference());
-		Reference siteRef = entityManager.newReference("/site/"+ contentRef.getContext());
+		Reference siteRef = entityManager.newReference(contentRef.getContext());
 		Entity entity = siteRef.getEntity();
 		
 		String addHtml = content.getProperties().getProperty(ResourceProperties.PROP_ADD_HTML);
-		// Assume we want the filter.
-		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		
 		String skinRepo = getSkinRepo();
 		String siteSkin = getSiteSkin(entity);
+		
+		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
 		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, title);
 		final String footer = footerTemplate;
 		
-		return new HttpServletResponseWrapper(response) {
-
-			public void setContentLength(int length) {
-				// Add on the size of our header and footer.
-				// We can't be sure that we're going to add the header.
-				// super.setContentLength(length + header.getBytes().length + footer.getBytes().length);
-			}
-			
-			public ServletOutputStream getOutputStream() throws IOException {
-				final ServletOutputStream wrapped = response.getOutputStream();
-				if (detectHtml) {
-					return new CheckingOutputStream(header, footer, wrapped);
-				} else {
-					return new WrappedServletOutputStream(header, footer, wrapped);
-				}
-			}
-			
-		};
+		return new WrappedContentResource(content, header, footer, detectHtml);
 	}
 
 	private String getTitle(final ContentResource content) {
