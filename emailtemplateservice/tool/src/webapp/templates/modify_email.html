@@ -26,6 +26,7 @@
 			<h3 rsf:id="modify-template-header">Modify reminder email template</h3>
 
 			<form rsf:id="emailTemplateForm" name="emailTemplateForm" method="post">
+				<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
 				<div style="width:80%">
 					<p rsf:id="msg=modifyemail.modify.text.instructions" class="instruction">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
 					<div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">

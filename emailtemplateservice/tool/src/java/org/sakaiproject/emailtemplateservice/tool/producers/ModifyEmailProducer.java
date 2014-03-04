@@ -26,6 +26,7 @@ import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.service.external.ExternalLogic;
 import org.sakaiproject.emailtemplateservice.tool.locators.EmailTemplateLocator;
+import org.sakaiproject.emailtemplateservice.tool.handler.ModifyEmailHandler;
 import org.sakaiproject.emailtemplateservice.tool.params.EmailTemplateViewParams;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -80,9 +81,13 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 	public void setMessages(TargettedMessageList messages) {
 		this.messages = messages;
 	}
-
-
-	private String emailTemplateLocator = "EmailTemplateLocator.";
+	
+	private ModifyEmailHandler handler;
+	public void setHandler (ModifyEmailHandler handler){
+		this.handler = handler;
+	}
+	
+	private String emailTemplateLocator = "emailTemplateLocator.";
 
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
@@ -100,7 +105,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 		EmailTemplateViewParams emailViewParams = (EmailTemplateViewParams) viewparams;
 
 
-		String actionBean = "EmailTemplateLocator.";
+		String actionBean = "modifyEmailHandler.";
 		EmailTemplate template = null;
 		// form the proper OTP path
 		boolean newEmailTemplate = true;
@@ -114,7 +119,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 			template = emailTemplateService.getEmailTemplateById(Long.valueOf(emailTemplateId));
 			newEmailTemplate = false;
 		}
-		String emailTemplateOTP = emailTemplateLocator + emailTemplateId + ".";
+		String emailTemplateOTP = actionBean + emailTemplateLocator + emailTemplateId + ".";
 
 		// local variables used in the render logic
 		/* not needed?
@@ -193,7 +198,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 		UIInput.make(form, "emailLocale", emailTemplateOTP + "locale",template.getLocale());
 		UIInput.make(form, "emailMessage", emailTemplateOTP + "message",template.getMessage());
 		UIInput.make(form, "emailHtmlMessage", emailTemplateOTP + "htmlMessage",template.getHtmlMessage());
-		
+		UIInput.make(form, "csrfToken","#{modifyEmailHandler.csrfToken}",handler.getCsrfToken());
 		form.parameters.add(new UIELBinding(emailTemplateOTP + "owner", userDirectoryService.getCurrentUser().getId()));
 		UICommand.make(form, "saveEmailTemplate", UIMessage.make("modifyemail.save.changes.link"), actionBinding);
 

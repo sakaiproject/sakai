@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 
@@ -73,18 +74,18 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
         		 emailTemplate.setLocale("");
          }
 
-       //key can't be null
-         if (emailTemplate.getKey() == null) {
+         //key can't be null
+         if (StringUtils.isBlank(emailTemplate.getKey())) {
         	 messages.addMessage(new TargettedMessage("error.nokey", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
         	 
          }
          
-         if (emailTemplate.getSubject() == null) {
+         if (StringUtils.isBlank(emailTemplate.getSubject())) {
         	 messages.addMessage(new TargettedMessage("error.nosubject", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
         	 
          }
          
-         if (emailTemplate.getMessage() == null) {
+         if (StringUtils.isBlank(emailTemplate.getMessage())) {
         	 messages.addMessage(new TargettedMessage("error.nomessage", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
         	 
          }

@@ -27,11 +27,17 @@
 		<constructor-arg value="/" />
 	</bean>
 	
-		<!-- the beans listed here are allowed access to values (security) -->
+	<!-- the beans listed here are allowed access to values (security) -->
 	<bean parent="requestAddressibleParent">
-		<property name="value" value="EmailTemplateLocator, emailTemplateBean" />
+		<property name="value" value="EmailTemplateLocator, emailTemplateBean, modifyEmailHandler" />
 	</bean>
 	
-         
+	<bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+	    <property name="value" value="true" />
+	</bean>
 	
+	<bean id = "resultScope" parent="beanScopeParent">
+		<property name="copyPreservingBeans" value="modifyEmailHandler" />
+		<property name="exclusive" value="true" />
+	</bean>
 </beans>
