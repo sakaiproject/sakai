@@ -304,6 +304,7 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
         <version>${kernel.spring.version}</version>
+	<scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
