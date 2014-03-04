@@ -11507,9 +11507,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private void setupIcons(SessionState state) {
 		List icons = new Vector();
 
-		String[] iconNames = null;
-		String[] iconUrls = null;
-		String[] iconSkins = null;
+		String[] iconNames = {"*default*"};
+		String[] iconUrls = {""};
+		String[] iconSkins = {""};
 
 		// get icon information
 		if (ServerConfigurationService.getStrings("iconNames") != null) {
