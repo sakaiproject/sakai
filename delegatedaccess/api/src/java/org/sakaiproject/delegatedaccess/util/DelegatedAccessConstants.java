@@ -99,6 +99,7 @@ public class DelegatedAccessConstants {
 	public static final String SITE_PROP_AUTH_TOOLS = "shopping-period-auth-tools";
 	public static final String SITE_PROP_PUBLIC_TOOLS = "shopping-period-public-tools";
 	public static final String PROP_TOOL_LIST = "delegatedaccess.toolslist";
+	public static final String PROP_TOOL_LIST_EXCLUDE = "delegatedaccess.toolslistexclude";
 	public static final String PROP_TOOL_LIST_TEMPLATE = "delegatedaccess.toolslist.sitetype";
 	public static final String ADVANCED_SEARCH_INSTRUCTOR = "instructorField";
 	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE = "instructorFieldType";

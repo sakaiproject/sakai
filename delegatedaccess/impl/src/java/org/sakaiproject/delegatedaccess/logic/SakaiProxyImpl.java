@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -186,12 +187,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 				}
 			}
 		}
-
 		if(toolSet.size() == 0){
-			return toolManager.findTools(new HashSet<String>(), null);
-		}else{
-			return toolSet;
+			toolSet = toolManager.findTools(new HashSet<String>(), null);
 		}
+		//exclude tools
+		String[] excludedTools = serverConfigurationService.getStrings(DelegatedAccessConstants.PROP_TOOL_LIST_EXCLUDE);		
+		if(excludedTools != null && excludedTools.length > 0){
+			for(String excludedTool : excludedTools){
+				for (Iterator iterator = toolSet.iterator(); iterator.hasNext();) {
+					Tool tool = (Tool) iterator.next();
+					if(excludedTool.equals(tool.getId())){
+						iterator.remove();
+						break;
+					}
+				}
+			}
+		}
+		
+		return toolSet;
 	}
 	
 	public Tool getTool(String toolId){
