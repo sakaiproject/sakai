@@ -20,7 +20,6 @@
             <id>framework</id>
             <modules>
                 <module>site-association-api/api</module>
-                <module>site-association-assembly</module>
                 <module>site-association-hbm/hbm</module>
                 <module>site-association-impl/impl</module>
                 <module>site-association-impl/pack</module>
@@ -45,9 +44,7 @@
             </activation>
             <modules>
                 <module>pageorder/tool</module>
-                <module>pageorder-assembly</module>
                 <module>site-association-api/api</module>
-                <module>site-association-assembly</module>
                 <module>site-association-hbm/hbm</module>
                 <module>site-association-impl/impl</module>
                 <module>site-association-impl/pack</module>
