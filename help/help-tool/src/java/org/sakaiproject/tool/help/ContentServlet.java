@@ -102,7 +102,8 @@ public class ContentServlet extends HttpServlet
     	  		String localHelpPath = sakaiHomePath+getServerConfigurationService().getString("help.localpath","/help/");
     	  		File localFile = new File(localHelpPath+resource.getLocation());
     	  		boolean localFileIsFile = false;
-    	  		if(localFile.isFile()) { 
+    	  		String localFileCanonicalPath = localFile.getCanonicalPath();
+    	  		if(localFileCanonicalPath.contains(localHelpPath) && localFile.isFile()) { 
     	  			M_log.debug("Local help file overrides: "+resource.getLocation());
     	  			localFileIsFile = true;
     	  		}
