@@ -1824,7 +1824,7 @@ public interface ContentHostingService extends EntityProducer
 	 * Determine whether the entityId parameter identifies a collection (as opposed to a resource).  
 	 * This method does not necessarily verify that a ContentEntity with this id exists.  
 	 * It merely determines whether the id could identify a collection.
-	 * @param entityId
+	 * @param entityId The entity ID which might be a collection.
 	 * @return true if the entityId could identify a collection, false otherwise.
 	 */
 	public boolean isCollection(String entityId);
