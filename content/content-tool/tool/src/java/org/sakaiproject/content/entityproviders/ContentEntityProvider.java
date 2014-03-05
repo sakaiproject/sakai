@@ -1,7 +1,10 @@
 package org.sakaiproject.content.entityproviders;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +12,13 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.tool.ListItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -27,10 +35,12 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -43,10 +53,59 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ContentEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
 	public final static String ENTITY_PREFIX = "content";
+	public static final String PREFIX = "resources.";
+	public static final String SYS = "sys.";
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + SYS + "type_registry";
 
 	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
+	}
+	
+	public boolean entityExists(String id) {
+		boolean rv = false;
+		
+        // check whether this is a folder first
+		try
+		{
+			ContentCollection collection = contentHostingService.getCollection(id);
+			rv = true;
+		}
+		catch (IdUnusedException e)
+		{
+			
+		}
+		catch (TypeException e)
+		{
+			
+		}
+		catch (PermissionException e)
+		{
+			
+		}
+		
+		if (!rv)
+		{
+			// now check for resource 
+			try
+			{
+				ContentResource resource = contentHostingService.getResource(id);
+				rv = true;
+			}
+			catch (IdUnusedException e)
+			{
+				
+			}
+			catch (TypeException e)
+			{
+				
+			}
+			catch (PermissionException e)
+			{
+				
+			}
+		}
+		return rv;
 	}
 
 	/**
@@ -57,9 +116,12 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public List<ContentItem> getContentCollectionForSite(EntityView view) {
+		List<ContentItem> rv = new ArrayList<ContentItem>();
 
 		// get siteId
+
 		String siteId = view.getPathSegment(2);
+
 
 		if(log.isDebugEnabled()) {
 			log.debug("Content for site: " + siteId);
@@ -69,8 +131,112 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException("siteId a must be set in order to get the resources for a site, via the URL /content/site/siteId");
 		}
+		/*ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
+		if(registry == null)
+		{
+			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
+			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
+		}*/
+		String wsCollectionId = contentHostingService.getSiteCollection(siteId);
+		try
+        {
+			// mark the site collection as expanded
+			Set<String> expandedCollections = new CopyOnWriteArraySet<String>();
+			
+        	ContentCollection wsCollection = contentHostingService.getCollection(wsCollectionId);
+			ListItem wsRoot = ListItem.getListItem(wsCollection, null, 
+					(ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"), 
+					true, 
+					expandedCollections, 
+					null, null, 0, 
+					/*(Comparator) toolSession.getAttribute("resources.request.list_view_sort")*/null, 
+					false, null);
+			List<ListItem> wsRootList = wsRoot.convert2list();
+			for (ListItem lItem : wsRootList)
+			{
+				if (lItem.isCollection())
+				{
+					try
+					{
+						ContentCollection collection = contentHostingService.getCollection(lItem.getId());
+						//convert to our simplified object 
+						ContentItem item = new ContentItem();
+						
+						ResourceProperties props = collection.getProperties();
+						item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+						item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
+						item.setType("collection");
+						item.setSize(0);
+						item.setUrl(collection.getUrl());
+						item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
+						item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
+						item.setContainer(collection.getContainingCollection().getReference());
+						rv.add(item);
+					}
+					catch (IdUnusedException e)
+					{
+						
+					}
+					catch (TypeException e)
+					{
+					}
+					catch (PermissionException e)
+					{
+					
+					}
+				}
+				else
+				{
+					try
+					{
+						ContentResource resource = contentHostingService.getResource(lItem.getId());
+						
+						//convert to our simplified object 
+						ContentItem item = new ContentItem();
+						
+						ResourceProperties props = resource.getProperties();
+						item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+						item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
+						item.setType(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+						item.setSize(Long.parseLong(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
+						item.setUrl(resource.getUrl());
+						item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
+						item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
+						item.setContainer(resource.getContainingCollection().getReference());
+						rv.add(item);
+					}
+					catch (IdUnusedException e)
+					{
+						
+					}
+					catch (TypeException e)
+					{
+					}
+					catch (PermissionException e)
+					{
+					
+					}
+				}
+			}
+        }
+        catch (IdUnusedException e)
+        {
+            // TODO Auto-generated catch block
+            log.warn("IdUnusedException ", e);
+        }
+        catch (TypeException e)
+        {
+            // TODO Auto-generated catch block
+            log.warn("TypeException ", e);
+        }
+        catch (PermissionException e)
+        {
+            // TODO Auto-generated catch block
+            log.warn("PermissionException ", e);
+        }
 		
-		return getResources(siteId);
+		return rv;
 		
 	}
 	
