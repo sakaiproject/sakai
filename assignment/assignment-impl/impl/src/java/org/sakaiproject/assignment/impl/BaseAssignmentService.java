@@ -4932,11 +4932,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                    {
 	                        if (a.isGroup()) {
 	                            // temporarily allow the user to read and write from assignments (asn.revise permission)
-	                            SecurityService.pushAdvisor(
-	                                    new MySecurityAdvisor(
-	                                            SessionManager.getCurrentSessionUserId(), 
-	                                            new ArrayList<String>(Arrays.asList("asn.revise permission")),
-	                                            ""/* no submission id yet, pass the empty string to advisor*/));
+                                    SecurityService.pushAdvisor(
+                                           new MySecurityAdvisor(
+                                                  SessionManager.getCurrentSessionUserId(),
+                                                  new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
+                                                  ""/* no submission id yet, pass the empty string to advisor*/));
 
 	                            M_log.debug(this + " getSubmitterGroupList context " + contextString + " for assignment " + a.getId() + " for group " + g.getId());
 	                            AssignmentSubmissionEdit s =
