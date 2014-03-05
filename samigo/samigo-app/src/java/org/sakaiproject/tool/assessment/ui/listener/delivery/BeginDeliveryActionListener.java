@@ -23,6 +23,7 @@
 
 package org.sakaiproject.tool.assessment.ui.listener.delivery;
 
+import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Date;
 
@@ -43,6 +44,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
@@ -52,6 +54,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -63,7 +66,9 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * <p>Title: Samigo</p>
@@ -307,39 +312,100 @@ public class BeginDeliveryActionListener implements ActionListener
     else
       delivery.setNavigation(control.getItemNavigation().toString());
 
+    
+    GradingService gradingService = new GradingService ();
+    List unSubmittedAssessmentGradingList = gradingService.getUnSubmittedAssessmentGradingDataList(publishedAssessmentId, AgentFacade.getAgentString());
+    if (unSubmittedAssessmentGradingList.size() != 0){
+    	delivery.setFirstTimeTaking(false);
+    	AssessmentGradingData unSubmittedAssessmentGrading = (AssessmentGradingData) unSubmittedAssessmentGradingList.get(0);
+    	setTimedAssessment(delivery, pubAssessment, unSubmittedAssessmentGrading);
+    }  
+    else {
+    	delivery.setFirstTimeTaking(true);
+    	setTimedAssessment(delivery, pubAssessment, null);
+    }
+
     // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
-    setTimedAssessment(delivery, pubAssessment);
+    delivery.setDeadline();
+    
   }
 
-  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment){
+  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, AssessmentGradingData unSubmittedAssessmentGrading){
 
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
-    if (hasTimeLimit!=null && hasTimeLimit.equals("true")){
+    if (hasTimeLimit!=null && hasTimeLimit.equals("true") && control.getTimeLimit() != null){
+
     	delivery.setHasTimeLimit(true);
     	delivery.setTimerId((new Date()).getTime()+"");
 
-    	try {
-    		if (control.getTimeLimit() != null) {
-    			String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(control.getTimeLimit().toString());
-    			delivery.setTimeLimit(delivery.updateTimeLimit(control.getTimeLimit().toString(), timeBeforeDueRetract));
-    			int seconds = control.getTimeLimit().intValue();
-    			int hour = 0;
-    			int minute = 0;
-    			if (seconds>=3600) {
-    				hour = Math.abs(seconds/3600);
-    				minute =Math.abs((seconds-hour*3600)/60);
+    	if (unSubmittedAssessmentGrading == null) {
+    		try {
+    			if (control.getTimeLimit() != null) {
+    				delivery.setTimeLimit(control.getTimeLimit().toString());
+    				int seconds = control.getTimeLimit().intValue();
+    				int hour = 0;
+    				int minute = 0;
+    				if (seconds>=3600) {
+    					hour = Math.abs(seconds/3600);
+    					minute =Math.abs((seconds-hour*3600)/60);
+    				}
+    				else {
+    					minute = Math.abs(seconds/60);
+    				}
+    				delivery.setTimeLimit_hour(hour);
+    				delivery.setTimeLimit_minute(minute);
+
+    				StringBuilder sb = new StringBuilder();
+    				ResourceLoader rl = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.DeliveryMessages");
+    				if (hour == 0) {
+    					if (minute == 1) {
+    						sb.append(minute).append(" ").append(rl.getString("time_limit_minute"));
+    					}
+    					else if (minute > 1) {
+    						sb.append(minute).append(" ").append(rl.getString("time_limit_minutes"));
+    					}
+    				}
+    				else if (hour == 1) {
+    					if (minute == 0) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hour"));
+    					}
+    					else if (minute == 1) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hour")).append(" ").append(minute).append(" ").append(rl.getString("time_limit_minute"));
+    					}
+    					else if (minute > 1) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hour")).append(" ").append(minute).append(" ").append(rl.getString("time_limit_minutes"));
+    					}
+    				}
+    				else if (hour > 1) {
+    					if (minute == 0) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hours"));
+    					}
+    					else if (minute == 1) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hours")).append(" ").append(minute).append(" ").append(rl.getString("time_limit_minute"));
+    					}
+    					else if (minute > 1) {
+    						sb.append(hour).append(" ").append(rl.getString("time_limit_hours")).append(" ").append(minute).append(" ").append(rl.getString("time_limit_minutes"));
+    					}
+    				}
+
+    				delivery.setTimeLimitString(sb.toString());
     			}
-    			else {
-    				minute = Math.abs(seconds/60);
-    			}
-    			delivery.setTimeLimit_hour(hour);
-    			delivery.setTimeLimit_minute(minute);
+
+    		} catch (RuntimeException e)
+    		{
+    			delivery.setTimeLimit("");
     		}
-    	} catch (RuntimeException e)
-    	{
-    		delivery.setTimeLimit("");
+    	}
+    	else {
+    		String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
+    		Date attemptDate = unSubmittedAssessmentGrading.getAttemptDate();
+    		delivery.setBeginTime(attemptDate);
+    		String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
+    		delivery.setTimeLimit(timeBeforeDueRetract);
+    		long adjustedTimedAssesmentDueDateLong  = attemptDate.getTime() + Long.parseLong(timeBeforeDueRetract) * 1000;
+    		delivery.setAdjustedTimedAssesmentDueDate(new Date(adjustedTimedAssesmentDueDateLong));
     	}
     }
     else{

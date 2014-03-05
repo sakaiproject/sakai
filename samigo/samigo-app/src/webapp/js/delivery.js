@@ -25,6 +25,10 @@ function disableBeginAssessment1(){
       document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
       document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment1'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment2'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:cancel1'])
       document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:cancel2'])
@@ -45,6 +49,10 @@ function disableBeginAssessment2(){
       document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
       document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment1'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment2'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment2'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:cancel1'])
       document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
     if (document.forms[0].elements['takeAssessmentForm:cancel2'])
@@ -53,6 +61,52 @@ function disableBeginAssessment2(){
   else{ // any subsequent click disable feeback link & action
     if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
       document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+  }
+}
+
+var continueAssessment1Disabled = 'false';
+function disableContinueAssessment1(){
+  if (continueAssessment1Disabled === 'false'){
+	continueAssessment1Disabled = 'true';
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+        document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment2'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+	if (document.forms[0].elements['takeAssessmentForm:continueAssessment1'])
+	        document.forms[0].elements['takeAssessmentForm:continueAssessment1'].disabled=true;
+  }
+}
+
+var continueAssessment2Disabled = 'false';
+function disableContinueAssessment2(){
+  if (continueAssessment2Disabled === 'false'){
+	continueAssessment2Disabled = 'true';
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment1'])
+        document.forms[0].elements['takeAssessmentForm:beginAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment2'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment2'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:beginAssessment3'])
+      document.forms[0].elements['takeAssessmentForm:beginAssessment3'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:continueAssessment1'])
+        document.forms[0].elements['takeAssessmentForm:continueAssessment1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel1'])
+      document.forms[0].elements['takeAssessmentForm:cancel1'].disabled=true;
+    if (document.forms[0].elements['takeAssessmentForm:cancel2'])
+      document.forms[0].elements['takeAssessmentForm:cancel2'].disabled=true;
+  }
+  else{ // any subsequent click disable feeback link & action
+	if (document.forms[0].elements['takeAssessmentForm:continueAssessment2'])
+	        document.forms[0].elements['takeAssessmentForm:continueAssessment2'].disabled=true;
   }
 }
 

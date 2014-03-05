@@ -258,5 +258,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public List getHighestSubmittedAssessmentGradingList(final Long publishedAssessmentId);
   public Double getAverageSubmittedAssessmentGrading( final Long publishedAssessmentId, final String agentId);
-  public HashMap getAverageAssessmentGradingByPublishedItem(Long publishedAssessmentId);	
+  public HashMap getAverageAssessmentGradingByPublishedItem(Long publishedAssessmentId);
+  
+  public List getUnSubmittedAssessmentGradingDataList(Long publishedAssessmentId, String agentIdString);
+
 }

@@ -156,6 +156,7 @@ public class DeliveryBean
   private String errorMessage;
   private SettingsDeliveryBean settings;
   private java.util.Date dueDate;
+  private java.util.Date adjustedTimedAssesmentDueDate;
   private java.util.Date retractDate;
   private boolean statsAvailable;
   private boolean submitted;
@@ -172,6 +173,7 @@ public class DeliveryBean
   private String timeLimit;
   private int timeLimit_hour;
   private int timeLimit_minute;
+  private String timeLimitString;
   private ContentsDeliveryBean tableOfContents;
   private String submissionId;
   private String submissionMessage;
@@ -276,6 +278,9 @@ public class DeliveryBean
   private boolean useDueDate;
   private boolean submitFromTimeoutPopup;
   private boolean  skipFlag;
+  private Date deadline;
+  
+  private boolean  firstTimeTaking;
   
   private static String ACCESSBASE = ServerConfigurationService.getAccessUrl();
   private static String RECPATH = ServerConfigurationService.getString("samigo.recommendations.path"); 
@@ -440,6 +445,25 @@ public class DeliveryBean
     return beginTime;
   }
 
+  
+  public String getBeginTimeString() {
+	  String beginTimeString = "";
+	    if (beginTime == null) {
+	      return beginTimeString;
+	    }
+
+	    try {
+	      TimeUtil tu = new TimeUtil();
+	      beginTimeString = tu.getDisplayDateTime(dayDisplayFormat, beginTime);
+	    }
+	    catch (Exception ex) {
+	      // we will leave it as an empty string
+	      log.warn("Unable to format date.");
+	      ex.printStackTrace();
+	    }
+	    return beginTimeString;
+  }
+  
   /**
    *
    *
@@ -1078,6 +1102,32 @@ public class DeliveryBean
     this.dueDate = dueDate;
   }
   
+  public Date getAdjustedTimedAssesmentDueDate() {
+	  return adjustedTimedAssesmentDueDate;
+  }
+  
+  public String getAdjustedTimedAssesmentDueDateString () {
+	  String adjustedTimedAssesmentDueDateString = "";
+	    if (adjustedTimedAssesmentDueDate == null) {
+	      return adjustedTimedAssesmentDueDateString;
+	    }
+
+	    try {
+	      TimeUtil tu = new TimeUtil();
+	      adjustedTimedAssesmentDueDateString = tu.getDisplayDateTime(dayDisplayFormat, adjustedTimedAssesmentDueDate);
+	    }
+	    catch (Exception ex) {
+	      // we will leave it as an empty string
+	      log.warn("Unable to format date.");
+	      ex.printStackTrace();
+	    }
+	    return adjustedTimedAssesmentDueDateString;
+  }
+  
+  public void setAdjustedTimedAssesmentDueDate (Date adjustedTimedAssesmentDueDate) {
+	  this.adjustedTimedAssesmentDueDate = adjustedTimedAssesmentDueDate;
+  }
+  
   public java.util.Date getRetractDate()
   {
     return retractDate;
@@ -1320,6 +1370,17 @@ public class DeliveryBean
   {
     this.timeLimit_minute = timeLimit_minute;
   }
+  
+  public String getTimeLimitString()
+  {
+    return timeLimitString;
+  }
+
+  public void setTimeLimitString(String timeLimitString)
+  {
+    this.timeLimitString = timeLimitString;
+  }
+ 
 
   /**
    * Bean with table of contents information and
@@ -3480,16 +3541,75 @@ public class DeliveryBean
 		 }
 		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
-			if (timeBeforeDueRetract != null) {
-				timeLimit = timeBeforeDueRetract;
-			}
-			else {
-				timeLimit = getTimeBeforeDueRetract(timeLimit);
-			}
+			timeLimit = timeBeforeDueRetract;
 		}
 		
 		return timeLimit;
 	  }
+	  
+	  public String getDeadlineString() {
+		  String deadlineString = "";
+		    if (deadline == null) {
+		      return deadlineString;
+		    }
+
+		    try {
+		      TimeUtil tu = new TimeUtil();
+		      deadlineString = tu.getDisplayDateTime(dayDisplayFormat, deadline);
+		    }
+		    catch (Exception ex) {
+		      // we will leave it as an empty string
+		      log.warn("Unable to format date.");
+		      ex.printStackTrace();
+		    }
+		    return deadlineString;
+	  }
+	  
+	  public Date getDeadline() {
+		  return deadline;
+	  }
+	  
+	  public void setDeadline() {
+		  if (this.firstTimeTaking) {
+			  boolean acceptLateSubmission = AssessmentAccessControlIfc.
+					  ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+
+			  if (dueDate != null) {
+				  if (!acceptLateSubmission) {
+					  deadline = dueDate;
+				  }
+				  else {
+					  if (totalSubmissions > 0) {
+						  deadline = dueDate;
+					  }
+					  else {
+						  if (retractDate != null) {
+							  deadline = retractDate;
+						  }
+					  }
+				  }
+			  }
+			  else {
+				  if (retractDate != null) {
+					  deadline = retractDate;
+				  }
+			  }
+		  }
+		  else {
+			  if (dueDate != null) {
+				  deadline = dueDate;
+			  }
+			  else {
+				  if (retractDate != null) {
+					  deadline = retractDate;
+				  }
+				  else {
+					  deadline = null;
+				  }
+			  }
+		  }
+	  }
+
 	  
 	  public String getTimeBeforeDueRetract(String timeLimit) {
 		  boolean acceptLateSubmission = AssessmentAccessControlIfc.
@@ -3835,6 +3955,13 @@ public class DeliveryBean
 		  return skipFlag;
 	  }
 	  
+	  public void setFirstTimeTaking(boolean firstTimeTaking) {
+		  this.firstTimeTaking = firstTimeTaking;
+	  }
+	  
+	  public boolean getFirstTimeTaking() {
+		  return firstTimeTaking;
+	  }
 	  
 }
 

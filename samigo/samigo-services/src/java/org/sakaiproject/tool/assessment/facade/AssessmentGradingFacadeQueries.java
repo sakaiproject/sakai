@@ -3533,4 +3533,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		  }
 
 	  }
+	  
+	  public List getUnSubmittedAssessmentGradingDataList(final Long publishedAssessmentId, final String agentIdString) {
+		  final HibernateCallback hcb = new HibernateCallback(){
+			  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				  Query q = session.createQuery(
+						  "from AssessmentGradingData a where a.publishedAssessmentId=? and a.agentId=? and a.forGrade=? order by a.attemptDate desc");
+				  q.setLong(0, publishedAssessmentId.longValue());
+				  q.setString(1, agentIdString);
+				  q.setBoolean(2, false);
+				  return q.list();
+			  };
+		  };
+		  List assessmentGradings = getHibernateTemplate().executeFind(hcb);
+
+		  return assessmentGradings;
+	  }
 }
