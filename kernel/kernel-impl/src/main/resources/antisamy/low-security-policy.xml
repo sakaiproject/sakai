@@ -684,6 +684,7 @@
         <tag name="i" action="validate"/>
         <tag name="b" action="validate"/>
         <tag name="u" action="validate"/>
+        <tag name="s" action="validate"/>
         <tag name="strong" action="validate"/>
         
         <tag name="em" action="validate"/>
