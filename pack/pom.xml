@@ -4,9 +4,9 @@
 
     <parent>
         <groupId>org.sakaiproject</groupId>
-        <artifactId>base</artifactId>
+        <artifactId>master</artifactId>
         <version>11-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../master/pom.xml</relativePath>
     </parent>
 
     <name>Sakai Pack Base</name>
