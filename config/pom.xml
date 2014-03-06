@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<parent>
-		<artifactId>base</artifactId>
-		<groupId>org.sakaiproject</groupId>
-		<version>11-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
 	<name>Sakai Config Project</name>
 	<groupId>org.sakaiproject</groupId>
 	<artifactId>config</artifactId>
-  <version>11-SNAPSHOT</version>
+    <version>11-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<description>The Config project is home to Sakai configuration and localization files.  Config includes 
 	several versions of sakai.properties, a text file containing a series of key/value pairs 
