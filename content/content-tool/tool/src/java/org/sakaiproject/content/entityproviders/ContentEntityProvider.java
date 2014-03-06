@@ -40,7 +40,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -131,13 +131,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException("siteId a must be set in order to get the resources for a site, via the URL /content/site/siteId");
 		}
-		/*ToolSession toolSession = SessionManager.getCurrentToolSession();
-		ResourceTypeRegistry registry = (ResourceTypeRegistry) toolSession.getAttribute(STATE_RESOURCES_TYPE_REGISTRY);
-		if(registry == null)
-		{
-			registry = (ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry");
-			toolSession.setAttribute(STATE_RESOURCES_TYPE_REGISTRY, registry);
-		}*/
+		Session session = SessionManager.getCurrentSession();
+		
 		String wsCollectionId = contentHostingService.getSiteCollection(siteId);
 		try
         {
@@ -159,7 +154,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 				{
 					try
 					{
-						ContentCollection collection = contentHostingService.getCollection(lItem.getId());
+						String collectionId = lItem.getId();
+						ContentCollection collection = contentHostingService.getCollection(collectionId);
 						//convert to our simplified object 
 						ContentItem item = new ContentItem();
 						
@@ -167,11 +163,16 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
 						item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
 						item.setType("collection");
-						item.setSize(0);
+						item.setSize(contentHostingService.getCollectionSize(collection.getId()));
 						item.setUrl(collection.getUrl());
 						item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
 						item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 						item.setContainer(collection.getContainingCollection().getReference());
+						List<String> l = collection.getMembers();
+						if (l != null)
+						{
+							item.setNumChildren(l.size());
+						}
 						rv.add(item);
 					}
 					catch (IdUnusedException e)
@@ -423,6 +424,11 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		@Getter @Setter
 		private String container;
 		
+		@Getter @Setter
+		private boolean isVisible;
+
+		@Getter @Setter
+		private long numChildren=0;
 	}
 	
 	/**
