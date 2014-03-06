@@ -72,90 +72,50 @@ var renderHierarchyWithJsonTree = function(data){
     var siteId = collId.split('/')[2];
     
     //massage the json so that w can use jsonTree
-    var folderList = [];
     $.each(data.content_collection, function(i, item){
-        //add item.text field
         item.text = item.title;
-        
-        //get item.id field
+        //get item.id field to turn into a jsTree happy item.id
         var itemUrl = item.url;
-        var path = itemUrl;
-        //appending a bogus string so that we can tell when a click event
-        //is on a document or on a folder
-        item.id = 'fileitem' + path.substr(itemUrl.indexOf('/content/group/' + siteId)).replace(/\//g, "_");
-        
+        item.id = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId)).replace(/\//g, "_");
         //transforming item.container into item.parent 
         var parentPath = item.container;
-        item.parent = parentPath.replace(/\//g, "_");
-        
-        item.icon = iconDecider(item.type);
-        
-        //data has no notion of folders
-        //so here we are grabbing a path, massaging the text to construct a folder item
-        path = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId) + 23);
-        //haha more hardwiring to the mercury site!
-        var folderId = '/content/group/' + siteId + '/' + path.substr(0, path.lastIndexOf('/')) + '_';
-        
-        //this does not seem to work
-        item.a_attr = path;
-        //add this folder to the folder array - there will be duplicates - this is dumb
-        folderList.push(folderId);
-    });
-    
-    //remove all the dupes in the folder array
-    var uniqueIds = [];
-    $.each(folderList, function(i, el){
-        if ($.inArray(el, uniqueIds) === -1) {
-            uniqueIds.push(el);
-        }
-    });
-    folderList = uniqueIds.sort();
-    
-    
-    //for each folder id item, construct an oject that jsTree will unerstand
-    // lots of idiotic string parsing to get the item.id, item.text and item.parent values
-    $.each(folderList, function(i, el){
-        var newItem = {};
-        var pathArray = el.split('/');
-        var folder = pathArray.pop();
-        folder = folder.substr(0, folder.length - 1);
-        var parentFolder = pathArray.join('/');
-        //good lord - this is hard wired to the mercury site -double plus bad
-        if (parentFolder === undefined || parentFolder === '' || parentFolder === '/content/group/' + siteId) {
-            parentFolder = '_content_group_' + siteId + '_';
+        //if this is site root, special parent value
+        // since the site root title is null in /direct
+        // give it the site title
+        if (parentPath === '/content/group/') {
+            item.parent = '#';
+            item.text = siteId
         }
         else {
-            parentFolder = parentFolder.replace(/\//g, "_") + '_';
+            item.parent = parentPath.replace(/\//g, "_");
+        }  
+        
+        path = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId) + 23);
+        var itemType='';
+        var itemUrl='';
+        //depending on file or collection type, custom parameters
+        if (item.type ==='collection'){
+            itemType= 'folder';
+            itemUrl = '/group/' + siteId + '/' + path.substr(0, path.lastIndexOf('/')) + '/';
         }
-        newItem.id = el.replace(/\//g, "_");
-        newItem.parent = parentFolder;
-        newItem.text = folder;
-        newItem.a_attr = el;
-        //adding this object to the collection
-        data.content_collection.push(newItem);
+        else {
+            itemType= 'file';
+            item.icon = iconDecider(item.type);
+            itemUrl = item.url
+        }
+        //adding custom parameters for URL and TYPE
+        item.li_attr = {'data_url':itemUrl,'data_type': itemType};
     });
-    var root = {};
-    root.id = '_content_group_' + siteId + '_';
-    root.parent = '#';
-    root.text = siteId;
-    data.content_collection.push(root);
     
     $(function(){
         $("#navigatePanelInner").on('changed.jstree', function(e, data){
-            //event after
-            // this will return the path after a lot of imbecilic string massaging
             var selectedId = data.selected[0];
-            
-            //here we are using the bogus appended string to decide 
-            // if this is a folder or a darn document
-            if (selectedId.indexOf('fileitem') === 0) {
-                //more exciting string wrangling
-                var launchURL = selectedId.replace(/_/g, "\/").replace('fileitem', '/access/');
+            if (data.node.li_attr.data_type === 'file') {
+                var launchURL = data.node.li_attr.data_url;
                 window.open(launchURL);
             }
             else {
-                //what is the folderUrl? only more string strangling will tell
-                var folderUrl = selectedId.replace(/_/g, "\/").replace('/content', '');
+                var folderUrl = data.node.li_attr.data_url;
                 // here we are populating the form associated with resources list
                 $('#sakai_action').val('doNavigate');
                 $('#collectionId').val(folderUrl);
