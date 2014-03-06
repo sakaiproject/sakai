@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <artifactId>base</artifactId>
-        <groupId>org.sakaiproject</groupId>
-        <version>2.7.0-SNAPSHOT</version>
+        <groupId>org.sakaiproject.edu-services</groupId>
+        <artifactId>edu-services</artifactId>
+        <version>11-SNAPSHOT</version>
     </parent>
     <name>cm-authz-synchronizer-job</name>
     <groupId>org.sakaiproject</groupId>
