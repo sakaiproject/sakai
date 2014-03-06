@@ -23,23 +23,18 @@
 
 		<p><h:message for="su" errorClass="alertMessage" infoClass="instruction" showSummary="true" showDetail="false"/></p>
 
-		<h:panelGrid columns="2" rendered="#{SuTool.userinfo != null}" headerClass="listHier" >
-		  <f:facet name="header">
-			<h:outputText value="#{msgs.userinfoheader}"/>
-		  </f:facet>
-		  <h:outputText value="#{msgs.name}" />
-		  <h:outputText value="#{SuTool.userinfo.displayName}" />
-		  <h:outputText value="#{msgs.email}" />
-		  <h:outputText value="#{SuTool.userinfo.email}" />
-		  <h:outputText value="#{msgs.eid}" />
-		  <h:outputText value="#{SuTool.userinfo.eid}" />
-		  <h:outputText value="#{msgs.id}" />
-		  <h:outputText value="#{SuTool.userinfo.id}" />
-		  <h:outputText value="#{msgs.type}" />
-		  <h:outputText value="#{SuTool.userinfo.type}" />
-		  <h:outputText value="#{msgs.created}" />
-		  <h:outputText value="#{SuTool.userinfo.createdTime.display}" />
-		</h:panelGrid>
+
+        <h:outputText rendered="#{SuTool.userinfo == null}" escape="false" value="<div style=\"display:none\">" />
+            <h3><h:outputText value="#{msgs.userinfoheader}"/></h3>
+            <table class="itemSummary" summary="<h:outputText value="#{msgs.userinfoheader}"/>">
+                <tr><th scope="row"><h:outputText value="#{msgs.name}" /></th><td><h:outputText value="#{SuTool.userinfo.displayName}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.email}" /></th><td><h:outputText value="#{SuTool.userinfo.email}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.eid}" /></th><td><h:outputText value="#{SuTool.userinfo.eid}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.id}" /></th><td><h:outputText value="#{SuTool.userinfo.id}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.type}" /></th><td><h:outputText value="#{SuTool.userinfo.type}" /></td></tr>
+                <tr><th scope="row"><h:outputText value="#{msgs.created}" /></th><td><h:outputText value="#{SuTool.userinfo.createdTime.display}" /></td></tr>
+            </table>
+        <h:outputText rendered="#{SuTool.userinfo == null}" escape="false" value="</div>" />
 
 		<h:panelGroup>
 			<h:message for="username" errorClass="alertMessage" infoClass="instruction" />
