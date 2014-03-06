@@ -81,9 +81,10 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarService;
@@ -238,6 +239,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private AssignmentPeerAssessmentService assignmentPeerAssessmentService = null;
 	public void setAssignmentPeerAssessmentService(AssignmentPeerAssessmentService assignmentPeerAssessmentService){
 		this.assignmentPeerAssessmentService = assignmentPeerAssessmentService;
+	}
+
+	private SecurityService securityService = null;
+	public void setSecurityService(SecurityService securityService){
+		this.securityService = securityService;
 	}
 
 	String newline = "<br />\n";
@@ -427,7 +433,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	protected boolean unlockCheck(String lock, String resource)
 	{
-		if (!SecurityService.unlock(lock, resource))
+		if (!securityService.unlock(lock, resource))
 		{
 			return false;
 		}
@@ -448,7 +454,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	{
 		// SAK-23755 addons:
 		// super user should be allowed
-		if (SecurityService.isSuperUser())
+		if (securityService.isSuperUser())
 			return true;
 	
 		// all.groups permission should apply down to group level
@@ -479,13 +485,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
                         if (SECURE_ADD_ASSIGNMENT_SUBMISSION.equals(lock) && assignment.isGroup())
-                                return SecurityService.unlock(lock, resource); 
+                                return securityService.unlock(lock, resource); 
                         else
                                 return false;
 		}
 		else
 		{
-			return SecurityService.unlock(lock, resource);
+			return securityService.unlock(lock, resource);
 		}
 	}// unlockCheckWithGroups
 
@@ -503,10 +509,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected boolean unlockCheck2(String lock1, String lock2, String resource)
 	{
 		// check the first lock
-		if (SecurityService.unlock(lock1, resource)) return true;
+		if (securityService.unlock(lock1, resource)) return true;
 
 		// if the second is different, check that
-		if ((!lock1.equals(lock2)) && (SecurityService.unlock(lock2, resource))) return true;
+		if ((!lock1.equals(lock2)) && (securityService.unlock(lock2, resource))) return true;
 
 		return false;
 
@@ -1332,7 +1338,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// Check whether the user can add assignments for the site.
 		// If so, return the full list.
 		String siteRef = SiteService.siteReference(siteId);
-		boolean allowAdd = SecurityService.unlock(userId, SECURE_ALL_GROUPS, siteRef);
+		boolean allowAdd = securityService.unlock(userId, SECURE_ALL_GROUPS, siteRef);
 		if (allowAdd)
 		{
 			return siteAssignments;
@@ -1347,7 +1353,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 		// Check the user's site permissions and collect all of the ungrouped
 		// assignments if the user has permission
-		boolean allowSiteGet = SecurityService.unlock(userId, SECURE_ACCESS_ASSIGNMENT, siteRef);
+		boolean allowSiteGet = securityService.unlock(userId, SECURE_ACCESS_ASSIGNMENT, siteRef);
 		if (allowSiteGet)
 		{
 			permitted.addAll(ungrouped);
@@ -1357,7 +1363,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		permitted.addAll(filterGroupedAssignmentsForAccess(grouped, siteId, userId));
 
 		// Filter for visibility/submission state
-		List<Assignment> visible = (SecurityService.unlock(userId, SECURE_ADD_ASSIGNMENT, siteRef))? permitted : filterAssignmentsByVisibility(permitted, userId);
+		List<Assignment> visible = (securityService.unlock(userId, SECURE_ADD_ASSIGNMENT, siteRef))? permitted : filterAssignmentsByVisibility(permitted, userId);
 
 		// We are left with the original list filtered by site/group permissions and visibility/submission state
 		return visible;
@@ -3688,7 +3694,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	private boolean isDraftAssignmentVisible(Assignment assignment, String context) 
 	{
-		return SecurityService.isSuperUser() // super user can always see it
+		return securityService.isSuperUser() // super user can always see it
 			|| assignment.getCreator().equals(UserDirectoryService.getCurrentUser().getId()) // the creator can see it
 			|| (unlockCheck(SECURE_SHARE_DRAFTS, SiteService.siteReference(context))); // any role user with share draft permission
 	}
@@ -4020,7 +4026,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			M_log.debug(this + " allowReceiveSubmissionNotificationUsers with resource string : " + resourceString);
 			M_log.debug("                                   				 	context string : " + context);
 		}
-		return SecurityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
+		return securityService.unlockUsers(SECURE_ASSIGNMENT_RECEIVE_NOTIFICATIONS, resourceString);
 
 	} // allowAddAssignmentUsers
 	
@@ -4210,7 +4216,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			Site site = SiteService.getSite(context);
 			Collection groups = site.getGroups();
 
-			if (SecurityService.isSuperUser())
+			if (securityService.isSuperUser())
 			{
 				// for super user, return all groups
 				return groups;
@@ -4222,7 +4228,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			
 			// if the user has SECURE_ALL_GROUPS in the context (site), select all site groups
-			if (SecurityService.unlock(userId, SECURE_ALL_GROUPS, SiteService.siteReference(context)) && unlockCheck(function, SiteService.siteReference(context)))
+			if (securityService.unlock(userId, SECURE_ALL_GROUPS, SiteService.siteReference(context)) && unlockCheck(function, SiteService.siteReference(context)))
 			{
 				return groups;
 			}
@@ -4375,7 +4381,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowAddSubmissionUsers(String assignmentReference)
 	{
-		return SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
+		return securityService.unlockUsers(SECURE_ADD_ASSIGNMENT_SUBMISSION, assignmentReference);
 
 	} // allowAddSubmissionUsers
 	
@@ -4388,7 +4394,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public List allowGradeAssignmentUsers(String assignmentReference)
 	{
-		List users = SecurityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
+		List users = securityService.unlockUsers(SECURE_GRADE_ASSIGNMENT_SUBMISSION, assignmentReference);
 		if (users == null)
 		{
 			users = new ArrayList();
@@ -4494,7 +4500,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			M_log.debug(this + " allowAddAssignmentUsers with resource string : " + resourceString);
 			M_log.debug("                                    	context string : " + context);
 		}
-		return SecurityService.unlockUsers(SECURE_ADD_ASSIGNMENT, resourceString);
+		return securityService.unlockUsers(SECURE_ADD_ASSIGNMENT, resourceString);
 
 	} // allowAddAssignmentUsers
 
@@ -4932,34 +4938,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                    {
 	                        if (a.isGroup()) {
 	                            // temporarily allow the user to read and write from assignments (asn.revise permission)
-                                    SecurityService.pushAdvisor(
-                                           new MySecurityAdvisor(
-                                                  SessionManager.getCurrentSessionUserId(),
-                                                  new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
-                                                  ""/* no submission id yet, pass the empty string to advisor*/));
+                        		SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
+                                        SessionManager.getCurrentSessionUserId(),
+                                        new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
+                                        ""/* no submission id yet, pass the empty string to advisor*/);
+                        		try {
+                        			securityService.pushAdvisor(securityAdvisor);
 
-	                            M_log.debug(this + " getSubmitterGroupList context " + contextString + " for assignment " + a.getId() + " for group " + g.getId());
-	                            AssignmentSubmissionEdit s =
-	                                    addSubmission(contextString, a.getId(), g.getId());
-	                            s.setSubmitted(false);
-	                            s.setAssignment(a);
 
-	                            // set the resubmission properties
-	                            // get the assignment setting for resubmitting
-	                            ResourceProperties assignmentProperties = a.getProperties();
-	                            String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
-	                            if (assignmentAllowResubmitNumber != null)
-	                            {
-	                                s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
+                        			M_log.debug(this + " getSubmitterGroupList context " + contextString + " for assignment " + a.getId() + " for group " + g.getId());
+                        			AssignmentSubmissionEdit s =
+                        					addSubmission(contextString, a.getId(), g.getId());
+                        			s.setSubmitted(false);
+                        			s.setAssignment(a);
 
-	                                String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
-	                                // if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
-	                                s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
-	                            }
+                        			// set the resubmission properties
+                        			// get the assignment setting for resubmitting
+                        			ResourceProperties assignmentProperties = a.getProperties();
+                        			String assignmentAllowResubmitNumber = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER);
+                        			if (assignmentAllowResubmitNumber != null)
+                        			{
+                        				s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER, assignmentAllowResubmitNumber);
 
-	                            commitEdit(s);
-	                            // clear the permission
-	                            SecurityService.popAdvisor();
+                        				String assignmentAllowResubmitCloseDate = assignmentProperties.getProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME);
+                        				// if assignment's setting of resubmit close time is null, use assignment close time as the close time for resubmit
+                        				s.getPropertiesEdit().addProperty(AssignmentSubmission.ALLOW_RESUBMIT_CLOSETIME, assignmentAllowResubmitCloseDate != null?assignmentAllowResubmitCloseDate:String.valueOf(a.getCloseTime().getTime()));
+                        			}
+
+                        			commitEdit(s);
+                        			// clear the permission
+                        		} finally {
+                        			securityService.popAdvisor(securityAdvisor);
+                        		}
 	                        }
 	                    }
 	                }
@@ -5053,14 +5063,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							// construct fake submissions for grading purpose if the user has right for grading
 							if (allowGradeSubmission(a.getReference()))
 							{
+								SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
+			            				SessionManager.getCurrentSessionUserId(), 
+			            				new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
+			            				""/* no submission id yet, pass the empty string to advisor*/);
 								try
 						        {
 									// temporarily allow the user to read and write from assignments (asn.revise permission)
-						            SecurityService.pushAdvisor(
-						            		new MySecurityAdvisor(
-						            				SessionManager.getCurrentSessionUserId(), 
-						            				new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
-						            				""/* no submission id yet, pass the empty string to advisor*/));
+						            securityService.pushAdvisor(securityAdvisor);
 							        
 						            AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
 									if (s != null)
@@ -5085,14 +5095,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										rv.add(u.getId());
 									}
 						        }
-						        catch (Exception e)
-						        {
-						        	// exception
-						        }
 						        finally
 						        {
 						        	// clear the permission
-						        	SecurityService.popAdvisor();
+						        	securityService.popAdvisor(securityAdvisor);
 						        }
 							}
 						}
@@ -6355,7 +6361,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 				// check SECURE_ALL_GROUPS - if not, check if the assignment has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!SecurityService.isSuperUser(userId)) && (!SecurityService.unlock(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!securityService.isSuperUser(userId)) && (!securityService.unlock(userId, SECURE_ALL_GROUPS, SiteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
@@ -11538,14 +11544,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					
 					// return student score from Gradebook
 					String userId = m_submitterId;
+					SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
+										SessionManager.getCurrentSessionUserId(), 
+										new ArrayList<String>(Arrays.asList("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", "gradebook.viewOwnGrades")),
+										gradebookUid);
 					try
 					{
 						// add the grade permission ("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", or "gradebook.viewOwnGrades") in order to use g.getAssignmentScoreString()
-						SecurityService.pushAdvisor(
-								new MySecurityAdvisor(
-										SessionManager.getCurrentSessionUserId(), 
-										new ArrayList<String>(Arrays.asList("gradebook.gradeAll", "gradebook.gradeSection", "gradebook.editAssignments", "gradebook.viewOwnGrades")),
-										gradebookUid));
+						securityService.pushAdvisor(securityAdvisor);
+
 					
 						if (g.isGradebookDefined(gradebookUid) && g.isAssignmentDefined(gradebookUid, gAssignmentName))
 						{
@@ -11563,7 +11570,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					finally
 					{
 						// remove advisor
-						SecurityService.popAdvisor();
+						securityService.popAdvisor(securityAdvisor);
 					}
 				}
 			}
@@ -13810,14 +13817,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					String msgBody = assignment.getContent().getInstructions();
 					StringBuffer msgBodyPreMigrate = new StringBuffer(msgBody);
 					msgBody = LinkMigrationHelper.migrateAllLinks(entrySet, msgBody);
+					SecurityAdvisor securityAdvisor = new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
+							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
+							assignment.getContentReference());
 						try
 						{
 						if(!msgBody.equals(msgBodyPreMigrate.toString())){
 							// add permission to update assignment content
-							SecurityService.pushAdvisor(
-				            		new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
-				            							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT_CONTENT)),
-				            							assignment.getContentReference()));
+							securityService.pushAdvisor(securityAdvisor);
 							
 							AssignmentContentEdit cEdit = editAssignmentContent(assignment.getContentReference());
 							cEdit.setInstructions(msgBody);
@@ -13832,7 +13839,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						finally
 						{
 							// remove advisor
-							SecurityService.popAdvisor();
+							securityService.popAdvisor(securityAdvisor);
 						}
 					}					
 				catch(Exception ee)
@@ -13862,13 +13869,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					Assignment assignment = (Assignment) assignmentsIter.next();
 					String assignmentId = assignment.getId();
 					
+					SecurityAdvisor securityAdvisor = new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
+							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
+							assignmentId);
 					try 
 					{
 						// advisor to allow edit and remove assignment
-						SecurityService.pushAdvisor(
-			            		new MySecurityAdvisor(SessionManager.getCurrentSessionUserId(), 
-			            							new ArrayList<String>(Arrays.asList(SECURE_UPDATE_ASSIGNMENT, SECURE_REMOVE_ASSIGNMENT)),
-			            							assignmentId));
+						securityService.pushAdvisor(securityAdvisor);
 						
 						AssignmentEdit aEdit = editAssignment(assignmentId);
 						
@@ -13882,7 +13889,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					finally
 					{
 						// remove SecurityAdvisor
-						SecurityService.popAdvisor();
+						securityService.popAdvisor(securityAdvisor);
 					}
 				}
 			}
