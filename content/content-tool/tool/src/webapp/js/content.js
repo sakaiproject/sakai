@@ -24,7 +24,7 @@ var setupColumnToggle = function(){
                     $('.' + target).show();
                     $('#' + val).attr('data-status', 'hide');
                     $('#' + val).attr('class', 'colHide');
-                    writeDOMVal(target, 'false');
+                    writeDOMDBVal(target, 'false');
                 });
             }
             else {
@@ -35,7 +35,7 @@ var setupColumnToggle = function(){
                     $('.' + target).hide();
                     $('#' + val).attr('data-status', 'show');
                     $('#' + val).attr('class', 'colShow');
-                    writeDOMVal(target, 'true');
+                    writeDOMDBVal(target, 'true');
                 });
             }
         }
@@ -46,27 +46,81 @@ var setupColumnToggle = function(){
                 $(this).attr('data-status', 'hide');
                 $(this).attr('class', 'colHide');
                 $('.' + target).show();
-                writeDOMVal(target, 'false');
+                writeDOMDBVal(target, 'false');
             }
             else {
                 $(this).attr('data-status', 'show');
                 $(this).attr('class', 'colShow');
                 $('.' + target).hide();
-                writeDOMVal(target, 'true');
+                writeDOMDBVal(target, 'true');
             }
         }
     });
 }
 
 var readDOMVal = function(name){
-    if (window.localStorage) {
-        return sessionStorage.getItem([name]);
+	var ret_val="";
+	// get the property setting from DOM first
+	if (window.localStorage) {
+        ret_val=sessionStorage.getItem([name]);
     }
+	
+	if (ret_val==null)
+	{
+		// if the property val is not set in DOM yet, do ajax call to retrieve the value from database
+	    $.ajax
+	    (
+	        {
+	            type: "GET",
+	            url: "/direct/userPrefs/key/" + $('#userId').text() + "/resourcesColumn.json",
+	            async:false,
+	            cache:false,
+	            dataType: 'html',
+	            success: function(data)
+	            {
+	            	var json = $.parseJSON(data);
+	            	$(json).each(function(key,val){
+	            		$.each(val,function(k,v){
+		            		if (k === "data")
+		            		{  
+		            			$.each(v,function(kk,vv){
+		            				// update DOM with values from database
+		            				writeDOMVal(kk,vv);
+		            				if (kk === name)
+		            				{
+		            					ret_val = vv;
+		            				}
+		            			});
+		            		}
+	            	    });
+	            	});
+	            },
+	            error:function (xhr, textStatus, thrownError)
+	            {
+	            	
+	            }
+	        }
+	    );
+	}
+	
+	return ret_val;
+    
 };
 var writeDOMVal = function(name, val){
+	// write the (name, val) pair into DOM
     if (window.localStorage) {
         sessionStorage.setItem([name], val);
     }
+};
+var writeDOMDBVal = function(name, val){
+	// write into DOM
+    writeDOMVal(name,val);
+    
+    // use userPrefs call to preserve choices into db
+	jQuery.ajax({
+        type: "PUT",
+        url: "/direct/userPrefs/" + $('#userId').text() + "/resourcesColumn?"+name+"=" + val
+      });
 };
 $(document).ready(function(){
     if ($('#content_print_result_url').length) {
