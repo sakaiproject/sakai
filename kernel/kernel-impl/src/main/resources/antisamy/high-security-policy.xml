@@ -119,6 +119,7 @@
 
     <!-- This is a basic alphanumeric and punctuation string -->
     <regexp name="basicAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,]*$" />
+    <regexp name="extendedAlphaNumeric" value="^[a-zA-Z0-9\s\-_.\?!,&amp;;\{\}\+]*$" />
   </common-regexps>
 
     <!-- 
@@ -340,12 +341,14 @@
         <attribute name="width">
             <regexp-list>
                 <regexp name="numberOrPercent"/>
+                <regexp name="length"/>
             </regexp-list>
         </attribute>
         
         <attribute name="height">
             <regexp-list>
                 <regexp name="numberOrPercent"/>
+                <regexp name="length"/>
             </regexp-list>
         </attribute>
         
@@ -430,6 +433,623 @@
             </regexp-list>
          </attribute>
 
+        <!-- MathML common attributes -->
+        <attribute name="xref">
+            <regexp-list>
+                <regexp name="onsiteURL"/>
+                <regexp name="offsiteURL"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="mathcolor">
+            <regexp-list>
+                <regexp name="rgbCode"/>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="mathbackground">
+            <regexp-list>
+                <regexp name="rgbCode"/>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="mathvariant">
+            <literal-list>
+                <literal value="normal"/>
+                <literal value="bold"/>
+                <literal value="italic"/>
+                <literal value="bold-italic"/>
+                <literal value="double-struck"/>
+                <literal value="bold-fraktur"/>
+                <literal value="script"/>
+                <literal value="bold-script"/>
+                <literal value="fraktur"/>
+                <literal value="sans-serif"/>
+                <literal value="bold-sans-serif"/>
+                <literal value="sans-serif-italic"/>
+                <literal value="sans-serif-bold-italic"/>
+                <literal value="monospace"/>
+                <literal value="initial"/>
+                <literal value="tailed"/>
+                <literal value="looped"/>
+                <literal value="stretched"/>
+            </literal-list>
+        </attribute>
+        <attribute name="mathsize">
+            <regexp-list>
+                <literal-list>
+                    <literal value="small"/>
+                    <literal value="normal"/>
+                    <literal value="big"/>
+                </literal-list>
+                <regexp name="length"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="xmlns">
+            <regexp-list>
+                <regexp name="offsiteURL"/>
+                <regexp name="onsiteURL"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="type">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="form">
+            <literal-list>
+                <literal value="prefix"/>
+                <literal value="infix"/>
+                <literal value="postfix"/>
+            </literal-list>
+        </attribute>
+        <attribute name="fence">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="separator">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="separators">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="lspace">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="rspace">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="stretchy">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="symmetric">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="maxsize">
+            <literal-list>
+                <literal value="infinity"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="minsize">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="largeop">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="moveablelimits">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="accent">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="linebreak">
+            <literal-list>
+                <literal value="auto"/>
+                <literal value="newline"/>
+                <literal value="nobreak"/>
+                <literal value="goodbreak"/>
+                <literal value="badbreak"/>
+            </literal-list>
+        </attribute>
+        <attribute name="lineleading">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="linebreakStyle">
+            <literal-list>
+                <literal value="before"/>
+                <literal value="after"/>
+                <literal value="duplicate"/>
+                <literal value="infixlinebreakstyle"/>
+            </literal-list>
+        </attribute>
+        <attribute name="linebreakmultchar">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="indenttarget">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="indentalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+                <literal value="auto"/>
+                <literal value="id"/>
+            </literal-list>
+        </attribute>
+        <attribute name="indentalignfirst">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+                <literal value="auto"/>
+                <literal value="id"/>
+                <literal value="indentalign"/>
+            </literal-list>
+        </attribute>
+        <attribute name="indentalignlast">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+                <literal value="auto"/>
+                <literal value="id"/>
+                <literal value="indentalign"/>
+            </literal-list>
+        </attribute>
+        <attribute name="indentshift">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="indentshiftfirst">
+            <literal-list>
+                <literal value="indentshift"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="indentshiftlast">
+            <literal-list>
+                <literal value="indentshift"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="depth">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="lquote">
+            <literal-list>
+                <literal value="&quot;"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="rquote">
+            <literal-list>
+                <literal value="&quot;"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="src">
+            <regexp-list>
+                <regexp name="offsiteURL"/>
+                <regexp name="onsiteURL"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="linethickness">
+            <literal-list>
+                <literal value="thin"/>
+                <literal value="medium"/>
+                <literal value="thick"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="numalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+            </literal-list>
+        </attribute>
+        <attribute name="denomalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+            </literal-list>
+        </attribute>
+        <attribute name="bevelled">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="scriptlevel">
+            <regexp-list>
+                <regexp name="number"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="displaystyle">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="scriptsizemultiplier">
+            <regexp-list>
+                <regexp name="number"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="scriptminsize">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="infixlinebreakstyle">
+            <literal-list>
+                <literal value="before"/>
+                <literal value="after"/>
+                <literal value="duplicate"/>
+            </literal-list>
+        </attribute>
+        <attribute name="decimalpoint">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="voffset">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="open">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="close">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="notation">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="subscriptshift">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="superscriptshift">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="accentunder">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="rowalign">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="columnalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+            </literal-list>
+        </attribute>
+        <attribute name="columnspan">
+            <regexp-list>
+                <regexp name="number"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="groupalign">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="alignmentscope">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="columnwidth">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+                <regexp name="numberOrPercent"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="rowspacing">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+                <regexp name="numberOrPercent"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="columnspacing">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+                <regexp name="numberOrPercent"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="rowlines">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="columnlines">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="frame">
+            <literal-list>
+                <literal value="none"/>
+                <literal value="solid"/>
+                <literal value="dashed"/>
+            </literal-list>
+        </attribute>
+        <attribute name="framespacing">
+            <regexp-list>
+                <regexp name="basicAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="equalsrows">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="equalcolumns">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="displaystyle">
+            <literal-list>
+                <literal value="true"/>
+                <literal value="false"/>
+            </literal-list>
+        </attribute>
+        <attribute name="side">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="right"/>
+                <literal value="leftoverlap"/>
+                <literal value="rightoverlap"/>
+            </literal-list>
+        </attribute>
+        <attribute name="minlabelspacing">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="edge">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="right"/>
+            </literal-list>
+        </attribute>
+        <attribute name="stackalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+                <literal value="decimalpoint"/>
+            </literal-list>
+        </attribute>
+        <attribute name="charalign">
+            <literal-list>
+                <literal value="left"/>
+                <literal value="center"/>
+                <literal value="right"/>
+            </literal-list>
+        </attribute>
+        <attribute name="charspacing">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="longdivstyle">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="position">
+            <regexp-list>
+                <regexp name="integer"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="shift">
+            <regexp-list>
+                <regexp name="integer"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="location">
+            <literal-list>
+                <literal value="w"/>
+                <literal value="nw"/>
+                <literal value="n"/>
+                <literal value="ne"/>
+                <literal value="e"/>
+                <literal value="se"/>
+                <literal value="s"/>
+                <literal value="sw"/>
+            </literal-list>
+        </attribute>
+        <attribute name="crosscut">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="scriptsizemultiplier">
+            <regexp-list>
+                <regexp name="number"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="length">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="leftoverhang">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="rightoverhang">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="mslinethickness">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="actiontype">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="selection">
+            <regexp-list>
+                <regexp name="positiveInteger"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="display">
+            <literal-list>
+                <literal value="block"/>
+                <literal value="inline"/>
+            </literal-list>
+        </attribute>
+        <attribute name="maxwidth">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="overflow">
+            <literal-list>
+                <literal value="linebreak"/>
+                <literal value="scroll"/>
+                <literal value="elide"/>
+                <literal value="truncate"/>
+                <literal value="scale"/>
+            </literal-list>
+        </attribute>
+        <attribute name="altimg">
+            <regexp-list>
+                <regexp name="offsiteURL"/>
+                <regexp name="onsiteURL"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="altimg-width">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="altimg-height">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="altimg-valign">
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="numberOrPercent"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="alttext">
+            <regexp-list>
+                <regexp name="extendedAlphaNumeric"/>
+            </regexp-list>
+        </attribute>
+        <attribute name="cdgroup">
+            <regexp-list>
+                <regexp name="offsiteURL"/>
+                <regexp name="onsiteURL"/>
+            </regexp-list>
+        </attribute>
     </common-attributes>
 
 
@@ -1329,6 +1949,631 @@
         <tag name="tt" action="validate"/>
         <!-- Indicates an instance of a variable or program argument. -->
         <tag name="var" action="validate"/>
+
+        <!-- MathML tags -->
+        <tag name="cn" action="validate">
+        <attribute name="mathcolor"/>
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="type"/>
+        </tag>
+        <tag name="maction" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="actiontype"/>
+            <attribute name="selection"/>
+        </tag>
+        <tag name="maligngroup" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="groupalign"/>
+        </tag>
+        <tag name="malignmark" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="edge"/>
+        </tag>
+        <tag name="math" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="xmlns"/>
+            <attribute name="display"/>
+            <attribute name="maxwidth"/>
+            <attribute name="overflow"/>
+            <attribute name="altimg"/>
+            <attribute name="altimg-width"/>
+            <attribute name="altimg-height"/>
+            <attribute name="altimg-valign"/>
+            <attribute name="alttext"/>
+            <attribute name="cdgroup"/>
+        </tag>
+        <tag name="menclose" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="notation"/>
+        </tag>
+        <tag name="merror" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mfenced" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="open"/>
+            <attribute name="close"/>
+            <attribute name="separators"/>
+        </tag>
+        <tag name="mfrac" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="linethickness"/>
+            <attribute name="numalign"/>
+            <attribute name="denomalign"/>
+            <attribute name="bevelled"/>
+        </tag>
+        <tag name="mglyph" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="src"/>
+            <attribute name="width"/>
+            <attribute name="height"/>
+            <attribute name="valign">
+                <regexp-list>
+                    <regexp name="length" />
+                    <regexp name="numberOrPercent"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="alt"/>
+        </tag>
+        <tag name="mi" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mlabeledtr" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="rowalign"/>
+            <attribute name="columnalign"/>
+            <attribute name="groupalign"/>
+        </tag>
+        <tag name="mlongdiv" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="longdivstyle"/>
+        </tag>
+        <tag name="mmultiscripts" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="subscriptshift"/>
+            <attribute name="superscriptshift"/>
+        </tag>
+        <tag name="mn" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mo" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="form"/>
+            <attribute name="fence"/>
+            <attribute name="separator"/>
+            <attribute name="lspace"/>
+            <attribute name="rspace"/>
+            <attribute name="stretchy"/>
+            <attribute name="symmetric"/>
+            <attribute name="maxsize"/>
+            <attribute name="minsize"/>
+            <attribute name="largeop"/>
+            <attribute name="moveablelimits"/>
+            <attribute name="accent"/>
+            <attribute name="linebreak"/>
+            <attribute name="lineleading"/>
+            <attribute name="linebreakstyle"/>
+            <attribute name="linebreakmultchar"/>
+            <attribute name="indenttarget"/>
+            <attribute name="indentalign"/>
+            <attribute name="indentalignfirst"/>
+            <attribute name="indentalignlast"/>
+            <attribute name="indentshift"/>
+            <attribute name="indentshiftfirst"/>
+            <attribute name="indentshiftlast"/>
+        </tag>
+        <tag name="mover" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="accent"/>
+            <attribute name="align"/>
+        </tag>
+        <tag name="mpadded" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="height"/>
+            <attribute name="depth"/>
+            <attribute name="width"/>
+            <attribute name="lspace"/>
+            <attribute name="voffset"/>
+        </tag>
+        <tag name="mphantom" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mroot" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mrow" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="ms" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="lquote"/>
+            <attribute name="rquote"/>
+        </tag>
+        <tag name="mscarries" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="position"/>
+            <attribute name="location"/>
+            <attribute name="crosscut"/>
+            <attribute name="scriptsizemultiplier"/>
+        </tag>
+        <tag name="mscarry" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="location"/>
+            <attribute name="crosscut"/>
+        </tag>
+        <tag name="msgroup" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="position"/>
+            <attribute name="shift"/>
+        </tag>
+        <tag name="msline" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="position"/>
+            <attribute name="length"/>
+            <attribute name="leftoverhang"/>
+            <attribute name="rightoverhang"/>
+            <attribute name="mslinethickness"/>
+        </tag>
+        <tag name="mspace" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="width"/>
+            <attribute name="height"/>
+            <attribute name="depth"/>
+            <attribute name="linebreak"/>
+        </tag>
+        <tag name="msqrt" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="msrow" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="position"/>
+        </tag>
+        <tag name="mstack" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="align"/>
+            <attribute name="stackalign"/>
+            <attribute name="charalign"/>
+            <attribute name="charspacing"/>
+        </tag>
+        <tag name="mstyle" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="scriptlevel"/>
+            <attribute name="displaystyle"/>
+            <attribute name="scriptsizemultiplier"/>
+            <attribute name="scriptminsize"/>
+            <attribute name="infixlinebreakstyle"/>
+            <attribute name="decimalpoint"/>
+        </tag>
+        <tag name="msub" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="subscriptshift"/>
+        </tag>
+        <tag name="msubsup" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="subscriptshift"/>
+            <attribute name="superscriptshift"/>
+        </tag>
+        <tag name="msup" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="superscriptshift"/>
+        </tag>
+        <tag name="mtable" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="align">
+                <regexp-list>
+                    <regexp name="extendedAlphaNumeric" />
+                </regexp-list>
+            </attribute>
+            <attribute name="rowalign"/>
+            <attribute name="columnalign"/>
+            <attribute name="groupalign"/>
+            <attribute name="alignmentscope"/>
+            <attribute name="columnwidth"/>
+            <attribute name="width">
+                <literal-list>
+                    <literal value="auto"/>
+                </literal-list>
+                <regexp-list>
+                    <regexp name="extendedAlphaNumeric"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="rowspacing"/>
+            <attribute name="columnspacing"/>
+            <attribute name="rowlines"/>
+            <attribute name="columnlines"/>
+            <attribute name="frame"/>
+            <attribute name="framespacing"/>
+            <attribute name="equalsrows"/>
+            <attribute name="equalcolumns"/>
+            <attribute name="displaystyle"/>
+            <attribute name="side"/>
+            <attribute name="minlabelspacing"/>
+        </tag>
+        <tag name="mtd" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="rowspan"/>
+            <attribute name="columnspan"/>
+            <attribute name="rowalign"/>
+            <attribute name="columnalign"/>
+            <attribute name="groupalign"/>
+        </tag>
+        <tag name="mtext" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+        </tag>
+        <tag name="mtr" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="rowalign"/>
+            <attribute name="columnalign"/>
+            <attribute name="groupalign"/>
+        </tag>
+        <tag name="munder" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="accentunder"/>
+            <attribute name="align"/>
+        </tag>
+        <tag name="munderover" action="validate">
+            <attribute name="id"/>
+            <attribute name="xref"/>
+            <attribute name="class"/>
+            <attribute name="style"/>
+            <attribute name="href"/>
+            <attribute name="mathcolor"/>
+            <attribute name="mathbackground"/>
+            <attribute name="mathvariant"/>
+            <attribute name="mathsize"/>
+            <attribute name="dir"/>
+            <attribute name="accent"/>
+            <attribute name="accentunder"/>
+            <attribute name="align"/>
+        </tag>
     </tag-rules>
 
 
