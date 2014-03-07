@@ -1082,9 +1082,20 @@ public class AdminSitesAction extends PagedResourceActionII
 
 			try
 			{
-				//Remove the new property if it exists
-				ResourcePropertiesEdit properties = site.getPropertiesEdit();
-				properties.removeProperty("new");
+				//Remove the new property if it exists on the site
+				site.getPropertiesEdit().removeProperty("new");
+				//Remove the new property on all pages and tools in this site
+				List <SitePage> pages = site.getPages();
+				for (SitePage page : pages) {
+					//Clear new from page
+					page.getPropertiesEdit().removeProperty("new");
+					List <ToolConfiguration> tools = page.getTools();
+					for (ToolConfiguration tool : tools) {
+						//Clear new from tool
+						tool.getPlacementConfig().remove("new");
+					}
+				}
+				
 				SiteService.save(site);
 			}
 			catch (PermissionException e)
