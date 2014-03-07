@@ -1253,8 +1253,13 @@ public class ListItem
 			// but do allow changing subfolders within access-user's dropbox.
 			if(allowed && this.isDropbox())
 			{
+			 //Admin can always change dropbox folder name
+			 if (isAdmin) {
+			   allowed = true;
+			 } else {			
 				int depth = ContentHostingService.getDepth(this.id, org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX);
 				allowed = (depth > 2);
+			}
 			}
 		}
 		
