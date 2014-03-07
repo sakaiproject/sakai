@@ -931,9 +931,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute("mode", "new");
 
-		// mark the site as new, so on cancel it can be deleted
-		state.setAttribute("new", "true");
-
 		// disable auto-updates while in view mode
 		ObservingCourier courier = (ObservingCourier) state.getAttribute(STATE_OBSERVER);
 		if (courier != null) courier.disable();
@@ -1085,6 +1082,9 @@ public class AdminSitesAction extends PagedResourceActionII
 
 			try
 			{
+				//Remove the new property if it exists
+				ResourcePropertiesEdit properties = site.getPropertiesEdit();
+				properties.removeProperty("new");
 				SiteService.save(site);
 			}
 			catch (PermissionException e)
@@ -1215,8 +1215,9 @@ public class AdminSitesAction extends PagedResourceActionII
 		Site site = (Site) state.getAttribute("site");
 		if (site != null)
 		{
+			String property = site.getProperties().getProperty("new");
 			// if this was a new, delete the site
-			if ("true".equals(state.getAttribute("new")))
+			if ("true".equals(property))
 			{
 				// remove the site
 				try
@@ -1354,6 +1355,8 @@ public class AdminSitesAction extends PagedResourceActionII
 			try
 			{
 				site = SiteService.addSite(id, type);
+				// mark the site as new, so on cancel it can be deleted
+				site.getPropertiesEdit().addProperty("new", "true");
 
 				// put the site in the state
 				state.setAttribute("site", site);
@@ -1527,10 +1530,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// make the page so we have the id
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = site.addPage();
+		page.getPropertiesEdit().addProperty("new","true");
 		state.setAttribute("page", page);
-
-		// mark the site as new, so on cancel it can be deleted
-		state.setAttribute("newPage", "true");
 
 	} // doNew_page
 
@@ -1631,6 +1632,10 @@ public class AdminSitesAction extends PagedResourceActionII
 
 		// read the form - if rejected, leave things as they are
 		if (!readPageForm(data, state)) return;
+		
+		SitePage page = (SitePage) state.getAttribute("page");
+		//Clean up new page property
+		page.getPropertiesEdit().removeProperty("new");
 
 		// done with the page
 		state.removeAttribute("page");
@@ -1650,8 +1655,9 @@ public class AdminSitesAction extends PagedResourceActionII
 		Site site = (Site) state.getAttribute("site");
 		SitePage page = (SitePage) state.getAttribute("page");
 
+		String property = page.getProperties().getProperty("new");
 		// if the page was new, remove it
-		if ("true".equals(state.getAttribute("newPage")))
+		if ("true".equals(property))
 		{
 			site.removePage(page);
 		}
@@ -2148,10 +2154,8 @@ public class AdminSitesAction extends PagedResourceActionII
 		// make the tool so we have the id
 		SitePage page = (SitePage) state.getAttribute("page");
 		ToolConfiguration tool = page.addTool();
+		tool.getPlacementConfig().setProperty("new", "true");
 		state.setAttribute("tool", tool);
-
-		// mark the site as new, so on cancel it can be deleted
-		state.setAttribute("newTool", "true");
 
 	} // doNew_tool
 
@@ -2247,6 +2251,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		// read the form - if rejected, leave things as they are
 		if (!readToolForm(data, state)) return;
 
+		ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
+		//Clean up new tool property
+		tool.getPlacementConfig().remove("new");
+
 		// done with the tool
 		state.removeAttribute("tool");
 
@@ -2281,8 +2289,10 @@ public class AdminSitesAction extends PagedResourceActionII
 		SitePage page = (SitePage) state.getAttribute("page");
 		ToolConfiguration tool = (ToolConfiguration) state.getAttribute("tool");
 
+		String property = tool.getPlacementConfig().getProperty("new");
+		
 		// if the tool was new, remove it
-		if ("true".equals(state.getAttribute("newTool")))
+		if ("true".equals(property))
 		{
 			page.removeTool(tool);
 		}
@@ -2542,9 +2552,6 @@ public class AdminSitesAction extends PagedResourceActionII
 		state.removeAttribute("site");
 		state.removeAttribute("page");
 		state.removeAttribute("tool");
-		state.removeAttribute("new");
-		state.removeAttribute("newPage");
-		state.removeAttribute("newTool");
 
 		// clear the search, so after an edit or delete, the search is not automatically re-run
 		state.removeAttribute(STATE_SEARCH);
