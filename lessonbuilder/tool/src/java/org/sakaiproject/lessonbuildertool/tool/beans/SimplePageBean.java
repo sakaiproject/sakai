@@ -5633,11 +5633,6 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// TODO: should update instead of delete/add
-				if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points)) {
-					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
-				}
-				
 				if(comment.getGradebookId() == null || !comment.getGradebookPoints().equals(points)) {
 					String pageTitle = "";
 					String gradebookId = "";
@@ -5648,7 +5643,11 @@ public class SimplePageBean {
 						pageTitle = getPage(comment.getPageId()).getTitle();
 						gradebookId = "lesson-builder:comment:" + comment.getId();
 						
-						add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+						if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points))
+						    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+							      pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null);
+						else
+						    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
 								pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 						if(!add) {
 							setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
@@ -6263,15 +6262,14 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// TODO: should update instead of delete/add
-				if(page.getGradebookId() != null && !page.getGradebookPoints().equals(points)) {
-					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
-				}
-				
 				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
-					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null,
-							getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+				 	boolean add = false;
+					if (page.getGradebookId() != null && !page.getGradebookPoints().equals(points))
+					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null);
+					else 
+					    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					
+					System.out.println("added " + add);
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 					}else {
@@ -6297,14 +6295,14 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// todo: use update instead of delete, add
-				if(page.getAltGradebook() != null && !page.getAltPoints().equals(points)) {
-					gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
-				}
-				
 				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
 					String title = getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
-					boolean add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+					boolean add = false;
+					if(page.getAltGradebook() != null && !page.getAltPoints().equals(points))
+					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+											title, points, null);
+					else
+					    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
 							title, points, null, "Lesson Builder");
 					// The assessment couldn't be added
 					if(!add) {
