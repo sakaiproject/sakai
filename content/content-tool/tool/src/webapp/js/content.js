@@ -84,32 +84,46 @@ var renderHierarchyWithJsonTree = function(data){
         // give it the site title
         if (parentPath === '/content/group/') {
             item.parent = '#';
-            item.text = siteId
+            item.text = siteId;
         }
         else {
             item.parent = parentPath.replace(/\//g, "_");
-        }  
+        }
         
-        path = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId) + 23);
-        var itemType='';
-        var itemUrl='';
+        var path = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId) + 23);
+        var itemType = '';
+        itemUrl = '';
         //depending on file or collection type, custom parameters
-        if (item.type ==='collection'){
-            itemType= 'folder';
+        if (item.type === 'collection') {
+            var itemText ='';
+            if(item.numChildren ===1){
+                itemText = ' item';
+            }
+            if(item.numChildren ===0 || item.numChildren > 1){
+                itemText = ' items';
+            }
+            itemType = 'folder';
+            item.text = item.text + '&nbsp;&nbsp;&nbsp;<small class="muted">(' + item.numChildren + itemText + ')</small>';
             itemUrl = '/group/' + siteId + '/' + path.substr(0, path.lastIndexOf('/')) + '/';
         }
         else {
-            itemType= 'file';
+            itemType = 'file';
             item.icon = iconDecider(item.type);
-            itemUrl = item.url
+            itemUrl = item.url;
         }
         //adding custom parameters for URL and TYPE
-        item.li_attr = {'data_url':itemUrl,'data_type': itemType};
+        item.li_attr = {
+            'data_url': itemUrl,
+            'data_type': itemType,
+            'data_children': item.numChildren
+        };
     });
     
     $(function(){
         $("#navigatePanelInner").on('changed.jstree', function(e, data){
             var selectedId = data.selected[0];
+            //if the clicked link is a file - launch the /access link to it
+            //TODO: will this trigger the copyright aggreement form?
             if (data.node.li_attr.data_type === 'file') {
                 var launchURL = data.node.li_attr.data_url;
                 window.open(launchURL);
@@ -126,18 +140,32 @@ var renderHierarchyWithJsonTree = function(data){
             }
         }).jstree({
             'core': {
+                'multiple': false,
                 'data': data.content_collection,
                 'themes': {
+                    'stripes': true,
                     'theme': 'default',
-                    'dots': false,
+                    'dots': true,
                     'icons': true
-                },
-                "search": {
-                    "case_insensitive": true
-                },
-                "plugins": ["themes", "html_data", "search", "adv_search"]
-            }
+                }
+            },
+            "search": {
+                "case_insensitive": true
+            },
+            "plugins": ["themes", "search"]
         });
+        /*
+         var to = false;
+         $('#navigatePanelSearch').keyup(function(){
+         if (to) {
+         clearTimeout(to);
+         }
+         to = setTimeout(function(){
+         var v = $('#navigatePanelSearch').val();
+         $('#navigatePanel').jstree(true).search(v);
+         }, 250);
+         });
+         */
     });
     $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId + '_');
     $('#navigatePanel').fadeIn('slow');
@@ -215,9 +243,6 @@ $(document).ready(function(){
         $('#navigatePanelInner').jstree('open_all');
     });
     
-    
-    // this should come from a context variable you bonehead
-    //ye gods
     var collId = $('#collectionId').val();
     collId = collId.substring(0, collId.length - 1);
     var url = '/direct/content/' + collId.replace('/group/', '/site/') + '.json';

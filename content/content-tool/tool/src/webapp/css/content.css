@@ -1,5 +1,5 @@
 #navigatePanel {
-	height:500px;width:500px;overflow:auto
+	height:500px;width:500px;overflow:auto;z-index:100000
 }
 #navigatePanel p.close{
 	margin:0 10px;
