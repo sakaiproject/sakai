@@ -154,24 +154,23 @@ var renderHierarchyWithJsonTree = function(data){
             },
             "plugins": ["themes", "search"]
         });
-        /*
-         var to = false;
-         $('#navigatePanelSearch').keyup(function(){
-         if (to) {
-         clearTimeout(to);
-         }
-         to = setTimeout(function(){
-         var v = $('#navigatePanelSearch').val();
-         $('#navigatePanel').jstree(true).search(v);
-         }, 250);
-         });
-         */
     });
     $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId + '_');
     $('#navigatePanel').fadeIn('slow');
 };
 
 $(document).ready(function(){
+    var to = false;
+    $('#navigatePanelSearch').keyup(function(){
+        if (to) {
+            clearTimeout(to);
+        }
+        to = setTimeout(function(){
+            var v = $('#navigatePanelSearch').val();
+            $("#navigatePanelInner").jstree("search", v);
+        }, 250);
+    });
+
     if ($('#content_print_result_url').length) {
         window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
     }

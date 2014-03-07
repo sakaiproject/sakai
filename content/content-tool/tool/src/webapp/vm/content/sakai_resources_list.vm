@@ -97,9 +97,9 @@ $(document).ready(function() {
       </button>
       <div id="navigatePanel" class="dropdown-menu pull-right" role="menu">
           <div class="navigatePanelControls" style="padding:0 10px 5px 5px;border-bottom:1px solid #ccc">
-            <button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
-            <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button>
-            <input type="text" id="navigatePanelSearch" />
+            <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
+            <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button></div>
+            <input type="text" id="navigatePanelSearch" style="font-size:12px;"/>
             <p class="close">&times;</p>
           </div>
 	        <div id="navigatePanelInner"></div> 
