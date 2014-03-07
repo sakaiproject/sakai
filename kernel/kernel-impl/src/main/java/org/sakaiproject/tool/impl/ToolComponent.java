@@ -101,7 +101,10 @@ public abstract class ToolComponent implements ToolManager
 	protected Collection<String> m_stealthToolIds = null;
 
 	/**
-	 * Configuration - set the list of tool ids to be "stealthed". A stealthed tool does not show up in a category list of tools.
+	 * Configuration - set the list of tool ids to be "stealthed". A stealthed tool does not show up in a category
+	 * list of tools. The list of stealthed tools is set by the Sakai distribution.
+	 * If a deployment wishes to override the values set they should use the {@link #setHiddenTools(String)} and
+	 * {@link #setVisibleTools(String)}
 	 *
 	 * @param toolIds
 	 *        The comma-separated list of tool ids to be stealthed.
@@ -153,10 +156,10 @@ public abstract class ToolComponent implements ToolManager
 	protected Collection<String> m_hiddenToolIds = null;
 
 	/**
-	 * Configuration - set the list of tool ids to be visible, not hidden, even if marked hidden or stealthed.
+	 * Configuration - set the list of tool ids to be hidden.
 	 *
 	 * @param toolIds
-	 *        The comma-separated list of tool ids to be visible.
+	 *        The comma-separated list of tool ids to be hidden.
 	 */
 	public void setHiddenTools(String toolIds)
 	{
