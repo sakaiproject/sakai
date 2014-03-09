@@ -27,7 +27,7 @@
      <!-- 1.7 and newer -->
      <id>1.7</id>
      <activation>
-      <jdk>[1.7,</jdk>
+      <jdk>[1.7,)</jdk>
      </activation>
      <modules>
        <module>test-1.7</module>
