@@ -2975,8 +2975,8 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						" from AssessmentGradingData a, PublishedAccessControl c " +
 						" where a.publishedAssessmentId = c.assessment.publishedAssessmentId " +
 						" and current_timestamp() >= c.retractDate " +
-						" and a.status not in (4, 5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
-						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc ");
+						" and a.status not in (5) and (a.hasAutoSubmissionRun = 0 or a.hasAutoSubmissionRun is null) and c.autoSubmit = 1 " +
+						" order by a.publishedAssessmentId, a.agentId, a.forGrade desc, a.assessmentGradingId");
 		
 	    Iterator iter = list.iterator();
 	    String lastAgentId = "";
