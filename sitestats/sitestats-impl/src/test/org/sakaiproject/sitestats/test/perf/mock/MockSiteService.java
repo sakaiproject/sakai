@@ -493,4 +493,13 @@ public class MockSiteService implements SiteService {
 		return null;
 	}
 
+	@Override
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor) {
+	}
+
+	@Override
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor) {
+		return false;
+	}
+
 }
