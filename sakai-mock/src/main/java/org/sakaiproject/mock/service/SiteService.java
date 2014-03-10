@@ -46,6 +46,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -400,6 +401,22 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	public List<String> getSiteTypeStrings(String type)
 	{
 		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#addSiteRemovalAdvisor()
+	 */
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor) 
+	{
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#removeSiteRemovalAdvisor()
+	 */
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor) 
+	{
+		return true;
 	}
 
 	/* (non-Javadoc)
