@@ -582,7 +582,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		if (control == null) {
 			control = new AssessmentAccessControl();
 		}
-
+		
+		// Set default value for timed assessment
+		control.setTimedAssessment(Integer.valueOf(0));
+		control.setTimeLimit(Integer.valueOf(0));
+		
 		// set accessControl.releaseTo based on default setting in metaData
 		String defaultReleaseTo = template
 			.getAssessmentMetaDataByLabel("releaseTo");

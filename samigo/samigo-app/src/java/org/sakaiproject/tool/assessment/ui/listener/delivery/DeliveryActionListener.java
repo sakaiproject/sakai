@@ -2558,7 +2558,7 @@ public class DeliveryActionListener
     AssessmentGradingData ag = delivery.getAssessmentGrading();
 
     delivery.setBeginTime(ag.getAttemptDate());
-    String timeLimitInSetting = control.getTimeLimit().toString();
+    String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
     String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
     boolean isTimedAssessmentBySetting = delivery.getHasTimeLimit() && 
     		control.getTimeLimit() != null && control.getTimeLimit().intValue() > 0;
