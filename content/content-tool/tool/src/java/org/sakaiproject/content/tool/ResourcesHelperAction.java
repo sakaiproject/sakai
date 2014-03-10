@@ -86,6 +86,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.content.tool.ResourcesAction;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
@@ -1067,6 +1068,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFolder.getConditionAssignmentPoints() }));
 				return;
 			}
+			//Control if groups are selected
+			if (!ResourcesAction.checkGroups(params)) {
+				addAlert(state, rb.getString("alert.youchoosegroup")); 
+				return;
+			}
 
 			fp.setRevisedListItem(newFolder);
 			
@@ -1332,6 +1338,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFile.getConditionAssignmentPoints() }));
 				return;
 			}
+			//Control if groups are selected
+			if (!ResourcesAction.checkGroups(params)) {
+				addAlert(state, rb.getString("alert.youchoosegroup")); 
+				return;
+			}
+			
 			// notification
 			int noti = determineNotificationPriority(params, newFile.isDropbox, newFile.userIsMaintainer());
 			newFile.setNotification(noti);
@@ -1627,6 +1639,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				    addAlert(state, contentResourceBundle.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { newFile.getConditionAssignmentPoints() }));
 					return;
 				}
+				//Control if groups are selected
+				if (!ResourcesAction.checkGroups(params)) {
+					addAlert(state, rb.getString("alert.youchoosegroup")); 
+					return;
+				}
+				
 				ResourceConditionsHelper.saveCondition(newFile, params, state, i);
 				
 				uploadCount++;
