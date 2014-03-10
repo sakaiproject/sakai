@@ -229,7 +229,7 @@
 						<h:commandButton id="downloadEventsXls"  action="#{DownloadEventBean.startXlsDownload}" value="#{msgs.event_download_xls_button}"  rendered="#{DownloadEventBean.meetingsAvailable}"/>
 						<h:commandButton id="downloadEventsCsv"  action="#{DownloadEventBean.startCsvDownload}" value="#{msgs.event_download_csv_button}"  rendered="#{DownloadEventBean.meetingsAvailable && DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"/>
 						<h:outputText value="&nbsp;&nbsp;&nbsp;" escape="false"/>
-						<h:commandButton id="goToMain" action="listMeetings" value="Back"  />
+						<h:commandButton id="goToMain" action="listMeetings" value="#{msgs.goback_button}"  />
 					</h:panelGroup>
 				</h:panelGrid>
 				

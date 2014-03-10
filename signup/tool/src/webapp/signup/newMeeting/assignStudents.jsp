@@ -94,7 +94,7 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_max_attendee}"/>
 						</f:facet>
-						<h:outputText value="unlimited" escape="false"/>
+						<h:outputText value="#{msgs.event_unlimited}" escape="false"/>
 			   		</h:column>
 			   		
 			   		<h:column>		   

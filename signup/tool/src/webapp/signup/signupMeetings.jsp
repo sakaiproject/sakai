@@ -199,7 +199,7 @@
 							</f:facet>
 							<h:outputText value="#{wrapper.availableStatus}" style="#{wrapper.statusStyle}" escape="false"/>
 							<h:panelGroup styleClass="itemAction" style="margin-left:2em" rendered="#{SignupMeetingsBean.allowedToUpdate && SignupMeetingsBean.attendanceOn}">
-							  	<h:commandLink id="attendanceView" action="#{SignupMeetingsBean.processSignupAttendance}" value="Attendance"  rendered="#{wrapper.meeting.allowAttendance}"/>  <%--rendered="if ((in progress OR completed) AND attendance is a selected option for meeting) --%>
+							  	<h:commandLink id="attendanceView" action="#{SignupMeetingsBean.processSignupAttendance}" value="#{msgs.event_attendance}"  rendered="#{wrapper.meeting.allowAttendance}"/>  <%--rendered="if ((in progress OR completed) AND attendance is a selected option for meeting) --%>
 							</h:panelGroup>
 						</t:column>	
 						

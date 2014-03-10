@@ -364,7 +364,7 @@
 				          	</h:panelGrid>
 				          	
 				          	<h:panelGroup rendered="#{CopyMeetingSignupMBean.attendanceOn}">
-								<h:outputText value="Attendance" escape="false" styleClass="titleText"/>
+								<h:outputText value="#{msgs.event_signup_attendance}" escape="false" styleClass="titleText"/>
 							  </h:panelGroup>
               				<h:panelGroup rendered="#{CopyMeetingSignupMBean.attendanceOn}">
 								<h:selectBooleanCheckbox id="attendanceSelection" value="#{CopyMeetingSignupMBean.signupMeeting.allowAttendance}" />

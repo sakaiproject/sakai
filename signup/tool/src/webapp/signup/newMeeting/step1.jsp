@@ -258,7 +258,7 @@
                     
                     <%-- attendance --%>
 					<h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}">
-						<h:outputText value="Attendance" escape="false" styleClass="titleText" rendered="#{NewSignupMeetingBean.attendanceOn}"/>
+						<h:outputText value="#{msgs.event_signup_attendance}" escape="false" styleClass="titleText" rendered="#{NewSignupMeetingBean.attendanceOn}"/>
 					</h:panelGroup >
 					<h:panelGroup rendered="#{NewSignupMeetingBean.attendanceOn}">
 						<h:selectBooleanCheckbox id="attendanceSelection" value="#{NewSignupMeetingBean.signupMeeting.allowAttendance}" />
