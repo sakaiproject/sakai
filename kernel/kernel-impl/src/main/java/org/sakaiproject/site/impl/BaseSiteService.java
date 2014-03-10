@@ -36,6 +36,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -81,6 +82,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteAdvisor;
 import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.SiteRemovalAdvisor;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -156,6 +158,9 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 	/** Cache for sites accessible to a given user. */
 	protected Cache m_userSiteCache = null;
+
+	/** A set of observers watching site removals **/
+	protected Set<SiteRemovalAdvisor> siteRemovalAdvisors;
 
 	/** A list of observers watching site save events **/
 	protected List<SiteAdvisor> siteAdvisors;
@@ -477,6 +482,8 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public void init()
 	{
 		siteAdvisors = new ArrayList<SiteAdvisor>();
+		// Concurrent so that we never get ConcurrentModificationException when iterating.
+		siteRemovalAdvisors = new CopyOnWriteArraySet<SiteRemovalAdvisor>();
 
 		try
 		{
@@ -1406,6 +1413,11 @@ public abstract class BaseSiteService implements SiteService, Observer
 					unlock(SECURE_REMOVE_SOFTLY_DELETED_SITE, site.getReference());
 				}
 			}
+		}
+
+		for (SiteRemovalAdvisor advisor: siteRemovalAdvisors)
+		{
+			advisor.removed(site);
 		}
 		
 		// complete the edit
@@ -3373,6 +3385,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	public boolean removeSiteAdvisor(SiteAdvisor siteAdvisor)
 	{
 		return siteAdvisors.remove(siteAdvisor);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		siteRemovalAdvisors.add(siteRemovalAdvisor);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor)
+	{
+		return siteRemovalAdvisors.remove(siteRemovalAdvisor);
 	}
 
 	/**

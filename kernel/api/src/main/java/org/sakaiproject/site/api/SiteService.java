@@ -1105,5 +1105,18 @@ public interface SiteService extends EntityProducer
 	 * @return list of site type strings
 	 */
 	public List<String> getSiteTypeStrings(String type);
-	
+
+	/**
+	 * Add an advisor that gets called just before a site is deleted.
+	 * @param siteRemovalAdvisor The site removal advisor which will get called.
+	 */
+	public void addSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor);
+
+	/**
+	 * Remove an advisor that gets called just before a site is deleted.
+	 * @param siteRemovalAdvisor The site removal advisor which is no longer needed.
+	 * @return <code>true</code> is the advisor was removed.
+	 */
+	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor);
+
 } 
