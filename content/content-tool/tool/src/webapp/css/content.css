@@ -1,0 +1,21 @@
+/* move this one to tool-base.css as it goes along*/
+.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {
+    display: inline;
+    font-size:1em;
+}
+
+.dropdown-toggle {
+    padding: 6px 6px !important;
+}
+
+#columnTog a.colHide .hideIcon {
+    visibility: hidden;
+}
+
+#columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
+    display: inline;
+}
+
+#columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
+    display: none
+}
