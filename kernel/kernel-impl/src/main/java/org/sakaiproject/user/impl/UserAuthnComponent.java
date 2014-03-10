@@ -151,7 +151,7 @@ public abstract class UserAuthnComponent implements AuthenticationManager
 			{
 				// reject if the user is not defined
 				// TODO: create the user record here?
-				throw new AuthenticationMissingException(e);
+				throw new AuthenticationMissingException("User '" + evidence.getIdentifier() + "' not defined", e);
 			}
 		}
 

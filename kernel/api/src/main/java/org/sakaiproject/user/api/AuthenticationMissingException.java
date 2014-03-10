@@ -8,14 +8,29 @@ package org.sakaiproject.user.api;
  */
 public class AuthenticationMissingException extends AuthenticationException {
 
-	private Evidence evidence;
+	private final Evidence evidence;
 	
 	public AuthenticationMissingException(Evidence evidence) {
 		super();
 		this.evidence = evidence;
 	}
-	
-	public Evidence getEvidence() {
+
+    public AuthenticationMissingException(String msg, Evidence evidence) {
+        super(msg);
+        this.evidence = evidence;
+    }
+
+    public AuthenticationMissingException(String message, Throwable cause, Evidence evidence) {
+        super(message, cause);
+        this.evidence = evidence;
+    }
+
+    public AuthenticationMissingException(Throwable cause, Evidence evidence) {
+        super(cause);
+        this.evidence = evidence;
+    }
+
+    public Evidence getEvidence() {
 		return this.evidence;
 	}
 }
