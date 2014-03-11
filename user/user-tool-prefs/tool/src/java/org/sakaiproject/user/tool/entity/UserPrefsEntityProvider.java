@@ -314,7 +314,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			}
 		}
 		
-		if (pref != null)
+		if (pref != null && key != null)
 		{
 			ResourceProperties p = pref.getProperties(key);
 			
