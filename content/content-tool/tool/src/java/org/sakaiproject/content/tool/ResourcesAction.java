@@ -143,9 +143,11 @@ import org.w3c.dom.Element;
 
 import java.io.PrintWriter;
 import java.io.IOException;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
@@ -3180,6 +3182,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
 
 	}	// initCopyContent
+	
+
+	/**
+	 * Find the containing collection id of a given resource id.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the containing collection id.
+	 */
+	protected String isolateContainingId(String id)
+	{
+		// take up to including the last resource path separator, not counting one at the very end if there
+		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
+
+	} // isolateContainingId
 
 	/**
 	 * Find the resource name of a given resource id or filepath.
@@ -5012,10 +5029,15 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				ResourcesBrowseItem newItem = getResourcesBrowseItem(resource);
 				
-				ContentCollection collection = resource.getContainingCollection();
-				if (collection != null)
+				/*ContentCollection collection = resource.getContainingCollection();
+				if (collection == null)
 				{
-					String collectionId = collection.getId();
+					// the containing collection has been deleted, try to restore that first
+					collection
+				}*/
+				String collectionId = isolateContainingId(resource.getId());
+				if (collectionId != null)
+				{
 					
 					if (!folderIds.contains(collectionId))
 					{
@@ -5027,23 +5049,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 						for (int i=0; i < pathParts.length;i++)
 						{
 							currentFolderId += pathParts[i] + "/";
+							ContentCollection currentFolder = null;
+							String currentFolderName = null;
 							try
 							{
-								ContentCollection currentFolder = contentService.getCollection(currentFolderId);
-								if (!folderIds.contains(currentFolderId))
-								{
-									// add the folder id into collection
-									folderIds.add(currentFolderId);
-								}
-								
-								if (!folderMap.containsKey(currentFolderId))
-								{
-									// update the HashMap for folder attributes, with folder name and folder depth
-									fItem = getResourceBrowseItemForFolder(currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME),
-																contentService.getDepth(currentFolderId, rootFolderId),
-																currentFolderId);
-									folderMap.put(currentFolderId, fItem);
-								}
+								currentFolder = contentService.getCollection(currentFolderId);
+								currentFolderName = currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 							}
 							catch (IdUnusedException e)
 							{
@@ -5057,6 +5068,30 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 							{
 								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
 							}
+							finally
+							{
+								if (currentFolder == null)
+								{
+									// folder has been deleted; get folder name from its id
+									currentFolderName=isolateName(currentFolderId);
+								}
+								
+								if (!folderIds.contains(currentFolderId))
+								{
+									// add the folder id into collection
+									folderIds.add(currentFolderId);
+								}
+								
+								if (!folderMap.containsKey(currentFolderId))
+								{
+									// update the HashMap for folder attributes, with folder name and folder depth
+									fItem = getResourceBrowseItemForFolder(currentFolderName,
+																contentService.getDepth(currentFolderId, rootFolderId),
+																currentFolderId);
+									folderMap.put(currentFolderId, fItem);
+								}
+							}
+						
 						}
 					}
 					
