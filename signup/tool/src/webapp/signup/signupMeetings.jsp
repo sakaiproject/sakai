@@ -354,9 +354,9 @@
 			function getDeleteMessage() {
 				
 				if(deleteMultipleCount > 0) {
-					return '<h:outputText value="#{msgs.meeting_confirmation_to_remove_multiple}" />';
+					return '<h:outputText escape="false" value="#{msgs.meeting_confirmation_to_remove_multiple}" />';
 				}
-				return '<h:outputText value="#{msgs.meeting_confirmation_to_remove}" />';
+				return '<h:outputText escape="false" value="#{msgs.meeting_confirmation_to_remove}" />';
 			}
 
 			
