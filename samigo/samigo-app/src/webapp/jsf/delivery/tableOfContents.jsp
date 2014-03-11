@@ -90,6 +90,9 @@ function clickSubmitForGrade(){
 <!-- DONE BUTTON FOR PREVIEW ASSESSMENT -->
 <h:form id="tableOfContentsForm">
 
+<h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/>   
+<h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>
+
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
  <f:verbatim><div class="previewMessage"></f:verbatim>
      <h:outputText value="#{deliveryMessages.ass_preview}" />

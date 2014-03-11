@@ -25,6 +25,14 @@ var endH=null;
 var endM=null;
 var endS=null;
 
+var hasTimeLimit = (document.getElementById('takeAssessmentForm:hasTimeLimit') != null && document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") || 
+					(document.getElementById('tableOfContentsForm:hasTimeLimit') != null && document.getElementById('tableOfContentsForm:hasTimeLimit').value=="true");
+var showTimeWarning = (document.getElementById('takeAssessmentForm:showTimeWarning') != null && document.getElementById('takeAssessmentForm:showTimeWarning').value=="true") || 
+						(document.getElementById('tableOfContentsForm:showTimeWarning') != null && document.getElementById('tableOfContentsForm:showTimeWarning').value=="true");
+
+//alert("hasTimeLimit=" + hasTimeLimit);
+//alert("showTimeWarning=" + showTimeWarning);
+
 if(ns4){
 txt+='<table border=0 cellpadding=0 cellspacing=0><tr><td>';
 txt+='<ilayer name="PBouter" visibility="hide" height="'+barheight+'" width="'+barwidth+'">';
@@ -53,7 +61,7 @@ clearInterval(Pid);
 window.status='';
 //if(ns4)PBouter.visibility="hide";
 //else PBouter.style.visibility="hidden";
-if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+if(hasTimeLimit) {
 	action();
 }
 else {	
@@ -73,15 +81,14 @@ return layer;
  }
 return null;
 }
-var showTimeWarning = document.getElementById('takeAssessmentForm:showTimeWarning').value;
-//alert("showTimeWarning=" + showTimeWarning);
+
 function progressBarInit(){
 PBouter=(ns4)?findlayer('PBouter',document):(ie4)?document.all['PBouter']:document.getElementById('PBouter');
 PBdone=(ns4)?PBouter.document.layers['PBdone']:(ie4)?document.all['PBdone']:document.getElementById('PBdone');
 resizeEl(PBdone,0,0,barheight-2,0);
 
-if (document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
-	//alert("showTimeWarning=" + document.getElementById('takeAssessmentForm:hasTimeLimit').value);
+if (hasTimeLimit) {
+	//alert("showTimeWarning=" + document.getElementById('tableOfContentsForm:hasTimeLimit').value);
 	if(ns4)PBouter.visibility="show";
 	else PBouter.style.visibility="visible";
 }
@@ -161,7 +168,7 @@ function showCountDown(){
     if(remainM<=9) m='0';
     if(remainS<=9) s='0';
     remainTime=remainH+':'+m+remainM+':'+s+remainS; // remaining time
-    if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+    if(hasTimeLimit) {
     	document.getElementById('timer').innerHTML=remainTime;
     }
     if(running){
@@ -183,7 +190,7 @@ function progressTimerBar(){
 	//alert("remainTime=" + remainTime);
     window.status="Loaded....";
     var setRedBar = false;
-    if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true" && waitTime>300){ //waitTime is the timeLimit and it is in second
+    if(hasTimeLimit && waitTime>300){ //waitTime is the timeLimit and it is in second
 		if(remainTime==300){ //waitTime is the timeLimit and it is in second
 		setRedBar = true;
 		//alert('You have 5 minutes left. "a"');
@@ -209,7 +216,7 @@ function progressTimerBar(){
 }
 
 function stopTimer(){
-  if(document.getElementById('takeAssessmentForm:hasTimeLimit').value=="true") {
+  if(hasTimeLimit) {
     document.getElementById('timer').innerHTML="Time's up";
   }
   clearTimeout(timerID);

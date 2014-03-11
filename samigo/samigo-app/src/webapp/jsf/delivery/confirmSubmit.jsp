@@ -91,6 +91,8 @@ function saveTime()
    rendered="#{delivery.assessmentGrading.submittedDate!=null}"/>
 <h:inputHidden id="lastSubmittedDate2" value="0"
    rendered="#{delivery.assessmentGrading.submittedDate==null}"/>
+<h:inputHidden id="hasTimeLimit" value="#{delivery.hasTimeLimit}"/> 
+<h:inputHidden id="showTimeWarning" value="#{delivery.showTimeWarning}"/>   
 
 <!-- HEADING -->
 <h3 style="insColor insBak">
