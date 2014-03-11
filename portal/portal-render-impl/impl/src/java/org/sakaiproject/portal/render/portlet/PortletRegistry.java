@@ -21,9 +21,9 @@
 
 package org.sakaiproject.portal.render.portlet;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.render.api.ToolRenderException;
@@ -46,7 +46,7 @@ public class PortletRegistry
 
 	public PortletRegistry()
 	{
-		this.portletWindows = new HashMap<String, SakaiPortletWindow>();
+		this.portletWindows = new ConcurrentHashMap<String, SakaiPortletWindow>();
 	}
 
 	/**
