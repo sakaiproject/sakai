@@ -74,13 +74,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.cover.NotificationService;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.InconsistentException;
-import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.exception.ServerOverloadException;
-import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -150,8 +144,8 @@ public class ListItem
 	 * @param entity
 	 * @param parent
 	 * @param registry
-	 * @param expandAll
-	 * @param expandedFolders
+	 * @param expandAll Should we expand all the contained collections inside this one.
+	 * @param expandedCollections
 	 * @param items_to_be_moved
 	 * @param items_to_be_copied
 	 * @param depth
@@ -160,10 +154,8 @@ public class ListItem
 	 * @param addFilter TODO
 	 * @return
 	 */
-	public static ListItem getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String> expandedFolders, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
+	public static ListItem 	getListItem(ContentEntity entity, ListItem parent, ResourceTypeRegistry registry, boolean expandAll, Set<String>expandedCollections, List<String> items_to_be_moved, List<String> items_to_be_copied, int depth, Comparator userSelectedSort, boolean preventPublicDisplay, ContentResourceFilter addFilter)
 	{
-		Set<String> expandedFoldersSync = Collections.synchronizedSet(expandedFolders);
-		
 		ListItem item = null;
 			
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) ComponentManager.get(org.sakaiproject.content.api.ContentHostingService.class);
@@ -211,9 +203,6 @@ public class ListItem
         	// permissions are determined by group(s)
         	item.setPermissions(ResourcesAction.getPermissions(entity.getId(), null));
         }
-
-        synchronized(expandedFoldersSync)
-        {
 	        if(isCollection)
 	        {
 	        	ContentCollection collection = (ContentCollection) entity;
@@ -235,14 +224,14 @@ public class ListItem
 							{
 								expandAction.initializeAction(item.m_reference);
 								
-					       		expandedFoldersSync.add(entity.getId());
+							expandedCollections.add(entity.getId());
 					       		
 					       		expandAction.finalizeAction(item.m_reference);
 							}
 						}
 					}
 	         	}
-	 			if(expandedFoldersSync.contains(entity.getId()))
+			if(expandedCollections.contains(entity.getId()))
 				{
 					item.setExpanded(true);
 	
@@ -302,7 +291,7 @@ public class ListItem
 							continue;
 						}
 	
-		        		ListItem child = getListItem(childEntity, item, registry, expandAll, expandedFoldersSync, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
+					ListItem child = getListItem(childEntity, item, registry, expandAll, expandedCollections, items_to_be_moved, items_to_be_copied, depth + 1, userSelectedSort, preventPublicDisplay, addFilter);
 		        		if(items_to_be_copied != null && items_to_be_copied.contains(child.id))
 		        		{
 		        			child.setSelectedForCopy(true);
@@ -324,7 +313,6 @@ public class ListItem
 				//this.members = coll.getMembers();
 				item.setIconLocation( ContentTypeImageService.getContentTypeImage("folder"));
 	        }
-        }
         List<ResourceToolAction> otherActions = ResourcesAction.getActions(entity, item.getPermissions(), registry);
         List<ResourceToolAction> pasteActions = ResourcesAction.getPasteActions(entity, item.getPermissions(), registry, items_to_be_moved, items_to_be_copied);
 
@@ -1265,8 +1253,13 @@ public class ListItem
 			// but do allow changing subfolders within access-user's dropbox.
 			if(allowed && this.isDropbox())
 			{
+			 //Admin can always change dropbox folder name
+			 if (isAdmin) {
+			   allowed = true;
+			 } else {			
 				int depth = ContentHostingService.getDepth(this.id, org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX);
 				allowed = (depth > 2);
+			}
 			}
 		}
 		
@@ -3110,7 +3103,7 @@ public class ListItem
 			for (int i = 0; i < children.size(); i++) {
 				String resId = children.get(i);
 				if (resId.endsWith("/")) {
-					setPropertyOnFolderRecursively(resId, ResourceProperties.PROP_ALLOW_INLINE, allowHtmlInline.toString());
+					setPropertyOnFolderRecursively(resId, ResourceProperties.PROP_ALLOW_INLINE, allowHtmlInline.booleanValue());
 				}
 			}
 		}
@@ -3132,65 +3125,38 @@ public class ListItem
 
 	
 	/**
-	 * Set a property on a resource and all its children
-	 * @param resourceId
-	 * @param property
-	 * @param value
+	 * Set a property on a content hosting item and all its children (recursively).
+	 * @param contentId The ID in the of the ContentEntity.
+	 * @param property The property name to set.
+	 * @param value The value to set the property to.
 	 */
-	
-	private void setPropertyOnFolderRecursively(String resourceId, String property, String value) {
-		
-
-		
+	private void setPropertyOnFolderRecursively(String contentId, String property, boolean value) {
 		try {
-			if (ContentHostingService.isAttachmentResource(resourceId)) {
+			if (ContentHostingService.isCollection(contentId)) {
 				// collection
-				ContentCollectionEdit col = ContentHostingService.editCollection(resourceId);
+				ContentCollectionEdit col = ContentHostingService.editCollection(contentId);
 
 				ResourcePropertiesEdit resourceProperties = col.getPropertiesEdit();
-				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
+				resourceProperties.addProperty(property, String.valueOf(value));
 				ContentHostingService.commitCollection(col);
 
 				List<String> children = col.getMembers();
 				for (int i = 0; i < children.size(); i++) {
 					String resId = children.get(i);
-					if (resId.endsWith("/")) {
+					if (ContentHostingService.isCollection(resId)) {
 						setPropertyOnFolderRecursively(resId, property, value);
 					}
 				}
-
-
-								
 			} else {
 				// resource
-				ContentResourceEdit res = ContentHostingService.editResource(resourceId);
+				ContentResourceEdit res = ContentHostingService.editResource(contentId);
 				ResourcePropertiesEdit resourceProperties = res.getPropertiesEdit();
-				resourceProperties.addProperty(property, Boolean.valueOf(value).toString());
-				ContentHostingService.commitResource(res, NotificationService.NOTI_NONE);				
+				resourceProperties.addProperty(property, String.valueOf(value));
+				ContentHostingService.commitResource(res, NotificationService.NOTI_NONE);
 			}
-		} catch (PermissionException pe) {
-			pe.printStackTrace();
-			
-		} catch (IdUnusedException iue) {
-			iue.printStackTrace();
-		
-		} catch (TypeException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (InUseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (VirusFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (OverQuotaException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (ServerOverloadException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		
+		} catch (SakaiException se) {
+			logger.warn(String.format("Failed to set property '%s' on '%s' ", property, contentId), se);
+		}
 	}
 	
 	

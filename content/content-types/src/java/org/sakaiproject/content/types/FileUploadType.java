@@ -210,9 +210,13 @@ public class FileUploadType extends BaseResourceType
 		
 		@Override
 		public boolean available(ContentEntity entity) {
-			boolean enabled = ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, false) ||
-			ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_EXPAND, false);
-			return enabled && entity.getId().toLowerCase().endsWith(".zip");
+			boolean enabled = false;
+			if (entity instanceof ContentResource) {
+				enabled = ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, true) ||
+				ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_EXPAND, true);
+				enabled = enabled && entity.getId().toLowerCase().endsWith(".zip");
+			}
+			return enabled;
 		}
 	}
 	

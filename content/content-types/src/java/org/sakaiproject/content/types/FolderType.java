@@ -342,8 +342,8 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 		}
 		
 		public boolean available(ContentEntity entity) {
-			return ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, false)
-					|| ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_COMPRESS, false);
+			return ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE, true)
+					|| ServerConfigurationService.getBoolean(ContentHostingService.RESOURCES_ZIP_ENABLE_COMPRESS, true);
 		}
 	}
 	

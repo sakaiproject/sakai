@@ -52,7 +52,7 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 		String[] copyright_types = m_serverConfigurationService.getStrings("copyright.types");
 		if (copyright_types==null) {
 			active = false;
-			copyright_types = rights;
+			copyright_types = (rights == null)?new String[]{}:rights;
 		}
 		ResourceBundle rb = ResourceBundle.getBundle("org.sakaiproject.content.copyright.copyright",locale);
 		String language = locale.getLanguage();
@@ -76,7 +76,15 @@ public class CopyrightManager implements org.sakaiproject.content.copyright.api.
 	}
 	
 	public String getUseThisCopyright(String [] rights) {
-		return active?org.sakaiproject.content.copyright.api.CopyrightManager.USE_THIS_COPYRIGHT:rights[rights.length-1];
+		if (active) {
+			return CopyrightManager.USE_THIS_COPYRIGHT;
+		} else {
+			if (rights == null || rights.length == 0) {
+				return null;
+			} else {
+				return rights[rights.length-1];
+			}
+		}
 	}
 
 	private String getBaseURL(String serverURL) {
