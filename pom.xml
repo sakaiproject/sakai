@@ -113,7 +113,6 @@
                 <module>userauditservice</module>
                 <module>usermembership</module>
                 <module>velocity</module>
-                <module>warehouse</module>
                 <module>web</module>
                 <module>webservices</module>
             </modules>
