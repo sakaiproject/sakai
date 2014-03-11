@@ -31,9 +31,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import org.apache.commons.logging.Log; 
-import org.apache.commons.logging.LogFactory; 
-
 import java.util.zip.DataFormatException;
 
 import javax.faces.FactoryFinder;
@@ -72,16 +69,14 @@ import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
+import org.sakaiproject.user.api.User;
+
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 public class PostemTool {
 	
-    protected Log logger = LogFactory.getLog(PostemTool.class);
-	
-	
 	protected GradebookManager gradebookManager;
-	
 	protected ArrayList gradebooks;
 
 	protected Gradebook currentGradebook;
@@ -579,11 +574,15 @@ public class PostemTool {
 					String csvURL = new String(cr.getContent());
 					//Load the URL
 					csv = URLConnectionReader.getText(csvURL); 
-					logger.debug(csv);
+					if (LOG.isDebugEnabled()) {
+						LOG.debug(csv);
+					}
 				}
 				else {
 					csv = new String(cr.getContent());
-					logger.debug(csv);
+					if (LOG.isDebugEnabled()) {
+						LOG.debug(csv);
+					}
 				}
 				CSV grades = new CSV(csv, withHeader, csv_delim);
 				
@@ -1061,10 +1060,15 @@ public class PostemTool {
 			row++;
 			String usr = (String) studentIter.next();
 			
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("usernamesValid : username=" + usr);
+				LOG.debug("usernamesValid : siteMembers" + siteMembers);
+			}
 			if (usr == null || usr.equals("")) {
+
 				usersAreValid = false;
 				blankRows.add(new Integer(row));
-			} else if(siteMembers == null || (siteMembers != null && !siteMembers.contains(getUserId(usr)))) {
+			} else if(siteMembers == null || (siteMembers != null && !siteMembers.contains(getUserDefined(usr)))) {
 				  usersAreValid = false;
 				  invalidUsernames.add(usr);
 			}	
@@ -1131,14 +1135,37 @@ public class PostemTool {
 		return placement.getContext();
 	}
 	
-	private String getUserId(String usr)
+	//Returns getUser and getUserByEid on the input string
+	//@return Either the id of the user, or the same string if not defined
+	private String getUserDefined(String usr)
 	{
+		//Set the original user id
+		String userId = usr;
+		User userinfo;
 		try	{
-			return UserDirectoryService.getUserId(usr);
+			userinfo = UserDirectoryService.getUser(usr);
+			userId = userinfo.getId();
+			if (LOG.isDebugEnabled()) {
+				LOG.debug("getUserDefined: username for " + usr + " is " + userId);
+			}
+			return userId;
 		} 
 		catch (UserNotDefinedException e) {
-			return usr;
+			try
+			{
+				// try with the user eid
+				userinfo = UserDirectoryService.getUserByEid(usr);
+				userId = userinfo.getId();
+			}
+			catch (UserNotDefinedException ee)
+			{
+				//This is mostly expected behavior, don't need to notify about it, the UI can handle it
+				if (LOG.isDebugEnabled()) {
+					LOG.debug("getUserDefined: User Not Defined" + userId);
+				}
+			}
 		}
+		return userId;
 	}
 	
 	private List getSiteMembers() {
