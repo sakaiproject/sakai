@@ -615,9 +615,11 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       if(gdata.getTotalAutoScore() != null) {
     	  if (gdata.getForGrade()) {
     		  results.setTotalAutoScore(gdata.getTotalAutoScore().toString());
+    		  results.setForGrade(Boolean.TRUE);
     	  }
     	  else {
     		  results.setTotalAutoScore("-");
+    		  results.setForGrade(Boolean.FALSE);
     	  }
       }
       else
@@ -857,6 +859,7 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
       results.setRole((String)userRoles.get(studentid));
       // use -1 to indicate this is an unsubmitted agent
       results.setAssessmentGradingId(Long.valueOf(-1));
+      results.setForGrade(Boolean.FALSE);
       results.setTotalAutoScore("-");
       results.setTotalOverrideScore("-");
       results.setSubmittedDate(null);
