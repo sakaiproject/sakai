@@ -22,7 +22,9 @@
 package org.sakaiproject.authz.tool;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -426,7 +428,7 @@ public class RealmsAction extends PagedResourceActionII
 		// build the menu
 		Menu bar = new MenuImpl();
 		bar.add(new MenuEntry(rb.getString("realm.removerol"), null, true, MenuItem.CHECKED_NA, "doRemove_role"));
-		bar.add(new MenuEntry(rb.getString("realm.copyrol"), null, true, MenuItem.CHECKED_NA, "doSaveas_role", "role-form"));
+		bar.add(new MenuEntry(rb.getString("realm.copyrol"), null, true, MenuItem.CHECKED_NA, "doSaveas_role"));
 		context.put(Menu.CONTEXT_MENU, bar);
 
 		return "_edit_role";
@@ -1149,6 +1151,14 @@ public class RealmsAction extends PagedResourceActionII
 
 		// we are setting for either a new role or this role
 		Role role = (Role) state.getAttribute("role");
+
+		//Read the locks if they're null and the role is not null to avoid passing them around
+		if (locks == null && role != null) {
+			Collection realms = new ArrayList<String>(Arrays.asList(realm.getId()));
+			List <String> newlocks = new ArrayList(AuthzGroupService.getAllowedFunctions(role.getId(), realms));
+			locks = newlocks.toArray(new String[0]);
+		}
+
 		if (realm != null && role == null)
 		{
 			// read the form
