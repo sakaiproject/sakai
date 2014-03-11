@@ -6342,7 +6342,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
-			state.setAttribute(STATE_LIST_SELECTIONS, deleteIdSet);
+			state.removeAttribute(STATE_LIST_SELECTIONS);
 		}
 
 
