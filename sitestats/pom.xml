@@ -35,6 +35,7 @@
     <jfreechart.version>1.0.5</jfreechart.version>
     <sst.wicket.version>1.4.19</sst.wicket.version>
     <sst.slf4j.version>1.4.3</sst.slf4j.version>
+    <lombok.version>0.10.6</lombok.version>
   </properties>
 
   <!-- Project modules -->
@@ -191,6 +192,12 @@
         <groupId>jfree</groupId>
         <artifactId>jfreechart</artifactId>
         <version>${jfreechart.version}</version>
+      </dependency>
+      <!-- Project Lombok -->
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${lombok.version}</version>
       </dependency>
       <!-- Testing dependencies -->
       <dependency>

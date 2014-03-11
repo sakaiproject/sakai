@@ -33,5 +33,11 @@
     <bean id="siteStatsAdminApplication" class="org.sakaiproject.sitestats.tool.wicket.SiteStatsAdminApplication">
         <property name="facade" ref="org.sakaiproject.sitestats.tool.facade.SakaiFacade"/>
     </bean>
+
+	<!-- SiteStatsMetricsEntityProvider ___________________________________________________________________ -->
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+        class="org.sakaiproject.sitestats.tool.entityproviders.SiteStatsMetricsEntityProvider">
+    	<property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+    </bean>
     
 </beans>

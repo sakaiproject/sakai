@@ -1,6 +1,6 @@
 /**
- * $URL$
- * $Id$
+ * $URL: https://source.sakaiproject.org/svn/sitestats/trunk/sitestats-impl/src/java/org/sakaiproject/sitestats/impl/entity/SiteStatsMetricsEntityProvider.java $
+ * $Id: SiteStatsMetricsEntityProvider.java 105078 2012-02-24 23:00:38Z ottenhoff@longsight.com $
  *
  * Copyright (c) 2006-2009 The Sakai Foundation
  *
@@ -16,7 +16,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.sakaiproject.sitestats.impl.entity;
+package org.sakaiproject.sitestats.tool.entityproviders;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -33,9 +33,11 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.sitestats.api.StatsUpdateManager;
 
-public class SiteStatsMetricsEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Inputable, Outputable, Describeable {
+public class SiteStatsMetricsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Inputable, Outputable, Describeable {
+
 	public static String			PREFIX			= "sitestats-metrics";
 	
 		

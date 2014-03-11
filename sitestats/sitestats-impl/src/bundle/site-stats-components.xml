@@ -241,12 +241,6 @@
 		</property>
 	</bean>
 	
-	<!-- SiteStatsMetricsEntityProvider ___________________________________________________________________ -->
-    <bean class="org.sakaiproject.sitestats.impl.entity.SiteStatsMetricsEntityProvider">
-    	<property name="statsUpdateManager" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
-        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
-    </bean>
-	
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
