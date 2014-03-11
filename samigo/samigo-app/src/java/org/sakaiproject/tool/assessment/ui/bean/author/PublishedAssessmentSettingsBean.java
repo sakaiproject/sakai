@@ -1468,8 +1468,9 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 				while (groupIter.hasNext()) {
 					Group group = (Group) groupIter.next();
 					String title = group.getTitle();
-					sortedSelectItems.put(title.toUpperCase(),
-							new SelectItem(group.getId(), title));
+					String groupId = group.getId();
+	                String uniqueTitle = title + groupId;
+	                sortedSelectItems.put(uniqueTitle.toUpperCase(), new SelectItem(group.getId(), title));
 				}
 				Set keySet = sortedSelectItems.keySet();
 				groupIter = keySet.iterator();
