@@ -177,12 +177,12 @@ $(document).ready(function() {
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" id="columnTog">
-              <li><a id="accessTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Access</a></li>
-              <li><a id="creatorTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Created by</a></li>
-              <li><a id="modifiedTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Modified</a></li>
-              <li><a id="sizeTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;Size</a></li>
+              <li><a id="accessTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon  glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Access</a></li>
+              <li><a id="creatorTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Created by</a></li>
+              <li><a id="modifiedTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Modified</a></li>
+              <li><a id="sizeTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Size</a></li>
               <li role="presentation" class="divider"></li>
-              <li><a id="allTog" href="#"><span class="showIcon">&#9899;</span><span class="hideIcon">&#9898;</span>&nbsp;&nbsp;All of above</a></li>
+              <li><a id="allTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;All of above</a></li>
             </ul>
         </div>
 </div>

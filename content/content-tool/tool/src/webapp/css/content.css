@@ -3,7 +3,9 @@
     display: inline;
     font-size:1em;
 }
-
+.table .attach {
+    width:20px;
+}
 .dropdown-toggle {
     padding: 6px 6px !important;
 }
