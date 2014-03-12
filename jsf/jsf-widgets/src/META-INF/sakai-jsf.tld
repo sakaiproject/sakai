@@ -1385,6 +1385,16 @@
     </attribute>
 
     <attribute>
+      <name>enableFullPage</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          If true, this will set CKEditor's fullPage property, which captures the entire HTML document
+          with html, head and body tags.
+      </description>
+    </attribute>
+
+    <attribute>
       <name>buttonSet</name>
       <required>false</required>
       <rtexprvalue>false</rtexprvalue>

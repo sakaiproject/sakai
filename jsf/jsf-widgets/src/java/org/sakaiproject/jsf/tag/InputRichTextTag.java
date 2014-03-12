@@ -62,6 +62,7 @@ public class InputRichTextTag
   private String width;
   private String height;
   private String textareaOnly;
+  private String enableFullPage;
   private String buttonSet;
   private String buttonList;
   private String javascriptLibraryURL;
@@ -133,6 +134,7 @@ public class InputRichTextTag
     TagUtil.setInteger(component, "width", width);
     TagUtil.setInteger(component, "height", height);
     TagUtil.setString(component, "textareaOnly", textareaOnly);
+    TagUtil.setString(component, "enableFullPage", enableFullPage);
     TagUtil.setString(component, "buttonSet", buttonSet);
     TagUtil.setString(component, "buttonList", buttonList);
     TagUtil.setString(component, "javascriptLibraryURL", javascriptLibraryURL);
@@ -170,6 +172,7 @@ public class InputRichTextTag
     width = null;
     height = null;
     textareaOnly = null;
+    enableFullPage = null;
     buttonSet = null;
     buttonList = null;
     javascriptLibraryURL = null;
@@ -234,6 +237,17 @@ public class InputRichTextTag
   {
     this.textareaOnly = textareaOnly;
   }
+  
+  public String getEnableFullPage()
+  {
+    return enableFullPage;
+  }
+
+  public void setEnableFullPage(String enableFullPage)
+  {
+    this.enableFullPage = enableFullPage;
+  }
+
 
   public String getButtonSet()
   {

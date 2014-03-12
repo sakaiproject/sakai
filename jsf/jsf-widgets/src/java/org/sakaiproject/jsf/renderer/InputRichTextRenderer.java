@@ -159,6 +159,10 @@ public class InputRichTextRenderer extends Renderer
      String buttonSet = (String) RendererUtil.getAttribute(context, component, "buttonSet");
 //  Comma delimited list of toolbar command buttons registered with component.
     String buttonList = (String) RendererUtil.getAttribute(context, component, "buttonList");
+    
+    //If true, send full documents via CKEditor
+    String enableFullPage = (String) RendererUtil.getAttribute(context, component, "enableFullPage");
+	
     /**
      * @todo need to do something with extensions.
      */
@@ -229,9 +233,24 @@ public class InputRichTextRenderer extends Renderer
     writer.write("</textarea>");
     
     if (!"true".equals(textareaOnly))
-    {
-    writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', {"+collectionId+"}, '" + widthPx + "','" + heightPx + "');</script>");
-    }
+		{
+			if (enableFullPage != null && "true".equals(enableFullPage))
+			{
+				writer.write("<script type=\"text/javascript\" defer=\"1\">");
+				writer.write("function config(){}");
+				writer.write("config.prototype.fullPage=true;");
+				writer.write("config.prototype.width=" + widthPx + ";");
+				writer.write("config.prototype.height=" + heightPx + ";");
+				if (collectionBase != null) writer.write("config.prototype.collectionId='" + collectionBase.replaceAll("\"", "\\\"") + "';");
+				writer.write("sakai.editor.launch('" + clientId + "_inputRichText', new config(), " + widthPx + ", " + heightPx + ");</script>");
+
+			}
+			else
+			{
+				writer.write("<script type=\"text/javascript\">sakai.editor.launch('" + clientId + "_inputRichText', {" + collectionId + "}, '"
+						+ widthPx + "','" + heightPx + "');</script>");
+			}
+		}
 
     writer.write("</td></tr></table>\n");
 
