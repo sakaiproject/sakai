@@ -65,7 +65,6 @@
         <dependency>
             <groupId>org.sakaiproject.mock</groupId>
             <artifactId>sakai-mock</artifactId>
-            <version>2.7.7</version>
             <scope>test</scope>
         </dependency>
 
