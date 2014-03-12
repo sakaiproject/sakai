@@ -582,7 +582,7 @@ public class PortletIFrame extends GenericPortlet {
 					Site site = SiteService.getSite(toolConfig.getSiteId());
 					String siteId = site.getId();
 					SitePage page = site.getPage(toolConfig.getPageId());
-
+					context.put("siteId", siteId);
 					// if this is the only tool on that page, update the page's title also
 					if ((page.getTools() != null) && (page.getTools().size() == 1))
 					{

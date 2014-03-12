@@ -38,7 +38,7 @@ $(document).ready(function() {
 					<tr>
 						<td>
 						<textarea id="description" name="description" rows="5" cols="40" tabindex="1" wrap="virtual">$!description</textarea>
-<script type="text/javascript" defer="1">sakai.editor.launch('description', { height: '300', width: '99%', toolbarSet: 'largecompressed' } );</script>
+<script type="text/javascript" defer="1">sakai.editor.launch('description', { height: '300', width: '99%', toolbarSet: 'largecompressed', collectionId:'/group/$siteId/' } );</script>
 						</td>
 					</tr>
 			</table>
