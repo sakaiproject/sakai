@@ -138,6 +138,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ckconfig.toolbar = config.toolbarSet;
 		}
 
+		if (config.fullPage) {
+			ckconfig.fullPage = true;
+		}
+
 		if (config.audiorecorder) {
 			ckconfig.audiorecorder = config.audiorecorder;
 		}
