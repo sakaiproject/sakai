@@ -15,6 +15,9 @@
         <module>cm-impl/hibernate-impl/hibernate</module>
         <module>cm-impl/hibernate-impl/impl</module>
         <module>cm-impl/hibernate-pack</module>
+		<!-- This test currently isn't functional 
+        <module>cm-impl/integration-test</module>
+		-->
     </modules>
     <dependencyManagement>
         <dependencies>
