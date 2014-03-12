@@ -70,13 +70,11 @@ var renderHierarchyWithJsonTree = function(data){
 
     var collId = $('#collectionId').val();
     var siteId = collId.split('/')[2];
-    
-    //massage the json so that w can use jsonTree
+    //massage the json so that we can use jsonTree
     $.each(data.content_collection, function(i, item){
         item.text = item.title;
         //get item.id field to turn into a jsTree happy item.id
-        var itemUrl = item.url;
-        item.id = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId)).replace(/\//g, "_");
+        item.id = item.url.substr(item.url.indexOf('/content/group/' + siteId)).replace(/\//g, "_");
         //transforming item.container into item.parent 
         var parentPath = item.container;
         //if this is site root, special parent value
@@ -84,15 +82,25 @@ var renderHierarchyWithJsonTree = function(data){
         // give it the site title
         if (parentPath === '/content/group/') {
             item.parent = '#';
-            item.text = siteId;
+            //TODO: some sites report 'null' for title, use the Id - need better handle
+            if (item.title === null){
+                item.text = siteId;
+            }
+            else {
+                item.text = item.title;
+            }
+            
+            
         }
         else {
             item.parent = parentPath.replace(/\//g, "_");
         }
-        
-        var path = itemUrl.substr(itemUrl.indexOf('/content/group/' + siteId) + 23);
+        var pathArr = item.url.split('/');
+        var siteIdLoc = pathArr.indexOf(siteId);
+        var pathToFolder = '/group/' + pathArr.slice(siteIdLoc).join('/');
+        var pathToFile = item.url;
         var itemType = '';
-        itemUrl = '';
+        var itemUrl = '';
         //depending on file or collection type, custom parameters
         if (item.type === 'collection') {
             var itemText ='';
@@ -104,12 +112,12 @@ var renderHierarchyWithJsonTree = function(data){
             }
             itemType = 'folder';
             item.text = item.text + '&nbsp;&nbsp;&nbsp;<small class="muted">(' + item.numChildren + itemText + ')</small>';
-            itemUrl = '/group/' + siteId + '/' + path.substr(0, path.lastIndexOf('/')) + '/';
+            itemUrl = pathToFolder;
         }
         else {
             itemType = 'file';
             item.icon = iconDecider(item.type);
-            itemUrl = item.url;
+            itemUrl = pathToFile;
         }
         //adding custom parameters for URL and TYPE
         item.li_attr = {
@@ -244,7 +252,7 @@ $(document).ready(function(){
     
     var collId = $('#collectionId').val();
     collId = collId.substring(0, collId.length - 1);
-    var url = '/direct/content/' + collId.replace('/group/', '/site/') + '.json';
+    var url = '/direct/content' + collId.replace('/group/', '/site/') + '.json';
     $('#navigate').click(function(){
         if ($('#navigatePanelInner ul').length === 0) {
             var jqxhr = $.getJSON(url, function(data){
