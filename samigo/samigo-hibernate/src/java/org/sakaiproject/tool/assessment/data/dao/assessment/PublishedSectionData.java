@@ -242,6 +242,7 @@ public class PublishedSectionData
 
   public ArrayList getItemArray() {
     ArrayList list = new ArrayList();
+    if(itemSet == null) itemSet = new HashSet();
     Iterator iter = itemSet.iterator();
     while (iter.hasNext()){
       list.add(iter.next());

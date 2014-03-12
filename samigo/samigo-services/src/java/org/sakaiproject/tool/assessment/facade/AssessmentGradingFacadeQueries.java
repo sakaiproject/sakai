@@ -1703,7 +1703,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    while(iter.hasNext()) {
     		itemIds.add((Long) iter.next());
 	    }
-    
+
+	    if(itemIds.isEmpty()) return itemSet;
+	    
 	    final HibernateCallback hcb2 = new HibernateCallback() {
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery(
