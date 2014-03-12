@@ -1190,11 +1190,22 @@ public class RealmsAction extends PagedResourceActionII
 		// clear out the role
 		role.disallowAll();
 
+		String descriptionString = StringUtils.trimToNull(data.getParameters().getString("description"));
+		String providerOnlyString = StringUtils.trimToNull(data.getParameters().getString("providerOnly"));
+		
+		//Role can't be null at this point
+		if (descriptionString == null) {
+			descriptionString = role.getDescription();
+		}
+		
+		if (providerOnlyString == null) {
+			providerOnlyString = String.valueOf(role.isProviderOnly());
+		}
+
 		// description
-		role.setDescription(StringUtils.trimToNull(data.getParameters().getString("description")));
+		role.setDescription(StringUtils.trimToNull(descriptionString));
 
 		// providerOnly
-		String providerOnlyString = (StringUtils.trimToNull(data.getParameters().getString("providerOnly")));
 		role.setProviderOnly("true".equals(providerOnlyString));		
 
 		// for each lock set, give it to the role
