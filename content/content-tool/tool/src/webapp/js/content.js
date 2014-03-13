@@ -62,7 +62,7 @@ var iconDecider = function(itemType){
         case "video/quicktime":
             return path + 'movie.gif';
         default:
-            return path + 'default.gif';
+            return path + 'generic.gif';
     }
 };
 
