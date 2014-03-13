@@ -230,6 +230,8 @@ public class EntityHandlerImpl implements EntityRequestHandler {
         if (entityBrokerManager.getExternalIntegrationProvider() != null) {
             try {
                 entityBrokerManager.getExternalIntegrationProvider().handleUserSessionKey(req);
+            } catch (SecurityException se) {
+            	throw new EntityException(se.getMessage(), path, HttpServletResponse.SC_UNAUTHORIZED);
             } catch (Exception e) {
                 System.out.println("WARN: EntityRequestHandler: External handleUserSessionKey method failed, continuing...: " + e);
             }
