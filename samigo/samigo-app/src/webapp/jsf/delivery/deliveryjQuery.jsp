@@ -34,6 +34,9 @@
      
      $(document).ready(function(){
 	
+		//Turn off browser autocomplete on all forms
+		$("form").attr("autocomplete", "off");
+
 		$("input[type='submit']").click(function() { 
 			$.blockUI({ message: '', overlayCSS: { backgroundColor: '#ff0', opacity: 0} }); 
 			setTimeout($.unblockUI, 2000); 
