@@ -74,13 +74,19 @@ var renderHierarchyWithJsonTree = function(data){
     $.each(data.content_collection, function(i, item){
         item.text = item.title;
         //get item.id field to turn into a jsTree happy item.id
-        item.id = item.url.substr(item.url.indexOf('/content/group/' + siteId)).replace(/\//g, "_");
-        //transforming item.container into item.parent 
-        var parentPath = item.container;
+        item.id = item.url.substr(item.url.indexOf('/content/group/' + siteId));
+        
+        //transforming item.container into item.parent
+        if (item.type === 'collection'){
+            item.id = item.id.substring(0,item.id.length -1);
+        } 
+        var itemIdArr = item.id.split('/');
+        var parentPath = item.id.split('/').slice(0,itemIdArr.length - 1).join('_');
+        item.id = item.id.replace(/\//g, "_");
         //if this is site root, special parent value
         // since the site root title is null in /direct
         // give it the site title
-        if (parentPath === '/content/group/') {
+        if (item.container === '/content/group/') {
             item.parent = '#';
             //TODO: some sites report 'null' for title, use the Id - need better handle
             if (item.title === null){
@@ -93,11 +99,11 @@ var renderHierarchyWithJsonTree = function(data){
             
         }
         else {
-            item.parent = parentPath.replace(/\//g, "_");
+            item.parent = parentPath;
         }
         var pathArr = item.url.split('/');
         var siteIdLoc = pathArr.indexOf(siteId);
-        var pathToFolder = '/group/' + pathArr.slice(siteIdLoc).join('/');
+        var pathToFolder = decodeURIComponent('/group/' + pathArr.slice(siteIdLoc).join('/'));
         var pathToFile = item.url;
         var itemType = '';
         var itemUrl = '';
@@ -163,7 +169,7 @@ var renderHierarchyWithJsonTree = function(data){
             "plugins": ["themes", "search"]
         });
     });
-    $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId + '_');
+    $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId);
     $('#navigatePanel').fadeIn('slow');
 };
 
@@ -263,8 +269,7 @@ $(document).ready(function(){
                     renderHierarchyWithJsonTree(data);
                 }
                 else {
-                    // /direct GETs to a workspace return no contents - deal with this temportarily
-                    $('#navigatePanelInner').html('<div class="alert alert-danger"> Cannot do workspaces now, sorry!</div>')
+                    $('#navigatePanelInner').html('<div class="alert alert-danger"> Cannot do workspaces now, sorry!</div>');
                 }
             }).done(function(){
             }).fail(function(){
@@ -279,6 +284,7 @@ $(document).ready(function(){
         },
         "click": function(){
             $(this).data('closable', false);
+
         },
         "hide.bs.dropdown": function(){
             return $(this).data('closable');
