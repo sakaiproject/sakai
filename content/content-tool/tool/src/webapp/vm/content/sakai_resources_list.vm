@@ -109,6 +109,7 @@ $(document).ready(function() {
 		<div class ="breadCrumb specialLink">
 			<h3>
            <div class="btn-group dropdown keep-open">
+                #if (!$dropboxMode)
                   <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown">
                     All site files <span class="caret"></span>
                   </button>
@@ -121,6 +122,7 @@ $(document).ready(function() {
                       </div>
                         <div id="navigatePanelInner"></div> 
                   </div>
+                #end
 				#foreach ($item in $collectionPath)
 					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
