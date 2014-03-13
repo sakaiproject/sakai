@@ -91,20 +91,6 @@ $(document).ready(function() {
 	#if ($content_print_status_failure)
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
-    <div class="btn-group pull-right dropdown keep-open">
-      <button id="navigate" type="button" class="btn btn-default btn-sm" data-toggle="dropdown">
-        Navigate <span class="caret"></span>
-      </button>
-      <div id="navigatePanel" class="dropdown-menu pull-right" role="menu">
-          <div class="navigatePanelControls" style="padding:0 10px 5px 5px;border-bottom:1px solid #ccc">
-            <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
-            <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button></div>
-            <input type="text" id="navigatePanelSearch" style="font-size:12px;"/>
-            <p class="close">&times;</p>
-          </div>
-	        <div id="navigatePanelInner"></div> 
-      </div>
-    </div>
 
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
@@ -122,31 +108,49 @@ $(document).ready(function() {
 		######################  Page Title / Breadcrumbs  ##############
 		<div class ="breadCrumb specialLink">
 			<h3>
-				$tlang.getString("gen.location")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+           <div class="btn-group dropdown keep-open">
+                  <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown">
+                    All site files <span class="caret"></span>
+                  </button>
+                  <div id="navigatePanel" class="dropdown-menu" role="menu">
+                      <div class="navigatePanelControls" style="padding:0 10px 5px 5px;border-bottom:1px solid #ccc">
+                        <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
+                        <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button></div>
+                        <input type="text" id="navigatePanelSearch" style="font-size:12px;"/>
+                        <p class="close">&times;</p>
+                      </div>
+                        <div id="navigatePanelInner"></div> 
+                  </div>
 				#foreach ($item in $collectionPath)
 					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
-						$validator.escapeHtml("$item.name")
+                        <button class="btn btn-default btn-sm" disabled="disabled" style="margin-left:-1px">
+						  <span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp; $validator.escapeHtml("$item.name")
+                        </button>
+                        #*
 						#if($upOneLevel)
-							<a href="#"
+							<button class="btn btn-default btn-sm"
 								onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
-								title= "$tlang.getString('sh.one')">
+								title= "$tlang.getString('sh.one')" style="color:#888">
 							##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
-								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
-							</a>
+								<span class="sr-only">$tlang.getString('sh.one')</span>&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>&nbsp;<span class="glyphicon glyphicon-folder-close"></span>&nbsp;
+							</button>
 						#end
+                        *#
 					#elseif($item.canRead())
-						<a href="#" 
+						<button class="btn btn-default btn-sm" style="margin-left:-1px"
 							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
-							$validator.escapeHtml("$item.name")
-						</a> /
+							<span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp;$validator.escapeHtml("$item.name")
+						</button>
 						#set($upOneLevel = $item)
 					#else
+                    <button class="btn btn-default btn-sm" disabled="disabled"  style="margin-left:-1px">
 						$validator.escapeHtml("$item.name")
+                    </button>
 					#end
 				#end
+                </div>
 			</h3>
 		</div>	
 		#if($showDropboxGroupFilter)

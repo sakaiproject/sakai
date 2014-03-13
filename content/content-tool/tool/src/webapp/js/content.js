@@ -243,10 +243,12 @@ $(document).ready(function(){
         });
     });
     
-    $('#navigatePanelInnerCollapse').on('click', function(){
+    $('#navigatePanelInnerCollapse').on('click', function(e){
+        e.preventDefault();
         $('#navigatePanelInner').jstree('close_all');
     });
-    $('#navigatePanelInnerExpand').on('click', function(){
+    $('#navigatePanelInnerExpand').on('click', function(e){
+        e.preventDefault();
         $('#navigatePanelInner').jstree('open_all');
     });
     
@@ -262,10 +264,6 @@ $(document).ready(function(){
             }).always(function(){
             });
         }
-    });
-    
-    $('.dropdown-backdrop').on('click', function(e){
-        $('.dropdown-toggle').dropdown();
     });
     
     $('.dropdown.keep-open').on({
