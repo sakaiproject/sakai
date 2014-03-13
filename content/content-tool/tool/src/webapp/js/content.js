@@ -254,11 +254,18 @@ $(document).ready(function(){
     
     var collId = $('#collectionId').val();
     collId = collId.substring(0, collId.length - 1);
-    var url = '/direct/content' + collId.replace('/group/', '/site/') + '.json';
+    // construct a url to /direct based on current site
+    var url = '/direct/content' + collId.replace('/group/', '/site/').replace('/user/', '/site/') + '.json';
     $('#navigate').click(function(){
         if ($('#navigatePanelInner ul').length === 0) {
             var jqxhr = $.getJSON(url, function(data){
-                renderHierarchyWithJsonTree(data);
+                if (data.content_collection.length) {
+                    renderHierarchyWithJsonTree(data);
+                }
+                else {
+                    // /direct GETs to a workspace return no contents - deal with this temportarily
+                    $('#navigatePanelInner').html('<div class="alert alert-danger"> Cannot do workspaces now, sorry!</div>')
+                }
             }).done(function(){
             }).fail(function(){
             }).always(function(){
