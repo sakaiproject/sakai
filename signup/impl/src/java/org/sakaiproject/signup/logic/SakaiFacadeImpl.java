@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.List;
@@ -569,14 +570,48 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting) {
 		List<SignupUser> coordinators = new ArrayList<SignupUser>();
 		List<SignupUser> signUpUsers = getAllUsers(meeting);
-		for (SignupUser u : signUpUsers) {
-			if(hasPermissionToCreate(meeting,u.getInternalUserId())){
-				coordinators.add(u);
+		List<SignupSite> signupSites = meeting.getSignupSites();
+		Set<String> userIdsHasPermissionToCreate = new HashSet<String>();
+		if (signupSites != null) {
+			for (SignupSite site: signupSites) {
+				userIdsHasPermissionToCreate.addAll(getUserIdsHasPermissionToCreate(site));
 			}
-			
 		}
-		
+		for (SignupUser signUpUser: signUpUsers) {
+			if (userIdsHasPermissionToCreate.contains(signUpUser.getInternalUserId())) {
+				coordinators.add(signUpUser);
+			}
+		}
 		return coordinators;
+	}
+	
+	private Set<String> getUserIdsHasPermissionToCreate(SignupSite site) {
+		Set<String> userIds = new HashSet<String>();
+		userIds.addAll(getUserIdsWithPermission(SIGNUP_CREATE_SITE, site.getSiteId()));
+		if (!site.isSiteScope()) {
+			List<SignupGroup> signupGroups = site.getSignupGroups();
+			for (SignupGroup group: signupGroups) {
+				userIds.addAll(getUserIdsWithPermission(SIGNUP_CREATE_GROUP_ALL, site.getSiteId(), group.getGroupId()));
+				userIds.addAll(getUserIdsWithPermission(SIGNUP_CREATE_GROUP, site.getSiteId(), group.getGroupId()));
+			}
+		}
+		return userIds;
+	}
+	
+	private List<String> getUserIdsWithPermission(String permission, String siteId) {
+		return getUserIdsWithPermissionOnRealm(permission, siteService.siteReference(siteId));
+	}
+	
+	private List<String> getUserIdsWithPermission(String permission, String siteId, String groupId) {
+		return getUserIdsWithPermissionOnRealm(permission, siteService.siteGroupReference(siteId, groupId));
+	}
+	
+	private List<String> getUserIdsWithPermissionOnRealm(String permission, String realmId) {
+		List<String> rv = new ArrayList<String>();
+		for (User user: securityService.unlockUsers(permission, realmId)) {
+			rv.add(user.getId());
+		}
+		return rv;
 	}
 	
 	
