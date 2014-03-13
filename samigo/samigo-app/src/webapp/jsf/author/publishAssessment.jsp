@@ -70,9 +70,10 @@
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note}" rendered="#{publishedSettings.itemNavigation ne '2' || !assessmentBean.hasSubmission}"/> 
     <h:outputText value="#{assessmentSettingsMessages.score_discrepancies_note_non_linear}" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}"/> 
   <h:panelGroup rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}">
-        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}" />
-        <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />
+        <h:selectBooleanCheckbox id="updateMostCurrentSubmissionCheckbox" value="#{publishedSettings.updateMostCurrentSubmission}"  onclick="javascript:showRepublishWarning(this);" />
+        <h:outputText value="#{assessmentSettingsMessages.update_most_current_submission_checkbox}" />		
   </h:panelGroup>
+  <h:outputText id="updateMostCurrentSubmissionCheckboxWarning" rendered="#{publishedSettings.itemNavigation eq '2' && assessmentBean.hasSubmission}" value="#{assessmentSettingsMessages.update_most_current_submission_checkbox_warn}" styleClass="notification" style="visibility:hidden"/>    
 </h:panelGrid>
 </h:panelGrid>
 
@@ -280,6 +281,12 @@ function toggle(){
     document.forms[0].elements['publishAssessmentForm:publish'].disabled=true;
   }
 }
+
+function showRepublishWarning (obj) {
+	var objwarn = document.getElementById('publishAssessmentForm:updateMostCurrentSubmissionCheckboxWarning');
+	if (obj.checked==true) objwarn.style.visibility = 'visible';
+	else objwarn.style.visibility = 'hidden';
+}  
 
 var entered = 'false';
 function clearText1(){
