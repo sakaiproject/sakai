@@ -19,12 +19,6 @@
 package org.sakaiproject.sitestats.test;
 
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.getCurrentArguments;
-import static org.easymock.classextension.EasyMock.createMock;
-import static org.easymock.classextension.EasyMock.replay;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -57,6 +51,8 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
+
+import static org.easymock.EasyMock.*;
 
 
 public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests { 
@@ -136,8 +132,6 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 		expect(M_ss.getSite(FakeData.SITE_A_ID)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(FakeData.SITE_A_ID)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(FakeData.SITE_A_ID)).andStubReturn(false);
-		//expect(siteA.getCreatedTime()).andStubReturn(timeA).anyTimes();
-		expect(siteA.getCreatedTime()).andStubReturn((Time)anyObject());
 		
 		// Site B has tools {TOOL_CHAT}, has {user-a}, created 2 months ago
 		FakeSite siteB = new FakeSite(FakeData.SITE_B_ID, FakeData.TOOL_CHAT);
@@ -145,9 +139,7 @@ public class ReportManagerTest extends AbstractAnnotationAwareTransactionalTests
 		((FakeSite)siteB).setMembers(new HashSet<String>(Arrays.asList(FakeData.USER_A_ID)));
 		expect(M_ss.getSite(FakeData.SITE_B_ID)).andStubReturn(siteB);
 		expect(M_ss.isUserSite(FakeData.SITE_B_ID)).andStubReturn(false);
-		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);	
-		//expect(siteB.getCreatedTime()).andStubReturn(timeB).anyTimes();
-		expect(siteB.getCreatedTime()).andStubReturn((Time)anyObject());
+		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);
 		
 		// Site 'non_existent_site' doesn't exist
 		expect(M_ss.isUserSite("non_existent_site")).andStubReturn(false);

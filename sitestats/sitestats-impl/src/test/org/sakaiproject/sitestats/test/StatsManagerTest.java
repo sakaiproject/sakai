@@ -19,7 +19,7 @@
 package org.sakaiproject.sitestats.test;
 
 
-import static org.easymock.classextension.EasyMock.*;
+import static org.easymock.EasyMock.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.easymock.EasyMock;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
@@ -132,8 +133,6 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		expect(M_ss.getSite(FakeData.SITE_A_ID)).andStubReturn(siteA);
 		expect(M_ss.isUserSite(FakeData.SITE_A_ID)).andStubReturn(false);
 		expect(M_ss.isSpecialSite(FakeData.SITE_A_ID)).andStubReturn(false);
-		//expect(siteA.getCreatedTime()).andStubReturn(timeA).anyTimes();
-		expect(siteA.getCreatedTime()).andStubReturn((Time)anyObject());
 		
 		// Site B has tools {TOOL_CHAT}, has {user-a}, created 2 months ago
 		FakeSite siteB = new FakeSite(FakeData.SITE_B_ID, FakeData.TOOL_CHAT);
@@ -141,9 +140,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((FakeSite)siteB).setMembers(new HashSet<String>(Arrays.asList(FakeData.USER_A_ID)));
 		expect(M_ss.getSite(FakeData.SITE_B_ID)).andStubReturn(siteB);
 		expect(M_ss.isUserSite(FakeData.SITE_B_ID)).andStubReturn(false);
-		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);	
-		//expect(siteB.getCreatedTime()).andStubReturn(timeB).anyTimes();
-		expect(siteB.getCreatedTime()).andStubReturn((Time)anyObject());
+		expect(M_ss.isSpecialSite(FakeData.SITE_B_ID)).andStubReturn(false);
 
 		if(enableLargeMembershipTest) {
 			// Site C has tools {SiteStats, Chat}, has 2002 users (user-1..user-2002), created 1 month ago
