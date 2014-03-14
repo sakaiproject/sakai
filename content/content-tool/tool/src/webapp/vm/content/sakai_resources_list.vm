@@ -120,7 +120,7 @@ $(document).ready(function() {
                         <input type="text" id="navigatePanelSearch" style="font-size:12px;"/>
                         <p class="close">&times;</p>
                       </div>
-                        <div id="navigatePanelInner"></div> 
+                        <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
                   </div>
                 #end
 				#foreach ($item in $collectionPath)

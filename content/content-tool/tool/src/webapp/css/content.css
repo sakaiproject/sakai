@@ -4,3 +4,11 @@
 #navigatePanel p.close{
 	margin:0 10px;
 }
+#spinner {
+    background: transparent url("../images/ajax_loader_blue_128.gif") top left no-repeat;
+    width:128px;
+    height:128px;
+    position: absolute;
+    top:20%;
+    left:33%;
+}

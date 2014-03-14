@@ -172,6 +172,15 @@ var renderHierarchyWithJsonTree = function(data){
     $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId);
     $('#navigatePanel').fadeIn('slow');
 };
+/*
+show spinner whenever async actvity takes place
+ */
+$(document).ajaxStart(function(){
+    $('#spinner').show();
+});
+$(document).ajaxStop(function(){
+    $('#spinner').hide();
+});
 
 $(document).ready(function(){
     var to = false;
