@@ -46,7 +46,12 @@
 						#set($siteTypeDisplay=$siteType)
 					#end
 						#if ($termSelection)
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termSelection)" $tlang.getString("list.aca")    	
+							#if ($termSelection == "Any")
+								#set ($termDisplay = $tlang.getString("se.any"))
+							#else
+								#set ($termDisplay = $termSelection)
+							#end
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 						#else
 							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
 						#end
@@ -234,7 +239,12 @@
                 #set($siteTypeDisplay=$siteType)
             #end
             #if ($termSelection)
-                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termSelection)" $tlang.getString("list.aca")       
+                #if ($termSelection == "Any")
+                    #set ($termDisplay = $tlang.getString("se.any"))
+                #else
+                    #set ($termDisplay = $termSelection)
+                #end
+                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
             #else
                 $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
             #end
