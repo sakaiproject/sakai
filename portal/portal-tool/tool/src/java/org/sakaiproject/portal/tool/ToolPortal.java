@@ -22,6 +22,8 @@
 package org.sakaiproject.portal.tool;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -63,6 +65,13 @@ public class ToolPortal extends HttpServlet
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(ToolPortal.class);
 
+    // SAK-22384
+    private static final String MATHJAX_ENABLED = "mathJaxEnabled";
+    private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
+    private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, "");
+    private static final String MATHJAX_ENABLED_SAKAI_PROP = "portal.mathjax.enabled";
+    private static final boolean MATHJAX_ENABLED_AT_SYSTEM_LEVEL = ServerConfigurationService.getBoolean(MATHJAX_ENABLED_SAKAI_PROP, false) && !MATHJAX_SRC_PATH.trim().isEmpty();
+    
 	/**
 	 * Access the Servlet's information display.
 	 * 
@@ -283,6 +292,46 @@ public class ToolPortal extends HttpServlet
 				+ "/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
 		String headCss = headCssToolBase + headCssToolSkin;
 		String headJs = "<script type=\"text/javascript\" src=\"/library/js/headscripts.js\"></script>\n";
+        
+        // SAK-22384
+        if (p != null && MATHJAX_ENABLED_AT_SYSTEM_LEVEL)
+        {  
+            ToolConfiguration toolConfig = SiteService.findTool(p.getId());
+            if (toolConfig != null) {
+                String siteId = toolConfig.getSiteId();
+                Site site;
+                try {
+                    site = SiteService.getSiteVisit(siteId);
+                }
+                catch (IdUnusedException e) {
+                    site = null;
+                }
+                catch (PermissionException e) {
+                    site = null;
+                }
+
+                if (site != null)
+                {                           
+                    String strMathJaxEnabled = site.getProperties().getProperty(MATHJAX_ENABLED);
+                    if (strMathJaxEnabled != null)
+                    {                              
+                        String [] strMathJaxTools = strMathJaxEnabled.split(",");
+                        List<String> mathJaxTools = Arrays.asList(strMathJaxTools);
+                        if (mathJaxTools != null)
+                        {
+                            String toolId = toolConfig.getTool().getId();
+                            if (toolId != null && mathJaxTools.contains(toolId))
+                            {
+                                // this call to MathJax.Hub.Config seems to be needed for MathJax to work in IE
+                                headJs += "<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['\\\\(','\\\\)']] }\n});\n</script>\n";
+                                headJs += "<script src=\"" + MATHJAX_SRC_PATH + "\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n";
+                            }
+                        }                          
+                    }
+                }
+            }
+        }
+        
 		String head = headCss + headJs;
 		StringBuilder bodyonload = new StringBuilder();
 		if (p != null)
