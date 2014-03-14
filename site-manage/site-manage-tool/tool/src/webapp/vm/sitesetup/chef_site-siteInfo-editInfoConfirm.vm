@@ -191,6 +191,20 @@
 					#end
 				</td>					
 			</tr>
+            #if ($isMathJaxInstalled)
+            <tr>
+                <th>
+                    $tlang.getString("sinfo.mathjax.name")
+                </th>
+                <td>
+                #if ($isMathJaxAllowedInSite)
+                    $tlang.getString("sinfo.mathjax.allowed")
+                #else
+                    $tlang.getString("sinfo.mathjax.notAllowed")
+                #end
+                <td>
+            </tr>
+            #end
 		</table>
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

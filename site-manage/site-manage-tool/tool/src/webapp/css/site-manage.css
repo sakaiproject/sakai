@@ -220,16 +220,21 @@ dl.defList dd{
     padding: 0.5em;
     width: 50em;
     float: left;
+    margin-bottom: 12px;
+    margin-right: 20px;
 }
 
 #toolSelectionList {
     float: left;
-    padding: 0 20px;
+    margin: 0;
     line-height: 200%;
+    max-width:280px;
+    border: 1px solid #DDDDDD;
+    border-radius: 5px;
 }
 
 #toolSelectionList h4{
-    margin:0
+    margin:0 0 1em 0;
 }
 #toolSelectionList li:first-child {
     -webkit-border-top-left-radius: 3px;
@@ -355,32 +360,21 @@ dl.defList dd{
 
 #toolSelectionList ul {
     list-style:none;
-    margin:1em 0;
+    margin:0;
     padding:0;
-    width:200px;
-        -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-   
-    border-width: 1px;
-    border-style: none solid none solid;
-    border-color: #ddd
+    position: relative;
 }
 #toolSelectionList ul li {
-    background-image: url(/library/image/silk/application.png);
-    background-position: 8px 9px;
-    background-repeat: no-repeat;
-    line-height: 200%;
-    padding: 5px 45px 5px 28px;
-    position:relative;
-    border-bottom: 1px solid #ddd
+    line-height: 1.4;
+    position:static;
+    border-top: 1px solid #ddd
 }
 
 #toolSelectionList ul li.highlightTool{
     background-color: #ffc
 }
-#toolSelectionList ul li:first-child {
-    border-top: 1px solid #ddd
+#toolSelectionList ul li:last-child {
+    border-top: 0 none
 }
 .removeTool {
     background: #c00;
@@ -389,16 +383,13 @@ dl.defList dd{
     -moz-border-radius: 4px;
     border-radius: 4px;
     text-decoration: none !important;
-    position:absolute;
-    top:9px;
-    right:7px;
     width:10px;
-    display: block;
+    display: inline-block;
     padding: 1px 5px 2px;
-    line-height: 1.2em;
+    line-height: 1.4;
     text-align: center;
+    vertical-align: text-bottom;
 }
-
 
 .icon-osp-evaluation {
     background-image: url(/library/image/silk/thumb_up.png) !important;
@@ -823,3 +814,54 @@ background: linear-gradient(to bottom, #884e2c 0%,#6b3d21 100%);
     top:5px;
     right:5px;
 }
+
+/* SAK-22384 Begin */
+#toolSelectionListHeader
+{
+    position: relative;
+    background-image: none;
+    background-color: #eeeeee;
+}
+#toolSelectionList ul
+{
+    display:table;
+    border-collapse:collapse;
+}
+#toolSelectionList #toolSelectionListHeader
+{
+    display:table-header-group;
+    background-image: none;
+}
+#toolSelectionList h3
+{
+    display:table-cell;
+    padding:0 8px;
+}
+#toolSelectionList h3#toolSelectionListToolHeader
+{
+    text-align:left;
+}
+#toolSelectionList li
+{
+    display:table-row;
+    text-align:center;
+}
+#toolSelectionList li span
+{
+    display:table-cell;
+    vertical-align:middle;
+    text-align: center;
+}
+#toolSelectionList li .selectedToolTitle
+{
+    padding: 6px 0 6px 30px;   
+    text-align:left;
+    background-image: url(/library/image/silk/application.png);
+    background-position: 8px 8px;
+    background-repeat: no-repeat;
+}
+#toolSelectionList ul li:first-child
+{
+    border-top: none;
+}
+/* SAK-22384 End */

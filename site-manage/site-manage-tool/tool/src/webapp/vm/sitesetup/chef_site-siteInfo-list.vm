@@ -255,7 +255,21 @@ function printPreview(target){
 				</tr>	
 			#end
 		#end
-		#end			
+		#end
+            #if ($isMathJaxInstalled)
+            <tr>
+                <th>
+                $tlang.getString("sinfo.mathjax.name")
+                </th>
+                <td>
+                #if ($isMathJaxAllowedInSite)
+                    $tlang.getString("sinfo.mathjax.allowed")
+                #else
+                    $tlang.getString("sinfo.mathjax.notAllowed")
+                #end
+                </td>
+            </tr>
+            #end			
 		</table>
 
 		#set ($desc = $siteDescription) 

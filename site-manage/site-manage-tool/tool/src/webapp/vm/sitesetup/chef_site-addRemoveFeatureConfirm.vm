@@ -191,6 +191,13 @@
 			#end
 		#end
 	</p>
+
+    ## SAK-22384
+    #if($!isMathJaxInstalled && $!doEnableMathJax)
+    <p class="instruction">
+        $tlang.getString("sinfo.mathjax.confirmEnabled") $confirmMathJaxEnabledTools   
+    </p>
+    #end
 	
 	<form name="addRemoveFeaturnConfirmForm" id="addRemoveFeaturnConfirmForm" action="#toolForm("$action")" method="post">
 		<input type="hidden" name="cancelIndex" value="$continueIndex" />

@@ -2,6 +2,10 @@ var sakai = sakai || {};
 var utils = utils || {};
 var selTools = new Array();
 var ltiPrefix = "lti_";
+// SAK-22384
+var MATHJAX = {};
+MATHJAX.isInstalled = false;
+MATHJAX.checkBoxIdPrefix = "jax-";
  
 $.ajaxSetup({
   cache: false
@@ -92,12 +96,12 @@ sakai.setupMessageListener = function(messageHolder, messageMode){
     str = jQuery.trim(str);
     // show if message is there, then hide it
     if (str !== '') {
-        $("#" + messageHolder).fadeIn('slow');
+        $("#" + messageHolder).fadeIn('fast');
         $("#" + messageHolder).addClass(messageMode);
         $("#" + messageHolder).animate({
             opacity: 1.0
         }, 5000);
-        $("#" + messageHolder).fadeOut('slow', function(){
+        $("#" + messageHolder).fadeOut('fast', function(){
             $("#" + messageHolder).remove();
         });
     }
@@ -252,7 +256,7 @@ sakai.siteTypeSetup = function(){
     });
     // handler to 
     $('#fromTemplateSettingsContainer_instruction_body').click(function(){
-        $(this).fadeOut('slow');
+        $(this).fadeOut('fast');
     });
     
     // handler for the template picker radio
@@ -342,7 +346,7 @@ sakai.siteTypeSetup = function(){
             }
             
             // show settings
-            $('#allTemplateSettings').fadeIn('slow');
+            $('#allTemplateSettings').fadeIn('fast');
             //check to see if this template is of a type that maps to a course
             if ($.inArray(type, courseSiteTypes) !==-1) { //either there is a mapping to what types of sites resolve to courses or a fallback to 'course'  
                 $('#submitFromTemplate').hide(); // hide the non-course submit button 
@@ -533,6 +537,12 @@ var setupCategTools = function(){
             if ($('#toolSelectionList ul').find('li#selected_sakai_home').length) {
              $('#toolSelectionList ul').find('li#selected_sakai_home').insertBefore($('#toolSelectionList ul li:first-child'));
             }
+            // SAK-22384
+            var listHeader = document.getElementById("#toolSelectionListHeader");
+            if (listHeader !== null)
+            {
+                $(listHeader).insertBefore($("#toolSelectionList ul li:first-child"));
+            }
         }
    };
     
@@ -637,21 +647,17 @@ var setupCategTools = function(){
     var sourceList = $('input[name="selectedTools"][type="checkbox"]');
     $.each(sourceList, function(){
         var removeLink = '';
-        var currentLink = '';
         var thisToolCat = '';
-        var thisIdClass = '';
         var toolInstance = '';
         var thisToolCatEsc = '';
         var thisToolId = normalizedId($(this).attr('id'));
-	
+        
         if (thisToolId.length > 37) {
             thisToolCat = thisToolId.substring(36) + '';
-            thisIdClass = thisToolId.substring(36) + '';
             toolInstance = ' toolInstance';
         }
         else {
             thisToolCat = thisToolId + '';
-            thisIdClass = thisToolId + '';
         }
         thisToolCatEsc = thisToolCat.replace(' ', '_');
 
@@ -664,11 +670,18 @@ var setupCategTools = function(){
         	if ($(this).prop('disabled') !== true) {
         		removeLink = '<a href="#" class=\"removeTool ' + toolInstance + '\">x</a>';
         	}
-
+                        
     		var selId = normalizedId($(this).attr('id'));
-                var iconId = iconizedId($(this).attr('id'));
-                $('#toolSelectionList ul').append('<li class=\"icon-' + iconId + '\" id=\"' + thisToolId + '\">' + $(this).next('label').text() + removeLink + '</li>');
-        	// append to selected tool list
+            var iconId = iconizedId($(this).attr('id'));
+            
+            // SAK-22384
+            var mathJaxCheckBox = buildMathJaxCheckBox(this);
+            var newListItem = '<li id=\"' + thisToolId
+                    + '\"><span class=\"selectedToolTitle icon-' + iconId + '\">' + $(this).next('label').text() + "</span>"
+                    + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
+            $('#toolSelectionList ul').append(newListItem);
+            
+            // append to selected tool list
         	if ($(this).prop('checked')) {
         		// make the selectiion visible
         		//var selId = normalizedId($(this).attr('id'));
@@ -685,6 +698,36 @@ var setupCategTools = function(){
         	var parentRow = $(this).closest('li');
         	$('#toolHolder').find('#' + thisToolCatEsc).find('ul').append(parentRow);
         }
+        
+        function buildMathJaxCheckBox(originalCheckBox)
+        {
+            var mathJaxCheckBox = "";
+                        
+            if (MATHJAX.isInstalled)
+            {
+                var baseToolId = originalCheckBox.id;
+                var mathJaxCheckBoxClasses = "mathJaxCheckBox";
+                var isCheckedStr = "";
+                
+                if (baseToolId.length > 37) // instance tool so we have to chop off the guid prefix to get the base toolId
+                {
+                    baseToolId = baseToolId.substring(36);
+                    mathJaxCheckBoxClasses += " mathJaxMultiTool";
+                }
+                
+                if ($.inArray(baseToolId, MATHJAX.initialEnabledTools) !== -1)
+                {
+                    isCheckedStr = " checked ";
+                }
+                mathJaxCheckBox = "<span><input type=\"checkbox\" name=\"mathJaxEnabledTools\" class=\""
+                        + mathJaxCheckBoxClasses + "\" id=\"" + MATHJAX.checkBoxIdPrefix + originalCheckBox.id + "\" value=\""
+                        + baseToolId + "\"" + isCheckedStr + "></input></span>";
+            }
+            
+            return mathJaxCheckBox;
+            
+        } // end buildMathJaxCheckBox()
+        
     });
     
     // set checked/unchecked for each in list
@@ -778,25 +821,43 @@ var setupCategTools = function(){
         $(this).closest('li').find('span.checkedCount').text($(this).closest('li').find(':checked').length).show(); 
     });
     
-     // Clicked red X on toolSelectionList
-      $('.removeTool').click(function(e){
-          e.preventDefault();
-         var selectedId = $(this).closest('li').attr('id').replace('selected.','');
-                // if toolMultple; confirm delete
-         if ($(this).hasClass('toolInstance')) {
-                $(this).closest('li').addClass('highlightTool');
-                showAlert(e);
-                return false;
-                // remove the checkbox? put in an alert
-         } else {
-                // for each tool with this id, set check to false and fade in/out selectedTool display
-                setChecked(selectedId,false);
-         }
-         var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + selectedId + '"]').closest('ul').find(':checked').length;
-         $('#toolHolder').find('input[type="checkbox"][id="' + selectedId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
-
-          noTools();
-      });    
+    // SAK-22384
+    $(".mathJaxMultiTool").on("click", function(e)
+    {
+        // find the rest of the checkboxes that have the same value and select/deselect them
+        var sameToolMatches = $(".mathJaxCheckBox").filter("[value=\"" + this.value + "\"]");
+        for (i = 0; i < sameToolMatches.length; ++i)
+        {
+            sameToolMatches[i].checked = this.checked;
+        }
+    });
+    
+    // Clicked red X on toolSelectionList
+    $('.removeTool').click(function(e){
+        e.preventDefault();
+        var selectedId = $(this).closest('li').attr('id').replace('selected.','');
+        // if toolMultple; confirm delete
+        if ($(this).hasClass('toolInstance')) {
+            $(this).closest('li').addClass('highlightTool');
+            showAlert(e);
+            return false;
+            // remove the checkbox? put in an alert
+        } else {
+            // for each tool with this id, set check to false and fade in/out selectedTool display
+            setChecked(selectedId,false);            	
+        }
+        
+        // SAK-22384
+        document.getElementById(MATHJAX.checkBoxIdPrefix + selectedId.replace("_", ".")).checked = false;
+        
+        //$(this).closest('li').addClass('highlightTool').fadeOut('fast', function(){
+        //    $(this).closest('li').remove();
+        //});
+        var countSelected = $('#toolHolder').find('input[type="checkbox"][value="' + selectedId + '"]').closest('ul').find(':checked').length;               
+        $('#toolHolder').find('input[type="checkbox"][id="' + selectedId + '"]').closest('ul').closest('li').find('.checkedCount').text(countSelected);
+        
+        noTools();
+    });
  
     $('.moreInfoTool').click(function(e){
         e.preventDefault();
@@ -831,7 +892,7 @@ var setupRecentSite = function(){
   
     $('.newSiteAlertClose').click(function(e){
         e.preventDefault();
-        $(this).closest('div').fadeOut('slow');
+        $(this).closest('div').fadeOut('fast');
         sessionStorage.setItem(target, true);
     })
 
@@ -844,10 +905,10 @@ var setupRecentSite = function(){
             url: reqUrl,
             contentType: 'application/x-www-form-urlencoded; charset=UTF-8',
             success: function(){
-                $('#newSiteAlertPublish').fadeOut('slow', function(){
+                $('#newSiteAlertPublish').fadeOut('fast', function(){
                     $('#' + target).closest('tr').addClass('selectedSelected')
                     $('#newSiteAlertPublishMess').fadeIn('5000');
-                    $('#' + target).closest('tr').fadeOut('slow', function(){
+                    $('#' + target).closest('tr').fadeOut('fast', function(){
                         var publishedString = $('#newSiteAlertPublishMess').text();
                         $(this).find('td[headers="published"]').text(publishedString).css('font-weight', 'bold');
                         $(this).fadeIn('1000');

@@ -1625,6 +1625,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			if (site != null)
 			{
+                MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", "12");	// back to site info list page
@@ -2254,7 +2255,9 @@ public class SiteAction extends PagedResourceActionII {
                     M_log.warn(this + "  IdUnusedException " + realmId);
             }
             
-            
+            // SAK-22384 mathjax support
+            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+                        
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
@@ -2399,7 +2402,10 @@ public class SiteAction extends PagedResourceActionII {
 
 			// available languages in sakai.properties
 			List locales = getPrefLocales();	
-			context.put("locales",locales);			
+			context.put("locales",locales);
+            
+            // SAK-22384 mathjax support
+            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2461,6 +2467,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oEmail", siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL));
 			context.put("siteUrls",  getSiteUrlsForAliasIds(siteInfo.siteRefAliases));
 			context.put("oSiteUrls", getSiteUrlsForSite(site));
+            
+            // SAK-22384 mathjax support
+            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+            
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
 			/*
@@ -2482,6 +2492,8 @@ public class SiteAction extends PagedResourceActionII {
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
+            MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
+            
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
 			/*
@@ -6755,7 +6767,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_TOOL_EMAIL_ADDRESS);
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
-		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex))) {
+		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
+        {
+            MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
@@ -7094,6 +7108,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site site = getStateSite(state);
 		
 		saveFeatures(params, state, site);
+        
+        // SAK-22384
+        if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
+        {
+            commitSite(site);
+        }
 		
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
@@ -7437,6 +7457,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				
 		siteProperties.removeProperty(PROP_SITE_LANGUAGE);		
 		siteProperties.addProperty(PROP_SITE_LANGUAGE, locale_string);
+        
+        // SAK-22384 mathjax support
+        MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -11420,6 +11443,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
+        MathJaxEnabler.removeMathJaxToolsAttributeFromState(state);  // SAK-22384
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -11627,6 +11651,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
+            
+            MathJaxEnabler.applyToolSettingsToState(state, site, params);  // SAK-22384
+            
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
 			// back
@@ -14180,6 +14207,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		else if ("continue".equals(option))
 		{
 			// continue with site information edit
+            
+            MathJaxEnabler.applyAllowedSettingsToState(state, params);  // SAK-22384
+            
 			doContinue(data);
 		}
 		else if ("back".equals(option))
