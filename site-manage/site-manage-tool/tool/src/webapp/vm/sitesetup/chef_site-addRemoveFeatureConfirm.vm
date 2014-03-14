@@ -47,7 +47,6 @@
 				#end
 				## if no added tools found then 
 				#if (!$found)
-					$oldToolTitle
 					<script type="text/javascript">
 						document.getElementById('removedInstruction').style.display='block'
 					</script>
