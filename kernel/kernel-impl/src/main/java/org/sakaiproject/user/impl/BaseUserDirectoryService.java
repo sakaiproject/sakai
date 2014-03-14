@@ -2577,14 +2577,17 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		/**
 		 * @inheritDoc
 		 */
-		public boolean equals(Object obj)
-		{
-			if (!(obj instanceof User)) return false;
-			//its possible that the user object has no id set
-			if (((User) obj).getId() == null) {
-				return false;
-			}
-			return ((User) obj).getId().equals(getId());
+		@Override
+		public boolean equals(Object o) {
+			if (this == o) return true;
+			if (o == null || getClass() != o.getClass()) return false;
+
+			BaseUserEdit that = (BaseUserEdit) o;
+
+			if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) return false;
+			if (m_eid != null ? !m_eid.equals(that.m_eid) : that.m_eid != null) return false;
+
+			return true;
 		}
 
 		/**
@@ -2854,6 +2857,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 
 			return false;
+		}
+
+		@Override
+		public String toString()
+		{
+			return "BaseUserEdit{" +
+					"m_id='" + m_id + '\'' +
+					", m_eid='" + m_eid + '\'' +
+					'}';
 		}
 
 		/******************************************************************************************************************************************************************************************************************************************************
