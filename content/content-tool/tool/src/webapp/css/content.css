@@ -5,6 +5,14 @@
 	margin:0 5px;
 }
 
+.navigatePanelControls{
+    padding:0 10px 5px 5px;
+    border-bottom:1px solid #ccc
+}
+#navigatePanelSearch {
+    font-size:12px;
+    width:150px
+}
 .jstree-search {
     border:1px solid #ffe4bb;
     background:#ffe;

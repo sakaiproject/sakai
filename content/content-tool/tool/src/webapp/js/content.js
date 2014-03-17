@@ -111,10 +111,10 @@ var renderHierarchyWithJsonTree = function(data){
         if (item.type === 'collection') {
             var itemText ='';
             if(item.numChildren ===1){
-                itemText = ' item';
+                itemText = ' ' + jsLang.item;
             }
             if(item.numChildren ===0 || item.numChildren > 1){
-                itemText = ' items';
+                itemText = ' ' + jsLang.items;
             }
             itemType = 'folder';
             item.text = item.text + '&nbsp;&nbsp;&nbsp;<small class="muted">(' + item.numChildren + itemText + ')</small>';

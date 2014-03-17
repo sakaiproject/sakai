@@ -34,6 +34,11 @@ ul.makeMenu li {
 <!-- // -->
 </script>
 <script type="text/javascript">
+    var jsLang = {
+        item:'$clang.getString('list.nav.item')',
+        items:'$clang.getString('list.nav.items')'
+    }
+    
 $(document).ready(function() {
 
 
@@ -114,10 +119,10 @@ $(document).ready(function() {
                     All site files <span class="caret"></span>
                   </button>
                   <div id="navigatePanel" class="dropdown-menu" role="menu">
-                      <div class="navigatePanelControls" style="padding:0 10px 5px 5px;border-bottom:1px solid #ccc">
-                        <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm"><span class="glyphicon glyphicon-minus"></span></button>
-                        <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')"><span class="glyphicon glyphicon-plus"></span></button></div>
-                        <input type="text" id="navigatePanelSearch" style="font-size:12px;"/>
+                      <div class="navigatePanelControls">
+                        <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-minus"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
+                        <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-plus"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></div>
+                        <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input type="text" id="navigatePanelSearch"/>
                         <p class="close">&times;</p>
                       </div>
                         <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
