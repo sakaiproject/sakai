@@ -1,8 +1,16 @@
 #navigatePanel {
-	height:500px;width:500px;overflow:auto;z-index:100000
+	height:500px;width:auto;overflow:auto;z-index:100000
 }
 #navigatePanel p.close{
-	margin:0 10px;
+	margin:0 5px;
+}
+
+.jstree-search {
+    border:1px solid #ffe4bb;
+    background:#ffe;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 #spinner {
     background: transparent url("../images/ajax_loader_blue_128.gif") top left no-repeat;
