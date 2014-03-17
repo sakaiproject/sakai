@@ -1794,7 +1794,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		String refStr = getContentService().getReference(resourceId);
 		Reference ref = getEntityManager().newReference(refStr);
 		String collectionTitle = null;
-		if( ref != null )
+		if( ref != null && ref.getProperties() != null)
 		{
 			collectionTitle = ref.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
 		}
