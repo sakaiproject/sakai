@@ -332,7 +332,9 @@ public class AliasesAction extends PagedResourceActionII
 	public void doSave(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 		// read the form - if rejected, leave things as they are
 		if (!readAliasForm(data, state)) return;
 
@@ -420,6 +422,9 @@ public class AliasesAction extends PagedResourceActionII
 	public void doRemove_confirmed(RunData data, Context context)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 
 		// get the alias
 		AliasEdit alias = (AliasEdit) state.getAttribute("alias");
