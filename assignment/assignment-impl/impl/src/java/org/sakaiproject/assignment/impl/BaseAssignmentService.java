@@ -5130,7 +5130,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// now are we view all sections/groups or just specific one?
 			if (allOrOneGroup.equals(AssignmentConstants.ALL))
 			{
-				if (a.getAccess() ==  Assignment.AssignmentAccess.SITE)
+				if (allowAllGroups(contextString))
 				{
 					// site range
 					try {
