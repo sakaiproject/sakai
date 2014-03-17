@@ -1722,7 +1722,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 				// check SECURE_ALL_GROUPS - if not, check if the event has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_authzGroupService.isAllowed(userId, SECURE_ALL_GROUPS, m_siteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_securityService.unlock(userId, SECURE_ALL_GROUPS, m_siteService.siteReference(ref.getContext())))))
 				{
 					// get the calendar to get the message to get group information
 					String calendarRef = calendarReference(ref.getContext(), ref.getContainer());
@@ -3732,7 +3732,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				Collection groups = site.getGroups();
 
 				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the calendar (calendar,site), select all site groups
-				if ((m_securityService.isSuperUser()) || (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, m_siteService.siteReference(m_context))
+				if ((m_securityService.isSuperUser()) || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), SECURE_ALL_GROUPS, m_siteService.siteReference(m_context))
 						&& unlockCheck(function, getReference())))
 				{
 					rv.addAll( groups );
