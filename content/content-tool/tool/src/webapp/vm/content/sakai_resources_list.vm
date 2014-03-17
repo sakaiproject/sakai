@@ -173,7 +173,7 @@ $(document).ready(function() {
             #end
 
             <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
-              Show/Hide
+              $clang.getString('list.cols.columns')
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" id="columnTog">
@@ -182,7 +182,7 @@ $(document).ready(function() {
               <li><a id="modifiedTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Modified</a></li>
               <li><a id="sizeTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Size</a></li>
               <li role="presentation" class="divider"></li>
-              <li><a id="allTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;All of above</a></li>
+              <li><a id="allTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;$clang.getString('list.cols.columns.all')</a></li>
             </ul>
         </div>
 </div>
