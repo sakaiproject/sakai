@@ -1,5 +1,6 @@
 #navigatePanel {
-	height:500px;width:auto;overflow:auto;z-index:100000
+	height:500px;width:auto;overflow:auto;z-index:100000;
+    min-width:300px;
 }
 #navigatePanel p.close{
 	margin:0 5px;
