@@ -225,7 +225,7 @@ $(document).ready(function() {
 				<th id="actions1" class="attach">
 					##$tlang.getString("gen.actions")
 				</th>
-				<th id="actions2">
+				<th id="actions2" class="actions2">
 					##$tlang.getString("gen.actions")
 				</th>
 				<th id="access" class="access">
@@ -316,7 +316,7 @@ $(document).ready(function() {
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
 					</td>
-					<td headers="title" style="text-indent:$width" class="specialLink">
+					<td headers="title" style="text-indent:$width" class="specialLink title">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
 						<h$headerDepth> 
 							#if ($item.canRead())
@@ -402,8 +402,8 @@ $(document).ready(function() {
 					</td>
 					
 					
-					<td headers="actions2" class="attach">
-                        <div class="btn-group  pull-right">
+					<td headers="actions2" class="attach actions2">
+                        <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle  btn-xs" data-toggle="dropdown">
                                 <span class="caret"></span>
                             </button>

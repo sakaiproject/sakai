@@ -11,9 +11,12 @@ var setupColumnToggle = function(){
         }
     });
     
+    $('#columnTog label').click(function(e){
+        e.stopPropagation();
+    });
     $('#columnTog input').click(function(e){
             var target = $(this).closest('span').attr('id').replace('Tog', '');
-            
+            e.stopPropagation();
             if($(this).prop('checked') ===true){
                 $('.' + target).show();
                 writeDOMDBVal(target, 'true');
@@ -22,7 +25,12 @@ var setupColumnToggle = function(){
                 $('.' + target).hide();
                 writeDOMDBVal(target, 'false');
             }
-            
+            if($('#columnTog :checked').length ==0){
+                $('.actions2').css({'width':'30%'});
+            }
+            else {
+                $('.actions2').css('width','18px');
+            }
     });
 }
 
