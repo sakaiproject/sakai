@@ -122,7 +122,7 @@ public class MySearch extends BasePage {
         searchForm.setOutputMarkupId(true);
         
         //search field
-        searchForm.add(new Label("searchLabel", new ResourceModel("text.search.terms")));
+        searchForm.add(new Label("searchLabel", new ResourceModel("text.search.terms.label")));
         searchField = new TextField<String>("searchField", new PropertyModel<String>(searchStringModel, "string"));
         searchField.setRequired(true);
         searchField.setMarkupId("searchinput");
@@ -145,8 +145,8 @@ public class MySearch extends BasePage {
         searchTypeRadioInterest.setOutputMarkupId(true);
 		searchTypeRadioInterest.add(new AttributeModifier("title", true, new ResourceModel("text.search.byinterest.tooltip")));
 		searchTypeRadioGroup.add(searchTypeRadioInterest);
-		searchTypeRadioGroup.add(new Label("searchTypeNameLabel", new ResourceModel("text.search.byname")));
-		searchTypeRadioGroup.add(new Label("searchTypeInterestLabel", new ResourceModel("text.search.byinterest")));
+		searchTypeRadioGroup.add(new Label("searchTypeNameLabel", new ResourceModel("text.search.byname.label")));
+		searchTypeRadioGroup.add(new Label("searchTypeInterestLabel", new ResourceModel("text.search.byinterest.label")));
 		searchForm.add(searchTypeRadioGroup);
 		
 		searchForm.add(new Label("connectionsLabel", new ResourceModel("text.search.include.connections")));
@@ -677,7 +677,7 @@ public class MySearch extends BasePage {
 				}
 			}
 		};
-		searchSubmitButton.setModel(new ResourceModel("button.search"));
+		searchSubmitButton.setModel(new ResourceModel("button.search.generic"));
 		searchForm.add(searchSubmitButton);
         add(searchForm);
 		                

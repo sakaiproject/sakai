@@ -80,7 +80,7 @@ public class RemoveWallItem extends Panel {
 		final Label text;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			text = new Label("text", new StringResourceModel(
-					"text.wall.remove", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
+					"text.wall.remove.other", null, new Object[]{ sakaiProxy.getUserDisplayName(wallItem.getCreatorUuid()) } ));
 		} else {
 			text = new Label("text", new StringResourceModel("text.wall.remove.mine", null, new Object[]{ } ));
 		}
@@ -106,7 +106,7 @@ public class RemoveWallItem extends Panel {
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			accessibilityLabel = new AttributeModifier(
-					"title", true, new StringResourceModel("accessibility.wall.remove", null, new Object[]{ } ));
+					"title", true, new StringResourceModel("accessibility.wall.remove.other", null, new Object[]{ } ));
 		} else {
 			accessibilityLabel = new AttributeModifier(
 					"title", true, new StringResourceModel("accessibility.wall.remove.mine", null, new Object[]{ } ));
