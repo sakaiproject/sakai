@@ -499,7 +499,7 @@
         </h:selectOneRadio>
       </h:panelGrid>
   
-   <f:verbatim> <div class="tier3"></f:verbatim>
+   <f:verbatim> <div class="tier3 respChoice"></f:verbatim>
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable!=true}">
       <h:panelGrid columns="2">
        <h:panelGroup>
@@ -552,45 +552,35 @@
     <h:panelGroup rendered="#{publishedSettings.valueMap.feedbackComponents_isInstructorEditable==true}">
       <h:panelGrid columns="2"  >
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox21" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showStudentResponse}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox21" value="#{publishedSettings.showStudentResponse}"/>
           <h:outputText value="#{commonMessages.student_response}" />
         </h:panelGroup>
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox22" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showQuestionLevelFeedback}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox22" value="#{publishedSettings.showQuestionLevelFeedback}"/>
           <h:outputText value="#{commonMessages.question_level_feedback}" />
        </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox23" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showCorrectResponse}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox23" value="#{publishedSettings.showCorrectResponse}"/>
           <h:outputText value="#{commonMessages.correct_response}" />
         </h:panelGroup>
        <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox24" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-             value="#{publishedSettings.showSelectionLevelFeedback}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox24" value="#{publishedSettings.showSelectionLevelFeedback}"/>
           <h:outputText value="#{commonMessages.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox25" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showStudentScore}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox25" value="#{publishedSettings.showStudentScore}"/>
           <h:outputText value="#{assessmentSettingsMessages.student_assessment_score}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox26" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showGraderComments}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox26" value="#{publishedSettings.showGraderComments}"/>
           <h:outputText value="#{assessmentSettingsMessages.grader_comments}" />
         </h:panelGroup>
-
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox27" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showStudentQuestionScore}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox27" value="#{publishedSettings.showStudentQuestionScore}"/>
           <h:outputText value="#{assessmentSettingsMessages.student_question_score}" />
         </h:panelGroup>
-       
         <h:panelGroup>
-          <h:selectBooleanCheckbox id="feedbackCheckbox28" disabled="#{publishedSettings.feedbackDelivery==3 || publishedSettings.feedbackComponentOption ==1}"
-              value="#{publishedSettings.showStatistics}"/>
+          <h:selectBooleanCheckbox id="feedbackCheckbox28" value="#{publishedSettings.showStatistics}"/>
           <h:outputText value="#{commonMessages.statistics_and_histogram}" />
         </h:panelGroup>
    

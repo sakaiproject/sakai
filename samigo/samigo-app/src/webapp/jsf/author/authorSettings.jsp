@@ -489,48 +489,38 @@
         </h:selectOneRadio>
       </h:panelGrid>
   
-     <f:verbatim> <div class="tier3"></f:verbatim>
+     <f:verbatim> <div class="tier3 respChoice"></f:verbatim>
       <h:panelGrid columns="2">
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentResponse}" id="feedbackCheckbox1"/>
           <h:outputText value="#{commonMessages.student_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showQuestionLevelFeedback}" id="feedbackCheckbox2"/>
           <h:outputText value="#{commonMessages.question_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showCorrectResponse}" id="feedbackCheckbox3"/>
           <h:outputText value="#{commonMessages.correct_response}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showSelectionLevelFeedback}" id="feedbackCheckbox4"/>
           <h:outputText value="#{commonMessages.selection_level_feedback}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentScore}" id="feedbackCheckbox5"/>
           <h:outputText value="#{assessmentSettingsMessages.student_assessment_score}" />
         </h:panelGroup>
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showGraderComments}" id="feedbackCheckbox6"/>
           <h:outputText value="#{assessmentSettingsMessages.grader_comments}" />
         </h:panelGroup>
-
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStudentQuestionScore}" id="feedbackCheckbox7"/>
           <h:outputText value="#{assessmentSettingsMessages.student_question_score}" />
         </h:panelGroup>
-       
         <h:panelGroup>
-          <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"
-            disabled="#{assessmentSettings.feedbackDelivery==3 || assessmentSettings.feedbackComponentOption ==1}" />
+          <h:selectBooleanCheckbox value="#{assessmentSettings.showStatistics}" id="feedbackCheckbox8"/>
           <h:outputText value="#{commonMessages.statistics_and_histogram}" />
         </h:panelGroup>
 

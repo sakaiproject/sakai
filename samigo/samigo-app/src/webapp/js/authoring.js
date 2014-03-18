@@ -328,52 +328,23 @@ function applyMenuListener(pulldown) {
 // if a different radio button is selected, we reenable feedback checkboxes & text.
 function disableAllFeedbackCheck(feedbackType)
 {
-  // By convention we start all feedback JSF ids with "feedback".
-  var feedbackIdFlag = "assessmentSettingsAction:feedback";
-  var feedbackComponentOptionFlag = "assessmentSettingsAction:feedbackComponentOption";
-  var noFeedback = "3";
-  var feedbacks = document.getElementsByTagName('INPUT');
-  var feedbackComponentOptions =document.getElementsByName(feedbackComponentOptionFlag);
-
-  for (i=0; i<feedbacks.length; i++)
-  {
-    if (feedbacks[i].name.indexOf(feedbackIdFlag)==0)
-    {
-      if (feedbackType == noFeedback)
-      {
-        if (feedbacks[i].type == 'checkbox')
-        {
-          feedbacks[i].checked = false;
-          feedbacks[i].disabled = true;
-        }
-        else if (feedbacks[i].type == 'text')
-        {
-          feedbacks[i].value = "";
-          feedbacks[i].disabled = true;
-        }
-        else if ((feedbacks[i].type == 'radio') && (feedbacks[i].name.indexOf(feedbackComponentOptionFlag)==0))
-        {
-            if(feedbacks[i].value == 2) {
-                feedbacks[i].checked = true;
-            }
-            if(feedbacks[i].value == 1) {
-                feedbacks[i].checked = false;
-                feedbacks[i].disabled = true;
-            }
-        }
-      }
-      else
-      {
-         if(feedbackComponentOptions[0].value==1 && feedbackComponentOptions[0].checked == true && feedbacks[i].type=='checkbox')
-         {
-            feedbacks[i].disabled = true;
-         }
-         if(feedbackComponentOptions[1].value==2 && feedbackComponentOptions[1].checked == true){
-            feedbacks[i].disabled = false;
-         }
-      }
+	var noFeedback = 3;
+	
+    if (feedbackType == noFeedback){
+     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop({disabled:true, checked:false});
+		$(".respChoice input").prop({disabled:true, checked:false});
 	}
-  }
+	else
+	{
+		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
+		if($("#assessmentSettingsAction\\:feedbackComponentOption input:checked").val() == 1)
+			$(".respChoice input").prop("disabled", true);
+		else 
+		{
+			$("#assessmentSettingsAction\\:feedbackComponentOption input")[1].checked = true;
+			$(".respChoice input").prop("disabled", false);
+		}
+	}
 }
 
 function disableAllFeedbackCheckTemplate(feedbackType)
@@ -418,29 +389,25 @@ function disableAllFeedbackCheckTemplate(feedbackType)
 	}
 }
 
+$(document).ready(function(){
+	checkNoFeedbackOnLoad();
+})
+
+function checkNoFeedbackOnLoad(){
+	var noFeedback = 3;
+	if($("#assessmentSettingsAction\\:feedbackDelivery input:checked").val() == noFeedback || $("#assessmentSettingsAction\\:feedbackDelivery2 input:checked").val() == noFeedback) {
+		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop({disabled:true, checked:false});
+		$(".respChoice input").prop('disabled', true);
+	}
+}
+
 function disableOtherFeedbackComponentOption(field)
 {
-  var fieldValue = field.getAttribute("value");
-  var feedbacks = document.getElementsByTagName('INPUT');
-  var feedbackComponentIdFlag = "assessmentSettingsAction:feedbackCheckbox";
-
-  for (i=0; i<feedbacks.length; i++)
-  {
-    if (feedbacks[i].name.indexOf(feedbackComponentIdFlag)==0)
-
-    {
-         if (feedbacks[i].type == 'checkbox')
-        {
-             if(fieldValue ==1 ){
-                  feedbacks[i].checked = false;
-                  feedbacks[i].disabled = true;
-             }
-             if(fieldValue == 2){
-	              feedbacks[i].disabled = false;
-             }
-        }
-     }
-  }
+	var fieldValue = field.getAttribute("value");
+	if(fieldValue ==1 )
+		$(".respChoice input").prop({disabled:true, checked:false});
+	else
+		$(".respChoice input").prop("disabled", false);
 }
 
 function validateUrl(){
