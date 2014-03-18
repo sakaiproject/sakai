@@ -460,7 +460,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// all.groups permission should apply down to group level
 		String context = assignment.getContext();
 		String userId = SessionManager.getCurrentSessionUserId();
-		if (allowAllGroups(context) && AuthzGroupService.isAllowed(userId,lock, SiteService.siteReference(context)))
+		if (allowAllGroups(context) && securityService.unlock(lock, SiteService.siteReference(context)))
 		{
 			return true;
 		}
@@ -479,7 +479,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				String groupId = (String) i.next();
 				boolean isAllowed
-					= AuthzGroupService.isAllowed(userId,lock,groupId);
+					= securityService.unlock(lock,groupId);
 				
 				if(isAllowed) return true;
 			}
@@ -5047,6 +5047,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				
 				if (!rvUsers.isEmpty())
 				{
+					List<String> groupRefs = new ArrayList<String>();
 					for (Iterator uIterator = rvUsers.iterator(); uIterator.hasNext();)
 					{
 						User u = (User) uIterator.next();
@@ -5060,13 +5061,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						// add those users who haven't made any submissions and with submission rights
 						else
 						{
+							//only initiate the group list once
+							if (groupRefs.isEmpty())
+							{
+								if (a.getAccess() == Assignment.AssignmentAccess.SITE)
+								{
+									// for site range assignment, add the site reference first
+									groupRefs.add(SiteService.siteReference(contextString));
+								}
+								// add all groups inside the site
+								Collection groups = getGroupsAllowGradeAssignment(contextString, a.getReference());
+								for(Object g : groups)
+								{
+									if (g instanceof Group)
+									{
+										groupRefs.add(((Group) g).getReference());
+									}
+								}
+							}
 							// construct fake submissions for grading purpose if the user has right for grading
 							if (allowGradeSubmission(a.getReference()))
 							{
 								SecurityAdvisor securityAdvisor = new MySecurityAdvisor(
 			            				SessionManager.getCurrentSessionUserId(), 
 			            				new ArrayList<String>(Arrays.asList(SECURE_ADD_ASSIGNMENT_SUBMISSION, SECURE_UPDATE_ASSIGNMENT_SUBMISSION)),
-			            				""/* no submission id yet, pass the empty string to advisor*/);
+			            				groupRefs/* no submission id yet, pass the empty string to advisor*/);
 								try
 						        {
 									// temporarily allow the user to read and write from assignments (asn.revise permission)
