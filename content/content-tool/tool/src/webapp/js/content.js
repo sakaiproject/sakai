@@ -1,60 +1,28 @@
 var setupColumnToggle = function(){
-    var cols = ['accessTog', 'creatorTog', 'modifiedTog', 'sizeTog', 'allTog']
+    var cols = ['accessTog', 'creatorTog', 'modifiedTog', 'sizeTog']
     $.each(cols, function(i, val){
         var target = val.replace('Tog', '');
-        if (readDOMVal(target) === 'true') {
+        if (readDOMVal(target)==='false') {
             $('.' + target).hide();
-            $('#' + val).attr('data-status', 'show');
-            $('#' + val).attr('class', 'colShow');
+            $('#' + val).find('input').attr('checked',false);
         }
         else {
-            $('#' + val).attr('data-status', 'hide');
-            $('#' + val).attr('class', 'colHide');
+            $('#' + val).find('input').attr('checked',true);
         }
     });
     
-    $('#columnTog a').click(function(e){
-        e.preventDefault(e);
-        if ($(this).attr('id') === 'allTog') {
-            if ($(this).attr('data-status') === 'show') {
-                $(this).attr('data-status', 'hide');
-                $(this).attr('class', 'colHide');
-                $.each(cols, function(i, val){
-                    var target = val.replace('Tog', '');
-                    $('.' + target).show();
-                    $('#' + val).attr('data-status', 'hide');
-                    $('#' + val).attr('class', 'colHide');
-                    writeDOMDBVal(target, 'false');
-                });
-            }
-            else {
-                $(this).attr('data-status', 'show');
-                $(this).attr('class', 'colShow');
-                $.each(cols, function(i, val){
-                    var target = val.replace('Tog', '');
-                    $('.' + target).hide();
-                    $('#' + val).attr('data-status', 'show');
-                    $('#' + val).attr('class', 'colShow');
-                    writeDOMDBVal(target, 'true');
-                });
-            }
-        }
-        else {
-        
-            var target = $(this).attr('id').replace('Tog', '');
-            if ($(this).attr('data-status') === 'show') {
-                $(this).attr('data-status', 'hide');
-                $(this).attr('class', 'colHide');
+    $('#columnTog input').click(function(e){
+            var target = $(this).closest('span').attr('id').replace('Tog', '');
+            
+            if($(this).prop('checked') ===true){
                 $('.' + target).show();
-                writeDOMDBVal(target, 'false');
-            }
-            else {
-                $(this).attr('data-status', 'show');
-                $(this).attr('class', 'colShow');
-                $('.' + target).hide();
                 writeDOMDBVal(target, 'true');
             }
-        }
+            else {
+                $('.' + target).hide();
+                writeDOMDBVal(target, 'false');
+            }
+            
     });
 }
 

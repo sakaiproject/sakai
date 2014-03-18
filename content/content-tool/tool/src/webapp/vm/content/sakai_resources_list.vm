@@ -177,12 +177,10 @@ $(document).ready(function() {
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" id="columnTog">
-              <li><a id="accessTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon  glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Access</a></li>
-              <li><a id="creatorTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Created by</a></li>
-              <li><a id="modifiedTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Modified</a></li>
-              <li><a id="sizeTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;Size</a></li>
-              <li role="presentation" class="divider"></li>
-              <li><a id="allTog" href="#"><span class="showIcon glyphicon glyphicon-ok"></span><span class="hideIcon glyphicon glyphicon-remove"></span>&nbsp;&nbsp;$clang.getString('list.cols.columns.all')</a></li>
+              <li class="dropdown-header"><span id="accessTog" href="#"><input type="checkbox" id="accessCol"/><label for="accessCol">&nbsp;&nbsp;Access</label></span></li>
+              <li class="dropdown-header"><span id="creatorTog" href="#"><input type="checkbox" id="creatorCol"/><label for ="creatorCol">&nbsp;&nbsp;Created by</label></span></li>
+              <li class="dropdown-header"><span id="modifiedTog" href="#"><input type="checkbox" id="modifiedCol"/><label for="modifiedCol">&nbsp;&nbsp;Modified</label></span></li>
+              <li class="dropdown-header"><span id="sizeTog" href="#"><input type="checkbox" id="sizeCol"/><label for="sizeCol">&nbsp;&nbsp;Size</label></span></li>
             </ul>
         </div>
 </div>
