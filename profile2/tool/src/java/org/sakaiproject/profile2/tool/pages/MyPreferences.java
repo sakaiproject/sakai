@@ -52,6 +52,8 @@ public class MyPreferences extends BasePage{
 	private CheckBox officialImage;
 	private CheckBox gravatarImage;
 	
+	private boolean officialImageEnabled;
+	private boolean gravatarEnabled;
 	
 	public MyPreferences() {
 		
@@ -270,6 +272,9 @@ public class MyPreferences extends BasePage{
 		is.add(new Label("imageSettingsHeading", new ResourceModel("heading.section.image")));
 		is.add(new Label("imageSettingsText", new ResourceModel("preferences.image.message")));
 
+		officialImageEnabled = sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled();
+		gravatarEnabled = sakaiProxy.isGravatarImageEnabledGlobally();
+
 		//official image
 		//checkbox
 		WebMarkupContainer officialImageContainer = new WebMarkupContainer("officialImageContainer");
@@ -286,15 +291,15 @@ public class MyPreferences extends BasePage{
 				
 				//set gravatar to false since we can't have both active
 				gravatarImage.setModelObject(false);
-				target.addComponent(gravatarImage);
-				
+				if(gravatarEnabled) {
+					target.addComponent(gravatarImage);
+				}				
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		is.add(officialImageContainer);
 		
 		//if using official images but alternate choice isn't allowed, hide this section
-		boolean officialImageEnabled = sakaiProxy.isUsingOfficialImageButAlternateSelectionEnabled();
 		if(!officialImageEnabled) {
 			profilePreferences.setUseOfficialImage(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
 			officialImageContainer.setVisible(false);
@@ -316,15 +321,15 @@ public class MyPreferences extends BasePage{
 				
 				//set gravatar to false since we can't have both active
 				officialImage.setModelObject(false);
-            	target.addComponent(officialImage);
-            	
+				if(officialImageEnabled) {
+					target.addComponent(officialImage);
+				}
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		is.add(gravatarContainer);
 		
 		//if gravatar's are disabled, hide this section
-		boolean gravatarEnabled = sakaiProxy.isGravatarImageEnabledGlobally();
 		if(!gravatarEnabled) {
 			profilePreferences.setUseGravatar(false); //set the model false to clear data as well (doesnt really need to do this but we do it to keep things in sync)
 			gravatarContainer.setVisible(false);
