@@ -340,7 +340,7 @@ public class ProfileWorksiteLogicImpl implements ProfileWorksiteLogic {
 				User user = sakaiProxy.getUserById(member.getUuid());
 				if (null != user) {						
 					// false == provided
-					site.addMember(member.getUuid(), ROLE_ACCESS, true, false);
+					site.addMember(member.getUuid(), sakaiProxy.getServerConfigurationParameter("profile2.worksite.access.role",ROLE_ACCESS), true, false);
 				} else {
 					log .warn("attempt to add unknown user " + member.getUuid() + " to worksite");
 				}
