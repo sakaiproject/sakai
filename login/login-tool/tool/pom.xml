@@ -64,10 +64,12 @@
     	<scope>provided</scope>
     </dependency>
     <dependency>
-    	<groupId>com.google.code.findbugs</groupId>
-    	<artifactId>annotations</artifactId>
-    	<version>1.3.9</version>
-    	<type>jar</type>
+        <groupId>com.google.code.findbugs</groupId>
+        <artifactId>annotations</artifactId>
+        <version>1.3.9</version>
+        <!-- Not really provided, but easier than creating a custom assembly 
+             as the findbugs annotations aren't needed at runtime. -->
+        <scope>provided</scope>
     </dependency>
     <dependency>
     	<groupId>junit</groupId>
