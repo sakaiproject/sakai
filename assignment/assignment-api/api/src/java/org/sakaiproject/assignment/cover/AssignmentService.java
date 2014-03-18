@@ -564,6 +564,17 @@ public class AssignmentService {
 		return service.getAssignment(param0);
 	}
 
+	public static String getAssignmentStatus(
+			java.lang.String param0)
+			throws org.sakaiproject.exception.IdUnusedException,
+			org.sakaiproject.exception.PermissionException {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null)
+			return null;
+
+		return service.getAssignmentStatus(param0);
+	}
+	
 	public static org.sakaiproject.assignment.api.AssignmentContent getAssignmentContent(
 			java.lang.String param0)
 			throws org.sakaiproject.exception.IdUnusedException,

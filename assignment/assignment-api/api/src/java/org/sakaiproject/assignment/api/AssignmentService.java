@@ -620,6 +620,14 @@ public interface AssignmentService extends EntityProducer
 	public Assignment getAssignment(String assignmentId) throws IdUnusedException, PermissionException;
 
 	/**
+	 * Retrieves the current status of the specified assignment.
+	 * @return
+	 * @throws IdUnusedException
+	 * @throws PermissionException
+	 */
+	public String getAssignmentStatus(String assignmentId) throws IdUnusedException, PermissionException;
+	
+	/**
 	 * Access the AssignmentContent with the specified id.
 	 * 
 	 * @param contentId -

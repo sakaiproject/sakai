@@ -15718,4 +15718,68 @@ public class AssignmentAction extends PagedResourceActionII
     	
     	return itemString;
     }
+    
+	/**
+	 * Action to determine which view do present to user.
+	 * This method is currently called from calendar events in the alternate calendar tool.
+	 */
+	public void doCheck_view(RunData data)
+	{
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+		String assignmentId = params.getString("assignmentId");
+		
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		
+		boolean allowReadAssignment = AssignmentService.allowGetAssignment(contextString); 
+		boolean allowSubmitAssignment = AssignmentService.allowAddSubmission(contextString); 
+		boolean allowAddAssignment = AssignmentService.allowAddAssignment(contextString);
+		
+		// Retrieve the status of the assignment
+		String assignStatus = getAssignmentStatus(assignmentId, state);
+		if (assignStatus != null && !assignStatus.equals(rb.getString("gen.open")) && !allowAddAssignment){
+			addAlert(state, rb.getFormattedMessage("gen.notavail", new Object[]{assignStatus}));
+		}
+		// Check the permission and call the appropriate view method.
+		if (allowSubmitAssignment){
+			doView_submission(data);
+		}
+		else if (allowAddAssignment){
+			doView_assignment(data);
+		}
+		else if (allowReadAssignment){
+			doView_assignment_as_student(data);
+		}
+		else{
+			addAlert(state, rb.getFormattedMessage("youarenot_viewAssignment", new Object[]{assignmentId}));
+		}
+	} // doCheck_view
+    
+	/**
+	 * Retrieves the status of a given assignment.
+	 * @param assignmentId
+	 * @param state
+	 * @return
+	 */
+	private String getAssignmentStatus(String assignmentId, SessionState state)
+	{
+		String rv = null;
+		try
+		{
+			Session session = SessionManager.getCurrentSession();
+			rv = AssignmentService.getAssignmentStatus(assignmentId);
+		}
+		catch (IdUnusedException e)
+		{
+			M_log.warn(this +  " " + e.getMessage() + " " + assignmentId);
+		}
+		catch (PermissionException e)
+		{
+			M_log.warn(this +  e.getMessage() + " " + assignmentId);
+		}
+		
+		return rv;
+	}
+
+
 }	

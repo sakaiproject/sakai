@@ -1074,6 +1074,28 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	}// getAssignment
 
 	/**
+	 * Retrieves the current status of an assignment.
+	 * @param assignmentReference
+	 * @return
+	 * @throws IdUnusedException
+	 * @throws PermissionException
+	 */
+	public String getAssignmentStatus(String assignmentReference) throws IdUnusedException, PermissionException
+	{
+		M_log.debug(this + " GET ASSIGNMENT : REF : " + assignmentReference);
+
+		// check security on the assignment
+		unlockCheck(SECURE_ACCESS_ASSIGNMENT, assignmentReference);
+		
+		Assignment assignment = findAssignment(assignmentReference);
+		
+		if (assignment == null) throw new IdUnusedException(assignmentReference);
+		
+		return assignment.getStatus();
+		
+	} // getAssignmentStatus
+	
+	/**
 	 * Check visibility of an assignment for a given user. We consider an
 	 * an assignment to be visible to the user if it has been opened and is
 	 * not deleted. However, we allow access to deleted assignments if the
