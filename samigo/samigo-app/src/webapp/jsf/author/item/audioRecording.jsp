@@ -111,7 +111,6 @@
 
   <h:outputLabel for="noattempts" value="#{authorMessages.number_of_attempts} : #{authorMessages.number_of_attempts_indic}" />
   <h:selectOneMenu id="noattempts" value="#{itemauthor.currentItem.numAttempts}" required="true">
-  <f:selectItem itemLabel="#{authorMessages.select}" itemValue=""/>
   <f:selectItem itemLabel="#{authorMessages.unlimited}" itemValue="9999"/> <%-- 9999 indicates unlimited --%>
   <f:selectItem itemLabel="1" itemValue="1"/>
   <f:selectItem itemLabel="2" itemValue="2"/>

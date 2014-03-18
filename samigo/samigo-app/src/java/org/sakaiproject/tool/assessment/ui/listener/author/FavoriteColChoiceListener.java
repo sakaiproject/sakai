@@ -13,7 +13,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class FavoriteColChoiceListener implements ValueChangeListener {
-	 private static Log log = LogFactory.getLog(StartCreateItemListener.class);
+	 private static Log log = LogFactory.getLog(FavoriteColChoiceListener.class);
 	public void processValueChange(ValueChangeEvent ae) throws AbortProcessingException
 	  {
 	    log.debug("FavoriteColChoiceListener: valueChangeLISTENER.");

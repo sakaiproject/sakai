@@ -135,6 +135,7 @@ public class StartCreateItemListener implements ValueChangeListener, ActionListe
 
    String nextpage= null;
    ItemBean item = new ItemBean();
+   
    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
    try{
     // check to see if we arrived here from question pool
@@ -201,6 +202,9 @@ log.debug("after getting item.getItemType() ");
                         break;
                 case 7:
                         nextpage = "audioRecItem";
+                        // Set default values
+                        item.setTimeAllowed("30");
+                        item.setNumAttempts("2");
                         break;
                 case 8:
                         nextpage = "fillInBlackItem";
