@@ -242,9 +242,11 @@ public class MyPictures extends BasePage {
 		} else if (numImages <= ProfileConstants.MAX_GALLERY_IMAGES_PER_PAGE) {
 			galleryForm.add(new PagingNavigator("navigator", gridView).setVisible(false));
 			noPicturesLabel = new Label("noPicturesLabel");
+			noPicturesLabel.setVisible(false);
 		} else {
 			galleryForm.add(new PagingNavigator("navigator", gridView));
 			noPicturesLabel = new Label("noPicturesLabel");
+			noPicturesLabel.setVisible(false);
 		}
 		
 		
