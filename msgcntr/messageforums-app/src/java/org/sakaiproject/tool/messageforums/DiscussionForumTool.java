@@ -7983,6 +7983,8 @@ public class DiscussionForumTool
 	 
 	 //Checks for the showShortDescription property and existence of forum's short description
 	 public boolean getShowForumShortDescription() {
+		 if (this.selectedForum == null || this.selectedForum.getForum() == null)
+			 return false;
 
 		 String shortDescription= this.selectedForum.getForum().getShortDescription();
 		 if (shortDescription!=null){
@@ -7998,6 +8000,8 @@ public class DiscussionForumTool
 	 
 	 //Checks for the showShortDescription property and existence of topic's short description
 	 public boolean getShowTopicShortDescription() {
+		 if (this.selectedTopic == null || this.selectedTopic.getTopic() == null)
+			 return false;
 
 		 String shortDescription= this.selectedTopic.getTopic().getShortDescription();
 		 if (shortDescription!=null){
