@@ -38,10 +38,10 @@
     <h:outputFormat value=" #{deliveryMessages.audio_recorder_timelimit}" escape="false"> <f:param value="<span id=\"audio-time-allowed\"> </span>" /> </h:outputFormat>
   <f:verbatim></div></f:verbatim>
   <f:verbatim><div class="attempts-allowed"></f:verbatim>
-    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_allowed}" escape="false"/> <f:verbatim><span id="audio-attempts-allowed"> </span></f:verbatim>
+    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_allowed} " escape="false"/> <f:verbatim><span id="audio-attempts-allowed"> </span></f:verbatim>
   <f:verbatim></div></f:verbatim>
   <f:verbatim><div class="attempts-remaining"></f:verbatim>
-    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_remaining}" escape="false"/> <f:verbatim><span id="audio-attempts"> </span></f:verbatim>
+    <h:outputFormat value=" #{deliveryMessages.audio_recorder_attempts_remaining} " escape="false"/> <f:verbatim><span id="audio-attempts"> </span></f:verbatim>
   <f:verbatim></div></f:verbatim>
 <f:verbatim></div></f:verbatim>
 
