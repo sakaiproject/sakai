@@ -377,8 +377,8 @@ function audioAnalyzer(time) {
 
 	//Update the Url if it's passed back and this method accepts it
     callOpener ("updateUrl", responseUrl);
-    $('#audio-levelbar').hide();
-    $('#audio-statusbar').css('width', '2px').show();
+    $('#audio-visual-container').hide();
+    $('#audio-statusbar').show().css('width', '2px').show();
     $('#audio-posting').hide();
     $('#audio-finished').fadeTo('slow', 1.0);
 
