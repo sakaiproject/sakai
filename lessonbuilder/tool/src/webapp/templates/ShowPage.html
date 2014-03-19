@@ -110,7 +110,8 @@ function resizeiframe(id) {
                           </h2>
                       </div>
             <div class="action">
-                <a class="usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+                <a class="portalmenu usebutton" href="#" rsf:id="print-view" id="print-view" onclick="window.open(window.location.href);return false"  role="note"></a>
+                <a class="portalmenu usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
                 <span rsf:id="gradingSpan" class="gradingarea">
                     <a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="*vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
                 </span>

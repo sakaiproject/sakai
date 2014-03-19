@@ -307,7 +307,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 	font-weight: bold;
 	padding: 0px 4px !important;
 }
-.edit-col .ui-button-text, #show-pages .ui-button-text, #submit-grading .ui-button-text {
+.edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 	/*vertical-align: middle;*/
 }
