@@ -177,10 +177,12 @@ $(document).ready(function() {
               <span class="caret"></span>
             </button>
             <ul class="dropdown-menu" id="columnTog">
-              <li class="dropdown-header"><span id="accessTog" href="#"><input type="checkbox" id="accessCol"/><label for="accessCol">&nbsp;&nbsp;Access</label></span></li>
-              <li class="dropdown-header"><span id="creatorTog" href="#"><input type="checkbox" id="creatorCol"/><label for ="creatorCol">&nbsp;&nbsp;Created by</label></span></li>
-              <li class="dropdown-header"><span id="modifiedTog" href="#"><input type="checkbox" id="modifiedCol"/><label for="modifiedCol">&nbsp;&nbsp;Modified</label></span></li>
-              <li class="dropdown-header"><span id="sizeTog" href="#"><input type="checkbox" id="sizeCol"/><label for="sizeCol">&nbsp;&nbsp;Size</label></span></li>
+              <li class="dropdown-header"><span>$clang.getString('list.cols.columns.inst')</span></li>
+              <li class="dropdown-header"><span id="accessTog"><input type="checkbox" id="accessCol" checked="checked" /><label for="accessCol">&nbsp;&nbsp;Access</label></span></li>
+              <li class="dropdown-header"><span id="creatorTog"><input type="checkbox" id="creatorCol" checked="checked" /><label for ="creatorCol">&nbsp;&nbsp;Created by</label></span></li>
+              <li class="dropdown-header"><span id="modifiedTog"><input type="checkbox" id="modifiedCol" checked="checked"/><label for="modifiedCol">&nbsp;&nbsp;Modified</label></span></li>
+              <li class="dropdown-header"><span id="sizeTog"><input type="checkbox" id="sizeCol" checked="checked"/><label for="sizeCol">&nbsp;&nbsp;Size</label></span></li>
+              <li class="dropdown-header"><button class="btn btn-primary  btn-sm btn-block" id="saveCols">Save</button></li>
             </ul>
         </div>
 </div>

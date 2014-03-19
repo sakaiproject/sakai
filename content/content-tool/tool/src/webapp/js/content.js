@@ -1,103 +1,143 @@
 var setupColumnToggle = function(){
-    var cols = ['accessTog', 'creatorTog', 'modifiedTog', 'sizeTog']
-    $.each(cols, function(i, val){
-        var target = val.replace('Tog', '');
-        if (readDOMVal(target)==='false') {
-            $('.' + target).hide();
-            $('#' + val).find('input').attr('checked',false);
+    var massageColWidths = function(){
+        if ($('#columnTog :checked').length === 0) {
+            $('.actions2').css({
+                'width': '30%'
+            });
         }
         else {
-            $('#' + val).find('input').attr('checked',true);
+            $('.actions2').css('width', '18px');
         }
-    });
+    };
     
+    var setupColUI = function(data){
+        // hides columns and sets the checkbox values
+        $.each(data, function(key, value){
+            if (value === false) {
+                $('.' + key).hide();
+                $('#' + key + 'Tog').find('input').attr('checked', false);
+            }
+            else {
+                $('#' + key + 'Tog').find('input').attr('checked', true);
+            }
+            massageColWidths();
+        });
+    };
+    
+    var jsonify = function(str){
+        var jsonObj = {};
+        var keyVals = str.split('&');
+        var keyValsLength = keyVals.length;
+        for (var i = 0; i < keyValsLength; i++) {
+            var thiskeyVal = keyVals[i].split('=');
+            if (thiskeyVal[1] === 'true') {
+                thiskeyVal[1] = true;
+            }
+            else {
+                thiskeyVal[1] = false;
+            }
+            jsonObj[thiskeyVal[0]] = thiskeyVal[1];
+        }
+        //return jsonObj
+        return JSON.stringify(jsonObj);
+    };
+    
+
+    var writeDOMVal = function(name, val){
+        if (window.localStorage) {
+            sessionStorage.setItem([name], val);
+        }
+    };
+    
+    var readDOMVal = function(name){
+        if (window.localStorage) {
+            return sessionStorage.getItem([name]);
+        }
+    };
+    
+    var readDBVal = function(name){
+        // name = resourcesColumn
+        var ret_val = '';
+        $.ajax({
+            type: 'GET',
+            url: '/direct/userPrefs/' + $('#userId').text() + '/' + name + '.json',
+            cache: false,
+            dataType: 'json'
+        }).done(function(data){
+            // this callback will use the data sent to write to the DOM;
+            writeDOMVal('resourcesColumn', JSON.stringify(data));
+            // and then show/hide cols and check/uncheck checkboxes
+            setupColUI(data);
+        }).fail(function(){
+            // what here?
+            // checkboxes will be all checked and columns will all show
+        });
+    };
+    
+    var writeDBVal = function(name, val){
+        // use userPrefs call to preserve choices into db
+        // name will be the setting type (i.e.'resourcesColumn')
+        // val will be a prepared query string like 'access=true&creator=true&modified=true&size=true'
+        
+        jQuery.ajax({
+            type: "PUT",
+            url: '/direct/userPrefs/' + $('#userId').text() + '/' + name + '?' + val
+        }).done(function(){
+            // this callback will use the data sent to write to the DOM;
+            writeDOMVal('resourcesColumn', jsonify(val));
+        }).fail(function(){
+            // write to the DOM
+            // TODO: maybe message to user that 
+            // setting will only last a session
+            writeDOMVal('resourcesColumn', jsonify(val));
+        });
+    };
+    
+    //setting up on page load
+    if (readDOMVal('resourcesColumn') === null) {
+        // DOM storage null - ask the db and write to the DOM in the callback')
+        // if the DB is null write to it with the known set with all key set to false
+        // check all the checkboxes
+    
+        //TODO: activate: readDBVal('resourcesColumn');
+    }
+    else {
+        // use DOM values
+        var val = $.parseJSON(readDOMVal('resourcesColumn'));
+        setupColUI(val);
+    }
     $('#columnTog label').click(function(e){
         e.stopPropagation();
     });
     $('#columnTog input').click(function(e){
-            var target = $(this).closest('span').attr('id').replace('Tog', '');
-            e.stopPropagation();
-            if($(this).prop('checked') ===true){
-                $('.' + target).show();
-                writeDOMDBVal(target, 'true');
-            }
-            else {
-                $('.' + target).hide();
-                writeDOMDBVal(target, 'false');
-            }
-            if($('#columnTog :checked').length ==0){
-                $('.actions2').css({'width':'30%'});
-            }
-            else {
-                $('.actions2').css('width','18px');
-            }
+        var target = $(this).closest('span').attr('id').replace('Tog', '');
+        e.stopPropagation();
+        if ($(this).prop('checked') === true) {
+            $('.' + target).show();
+        }
+        else {
+            $('.' + target).hide();
+        }
+        massageColWidths();
     });
-}
+    
+    $('#columnTog #saveCols').click(function(e){
+        var str = '';
+        $("#columnTog input").each(function(index){
+            str = str + $(this).closest('span').attr('id').replace('Tog', '') + '=' + $(this).prop('checked');
+            //  obj[$(this).closest('span').attr('id').replace('Tog', '')] = $(this).prop('checked');
+            if (index !== 3) {
+                str = str + '&';
+            }
+        });
+        //store str in db
+        //TODO: activate:  writeDBVal('resourcesColumn',str);
+        // and store it locally
+        writeDOMVal('resourcesColumn', jsonify(str));
+    });
+};
 
-var readDOMVal = function(name){
-	var ret_val="";
-	// get the property setting from DOM first
-	if (window.localStorage) {
-        ret_val=sessionStorage.getItem([name]);
-    }
-	
-	if (ret_val==null)
-	{
-		// if the property val is not set in DOM yet, do ajax call to retrieve the value from database
-	    $.ajax
-	    (
-	        {
-	            type: "GET",
-	            url: "/direct/userPrefs/key/" + $('#userId').text() + "/resourcesColumn.json",
-	            async:false,
-	            cache:false,
-	            dataType: 'html',
-	            success: function(data)
-	            {
-	            	var json = $.parseJSON(data);
-	            	$(json).each(function(key,val){
-	            		$.each(val,function(k,v){
-		            		if (k === "data")
-		            		{  
-		            			$.each(v,function(kk,vv){
-		            				// update DOM with values from database
-		            				writeDOMVal(kk,vv);
-		            				if (kk === name)
-		            				{
-		            					ret_val = vv;
-		            				}
-		            			});
-		            		}
-	            	    });
-	            	});
-	            },
-	            error:function (xhr, textStatus, thrownError)
-	            {
-	            	
-	            }
-	        }
-	    );
-	}
-	
-	return ret_val;
-    
-};
-var writeDOMVal = function(name, val){
-	// write the (name, val) pair into DOM
-    if (window.localStorage) {
-        sessionStorage.setItem([name], val);
-    }
-};
-var writeDOMDBVal = function(name, val){
-	// write into DOM
-    writeDOMVal(name,val);
-    
-    // use userPrefs call to preserve choices into db
-	jQuery.ajax({
-        type: "PUT",
-        url: "/direct/userPrefs/" + $('#userId').text() + "/resourcesColumn?"+name+"=" + val
-      });
-};
+
 $(document).ready(function(){
     if ($('#content_print_result_url').length) {
         window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
@@ -160,5 +200,5 @@ $(document).ready(function(){
         });
     });
     setupColumnToggle();
-})
+});
 

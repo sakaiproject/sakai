@@ -9,15 +9,3 @@
 .dropdown-toggle {
     padding: 6px 6px !important;
 }
-
-#columnTog a.colHide .hideIcon {
-    visibility: hidden;
-}
-
-#columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
-    display: inline;
-}
-
-#columnTog a.colShow .showIcon, #columnTog a.colHide .hideIcon {
-    display: none
-}
