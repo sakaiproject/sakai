@@ -209,6 +209,7 @@ function audioAnalyzer(time) {
   function startRecording(button) {
     recordingStarted = true;
     recordingStopped = false;
+    $('#audio-mic-check').hide();
 	
     //Try to stop/reload previous recording
     if (userMediaSupport) {
