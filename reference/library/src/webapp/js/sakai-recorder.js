@@ -306,11 +306,11 @@ function audioAnalyzer(time) {
   function postDataToServer (button) {
     console.log('seconds: ' + maxSeconds + ";remain: " + timeRemaining);
     var duration = maxSeconds - timeRemaining;
-    var attempts = attemptsAllowed - attemptsRemaining;
+    // attempts is what Samigo expects to be attemptsRemaining
     // agentId is the Samigo agentId and is not the browser user agent
 
     if (postUrl) {
-        var url  = postUrl + "&agent=" + agentId + "&lastDuration=" + duration + "&suffix=" + "au" + "&attempts=" + attempts;
+        var url  = postUrl + "&agent=" + agentId + "&lastDuration=" + duration + "&suffix=" + "au" + "&attempts=" + attemptsRemaining;
     }
     else {
 	console.log ("postUrl not set yet");
@@ -331,7 +331,7 @@ function audioAnalyzer(time) {
       $.jRecorder.addParameter('agent', agentId);
       $.jRecorder.addParameter('suffix', 'wav');
       $.jRecorder.addParameter('lastDuration', duration);
-      $.jRecorder.addParameter('attempts', attempts);
+      $.jRecorder.addParameter('attempts', attemptsRemaining);
       $.jRecorder.addParameter('Command','QuickUploadAttachment');
 
       $.jRecorder.sendData();
@@ -534,7 +534,7 @@ $(document).ready(function() {
     timerStartPosition = $('#audio-timer').position().left;
     $('#audio-time-allowed').text(timeRemaining);
     $('#audio-max-time').text(maxSeconds);
-    $('#audio-attempts-allowed').text(attemptsRemaining);
+    $('#audio-attempts-allowed').text(attemptsAllowed);
     $('#audio-attempts').text(attemptsRemaining);
 
     maxWidth = $('#audio-controls').width();
