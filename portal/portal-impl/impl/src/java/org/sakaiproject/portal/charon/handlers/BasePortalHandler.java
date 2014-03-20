@@ -159,38 +159,37 @@ public abstract class BasePortalHandler implements PortalHandler
 	protected Locale setSiteLanguage(Site site)
 	{
 		ResourceLoader rl = new ResourceLoader();
-				
-		ResourcePropertiesEdit props = site.getPropertiesEdit();
-				
-		String locale_string = props.getProperty("locale_string");
-			
-		if(log.isDebugEnabled()){
-			log.debug("setSiteLanguage - locale_string property: " + locale_string);
+		String locale_string = null;
+		if(site != null)
+		{
+			ResourcePropertiesEdit props = site.getPropertiesEdit();
+
+			locale_string = props.getProperty("locale_string");
+
+			if (log.isDebugEnabled()) {
+				log.debug("setSiteLanguage - locale_string property: " + locale_string);
+			}
 		}
-		
-		Locale loc;
-				
+		Locale loc = null;
 		// if no language was specified when creating the site, set default language to session
 		if(locale_string == null || locale_string == "")
-		{					
+		{
 			if(log.isDebugEnabled()){
 				log.debug("setSiteLanguage - no locale, setting null.");
 			}
-			loc = rl.setContextLocale(null);
 		}
 		
 		// if you have indicated a language when creating the site, set selected language to session
 		else
-		{				
-			Locale locale = getLocaleFromString(locale_string);	
-			
+		{
+			loc = getLocaleFromString(locale_string);
 			if(log.isDebugEnabled()){
-				log.debug("setSiteLanguage - locale: " + locale.toString());
+				log.debug("setSiteLanguage - locale: " + loc.toString());
 			}
-			loc = rl.setContextLocale(locale);			
 		}
 
-        return loc;
+		loc = rl.setContextLocale(loc);
+		return loc;
 	}
 	
 	protected void addLocale(PortalRenderContext rcontext, Site site) {
@@ -203,7 +202,7 @@ public abstract class BasePortalHandler implements PortalHandler
 			prevLocale = new ResourceLoader().getLocale();
 		}
 
-		Locale locale = setSiteLanguage(site);	
+		Locale locale = setSiteLanguage(site);
 		if(log.isDebugEnabled()) {
 			log.debug("Locale for site " + site.getId() + " = " + locale.toString());
 		}
