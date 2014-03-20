@@ -948,6 +948,18 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .portletTitle .action a.tool-directurl:hover{
     background: url(/library/image/silk/link_go.png) center right no-repeat;
 }
+#cluetip {
+	background-color: #fff;
+	padding: 5px;
+}
+
+#cluetip .cluetip-close {
+	float: right;	
+}
+
+#cluetip .cluetip-title {
+	margin: 0 0 0 0;
+}
 .direct-url-wrap {
     font-size: 85%;
     color: #555;
@@ -955,7 +967,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .direct-url-wrap textarea {
     color: #000;
     overflow:auto;
-    width:250px;
+    width:97%;
     display:block;
 }
 .portletTitle .title {

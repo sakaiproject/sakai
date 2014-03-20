@@ -1779,6 +1779,19 @@ div.qtip-titlebar{
 	background: url(/library/image/silk/link.png) center right no-repeat;
 }
 
+#cluetip {
+	background-color: #fff;
+	padding: 5px;
+}
+
+#cluetip .cluetip-close {
+	float: right;	
+}
+
+#cluetip .cluetip-title {
+	margin: 0 0 0 0;
+}
+
 .direct-url-wrap {
 	font-size: 85%;
 	color: #555;
@@ -1787,7 +1800,7 @@ div.qtip-titlebar{
 .direct-url-wrap textarea {
 	color: #000;
 	overflow:auto;
-	width:250px;
+	width:97%;
 	display:block;
 }
 
