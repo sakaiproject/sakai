@@ -60,52 +60,54 @@ var setupColumnToggle = function(){
         var ret_val = '';
         $.ajax({
             type: 'GET',
-            url: '/direct/userPrefs/' + $('#userId').text() + '/' + name + '.json',
+            url: '/direct/userPrefs/key/' + $('#userId').text() + '/' + name + '.json',
             cache: false,
             dataType: 'json'
         }).done(function(data){
             // this callback will use the data sent to write to the DOM;
-            writeDOMVal('resourcesColumn', JSON.stringify(data));
-            // and then show/hide cols and check/uncheck checkboxes
-            setupColUI(data);
+        	$(data).each(function(key,val){
+    			$.each(val,function(k,v){
+    				if (k === "data")
+    				{
+
+    					ret_val= v;
+    					writeDOMVal('resourcesColumn', JSON.stringify(v));
+    				}
+				});
+			});
         }).fail(function(){
             // what here?
             // checkboxes will be all checked and columns will all show
         });
+        return ret_val;
     };
     
     var writeDBVal = function(name, val){
         // use userPrefs call to preserve choices into db
         // name will be the setting type (i.e.'resourcesColumn')
         // val will be a prepared query string like 'access=true&creator=true&modified=true&size=true'
-        
-        jQuery.ajax({
-            type: "PUT",
-            url: '/direct/userPrefs/' + $('#userId').text() + '/' + name + '?' + val
-        }).done(function(){
-            // this callback will use the data sent to write to the DOM;
-            writeDOMVal('resourcesColumn', jsonify(val));
+    	jQuery.ajax({
+            type: 'PUT',
+            url: "/direct/userPrefs/updateKey/" + $('#userId').text() + "/" + name + "?" + val
+        }).done(function(data){
         }).fail(function(){
-            // write to the DOM
-            // TODO: maybe message to user that 
-            // setting will only last a session
-            writeDOMVal('resourcesColumn', jsonify(val));
+        	// TODO: maybe message to user that
         });
     };
     
+    var val= "";
     //setting up on page load
     if (readDOMVal('resourcesColumn') === null) {
         // DOM storage null - ask the db and write to the DOM in the callback')
         // if the DB is null write to it with the known set with all key set to false
         // check all the checkboxes
-    
-        //TODO: activate: readDBVal('resourcesColumn');
+        val=readDBVal('resourcesColumn');
     }
     else {
         // use DOM values
-        var val = $.parseJSON(readDOMVal('resourcesColumn'));
-        setupColUI(val);
+        val = $.parseJSON(readDOMVal('resourcesColumn'));
     }
+    setupColUI(val);
     $('#columnTog label').click(function(e){
         e.stopPropagation();
     });
@@ -130,10 +132,12 @@ var setupColumnToggle = function(){
                 str = str + '&';
             }
         });
+        
+        // update DOM
+    	writeDOMVal('resourcesColumn', jsonify(str));
+        
         //store str in db
-        //TODO: activate:  writeDBVal('resourcesColumn',str);
-        // and store it locally
-        writeDOMVal('resourcesColumn', jsonify(str));
+        writeDBVal('resourcesColumn', str);
     });
 };
 
