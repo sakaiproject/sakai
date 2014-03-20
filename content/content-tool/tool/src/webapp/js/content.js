@@ -4,6 +4,7 @@ $.ajaxSetup({
 });
 //not used - the data should come sorted, but it does not
 //left here in case all else fails
+
 var sortJSON = function(data, key){
     return data.sort(function(a, b){
         var x = a[key];
@@ -12,55 +13,63 @@ var sortJSON = function(data, key){
     });
 };
 
+
 var iconDecider = function(itemType){
     var path = '/library/image/sakai/';
     switch (itemType) {
         case "application/mac-binhex40":
+        case "application/x-tar":
+        case "application/zip":
+        case "application/x-stuffit":
             return path + 'compressed.gif';
+
         case "application/msword":
+        case "application/rtf":
+        case "text/rtf":
             return path + 'word.gif';
+
+        case "application/vnd.ms-excel":
+        case "text/csv":
+            return path + 'excel.gif' ;
+
+        case "image/vnd.adobe.photoshop":
+        case "application/x-photoshop":
+            return path + 'photoshop.gif';
+
+        case "image/gif":
+        case "image/png":
+        case "image/jpeg":
+            return path + 'image.gif';
+
+        case "video/mpeg":
+        case "video/quicktime":
+        case "video/msvideo":
+        case "video/avi":
+        case "video/x-msvideo":
+            return path + 'movie.gif';
+
+        case "audio/mpeg":
+        case "audio/x-midi":
+            return path + 'audio.gif';
+
         case "application/pdf":
             return path + 'pdf.gif';
         case "application/postscript":
             return path + 'postscript.gif';
-        case "application/rtf":
-            return path + 'word.gif';
-        case "application/vnd.ms-excel":
-            return path + 'excel.gif';
         case "application/vnd.ms-powerpoint":
             return path + 'ppt.gif';
         case "application/x-msaccess":
             return path + 'access.gif';
         case "application/x-shockwave-flash":
             return path + 'shockwave.gif';
-        case "application/x-stuffit":
-            return path + 'compressed.gif';
-        case "application/x-tar":
-            return path + 'compressed.gif';
-        case "application/zip":
-            return path + 'compressed.gif';
-        case "audio/mpeg":
-            return path + 'audio.gif';
         case "audio/x-pn-realaudio":
             return path + 'real.gif';
-        case "image/gif":
-            return path + 'image.gif';
-        case "image/png":
-            return path + 'image.gif';
-        case "image/vnd.adobe.photoshop":
-            return path + 'photoshop.gif';
-        case "text/csv":
-            return path + 'excel.gif';
         case "text/html":
             return path + 'html.gif';
         case "text/plain":
             return path + 'text.gif';
         case "text/x-java-source":
             return path + 'java.gif';
-        case "video/mpeg":
-            return path + 'movie.gif';
-        case "video/quicktime":
-            return path + 'movie.gif';
         default:
             return path + 'generic.gif';
     }
