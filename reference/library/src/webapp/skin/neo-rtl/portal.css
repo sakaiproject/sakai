@@ -1516,6 +1516,7 @@ div#privacy_overlay {
 
 /* used to hide various blocks from sighted users that are in the source to help with accessibility  */
 .portalBody .skip {
+    outline:1px solid transparent;
     display: inline !important; 
     position: fixed !important; 
     height: 1px !important; 
