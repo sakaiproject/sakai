@@ -15741,11 +15741,11 @@ public class AssignmentAction extends PagedResourceActionII
 			addAlert(state, rb.getFormattedMessage("gen.notavail", new Object[]{assignStatus}));
 		}
 		// Check the permission and call the appropriate view method.
-		if (allowSubmitAssignment){
-			doView_submission(data);
-		}
-		else if (allowAddAssignment){
+		if (allowAddAssignment){
 			doView_assignment(data);
+		}
+		else if (allowSubmitAssignment){
+			doView_submission(data);
 		}
 		else if (allowReadAssignment){
 			doView_assignment_as_student(data);
