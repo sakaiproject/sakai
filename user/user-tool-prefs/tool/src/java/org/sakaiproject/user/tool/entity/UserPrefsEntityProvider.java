@@ -95,26 +95,7 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 
 	public void updateEntity(EntityReference ref, Object entity,
 			Map<String, Object> params) {
-		// TODO Auto-generated method stub
-		String queryString = (String) params.get("queryString");
-		if (queryString != null)
-		{
-			String[] parts = queryString.split("=");
-			if (parts != null && parts.length==2)
-			{
-				String key = parts[0];
-				String val = parts[1];
-				String userId = getUserId();
-				PreferencesEdit m_edit = getPreferencesEdit(userId);
-				
-				ResourcePropertiesEdit props = m_edit.getPropertiesEdit("resourcesColumn");
-				props.addProperty(key, val); // Save the permission to see if it changes the next time they sign in
-				
-				preferencesService.commit(m_edit);
-			}
-			
-		}
-
+		// TODO 
 	}
 	
     /**
@@ -326,5 +307,53 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 			}
 		}
 		return rv;
+	}
+
+	/**
+	 * 
+	 * update the key-ed property values 
+	 * 
+	 * use the following format to invoke this function:
+	 *"/direct/userPrefs/updateKey/[user_id]/[key_name]/[name=val&name1=val1...]"
+	 */
+	@EntityCustomAction(action = "updateKey", viewKey = EntityView.VIEW_EDIT)
+	public void updateKeyProperties(EntityView view) {
+		
+		// get all params
+		String userId = view.getPathSegment(2);
+		String key = view.getPathSegment(3);
+		Map<String, Object> params = requestStorage.getStorageMapCopy();
+	
+		if(log.isDebugEnabled()) {
+			log.debug(this + " updateKeyProperties for userId=" + userId + " key=" + key);
+		}
+		
+		String queryString = (String) params.get("queryString");
+		if (queryString != null)
+		{
+			// queryString is of type name1=val1&name2=val2&name3=val3...
+			String[] parts0 = queryString.split("&");
+
+			if (parts0 != null && parts0.length> 0)
+			{
+				// get the edit object
+				PreferencesEdit m_edit = getPreferencesEdit(userId);
+				ResourcePropertiesEdit props = m_edit.getPropertiesEdit(key);
+				for (int i=0; i< parts0.length;i++)
+				{
+					String part0=parts0[i];
+					String[] parts = part0.split("=");
+					if (parts != null && parts.length==2)
+					{
+						String name = parts[0];
+						String val = parts[1];
+						props.addProperty(name, val); // save the name-value pair
+					}
+				}
+				
+				preferencesService.commit(m_edit);
+			}
+			
+		}
 	}
 }
