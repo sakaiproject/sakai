@@ -19,6 +19,8 @@
 package org.sakaiproject.sitestats.tool.wicket.providers;
 
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,6 +28,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
@@ -52,6 +56,7 @@ public class ReportDefsProvider implements IDataProvider {
 	private boolean 				filterWithToolsInSite;
 	private boolean 				includeHidden;
 	private List<ReportDef>			data;
+	private static Log log = LogFactory.getLog(ReportDefsProvider.class);
 
 	
 	public ReportDefsProvider(String siteId, int mode, boolean filterWithToolsInSite, boolean includeHidden) {
@@ -183,7 +188,14 @@ public class ReportDefsProvider implements IDataProvider {
 	
 	public final Comparator<ReportDef> getReportDefComparator() {
 		return new Comparator<ReportDef>() {
-			private final transient Collator		collator			= Collator.getInstance();
+			private transient Collator		collator = Collator.getInstance();
+			{
+				try{
+					collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+				}catch(ParseException e){
+				    log.error("Unable to create RuleBasedCollator");
+				}		
+			}
 			
 			public int compare(ReportDef o1, ReportDef o2) {
 				String title1 = null;

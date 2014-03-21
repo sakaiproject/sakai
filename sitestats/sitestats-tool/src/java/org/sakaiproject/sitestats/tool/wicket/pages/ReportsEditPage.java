@@ -19,6 +19,8 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -122,8 +124,16 @@ public class ReportsEditPage extends BasePage {
 	/** Ajax update lock */
 	private final ReentrantLock		ajaxUpdateLock	= new ReentrantLock();
 	private boolean					usersLoaded		= false;
+	private static Log log = LogFactory.getLog(ReportsEditPage.class);
 	
 	private transient Collator		collator		= Collator.getInstance();
+	{
+		try{
+			collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+		}catch(ParseException e){
+			log.error("Unable to create RuleBasedCollator");
+		}		
+	}
 	
 	public ReportsEditPage() {
 		this(null, null, null);
