@@ -650,6 +650,16 @@ RESTful, ActionsExecutable {
             roleId = sg.site.getJoinerRole();
         }
 
+        // SAK-21786
+        // set the role to the one passed in, if available
+        if (params.get("memberRole") != null) {
+            roleId = (String) params.get("memberRole");
+        }
+        // set the active status to the one passed in, if available
+        if (params.get("active") != null) {
+            active = Boolean.parseBoolean((String) params.get("active"));
+        }
+
         checkSiteSecurity(sg.site.getId());
 
         // check for a batch add
