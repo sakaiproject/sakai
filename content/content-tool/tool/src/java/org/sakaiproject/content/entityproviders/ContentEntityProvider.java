@@ -255,26 +255,34 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	public List<ContentItem> getContentCollectionForUserWorkspace(EntityView view) {
 		
 		// get userEid
-		String userEid = view.getPathSegment(2);
+		String userEidId = view.getPathSegment(2);
 
 		if(log.isDebugEnabled()) {
-			log.debug("Content for user workspace: " + userEid);
+			log.debug("Content for user workspace: " + userEidId);
 		}
 
 		// check siteId supplied
-		if (StringUtils.isBlank(userEid)) {
+		if (StringUtils.isBlank(userEidId)) {
 			throw new IllegalArgumentException("eid must be set in order to get the resources for a user's workspace, via the URL /content/user/eid");
 		}
 		
 		//get Id for user based on supplied eid
 		String userId = null;
 		try {
-			User u = userDirectoryService.getUserByEid(userEid);
+			User u = userDirectoryService.getUserByEid(userEidId);
 			if(u != null){
 				userId = u.getId();
 			}
 		} catch (UserNotDefinedException e) {
-			throw new EntityNotFoundException("Invalid user: " + userEid, userEid);
+			// test whether this is user id
+			try {
+				User u = userDirectoryService.getUser(userEidId);
+				if(u != null){
+					userId = u.getId();
+				}
+			} catch (UserNotDefinedException ee) {
+				throw new EntityNotFoundException(this + " getContentCollectionForUserWorkspace Invalid user: " + userEidId, userEidId);
+			}
 		}
 			
 		//get user siteId
