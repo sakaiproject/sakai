@@ -116,10 +116,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	 */
 	@EntityCustomAction(action = "site", viewKey = EntityView.VIEW_LIST)
 	public List<ContentItem> getContentCollectionForSite(EntityView view) {
-		List<ContentItem> rv = new ArrayList<ContentItem>();
 
 		// get siteId
-
 		String siteId = view.getPathSegment(2);
 
 
@@ -131,8 +129,14 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		if (StringUtils.isBlank(siteId)) {
 			throw new IllegalArgumentException("siteId a must be set in order to get the resources for a site, via the URL /content/site/siteId");
 		}
-		Session session = SessionManager.getCurrentSession();
 		
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
+		
+	}
+
+	private List<ContentItem> getSiteListItems(String siteId) {
+		List<ContentItem> rv = new ArrayList<ContentItem>();
 		String wsCollectionId = contentHostingService.getSiteCollection(siteId);
 		try
         {
@@ -238,9 +242,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
             // TODO Auto-generated catch block
             log.warn("PermissionException ", e);
         }
-		
 		return rv;
-		
 	}
 	
 	/**
@@ -278,17 +280,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		//get user siteId
 		String siteId = siteService.getUserSiteId(userId);
 		
-		//check user can access this site - specifically check here so we dont expose the site uuid in the main check
-		Site site;
-		try {
-			site = siteService.getSiteVisit(siteId);
-		} catch (IdUnusedException e) {
-			throw new EntityNotFoundException("Invalid user workspace: " + userEid, userEid);
-		} catch (PermissionException e) {
-			throw new EntityNotFoundException("No access to user workspace: " + userEid, userEid);
-		}
-		
-		return getResources(siteId);
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
 		
 	}
 	
@@ -314,7 +307,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		//get user siteId
 		String siteId = siteService.getUserSiteId(userId);
 		
-		return getResources(siteId);
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
 		
 	}
 	
