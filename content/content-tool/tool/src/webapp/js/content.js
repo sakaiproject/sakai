@@ -289,7 +289,7 @@ $(document).ready(function(){
                     renderHierarchyWithJsonTree(data);
                 }
                 else {
-                    $('#navigatePanelInner').html('<div class="alert alert-danger"> Cannot do workspaces now, sorry!</div>');
+                    $('#navigatePanelInner').html('<div class="alert alert-danger"> ERROR! No entity feeds for collection. </div>');
                 }
             }).done(function(){
             }).fail(function(){
