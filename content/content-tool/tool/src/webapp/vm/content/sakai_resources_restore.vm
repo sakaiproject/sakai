@@ -33,7 +33,7 @@
 				</div>
 			</div>	
 		#if (!$noRestoreItems)
-            	<p class="instruction">$tlang.getString("restore.instruct")</p>
+            	<p class="instruction">$tlang.getString("restore.instruct") #if($!cleanupInterval)$tlang.getFormattedMessage("restore.cleanup", $!cleanupInterval)#end</p>
 		<table class="listHier lines centerLines" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
 			<tbody>
@@ -46,10 +46,10 @@
 					$tlang.getString("gen.title")
 				</th>
 				<th id="creator">
-					$tlang.getString("gen.lastby")
+					$tlang.getString("restore.removedBy")
 				</th>
 				<th id="modified">
-					$tlang.getString("restore.removed")
+					$tlang.getString("restore.removedOn")
 				</th>
 			</tr>
 			## for indentation

@@ -150,6 +150,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobDetail;
+import org.quartz.JobDataMap;
+import org.quartz.Trigger;
 
 /**
 * <p>ResourceAction is a ContentHosting application</p>
@@ -163,6 +171,7 @@ public class ResourcesAction
 	 /** the content print service */
 	 private static ContentPrintService contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
 	 
+	 private static SchedulerManager schedulerManager = (SchedulerManager) ComponentManager.get("org.sakaiproject.api.app.scheduler.SchedulerManager");
 	 /** state variable name for the content print service call result */
 	 private static String CONTENT_PRINT_CALL_RESPONSE = "content_print_call_response";
 	 
@@ -822,6 +831,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
+	
+	/** the interval (in days) the the soft-deleted content will be automatically permanently removed **/
+	public static final String STATE_CLEANUP_DELETED_CONTENT_INTERVAL= "state_cleanup_deleted_content_interval";
 	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
@@ -5122,10 +5134,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		context.put ("this_site", rootTitle);
 		
-
+		context.put("cleanupInterval", state.getAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL));
+	      
 		return TEMPLATE_RESTORE;
 	}
-
+	
 	/**
 	 * return a ResourcesBrowseItem for given folder
 	 * @param displayName
@@ -8355,7 +8368,55 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
 
+		/** init the delete content cleanup interval setting */
+		if (state.getAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL) == null)
+		{
+			// Cleanup Deleted Content quartz job is enabled with trigger
+			if (checkQuartzJobAndTrigger("org.sakaiproject.content.CleanupDeletedContent"))
+			{
+				// default to be 30 days if not set
+				state.setAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL, ServerConfigurationService.getString("content.keep.deleted.files.days", "30"));
+			}
+		}
 	}
+	
+	/**
+	 * check whether there is an quartz job with active trigger for the specified job bean
+	 * @param jobBeanName
+	 * @return
+	 */
+	private boolean checkQuartzJobAndTrigger(String jobBeanName) {
+		
+		boolean rv = false;
+		
+		Scheduler scheduler = schedulerManager.getScheduler();
+		try
+		{
+			// get the job scheduler setting and check for whether the content cleanup job has been enabled
+			String[] jobNames = scheduler.getJobNames(Scheduler.DEFAULT_GROUP);
+			for (int i = 0; i < jobNames.length; i++)
+			{
+				JobDetail jobDetail = scheduler.getJobDetail(jobNames[i], Scheduler.DEFAULT_GROUP);
+				String beanName = jobDetail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
+				if (jobBeanName != null && jobBeanName.equals(beanName))
+				{
+					// found the right quartz job
+					Trigger[] triggerArr = scheduler.getTriggersOfJob(jobDetail.getName(), Scheduler.DEFAULT_GROUP);
+					// check whether there is any existence of trigger for this job
+					if (triggerArr.length > 0)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		catch (SchedulerException e)
+		{
+			logger.warn( this + " exception to get Scheduler Jobs " + e.getMessage());
+		}
+		return rv;
+	}
+
 
 /**
 	* is notification enabled?
