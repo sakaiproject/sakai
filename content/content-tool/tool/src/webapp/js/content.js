@@ -116,6 +116,7 @@ var renderHierarchyWithJsonTree = function(data){
         var pathToFile = item.url;
         var itemType = '';
         var itemUrl = '';
+        
         //depending on file or collection type, custom parameters
         if (item.type === 'collection') {
             var itemText ='';
@@ -138,7 +139,8 @@ var renderHierarchyWithJsonTree = function(data){
         item.li_attr = {
             'data_url': itemUrl,
             'data_type': itemType,
-            'data_children': item.numChildren
+            'data_children': item.numChildren,
+            'data_visible': item.visible
         };
     });
     

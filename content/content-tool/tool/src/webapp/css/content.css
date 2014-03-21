@@ -29,3 +29,7 @@
     top:20%;
     left:33%;
 }
+li[data_visible="false" ] *{
+    opacity:0.7;
+    color:#555 !important
+}
