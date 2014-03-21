@@ -168,6 +168,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
 						item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 						item.setContainer(collection.getContainingCollection().getReference());
+						item.isVisible = !collection.isHidden() && collection.isAvailable();
 						List<String> l = collection.getMembers();
 						if (l != null)
 						{
@@ -205,6 +206,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
 						item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 						item.setContainer(resource.getContainingCollection().getReference());
+						item.isVisible = !resource.isHidden() && resource.isAvailable();
 						rv.add(item);
 					}
 					catch (IdUnusedException e)
