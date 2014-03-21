@@ -180,6 +180,12 @@ import org.xml.sax.SAXException;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
+import net.sf.jmimemagic.Magic;
+import net.sf.jmimemagic.MagicMatch;
+import net.sf.jmimemagic.MagicParseException;
+import net.sf.jmimemagic.MagicMatchNotFoundException;
+import net.sf.jmimemagic.MagicException;
+
 /**
  * <p>
  * BaseContentService is an abstract base implementation of the Sakai ContentHostingService.
@@ -245,6 +251,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	protected long m_dropBoxQuota = 0;
 
 	private boolean m_useSmartSort = true;
+
+	private boolean m_useMimeMagic = true;
 
 	static
 	{
@@ -938,6 +946,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             m_dropBoxQuota = Long.parseLong(m_serverConfigurationService.getString("content.dropbox.quota", Long.toString(m_dropBoxQuota)));
 
 			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
+
+			// magic
+			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.mimemagic", m_useMimeMagic);
+			if (m_useMimeMagic) {
+				M_log.info("init(): initializing mime magic");
+				Magic.initialize();
+			}
 
             int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
             int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
@@ -5877,6 +5892,44 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new OverQuotaException(edit.getReference());
 		}
 		
+		if (m_useMimeMagic) {
+			try {
+				ContentResourceEdit edit3 = editResource(edit.getId());
+				InputStream stream = edit3.streamContent();
+				byte[] data = new byte[1024];
+				int numRead = stream.read(data,0,data.length);
+				stream.close();
+				if (numRead > 0) {
+					MagicMatch match = Magic.getMagicMatch(data);
+					if (match != null) {
+						if (!StringUtils.isEmpty(match.getMimeType()) && !match.getMimeType().equals(edit3.getContentType())) {
+							edit3.setContentType(match.getMimeType());
+							commitResourceEdit(edit3, priority);
+						}
+					}
+				}
+			} catch (IOException e) {
+				M_log.warn("IOException when trying to get the resource's data: " + e);
+			} catch (MagicParseException e) {
+				M_log.warn("MagicParseException: " + e);
+			} catch (MagicMatchNotFoundException e) {
+				M_log.warn("MagicMatchNotFoundException: " + e);
+			} catch (MagicException e) {
+				M_log.warn("MagicException: " + e);
+			} catch (PermissionException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (IdUnusedException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (TypeException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			} catch (InUseException e1) {
+				// we're unlikely to see this at this point
+				e1.printStackTrace();
+			}
+		}
 		
 		if(! readyToUseFilesizeColumn())
 		{

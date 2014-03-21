@@ -88,6 +88,15 @@
       <artifactId>sakai-kernel-storage-util</artifactId>
       <version>${project.version}</version>
     </dependency>
+	<!-- Resource MIME type identification -->
+	<!-- http://mvnrepository.com/artifact/jmimemagic/jmimemagic -->
+	<dependency>
+		<groupId>jmimemagic</groupId>
+		<artifactId>jmimemagic</artifactId>
+		<version>0.1.2</version>
+		<type>jar</type>
+		<scope>compile</scope>
+	</dependency>
     
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
