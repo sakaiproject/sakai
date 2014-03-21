@@ -356,7 +356,7 @@
 							<h:panelGrid columns="1" style="width:100%;margin-left:-3px;" rendered="#{EditMeetingSignupMBean.publishedSite}">
 								<h:panelGroup styleClass="editText" >
 									<h:selectBooleanCheckbox id="emailChoice" value="#{EditMeetingSignupMBean.sendEmail}" onclick="isShowEmailChoice()"/>
-									<h:outputText value="#{msgs.event_yes_email_notification}" escape="false"/>
+									<h:outputText value="#{msgs.event_yes_email_notification_changes}" escape="false"/>
 								</h:panelGroup>
 								
 								<h:panelGroup id="emailAttendeeOnly">
