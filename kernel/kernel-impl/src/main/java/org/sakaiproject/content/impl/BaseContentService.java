@@ -948,7 +948,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
 
 			// magic
-			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.mimemagic", m_useMimeMagic);
+			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
 			if (m_useMimeMagic) {
 				M_log.info("init(): initializing mime magic");
 				Magic.initialize();
