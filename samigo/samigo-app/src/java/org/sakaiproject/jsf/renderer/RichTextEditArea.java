@@ -179,9 +179,15 @@ public class RichTextEditArea extends Renderer
 
     String justArea = (String) component.getAttributes().get("justArea");
 
-    if (editor.equalsIgnoreCase("FCKeditor") || editor.equalsIgnoreCase("ckeditor")) {	
-      encodeFCK(writer, contextPath, (String) value, identity, outCol, 
-              outRow, justArea, clientId, valueHasRichText, hasToggle); 
+    if (editor.equalsIgnoreCase("FCKeditor") || editor.equalsIgnoreCase("ckeditor")) {
+      if (tmpCol == null) {
+    	  encodeFCK(writer, contextPath, (String) value, identity, outCol, 
+              outRow, justArea, clientId, valueHasRichText, hasToggle, true);
+      }
+      else {
+    	  encodeFCK(writer, contextPath, (String) value, identity, outCol, 
+                  outRow, justArea, clientId, valueHasRichText, hasToggle, false);
+      }
     }
     else 
     {
@@ -407,11 +413,17 @@ public class RichTextEditArea extends Renderer
 
    
   private void encodeFCK(ResponseWriter writer, String contextPath, String value, String identity, String outCol, 
-         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle) throws IOException
+         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined) throws IOException
   {
 	  //come up w/ rows/cols for the textarea if needed
 	  int textBoxRows = (new Integer(outRow).intValue()/20);
-	  int textBoxCols = (new Integer(outRow).intValue()/3);
+	  int textBoxCols = 0;
+	  if (columnsNotDefined) {
+		  textBoxCols  = (new Integer(outRow).intValue()/3);
+	  }
+	  else {
+		  textBoxCols = (new Integer(outCol).intValue()/3);
+	  }
 	  
 	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
     //fck's tool bar can get pretty big
