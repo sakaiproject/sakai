@@ -422,7 +422,7 @@ public class RichTextEditArea extends Renderer
 		  textBoxCols  = (new Integer(outRow).intValue()/3);
 	  }
 	  else {
-		  textBoxCols = (new Integer(outCol).intValue()/3);
+		  textBoxCols = (new Integer(outCol).intValue()/4);
 	  }
 	  
 	  ResourceLoader rb=new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
