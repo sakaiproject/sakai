@@ -22,36 +22,36 @@ var iconDecider = function(itemType){
         case "application/zip":
         case "application/x-stuffit":
             return path + 'compressed.gif';
-
+            
         case "application/msword":
         case "application/rtf":
         case "text/rtf":
             return path + 'word.gif';
-
+            
         case "application/vnd.ms-excel":
         case "text/csv":
-            return path + 'excel.gif' ;
-
+            return path + 'excel.gif';
+            
         case "image/vnd.adobe.photoshop":
         case "application/x-photoshop":
             return path + 'photoshop.gif';
-
+            
         case "image/gif":
         case "image/png":
         case "image/jpeg":
             return path + 'image.gif';
-
+            
         case "video/mpeg":
         case "video/quicktime":
         case "video/msvideo":
         case "video/avi":
         case "video/x-msvideo":
             return path + 'movie.gif';
-
+            
         case "audio/mpeg":
         case "audio/x-midi":
             return path + 'audio.gif';
-
+            
         case "application/pdf":
             return path + 'pdf.gif';
         case "application/postscript":
@@ -79,26 +79,35 @@ var renderHierarchyWithJsonTree = function(data){
 
     var collId = $('#collectionId').val();
     var siteId = collId.split('/')[2];
+    var mode = collId.split('/')[1]
     //massage the json so that we can use jsonTree
     $.each(data.content_collection, function(i, item){
         item.text = item.title;
         //get item.id field to turn into a jsTree happy item.id
-        item.id = item.url.substr(item.url.indexOf('/content/group/' + siteId));
+
+        if (mode === 'group') {
+            item.id = item.url.substr(item.url.indexOf('/group/' + siteId));
+        }
+        if (mode === 'user') {
+            item.id = item.url.substr(item.url.indexOf('/user/'));
+        }
         
         //transforming item.container into item.parent
-        if (item.type === 'collection'){
-            item.id = item.id.substring(0,item.id.length -1);
-        } 
+        if (item.type === 'collection') {
+            item.id = item.id.substring(0, item.id.length - 1);
+        }
         var itemIdArr = item.id.split('/');
-        var parentPath = item.id.split('/').slice(0,itemIdArr.length - 1).join('_');
+        var parentPath = item.id.split('/').slice(0, itemIdArr.length - 1).join('_');
         item.id = item.id.replace(/\//g, "_");
+
         //if this is site root, special parent value
         // since the site root title is null in /direct
         // give it the site title
-        if (item.container === '/content/group/') {
+        
+        if (item.container === '/content/group/' || item.container === '/content/user/') {
             item.parent = '#';
             //TODO: some sites report 'null' for title, use the Id - need better handle
-            if (item.title === null){
+            if (item.title === null) {
                 item.text = siteId;
             }
             else {
@@ -110,20 +119,35 @@ var renderHierarchyWithJsonTree = function(data){
         else {
             item.parent = parentPath;
         }
+        var pathToFolder =''
         var pathArr = item.url.split('/');
-        var siteIdLoc = pathArr.indexOf(siteId);
-        var pathToFolder = decodeURIComponent('/group/' + pathArr.slice(siteIdLoc).join('/'));
+        var siteIdLoc='';
+        if (mode === 'group') {
+              siteIdLoc = pathArr.indexOf(siteId);
+        }
+        if (mode === 'user') {
+              siteIdLoc = pathArr.indexOf('user') + 2;
+              user = pathArr[pathArr.indexOf('user') + 1];
+        }
+
+        if (mode === 'group') {
+           pathToFolder  = '/group/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
+        }
+        if (mode === 'user') {
+           pathToFolder = '/user/'+ siteId + '/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
+        }
+
         var pathToFile = item.url;
         var itemType = '';
         var itemUrl = '';
         
         //depending on file or collection type, custom parameters
         if (item.type === 'collection') {
-            var itemText ='';
-            if(item.numChildren ===1){
+            var itemText = '';
+            if (item.numChildren === 1) {
                 itemText = ' ' + jsLang.item;
             }
-            if(item.numChildren ===0 || item.numChildren > 1){
+            if (item.numChildren === 0 || item.numChildren > 1) {
                 itemText = ' ' + jsLang.items;
             }
             itemType = 'folder';
@@ -180,11 +204,17 @@ var renderHierarchyWithJsonTree = function(data){
             "plugins": ["themes", "search"]
         });
     });
-    $('#navigatePanelInner').jstree('open_node', '_content_group_' + siteId);
+
+    if (mode === 'group') {
+        $('#navigatePanelInner').jstree('open_node', '_group_' + siteId);   
+    }
+    else {
+        $('#navigatePanelInner').jstree('open_node', '_user_' + user)    
+    }
     $('#navigatePanel').fadeIn('slow');
 };
 /*
-show spinner whenever async actvity takes place
+ show spinner whenever async actvity takes place
  */
 $(document).ajaxStart(function(){
     $('#spinner').show();
@@ -204,7 +234,7 @@ $(document).ready(function(){
             $("#navigatePanelInner").jstree("search", v);
         }, 250);
     });
-
+    
     if ($('#content_print_result_url').length) {
         window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
     }
@@ -304,7 +334,7 @@ $(document).ready(function(){
         },
         "click": function(){
             $(this).data('closable', false);
-
+            
         },
         "hide.bs.dropdown": function(){
             return $(this).data('closable');
