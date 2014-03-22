@@ -315,7 +315,7 @@ public class BasicContentTypeImageService implements ContentTypeImageService
 	{
 		String extension = DEFAULT_EXTENSION;
 		
-		if (contentType != null && m_contentTypeExtensions.getIsValid(contentType.toLowerCase()))
+		if (contentType != null && m_contentTypeExtensions != null && m_contentTypeExtensions.getIsValid(contentType.toLowerCase()))
 		{
 			extension = m_contentTypeExtensions.getString(contentType.toLowerCase());
 			

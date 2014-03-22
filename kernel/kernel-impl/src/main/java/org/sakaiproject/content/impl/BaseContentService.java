@@ -5903,6 +5903,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					MagicMatch match = Magic.getMagicMatch(data);
 					if (match != null) {
 						if (!StringUtils.isEmpty(match.getMimeType()) && !match.getMimeType().equals(edit3.getContentType())) {
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("Magic: Setting content type to "+match.getMimeType());
+							}
 							edit3.setContentType(match.getMimeType());
 							commitResourceEdit(edit3, priority);
 						}
