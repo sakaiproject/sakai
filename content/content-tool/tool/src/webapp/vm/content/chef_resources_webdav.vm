@@ -78,18 +78,20 @@
 			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
 
 	<p class="indnt3">
-		#if("$!inMyWorkspace" == "true")
-			<strong>${server_url}${dav_user}$user_id</strong>
-		#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
-			<strong>${server_url}${dav_group_user}$site_id</strong>
-		#elseif("$!dropboxMode" == "true")
-			<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
-		#else
-			#if("${site_alias}" != "")
-				<strong>${server_url}${dav_group}${site_alias}</strong><br><br>
-			#end     
-			<strong>${server_url}${dav_group}$site_id</strong>
-		#end
+<input id="webDavUrl" type="text" size="80" value="
+#if("$!inMyWorkspace" == "true")
+${server_url}${dav_user}$user_id
+#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
+${server_url}${dav_group_user}$site_id
+#elseif("$!dropboxMode" == "true")
+${server_url}${dav_group_user}$site_id/$user_id
+#else
+#if("${site_alias}" != "")
+${server_url}${dav_group}${site_alias}
+#end
+${server_url}${dav_group}$site_id
+#end
+" />
 	</p>
 	
 	<script type="text/javascript">
@@ -129,6 +131,7 @@
 	#end
 	<![endif]-->
 	</div>
+        <p><strong>$tlang.getString("dav.graf12") - </strong> $tlang.getString("dav.graf13")</p>
 </div>
 	<iframe src="$webdav_instructions"
 		width="100%"

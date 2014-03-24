@@ -5773,6 +5773,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute(STATE_LIST_PREFERENCE, LIST_COLUMNS);
 	}
 
+	//Test if groups are selected when needed
+	public static boolean checkGroups(ParameterParser params)
+	{
+			//Control if groups are selected
+			String access_mode= params.getString("access_mode" + ListItem.DOT + "0");
+			if (access_mode != null) 
+			{
+				if (access_mode.equals("grouped"))
+				{
+					String[] access_groups = params.getStrings("access_groups" + ListItem.DOT + "0");
+					if (access_groups==null || access_groups.length==0) 
+					{
+						return false;
+					}
+				}
+			}
+			return true; 	
+	}
+	
 	/**
 	 * @param data
 	 */
@@ -5842,6 +5861,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			else
 			{
 				name = name.trim();
+			}
+			//Control groups
+			if (!checkGroups(params)) {
+				addAlert(state, trb.getString("alert.youchoosegroup")); 
+				return;
 			}
 			
 			String collectionId = (String) state.getAttribute(STATE_CREATE_WIZARD_COLLECTION_ID);
@@ -7144,6 +7168,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			if (item.numberFieldIsOutOfRange) {
 				addAlert(state, rb.getFormattedMessage("conditions.condition.argument.outofrange", new String[] { item.getConditionAssignmentPoints() }));
+				return;
+			}
+			//Control if groups are selected
+			if (!checkGroups(params)) { 
+				addAlert(state, trb.getString("alert.youchoosegroup")); 
 				return;
 			}
 			
