@@ -1,7 +1,10 @@
 package org.sakaiproject.content.entityproviders;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -9,8 +12,13 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.tool.ListItem;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -27,10 +35,12 @@ import org.sakaiproject.entitybroker.exception.EntityNotFoundException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -43,10 +53,74 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 public class ContentEntityProvider extends AbstractEntityProvider implements EntityProvider, AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
 	public final static String ENTITY_PREFIX = "content";
+	public static final String PREFIX = "resources.";
+	public static final String SYS = "sys.";
+	private static final String STATE_RESOURCES_TYPE_REGISTRY = PREFIX + SYS + "type_registry";
 
 	@Override
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
+	}
+	
+	public boolean entityExists(String id) {
+		boolean rv = false;
+		
+        // check whether this is a folder first
+		try
+		{
+			ContentCollection collection = contentHostingService.getCollection(id);
+			rv = true;
+		}
+		catch (IdUnusedException e)
+		{
+			// not a collection id, will check for resource id later
+			if(log.isDebugEnabled()) {
+				log.debug(this + " entityeExists: error getting collection " + id + " " + e.getMessage());
+			}
+		}
+		catch (TypeException e)
+		{
+			// not a collection type, will check for resource type later
+			if(log.isDebugEnabled()) {
+				log.debug(this + " entityeExists: error getting collection " + id + " " + e.getMessage());
+			}
+		}
+		catch (PermissionException e)
+		{
+			// not allowed to get collection, will check for resource later
+			if(log.isDebugEnabled()) {
+				log.debug(this + " entityeExists: error getting collection " + id + " " + e.getMessage());
+			}
+		}
+		
+		if (!rv)
+		{
+			// now check for resource 
+			try
+			{
+				ContentResource resource = contentHostingService.getResource(id);
+				rv = true;
+			}
+			catch (IdUnusedException e)
+			{
+				if(log.isDebugEnabled()) {
+					log.debug(this + " entityeExists: error getting resource " + id + " " + e.getMessage());
+				}
+			}
+			catch (TypeException e)
+			{
+				if(log.isDebugEnabled()) {
+					log.debug(this + " entityeExists: error getting resource " + id + " " + e.getMessage());
+				}
+			}
+			catch (PermissionException e)
+			{
+				if(log.isDebugEnabled()) {
+					log.debug(this + " entityeExists: error getting resource " + id + " " + e.getMessage());
+				}
+			}
+		}
+		return rv;
 	}
 
 	/**
@@ -61,6 +135,7 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		// get siteId
 		String siteId = view.getPathSegment(2);
 
+
 		if(log.isDebugEnabled()) {
 			log.debug("Content for site: " + siteId);
 		}
@@ -70,8 +145,146 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			throw new IllegalArgumentException("siteId a must be set in order to get the resources for a site, via the URL /content/site/siteId");
 		}
 		
-		return getResources(siteId);
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
 		
+	}
+
+	private List<ContentItem> getSiteListItems(String siteId) {
+		List<ContentItem> rv = new ArrayList<ContentItem>();
+		String wsCollectionId = contentHostingService.getSiteCollection(siteId);
+		try
+        {
+			// mark the site collection as expanded
+			Set<String> expandedCollections = new CopyOnWriteArraySet<String>();
+			
+        	ContentCollection wsCollection = contentHostingService.getCollection(wsCollectionId);
+			ListItem wsRoot = ListItem.getListItem(wsCollection, null, 
+					(ResourceTypeRegistry) ComponentManager.get("org.sakaiproject.content.api.ResourceTypeRegistry"), 
+					true, 
+					expandedCollections, 
+					null, null, 0, 
+					null, 
+					false, null);
+			List<ListItem> wsRootList = wsRoot.convert2list();
+			for (ListItem lItem : wsRootList)
+			{
+				String id = lItem.getId();
+				if (lItem.isCollection())
+				{
+					try
+					{
+						ContentCollection collection = contentHostingService.getCollection(id);
+						//convert to our simplified object 
+						ContentItem item = new ContentItem();
+						item.setType("collection");
+						item.setSize(contentHostingService.getCollectionSize(id));
+						List<String> l = collection.getMembers();
+						if (l != null)
+						{
+							item.setNumChildren(l.size());
+						}
+						
+						ResourceProperties props = collection.getProperties();
+						// set the proper ContentItem values
+						setContentItemValues(collection, item, props);
+						
+						rv.add(item);
+					}
+					catch (IdUnusedException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting collection " + id + " " + e.getMessage());
+						}
+					}
+					catch (TypeException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting collection " + id + " " + e.getMessage());
+						}
+					}
+					catch (PermissionException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting collection " + id + " " + e.getMessage());
+						}
+					}
+				}
+				else
+				{
+					try
+					{
+						ContentResource resource = contentHostingService.getResource(id);
+						
+						//convert to our simplified object 
+						ContentItem item = new ContentItem();
+						
+						ResourceProperties props = resource.getProperties();
+						item.setType(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+						item.setSize(Long.parseLong(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
+						
+						// set the proper ContentItem values
+						setContentItemValues(resource, item, props);
+						
+						rv.add(item);
+					}
+					catch (IdUnusedException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting resource " + id + " " + e.getMessage());
+						}
+					}
+					catch (TypeException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting resource " + id + " " + e.getMessage());
+						}
+					}
+					catch (PermissionException e)
+					{
+						if(log.isDebugEnabled()) {
+							log.debug(this + " getSiteListItems: error getting resource " + id + " " + e.getMessage());
+						}
+					}
+				}
+			}
+        }
+        catch (IdUnusedException e)
+        {
+        	if(log.isDebugEnabled()) {
+				log.debug(this + " getSiteListItems: error getting site collection " + wsCollectionId + " " + e.getMessage());
+			}
+        }
+        catch (TypeException e)
+        {
+        	if(log.isDebugEnabled()) {
+				log.debug(this + " getSiteListItems: error getting site collection " + wsCollectionId + " " + e.getMessage());
+			}
+        }
+        catch (PermissionException e)
+        {
+        	if(log.isDebugEnabled()) {
+				log.debug(this + " getSiteListItems: error getting site collection " + wsCollectionId + " " + e.getMessage());
+			}
+        }
+		return rv;
+	}
+	
+	/**
+	 * set various attributes of ContentItem object
+	 * @param entity
+	 * @param item
+	 * @param props
+	 */
+	private void setContentItemValues(ContentEntity entity,
+			ContentItem item, ResourceProperties props) {
+		item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+		item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
+		item.setUrl(entity.getUrl());
+		item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
+		item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
+		item.setContainer(entity.getContainingCollection().getReference());
+		item.isVisible = !entity.isHidden() && entity.isAvailable();
 	}
 	
 	/**
@@ -83,43 +296,45 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	@EntityCustomAction(action = "user", viewKey = EntityView.VIEW_LIST)
 	public List<ContentItem> getContentCollectionForUserWorkspace(EntityView view) {
 		
-		// get userEid
-		String userEid = view.getPathSegment(2);
+		// this parameter can be either user's id or eid
+		String userEidId = view.getPathSegment(2);
 
 		if(log.isDebugEnabled()) {
-			log.debug("Content for user workspace: " + userEid);
+			log.debug("Content for user workspace: " + userEidId);
 		}
 
 		// check siteId supplied
-		if (StringUtils.isBlank(userEid)) {
+		if (StringUtils.isBlank(userEidId)) {
 			throw new IllegalArgumentException("eid must be set in order to get the resources for a user's workspace, via the URL /content/user/eid");
 		}
 		
 		//get Id for user based on supplied eid
 		String userId = null;
 		try {
-			User u = userDirectoryService.getUserByEid(userEid);
+			User u = userDirectoryService.getUserByEid(userEidId);
 			if(u != null){
 				userId = u.getId();
 			}
 		} catch (UserNotDefinedException e) {
-			throw new EntityNotFoundException("Invalid user: " + userEid, userEid);
+			// test whether this is user id
+			try {
+				User u = userDirectoryService.getUser(userEidId);
+				if(u != null){
+					userId = u.getId();
+				}
+			} catch (UserNotDefinedException ee) {
+				if(log.isDebugEnabled()) {
+					log.debug(this + " getContentCollectionForUserWorkspace: error user " + userEidId + " " + e.getMessage());
+				}
+				throw new EntityNotFoundException(this + " getContentCollectionForUserWorkspace Invalid user: " + userEidId, userEidId);
+			}
 		}
 			
 		//get user siteId
 		String siteId = siteService.getUserSiteId(userId);
 		
-		//check user can access this site - specifically check here so we dont expose the site uuid in the main check
-		Site site;
-		try {
-			site = siteService.getSiteVisit(siteId);
-		} catch (IdUnusedException e) {
-			throw new EntityNotFoundException("Invalid user workspace: " + userEid, userEid);
-		} catch (PermissionException e) {
-			throw new EntityNotFoundException("No access to user workspace: " + userEid, userEid);
-		}
-		
-		return getResources(siteId);
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
 		
 	}
 	
@@ -145,7 +360,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		//get user siteId
 		String siteId = siteService.getUserSiteId(userId);
 		
-		return getResources(siteId);
+		// return the ListItem list for the site
+		return getSiteListItems(siteId);
 		
 	}
 	
@@ -187,15 +403,11 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 			ContentItem item = new ContentItem();
 			
 			ResourceProperties props = resource.getProperties();
-			
-			item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-			item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
-			item.setType(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
 			item.setSize(Long.parseLong(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
-			item.setUrl(resource.getUrl());
-			item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
-			item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
-			item.setContainer(resource.getContainingCollection().getReference());
+			item.setType(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+			
+			// set the proper ContentItem values
+			setContentItemValues(resource, item, props);
 			
 			items.add(item);
 		}
@@ -257,6 +469,11 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		@Getter @Setter
 		private String container;
 		
+		@Getter @Setter
+		private boolean isVisible;
+
+		@Getter @Setter
+		private long numChildren=0;
 	}
 	
 	/**
@@ -268,6 +485,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		try {
 			return userDirectoryService.getUser(uuid).getDisplayName();
 		} catch (UserNotDefinedException e) {
+			if(log.isDebugEnabled()) {
+				log.debug(this +  " getDisplayName error getting user " + uuid + " " + e.getMessage());
+			}
 			//dont throw, return null
 			return null;
 		}

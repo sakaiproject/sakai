@@ -165,6 +165,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** The title of the new page to be created in the site */
 	protected static final String STATE_PAGE_TITLE = PREFIX + "page_title";
+	
+	/** Tool property to enable Drag and Drop uploads in a per-tool basis */
+	private static final String TOOL_PROP_DRAGNDROP_ENABLED = "content.upload.dragndrop";
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -697,8 +700,15 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
 		context.put("instr_uploads", instr_uploads);
 
-        Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", true);
-        context.put("dragAndDrop", dragAndDrop);
+		Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", true);
+		String strDragAndDropEnabled = ToolManager.getCurrentPlacement().getConfig().getProperty(TOOL_PROP_DRAGNDROP_ENABLED);
+
+		if (StringUtils.isNotBlank(strDragAndDropEnabled))
+		{
+			dragAndDrop = dragAndDrop || (new Boolean(strDragAndDropEnabled));
+		}
+
+		context.put("dragAndDrop", dragAndDrop);
 
 //		int max_bytes = 1024 * 1024;
 //		try
@@ -1921,7 +1931,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			} else if ((siteQuota != null && !"".equals(siteQuota)) && (fileSize /1024L / 1024L)  > Long.parseLong(siteQuota)) {
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
 			} else {
-				doDragDropUpload(request, response, fullPath);
+				JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+				if (checkCSRFToken(request,rundata,action)) {
+					doDragDropUpload(request, response, fullPath);
+				}
 			}
 		}
 		else

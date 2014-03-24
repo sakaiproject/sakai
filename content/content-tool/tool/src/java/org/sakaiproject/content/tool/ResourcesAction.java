@@ -3100,6 +3100,17 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	protected static Collection<ContentPermissions> getPermissions(String id, Collection<ContentPermissions> inheritedPermissions)
 	{
 		logger.debug("ResourcesAction.getPermissions()");
+		// get the site id
+		String siteId = null;
+		Reference ref = EntityManager.newReference(id);
+		if (ref != null)
+		{
+			siteId = ref.getContext();
+		}
+		else
+		{
+			siteId = ToolManager.getCurrentPlacement().getContext();
+		}
 		Collection<ContentPermissions> permissions = new ArrayList<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
@@ -3119,7 +3130,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(siteId))
 			{
 				permissions.add(ContentPermissions.SITE_UPDATE);
 			}
@@ -3142,7 +3153,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(ToolManager.getCurrentPlacement().getContext()))
+			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.SITE_UPDATE)) || SiteService.allowUpdateSite(siteId))
 			{
 				permissions.add(ContentPermissions.SITE_UPDATE);
 			}
