@@ -27,7 +27,6 @@
 
 			<form rsf:id="emailTemplateForm" name="emailTemplateForm" method="post">
 				<input rsf:id="csrfToken" name="csrfToken" id="csrfToken" type="hidden"/>
-				<div style="width:80%">
 					<p rsf:id="msg=modifyemail.modify.text.instructions" class="instruction">Modify the suggested text or enter new text for the reminder email. Please note when sending the email the bracketed values will be substituted with actual values. You may use these values in your reminder email.</p>
 					<div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">
 ${EvalTitle} - the title of this evaluation <br/>
@@ -43,30 +42,31 @@ ${URLtoSystem} - the main URL to the system this is running in <br/>
 ${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
 ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation <br/>
 					</div>
-                    <div>
+                    <div class="shorttext etsrow" id="etsEmailSubject">
                         <label rsf:id="msg=modifyemail.template.subject" for="emailSubject">Subject:</label>
                         <input rsf:id="emailSubject" type="text" id="emailSubject" size="80" maxlength="250" />
                     </div>
-	                    <label rsf:id="msg=modifyemail.template.from" for="emailSubject">From:</label>
+                    <div class="shorttext etsrow" id="etsEmailFrom">
+	                    <label rsf:id="msg=modifyemail.template.from" for="emailFrom">From:</label>
                         <input rsf:id="emailFrom" type="text" id="emailFrom" size="80" maxlength="250" />
-                    <div>
                     </div>
-				<div>
-					<label rsf:id="msg=modifyemail.template.key" from="emailKey">key:</label>
+				<div class="shorttext etsrow" id="etsEmailKey">
+					<label rsf:id="msg=modifyemail.template.key" for="emailKey">key:</label>
 					<input rsf:id="emailKey" type="text" id="emailKey" size="80" maxlength="250" />
 				</div>
-				<br/>	
-				<div>
-					<label rsf:id="msg=modifyemail.template.locale" from="emailLocale">locale:</label>
+				<div class="shorttext etsrow" id="etsEmailKey">
+					<label rsf:id="msg=modifyemail.template.locale" for="emailLocale">locale:</label>
 					<input rsf:id="emailLocale" type="text" id="email:Locale" size="80" maxlength="250" />
 				</div>
-					<span rsf:id="msg=textInput">Plain text</span>
-					<textarea rsf:id="emailMessage" rows="20" cols="120" name="emailMessage" id="emailMessage">
+				<div class="shorttext etstext" id="etsEmailMessage">
+					<label rsf:id="msg=textInput" for="emailMessage">Plain text</label>
+					<textarea rsf:id="emailMessage" rows="20" cols="100" name="emailMessage" id="emailMessage">
                          The text of the email message will appear here
                     </textarea>
 				</div>
-				<div><span rsf:id="msg=htmlInput">Html text</span><br/>
-					<textarea rsf:id="emailHtmlMessage" rows="20" cols="120">
+				<div class="shorttext etstext" id="etsEmailHtml">
+					<label rsf:id="msg=htmlInput" for="emailHtmlMessage">Html text</label>
+					<textarea rsf:id="emailHtmlMessage" rows="20" cols="100">
                          The HTML text of the email message will appear here
                     </textarea>
 				</div>
@@ -75,8 +75,8 @@ ${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation 
                     <input rsf:id="saveEmailTemplate" name="saveEmailTemplate" type="submit" value="Save Changes" accesskey="s" class="active" />
 					<input rsf:id="cancel-button" name="cancel" type="button" value="Cancel" onclick="javascript:history.go(-1);return false;" accesskey="x" />             
 				</p>	
-			</form>
 
+			</form>
 		</div>	
 	</body>
 </html>
