@@ -66,6 +66,10 @@ $(document).ready(function() {
 	#if ($atHome && $atHome == $TRUE)
 			<ul class="navIntraTool actionToolBar">
 				<li class="firstToolBarItem"><span class="current">$tlang.getString("list.site")</span></li>
+				#if($canReviseAny)
+					## view restore deleted resources area if the user has revise permission
+					<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
+				#end
 				#if($showDropboxMultipleFoldersUpload)
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doDropboxMultipleFoldersUpload" "siteId=$validator.escapeUrl(${site.id})")" title="$tlang.getString("multiple.file.upload")">$tlang.getString("multiple.file.upload")</a></span></li>
 				#end

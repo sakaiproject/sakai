@@ -143,11 +143,21 @@ import org.w3c.dom.Element;
 
 import java.io.PrintWriter;
 import java.io.IOException;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.util.RequestFilter;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.api.app.scheduler.SchedulerManager;
+import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobDetail;
+import org.quartz.JobDataMap;
+import org.quartz.Trigger;
 
 /**
 * <p>ResourceAction is a ContentHosting application</p>
@@ -161,6 +171,7 @@ public class ResourcesAction
 	 /** the content print service */
 	 private static ContentPrintService contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
 	 
+	 private static SchedulerManager schedulerManager = (SchedulerManager) ComponentManager.get("org.sakaiproject.api.app.scheduler.SchedulerManager");
 	 /** state variable name for the content print service call result */
 	 private static String CONTENT_PRINT_CALL_RESPONSE = "content_print_call_response";
 	 
@@ -821,6 +832,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** Configuration: allow use of alias for site id in references. */
 	protected boolean m_siteAlias = true;
 	
+	/** the interval (in days) the the soft-deleted content will be automatically permanently removed **/
+	public static final String STATE_CLEANUP_DELETED_CONTENT_INTERVAL= "state_cleanup_deleted_content_interval";
+	
 	// may need to distinguish permission on entity vs permission on its containing collection
 	static
 	{
@@ -847,7 +861,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CONTENT_MODIFY_ACTIONS.add(ActionType.REVISE_ORDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.COMPRESS_ZIP_FOLDER);
 		CONTENT_MODIFY_ACTIONS.add(ActionType.EXPAND_ZIP_ARCHIVE);
-		CONTENT_MODIFY_ACTIONS.add(ActionType.RESTORE);
 		
 		CONTENT_DELETE_ACTIONS.add(ActionType.MOVE);
 		CONTENT_DELETE_ACTIONS.add(ActionType.DELETE);
@@ -3192,6 +3205,21 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		state.setAttribute (STATE_MOVE_FLAG, Boolean.FALSE.toString());
 
 	}	// initCopyContent
+	
+
+	/**
+	 * Find the containing collection id of a given resource id.
+	 * 
+	 * @param id
+	 *        The resource id.
+	 * @return the containing collection id.
+	 */
+	protected String isolateContainingId(String id)
+	{
+		// take up to including the last resource path separator, not counting one at the very end if there
+		return id.substring(0, id.lastIndexOf('/', id.length() - 2) + 1);
+
+	} // isolateContainingId
 
 	/**
 	 * Find the resource name of a given resource id or filepath.
@@ -4597,6 +4625,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		contentPrintResultIntoContext(data, context, state);
 		
+		// whether the user can revise any resources in this site
+		// used for showing the restore deleted files interface
+		context.put("canReviseAny", canReviseAny());
+		
 		return TEMPLATE_NEW_LIST;
 
 	}	// buildListContext
@@ -4981,64 +5013,189 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		context.put("tlang",rb);
 		
-		String folderId = (String) state.getAttribute(STATE_REORDER_FOLDER);
-		context.put("folderId", folderId);
+		String rootFolderId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
+
+		context.put("rootFolderId", rootFolderId);
 
 		List cPath = getCollectionPath(state);
 		context.put ("collectionPath", cPath);
 
 		Set highlightedItems = new TreeSet();
-		List all_roots = new ArrayList();
 		List this_site = new ArrayList();
 
 		// find the ContentHosting service
 		org.sakaiproject.content.api.ContentHostingService contentService = (org.sakaiproject.content.api.ContentHostingService) state.getAttribute (STATE_CONTENT_SERVICE);
-		List<ContentResource> members = contentService.getAllDeletedResources(folderId);
+		// put the service instance into context
+		context.put("contentService", contentService);
+		context.put("displayNameProp", ResourceProperties.PROP_DISPLAY_NAME);
+		List<ContentResource> members = contentService.getAllDeletedResources(rootFolderId);
 		
 		String rootTitle = (String) state.getAttribute (STATE_SITE_TITLE);
 		
+		// this is a list of folder ids; sequence matters here
+		List<String> folderIds = new ArrayList<String>();
+
+		// this map holds folder id as the hash key, and folder attributes (e.g. depth, folder name, et al.) as the hashed value
+		HashMap<String, ResourcesBrowseItem> folderMap = new HashMap<String, ResourcesBrowseItem>();
+		
+		// initialize folderIds list and folderMap for site root folder
+		folderIds.add(rootFolderId);
+		ResourcesBrowseItem fItem = getResourceBrowseItemForFolder(rootTitle,
+									contentService.getDepth(rootFolderId, rootFolderId),
+									rootFolderId);
+		folderMap.put(rootFolderId, fItem);
+		
+		// iterate through the deleted resources
 		if(members != null && members.size() > 0)
 		{
-			ResourcesBrowseItem root = new ResourcesBrowseItem("ID",folderId,"");
-			List items = new LinkedList();
 			for(ContentResource resource: members) {   
-				ResourceProperties props = resource.getProperties();
-				String itemType = ((ContentResource)resource).getContentType();
-				String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-				ResourcesBrowseItem newItem = new ResourcesBrowseItem(resource.getId(), itemName, itemType);
-				try
-				{
-					Time modTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
-					String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
-					newItem.setModifiedTime(modifiedTime);
-				}
-				catch(Exception e)
-				{
-					String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
-					newItem.setModifiedTime(modifiedTimeString);
-				}
-				try
-				{
-					String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
-					newItem.setModifiedBy(modifiedBy);
-				}
-				catch(Exception e)
-				{
-					String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
-					newItem.setModifiedBy(modifiedBy);
-				}
 
-				items.add(newItem);
+				ResourcesBrowseItem newItem = getResourcesBrowseItem(resource);
+				
+				/*ContentCollection collection = resource.getContainingCollection();
+				if (collection == null)
+				{
+					// the containing collection has been deleted, try to restore that first
+					collection
+				}*/
+				String collectionId = isolateContainingId(resource.getId());
+				if (collectionId != null)
+				{
+					
+					if (!folderIds.contains(collectionId))
+					{
+						String currentFolderId = rootFolderId;
+						String path = collectionId.replace(rootFolderId, "");
+						String pathParts[]=path.split("/");
+						// iterate all the parent folders until reaching the site root collection level
+						// update folderIds and folderMap objects
+						for (int i=0; i < pathParts.length;i++)
+						{
+							currentFolderId += pathParts[i] + "/";
+							ContentCollection currentFolder = null;
+							String currentFolderName = null;
+							try
+							{
+								currentFolder = contentService.getCollection(currentFolderId);
+								currentFolderName = currentFolder.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+							}
+							catch (IdUnusedException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+							catch (TypeException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+							catch (PermissionException e)
+							{
+								logger.warn(this + " buildRestoreContext cannot get resource " + currentFolderId + " " + e.getMessage());
+							}
+							finally
+							{
+								if (currentFolder == null)
+								{
+									// folder has been deleted; get folder name from its id
+									currentFolderName=isolateName(currentFolderId);
+								}
+								
+								if (!folderIds.contains(currentFolderId))
+								{
+									// add the folder id into collection
+									folderIds.add(currentFolderId);
+								}
+								
+								if (!folderMap.containsKey(currentFolderId))
+								{
+									// update the HashMap for folder attributes, with folder name and folder depth
+									fItem = getResourceBrowseItemForFolder(currentFolderName,
+																contentService.getDepth(currentFolderId, rootFolderId),
+																currentFolderId);
+									folderMap.put(currentFolderId, fItem);
+								}
+							}
+						
+						}
+					}
+					
+					if (folderMap.containsKey(collectionId))
+					{
+						// add current item into the members list
+						ResourcesBrowseItem attributes = folderMap.get(collectionId);
+						List<ResourcesBrowseItem> itemList = new ArrayList<ResourcesBrowseItem>();
+						itemList.add(newItem);
+						attributes.addMembers(itemList);
+						folderMap.put(collectionId, attributes);
+					}
+				}
 			}
-			root.setName(rootTitle);
-			root.addMembers(items);
-			this_site.add(root);
-			all_roots.add(root);
+			
+			context.put("folderIds", folderIds);
+			context.put("folderMap", folderMap);
+			context.put("rootFolderId", rootFolderId);
+			
+			// restore item list not empty
+			context.put("noRestoreItems", Boolean.FALSE);
 		}
-		context.put ("this_site", this_site);
-		
+		else
+		{
+			// restore item list empty
+			context.put("noRestoreItems", Boolean.TRUE);
+		}
 
+		context.put ("this_site", rootTitle);
+		
+		context.put("cleanupInterval", state.getAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL));
+	      
 		return TEMPLATE_RESTORE;
+	}
+	
+	/**
+	 * return a ResourcesBrowseItem for given folder
+	 * @param displayName
+	 * @param depth
+	 * @param currentFolderId
+	 * @return
+	 */
+	private ResourcesBrowseItem getResourceBrowseItemForFolder(String displayName, int depth, String currentFolderId) {
+		ResourcesBrowseItem fItem;
+		fItem = new ResourcesBrowseItem(currentFolderId, displayName, "folder");
+		fItem.setDepth(depth);
+		return fItem;
+	}
+
+	/**
+	 * get an ResourcesBrowseItem object based on a given ContentResource object
+	 * @param resource
+	 * @return
+	 */
+	private ResourcesBrowseItem getResourcesBrowseItem(ContentResource resource) {
+		ResourceProperties props = resource.getProperties();
+		String itemType = ((ContentResource)resource).getContentType();
+		String itemName = props.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
+		ResourcesBrowseItem newItem = new ResourcesBrowseItem(resource.getId(), itemName, itemType);
+		try
+		{
+			Time modTime = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			String modifiedTime = modTime.toStringLocalShortDate() + " " + modTime.toStringLocalShort();
+			newItem.setModifiedTime(modifiedTime);
+		}
+		catch(Exception e)
+		{
+			String modifiedTimeString = props.getProperty(ResourceProperties.PROP_MODIFIED_DATE);
+			newItem.setModifiedTime(modifiedTimeString);
+		}
+		try
+		{
+			String modifiedBy = getUserProperty(props, ResourceProperties.PROP_MODIFIED_BY).getDisplayName();
+			newItem.setModifiedBy(modifiedBy);
+		}
+		catch(Exception e)
+		{
+			String modifiedBy = props.getProperty(ResourceProperties.PROP_MODIFIED_BY);
+			newItem.setModifiedBy(modifiedBy);
+		}
+		return newItem;
 	}
 
 	/**
@@ -6209,7 +6366,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if (state.getAttribute(STATE_MESSAGE) == null)
 		{
 			state.setAttribute (STATE_MODE, MODE_DELETE_FINISH);
-			state.setAttribute(STATE_LIST_SELECTIONS, deleteIdSet);
+			state.removeAttribute(STATE_LIST_SELECTIONS);
 		}
 
 
@@ -6389,12 +6546,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					//sAction.initializeAction(reference);
 					pasteItem(state, selectedItemId);
 					//sAction.finalizeAction(reference);
-					break;
-				case RESTORE:
-					sAction.initializeAction(reference);
-					state.setAttribute(STATE_REORDER_FOLDER, selectedItemId);
-					state.setAttribute(STATE_MODE, MODE_RESTORE);
-					sAction.finalizeAction(reference);
 					break;
 				case REVISE_ORDER:
 					sAction.initializeAction(reference);
@@ -8228,7 +8379,55 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			
 		state.setAttribute (STATE_INITIALIZED, Boolean.TRUE.toString());
 
+		/** init the delete content cleanup interval setting */
+		if (state.getAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL) == null)
+		{
+			// Cleanup Deleted Content quartz job is enabled with trigger
+			if (checkQuartzJobAndTrigger("org.sakaiproject.content.CleanupDeletedContent"))
+			{
+				// default to be 30 days if not set
+				state.setAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL, ServerConfigurationService.getString("content.keep.deleted.files.days", "30"));
+			}
+		}
 	}
+	
+	/**
+	 * check whether there is an quartz job with active trigger for the specified job bean
+	 * @param jobBeanName
+	 * @return
+	 */
+	private boolean checkQuartzJobAndTrigger(String jobBeanName) {
+		
+		boolean rv = false;
+		
+		Scheduler scheduler = schedulerManager.getScheduler();
+		try
+		{
+			// get the job scheduler setting and check for whether the content cleanup job has been enabled
+			String[] jobNames = scheduler.getJobNames(Scheduler.DEFAULT_GROUP);
+			for (int i = 0; i < jobNames.length; i++)
+			{
+				JobDetail jobDetail = scheduler.getJobDetail(jobNames[i], Scheduler.DEFAULT_GROUP);
+				String beanName = jobDetail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
+				if (jobBeanName != null && jobBeanName.equals(beanName))
+				{
+					// found the right quartz job
+					Trigger[] triggerArr = scheduler.getTriggersOfJob(jobDetail.getName(), Scheduler.DEFAULT_GROUP);
+					// check whether there is any existence of trigger for this job
+					if (triggerArr.length > 0)
+					{
+						return true;
+					}
+				}
+			}
+		}
+		catch (SchedulerException e)
+		{
+			logger.warn( this + " exception to get Scheduler Jobs " + e.getMessage());
+		}
+		return rv;
+	}
+
 
 /**
 	* is notification enabled?
@@ -9936,6 +10135,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			logger.warn(this + ".printFile() PermissionException " + selectedItemId );
 		}
 		
+	}
+	
+	public void doViewTrash(RunData data)
+	{
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		state.setAttribute(STATE_MODE, MODE_RESTORE);
 	}
 	
 }	// ResourcesAction

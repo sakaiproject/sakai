@@ -1,20 +1,21 @@
 ## version: $Id$
-<!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<!-- this is the reorder template -->
-
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doRestore" type="hidden" />
 		<input name="flow" id="flow" value="save" type="hidden" />
+		#set($rootFolderId="")
 		<div class ="breadCrumb specialLink">
 			<h3>
 				$tlang.getString("restore.title")
 				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
 				#foreach ($item in $collectionPath)
+					#set($rootFolderId=$item.id)
 					$validator.escapeHtml("$item.name")
 				#end
 			</h3>
+			## set the base collection ID
+			#set($currentFolderId=$rootFolderId)
 		</div>
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">
@@ -31,43 +32,67 @@
 						</span>
 				</div>
 			</div>	
-
-		<table class="listHier lines nolines" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
+		#if (!$noRestoreItems)
+            	<p class="instruction">$tlang.getString("restore.instruct") #if($!cleanupInterval)$tlang.getFormattedMessage("restore.cleanup", $!cleanupInterval)#end</p>
+		<table class="listHier lines centerLines" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
 			<tbody>
 			<tr>
-				<th id="checkboxes" >
+				<th id="checkboxes">
 						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
+							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
 				</th>
 				<th id="title">
 					$tlang.getString("gen.title")
 				</th>
 				<th id="creator">
-					$tlang.getString("gen.lastby")
+					$tlang.getString("restore.removedBy")
 				</th>
 				<th id="modified">
-					$tlang.getString("gen.last")
+					$tlang.getString("restore.removedOn")
 				</th>
 			</tr>
-			#foreach($root in $this_site)
-
-				#set($collectionMembers = $root.members)
-				#set($count = 1)
-				#foreach($member in $collectionMembers)
-					<tr class="sortable">
-						<td headers="checkboxes">
-							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/>						
+			## for indentation
+			#set($unit="em")
+			#set($depth=0)
+			#set($width="$depth$unit")
+			#foreach($folderId in $folderIds)
+				#set($folderAttributes=$!folderMap.get($folderId))
+				#set($folderName=$folderAttributes.name)
+				#set($folderDepth=$folderAttributes.depth)
+				#set($folderItemList=$folderAttributes.members)
+				#set($width="$folderDepth$unit")
+				
+				## no need to show the root folder
+				#if (!$folderId.equals($rootFolderId))
+					<tr>
+						<td class="attach">
 						</td>
-						<td headers="title" style="text-indent: 1em;" class="specialLink">
-							<h4>
+						<td style="text-indent:$width">
+							<h4><img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
+							$folderName</h4>
+						</td>
+						<td colspan="2"></td>
+					</tr>
+				#end
+				## whether the folder has any members
+				#set($resourceDepth=$folderDepth+1)
+				#set($width="$resourceDepth$unit")
+				#foreach($member in $folderItemList)
+					<tr>
+						<td headers="checkboxes">
+						#set($collectionId=$contentService.getContainingCollectionId($member.id))
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $member.name</label>
+						</td>
+						<td headers="title" style="text-indent: $width" class="specialLink">
+							<h5>
 								#if($member.isFolder())
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString('gen.folder1')">
 								#else
-									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0" alt="">
 								#end
 								$member.name
-							</h4>	
+							</h5>	
 						</td>
 						<td headers="creator">
 							$member.modifiedBy
@@ -81,6 +106,10 @@
 			#end
 			</tbody>
 		</table>
+		#else
+			<div class="messageInformation">$tlang.get("restore.empty")</div>
+		#end
+		
 		<input type="hidden" id="selectAll-count" value="0" />
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
@@ -166,11 +195,13 @@
 			var removeButton = document.getElementById("remove-button");
 			if(caller && caller.checked && caller.checked == true)
 			{
-				counter.value = parseInt(counter.value) + 1;
+                counter.value = parseInt(counter.value) + 1;
+                caller.parentNode.parentNode.className = "selectedSelected";
 			}
 			else
 			{
 				counter.value = parseInt(counter.value) - 1;
+                caller.parentNode.parentNode.className = "";
 			}
 			
 			if(counter.value > 0)

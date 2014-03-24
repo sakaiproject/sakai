@@ -94,6 +94,14 @@
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
     </dependency>
+    <dependency>
+      	<groupId>org.sakaiproject.scheduler</groupId>
+		<artifactId>scheduler-api</artifactId>
+	</dependency>
+	<dependency>
+      <groupId>org.quartz-scheduler</groupId>
+      <artifactId>quartz</artifactId>
+    </dependency>
   </dependencies>
   <build>
     <resources>
