@@ -1921,7 +1921,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			} else if ((siteQuota != null && !"".equals(siteQuota)) && (fileSize /1024L / 1024L)  > Long.parseLong(siteQuota)) {
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
 			} else {
-				doDragDropUpload(request, response, fullPath);
+				JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+				if (checkCSRFToken(request,rundata,action)) {
+					doDragDropUpload(request, response, fullPath);
+				}
 			}
 		}
 		else

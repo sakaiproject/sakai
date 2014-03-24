@@ -102,7 +102,7 @@
 		#end
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doUpload" "flow=save&sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" disabled="true" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesHelperAction" "doUpload" "flow=save")';submitform('addContentForm');" value="$tlang.getString("label.finupl")" accesskey="s" />
 			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 		</p>
@@ -119,6 +119,7 @@
             <p>$tlang.getString("label.dragDescription")</p>
         </div>
         <form name="dropzone-form" action="#toolLink("ResourcesHelperAction" "doPost")&flow=save" class="dropzone" id="file-uploader">
+        	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
         </form>
 		<p class="act">
