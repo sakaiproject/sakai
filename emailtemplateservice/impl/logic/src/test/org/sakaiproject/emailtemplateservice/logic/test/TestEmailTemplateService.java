@@ -224,11 +224,13 @@ public class TestEmailTemplateService extends AbstractTransactionalSpringContext
 			fail();
 		}
 		
-		badTemplate.setLocale("some_Locale");
-		//this should now work
+		badTemplate.setLocale("thisIsNotAGoodLocale");
+		//this should not work
 		try {
 			emailTemplateService.saveTemplate(badTemplate);
-			
+		}
+		catch (IllegalArgumentException e) {
+			//we expect this
 		}
 		catch (Exception e) {
 			e.printStackTrace();

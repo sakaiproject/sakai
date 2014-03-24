@@ -233,11 +233,10 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
 	   }
 	   
 	   String locale = template.getLocale(); 
-	   if (locale == null || locale.trim().length() == 0) {
+	   if (StringUtils.isBlank(locale)) {
 		   //For backward compatibility set it to default
 		   template.setLocale(EmailTemplate.DEFAULT_LOCALE);
 	   } 
-	   
 	   
       //update the modified date
       template.setLastModified(new Date());
