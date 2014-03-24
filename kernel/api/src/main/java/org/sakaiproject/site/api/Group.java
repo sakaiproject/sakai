@@ -41,6 +41,8 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_JOINABLE_SET_MAX = "group_prop_joinable_set_max";
 	/** The property to indicate whether students can preview the list of users in the set before joining **/
 	static final String GROUP_PROP_JOINABLE_SET_PREVIEW = "group_prop_joinable_set_preview";
+	/** The property to indicate whether students can view the list of users in the group after joining **/
+	static final String GROUP_PROP_VIEW_MEMBERS = "group_prop_view_members";
     
 	/** @return a human readable short title of this group. */
 	String getTitle();
