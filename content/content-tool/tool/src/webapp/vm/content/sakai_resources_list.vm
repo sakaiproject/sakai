@@ -29,76 +29,37 @@ ul.makeMenu li {
 </style>
 <![endif]><![endif]-->
 
-#**#
+
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
 <!-- // -->
 </script>
 <script type="text/javascript">
+    var jsLang = {
+        item:'$clang.getString('list.nav.item')',
+        items:'$clang.getString('list.nav.items')',
+        error:'$clang.getString('list.nav.error')'
+    }
+    
 $(document).ready(function() {
-	if ($('#content_print_result_url').length)
-	{
-		window.open($('#content_print_result_url').val(), $('#content_print_result_url_title'), "height=800,width=800");
-	}
-	jQuery('.portletBody').click(function(e) { 
-	
-		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
-			$('.makeMenuChild').hide();
-		}
-			else
-			{
-				if( e.target.className =='dropdn' ){
-			$('.makeMenuChild').hide();
-			$(e.target).parent('li').find('ul').show().find('li:first a').focus();
 
-}
-				else{
-			$('.makeMenuChild').hide();
-			$(e.target).find('ul').show().find('li:first a').focus();
-			}}
-	});
-	$('.toggleDescription').click(function(e){
-	    e.preventDefault();
-	    $('.descPanel').css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	    $(this).next('div').css({
-	        'top': e.pageY + 10,
-	        'left': e.pageX + 10,
-	        'cursor': 'pointer',
-	        'display': 'block'
-	    }).attr({
-	        'aria-hidden': 'false',
-	        'tabindex': '0'
-	    });
-	});
-	$('.descPanel').blur(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});
-	$('.descPanel').click(function(){
-	    $(this).css({
-	        'top': '-1000px',
-	        'left': '-1000px',
-	        'display': 'none'
-	    }).attr({
-	        'aria-hidden': 'true',
-	        'tabindex': '-1'
-	    });
-	});	
+
 	})
 </script>
-#**#
+
+<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js">
+<!-- // -->
+</script>
+<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
+<script type="text/javascript" src="/sakai-content-tool/js/content.js">
+<!-- // -->
+</script>
+
+<script src="/sakai-content-tool/js/jstree/dist/jstree.min.js"></script>
+<link rel="stylesheet" href="/sakai-content-tool/js/jstree/dist/themes/default/style.min.css" />
+
+
+
 #set($num = 0)
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
@@ -136,6 +97,7 @@ $(document).ready(function() {
 	#if ($content_print_status_failure)
 		<br /><div id="messageSuccessHolder" class="messageError" style="display:block">$!content_print_message</div>
 	#end
+
 	<form name="showForm" id="showForm" action="#toolForm("ResourcesAction")" method="post">
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
@@ -152,31 +114,51 @@ $(document).ready(function() {
 		######################  Page Title / Breadcrumbs  ##############
 		<div class ="breadCrumb specialLink">
 			<h3>
-				$tlang.getString("gen.location")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+           <div class="btn-group dropdown keep-open">
+                #if (!$dropboxMode)
+                  <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown">
+                    $clang.getString('list.nav.button.title')<span class="caret"></span>
+                  </button>
+                  <div id="navigatePanel" class="dropdown-menu" role="menu">
+                      <div class="navigatePanelControls">
+                        <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-minus"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
+                        <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-plus"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></div>
+                        <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input type="text" id="navigatePanelSearch"/>
+                        <p class="close">&times;</p>
+                      </div>
+                        <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
+                  </div>
+                #end
 				#foreach ($item in $collectionPath)
 					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
-						$validator.escapeHtml("$item.name")
+                        <button class="btn btn-default btn-sm" disabled="disabled" style="margin-left:-1px">
+						  <span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp; $validator.escapeHtml("$item.name")
+                        </button>
+                        #*
 						#if($upOneLevel)
-							<a href="#"
+							<button class="btn btn-default btn-sm"
 								onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
-								title= "$tlang.getString('sh.one')">
+								title= "$tlang.getString('sh.one')" style="color:#888">
 							##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
-								<img src="/library/image/sakai/onelevelup.gif" border="0" alt ="$tlang.getString('sh.one')"/>
-							</a>
+								<span class="sr-only">$tlang.getString('sh.one')</span>&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>&nbsp;<span class="glyphicon glyphicon-folder-close"></span>&nbsp;
+							</button>
 						#end
+                        *#
 					#elseif($item.canRead())
-						<a href="#" 
+						<button class="btn btn-default btn-sm" style="margin-left:-1px"
 							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
-							$validator.escapeHtml("$item.name")
-						</a> /
+							<span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp;$validator.escapeHtml("$item.name")
+						</button>
 						#set($upOneLevel = $item)
 					#else
+                    <button class="btn btn-default btn-sm" disabled="disabled"  style="margin-left:-1px">
 						$validator.escapeHtml("$item.name")
+                    </button>
 					#end
 				#end
+                </div>
 			</h3>
 		</div>	
 		#if($showDropboxGroupFilter)
