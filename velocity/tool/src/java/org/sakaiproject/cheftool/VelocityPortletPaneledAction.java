@@ -568,64 +568,8 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		// process the action if present
 		if (action != null)
 		{
-			// if user if manipulating data via POST, check for presence of CSRF token
-			if ("POST".equals(rundata.getRequest().getMethod()))
-			{
-				// check if tool id is in list of tools to skip the CSRF check
-				Placement placement = ToolManager.getCurrentPlacement();
-				String toolId = null;
-				if (placement != null)
-				{
-					toolId = placement.getToolId();
-				}
+			if (!checkCSRFToken(req, rundata, action)) return;
 				
-				boolean skipCSRFCheck = false;
-				String[] insecureTools = ServerConfigurationService.getStrings("velocity.csrf.insecure.tools");
-				if (toolId != null && insecureTools != null)
-				{
-					for (int i = 0; i < insecureTools.length; i++)
-					{
-						if (StringUtils.equalsIgnoreCase(toolId, insecureTools[i]))
-						{
-							if (M_log.isDebugEnabled())
-							{
-								M_log.debug("Will skip all CSRF checks on toolId=" + toolId);
-							}
-							skipCSRFCheck = true;
-							break;
-						}
-					}
-				}
-							
-				// if the user is not logged in, then do not worry about csrf
-				Session session = SessionManager.getCurrentSession();
-				boolean loggedIn = session.getUserId() != null;
-				
-				if (loggedIn && !skipCSRFCheck)
-				{
-					// If the attribute is missing, it is likely an internal error,
-					// not an error in the tool
-					Object sessionAttr = SessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
-					if ( sessionAttr == null )
-					{
-						M_log.warn("Missing CSRF Token session attribute: " + action + "; toolId=" + toolId);
-						return;
-					}
-					
-					String csrfToken = params.getString(SAKAI_CSRF_TOKEN);
-					String sessionToken = sessionAttr.toString();
-					if (csrfToken == null || sessionToken == null || !StringUtils.equals(csrfToken, sessionToken)) 
-					{
-						M_log.warn("CSRF Token mismatched or missing on velocity action: " + action + "; toolId=" + toolId);
-						return;
-					}
-					if (M_log.isDebugEnabled())
-					{
-						M_log.debug("CSRF token (" + csrfToken + ") matches on action: " + action + "; toolId=" + toolId);
-					}
-				}
-			}
-			
 			// if we have an active helper, send the action there
 			String helperClass = (String) getState(req).getAttribute(STATE_HELPER);
 			if (helperClass != null)
@@ -699,6 +643,70 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		}
 
 	} // processAction
+
+	public boolean checkCSRFToken(HttpServletRequest request, RunData rundata, String action)
+	{
+		ParameterParser params = rundata.getParameters();
+
+		// if user if manipulating data via POST, check for presence of CSRF token
+		if ("POST".equals(rundata.getRequest().getMethod()))
+		{
+			// check if tool id is in list of tools to skip the CSRF check
+			Placement placement = ToolManager.getCurrentPlacement();
+			String toolId = null;
+			if (placement != null)
+			{
+				toolId = placement.getToolId();
+			}
+			
+			boolean skipCSRFCheck = false;
+			String[] insecureTools = ServerConfigurationService.getStrings("velocity.csrf.insecure.tools");
+			if (toolId != null && insecureTools != null)
+			{
+				for (int i = 0; i < insecureTools.length; i++)
+				{
+					if (StringUtils.equalsIgnoreCase(toolId, insecureTools[i]))
+					{
+						if (M_log.isDebugEnabled())
+						{
+							M_log.debug("Will skip all CSRF checks on toolId=" + toolId);
+						}
+						skipCSRFCheck = true;
+						break;
+					}
+				}
+			}
+						
+			// if the user is not logged in, then do not worry about csrf
+			Session session = SessionManager.getCurrentSession();
+			boolean loggedIn = session.getUserId() != null;
+			
+			if (loggedIn && !skipCSRFCheck)
+			{
+				// If the attribute is missing, it is likely an internal error,
+				// not an error in the tool
+				Object sessionAttr = SessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+				if ( sessionAttr == null )
+				{
+					M_log.warn("Missing CSRF Token session attribute: " + action + "; toolId=" + toolId);
+					return false;
+				}
+				
+				String csrfToken = params.getString(SAKAI_CSRF_TOKEN);
+				String sessionToken = sessionAttr.toString();
+				if (csrfToken == null || sessionToken == null || !StringUtils.equals(csrfToken, sessionToken)) 
+				{
+					M_log.warn("CSRF Token mismatched or missing on velocity action: " + action + "; toolId=" + toolId);
+					return false;
+				}
+				if (M_log.isDebugEnabled())
+				{
+					M_log.debug("CSRF token (" + csrfToken + ") matches on action: " + action + "; toolId=" + toolId);
+				}
+			}
+		}
+		return true;
+	}
 
 	/**
 	 * Dispatch to a "processAction" method based on reflection.
