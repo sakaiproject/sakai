@@ -21,6 +21,9 @@
     -moz-border-radius: 5px;
     border-radius: 5px;
 }
+.jstree-anchor:hover {
+    text-decoration:none !important;
+}
 #spinner {
     background: transparent url("../images/ajax_loader_blue_128.gif") top left no-repeat;
     width:128px;

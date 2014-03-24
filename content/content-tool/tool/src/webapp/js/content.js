@@ -76,15 +76,17 @@ var iconDecider = function(itemType){
 };
 
 var renderHierarchyWithJsonTree = function(data){
-
+    //root folder
     var collId = $('#collectionId').val();
+    // site id
     var siteId = collId.split('/')[2];
-    var mode = collId.split('/')[1]
+    //workspace or  site
+    var mode = collId.split('/')[1];
     //massage the json so that we can use jsonTree
+    var user;
     $.each(data.content_collection, function(i, item){
         item.text = item.title;
         //get item.id field to turn into a jsTree happy item.id
-
         if (mode === 'group') {
             item.id = item.url.substr(item.url.indexOf('/group/' + siteId));
         }
@@ -113,30 +115,22 @@ var renderHierarchyWithJsonTree = function(data){
             else {
                 item.text = item.title;
             }
-            
-            
         }
         else {
             item.parent = parentPath;
         }
-        var pathToFolder =''
+        var pathToFolder ='';
         var pathArr = item.url.split('/');
         var siteIdLoc='';
         if (mode === 'group') {
-              siteIdLoc = pathArr.indexOf(siteId);
+            siteIdLoc = pathArr.indexOf(siteId);
+            pathToFolder  = '/group/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
         }
         if (mode === 'user') {
               siteIdLoc = pathArr.indexOf('user') + 2;
               user = pathArr[pathArr.indexOf('user') + 1];
+              pathToFolder = '/user/'+ siteId + '/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
         }
-
-        if (mode === 'group') {
-           pathToFolder  = '/group/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
-        }
-        if (mode === 'user') {
-           pathToFolder = '/user/'+ siteId + '/' + decodeURIComponent(pathArr.slice(siteIdLoc).join('/'));
-        }
-
         var pathToFile = item.url;
         var itemType = '';
         var itemUrl = '';
@@ -204,12 +198,14 @@ var renderHierarchyWithJsonTree = function(data){
             "plugins": ["themes", "search"]
         });
     });
-
+    // what folders to show when the panel first open
+    // here we are opening hte first levl if any so that it
+    //is the same as the resources tool proper
     if (mode === 'group') {
-        $('#navigatePanelInner').jstree('open_node', '_group_' + siteId);   
+        $('#navigatePanelInner').jstree('open_node', '_group_' + siteId);
     }
     else {
-        $('#navigatePanelInner').jstree('open_node', '_user_' + user)    
+        $('#navigatePanelInner').jstree('open_node', '_user_' + user);
     }
     $('#navigatePanel').fadeIn('slow');
 };
@@ -319,10 +315,11 @@ $(document).ready(function(){
                     renderHierarchyWithJsonTree(data);
                 }
                 else {
-                    $('#navigatePanelInner').html('<div class="alert alert-danger"> ERROR! No entity feeds for collection. </div>');
+                    $('#navigatePanelInner').html('<div class="alert alert-danger">' + jsLang.error + '</div>');
                 }
             }).done(function(){
             }).fail(function(){
+                $('#navigatePanelInner').html('<div class="alert alert-danger">' + jsLang.error + '</div>');
             }).always(function(){
             });
         }
