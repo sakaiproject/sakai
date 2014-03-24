@@ -305,7 +305,7 @@ public class EmailTemplateServiceImpl implements EmailTemplateService {
       }
       /*NoN user fields */
       rv.put(LOCAL_SAKAI_NAME, serverConfigurationService.getString("ui.service", "Sakai"));
-      rv.put(LOCAL_SAKAI_SUPPORT_MAIL,serverConfigurationService.getString("support.email","help@"+ serverConfigurationService.getServerUrl()));
+      rv.put(LOCAL_SAKAI_SUPPORT_MAIL,serverConfigurationService.getString("support.email", "support@"+ serverConfigurationService.getServerName()));
       rv.put(LOCAL_SAKAI_URL,serverConfigurationService.getServerUrl());
 
       
