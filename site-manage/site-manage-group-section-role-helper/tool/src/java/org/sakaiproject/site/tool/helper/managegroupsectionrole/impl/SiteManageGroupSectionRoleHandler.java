@@ -121,6 +121,7 @@ public class SiteManageGroupSectionRoleHandler {
     public String joinableSetNameOrig = "";
     public String joinableSetNumOfGroups = "";
     public String joinableSetNumOfMembers = "";
+    public boolean allowPreviewMembership = false;
     public boolean allowViewMembership = false;
 
     // Tool session attribute name used to schedule a whole page refresh.
@@ -214,6 +215,7 @@ public class SiteManageGroupSectionRoleHandler {
 	    joinableSetNameOrig = "";
 	    joinableSetNumOfGroups = "";
 	    joinableSetNumOfMembers = "";
+	    allowPreviewMembership = false;
 	    allowViewMembership = false;
 	}
 	 
@@ -653,11 +655,11 @@ public class SiteManageGroupSectionRoleHandler {
 		{
 			group.setTitle(title);
             group.setDescription(description);
-            
+            group.getProperties().addProperty(group.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
             if(joinableSetName != null && !"".equals(joinableSetName.trim())){
             	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET, joinableSetName);
             	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
-            	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowViewMembership));
+            	group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
             }else{
             	group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET);
             	group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_MAX);
@@ -1613,7 +1615,8 @@ public class SiteManageGroupSectionRoleHandler {
     			g.getProperties().addProperty(g.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
     			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET, joinableSetName);
     			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
-    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowViewMembership));
+    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
+    			g.getProperties().addProperty(g.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
     			g.setTitle(joinableSetName + " " + i);
     			try{
     				siteService.save(site);

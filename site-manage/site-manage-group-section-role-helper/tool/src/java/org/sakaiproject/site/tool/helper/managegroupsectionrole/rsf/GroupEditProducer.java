@@ -120,6 +120,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     			 groupId = g.getId();
     			 groupTitle = g.getTitle();
     			 groupDescription = g.getDescription();
+    			 handler.allowViewMembership = Boolean.valueOf(g.getProperties().getProperty(g.GROUP_PROP_VIEW_MEMBERS));
     			 groupMembers = g.getMembers();
     			 groupProviderId = g.getProviderGroupId();
     			 groupRoleProviderRoles = handler.getGroupProviderRoles(g);
@@ -128,12 +129,12 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     				 handler.joinableSetName = joinableSet;
     				 handler.joinableSetNameOrig = joinableSet;
     				 handler.joinableSetNumOfMembers = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET_MAX);
-    				 handler.allowViewMembership = Boolean.valueOf(g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW));
+    				 handler.allowPreviewMembership = Boolean.valueOf(g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW));
     			 }else{
     				 handler.joinableSetName = "";
     				 handler.joinableSetNameOrig = "";
     				 handler.joinableSetNumOfMembers = "";
-    				 handler.allowViewMembership = false;
+    				 handler.allowPreviewMembership = false;
     			 }
     		 }
     		 catch (Exception e)
@@ -161,6 +162,10 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIInput groupDescr = UIInput.make(groupForm, "group_description", "#{SiteManageGroupSectionRoleHandler.description}", groupDescription); 
 		 UILabelTargetDecorator.targetLabel(groupDescrLabel, groupDescr);
 		 
+		 //allow view membership:
+		 UIBoundBoolean viewMemCheckbox = UIBoundBoolean.make(groupForm, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
+		 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "allowViewMembership-label", "group.allow.view.membership"), viewMemCheckbox);
+		 
 		 //Joinable Set:
 		 UIMessage joinableSetLabel = UIMessage.make(groupForm, "group_joinable_set_label", "group.joinable.set");
 		 Set<String> joinableSets = new HashSet<String>();
@@ -186,8 +191,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIMessage.make(joinableDiv, "group-max-members", "group.joinable.maxMembers2");
 		 UIInput.make(joinableDiv, "num-max-members", "SiteManageGroupSectionRoleHandler.joinableSetNumOfMembers");
 		 //allow preview row:
-		 UIBoundBoolean checkbox = UIBoundBoolean.make(joinableDiv, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
-		 UILabelTargetDecorator.targetLabel(UIMessage.make(joinableDiv, "allowViewMembership-label", "group.joinable.allowPreview"), checkbox);
+		 UIBoundBoolean checkbox = UIBoundBoolean.make(joinableDiv, "allowPreviewMembership", "#{SiteManageGroupSectionRoleHandler.allowPreviewMembership}");
+		 UILabelTargetDecorator.targetLabel(UIMessage.make(joinableDiv, "allowPreviewMembership-label", "group.joinable.allowPreview"), checkbox);
 
 
 		 UIOutput.make(groupForm, "membership_label", messageLocator.getMessage("editgroup.membership"));

@@ -97,12 +97,20 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
         }
         UILabelTargetDecorator.targetLabel(UIMessage.make(maxRow, "group-max-members", "group.joinable.maxMembers"), UIInput.make(maxRow, "num-max-members", "SiteManageGroupSectionRoleHandler.joinableSetNumOfMembers"));
         //allow preview row:
-        UIBranchContainer allowViewRow = UIBranchContainer.make(groupForm,"allowview-row:");
+        UIBranchContainer allowPreviewRow = UIBranchContainer.make(groupForm,"allowpreview-row:");
         if(edit){
-        	allowViewRow.decorate(new UICSSDecorator(cssMap));
+        	allowPreviewRow.decorate(new UICSSDecorator(cssMap));
         }
-        UIBoundBoolean checkbox = UIBoundBoolean.make(allowViewRow, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
-		UILabelTargetDecorator.targetLabel(UIMessage.make(allowViewRow, "allowViewMembership-label", "group.joinable.allowPreview"), checkbox);
+        UIBoundBoolean checkbox = UIBoundBoolean.make(allowPreviewRow, "allowPreviewMembership", "#{SiteManageGroupSectionRoleHandler.allowPreviewMembership}");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(allowPreviewRow, "allowPreviewMembership-label", "group.joinable.allowPreview"), checkbox);
+		
+		//allow view members row:
+		 UIBranchContainer allowViewRow = UIBranchContainer.make(groupForm,"allowview-row:");
+		 if(edit){
+			 allowViewRow.decorate(new UICSSDecorator(cssMap));
+		 }
+		UIBoundBoolean viewMembersCheckbox = UIBoundBoolean.make(allowViewRow, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
+		UILabelTargetDecorator.targetLabel(UIMessage.make(allowViewRow, "allowViewMembership-label", "group.allow.view.membership2"), viewMembersCheckbox);
 		if(edit){
 			//Generate Button
 			UIBranchContainer generateRow = UIBranchContainer.make(groupForm,"generate-row:");

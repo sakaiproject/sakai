@@ -58,6 +58,7 @@ import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -767,6 +768,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
 	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
 	
+	private PrivacyManager privacyManager = (PrivacyManager) ComponentManager.get(PrivacyManager.class);
+
 	/**
 	 * what are the tool ids within Home page?
 	 * If this is for a newly added Home tool, get the tool ids from template site or system set default
@@ -2145,6 +2148,7 @@ public class SiteAction extends PagedResourceActionII {
 					// filter out only those groups that are manageable by site-info
 					Collection<Group> filteredGroups = new ArrayList<Group>();
 					Collection<Group> filteredSections = new ArrayList<Group>();
+					Collection<String> viewMembershipGroups = new ArrayList<String>();
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2156,9 +2160,14 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							filteredSections.add(g);
 					}
+						Object vProp = g.getProperties().getProperty(g.GROUP_PROP_VIEW_MEMBERS);
+						if (vProp != null && vProp.equals(Boolean.TRUE.toString())){
+							viewMembershipGroups.add(g.getId());
+						}							
 					}
 					context.put("groups", filteredGroups);
 					context.put("sections", filteredSections);
+					context.put("viewMembershipGroups", viewMembershipGroups);
 				}
 				
 				//joinable groups:
@@ -2193,25 +2202,38 @@ public class SiteAction extends PagedResourceActionII {
 			    				size = gMembers.size();
 			    				if (size > 0)
 			    				{
+			    					Set<String> hiddenUsers = new HashSet<String>();
+			    					boolean viewHidden = viewHidden = SecurityService.unlock("roster.viewHidden", site.getReference()) || SecurityService.unlock("roster.viewHidden", g.getReference());
+			    					if(!SiteService.allowViewRoster(siteId) && !viewHidden){
+			    						//find hidden users in this group:
+			    						//add hidden users to set so we can filter them out
+			    			        	Set<String> memberIds = new HashSet<String>();
+			    			        	for(Member member : gMembers){
+			    			        		memberIds.add(member.getUserId());
+			    			        	}
+			    			        	hiddenUsers = privacyManager.findHidden(site.getReference(), memberIds);
+			    					}
 				    				for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
 				    		        	Member p = (Member) gItr.next();
 				    		        	
 				    		        	// exclude those user with provided roles and rosters
 				    		        	String userId = p.getUserId();
-					    				try
-					    				{
-					    					User u = UserDirectoryService.getUser(userId);
-					    					if(!"".equals(groupMembers)){
-					        					groupMembers += ", ";
-					        				}
-					    					groupMembers += u.getDisplayName();
-					    				}
-					    	        	catch (Exception e)
-					    	        	{
-					    	        		M_log.debug(this + "joinablegroups: cannot find user with id " + userId);
-					    	        		// need to remove the group member
-					    	        		size--;
-					    	        	}
+				    		        	if(!hiddenUsers.contains(userId)){
+				    		        		try
+				    		        		{
+				    		        			User u = UserDirectoryService.getUser(userId);
+				    		        			if(!"".equals(groupMembers)){
+				    		        				groupMembers += ", ";
+				    		        			}
+				    		        			groupMembers += u.getDisplayName();
+				    		        		}
+				    		        		catch (Exception e)
+				    		        		{
+				    		        			M_log.debug(this + "joinablegroups: cannot find user with id " + userId);
+				    		        			// need to remove the group member
+				    		        			size--;
+				    		        		}
+				    		        	}
 				    				}
 			    				}
 			    			}
