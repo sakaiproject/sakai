@@ -68,9 +68,6 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
          log.debug("got key: " + key);
          
          EmailTemplate emailTemplate = (EmailTemplate) delivered.get(key);
-         if (key.startsWith(NEW_PREFIX)) {
-            // add in extra logic needed for new items here
-         }
 
          if (StringUtils.isBlank(emailTemplate.getLocale())) {
         	 emailTemplate.setLocale(EmailTemplate.DEFAULT_LOCALE);
@@ -91,6 +88,9 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
          if (StringUtils.isBlank(emailTemplate.getKey())) {
         	 messages.addMessage(new TargettedMessage("error.nokey", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
          }
+         else if (StringUtils.startsWith(key, NEW_PREFIX) && emailTemplateService.templateExists(emailTemplate.getKey(), loc)) {
+             messages.addMessage(new TargettedMessage("error.duplicatekey", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+         }
          
          if (StringUtils.isBlank(emailTemplate.getSubject())) {
         	 messages.addMessage(new TargettedMessage("error.nosubject", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
@@ -100,10 +100,6 @@ public class EmailTemplateLocator implements WriteableBeanLocator {
         	 messages.addMessage(new TargettedMessage("error.nomessage", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
          }
          
-         if (!messages.isError() && StringUtils.isNotBlank(emailTemplate.getKey()) && emailTemplateService.templateExists(emailTemplate.getKey(), loc)) {
-             messages.addMessage(new TargettedMessage("error.duplicatekey", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
-         }
-
          if (messages.isError()) {
         	 return "failure";
          }
