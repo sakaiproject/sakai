@@ -102,7 +102,7 @@ $(document).ready(function() {
 		## hidden fields for print url
 		#if ($!content_print_result_url && $!content_print_result_url_title)
 			<input type="hidden" value="$content_print_result_url" id="content_print_result_url" />
-			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />z
+			<input type="hidden" value="$content_print_result_url_title" id="content_print_result_url_title" />
 		#end
 		<input type="hidden" name="source" id="source" value="0" />
 		<input type="hidden" name="collectionId" id="collectionId" value="$validator.escapeHtml($collectionId)" />
