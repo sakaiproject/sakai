@@ -19,17 +19,15 @@
 				Once you have your guest account, you can log in to ${localSakaiName}:
 				
 					1. Open ${localSakaiName}: ${localSakaiURL}
-					2. Click the Login button.
-					3. Type your guest account login and password, and click Login.
-					4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+					2. Type your guest account login and password, and click Login.
+					3. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 			
 			&lt;#else&gt;		
 				To log in:
 
 					1. Open ${localSakaiName}: ${localSakaiURL}
-					2. Click the Login button.
-					3. Enter your username and password, and click Login.
-					4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+					2. Enter your username and password, and click Login.
+					3. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 			&lt;/#if&gt;
 		</message>
  		<locale></locale>
@@ -72,17 +70,15 @@ Quan tingueu el vostre compte de convidat, ja podeu accedir-hi. ${localSakaiName
 			Once you have your guest account, you can log in to ${localSakaiName}:
 			
 				1. Open ${localSakaiName}: ${localSakaiURL}
-				2. Click the Login button.
-				3. Type your guest account login and password, and click Login.
-				4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+				2. Type your guest account login and password, and click Login.
+				3. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 		
 		&lt;#else&gt;		
 			To log in:
 
 				1. Open ${localSakaiName}: ${localSakaiURL}
-				2. Click the Login button.
-				3. Enter your username and password, and click Login.
-				4. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
+				2. Enter your username and password, and click Login.
+				3. Click on the site tab to go to the site. (You will see two or more tabs in a row across the upper part of the screen.)
 		&lt;/#if&gt;
 	</message>
 	<locale>en_GB</locale>
