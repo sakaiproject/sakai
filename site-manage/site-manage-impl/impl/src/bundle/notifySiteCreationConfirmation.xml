@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <emailTemplates>
 <emailTemplate>
-<subject>
-Site ${siteId} was successfully created by ${currentUserDisplayName}
-</subject>
+<subject>Site ${siteId} was successfully created by ${currentUserDisplayName}</subject>
 <message>
  
 Hi, ${currentUserDisplayName}:

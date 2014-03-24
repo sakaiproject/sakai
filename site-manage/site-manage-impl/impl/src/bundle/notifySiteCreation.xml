@@ -1,9 +1,7 @@
 <?xml version="1.0"?>
 <emailTemplates>
 <emailTemplate>
-<subject>
-Site Created by ${currentUserDisplayName}
-</subject>
+<subject>Site Created by ${currentUserDisplayName}</subject>
 <message>
  
 From Worksite Setup to ${serverName} Support:
