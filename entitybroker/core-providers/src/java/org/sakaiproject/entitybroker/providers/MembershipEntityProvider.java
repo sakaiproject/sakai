@@ -34,6 +34,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.email.api.EmailService;
@@ -87,6 +89,16 @@ RESTful, ActionsExecutable {
 
     public void setEmailService(EmailService emailService) {
         this.emailService = emailService;
+    }
+    
+    private PrivacyManager privacyManager;
+    public void setPrivacyManager(PrivacyManager privacyManager){
+    	this.privacyManager = privacyManager;
+    }
+    
+    private SecurityService securityService;
+    public void setSecurityService(SecurityService securityService){
+    	this.securityService = securityService;
     }
 
     public static String PREFIX = "membership";
@@ -761,16 +773,19 @@ RESTful, ActionsExecutable {
         SiteGroup sg = findLocationByReference(locationReference);
         String currentUserId = developerHelperService.getCurrentUserId();
         if (!userId.equals(currentUserId)) {
-            isAllowedAccessMembers(sg.site);
+            isAllowedAccessMembers(sg.site, sg.group);
         }
+        boolean viewHidden = securityService.unlock("roster.viewHidden", sg.site.getReference());
         if (sg.group == null) {
             // site only
             member = sg.site.getMember(userId);
         } else {
             // group and site
             member = sg.group.getMember(userId);
+            //see if the user has viewHidden permission at the group level too
+            viewHidden = viewHidden || securityService.unlock("roster.viewHidden", sg.group.getReference());
         }
-        if (member != null) {
+        if (member != null && !privacyManager.findHidden(sg.site.getReference(), new HashSet<String>(Arrays.asList(userId))).contains(userId)) {
             EntityUser eu = userEntityProvider.getUserById(userId);
             em = new EntityMember(member, sg.locationReference, eu);
         }
@@ -792,18 +807,30 @@ RESTful, ActionsExecutable {
         } catch (IllegalArgumentException e) {
             throw new EntityNotFoundException("Could not find the location based on the ref ("+locationReference+"): " + e, locationReference);
         }
-        isAllowedAccessMembers(sg.site);
+       	isAllowedAccessMembers(sg.site, sg.group);
+        boolean viewHidden = viewHidden = securityService.unlock("roster.viewHidden", sg.site.getReference());
+        Set<String> hiddenUsers = new HashSet<String>();
         if (sg.group == null) {
             // site only
             members = sg.site.getMembers();
         } else {
             // group and site
             members = sg.group.getMembers();
+            //see if user has the ability to view hidden at the group level as well
+            viewHidden = viewHidden || securityService.unlock("roster.viewHidden", sg.group.getReference());
+        }
+        if(!siteService.allowViewRoster(sg.site.getId()) && !viewHidden){
+        	//add hidden users to set so we can filter them out
+        	Set<String> memberIds = new HashSet<String>();
+        	for(Member member : members){
+        		memberIds.add(member.getUserId());
+        	}
+        	hiddenUsers = privacyManager.findHidden(sg.site.getReference(), memberIds);
         }
         // filter out possible invalid/orphaned users (SAK-22396, SAK-17498, SAK-23863)
         for (Member member : members) {
             EntityUser eu = userEntityProvider.getUserById(member.getUserId());
-            if (eu != null) {
+            if (eu != null && !hiddenUsers.contains(member.getUserId())) {
                 EntityMember em = new EntityMember(member, sg.locationReference, eu);
                 l.add(em);
             }
@@ -956,7 +983,7 @@ RESTful, ActionsExecutable {
      * @throws SecurityException
      *             if not allowed
      */
-    protected boolean isAllowedAccessMembers(Site site) {
+    protected boolean isAllowedAccessMembers(Site site, Group g) {
         // check if the current user can access this
         String userReference = developerHelperService.getCurrentUserReference();
         if (userReference == null) {
@@ -966,8 +993,10 @@ RESTful, ActionsExecutable {
             String siteId = site.getId();
             if (siteService.allowViewRoster(siteId)) {
                 return true;
-            } else {
-                throw new SecurityException("Memberships in this site (" + site.getReference()
+            } else if(g != null && Boolean.TRUE.toString().equals(g.getProperties().getProperty(Group.GROUP_PROP_VIEW_MEMBERS))){
+            	return true;
+            }else{
+            	throw new SecurityException("Memberships in this site (" + site.getReference()
                         + ") are not accessible for the current user: " + userReference);
             }
         }
