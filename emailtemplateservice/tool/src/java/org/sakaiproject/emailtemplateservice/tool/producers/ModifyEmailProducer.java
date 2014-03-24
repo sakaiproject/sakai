@@ -201,7 +201,7 @@ public class ModifyEmailProducer implements ViewComponentProducer, ViewParamsRep
 		UIInput.make(form, "csrfToken","#{modifyEmailHandler.csrfToken}",handler.getCsrfToken());
 		form.parameters.add(new UIELBinding(emailTemplateOTP + "owner", userDirectoryService.getCurrentUser().getId()));
 		UICommand.make(form, "saveEmailTemplate", UIMessage.make("modifyemail.save.changes.link"), actionBinding);
-
+		UICommand.make(form, "cancel-button", UIMessage.make("modifyemail.cancel.changes.link"), actionBean + "cancelChanges");
 	}
 
 
