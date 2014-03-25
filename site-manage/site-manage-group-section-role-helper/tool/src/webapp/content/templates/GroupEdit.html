@@ -69,9 +69,9 @@
 		<label rsf:id="group_joinable_set_label">
 			Joinable Set
 		</label>&nbsp;&nbsp;
-		<select rsf:id="joinable-set" onchange="var display=''; if(this.selectedIndex == 0){display='none'}; document.getElementsByName('joinable-set-div')[0].style.display=display;">
+		<select rsf:id="joinable-set" onchange="if(this.selectedIndex == 0){$('.joinable-set-div').hide();}else{$('.joinable-set-div').show();}">
         </select>
-        <div id="joinable-set-div" name="joinable-set-div" rsf:id="joinable-set-div:" class="indnt2">
+        <div id="joinable-set-div" name="joinable-set-div" rsf:id="joinable-set-div:" class="indnt2 joinable-set-div">
 	        <p class="shorttext">
 	        	<span class="reqStar" style="border: none !important;">*</span><span rsf:id="group-max-members" id="group-max-members">Max members per group:</span>
 	        	&nbsp;&nbsp;
