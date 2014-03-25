@@ -67,7 +67,7 @@
 	
 	#if ($isOnWorkspaceTab.equals("true")) ##in workspace
 		## <h3>$tlang.getString("gen.announcements")</h3>
-		<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
+		<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
 		#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 ##		#if ($messageListVector.iterator().hasNext())
 		<div class="navPanel">
@@ -347,7 +347,7 @@
 
 			#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 			
-			<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
+			<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
 			
 			<form name="announcementListForm" action="#toolForm("AnnouncementAction")" method="post">
 				#if (!$messageListVector.iterator().hasNext())
@@ -410,7 +410,7 @@
 
 				#if ($displayOptions.isShowAllColumns())
 					## <h3>$tlang.getString("gen.announcements")</h3>
-					<h3>$tlang.getString("gen.announcements") <span class=" textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
+					<h3>$tlang.getString("gen.announcements") <span class=" textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
 					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 					<div class="navPanel">
 						<div class="viewNav">
@@ -735,7 +735,7 @@
 					#end
 				#else
 					## <h3>$tlang.getString("gen.announcements")</h3>
-					<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">($tlang.getFormattedMessage("gen.viewing.days.phrase", $daysList.toArray()))</span></h3>
+					<h3>$tlang.getString("gen.announcements") <span class="textPanelFooter">$tlang.getFormattedMessage("gen.viewing.days.phrase.brackets", $daysList.toArray())</span></h3>
 					#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
 
 						#if (!$messageListVector.iterator().hasNext())
