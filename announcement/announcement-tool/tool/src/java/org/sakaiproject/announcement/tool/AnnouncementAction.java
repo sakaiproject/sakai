@@ -5008,7 +5008,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		 */
 		if (isSynopticTool() && state.getDisplayOptions().getNumberOfAnnouncements() > 20) 
 		{
-			addAlert(sstate, rb.getFormattedMessage("java.alert.customsize", new Object[] { 20 }));
+			addAlert(sstate, rb.getFormattedMessage("java.alert.customsize.number", new Object[] { 20 }));
 			state.setStatus(OPTIONS_STATUS); //If the display option is more than 20, then go back to the options page
 		}
 		else
