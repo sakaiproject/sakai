@@ -39,6 +39,8 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.mock.domain.*;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.BaseResourceProperties;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.api.privacy.PrivacyManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +60,10 @@ public class MembershipEntityProviderTest {
     @Mock
     private UserEntityProvider userEntityProvider;
     private MembershipEntityProvider provider;
+    @Mock
+    private SecurityService securityService;
+    @Mock
+    private PrivacyManager privacyManager;
 
     @Before
     public void setUp() {
@@ -66,6 +72,8 @@ public class MembershipEntityProviderTest {
         provider.setSiteService(siteService);
         provider.setDeveloperHelperService(developerHelperService);
         provider.setUserEntityProvider(userEntityProvider);
+    	provider.setSecurityService(securityService);
+	provider.setPrivacyManager(privacyManager);
     }
 
     @Test
