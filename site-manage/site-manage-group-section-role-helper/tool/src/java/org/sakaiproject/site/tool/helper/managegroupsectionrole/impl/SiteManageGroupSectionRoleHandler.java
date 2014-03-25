@@ -1555,7 +1555,7 @@ public class SiteManageGroupSectionRoleHandler {
     	// reset the warning messages
     	resetTargettedMessageList();
     	
-    	String returnVal = processCreateJoinableSetHelper();
+    	String returnVal = processCreateJoinableSetHelper(true);
     	if(returnVal == null){
     		return null;
     	}else{
@@ -1564,7 +1564,7 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     }
     
-    private String processCreateJoinableSetHelper(){
+    private String processCreateJoinableSetHelper(boolean newSet){
     	if(joinableSetName == null || "".equals(joinableSetName.trim())){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
 			return null;
@@ -1612,6 +1612,16 @@ public class SiteManageGroupSectionRoleHandler {
 			for (Iterator iGroups = siteGroups.iterator(); iGroups.hasNext();) {
 				Group iGroup = (Group) iGroups.next();
 				groupTitles.add(iGroup.getTitle());
+				if(newSet){
+					//check that this joinable group name doesn't already exist, if so,
+					//warn the user:
+					String joinableSetProp = iGroup.getProperties().getProperty(iGroup.GROUP_PROP_JOINABLE_SET);
+					if(joinableSetProp != null && !"".equals(joinableSetProp) && joinableSetProp.equalsIgnoreCase(joinableSetName)){
+						//already have a joinable set named this:
+						messages.addMessage(new TargettedMessage("joinableset.duplicate.alert","num-max-members"));
+		    			return null;
+					}
+				}
 			}
 		}
     	for(int i = 1; groupsCreated < joinableSetNumOfGroupsInt && i < 1000; i++){
@@ -1683,6 +1693,24 @@ public class SiteManageGroupSectionRoleHandler {
 			return null;
 		}
     	if(!joinableSetName.equals(joinableSetNameOrig) || unjoinable != unjoinableOrig){
+    		if(!joinableSetName.equals(joinableSetNameOrig)){
+    			//check that the new joinable set name doesn't already exist
+    			Collection siteGroups = site.getGroups();
+    			if (siteGroups != null && siteGroups.size() > 0)
+    			{
+    				for (Iterator iGroups = siteGroups.iterator(); iGroups.hasNext();) {
+    					Group iGroup = (Group) iGroups.next();
+    					//check that this joinable group name doesn't already exist, if so,
+    					//warn the user:
+    					String joinableSetProp = iGroup.getProperties().getProperty(iGroup.GROUP_PROP_JOINABLE_SET);
+    					if(joinableSetProp != null && !"".equals(joinableSetProp) && joinableSetProp.equals(joinableSetName)){
+    						//already have a joinable set named this:
+    						messages.addMessage(new TargettedMessage("joinableset.duplicate.alert","num-max-members"));
+    						return null;
+    					}
+    				}
+    			}
+    		}
     		boolean updated = false;
     		for(Group group : site.getGroups()){
         		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
@@ -1709,17 +1737,11 @@ public class SiteManageGroupSectionRoleHandler {
     	joinableSetName = joinableSetNameOrig;
     	unjoinable = unjoinableOrig;
     	//generate the new groups since it will check all the required fields
-    	String returnVal = processCreateJoinableSetHelper();
+    	String returnVal = processCreateJoinableSetHelper(false);
     	if(returnVal != null && "success".equals(returnVal)){
-    		returnVal = processChangeJoinableSetNameHelper();
-    		if(returnVal == null){
-    			return null;
-    		}else{
-    			resetParams();
-    			return returnVal;
-    		}
+    		resetParams();
     	}
-    	return null;
+    	return returnVal;
     }
 }
 
