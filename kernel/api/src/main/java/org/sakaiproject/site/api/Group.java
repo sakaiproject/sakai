@@ -43,6 +43,8 @@ public interface Group extends Edit, Serializable, AuthzGroup
 	static final String GROUP_PROP_JOINABLE_SET_PREVIEW = "group_prop_joinable_set_preview";
 	/** The property to indicate whether students can view the list of users in the group after joining **/
 	static final String GROUP_PROP_VIEW_MEMBERS = "group_prop_view_members";
+	/** The property to indicate whether the joinable group is unjoinable or not*/
+	static final String GROUP_PROP_JOINABLE_UNJOINABLE = "group_prop_joinable_unjoinable";
     
 	/** @return a human readable short title of this group. */
 	String getTitle();
