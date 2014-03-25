@@ -78,6 +78,27 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
         }
         Map<String,String> cssMap = new HashMap<String,String>();
 		cssMap.put("background","#FFFFCC");
+		
+		//unjoin (edit page)
+		//allow unjoin
+		 UIBranchContainer allowUnjoinEdit = UIBranchContainer.make(groupForm,"allowunjoinEdit-row:");
+		 if(edit){
+			 //first set the option:
+			 for(Group group : handler.site.getGroups()){
+				 String joinableSetName = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+				 if(joinableSetName != null && joinableSetName.equals(handler.joinableSetName)){
+					 //we only need to find the first one since all are the same
+					 handler.unjoinable = Boolean.valueOf(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_UNJOINABLE));
+					 handler.unjoinableOrig = handler.unjoinable;
+					 break;
+				 }
+			 }
+			 
+			 UIBoundBoolean allowUnjoinCheckboxEdit = UIBoundBoolean.make(allowUnjoinEdit, "allowUnjoinEdit", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoinEdit, "allowUnjoinEdit-label", "group.allow.unjoinable"), allowUnjoinCheckboxEdit);
+		 }
+		
+		
 		if(edit){
 			//Additional Row
 			UIBranchContainer additionalRow = UIBranchContainer.make(groupForm,"additional-title-row:");
@@ -111,6 +132,17 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 		 }
 		UIBoundBoolean viewMembersCheckbox = UIBoundBoolean.make(allowViewRow, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
 		UILabelTargetDecorator.targetLabel(UIMessage.make(allowViewRow, "allowViewMembership-label", "group.allow.view.membership2"), viewMembersCheckbox);
+		
+		//allow unjoin
+		 UIBranchContainer allowUnjoin = UIBranchContainer.make(groupForm,"allowunjoin-row:");
+		 if(edit){
+			 //we don't want to show this field if it's in edit mode
+			 allowUnjoin.decorate(new UICSSDecorator(cssMap));
+		 }else{
+			 UIBoundBoolean allowUnjoinCheckbox = UIBoundBoolean.make(allowUnjoin, "allowUnjoin", "#{SiteManageGroupSectionRoleHandler.unjoinable}");
+			 UILabelTargetDecorator.targetLabel(UIMessage.make(allowUnjoin, "allowUnjoin-label", "group.allow.unjoinable"), allowUnjoinCheckbox);
+		 }
+		
 		if(edit){
 			//Generate Button
 			UIBranchContainer generateRow = UIBranchContainer.make(groupForm,"generate-row:");

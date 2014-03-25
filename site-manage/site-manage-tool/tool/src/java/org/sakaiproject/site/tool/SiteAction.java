@@ -2149,6 +2149,7 @@ public class SiteAction extends PagedResourceActionII {
 					Collection<Group> filteredGroups = new ArrayList<Group>();
 					Collection<Group> filteredSections = new ArrayList<Group>();
 					Collection<String> viewMembershipGroups = new ArrayList<String>();
+					Collection<String> unjoinableGroups = new ArrayList<String>();
 					for (Group g : groups)
 					{
 						Object gProp = g.getProperties().getProperty(g.GROUP_PROP_WSETUP_CREATED);
@@ -2163,11 +2164,19 @@ public class SiteAction extends PagedResourceActionII {
 						Object vProp = g.getProperties().getProperty(g.GROUP_PROP_VIEW_MEMBERS);
 						if (vProp != null && vProp.equals(Boolean.TRUE.toString())){
 							viewMembershipGroups.add(g.getId());
-						}							
+						}
+						Object joinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET);
+						Object unjoinableProp = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE);
+						if (joinableProp != null && !"".equals(joinableProp.toString())
+								&& unjoinableProp != null && unjoinableProp.equals(Boolean.TRUE.toString())
+								&& g.getMember(UserDirectoryService.getCurrentUser().getId()) != null){
+							unjoinableGroups.add(g.getId());
+						}
 					}
 					context.put("groups", filteredGroups);
 					context.put("sections", filteredSections);
 					context.put("viewMembershipGroups", viewMembershipGroups);
+					context.put("unjoinableGroups", unjoinableGroups);
 				}
 				
 				//joinable groups:
@@ -7824,6 +7833,63 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		} catch (IdUnusedException e) {
 			M_log.debug("Error adding user to group: " + groupRef + ", " + e.getMessage(), e);
+		}
+	}
+	
+	/**
+	 * when user clicks "join" for a joinable set
+	 * @param data
+	 */
+	public void doUnjoinableSet(RunData data){
+		ParameterParser params = data.getParameters();
+		String groupRef = params.getString("group-ref");
+		
+		Site currentSite;
+		try {
+			currentSite = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			if(currentSite != null){
+				Group siteGroup = currentSite.getGroup(groupRef);
+				//make sure its a joinable set:
+				String joinableSet = siteGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
+				if(joinableSet != null && !"".equals(joinableSet.trim())){
+					try{
+						AuthzGroup group = authzGroupService.getAuthzGroup(groupRef);
+						//check that the user is already a member
+						String userId = UserDirectoryService.getCurrentUser().getId();
+						boolean found =  false;
+						for(Member member : group.getMembers()){
+							if(member.getUserId().equals(userId)){
+								found = true;
+								break;
+							}
+						}
+						if(found){
+							// remove current user as the maintainer
+							Member member = currentSite.getMember(userId);
+							if(member != null){
+								siteGroup.removeMember(userId);
+								SecurityAdvisor yesMan = new SecurityAdvisor() {
+									public SecurityAdvice isAllowed(String userId, String function, String reference) {
+										return SecurityAdvice.ALLOWED;
+									}
+								};
+								try{
+									SecurityService.pushAdvisor(yesMan);
+									commitSite(currentSite);
+								}catch (Exception e) {
+									M_log.debug(e);
+								}finally{
+									SecurityService.popAdvisor();
+								}
+							}
+						}
+					}catch (Exception e) {
+						M_log.debug("Error removing user to group: " + groupRef + ", " + e.getMessage(), e);
+					}
+				}
+			}
+		} catch (IdUnusedException e) {
+			M_log.debug("Error removing user to group: " + groupRef + ", " + e.getMessage(), e);
 		}
 	}
 	

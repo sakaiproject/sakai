@@ -130,11 +130,22 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     				 handler.joinableSetNameOrig = joinableSet;
     				 handler.joinableSetNumOfMembers = g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET_MAX);
     				 handler.allowPreviewMembership = Boolean.valueOf(g.getProperties().getProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW));
+    				 //set unjoinable.  Since you can't change this value at the group edit page, all groups will have the same
+    				 //value in the set.  Find another group in the same set (if exist) and set it to the same value.
+    				 for(Group group : handler.site.getGroups()){
+    		        		String joinableSetName = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+    		        		if(joinableSetName != null && joinableSetName.equals(joinableSet)){
+    		        			//we only need to find the first one since all are the same
+    		        			handler.unjoinable = Boolean.valueOf(group.getProperties().getProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE));
+    		        			break;
+    		        		}
+    				 }
     			 }else{
     				 handler.joinableSetName = "";
     				 handler.joinableSetNameOrig = "";
     				 handler.joinableSetNumOfMembers = "";
     				 handler.allowPreviewMembership = false;
+    				 handler.unjoinable = false;
     			 }
     		 }
     		 catch (Exception e)
