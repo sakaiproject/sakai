@@ -968,11 +968,11 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			out.println("<h1>" + rb.getString("announcement") + "</h1>");
 
 			// header
-			out.println("<table><tr><td><b>" + rb.getString("from") + ":</b></td><td>"
+			out.println("<table><tr><td><b>" + rb.getString("from_colon") + "</b></td><td>"
 					+ Validator.escapeHtml(hdr.getFrom().getDisplayName()) + "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("date") + ":</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
+			out.println("<tr><td><b>" + rb.getString("date_colon") + "</b></td><td>" + Validator.escapeHtml(hdr.getDate().toStringLocalFull())
 					+ "</td></tr>");
-			out.println("<tr><td><b>" + rb.getString("subject") + ":</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
+			out.println("<tr><td><b>" + rb.getString("subject_colon") + "</b></td><td>" + Validator.escapeHtml(hdr.getSubject()) + "</td></tr></table>");
 
 			// body
 			out.println("<p>" + Validator.escapeHtmlFormattedText(msg.getBody()) + "</p>");
@@ -981,7 +981,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			List attachments = hdr.getAttachments();
 			if (attachments.size() > 0)
 			{
-				out.println("<p><b>" + rb.getString("attachments") + ":</b></p><p>");
+				out.println("<p><b>" + rb.getString("attachments_colon") + "</b></p><p>");
 				for (Iterator iAttachments = attachments.iterator(); iAttachments.hasNext();)
 				{
 					Reference attachment = (Reference) iAttachments.next();
