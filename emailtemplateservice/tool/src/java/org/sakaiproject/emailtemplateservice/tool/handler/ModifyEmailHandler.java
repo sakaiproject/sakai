@@ -2,8 +2,6 @@ package org.sakaiproject.emailtemplateservice.tool.handler;
 
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
@@ -17,8 +15,6 @@ public class ModifyEmailHandler{
 	
 	private static Log log = LogFactory.getLog(ModifyEmailHandler.class);
 	
-	// Tool session attribute name used to schedule a whole page refresh.
-	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
 	
 	private SessionManager sessionManager = null;
 	
@@ -59,12 +55,6 @@ public class ModifyEmailHandler{
 		return "failure";
 	}
 	
-    public String processCancel() {
-        ToolSession session = sessionManager.getCurrentToolSession();
-        session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
-        this.messages = new TargettedMessageList();
-        return "done";
-    }
 	
 	public boolean validCsrfToken() {
 		   Object sessionAttr = sessionManager.getCurrentSession().getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
