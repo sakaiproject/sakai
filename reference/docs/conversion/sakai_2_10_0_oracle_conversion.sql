@@ -1083,3 +1083,8 @@ INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
   );
 
 -- END SAK-256862 Default permissions for signup, and backfill.
+
+-- BEGIN SAK-25879 fix line breaks in email templates
+UPDATE EMAIL_TEMPLATE_ITEM SET SUBJECT = REPLACE(SUBJECT, "\r", "") where SUBJECT LIKE "%\r%";
+UPDATE EMAIL_TEMPLATE_ITEM SET SUBJECT = REPLACE(SUBJECT, "\n", "") where SUBJECT LIKE "%\n%";
+-- END SAK-25879
