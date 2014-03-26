@@ -26,6 +26,10 @@
 		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete")</span></li>
 		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise")</a></span></li>
 		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete")</a></span></li>
+		#if($showRestore)
+			<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.restore")</span></li>
+			<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.restore')">$tlang.getString("java.restore")</a></span></li>
+		#end
 	</ul>
 
 	<div class="navIntraToolLink viewNav">
@@ -231,7 +235,12 @@
 					#foreach ($site in $sites)
 					#set ($siteCount=$siteCount + 1)
 						#set ($properties = $site.getProperties())
-						<tr>
+
+						#if($site.SoftlyDeleted)
+							<tr class="siteListSoftlyDeleted">
+						#else
+							<tr>
+						#end							
 							<td headers="checkbox" class="screenOnly attach">
 								#if ($service.allowUpdateSite($site.Id))
 									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount"  class="siteSelectCheckbox"  />
@@ -268,7 +277,9 @@
 								#end
 							</td>
 							<td headers="published">
-								#if($site.isPublished())
+								#if($site.isSoftlyDeleted())
+									$tlang.getString("list.softlydeleted")
+								#elseif($site.isPublished())
 									$tlang.getString("list.publi")
 								#else
 									$tlang.getString("list.unpub")
@@ -279,7 +290,6 @@
 								#set($createdTime = $!site.getCreatedTime())
 								$!createdTime.toStringLocalFull()
 							</td>
-							
 						</tr>
 					#end
 				#end

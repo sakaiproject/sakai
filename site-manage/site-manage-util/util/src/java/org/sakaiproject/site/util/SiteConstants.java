@@ -46,6 +46,9 @@ public class SiteConstants {
 	public final static String SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES = "site.override.hide.pageorder.site.types";
 	
 	public final static String SITE_TYPE_MYWORKSPACE = "site_type_myworkspace";
+
+	// All deleted sites.
+	public final static String SITE_TYPE_DELETED = "site_type_deleted";
 	
 	public final static String SITE_TYPE_ALL = "site_type_all";
 }

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -77,6 +78,7 @@ import org.sakaiproject.cheftool.PortletConfig;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.api.Menu;
+import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -148,16 +150,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
-import org.sakaiproject.util.ArrayUtil;
-import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.FileItem;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ParameterParser;
-import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.SortedIterator;
-import org.sakaiproject.util.Validator;
-import org.sakaiproject.util.Web;
+import org.sakaiproject.util.*;
 
 // for basiclti integration
 import org.sakaiproject.lti.api.LTIService;
@@ -1425,6 +1418,30 @@ public class SiteAction extends PagedResourceActionII {
 
 			// make sure auto-updates are enabled
 			Hashtable views = new Hashtable();
+
+			// Allow a user to see their deleted sites.
+			if (ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
+				views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
+				if (SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED))) {
+					context.put("canSeeSoftlyDeletedSites", true);
+				}
+			}
+			
+			// top menu bar
+			Menu bar = new MenuImpl(portlet, data, (String) state
+					.getAttribute(STATE_ACTION));
+			context.put("menu", bar);
+			if (SiteService.allowAddSite(null)) {
+				bar.add(new MenuEntry(rb.getString("java.new"), "doNew_site"));
+			}
+			bar.add(new MenuEntry(rb.getString("java.revise"), null, true,
+					MenuItem.CHECKED_NA, "doGet_site", "sitesForm"));
+			bar.add(new MenuEntry(rb.getString("java.delete"), null, true,
+					MenuItem.CHECKED_NA, "doMenu_site_delete", "sitesForm"));
+
+			// If we're in the restore view
+			context.put("showRestore", SiteConstants.SITE_TYPE_DELETED.equals((String) state.getAttribute(STATE_VIEW_SELECTED)));
+
 			if (SecurityService.isSuperUser()) {
 				context.put("superUser", Boolean.TRUE);
 			} else {
@@ -1444,6 +1461,10 @@ public class SiteAction extends PagedResourceActionII {
 					views.put(mType, rb.getFormattedMessage("java.sites", new Object[]{mType}));
 				}
 			}
+				// Allow SuperUser to see all deleted sites.
+				if (ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
+					views.put(SiteConstants.SITE_TYPE_DELETED, rb.getString("java.sites.deleted"));
+				}
 
 			// default view
 			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
@@ -1511,10 +1532,10 @@ public class SiteAction extends PagedResourceActionII {
 			String portalUrl = ServerConfigurationService.getPortalUrl();
 			context.put("portalUrl", portalUrl);
 
-			List sites = prepPage(state);
-			
-			state.setAttribute(STATE_SITES, sites);
-			context.put("sites", sites);
+			List<Site> allSites = prepPage(state);
+						
+			state.setAttribute(STATE_SITES, allSites);
+			context.put("sites", allSites);
 
 			context.put("totalPageNumber", Integer.valueOf(totalPageNumber(state)));
 			context.put("searchString", state.getAttribute(STATE_SEARCH));
@@ -1534,6 +1555,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("sortby_createdby", SortType.CREATED_BY_ASC.toString());
 			context.put("sortby_publish", SortType.PUBLISHED_ASC.toString());
 			context.put("sortby_createdon", SortType.CREATED_ON_ASC.toString());
+			context.put("sortby_softlydeleted", SortType.SOFTLY_DELETED_ASC.toString());
 
 			// default to be no paging
 			context.put("paged", Boolean.FALSE);
@@ -1656,6 +1678,8 @@ public class SiteAction extends PagedResourceActionII {
 			List remove = new Vector();
 			String user = SessionManager.getCurrentSessionUserId();
 			String workspace = SiteService.getUserSiteId(user);
+			// Are we attempting to softly delete a site.
+			boolean softlyDeleting = ServerConfigurationService.getBoolean("site.soft.deletion", false);
 			if (removals != null && removals.length != 0) {
 				for (int i = 0; i < removals.length; i++) {
 					String id = (String) removals[i];
@@ -1664,6 +1688,11 @@ public class SiteAction extends PagedResourceActionII {
 							try {
 								// check whether site exists
 								Site removeSite = SiteService.getSite(id);
+								
+								//check site isn't already softly deleted
+								if(softlyDeleting && removeSite.isSoftlyDeleted()) {
+									softlyDeleting = false;
+								}
 								remove.add(removeSite);
 							} catch (IdUnusedException e) {
 								M_log.warn(this + "buildContextForTemplate chef_site-siteDeleteConfirm.vm - IdUnusedException " + id + e.getMessage());
@@ -1683,10 +1712,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("removals", remove);
 			
 			//check if soft deletes are activated
-			if(ServerConfigurationService.getBoolean("site.soft.deletion", false)) {
-				context.put("softDelete", true);
-			}
-
+			context.put("softDelete", softlyDeleting);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[8];
 		case 10:
@@ -3141,7 +3167,7 @@ public class SiteAction extends PagedResourceActionII {
 			 * buildContextForTemplate chef_siteInfo-editClass.vm
 			 * 
 			 */
-			Menu bar = new MenuImpl(portlet, data, (String) state
+			bar = new MenuImpl(portlet, data, (String) state
 					.getAttribute(STATE_ACTION));
 			if (SiteService.allowAddSite(null)) {
 				bar.add(new MenuEntry(rb.getString("java.addclasses"),
@@ -4377,6 +4403,11 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
+					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+						size = SiteService
+								.countSites(
+										org.sakaiproject.site.api.SiteService.SelectionType.ANY_DELETED,
+										null, search, null);
 					} else {
 						// search for specific type of sites
 						size = SiteService
@@ -4413,7 +4444,12 @@ public class SiteAction extends PagedResourceActionII {
 						size += SiteService
 								.countSites(
 										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										null, search, termProp);
+										null, search, null);
+					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+						size += SiteService
+								.countSites(
+										org.sakaiproject.site.api.SiteService.SelectionType.DELETED,
+										null,search, null);
 					} else if (view.equals(SiteConstants.SITE_TYPE_MYWORKSPACE)) {
 						// get the current user MyWorkspace site
 						try {
@@ -4469,6 +4505,9 @@ public class SiteAction extends PagedResourceActionII {
 			} else if (sortBy.equals(SortType.PUBLISHED_ASC.toString())) {
 				sortType = sortAsc ? SortType.PUBLISHED_ASC
 						: SortType.PUBLISHED_DESC;
+			} else if (sortBy.equals(SortType.SOFTLY_DELETED_ASC.toString())) {
+				sortType = sortAsc ? SortType.SOFTLY_DELETED_ASC
+						: SortType.SOFTLY_DELETED_DESC;
 			}
 			
 			String term = (String) state.getAttribute(STATE_TERM_VIEW_SELECTED);
@@ -4503,6 +4542,13 @@ public class SiteAction extends PagedResourceActionII {
 						}
 
 						return rv;
+					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+						return SiteService
+						.getSites(
+								org.sakaiproject.site.api.SiteService.SelectionType.ANY_DELETED,
+								null,
+								search, null, sortType,
+								new PagingPosition(first, last));
 					} else {
 						// search for a specific site
 						return SiteService
@@ -4550,6 +4596,13 @@ public class SiteAction extends PagedResourceActionII {
 							rv.add(SiteService.getSite(SiteService.getUserSiteId(userId)));
 						} catch (IdUnusedException e) {
 						}
+					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
+						return SiteService
+						.getSites(
+								org.sakaiproject.site.api.SiteService.SelectionType.DELETED,
+								null,
+								search, null, sortType,
+								new PagingPosition(first, last));
 					} else {
 						rv.addAll(SiteService
 										.getSites(
@@ -4701,6 +4754,46 @@ public class SiteAction extends PagedResourceActionII {
 		state.setAttribute(STATE_TEMPLATE_INDEX, "8");
 
 	} // doMenu_site_delete
+	
+	/**
+	 * Restore a softly deleted site
+	 * 
+	 */
+	public void doMenu_site_restore(RunData data) {
+		SessionState state = ((JetspeedRunData) data) .getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		if (params.getStrings("selectedMembers") == null) {
+			addAlert(state, rb.getString("java.nosites"));
+			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
+			return;
+		}
+
+		String[] toRestore = (String[]) params.getStrings("selectedMembers");
+
+		for (String siteId: toRestore) {
+			try {
+				Site s = SiteService.getSite(siteId);
+
+				//check if softly deleted
+				if(!s.isSoftlyDeleted()){
+					M_log.warn("Tried to restore site that has not been marked for deletion: " + siteId);
+					continue;
+				}
+
+				//reverse it
+				s.setSoftlyDeleted(false);
+				SiteService.save(s);
+
+			} catch (IdUnusedException e) {
+				M_log.warn("Error restoring site:" + siteId + ":" + e.getClass() + ":" + e.getMessage());
+				addAlert(state, rb.getString("softly.deleted.invalidsite"));
+			} catch (PermissionException e) {
+				M_log.warn("Error restoring site:" + siteId + ":" + e.getClass() + ":" + e.getMessage());
+				addAlert(state, rb.getString("softly.deleted.restore.nopermission"));
+			}
+		}
+	} // doSite_restore
 
 	public void doSite_delete_confirmed(RunData data) {
 		SessionState state = ((JetspeedRunData) data)
@@ -4726,6 +4819,7 @@ public class SiteAction extends PagedResourceActionII {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
 						SiteService.removeSite(site);
+						M_log.debug("Removed site: " + site.getId());
 					} catch (IdUnusedException e) {
 						M_log.warn(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
 						addAlert(state, rb.getFormattedMessage("java.couldnt", new Object[]{site_title,id}));
@@ -6209,7 +6303,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * get one alias for site, if it exists
-	 * @param channelReference
+	 * @param reference
 	 * @return
 	 */
 	private String getSiteAlias(String reference)
@@ -11859,7 +11953,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							if (attributeInput != null)
 							{
 								// save the attribute input if valid, otherwise generate alert
-								if ( FormattedText.validateURL(attributeInput) ) 
+								if ( FormattedText.validateURL(attributeInput) )
 									attributes.put(attribute, attributeInput);
 								else
 									addAlert(state, rb.getString("java.invurl"));
@@ -14422,7 +14516,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		private int max;
 		private String members;
 		private boolean preview;
-		
+
 		public JoinableGroup(String reference, String title, String joinableSet, int size, int max, String members, boolean preview){
 			this.reference = reference;
 			this.title = title;
@@ -14432,7 +14526,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			this.members = members;
 			this.preview = preview;
 		}
-		
+
 		public String getTitle() {
 			return title;
 		}
