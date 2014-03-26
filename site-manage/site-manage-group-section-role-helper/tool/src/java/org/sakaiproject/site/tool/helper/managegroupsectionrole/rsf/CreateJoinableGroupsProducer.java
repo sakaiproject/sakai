@@ -1,6 +1,9 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -65,16 +68,21 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
         
         if(edit){
         	UIOutput.make(groupForm, "current-groups-title", messageLocator.getMessage("group.joinable.currentgroups"));
-        	int i = 0;
+        	
+        	List<String> setGroupNames = new ArrayList<String>();
         	for(Group group : handler.site.getGroups()){
         		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
         		if(joinableSet != null && joinableSet.equals(joinableSetId)){
-        			UIBranchContainer currentGroupsRow = UIBranchContainer.make(tofill,"current-groups-row:", Integer.valueOf(i).toString());
-        			UIOutput.make(currentGroupsRow, "current-group", group.getTitle());
-        			i++;
+        			setGroupNames.add(group.getTitle());
         		}
         	}
-        	
+        	Collections.sort(setGroupNames);
+        	int i = 0;
+        	for(String name : setGroupNames){
+        		UIBranchContainer currentGroupsRow = UIBranchContainer.make(tofill,"current-groups-row:", Integer.valueOf(i).toString());
+    			UIOutput.make(currentGroupsRow, "current-group", name);
+    			i++;
+        	}
         }
         Map<String,String> cssMap = new HashMap<String,String>();
 		cssMap.put("background","#FFFFCC");
