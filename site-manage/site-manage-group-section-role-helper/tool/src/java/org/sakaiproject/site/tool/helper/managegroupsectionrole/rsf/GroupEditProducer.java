@@ -179,17 +179,21 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 
 		 //Joinable Set:
 		 UIMessage joinableSetLabel = UIMessage.make(groupForm, "group_joinable_set_label", "group.joinable.set");
-		 Set<String> joinableSets = new HashSet<String>();
-		 joinableSets.add("");
+		 Set<String> joinableSetValues = new HashSet<String>();
+		 Set<String> joinableSetNames = new HashSet<String>();
+		 joinableSetValues.add("");
+		 joinableSetNames.add(messageLocator.getMessage("none"));
 		 for(Group group : handler.site.getGroups()){
 			 String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
 			 if(joinableSet != null){
-				 joinableSets.add(joinableSet);
+				 joinableSetValues.add(joinableSet);
+				 joinableSetNames.add(joinableSet);
 			 }
 		 }
-		 String[] joinableSetsArr = joinableSets.toArray(new String[joinableSets.size()]);
-		 UISelect joinableSetSelect = UISelect.make(groupForm, "joinable-set", joinableSetsArr,
-				 joinableSetsArr, "SiteManageGroupSectionRoleHandler.joinableSetName");
+		 String[] joinableSetNamesArr = joinableSetNames.toArray(new String[joinableSetNames.size()]);
+		 String[] joinableSetValuesArr = joinableSetValues.toArray(new String[joinableSetValues.size()]);
+		 UISelect joinableSetSelect = UISelect.make(groupForm, "joinable-set", joinableSetValuesArr,
+				 joinableSetNamesArr, "SiteManageGroupSectionRoleHandler.joinableSetName");
 		 UILabelTargetDecorator.targetLabel(joinableSetLabel, joinableSetSelect);
 		 //joinable div:
 		 UIBranchContainer joinableDiv = UIBranchContainer.make(groupForm, "joinable-set-div:");
