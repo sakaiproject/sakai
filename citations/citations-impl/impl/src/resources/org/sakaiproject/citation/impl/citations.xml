@@ -31,7 +31,7 @@
 
 		<!-- enable/disable helper features -->
 		<property name="googleSearchEnabled">
-			<value>true</value>
+			<value>false</value>
 		</property>
 		<property name="librarySearchEnabled">
 			<value>true</value>
