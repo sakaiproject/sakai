@@ -53,6 +53,7 @@ import java.util.TreeSet;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2579,12 +2580,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}
 
 	/**
+	 * 
 	 * Get the items in this folder that should be seen.
 	 * @param collectionId - String version of
+	 * @param highlightedItems - Set of highlighted items from UI
 	 * @param parent - The folder containing this item
 	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
 	 * @param state - The session state
-	 * @return a List of ResourcesBrowseItem objects
 	 */
 	protected static List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
 	{
@@ -5039,7 +5041,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		List<String> folderIds = new ArrayList<String>();
 
 		// this map holds folder id as the hash key, and folder attributes (e.g. depth, folder name, et al.) as the hashed value
-		HashMap<String, ResourcesBrowseItem> folderMap = new HashMap<String, ResourcesBrowseItem>();
+		Map<String, ResourcesBrowseItem> folderMap = new ConcurrentHashMap<String, ResourcesBrowseItem>();
 		
 		// initialize folderIds list and folderMap for site root folder
 		folderIds.add(rootFolderId);
@@ -5055,12 +5057,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 				ResourcesBrowseItem newItem = getResourcesBrowseItem(resource);
 				
-				/*ContentCollection collection = resource.getContainingCollection();
-				if (collection == null)
-				{
-					// the containing collection has been deleted, try to restore that first
-					collection
-				}*/
 				String collectionId = isolateContainingId(resource.getId());
 				if (collectionId != null)
 				{
