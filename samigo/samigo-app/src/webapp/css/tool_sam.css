@@ -878,3 +878,21 @@ background-color:#DBDBDB;
 	vertical-align:top;
 }
 
+.alignBottom {
+    vertical-align: bottom;
+}
+
+.alignTop {
+    vertical-align: top;
+}
+
+.submissionAllowed {
+    margin-top: 3px;
+}
+
+.groupTable {
+	margin-top: 4px;
+    margin-left: 150px;
+}
+
+

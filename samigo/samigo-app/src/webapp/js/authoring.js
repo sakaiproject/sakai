@@ -444,18 +444,8 @@ function uncheckOther(field){
 
 function showHideReleaseGroups(){
   var showGroups;
-  var inputList= document.getElementsByTagName("INPUT");
-  for (i = 0; i <inputList.length; i++) 
-  {
-    if(inputList[i].type=='radio')
-    {
-      if(inputList[i].value.indexOf("Selected Groups")>=0) {
-        showGroups=inputList[i].checked;
-        break;
-      }  
-    }
-  }
-  if(showGroups) {
+  var el = document.getElementById("assessmentSettingsAction:releaseTo");
+  if (el != null && el.selectedIndex == 2) {
 	document.getElementById("groupDiv").style.display = "block";
 	document.getElementById("groupDiv").style.width = "80%";
   }
