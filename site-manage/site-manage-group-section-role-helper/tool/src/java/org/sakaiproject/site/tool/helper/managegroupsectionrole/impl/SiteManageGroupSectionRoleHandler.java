@@ -1625,7 +1625,7 @@ public class SiteManageGroupSectionRoleHandler {
 			}
 		}
     	for(int i = 1; groupsCreated < joinableSetNumOfGroupsInt && i < 1000; i++){
-    		String groupTitle = joinableSetName + " " + i;
+    		String groupTitle = joinableSetName + "-" + i;
     		if(!groupTitles.contains(groupTitle)){
     			Group g = site.addGroup();
     			g.getProperties().addProperty(g.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
@@ -1634,7 +1634,7 @@ public class SiteManageGroupSectionRoleHandler {
     			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
     			g.getProperties().addProperty(g.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
     			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
-    			g.setTitle(joinableSetName + " " + i);
+    			g.setTitle(joinableSetName + "-" + i);
     			try{
     				siteService.save(site);
     				groupsCreated++;
