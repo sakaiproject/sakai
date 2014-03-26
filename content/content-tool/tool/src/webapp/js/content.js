@@ -13,7 +13,6 @@ var sortJSON = function(data, key){
     });
 };
 
-
 var iconDecider = function(itemType){
     var path = '/library/image/sakai/';
     switch (itemType) {
@@ -337,5 +336,145 @@ $(document).ready(function(){
             return $(this).data('closable');
         }
     });
-    
+    setupColumnToggle();
 });
+
+var setupColumnToggle = function(){
+
+    var massageColWidths = function(){
+        if ($('#columnTog :checked').length === 0) {
+            $('.actions2').css({
+                'width': '30%'
+            });
+        }
+        else {
+            $('.actions2').css('width', '18px');
+        }
+    };
+    
+    var setupColUI = function(data){
+        // hides columns and sets the checkbox values
+        $.each(data, function(key, value){
+            if (value === 'false' || value === false) {
+                $('.' + key).hide();
+                $('#' + key + 'Tog').find('input').attr('checked', false);
+            }
+            else {
+                $('#' + key + 'Tog').find('input').attr('checked', true);
+            }
+            massageColWidths();
+        });
+    };
+    
+    var jsonify = function(str){
+        var jsonObj = {};
+        var keyVals = str.split('&');
+        var keyValsLength = keyVals.length;
+        for (var i = 0; i < keyValsLength; i++) {
+            var thiskeyVal = keyVals[i].split('=');
+            if (thiskeyVal[1] === 'true') {
+                thiskeyVal[1] = true;
+            }
+            else {
+                thiskeyVal[1] = false;
+            }
+            jsonObj[thiskeyVal[0]] = thiskeyVal[1];
+        }
+        //return jsonObj
+        return JSON.stringify(jsonObj);
+    };
+
+    var writeDOMVal = function(name, val){
+        if (window.localStorage) {
+            sessionStorage.setItem([name], val);
+        }
+    };
+    
+    var readDOMVal = function(name){
+        if (window.localStorage) {
+            return sessionStorage.getItem([name]);
+        }
+    };
+    
+    var readDBVal = function(name){
+        // name = resourcesColumn
+        $.ajax({
+            type: 'GET',
+            url: '/direct/userPrefs/key/' + $('#userId').text() + '/' + name + '.json',
+            cache: false,
+            dataType: 'json'
+        }).done(function(data){
+            // this callback will use the data sent to write to the DOM;
+            $(data).each(function(key,val){
+                $.each(val,function(k,v){
+                    if (k === "data")
+                    {
+                        writeDOMVal('resourcesColumn', JSON.stringify(v));
+                        setupColUI(v);
+                    }
+                });
+            });
+        }).fail(function(){
+            // checkboxes will be all checked and columns will all show
+        });
+    };
+    
+    var writeDBVal = function(name, val){
+        // use userPrefs call to preserve choices into db
+        // name will be the setting type (i.e.'resourcesColumn')
+        // val will be a prepared query string like 'access=true&creator=true&modified=true&size=true'
+        jQuery.ajax({
+            type: 'PUT',
+            url: "/direct/userPrefs/updateKey/" + $('#userId').text() + "/" + name + "?" + val
+        }).done(function(data){
+        }).fail(function(){
+            // TODO: maybe message to user that
+        });
+    };
+    
+    var val= "";
+    //setting up on page load
+    if (readDOMVal('resourcesColumn') === null) {
+        // DOM storage null - ask the db and write to the DOM in the callback')
+        // if the DB is null write to it with the known set with all key set to false
+        // check all the checkboxes
+        readDBVal('resourcesColumn');
+    }
+    else {
+        // use DOM values
+        val = $.parseJSON(readDOMVal('resourcesColumn'));
+        setupColUI(val);
+    }
+    $('#columnTog label').click(function(e){
+        e.stopPropagation();
+    });
+    $('#columnTog input').click(function(e){
+        var target = $(this).closest('span').attr('id').replace('Tog', '');
+        e.stopPropagation();
+        if ($(this).prop('checked') === true) {
+            $('.' + target).show();
+        }
+        else {
+            $('.' + target).hide();
+        }
+        massageColWidths();
+    });
+    
+    $('#columnTog #saveCols').click(function(e){
+        e.preventDefault();
+        var str = '';
+        $("#columnTog input").each(function(index){
+            str = str + $(this).closest('span').attr('id').replace('Tog', '') + '=' + $(this).prop('checked');
+            //  obj[$(this).closest('span').attr('id').replace('Tog', '')] = $(this).prop('checked');
+            if (index !== 3) {
+                str = str + '&';
+            }
+        });
+        
+        // update DOM
+        writeDOMVal('resourcesColumn', jsonify(str));
+        
+        //store str in db
+        writeDBVal('resourcesColumn', str);
+    });
+};

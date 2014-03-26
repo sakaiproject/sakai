@@ -36,3 +36,14 @@ li[data_visible="false" ] *{
     opacity:0.7;
     color:#555 !important
 }
+/* move this one to tool-base.css as it goes along*/
+.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {
+    display: inline;
+    font-size:1em;
+}
+.table .attach {
+    width:20px !important;
+}
+.dropdown-toggle {
+    padding: 6px 6px !important;
+}

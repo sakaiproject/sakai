@@ -4629,6 +4629,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		// used for showing the restore deleted files interface
 		context.put("canReviseAny", canReviseAny());
 		
+		// output the current session user id
+		context.put("userId", SessionManager.getCurrentSessionUserId());
+		
 		return TEMPLATE_NEW_LIST;
 
 	}	// buildListContext
