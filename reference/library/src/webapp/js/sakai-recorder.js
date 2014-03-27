@@ -489,21 +489,22 @@ $(document).ready(function() {
 
       window.URL = window.URL || window.webkitURL;
       
-      //Experimental Chrome only
       if (AudioContext) {
         audio_context = new AudioContext;
         console.log('Audio context set up.');
       }
-      console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
-
     } catch (e) {
       console.log('No web audio support in this browser!' + e.message);
       userMediaSupport = false;
     }
 
     //Maybe no error but still no support 
-    if (navigator.getUserMedia === undefined) {
+    if (navigator.getUserMedia === undefined || typeof audio_context === 'undefined') {
         userMediaSupport = false;
+        console.log('Setting userMediaSupport to false because of bad browser support.');
+    }
+    else {
+      console.log('navigator.getUserMedia ' + (navigator.getUserMedia ? 'available.' : 'not present!'));
     }
 
     if (isNaN(attemptsAllowed)) {
@@ -555,19 +556,27 @@ $(document).ready(function() {
     
     }
     else {
-      var flash = document.getElementById('flashrecarea');
-      $(flash).show();
-      $.jRecorder({
-        swf_path : '/library/js/recorder/jRecorder.swf',
-        host : postUrl,
-        swf_object_path : '/library/js/swfobject',
-        //These are in the main body right now because flash couldn't call them
-        callback_started_recording: function()      { startTimer(); },
-        // I wish this callback worked better but in my testing, it returns high levels no matter my volume
-        // callback_activityLevel:     function(level) { plotLevels(level); }, 
-        callback_finished_sending:  function(response)  {finishAndClose(true, response) },
-        callback_hide_the_flash:    function() { hideMicCheckButton(); enableRecording(); }
-      });
+      var hasFlashSupport = swfobject.hasFlashPlayerVersion("9.0.18");
+      if (!hasFlashSupport) {
+        $('#audio-visual-container').hide();
+        $('#audio-browser-plea').show(); // Please upgrade your browser!!
+        hideMicCheckButton();
+      }
+      else {
+        var flash = document.getElementById('flashrecarea');
+        $(flash).show();
+        $.jRecorder({
+          swf_path : '/library/js/recorder/jRecorder.swf',
+          host : postUrl,
+          swf_object_path : '/library/js/swfobject',
+          //These are in the main body right now because flash couldn't call them
+          callback_started_recording: function()      { startTimer(); },
+          // I wish this callback worked better but in my testing, it returns high levels no matter my volume
+          // callback_activityLevel:     function(level) { plotLevels(level); }, 
+          callback_finished_sending:  function(response)  {finishAndClose(true, response) },
+          callback_hide_the_flash:    function() { hideMicCheckButton(); enableRecording(); }
+        });
+      }
     }
 
 });
