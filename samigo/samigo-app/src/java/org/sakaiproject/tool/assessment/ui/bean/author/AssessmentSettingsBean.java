@@ -1123,6 +1123,10 @@ public class AssessmentSettingsBean
       return dateString;
     }
 
+    if (displayFormat == null) {   
+    	setDisplayFormat(ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec"));
+    }
+
     try {
       //dateString = displayFormat.format(date);
       TimeUtil tu = new TimeUtil();
