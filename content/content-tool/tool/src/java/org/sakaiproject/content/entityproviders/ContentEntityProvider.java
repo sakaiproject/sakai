@@ -179,10 +179,10 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						ContentItem item = new ContentItem();
 						item.setType("collection");
 						item.setSize(contentHostingService.getCollectionSize(id));
-						List<String> l = collection.getMembers();
-						if (l != null)
+						List<String> collectionMembers = collection.getMembers();
+						if (collectionMembers != null)
 						{
-							item.setNumChildren(l.size());
+							item.setNumChildren(collectionMembers.size());
 						}
 						
 						ResourceProperties props = collection.getProperties();
@@ -297,36 +297,36 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	public List<ContentItem> getContentCollectionForUserWorkspace(EntityView view) {
 		
 		// this parameter can be either user's id or eid
-		String userEidId = view.getPathSegment(2);
+		String userEidOrId = view.getPathSegment(2);
 
 		if(log.isDebugEnabled()) {
-			log.debug("Content for user workspace: " + userEidId);
+			log.debug("Content for user workspace: " + userEidOrId);
 		}
 
 		// check siteId supplied
-		if (StringUtils.isBlank(userEidId)) {
+		if (StringUtils.isBlank(userEidOrId)) {
 			throw new IllegalArgumentException("eid must be set in order to get the resources for a user's workspace, via the URL /content/user/eid");
 		}
 		
 		//get Id for user based on supplied eid
 		String userId = null;
 		try {
-			User u = userDirectoryService.getUserByEid(userEidId);
+			User u = userDirectoryService.getUserByEid(userEidOrId);
 			if(u != null){
 				userId = u.getId();
 			}
 		} catch (UserNotDefinedException e) {
 			// test whether this is user id
 			try {
-				User u = userDirectoryService.getUser(userEidId);
+				User u = userDirectoryService.getUser(userEidOrId);
 				if(u != null){
 					userId = u.getId();
 				}
 			} catch (UserNotDefinedException ee) {
 				if(log.isDebugEnabled()) {
-					log.debug(this + " getContentCollectionForUserWorkspace: error user " + userEidId + " " + e.getMessage());
+					log.debug(this + " getContentCollectionForUserWorkspace: error user " + userEidOrId + " " + e.getMessage());
 				}
-				throw new EntityNotFoundException(this + " getContentCollectionForUserWorkspace Invalid user: " + userEidId, userEidId);
+				throw new EntityNotFoundException(this + " getContentCollectionForUserWorkspace Invalid user: " + userEidOrId + " for either eid or id", e.getMessage());
 			}
 		}
 			
