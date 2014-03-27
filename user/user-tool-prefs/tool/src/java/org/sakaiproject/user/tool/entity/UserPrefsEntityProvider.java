@@ -37,6 +37,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
@@ -52,6 +53,7 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.tool.UserPrefsTool;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 
@@ -63,6 +65,8 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	private PreferencesService preferencesService;
 	private SessionManager sessionManager;
 	private RequestStorage requestStorage;
+	/** * Resource bundle messages */
+	ResourceLoader msgs = new ResourceLoader("user-tool-prefs");
 
 	public void init() {
 		log.info("init()");
@@ -72,13 +76,13 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 		return PREFIX;
 	}
 	public boolean entityExists(String id) {
-		log.debug(this + " entityExists() " + id);
 		boolean rv = false;
 		Preferences p = preferencesService.getPreferences(id);
 		if (p != null)
 		{
 			rv = true;
 		}
+		log.debug(this + " entityExists() " + id + " " + rv);
 		return rv;
 	}
 
@@ -157,9 +161,10 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	 */
 	public void deleteEntity(EntityReference ref, Map<String, Object> params) {
 		log.debug(this + ".deleteEntity of user  " + ref);
+		String refId = ref.getId();
 		try
 		{
-			PreferencesEdit edit = preferencesService.edit(ref.getId());
+			PreferencesEdit edit = preferencesService.edit(refId);
 			
 			// now remove the preference 
 			preferencesService.remove(edit);
@@ -167,14 +172,17 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 		catch (IdUnusedException e)
 		{
 			log.warn(this + ".deleteEntity of user  " + ref + " " + e.getMessage());
+			throw new EntityException("UserPrefsEntityProvider get UserPreference not found for ", refId, 404);
 		}
 		catch (PermissionException e)
 		{
 			log.warn(this + ".deleteEntity of user  " + ref + " " + e.getMessage());
+			throw new EntityException("UserPrefsEntityProvider get UserPreference not permitted for ", refId, 403);
 		}
 		catch (InUseException e)
 		{
 			log.warn(this + ".deleteEntity of user  " + ref + " " + e.getMessage());
+			throw new EntityException("UserPrefsEntityProvider get UserPreference not found for", refId, 404);
 		}
 
 	}
@@ -212,6 +220,11 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
     	this.sessionManager = sessionManager;
     }
 
+    /**
+     * Save key-value pair as current user preferences. 
+     * Here is the request url pattern: /direct/userPrefs/saveDivState/{key_name}/{state_value}
+     * @param view
+     */
     @EntityCustomAction(action="saveDivState", viewKey=EntityView.VIEW_EDIT)
     public void doSaveDivState(EntityView view) {
     	
@@ -310,11 +323,11 @@ public class UserPrefsEntityProvider extends AbstractEntityProvider implements C
 	}
 
 	/**
-	 * 
 	 * update the key-ed property values 
 	 * 
 	 * use the following format to invoke this function:
-	 *"/direct/userPrefs/updateKey/[user_id]/[key_name]/[name=val&name1=val1...]"
+	 *"/direct/userPrefs/updateKey/[user_id]/[key_name]/[name=val&name1=val1...]
+	 * @param view
 	 */
 	@EntityCustomAction(action = "updateKey", viewKey = EntityView.VIEW_EDIT)
 	public void updateKeyProperties(EntityView view) {
