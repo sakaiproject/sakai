@@ -236,8 +236,8 @@
   </h:panelGrid>
   
   <!-- AUTOMATIC SUBMISSION -->
-  <h:panelGroup rendered="#{assessmentSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
-    <h:selectBooleanCheckbox id="automaticSubmission" value="#{assessmentSettings.autoSubmit}"/>
+  <h:panelGroup rendered="#{publishedSettings.valueMap.automaticSubmission_isInstructorEditable==true}">
+    <h:selectBooleanCheckbox id="automaticSubmission" value="#{publishedSettings.autoSubmit}"/>
     <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}"/>
   </h:panelGroup>
 
