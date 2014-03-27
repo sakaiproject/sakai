@@ -690,7 +690,7 @@ table.listHierEventLog {
     margin-top: 8px;
     vertical-align: top;
 }
-#audio-posting, #audio-finished {
+#audio-posting, #audio-finished, #audio-browser-plea {
     height: 200px;
     font-size: 28px;
     font-weight: bold;
