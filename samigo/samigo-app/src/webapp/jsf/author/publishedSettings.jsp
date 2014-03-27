@@ -45,6 +45,8 @@
         $(document).ready(function() {
           // set up the accordion for settings
           $("#jqueryui-accordion").accordion({ heightStyle: "content", collapsible: true, active: 1 });
+          // This is a sub-accordion inside of the About the Assessment Panel
+          $("#jqueryui-accordion-metadata").accordion({ heightStyle: "content",collapsible: true,active: false });
           // This is a sub-accordion inside of the Availability and Submission Panel
           $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
           // adjust the height of the iframe to accomodate the expansion from the accordion
@@ -120,11 +122,13 @@
 
     </h:panelGrid>
   </div>
+  
+<f:verbatim><div id="jqueryui-accordion-metadata"></f:verbatim><!-- This is sub-accordion for metadata -->  
 
  <!-- *** META *** -->
 <h:panelGroup rendered="#{publishedSettings.valueMap.metadataAssess_isInstructorEditable==true}">
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_metadata} </h4>" />
-	<f:verbatim><div class="tier2"></f:verbatim>
+  <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_metadata} </a> </h3>" /> 
+   <f:verbatim><div class="tier2"></f:verbatim>
    <f:verbatim><div class="samigo-subheading"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.assessment_metadata}" /> <f:verbatim></div><div class="tier3"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell">
       <h:outputLabel for="keywords" value="#{assessmentSettingsMessages.metadata_keywords}"/>
@@ -146,6 +150,8 @@
     </h:panelGrid>
     <f:verbatim></div></div></f:verbatim>
   </h:panelGroup>
+
+<f:verbatim></div></f:verbatim><!-- This is the end of the sub-accordion -->
 
 </samigo:hideDivision><!-- End the About this Assessment category -->
 
