@@ -1055,14 +1055,7 @@ public abstract class DbSiteService extends BaseSiteService
 				String where = getWhereSiteIdIn(values);
 
 				List<Site> dbSites;
-				if (page != null)
-				{
-					dbSites = (List<Site>) getSelectedResources(where, order, values, page.getFirst(), page.getLast(), null, reader);
-				}
-				else
-				{
-					dbSites = (List<Site>) getSelectedResources(where, order, values, null, reader);
-				}
+				dbSites = (List<Site>) getSelectedResources(where, order, values, null, reader);
 
 				// Cache the sites we retrieved and put them in the right ordered slots for return
 				for (Site site : dbSites)
