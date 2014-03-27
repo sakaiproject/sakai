@@ -1605,7 +1605,15 @@
 
         <!-- List tags -->
 
-        <tag name="ul" action="validate"/>
+        <tag name="ul" action="validate">
+            <attribute name="type">
+                <literal-list>
+                    <literal value="disc" />
+                    <literal value="circle" />
+                    <literal value="square" />
+                </literal-list>
+            </attribute>
+        </tag>
 
         <tag name="ol" action="validate">
             <attribute name="start">
@@ -1626,6 +1634,8 @@
                     <literal value="1" />
                     <literal value="a" />
                     <literal value="i" />
+                    <literal value="A" />
+                    <literal value="I" />
                 </literal-list>
             </attribute>
         </tag>
