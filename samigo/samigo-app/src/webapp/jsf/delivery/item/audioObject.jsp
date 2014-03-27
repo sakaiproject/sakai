@@ -48,8 +48,8 @@
 <f:verbatim>
 <div id="audio-posting" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_posting}" /><f:verbatim></div>
 <div id="audio-finished" style="display:none"></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_complete}" /><f:verbatim></div>
+<div id="flashrecarea"> </div>
 <div id="audio-visual-container">
-  <div id="flashrecarea"> </div>
   <canvas id="audio-analyzer"></canvas>
 
   <div id="audio-controls">
