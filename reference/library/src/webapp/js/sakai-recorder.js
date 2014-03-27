@@ -31,6 +31,10 @@ var recordingStarted = false;
     }
   }
 
+function hideMicCheckButton() {
+  $('#audio-mic-check').hide();
+}
+
 function microphoneCheck(stream) {
   if (audio_context) {
     $('#volumemeter').show();
@@ -52,7 +56,7 @@ function microphoneCheck(stream) {
       function() {
         // Once the user starts recording, hide the mic check and stop this loop
         if (recordingStarted) {
-          $('#audio-mic-check').hide();
+          hideMicCheckButton();
           clearInterval(intervalId);
         }
 
@@ -209,7 +213,7 @@ function audioAnalyzer(time) {
   function startRecording(button) {
     recordingStarted = true;
     recordingStopped = false;
-    $('#audio-mic-check').hide();
+    hideMicCheckButton();
 	
     //Try to stop/reload previous recording
     if (userMediaSupport) {
@@ -411,18 +415,6 @@ function audioAnalyzer(time) {
     , 500);
   }
 
-  function plotLevels (level) {
-    if(level == -1) {
-      $('#audio-levelbar').css('width',  '2px');
-    }
-    else {
-      //console.log(level);
-      $('#audio-levelbar').css("width", (level * (maxWidth/100))+ "px");
-    }
-  }
-
-
-
   function createDownloadLink() {
     $('#audio-play').prop('disabled', '').fadeTo('slow', 1.0);
 
@@ -563,7 +555,6 @@ $(document).ready(function() {
     
     }
     else {
-      
       var flash = document.getElementById('flashrecarea');
       $(flash).show();
       $.jRecorder({
@@ -572,9 +563,10 @@ $(document).ready(function() {
         swf_object_path : '/library/js/swfobject',
         //These are in the main body right now because flash couldn't call them
         callback_started_recording: function()      { startTimer(); },
-        callback_activityLevel:     function(level) { plotLevels(level); },
+        // I wish this callback worked better but in my testing, it returns high levels no matter my volume
+        // callback_activityLevel:     function(level) { plotLevels(level); }, 
         callback_finished_sending:  function(response)  {finishAndClose(true, response) },
-        callback_hide_the_flash:    function() {enableRecording() }
+        callback_hide_the_flash:    function() { hideMicCheckButton(); enableRecording(); }
       });
     }
 
