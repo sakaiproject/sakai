@@ -21,4 +21,5 @@ public interface EmailHeaders
 	String IN_REPLY_TO = "In-Reply-To";
 	String LIST_ID = "List-Id";
 	String MESSAGE_ID = "Message-Id";
+	String MULTIPART_SUBTYPE = "Multipart-Subtype";
 }
