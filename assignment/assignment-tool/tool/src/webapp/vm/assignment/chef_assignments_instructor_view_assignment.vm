@@ -421,7 +421,11 @@
 								$tlang.getString("viewassig.theassall3") 
 						#end
 						<h4>
-							$tlang.getString("gen.att")
+							#if ($submissionType == 5)
+								$tlang.getString("gen.att.single")
+							#else
+								$tlang.getString("gen.att")
+							#end
 						</h4>
 						<p class="instruction">$tlang.getString("gen.noatt")</p> 
 						<p class="act">

@@ -1697,6 +1697,7 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("textSubmissionOnly", Boolean.FALSE);
 			}
 			
+			context.put("submissionType", submissionType);
 			
 			AssignmentSubmission s = getSubmission(currentAssignmentReference, submitter, "build_student_view_submission_confirmation_context",state);
 			if (s != null)

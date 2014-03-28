@@ -330,7 +330,13 @@
 			#if ($size == 0)
 				##$tlang.getString("gen.noatt")
 			#else
-				<h5>$tlang.getString("gen.stuatt")</h5>
+				<h5>
+					#if ($assignment.getContent().getTypeOfSubmission() == 5)
+						$tlang.getString("gen.stuatt.single")
+					#else
+						$tlang.getString("gen.stuatt")
+					#end
+				</h5>
 					<ul class="attachList indnt1">
 					#foreach ($attachment in $submittedAttachments) 
 						#set ($props = false)

@@ -387,7 +387,13 @@ function handleEnterKeyPress(ev)
 				## submitted attachment
 				
 			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
-					<h3>$tlang.getString("gen.stuatt")</h3>
+					<h3>
+						#if ($submissionType == 5)
+							$tlang.getString("gen.stuatt.single")
+						#else
+							$tlang.getString("gen.stuatt")
+						#end
+					</h3>
 					#set ($size = 0)
 					#if ($!submission.submitted || !$alertGradeDraft)
 						#set ($props = false)

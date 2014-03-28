@@ -3100,7 +3100,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		List attachments = s.getSubmittedAttachments();
 		if (attachments != null && attachments.size() >0)
 		{
-			buffer.append(rb.getString("gen.att") + newline + newline);
+			if (a.getContent().getTypeOfSubmission() == Assignment.SINGLE_ATTACHMENT_SUBMISSION) 
+			{
+				buffer.append(rb.getString("gen.att.single"));
+			} 
+			else 
+			{
+				buffer.append(rb.getString("gen.att"));
+			}
+			buffer.append(newline).append(newline);
+			
 			for (int j = 0; j<attachments.size(); j++)
 			{
 				Reference r = (Reference) attachments.get(j);

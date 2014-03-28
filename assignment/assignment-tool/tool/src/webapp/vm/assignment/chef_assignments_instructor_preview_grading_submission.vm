@@ -159,8 +159,12 @@
 			#end
 			#if ($size == 0)
 			#else
-				<h4> 
-					$tlang.getString("gen.stuatt")
+				<h4>
+					#if ($submissionType == 5)
+						$tlang.getString("gen.stuatt.single")
+					#else
+						$tlang.getString("gen.stuatt")
+					#end
 				</h4>	
 				<ul class="attachList indnt1">
 					#foreach ($attachment in $submission.SubmittedAttachments) 

@@ -154,7 +154,11 @@
 		#if (!$textSubmissionOnly)
 			<h4>
 				#if ($!submitted)
-					$tlang.getString('gen.stuatt')
+					#if ($submissionType == 5)
+						$tlang.getString("gen.stuatt.single")
+					#else
+						$tlang.getString("gen.stuatt")
+					#end
 				#else
 					$tlang.getString('confirm.savesubmission.attachments')
 				#end		

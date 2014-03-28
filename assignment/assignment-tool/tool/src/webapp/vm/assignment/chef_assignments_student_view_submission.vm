@@ -662,7 +662,11 @@ function submitform(id)
 				#end	
 				<div class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
-						$tlang.getString("gen.att")
+						#if ($submissionType == 5)
+							$tlang.getString("gen.att.single")
+						#else
+							$tlang.getString("gen.att")
+						#end
 					</h3>	
 					#if ($assignment.getContent().getAllowReviewService())
 						<p class="instruction"><img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" /> $reviewIndicator</p>
