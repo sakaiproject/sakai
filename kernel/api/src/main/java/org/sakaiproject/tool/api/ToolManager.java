@@ -137,6 +137,29 @@ public interface ToolManager
 	 * @return The tool property, null if tool id is invalid.
 	 */
 	String getLocalizedToolProperty(String toolId, String key);
+
+
+	/**
+	 * Check if the placement is hidden.
+	 * @param placement
+	 * @return <code>true</code> if the current placement is hidden.
+	 */
+	public boolean isHidden(Placement placement);
+	/**
+	 * The optional tool configuration tag "functions.require" describes a
+	 * set of permission lists which decide the visibility of the tool link
+	 * for this site user. Lists are separated by "|" and permissions within a
+	 * list are separated by ",". Users must have all the permissions included in
+	 * at least one of the permission lists.
+	 *
+	 * For example, a value like "section.role.student,annc.new|section.role.ta"
+	 * would let a user with "section.role.ta" see the tool, and let a user with
+	 * both "section.role.student" AND "annc.new" see the tool, but not let a user
+	 * who only had "section.role.student" see the tool.
+	 *
+	 * If the configuration tag is not set or is null, then all users see the tool.
+	 */
+	public boolean allowTool(Site site, Placement placement);
 }
 
 
