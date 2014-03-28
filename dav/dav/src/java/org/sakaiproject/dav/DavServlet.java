@@ -1723,7 +1723,7 @@ public class DavServlet extends HttpServlet
 			out.println("</STYLE>");
 			out.println("</head><body>");
 			out.println("<div style=\"padding: 16px\">");
-			out.println("<h2>" + rb.getString("contents_of") + id + "</h2>");
+			out.println("<h2>" + rb.getFormattedMessage("contents_of_id", id) + "</h2>");
 			out.println("<table>");
 
 			// show .. if not already there. we don't get aliases
