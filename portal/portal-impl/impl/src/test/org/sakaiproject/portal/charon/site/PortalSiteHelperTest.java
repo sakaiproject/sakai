@@ -21,9 +21,30 @@
 
 package org.sakaiproject.portal.charon.site;
 
-import junit.framework.TestCase;
+import org.sakaiproject.tool.api.ToolManager;
 
-public class PortalSiteHelperTest extends TestCase {
+//import junit.framework.TestCase;
+
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertNotNull;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.when;
+
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Answers;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+@RunWith(MockitoJUnitRunner.class)
+public class PortalSiteHelperTest {
+
+    @Mock(answer = Answers.RETURNS_DEEP_STUBS)
+    ToolManager toolManager;
 
 	private static final String [] SITE_TITLES = new String[] {
 		"This is a really long site with a very high number of characters on it, an probably with strange behaviour in the portal.",
@@ -35,8 +56,15 @@ public class PortalSiteHelperTest extends TestCase {
 	private static final String [] CUT_METHODS = new String[]{"100:0","50:50","0:100","70:30","-1","100:100","a:b"};
 	private static final int [] MAX_LENGTHS = new int[]{25,50,15,8,25,50,125};
 	private static final String [] CUT_SEPARATORS = new String[]{" ...","...","{..}"," ...","...","{..}","......"};
+	private PortalSiteHelperImpl helper;
 	
-	
+    @Before
+    public void setUp() throws Exception {
+		helper = new PortalSiteHelperImpl(null,false);
+		helper.setToolManager(toolManager);
+    }
+
+	@Test
 	public void testGetResumeTitles() {
 		for (int k=0; k<SITE_TITLES.length; k++) {
 			getResumeTitle(SITE_TITLES[k]);
@@ -44,8 +72,8 @@ public class PortalSiteHelperTest extends TestCase {
 	}
 	
 	public void getResumeTitle(String siteTitle) {
-		PortalSiteHelperImpl helper = new PortalSiteHelperImpl(null,false);
 		for (int k=0; k<CUT_METHODS.length; k++) {
+			assertNotNull(helper);
 			String resumeTitle = helper.getResumeTitle(siteTitle,CUT_METHODS[k],MAX_LENGTHS[k],CUT_SEPARATORS[k]);
 			// The resume title has the defined length (if has enough length)
 			assertEquals(Math.min(MAX_LENGTHS[k],siteTitle.length()),resumeTitle.length());

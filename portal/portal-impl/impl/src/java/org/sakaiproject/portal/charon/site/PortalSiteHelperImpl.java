@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.cover.PreferencesService;
@@ -60,7 +61,6 @@ import org.sakaiproject.portal.api.Portal;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.SiteView.View;
-import org.sakaiproject.portal.charon.ToolHelperImpl;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -70,7 +70,7 @@ import org.sakaiproject.time.api.Time;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -107,7 +107,19 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	// 2.3 back port
 	// private final String PROP_PARENT_ID = "sakai:parent-id";
 
-	private ToolHelperImpl toolHelper = new ToolHelperImpl();
+	private ToolManager toolManager;
+
+	public ToolManager getToolManager() {
+		//To work around injection for test case
+		if (toolManager==null) {
+			toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+		}
+		return toolManager;
+	}
+
+	public void setToolManager(ToolManager toolManager) {
+		this.toolManager = toolManager;
+	}
 
 	/**
 	 * @param portal
@@ -887,7 +899,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		if (site == null) return false;
 
-		Placement ppp = ToolManager.getCurrentPlacement();
+		Placement ppp = getToolManager().getCurrentPlacement();
 		if (ppp != null && site.getId().equals(ppp.getContext()))
 		{
 			return true;
@@ -901,7 +913,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		ThreadLocalManager.set(CURRENT_PLACEMENT, placement);
 
 		// Debugging
-		ppp = ToolManager.getCurrentPlacement();
+		ppp = getToolManager().getCurrentPlacement();
 		if (ppp == null)
 		{
 			System.out.println("WARNING portal-temporary placement not set - null");
@@ -1262,13 +1274,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		};
 	}
 	
-	/**
-	 * @see org.sakaiproject.portal.api.PortalSiteHelper#allowTool(org.sakaiproject.site.api.Site,
-	 *      org.sakaiproject.tool.api.Placement)
-	 */
 	public boolean allowTool(Site site, Placement placement)
 	{
-		return toolHelper.allowTool(site, placement);
+		return getToolManager().allowTool(site, placement);
 	}
 
 	/**
@@ -1277,7 +1285,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	 */
 	public boolean isHidden(Placement placement)
 	{
-		return toolHelper.isHidden(placement);
+		return getToolManager().isHidden(placement);
 	}
 	/*
 	 * (non-Javadoc)

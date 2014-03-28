@@ -37,6 +37,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
@@ -62,7 +63,7 @@ import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolURL;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.PreferencesService;
@@ -139,8 +140,7 @@ public class CharonPortal extends HttpServlet
 
 	private PortalService portalService;
 
-	private ToolHelperImpl toolHelper = new ToolHelperImpl();
-
+	private ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
 
 	/**
 	 * Shutdown the servlet.
@@ -2120,7 +2120,7 @@ public class CharonPortal extends HttpServlet
 
 	protected boolean allowTool(Site site, Placement placement)
 	{
-		return toolHelper.allowTool(site, placement);
+		return toolManager.allowTool(site, placement);
 	}
 
 	protected void includePageNav(HttpServletRequest req, HttpServletResponse res,
