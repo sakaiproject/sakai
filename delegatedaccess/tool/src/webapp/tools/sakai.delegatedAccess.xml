@@ -3,7 +3,6 @@
 	<tool id="sakai.delegatedaccess" 
 		title="Delegated Access" 
 		description="Delegate access for users based on a site hierarchy">
-	<category name="project" />
       	<category name="myworkspace" />
        	<category name="sakai.admin" />
     </tool>
