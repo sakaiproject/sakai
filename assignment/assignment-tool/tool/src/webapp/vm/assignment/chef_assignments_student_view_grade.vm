@@ -409,7 +409,7 @@
 					#foreach($review in $peerReviews)
 						<h5>$review.assessorDisplayName</h5>
 						<br/>
-						$tlang.getFormattedMessage("gen.score", $review.getScoreDisplay())
+						$tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
 						<br/>
 						#if($!review.getComment() && $review.getComment().length()>0)
 							<b>$tlang.getString("gen.comments")</b> 
