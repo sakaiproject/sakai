@@ -20,16 +20,16 @@
  **********************************************************************************/
 package org.sakaiproject.mock.service;
 
-import java.io.File;
-import java.io.InputStream;
-import java.util.Iterator;
-import java.util.Set;
-
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Tool;
 import org.w3c.dom.Document;
+
+import java.io.File;
+import java.io.InputStream;
+import java.util.Iterator;
+import java.util.Set;
 
 public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 	Set<Tool> tools;
@@ -99,8 +99,15 @@ public class ToolManager implements org.sakaiproject.tool.api.ToolManager {
 		return false;
 	}
 
-	@Override
 	public String getLocalizedToolProperty(String toolId, String key) {
 		return null;
 	}
+
+    public boolean isHidden(Placement placement) {
+        return false;
+    }
+
+    public boolean allowTool(Site site, Placement placement) {
+        return true;
+    }
 }
