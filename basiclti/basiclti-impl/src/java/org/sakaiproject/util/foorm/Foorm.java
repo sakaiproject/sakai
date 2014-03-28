@@ -1495,7 +1495,7 @@ public class Foorm {
 				if ( ! NUMBER_TYPE.equals(sqlType) ) logger.severe(field+" must be Integer and Auto Increment");
 			} else if ("autodate".equals(type)) {
 			} else if ("url".equals(type) || "text".equals(type) || "textarea".equals(type)) {
-				if ( "oracle.sql.CLOB".equals(sqlType) ) continue;  // CLOBS large enough :)
+				if ( "oracle.sql.CLOB".equals(sqlType) || "oracle.jdbc.OracleClob".equals(sqlType) ) continue;  // CLOBS large enough :)
 				if ( ! STRING_TYPE.equals(sqlType)) {
 					logger.severe(field+" must be String field");
 					continue;
