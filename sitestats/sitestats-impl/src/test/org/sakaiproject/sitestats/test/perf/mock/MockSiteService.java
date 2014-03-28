@@ -323,11 +323,6 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
-	public boolean isJoinNotificationToggled(String id) {
-		return false;
-	}
-
-	@Override
 	public LinkedHashSet<String> getAllowedJoinableAccountTypeCategories() {
 		return null;
 	}
@@ -344,11 +339,6 @@ public class MockSiteService implements SiteService {
 
 	@Override
 	public boolean isGlobalJoinGroupEnabled() {
-		return false;
-	}
-
-	@Override
-	public boolean isGlobalJoinNotificationEnabled() {
 		return false;
 	}
 
