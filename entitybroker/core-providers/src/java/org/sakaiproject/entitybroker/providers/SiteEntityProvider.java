@@ -504,7 +504,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
         // get the pages for this site
         List<Map<String, Object>> data = new ArrayList<Map<String,Object>>();
-        List<SitePage> pages = site.getOrderedPages();
+        EntitySite es = new EntitySite(site,false);
+        
+        List<SitePage> pages = es.getSitePages();
         for (SitePage page : pages) {
             HashMap<String, Object> pageData = new HashMap<String, Object>();
             pageData.put("id", page.getId());

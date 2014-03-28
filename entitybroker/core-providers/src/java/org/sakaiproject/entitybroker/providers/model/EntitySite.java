@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers.model;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,8 +37,11 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityFieldRequired;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityId;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityLastModified;
@@ -49,6 +53,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.Web;
 import org.w3c.dom.Document;
@@ -60,7 +65,7 @@ import org.w3c.dom.Element;
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
 @SuppressWarnings("unchecked")
-@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties","propertiesEdit","pages","members","orderedPages","roles","users","groups","url"})
+@ReflectIgnoreClassFields({"createdBy","modifiedBy","properties","propertiesEdit","members","orderedPages","pages", "roles","users","groups","url"})
 public class EntitySite implements Site {
 
     private static final long serialVersionUID = 7526472295622776147L;
@@ -90,7 +95,6 @@ public class EntitySite implements Site {
     private String owner;
     private long lastModified;
     private String[] userRoles;
-    private boolean softlyDeleted;
 
     private transient List<EntityGroup> siteGroupsList;
 
@@ -417,6 +421,36 @@ public class EntitySite implements Site {
         return siteGroupsList;
     }
 
+    public List<SitePage> getSitePages() {
+        ArrayList<SitePage> rpgs = new ArrayList<SitePage>(0);
+        if (site != null) {
+            List<SitePage> pages = site.getOrderedPages();
+            rpgs = new ArrayList<SitePage>(pages.size());
+            DeveloperHelperService dhs = (DeveloperHelperService) ComponentManager.get(DeveloperHelperService.class);
+            ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName()); 
+            boolean siteUpdate = false;
+            if (dhs != null && dhs.getCurrentUserId() != null) {
+                site.isAllowed(dhs.getCurrentUserId(), "site.upd");
+            }
+            for (SitePage sitePage : pages) {
+                // check if current user has permission to see page
+                List<ToolConfiguration> pTools = sitePage.getTools();
+                boolean allowPage = false;
+                for (ToolConfiguration tc : pTools) {
+                    boolean thisTool = toolManager.allowTool(site, tc);
+                    boolean unHidden = siteUpdate || !toolManager.isHidden(tc);
+                    if (thisTool && unHidden) {
+                        allowPage = true;
+                    }
+                }
+                if (allowPage) {
+                    rpgs.add( new EntitySitePage(sitePage) );
+                }
+            }
+        }
+        return rpgs;
+    }
+
     // transient
     public void setSiteGroupsList(List<EntityGroup> siteGroups) {
         this.siteGroupsList = siteGroups;
@@ -434,6 +468,13 @@ public class EntitySite implements Site {
     public SitePage addPage() {
         if (site != null) {
             return site.addPage();
+        }
+        throw new UnsupportedOperationException();
+    }
+
+    public List<SitePage> getPages() {
+        if (site != null) {
+            return site.getPages();
         }
         throw new UnsupportedOperationException();
     }
@@ -527,13 +568,6 @@ public class EntitySite implements Site {
     public SitePage getPage(String arg0) {
         if (site != null) {
             return site.getPage(arg0);
-        }
-        throw new UnsupportedOperationException();
-    }
-
-    public List getPages() {
-        if (site != null) {
-            return site.getPages();
         }
         throw new UnsupportedOperationException();
     }
@@ -810,21 +844,26 @@ public class EntitySite implements Site {
         throw new UnsupportedOperationException();
     }
 
-	public Date getSoftlyDeletedDate() {
-		if (site != null) {
+    public Date getSoftlyDeletedDate() {
+        if (site != null) {
             return site.getSoftlyDeletedDate();
         }
         throw new UnsupportedOperationException();
-	}
+    }
 
-	public boolean isSoftlyDeleted() {
-		return softlyDeleted;
-	}
+    public boolean isSoftlyDeleted() {
+        if (site != null) {
+            return site.isSoftlyDeleted();
+        }
+        throw new UnsupportedOperationException();
+    }
 
-	public void setSoftlyDeleted(boolean arg0) {
-		this.softlyDeleted = arg0;
-		
-	}
+    public void setSoftlyDeleted(boolean flag) {
+        if (site != null) {
+            site.setSoftlyDeleted(flag);
+        }
+        throw new UnsupportedOperationException();
+    }
 
     public Collection<String> getMembersInGroups(Set<String> groupIds) {
         if (site != null) {
