@@ -44,6 +44,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * Entity provider for the Syllabus tool
@@ -373,8 +374,21 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 						}
 					}else if("body".equals(params.get("name"))){
 						String body = (String) params.get("value");
-						data.setAsset(body);
-						syllabusManager.saveSyllabus(data);
+						StringBuilder alertMsg = new StringBuilder();
+			        	String cleanedText = null;
+			    		try
+			    		{
+			    			cleanedText  =  FormattedText.processFormattedText(body, alertMsg);
+			    			if (alertMsg.length() > 0)
+			    			{
+			    				throw new IllegalArgumentException("Error formatting body text: " + alertMsg);
+			    			}else{
+			    				data.setAsset(cleanedText);
+			    				syllabusManager.saveSyllabus(data);
+			    			}
+			    		}catch(Exception e){
+			    			log.error(e.getMessage(), e);
+			    		}
 					}else if("startDate".equals(params.get("name"))){
 						String startDate = (String) params.get("value");
 						if(startDate == null || "".equals(startDate)){
