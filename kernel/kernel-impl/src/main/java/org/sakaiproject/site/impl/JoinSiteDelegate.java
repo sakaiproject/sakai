@@ -2,14 +2,8 @@ package org.sakaiproject.site.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -18,14 +12,9 @@ import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.emailtemplateservice.model.RenderedTemplate;
-import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.AllowedJoinableAccount;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -43,15 +32,11 @@ public class JoinSiteDelegate
     private SiteService             siteService;
     private SecurityService         securityService;
     private UserDirectoryService    userDirectoryService;
-    private EmailService            emailService;
 
     // class members
     private static Log          log                             = LogFactory.getLog(JoinSiteDelegate.class);
     private static final String COMMA_DELIMITER					= ",";										// Comma delimiter (for csv parsing)
     private static final String JOINSITE_GROUP_NO_SELECTION		= "noSelection";							// The value of the joiner group site
-    private static final String TMPLT_VAR_SITE_NAME				= "worksiteName";							// The name of the worksite name template variable
-	private static final String TMPLT_VAR_INSTITUTE				= "institution";							// The name of the institution template variable
-	private static final String TMPLT_VAR_SHORT_NAME			= "currentUserShortName";					// The name of the current user short name template variable
 	private static final String SAK_PERM_SITE_UPD				= "site.upd";								// The name of the site update permission
 
     // sakai.properties
@@ -60,22 +45,16 @@ public class JoinSiteDelegate
   	private static final String SAK_PROP_JOIN_ACCOUNT_TYPES	 			= "sitemanage.join.allowedJoinableAccountTypes";
 	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_LABELS		= "sitemanage.join.allowedJoinableAccountTypeLabels";
 	private static final String SAK_PROP_JOIN_ACCOUNT_TYPE_CATEGORIES	= "sitemanage.join.allowedJoinableAccountTypeCategories";
-    private static final String SAK_PROP_JOIN_NOTIFICATION_ENABLED 		= "sitemanage.join.notification.enabled";
     private static final String SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST 	= "sitemanage.join.excludeFromPublicList.enabled";
     private static final String SAK_PROP_SITE_BROWSER_JOIN_ENABLED		= "sitebrowser.join.enabled";
-	private static final String SAK_PROP_UI_INSTITUTION			= "ui.institution";							// The name of the sakai.property holding the ui institution name
-	private static final String SAK_PROP_SUPPORT_EMAIL			= "support.email";							// the name of the sakai.property holding the support email address
     
     // site properties
-	private static final String EMAIL_TEMPLATE_KEY 				= "sitemanage.joinNotification";			// The name (key) of the email template
    	private static final String SITE_PROP_JOIN_LIMIT_OFFICIAL 	= "joinLimitByAccountType";					// The name (key) of the join limit official site property
     private static final String SITE_PROP_JOIN_ACCOUNT_TYPES 	= "joinLimitedAccountTypes";				// The name (key) of the limit join to account types site property
     private static final String SITE_PROP_JOINSITE_GROUP_ID 	= "joinerGroup";							// The name (key) of the joiner group site property
-	private static final String SITE_PROP_JOIN_NOTIFY 			= "joinNotification";						// The name (key) of the join notification site property
     
     // global switches
 	private static final boolean GLOBAL_JOIN_GROUP_ENABLED					= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_GROUP_ENABLED, Boolean.FALSE );
-	private static final boolean GLOBAL_JOIN_NOTIFICATION_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_NOTIFICATION_ENABLED, Boolean.FALSE );
 	private static final boolean GLOBAL_JOIN_EXCLUDE_FROM_PUBLIC_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_EXCLUDE_FROM_PUBLIC_LIST, Boolean.FALSE );
 	private static       boolean GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED	= ServerConfigurationService.getBoolean( SAK_PROP_JOIN_LIMIT_ACCOUNT_TYPES, Boolean.FALSE );
 	private static final boolean GLOBAL_SITE_BROWSER_JOIN_ENABLED			= ServerConfigurationService.getBoolean( SAK_PROP_SITE_BROWSER_JOIN_ENABLED, Boolean.FALSE );
@@ -93,13 +72,12 @@ public class JoinSiteDelegate
      * 
      * @author bjones86@uwo.ca
      */
-    public JoinSiteDelegate( SiteService siteService, SecurityService securityService, UserDirectoryService userDirectoryService, EmailService emailService )
+    public JoinSiteDelegate( SiteService siteService, SecurityService securityService, UserDirectoryService userDirectoryService )
     {
     	// Assign the APIs
     	this.siteService 			= siteService;
     	this.securityService 		= securityService;
     	this.userDirectoryService 	= userDirectoryService;
-    	this.emailService 			= emailService;
     	
     	// If join limit by account types is enabled globally in sakai.properties, check to make sure the lists are actually valid
     	if( GLOBAL_JOIN_LIMIT_BY_ACCOUNT_TYPE_ENABLED )
@@ -171,17 +149,6 @@ public class JoinSiteDelegate
     public boolean getGlobalJoinGroupEnabled()
     {
     	return JoinSiteDelegate.GLOBAL_JOIN_GROUP_ENABLED;
-    }
-    
-    /**
-     * Get the global join email notification enabled setting
-     * 
-     * @author bjones86@uwo.ca
-     * @return true/false (enabled/disabled)
-     */
-    public boolean getGlobalJoinNotificationEnabled()
-    {
-    	return JoinSiteDelegate.GLOBAL_JOIN_NOTIFICATION_ENABLED;
     }
     
     /**
@@ -387,121 +354,7 @@ public class JoinSiteDelegate
             // pop the Security Advisor off no matter what happens
             securityService.popAdvisor(yesMan);
         }
-    }
-    
-    /** 
-     * Check if the system and the provided site has the ability to send email notifications when a user joins the site
-     * 
-     * @param siteID 
-     * 		The site to check if the join email notification option is enabled
-     * @return true if the join email notification options are enabled at the system and passed-in site's levels
-     */
-    public boolean isJoinNotificationToggled(String siteID)
-	{
-        // if system has join notifications enabled
-		if(GLOBAL_JOIN_NOTIFICATION_ENABLED && siteID != null)
-        {
-            // determine whether the site's options are to send join email notifications upon user joining a site
-			return getBooleanSiteProperty(siteID, SITE_PROP_JOIN_NOTIFY);
-        }
-		else
-        {
-            // options not enabled
-			return false;
-        }
-	}
- 
-    /**
-     * Send email notification to the worksite's maintainers when a user joins their site
-     * 
-     * @author bjones86@uwo.ca
-     * @param siteID 
-     * 		Site to send email to its maintainers
-     */
-	public void sendEmailNotification(String siteID)
-	{
-		if(siteID == null || "".equals(siteID))
-		{
-			return;
-		}
-		
-		try
-		{
-			// Get the current site, current user
-			Site site = siteService.getSite(siteID);
-			User currentUser = userDirectoryService.getCurrentUser();
-			if( currentUser == null )
-			{
-				return;
-			}
-			
-			// Add all the maintainers to the list of recipients
-			List<InternetAddress> emailRecipients = new ArrayList<InternetAddress>();
-			for( String userRef : site.getUsersHasRole( site.getMaintainRole() ) )
-			{
-				User user = null;
-				try 
-                { 
-                    user = userDirectoryService.getUser( userRef ); 
-                }
-				catch( UserNotDefinedException ex ) 
-                { 
-                    // skip and continue to next user
-                    continue; 
-                }
-				
-				if( user != null )
-				{
-					try 
-                    { 
-                        emailRecipients.add( new InternetAddress( user.getEmail() ) ); 
-                    }
-					catch( AddressException ex ) 
-                    { 
-                        continue; 
-                    }
-				}
-			}
-			
-			// Create the map of replacement values
-			Map<String, String> replacementValues = new HashMap<String, String>();
-			replacementValues.put( TMPLT_VAR_SITE_NAME, site.getTitle() );
-			replacementValues.put( TMPLT_VAR_INSTITUTE, ServerConfigurationService.getString( SAK_PROP_UI_INSTITUTION ) );
-			if( currentUser.getFirstName() != null && !"".equals( currentUser.getFirstName() ) )
-            {
-				replacementValues.put( TMPLT_VAR_SHORT_NAME, currentUser.getFirstName() );
-            }
-			else
-            {
-				replacementValues.put( TMPLT_VAR_SHORT_NAME, currentUser.getDisplayId() );
-            }
-            
-			// Send the email(s)
-			String emailFrom = ServerConfigurationService.getString( SAK_PROP_SUPPORT_EMAIL );
-            
-            // get Email Template Service
-            EmailTemplateService emailTemplateService = (EmailTemplateService) ComponentManager.get(EmailTemplateService.class);
-            
-            // get template
-			RenderedTemplate template = emailTemplateService.getRenderedTemplate( EMAIL_TEMPLATE_KEY, Locale.ENGLISH, replacementValues );
-			try 
-			{ 
-                // send the email(s)
-				emailService.sendMail( new InternetAddress( emailFrom ), emailRecipients.toArray( new InternetAddress[0] ), template.getRenderedSubject(),
-					template.getRenderedMessage(), null, null, null );
-			}
-			catch( AddressException ex ) 
-            { 
-                log.error( "Problem sending join notification email: " + ex.getMessage(), ex ); 
-            }
-			
-		}
-		catch( IdUnusedException e ) 
-        { 
-            log.error( String.format("Site ID %s not found; not sending join notification email", siteID), e ); 
-        }
-	}
-    
+    }    
     
     /**
      * Helper method to get the value of a boolean property

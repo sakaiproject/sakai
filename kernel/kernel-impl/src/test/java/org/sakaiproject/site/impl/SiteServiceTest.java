@@ -169,9 +169,4 @@ public class SiteServiceTest extends DbSiteService
 	        PagingPosition page) {
 	    return new ArrayList<String>(0);
 	}
-
-	@Override
-	protected EmailService emailService(){
-		return null;
-	}
 }

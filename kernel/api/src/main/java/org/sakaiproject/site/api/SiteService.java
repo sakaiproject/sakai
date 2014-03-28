@@ -775,16 +775,6 @@ public interface SiteService extends EntityProducer
     boolean isLimitByAccountTypeEnabled(String id);
     
     /**
-     * Check if the system and the provided site has the ability to send email notifications when a user joins the site
-     * 
-     * @author sfoster9@uwo.ca, bjones86@uwo.ca
-     * @param id 
-     * 		The site to check if the join email notification option is enabled 
-     * @return true if the join email notification options are enabled at the system and passed-in site's levels
-     */
-    boolean isJoinNotificationToggled(String id);
-    
-    /**
      * Get the list of allowed account type categories
      * 
      * @author bjones86@uwo.ca
@@ -815,14 +805,6 @@ public interface SiteService extends EntityProducer
      * @return true/false (enabled/disabled)
      */
     boolean isGlobalJoinGroupEnabled();
-    
-    /**
-     * Check if join email notification is enabled/disabled globally (sakai.property)
-     * 
-     * @author bjones86@uwo.ca
-     * @return true/false (enabled/disabled)
-     */
-    boolean isGlobalJoinNotificationEnabled();
     
     /**
      * Check if exclude from public list is enabled/disabled globally (sakai.property)
