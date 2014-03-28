@@ -1509,7 +1509,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 
 				// check SECURE_ALL_GROUPS - if not, check if the message has groups or not
 				// TODO: the last param needs to be a ContextService.getRef(ref.getContext())... or a ref.getContextAuthzGroup() -ggolden
-				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_authzGroupService.isAllowed(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))))
+				if ((userId == null) || ((!m_securityService.isSuperUser(userId)) && (!m_securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(ref.getContext())))))
 				{
 					// get the channel to get the message to get group information
 					// TODO: check for efficiency, cache and thread local caching usage -ggolden
@@ -3482,7 +3482,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 				Collection<Group> groups = site.getGroups();
 
 				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
-				if (m_securityService.isSuperUser() || (m_authzGroupService.isAllowed(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
+				if (m_securityService.isSuperUser() || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
 						&& unlockCheck(function, getReference())))
 				{
 					return groups;
