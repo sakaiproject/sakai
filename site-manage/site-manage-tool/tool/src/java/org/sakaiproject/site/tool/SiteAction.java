@@ -12386,12 +12386,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return joinerGroup;
 		}
 		
-		public boolean joinNotifications = false;
-		public boolean getJoinNotifications()
-		{ 
-			return joinNotifications;
-		}
-		
 		public boolean joinExcludePublic = false;
 		public boolean getJoinExcludePublic()
 		{ 
