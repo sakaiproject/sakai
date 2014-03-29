@@ -140,4 +140,11 @@ public class FakeToolManager implements ToolManager {
 		return null;
 	}
 
+    public boolean isHidden(Placement placement) {
+        return false;
+    }
+
+    public boolean allowTool(Site site, Placement placement) {
+        return true;
+    }
 }
