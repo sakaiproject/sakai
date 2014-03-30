@@ -141,22 +141,35 @@
 </div>
 #parse("/vm/resources/sakai_properties_scripts.vm")
 #if($dragAndDrop)
-<script src="/library/js/dropzone/3.8.4/sakai_modified_dropzone.js" type="text/javascript"></script>
+<script src="/library/js/dropzone/3.8.4/dropzone.js" type="text/javascript"></script>
 <script type="text/javascript">
 Dropzone.options.fileUploader = {
   autoProcessQueue: false,
+  parallelUploads: 1,
+  uploadMultiple: false,
   maxFilesize: 150, // MB
   addRemoveLinks: true,
   
     init: function() {
+      var status;
+    
       this.on("removedfile", function() {
   	    if (!this.getQueuedFiles().length) {
   	       document.getElementById("finish").disabled=true;
   	    }
       });
 
-      this.on("complete", function() {
-        if (this.getQueuedFiles().length == 0 && this.getUploadingFiles().length == 0) {
+      this.on("complete", function(file) {
+      	var queuedFiles = this.getQueuedFiles();
+      	
+      	// don't process any more files if there is an error 
+      	if(queuedFiles.length != 0 && status === Dropzone.SUCCESS) {
+      	  this.processFile(queuedFiles.shift());
+      	}
+      });
+
+      this.on("queuecomplete", function() {
+        if(status === Dropzone.SUCCESS) {
           document.getElementById('addContentForm').submit();
         }
       });
@@ -173,9 +186,16 @@ Dropzone.options.fileUploader = {
 		formData.append("fullPath",file.fullPath);
       });
       
-      this.on("error", function() {
+      this.on("error", function(file, message, xhr) {
+        status = file.status;
   	    document.getElementById("finish").disabled=true;
       });
+       
+      this.on("success", function(file, responseText, e) {
+        status = file.status;
+        file.previewTemplate.appendChild(document.createTextNode(responseText));
+      });
+       
        
       var submitButton = document.querySelector("#finish");
       var dz = this;
