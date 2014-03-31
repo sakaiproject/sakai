@@ -693,6 +693,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			max_file_size_mb = "20";
 		}
+		context.put("uploadMaxSize", max_file_size_mb);
+		
 		String upload_limit = rb.getFormattedMessage("upload.limit", new String[]{ max_file_size_mb });
 		context.put("upload_limit", upload_limit);
 		
