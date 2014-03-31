@@ -90,12 +90,22 @@
     </dependency>
 	<!-- Resource MIME type identification -->
 	<!-- http://mvnrepository.com/artifact/jmimemagic/jmimemagic -->
+
 	<dependency>
-		<groupId>jmimemagic</groupId>
-		<artifactId>jmimemagic</artifactId>
-		<version>0.1.2</version>
-		<type>jar</type>
-		<scope>compile</scope>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-core</artifactId>
+		<version>1.5</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.tika</groupId>
+		<artifactId>tika-parsers</artifactId>
+		<version>1.5</version>
+		<exclusions>
+			<exclusion>
+				<groupId>de.l3s.boilerpipe</groupId>
+				<artifactId>boilerpipe</artifactId>
+			</exclusion>
+		</exclusions>
 	</dependency>
     
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
@@ -311,4 +321,4 @@
     </dependency>
 
   </dependencies>
-</project>
+  </project>

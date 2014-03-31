@@ -180,11 +180,11 @@ import org.xml.sax.SAXException;
 import com.ibm.icu.text.CharsetDetector;
 import com.ibm.icu.text.CharsetMatch;
 
-import net.sf.jmimemagic.Magic;
-import net.sf.jmimemagic.MagicMatch;
-import net.sf.jmimemagic.MagicParseException;
-import net.sf.jmimemagic.MagicMatchNotFoundException;
-import net.sf.jmimemagic.MagicException;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
+import org.apache.tika.detect.DefaultDetector;
+import org.apache.tika.detect.Detector;
+import org.apache.tika.mime.MimeTypes;
 
 /**
  * <p>
@@ -253,6 +253,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private boolean m_useSmartSort = true;
 
 	private boolean m_useMimeMagic = true;
+
+	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
 
 	static
 	{
@@ -949,10 +951,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			// magic
 			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-			if (m_useMimeMagic) {
-				M_log.info("init(): initializing mime magic");
-				Magic.initialize();
-			}
 
             int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
             int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
@@ -5892,33 +5890,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			throw new OverQuotaException(edit.getReference());
 		}
 		
-		if (m_useMimeMagic) {
+		TikaInputStream tikastream=null;
+		if (m_useMimeMagic && DETECTOR != null) {
 			try {
 				ContentResourceEdit edit3 = editResource(edit.getId());
-				InputStream stream = edit3.streamContent();
-				byte[] data = new byte[1024];
-				int numRead = stream.read(data,0,data.length);
-				stream.close();
-				if (numRead > 0) {
-					MagicMatch match = Magic.getMagicMatch(data);
-					if (match != null) {
-						if (!StringUtils.isEmpty(match.getMimeType()) && !match.getMimeType().equals(edit3.getContentType())) {
-							if (M_log.isDebugEnabled()) {
-								M_log.debug("Magic: Setting content type to "+match.getMimeType());
-							}
-							edit3.setContentType(match.getMimeType());
-							commitResourceEdit(edit3, priority);
+				tikastream = TikaInputStream.get(edit3.streamContent());
+				final Metadata metadata = new Metadata();
+				//This might not want to be set as it would advise the detector
+//				metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
+				String match = DETECTOR.detect(tikastream,metadata).toString();
+				if (match != null) {
+					if (!StringUtils.isEmpty(match) && !match.equals(edit3.getContentType())) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Magic: Setting content type to "+match);
 						}
+						edit3.setContentType(match);
+						commitResourceEdit(edit3, priority);
 					}
 				}
 			} catch (IOException e) {
 				M_log.warn("IOException when trying to get the resource's data: " + e);
-			} catch (MagicParseException e) {
-				M_log.warn("MagicParseException: " + e);
-			} catch (MagicMatchNotFoundException e) {
-				M_log.warn("MagicMatchNotFoundException: " + e);
-			} catch (MagicException e) {
-				M_log.warn("MagicException: " + e);
 			} catch (PermissionException e1) {
 				// we're unlikely to see this at this point
 				e1.printStackTrace();
@@ -5931,6 +5922,16 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			} catch (InUseException e1) {
 				// we're unlikely to see this at this point
 				e1.printStackTrace();
+			}
+			finally {
+				if (tikastream != null) {
+					try {
+						tikastream.close();
+					}
+					catch (IOException e) {
+						M_log.warn("IOException when trying to close the resource's data: " + e);
+					}
+				}
 			}
 		}
 		
