@@ -84,7 +84,7 @@ public class ItemBean
   private List<AnswerBean> emiAnswerOptions;  // ArrayList of AnswerBean - store List of possible options for an EMI question's anwers
   private String additionalEmiAnswerOptions = "3";  //Additonal options for an EMI question's answers - Jul 2010 forced to 3, no longer selected from a list
   private String leadInStatement;
-  private ArrayList emiQuestionAnswerCombinations;  //ArrayList of AnswerBean - store List of possible options for an EMI question's anwers
+  private List<AnswerBean> emiQuestionAnswerCombinations;  //store List of possible options for an EMI question's anwers
   private String additionalEmiQuestionAnswerCombinations = "3";  // additonal options for an EMI question's answers  - Jul 2010 forced to 3, no longer selected from a list
   private String emiVisibleItems = "0"; //The number of visible EMI items
   private String emiAnswerOptionsRich;
@@ -1560,26 +1560,26 @@ public class ItemBean
 
   //*************** EMI Question-Answer Combinations **********************
     
-    public void setEmiQuestionAnswerCombinations(ArrayList list)
+    public void setEmiQuestionAnswerCombinations(List<AnswerBean> list)
     {
     	this.emiQuestionAnswerCombinations = list;
     }
 
-    public void setEmiQuestionAnswerCombinationsUI(ArrayList list)
+    public void setEmiQuestionAnswerCombinationsUI(List<AnswerBean> list)
     {
     	this.emiQuestionAnswerCombinations = list;
     }
 
     // Modified for Javascript Add/Remove
-    public ArrayList getEmiQuestionAnswerCombinationsUI() {
+    public List<AnswerBean> getEmiQuestionAnswerCombinationsUI() {
     	if (emiQuestionAnswerCombinations==null) {
-    		emiQuestionAnswerCombinations = new ArrayList();
+    		emiQuestionAnswerCombinations = new ArrayList<AnswerBean>();
     	}
     	int defaultlength = DEFAULT_MAX_NUMBER_EMI_ITEMS_FOR_UI;
     	// build or extend the list of items 26 a-z
     	// for efficiency, these will now be shown/hidden using javascript
 		if (emiQuestionAnswerCombinations.size() < defaultlength) {
-			ArrayList list = new ArrayList();
+			List<AnswerBean> list = new ArrayList<AnswerBean>();
 			list.addAll(emiQuestionAnswerCombinations);
 			for (int i=list.size(); i<defaultlength; i++ ) {
     			AnswerBean answerbean = new AnswerBean();
@@ -1592,13 +1592,13 @@ public class ItemBean
 		return emiQuestionAnswerCombinations;
     }
     
-    public ArrayList getEmiQuestionAnswerCombinationsClean() {
+    public List<AnswerBean> getEmiQuestionAnswerCombinationsClean() {
     	String removeLabel = "X";
-    	ArrayList list = new ArrayList();
+    	List<AnswerBean> list = new ArrayList<AnswerBean>();
     	if (emiQuestionAnswerCombinations!=null) {
         	list.addAll(emiQuestionAnswerCombinations);
     	}
-    	ArrayList cleanSortedList = new ArrayList();
+    	List<AnswerBean> cleanSortedList = new ArrayList<AnswerBean>();
     	for (int i=0; i<list.size(); i++) {
     		AnswerBean emiItem = (AnswerBean)list.get(i);
     		if (emiItem==null || emiItem.getLabel().trim().equals(removeLabel)) continue;
@@ -1610,7 +1610,7 @@ public class ItemBean
     	}
     	Collections.sort(cleanSortedList);
     	for (int i=0; i<cleanSortedList.size(); i++) {
-    		AnswerBean emiItem = (AnswerBean)cleanSortedList.get(i);
+    		AnswerBean emiItem = cleanSortedList.get(i);
     		int seq = i+1;
     		emiItem.setSequence(Long.valueOf(seq));
     		emiItem.setLabel(""+seq);

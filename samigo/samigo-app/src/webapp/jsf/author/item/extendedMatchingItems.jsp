@@ -52,7 +52,7 @@
 <samigo:script path="/js/authoring-emi.js" />
 </head>
 <body onload="<%=request.getAttribute("html.body.onload")%>">
-
+    
 	<div id="portletContent" class="portletBody" style="display: none;">
 		<!-- content... -->
 		<!-- FORM -->
@@ -193,10 +193,9 @@
 									</h:inputText>
 								</h:panelGrid>
 
-								<h:panelGroup>
+                                <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
 									<h:outputLink id="RemoveLink"
-										title="#{authorMessages.t_removeO}"
-										rendered="#{itemauthor.currentItem.itemType == 14}">
+										title="#{authorMessages.t_removeO}">
 										<f:verbatim>
 											<img src="/library/image/silk/cross.png" border="0" />
 										</f:verbatim>
@@ -206,10 +205,10 @@
 						</h:column>
 					</h:dataTable>
 
-					<h:outputLink id="addEmiAnswerOptionsLink" value="#" styleClass="iconAdd">
+                    <h:outputLink id="addEmiAnswerOptionsLink" value="#" styleClass="iconAdd" rendered="#{author.isEditPendingAssessmentFlow}">
 						<h:outputText value="#{authorMessages.add_more_options}" />
 					</h:outputLink>
-					<h:selectOneMenu id="addEmiAnswerOptionsSelect" value="1">
+					<h:selectOneMenu id="addEmiAnswerOptionsSelect" value="1" rendered="#{author.isEditPendingAssessmentFlow}">
 						<f:selectItem itemLabel="1" itemValue="1" />
 						<f:selectItem itemLabel="2" itemValue="2" />
 						<f:selectItem itemLabel="3" itemValue="3" />
@@ -496,7 +495,7 @@
 								<h:inputHidden id="itemScoreUserSet" value="#{answer.scoreUserSet}" />
 							</h:panelGroup>
 
-							<h:panelGroup>
+                            <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
 								<h:outputLink id="RemoveLink"
 									title="#{authorMessages.t_removeI}" rendered="true">
 									<f:verbatim>
@@ -511,10 +510,10 @@
 					<br />
 				</f:verbatim>
 				<h:outputLink id="addEmiQuestionAnswerCombinationsLink" value="#" 
-					rendered="true" styleClass="iconAdd">
+					styleClass="iconAdd" rendered="#{author.isEditPendingAssessmentFlow}">
 					<h:outputText value="#{authorMessages.add_more_items}" />
 				</h:outputLink>
-				<h:selectOneMenu id="addEmiQuestionAnswerCombinationsSelect" value="1">
+				<h:selectOneMenu id="addEmiQuestionAnswerCombinationsSelect" value="1" rendered="#{author.isEditPendingAssessmentFlow}">
 					<f:selectItem itemLabel="1" itemValue="1" />
 					<f:selectItem itemLabel="2" itemValue="2" />
 					<f:selectItem itemLabel="3" itemValue="3" />

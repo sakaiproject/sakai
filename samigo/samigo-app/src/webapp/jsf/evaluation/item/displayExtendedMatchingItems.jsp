@@ -27,9 +27,9 @@ include file for displaying Extended Matching Items questions
 
   <h:outputText value="#{question.text}"  escape="false"/>
   
-  
-      <f:verbatim><br/><br/></f:verbatim>
-
+      <f:verbatim></h5><h3></f:verbatim>
+        <h:outputText value="#{question.themeText}"  escape="false"/>
+      <f:verbatim></h3><br /></f:verbatim>
 
       <h:dataTable value="#{question.emiAnswerOptions}" var="option" styleClass="simpleBorder" cellspacing="0">
         <h:column> 
