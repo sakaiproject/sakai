@@ -4,11 +4,11 @@
 	<h3>$tlang.getString("memory.vm.memory")</h3>
 		#if ($alertMessage)
 			<div class="alertMessage">
-				$tlang.getString("memory.vm.alert") $validator.escapeHtml($alertMessage)
+				$tlang.getFormattedMessage("memory.vm.alert.nosplit", $validator.escapeHtml($alertMessage))
 			</div>
 		#end
 	#if ($status)<p class="infoPanel">$validator.escapeHtml($status)</p>#end
-	<div class="instruction">$tlang.getString("memory.vm.ava") $memory</div>
+	<div class="instruction">$tlang.getFormattedMessage("memory.vm.ava.nosplit", $memory)</div>
 	<form action="#toolForm("$action")" method="post">
 		<p class="act">
 			<input type="submit" class="active" name="eventSubmit_doReset" value=" $tlang.getString("memory.vm.reset") " />
