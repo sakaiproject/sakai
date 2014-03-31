@@ -223,7 +223,7 @@ public class AnswerBean implements Serializable, Comparable{
 			if (!emiAnswerOptionLabels.contains(optionLabel)) {
 				isValid=false;
 				String please_select_from_available = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","please_select_from_available");     
-				FacesMessage message = new FacesMessage(MessageFormat.format(please_select_from_available, new Object[]{optionLabels, itemauthorbean.getItemNo(), getSequence(), emiAnswerOptionLabels}));
+				FacesMessage message = new FacesMessage(MessageFormat.format(please_select_from_available, new Object[]{optionLabels, itemauthorbean.getItemNo()==null?"":itemauthorbean.getItemNo(), getSequence(), emiAnswerOptionLabels}));
 				context.addMessage(null, message);
 				break;
 			}

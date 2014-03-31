@@ -28,7 +28,7 @@ $(document).ready(function(){
 	var highestItemId = +59;
 	var maxAvailableItems = +30;
 	var minOptions = +2;
-	var currentOptions = 0;
+	var currentOptions = +$("select[id='itemForm:answerOptionsRichCount']").val();
 	var optionsAtStart = +8;
 	var itemsAtStart = +4;
 	var removeLabel = "X";
@@ -220,7 +220,9 @@ $(document).ready(function(){
 	//--------------------------------------//
 	//	Hide excess Options at start		//
 	//--------------------------------------//
-	updateSimpleTextOptionCount();
+	if(radioSimpleOrRichChecked.value === "0"){
+        updateSimpleTextOptionCount();
+    }
 	
 	//------------------------------------------//
 	//	Add OptionLabels for Paste Options		//
