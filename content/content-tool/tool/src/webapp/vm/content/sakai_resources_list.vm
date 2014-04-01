@@ -431,8 +431,8 @@
 					
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group">
-                            <button type="button" class="btn btn-default dropdown-toggle  btn-xs" data-toggle="dropdown">
-                                <span class="sr-only">$clang.getString('gen.actions')</span>
+                            <button type="button" class="btn btn-default dropdown-toggle  btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
+                                $clang.getString('gen.actions')
                                 <span class="caret"></span>
                             </button>
                             <ul class="dropdown-menu row">
