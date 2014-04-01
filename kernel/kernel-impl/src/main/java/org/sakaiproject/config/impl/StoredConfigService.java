@@ -102,6 +102,7 @@ public class StoredConfigService implements ConfigurationListener, Configuration
         }
         // always add password@org.jasypt.encryption.pbe.PBEStringEncryptor
         tmpdoNotPersist.add("password@org.jasypt.encryption.pbe.PBEStringEncryptor");
+        // TODO add more stuff here like serverId, DB password
         // Setup list of items we should never persist
         neverPersistItems = Collections.unmodifiableSet(new HashSet<String>(tmpdoNotPersist));
 

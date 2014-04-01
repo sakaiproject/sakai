@@ -176,12 +176,12 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
     @SuppressWarnings("unchecked")
     @Override
     public List<HibernateConfigItem> findAllByCriteriaByNode(String node, String name, Boolean defaulted, Boolean registered, Boolean dynamic, Boolean secured) {
-        if (node == null) {
+        if (node == null) { // TODO get the globals only
             return Collections.emptyList();
         }
 
         Criteria criteria = getSession().createCriteria(HibernateConfigItem.class);
-        criteria.add(Restrictions.eq("node", node));
+        criteria.add(Restrictions.eq("node", node)); // TODO make this search by null also
         if (name != null && name.length() > 0) {
             criteria.add(Restrictions.eq("name", name));
         }
@@ -197,6 +197,7 @@ public class HibernateConfigItemDaoImpl extends HibernateDaoSupport implements H
         if (secured != null) {
             criteria.add(Restrictions.eq("secured", secured));
         }
+        // TODO throw away cases where node is null AND node is set (only keep node is set) - use order by name & node
         return criteria.list();
     }
 
