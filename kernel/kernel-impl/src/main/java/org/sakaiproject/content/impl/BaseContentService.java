@@ -5892,8 +5892,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		
 		TikaInputStream tikastream=null;
 		if (m_useMimeMagic && DETECTOR != null) {
+			ContentResourceEdit edit3=null;
 			try {
-				ContentResourceEdit edit3 = editResource(edit.getId());
+				edit3 = editResource(edit.getId());
 				tikastream = TikaInputStream.get(edit3.streamContent());
 				final Metadata metadata = new Metadata();
 				//This might not want to be set as it would advise the detector
@@ -5924,6 +5925,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				e1.printStackTrace();
 			}
 			finally {
+				//safety first!
+				if (edit3 != null && edit3.isActiveEdit()) {
+					((BaseCollectionEdit) edit3).closeEdit();
+				}
 				if (tikastream != null) {
 					try {
 						tikastream.close();
