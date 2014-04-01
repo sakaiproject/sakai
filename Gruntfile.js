@@ -22,7 +22,7 @@ module.exports = function(grunt) {
           'autosave/js/diffview.js',
           'autosave/js/jsdiff.js',
           'autosave/js/moment.js',
-		  'js/lz-string-1.3.3.js'
+          'autosave/js/lz-string-1.3.3.js'
           ],
         dest: 'autosave/js/extensions.min.js',
       }
