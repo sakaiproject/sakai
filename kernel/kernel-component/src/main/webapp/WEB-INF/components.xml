@@ -3,6 +3,7 @@
 
 <beans>
      <import resource="component-components.xml" />
+     <import resource="configstore-components.xml" />
      <import resource="alias-components.xml" />
      <import resource="db-components.xml" />
      <import resource="site-components.xml" />
@@ -19,5 +20,4 @@
      <import resource="memory-components.xml" />
      <import resource="util-components.xml" />
      <import resource="messagebundle-components.xml" />
-
 </beans>
