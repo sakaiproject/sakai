@@ -53,7 +53,8 @@ public class HibernateConfigItem implements Serializable {
     private String name;
 
     /**
-     * The node associated with this configuration item
+     * The node associated with this configuration item,
+     * null indicates that it applies to the complete system
      */
     private String node;
 

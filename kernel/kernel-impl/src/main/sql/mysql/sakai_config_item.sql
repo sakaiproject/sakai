@@ -1,6 +1,6 @@
------------------------------------------------------------------------------
--- SAKAI_CONFIG_ITEM
------------------------------------------------------------------------------
+-- ---------------------------------------------------------------------------
+-- SAKAI_CONFIG_ITEM - KNL-1063 - MYSQL
+-- ---------------------------------------------------------------------------
 
 CREATE TABLE SAKAI_CONFIG_ITEM (
 	ID				BIGINT(20) NOT NULL AUTO_INCREMENT,
@@ -22,9 +22,5 @@ CREATE TABLE SAKAI_CONFIG_ITEM (
 	PRIMARY KEY (ID)
 );
 
-CREATE INDEX SCI_NODE_NAME_IDX ON SAKAI_CONFIG_ITEM
-(
-	NODE			ASC,
-	NAME			ASC
-);
-
+CREATE INDEX SCI_NODE_IDX ON SAKAI_CONFIG_ITEM (NODE ASC);
+CREATE INDEX SCI_NAME_IDX ON SAKAI_CONFIG_ITEM (NAME ASC);
