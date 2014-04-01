@@ -5981,9 +5981,10 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 virusScanner.scanContent(contentId);
             } catch (VirusFoundException e) {
                 //this file is infected we need to remove if
+            	ContentResourceEdit edit2 = null;
                 try {
                     //the edit is closed so we need to refetch it
-                    ContentResourceEdit edit2 = editResource(contentId);
+                    edit2 = editResource(contentId);
                     ResourceProperties props = edit2.getProperties();
                     // we need to set the session userId or removeResource fails
 			        String owner = props.getProperty(ResourceProperties.PROP_CREATOR);
@@ -6001,6 +6002,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                     M_log.error(e1.getMessage(), e1);
                 } catch (UserNotDefinedException e1) {
                     M_log.error(e1.getMessage(), e1);
+                }
+                finally {
+                	//safety first!
+                	if (edit2 != null && edit2.isActiveEdit()) {
+                		((BaseResourceEdit) edit2).closeEdit();
+                	}
                 }
             } catch (VirusScanIncompleteException e1) {
                 M_log.info("virus scanning did not complete adding resource: " + contentId + " back to queue");
