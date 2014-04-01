@@ -15,15 +15,15 @@
 ##		$tlang.getString("cus.cus") $tool_title
 		$tlang.getString("gen.options")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
 	<p class="instruction indnt1">
-		$tlang.getString("cus.youare") $tool_title.
+		$tlang.getFormattedMessage("cus.youare.for", $tool_title)
 	</p>
 	
 	<form action="#toolForm("$action")" method="post">
 		<div class="indnt1">
 			<h4>
-					$tool_title $tlang.getString("cus.dis1")
+					$tlang.getFormattedMessage("cus.dis1.tool", $tool_title)
 			</h4>
 			
 			## Recent Discussion tool got the true setting of allow_show_subject
@@ -39,7 +39,7 @@
 							id="${show_subject_form}-subject" 
 							value="true" /> 
 						<label for="${show_subject_form}-subject">
-							$tlang.getString("gen.show") $one_item $tlang.getString("gen.sub")
+							$tlang.getFormattedMessage("gen.show.sub", $one_item)
 						</label>
 					</p>
 					<p class="checkbox indnt1">
@@ -51,7 +51,7 @@
 							id="${show_subject_form}-body" 
 							value="false"	/> 
 						<label for="${show_subject_form}-body">
-							$tlang.getString("gen.show") $one_item $tlang.getString("gen.bod")
+							$tlang.getFormattedMessage("gen.show.bod", $one_item)
 						</label>
 					</p>
 				
@@ -66,7 +66,7 @@
 								id="$show_body_form" 
 								value="true" /> 
 							<label for="$show_body_form">
-								$tlang.getString("gen.show")  $one_item $tlang.getString("gen.bod")
+								$tlang.getFormattedMessage("gen.show.bod", $one_item)
 							</label>
 						</p>
 					#end
@@ -125,7 +125,7 @@
 				#if ($toolId!="sakai.motd")
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof") $all_items
+						$tlang.getFormattedMessage("cus.numof.items", $all_items)
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
 				</p>
@@ -176,13 +176,13 @@
 				</p>
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof") $all_items
+						$tlang.getFormattedMessage("cus.numof.items", $all_items)
 					</label>
 					<input type="text" id="$items_form" name="$items_form" value="$items" size="2"  />
 				</p>
 				<p class="shorttext">
 					<label for="$items_form">
-						$tlang.getString("cus.numof2") $one_item
+						$tlang.getFormattedMessage("cus.numof2.item", $one_item)
 					</label>
 					<input type="text" id="$length_form" name="$length_form" value="$length" size="2" />
 				</p>
