@@ -5927,7 +5927,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			finally {
 				//safety first!
 				if (edit3 != null && edit3.isActiveEdit()) {
-					((BaseResourceEdit) edit3).closeEdit();
+					cancelResource(edit3);
 				}
 				if (tikastream != null) {
 					try {
