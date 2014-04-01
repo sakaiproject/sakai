@@ -407,7 +407,17 @@ public interface CalendarService
 	 */
 	public String calendarOpaqueUrlReference(Reference ref);
 	
+	/**
+	 * Returns the tool id value (i.e. sakai.schedule)
+	 * @return
+	 */
 	public String getToolId();
+	
+	/**
+	 * Checks the calendar has been created.
+	 * @return
+	 */
+	public boolean isCalendarToolInitialized(String siteId);
 }	// CalendarService
 
 

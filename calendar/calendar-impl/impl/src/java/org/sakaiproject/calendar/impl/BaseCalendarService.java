@@ -7841,5 +7841,15 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		return "Sakai/"+ m_serverConfigurationService.getString("version.sakai", "?") + " (Calendar Subscription)";
 	}
 	
+	// Returns the calendar tool id string.
+	public String getToolId(){
+		return "sakai.schedule";		
+	}
+
+	// Checks the calendar has been created. For now just returning true to support the API contract.
+	public boolean isCalendarToolInitialized(String siteId){
+		return true;
+	}
+	
 } // BaseCalendarService
 
