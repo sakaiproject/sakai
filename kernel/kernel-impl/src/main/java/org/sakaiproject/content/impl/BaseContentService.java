@@ -6006,7 +6006,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 finally {
                 	//safety first!
                 	if (edit2 != null && edit2.isActiveEdit()) {
-                		((BaseResourceEdit) edit2).closeEdit();
+    					cancelResource(edit2);
                 	}
                 }
             } catch (VirusScanIncompleteException e1) {
