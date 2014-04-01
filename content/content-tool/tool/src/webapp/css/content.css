@@ -44,6 +44,6 @@ li[data_visible="false" ] *{
 .table .attach {
     width:20px !important;
 }
-.dropdown-toggle {
+td.actions2 .dropdown-toggle {
     padding: 2px 6px !important;
 }
