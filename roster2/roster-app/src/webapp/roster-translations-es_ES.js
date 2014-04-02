@@ -1,5 +1,4 @@
-#X-Generator: crowdin.net
-*=limitaciones de la licencia.
+//#X-Generator: crowdin.net
 //=Permisos
 navbar_overview="Informaci\u00f3n General";
 navbar_overview_tooltip="Informaci\u00f3n General de los miembros del sitio";
@@ -61,7 +60,7 @@ title_msg="Para a\u00f1adir o borrar participantes del sitio, vaya a la herramie
 title_msg_groups="Para a\u00f1adir o borrar participantes de Grupos, vaya a la herramienta Informaci\u00f3n del Sitio.";
 title_msg_permissions="Definir los permisos para los roles en este sitio."
 no_participants="No se han encontrado resultados";
-no_participants_msg="No se han encontrado resultados para "{0}"";
+no_participants_msg="No se han encontrado resultados para \"{0}\"";
 no_permission_msg="No tienes permisos para ver la Orla.";
 roster_permissions_role="Rol"
 roster_save_button="Guardar"
