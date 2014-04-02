@@ -11905,7 +11905,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public String getStatus()
 		{
-			boolean allowGrade = allowGradeSubmission(getReference());
+			Assignment assignment = getAssignment();
+			boolean allowGrade = assignment != null ? allowGradeSubmission(assignment.getReference()):false;
 			String retVal = "";
 			
 			Time submitTime = getTimeSubmitted();
