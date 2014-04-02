@@ -144,7 +144,7 @@ var renderHierarchyWithJsonTree = function(data){
                 itemText = ' ' + jsLang.items;
             }
             itemType = 'folder';
-            item.text = item.text + '&nbsp;&nbsp;&nbsp;<small class="muted">(' + item.numChildren + itemText + ')</small>';
+            item.text = item.text;
             itemUrl = pathToFolder;
         }
         else {
@@ -185,14 +185,16 @@ var renderHierarchyWithJsonTree = function(data){
                 'multiple': false,
                 'data': data.content_collection,
                 'themes': {
-                    'stripes': true,
                     'theme': 'default',
+                    'stripes': true,
                     'dots': true,
                     'icons': true
                 }
             },
             "search": {
-                "case_insensitive": true
+                "case_insensitive": true,
+                "fuzzy": false,
+                "show_only_matches": true
             },
             "plugins": ["themes", "search"]
         });
@@ -219,15 +221,14 @@ $(document).ajaxStop(function(){
 });
 
 $(document).ready(function(){
-    var to = false;
     $('#navigatePanelSearch').keyup(function(){
-        if (to) {
-            clearTimeout(to);
-        }
-        to = setTimeout(function(){
-            var v = $('#navigatePanelSearch').val();
-            $("#navigatePanelInner").jstree("search", v);
-        }, 250);
+         var v = $('#navigatePanelSearch').val();
+         if (v.length >= 2) {
+             $("#navigatePanelInner").jstree("search", v);
+         }
+         else {
+             $("#navigatePanelInner").jstree("search", '');
+         }
     });
     
     if ($('#content_print_result_url').length) {
