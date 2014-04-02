@@ -249,7 +249,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String CALENDAR_TOOL_EXIST = "calendar_tool_exisit";
 
 	/** Additional calendar tool */
-	private static final String ADDITIONAL_CALENDAR_TOOL_EXIST = "additional_calendar_tool_exisit";
+	private static final String ADDITIONAL_CALENDAR_TOOL_READY = "additional_calendar_tool_ready";
 	
 	/** The announcement tool */
 	private static final String ANNOUNCEMENT_TOOL_EXIST = "announcement_tool_exist";
@@ -10728,7 +10728,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 			
 		/** Additional Calendar tool */ 
-		if (state.getAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST) == null)
+		// Setting this attribute to true or false currently makes no difference as it is never checked for true or false.
+		// true: means the additional calendar is ready to be used with assignments.
+		// false: means the tool may not be deployed at all or may be at the site but not ready to be used.
+		if (state.getAttribute(ADDITIONAL_CALENDAR_TOOL_READY) == null)
 		{
 			// Get a handle to the Google calendar service class from the Component Manager. It will be null if not deployed.
 			CalendarService additionalCalendarService = (CalendarService)ComponentManager.get(CalendarService.ADDITIONAL_CALENDAR);
@@ -10736,23 +10739,32 @@ public class AssignmentAction extends PagedResourceActionII
 				// If tool is not used/used on this site, we set the appropriate flag in the state.
 				if (!siteHasTool(siteId, additionalCalendarService.getToolId()))
 				{
-					state.setAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST, Boolean.FALSE);
+					state.setAttribute(ADDITIONAL_CALENDAR_TOOL_READY, Boolean.FALSE);
 					state.removeAttribute(ADDITIONAL_CALENDAR);
 				}
 				else
-				{
-					state.setAttribute(ADDITIONAL_CALENDAR_TOOL_EXIST, Boolean.TRUE);
-					if (state.getAttribute(ADDITIONAL_CALENDAR) == null )
-					{
-						try {
-							state.setAttribute(ADDITIONAL_CALENDAR, additionalCalendarService.getCalendar(null));
-						} catch (IdUnusedException e) {
-							M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
-						} catch (PermissionException e) {
-							M_log.info(this + ":initState No permission to get the calendar. " + e.getMessage());
+				{	// Also check that this calendar has been fully created (initialized) in the additional calendar service.
+					if (additionalCalendarService.isCalendarToolInitialized(siteId)){
+						state.setAttribute(ADDITIONAL_CALENDAR_TOOL_READY, Boolean.TRUE); // Alternate calendar ready for events.
+						if (state.getAttribute(ADDITIONAL_CALENDAR) == null )
+						{
+							try {
+								state.setAttribute(ADDITIONAL_CALENDAR, additionalCalendarService.getCalendar(null));
+							} catch (IdUnusedException e) {
+								M_log.info(this + ":initState No calendar found for site " + siteId  + " " + e.getMessage());
+							} catch (PermissionException e) {
+								M_log.info(this + ":initState No permission to get the calendar. " + e.getMessage());
+							}
 						}
 					}
+					else{
+						state.setAttribute(ADDITIONAL_CALENDAR_TOOL_READY, Boolean.FALSE); // Tool on site but alternate calendar not yet created.
+					}
+					
 				}
+			}
+			else{
+				state.setAttribute(ADDITIONAL_CALENDAR_TOOL_READY, Boolean.FALSE); // Tool not deployed on the server.
 			}
 		}
 
