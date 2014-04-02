@@ -97,34 +97,26 @@
                         <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
                   </div>
                 #end
+                #set($breadCrumbNum = 1000)
 				#foreach ($item in $collectionPath)
 					#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 					#if($item.isLast())
-                        <button class="btn btn-default btn-sm" disabled="disabled" style="margin-left:-1px">
+                        <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
 						  <span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp; $validator.escapeHtml("$item.name")
                         </button>
-                        #*
-						#if($upOneLevel)
-							<button class="btn btn-default btn-sm"
-								onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$upOneLevel.id';document.getElementById('navRoot').value='$upOneLevel.root';document.getElementById('showForm').submit();"
-								title= "$tlang.getString('sh.one')" style="color:#888">
-							##<a href="#toolLinkParam("ResourcesAction" "doNavigate" "collectionId=$validator.escapeUrl($upOneLevel.id)&navRoot=$validator.escapeUrl($upOneLevel.root)")" title= "$tlang.getString('sh.one')">
-								<span class="sr-only">$tlang.getString('sh.one')</span>&nbsp;<span class="glyphicon glyphicon-arrow-up"></span>&nbsp;<span class="glyphicon glyphicon-folder-close"></span>&nbsp;
-							</button>
-						#end
-                        *#
 					#elseif($item.canRead())
-						<button class="btn btn-default btn-sm" style="margin-left:-1px"
+						<button class="btn btn-default btn-sm breadProp" style="z-index:$breadCrumbNum" 
 							onclick="javascript:document.getElementById('sakai_action').value='doNavigate';document.getElementById('collectionId').value='$qid';document.getElementById('navRoot').value='$item.root';document.getElementById('showForm').submit();"
 							title= "$tlang.getString('sh.go')">
 							<span class="glyphicon glyphicon-folder-open" style="color:#777"></span>&nbsp;&nbsp;$validator.escapeHtml("$item.name")
 						</button>
 						#set($upOneLevel = $item)
 					#else
-                    <button class="btn btn-default btn-sm" disabled="disabled"  style="margin-left:-1px">
+                    <button class="btn btn-default btn-sm breadProp" disabled="disabled" style="z-index:$breadCrumbNum">
 						$validator.escapeHtml("$item.name")
                     </button>
 					#end
+                    #set($breadCrumbNum = $breadCrumbNum - 1)
 				#end
                 </div>
 			</h3>

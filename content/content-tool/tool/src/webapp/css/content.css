@@ -47,3 +47,31 @@ li[data_visible="false" ] *{
 td.actions2 .dropdown-toggle {
     padding: 2px 6px !important;
 }
+td.actions2 .dropdown-header {
+    padding: 0 21px;
+
+}
+
+.breadCrumb .btn-group button.breadProp {
+     padding-left:25px;
+    -webkit-border-radius: 3px !important;
+    -webkit-border-top-right-radius: 25px !important;
+    -webkit-border-bottom-right-radius: 25px !important;
+    -moz-border-radius: 3px !important;
+    -moz-border-radius-topright: 25px !important;
+    -moz-border-radius-bottomright: 25px !important;
+    border-radius: 3px !important;
+    border-top-right-radius: 25px !important;
+    border-bottom-right-radius: 25px !important;
+    margin-left: -20px !important;
+}
+
+#navigate {
+    margin-right:30px !important;
+    -webkit-border-radius: 3px !important;
+    -moz-border-radius: 3px !important;
+    border-radius: 3px !important;
+}
+.breadCrumb #navigatePanel + button {
+    padding-left:10px;
+}
