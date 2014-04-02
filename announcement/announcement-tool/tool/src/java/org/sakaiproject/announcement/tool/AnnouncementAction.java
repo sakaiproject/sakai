@@ -289,7 +289,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					if (userId.equals(SessionManager.getCurrentSessionUserId()) && "annc.read".equals(function) && finalChannelReference.equals(reference)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
-						return SecurityAdvice.NOT_ALLOWED;
+						return SecurityAdvice.PASS;
 					}
 				}
 			};
@@ -389,7 +389,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalRef)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
-						return SecurityAdvice.NOT_ALLOWED;
+						return SecurityAdvice.PASS;
 					}
 				}
 			};
@@ -1634,7 +1634,7 @@ public class AnnouncementAction extends PagedResourceActionII
 					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalChannelReference)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
-						return SecurityAdvice.NOT_ALLOWED;
+						return SecurityAdvice.PASS;
 					}
 				}
 			};
@@ -2366,7 +2366,7 @@ public class AnnouncementAction extends PagedResourceActionII
 						&& (finalMessageReference.equals(reference) || finalChannelReference.equals(reference))) {
 						return SecurityAdvice.ALLOWED;
 					} else {
-						return SecurityAdvice.NOT_ALLOWED;
+						return SecurityAdvice.PASS;
 					}
 				}
 			};
