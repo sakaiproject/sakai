@@ -144,13 +144,23 @@
 <script src="/library/js/dropzone/3.8.4/dropzone.js" type="text/javascript"></script>
 <script type="text/javascript">
 Dropzone.options.fileUploader = {
-  // do not chnage these values as the dropzone logic 
-  // depends on these values
+  // do not change these values as the dropzone logic depends on these values
   autoProcessQueue: false,
   parallelUploads: 1,
   uploadMultiple: false,
   addRemoveLinks: true,
   maxFilesize: $uploadMaxSize, // MB
+  //SAK-25747
+  dictFallbackMessage: "$tlang.getString("dragndrop.dictFallbackMessage")",
+  dictFallbackText: "$tlang.getString("dragndrop.dictFallbackText")",
+  dictFileTooBig: "$tlang.getString("dragndrop.dictFileTooBig")",
+  dictInvalidFileType: "$tlang.getString("dragndrop.dictInvalidFileType")",
+  dictResponseError: "$tlang.getString("dragndrop.dictResponseError")",
+  dictCancelUpload: "$tlang.getString("dragndrop.dictCancelUpload")",
+  dictCancelUploadConfirmation: "$tlang.getString("dragndrop.dictCancelUploadConfirmation")",
+  dictRemoveFile: "$tlang.getString("dragndrop.dictRemoveFile")",
+  dictMaxFilesExceeded: "$tlang.getString("dragndrop.dictMaxFilesExceeded")",
+  dictFolderUploadError: "$tlang.getString("dragndrop.dictFolderUploadError")",
   
     init: function() {
       var status;
