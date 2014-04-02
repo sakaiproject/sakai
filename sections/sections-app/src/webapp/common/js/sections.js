@@ -250,7 +250,7 @@ function setSectionPageFocus() {
 	var focusElementId = document.forms[0].name + ":elementToFocus";	
 	if(document.getElementById(focusElementId)) {
 		var elementId = document.getElementById(focusElementId).value;
-		if(document.getElementById(elementId)) {
+		if(elementId && document.getElementById(elementId)) {
 				var element = document.getElementById(elementId);
 				// Focus on the desired element
 				element.focus();
