@@ -6,12 +6,12 @@
 	<h3>
 		$tlang.getString("presence.session.active")
 	</h3>
-	#if ($alertMessage)<div class="alertMessage">$tlang.getString("presence.session.alert") $validator.escapeHtml($alertMessage)</div>#end
-	<div class="instruction">$tlang.getString("presence.session.total") $total</div>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("presence.session.alert.message", $validator.escapeHtml($alertMessage))</div>#end
+	<div class="instruction">$tlang.getFormattedMessage("presence.session.total.value", $total)</div>
 	<table  class="listHier lines" summary ="$tlang.getString("presence.session.list.summary")" border="0" cellpadding="0" cellspacing="0"> 	
 		#foreach ($serverName in $serverList)
 			<tr class="exclude">
-				<th colspan="3"><h4>$servers.get("$serverName").size() $tlang.getString("presence.session.on") $validator.escapeHtml($serverName)</h4></th>
+				<th colspan="3"><h4>$tlang.getFormattedMessage("presence.session.on.server", $servers.get("$serverName").size(), $validator.escapeHtml($serverName))</h4></th>
 			</tr>
 			#foreach ($currSession in $servers.get("$serverName"))
 				<tr class="highLightRow">

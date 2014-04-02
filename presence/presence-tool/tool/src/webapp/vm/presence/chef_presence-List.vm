@@ -8,7 +8,7 @@
 	</h3>
 	#if ($alertMessage)
 		<div class="alertMessage">
-			$tlang.getString("presence.list1.alert") $validator.escapeHtml($alertMessage)
+			$tlang.getFormattedMessage("presence.list1.alert.message", $validator.escapeHtml($alertMessage))
 		</div>
 	#end
 	<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("presence.list1.tablesummary")" border="0">
@@ -19,7 +19,7 @@
 					$list.size()
 				</td>
 				<td colspan="5">
-					<h4>$tlang.getString("presence.list1.location") $validator.escapeHtml($location) : $validator.escapeHtml($service.getLocationDescription($location))</h4>
+					<h4>$tlang.getFormattedMessage("presence.list1.location.value", $validator.escapeHtml($location))</h4>
 				</td>
 			</tr>
 			#foreach($entry in $list)
