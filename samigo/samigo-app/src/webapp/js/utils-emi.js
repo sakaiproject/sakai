@@ -11,19 +11,11 @@
  */
 function checkEMIOptions(element, validEMIOptions, event) {
 	var charCode = event.charCode;
-	//A-Z
-	if (isCharAlphaUpper(charCode)){
+	//A-Z or a-z
+	if (isCharAlphaUpper(charCode) || isCharAlphaLower(charCode)){
 		return isValidOption(element, validEMIOptions, charCode);
 	}
-	//a-z
-	if (isCharAlphaLower(charCode)){
-		return isValidOption(element, validEMIOptions, charCode);
-	}
-	//if the keycode is 0 it is invalid
-	if (event.keyCode == 0){
-		return false;
-	}
-	return true;
+	return false;
 }
 
 function isCharNumber(charCode){
