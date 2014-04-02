@@ -2950,53 +2950,34 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
 				HistogramQuestionScoresBean bean1 = (HistogramQuestionScoresBean) arg0;
 				HistogramQuestionScoresBean bean2 = (HistogramQuestionScoresBean) arg1;
 
-				String lable1 = bean1.getQuestionLabel();
-				String lable2 = bean2.getQuestionLabel();
-
-				if (bean1.getNumberOfParts() > 1 && bean2.getNumberOfParts() > 1) {
-
-					if (Integer.valueOf(lable1.substring(1, lable1.indexOf("-"))).compareTo(
-							Integer.valueOf(lable2.substring(1, lable2.indexOf("-")))) > 0) {
-						return 1;
-					} else if (Integer.valueOf(lable1.substring(1, lable1.indexOf("-"))).compareTo(
-							Integer.valueOf(lable2.substring(1, lable2.indexOf("-")))) < 0) {
-						return -1;
-					}
-
-					lable1 = lable1.substring(lable1.indexOf("-") + 1, lable1.length());
-					lable2 = lable2.substring(lable2.indexOf("-") + 1, lable2.length());
+                //first check the part number
+				int compare = Integer.valueOf(bean1.getPartNumber()) - Integer.valueOf(bean2.getPartNumber());
+				if (compare != 0) {
+                    return compare;
 				}
 
-				if (lable1.indexOf("-") == -1 && lable2.indexOf("-") == -1) {
-					return Integer.valueOf(lable1.substring(1)).compareTo(Integer.valueOf(lable2.substring(1)));
-
-				} else if (lable1.indexOf("-") == -1 && lable2.indexOf("-") != -1) {
-					int val = Integer.valueOf(lable1.substring(1)).compareTo(
-							Integer.valueOf(lable2.substring(1, lable2.lastIndexOf("-"))));
-					if (val == 0) {
-						val = -1;
-					}
-					return val;
-
-				} else if (lable1.indexOf("-") != -1 && lable2.indexOf("-") == -1) {
-					int val = Integer.valueOf(lable1.substring(1, lable1.lastIndexOf("-"))).compareTo(
-							Integer.valueOf(lable2.substring(1)));
-					if (val == 0) {
-						val = 1;
-					}
-					return val;
-
-				} else if (lable1.indexOf("-") != -1 && lable2.indexOf("-") != -1) {
-					int val = Integer.valueOf(lable1.substring(1, lable1.lastIndexOf("-"))).compareTo(
-							Integer.valueOf(lable2.substring(1, lable2.lastIndexOf("-"))));
-					if (val == 0) {
-						val = Integer.valueOf(lable1.substring(lable1.lastIndexOf("-") + 1, lable1.length())).compareTo(
-								Integer.valueOf(lable2.substring(lable2.lastIndexOf("-") + 1, lable2.length())));
-					}
-					return val;
-				}
-				return lable1.substring(1).compareTo(lable2.substring(1));
-
+                //now check the question number
+                int number1 = 0;
+                int number2 = 0;
+                //check if the question has a sub-question number, only test the question number now
+                if(bean1.getQuestionNumber().indexOf("-") == -1){
+                    number1 = Integer.valueOf(bean1.getQuestionNumber());
+                }else{
+                    number1 = Integer.valueOf(bean1.getQuestionNumber().substring(0, bean1.getQuestionNumber().indexOf("-")));
+                }
+                if(bean2.getQuestionNumber().indexOf("-") == -1){
+                    number2 = Integer.valueOf(bean2.getQuestionNumber());
+                }else{
+                    number2 = Integer.valueOf(bean2.getQuestionNumber().substring(0, bean2.getQuestionNumber().indexOf("-")));
+                }
+                compare = number1 - number2;
+                if(compare != 0){
+                    return compare;
+                }
+                //Now check the sub-question number. At this stage it will be from the same question
+                number1 = Integer.valueOf(bean1.getQuestionNumber().substring(bean1.getQuestionNumber().indexOf("-")+1));
+                number2 = Integer.valueOf(bean2.getQuestionNumber().substring(bean2.getQuestionNumber().indexOf("-")+1));
+                return number1 - number2;
 			}
 		});
 	}
