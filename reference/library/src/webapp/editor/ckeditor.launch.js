@@ -172,9 +172,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			  You have to actually setup a server or get an API key
 			  Hopefully this will get easier to configure soon.
 			 */
-			 //CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
-			 //ckconfig.atd_rpc='/proxy/atd';
-			 //ckconfig.extraPlugins+="movieplayer,wordcount,atd-ckeditor,stylesheetparser";
+			 CKEDITOR.plugins.addExternal('atd-ckeditor',basePath+'atd-ckeditor/', 'plugin.js'); 
+			 /*
+			 Replace this with your own server if you download it from http://openatd.wordpress.com/
+			 Or you can proxy to the public one, see the page for more information.
+			 */
+			 //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
+			 //ckconfig.extraPlugins+="atd-ckeditor,";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
 			 ckconfig.extraPlugins+="audiorecorder,movieplayer,wordcount,fmath_formula";
