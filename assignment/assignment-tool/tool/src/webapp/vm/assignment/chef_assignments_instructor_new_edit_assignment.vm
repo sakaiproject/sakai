@@ -1103,31 +1103,42 @@ $(document).ready(function() {
 		#end
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
-			<h4>
-				$tlang.getString("receive.confirm.submission.email.options")
-			</h4>
-			<p class="checkbox  indnt2">
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
-				<label for="notsendnotif">$tlang.getString('receive.confirm.submission.email.none')</label>
-				<br/>
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
-				<label for="sendnotif">$tlang.getString('receive.confirm.submission.email.each')</label>
-				<br/>
-				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
-				<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
-			</p>
+            <fieldset>
+                <legend>
+                    <h4>
+                        $tlang.getString("receive.confirm.submission.email.options")
+                    </h4>
+                </legend>
+    			<p class="checkbox  indnt2">
+    				<input type="radio" name="$!name_assignment_instructor_notifications" id="notsendnotif" value="$!value_assignment_instructor_notifications_none" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_none))checked="checked" #end />
+    				<label for="notsendnotif">$tlang.getString('receive.confirm.submission.email.none')</label>
+    			</p>
+                <p class="checkbox  indnt2">
+    				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotif" value="$!value_assignment_instructor_notifications_each" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_each))checked="checked" #end />
+    				<label for="sendnotif">$tlang.getString('receive.confirm.submission.email.each')</label>
+    			</p>
+                <p class="checkbox  indnt2">
+    				<input type="radio" name="$!name_assignment_instructor_notifications" id="sendnotifsummary" value="$!value_assignment_instructor_notifications_digest" #if($!value_assignment_instructor_notifications.equals($!value_assignment_instructor_notifications_digest))checked="checked" #end />
+    				<label for="sendnotifsummary">$tlang.getString('receive.confirm.submission.email.digest')</label>
+    			</p>
+            </fieldset>
 		#end
 		## whether to notify student about released grade
-		<h4>
-			$tlang.getString("send.submission.releasegrade.email.options")
-		</h4>
-		<p class="checkbox  indnt2">
-			<input type="radio" name="$!name_assignment_releasegrade_notification" id="notsendreleasegradenotif" value="$!value_assignment_releasegrade_notification_none" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_none))checked="checked" #end />
-			<label for="notsendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email.none')</label>
-			<br/>
-			<input type="radio" name="$!name_assignment_releasegrade_notification" id="sendreleasegradenotif" value="$!value_assignment_releasegrade_notification_each" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_each))checked="checked" #end />
-			<label for="sendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email')</label>
-		</p>
+		     <fieldset>
+		         <legend>
+		             <h4>
+                        $tlang.getString("send.submission.releasegrade.email.options")
+                    </h4>
+                </legend>
+		         <p class="checkbox  indnt2"> 
+        			<input type="radio" name="$!name_assignment_releasegrade_notification" id="notsendreleasegradenotif" value="$!value_assignment_releasegrade_notification_none" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_none))checked="checked" #end />
+        			<label for="notsendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email.none')</label>
+			     </p>
+                 <p class="checkbox  indnt2">
+        			<input type="radio" name="$!name_assignment_releasegrade_notification" id="sendreleasegradenotif" value="$!value_assignment_releasegrade_notification_each" #if($!value_assignment_releasegrade_notification.equals($!value_assignment_releasegrade_notification_each))checked="checked" #end />
+        			<label for="sendreleasegradenotif">$tlang.getString('send.submission.releasegrade.email')</label>
+                </p>
+		  </fieldset>
 		## attachments
 		<h4>
 			$tlang.getString("gen.att")
