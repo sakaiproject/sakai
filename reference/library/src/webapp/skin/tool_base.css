@@ -91,6 +91,13 @@ code {
 	border-color: #fff;
 	border-style: solid;
 }
+.portletMainWrap > .portletBody {
+    word-wrap:break-word
+}
+.portletMainWrap > .portletBody img {
+    max-width: 100%;
+    heigth: auto;
+}
 .helpBody {
 	padding: 0 1em 1em 1em
 	} 
