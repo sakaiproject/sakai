@@ -8111,8 +8111,8 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		catch (PermissionException e)
 		{
-			addAlert(state, rb.getString("group.must.member"));
-			M_log.warn(this + ":commitAssignmentEdit " + rb.getString("group.must.member") + e.getMessage());
+			addAlert(state, rb.getString("youarenot_addAssignmentContent"));
+			M_log.warn(this + ":commitAssignmentEdit " + rb.getString("youarenot_addAssignmentContent") + e.getMessage());
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null)
