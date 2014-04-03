@@ -234,11 +234,11 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" where EVENT_ID='user.login'" +
 				" group by 1";
 		
-		String oracle = "select next_day(ACTIVITY_DATE - 7, 'MONDAY') as week_start," +
+		String oracle = "select next_day(ACTIVITY_DATE - 7, 2) as week_start," +
 				" sum(ACTIVITY_COUNT) as user_logins" +
 				" from " + getExternalDbNameAsPrefix() + "SST_SERVERSTATS" +
 				" where EVENT_ID='user.login'" +
-				" group by next_day(ACTIVITY_DATE - 7, 'MONDAY')";
+				" group by next_day(ACTIVITY_DATE - 7, 2)";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -273,10 +273,10 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
 				" group by 1";
 		
-		String oracle = "select next_day(LOGIN_DATE - 7, 'MONDAY') as week_start," +
+		String oracle = "select next_day(LOGIN_DATE - 7, 2) as week_start," +
 				" count(distinct user_id) as unique_users" +
 				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
-				" group by next_day(LOGIN_DATE - 7, 'MONDAY')";
+				" group by next_day(LOGIN_DATE - 7, 2)";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
 			public Object readSqlResultRecord (ResultSet result)
@@ -408,7 +408,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		if (period.equals ("daily")) {
 			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD')";
 		} else if (period.equals ("weekly")) {
-			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY')";
+			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 2)";
 		} else {
 			// monthly
 			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
@@ -476,7 +476,7 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		if (period.equals ("daily")) {
 			oraclePeriod = "trunc(ACTIVITY_DATE, 'DDD')";
 		} else if (period.equals ("weekly")) {
-			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 'MONDAY')";
+			oraclePeriod = "next_day(ACTIVITY_DATE - 7, 2)";
 		} else {
 			// monthly
 			oraclePeriod = "TO_DATE(TO_CHAR(ACTIVITY_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
@@ -579,10 +579,10 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 				" sum(decode(s.user_logins, 3, 1, 0)) as three, " +
 				" sum(decode(s.user_logins, 2, 1, 0)) as twice, " +
 				" sum(decode(s.user_logins, 1, 1, 0)) as once" +
-				" from (select next_day(LOGIN_DATE - 7, 'MONDAY') as week_start," +
+				" from (select next_day(LOGIN_DATE - 7, 2) as week_start," +
 				"       user_id, login_count as user_logins" +
 				"       from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
-				"       group by next_day(LOGIN_DATE - 7, 'MONDAY'), user_id, login_count) s" +
+				"       group by next_day(LOGIN_DATE - 7, 2), user_id, login_count) s" +
 				" group by s.week_start";
 
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
