@@ -318,12 +318,6 @@
         <artifactId>sakai-kernel-util</artifactId>
         <version>${project.version}</version>
       </dependency>
-      
-      <!-- bjones86 - join notification email sending -->
-      <dependency>
-        <groupId>org.sakaiproject.emailtemplateservice</groupId>
-        <artifactId>emailtemplateservice-api</artifactId>
-    </dependency>
 
   </dependencies>
   </project>
