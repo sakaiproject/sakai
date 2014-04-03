@@ -546,10 +546,10 @@ $(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
-			if(row.find(".movie-prerequisite").text() === 'true') {
-			    $('#mm-prerequisite').attr('checked','checked');
+			if (row.find(".movie-prerequisite").text() == 'true') {
+			    $('#movie-prerequisite').attr('checked','checked');
 			} else {
-			    $('#mm-prerequisite').removeAttr('checked');
+			    $('#movie-prerequisite').removeAttr('checked');
 			}
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();

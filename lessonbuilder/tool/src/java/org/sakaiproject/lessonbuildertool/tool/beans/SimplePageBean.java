@@ -5239,6 +5239,8 @@ public class SimplePageBean {
 			// remember who added it, for permission checks
 			item.setAttribute("addedby", getCurrentUserId());
 
+			item.setPrerequisite(this.prerequisite);
+
 			if (mimeType != null) {
 				item.setHtml(mimeType);
 			} else {

@@ -3348,6 +3348,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
+		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
+
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
@@ -3585,7 +3587,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-resource-movie", messageLocator.getMessage("simplepage.change_resource"), fileparams);
 
-		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}",false);
+		UIBoundBoolean.make(form, "movie-prerequisite", "#{simplePageBean.prerequisite}",false);
 
 		UICommand.make(form, "delete-movie-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-movie", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateMovie}");

@@ -933,6 +933,10 @@ function resizeiframe(id) {
                             <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
                             <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" style="width:99%" class="edit-multimedia-input" />
                         </p>
+                        <p class="checkbox">
+                            <input type="checkbox" name="mm-prerequisite" id="mm-prerequisite" rsf:id="mm-prerequisite" />
+                            <label for="mm-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                        </p>
 
 			<div id="mm-test-embed-results" class="mm-test-text">
 			  <div id="mm-test-embed-contents" rsf:id="msg=simplepage.mm-test-embed"></div>
@@ -1329,8 +1333,8 @@ function resizeiframe(id) {
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
                         <p class="checkbox">
-                            <input type="checkbox" name="mm-prerequisite" id="mm-prerequisite" rsf:id="mm-prerequisite" />
-                            <label for="mm-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
+                            <input type="checkbox" name="movie-prerequisite" id="movie-prerequisite" rsf:id="movie-prerequisite" />
+                            <label for="movie-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                         </p>
                        <p class="act">  
                             <input class="bold" type="submit" onclick="event.returnValue = checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim()); return checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim());" id="update-movie" rsf:id="update-movie" />
