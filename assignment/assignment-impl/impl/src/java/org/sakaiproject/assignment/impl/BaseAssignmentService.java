@@ -5069,6 +5069,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					List allowAddSubmissionUsers = allowAddSubmissionUsers(aRef);
 					
+					List allowAddAssignmentUsers = allowAddAssignmentUsers(contextString);
+					// SAK-25555 need to take away those users who can add assignment
+					allowAddSubmissionUsers.removeAll(allowAddAssignmentUsers);
+					
 					// Step 1: get group if any that is selected
 					rvUsers = getSelectedGroupUsers(allOrOneGroup, contextString, a, allowAddSubmissionUsers);
 					
@@ -7271,7 +7275,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	public boolean canSubmit(String context, Assignment a)
 	{
 		// return false if not allowed to submit at all
-		if (!allowAddSubmissionCheckGroups(context, a)) return false;
+		if (!allowAddSubmissionCheckGroups(context, a) && !allowAddAssignment(context) /*SAK-25555 return true if user is allowed to add assignment*/) return false;
 		
 		String userId = SessionManager.getCurrentSessionUserId();
 
