@@ -491,7 +491,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		else
 		{
-			return securityService.unlock(lock, resource);
+			return securityService.unlock(lock, SiteService.siteReference(context));
 		}
 	}// unlockCheckWithGroups
 
