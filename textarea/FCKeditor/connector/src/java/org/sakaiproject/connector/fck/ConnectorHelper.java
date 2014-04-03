@@ -20,6 +20,7 @@ import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Role;
 
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityBroker;
@@ -55,6 +56,7 @@ public class ConnectorHelper {
 	private static Log M_log = LogFactory.getLog(ConnectorHelper.class);
 	private SiteService siteService = null;
 	private AssignmentService assignmentService = null;
+    private SecurityService securityService = null;
 	private AuthzGroupService authzGroupService = null;
 
 	private EntityBroker entityBroker = null;
@@ -63,7 +65,6 @@ public class ConnectorHelper {
 	private List sites = null;
 	private String loggedInUserId = null;
 	private String loggedInUserEid = null;
-	private Set instructorRoles = null;
 	private boolean userKnown = true;
 	
 //	private final String ASSIGNMENT_ENTITY_PREFIX = "site_assignments";
@@ -77,13 +78,11 @@ public class ConnectorHelper {
 		siteService = (SiteService) ComponentManager.get("org.sakaiproject.site.api.SiteService");
 		assignmentService = (AssignmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentService");
 		authzGroupService = (AuthzGroupService) ComponentManager.get("org.sakaiproject.authz.api.AuthzGroupService");
+		securityService = (SecurityService) ComponentManager.get("org.sakaiproject.authz.api.SecurityService");
 		sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.UPDATE, null, null, null, SortType.TITLE_ASC, null);
 		loggedInUserId = SessionManager.getCurrentSession().getUserId();
 		
 		entityBroker = (EntityBroker) ComponentManager.get(EntityBroker.class);
-
-		instructorRoles = authzGroupService.getMaintainRoles();
-		
 	}
 	
 	public List getAssignments(){
@@ -109,9 +108,8 @@ public class ConnectorHelper {
 					}
 				}				
 			}
-			String thisUserRole = thisSite.getUserRole(loggedInUserId).getId();
-			if(!instructorRoles.contains(thisUserRole)){
-				System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.  Role is:"+thisUserRole);
+			if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + thisSite.getId())){
+				System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 				return returnAssignmentList;
 			}		
 
@@ -173,9 +171,9 @@ public class ConnectorHelper {
 		}catch(Exception e){
 			assignmentToolNotFound = true;
 		}		
-		String thisUserRole = thisSite.getUserRole(loggedInUserId).getId();
-		if(!instructorRoles.contains(thisUserRole)){
-			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.  Role is:"+thisUserRole);
+
+		if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + siteId)){
+			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 			return returnAssignmentList;
 		}
 
@@ -241,9 +239,9 @@ public class ConnectorHelper {
 		} catch (IdUnusedException e) {
 			return new Vector();
 		}	
-		String thisUserRole = thisSite.getUserRole(loggedInUserId).getId();
-		if(!instructorRoles.contains(thisUserRole)){
-			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.  Role is:"+thisUserRole);
+
+		if(!securityService.unlock(loggedInUserId, "site.upd", "/site/" + siteId)){
+			System.out.println("Assignment - no show"+loggedInUserEid+" is not an instructor.");
 			return new Vector();
 		}
 		
