@@ -366,9 +366,6 @@ function audioAnalyzer(time) {
       if ( 4 == this.readyState ) {
         console.log('xhr upload complete'); 
         
-        // refresh the parent page
-        callOpener ("clickReloadLink", window);
-
         // close up shop
         finishAndClose(true, this.responseText);
       }
@@ -378,6 +375,8 @@ function audioAnalyzer(time) {
   }
 
   function finishAndClose (success, responseUrl) {
+    // refresh the parent page
+    callOpener ("clickReloadLink", window);
 
 	//Update the Url if it's passed back and this method accepts it
     callOpener ("updateUrl", responseUrl);
