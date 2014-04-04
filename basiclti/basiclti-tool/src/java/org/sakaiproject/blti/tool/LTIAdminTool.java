@@ -1251,7 +1251,20 @@ System.out.println("newTool="+newTool);
 		}
 		else if ( retval instanceof Boolean )
 		{
-			// TODO: returns boolean
+			//If it's true retrieve the previous content?
+			if ((Boolean) retval == true) {
+				content = ltiService.getContent(Long.parseLong(id));
+				if ( content == null ) {
+					addAlert(state, rb.getString("error.content.not.found"));
+					switchPanel(state, "Error");
+					state.setAttribute(STATE_POST,reqProps);
+					state.setAttribute(STATE_CONTENT_ID,id);
+					return;
+				}
+			} else {
+				// TODO: returns false, should it do anyhing else? 
+				M_log.error("insertToolContent returned false for" + id);
+			}
 		}
 		else
 		{
