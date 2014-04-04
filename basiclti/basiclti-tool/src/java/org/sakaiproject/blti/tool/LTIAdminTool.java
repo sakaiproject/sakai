@@ -1196,6 +1196,15 @@ System.out.println("newTool="+newTool);
                 addAlert(state,rb.getString("error.tool.not.found"));	 
                 return "lti_error";	 
         }	 
+
+        if (previousData == null) {
+        	Properties defaultData = new Properties();
+        	defaultData.put("title",tool.get(LTIService.LTI_TITLE));
+        	defaultData.put("pagetitle",tool.get(LTIService.LTI_PAGETITLE));
+        	previousData = defaultData;
+        	
+        }
+        
         String formInput = ltiService.formInput(previousData, contentForm);	 
 
         context.put("formInput",formInput);
