@@ -318,11 +318,18 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		final List<Ehcache> allCaches = getAllCaches(false);
 		for (Ehcache ehcache : allCaches) {
 			ehcache.evictExpiredElements();
-			
+
 		}
 
 		M_log.info("doExpire(): free memory now " + Runtime.getRuntime().freeMemory());
 	}
+
+    @Override
+    public void destroyCache(String cacheName) {
+        if (this.cacheManager != null) {
+            this.cacheManager.removeCache(cacheName);
+        }
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation

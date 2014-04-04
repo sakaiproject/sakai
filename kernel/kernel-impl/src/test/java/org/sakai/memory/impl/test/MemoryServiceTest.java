@@ -21,20 +21,18 @@
 
 package org.sakai.memory.impl.test;
 
-import java.util.Random;
-
 import junit.framework.TestCase;
 import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.impl.BasicMemoryService;
+
+import java.util.Random;
 
 /**
  * @author ieb
@@ -45,7 +43,6 @@ public class MemoryServiceTest extends TestCase
 
 	private static Log log = LogFactory.getLog(MemoryServiceTest.class);
 	private EventTrackingService eventTrackingService;
-	private UsageSessionService usageSessionService;
 	private SecurityService securityService;
 	private AuthzGroupService authzGroupService;
 	private BasicMemoryService basicMemoryService;
@@ -70,9 +67,8 @@ public class MemoryServiceTest extends TestCase
 		eventTrackingService = new MockEventTrackingService();
 		securityService = new MockSecurityService();
 		serverConfigurationService = new MockServerConfigurationService();
-		usageSessionService = new MockUsageSessionService();
 		authzGroupService = new MockAuthzGroupService();
-		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, usageSessionService, authzGroupService, serverConfigurationService );
+		basicMemoryService = new MockBasicMemoryService(eventTrackingService, securityService, authzGroupService, serverConfigurationService );
 		cacheManager = new CacheManager(this.getClass().getResourceAsStream("ehcache-test.xml"));
 		basicMemoryService.setCacheManager(cacheManager);
 	}
@@ -92,12 +88,12 @@ public class MemoryServiceTest extends TestCase
 		int miss = 0;
 		for ( int i = 0; i < 10000; i++) {
 			int k = r.nextInt(1000);
-			if ( cache.containsKey(k)) {
-				Object k2 = cache.get(k);
+			if ( cache.containsKey(String.valueOf(k))) {
+				Object k2 = cache.get(String.valueOf(k));
 				hit++;
 				assertNotNull(k2);
 			} else {
-				cache.put(k,k);
+				cache.put(String.valueOf(k),k);
 				miss++;
 			}
 		}
@@ -106,7 +102,7 @@ public class MemoryServiceTest extends TestCase
 	public void xtestGetLong() {
 		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache","");
 		for ( int i = 0; i < 100; i++) {
-			cache.put(i, i);
+			cache.put(String.valueOf(i), i);
 		}
 		long endTime = System.currentTimeMillis() + 10*60*1000;
 		long ncount = 0;
@@ -114,14 +110,14 @@ public class MemoryServiceTest extends TestCase
 		while(errors < 100 && System.currentTimeMillis() < endTime ) {
 		for ( int i = 0; i < 100; i++) {
 			ncount++;
-			if ( cache.containsKey(i) ) {
-				if ( cache.get(i) == null ) {
+			if ( cache.containsKey(String.valueOf(i)) ) {
+				if ( cache.get(String.valueOf(i)) == null ) {
 					log.info("Found Null Key for "+i+" after "+ncount+" attempts ");
 					errors++;
 				}
 			} else {
 				log.info("Key missing ");
-				cache.put(i, i);
+				cache.put(String.valueOf(i), i);
 			}
 		}
 		}
