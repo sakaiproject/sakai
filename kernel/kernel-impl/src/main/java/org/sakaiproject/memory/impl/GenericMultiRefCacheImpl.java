@@ -50,8 +50,7 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * The cache map itself becomes synchronized when it's manipulated (not when reads occur), so this added sync. for the refs fits the existing pattern.
  * </p>
  */
-public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRefCache,
-		CacheEventListener 
+public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRefCache, CacheEventListener
 	{
 	/** Our logger. */
 	private final static Log M_log = LogFactory.getLog(GenericMultiRefCacheImpl.class);
@@ -101,13 +100,16 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 
 	}
 
-	public void put(Object key, Object payload, String ref, Collection<String> dependRefs)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public void put(String key, Object payload, String ref, Collection<String> dependRefs)
 	{
 		if(M_log.isDebugEnabled()) {
 			M_log.debug("put(Object " + key + ", Object " + payload + ", Reference "+ ref
 					+", Dependent Refs " + dependRefs + ")");
 		}
-		if (disabled()) return;
 		super.put(key, new MultiRefCacheEntry(payload, ref, dependRefs));
 		
 		// Why don't we do do this in the notify handler?
@@ -123,18 +125,11 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		}
 	}
 
-	/**
-	 * @inheritDoc
-	 */
-	public void put(Object key, Object payload, int duration)
-	{
-		put(key, payload, null, null);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public void put(Object key, Object payload)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public void put(String key, Object payload)
 	{
 		put(key, payload, null, null);
 	}
@@ -159,9 +154,10 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		cachedKeys.put(key, key);
 	}
 
-	/**
-	 * @inheritDoc
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public void clear()
 	{
 		super.clear();
@@ -185,8 +181,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 			ConcurrentMap<Object, Object> keys = m_refsStore.get(ref);
 			if (keys != null && keys.remove(key) != null)
 			{
-				// remove the ref entry if it no longer has any cached keys in
-				// its collection
+				// remove the ref entry if it no longer has any cached keys in its collection
 				// TODO This isn't thread safe.
 				if (keys.isEmpty())
 				{
@@ -196,13 +191,10 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Cacher implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * @inheritDoc
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public String getDescription()
 	{
 		return "GenericMultiRefCache: " + super.getDescription();
@@ -217,8 +209,6 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	 */
 	public void update(Observable o, Object arg)
 	{
-		if (disabled()) return;
-
 		// arg is Event
 		if (!(arg instanceof Event)) return;
 		Event event = (Event) arg;
@@ -258,7 +248,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 			for (Iterator<Object> iKeys = keySet.iterator(); iKeys.hasNext();)
 			{
 					Object key = iKeys.next();
-					remove(key);
+					remove((String)key);
 
 					if (M_log.isDebugEnabled()) {
 						M_log.debug("Removed from cache: "+ key);
@@ -270,27 +260,8 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	/**
 	 * @inheritDoc
 	 */
-	public boolean isComplete()
-	{
-		// we do not support being complete
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public boolean isComplete(String path)
-	{
-		// we do not support being complete
-		return false;
-	}
-
-	/**
-	 * @inheritDoc
-	 * @see org.sakaiproject.memory.impl.MemCache#get(java.lang.Object)
-	 */
 	@Override
-	public Object get(Object key) {
+	public Object get(String key) {
 		MultiRefCacheEntry mrce = (MultiRefCacheEntry) super.get(key);
 		return (mrce != null ? mrce.getPayload(key) : null);
 	}

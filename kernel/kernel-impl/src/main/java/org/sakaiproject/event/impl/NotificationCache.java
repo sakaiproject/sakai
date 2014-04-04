@@ -101,6 +101,7 @@ public class NotificationCache implements Cacher, Observer {
 
 	} // NotificationCache
 
+
 	/**
 	 * Clear all entries.
 	 */
@@ -121,7 +122,7 @@ public class NotificationCache implements Cacher, Observer {
 	 */
 	public boolean containsKey(Object key)
 	{
-		return cache.containsKey(key);
+		return cache.containsKey((String)key);
 		
 	} // containsKey
 
@@ -178,33 +179,13 @@ public class NotificationCache implements Cacher, Observer {
 	{
 		if (disabled()) return null;
 
-		return (Notification) cache.get(key);
+		return (Notification) cache.get((String)key);
 
 	} // get
 
 	/**
-	 * Get all the non-null entries.
-	 * 
-	 * @return all the non-null entries, or an empty list if none.
-	 */
-	public List getAll()
-	{
-		List rv = new Vector();
-
-		if (disabled()) return rv;
-		List allObjectsInCache = cache.getAll();
-		for (Object object : allObjectsInCache) 
-		{
-			if(object != null && object instanceof Notification) rv.add(object);
-		}
-
-		return rv;
-
-	} // getAll
-
-	/**
 	 * Get all the Notification entries that are watching this Event function.
-	 * 
+	 *
 	 * @param function
 	 *        The function to use to select Notifications.
 	 * @return all the Notification entries that are watching this Event function.
@@ -212,7 +193,6 @@ public class NotificationCache implements Cacher, Observer {
 	public List getAll(String function)
 	{
 		return (List) m_functionMap.get(function);
-
 	} // getAll
 
 	/**
@@ -234,53 +214,15 @@ public class NotificationCache implements Cacher, Observer {
 		}
 		if (m_resourcePattern != null)
 		{
-			buf.append(" pattern: " + m_resourcePattern);
+			buf.append(" pattern: ").append(m_resourcePattern);
 		}
 		if (m_refresher != null)
 		{
-			buf.append(" refresher: " + m_refresher.toString());
+			buf.append(" refresher: ").append(m_refresher.toString());
 		}
 
 		return buf.toString();
 	}
-
-	/**
-	 * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
-	 * 
-	 * @return The List of keys converted from references to ids (String).
-	 */
-	public List getIds()
-	{
-		//FIXME Need to create a separate cache for Notifications...
-		return Collections.EMPTY_LIST;
-//		List rv = new Vector();
-//
-//		List keys = new Vector();
-//		keys.addAll(m_map.keySet());
-//
-//		Iterator it = keys.iterator();
-//		while (it.hasNext())
-//		{
-//			String key = (String) it.next();
-//			int i = key.indexOf(m_resourcePattern);
-//			if (i != -1) key = key.substring(i + m_resourcePattern.length());
-//			rv.add(key);
-//		}
-//
-//		return rv;
-
-	} // getKeys
-
-	/**
-	 * Get all the keys
-	 * 
-	 * @return The List of key values (Object).
-	 */
-	public List getKeys()
-	{
-		return cache.getKeys();
-
-	} // getKeys
 
 	/**
 	 * Return the size of the cacher - indicating how much memory in use.
@@ -379,8 +321,8 @@ public class NotificationCache implements Cacher, Observer {
 	{
 		if (disabled()) return;
 
-		Notification payload = (Notification) cache.get(key);
-		cache.remove(key);
+		Notification payload = (Notification) cache.get((String)key);
+		cache.remove((String)key);
 
 		if (payload == null) return;
 
@@ -409,7 +351,6 @@ public class NotificationCache implements Cacher, Observer {
 	public void resetCache()
 	{
 		clear();
-
 	} // resetCache
 
 	/**

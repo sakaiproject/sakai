@@ -31,6 +31,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.DerivedCache;
 
 import java.lang.ref.SoftReference;
@@ -44,7 +45,7 @@ import java.util.*;
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
  */
-public class MemCache implements Cache, Observer
+public class MemCache implements Cache, Observer, Cacher
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MemCache.class);
@@ -102,32 +103,13 @@ public class MemCache implements Cache, Observer
 		} // CacheEntry
 
 		/**
-		 * Construct to cache the payload for the duration.
-		 * 
-		 * @param payload
-		 *        The thing to cache.
-		 * @param duration
-		 *        The time (seconds) to keep this cached.
-		 * @deprecated
-		 */
-		public CacheEntry(Object payload, int duration)
-		{
-			// put the payload into the soft reference
-			super(payload);
-
-			// is it supposed to be null?
-			m_nullPayload = (payload == null);
-
-		} // CacheEntry
-
-		/**
 		 * Get the cached object.
 		 * 
 		 * @param key
 		 *        The key for this entry (if null, we won't try to refresh if missing)
 		 * @return The cached object.
 		 */
-		public Object getPayload(Object key)
+		public Object getPayload(String key)
 		{
 			// if we hold null, this is easy
 			if (m_nullPayload)
@@ -281,25 +263,19 @@ public class MemCache implements Cache, Observer
 		}
 	}
 
-	/**
-	 * Clean up.
-	 */
+    /**
+     * @deprecated REMOVE THIS
+     */
 	public void destroy()
 	{
-		cache.removeAll();  //TODO Do we boolean doNotNotifyCacheReplicators? Ian?
-		cache.getStatistics().clearStatistics();
-
-		// if we are not in a global shutdown
-		if (!ComponentManager.hasBeenClosed())
-		{
-			// remove my event notification registration
-			m_eventTrackingService.deleteObserver(this);
-		}
+		this.close();
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
+    @SuppressWarnings("deprecation")
+    @Override
 	public void attachDerivedCache(DerivedCache cache)
 	{
 		// Note: only one is supported
@@ -330,80 +306,27 @@ public class MemCache implements Cache, Observer
 		}
 	}
 
-	/**
-	 * Cache an object
-	 * 
-	 * @param key
-	 *        The key with which to find the object.
-	 * @param payload
-	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
-	 * @deprecated 
-	 */
-	public void put(Object key, Object payload, int duration)
-	{
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("put(Object " + key + ", Object " + payload + ", int "
-					+ duration + ")");
-		}
-		put(key, payload);
-	}
-
-	/**
-	 * Cache an object - don't automatically exipire it.
-	 * 
-	 * @param key
-	 *        The key with which to find the object.
-	 * @param payload
-	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
-	 */
-	public void put(Object key, Object payload)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public void put(String key, Object payload)
 	{
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("put(Object " + key + ", Object " + payload + ")");
 		}
 
-		if (disabled()) return;
-		
 		cache.put(new Element(key, payload));
 
 		if (m_derivedCache != null) m_derivedCache.notifyCachePut(key, payload);
 	}
 
-
-	/**
-	 * Test for an entry in the cache - expired or not.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return true if the key maps to a cache entry, false if not.
-	 * @deprecated
-	 */
-	public boolean containsKeyExpiredOrNot(Object key)
-	{
-		if ( disabled() ) {
-			return false;
-		}
-		return cache.isKeyInCache(key);
-	} // containsKeyExpiredOrNot
-
-	/**
-	 * Test for a non expired entry in the cache.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return true if the key maps to a non-expired cache entry, false if not.
-	 */
-	public boolean containsKey(Object key) {
+    @Override
+	public boolean containsKey(String key) {
 		if (M_log.isDebugEnabled()) 
 		{
 			M_log.debug("containsKey(Object " + key + ")");
 		}
-		if (disabled())
-			return false;
 
 		if ( cache.isKeyInCache(key) ) {
 			return ( cache.get(key) != null );
@@ -411,77 +334,31 @@ public class MemCache implements Cache, Observer
 		return false;
 	} // containsKey
 
-	/**
-	 * Expire this object.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 */
-	public void expire(Object key)
-	{
-		if (M_log.isDebugEnabled()) 
-		{
-			M_log.debug("expire(Object " + key + ")");
-		}
-		
-		if (disabled()) return;
-
-		// remove it
-		remove(key);
-
-	} // expire
-
-	/**
-	 * Get the entry, or null if not there (expired entries are returned, too).
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return The payload, or null if the payload is null, the key is not found. (Note: use containsKey() to remove this ambiguity).
-	 * @deprecated
-	 */
-	public Object getExpiredOrNot(Object key)
-	{
-		if (M_log.isDebugEnabled())
-		{
-			M_log.debug("getExpiredOrNot(Object " + key + ")");
-		}
-
-		return get(key);
-
-	} // getExpiredOrNot
-
-	/**
-	 * Get the non expired entry, or null if not there (or expired)
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return The payload, or null if the payload is null, the key is not found, or the entry has expired (Note: use containsKey() to remove this ambiguity).
-	 */
-	public Object get(Object key)
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public Object get(String key)
 	{
 		if (M_log.isDebugEnabled())
 		{
 			M_log.debug("get(Object " + key + ")");
 		}
 
-		if (disabled()) return null;
-
 		final Element e = cache.get(key);
 		return(e != null ? e.getObjectValue() : null);
-
 	} // get
 
 	/**
+     * TODO REMOVE
 	 * Get all the non-expired non-null entries.
-	 * 
+	 *
 	 * @return all the non-expired non-null entries, or an empty list if none.
 	 * @deprecated
 	 */
 	public List getAll()
 	{ //TODO Why would you ever getAll objects from cache?
 		M_log.debug("getAll()");
-		
-		if (disabled()) return Collections.emptyList();
 
 		final List<Object> keys = cache.getKeysWithExpiryCheck();
 		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
@@ -496,6 +373,7 @@ public class MemCache implements Cache, Observer
 	} // getAll
 
 	/**
+     * TODO REMOVE
 	 * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
 	 * 
 	 * @param path
@@ -507,9 +385,7 @@ public class MemCache implements Cache, Observer
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("getAll(String " + path + ")");
 		}
-		
-		if (disabled()) return Collections.emptyList();
-		
+
 		final List<Object> keys = cache.getKeysWithExpiryCheck();
 		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
 		for (Object key : keys) {
@@ -523,6 +399,7 @@ public class MemCache implements Cache, Observer
 	} // getAll
 
 	/**
+     * TODO REMOVE
 	 * Get all the keys
 	 * 
 	 * @return The List of key values (Object).
@@ -530,12 +407,11 @@ public class MemCache implements Cache, Observer
 	public List getKeys()
 	{
 		M_log.debug("getKeys()");
-		
-		return cache.getKeys();
-		
+		return cache.getKeysWithExpiryCheck();
 	} // getKeys
 
 	/**
+     * TODO REMOVE
 	 * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
 	 * 
 	 * @return The List of keys converted from references to ids (String).
@@ -543,12 +419,8 @@ public class MemCache implements Cache, Observer
 	public List getIds() {
 		M_log.debug("getIds()");
 
-		if (disabled())
-			return Collections.emptyList();
-
 		final List<Object> keys = cache.getKeysWithExpiryCheck();
-		final List<Object> rv = new ArrayList<Object>(keys.size()); // return
-																	// value
+		final List<Object> rv = new ArrayList<Object>(keys.size());
 		for (Object key : keys) {
 			if (key instanceof String) {
 				int i = ((String) key).indexOf(m_resourcePattern);
@@ -562,33 +434,50 @@ public class MemCache implements Cache, Observer
 
 	} // getIds
 
-	/**
-	 * Clear all entries.
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public void clear()
 	{
 		M_log.debug("clear()");
-
 		cache.removeAll();
 		cache.getStatistics().clearStatistics();
-
 		if (m_derivedCache != null) m_derivedCache.notifyCacheClear();
-
 	} // clear
 
-	/**
-	 * Remove this entry from the cache.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 */
-	public void remove(Object key)
+    @Override
+    public String getName() {
+        return this.cache.getName();
+    }
+
+    @Override
+    public void close() {
+        cache.removeAll();
+        cache.getStatistics().clearStatistics();
+        this.cache.dispose();
+        // if we are not in a global shutdown
+        if (!ComponentManager.hasBeenClosed()) {
+            // remove my event notification registration
+            m_eventTrackingService.deleteObserver(this);
+        }
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        //noinspection unchecked
+        return (T) cache;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+	public void remove(String key)
 	{
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("remove(Object " + key + ")");
 		}
-
-		if (disabled()) return;
 
 		// We could get things wrong here.
 		final Object value = get(key);
@@ -597,156 +486,18 @@ public class MemCache implements Cache, Observer
 		if (m_derivedCache != null)
 		{
 			Object old = null;
-			if (found)
-			{
+			if (found) {
 				old = value;
 			}
-
 			m_derivedCache.notifyCacheRemove(key, old);
 		}
 
 	} // remove
 
-	/**
-	 * Disable the cache.
-	 */
-	public void disable()
-	{
-		M_log.debug("disable()");
-		
-		m_disabled = true;
-		m_eventTrackingService.deleteObserver(this);
-		clear();
-
-	} // disable
-
-	/**
-	 * Enable the cache.
-	 */
-	public void enable()
-	{
-		M_log.debug("enable()");
-
-		m_disabled = false;
-
-		if (m_resourcePattern != null)
-		{
-			m_eventTrackingService.addPriorityObserver(this);
-		}
-
-	} // enable
-
-	/**
-	 * Is the cache disabled?
-	 * 
-	 * @return true if the cache is disabled, false if it is enabled.
-	 */
-	public boolean disabled()
-	{
-		M_log.debug("disabled()");
-
-		return m_disabled;
-
-	} // disabled
-
-	/**
-	 * Are we complete?
-	 * 
-	 * @return true if we have all the possible entries cached, false if not.
-	 */
-	public boolean isComplete()
-	{
-		M_log.debug("isComplete()");
-
-		if (disabled()) return false;
-
-		return m_complete;
-
-	} // isComplete
-
-	/**
-	 * Set the cache to be complete, containing all possible entries.
-	 */
-	public void setComplete()
-	{
-		M_log.debug("setComplete()");
-
-		if (disabled()) return;
-
-		m_complete = true;
-
-	} // isComplete
-
-	/**
-	 * Are we complete for one level of the reference hierarchy?
-	 * 
-	 * @param path
-	 *        The reference to the completion level.
-	 * @return true if we have all the possible entries cached, false if not.
-	 */
-	public boolean isComplete(String path)
-	{
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("isComplete(String " + path + ")");
-		}
-
-		return m_partiallyComplete.contains(path);
-
-	} // isComplete
-
-	/**
-	 * Set the cache to be complete for one level of the reference hierarchy.
-	 * 
-	 * @param path
-	 *        The reference to the completion level.
-	 */
-	public void setComplete(String path)
-	{
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("setComplete(String " + path + ")");
-		}
-
-		m_partiallyComplete.add(path);
-
-	} // setComplete
-
-	/**
-	 * Set the cache to hold events for later processing to assure an atomic "complete" load.
-	 */
-	public void holdEvents()
-	{
-		M_log.debug("holdEvents()");
-		
-		m_holdEventProcessing = true;
-
-	} // holdEvents
-
-	/**
-	 * Restore normal event processing in the cache, and process any held events now.
-	 */
-	public void processEvents()
-	{
-		M_log.debug("processEvents()");
-
-		m_holdEventProcessing = false;
-
-		for (int i = 0; i < m_heldEvents.size(); i++)
-		{
-			Event event = (Event) m_heldEvents.get(i);
-			continueUpdate(event);
-		}
-
-		m_heldEvents.clear();
-
-	} // holdEvents
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Cacher implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Clear out as much as possible anything cached; re-sync any cache that is needed to be kept.
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public void resetCache()
 	{
 		M_log.debug("resetCache()");
@@ -755,11 +506,10 @@ public class MemCache implements Cache, Observer
 
 	} // resetCache
 
-	/**
-	 * Return the size of the cacher - indicating how much memory in use.
-	 * 
-	 * @return The size of the cacher.
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public long getSize()
 	{
 		M_log.debug("getSize()");
@@ -767,11 +517,10 @@ public class MemCache implements Cache, Observer
 		return cache.getStatistics().getObjectCount();
 	}
 
-	/**
-	 * Return a description of the cacher.
-	 * 
-	 * @return The cacher's description.
-	 */
+    /**
+     * {@inheritDoc}
+     */
+    @Override
 	public String getDescription()
 	{
 		final StringBuilder buf = new StringBuilder();
@@ -786,27 +535,34 @@ public class MemCache implements Cache, Observer
 		}
 		if (m_resourcePattern != null)
 		{
-			buf.append(" " + m_resourcePattern);
+			buf.append(" ").append(m_resourcePattern);
 		}
 		if (m_partiallyComplete.size() > 0)
 		{
 			buf.append(" partially_complete[");
 			for (Object element : m_partiallyComplete) {
-				buf.append(" " + element);
+				buf.append(" ").append(element);
 			}
 			buf.append("]");
 		}
 		final long hits = cache.getStatistics().getCacheHits();
 		final long misses = cache.getStatistics().getCacheMisses();
 		final long total = hits + misses;
-		buf.append("  hits:" + hits + "  misses:" + misses + "  hit%:"
-				+ ((total > 0) ? "" + ((100l * hits) / total) : "n/a"));
+		buf.append("  hits:").append(hits).append("  misses:").append(misses).append("  hit%:").append((total > 0) ? "" + ((100l * hits) / total) : "n/a");
 
 		return buf.toString();
 	}
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void attachLoader(CacheRefresher cacheLoader) {
+        // TOOD implement this
+    }
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+
+    /**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -821,8 +577,6 @@ public class MemCache implements Cache, Observer
 	 */
 	public void update(Observable o, Object arg)
 	{
-		if (disabled()) return;
-
 		// arg is Event
 		if (!(arg instanceof Event)) return;
 		Event event = (Event) arg;
@@ -875,7 +629,7 @@ public class MemCache implements Cache, Observer
 			if (m_refresher != null)
 			{
 				// ask the refresher for the value
-				Object value = m_refresher.refresh(key, oldValue, event);
+				@SuppressWarnings("deprecation") Object value = m_refresher.refresh(key, oldValue, event);
 				if (value != null)
 				{
 					put(key, value);
@@ -901,7 +655,7 @@ public class MemCache implements Cache, Observer
 				if (m_refresher != null)
 				{
 					// ask the refresher for the value
-					Object value = m_refresher.refresh(key, oldValue, event);
+					@SuppressWarnings("deprecation") Object value = m_refresher.refresh(key, oldValue, event);
 					if (value != null)
 					{
 						put(key, value);
@@ -924,9 +678,9 @@ public class MemCache implements Cache, Observer
 	 *        The reference string.
 	 * @return The reference root for the given reference.
 	 */
-	protected String referencePath(String ref)
+	public static String referencePath(String ref)
 	{
-		String path = null;
+		String path;
 
 		// Note: there may be a trailing separator
 		int pos = ref.lastIndexOf("/", ref.length() - 2);

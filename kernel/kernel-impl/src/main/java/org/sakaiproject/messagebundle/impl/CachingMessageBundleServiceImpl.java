@@ -1,13 +1,13 @@
 package org.sakaiproject.messagebundle.impl;
 
-import java.util.Locale;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
+
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * CachingMessageBundleServiceImpl
@@ -38,7 +38,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 	
 	public void destroy() {
-		cache.destroy();
+		cache.close();
 		cache = null;
 	}
 	

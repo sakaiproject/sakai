@@ -65,6 +65,11 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     }
 
     @Override
+    public void destroyCache(String cacheName) {
+        caches.remove(cacheName);
+    }
+
+    @Override
     public Cache newCache(String cacheName) {
         return newCache(cacheName, null, null);
     }
@@ -76,6 +81,6 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
 
     @Override
     public String getStatus() {
-        return null;
+        return caches.toString();
     }
 }

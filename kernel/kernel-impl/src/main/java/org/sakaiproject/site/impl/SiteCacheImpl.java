@@ -21,20 +21,13 @@
 
 package org.sakaiproject.site.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
-import org.sakaiproject.component.api.ServerConfigurationService;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -42,6 +35,11 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -113,10 +111,8 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 *        The key with which to find the object.
 	 * @param payload
 	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
 	 */
-	public void put(Object key, Object payload, int duration)
+	public void put(String key, Object payload)
 	{
 		m_cache.put(key, payload);
 	}
@@ -128,7 +124,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 *        The cache key.
 	 * @return true if the key maps to a non-expired cache entry, false if not.
 	 */
-	public boolean containsKey(Object key)
+	public boolean containsKey(String key)
 	{
 		return m_cache.containsKey(key);
 	}
@@ -140,7 +136,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 *        The cache key.
 	 * @return The payload, or null if the payload is null, the key is not found, or the entry has expired (Note: use containsKey() to remove this ambiguity).
 	 */
-	public Object get(Object key)
+	public Object get(String key)
 	{
 		return m_cache.get(key);
 	}
@@ -159,7 +155,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 * @param key
 	 *        The cache key.
 	 */
-	public void remove(Object key)
+	public void remove(String key)
 	{
 		m_cache.remove(key);
 	}
@@ -218,7 +214,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	/**
 	 * {@inheritDoc}
 	 */
-	public void notifyCachePut(Object key, Object payload)
+	public void notifyCachePut(String key, Object payload)
 	{
 		// add the payload (Site) tool ids
 		if (payload instanceof Site)
@@ -264,7 +260,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	/**
 	 * {@inheritDoc}
 	 */
-	public void notifyCacheRemove(Object key, Object payload)
+	public void notifyCacheRemove(String key, Object payload)
 	{
 		// clear the tool ids for this site
 		if ((payload != null) && (payload instanceof Site))
@@ -336,7 +332,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 			M_log.debug("ehcache event: notifyElementEvicted: "+element.getKey());
 		}
 		
-		notifyCacheRemove(element.getObjectKey(), element.getObjectValue());		
+		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
@@ -345,7 +341,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 			M_log.debug("ehcache event: notifyElementExpired: "+element.getKey());
 		}
 		
-		notifyCacheRemove(element.getObjectKey(), element.getObjectValue());
+		notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 

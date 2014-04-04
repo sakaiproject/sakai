@@ -980,7 +980,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 		if ((m_caching) && (m_cache != null))
 		{
-			m_cache.destroy();
+			m_cache.close();
 		}
 
 		M_log.info("destroy()");

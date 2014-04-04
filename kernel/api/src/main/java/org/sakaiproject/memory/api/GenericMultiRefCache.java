@@ -28,7 +28,7 @@ import java.util.Collection;
  * GenricMultiRefCache is a cache that holds objects and a set of references that the cached entry are dependent on - if any change, the entry is invalidated.
  * </p>
  */
-public interface GenericMultiRefCache extends Cache
+public interface GenericMultiRefCache extends Cache, Cacher
 {
 	/**
 	 * Cache an object that depends on more than just the key. This doesn't just work for
@@ -37,5 +37,5 @@ public interface GenericMultiRefCache extends Cache
 	 * @param payload The cached object.
 	 * @param dependRefs All the references that this cached object depends on.
 	 */
-	void put(Object key, Object payload, String ref, Collection<String> dependRefs);
+	void put(String key, Object payload, String ref, Collection<String> dependRefs);
 }

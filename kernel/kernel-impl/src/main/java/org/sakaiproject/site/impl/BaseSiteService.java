@@ -21,52 +21,12 @@
 
 package org.sakaiproject.site.impl;
 
-import java.io.PrintWriter;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-import java.util.concurrent.CopyOnWriteArraySet;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.ContextObserver;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityAccessOverloadException;
-import org.sakaiproject.entity.api.EntityCopyrightException;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -77,16 +37,7 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.site.api.AllowedJoinableAccount;
-import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteAdvisor;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.SiteRemovalAdvisor;
-import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.api.SiteService.SelectionType;
-import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.site.api.*;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
@@ -95,14 +46,15 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.BasicConfigItem;
-import org.sakaiproject.util.Resource;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.util.StorageUser;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.PrintWriter;
+import java.util.*;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 /**
  * <p>
@@ -675,7 +627,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		{
 			String ref = siteReference(site.getId());
 			Site copy = new BaseSite(this, site, true);
-			m_siteCache.put(ref, copy, m_cacheSeconds);
+			m_siteCache.put(ref, copy);
 			return true;
 		}
 		return false;
@@ -755,7 +707,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				// cache it
 				if (m_siteCache != null)
 				{
-					m_siteCache.put(siteReference(id), Boolean.TRUE, m_cacheSeconds);
+					m_siteCache.put(siteReference(id), Boolean.TRUE);
 				}
 
 				return true;
@@ -766,7 +718,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				// cache the miss
 				if (m_siteCache != null)
 				{
-					m_siteCache.put(siteReference(id), Boolean.FALSE, m_cacheSeconds);
+					m_siteCache.put(siteReference(id), Boolean.FALSE);
 				}
 			}
 		}

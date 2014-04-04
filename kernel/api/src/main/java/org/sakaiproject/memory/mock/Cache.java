@@ -21,6 +21,8 @@
 
 package org.sakaiproject.memory.mock;
 
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
@@ -28,9 +30,9 @@ import java.util.*;
 
 /**
  * Mock Cache for use in testing
- * Partly functional
+ * Partly functional (no listener/loader support)
  */
-public class Cache implements GenericMultiRefCache {
+public class Cache implements GenericMultiRefCache, Cacher {
 
     private Map<Object, Object> map = new HashMap<Object, Object>();
 
@@ -39,119 +41,84 @@ public class Cache implements GenericMultiRefCache {
         this.name = name;
     }
 
-    public void attachDerivedCache(DerivedCache arg0) {
-    }
-
+    @Override
     public void clear() {
         map.clear();
     }
 
-    public boolean containsKey(Object key) {
-        return map.containsKey(key);
-    }
-
-    public boolean containsKeyExpiredOrNot(Object key) {
-        return containsKey(key);
-    }
-
-    public void destroy() {
-        map = null;
-    }
-
-    public void disable() {
-    }
-
-    public boolean disabled() {
-        return false;
-    }
-
-    public void enable() {
-    }
-
-    public void expire(Object o) {
-        map.remove(o);
-    }
-
-    public Object get(Object key) {
-        return map.get(key);
-    }
-
-    public List getAll() {
-        List<Object> all = new ArrayList<Object>();
-        for(Object o : map.values()) {
-            all.add(o);
-        }
-        return all;
-    }
-
-    public List getAll(String key) {
-        List<Object> all = new ArrayList<Object>();
-        all.add(get(key));
-        return all;
-    }
-
-    public Object getExpiredOrNot(Object key) {
-        return get(key);
-    }
-
-    public List getIds() {
-        return getKeys();
-    }
-
-    public List getKeys() {
-        List<Object> keys = new ArrayList<Object>();
-        for(Object k : map.keySet()) {
-            keys.add(k);
-        }
-        return keys;
-    }
-
-    public void holdEvents() {
-    }
-
-    public boolean isComplete() {
-        return false;
-    }
-
-    public boolean isComplete(String arg0) {
-        return false;
-    }
-
-    public void processEvents() {
-    }
-
-    public void put(Object key, Object object) {
-        map.put(key, object);
-    }
-
-    public void put(Object key, Object object, int arg2) {
-        map.put(key, object);
-    }
-
-    public void remove(Object key) {
-        map.remove(key);
-    }
-
-    public void setComplete() {
-    }
-
-    public void setComplete(String arg0) {
-    }
-
-    public String getDescription() {
+    @Override
+    public String getName() {
         return name;
     }
 
-    public long getSize() {
-        return map.size();
+    @Override
+    public void close() {
+        map = null;
     }
 
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        //noinspection unchecked
+        return (T) map;
+    }
+
+    @Override
+    public Object get(String key) {
+        return map.get(key);
+    }
+
+    @Override
+    public boolean containsKey(String key) {
+        return map.containsKey(key);
+    }
+
+    @Override
+    public void put(String key, Object object) {
+        map.put(key, object);
+    }
+
+    @Override
+    public void remove(String key) {
+        map.remove(key);
+    }
+
+    // multi ref cache
+
+    @Override
+    public void put(String key, Object payload, String ref, Collection<String> dependRefs) {
+        map.put(key, payload);
+    }
+
+    // Sakai items below
+
+    @Override
+    public void attachDerivedCache(DerivedCache arg0) {
+    }
+
+    /**
+     * @deprecated REMOVE THIS
+     */
+    public void destroy() {
+        close();
+    }
+
+    @Override
+    public void attachLoader(CacheRefresher cacheLoader) {
+    }
+
+    @Override
     public void resetCache() {
         clear();
     }
 
-    public void put(Object key, Object payload, String ref, Collection<String> dependRefs) {
-        map.put(key, payload);
+    @Override
+    public String getDescription() {
+        return name;
+    }
+
+    @Override
+    public long getSize() {
+        return map.size();
     }
 
 }

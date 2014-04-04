@@ -22,34 +22,48 @@
 package org.sakaiproject.memory.api;
 
 /**
+ * This allows a developer to track changes that are happening in a cache. This is basically a listener
+ * for cache events which is attached to the cache via methods in the {@link Cache} or the {@link MemoryService}. 
+ * Recommend that you use the ehcache CacheEventListener instead if you are getting an
+ * ehcache directly.<br/>
+ * <b>NOTE:</b> This is named in a confusing way and should be renamed
+ * Here is the original comment for this API:
  * <p>
- * A DerivedCache provides some additional caching derived from the primary data in a Cache. It is directly accessed by the client for this derived data. It is notified by the primary cache it is attached to when the cache contents change.
+ * A DerivedCache provides some additional caching derived from the primary data in a Cache. 
+ * It is directly accessed by the client for this derived data. 
+ * It is notified by the primary cache it is attached to when the cache contents change.
  * </p>
+ * @author Glenn Golden (ggolden@umich.edu)
+ * @author Aaron Zeckoski (azeckoski @ gmail.com)
+ *
+ * @deprecated This class will be renamed to CacheNotificationHandler to align with JSR-107
  */
-public interface DerivedCache
-{
-	/**
-	 * Notification that an object has been put into the primary cache.
+public interface DerivedCache {
+   // TODO - rename this to CacheNotificationHandler (like EventListener)
+
+   /**
+	 * This method is called when an object is added to the associated cache
+	 * (it is not called when there is an update)
 	 * 
-	 * @param key
-	 *        The cache key.
-	 * @param payload
-	 *        The cached object.
+	 * @param key the key for the object being placed in the cache
+	 * @param payload the object being placed in the cache
 	 */
-	void notifyCachePut(Object key, Object payload);
+	void notifyCachePut(String key, Object payload);
 
 	/**
-	 * Notification that the primary cache has been cleared of all entries.
+	 * This method is called when all cache items are cleared from the associated cache
 	 */
 	void notifyCacheClear();
 
 	/**
-	 * Notification that this object under this key has been removed from the cache.
+	 * This method is called when an object is removed from the associated cache
+	 * (this is only called when the object is explicitly removed and not when 
+	 * it expires), this method blocks the removal until it completes and an exception
+	 * will cause the item to not be removed<br/>
+	 * <b>NOTE:</b> this is NOT called when a cache is reset (all items are removed)
 	 * 
-	 * @param key
-	 *        The cache key.
-	 * @param payload
-	 *        The cached object.
+    * @param key the key for the object being placed in the cache
+    * @param payload the object being placed in the cache
 	 */
-	void notifyCacheRemove(Object key, Object payload);
+	void notifyCacheRemove(String key, Object payload);
 }

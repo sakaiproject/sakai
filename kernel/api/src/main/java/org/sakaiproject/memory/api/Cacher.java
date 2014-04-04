@@ -22,31 +22,34 @@
 package org.sakaiproject.memory.api;
 
 /**
- * <p>
- * Cacher is an interface for any object that uses memory caches.
- * </p>
- * <p>
- * Cachers may be asked to clear their caches to free up memory or re-sync with external stores.
- * </p>
+ * Cacher is an interface for any object that uses memory caches<br/>
+ * this is the lowest level of caching, {@link Cache} is more functional and
+ * should be used instead of this in almost every case
+ *
+ * @deprecated since 2.9, this will be removed in the next release
  */
 public interface Cacher
 {
 	/**
-	 * Clear out as much as possible anything cached; re-sync any cache that is needed to be kept.
+	 * Clear all entries from the cache (this effectively resets the cache),
+     * without notifying listeners
+	 * (works like <b>clear</b> from JSR-107 spec)
 	 */
 	void resetCache();
 
 	/**
-	 * Return the size of the cacher - indicating how much memory in use.
+	 * Return the size of this cache<br/>
+	 * <b>NOTE:</b> This is approximate and may not be completely accurate
 	 * 
-	 * @return The size of the cacher.
+	 * @return the number of items in this cache
 	 */
 	long getSize();
 
 	/**
-	 * Return a description of the cacher.
+	 * Return a description of this cache<br/>
+	 * <b>WARNING:</b> This is costly and should not be called often
 	 * 
-	 * @return The cacher's description.
+	 * @return a string which summarizes the state of the cache
 	 */
 	String getDescription();
 }

@@ -21,202 +21,215 @@
 
 package org.sakaiproject.memory.api;
 
-import java.util.List;
+import java.io.Serializable;
 
 /**
+ * This is an abstraction of the general concept of a cache in Sakai<br/>
  * <p>
  * A Cache holds objects with keys with a limited lifespan.
  * </p>
  * <p>
  * When the object expires, the cache may call upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
+ * This is designed to align with JSR-107
+ * https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/Cache.java
  */
-public interface Cache extends Cacher
-{
-	/**
-	 * Cache an object
-	 * 
-	 * @param key
-	 *        The key with which to find the object.
-	 * @param payload
-	 *        The object to cache.
-	 * @param duration
-	 *        The time to cache the object (seconds).
-	 * @deprecated Since Sakai 2.5.0
-	 * @see Cache#put(Object, Object)
-	 */
-	void put(Object key, Object payload, int duration);
+public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
 
-	/**
-	 * Cache an object - don't automatically exipire it.
-	 * 
-	 * @param key
-	 *        The key with which to find the object.
-	 * @param payload
-	 *        The object to cache.
-	 */
-	void put(Object key, Object payload);
+    /**
+     * Get the cached payload, or null if not there (or expired)<br/>
+     * NOTE: this will attempt to call the CacheRefresher and get
+     * a new value for this key if one cannot be found
+     * (partially cluster safe)<br/>
+     * <b>NOTE:</b> Does not work like <b>get</b> from JSR-107 spec
+     * (which returns an Element instead of the value and only returns null if the entry does not exist)
+     *
+     * @param key the unique key for a cached object
+     * @return The cached payload, or null if the payload is not found in the cache,
+     * (use {@link #containsKey(String)} to differentiate between not found and stored null)
+     */
+    Object get(String key); // V get(K key);
 
-	/**
-	 * Test for an entry in the cache - expired or not.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return true if the key maps to a cache entry, false if not.
-	 * @deprecated Since Sakai 2.5.0
-	 * @see Cache#containsKey(Object)
-	 */
-	boolean containsKeyExpiredOrNot(Object key);
+    //JSR-107 Map<K, V> getAll(Set<? extends K> keys);
 
-	/**
-	 * Test for a non expired entry in the cache.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return true if the key maps to a non-expired cache entry, false if not.
-	 */
-	boolean containsKey(Object key);
+    /**
+     * Test if an entry exists in the cache for a key,
+     * this allows us to differentiate between not found and stored null
+     *
+     * More formally, returns <tt>true</tt> if and only if this cache contains a
+     * mapping for a key <tt>k</tt> such that <tt>key.equals(k)</tt>.
+     * (There can be at most one such mapping.)
+     *
+     * (This method works like the JSR-107 spec)
+     *
+     * @param key the unique key for a cached object
+     * @return true if the cache contains an entry with this key, false otherwise
+     */
+    boolean containsKey(String key); // boolean containsKey(K key);
 
-	/**
-	 * Expire this object.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 */
-	void expire(Object key);
+    //JSR-107 void loadAll(Set<? extends K> keys, boolean replaceExistingValues, CompletionListener completionListener);
 
-	/**
-	 * Get the entry, or null if not there (expired entries are returned, too).
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return The payload, or null if the payload is null, the key is not found. (Note: use containsKey() to remove this ambiguity).
-	 * @deprecated Since Sakai 2.5.0
-	 * @see Cache#get(Object)
-	 */
-	Object getExpiredOrNot(Object key);
+    /**
+     * Cache an object which will be expired based on the system cache configuration,
+     * if the object already exists in the cache then it will be replaced,
+     * (This method works like the JSR-107 spec)
+     *
+     * @param key the unique key for a cached object
+     * @param payload the cache payload (thing to cache),
+     * this should be {@link Serializable} if this is supposed to
+     * be distributable or able to be stored in the disk cache,
+     * null may be used (this will cause the cache to store a null value for this key)
+     */
+    void put(String key, Object payload); // void put(K key, V value);
 
-	/**
-	 * Get the non expired entry, or null if not there (or expired)
-	 * 
-	 * @param key
-	 *        The cache key.
-	 * @return The payload, or null if the payload is null, the key is not found, or the entry has expired (Note: use containsKey() to remove this ambiguity).
-	 */
-	Object get(Object key);
+    //JSR-107 V getAndPut(K key, V value);
+    //JSR-107 void putAll(java.util.Map<? extends K, ? extends V> map);
+    //JSR-107 boolean putIfAbsent(K key, V value);
 
-	/**
-	 * Get all the non-expired non-null entries.
-	 * 
-	 * @return all the non-expired non-null entries, or an empty list if none.
-	 * @deprecated Since Sakai 2.5.0
-	 */
-	List getAll();
+    /**
+     * Remove this entry from the cache or do nothing if the entry is not in the cache
+     * (cluster safe)
+     * <p>
+     * More formally, if this cache contains a mapping from key <tt>k</tt> to
+     * value <tt>v</tt> such that
+     * <code>(key==null ?  k==null : key.equals(k))</code>, that mapping is removed.
+     * (The cache can contain at most one such mapping.)
+     *
+     * The cache will not contain a mapping for the specified key once the
+     * call returns.
+     *
+     * <b>NOTE:</b> Does not work like <b>remove</b> from JSR-107 spec
+     * (which returns a boolean indicating if the item was in the cache before removal)
+     *
+     * @param key the unique key for a cached object
+     */
+    void remove(String key); // boolean remove(K key);
 
-	/**
-	 * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
-	 * 
-	 * @param path
-	 *        The reference path.
-	 * @return all the non-expired non-null entries, or an empty list if none.
-	 * @deprecated Since Sakai 2.5.0
-	 */
-	List getAll(String path);
+    //JSR-107 boolean remove(K key, V oldValue);
+    //JSR-107 V getAndRemove(K key);
+    //JSR-107 boolean replace(K key, V oldValue, V newValue);
+    //JSR-107 boolean replace(K key, V value);
+    //JSR-107 V getAndReplace(K key, V value);
+    //JSR-107 void removeAll(Set<? extends K> keys);
+    //JSR-107 void removeAll();
 
-	/**
-	 * Get all the keys
-	 * 
-	 * @return The List of key values (Object).
-	 */
-	List getKeys();
+    /**
+     * Clear all entries from the cache (this effectively resets the cache),
+     * without notifying listeners
+     * (works like <b>clear</b> from JSR-107 spec)
+     */
+    void clear();
 
-	/**
-	 * Get all the keys, modified from resource references to ids by removing the resource prefix. Note: only works with String keys.
-	 * 
-	 * @return The List of keys converted from references to ids (String).
-	 * @deprecated Since Sakai 2.5.0
-	 */
-	List getIds();
+    //JSR-107 <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz);
 
-	/**
-	 * Clear all entries.
-	 */
-	void clear();
+    /**
+     * Return the name of the cache.
+     *
+     * @return the name of the cache.
+     */
+    String getName();
 
-	/**
-	 * Remove this entry from the cache.
-	 * 
-	 * @param key
-	 *        The cache key.
-	 */
-	void remove(Object key);
+    //JSR-107 CacheManager getCacheManager();
 
-	/**
-	 * Disable the cache.
-	 */
-	void disable();
+    /**
+     * Closing a {@link Cache} signals to the CacheManager that produced or
+     * owns the {@link Cache} that it should no longer be managed. At this
+     * point in time the CacheManager:
+     * <ul>
+     * <li>must close and release all resources being coordinated on behalf of the
+     * Cache by the CacheManager.
+     * </li>
+     * <li>not return the name of the Cache when the CacheManager getCacheNames()
+     * method is called</li>
+     * </ul>
+     * Once closed any attempt to use an operational method on a Cache will throw an
+     * {@link IllegalStateException}.
+     *
+     * @throws SecurityException when the operation could not be performed
+     *                           due to the current security settings
+     */
+    void close();
 
-	/**
-	 * Enable the cache.
-	 */
-	void enable();
+    //JSR-107 boolean isClosed();
 
-	/**
-	 * Is the cache disabled?
-	 * 
-	 * @return true if the cache is disabled, false if it is enabled.
-	 */
-	boolean disabled();
+    /**
+     * Provides a standard way to access the underlying concrete caching
+     * implementation to provide access to further, proprietary features.
+     * <p>
+     * If the provider's implementation does not support the specified class,
+     * the {@link IllegalArgumentException} is thrown.
+     *
+     * @param clazz the proprietary class or interface of the underlying concrete
+     *              cache. It is this type that is returned.
+     * @return an instance of the underlying concrete cache
+     * @throws IllegalArgumentException if the caching provider doesn't support
+     *                                  the specified class.
+     * @throws SecurityException        when the operation could not be performed
+     *                                  due to the current security settings
+     */
+    <T> T unwrap(java.lang.Class<T> clazz);
 
-	/**
-	 * Are we complete?
-	 * 
-	 * @return true if we have all the possible entries cached, false if not.
-	 */
-	boolean isComplete();
+    /**
+     * Attach a cache event listener to the cache.<br/>
+     * The event listener ({@link DerivedCache}) is then notified of the cache contents changing events,
+     * setting this to null will clear the event listener
+     * (not cluster safe)
+     * <b>NOTE</b>: special method to allow cache event notification
+     * (used by SiteCacheImpl only)
+     *
+     * @param cacheEventListener the object which implements {@link DerivedCache}
+     */
+    @SuppressWarnings("deprecation")
+    void attachDerivedCache(DerivedCache cacheEventListener);
+    //JSR-107 void registerCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration);
+    //JSR-107 void deregisterCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration);
 
-	/**
-	 * Set the cache to be complete, containing all possible entries.
-	 */
-	void setComplete();
+    //JSR-107 Iterator<Entry<K, V>> iterator();
+    /* JSR-107 spec Entry
+    interface Entry<K, V> {
+        K getKey();
+        V getValue();
+        <T> T unwrap(Class<T> clazz);
+    }*/
 
-	/**
-	 * Are we complete for one level of the reference hierarchy?
-	 * 
-	 * @param path
-	 *        The reference to the completion level.
-	 * @return true if we have all the possible entries cached, false if not.
-	 */
-	boolean isComplete(String path);
 
-	/**
-	 * Set the cache to be complete for one level of the reference hierarchy.
-	 * 
-	 * @param path
-	 *        The reference to the completion level.
-	 */
-	void setComplete(String path);
+    // SAKAI specific (no JSR-107 analog)
 
-	/**
-	 * Set the cache to hold events for later processing to assure an atomic "complete" load.
-	 */
-	void holdEvents();
+    /**
+     * Same as close
+     * Destroys the cache
+     * @deprecated since 2.9, will be removed in future versions, use close() instead
+     */
+    void destroy();
 
-	/**
-	 * Restore normal event processing in the cache, and process any held events now.
-	 */
-	void processEvents();
+    /**
+     * Return the size of this cache<br/>
+     * <b>NOTE:</b> This is approximate and may not be completely accurate
+     *
+     * @return the number of items in this cache
+     * @deprecated since 2.9, will be removed in future versions
+     */
+    long getSize();
 
-	/**
-	 * Clear all entries and shudown the cache. Don't use after this call.
-	 */
-	void destroy();
-	
-	/**
-	 * Attach this DerivedCache to the cache. The DerivedCache is then notified of the cache contents changing events.
-	 * 
-	 * @param cache
-	 *        The DerivedCache to attach.
-	 */
-	void attachDerivedCache(DerivedCache cache);
+    /**
+     * Return a description of this cache<br/>
+     * <b>WARNING:</b> This is costly and should not be called often
+     *
+     * @return a string which summarizes the state of the cache
+     * @deprecated since 2.9, will be removed in future versions
+     */
+    String getDescription();
+
+    /**
+     * Attach a cache loader to this cache<br/>
+     * The loader ({@link CacheRefresher}) will put items in the cache as they are requested (if they can be found),
+     * setting this to null will clear the loader
+     * (not cluster safe)
+     * <b>NOTE</b>: special method to allow self-populating for this cache
+     *
+     * @param cacheLoader the object which implements {@link CacheRefresher}
+     */
+    @SuppressWarnings("deprecation")
+    void attachLoader(CacheRefresher cacheLoader);
+
 }
