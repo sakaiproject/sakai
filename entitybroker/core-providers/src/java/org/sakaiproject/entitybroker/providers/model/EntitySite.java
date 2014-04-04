@@ -430,7 +430,7 @@ public class EntitySite implements Site {
             ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName()); 
             boolean siteUpdate = false;
             if (dhs != null && dhs.getCurrentUserId() != null) {
-                site.isAllowed(dhs.getCurrentUserId(), "site.upd");
+                siteUpdate = site.isAllowed(dhs.getCurrentUserId(), "site.upd");
             }
             for (SitePage sitePage : pages) {
                 // check if current user has permission to see page
