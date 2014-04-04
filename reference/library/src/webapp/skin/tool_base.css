@@ -96,7 +96,7 @@ code {
 }
 .portletMainWrap > .portletBody img {
     max-width: 100%;
-    heigth: auto;
+    height: auto !important;
 }
 .helpBody {
 	padding: 0 1em 1em 1em
