@@ -22,14 +22,9 @@
 package org.sakaiproject.memory.tool;
 
 import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.Context;
-import org.sakaiproject.cheftool.JetspeedRunData;
-import org.sakaiproject.cheftool.RunData;
-import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.cheftool.*;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.memory.cover.MemoryServiceLocator;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -87,7 +82,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		{
 			MemoryServiceLocator.getInstance().resetCachers();
 		}
-		catch (MemoryPermissionException e)
+		catch (SecurityException e)
 		{
 			state.setAttribute("message", rb.getString("memory.notpermis"));
 		}
@@ -106,7 +101,7 @@ public class MemoryAction extends VelocityPortletPaneledAction
 		{
 			MemoryServiceLocator.getInstance().evictExpiredMembers();
 		}
-		catch (MemoryPermissionException e)
+		catch (SecurityException e)
 		{
 			state.setAttribute("message", rb.getString("memory.notpermis"));
 		}
