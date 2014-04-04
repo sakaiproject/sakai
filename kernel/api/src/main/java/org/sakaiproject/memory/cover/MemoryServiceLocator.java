@@ -28,8 +28,8 @@ import org.sakaiproject.component.cover.ComponentManager;
  * MemoryService is a static Cover for the {@link org.sakaiproject.memory.api.MemoryService MemoryService}; see that interface for usage details.
  * </p>
  * 
- * @deprecated Static covers should not be used in favour of injection or lookup
- * via the component manager. This cover will be removed in a later version of the Kernel
+ * NOTE: Static covers should not be used in favour of injection or lookup via the component manager.
+ * This cover should NEVER be used in the Kernel (only by tools outside the kernel)
  */
 public class MemoryServiceLocator
 {
@@ -42,18 +42,20 @@ public class MemoryServiceLocator
 	 */
 	public static org.sakaiproject.memory.api.MemoryService getInstance()
 	{
+		org.sakaiproject.memory.api.MemoryService memoryService;
 		if (ComponentManager.CACHE_COMPONENTS)
 		{
 			if (m_instance == null)
 				m_instance = (org.sakaiproject.memory.api.MemoryService) ComponentManager
 						.get(org.sakaiproject.memory.api.MemoryService.class);
-			return m_instance;
+			memoryService = m_instance;
 		}
 		else
 		{
-			return (org.sakaiproject.memory.api.MemoryService) ComponentManager
+			memoryService = (org.sakaiproject.memory.api.MemoryService) ComponentManager
 					.get(org.sakaiproject.memory.api.MemoryService.class);
 		}
+		return memoryService;
 	}
 
 }

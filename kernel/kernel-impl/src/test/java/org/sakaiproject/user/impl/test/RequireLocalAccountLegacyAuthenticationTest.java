@@ -22,16 +22,12 @@
 
 package org.sakaiproject.user.impl.test;
 
-import java.util.Collection;
-
 import junit.extensions.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.MemoryPermissionException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.user.api.User;
@@ -39,6 +35,8 @@ import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
+
+import java.util.Collection;
 
 /**
  * Some institutions want to have an authentication-only service that authenticates
@@ -136,7 +134,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 		clearUserFromServiceCaches(user.getId());
 	}
 
-	private void clearUserFromServiceCaches(String userId) throws MemoryPermissionException {
+	private void clearUserFromServiceCaches(String userId) throws SecurityException {
 		((DbUserService)userDirectoryService).getIdEidCache().removeAll();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);

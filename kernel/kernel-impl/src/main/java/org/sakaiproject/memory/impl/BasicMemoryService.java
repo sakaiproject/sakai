@@ -21,20 +21,11 @@
 
 package org.sakaiproject.memory.impl;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.UUID;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
 import net.sf.ehcache.event.CacheManagerEventListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -43,15 +34,11 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.Cacher;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
-import org.sakaiproject.memory.api.MemoryPermissionException;
-import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.MultiRefCache;
+import org.sakaiproject.memory.api.*;
 import org.sakaiproject.memory.util.CacheInitializer;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * <p>
@@ -91,11 +78,6 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * @return the SecurityService collaborator.
 	 */
 	protected abstract SecurityService securityService();
-
-	/**
-	 * @return the UsageSessionService collaborator.
-	 */
-	protected abstract UsageSessionService usageSessionService();
 
 	/**
 	 * @return the AuthzGroupService collaborator.
@@ -218,13 +200,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	/**
 	 * Cause less memory to be used by clearing any optional caches.
 	 */
-	public void resetCachers() throws MemoryPermissionException
-	{
+	public void resetCachers() {
 		// check that this is a "super" user with the security service
 		if (!securityService().isSuperUser())
 		{
-			// TODO: session id or session user id?
-			throw new MemoryPermissionException(usageSessionService().getSessionId(), EVENT_RESET, "");
+			throw new SecurityException("Only super admin can reset cachers, current user not super admin");
 		}
 
 		// post the event so this and any other app servers in the cluster will reset
@@ -232,21 +212,17 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 	} // resetMemory
 
-	public void evictExpiredMembers() throws MemoryPermissionException {
+	public void evictExpiredMembers() {
 		// check that this is a "super" user with the security service
 		if (!securityService().isSuperUser())
 		{
-			// TODO: session id or session user id?
-			throw new MemoryPermissionException(usageSessionService().getSessionId(), EVENT_EXPIRE, "");
+			throw new SecurityException("Only super admin can exict caches, current user not super admin");
 		}
 
 		// post the event so this and any other app servers in the cluster will reset
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_EXPIRE, "", true));
-
-		
 	}
-	
-	
+
 	/**
 	 * Compute a status report on all memory users
 	 */
