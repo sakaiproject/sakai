@@ -21,15 +21,6 @@
 
 package org.sakaiproject.event.impl;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
@@ -39,6 +30,8 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.MemoryService;
+
+import java.util.*;
 
 /**
  * <p>
@@ -169,9 +162,6 @@ public class NotificationCache implements Cacher, Observer {
 	 */
 	protected void finalize()
 	{
-		// unregister as a cacher
-		memoryService.unregisterCacher(this);
-
 		// unregister to get events
 		eventTrackingService.deleteObserver(this);
 

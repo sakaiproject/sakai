@@ -24,89 +24,58 @@ package org.sakaiproject.memory.mock;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.*;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * Mock MemoryService for use in testing
  * Partly functional
  */
 public class MemoryService implements org.sakaiproject.memory.api.MemoryService {
 
+    ConcurrentHashMap<String, Cache> caches = new ConcurrentHashMap<String, Cache>();
+
+    @Override
     public long getAvailableMemory() {
-        // TODO Auto-generated method stub
         return 0;
     }
 
-    public String getStatus() {
-        // TODO Auto-generated method stub
-        return "Caches status";
-    }
-
-    public Cache newCache() {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(String arg0) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(CacheRefresher arg0, String arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(String arg0, String arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(CacheRefresher arg0, long arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(String arg0, CacheRefresher arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newCache(String arg0, CacheRefresher arg1, String arg2) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newHardCache() {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newHardCache(CacheRefresher arg0, String arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newHardCache(CacheRefresher arg0, long arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public Cache newHardCache(long arg0, String arg1) {
-        return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public void registerCacher(Cacher arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
+    @Override
     public void resetCachers() {
-        // TODO Auto-generated method stub
-
+        for (Cache cache: caches.values()) {
+            cache.clear();
+        }
     }
 
-    public void unregisterCacher(Cacher arg0) {
-        // TODO Auto-generated method stub
-
-    }
-
+    @Override
     public void evictExpiredMembers() {
-        // TODO Auto-generated method stub
-
+        // just a lame implementation
+        resetCachers();
     }
 
+    @Override
+    public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
+        Cache c = new org.sakaiproject.memory.mock.Cache(cacheName);
+        caches.put(cacheName, c);
+        return c;
+    }
+
+    @Override
+    public Cache newCache(String cacheName, String pattern) {
+        return newCache(cacheName, null, pattern);
+    }
+
+    @Override
+    public Cache newCache(String cacheName) {
+        return newCache(cacheName, null, null);
+    }
+
+    @Override
     public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-        // TODO Auto-generated method stub
         return null;
     }
 
+    @Override
+    public String getStatus() {
+        return null;
+    }
 }

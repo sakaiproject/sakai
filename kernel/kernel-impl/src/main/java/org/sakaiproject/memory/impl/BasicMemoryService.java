@@ -209,7 +209,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 		// post the event so this and any other app servers in the cluster will reset
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_RESET, "", true));
-
+        // trigger doReset()
 	} // resetMemory
 
 	public void evictExpiredMembers() {
@@ -221,6 +221,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 		// post the event so this and any other app servers in the cluster will reset
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_EXPIRE, "", true));
+        // trigger doExpire()
 	}
 
 	/**
@@ -304,7 +305,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 		final List<Ehcache> allCaches = getAllCaches(false);
 		for (Ehcache ehcache : allCaches) {
-			ehcache.removeAll(); //TODO should we doNotNotifyCacheReplicators? Ian?
+			ehcache.removeAll();
 			ehcache.clearStatistics();
 		}
 

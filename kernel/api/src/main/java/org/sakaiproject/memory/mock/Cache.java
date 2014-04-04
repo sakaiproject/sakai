@@ -22,19 +22,22 @@
 package org.sakaiproject.memory.mock;
 
 import org.sakaiproject.memory.api.DerivedCache;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Mock Cache for use in testing
  * Partly functional
  */
-public class Cache implements org.sakaiproject.memory.api.Cache {
+public class Cache implements GenericMultiRefCache {
 
     private Map<Object, Object> map = new HashMap<Object, Object>();
+
+    String name;
+    Cache(String name) {
+        this.name = name;
+    }
 
     public void attachDerivedCache(DerivedCache arg0) {
     }
@@ -136,7 +139,7 @@ public class Cache implements org.sakaiproject.memory.api.Cache {
     }
 
     public String getDescription() {
-        return null;
+        return name;
     }
 
     public long getSize() {
@@ -145,6 +148,10 @@ public class Cache implements org.sakaiproject.memory.api.Cache {
 
     public void resetCache() {
         clear();
+    }
+
+    public void put(Object key, Object payload, String ref, Collection<String> dependRefs) {
+        map.put(key, payload);
     }
 
 }
