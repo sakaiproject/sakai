@@ -21,13 +21,6 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -37,14 +30,16 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.api.MultiRefCache;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+
+import java.util.*;
 
 /**
  * <p>
@@ -57,7 +52,7 @@ public abstract class SakaiSecurity implements SecurityService
 	private static Log M_log = LogFactory.getLog(SakaiSecurity.class);
 
 	/** A cache of calls to the service and the results. */
-	protected MultiRefCache m_callCache = null;
+	protected GenericMultiRefCache m_callCache = null;
 
 	/** ThreadLocalManager key for our SecurityAdvisor Stack. */
 	protected final static String ADVISOR_STACK = "SakaiSecurity.advisor.stack";
@@ -137,7 +132,7 @@ public abstract class SakaiSecurity implements SecurityService
 		// <= 0 minutes indicates no caching desired
 		if (m_cacheMinutes > 0)
 		{
-			m_callCache = memoryService().newMultiRefCache(
+			m_callCache = memoryService().newGenericMultiRefCache(
 					"org.sakaiproject.authz.api.SecurityService.cache");
 		}
 	}
@@ -206,9 +201,9 @@ public abstract class SakaiSecurity implements SecurityService
 		// cache
 		if (m_callCache != null)
 		{
-			Collection<String> azgIds = new Vector<String>();
+			Collection<String> azgIds = new HashSet<String>();
 			azgIds.add("/site/!admin");
-			m_callCache.put(command, Boolean.valueOf(rv), m_cacheMinutes * 60, null, azgIds);
+			m_callCache.put(command, rv, null, makeAzgRefsForAzgIds(azgIds));
 		}
 
 		return rv;
@@ -311,10 +306,29 @@ public abstract class SakaiSecurity implements SecurityService
 		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
 		// cache
-		if (m_callCache != null) m_callCache.put(command, Boolean.valueOf(rv), m_cacheMinutes * 60, entityRef, azgs);
+		if (m_callCache != null) m_callCache.put(command, rv, entityRef, makeAzgRefsForAzgIds(azgs));
 
 		return rv;
 	}
+
+    /**
+     * Converts a collection of authzgroup ids into authzgroup references
+     * Added when removing the old MultiRefCache - KNL-1162
+     *
+     * @param azgIds a collection of authzgroup ids
+     * @return a collection of authzgroup references (should match the incoming set of ids)
+     */
+    protected Collection<String> makeAzgRefsForAzgIds(Collection<String> azgIds) {
+        // make refs for any azg ids
+        Collection<String> azgRefs = null;
+        if (azgIds != null) {
+            azgRefs = new HashSet<String>(azgIds.size());
+            for (String azgId : azgIds) {
+                azgRefs.add(authzGroupService().authzGroupReference(azgId));
+            }
+        }
+        return azgRefs;
+    }
 
 	/**
 	 * Access the List the Users who can unlock the lock for use with this resource.

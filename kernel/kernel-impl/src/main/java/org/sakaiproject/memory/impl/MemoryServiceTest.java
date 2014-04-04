@@ -28,7 +28,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MultiRefCache;
 
 /**
  * <p>
@@ -86,10 +85,6 @@ public class MemoryServiceTest extends BasicMemoryService
 		return null;
 	}
 
-	public MultiRefCache newMultiRefCache(String cacheName) {
-		return null;
-	}
-	
 	@Override
 	protected ServerConfigurationService serverConfigurationService() {
 		// TODO Auto-generated method stub

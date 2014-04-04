@@ -21,13 +21,8 @@
 
 package org.sakaiproject.memory.mock;
 
-import org.sakaiproject.memory.api.*;
-
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.Cacher;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
-import org.sakaiproject.memory.api.MultiRefCache;
+import org.sakaiproject.memory.api.*;
 
 /**
  * Mock MemoryService for use in testing
@@ -87,16 +82,6 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
 
     public Cache newHardCache(long arg0, String arg1) {
         return new org.sakaiproject.memory.mock.Cache();
-    }
-
-    public MultiRefCache newMultiRefCache(long arg0) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    public MultiRefCache newMultiRefCache(String arg0) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
     public void registerCacher(Cacher arg0) {

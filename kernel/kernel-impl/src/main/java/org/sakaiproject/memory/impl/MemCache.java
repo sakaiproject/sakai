@@ -21,20 +21,9 @@
 
 package org.sakaiproject.memory.impl;
 
-import java.lang.ref.SoftReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.Vector;
-
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -43,6 +32,9 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.DerivedCache;
+
+import java.lang.ref.SoftReference;
+import java.util.*;
 
 /**
  * <p>
@@ -97,6 +89,17 @@ public class MemCache implements Cache, Observer
 	{
 		/** Set if our payload is supposed to be null. */
 		protected boolean m_nullPayload = false;
+
+		/**
+		 * Construct to cache the payload for the duration.
+		 * @param payload The thing to cache.
+		 */
+		public CacheEntry(Object payload) {
+			// put the payload into the soft reference
+			super(payload);
+			// is it supposed to be null?
+			m_nullPayload = (payload == null);
+		} // CacheEntry
 
 		/**
 		 * Construct to cache the payload for the duration.

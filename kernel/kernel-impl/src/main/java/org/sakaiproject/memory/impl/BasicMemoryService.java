@@ -417,19 +417,6 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				instantiateCache("HardCache"));
 	}
 
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public MultiRefCache newMultiRefCache(long sleep)
-	{
-		return new MultiRefCacheImpl(
-				this,
-				eventTrackingService(),
-				authzGroupService(),
-				instantiateCache("MultiRefCache"));
-	}
-
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -616,20 +603,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				instantiateCache(cacheName));
 	}
 
-	public MultiRefCache newMultiRefCache(String cacheName) {
-		return new MultiRefCacheImpl(
-				this,
-				eventTrackingService(),
-				authzGroupService(),
-				instantiateCache(cacheName));
-	}
-	
 	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-		return new MultiRefCacheImpl(
+		return new GenericMultiRefCacheImpl(
 				this,
 				eventTrackingService(),
-				authzGroupService(),
-				instantiateCache(cacheName));
+				instantiateCache(cacheName)
+        );
 	}
 
 }

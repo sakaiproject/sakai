@@ -21,27 +21,24 @@
 
 package org.sakaiproject.memory.impl;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
+
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.Observable;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
  * <p>
@@ -57,36 +54,29 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		CacheEventListener 
 	{
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(GenericMultiRefCacheImpl.class);
+	private final static Log M_log = LogFactory.getLog(GenericMultiRefCacheImpl.class);
 
 	/** Map of reference string -> Collection of cache keys. */
 	protected final ConcurrentMap<String, ConcurrentMap<Object, Object>> m_refsStore = new ConcurrentHashMap<String, ConcurrentMap<Object, Object>>();
 
 	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
 	{
-		
-		/**
-		 * The serial version UID 
-		 */
-		private static final long serialVersionUID = -4888170965591332845L;
+		private static final long serialVersionUID = -1234567890L;
 		/** These are the entity reference strings that this entry is sensitive to. */
-		protected List<Object> m_refs = new CopyOnWriteArrayList<Object>();
+		protected Set<String> m_refs = new ConcurrentSkipListSet<String>();
 
 		/**
 		 * Construct to cache the payload for the duration.
 		 * 
 		 * @param payload
 		 *        The thing to cache.
-		 * @param duration
-		 *        The time (seconds) to keep this cached.
 		 * @param ref
 		 *        One entity reference that, if changed, will invalidate this entry.
 		 * @param dependRefs
 		 *        References that, if the changed, will invalidate this entry.
 		 */
-		public MultiRefCacheEntry(Object payload, int duration, String ref, Collection<Object> dependRefs)
-		{
-			super(payload, duration);
+		public MultiRefCacheEntry(Object payload, String ref, Collection<String> dependRefs) {
+			super(payload);
 			if (ref != null) m_refs.add(ref);
 			if (dependRefs != null) m_refs.addAll(dependRefs);
 		}
@@ -94,7 +84,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		/**
 		 * @inheritDoc
 		 */
-		public List<Object> getRefs()
+		public Set<String> getRefs()
 		{
 			return m_refs;
 		}
@@ -111,17 +101,14 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 
 	}
 
-	
-	public void put(Object key, Object payload, String ref, Collection dependRefs)
+	public void put(Object key, Object payload, String ref, Collection<String> dependRefs)
 	{
-		if(M_log.isDebugEnabled())
-		{
+		if(M_log.isDebugEnabled()) {
 			M_log.debug("put(Object " + key + ", Object " + payload + ", Reference "+ ref
 					+", Dependent Refs " + dependRefs + ")");
 		}
 		if (disabled()) return;
-		// Durations don't work any more (hence 0 duration).
-		super.put(key, new MultiRefCacheEntry(payload, 0, ref, dependRefs));
+		super.put(key, new MultiRefCacheEntry(payload, ref, dependRefs));
 		
 		// Why don't we do do this in the notify handler?
 		if (ref != null)
@@ -130,9 +117,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		}
 		if (dependRefs != null)
 		{
-			for (Iterator<Object> i = dependRefs.iterator(); i.hasNext();)
-			{
-				String dependRef = (String) i.next();
+			for (String dependRef : dependRefs) {
 				addRefCachedKey(dependRef, key);
 			}
 		}
@@ -366,7 +351,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	public Object clone() throws CloneNotSupportedException 
 	{
 		M_log.debug("clone()");
-		
+
 		// Creates a clone of this listener. This method will only be called by ehcache before a cache is initialized.
 		// This may not be possible for listeners after they have been initialized. Implementations should throw CloneNotSupportedException if they do not support clone.
 		throw new CloneNotSupportedException(
