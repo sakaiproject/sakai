@@ -231,7 +231,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	{
 		final StringBuilder buf = new StringBuilder();
 		buf.append("** Memory report\n");
-		buf.append("freeMemory: " + Runtime.getRuntime().freeMemory());
+		buf.append("freeMemory: ").append(Runtime.getRuntime().freeMemory());
 		buf.append(" totalMemory: "); buf.append(Runtime.getRuntime().totalMemory());
 		buf.append(" maxMemory: "); buf.append(Runtime.getRuntime().maxMemory());
 		buf.append("\n\n");
@@ -246,12 +246,9 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
 			// Even when we're not collecting statistics ehcache knows how
 			// many objects are in the cache
-			buf.append(cache.getName() + ": " + 
-					" count:" + cache.getStatistics().getObjectCount());
+			buf.append(cache.getName()).append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
 			if (cache.isStatisticsEnabled()) {
-				buf.append(" hits:" + hits +
-					" misses:" + misses + 
-					" hit%:" + hitRatio);
+				buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
 			} else {
 				buf.append(" NO statistics (not enabled for cache)");
 			}
@@ -325,97 +322,6 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		}
 
 		M_log.info("doExpire(): free memory now " + Runtime.getRuntime().freeMemory());
-
-		
-	}
-	/**
-	 * Register as a cache user
-	 * @deprecated
-	 */
-	synchronized public void registerCacher(Cacher cacher)
-	{
-		// not needed with ehcache
-
-	} // registerCacher
-
-	/**
-	 * Unregister as a cache user
-	 * @deprecated
-	 */
-	synchronized public void unregisterCacher(Cacher cacher)
-	{
-		// not needed with ehcache
-
-	} // unregisterCacher
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newCache(CacheRefresher refresher, String pattern)
-	{
-		return new MemCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache("MemCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newHardCache(CacheRefresher refresher, String pattern)
-	{
-		return new HardCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache("HardCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newHardCache(long sleep, String pattern)
-	{
-		return new HardCache(this, eventTrackingService(), sleep, pattern,
-				instantiateCache("HardCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newCache(CacheRefresher refresher, long sleep)
-	{
-		return new MemCache(this, eventTrackingService(), refresher, sleep,
-				instantiateCache("MemCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newHardCache(CacheRefresher refresher, long sleep)
-	{
-		return new MemCache(this, eventTrackingService(), refresher, sleep,
-				instantiateCache("HardCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newCache()
-	{
-		return new MemCache(this, eventTrackingService(),
-				instantiateCache("MemCache"));
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * @deprecated
-	 */
-	public Cache newHardCache()
-	{
-		return new HardCache(this, eventTrackingService(),
-				instantiateCache("HardCache"));
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -449,16 +355,10 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			doExpire();
 		}
 	}
-	
-	
 
 	/**
-	 * 
-	 * @param cacheName
-	 * @param legacyMode
-	 *            If true always create a new Cache. If false, cache must be
-	 *            defined in bean factory.
-	 * @return
+	 * @param cacheName the name of the cache
+	 * @return an Ehcache
 	 */
 	private Ehcache instantiateCache(String cacheName)
 	{
@@ -468,7 +368,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		String name = cacheName;
 		if (name == null || "".equals(name))
 		{
-			name = "DefaultCache" + UUID.randomUUID().toString();			
+			name = "DefaultCache" + UUID.randomUUID().toString();
 		}
 		
 		// Cache creation should all go to the cache manager and be
@@ -583,25 +483,16 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		this.cacheManager = cacheManager;
 	}
 
-	public Cache newCache(String cacheName, CacheRefresher refresher,
-			String pattern) {
-		return new MemCache(this, eventTrackingService(), refresher, pattern,
-				instantiateCache(cacheName));
+	public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
+		return new MemCache(this, eventTrackingService(), refresher, pattern, instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName, String pattern) {
-		return new MemCache(this, eventTrackingService(), pattern,
-				instantiateCache(cacheName));
-	}
-
-	public Cache newCache(String cacheName, CacheRefresher refresher) {
-		return new MemCache(this, eventTrackingService(), refresher,
-				instantiateCache(cacheName));
+		return newCache(cacheName, null, pattern);
 	}
 
 	public Cache newCache(String cacheName) {
-		return new MemCache(this, eventTrackingService(),
-				instantiateCache(cacheName));
+		return newCache(cacheName, null, null);
 	}
 
 	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
