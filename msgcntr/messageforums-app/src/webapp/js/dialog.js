@@ -47,7 +47,7 @@ var dialogutil = dialogutil || {};
 
 	dialogutil.closeDialog = function(divId, frameId) {
 		$("#" + frameId).removeProp("src");
-		$("#" + divId).dialog('destroy');
+		$("#" + divId).dialog('close');
 		$("#" + divId).hide();
 		dialogutil.turnOffPortalOverlay();
 	};

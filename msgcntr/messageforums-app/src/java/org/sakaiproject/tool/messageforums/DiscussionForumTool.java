@@ -6151,6 +6151,18 @@ public class DiscussionForumTool
     getThreadFromMessage();
     return MESSAGE_VIEW;
   } 
+  
+  public String processDfGradeCancelFromDialog() 
+  { 
+	  selectedMessageCount = 0;
+	  functionClick = 0;
+    gradeNotify = false; 
+    selectedAssign = DEFAULT_GB_ITEM; 
+    resetGradeInfo();
+    
+    getThreadFromMessage();
+    return null;
+  } 
    
   public String processGradeAssignChange(ValueChangeEvent vce) 
   { 

@@ -180,11 +180,13 @@
     	<% if(isDialogBox){ %>
 			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmitFromDialog}" value="#{msgs.cdfm_submit_grade}"
 	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
+	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancelFromDialog}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />
 		<% }else {%>	
 			<sakai:button_bar_item action="#{ForumTool.processDfGradeSubmit}" value="#{msgs.cdfm_submit_grade}"
-	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>	      			
+	      		accesskey="s" styleClass="active" disabled="#{!ForumTool.allowedToGradeItem}"/>
+	      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />	      			
       	<%}%>
-      	<sakai:button_bar_item action="#{ForumTool.processDfGradeCancel}" value="#{msgs.cdfm_cancel}" accesskey="x" onclick="closeDialogBoxIfExists();" />
+      	
     </sakai:button_bar>
     
     <% if(isDialogBox){ %>
