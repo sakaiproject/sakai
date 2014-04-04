@@ -1147,7 +1147,16 @@ System.out.println("newTool="+newTool);
 		context.put("tool_id", toolId);
 		
 		Long key = null;
-		if ( toolId != null ) key = new Long(toolId);
+		if ( toolId != null ) {
+			try {
+				key = new Long(toolId);
+			}
+			catch (NumberFormatException e) {
+				//Reset toolId and key
+				key=null;
+				toolId=null;
+			}
+		}
 		Map<String,Object> tool = null;
 		if ( key != null ) {
 			tool = ltiService.getTool(key);
