@@ -1,89 +1,94 @@
 ﻿/*
- Copyright (c) 2003-2013, CKSource - Frederico Knabben. All rights reserved.
+ Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
  For licensing, see LICENSE.md or http://ckeditor.com/license
 */
-CKEDITOR.dialog.add("link", function (n) {
-    var p, q;
+CKEDITOR.dialog.add("link", function (m) {
+    var o, p;
 
-    function r(a) {
+    function q(a) {
         return a.replace(/'/g, "\\$&")
     }
 
-    function t(a) {
-        var g, c = p,
+    function s(a) {
+        var g, c = o,
             d, e;
-        g = [q, "("];
-        for (var b = 0; b < c.length; b++) d = c[b].toLowerCase(), e = a[d], 0 < b && g.push(","), g.push("'", e ? r(encodeURIComponent(a[d])) : "", "'");
+        g = [p, "("];
+        for (var b = 0; b < c.length; b++) d = c[b].toLowerCase(), e = a[d], 0 < b && g.push(","), g.push("'", e ? q(encodeURIComponent(a[d])) : "", "'");
         g.push(")");
         return g.join("")
     }
 
-    function u(a) {
+    function t(a) {
         for (var g, c = a.length, d = [], e = 0; e < c; e++) g = a.charCodeAt(e), d.push(g);
         return "String.fromCharCode(" + d.join(",") + ")"
     }
 
-    function v(a) {
+    function u(a) {
         return (a = a.getAttribute("class")) ? a.replace(/\s*(?:cke_anchor_empty|cke_anchor)(?:\s*$)?/g,
             "") : ""
     }
-    var w = CKEDITOR.plugins.link,
-        s = function () {
+    var v = CKEDITOR.plugins.link,
+        r = function () {
             var a = this.getDialog(),
                 g = a.getContentElement("target", "popupFeatures"),
                 a = a.getContentElement("target", "linkTargetName"),
                 c = this.getValue();
             if (g && a) switch (g = g.getElement(), g.hide(), a.setValue(""), c) {
             case "frame":
-                a.setLabel(n.lang.link.targetFrameName);
+                a.setLabel(m.lang.link.targetFrameName);
+                a.getElement().show();
+                break;
+            case "popup":
+                g.show();
+                a.setLabel(m.lang.link.targetPopupName);
                 a.getElement().show();
                 break;
             default:
                 a.setValue(c), a.getElement().hide()
             }
-        }, x = /^javascript:/,
-        y = /^mailto:([^?]+)(?:\?(.+))?$/,
-        z = /subject=([^;?:@&=$,\/]*)/,
-        A = /body=([^;?:@&=$,\/]*)/,
-        B = /^#(.*)$/,
-        C = /^((?:http|https|ftp|news):\/\/)?(.*)$/,
-        D = /^(_(?:self|top|parent|blank))$/,
-        E = /^javascript:void\(location\.href='mailto:'\+String\.fromCharCode\(([^)]+)\)(?:\+'(.*)')?\)$/,
-        F = /^javascript:([^(]+)\(([^)]+)\)$/,
-        G = /\s*window.open\(\s*this\.href\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*;\s*return\s*false;*\s*/,
-        H = /(?:^|,)([^=]+)=(\d+|yes|no)/gi,
-        I = function (a, g) {
+        }, w = /^javascript:/,
+        x = /^mailto:([^?]+)(?:\?(.+))?$/,
+        y = /subject=([^;?:@&=$,\/]*)/,
+        z = /body=([^;?:@&=$,\/]*)/,
+        A = /^#(.*)$/,
+        B = /^((?:http|https|ftp|news):\/\/)?(.*)$/,
+        C = /^(_(?:self|top|parent|blank))$/,
+        D = /^javascript:void\(location\.href='mailto:'\+String\.fromCharCode\(([^)]+)\)(?:\+'(.*)')?\)$/,
+        E = /^javascript:([^(]+)\(([^)]+)\)$/,
+        F = /\s*window.open\(\s*this\.href\s*,\s*(?:'([^']*)'|null)\s*,\s*'([^']*)'\s*\)\s*;\s*return\s*false;*\s*/,
+        G = /(?:^|,)([^=]+)=(\d+|yes|no)/gi,
+        H = function (a, g) {
             var c = g && (g.data("cke-saved-href") || g.getAttribute("href")) || "",
                 d, e, b = {};
-            c.match(x) && ("encode" == o ? c = c.replace(E, function (a, c, b) {
-                return "mailto:" + String.fromCharCode.apply(String, c.split(",")) + (b && b.replace(/\\'/g, "'"))
-            }) : o && c.replace(F, function (a, c, d) {
-                if (c == q) {
+            c.match(w) && ("encode" == n ? c = c.replace(D, function (a, b, c) {
+                return "mailto:" + String.fromCharCode.apply(String, b.split(",")) + (c && c.replace(/\\'/g, "'"))
+            }) : n && c.replace(E, function (a, c, d) {
+                if (c == p) {
                     b.type = "email";
-                    for (var a = b.email = {}, c = /(^')|('$)/g, d = d.match(/[^,\s]+/g), e = d.length, g, f, h = 0; h < e; h++) g = decodeURIComponent, f = d[h].replace(c, "").replace(/\\'/g, "'"), f = g(f), g = p[h].toLowerCase(), a[g] = f;
+                    for (var a = b.email = {}, c = /(^')|('$)/g, d = d.match(/[^,\s]+/g), e = d.length, g, f, h = 0; h < e; h++) g = decodeURIComponent, f = d[h].replace(c, "").replace(/\\'/g, "'"), f = g(f), g = o[h].toLowerCase(), a[g] = f;
                     a.address = [a.name, a.domain].join("@")
                 }
             }));
             if (!b.type)
-                if (d = c.match(B)) b.type = "anchor", b.anchor = {}, b.anchor.name = b.anchor.id =
+                if (d = c.match(A)) b.type = "anchor", b.anchor = {}, b.anchor.name = b.anchor.id =
                     d[1];
-                else if (d = c.match(y)) {
-                e = c.match(z);
-                c = c.match(A);
+                else if (d = c.match(x)) {
+                e = c.match(y);
+                c = c.match(z);
                 b.type = "email";
                 var f = b.email = {};
                 f.address = d[1];
                 e && (f.subject = decodeURIComponent(e[1]));
                 c && (f.body = decodeURIComponent(c[1]))
-            } else c && (e = c.match(C)) ? (b.type = "url", b.url = {}, b.url.protocol = e[1], b.url.url = e[2]) : b.type = "url"; if (g) {
+            } else c && (e = c.match(B)) ? (b.type = "url", b.url = {}, b.url.protocol = e[1], b.url.url = e[2]) : b.type = "url"; if (g) {
                 d = g.getAttribute("target");
                 b.target = {};
                 b.adv = {};
-                if (d) d.match(D) ? b.target.type = b.target.name = d : (b.target.type = "frame", b.target.name = d);
-                else if (d = (d = g.data("cke-pa-onclick") || g.getAttribute("onclick")) && d.match(G)) {
+                if (d) d.match(C) ? b.target.type = b.target.name = d : (b.target.type = "frame", b.target.name = d);
+                else if (d = (d = g.data("cke-pa-onclick") || g.getAttribute("onclick")) && d.match(F)) {
                     b.target.type =
                         "popup";
-                    for (b.target.name = d[1]; c = H.exec(d[2]);)("yes" == c[2] || "1" == c[2]) && !(c[1] in {
+                    for (b.target.name = d[1]; c = G.exec(d[2]);)("yes" == c[2] || "1" == c[2]) && !(c[1] in {
                         height: 1,
                         width: 1,
                         top: 1,
@@ -103,59 +108,35 @@ CKEDITOR.dialog.add("link", function (n) {
                 d("advTitle", "title");
                 d("advContentType", "type");
                 CKEDITOR.plugins.link.synAnchorSelector ?
-                    b.adv.advCSSClasses = v(g) : d("advCSSClasses", "class");
+                    b.adv.advCSSClasses = u(g) : d("advCSSClasses", "class");
                 d("advCharset", "charset");
                 d("advStyles", "style");
                 d("advRel", "rel")
             }
-            d = b.anchors = [];
-            var h;
-            if (CKEDITOR.plugins.link.emptyAnchorFix) {
-                f = a.document.getElementsByTag("a");
-                c = 0;
-                for (e = f.count(); c < e; c++)
-                    if (h = f.getItem(c), h.data("cke-saved-name") || h.hasAttribute("name")) d.push({
-                        name: h.data("cke-saved-name") || h.getAttribute("name"),
-                        id: h.getAttribute("id")
-                    })
-            } else {
-                f = new CKEDITOR.dom.nodeList(a.document.$.anchors);
-                c = 0;
-                for (e = f.count(); c < e; c++) h = f.getItem(c), d[c] = {
-                    name: h.getAttribute("name"),
-                    id: h.getAttribute("id")
-                }
-            } if (CKEDITOR.plugins.link.fakeAnchor) {
-                f = a.document.getElementsByTag("img");
-                c = 0;
-                for (e = f.count(); c < e; c++)(h = CKEDITOR.plugins.link.tryRestoreFakeAnchor(a, f.getItem(c))) && d.push({
-                    name: h.getAttribute("name"),
-                    id: h.getAttribute("id")
-                })
-            }
+            b.anchors = CKEDITOR.plugins.link.getEditorAnchors(a);
             this._.selectedElement = g;
             return b
-        }, j = function (a) {
+        }, i = function (a) {
             a.target && this.setValue(a.target[this.id] || "")
-        }, k = function (a) {
+        }, j = function (a) {
             a.adv && this.setValue(a.adv[this.id] || "")
-        }, l = function (a) {
+        }, k = function (a) {
             a.target || (a.target = {});
-            a.target[this.id] = this.getValue() ||
-                ""
-        }, m = function (a) {
+            a.target[this.id] = this.getValue() || ""
+        }, l = function (a) {
             a.adv || (a.adv = {});
             a.adv[this.id] = this.getValue() || ""
-        }, o = n.config.emailProtection || "";
-    o && "encode" != o && (q = p = void 0, o.replace(/^([^(]+)\(([^)]+)\)$/, function (a, b, c) {
-        q = b;
-        p = [];
-        c.replace(/[^,\s]+/g, function (a) {
-            p.push(a)
-        })
-    }));
-    var i = n.lang.common,
-        b = n.lang.link;
+        }, n = m.config.emailProtection || "";
+    n &&
+        "encode" != n && (p = o = void 0, n.replace(/^([^(]+)\(([^)]+)\)$/, function (a, b, c) {
+            p = b;
+            o = [];
+            c.replace(/[^,\s]+/g, function (a) {
+                o.push(a)
+            })
+        }));
+    var h = m.lang.common,
+        b = m.lang.link;
     return {
         title: b.title,
         minWidth: 350,
@@ -175,14 +156,13 @@ CKEDITOR.dialog.add("link", function (n) {
                     [b.toEmail, "email"]
                 ],
                 onChange: function () {
-                    var a =
-                        this.getDialog(),
+                    var a = this.getDialog(),
                         b = ["urlOptions", "anchorOptions", "emailOptions"],
                         c = this.getValue(),
                         d = a.definition.getContents("upload"),
                         d = d && d.hidden;
                     if (c == "url") {
-                        n.config.linkShowTargetTab && a.showPage("target");
+                        m.config.linkShowTargetTab && a.showPage("target");
                         d || a.showPage("upload")
                     } else {
                         a.hidePage("target");
@@ -201,19 +181,20 @@ CKEDITOR.dialog.add("link", function (n) {
                     a.type && this.setValue(a.type)
                 },
                 commit: function (a) {
-                    a.type =
-                        this.getValue()
+                    a.type = this.getValue()
                 }
             }, {
                 type: "vbox",
                 id: "urlOptions",
                 children: [{
                     type: "hbox",
-                    widths: ["25%", "75%"],
+                    widths: ["25%",
+                        "75%"
+                    ],
                     children: [{
                         id: "protocol",
                         type: "select",
-                        label: i.protocol,
+                        label: h.protocol,
                         "default": "http://",
                         items: [
                             ["http://‎", "http://"],
@@ -232,15 +213,15 @@ CKEDITOR.dialog.add("link", function (n) {
                     }, {
                         type: "text",
                         id: "url",
-                        label: i.url,
+                        label: h.url,
                         required: !0,
                         onLoad: function () {
                             this.allowOnChange = true
                         },
                         onKeyUp: function () {
-                            this.allowOnChange =
-                                false;
-                            var a = this.getDialog().getContentElement("info", "protocol"),
+                            this.allowOnChange = false;
+                            var a = this.getDialog().getContentElement("info",
+                                "protocol"),
                                 b = this.getValue(),
                                 c = /^((javascript:)|[#\/\.\?])/i,
                                 d = /^(http|https|ftp|news):\/\/(?=.)/i.exec(b);
@@ -257,10 +238,11 @@ CKEDITOR.dialog.add("link", function (n) {
                             var a = this.getDialog();
                             if (a.getContentElement("info", "linkType") && a.getValueOf("info", "linkType") != "url") return true;
                             if (/javascript\:/.test(this.getValue())) {
-                                alert(i.invalidValue);
+                                alert(h.invalidValue);
                                 return false
                             }
-                            return this.getDialog().fakeObj ? true : CKEDITOR.dialog.validate.notEmpty(b.noUrl).apply(this)
+                            return this.getDialog().fakeObj ?
+                                true : CKEDITOR.dialog.validate.notEmpty(b.noUrl).apply(this)
                         },
                         setup: function (a) {
                             this.allowOnChange = false;
@@ -282,7 +264,7 @@ CKEDITOR.dialog.add("link", function (n) {
                     id: "browse",
                     hidden: "true",
                     filebrowser: "info:url",
-                    label: i.browseServer
+                    label: h.browseServer
                 }]
             }, {
                 type: "vbox",
@@ -313,9 +295,9 @@ CKEDITOR.dialog.add("link", function (n) {
                                 this.clear();
                                 this.add("");
                                 for (var b = 0; b < a.anchors.length; b++) a.anchors[b].name && this.add(a.anchors[b].name);
-                                a.anchor &&
-                                    this.setValue(a.anchor.name);
-                                (a = this.getDialog().getContentElement("info", "linkType")) && a.getValue() == "email" && this.focus()
+                                a.anchor && this.setValue(a.anchor.name);
+                                (a = this.getDialog().getContentElement("info",
+                                    "linkType")) && a.getValue() == "email" && this.focus()
                             },
                             commit: function (a) {
                                 if (!a.anchor) a.anchor = {};
@@ -338,12 +320,12 @@ CKEDITOR.dialog.add("link", function (n) {
                             },
                             commit: function (a) {
                                 if (!a.anchor) a.anchor = {};
-                                a.anchor.id =
-                                    this.getValue()
+                                a.anchor.id = this.getValue()
                             }
                         }],
                         setup: function (a) {
-                            a.anchors.length > 0 ? this.getElement().show() : this.getElement().hide()
+                            a.anchors.length > 0 ? this.getElement().show() :
+                                this.getElement().hide()
                         }
                     }]
                 }, {
@@ -369,7 +351,8 @@ CKEDITOR.dialog.add("link", function (n) {
                     label: b.emailAddress,
                     required: !0,
                     validate: function () {
-                        var a = this.getDialog();
+                        var a =
+                            this.getDialog();
                         return !a.getContentElement("info", "linkType") || a.getValueOf("info", "linkType") != "email" ? true : CKEDITOR.dialog.validate.notEmpty(b.noEmail).apply(this)
                     },
                     setup: function (a) {
@@ -420,21 +403,22 @@ CKEDITOR.dialog.add("link", function (n) {
                 children: [{
                     type: "select",
                     id: "linkTargetType",
-                    label: i.target,
+                    label: h.target,
                     "default": "notSet",
                     style: "width : 100%;",
                     items: [
-                        [i.notSet, "notSet"],
+                        [h.notSet, "notSet"],
                         [b.targetFrame, "frame"],
-                        [i.targetNew, "_blank"],
-                        [i.targetTop, "_top"],
-                        [i.targetSelf, "_self"],
-                        [i.targetParent, "_parent"]
+                        [b.targetPopup, "popup"],
+                        [h.targetNew, "_blank"],
+                        [h.targetTop, "_top"],
+                        [h.targetSelf, "_self"],
+                        [h.targetParent, "_parent"]
                     ],
-                    onChange: s,
+                    onChange: r,
                     setup: function (a) {
                         a.target && this.setValue(a.target.type || "notSet");
-                        s.call(this)
+                        r.call(this)
                     },
                     commit: function (a) {
                         if (!a.target) a.target = {};
@@ -446,7 +430,8 @@ CKEDITOR.dialog.add("link", function (n) {
                     label: b.targetFrameName,
                     "default": "",
                     setup: function (a) {
-                        a.target && this.setValue(a.target.name)
+                        a.target &&
+                            this.setValue(a.target.name)
                     },
                     commit: function (a) {
                         if (!a.target) a.target = {};
@@ -468,14 +453,14 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "checkbox",
                             id: "resizable",
                             label: b.popupResizable,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "checkbox",
                             id: "status",
                             label: b.popupStatusBar,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }, {
                         type: "hbox",
@@ -483,14 +468,14 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "checkbox",
                             id: "location",
                             label: b.popupLocationBar,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "checkbox",
                             id: "toolbar",
                             label: b.popupToolbar,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }, {
                         type: "hbox",
@@ -498,14 +483,14 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "checkbox",
                             id: "menubar",
                             label: b.popupMenuBar,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "checkbox",
                             id: "fullscreen",
                             label: b.popupFullScreen,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }, {
                         type: "hbox",
@@ -513,14 +498,14 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "checkbox",
                             id: "scrollbars",
                             label: b.popupScrollBars,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "checkbox",
                             id: "dependent",
                             label: b.popupDependent,
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }, {
                         type: "hbox",
@@ -528,18 +513,18 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "text",
                             widths: ["50%", "50%"],
                             labelLayout: "horizontal",
-                            label: i.width,
+                            label: h.width,
                             id: "width",
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "text",
                             labelLayout: "horizontal",
                             widths: ["50%", "50%"],
                             label: b.popupLeft,
                             id: "left",
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }, {
                         type: "hbox",
@@ -547,18 +532,18 @@ CKEDITOR.dialog.add("link", function (n) {
                             type: "text",
                             labelLayout: "horizontal",
                             widths: ["50%", "50%"],
-                            label: i.height,
+                            label: h.height,
                             id: "height",
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }, {
                             type: "text",
                             labelLayout: "horizontal",
                             label: b.popupTop,
                             widths: ["50%", "50%"],
                             id: "top",
-                            setup: j,
-                            commit: l
+                            setup: i,
+                            commit: k
                         }]
                     }]
                 }]
@@ -572,13 +557,13 @@ CKEDITOR.dialog.add("link", function (n) {
             elements: [{
                 type: "file",
                 id: "upload",
-                label: i.upload,
+                label: h.upload,
                 style: "height:40px",
                 size: 29
             }, {
                 type: "fileButton",
                 id: "uploadButton",
-                label: i.uploadSubmit,
+                label: h.uploadSubmit,
                 filebrowser: "info:url",
                 "for": ["upload", "upload"]
             }]
@@ -597,8 +582,8 @@ CKEDITOR.dialog.add("link", function (n) {
                         id: "advId",
                         requiredContent: "a[id]",
                         label: b.id,
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "select",
                         id: "advLangDir",
@@ -607,12 +592,14 @@ CKEDITOR.dialog.add("link", function (n) {
                         "default": "",
                         style: "width:110px",
                         items: [
-                            [i.notSet, ""],
-                            [b.langDirLTR, "ltr"],
+                            [h.notSet, ""],
+                            [b.langDirLTR,
+                                "ltr"
+                            ],
                             [b.langDirRTL, "rtl"]
                         ],
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         id: "advAccessKey",
@@ -620,8 +607,8 @@ CKEDITOR.dialog.add("link", function (n) {
                         width: "80px",
                         label: b.acccessKey,
                         maxLength: 1,
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }]
                 }, {
                     type: "hbox",
@@ -631,8 +618,8 @@ CKEDITOR.dialog.add("link", function (n) {
                         label: b.name,
                         id: "advName",
                         requiredContent: "a[name]",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         label: b.langCode,
@@ -640,8 +627,8 @@ CKEDITOR.dialog.add("link", function (n) {
                         requiredContent: "a[lang]",
                         width: "110px",
                         "default": "",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         label: b.tabIndex,
@@ -649,8 +636,8 @@ CKEDITOR.dialog.add("link", function (n) {
                         requiredContent: "a[tabindex]",
                         width: "80px",
                         maxLength: 5,
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }]
                 }]
             }, {
@@ -665,16 +652,16 @@ CKEDITOR.dialog.add("link", function (n) {
                         requiredContent: "a[title]",
                         "default": "",
                         id: "advTitle",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         label: b.advisoryContentType,
                         requiredContent: "a[type]",
                         "default": "",
                         id: "advContentType",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }]
                 }, {
                     type: "hbox",
@@ -685,16 +672,16 @@ CKEDITOR.dialog.add("link", function (n) {
                         requiredContent: "a(cke-xyz)",
                         "default": "",
                         id: "advCSSClasses",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         label: b.charset,
                         requiredContent: "a[charset]",
                         "default": "",
                         id: "advCharset",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }]
                 }, {
                     type: "hbox",
@@ -705,17 +692,17 @@ CKEDITOR.dialog.add("link", function (n) {
                         requiredContent: "a[rel]",
                         "default": "",
                         id: "advRel",
-                        setup: k,
-                        commit: m
+                        setup: j,
+                        commit: l
                     }, {
                         type: "text",
                         label: b.styles,
                         requiredContent: "a{cke-xyz}",
                         "default": "",
                         id: "advStyles",
-                        validate: CKEDITOR.dialog.validate.inlineStyle(n.lang.common.invalidInlineStyle),
-                        setup: k,
-                        commit: m
+                        validate: CKEDITOR.dialog.validate.inlineStyle(m.lang.common.invalidInlineStyle),
+                        setup: j,
+                        commit: l
                     }]
                 }]
             }]
@@ -723,9 +710,10 @@ CKEDITOR.dialog.add("link", function (n) {
         onShow: function () {
             var a = this.getParentEditor(),
                 b = a.getSelection(),
-                c = null;
-            (c = w.getSelectedLink(a)) && c.hasAttribute("href") ? b.getSelectedElement() || b.selectElement(c) : c = null;
-            this.setupContent(I.apply(this, [a, c]))
+                c =
+                    null;
+            (c = v.getSelectedLink(a)) && c.hasAttribute("href") ? b.getSelectedElement() || b.selectElement(c) : c = null;
+            this.setupContent(H.apply(this, [a, c]))
         },
         onOk: function () {
             var a = {}, b = [],
@@ -734,29 +722,29 @@ CKEDITOR.dialog.add("link", function (n) {
             switch (c.type || "url") {
             case "url":
                 var e = c.url && c.url.protocol != void 0 ? c.url.protocol : "http://",
-                    i = c.url && CKEDITOR.tools.trim(c.url.url) || "";
-                a["data-cke-saved-href"] = i.indexOf("/") === 0 ? i : e + i;
+                    h = c.url && CKEDITOR.tools.trim(c.url.url) || "";
+                a["data-cke-saved-href"] = h.indexOf("/") === 0 ? h : e + h;
                 break;
             case "anchor":
-                e =
-                    c.anchor && c.anchor.id;
-                a["data-cke-saved-href"] = "#" + (c.anchor && c.anchor.name || e || "");
+                e = c.anchor && c.anchor.id;
+                a["data-cke-saved-href"] = "#" + (c.anchor && c.anchor.name ||
+                    e || "");
                 break;
             case "email":
                 var f = c.email,
                     e = f.address;
-                switch (o) {
+                switch (n) {
                 case "":
                 case "encode":
-                    var i = encodeURIComponent(f.subject || ""),
-                        h = encodeURIComponent(f.body || ""),
+                    var h = encodeURIComponent(f.subject || ""),
+                        i = encodeURIComponent(f.body || ""),
                         f = [];
-                    i && f.push("subject=" + i);
-                    h && f.push("body=" + h);
+                    h && f.push("subject=" + h);
+                    i && f.push("body=" + i);
                     f = f.length ? "?" + f.join("&") : "";
-                    if (o == "encode") {
-                        e = ["javascript:void(location.href='mailto:'+", u(e)];
-                        f && e.push("+'", r(f), "'");
+                    if (n == "encode") {
+                        e = ["javascript:void(location.href='mailto:'+", t(e)];
+                        f && e.push("+'", q(f), "'");
                         e.push(")")
                     } else e = ["mailto:", e, f];
                     break;
@@ -764,15 +752,16 @@ CKEDITOR.dialog.add("link", function (n) {
                     e = e.split("@", 2);
                     f.name = e[0];
                     f.domain = e[1];
-                    e = ["javascript:", t(f)]
+                    e = ["javascript:", s(f)]
                 }
                 a["data-cke-saved-href"] = e.join("")
             }
             if (c.target)
-                if (c.target.type == "popup") {
-                    for (var e = ["window.open(this.href, '", c.target.name || "", "', '"], j = ["resizable", "status", "location", "toolbar", "menubar", "fullscreen", "scrollbars", "dependent"], i = j.length, f = function (a) {
+                if (c.target.type ==
+                    "popup") {
+                    for (var e = ["window.open(this.href, '", c.target.name || "", "', '"], j = ["resizable", "status", "location", "toolbar", "menubar", "fullscreen", "scrollbars", "dependent"], h = j.length, f = function (a) {
                             c.target[a] && j.push(a + "=" + c.target[a])
-                        }, h = 0; h < i; h++) j[h] = j[h] + (c.target[j[h]] ? "=yes" : "=no");
+                        }, i = 0; i < h; i++) j[i] = j[i] + (c.target[j[i]] ? "=yes" : "=no");
                     f("width");
                     f("left");
                     f("height");
@@ -781,8 +770,7 @@ CKEDITOR.dialog.add("link", function (n) {
                     a["data-cke-pa-onclick"] = e.join("");
                     b.push("target")
                 } else {
-                    c.target.type !=
-                        "notSet" && c.target.name ? a.target = c.target.name : b.push("target");
+                    c.target.type != "notSet" && c.target.name ? a.target = c.target.name : b.push("target");
                     b.push("data-cke-pa-onclick", "onclick")
                 }
             if (c.adv) {
@@ -800,29 +788,28 @@ CKEDITOR.dialog.add("link", function (n) {
                 e("advContentType", "type");
                 e("advCSSClasses", "class");
                 e("advCharset", "charset");
-                e("advStyles",
-                    "style");
+                e("advStyles", "style");
                 e("advRel", "rel")
             }
             e = d.getSelection();
             a.href = a["data-cke-saved-href"];
             if (this._.selectedElement) {
                 d = this._.selectedElement;
-                i = d.data("cke-saved-href");
+                h = d.data("cke-saved-href");
                 f = d.getHtml();
                 d.setAttributes(a);
                 d.removeAttributes(b);
                 c.adv && (c.adv.advName && CKEDITOR.plugins.link.synAnchorSelector) && d.addClass(d.getChildCount() ? "cke_anchor" : "cke_anchor_empty");
-                if (i == f || c.type == "email" && f.indexOf("@") != -1) {
+                if (h == f || c.type == "email" && f.indexOf("@") != -1) {
                     d.setHtml(c.type == "email" ? c.email.address : a["data-cke-saved-href"]);
                     e.selectElement(d)
                 }
                 delete this._.selectedElement
             } else {
-                e =
-                    e.getRanges()[0];
+                e = e.getRanges()[0];
                 if (e.collapsed) {
-                    d = new CKEDITOR.dom.text(c.type == "email" ? c.email.address : a["data-cke-saved-href"], d.document);
+                    d = new CKEDITOR.dom.text(c.type == "email" ?
+                        c.email.address : a["data-cke-saved-href"], d.document);
                     e.insertNode(d);
                     e.selectNodeContents(d)
                 }
@@ -836,14 +823,13 @@ CKEDITOR.dialog.add("link", function (n) {
             }
         },
         onLoad: function () {
-            n.config.linkShowAdvancedTab || this.hidePage("advanced");
-            n.config.linkShowTargetTab || this.hidePage("target")
+            m.config.linkShowAdvancedTab || this.hidePage("advanced");
+            m.config.linkShowTargetTab || this.hidePage("target")
         },
         onFocus: function () {
             var a = this.getContentElement("info", "linkType");
             if (a && a.getValue() == "url") {
-                a = this.getContentElement("info",
-                    "url");
+                a = this.getContentElement("info", "url");
                 a.select()
             }
         }
