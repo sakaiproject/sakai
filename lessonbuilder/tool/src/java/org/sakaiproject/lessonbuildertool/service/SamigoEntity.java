@@ -23,69 +23,45 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Map;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-
-import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
-import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
-import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueries;
-import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
-import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
-import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
-import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
-import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
-import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
-import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
-import org.sakaiproject.tool.assessment.services.GradingService;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
-
-import org.w3c.dom.Document;
-import org.sakaiproject.tool.assessment.services.qti.QTIService;
-import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
-
-import org.sakaiproject.site.api.Group;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedMetaData;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.qti.constants.QTIVersion;
+import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.qti.QTIService;
 import org.sakaiproject.tool.cover.SessionManager;
-
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
-
+import org.sakaiproject.tool.cover.ToolManager;
+import org.w3c.dom.Document;
 import uk.org.ponder.messageutil.MessageLocator;
 
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
-import java.sql.Connection;
-import java.sql.ResultSet;
+import java.io.IOException;
+import java.util.*;
 
 
 /**
@@ -236,7 +212,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public PublishedAssessmentData getPublishedAssessment(Long publishedId, boolean nocache) {
 	
-	PublishedAssessmentData ret = (PublishedAssessmentData)assessmentCache.get(publishedId);
+	PublishedAssessmentData ret = (PublishedAssessmentData)assessmentCache.get(publishedId.toString());
 
 	if (!nocache && ret != null) {
 	    return ret;
@@ -255,7 +231,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
 	if (ret != null) {
 	    ret.setComments(null);
-	    assessmentCache.put(publishedId, ret, DEFAULT_EXPIRATION);
+	    assessmentCache.put(publishedId.toString(), ret);
 	}
 
 	return ret;
@@ -817,7 +793,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	// will still have the old value
 	if (assessment != null)
 	    assessment.setComments(null);
-	PublishedAssessmentData cached = (PublishedAssessmentData)assessmentCache.get(id);
+	PublishedAssessmentData cached = (PublishedAssessmentData)assessmentCache.get(id.toString());
 	if (cached != null)
 	    cached.setComments(null);
 

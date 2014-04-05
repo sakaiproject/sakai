@@ -21,43 +21,23 @@
 
 package org.sakaiproject.lessonbuildertool.service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Arrays;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.db.cover.SqlService;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.db.cover.SqlService;
-import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.MemoryService;
-
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-import org.sakaiproject.lessonbuildertool.SimplePage;
-import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import java.util.*;
 
 
 public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
@@ -210,7 +190,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	// null is a possible value. Because get returns null if something isn't
 	// in the cache, use "null" for null. could also check whether it's in the cache
 	// but documentation says this is expensive
-	Object cached = cache.get(item.getId());
+	Object cached = cache.get(String.valueOf(item.getId()));
 	//	Object cached = null; // for testing
 	if (cached != null) {
 	    if (cached instanceof String) // "null"
@@ -241,9 +221,9 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	else
 	    itemGroups.retainAll(pageGroups);
 	if (itemGroups == null)
-	    cache.put(item.getId(), "null", DEFAULT_EXPIRATION);
+	    cache.put(String.valueOf(item.getId()), "null");
 	else
-	    cache.put(item.getId(), itemGroups, DEFAULT_EXPIRATION);
+	    cache.put(String.valueOf(item.getId()), itemGroups);
 	/// System.out.println("item " + item.getId() + " returned " + itemGroups);
 
         // no longer is progress
