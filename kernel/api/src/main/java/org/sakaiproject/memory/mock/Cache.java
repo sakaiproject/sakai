@@ -34,7 +34,7 @@ import java.util.*;
  */
 public class Cache implements GenericMultiRefCache, Cacher {
 
-    private Map<Object, Object> map = new HashMap<Object, Object>();
+    private Map<String, Object> map = new HashMap<String, Object>();
 
     String name;
     Cache(String name) {
@@ -119,6 +119,73 @@ public class Cache implements GenericMultiRefCache, Cacher {
     @Override
     public long getSize() {
         return map.size();
+    }
+
+
+    // CompletionCache methods below
+    @Override
+    public List<?> getAll() {
+        return new ArrayList<Object>(map.values());
+    }
+
+    @Override
+    public List<?> getAll(String path) {
+        return new ArrayList<Object>(map.values());
+    }
+
+    @Override
+    public List<String> getKeys() {
+        return new ArrayList<String>(map.keySet());
+    }
+
+    @Override
+    public List<String> getIds() {
+        return new ArrayList<String>(map.keySet());
+    }
+
+    @Override
+    public void disable() {
+
+    }
+
+    @Override
+    public void enable() {
+
+    }
+
+    @Override
+    public boolean disabled() {
+        return false;
+    }
+
+    @Override
+    public boolean isComplete() {
+        return false;
+    }
+
+    @Override
+    public void setComplete() {
+
+    }
+
+    @Override
+    public boolean isComplete(String path) {
+        return false;
+    }
+
+    @Override
+    public void setComplete(String path) {
+
+    }
+
+    @Override
+    public void holdEvents() {
+
+    }
+
+    @Override
+    public void processEvents() {
+
     }
 
 }

@@ -29,10 +29,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.Cacher;
-import org.sakaiproject.memory.api.DerivedCache;
+import org.sakaiproject.memory.api.*;
 
 import java.lang.ref.SoftReference;
 import java.util.*;
@@ -349,91 +346,6 @@ public class MemCache implements Cache, Observer, Cacher
 		return(e != null ? e.getObjectValue() : null);
 	} // get
 
-	/**
-     * TODO REMOVE
-	 * Get all the non-expired non-null entries.
-	 *
-	 * @return all the non-expired non-null entries, or an empty list if none.
-	 * @deprecated
-	 */
-	public List getAll()
-	{ //TODO Why would you ever getAll objects from cache?
-		M_log.debug("getAll()");
-
-		final List<Object> keys = cache.getKeysWithExpiryCheck();
-		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
-		for (Object key : keys) {
-			final Object value = cache.get(key).getObjectValue();
-			if (value != null)
-				rv.add(value);
-		}
-
-		return rv;
-
-	} // getAll
-
-	/**
-     * TODO REMOVE
-	 * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
-	 * 
-	 * @param path
-	 *        The reference path.
-	 * @return all the non-expired non-null entries, or an empty list if none.
-	 */
-	public List getAll(String path)
-	{
-		if (M_log.isDebugEnabled()) {
-			M_log.debug("getAll(String " + path + ")");
-		}
-
-		final List<Object> keys = cache.getKeysWithExpiryCheck();
-		final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
-		for (Object key : keys) {
-			// take only if keys start with path, and have no SEPARATOR following other than at the end %%%
-			if (key instanceof String && referencePath((String) key).equals(path)) {
-				rv.add(cache.get(key).getObjectValue());
-			}
-		}
-		return rv;
-
-	} // getAll
-
-	/**
-     * TODO REMOVE
-	 * Get all the keys
-	 * 
-	 * @return The List of key values (Object).
-	 */
-	public List getKeys()
-	{
-		M_log.debug("getKeys()");
-		return cache.getKeysWithExpiryCheck();
-	} // getKeys
-
-	/**
-     * TODO REMOVE
-	 * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
-	 * 
-	 * @return The List of keys converted from references to ids (String).
-	 */
-	public List getIds() {
-		M_log.debug("getIds()");
-
-		final List<Object> keys = cache.getKeysWithExpiryCheck();
-		final List<Object> rv = new ArrayList<Object>(keys.size());
-		for (Object key : keys) {
-			if (key instanceof String) {
-				int i = ((String) key).indexOf(m_resourcePattern);
-				if (i != -1)
-					key = ((String) key).substring(i
-							+ m_resourcePattern.length());
-				rv.add(key);
-			}
-		}
-		return rv;
-
-	} // getIds
-
     /**
      * {@inheritDoc}
      */
@@ -700,5 +612,245 @@ public class MemCache implements Cache, Observer, Cacher
 		return path;
 
 	} // referencePath
+
+
+    // **************************************************************************
+    // CompletionCache methods - REMOVE THESE
+    // **************************************************************************
+
+    /**
+     * Disable the cache.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void disable()
+    {
+        M_log.debug("disable()");
+
+        m_disabled = true;
+        m_eventTrackingService.deleteObserver(this);
+        clear();
+
+    } // disable
+
+    /**
+     * Enable the cache.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void enable()
+    {
+        M_log.debug("enable()");
+
+        m_disabled = false;
+
+        if (m_resourcePattern != null)
+        {
+            m_eventTrackingService.addPriorityObserver(this);
+        }
+
+    } // enable
+
+    /**
+     * Is the cache disabled?
+     *
+     * @return true if the cache is disabled, false if it is enabled.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public boolean disabled()
+    {
+        M_log.debug("disabled()");
+
+        return m_disabled;
+
+    } // disabled
+
+    /**
+     * Are we complete?
+     *
+     * @return true if we have all the possible entries cached, false if not.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public boolean isComplete()
+    {
+        M_log.debug("isComplete()");
+
+        if (disabled()) return false;
+
+        return m_complete;
+
+    } // isComplete
+
+    /**
+     * Set the cache to be complete, containing all possible entries.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void setComplete()
+    {
+        M_log.debug("setComplete()");
+
+        if (disabled()) return;
+
+        m_complete = true;
+
+    } // isComplete
+
+    /**
+     * Are we complete for one level of the reference hierarchy?
+     *
+     * @param path
+     *        The reference to the completion level.
+     * @return true if we have all the possible entries cached, false if not.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public boolean isComplete(String path)
+    {
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("isComplete(String " + path + ")");
+        }
+
+        return m_partiallyComplete.contains(path);
+
+    } // isComplete
+
+    /**
+     * Set the cache to be complete for one level of the reference hierarchy.
+     *
+     * @param path
+     *        The reference to the completion level.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void setComplete(String path)
+    {
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("setComplete(String " + path + ")");
+        }
+
+        m_partiallyComplete.add(path);
+
+    } // setComplete
+
+    /**
+     * Set the cache to hold events for later processing to assure an atomic "complete" load.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void holdEvents()
+    {
+        M_log.debug("holdEvents()");
+
+        m_holdEventProcessing = true;
+
+    } // holdEvents
+
+    /**
+     * Restore normal event processing in the cache, and process any held events now.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void processEvents()
+    {
+        M_log.debug("processEvents()");
+
+        m_holdEventProcessing = false;
+
+        for (int i = 0; i < m_heldEvents.size(); i++)
+        {
+            Event event = (Event) m_heldEvents.get(i);
+            continueUpdate(event);
+        }
+
+        m_heldEvents.clear();
+
+    } // holdEvents
+
+    /**
+     * Get all the non-expired non-null entries.
+     *
+     * @return all the non-expired non-null entries, or an empty list if none.
+     * @deprecated TODO REMOVE
+     */
+    public List getAll()
+    { //TODO Why would you ever getAll objects from cache?
+        M_log.debug("getAll()");
+
+        final List<Object> keys = cache.getKeysWithExpiryCheck();
+        final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
+        for (Object key : keys) {
+            final Object value = cache.get(key).getObjectValue();
+            if (value != null)
+                rv.add(value);
+        }
+
+        return rv;
+
+    } // getAll
+
+    /**
+     * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
+     *
+     * @param path
+     *        The reference path.
+     * @return all the non-expired non-null entries, or an empty list if none.
+     * @deprecated TODO REMOVE
+     */
+    public List getAll(String path)
+    {
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("getAll(String " + path + ")");
+        }
+
+        final List<Object> keys = cache.getKeysWithExpiryCheck();
+        final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
+        for (Object key : keys) {
+            // take only if keys start with path, and have no SEPARATOR following other than at the end %%%
+            if (key instanceof String && referencePath((String) key).equals(path)) {
+                rv.add(cache.get(key).getObjectValue());
+            }
+        }
+        return rv;
+
+    } // getAll
+
+    /**
+     * Get all the keys
+     *
+     * @return The List of key values (Object).
+     * @deprecated TODO REMOVE
+     */
+    public List getKeys()
+    {
+        M_log.debug("getKeys()");
+        return cache.getKeysWithExpiryCheck();
+    } // getKeys
+
+    /**
+     * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
+     *
+     * @return The List of keys converted from references to ids (String).
+     * @deprecated TODO REMOVE
+     */
+    public List getIds() {
+        M_log.debug("getIds()");
+
+        final List<Object> keys = cache.getKeysWithExpiryCheck();
+        final List<Object> rv = new ArrayList<Object>(keys.size());
+        for (Object key : keys) {
+            if (key instanceof String) {
+                int i = ((String) key).indexOf(m_resourcePattern);
+                if (i != -1)
+                    key = ((String) key).substring(i
+                                                           + m_resourcePattern.length());
+                rv.add(key);
+            }
+        }
+        return rv;
+
+    } // getIds
 
 }

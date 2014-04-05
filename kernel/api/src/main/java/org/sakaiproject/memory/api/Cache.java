@@ -34,7 +34,7 @@ import java.io.Serializable;
  * This is designed to align with JSR-107
  * https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/Cache.java
  */
-public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
+public interface Cache extends CompletionCache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
 
     /**
      * Get the cached payload, or null if not there (or expired)<br/>
