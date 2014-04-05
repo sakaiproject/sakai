@@ -769,6 +769,11 @@ public class MemCache implements Cache, Observer, Cacher
 
     } // holdEvents
 
+    @Override
+    public void put(Object key, Object payload, int duration) {
+        put((String)key, payload);
+    }
+
     /**
      * Get all the non-expired non-null entries.
      *

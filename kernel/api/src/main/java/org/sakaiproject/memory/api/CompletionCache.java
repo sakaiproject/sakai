@@ -32,12 +32,26 @@ import java.util.List;
 public interface CompletionCache {
 
     /**
+     * Cache an object
+     *
+     * @param key
+     *        The key with which to find the object.
+     * @param payload
+     *        The object to cache.
+     * @param duration
+     *        The time to cache the object (seconds).
+     * @deprecated Since Sakai 2.5.0
+     * @see Cache#put(Object, Object)
+     */
+    void put(Object key, Object payload, int duration);
+
+    /**
      * Get all the non-expired non-null entries.
      *
      * @return all the non-expired non-null entries, or an empty list if none.
      * @deprecated Since Sakai 2.5.0
      */
-    List<?> getAll();
+    List getAll();
 
     /**
      * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
@@ -47,7 +61,7 @@ public interface CompletionCache {
      * @return all the non-expired non-null entries, or an empty list if none.
      * @deprecated Since Sakai 2.5.0
      */
-    List<?> getAll(String path);
+    List getAll(String path);
 
     /**
      * Get all the keys

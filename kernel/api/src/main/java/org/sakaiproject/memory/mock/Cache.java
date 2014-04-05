@@ -122,6 +122,11 @@ public class Cache implements GenericMultiRefCache, Cacher {
     }
 
 
+    @Override
+    public void put(Object key, Object payload, int duration) {
+        put((String)key, payload);
+    }
+
     // CompletionCache methods below
     @Override
     public List<?> getAll() {
