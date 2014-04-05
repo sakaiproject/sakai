@@ -376,7 +376,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			String event = LOG_APP + '.' + LOG_OBJ_PREFSDATA + '.' + LOG_ACTION_EDIT;
 			if(e.getEvent() != null && e.getEvent().equals(event)) {
 				String siteId = e.getResource().split("/")[2];
-				cachePrefsData.expire(siteId);
+				cachePrefsData.remove(siteId);
 				LOG.debug("Expiring preferences cache for site: "+siteId);
 			}
 		}

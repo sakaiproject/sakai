@@ -18,39 +18,9 @@
  */
 package org.sakaiproject.sitestats.impl.report;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-
-import javax.xml.transform.Result;
-import javax.xml.transform.Source;
-import javax.xml.transform.Templates;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamSource;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.fop.apps.FOPException;
-import org.apache.fop.apps.FOUserAgent;
-import org.apache.fop.apps.Fop;
-import org.apache.fop.apps.FopFactory;
-import org.apache.fop.apps.MimeConstants;
+import org.apache.fop.apps.*;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -73,22 +43,11 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.ResourceStat;
-import org.sakaiproject.sitestats.api.SitePresence;
-import org.sakaiproject.sitestats.api.SiteVisits;
-import org.sakaiproject.sitestats.api.Stat;
-import org.sakaiproject.sitestats.api.StatsAuthz;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.Util;
+import org.sakaiproject.sitestats.api.*;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
-import org.sakaiproject.sitestats.api.report.Report;
-import org.sakaiproject.sitestats.api.report.ReportDef;
-import org.sakaiproject.sitestats.api.report.ReportFormattedParams;
-import org.sakaiproject.sitestats.api.report.ReportManager;
-import org.sakaiproject.sitestats.api.report.ReportParams;
+import org.sakaiproject.sitestats.api.report.*;
 import org.sakaiproject.sitestats.impl.parser.DigesterUtil;
 import org.sakaiproject.sitestats.impl.report.fop.LibraryURIResolver;
 import org.sakaiproject.sitestats.impl.report.fop.ReportInputSource;
@@ -105,6 +64,17 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import javax.xml.transform.*;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamSource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 
 /**
@@ -219,22 +189,22 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				
 				// expire report with specified id
 				LOG.debug("Expiring report for id: "+siteId);
-				cacheReportDef.expire(id);
+				cacheReportDef.remove(id);
 				
 				// expire list of site reports
 				LOG.debug("Expiring report lists for site: "+siteId);
-				cacheReportDef.expire( new KeyReportDefList(siteId, true, true) );
-				cacheReportDef.expire( new KeyReportDefList(siteId, true, false) );
-				cacheReportDef.expire( new KeyReportDefList(siteId, false, true) );
-				cacheReportDef.expire( new KeyReportDefList(siteId, false, false) );
+				cacheReportDef.remove( new KeyReportDefList(siteId, true, true).toString() );
+				cacheReportDef.remove( new KeyReportDefList(siteId, true, false).toString() );
+				cacheReportDef.remove( new KeyReportDefList(siteId, false, true).toString() );
+				cacheReportDef.remove( new KeyReportDefList(siteId, false, false).toString() );
 
 				// expire list of predefined reports
 				// required as event contains siteId and not null (which identifies predefined reports)
 				LOG.debug("Expiring predefined report lists");
-				cacheReportDef.expire( new KeyReportDefList(null, true, true) );
-				cacheReportDef.expire( new KeyReportDefList(null, true, false) );
-				cacheReportDef.expire( new KeyReportDefList(null, false, true) );
-				cacheReportDef.expire( new KeyReportDefList(null, false, false) );
+				cacheReportDef.remove( new KeyReportDefList(null, true, true).toString() );
+				cacheReportDef.remove( new KeyReportDefList(null, true, false).toString() );
+				cacheReportDef.remove( new KeyReportDefList(null, false, true).toString() );
+				cacheReportDef.remove( new KeyReportDefList(null, false, false).toString() );
 			}
 		}
 	}
@@ -629,7 +599,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 	public List<ReportDef> getReportDefinitions(final String siteId, final boolean includedPredefined, final boolean includeHidden) {
 		List<ReportDef> reportDefs = null;
 		KeyReportDefList key = new KeyReportDefList(siteId, includedPredefined, includeHidden);
-		Object cached = cacheReportDef.get(key);
+		Object cached = cacheReportDef.get(key.toString());
 		if(cached != null) {
 			reportDefs = (List<ReportDef>) cached;
 			LOG.debug("Getting report list from cache for site "+siteId);
@@ -663,7 +633,7 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 						reportDef.setReportParams(null);
 					}
 				}
-				cacheReportDef.put(key, reportDefs);
+				cacheReportDef.put(key.toString(), reportDefs);
 			}
 		}
 		return reportDefs;
@@ -1614,5 +1584,10 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 				+ (includedPredefined?1:0) 
 				+ (includeHidden?1:0);
 		}
-	}
+
+        @Override
+        public String toString() {
+            return siteId+",p:"+includedPredefined+",h:"+includeHidden;
+        }
+    }
 }
