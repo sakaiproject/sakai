@@ -10,23 +10,43 @@
    
     CKEDITOR.plugins.add("autosave", {
         lang: 'de,en,jp,pl,pt-BR,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
-        version: 0.8,
+        version: 0.09,
         init: function(editor) {
             var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
             var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
             var saveOnDestroy = editor.config.autosave_saveOnDestroy != null ? editor.autosave_saveOnDestroy : false;
+            var saveDetectionSelectors =
+                editor.config.autosave_saveDetectionSelectors != null ? editor.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
 
             CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
 
-            CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function() {
-                GenerateAutoSaveDialog(editor, autoSaveKey);
+            if (typeof (jQuery) === 'undefined') {
+                CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function () {
+                    jQuery.noConflict();
 
-                CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
+                    CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
+                        GenerateAutoSaveDialog(editor, autoSaveKey);
+
+                        CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
+                    });
+                });
+
+            } else {
+                CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
+                    GenerateAutoSaveDialog(editor, autoSaveKey);
+
+                    CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
+                });
+            }
+
+
+            $(saveDetectionSelectors).click(function () {
+                RemoveStorage(autoSaveKey);
             });
 
             editor.on('key', startTimer);
 
-            editor.on('destroy', function() {
+            editor.on('destroy', function () {
                 if (saveOnDestroy) {
                     SaveData(autoSaveKey, editor);
                 }
