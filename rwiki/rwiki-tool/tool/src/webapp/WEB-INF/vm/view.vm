@@ -25,7 +25,7 @@
 		#if ($renderBean.localisedPageNameLength>255)
 			#commandlinks(true false true ${rlb.jsp_view}  false  false false false ${requestScope.Withnotification}       ${homeBean} ${viewBean} ${rlb} )
 		#else
-			#commandlinks(true true true ${rlb.jsp_view} ${requestScope.Withnotification}   ${homeBean} ${viewBean} ${rlb} )	                  #commandlinks(true true true ${rlb.jsp_view}   true  true true true ${requestScope.Withnotification}   ${homeBean} ${viewBean} ${rlb} )
+			#commandlinks(true true true ${rlb.jsp_view}   true  true true true ${requestScope.Withnotification}   ${homeBean} ${viewBean} ${rlb} )
 		#end
 	    <li class="rwiki_searchBox">
 	      <label for="searchField">${rlb.jsp_search}:</label>
