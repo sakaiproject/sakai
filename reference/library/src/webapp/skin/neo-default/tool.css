@@ -1252,3 +1252,11 @@ input[type="checkbox"][disabled="disabled"], input[type="checkbox"][disabled="tr
 .ui-timepicker-rtl dl { text-align: right; padding: 0 5px 0 0; }
 .ui-timepicker-rtl dl dt{ float: right; clear: right; }
 .ui-timepicker-rtl dl dd { margin: 0 45% 10px 10px; }
+
+#helpSearchForm {
+  padding: 6px;
+}
+#helpSearchForm\\:searchField {
+  width: 100px;
+  padding-right: 6px;
+}
