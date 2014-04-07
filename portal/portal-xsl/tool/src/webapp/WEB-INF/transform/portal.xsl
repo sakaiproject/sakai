@@ -505,7 +505,7 @@ your browser doesn't support iframes
                         '<xsl:value-of
                         	disable-output-escaping="yes"
                         	select="translate(translate(title, ' ', '_'), $apostrophe, '_')"/>',
-                        'resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')
+                        'resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')
                   </xsl:attribute>
                </xsl:if>
                <xsl:attribute name="accesskey">
@@ -659,7 +659,7 @@ your browser doesn't support iframes
             </xsl:attribute>
             <xsl:attribute name="onClick">
                openWindow('<xsl:value-of select="$tool/toolHelp"/>', '<xsl:value-of select="$externalized/entry[@key='sit_help']"/>',
-        'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false
+        'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false
             </xsl:attribute>
             <img src="/library/image/transparent.gif" border="0">
                <xsl:attribute name="alt"><xsl:value-of select="$externalized/entry[@key='sit_help']"/></xsl:attribute>
@@ -732,10 +732,10 @@ your browser doesn't support iframes
          <li>
 				<a  accesskey="h" href="javascript:;" class="icon-sakai-help">
                <xsl:attribute name="onclick">
-                  window.open('<xsl:value-of select="config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')
+                  window.open('<xsl:value-of select="config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')
                </xsl:attribute>
                <xsl:attribute name="onkeypress">
-                  window.open('<xsl:value-of select="config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')
+                  window.open('<xsl:value-of select="config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')
                </xsl:attribute>
                Help</a>
 			</li>
@@ -1062,7 +1062,7 @@ your browser doesn't support iframes
             <xsl:attribute name="onclick">
                window.open('<xsl:value-of select="$currentTool/columns/column/tools/tool/url"/>',
                   '<xsl:value-of disable-output-escaping="yes" select="title"/>',
-                  'resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')
+                  'resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')
             </xsl:attribute>
          </xsl:if>
          <xsl:apply-templates select="@*|node()" >

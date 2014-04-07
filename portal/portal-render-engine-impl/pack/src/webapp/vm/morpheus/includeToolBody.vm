@@ -39,7 +39,7 @@
                 #if (${tool.toolJSR168Help} )
                     <a class="portlet title-tools help" accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><span class="skip">${rloader.site_newwindow}</span></a>
                 #else
-                    <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                    <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
                 #end
         
             #end
@@ -55,7 +55,7 @@
             #end
 
             #if (${tool.toolShowHelpButton})
-                <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
             #end
 
         </nav>

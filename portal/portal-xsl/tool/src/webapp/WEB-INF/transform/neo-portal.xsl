@@ -715,7 +715,7 @@ your browser doesn't support iframes
             <xsl:attribute name="onclick">
 							window.open('<xsl:value-of select="popUrl"/>', 
 								'<xsl:value-of disable-output-escaping="yes" select="translate(translate(title, ' ', '_'), $apostrophe, '_')"/>',
-								'resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')
+								'resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')
 						</xsl:attribute>
           </xsl:if>
           <xsl:attribute name="accesskey">
@@ -866,7 +866,7 @@ your browser doesn't support iframes
                   </xsl:attribute>
                   <xsl:attribute name="onClick">
 										openWindow('<xsl:value-of select="$tool/toolHelp"/>', '<xsl:value-of select="$externalized/entry[@key='sit_help']"/>',
-											'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false
+											'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false
 									</xsl:attribute>
                   <img src="/library/image/transparent.gif" border="0">
                     <xsl:attribute name="alt">
@@ -918,10 +918,10 @@ your browser doesn't support iframes
           <li>
             <a class="toolMenuLink" accesskey="h" href="javascript:;" title="Help">
               <xsl:attribute name="onclick">
-								openWindow('<xsl:value-of select="$config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false
+								openWindow('<xsl:value-of select="$config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false
 							</xsl:attribute>
               <xsl:attribute name="onkeypress">
-								openWindow('<xsl:value-of select="$config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false
+								openWindow('<xsl:value-of select="$config/helpUrl"/>','Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false
 							</xsl:attribute>
               <span class="toolMenuIcon icon-sakai-help">Help</span>
               <span class="skip">Opens in a new window</span>

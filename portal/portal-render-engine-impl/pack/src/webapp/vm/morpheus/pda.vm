@@ -111,7 +111,7 @@
                                 <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolJSR168Help}" title="${rloader.sit_help}">?</a></span></li>
                             #else
                                 ## need to get string from bundle
-                                <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false">?</a></span></li>
+                                <li class="helpLink"><span><a accesskey="h" href="${currentPlacement.toolHelpActionUrl}" title="${rloader.sit_help}" target="_blank" onclick="openWindow('${currentPlacement.toolHelpActionUrl}', 'Help','resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false">?</a></span></li>
                             #end
                         #end
                     #end
@@ -193,7 +193,7 @@
                                         ## This must be a page popup - so we treat it as a popup
                                         <li class="${page.menuClass}-item">
                                             <span>
-                                                <a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')"  class="">
+                                                <a href="javascript:;" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')"  class="">
                                                     <span class="toolMenuIcon ${page.menuClass}"> </span>${page.pageTitle}
                                                 </a>
                                             </span>

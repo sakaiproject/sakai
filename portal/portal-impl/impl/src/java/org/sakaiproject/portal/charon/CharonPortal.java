@@ -856,7 +856,7 @@ public class CharonPortal extends HttpServlet
 				+ " onclick=\"openWindow('"
 				+ helpActionUrl
 				+ "', 'Help'"
-				+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+				+ ", 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false\">"
 				+ "<img src=\"/library/image/transparent.gif\"" + " alt=\""
 				+ Web.escapeHtml(rb.getString("sit_help")) + "\"" + " border=\"0\" /></a>\n");
 	}
@@ -2239,7 +2239,7 @@ public class CharonPortal extends HttpServlet
 								+ "'"
 								+ ",'"
 								+ Web.escapeJavascript(p.getTitle())
-								+ "','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')");
+								+ "','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')");
 			}
 			else
 			{
@@ -2263,7 +2263,7 @@ public class CharonPortal extends HttpServlet
 							+ "\" target=\"_blank\" "
 							+ "onclick=\"openWindow('"
 							+ helpUrl
-							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false\">"
+							+ "', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false\">"
 							+ "<span>" + rb.getString("sit_help") + "</span></a>");
 
 			out.println("			</li>");

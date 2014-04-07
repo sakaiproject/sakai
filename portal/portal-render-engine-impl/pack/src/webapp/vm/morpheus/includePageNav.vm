@@ -54,7 +54,7 @@
                     #else
                         #if (${page.ispopup})
                             <li>
-                                <a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=800,height=600')">
+                                <a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')">
                                     <span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span>
                                     <span class="menuTitle">${page.pageTitle}</span>
                                 </a>
@@ -82,7 +82,7 @@
                 <li>
                     <a class="toolMenuLink" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
                         onclick="openWindow('${sitePages.pageNavHelpUrl}', 
-                        'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); 
+                        'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); 
                         return false" title="${rloader.sit_help}">
                         <span  class="toolMenuIcon ${sitePages.helpMenuClass}"> </span>
                         <span class="menuTitle">${rloader.sit_help}</span>
