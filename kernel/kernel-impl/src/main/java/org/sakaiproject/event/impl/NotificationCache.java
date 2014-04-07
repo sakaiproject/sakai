@@ -28,10 +28,10 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.MemoryService;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -41,39 +41,30 @@ import java.util.*;
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
  */
-public class NotificationCache implements Cacher, Observer {
+@SuppressWarnings("deprecation")
+public class NotificationCache implements Observer {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(NotificationCache.class);
-
+	/** Map of notification function to Set of notifications - same objects as in m_map. */
+	protected Map<String, List<Notification>> m_functionMap = null;
+	/** The object that will deal with expired entries. */
+	protected CacheRefresher m_refresher = null;
+	/** The string that all resources in this cache will start with. */
+	protected String m_resourcePattern = null;
+	/** If true, we are disabled. */
+	protected boolean m_disabled = false;
+	/** If true, we have all the entries that there are in the cache. */
+	protected boolean m_complete = false;
+	/** If true, we are going to hold any events we see in the m_heldEvents list for later processing. */
+	protected boolean m_holdEventProcessing = false;
+	/** The events we are holding for later processing. */
+	protected List m_heldEvents = new Vector();
+	protected EventTrackingService eventTrackingService;
+	protected MemoryService memoryService;
 	/** Map holding cached entries (by reference). */
 //	protected Map m_map = null;
 	private Cache cache = null;
-
-	/** Map of notification function to Set of notifications - same objects as in m_map. */
-	protected Map m_functionMap = null;
-
-	/** The object that will deal with expired entries. */
-	protected CacheRefresher m_refresher = null;
-
-	/** The string that all resources in this cache will start with. */
-	protected String m_resourcePattern = null;
-
-	/** If true, we are disabled. */
-	protected boolean m_disabled = false;
-
-	/** If true, we have all the entries that there are in the cache. */
-	protected boolean m_complete = false;
-
-	/** If true, we are going to hold any events we see in the m_heldEvents list for later processing. */
-	protected boolean m_holdEventProcessing = false;
 	private Object m_holdEventProcessingLock = new Object();
-
-	/** The events we are holding for later processing. */
-	protected List m_heldEvents = new Vector();	
-
-	protected EventTrackingService eventTrackingService;
-
-	protected MemoryService memoryService;
 
 	/**
 	 * Construct the Cache. Attempts to keep complete on Event notification by calling the refresher.
@@ -90,7 +81,7 @@ public class NotificationCache implements Cacher, Observer {
 		cache = memoryService.newCache("org.sakaiproject.event.api.NotificationService.cache", refresher, pattern);
 		// TODO check logic with proxied class
 
-		m_functionMap = new HashMap();
+		m_functionMap = new ConcurrentHashMap<String, List<Notification>>();
 
 		m_refresher = refresher;
 		m_resourcePattern = pattern;
@@ -127,17 +118,6 @@ public class NotificationCache implements Cacher, Observer {
 	} // containsKey
 
 	/**
-	 * Disable the cache.
-	 */
-	public void disable()
-	{
-		m_disabled = true;
-		eventTrackingService.deleteObserver(this);
-		clear();
-
-	} // disable
-
-	/**
 	 * Is the cache disabled?
 	 * 
 	 * @return true if the cache is disabled, false if it is enabled.
@@ -161,11 +141,10 @@ public class NotificationCache implements Cacher, Observer {
 	/**
 	 * Clean up.
 	 */
-	protected void finalize()
-	{
+	protected void finalize() throws Throwable {
 		// unregister to get events
 		eventTrackingService.deleteObserver(this);
-
+		super.finalize();
 	} // finalize
 
 	/**
@@ -194,45 +173,6 @@ public class NotificationCache implements Cacher, Observer {
 	{
 		return (List) m_functionMap.get(function);
 	} // getAll
-
-	/**
-	 * Return a description of the cacher.
-	 * 
-	 * @return The cacher's description.
-	 */
-	public String getDescription()
-	{
-		StringBuilder buf = new StringBuilder();
-		buf.append("NotificationCache:");
-		if (m_disabled)
-		{
-			buf.append(" disabled:");
-		}
-		if (m_complete)
-		{
-			buf.append(" complete:");
-		}
-		if (m_resourcePattern != null)
-		{
-			buf.append(" pattern: ").append(m_resourcePattern);
-		}
-		if (m_refresher != null)
-		{
-			buf.append(" refresher: ").append(m_refresher.toString());
-		}
-
-		return buf.toString();
-	}
-
-	/**
-	 * Return the size of the cacher - indicating how much memory in use.
-	 * 
-	 * @return The size of the cacher.
-	 */
-	public long getSize()
-	{
-		return cache.getSize();
-	}
 
 	/**
 	 * Are we complete?
@@ -299,10 +239,10 @@ public class NotificationCache implements Cacher, Observer {
 		{
 			String func = (String) iFuncs.next();
 
-			List notifications = (List) m_functionMap.get(func);
+			List<Notification> notifications = m_functionMap.get(func);
 			if (notifications == null)
 			{
-				notifications = new Vector();
+				notifications = new ArrayList<Notification>();
 				m_functionMap.put(func, notifications);
 			}
 
@@ -344,14 +284,6 @@ public class NotificationCache implements Cacher, Observer {
 		}
 
 	} // remove
-
-	/**
-	 * Clear out as much as possible anything cached; re-sync any cache that is needed to be kept.
-	 */
-	public void resetCache()
-	{
-		clear();
-	} // resetCache
 
 	/**
 	 * Set the cache to be complete, containing all possible entries.
@@ -399,7 +331,7 @@ public class NotificationCache implements Cacher, Observer {
 					m_heldEvents.add(event);
 				}
 				return;
-			}			
+			}
 		}
 
 		continueUpdate(event);

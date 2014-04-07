@@ -21,13 +21,6 @@
 
 package org.sakaiproject.event.impl;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,14 +30,7 @@ import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.Notification;
-import org.sakaiproject.event.api.NotificationAction;
-import org.sakaiproject.event.api.NotificationEdit;
-import org.sakaiproject.event.api.NotificationLockedException;
-import org.sakaiproject.event.api.NotificationNotDefinedException;
-import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
@@ -57,6 +43,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.*;
 
 /**
  * <p>
@@ -79,12 +67,15 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/** Transient notifications (NotificationEdit). */
 	protected List m_transients = null;
-
-	private ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
+	/** Configuration: make the email notifications To: reply-able. */
+	protected boolean m_emailsToReplyable = false;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
+	/** Configuration: make the email notifications From: reply-able. */
+	protected boolean m_emailsFromReplyable = false;
+	private ComponentManager componentManager = org.sakaiproject.component.cover.ComponentManager.getInstance();
 
 	/**
 	 * Construct storage for this service.
@@ -93,7 +84,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Does the resource reference match the filter?
-	 * 
+	 *
 	 * @param filter
 	 *        The resource reference filter.
 	 * @param ref
@@ -112,7 +103,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
-	 * 
+	 *
 	 * @param relative
 	 *        if true, form within the access path only (i.e. starting with /content)
 	 * @return the partial URL that forms the root of resource URLs.
@@ -129,9 +120,13 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return componentManager;
 	}
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * Access the notification id extracted from a notification reference.
-	 * 
+	 *
 	 * @param ref
 	 *        The notification reference string.
 	 * @return The the notification id extracted from a notification reference.
@@ -147,7 +142,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Access the external URL which can be used to access the resource from outside the system.
-	 * 
+	 *
 	 * @param id
 	 *        The notification id.
 	 * @return The the external URL which can be used to access the resource from outside the system.
@@ -156,10 +151,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	{
 		return getAccessPoint(false) + Entity.SEPARATOR + id;
 	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @return the EventTrackingService collaborator.
@@ -171,6 +162,10 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	protected abstract ServerConfigurationService serverConfigurationService();
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * @return the IdManager collaborator.
 	 */
@@ -181,16 +176,9 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	protected abstract MemoryService memoryService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Configuration: make the email notifications To: reply-able. */
-	protected boolean m_emailsToReplyable = false;
-
 	/**
 	 * Configuration: set reply-able status for email notifications in the To:.
-	 * 
+	 *
 	 * @param value
 	 *        The setting
 	 */
@@ -199,9 +187,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
         M_log.warn("Use of this setter (emailToReplyable) is deprecated: use notify.email.to.replyable instead");
 		m_emailsToReplyable = value;
 	}
-
-	/** Configuration: make the email notifications From: reply-able. */
-	protected boolean m_emailsFromReplyable = false;
 
 	/**
 	 * Configuration: set reply-able status for email notifications in the From:.
@@ -336,9 +321,8 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		String key = notificationReference(id);
 		if (m_cache.containsKey(key))
 		{
-			notification = (Notification) m_cache.get(key);
+			notification = m_cache.get(key);
 		}
-
 		// if not in the cache, see if we have it in our info store
 		else
 		{
@@ -371,7 +355,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		// unlock(SECURE_UPDATE_NOTIFICATION, notificationReference(id));
 
 		// check for existance
-		if ((m_cache.get(notificationReference(id)) == null) && (!m_storage.check(id)))
+		if (!m_storage.check(id))
 		{
 			throw new NotificationNotDefinedException(id);
 		}
@@ -482,62 +466,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	public List getNotifications(String function)
 	{
-		List notifications = null;
-
-		// if we have disabled the cache, don't use if
-		if (m_cache.disabled())
-		{
-			notifications = m_storage.getAll(function);
-		}
-
-		else
-		{
-			// if the cache is complete, use it
-			if (m_cache.isComplete())
-			{
-				notifications = m_cache.getAll(function);
-			}
-
-			// otherwise get all the notifications from storage
-			else
-			{
-				// Note: while we are getting from storage, storage might change. These can be processed
-				// after we get the storage entries, and put them in the cache, and mark the cache complete.
-				// -ggolden
-				synchronized (m_cache)
-				{
-					// if we were waiting and it's now complete...
-					if (m_cache.isComplete())
-					{
-						notifications = m_cache.getAll(function);
-					}
-
-					else
-					{
-						// save up any events to the cache until we get past this load
-						m_cache.holdEvents();
-
-						// get them all for caching
-						List all = m_storage.getAll();
-
-						// update the cache, and mark it complete
-						for (int i = 0; i < all.size(); i++)
-						{
-							Notification notification = (Notification) all.get(i);
-							m_cache.put(notification);
-						}
-
-						m_cache.setComplete();
-
-						// get those for just this function
-						notifications = m_cache.getAll(function);
-
-						// now we are complete, process any cached events
-						m_cache.processEvents();
-					}
-				}
-			}
-		}
+		List notifications = m_storage.getAll(function);
 
 		// if none found in storage
 		if (notifications == null)
@@ -631,107 +560,9 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	} // update
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Storage
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected interface Storage
-	{
-		/**
-		 * Open and be ready to read / write.
-		 */
-		public void open();
-
-		/**
-		 * Close.
-		 */
-		public void close();
-
-		/**
-		 * Check if a notification by this id exists.
-		 * 
-		 * @param id
-		 *        The notification id.
-		 * @return true if a nitificaion by this id exists, false if not.
-		 */
-		public boolean check(String id);
-
-		/**
-		 * Add a new notification with this id.
-		 * 
-		 * @param id
-		 *        The notification id.
-		 * @return The locked notification with this id, or null if in use.
-		 */
-		public NotificationEdit put(String id);
-
-		/**
-		 * Get the notification with this id, or null if not found.
-		 * 
-		 * @param id
-		 *        The notification id.
-		 * @return The notification with this id, or null if not found.
-		 */
-		public Notification get(String id);
-
-		/**
-		 * Get a List of all the notifications that are interested in this Event function.
-		 * 
-		 * @param function
-		 *        The Event function
-		 * @return The List (Notification) of all the notifications that are interested in this Event function.
-		 */
-		public List getAll(String function);
-
-		/**
-		 * Get a List of all notifications.
-		 * 
-		 * @return The List (Notification) of all notifications.
-		 */
-		public List getAll();
-
-		/**
-		 * Get a lock on the notification with this id, or null if a lock cannot be gotten.
-		 * 
-		 * @param id
-		 *        The user id.
-		 * @return The locked Notification with this id, or null if this records cannot be locked.
-		 */
-		public NotificationEdit edit(String id);
-
-		/**
-		 * Commit the changes and release the lock.
-		 * 
-		 * @param user
-		 *        The notification to commit.
-		 */
-		public void commit(NotificationEdit notification);
-
-		/**
-		 * Cancel the changes and release the lock.
-		 * 
-		 * @param user
-		 *        The notification to commit.
-		 */
-		public void cancel(NotificationEdit notification);
-
-		/**
-		 * Remove this notification.
-		 * 
-		 * @param user
-		 *        The notification to remove.
-		 */
-		public void remove(NotificationEdit notification);
-
-	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * StorageUser implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	/**
 	 * Construct a new rsource given just an id.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param id
@@ -745,9 +576,13 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return new BaseNotification(id);
 	}
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * StorageUser implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * Construct a new resource, from an XML element.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param element
@@ -761,7 +596,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Construct a new resource from another resource of the same type.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param other
@@ -775,7 +610,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Construct a new rsource given just an id.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param id
@@ -793,7 +628,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Construct a new resource, from an XML element.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param element
@@ -809,7 +644,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Construct a new resource from another resource of the same type.
-	 * 
+	 *
 	 * @param container
 	 *        The Resource that is the container for the new resource (may be null).
 	 * @param other
@@ -825,7 +660,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Collect the fields that need to be stored outside the XML (for the resource).
-	 * 
+	 *
 	 * @return An array of field values to store in the record outside the XML (for the resource).
 	 */
 	public Object[] storageFields(Entity r)
@@ -835,7 +670,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Check if this resource is in draft mode.
-	 * 
+	 *
 	 * @param r
 	 *        The resource.
 	 * @return true if the resource is in draft mode, false if not.
@@ -847,7 +682,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Access the resource owner user id.
-	 * 
+	 *
 	 * @param r
 	 *        The resource.
 	 * @return The resource owner user id.
@@ -859,7 +694,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 
 	/**
 	 * Access the resource date.
-	 * 
+	 *
 	 * @param r
 	 *        The resource.
 	 * @return The resource date.
@@ -869,13 +704,9 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return null;
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	/**
 	 * Get a new value for this key whose value has already expired in the cache.
-	 * 
+	 *
 	 * @param key
 	 *        The key whose value has expired and needs to be refreshed.
 	 * @param oldValue
@@ -897,6 +728,104 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		return notification;
 
 	} // refresh
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * CacheRefresher implementation (no container)
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Storage
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	protected interface Storage
+	{
+		/**
+		 * Open and be ready to read / write.
+		 */
+		public void open();
+
+		/**
+		 * Close.
+		 */
+		public void close();
+
+		/**
+		 * Check if a notification by this id exists.
+		 *
+		 * @param id
+		 *        The notification id.
+		 * @return true if a nitificaion by this id exists, false if not.
+		 */
+		public boolean check(String id);
+
+		/**
+		 * Add a new notification with this id.
+		 *
+		 * @param id
+		 *        The notification id.
+		 * @return The locked notification with this id, or null if in use.
+		 */
+		public NotificationEdit put(String id);
+
+		/**
+		 * Get the notification with this id, or null if not found.
+		 *
+		 * @param id
+		 *        The notification id.
+		 * @return The notification with this id, or null if not found.
+		 */
+		public Notification get(String id);
+
+		/**
+		 * Get a List of all the notifications that are interested in this Event function.
+		 *
+		 * @param function
+		 *        The Event function
+		 * @return The List (Notification) of all the notifications that are interested in this Event function.
+		 */
+		public List getAll(String function);
+
+		/**
+		 * Get a List of all notifications.
+		 *
+		 * @return The List (Notification) of all notifications.
+		 */
+		public List getAll();
+
+		/**
+		 * Get a lock on the notification with this id, or null if a lock cannot be gotten.
+		 *
+		 * @param id
+		 *        The user id.
+		 * @return The locked Notification with this id, or null if this records cannot be locked.
+		 */
+		public NotificationEdit edit(String id);
+
+		/**
+		 * Commit the changes and release the lock.
+		 *
+		 * @param user
+		 *        The notification to commit.
+		 */
+		public void commit(NotificationEdit notification);
+
+		/**
+		 * Cancel the changes and release the lock.
+		 *
+		 * @param user
+		 *        The notification to commit.
+		 */
+		public void cancel(NotificationEdit notification);
+
+		/**
+		 * Remove this notification.
+		 *
+		 * @param user
+		 *        The notification to remove.
+		 */
+		public void remove(NotificationEdit notification);
+
+	} // Storage
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Notification implementation
