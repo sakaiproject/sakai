@@ -10,6 +10,7 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -58,6 +59,9 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private UserDirectoryService userDirectoryService;
+	
+	@Setter
+	private SecurityService securityService;
 
 	public String getEntityPrefix() {
 		return ENTITY_PREFIX;
@@ -129,8 +133,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 					+ siteId);
 		}
 
-		if (developerHelperService.isUserAdmin(userId)
-				|| siteService.allowUpdateSite(siteId)) {
+		if (securityService.isSuperUser() || siteService.allowUpdateSite(siteId)) {
 			// admin or instructor
 			log.info("Admin or instructor accesssing gradebook of site "
 					+ siteId);

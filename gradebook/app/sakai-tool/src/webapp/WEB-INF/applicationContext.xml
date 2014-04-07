@@ -25,9 +25,10 @@
     	class="org.sakaiproject.tool.gradebook.ui.helpers.entity.GradebookEntityProvider"
         >
         <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
-        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
-        <property name="userDirectoryService"
-            ref="org.sakaiproject.user.api.UserDirectoryService" />
+        <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+      	<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+      	<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+	  	<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     </bean>
 
     <bean id="LocalPermissionLogic" class="org.sakaiproject.tool.gradebook.ui.helpers.beans.locallogic.LocalPermissionLogic">
