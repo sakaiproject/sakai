@@ -21,9 +21,7 @@
 package org.sakaiproject.taggable.impl;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -33,7 +31,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.Tag;
 import org.sakaiproject.taggable.api.TagList;
-import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.taggable.api.TagColumn;
@@ -42,53 +39,24 @@ import org.sakaiproject.util.Validator;
 public class TagImpl implements Tag
 {
 	private static final SiteService siteService;
-	private static final TaggingManager taggingManager;
 
 	static {
 		siteService = (SiteService) ComponentManager
-		.get("org.sakaiproject.site.api.SiteService");
-		
-		taggingManager = (TaggingManager) ComponentManager
-		.get("org.sakaiproject.taggable.api.TaggingManager");
+				.get("org.sakaiproject.site.api.SiteService");
 	}
 
-	protected String tagCriteriaRef;
-	private String activityRef;
-	private String rubric;
-	private String rationalle;
-	private boolean exportable;
-	private boolean visible;
-	private Map<String, String> fieldMap = new HashMap<String, String>();
-
-	public TagImpl() {
-		;
-	}
+	Link link;
 
 	public TagImpl(Link link) {
-		this(link, taggingManager.createTagList());
-	}
-	
-	public TagImpl(Link link, TagList subTags) {
-		this.tagCriteriaRef = link.getTagCriteriaRef();
-		this.activityRef = link.getActivityRef();
-		this.rubric = link.getRubric();
-		this.rationalle = link.getRationale();
-		this.exportable = link.isExportable();
-		this.visible = link.isVisible();
-		
-		Reference ref = EntityManager.newReference(tagCriteriaRef);
-		Entity entity = ref.getEntity();
-		
-		initFieldMap(entity, ref.getContext());
-		
+		this.link = link;
 	}
 
 	public String getActivityRef() {
-		return activityRef;
+		return link.getActivityRef();
 	}
 
 	public Object getObject() {
-		return tagCriteriaRef;
+		return link.getTagCriteriaRef();
 	}
 
 	public String getField(TagColumn column) {
@@ -96,11 +64,54 @@ public class TagImpl implements Tag
 	}
 
 	protected String getField(String column) {
-		String field = fieldMap.get(column);
+		String field;
+		Reference ref = EntityManager.newReference(link.getTagCriteriaRef());
+		Entity entity = ref.getEntity();
 		
-		if (field == null)
+		if (entity == null) return null;
+		
+		if (TagList.WORKSITE.equals(column)) {
+			try
+			{
+				Site site = siteService.getSite(ref.getContext());
+				field = Validator.escapeHtml(site.getTitle());
+			}
+			catch (IdUnusedException e)
+			{
+				//couldn't find the site, so just leave the title blank
+				field = "";
+			}
+			
+		} else if (TagList.PARENT.equals(column)) {
+			//field = link.getTagCriteria().getParentTitle();
+			//field = ">>>>PARENT TITLE SHOULD GO HERE<<<<";
+			field = Validator.escapeHtml((String)entity.getProperties().get(TagList.PARENT));
+		} else if (TagList.CRITERIA.equals(column)) {
+			//field = link.getTagCriteria().getTitle();
+			//field = ">>>>CRITERIA SHOULD GO HERE<<<<";
+			//make it a link?
+			String url = entity.getUrl();
+			if (url != null) {
+				
+				field = (String)entity.getProperties().get(TagList.THICKBOX_INCLUDE);
+				field +="<a href=\"" + url + "\" class=\"thickbox\">";
+				field += Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
+				field += "</a>";
+			}
+			else
+				field = Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
+			
+		} else if (TagList.RUBRIC.equals(column)) {
+			field = Validator.escapeHtml(link.getRubric());
+		} else if (TagList.RATIONALE.equals(column)) {
+			field = Validator.escapeHtml(link.getRationale());
+		} else if (TagList.VISIBLE.equals(column)) {
+			field = Validator.escapeHtml(String.valueOf(link.isVisible()));
+		} else if (TagList.EXPORTABLE.equals(column)) {
+			field = Validator.escapeHtml(String.valueOf(link.isExportable()));
+		} else {
 			field = Validator.escapeHtml(TagListImpl.NA);
-		
+		}
 		return field;
 	}
 
@@ -114,46 +125,7 @@ public class TagImpl implements Tag
 		fields.add(getField(TagList.RATIONALE));
 		fields.add(getField(TagList.VISIBLE));
 		fields.add(getField(TagList.EXPORTABLE));
-		 */
+		*/
 		return fields;
 	}
-
-	private void initFieldMap(Entity entity, String refContext) {
-		if (entity != null) {
-			try
-			{
-				Site site = siteService.getSite(refContext);
-				fieldMap.put(TagList.WORKSITE, Validator.escapeHtml(site.getTitle()));
-			}
-			catch (IdUnusedException e)
-			{
-				//couldn't find the site, so just leave the title blank
-				fieldMap.put(TagList.WORKSITE, "");
-			}
-
-			fieldMap.put(TagList.PARENT, Validator.escapeHtml((String)entity.getProperties().get(TagList.PARENT)));
-
-			String field;
-			String url = entity.getUrl();
-			if (url != null) {
-// ONC-3722 - the below line injects an earlier version of jQuery (1.2.1) that interferes with A2's tooltip.
-//			  commenting out.
-//				field = (String)entity.getProperties().get(TagList.THICKBOX_INCLUDE);
-				field ="<a href=\"" + url + "&TB_iframe=true&height=500&width=700\" class=\"thickbox\">";
-				field += Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
-				field += "</a>";
-			}
-			else
-				field = Validator.escapeHtml((String)entity.getProperties().get(TagList.CRITERIA));
-			
-			fieldMap.put(TagList.CRITERIA, field);
-			
-			
-			fieldMap.put(TagList.RUBRIC, Validator.escapeHtml(rubric));
-			fieldMap.put(TagList.RATIONALE, Validator.escapeHtml(rationalle));
-			fieldMap.put(TagList.VISIBLE, Validator.escapeHtml(String.valueOf(visible)));
-			fieldMap.put(TagList.EXPORTABLE, Validator.escapeHtml(String.valueOf(exportable)));
-		}
-	}
-
 }

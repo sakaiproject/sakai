@@ -151,12 +151,11 @@ public interface TaggingManager {
 	 *            The provider that is getting the activity. This allows the
 	 *            producer to selectively return an activity, or none at all,
 	 *            depending on the given provider.
-	 * @param taggedItem Reference to an item that can be used for additional permission lookups  
 	 * @return The taggable activity, or null if no such activity exists or the
 	 *         provider cannot access it.
 	 */
 	public TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider, String taggedItem);
+			TaggingProvider provider);
 
 	/**
 	 * Method to get a list of the currently registered taggable activity
@@ -284,22 +283,4 @@ public interface TaggingManager {
 	
 	public TagColumn createTagColumn(String name, String displayName,
 			String description, boolean sortable);
-	
-	public URLBuilder createURLBuilder(String base, String view, Map<String, String> params);
-	
-	/**
-	 * Create a new (empty) EvaluationContainer
-	 * @return
-	 */
-	public EvaluationContainer createEvaluationContainer();
-	
-	/**
-	 * Create a new EvaluationContainer
-	 * @param addUrlBuilder
-	 * @return
-	 */
-	public EvaluationContainer createEvaluationContainer(URLBuilder addUrlBuilder);
-	
-	public Evaluation createEvaluation(URLBuilder editUrlBuilder, URLBuilder removeUrlBuilder);
-
 }

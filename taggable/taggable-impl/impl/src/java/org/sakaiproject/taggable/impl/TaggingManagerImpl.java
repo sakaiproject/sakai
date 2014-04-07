@@ -29,8 +29,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.taggable.api.Evaluation;
-import org.sakaiproject.taggable.api.EvaluationContainer;
 import org.sakaiproject.taggable.api.Link;
 import org.sakaiproject.taggable.api.LinkManager;
 import org.sakaiproject.taggable.api.Tag;
@@ -42,9 +40,8 @@ import org.sakaiproject.taggable.api.TaggingHelperInfo;
 import org.sakaiproject.taggable.api.TaggingManager;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 import org.sakaiproject.taggable.api.TaggingProvider;
-import org.sakaiproject.taggable.api.URLBuilder;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 public class TaggingManagerImpl implements TaggingManager {
 
@@ -56,7 +53,6 @@ public class TaggingManagerImpl implements TaggingManager {
 	protected List<TaggingProvider> taggingProviders = new ArrayList<TaggingProvider>();
 	
 	private LinkManager linkManager;
-	private UserDirectoryService userDirectoryService;
 
 	public void init() {
 		logger.info("init()");
@@ -75,10 +71,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	public String getContext(String ref) {
-		TaggableActivityProducer producer = findProducerByRef(ref);
-		if (producer != null)
-			return producer.getContext(ref);
-		return null;
+		return findProducerByRef(ref).getContext(ref);
 	}
 
 	public TaggableActivityProducer findProducerById(String id) {
@@ -111,11 +104,11 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	public TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider, String taggedItem) {
+			TaggingProvider provider) {
 		TaggableActivity activity = null;
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
-			activity = producer.getActivity(activityRef, provider, taggedItem);
+			activity = producer.getActivity(activityRef, provider);
 		}
 		return activity;
 	}
@@ -137,7 +130,7 @@ public class TaggingManagerImpl implements TaggingManager {
 		List<TaggableItem> items = new ArrayList<TaggableItem>();
 		TaggableActivityProducer producer = findProducerByRef(activityRef);
 		if (producer != null) {
-			items = producer.getItems(getActivity(activityRef, provider, taggedItem),
+			items = producer.getItems(getActivity(activityRef, provider),
 					provider, getMyItemsOnly, taggedItem);
 		}
 		return items;
@@ -243,29 +236,7 @@ public class TaggingManagerImpl implements TaggingManager {
 	}
 
 	protected User getUser() {
-		return getUserDirectoryService().getCurrentUser();
-	}
-	
-	public URLBuilder createURLBuilder(String base, String view, Map<String, String> params) {
-		return new URLBuilderImpl(base, view, params);
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EvaluationContainer createEvaluationContainer() {
-		return new EvaluationContainerImpl();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	public EvaluationContainer createEvaluationContainer(URLBuilder addUrlBuilder) {
-		return new EvaluationContainerImpl(addUrlBuilder);
-	}
-	
-	public Evaluation createEvaluation(URLBuilder editUrlBuilder, URLBuilder removeUrlBuilder) {
-		return new EvaluationImpl(editUrlBuilder, removeUrlBuilder);
+		return UserDirectoryService.getCurrentUser();
 	}
 
 	public LinkManager getLinkManager()
@@ -276,14 +247,6 @@ public class TaggingManagerImpl implements TaggingManager {
 	public void setLinkManager(LinkManager linkManager)
 	{
 		this.linkManager = linkManager;
-	}
-
-	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
-		this.userDirectoryService = userDirectoryService;
-	}
-
-	public UserDirectoryService getUserDirectoryService() {
-		return userDirectoryService;
 	}
 	
 }
