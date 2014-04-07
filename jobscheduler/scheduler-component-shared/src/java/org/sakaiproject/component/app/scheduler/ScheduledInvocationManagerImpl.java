@@ -25,7 +25,7 @@ public class ScheduledInvocationManagerImpl implements ScheduledInvocationManage
 
 	private static final String SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL_PROPERTY = "jobscheduler.invocation.interval";
 
-	private static final int SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL = 600; //default: time in seconds, run every 10 mins
+	private static final int SCHEDULED_INVOCATION_RUNNER_DEFAULT_INTERVAL = 120; //default: time in seconds, run every 2 mins
 
 	
 	/** Dependency: IdManager */
