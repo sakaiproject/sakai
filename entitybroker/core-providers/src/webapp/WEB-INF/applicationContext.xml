@@ -41,6 +41,7 @@
             class="org.sakaiproject.entitybroker.providers.MembershipEntityProvider"
             init-method="init">
         <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
         <property name="userEntityProvider" ref="org.sakaiproject.entitybroker.providers.UserEntityProvider" />
         <property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
         <property name="privacyManager" ref="org.sakaiproject.api.privacy.PrivacyManager" />
