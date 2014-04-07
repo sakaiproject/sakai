@@ -21,26 +21,6 @@
 
 package org.sakaiproject.message.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
@@ -50,36 +30,17 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.EntityNotDefinedException;
-import org.sakaiproject.entity.api.EntityPermissionException;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.api.Summary;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.message.api.Message;
-import org.sakaiproject.message.api.MessageChannel;
-import org.sakaiproject.message.api.MessageChannelEdit;
-import org.sakaiproject.message.api.MessageEdit;
-import org.sakaiproject.message.api.MessageHeader;
-import org.sakaiproject.message.api.MessageHeaderEdit;
-import org.sakaiproject.message.api.MessageService;
+import org.sakaiproject.message.api.*;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -87,23 +48,22 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.*;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.DoubleStorageUser;
-import org.sakaiproject.util.EntityCollections;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.util.*;
 
 
 /**
@@ -117,12 +77,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 	/** A Storage object for persistent storage. */
 	protected Storage m_storage = null;
 
-	/** A Cache object for caching: channels keyed by reference. (if m_caching) */
-	protected Cache m_channelCache = null;
-
-	/** A bunch of caches for messages: keyed by channel id, the cache is keyed by message reference. (if m_caching) */
-	protected Hashtable<String, Cache> m_messageCaches = null;
-	
 	private static final String CHANNEL_PROP = "channel";
 	private static final String PROPERTIES = "properties";
 	private static final String PROPERTY = "property";
@@ -302,19 +256,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 		m_threadLocalManager = service;
 	}
 
-	/** Configuration: cache, or not. */
-	protected boolean m_caching = false;
-
 	/**
 	 * Configuration: set the locks-in-db
 	 * 
 	 * @param path
 	 *        The storage path.
+     * @deprecated 7 April 2014 - this should be removed in sakai 11
 	 */
-	public void setCaching(String value)
-	{
-		m_caching = Boolean.valueOf(value).booleanValue();
-	}
+	public void setCaching(String value) {} // intentionally blank - remove this later
 
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
@@ -345,23 +294,11 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 			m_storage = newStorage();
 			m_storage.open();
 
-			// make the channel cache
-			if (m_caching)
-			{
-				m_channelCache = m_memoryService.newCache(
-						"org.sakaiproject.message.api.MessageService.channelCache",
-						this, getAccessPoint(true) + Entity.SEPARATOR
-								+ REF_TYPE_CHANNEL + Entity.SEPARATOR);
-
-				// make the table to hold the message caches
-				m_messageCaches = new Hashtable<String, Cache>();
-			}
-
-			M_log.info("init(): caching: " + m_caching);
+			M_log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.warn("init(): "+t, t);
 		}
 
 		// entity producer registration in the extension services
@@ -375,15 +312,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 	 */
 	public void destroy()
 	{
-		if (m_caching)
-		{
-			m_channelCache.destroy();
-			m_channelCache = null;
-
-			m_messageCaches.clear();
-			m_messageCaches = null;
-		}
-
 		m_storage.close();
 		m_storage = null;
 
@@ -666,66 +594,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 	} // unlock3
 
 	/**
-	 * Return a list of all the defined channels.
-	 * 
-	 * @return a list of MessageChannel (or extension) objects (may be empty).
-	 */
-	public List<MessageChannel> getChannels()
-	{
-		List<MessageChannel> channels = new Vector<MessageChannel>();
-		if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
-		{
-			channels = m_storage.getChannels();
-			return channels;
-		}
-
-		// use the cache
-		// if the cache is complete, use it
-		if (m_channelCache.isComplete())
-		{
-			// get just the channels in the cache
-			channels = m_channelCache.getAll();
-		}
-
-		// otherwise get all the channels from storage
-		else
-		{
-			// Note: while we are getting from storage, storage might change. These can be processed
-			// after we get the storage entries, and put them in the cache, and mark the cache complete.
-			// -ggolden
-			synchronized (m_channelCache)
-			{
-				// if we were waiting and it's now complete...
-				if (m_channelCache.isComplete())
-				{
-					// get just the channels in the cache
-					channels = m_channelCache.getAll();
-					return channels;
-				}
-
-				// save up any events to the cache until we get past this load
-				m_channelCache.holdEvents();
-
-				channels = m_storage.getChannels();
-				// update the cache, and mark it complete
-				for (int i = 0; i < channels.size(); i++)
-				{
-					MessageChannel channel = (MessageChannel) channels.get(i);
-					m_channelCache.put(channel.getReference(), channel);
-				}
-
-				m_channelCache.setComplete();
-
-				// now we are complete, process any cached events
-				m_channelCache.processEvents();
-			}
-		}
-
-		return channels;
-
-	} // getChannels
-
-	/**
 	 * check permissions for getChannel().
 	 * 
 	 * @param ref
@@ -786,44 +654,19 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 	{
 		if (ref == null) return null;
 
-		MessageChannel channel = null;
-
-		if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
-		{
-			// if we have done this already in this thread, use that
-			channel = (MessageChannel) m_threadLocalManager.get(ref);
-			if (channel == null)
-			{
-				channel = m_storage.getChannel(ref);
-
-				// "cache" the channel in the current service in case they are needed again in this thread...
-				if (channel != null)
-				{
-					m_threadLocalManager.set(ref, channel);
-				}
-			}
-
-			return channel;
-		}
-
-		// use the cache
-		// if we have it cached, use it (even if it's cached as a null, a miss)
-		if (m_channelCache.containsKey(ref))
-		{
-			channel = (MessageChannel) m_channelCache.get(ref);
-		}
-
-		// if not in the cache, see if we have it in our info store
-		if ( channel == null ) //SAK-12447 cache.get can return null on expired
+		MessageChannel channel = (MessageChannel) m_threadLocalManager.get(ref);
+		if (channel == null)
 		{
 			channel = m_storage.getChannel(ref);
 
-			// if so, cache it, even misses
-			m_channelCache.put(ref, channel);
+			// "cache" the channel in the current service in case they are needed again in this thread...
+			if (channel != null)
+			{
+				m_threadLocalManager.set(ref, channel);
+			}
 		}
 
 		return channel;
-
 	} // findChannel
 
 	/**
@@ -1169,37 +1012,13 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 			}
 		}
 
-		if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
+		// get messages filtered by date and count and drafts, in descending (latest first) order
+		List<Message> msgs = m_storage.getMessages(c, afterDate, limitedToLatest, draftsForId, pubViewOnly);
+
+		// if ascending, reverse
+		if (ascending)
 		{
-			// get messages filtered by date and count and drafts, in descending (latest first) order
-			List<Message> rv = m_storage.getMessages(c, afterDate, limitedToLatest, draftsForId, pubViewOnly);
-
-			// if ascending, reverse
-			if (ascending)
-			{
-				Collections.reverse(rv);
-			}
-
-			return rv;
-		}
-
-		// use the cache
-
-		// get the messages
-		List<Message> msgs = ((BaseMessageChannelEdit) c).findFilterMessages(
-				new MessageSelectionFilter(afterDate, draftsForId, pubViewOnly), ascending);
-
-		// sub-select count
-		if ((limitedToLatest != 0) && (limitedToLatest < msgs.size()))
-		{
-			if (ascending)
-			{
-				msgs = msgs.subList(msgs.size() - limitedToLatest, msgs.size());
-			}
-			else
-			{
-				msgs = msgs.subList(0, limitedToLatest);
-			}
+			Collections.reverse(msgs);
 		}
 
 		return msgs;
@@ -1214,24 +1033,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 	 */
 	public List<String> getChannelIds(String context)
 	{
-		if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
-		{
-			return m_storage.getChannelIdsMatching(channelReference(context, ""));
-		}
-
-		// use the cache
-		List<MessageChannel> channels = getChannels();
-		List<String> rv = new Vector<String>();
-		for (Iterator<MessageChannel> i = channels.iterator(); i.hasNext();)
-		{
-			MessageChannel channel = (MessageChannel) i.next();
-			if (context.equals(channel.getContext()))
-			{
-				rv.add(channel.getId());
-			}
-		}
-
-		return rv;
+		return m_storage.getChannelIdsMatching(channelReference(context, ""));
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -3089,84 +2891,36 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 		 */
 		protected Message findMessage(String messageId)
 		{
-			if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
+			// if we have "cached" the entire set of messages in the thread, get that and find our message there
+			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
+			if (msgs != null)
 			{
-				// if we have "cached" the entire set of messages in the thread, get that and find our message there
-				List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
-				if (msgs != null)
+				for (Iterator i = msgs.iterator(); i.hasNext();)
 				{
-					for (Iterator i = msgs.iterator(); i.hasNext();)
+					Message m = (Message) i.next();
+					if (m.getId().equals(messageId))
 					{
-						Message m = (Message) i.next();
-						if (m.getId().equals(messageId))
-						{
-							return m;
-						}
-					}
-				}
-
-				// if we have this one message cached, get that
-				Message m = (Message) m_threadLocalManager.get(messageReference(getReference(), messageId));
-
-				// if not, get from storage and cache
-				if (m == null)
-				{
-					m = m_storage.getMessage(this, messageId);
-
-					// if we got one, cache it in the thread
-					if (m != null)
-					{
-						m_threadLocalManager.set(m.getReference(), m);
-					}
-				}
-
-				return m;
-			}
-
-			// use the cache
-			Message m = null;
-
-			// messages are cached with the full reference as key
-			String key = messageReference(m_context, m_id, messageId);
-
-			// find the message cache
-			Cache msgCache = (Cache) m_messageCaches.get(getReference());
-			if (msgCache == null)
-			{
-				synchronized (m_messageCaches)
-				{
-					// check again
-					msgCache = (Cache) m_messageCaches.get(getReference());
-
-					// if still not there, make one
-					if (msgCache == null)
-					{
-						msgCache = m_memoryService.newCache(
-								"org.sakaiproject.message.api.MessageService.msgCache",
-								service(),
-								messageReference(m_context, m_id, ""));
-						m_messageCaches.put(getReference(), msgCache);
+						return m;
 					}
 				}
 			}
 
-			// if we have it cached, use it (even if it's cached as a null, a miss)
-			if (msgCache.containsKey(key))
-			{
-				m = (Message) msgCache.get(key);
-			}
+			// if we have this one message cached, get that
+			Message m = (Message) m_threadLocalManager.get(messageReference(getReference(), messageId));
 
-			// if not in the cache, see if we have it in our info store
-			if ( m == null ) //SAK-12447 cache.get can return null on expired
+			// if not, get from storage and cache
+			if (m == null)
 			{
 				m = m_storage.getMessage(this, messageId);
 
-				// if so, cache it, even misses
-				msgCache.put(key, m);
+				// if we got one, cache it in the thread
+				if (m != null)
+				{
+					m_threadLocalManager.set(m.getReference(), m);
+				}
 			}
 
 			return m;
-
 		} // findMessage
 
 		/**
@@ -3176,90 +2930,17 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 		 */
 		protected List findMessages()
 		{
-			if ((!m_caching) || (m_channelCache == null) || (m_channelCache.disabled()))
+			// if we have done this already in this thread, use that
+			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
+			if (msgs == null)
 			{
-				// if we have done this already in this thread, use that
-				List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
-				if (msgs == null)
-				{
-					msgs = m_storage.getMessages(this);
+				msgs = m_storage.getMessages(this);
 
-					// "cache" the mesasge in the current service in case they are needed again in this thread...
-					m_threadLocalManager.set(getReference() + ".msgs", msgs);
-				}
-
-				return msgs;
-			}
-
-			// use the cache
-			List msgs = new Vector();
-
-			// find the message cache
-			Cache msgCache = (Cache) m_messageCaches.get(getReference());
-			if (msgCache == null)
-			{
-				synchronized (m_messageCaches)
-				{
-					// check again
-					msgCache = (Cache) m_messageCaches.get(getReference());
-
-					// if still not there, make one
-					if (msgCache == null)
-					{
-						msgCache = m_memoryService
-								.newCache(
-										"org.sakaiproject.message.api.MessageService.msgCache",
-										service(), messageReference(m_context,
-												m_id, ""));
-						m_messageCaches.put(getReference(), msgCache);
-					}
-				}
-			}
-
-			// if the cache is complete, use it
-			if (msgCache.isComplete())
-			{
-				// get just this channel's messages
-				msgs = msgCache.getAll();
-			}
-
-			// otherwise get all the msgs from storage
-			else
-			{
-				// Note: while we are getting from storage, storage might change. These can be processed
-				// after we get the storage entries, and put them in the cache, and mark the cache complete.
-				// -ggolden
-				synchronized (msgCache)
-				{
-					// if we were waiting and it's now complete...
-					if (msgCache.isComplete())
-					{
-						// get just this channel's messages
-						msgs = msgCache.getAll();
-					}
-					else
-					{
-						// cache up any events to the cache until we get past this load
-						msgCache.holdEvents();
-
-						msgs = m_storage.getMessages(this);
-						// update the cache, and mark it complete
-						for (int i = 0; i < msgs.size(); i++)
-						{
-							Message msg = (Message) msgs.get(i);
-							msgCache.put(msg.getReference(), msg);
-						}
-
-						msgCache.setComplete();
-
-						// now we are complete, process any cached events
-						msgCache.processEvents();
-					}
-				}
+				// "cache" the mesasge in the current service in case they are needed again in this thread...
+				m_threadLocalManager.set(getReference() + ".msgs", msgs);
 			}
 
 			return msgs;
-
 		} // findMessages
 
 		/**
