@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <parent>
     <groupId>org.sonatype.oss</groupId>
     <artifactId>oss-parent</artifactId>
@@ -12,7 +12,7 @@
   <artifactId>master</artifactId>
   <packaging>pom</packaging>
   <name>Sakai Master</name>
-  <description>Corporate POM for the Sakai CLE</description>
+  <description>Corporate POM for the Sakai Open Source Collaborative Learning Environment/Learning Management System</description>
   <version>11-SNAPSHOT</version>
   <organization>
     <name>Sakai Project</name>
@@ -165,6 +165,13 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <id>codehaus plugin repository</id>
+      <url>https://nexus.codehaus.org/content/repositories/releases/</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
       <id>Sakai Plugin Repo</id>
       <url>http://source.sakaiproject.org/maven2</url>
       <releases>
@@ -180,13 +187,6 @@
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
-    </pluginRepository>
-    <pluginRepository>
-      <id>codehaus plugin repository</id>
-      <url>https://nexus.codehaus.org/content/repositories/releases/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
     </pluginRepository>
   </pluginRepositories>
   <repositories>
@@ -1326,7 +1326,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1366,8 +1366,16 @@
           <artifactId>maven-javadoc-plugin</artifactId>
           <version>2.9.1</version>
           <configuration>
-            <source>${sakai.jdk.version}</source>
-            <target>${sakai.jdk.version}</target>
+            <debug>false</debug>
+            <links>
+              <link>http://download.oracle.com/javase/6/docs/api/</link>
+              <link>http://docs.oracle.com/javaee/5/api/</link>
+              <link>http://junit.sourceforge.net/javadoc/</link>
+            </links>
+            <breakiterator>true</breakiterator>
+            <verbose>false</verbose>
+            <minmemory>256m</minmemory>
+            <maxmemory>2048m</maxmemory>
           </configuration>
         </plugin>
         <plugin>
@@ -1404,6 +1412,102 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-war-plugin</artifactId>
           <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-pmd-plugin</artifactId>
+          <version>3.1</version>
+          <configuration>
+            <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
+            <sourceEncoding>utf-8</sourceEncoding>
+            <minimumTokens>20</minimumTokens>
+            <targetJdk>${sakai.jdk.version}</targetJdk>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>taglist-maven-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <tagListOptions>
+              <tagClasses>
+                <tagClass>
+                  <displayName>TODO</displayName>
+                  <tags>
+                    <tag>
+                      <matchString>todo</matchString>
+                      <matchType>ignoreCase</matchType>
+                    </tag>
+                    <tag>
+                      <matchString>FIXME</matchString>
+                      <matchType>exact</matchType>
+                    </tag>
+                  </tags>
+                </tagClass>
+                <tagClass>
+                  <displayName>Deprecated</displayName>
+                  <tags>
+                    <tag>
+                      <matchString>@deprecated</matchString>
+                      <matchType>exact</matchType>
+                    </tag>
+                  </tags>
+                </tagClass>
+              </tagClasses>
+            </tagListOptions>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>findbugs-maven-plugin</artifactId>
+          <version>2.5.3</version>
+          <configuration>
+            <findbugsXmlOutput>true</findbugsXmlOutput>
+            <xmlOutput>true</xmlOutput>
+            <effort>Max</effort>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jxr-plugin</artifactId>
+          <version>2.3</version>
+          <configuration>
+            <aggregate>true</aggregate>
+          </configuration>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-checkstyle-plugin</artifactId>
+          <version>2.12</version>
+          <!-- needs to be located in the project to work
+          <configuration>
+            <configLocation>src/site/checkstyle.xml</configLocation>
+          </configuration>
+          -->
+        </plugin>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>jdepend-maven-plugin</artifactId>
+          <version>2.0-beta-2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-report-plugin</artifactId>
+          <version>2.17</version>
+        </plugin>
+        <plugin>
+          <groupId>net.sourceforge.maven-taglib</groupId>
+          <artifactId>maven-taglib-plugin</artifactId>
+          <version>2.4</version>
+          <configuration>
+            <taglib.src.dir>src</taglib.src.dir>
+            <!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
+          </configuration>
         </plugin>
       </plugins>
     </pluginManagement>
@@ -1466,7 +1570,7 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
         <configuration>
-          <tagbase>https://source.sakaiproject.org/svn-test/sakai/tags</tagbase>
+          <!--tagbase>https://source.sakaiproject.org/svn-test/sakai/tags</tagbase-->
           <preparationGoals>clean verify install</preparationGoals>
           <autoVersionSubmodules>true</autoVersionSubmodules>
           <useReleaseProfile>true</useReleaseProfile>
@@ -1479,6 +1583,7 @@
           <systemPropertyVariables>
             <!-- Pass through important service-integration test properties. -->
             <maven.tomcat.home>${maven.tomcat.home}</maven.tomcat.home>
+            <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
         </configuration>
@@ -1505,39 +1610,29 @@
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.9</version>
-        <configuration>
-          <debug>true</debug>
-          <links>
-            <link>http://download.oracle.com/javase/6/docs/api/</link>
-          </links>
-          <breakiterator>true</breakiterator>
-          <verbose>false</verbose>
-          <minmemory>168m</minmemory>
-          <maxmemory>1024m</maxmemory>
-          <additionalJOption>-J-Xmx1024m -J-XX:MaxPermSize=200m</additionalJOption>
-        </configuration>
+        <artifactId>maven-project-info-reports-plugin</artifactId>
       </plugin>
       <plugin>
-        <!-- junit test reports -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>2.7.2</version>
+        <!-- to do and deprecated tags report -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
       </plugin>
+      <!-- taglib plugin used to generate taglib jars during release -->
       <plugin>
-        <!-- unit test coverage reporting -->
+        <groupId>net.sourceforge.maven-taglib</groupId>
+        <artifactId>maven-taglib-plugin</artifactId>
+      </plugin>
+      <!-- javadoc plugin requires more than 1GB to run - disabling by default -->
+      <!-- Disabled since it fails on OSX -https://jira.codehaus.org/browse/MCOBERTURA-180
+      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>cobertura-maven-plugin</artifactId>
-        <version>2.0</version>
-      </plugin>
+      </plugin>-->
+      <!-- Code analysis report - fails to find the rulesets
       <plugin>
-        <!-- Code analysis report -->
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-pmd-plugin</artifactId>
-        <version>2.5</version>
         <configuration>
-          <targetjdk>${sakai.jdk.version}</targetjdk>
           <rulesets>
             <ruleset>/rulesets/basic.xml</ruleset>
             <ruleset>/rulesets/codesize.xml</ruleset>
@@ -1549,83 +1644,11 @@
             <ruleset>/rulesets/strings.xml</ruleset>
             <ruleset>/rulesets/unusedcode.xml</ruleset>
           </rulesets>
-          <!-- <format>xml</format> -->
-          <linkXref>true</linkXref>
-          <sourceEncoding>utf-8</sourceEncoding>
-          <minimumTokens>100</minimumTokens>
         </configuration>
       </plugin>
-      <plugin>
-        <!-- Changelog report -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>changelog-maven-plugin</artifactId>
-        <version>2.0-beta-1</version>
-        <configuration>
-          <type>range</type>
-          <range>90</range>
-          <!-- days -->
-        </configuration>
-      </plugin>
-      <plugin>
-        <!-- TODO tags report -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>taglist-maven-plugin</artifactId>
-        <version>2.4</version>
-        <configuration>
-          <tags>
-            <tag>TODO</tag>
-            <tag>FIXME</tag>
-            <tag>@deprecated</tag>
-          </tags>
-        </configuration>
-      </plugin>
-      <plugin>
-        <!-- jdepend code analysis -->
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>jdepend-maven-plugin</artifactId>
-        <version>2.0-beta-2</version>
-      </plugin>
-      <plugin>
-        <!-- jxr source code cross linking -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
-        <version>2.3</version>
-        <configuration>
-          <linkJavadoc>true</linkJavadoc>
-          <javadocDir>apidocs</javadocDir>
-        </configuration>
-      </plugin>
-      <!-- taglib plugin used to generate taglib jars during release -->
-      <plugin>
-        <groupId>net.sourceforge.maven-taglib</groupId>
-        <artifactId>maven-taglib-plugin</artifactId>
-        <configuration>
-          <goalPrefix>taglib</goalPrefix>
-          <taglib.src.dir>src</taglib.src.dir>
-          <!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
-        </configuration>
-        <version>2.4</version>
-      </plugin>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <version>2.5</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-surefire-report-plugin</artifactId>
-        <version>2.9</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>2.2</version>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-checkstyle-plugin</artifactId>
-        <version>2.9.1</version>
-      </plugin>
+      -->
+      <!-- jxr source code cross linking - maven-jxr-plugin - extremely slow to run, removed from default -->
+      <!-- Changelog report - changelog-maven-plugin causes build fail -->
     </plugins>
   </reporting>
 
