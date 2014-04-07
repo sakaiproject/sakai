@@ -61,7 +61,6 @@ import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -13178,106 +13177,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	}// SubmissionStorageUser
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementations (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * AssignmentCacheRefresher implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected class AssignmentCacheRefresher implements CacheRefresher
-	{
-		/**
-		 * Get a new value for this key whose value has already expired in the cache.
-		 * 
-		 * @param key
-		 *        The key whose value has expired and needs to be refreshed.
-		 * @param oldValue
-		 *        The old expired value of the key.
-		 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-		 */
-		public Object refresh(Object key, Object oldValue, Event event)
-		{
-
-			// key is a reference, but our storage wants an id
-			String id = assignmentId((String) key);
-
-			// get whatever we have from storage for the cache for this vale
-			Assignment assignment = m_assignmentStorage.get(id);
-
-			M_log.debug(this + " AssignmentCacheRefresher:refresh(): " + key + " : " + id);
-
-			return assignment;
-
-		} // refresh
-
-	}// AssignmentCacheRefresher
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * AssignmentContentCacheRefresher implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected class AssignmentContentCacheRefresher implements CacheRefresher
-	{
-		/**
-		 * Get a new value for this key whose value has already expired in the cache.
-		 * 
-		 * @param key
-		 *        The key whose value has expired and needs to be refreshed.
-		 * @param oldValue
-		 *        The old expired value of the key.
-		 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-		 */
-		public Object refresh(Object key, Object oldValue, Event event)
-		{
-
-			// key is a reference, but our storage wants an id
-			String id = contentId((String) key);
-
-			// get whatever we have from storage for the cache for this vale
-			AssignmentContent content = m_contentStorage.get(id);
-
-			M_log.debug(this + " AssignmentContentCacheRefresher: refresh(): " + key + " : " + id);
-
-			return content;
-
-		} // refresh
-
-	}// AssignmentContentCacheRefresher
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * AssignmentSubmissionCacheRefresher implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected class AssignmentSubmissionCacheRefresher implements CacheRefresher
-	{
-		/**
-		 * Get a new value for this key whose value has already expired in the cache.
-		 * 
-		 * @param key
-		 *        The key whose value has expired and needs to be refreshed.
-		 * @param oldValue
-		 *        The old expired value of the key.
-		 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-		 */
-		public Object refresh(Object key, Object oldValue, Event event)
-		{
-
-			// key is a reference, but our storage wants an id
-			String id = submissionId((String) key);
-
-			// get whatever we have from storage for the cache for this vale
-			AssignmentSubmission submission = m_submissionStorage.get(id);
-
-			M_log.debug(this + " AssignmentSubmissionCacheRefresher:refresh(): " + key + " : " + id);
-
-			return submission;
-
-		} // refresh
-
-	}// AssignmentSubmissionCacheRefresher
-	
 
 	private class UserComparator implements Comparator
         {
