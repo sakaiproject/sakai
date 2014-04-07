@@ -38,7 +38,6 @@ import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.message.api.*;
 import org.sakaiproject.site.api.Group;
@@ -69,7 +68,7 @@ import java.util.*;
 /**
  * BaseMessage is...
  */
-public abstract class BaseMessage implements MessageService, DoubleStorageUser, CacheRefresher
+public abstract class BaseMessage implements MessageService, DoubleStorageUser
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseMessage.class);
@@ -107,7 +106,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 
 	/**
 	 * Dependency: MemoryService.
-	 * 
+	 *
 	 * @param service
 	 *        The MemoryService.
 	 */
@@ -4324,60 +4323,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser, 
 		public List getChannelIdsMatching(String root);
 
 	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Get a new value for this key whose value has already expired in the cache.
-	 * 
-	 * @param key
-	 *        The key whose value has expired and needs to be refreshed.
-	 * @param oldValue
-	 *        The old exipred value of the key.
-	 * @param event
-	 *        The event which triggered this refresh.
-	 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-	 */
-	public Object refresh(Object key, Object oldValue, Event event)
-	{
-		Object rv = null;
-
-		// key is a reference
-		Reference ref = m_entityManager.newReference((String) key);
-
-		// get from storage only (not cache!)
-
-		// for a message
-		if (REF_TYPE_MESSAGE.equals(ref.getSubType()))
-		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("refresh(): key " + key + " channel id : " + ref.getContext() + "/" + ref.getContainer()
-						+ " message id : " + ref.getId());
-
-			// get channel (Note: from the cache is ok)
-			MessageChannel channel = findChannel(channelReference(ref.getContext(), ref.getContainer()));
-
-			// get the message (Note: not from cache! but only from storage)
-			if (channel != null)
-			{
-				rv = m_storage.getMessage(channel, ref.getId());
-			}
-		}
-
-		// for a channel
-		else
-		{
-			if (M_log.isDebugEnabled()) M_log.debug("refresh(): key " + key + " channel id : " + ref.getReference());
-
-			// return the channel from channel getId() (Note: not from cache! but only from storage)
-			rv = m_storage.getChannel(ref.getReference());
-		}
-
-		return rv;
-
-	} // refresh
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * filter
