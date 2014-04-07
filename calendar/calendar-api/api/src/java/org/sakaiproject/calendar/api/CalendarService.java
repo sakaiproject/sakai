@@ -21,18 +21,14 @@
 
 package org.sakaiproject.calendar.api;
 
-import java.util.List;
-
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
-import org.sakaiproject.entity.api.Reference;
+
+import java.util.List;
 
 /**
 * <p>CalendarService is the interface for the Calendar service.</p>
@@ -183,11 +179,6 @@ public interface CalendarService
 	
 	/** Bean id to retrieve an additional calendar service from the Component Manager */
 	public static final String ADDITIONAL_CALENDAR = "org.sakaiproject.additional.calendar";
-	/**
-	* Return a List of all the defined calendars.
-	* @return a List of Calendar objects (may be empty)
-	*/
-	public List getCalendars();
 
 	/**
 	* Add a new calendar.
