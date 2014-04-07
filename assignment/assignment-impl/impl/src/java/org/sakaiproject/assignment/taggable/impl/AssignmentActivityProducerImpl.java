@@ -109,7 +109,7 @@ public class AssignmentActivityProducerImpl implements
 	}
 
 	public TaggableActivity getActivity(String activityRef,
-			TaggingProvider provider, String taggedItem) {
+			TaggingProvider provider) {
 		// We aren't picky about the provider, so ignore that argument.
 		TaggableActivity activity = null;
 		if (checkReference(activityRef)) {
