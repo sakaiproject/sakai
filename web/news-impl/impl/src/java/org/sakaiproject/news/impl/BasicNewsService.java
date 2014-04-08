@@ -21,17 +21,14 @@
 
 package org.sakaiproject.news.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.*;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -47,19 +44,9 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityTransferrer;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.exception.IdUnusedException;
-import org.w3c.dom.DOMException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
+
+import java.util.*;
 
 /**
  * <p>
@@ -235,16 +222,6 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 	{
 		// %%%%%
 		return true;
-	}
-
-	/**
-	 * Retrieves a list of URLs for NewsChannel objects currently indexed by the service.
-	 * 
-	 * @return A list of NewsChannel objects (possibly empty).
-	 */
-	public List getChannels()
-	{
-		return m_storage.getKeys();
 	}
 
 	/**

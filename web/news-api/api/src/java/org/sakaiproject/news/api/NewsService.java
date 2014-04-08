@@ -21,10 +21,10 @@
 
 package org.sakaiproject.news.api;
 
-import java.util.List;
-
-import org.sakaiproject.javax.Filter;
 import org.sakaiproject.entity.api.EntityProducer;
+import org.sakaiproject.javax.Filter;
+
+import java.util.List;
 
 /**
  * <p>
@@ -38,13 +38,6 @@ public interface NewsService extends EntityProducer
 
 	/** This string starts the references to resources in this service. */
 	public static final String REFERENCE_ROOT = "/news";
-
-	/**
-	 * Retrieves a list of rss feeds that are being used.
-	 * 
-	 * @return A list of NewsChannel objects (possibly empty).
-	 */
-	public List getChannels();
 
 	/**
 	 * Retrieves a NewsChannel object indexed by a URL.

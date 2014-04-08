@@ -59,14 +59,6 @@ public class NewsService
 
 	public static final java.lang.String REFERENCE_ROOT = org.sakaiproject.news.api.NewsService.REFERENCE_ROOT;
 
-	public static java.util.List getChannels()
-	{
-		org.sakaiproject.news.api.NewsService service = getInstance();
-		if (service == null) return null;
-
-		return service.getChannels();
-	}
-
 	public static void removeChannel(java.lang.String param0)
 	{
 		org.sakaiproject.news.api.NewsService service = getInstance();
