@@ -192,7 +192,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	        }
 	    }
 	    PasswordPolicyProvider ppp = m_passwordPolicyProvider;
-	    if (!!serverConfigurationService().getBoolean("user.password.policy", false)) {
+	    if (!serverConfigurationService().getBoolean("user.password.policy", false)) {
 	        ppp = null; // don't send back a policy if disabled
 	    }
 	    return ppp;
