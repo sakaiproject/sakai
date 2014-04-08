@@ -89,6 +89,7 @@
     <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
     <sakai.jcr.version>1.0</sakai.jcr.version>
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
+    <sakai.lombok.version>1.12.4</sakai.lombok.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>1.8.6</sakai.quartz.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
@@ -964,7 +965,7 @@
 	  <dependency>
 		  <groupId>org.sakaiproject.message</groupId>
 		  <artifactId>sakai-message-util</artifactId>
-		  <version>${project.version}</version>
+		  <version>${sakai.version}</version>
 	  </dependency>
       <dependency>
         <groupId>org.sakaiproject.message</groupId>
@@ -1258,7 +1259,7 @@
         <!-- To keep make it easy to update all tool versions -->
         <groupId>org.projectlombok</groupId>
         <artifactId>lombok</artifactId>
-        <version>1.12.4</version>
+        <version>${sakai.lombok.version}</version>
         <scope>provided</scope><!-- Lombok only needed at build time -->
       </dependency>
     </dependencies>
