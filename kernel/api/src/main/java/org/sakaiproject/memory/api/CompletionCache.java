@@ -21,8 +21,6 @@
 
 package org.sakaiproject.memory.api;
 
-import java.util.List;
-
 /**
  * This is here to allow the old caches which have weird rules and checks to still work
  * These should be migrated away from the old way of doing things as soon as possible
@@ -44,40 +42,6 @@ public interface CompletionCache {
      * @see Cache#put(Object, Object)
      */
     void put(Object key, Object payload, int duration);
-
-    /**
-     * Get all the non-expired non-null entries.
-     *
-     * @return all the non-expired non-null entries, or an empty list if none.
-     * @deprecated Since Sakai 2.5.0
-     */
-    List getAll();
-
-    /**
-     * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
-     *
-     * @param path
-     *        The reference path.
-     * @return all the non-expired non-null entries, or an empty list if none.
-     * @deprecated Since Sakai 2.5.0
-     */
-    List getAll(String path);
-
-    /**
-     * Get all the keys
-     *
-     * @return The List of key values (Object).
-     * @deprecated Since Sakai 2.5.0
-     */
-    List<String> getKeys();
-
-    /**
-     * Get all the keys, modified from resource references to ids by removing the resource prefix. Note: only works with String keys.
-     *
-     * @return The List of keys converted from references to ids (String).
-     * @deprecated Since Sakai 2.5.0
-     */
-    List<String> getIds();
 
     /**
      * Disable the cache.
@@ -108,6 +72,15 @@ public interface CompletionCache {
     boolean isComplete();
 
     /**
+     * Set the cache to be complete for one level of the reference hierarchy.
+     *
+     * @param path
+     *        The reference to the completion level.
+     * @deprecated Since Sakai 2.9
+     */
+    void setComplete(String path);
+
+    /**
      * Set the cache to be complete, containing all possible entries.
      * @deprecated Since Sakai 2.9
      */
@@ -122,26 +95,5 @@ public interface CompletionCache {
      * @deprecated Since Sakai 2.9
      */
     boolean isComplete(String path);
-
-    /**
-     * Set the cache to be complete for one level of the reference hierarchy.
-     *
-     * @param path
-     *        The reference to the completion level.
-     * @deprecated Since Sakai 2.9
-     */
-    void setComplete(String path);
-
-    /**
-     * Set the cache to hold events for later processing to assure an atomic "complete" load.
-     * @deprecated Since Sakai 2.9
-     */
-    void holdEvents();
-
-    /**
-     * Restore normal event processing in the cache, and process any held events now.
-     * @deprecated Since Sakai 2.9
-     */
-    void processEvents();
 
 }

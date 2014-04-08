@@ -22,7 +22,6 @@
 package org.sakaiproject.memory.mock;
 
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.Cacher;
 import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
@@ -32,11 +31,10 @@ import java.util.*;
  * Mock Cache for use in testing
  * Partly functional (no listener/loader support)
  */
-public class Cache implements GenericMultiRefCache, Cacher {
-
-    private Map<String, Object> map = new HashMap<String, Object>();
+public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.Cache {
 
     String name;
+    private Map<String, Object> map = new HashMap<String, Object>();
     Cache(String name) {
         this.name = name;
     }
@@ -107,11 +105,6 @@ public class Cache implements GenericMultiRefCache, Cacher {
     }
 
     @Override
-    public void resetCache() {
-        clear();
-    }
-
-    @Override
     public String getDescription() {
         return name;
     }
@@ -127,26 +120,8 @@ public class Cache implements GenericMultiRefCache, Cacher {
         put((String)key, payload);
     }
 
+
     // CompletionCache methods below
-    @Override
-    public List<?> getAll() {
-        return new ArrayList<Object>(map.values());
-    }
-
-    @Override
-    public List<?> getAll(String path) {
-        return new ArrayList<Object>(map.values());
-    }
-
-    @Override
-    public List<String> getKeys() {
-        return new ArrayList<String>(map.keySet());
-    }
-
-    @Override
-    public List<String> getIds() {
-        return new ArrayList<String>(map.keySet());
-    }
 
     @Override
     public void disable() {
@@ -169,6 +144,11 @@ public class Cache implements GenericMultiRefCache, Cacher {
     }
 
     @Override
+    public void setComplete(String path) {
+
+    }
+
+    @Override
     public void setComplete() {
 
     }
@@ -176,21 +156,6 @@ public class Cache implements GenericMultiRefCache, Cacher {
     @Override
     public boolean isComplete(String path) {
         return false;
-    }
-
-    @Override
-    public void setComplete(String path) {
-
-    }
-
-    @Override
-    public void holdEvents() {
-
-    }
-
-    @Override
-    public void processEvents() {
-
     }
 
 }

@@ -42,7 +42,7 @@ import java.util.*;
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
  */
-public class MemCache implements Cache, Observer, Cacher
+public class MemCache implements Cache, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MemCache.class);
@@ -81,73 +81,6 @@ public class MemCache implements Cache, Observer, Cacher
 	protected DerivedCache m_derivedCache = null;
 
 	/**
-	 * The cache entry. Holds a time stamped payload.
-	 */
-	protected class CacheEntry extends SoftReference
-	{
-		/** Set if our payload is supposed to be null. */
-		protected boolean m_nullPayload = false;
-
-		/**
-		 * Construct to cache the payload for the duration.
-		 * @param payload The thing to cache.
-		 */
-		public CacheEntry(Object payload) {
-			// put the payload into the soft reference
-			super(payload);
-			// is it supposed to be null?
-			m_nullPayload = (payload == null);
-		} // CacheEntry
-
-		/**
-		 * Get the cached object.
-		 * 
-		 * @param key
-		 *        The key for this entry (if null, we won't try to refresh if missing)
-		 * @return The cached object.
-		 */
-		public Object getPayload(String key)
-		{
-			// if we hold null, this is easy
-			if (m_nullPayload)
-			{
-				return null;
-			}
-
-			// get the payload
-			Object payload = this.get();
-
-			// if it has been garbage collected, and we can, refresh it
-			if (payload == null)
-			{
-				if ((m_refresher != null) && (key != null))
-				{
-					// ask the refresher for the value
-					payload = m_refresher.refresh(key, null, null);
-
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
-					}
-
-					// store this new value
-					put(key, payload);
-				}
-				else
-				{
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: no refresh: key: " + key);
-					}
-				}
-			}
-
-			return payload;
-		}
-
-	} // CacheEntry
-
-	/**
 	 * Construct the Cache. No automatic refresh handling.
 	 */
 	public MemCache(BasicMemoryService memoryService,
@@ -161,7 +94,7 @@ public class MemCache implements Cache, Observer, Cacher
 
 	/**
 	 * Construct the Cache. Attempts to keep complete on Event notification by calling the refresher.
-	 * 
+	 *
 	 * @param refresher
 	 *        The object that will handle refreshing of event notified modified or added entries.
 	 * @param pattern
@@ -187,7 +120,7 @@ public class MemCache implements Cache, Observer, Cacher
 
 	/**
 	 * Construct the Cache. Automatic refresh handling if refresher is not null.
-	 * 
+	 *
 	 * @param refresher
 	 *        The object that will handle refreshing of expired entries.
 	 * @param sleep
@@ -207,7 +140,7 @@ public class MemCache implements Cache, Observer, Cacher
 
 	/**
 	 * Construct the Cache. Automatic refresh handling if refresher is not null.
-	 * 
+	 *
 	 * @param refresher
 	 *        The object that will handle refreshing of expired entries.
 	 */
@@ -224,7 +157,7 @@ public class MemCache implements Cache, Observer, Cacher
 
 	/**
 	 * Construct the Cache. Event scanning if pattern not null - will expire entries.
-	 * 
+	 *
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
 	 * @param pattern
@@ -240,7 +173,7 @@ public class MemCache implements Cache, Observer, Cacher
 
 	/**
 	 * Construct the Cache. Event scanning if pattern not null - will expire entries.
-	 * 
+	 *
 	 * @param sleep
 	 *        The number of seconds to sleep between expiration checks.
 	 * @param pattern
@@ -259,6 +192,36 @@ public class MemCache implements Cache, Observer, Cacher
 			m_eventTrackingService.addPriorityObserver(this);
 		}
 	}
+
+	/**
+	 * Compute the reference path (i.e. the container) for a given reference.
+	 *
+	 * @param ref
+	 *        The reference string.
+	 * @return The reference root for the given reference.
+	 */
+	public static String referencePath(String ref)
+	{
+		String path;
+
+		// Note: there may be a trailing separator
+		int pos = ref.lastIndexOf("/", ref.length() - 2);
+
+		// if no separators are found, place it even before the root!
+		if (pos == -1)
+		{
+			path = "";
+		}
+
+		// use the string up to and including that last separator
+		else
+		{
+			path = ref.substring(0, pos + 1);
+		}
+
+		return path;
+
+	} // referencePath
 
     /**
      * @deprecated REMOVE THIS
@@ -405,18 +368,6 @@ public class MemCache implements Cache, Observer, Cacher
 		}
 
 	} // remove
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-	public void resetCache()
-	{
-		M_log.debug("resetCache()");
-		
-		clear();
-
-	} // resetCache
 
     /**
      * {@inheritDoc}
@@ -583,41 +534,6 @@ public class MemCache implements Cache, Observer, Cacher
 
 	} // continueUpdate
 
-	/**
-	 * Compute the reference path (i.e. the container) for a given reference.
-	 * 
-	 * @param ref
-	 *        The reference string.
-	 * @return The reference root for the given reference.
-	 */
-	public static String referencePath(String ref)
-	{
-		String path;
-
-		// Note: there may be a trailing separator
-		int pos = ref.lastIndexOf("/", ref.length() - 2);
-
-		// if no separators are found, place it even before the root!
-		if (pos == -1)
-		{
-			path = "";
-		}
-
-		// use the string up to and including that last separator
-		else
-		{
-			path = ref.substring(0, pos + 1);
-		}
-
-		return path;
-
-	} // referencePath
-
-
-    // **************************************************************************
-    // CompletionCache methods - REMOVE THESE
-    // **************************************************************************
-
     /**
      * Disable the cache.
      * @deprecated TODO REMOVE
@@ -632,6 +548,11 @@ public class MemCache implements Cache, Observer, Cacher
         clear();
 
     } // disable
+
+
+    // **************************************************************************
+    // CompletionCache methods - REMOVE THESE
+    // **************************************************************************
 
     /**
      * Enable the cache.
@@ -684,6 +605,24 @@ public class MemCache implements Cache, Observer, Cacher
     } // isComplete
 
     /**
+     * Set the cache to be complete for one level of the reference hierarchy.
+     *
+     * @param path
+     *        The reference to the completion level.
+     * @deprecated TODO REMOVE
+     */
+    @Override
+    public void setComplete(String path)
+    {
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("setComplete(String " + path + ")");
+        }
+
+        m_partiallyComplete.add(path);
+
+    } // setComplete
+
+    /**
      * Set the cache to be complete, containing all possible entries.
      * @deprecated TODO REMOVE
      */
@@ -717,145 +656,76 @@ public class MemCache implements Cache, Observer, Cacher
 
     } // isComplete
 
-    /**
-     * Set the cache to be complete for one level of the reference hierarchy.
-     *
-     * @param path
-     *        The reference to the completion level.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public void setComplete(String path)
-    {
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("setComplete(String " + path + ")");
-        }
-
-        m_partiallyComplete.add(path);
-
-    } // setComplete
-
-    /**
-     * Set the cache to hold events for later processing to assure an atomic "complete" load.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public void holdEvents()
-    {
-        M_log.debug("holdEvents()");
-
-        m_holdEventProcessing = true;
-
-    } // holdEvents
-
-    /**
-     * Restore normal event processing in the cache, and process any held events now.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public void processEvents()
-    {
-        M_log.debug("processEvents()");
-
-        m_holdEventProcessing = false;
-
-        for (int i = 0; i < m_heldEvents.size(); i++)
-        {
-            Event event = (Event) m_heldEvents.get(i);
-            continueUpdate(event);
-        }
-
-        m_heldEvents.clear();
-
-    } // holdEvents
-
     @Override
     public void put(Object key, Object payload, int duration) {
         put((String)key, payload);
     }
 
-    /**
-     * Get all the non-expired non-null entries.
-     *
-     * @return all the non-expired non-null entries, or an empty list if none.
-     * @deprecated TODO REMOVE
-     */
-    public List getAll()
-    { //TODO Why would you ever getAll objects from cache?
-        M_log.debug("getAll()");
+	/**
+	 * The cache entry. Holds a time stamped payload.
+	 */
+	protected class CacheEntry extends SoftReference
+	{
+		/** Set if our payload is supposed to be null. */
+		protected boolean m_nullPayload = false;
 
-        final List<Object> keys = cache.getKeysWithExpiryCheck();
-        final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
-        for (Object key : keys) {
-            final Object value = cache.get(key).getObjectValue();
-            if (value != null)
-                rv.add(value);
-        }
+		/**
+		 * Construct to cache the payload for the duration.
+		 * @param payload The thing to cache.
+		 */
+		public CacheEntry(Object payload) {
+			// put the payload into the soft reference
+			super(payload);
+			// is it supposed to be null?
+			m_nullPayload = (payload == null);
+		} // CacheEntry
 
-        return rv;
+		/**
+		 * Get the cached object.
+		 *
+		 * @param key
+		 *        The key for this entry (if null, we won't try to refresh if missing)
+		 * @return The cached object.
+		 */
+		public Object getPayload(String key)
+		{
+			// if we hold null, this is easy
+			if (m_nullPayload)
+			{
+				return null;
+			}
 
-    } // getAll
+			// get the payload
+			Object payload = this.get();
 
-    /**
-     * Get all the non-expired non-null entries that are in the specified reference path. Note: only works with String keys.
-     *
-     * @param path
-     *        The reference path.
-     * @return all the non-expired non-null entries, or an empty list if none.
-     * @deprecated TODO REMOVE
-     */
-    public List getAll(String path)
-    {
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("getAll(String " + path + ")");
-        }
+			// if it has been garbage collected, and we can, refresh it
+			if (payload == null)
+			{
+				if ((m_refresher != null) && (key != null))
+				{
+					// ask the refresher for the value
+					payload = m_refresher.refresh(key, null, null);
 
-        final List<Object> keys = cache.getKeysWithExpiryCheck();
-        final List<Object> rv = new ArrayList<Object>(keys.size()); // return value
-        for (Object key : keys) {
-            // take only if keys start with path, and have no SEPARATOR following other than at the end %%%
-            if (key instanceof String && referencePath((String) key).equals(path)) {
-                rv.add(cache.get(key).getObjectValue());
-            }
-        }
-        return rv;
+					if (m_memoryService.getCacheLogging())
+					{
+						M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
+					}
 
-    } // getAll
+					// store this new value
+					put(key, payload);
+				}
+				else
+				{
+					if (m_memoryService.getCacheLogging())
+					{
+						M_log.info("cache miss: no refresh: key: " + key);
+					}
+				}
+			}
 
-    /**
-     * Get all the keys
-     *
-     * @return The List of key values (Object).
-     * @deprecated TODO REMOVE
-     */
-    public List getKeys()
-    {
-        M_log.debug("getKeys()");
-        return cache.getKeysWithExpiryCheck();
-    } // getKeys
+			return payload;
+		}
 
-    /**
-     * Get all the keys, each modified to remove the resourcePattern prefix. Note: only works with String keys.
-     *
-     * @return The List of keys converted from references to ids (String).
-     * @deprecated TODO REMOVE
-     */
-    public List getIds() {
-        M_log.debug("getIds()");
-
-        final List<Object> keys = cache.getKeysWithExpiryCheck();
-        final List<Object> rv = new ArrayList<Object>(keys.size());
-        for (Object key : keys) {
-            if (key instanceof String) {
-                int i = ((String) key).indexOf(m_resourcePattern);
-                if (i != -1)
-                    key = ((String) key).substring(i
-                                                           + m_resourcePattern.length());
-                rv.add(key);
-            }
-        }
-        return rv;
-
-    } // getIds
+	} // CacheEntry
 
 }
