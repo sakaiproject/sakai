@@ -21,6 +21,46 @@
 
 package org.sakaiproject.calendar.impl;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.Enumeration;
+import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Observable;
+import java.util.Properties;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TimeZone;
+import java.util.Vector;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamSource;
+
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
 import net.fortuna.ical4j.model.Property;
@@ -28,7 +68,17 @@ import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
-import net.fortuna.ical4j.model.property.*;
+import net.fortuna.ical4j.model.property.CalScale;
+import net.fortuna.ical4j.model.property.Comment;
+import net.fortuna.ical4j.model.property.Description;
+import net.fortuna.ical4j.model.property.Location;
+import net.fortuna.ical4j.model.property.Organizer;
+import net.fortuna.ical4j.model.property.ProdId;
+import net.fortuna.ical4j.model.property.TzId;
+import net.fortuna.ical4j.model.property.Uid;
+import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.XProperty;
+
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -40,18 +90,52 @@ import org.apache.fop.configuration.Configuration;
 import org.apache.fop.messaging.MessageHandler;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.*;
+import org.sakaiproject.calendar.api.CalendarEdit;
+import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.calendar.api.CalendarEventVector;
+import org.sakaiproject.calendar.api.CalendarService;
+import org.sakaiproject.calendar.api.OpaqueUrlDao;
+import org.sakaiproject.calendar.api.OpaqueUrl;
+import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
 import org.sakaiproject.calendar.cover.ExternalCalendarSubscriptionService;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.util.CalendarUtil;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.entity.api.*;
-import org.sakaiproject.event.api.*;
-import org.sakaiproject.exception.*;
+import org.sakaiproject.entity.api.ContextObserver;
+import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityAccessOverloadException;
+import org.sakaiproject.entity.api.EntityCopyrightException;
+import org.sakaiproject.entity.api.EntityManager;
+import org.sakaiproject.entity.api.EntityNotDefinedException;
+import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.HttpAccess;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.exception.IdInvalidException;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
+import org.sakaiproject.exception.InUseException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
@@ -60,7 +144,6 @@ import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -72,7 +155,23 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.*;
+import org.sakaiproject.util.Authentication;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
+import org.sakaiproject.util.CalendarChannelReferenceMaker;
+import org.sakaiproject.util.CalendarReferenceToChannelConverter;
+import org.sakaiproject.util.CalendarUtil;
+import org.sakaiproject.util.DefaultEntityHandler;
+import org.sakaiproject.util.DoubleStorageUser;
+import org.sakaiproject.util.EntityCollections;
+import org.sakaiproject.util.EntryProvider;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.MergedList;
+import org.sakaiproject.util.MergedListEntryProviderFixedListWrapper;
+import org.sakaiproject.util.ResourceLoader;
+import org.sakaiproject.util.SAXEntityReader;
+import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.Web;
+import org.sakaiproject.util.Xml;
 import org.sakaiproject.util.cover.LinkMigrationHelper;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -81,24 +180,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.*;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXResult;
-import javax.xml.transform.stream.StreamSource;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.text.DateFormat;
-import java.text.DecimalFormat;
-import java.util.*;
 import java.util.Map.Entry;
 /**
  * <p>
@@ -729,7 +810,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		if (m_caching)
 		{
-			m_calendarCache.close();
+			m_calendarCache.destroy();
 			m_calendarCache = null;
 
 			// TODO: destroy each cache
@@ -925,6 +1006,66 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		}
 
 	} // removeCalendar
+
+	/**
+	 * Return a List of all the defined calendars.
+	 * 
+	 * @return a List of Calendar objects (may be empty)
+	 */
+	public List getCalendars()
+	{
+		List calendars = new Vector();
+
+		if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
+		{
+			calendars = m_storage.getCalendars();
+			return calendars;
+		}
+
+		// if the cache is complete, use it
+		if (m_calendarCache.isComplete())
+		{
+			// get just the calendars in the cache
+			calendars = m_calendarCache.getAll();
+		}
+
+		// otherwise get all the calendars from storage
+		else
+		{
+			// Note: while we are getting from storage, storage might change. These can be processed
+			// after we get the storage entries, and put them in the cache, and mark the cache complete.
+			// -ggolden
+			synchronized (m_calendarCache)
+			{
+				// if we were waiting and it's now complete...
+				if (m_calendarCache.isComplete())
+				{
+					// get just the calendars in the cache
+					calendars = m_calendarCache.getAll();
+					return calendars;
+				}
+
+				// save up any events to the cache until we get past this load
+				m_calendarCache.holdEvents();
+
+				calendars = m_storage.getCalendars();
+				// update the cache, and mark it complete
+				for (int i = 0; i < calendars.size(); i++)
+				{
+					Calendar calendar = (Calendar) calendars.get(i);
+					m_calendarCache.put(calendar.getReference(), calendar);
+				}
+
+				m_calendarCache.setComplete();
+
+				// now we are complete, process any cached events
+				m_calendarCache.processEvents();
+			}
+		}
+
+		return calendars;
+
+	} // getCalendars
 
 	/**
 	 * check permissions for importing calendar events
