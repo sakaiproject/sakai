@@ -79,11 +79,6 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
-                <groupId>org.sakaiproject.metaobj</groupId>
-                <artifactId>sakai-metaobj-tool-lib</artifactId>
-                <version>${sakai.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>jtidy</groupId>
                 <artifactId>jtidy</artifactId>
                 <version>r938</version>

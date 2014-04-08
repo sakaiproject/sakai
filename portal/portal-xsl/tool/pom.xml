@@ -120,28 +120,6 @@
         </exclusions>
     </dependency>
     <dependency>
-      <groupId>org.sakaiproject.metaobj</groupId>
-      <artifactId>sakai-metaobj-tool-lib</artifactId>
-        <exclusions>
-          <exclusion>
-            <groupId>aopalliance</groupId>
-            <artifactId>aopalliance</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-full</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>jta</groupId>
-            <artifactId>jta</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>portlet-api</groupId>
-            <artifactId>portlet-api</artifactId>
-          </exclusion>
-        </exclusions>
-    </dependency>
-    <dependency>
         <groupId>jtidy</groupId>
         <artifactId>jtidy</artifactId>
         <version>r938</version>
