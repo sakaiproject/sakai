@@ -108,7 +108,7 @@
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"/>
 
         <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
-           <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" >
+           <samigo:wysiwyg rows="100" columns="400" value="#{publishedSettings.description}" hasToggle="yes" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
         </h:panelGrid>
