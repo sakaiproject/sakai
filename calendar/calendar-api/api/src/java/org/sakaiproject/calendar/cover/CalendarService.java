@@ -133,15 +133,6 @@ public class CalendarService
 
 		service.setExportEnabled(param0, param1);
 	}
-                                       
-	public static java.util.List getCalendars()
-	{
-		org.sakaiproject.calendar.api.CalendarService service = getInstance();
-		if (service == null)
-			return null;
-
-		return service.getCalendars();
-	}
 
 	public static org.sakaiproject.calendar.api.CalendarEdit addCalendar(java.lang.String param0) throws org.sakaiproject.exception.IdUsedException, org.sakaiproject.exception.IdInvalidException, org.sakaiproject.exception.PermissionException
 	{
