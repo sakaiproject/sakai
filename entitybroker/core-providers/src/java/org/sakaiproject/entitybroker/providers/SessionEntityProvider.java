@@ -184,6 +184,10 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
       if (es.getMaxInactiveInterval() > 0) {
          currentSession.setMaxInactiveInterval(es.getMaxInactiveInterval());
       }
+      
+      // bootstrap the Set-Cookie response header so that clients can set a cookie based on the contents of this response param.
+      // The RequestFilter fills in the details for us
+      requestGetter.getResponse().addHeader("Set-Cookie", null);
 
       newSessionId = currentSession.getId();
       return newSessionId;
