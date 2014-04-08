@@ -59,9 +59,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	/** Storage manager for this service. */
 	protected Storage m_storage = null;
 
-	/** A Cache for this service - Notification objects stored by notification reference. */
-	protected NotificationCache m_cache = null;
-
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
@@ -222,9 +219,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 			m_storage = newStorage();
 			m_storage.open();
 
-			// make the cache
-			m_cache = new NotificationCache(this, notificationReference(""), eventTrackingService(), memoryService());
-
 			// start watching the events - only those generated on this server, not those from elsewhere
 			eventTrackingService().addLocalObserver(this);
 
@@ -250,10 +244,6 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 		{
 			eventTrackingService().deleteObserver(this);
 		}
-
-		// clean up cache
-		m_cache.clear();
-		m_cache = null;
 
 		// clean up storage
 		m_storage.close();
@@ -315,22 +305,7 @@ public abstract class BaseNotificationService implements NotificationService, Ob
 	 */
 	public Notification getNotification(String id) throws NotificationNotDefinedException
 	{
-		Notification notification = null;
-
-		// if we have it cached, use it (hit or miss)
-		String key = notificationReference(id);
-		if (m_cache.containsKey(key))
-		{
-			notification = m_cache.get(key);
-		}
-		// if not in the cache, see if we have it in our info store
-		else
-		{
-			notification = m_storage.get(id);
-
-			// cache it (hit or miss)
-			m_cache.put(notification);
-		}
+		Notification notification = m_storage.get(id);
 
 		// if not found
 		if (notification == null) throw new NotificationNotDefinedException(id);
