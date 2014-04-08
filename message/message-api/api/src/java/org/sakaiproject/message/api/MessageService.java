@@ -21,18 +21,14 @@
 
 package org.sakaiproject.message.api;
 
-import java.util.List;
-import java.util.Map;
-
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntitySummary;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.time.api.Time;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -84,6 +80,7 @@ public interface MessageService extends EntityProducer, EntitySummary
 	 * Return a list of all the defined channels.
 	 * 
 	 * @return a list of MessageChannel (or extension) objects (may be empty).
+	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful (why would you want all channels in the system) and would perform very badly, use getChannelIds(String context) OR getChannel(String ref) instead
 	 */
 	public List<MessageChannel> getChannels();
 

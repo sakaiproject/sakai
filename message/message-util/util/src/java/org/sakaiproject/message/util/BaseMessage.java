@@ -593,6 +593,18 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	} // unlock3
 
 	/**
+	 * Return a list of all the defined channels.
+	 *
+	 * @return a list of MessageChannel (or extension) objects (may be empty).
+	 * @deprecated since 8 April 2014 (Sakai 10), this is not useful and would perform very badly
+	 */
+	public List<MessageChannel> getChannels()
+	{
+		List<MessageChannel> channels = m_storage.getChannels();
+		return channels;
+	} // getChannels
+
+	/**
 	 * check permissions for getChannel().
 	 * 
 	 * @param ref
