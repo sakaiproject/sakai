@@ -54,7 +54,6 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -104,7 +103,7 @@ import java.util.Map.Entry;
  * BaseCalendarService is an base implementation of the CalendarService. Extension classes implement object creation, access and storage.
  * </p>
  */
-public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, CacheRefresher, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator
+public abstract class BaseCalendarService implements CalendarService, DoubleStorageUser, ContextObserver, EntityTransferrer, SAXEntityReader, EntityTransferrerRefMigrator
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseCalendarService.class);
@@ -4839,60 +4838,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		public void removeEvent(Calendar calendar, CalendarEventEdit edit);
 
 	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * CacheRefresher implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Get a new value for this key whose value has already expired in the cache.
-	 * 
-	 * @param key
-	 *        The key whose value has expired and needs to be refreshed.
-	 * @param oldValue
-	 *        The old exipred value of the key.
-	 * @param event
-	 *        The event which triggered this refresh.
-	 * @return a new value for use in the cache for this key; if null, the entry will be removed.
-	 */
-	public Object refresh(Object key, Object oldValue, Event event)
-	{
-		Object rv = null;
-
-		// key is a reference
-		Reference ref = m_entityManager.newReference((String) key);
-
-		// get from storage only (not cache!)
-
-		// for events
-		if (REF_TYPE_EVENT.equals(ref.getSubType()))
-		{
-			if (M_log.isDebugEnabled())
-				M_log.debug("refresh(): key " + key + " calendar id : " + ref.getContext() + "/" + ref.getContainer()
-						+ " event id : " + ref.getId());
-
-			// get calendar (Note: from the cache is ok)
-			Calendar calendar = findCalendar(calendarReference(ref.getContext(), ref.getContainer()));
-
-			// get the CalendarEvent (Note: not from cache! but only from storage)
-			if (calendar != null)
-			{
-				rv = m_storage.getEvent(calendar, ref.getId());
-			}
-		}
-
-		// for calendar
-		else
-		{
-			if (M_log.isDebugEnabled()) M_log.debug("refresh(): key " + key + " calendar id : " + ref.getReference());
-
-			// return the calendar (Note: not from cache! but only from storage)
-			rv = m_storage.getCalendar(ref.getReference());
-		}
-
-		return rv;
-
-	} // refresh
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * StorageUser implementation
