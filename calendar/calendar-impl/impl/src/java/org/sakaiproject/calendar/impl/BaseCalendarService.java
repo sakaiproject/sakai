@@ -54,7 +54,6 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
-import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
@@ -112,12 +111,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
-
-	/** A Cache object for caching: calendars keyed by reference. */
-	protected Cache m_calendarCache = null;
-
-	/** A bunch of caches for events: keyed by calendar id, the cache is keyed by event reference. */
-	protected Hashtable m_eventCaches = null;
 
 	/** A Storage object for access to calendars and events. */
 	protected Storage m_storage = null;
@@ -446,19 +439,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_idManager = manager;
 	}
 
-	/** Configuration: cache, or not. */
-	protected boolean m_caching = false;
-
 	/**
 	 * Configuration: set the caching
 	 * 
-	 * @param path
-	 *        The storage path.
+	 * @param value true or false (has no effect anymore)
+	 * @deprecated 8 April 2014 (Sakai 10) - this no longer does anything and will be removed
 	 */
-	public void setCaching(String value)
-	{
-		m_caching = Boolean.valueOf(value).booleanValue();
-	}
+	public void setCaching(String value) {} // disabled and blank intentionally
 
 	/** Dependency: EntityManager. */
 	protected EntityManager m_entityManager = null;
@@ -679,19 +666,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			m_storage = newStorage();
 			m_storage.open();
 
-			// make the calendar cache
-			if (m_caching)
-			{
-				m_calendarCache = m_memoryService
-						.newCache(
-								"org.sakaiproject.calendar.api.CalendarService.calendarCache",
-								this, getAccessPoint(true) + Entity.SEPARATOR
-										+ REF_TYPE_CALENDAR + Entity.SEPARATOR);
-
-				// make the table to hold the event caches
-				m_eventCaches = new Hashtable();
-			}
-
          // create transformerFactory object needed by generatePDF
          transformerFactory = TransformerFactory.newInstance();
          transformerFactory.setURIResolver( new MyURIResolver(getClass().getClassLoader()) );
@@ -699,11 +673,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// create DocumentBuilder object needed by printSchedule
 			docBuilder =  DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			
-			M_log.info("init(): caching: " + m_caching);
+			M_log.info("init()");
 		}
 		catch (Throwable t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.warn("init(): "+t, t);
 		}
 
 		// register as an entity producer
@@ -727,16 +701,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	public void destroy()
 	{
-		if (m_caching)
-		{
-			m_calendarCache.close();
-			m_calendarCache = null;
-
-			// TODO: destroy each cache
-			m_eventCaches.clear();
-			m_eventCaches = null;
-		}
-
 		m_storage.close();
 		m_storage = null;
 
@@ -802,44 +766,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected Calendar findCalendar(String ref)
 	{
-		Calendar calendar = null;
-
-		if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
-		{
-			// TODO: do we really want to do this? -ggolden
-			// if we have done this already in this thread, use that
-			calendar = (Calendar) m_threadLocalManager.get(ref);
-			if (calendar == null)
-			{
-				calendar = m_storage.getCalendar(ref);
-
-				// "cache" the calendar in the current service in case they are needed again in this thread...
-				if (calendar != null)
-				{
-					m_threadLocalManager.set(ref, calendar);
-				}
-			}
-
-			return calendar;
-		}
-
-		// if we have it cached, use it (even if it's cached as a null, a miss)
-		if (m_calendarCache.containsKey(ref))
-		{
-			calendar = (Calendar) m_calendarCache.get(ref);
-		}
-
-		// if not in the cache, see if we have it in our info store
-		if ( calendar == null ) //SAK-12447 cache.get can return null on expired
-		{
-			calendar = m_storage.getCalendar(ref);
-
-			// if so, cache it, even misses
-			m_calendarCache.put(ref, calendar);
-		}
-
+		Calendar calendar = (Calendar) m_threadLocalManager.get(ref);
 		return calendar;
-
 	} // findCalendar
 
 	/**
@@ -2483,84 +2411,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// check security (throws if not permitted)
 			unlock(AUTH_READ_CALENDAR, getReference());
 
-			List events = new Vector();
-
-			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
-			{
-            if ( range != null )
-               events = m_storage.getEvents(this, range.firstTime().getTime(), range.lastTime().getTime() );
-            else
-               events = m_storage.getEvents(this);
-			}
-
-			else
-			{
-				// find the event cache
-				Cache eventCache = (Cache) m_eventCaches.get(getReference());
-				if (eventCache == null)
-				{
-					synchronized (m_eventCaches)
-					{
-						// check again
-						eventCache = (Cache) m_eventCaches.get(getReference());
-
-						// if still not there, make one
-						if (eventCache == null)
-						{
-							eventCache = m_memoryService
-									.newCache(
-											"org.sakaiproject.calendar.api.CalendarService.eventCache",
-											service(), eventReference(
-													m_context, m_id, ""));
-							m_eventCaches.put(getReference(), eventCache);
-						}
-					}
-				}
-
-				// if the cache is complete, use it
-				if (eventCache.isComplete())
-				{
-					// get just this calendar's events
-					events = eventCache.getAll();
-				}
-
-				// otherwise get all the events from storage
-				else
-				{
-					// Note: while we are getting from storage, storage might change. These can be processed
-					// after we get the storage entries, and put them in the cache, and mark the cache complete.
-					// -ggolden
-					synchronized (eventCache)
-					{
-						// if we were waiting and it's now complete...
-						if (eventCache.isComplete())
-						{
-							// get just this calendar's events
-							events = eventCache.getAll();
-						}
-						else
-						{
-							// save up any events to the cache until we get past this load
-							eventCache.holdEvents();
-
-							// get all the events for the calendar
-							events = m_storage.getEvents(this);
-
-							// update the cache, and mark it complete
-							for (int i = 0; i < events.size(); i++)
-							{
-								CalendarEvent event = (CalendarEvent) events.get(i);
-								eventCache.put(event.getReference(), event);
-							}
-
-							eventCache.setComplete();
-
-							// now we are complete, process any cached events
-							eventCache.processEvents();
-						}
-                  
-					}
-				}
+			List events;
+			if (range != null) {
+				events = m_storage.getEvents(this, range.firstTime().getTime(), range.lastTime().getTime());
+			} else {
+				events = m_storage.getEvents(this);
 			}
 
 			// now filter out the events to just those in the range
@@ -2570,7 +2425,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			{
 				events = filterEvents(events, range);
 			}
-						
+
 			if (events.size() == 0) return events;
 
 			// filter out based on the filter
@@ -3393,8 +3248,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		 */
 		protected CalendarEvent findEvent(String eventId)
 		{
-			CalendarEvent e = null;
-
 			// if the id has a time range encoded, as for one of a sequence of recurring events, separate that out
 			TimeRange timeRange = null;
 			int sequence = 0;
@@ -3413,72 +3266,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 				}
 			}
 
-			// events are cached with the full reference as key
-			String key = eventReference(m_context, m_id, eventId);
-
-			// if cache is disabled, don't use it
-			if ((!m_caching) || (m_calendarCache == null) || (m_calendarCache.disabled()))
-			{
-				// if we have "cached" the entire set of events in the thread, get that and find our message there
-				List events = (List) m_threadLocalManager.get(getReference() + ".events");
-				if (events != null)
-				{
-					for (Iterator i = events.iterator(); i.hasNext();)
-					{
-						CalendarEvent event = (CalendarEvent) i.next();
-						if (event.getId().equals(eventId))
-						{
-							e = event;
-							break;
-						}
-					}
-				}
-
-				if (e == null)
-				{
-					e = m_storage.getEvent(this, eventId);
-				}
-			}
-
-			else
-			{
-				// find the event cache
-				Cache eventCache = (Cache) m_eventCaches.get(getReference());
-				if (eventCache == null)
-				{
-					synchronized (m_eventCaches)
-					{
-						// check again
-						eventCache = (Cache) m_eventCaches.get(getReference());
-
-						// if still not there, make one
-						if (eventCache == null)
-						{
-							eventCache = m_memoryService
-									.newCache(
-											"org.sakaiproject.calendar.api.CalendarService.eventCache",
-											service(), eventReference(
-													m_context, m_id, ""));
-							m_eventCaches.put(getReference(), eventCache);
-						}
-					}
-				}
-
-				// if we have it cached, use it (even if it's cached as a null, a miss)
-				if (eventCache.containsKey(key))
-				{
-					e = (CalendarEvent) eventCache.get(key);
-				}
-
-				// if not in the cache, see if we have it in our info store
-				if ( e == null ) //SAK-12447 cache.get can return null on expired
-				{
-					e = m_storage.getEvent(this, eventId);
-
-					// if so, cache it, even misses
-					eventCache.put(key, e);
-				}
-			}
+			CalendarEvent e = m_storage.getEvent(this, eventId);
 
 			// now we have the primary event, if we have a recurring event sequence time range selector, use it
 			if ((e != null) && (timeRange != null))
