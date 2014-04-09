@@ -37,7 +37,7 @@ import org.sakaiproject.event.api.Event;
  * Original comment:<br/>
  * Utility API for classes that will refresh a cache entry when expired.
  *
- * @deprecated This class will be renamed to CacheLoader to align with JSR-107
+ * WARNING - This class will be renamed to CacheLoader to align with JSR-107 (probably in Sakai 11)
  */
 public interface CacheRefresher { // CacheLoader<K, V> {
     // TODO - rename this to CacheLoader or something like that -AZ
