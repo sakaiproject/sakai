@@ -49,7 +49,9 @@ td.actions2 .dropdown-toggle {
 }
 td.actions2 .dropdown-header {
     padding: 0 21px;
-
+}
+.table tr{
+    border-bottom: 1px solid #ddd;
 }
 
 .breadCrumb .btn-group button.breadProp {
