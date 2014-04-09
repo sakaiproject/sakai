@@ -100,12 +100,10 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * The cache will not contain a mapping for the specified key once the
      * call returns.
      *
-     * <b>NOTE:</b> Does not work like <b>remove</b> from JSR-107 spec
-     * (which returns a boolean indicating if the item was in the cache before removal)
-     *
      * @param key the unique key for a cached object
+     * @return true if the item was removed from the cache, false otherwise
      */
-    void remove(String key); // boolean remove(K key);
+    boolean remove(String key); // boolean remove(K key);
 
     //JSR-107 boolean remove(K key, V oldValue);
     //JSR-107 V getAndRemove(K key);

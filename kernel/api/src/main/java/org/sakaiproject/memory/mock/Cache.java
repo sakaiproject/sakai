@@ -81,8 +81,9 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public void remove(String key) {
-        map.remove(key);
+    public boolean remove(String key) {
+        Object o = map.remove(key);
+        return (o != null);
     }
 
     // multi ref cache

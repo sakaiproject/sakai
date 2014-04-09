@@ -29,10 +29,11 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.*;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
 
-import java.lang.ref.SoftReference;
-import java.util.*;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * <p>
@@ -94,116 +95,11 @@ public class MemCache implements Cache, Observer
 		}
 
 		// register to get events - first, before others
-		if (pattern != null)
+		if (pattern != null && !"".equals(pattern))
 		{
 			m_eventTrackingService.addPriorityObserver(this);
 		}
 	}
-
-	/**
-	 * Construct the Cache. Automatic refresh handling if refresher is not null.
-	 *
-	 * @param refresher
-	 *        The object that will handle refreshing of expired entries.
-	 * @param sleep
-	 *        The number of seconds to sleep between expiration checks.
-	 * @deprecated long sleep no longer used with ehcache
-	 */
-	public MemCache(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService,
-			CacheRefresher refresher, long sleep, Ehcache cache)
-	{
-		this(memoryService, eventTrackingService, cache);
-		if (refresher != null)
-		{
-			m_refresher = refresher;
-		}
-	}
-
-	/**
-	 * Construct the Cache. Automatic refresh handling if refresher is not null.
-	 *
-	 * @param refresher
-	 *        The object that will handle refreshing of expired entries.
-	 */
-	public MemCache(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService,
-			CacheRefresher refresher, Ehcache cache)
-	{
-		this(memoryService, eventTrackingService, cache);
-		if (refresher != null)
-		{
-			m_refresher = refresher;
-		}
-	}
-
-	/**
-	 * Construct the Cache. Event scanning if pattern not null - will expire entries.
-	 *
-	 * @param sleep
-	 *        The number of seconds to sleep between expiration checks.
-	 * @param pattern
-	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for expiration.
-	 * @deprecated long sleep no longer used with ehcache
-	 */
-	public MemCache(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, long sleep,
-			String pattern, Ehcache cache)
-	{
-		this(memoryService, eventTrackingService, pattern, cache);
-	}
-
-	/**
-	 * Construct the Cache. Event scanning if pattern not null - will expire entries.
-	 *
-	 * @param sleep
-	 *        The number of seconds to sleep between expiration checks.
-	 * @param pattern
-	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for expiration.
-	 */
-	public MemCache(BasicMemoryService memoryService,
-			EventTrackingService eventTrackingService, String pattern,
-			Ehcache cache)
-	{
-		this(memoryService, eventTrackingService, cache);
-		m_resourcePattern = pattern;
-
-		// register to get events - first, before others
-		if (pattern != null)
-		{
-			m_eventTrackingService.addPriorityObserver(this);
-		}
-	}
-
-	/**
-	 * Compute the reference path (i.e. the container) for a given reference.
-	 *
-	 * @param ref
-	 *        The reference string.
-	 * @return The reference root for the given reference.
-	 */
-	public static String referencePath(String ref)
-	{
-		String path;
-
-		// Note: there may be a trailing separator
-		int pos = ref.lastIndexOf("/", ref.length() - 2);
-
-		// if no separators are found, place it even before the root!
-		if (pos == -1)
-		{
-			path = "";
-		}
-
-		// use the string up to and including that last separator
-		else
-		{
-			path = ref.substring(0, pos + 1);
-		}
-
-		return path;
-
-	} // referencePath
 
     /**
      * @deprecated REMOVE THIS
@@ -307,7 +203,7 @@ public class MemCache implements Cache, Observer
      * {@inheritDoc}
      */
     @Override
-	public void remove(String key)
+	public boolean remove(String key)
 	{
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("remove(Object " + key + ")");
@@ -316,6 +212,7 @@ public class MemCache implements Cache, Observer
 		// We could get things wrong here.
 		final Object value = get(key);
 		boolean found = cache.remove(key);
+		return found;
 	} // remove
 
     /**
@@ -375,37 +272,18 @@ public class MemCache implements Cache, Observer
 		// if this resource is not in my pattern of resources, we can ignore it
 		if (!key.startsWith(m_resourcePattern)) return;
 
-		continueUpdate(event);
-
-	} // update
-
-	/**
-	 * Complete the update, given an event that we know we need to act upon.
-	 * 
-	 * @param event
-	 *        The event to process.
-	 */
-	protected void continueUpdate(Event event)
-	{
-		String key = event.getResource();
-
 		if (M_log.isDebugEnabled())
 			M_log.debug(this + ".update() [" + m_resourcePattern
 					+ "] resource: " + key + " event: " + event.getEvent());
 
-		// do we have this in our cache?
-		Object oldValue = get(key);
-		if (containsKey(key))
-		{
-			// invalidate our copy
-			remove(key);
-		}
+        // remove the entry if it exists in the cache
+        remove(key);
 
 	} // continueUpdate
 
 
     // **************************************************************************
-    // CompletionCache methods - REMOVE THESE
+    // DEPRECATED methods - REMOVE THESE
     // **************************************************************************
 
     @Override

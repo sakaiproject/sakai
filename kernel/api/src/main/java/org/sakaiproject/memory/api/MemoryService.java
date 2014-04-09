@@ -70,6 +70,8 @@ public interface MemoryService
 	 *        The object that will handle refreshing of event notified modified or added entries.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+     *        If this is set then it enables automatic removal of the matching cache entry key (to the event reference value)
+     *        when the event reference starts with this pattern string.
      * @deprecated pattern matching no longer needed or supported, 07/Oct/2007 -AZ
 	 */
     @SuppressWarnings("deprecation")
@@ -81,6 +83,8 @@ public interface MemoryService
 	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
 	 * @param pattern
 	 *        The "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+     *        If this is set then it enables automatic removal of the matching cache entry key (to the event reference value)
+     *        when the event reference starts with this pattern string.
      * @deprecated pattern matching no longer needed or supported, 07/Oct/2007 -AZ
 	 */
 	Cache newCache(String cacheName, String pattern); // used in BaseAliasService, SiteCacheImpl, BaseUserDirectoryService (2), BaseCalendarService(3), ShareUserCacheImpl

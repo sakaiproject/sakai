@@ -66,9 +66,8 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	public GenericMultiRefCacheImpl(BasicMemoryService memoryService,
 			EventTrackingService eventTrackingService, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService, "", cache);
+		super(memoryService, eventTrackingService, null, "", cache);
 		cache.getCacheEventNotificationService().registerListener(this);
-
 	}
 
     /**
@@ -171,6 +170,10 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		return "GenericMultiRefCache: " + super.getDescription();
 	}
 
+    /*************************************************************************************************************
+     * Observer implementation
+     *************************************************************************************************************/
+
 	/**
 	 * @inheritDoc
 	 */
@@ -183,21 +186,6 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		// if this is just a read, not a modify event, we can ignore it
 		if (!event.getModify()) return;
 
-		continueUpdate(event);
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Observer implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Complete the update, given an event that we know we need to act upon.
-	 *
-	 * @param event
-	 *        The event to process.
-	 */
-	protected void continueUpdate(Event event)
-	{
 		String ref = event.getResource();
 
 		if (M_log.isDebugEnabled())
@@ -293,9 +281,14 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 				"CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
 	}
 
-	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
+
+	protected class MultiRefCacheEntry extends SoftReference implements Serializable
 	{
 		private static final long serialVersionUID = -1234567890L;
+
+		/** Set if our payload is supposed to be null. */
+		protected boolean m_nullPayload = false;
+
 		/** These are the entity reference strings that this entry is sensitive to. */
 		protected Set<String> m_refs = new ConcurrentSkipListSet<String>();
 
@@ -310,7 +303,10 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		 *        References that, if the changed, will invalidate this entry.
 		 */
 		public MultiRefCacheEntry(Object payload, String ref, Collection<String> dependRefs) {
+			// put the payload into the soft reference
 			super(payload);
+			// is it supposed to be null?
+			m_nullPayload = (payload == null);
 			if (ref != null) m_refs.add(ref);
 			if (dependRefs != null) m_refs.addAll(dependRefs);
 		}
@@ -322,76 +318,53 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		{
 			return m_refs;
 		}
-	}
 
+		/**
+		 * Get the cached object.
+		 *
+		 * @param key
+		 *        The key for this entry (if null, we won't try to refresh if missing)
+		 * @return The cached object.
+		 */
+		public Object getPayload(String key)
+		{
+			// if we hold null, this is easy
+			if (m_nullPayload)
+			{
+				return null;
+			}
 
-    // MOVED FROM MemCache
+			// get the payload
+			Object payload = this.get();
 
-    /**
-     * The cache entry. Holds a time stamped payload.
-     */
-    protected class CacheEntry extends SoftReference
-    {
-        /** Set if our payload is supposed to be null. */
-        protected boolean m_nullPayload = false;
+			// if it has been garbage collected, and we can, refresh it
+			if (payload == null)
+			{
+				if ((m_refresher != null) && (key != null))
+				{
+					// ask the refresher for the value
+					payload = m_refresher.refresh(key, null, null);
 
-        /**
-         * Construct to cache the payload for the duration.
-         * @param payload The thing to cache.
-         */
-        public CacheEntry(Object payload) {
-            // put the payload into the soft reference
-            super(payload);
-            // is it supposed to be null?
-            m_nullPayload = (payload == null);
-        } // CacheEntry
+					if (m_memoryService.getCacheLogging())
+					{
+						M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
+					}
 
-        /**
-         * Get the cached object.
-         *
-         * @param key
-         *        The key for this entry (if null, we won't try to refresh if missing)
-         * @return The cached object.
-         */
-        public Object getPayload(String key)
-        {
-            // if we hold null, this is easy
-            if (m_nullPayload)
-            {
-                return null;
-            }
+					// store this new value
+					put(key, payload);
+				}
+				else
+				{
+					if (m_memoryService.getCacheLogging())
+					{
+						M_log.info("cache miss: no refresh: key: " + key);
+					}
+				}
+			}
 
-            // get the payload
-            Object payload = this.get();
+			return payload;
+		}
 
-            // if it has been garbage collected, and we can, refresh it
-            if (payload == null)
-            {
-                if ((m_refresher != null) && (key != null))
-                {
-                    // ask the refresher for the value
-                    payload = m_refresher.refresh(key, null, null);
-
-                    if (m_memoryService.getCacheLogging())
-                    {
-                        M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
-                    }
-
-                    // store this new value
-                    put(key, payload);
-                }
-                else
-                {
-                    if (m_memoryService.getCacheLogging())
-                    {
-                        M_log.info("cache miss: no refresh: key: " + key);
-                    }
-                }
-            }
-
-            return payload;
-        }
-
-    } // CacheEntry
+	} // MultiRefCacheEntry
 
 }
