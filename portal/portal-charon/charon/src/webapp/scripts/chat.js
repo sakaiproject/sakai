@@ -978,11 +978,11 @@
             if (storedMessageStream) {
                 var sms = JSON.parse(storedMessageStream);
 
-                portal.chat.setupChatWindow(sms.uuid,sms.minimised);
+                portal.chat.setupChatWindow(sms.peerUUID, sms.minimised);
 
                 // Now we've setup the chat window we can add the messages.
 
-                var messagePanel = $("#pc_connection_chat_" + sms.uuid + "_messages");
+                var messagePanel = $("#pc_connection_chat_" + sms.peerUUID + "_messages");
 
                 var messages = sms.messages;
 
@@ -995,10 +995,10 @@
                     var dateString = portal.chat.formatDate(new Date(parseInt(message.timestamp, 10)));
                     var fromDisplayName = portal.chat.currentConnectionsMap[message.from].displayName;
 
-                    portal.chat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.uuid, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
+                    portal.chat.appendMessageToChattersPanel({'content': message.content, 'panelUuid': sms.peerUUID, 'from': userId, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
                 }
 
-                portal.chat.scrollMessageWindowToBottom(sms.uuid);
+                portal.chat.scrollMessageWindowToBottom(sms.peerUUID);
             }
         }
         
