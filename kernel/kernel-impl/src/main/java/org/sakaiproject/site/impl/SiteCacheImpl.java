@@ -50,21 +50,15 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 {
 	
 	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
-	
-	ServerConfigurationService serverConfigurationService = null;
-	
 	/** Map of a tool id to a cached site's tool configuration instance. */
 	protected Map<String, ToolConfiguration> m_tools = new ConcurrentHashMap<String, ToolConfiguration>();
-
 	/** Map of a page id to a cached site's SitePage instance. */
 	protected Map<String, SitePage> m_pages = new ConcurrentHashMap<String, SitePage>();
-
 	/** Map of a group id to a cached site's Group instance. */
 	protected Map<String, Group> m_groups = new ConcurrentHashMap<String, Group>();
-
 	/** The base cache. */
 	protected Cache m_cache = null;
-	
+	ServerConfigurationService serverConfigurationService = null;
 	/*** Variables to implement site cache specific metrics. The usual Ehcache metrics are not
 	 * sufficient because we handle the page / tool / group caching outside of Ehcache. 
 	 ***/
@@ -303,25 +297,23 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	 * If the cache configuration is not efficient then you want to know about it.  
 	 */
 	protected void updateSiteCacheStatistics() {
-	
 		if (cacheEventReportInterval == 0) {
 			return;
 		}
-		
+
 		++cacheEventCount;
 		if (cacheEventCount % cacheEventReportInterval != 0) {
 			return;
 		}
-		
-		M_log.info("SiteCache:"
-				+" eventCount: "+cacheEventCount
-				+" sites  "+m_cache.getSize()
-				+" tools: "+m_tools.size()
-				+" pages: "+m_pages.size()
-				+" groups: "+m_groups.size()
-				);
+
+		if (M_log.isDebugEnabled()) M_log.debug("SiteCache:"
+                        + " eventCount: " + cacheEventCount
+                        + " tools: " + m_tools.size()
+                        + " pages: " + m_pages.size()
+                        + " groups: " + m_groups.size()
+        );
 	}
-	
+
 	public void dispose() {
 		M_log.debug("ehcache event: dispose");	
 	}

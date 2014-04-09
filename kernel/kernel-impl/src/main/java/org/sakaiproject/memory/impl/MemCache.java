@@ -373,21 +373,10 @@ public class MemCache implements Cache, Observer
      * {@inheritDoc}
      */
     @Override
-	public long getSize()
-	{
-		M_log.debug("getSize()");
-		
-		return cache.getStatistics().getObjectCount();
-	}
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
 	public String getDescription()
 	{
 		final StringBuilder buf = new StringBuilder();
-		buf.append("MemCache");
+		buf.append("MemCache (").append(getName()).append(")");
 		if (m_disabled)
 		{
 			buf.append(" disabled");
@@ -411,7 +400,9 @@ public class MemCache implements Cache, Observer
 		final long hits = cache.getStatistics().getCacheHits();
 		final long misses = cache.getStatistics().getCacheMisses();
 		final long total = hits + misses;
-		buf.append("  hits:").append(hits).append("  misses:").append(misses).append("  hit%:").append((total > 0) ? "" + ((100l * hits) / total) : "n/a");
+		buf.append("  size:").append(cache.getStatistics().getObjectCount()).append("/").append(cache.getCacheConfiguration().getMaxEntriesLocalHeap())
+				.append("  hits:").append(hits).append("  misses:").append(misses)
+				.append("  hit%:").append((total > 0) ? "" + ((100l * hits) / total) : "n/a");
 
 		return buf.toString();
 	}

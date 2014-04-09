@@ -196,29 +196,19 @@ public interface Cache extends CompletionCache { // Cache<K, V> extends Iterable
     // SAKAI specific (no JSR-107 analog)
 
     /**
+     * Return a description of this cache (typically stats info about it)<br/>
+     * <b>WARNING:</b> This is costly and should not be called often
+     *
+     * @return a string which summarizes the state of the cache
+     */
+    String getDescription();
+
+    /**
      * Same as close
      * Destroys the cache
      * @deprecated since 2.9, will be removed in future versions, use close() instead
      */
     void destroy();
-
-    /**
-     * Return the size of this cache<br/>
-     * <b>NOTE:</b> This is approximate and may not be completely accurate
-     *
-     * @return the number of items in this cache
-     * @deprecated since 2.9, will be removed in future versions
-     */
-    long getSize();
-
-    /**
-     * Return a description of this cache<br/>
-     * <b>WARNING:</b> This is costly and should not be called often
-     *
-     * @return a string which summarizes the state of the cache
-     * @deprecated since 2.9, will be removed in future versions
-     */
-    String getDescription();
 
     /**
      * Attach a cache loader to this cache<br/>

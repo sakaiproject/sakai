@@ -110,12 +110,6 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public long getSize() {
-        return map.size();
-    }
-
-
-    @Override
     public void put(Object key, Object payload, int duration) {
         put((String)key, payload);
     }
