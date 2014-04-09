@@ -114,22 +114,4 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
         put((String)key, payload);
     }
 
-
-    // CompletionCache methods below
-
-    @Override
-    public void disable() {
-
-    }
-
-    @Override
-    public void enable() {
-
-    }
-
-    @Override
-    public boolean disabled() {
-        return false;
-    }
-
 }

@@ -525,58 +525,10 @@ public class MemCache implements Cache, Observer
 
 	} // continueUpdate
 
-    /**
-     * Disable the cache.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public void disable()
-    {
-        M_log.debug("disable()");
-
-        m_disabled = true;
-        m_eventTrackingService.deleteObserver(this);
-        clear();
-
-    } // disable
-
 
     // **************************************************************************
     // CompletionCache methods - REMOVE THESE
     // **************************************************************************
-
-    /**
-     * Enable the cache.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public void enable()
-    {
-        M_log.debug("enable()");
-
-        m_disabled = false;
-
-        if (m_resourcePattern != null)
-        {
-            m_eventTrackingService.addPriorityObserver(this);
-        }
-
-    } // enable
-
-    /**
-     * Is the cache disabled?
-     *
-     * @return true if the cache is disabled, false if it is enabled.
-     * @deprecated TODO REMOVE
-     */
-    @Override
-    public boolean disabled()
-    {
-        M_log.debug("disabled()");
-
-        return m_disabled;
-
-    } // disabled
 
     @Override
     public void put(Object key, Object payload, int duration) {

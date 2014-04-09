@@ -33,8 +33,10 @@ import java.io.Serializable;
  * </p>
  * This is designed to align with JSR-107
  * https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/Cache.java
+ * See https://jira.sakaiproject.org/browse/KNL-1162
+ * Send questions to Aaron Zeckoski
  */
-public interface Cache extends CompletionCache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
+public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
 
     /**
      * Get the cached payload, or null if not there (or expired)<br/>
@@ -204,13 +206,6 @@ public interface Cache extends CompletionCache { // Cache<K, V> extends Iterable
     String getDescription();
 
     /**
-     * Same as close
-     * Destroys the cache
-     * @deprecated since 2.9, will be removed in future versions, use close() instead
-     */
-    void destroy();
-
-    /**
      * Attach a cache loader to this cache<br/>
      * The loader ({@link CacheRefresher}) will put items in the cache as they are requested (if they can be found),
      * setting this to null will clear the loader
@@ -221,5 +216,29 @@ public interface Cache extends CompletionCache { // Cache<K, V> extends Iterable
      */
     @SuppressWarnings("deprecation")
     void attachLoader(CacheRefresher cacheLoader);
+
+
+    // DEPRECATED METHODS - remove these before Sakai 11 release
+
+    /**
+     * Same as close
+     * Destroys the cache
+     * @deprecated since 2.9, will be removed in future versions, use close() instead
+     */
+    void destroy();
+
+    /**
+     * Cache an object
+     *
+     * @param key
+     *        The key with which to find the object.
+     * @param payload
+     *        The object to cache.
+     * @param duration
+     *        The time to cache the object (seconds).
+     * @deprecated Since Sakai 2.5.0
+     * @see Cache#put(Object, Object)
+     */
+    void put(Object key, Object payload, int duration);
 
 }
