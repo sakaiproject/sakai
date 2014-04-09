@@ -91,7 +91,7 @@
                       <div class="navigatePanelControls">
                         <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-minus"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
                         <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-plus"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></div>
-                        <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input type="text" id="navigatePanelSearch"/>
+                        <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input placeholder="$clang.getString('list.nav.search')" type="text" id="navigatePanelSearch"/>
                         <p class="close">&times;</p>
                       </div>
                         <div id="navigatePanelInner"><div id="spinner" style="display:none"></div></div> 
