@@ -33,7 +33,6 @@ public interface MemoryService
 {
 	/**
 	 * Report the amount of unused and available memory for the JVM
-	 * @return free memory in bytes
 	 *
 	 * @return the amount of available memory.
 	 */
@@ -86,23 +85,25 @@ public interface MemoryService
 	 */
 	Cache newCache(String cacheName, String pattern); // used in BaseAliasService, SiteCacheImpl, BaseUserDirectoryService (2), BaseCalendarService(3), ShareUserCacheImpl
 
-   /**
-    * Flushes and destroys the cache with this name<br/>
-    * @param cacheName unique name for this cache
-    */
-   public void destroyCache(String cacheName);
+	/**
+	 * Get a status report of memory cache usage
+	 * @return A string representing the current status of all caches
+	 */
+	public String getStatus();
+
+	/**
+	 * Flushes and destroys the cache with this name<br/>
+	 * @param cacheName unique name for this cache
+	 */
+	public void destroyCache(String cacheName);
 
 	/**
 	 * Construct a multi-ref Cache. No automatic refresh: expire only, from time and events.
+	 * NOT Cluster safe
 	 *
 	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
+	 * @deprecated since Sakai 2.9, this should no longer be used, it is not cluster safe of JSR-107 compatible
 	 */
 	GenericMultiRefCache newGenericMultiRefCache(String cacheName);
-
-	/**
-    * Get a status report of memory cache usage
-    * @return A string representing the current status of all caches
-    */
-   public String getStatus();
 
 }

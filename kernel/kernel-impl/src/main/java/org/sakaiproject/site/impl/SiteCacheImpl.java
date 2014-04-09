@@ -29,7 +29,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -46,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
  * </p>
  */
-public class SiteCacheImpl implements DerivedCache, CacheEventListener
+public class SiteCacheImpl implements CacheEventListener
 {
 	
 	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
@@ -81,9 +80,6 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 	{
 		m_cache = memoryService.newCache(
 				"org.sakaiproject.site.impl.SiteCacheImpl.cache", pattern);
-
-		// setup as the derived cache
-		m_cache.attachDerivedCache(this);
 
 		// Provide an instance of the server configuration service.
 		this.serverConfigurationService = serverConfigurationService;
@@ -190,10 +186,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		return (Group) m_groups.get(groupId);
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void notifyCacheClear()
+    private void notifyCacheClear()
 	{
 		// clear the tool ids
 		m_tools.clear();
@@ -205,10 +198,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		m_groups.clear();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void notifyCachePut(String key, Object payload)
+    private void notifyCachePut(String key, Object payload)
 	{
 		// add the payload (Site) tool ids
 		if (payload instanceof Site)
@@ -251,10 +241,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		}		
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public void notifyCacheRemove(String key, Object payload)
+    private void notifyCacheRemove(String key, Object payload)
 	{
 		// clear the tool ids for this site
 		if ((payload != null) && (payload instanceof Site))
@@ -342,6 +329,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("ehcache event: notifyElementPut: "+element.getKey());
 		}
+        notifyCachePut(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
@@ -350,6 +338,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("ehcache event: notifyElementRemoved: "+element.getKey());	
 		}
+        notifyCacheRemove(element.getObjectKey().toString(), element.getObjectValue());
 		updateSiteCacheStatistics();
 	}
 
@@ -365,6 +354,7 @@ public class SiteCacheImpl implements DerivedCache, CacheEventListener
 		if (M_log.isDebugEnabled()) {
 			M_log.debug("ehcache event: notifyRemoveAll");
 		}
+        notifyCacheClear();
 		updateSiteCacheStatistics();
 	}
 	

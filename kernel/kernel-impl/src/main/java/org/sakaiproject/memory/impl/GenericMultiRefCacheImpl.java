@@ -32,6 +32,7 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 import java.io.Serializable;
+import java.lang.ref.SoftReference;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Observable;
@@ -41,6 +42,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 
 /**
+ * WARNING: This is NOT cluster safe
  * <p>
  * MultiRefCacheImpl implements the MultiRefCache.
  * </p>
@@ -57,37 +59,6 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 
 	/** Map of reference string -> Collection of cache keys. */
 	protected final ConcurrentMap<String, ConcurrentMap<Object, Object>> m_refsStore = new ConcurrentHashMap<String, ConcurrentMap<Object, Object>>();
-
-	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
-	{
-		private static final long serialVersionUID = -1234567890L;
-		/** These are the entity reference strings that this entry is sensitive to. */
-		protected Set<String> m_refs = new ConcurrentSkipListSet<String>();
-
-		/**
-		 * Construct to cache the payload for the duration.
-		 * 
-		 * @param payload
-		 *        The thing to cache.
-		 * @param ref
-		 *        One entity reference that, if changed, will invalidate this entry.
-		 * @param dependRefs
-		 *        References that, if the changed, will invalidate this entry.
-		 */
-		public MultiRefCacheEntry(Object payload, String ref, Collection<String> dependRefs) {
-			super(payload);
-			if (ref != null) m_refs.add(ref);
-			if (dependRefs != null) m_refs.addAll(dependRefs);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Set<String> getRefs()
-		{
-			return m_refs;
-		}
-	}
 
 	/**
 	 * Construct the Cache - checks for expiration periodically.
@@ -111,7 +82,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 					+", Dependent Refs " + dependRefs + ")");
 		}
 		super.put(key, new MultiRefCacheEntry(payload, ref, dependRefs));
-		
+
 		// Why don't we do do this in the notify handler?
 		if (ref != null)
 		{
@@ -136,7 +107,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 
 	/**
 	 * Make sure there's an entry in refs for this ref that includes this key.
-	 * 
+	 *
 	 * @param ref
 	 *        The entity reference string.
 	 * @param key
@@ -171,9 +142,9 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 					+ ", Object " + value + ")");
 		if (value == null)
 			return;
-		
+
 		final MultiRefCacheEntry cachedEntry = (MultiRefCacheEntry) value;
-		
+
 		// remove this key from any of the entity references in m_refs that are dependent on this entry
 		for (Iterator iRefs = cachedEntry.getRefs().iterator(); iRefs.hasNext();)
 		{
@@ -200,10 +171,6 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		return "GenericMultiRefCache: " + super.getDescription();
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Observer implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	/**
 	 * @inheritDoc
 	 */
@@ -216,19 +183,16 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		// if this is just a read, not a modify event, we can ignore it
 		if (!event.getModify()) return;
 
-		// if we are holding event processing
-		if (m_holdEventProcessing)
-		{
-			m_heldEvents.add(event);
-			return;
-		}
-
 		continueUpdate(event);
 	}
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Observer implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * Complete the update, given an event that we know we need to act upon.
-	 * 
+	 *
 	 * @param event
 	 *        The event to process.
 	 */
@@ -266,51 +230,51 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		return (mrce != null ? mrce.getPayload(key) : null);
 	}
 
-	//////////////////////////////////////////////////////////////////////
-	//  CacheEventListener methods. Cleanup HashMap of m_refs on eviction.
-	//////////////////////////////////////////////////////////////////////
-
-	public void dispose() 
+	public void dispose()
 	{
 		M_log.debug("dispose()");
 		// may not be necessary...
 		m_refsStore.clear();
 	}
 
-	public void notifyElementEvicted(Ehcache cache, Element element) 
+	//////////////////////////////////////////////////////////////////////
+	//  CacheEventListener methods. Cleanup HashMap of m_refs on eviction.
+	//////////////////////////////////////////////////////////////////////
+
+	public void notifyElementEvicted(Ehcache cache, Element element)
 	{
 		cleanEntityReferences(element.getObjectKey(), element
 				.getObjectValue());
 	}
 
-	public void notifyElementExpired(Ehcache cache, Element element) 
+	public void notifyElementExpired(Ehcache cache, Element element)
 	{
 		cleanEntityReferences(element.getObjectKey(), element
 				.getObjectValue());
 	}
 
 	public void notifyElementPut(Ehcache cache, Element element)
-			throws CacheException 
+			throws CacheException
 	{
 		// do nothing...
-		
+
 	}
 
 	public void notifyElementRemoved(Ehcache cache, Element element)
-			throws CacheException 
+			throws CacheException
 	{
 		cleanEntityReferences(element.getObjectKey(), element
 				.getObjectValue());
 	}
 
 	public void notifyElementUpdated(Ehcache cache, Element element)
-			throws CacheException 
+			throws CacheException
 	{
 		// do nothing...
-		
+
 	}
 
-	public void notifyRemoveAll(Ehcache cache) 
+	public void notifyRemoveAll(Ehcache cache)
 	{
 		m_refsStore.clear();
 	}
@@ -319,7 +283,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	 * @see CacheEventListener#clone()
 	 */
 	@Override
-	public Object clone() throws CloneNotSupportedException 
+	public Object clone() throws CloneNotSupportedException
 	{
 		M_log.debug("clone()");
 
@@ -328,5 +292,106 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		throw new CloneNotSupportedException(
 				"CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
 	}
+
+	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
+	{
+		private static final long serialVersionUID = -1234567890L;
+		/** These are the entity reference strings that this entry is sensitive to. */
+		protected Set<String> m_refs = new ConcurrentSkipListSet<String>();
+
+		/**
+		 * Construct to cache the payload for the duration.
+		 *
+		 * @param payload
+		 *        The thing to cache.
+		 * @param ref
+		 *        One entity reference that, if changed, will invalidate this entry.
+		 * @param dependRefs
+		 *        References that, if the changed, will invalidate this entry.
+		 */
+		public MultiRefCacheEntry(Object payload, String ref, Collection<String> dependRefs) {
+			super(payload);
+			if (ref != null) m_refs.add(ref);
+			if (dependRefs != null) m_refs.addAll(dependRefs);
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public Set<String> getRefs()
+		{
+			return m_refs;
+		}
+	}
+
+
+    // MOVED FROM MemCache
+
+    /**
+     * The cache entry. Holds a time stamped payload.
+     */
+    protected class CacheEntry extends SoftReference
+    {
+        /** Set if our payload is supposed to be null. */
+        protected boolean m_nullPayload = false;
+
+        /**
+         * Construct to cache the payload for the duration.
+         * @param payload The thing to cache.
+         */
+        public CacheEntry(Object payload) {
+            // put the payload into the soft reference
+            super(payload);
+            // is it supposed to be null?
+            m_nullPayload = (payload == null);
+        } // CacheEntry
+
+        /**
+         * Get the cached object.
+         *
+         * @param key
+         *        The key for this entry (if null, we won't try to refresh if missing)
+         * @return The cached object.
+         */
+        public Object getPayload(String key)
+        {
+            // if we hold null, this is easy
+            if (m_nullPayload)
+            {
+                return null;
+            }
+
+            // get the payload
+            Object payload = this.get();
+
+            // if it has been garbage collected, and we can, refresh it
+            if (payload == null)
+            {
+                if ((m_refresher != null) && (key != null))
+                {
+                    // ask the refresher for the value
+                    payload = m_refresher.refresh(key, null, null);
+
+                    if (m_memoryService.getCacheLogging())
+                    {
+                        M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
+                    }
+
+                    // store this new value
+                    put(key, payload);
+                }
+                else
+                {
+                    if (m_memoryService.getCacheLogging())
+                    {
+                        M_log.info("cache miss: no refresh: key: " + key);
+                    }
+                }
+            }
+
+            return payload;
+        }
+
+    } // CacheEntry
 
 }

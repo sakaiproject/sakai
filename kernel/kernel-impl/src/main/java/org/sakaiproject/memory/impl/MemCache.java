@@ -56,29 +56,11 @@ public class MemCache implements Cache, Observer
 	/** The string that all resources in this cache will start with. */
 	protected String m_resourcePattern = null;
 
-	/** If true, we are disabled. */
-	protected boolean m_disabled = false;
-
-	/** If true, we have all the entries that there are in the cache. */
-	protected boolean m_complete = false;
-
-	/** Alternate isComplete, based on patterns. */
-	protected Set<String> m_partiallyComplete = new HashSet<String>();
-
-	/** If true, we are going to hold any events we see in the m_heldEvents list for later processing. */
-	protected boolean m_holdEventProcessing = false;
-
-	/** The events we are holding for later processing. */
-	protected List<Event> m_heldEvents = new Vector<Event>();
-
 	/** Constructor injected memory service. */
 	protected BasicMemoryService m_memoryService = null;
 
 	/** Constructor injected event tracking service. */
 	protected EventTrackingService m_eventTrackingService = null;
-
-	/** My (optional) DerivedCache. */
-	protected DerivedCache m_derivedCache = null;
 
 	/**
 	 * Construct the Cache. No automatic refresh handling.
@@ -231,41 +213,6 @@ public class MemCache implements Cache, Observer
 		this.close();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-    @SuppressWarnings("deprecation")
-    @Override
-	public void attachDerivedCache(DerivedCache cache)
-	{
-		// Note: only one is supported
-		if (cache == null)
-		{
-			m_derivedCache = null;
-		}
-		else
-		{
-			if (m_derivedCache != null)
-			{
-				M_log.warn("attachDerivedCache - already got one!");
-			}
-			else
-			{
-				m_derivedCache = cache;
-			}
-			
-			// If has the (ehcache) EventCacheListener marker interface then
-			// also attach the cache as a listener that implements the
-			// ehcache event listener interface.
-			
-			if (cache instanceof CacheEventListener) {
-				// add ehcahe event listener
-				Ehcache ehc = this.cache;
-				ehc.getCacheEventNotificationService().registerListener((CacheEventListener)cache);
-			}
-		}
-	}
-
     /**
      * {@inheritDoc}
      */
@@ -277,8 +224,6 @@ public class MemCache implements Cache, Observer
 		}
 
 		cache.put(new Element(key, payload));
-
-		if (m_derivedCache != null) m_derivedCache.notifyCachePut(key, payload);
 	}
 
     @Override
@@ -318,7 +263,6 @@ public class MemCache implements Cache, Observer
 		M_log.debug("clear()");
 		cache.removeAll();
 		cache.getStatistics().clearStatistics();
-		if (m_derivedCache != null) m_derivedCache.notifyCacheClear();
 	} // clear
 
     @Override
@@ -344,6 +288,21 @@ public class MemCache implements Cache, Observer
         return (T) cache;
     }
 
+    @Override
+    public void registerCacheEventListener(org.sakaiproject.memory.api.CacheEventListener cacheEventListener) {
+        // TODO implement this
+
+        /* If has the (ehcache) EventCacheListener marker interface then
+         * also attach the cache as a listener that implements the
+         * ehcache event listener interface.
+         */
+        if (cache instanceof CacheEventListener) {
+            // add ehcahe event listener
+            Ehcache ehc = this.cache;
+            ehc.getCacheEventNotificationService().registerListener((CacheEventListener)cache);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
@@ -357,16 +316,6 @@ public class MemCache implements Cache, Observer
 		// We could get things wrong here.
 		final Object value = get(key);
 		boolean found = cache.remove(key);
-
-		if (m_derivedCache != null)
-		{
-			Object old = null;
-			if (found) {
-				old = value;
-			}
-			m_derivedCache.notifyCacheRemove(key, old);
-		}
-
 	} // remove
 
     /**
@@ -377,25 +326,9 @@ public class MemCache implements Cache, Observer
 	{
 		final StringBuilder buf = new StringBuilder();
 		buf.append("MemCache (").append(getName()).append(")");
-		if (m_disabled)
-		{
-			buf.append(" disabled");
-		}
-		if (m_complete)
-		{
-			buf.append(" complete");
-		}
 		if (m_resourcePattern != null)
 		{
 			buf.append(" ").append(m_resourcePattern);
-		}
-		if (m_partiallyComplete.size() > 0)
-		{
-			buf.append(" partially_complete[");
-			for (Object element : m_partiallyComplete) {
-				buf.append(" ").append(element);
-			}
-			buf.append("]");
 		}
 		final long hits = cache.getStatistics().getCacheHits();
 		final long misses = cache.getStatistics().getCacheMisses();
@@ -412,7 +345,7 @@ public class MemCache implements Cache, Observer
      */
     @Override
     public void attachLoader(CacheRefresher cacheLoader) {
-        // TOOD implement this
+        this.m_refresher = cacheLoader;
     }
 
 
@@ -439,16 +372,8 @@ public class MemCache implements Cache, Observer
 		if (!event.getModify()) return;
 
 		String key = event.getResource();
-
 		// if this resource is not in my pattern of resources, we can ignore it
 		if (!key.startsWith(m_resourcePattern)) return;
-
-		// if we are holding event processing
-		if (m_holdEventProcessing)
-		{
-			m_heldEvents.add(event);
-			return;
-		}
 
 		continueUpdate(event);
 
@@ -476,53 +401,6 @@ public class MemCache implements Cache, Observer
 			remove(key);
 		}
 
-		// if we are being complete, we need to get this cached.
-		if (m_complete)
-		{
-			// we can only get it cached if we have a refresher
-			if (m_refresher != null)
-			{
-				// ask the refresher for the value
-				@SuppressWarnings("deprecation") Object value = m_refresher.refresh(key, oldValue, event);
-				if (value != null)
-				{
-					put(key, value);
-				}
-			}
-			else
-			{
-				// we can no longer claim to be complete
-				m_complete = false;
-			}
-		}
-
-		// if we are partially complete
-		else if (!m_partiallyComplete.isEmpty())
-		{
-			// what is the reference path that this key lives within?
-			String path = referencePath(key);
-
-			// if we are partially complete for this path
-			if (m_partiallyComplete.contains(path))
-			{
-				// we can only get it cached if we have a refresher
-				if (m_refresher != null)
-				{
-					// ask the refresher for the value
-					@SuppressWarnings("deprecation") Object value = m_refresher.refresh(key, oldValue, event);
-					if (value != null)
-					{
-						put(key, value);
-					}
-				}
-				else
-				{
-					// we can no longer claim to be complete for this path
-					m_partiallyComplete.remove(path);
-				}
-			}
-		}
-
 	} // continueUpdate
 
 
@@ -534,72 +412,5 @@ public class MemCache implements Cache, Observer
     public void put(Object key, Object payload, int duration) {
         put((String)key, payload);
     }
-
-	/**
-	 * The cache entry. Holds a time stamped payload.
-	 */
-	protected class CacheEntry extends SoftReference
-	{
-		/** Set if our payload is supposed to be null. */
-		protected boolean m_nullPayload = false;
-
-		/**
-		 * Construct to cache the payload for the duration.
-		 * @param payload The thing to cache.
-		 */
-		public CacheEntry(Object payload) {
-			// put the payload into the soft reference
-			super(payload);
-			// is it supposed to be null?
-			m_nullPayload = (payload == null);
-		} // CacheEntry
-
-		/**
-		 * Get the cached object.
-		 *
-		 * @param key
-		 *        The key for this entry (if null, we won't try to refresh if missing)
-		 * @return The cached object.
-		 */
-		public Object getPayload(String key)
-		{
-			// if we hold null, this is easy
-			if (m_nullPayload)
-			{
-				return null;
-			}
-
-			// get the payload
-			Object payload = this.get();
-
-			// if it has been garbage collected, and we can, refresh it
-			if (payload == null)
-			{
-				if ((m_refresher != null) && (key != null))
-				{
-					// ask the refresher for the value
-					payload = m_refresher.refresh(key, null, null);
-
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
-					}
-
-					// store this new value
-					put(key, payload);
-				}
-				else
-				{
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: no refresh: key: " + key);
-					}
-				}
-			}
-
-			return payload;
-		}
-
-	} // CacheEntry
 
 }

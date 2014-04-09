@@ -21,11 +21,13 @@
 
 package org.sakaiproject.memory.mock;
 
+import org.sakaiproject.memory.api.CacheEventListener;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.DerivedCache;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Mock Cache for use in testing
@@ -61,6 +63,9 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
+    public void registerCacheEventListener(CacheEventListener cacheEventListener) {}
+
+    @Override
     public Object get(String key) {
         return map.get(key);
     }
@@ -88,10 +93,6 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     // Sakai items below
-
-    @Override
-    public void attachDerivedCache(DerivedCache arg0) {
-    }
 
     /**
      * @deprecated REMOVE THIS

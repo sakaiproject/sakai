@@ -173,16 +173,13 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
 
     /**
      * Attach a cache event listener to the cache.<br/>
-     * The event listener ({@link DerivedCache}) is then notified of the cache contents changing events,
+     * The event listener ({@link CacheEventListener}) is then notified of the cache contents changing events,
      * setting this to null will clear the event listener
      * (not cluster safe)
-     * <b>NOTE</b>: special method to allow cache event notification
-     * (used by SiteCacheImpl only)
      *
-     * @param cacheEventListener the object which implements {@link DerivedCache}
+     * @param cacheEventListener the object which implements {@link CacheEventListener}
      */
-    @SuppressWarnings("deprecation")
-    void attachDerivedCache(DerivedCache cacheEventListener);
+    void registerCacheEventListener(CacheEventListener cacheEventListener);
     //JSR-107 void registerCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration);
     //JSR-107 void deregisterCacheEntryListener(CacheEntryListenerConfiguration<K, V> cacheEntryListenerConfiguration);
 
