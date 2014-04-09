@@ -227,7 +227,9 @@ CKEDITOR.plugins.add('atd-ckeditor', {
 	requires : [ 'menubutton' ],
                                                                 
 	beforeInit : function(editor) {
-		editor.config.menu_groups = 'AtD_description,AtD_suggestions,AtD_ignore,' + editor.config.menu_groups;
+        editor.addMenuGroup('AtD_description',90);
+        editor.addMenuGroup('AtD_suggestions',91);
+        editor.addMenuGroup('AtD_ignore',92);
 	},
 
         init : function(editor) {
