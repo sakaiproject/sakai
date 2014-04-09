@@ -57,6 +57,10 @@
           var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
           lockdownQuestionLayout(navVal);
           lockdownMarkForReview(navVal);
+          
+          var releaseToVal = $('#assessmentSettingsAction\\:releaseTo').val();
+          lockdownAnonyGrading(releaseToVal);
+          lockdownGradebook(releaseToVal);
           showHideReleaseGroups();
         });
       </script>
@@ -165,7 +169,7 @@
   <!-- *** RELEASED TO *** -->
   <h:panelGroup>
     <h:outputText value="#{assessmentSettingsMessages.released_to} " />
-    <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="showHideReleaseGroups();setBlockDivs();">
+    <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="showHideReleaseGroups();setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);">
       <f:selectItems value="#{assessmentSettings.publishingTargets}" />
     </h:selectOneMenu>
   </h:panelGroup>
@@ -317,14 +321,8 @@
     <h:panelGroup rendered="#{assessmentSettings.valueMap.testeeIdentity_isInstructorEditable==true}"> 
     <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.student_identity} </h4>" />
     <f:verbatim><div class="tier3"> </f:verbatim>
-      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected != 'Anonymous Users'}" >
-        <h:selectOneRadio id="anonymousGrading1" value="#{assessmentSettings.anonymousGrading}"  layout="pageDirection">
-          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
-        </h:selectOneRadio>
-      </h:panelGrid>
-      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected == 'Anonymous Users'}" >
-        <h:selectOneRadio id="anonymousGrading2" value="1" layout="pageDirection" disabled="true">
+      <h:panelGrid columns="2">
+        <h:selectOneRadio id="anonymousGrading1" value="#{assessmentSettings.anonymousGrading}" layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.not_anonymous}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.anonymous}"/>
         </h:selectOneRadio>
@@ -336,15 +334,8 @@
     <h:panelGroup rendered="#{assessmentSettings.valueMap.toGradebook_isInstructorEditable==true && assessmentSettings.gradebookExists==true}">
      <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.gradebook_options} </h4>" />
      <f:verbatim> <div class="tier3"> </f:verbatim>
-      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected != 'Anonymous Users'}">
+      <h:panelGrid columns="2">
         <h:selectOneRadio id="toDefaultGradebook1" value="#{assessmentSettings.toDefaultGradebook}"  layout="pageDirection">
-          <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
-        </h:selectOneRadio>
-      </h:panelGrid>
-
-      <h:panelGrid columns="2" rendered="#{assessmentSettings.firstTargetSelected == 'Anonymous Users'}">
-        <h:selectOneRadio id="toDefaultGradebook2" disabled="true" value="2"  layout="pageDirection">
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
         </h:selectOneRadio>
