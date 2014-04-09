@@ -424,12 +424,12 @@
 					<td headers="actions2" class="attach actions2">
                         <div class="btn-group">
                             <button type="button" class="btn btn-default dropdown-toggle  btn-xs" data-toggle="dropdown" title="$clang.getString('gen.actions')">
-                                $clang.getString('gen.actions')
+                                <span class="sr-only">$validator.escapeHtml($item.name) </span>$clang.getString('gen.actions') 
                                 <span class="caret"></span>
                             </button>
-                            <ul class="dropdown-menu row">
+                            <ul class="dropdown-menu row" role="menu">
                                 #if($item.addActions && !$item.addActions.isEmpty())
-                                    <li role="presentation" class="dropdown-header">Add</li>
+                                    <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
                                     <li class="divider"></li>
                                     #foreach($action in $item.addActions)
                                         <li><a role="menuitem" tabindex="-1" style="width:auto" href="javascript:document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
@@ -439,7 +439,7 @@
                                     <li class="divider"></li>
                                 #end
                                 #if($item.otherActions && !$item.otherActions.isEmpty())
-                                    <li role="presentation" class="dropdown-header">Actions</li>
+                                    <li role="presentation" class="dropdown-header">$clang.getString('gen.actions')</li>
                                     <li class="divider"></li>
                                     #foreach($action in $item.otherActions)
                                     <li>
