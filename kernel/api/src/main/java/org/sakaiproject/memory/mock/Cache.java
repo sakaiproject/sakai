@@ -132,24 +132,4 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
         return false;
     }
 
-    @Override
-    public boolean isComplete() {
-        return false;
-    }
-
-    @Override
-    public void setComplete(String path) {
-
-    }
-
-    @Override
-    public void setComplete() {
-
-    }
-
-    @Override
-    public boolean isComplete(String path) {
-        return false;
-    }
-
 }

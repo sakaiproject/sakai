@@ -63,37 +63,4 @@ public interface CompletionCache {
      */
     boolean disabled();
 
-    /**
-     * Are we complete?
-     *
-     * @return true if we have all the possible entries cached, false if not.
-     * @deprecated Since Sakai 2.9
-     */
-    boolean isComplete();
-
-    /**
-     * Set the cache to be complete for one level of the reference hierarchy.
-     *
-     * @param path
-     *        The reference to the completion level.
-     * @deprecated Since Sakai 2.9
-     */
-    void setComplete(String path);
-
-    /**
-     * Set the cache to be complete, containing all possible entries.
-     * @deprecated Since Sakai 2.9
-     */
-    void setComplete();
-
-    /**
-     * Are we complete for one level of the reference hierarchy?
-     *
-     * @param path
-     *        The reference to the completion level.
-     * @return true if we have all the possible entries cached, false if not.
-     * @deprecated Since Sakai 2.9
-     */
-    boolean isComplete(String path);
-
 }
