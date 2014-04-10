@@ -43,6 +43,13 @@ public class UserValidator implements Validator {
 	public void validate(Object obj, Errors errors) {
 		RetUser retUser = (RetUser)obj;
 		m_log.debug("validating user " + retUser.getEmail());
+
+		if (retUser.getEmail() == null || "".equals(retUser.getEmail()))
+		{
+			m_log.debug("no email provided");
+			errors.reject("noemailprovided", "no email provided");
+			return;
+		}
 		
 		Collection<User> c = this.userDirectoryService.findUsersByEmail(retUser.getEmail().trim());
 		if (c.size()>1) {
@@ -64,7 +71,17 @@ public class UserValidator implements Validator {
 		}
 		boolean allroles = serverConfigurationService.getBoolean("resetPass.resetAllRoles",false);
 		if (!allroles){
-		    String[] roles = serverConfigurationService.getStrings("resetRoles");
+			// SAK-24379 - deprecate the resetRoles property
+			String[] roles = serverConfigurationService.getStrings("accountValidator.accountTypes.accept");
+			String[] rolesOld = serverConfigurationService.getStrings("resetRoles");
+			if (rolesOld != null)
+			{
+				m_log.warn("Found the resetRoles property; it is deprecated in favour of accountValidator.accountTypes.accept");
+				if (roles == null)
+				{
+					roles = rolesOld;
+				}
+			}
 		    if (roles == null ){
 		        roles = new String[]{"guest"};
 		    }

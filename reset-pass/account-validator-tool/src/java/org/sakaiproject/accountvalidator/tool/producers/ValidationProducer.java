@@ -49,6 +49,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
@@ -66,6 +67,8 @@ ViewParamsReporter, ActionResultInterceptor {
 
 	private static Log log = LogFactory.getLog(ValidationProducer.class);
 	public static final String VIEW_ID = "validate";
+
+	private static final String MAX_PASSWORD_RESET_MINUTES = "accountValidator.maxPasswordResetMinutes";
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -135,6 +138,7 @@ ViewParamsReporter, ActionResultInterceptor {
 			}
 			log.debug("getting token: " + vvp.tokenId);
 			va = validationLogic.getVaLidationAcountBytoken(vvp.tokenId);
+
 			if (va == null) {
 				Object[] args = new Object[]{ vvp.tokenId};
 				tml.addMessage(new TargettedMessage("msg.noSuchValidation", args, TargettedMessage.SEVERITY_ERROR));
@@ -148,13 +152,79 @@ ViewParamsReporter, ActionResultInterceptor {
 				tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
 				return;
 			}
+			else
+			{
+				/*
+				* If we're dealing with password resets, they should go quickly. If it takes longer than
+				* accountValidator.maxPasswordResetMinutes, it could be an intruder who stumbled upon the validation
+				* token from an intercepted email, and we should stop them.
+				* Note that there already exists a quartz job to expire the validation tokens, but using a quartz job
+				* means that tokens would only be invalidated when the job runs. So here we check in real-time
+				* */
+				//Only do this check if accountValidator.maxPasswordResetMinutes is configured correctly
+				String strMinutes = serverConfigurationService.getString(MAX_PASSWORD_RESET_MINUTES);
+				if (strMinutes != null && !"".equals(strMinutes))
+				{
+					if (va.getStatus() != null)
+					{
+						if (va.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+						{
+							try
+							{
+								//get the time limit and convert to millis
+								long maxMillis = Long.parseLong(strMinutes);
+								maxMillis*=60*1000;
+
+								//the time when the validation token was sent to the email server
+								long sentTime = va.getValidationSent().getTime();
+
+								if (System.currentTimeMillis() - sentTime > maxMillis)
+								{
+									//it's been too long, so invalidate the token and stop the user
+									va.setStatus(ValidationAccount.STATUS_EXPIRED);
+
+									Object[] args = new Object[] {vvp.tokenId};
+									tml.addMessage(new TargettedMessage("msg.expiredValidation", args, TargettedMessage.SEVERITY_ERROR));
+									return;
+								}
+							}
+							catch (NumberFormatException nfe)
+							{
+								log.warn("accountValidator.maxPasswordResetMinutes is not configured correctly");
+							}
+						}
+					}
+				}
+			}
 		} else {
 			//with no VP we need to exit
 			tml.addMessage(new TargettedMessage("msg.noCode", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 			return;
 		}
 
-		
+		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false))
+		{
+			//This could be an old link stored in an email. 
+			//If there's any way to automatically redirect to the desired page, please implement that instead.
+			//TODO: Building the URL is somewhat duplicated in ValidationLogicImpl. It would be good to reduce this duplication
+			Integer accountStatus = va.getAccountStatus();
+			String statusMessage = "msg.acceptInvitation";
+			String page = "newUser";
+			if (accountStatus != null)
+			{
+				if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+				{
+					page = "passwordReset";
+					statusMessage = "msg.resetPassword";
+				}
+			}
+			String serverUrl = serverConfigurationService.getServerUrl();
+			String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + va.getValidationToken();
+			String[] args = new String[]{serverConfigurationService.getString("ui.service", "Sakai")};
+			statusMessage = messageLocator.getMessage(statusMessage, args);
+			UILink.make(tofill, "redirectLink", statusMessage, url);
+			return;
+		}
 
 		try {
 			User u = userDirectoryService.getUser(EntityReference.getIdFromRef(va.getUserId()));

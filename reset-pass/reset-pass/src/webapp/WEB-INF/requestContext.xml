@@ -30,6 +30,7 @@
 		<property name="messageLocator" ref="messageLocator" />
 		<property name="toolManager"
 			ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="localeGetter" ref="requestLocaleProxy"/>
 
 	</bean>
 	<bean id="confirmProducer"

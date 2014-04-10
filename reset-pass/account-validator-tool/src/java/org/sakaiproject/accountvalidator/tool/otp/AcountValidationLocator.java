@@ -19,14 +19,6 @@
  */
 package org.sakaiproject.accountvalidator.tool.otp;
 
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.joda.time.DateTime;
@@ -41,22 +33,19 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.event.api.UsageSessionService;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
-import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.Evidence;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.*;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.util.ExternalTrustedEvidence;
-
 import uk.org.ponder.beanutil.BeanLocator;
+import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class AcountValidationLocator implements BeanLocator  {
 	private static Log log = LogFactory.getLog(AcountValidationLocator.class);
@@ -66,12 +55,6 @@ public class AcountValidationLocator implements BeanLocator  {
 	
 	private Map<String, Object> delivered = new HashMap<String, Object>();
 
-	//For calculating password entropy
-	public static final char[] CHAR_LOWERS = { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
-	public static final char[] CHAR_UPPERS = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z' };
-	public static final char[] CHAR_DIGITS = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' };
-	public static final char[] CHAR_SPECIALS = { '!', '$', '*', '+', '-', '.', '=', '?', '@', '^', '_', '|', '~' };
-	
 	private ValidationLogic validationLogic;
 	public void setValidationLogic(ValidationLogic vl) {
 		validationLogic = vl;
@@ -111,6 +94,12 @@ public class AcountValidationLocator implements BeanLocator  {
 	public void setDeveloperHelperService(
 			DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
+	}
+
+	private MessageLocator messageLocator;
+	public void setMessageLocator(MessageLocator messageLocator)
+	{
+		this.messageLocator = messageLocator;
 	}
 	
 	private ServerConfigurationService serverConfigurationService;
@@ -197,6 +186,31 @@ public class AcountValidationLocator implements BeanLocator  {
 	           log.debug("Validating Item: " + item.getId() + " for user: " + item.getUserId());
 	           String firstName = item.getFirstName();
 	           String surname = item.getSurname();
+                   if (firstName != null)
+                   {
+                     firstName = firstName.trim();
+                   }
+                   if (surname != null)
+                   {
+                     surname= surname.trim();
+                   }
+
+                   int accountStatus = item.getAccountStatus();
+                   //names are required in all cases except password resets
+                   if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus)
+                   {
+                     if (firstName == null || firstName.isEmpty())
+                     {
+                       tml.addMessage(new TargettedMessage("firstname.required", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+                       return "error";
+                     }
+                     if (surname == null || surname.isEmpty())
+                     {
+                       tml.addMessage(new TargettedMessage("lastname.required", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+                       return "error";
+                     }
+                   }
+
 	           log.debug(firstName + " " + surname);
 	           log.debug("this is an new item?: " + item.getAccountStatus());
 	           try {
@@ -218,10 +232,44 @@ public class AcountValidationLocator implements BeanLocator  {
 		              }
 		            }
 		          });
+
+			//don't let the user through if they've taken longer than accountValidator.maxPasswordResetMinutes
+			String strMinutes = developerHelperService.getConfigurationSetting("accountValidator.maxPasswordResetMinutes", (String) null);
+			if (strMinutes != null && !"".equals(strMinutes))
+			{
+				if (item.getAccountStatus() != null && item.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+				{
+					try
+					{
+						//get the time limit and convert to millis
+						int minutes = Integer.parseInt(strMinutes);
+						long maxMillis = minutes*60*1000;
+
+						//the time when the validation token was sent to the email server
+						long sentTime = item.getValidationSent().getTime();
+
+						if (System.currentTimeMillis() - sentTime > maxMillis)
+						{
+							//it's been too long, so invalidate the token and stop the user
+							item.setStatus(ValidationAccount.STATUS_EXPIRED);
+							//a TargettedMessage will be displayed by ValidationProducer
+							return "error!";
+						}
+					}
+					catch (NumberFormatException nfe)
+					{
+						log.warn("acountValidator.maxPasswordResetMinutes is not configured correctly");
+					}
+				}
+			}
 				
 	        	UserEdit u = userDirectoryService.editUser(userId);
-				u.setFirstName(firstName);
-				u.setLastName(surname);
+				if (isLegacyLinksEnabled() || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET != accountStatus)
+				{
+					//We always can change names if legacy links is enabled. Otherwise in the new forms, we can't change names during password resets
+					u.setFirstName(firstName);
+					u.setLastName(surname);
+				}
 				ResourcePropertiesEdit rp = u.getPropertiesEdit();
 				DateTime dt = new DateTime();
 				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();
@@ -229,7 +277,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				
 				
 				//if this is a new account set the password
-				if (ValidationAccount.ACCOUNT_STATUS_NEW == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == item.getAccountStatus() || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == item.getAccountStatus()) {
+				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
 					if (item.getPassword() == null || !item.getPassword().equals(item.getPassword2())) {
 						//Abandon the edit
 						userDirectoryService.cancelEdit(u);
@@ -237,17 +285,13 @@ public class AcountValidationLocator implements BeanLocator  {
 						return "error!";
 					}
 
-					if (serverConfigurationService.getBoolean("account-validator.validate.passwords", false))
-					{
-						//verify that the password strength is sufficient
-
-						String displayId = u.getDisplayId();
-
-						int minimumEntropy = serverConfigurationService.getInt("account-validator.minimum.password.entropy", 16);
-						if (!passwordIsStrong(item.getPassword(), displayId, minimumEntropy))
+					// bbailla2, bjones86 - SAK-22427
+					if (userDirectoryService.getPasswordPolicy() != null) {
+						PasswordRating rating = userDirectoryService.validatePassword(item.getPassword(), u);
+						if (PasswordRating.FAILED.equals(rating))
 						{
 							userDirectoryService.cancelEdit(u);
-							tml.addMessage(new TargettedMessage("validate.tooWeak", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+							tml.addMessage(new TargettedMessage("validate.password.fail", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
 							return "error!";
 						}
 					}
@@ -256,13 +300,18 @@ public class AcountValidationLocator implements BeanLocator  {
 					
 					// Do they have to accept terms and conditions.
 					if (!"".equals(serverConfigurationService.getString("account-validator.terms"))) {
-						// Check they accepted the terms.
-						if (item.getTerms().booleanValue()) {
-							u.getPropertiesEdit().addProperty("TermsAccepted", "true");
-						} else {
-							userDirectoryService.cancelEdit(u);
-							tml.addMessage(new TargettedMessage("validate.acceptTerms", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
-							return "error!";
+						//terms and conditions are only relevant for new accounts (unless we're using the legacy links)
+						boolean checkTerms = ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || isLegacyLinksEnabled();
+						if (checkTerms)
+						{
+							// Check they accepted the terms.
+							if (item.getTerms().booleanValue()) {
+								u.getPropertiesEdit().addProperty("TermsAccepted", "true");
+							} else {
+								userDirectoryService.cancelEdit(u);
+								tml.addMessage(new TargettedMessage("validate.acceptTerms", new Object[]{}, TargettedMessage.SEVERITY_ERROR));
+								return "error!";
+							}
 						}
 					}
 				}
@@ -317,82 +366,16 @@ public class AcountValidationLocator implements BeanLocator  {
 		return "success";
 	}
 
+
 	/**
-	 * To verify that a password's strength is sufficient.
-	 * Based on verifyPasswordStrength() in
-	 * http://grepcode.com/file/repo1.maven.org/maven2/org.owasp.esapi/esapi/2.0_rc10/org/owasp/esapi/reference/FileBasedAuthenticator.java
-	 * @param password
-	 * 	The password whose strength is being checked
-	 * @param displayId
-	 * 	The user's displayId, which the password will be compared against. Skips this check if null
-	 * @param minimumEntropy
-	 * 	The minimum allowed entropy for the password
-	 * @return true if the entropy calculated by this algorithm is greater than minimumEntropy, false otherwise
+	 * Determines whether account validator sends users to the old validation form or the new ones
+	 * @return true when users are sent to the old form
 	 */
-	public boolean passwordIsStrong(String password, String displayId, int minimumEntropy)
+	private boolean isLegacyLinksEnabled()
 	{
-		if (password == null)
-		{
-			return false;
-		}
-
-		if (displayId != null)
-		{
-			int length = displayId.length();
-			for (int i = 0; i < length -2; i++)
-			{
-				String sub = displayId.substring(i, i + 3);
-				if (password.indexOf(sub) > -1)
-				{
-					return false;
-				}
-			}
-		}
-
-		// new password must have enough character sets and length
-		int charsets = 0;
-		for (int i = 0; i < password.length(); i++)
-		{
-			if (Arrays.binarySearch(CHAR_LOWERS, password.charAt(i)) >= 0)
-			{
-				charsets++;
-				break;
-			}
-		}
-		for (int i = 0; i < password.length(); i++)
-		{
-			if (Arrays.binarySearch(CHAR_UPPERS, password.charAt(i)) >= 0)
-			{
-				charsets++;
-				break;
-			}
-		}
-		for (int i = 0; i < password.length(); i++)
-		{
-			if (Arrays.binarySearch(CHAR_DIGITS, password.charAt(i)) >= 0)
-			{
-				charsets++;
-				break;
-			}
-		}
-		for (int i = 0; i < password.length(); i++)
-		{
-			if (Arrays.binarySearch(CHAR_SPECIALS, password.charAt(i)) >= 0)
-			{
-				charsets++;
-				break;
-			}
-		}
-
-		// calculate and verify password strength
-		int strength = password.length() * charsets;
-		if (strength < minimumEntropy)
-		{
-			return false;
-		}
-
-		return true;
+		return serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false);
 	}
+
 
 	private boolean validateLogin(String userId, String password) {
 		try {

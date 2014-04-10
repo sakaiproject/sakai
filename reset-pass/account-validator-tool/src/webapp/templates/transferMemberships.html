@@ -1,0 +1,51 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title rsf:id="msg=transferMemberships.title">Accept invitation</title>
+		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="../css/transferMemberships.css" type="text/css" rel="stylesheet" media="all" />
+		<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		
+		<script type="text/javascript" language="JavaScript" src="../js/accountValidator.js"></script>
+	</head>
+	<body id="body">
+		<div class="wrapper">
+			<div class="stylized">
+				<h3 rsf:id="welcome1">Welcome to Sakai!</h3>
+				<div rsf:id="welcome" class="instruction">You have been invited to the following sites:</div>
+				<ul class="siteList">
+					<li rsf:id="siteListItem:"><span rsf:id="siteName">Site</span></li>
+				</ul>
+			</div>
+			<fieldset class="transferForm">
+				<legend rsf:id="msg=transferMemberships.title" class="transferLegend">Transfer Memberships</legend>
+				<div rsf:id="transferInstructions" class="instruction"></div>
+				<div class="centeredFeedback">
+					<div rsf:id="message-for:*"><span>Message for user here</span></div>
+				</div>
+				<a rsf:id="redirectLink">Reset your Sakai password / Accept your Sakai invitation</a>
+				<div class="stylized transferFormLogin">
+					<form rsf:id="claimAccountForm" name="mergeForm" method="post" onsubmit="return VALIDATOR.onSubmitClaimAccountForm();">
+						<div class="yellowBackground">
+							<span rsf:id="welcome2.1">Wait!</span>
+							<a rsf:id="welcome2.2">I changed my mind</a>
+						</div>
+						<div class="inputDiv">
+							<label><span rsf:id="msg=username">Username</span><span class="reqStar">*</span></label>
+							<input id="userName" type="text" class="inputBox required" rsf:id="userName" name="userName" onfocus="VALIDATOR.checkTransferStatus();" onkeyup="VALIDATOR.checkTransferStatus();" oninput="VALIDATOR.checkTransferStatus();" required="required"/>
+						</div>
+						<div class="inputDiv">
+							<label><span rsf:id="msg=password">Password</span><span class="reqStar">*</span></label>
+							<input id="password" type="password" class="inputBox required" rsf:id="password" autocomplete="off" name="userpass" onfocus="VALIDATOR.checkTransferStatus();" onkeyup="VALIDATOR.checkTransferStatus();" oninput="VALIDATOR.checkTransferStatus();" required="required"/>
+						</div>
+						<p id="validate.loginexisting" rsf:id="validate.loginexisting" class="messageValidation">Discard the account...</p>
+						<div id="transferMembershipsDiv">
+							<input id="transferMemberships" rsf:id="transferMemberships" class="submit" type="submit" onclick="VALIDATOR.doTransferMemberships(); return false;" value="Transfer Memberships"/>
+						</div>
+					</form>
+				</div>
+			</fieldset>
+		</div>
+	</body>
+</html>

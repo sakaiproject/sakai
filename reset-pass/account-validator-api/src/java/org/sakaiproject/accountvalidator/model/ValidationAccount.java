@@ -113,6 +113,11 @@ public class ValidationAccount {
 	}
 
 	public String getFirstName() {
+		//avoid NPEs
+		if (firstName == null)
+		{
+			return "";
+		}
 		return firstName;
 	}
 
@@ -121,6 +126,11 @@ public class ValidationAccount {
 	}
 
 	public String getSurname() {
+		//avoid NPEs
+		if (surname == null)
+		{
+			return "";
+		}
 		return surname;
 	}
 

@@ -31,6 +31,7 @@ import org.sakaiproject.accountvalidator.logic.ValidationException;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.accountvalidator.model.ValidationClaim;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -90,6 +91,12 @@ public class ClaimLocator implements BeanLocator {
 		this.developerHelperService = developerHelperService;
 	}
 
+	private ServerConfigurationService serverConfigurationService;
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService)
+	{
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	private Map<String, Object> delivered = new HashMap<String, Object>();
 	
 	public Object locateBean(String name) {
@@ -124,6 +131,20 @@ public class ClaimLocator implements BeanLocator {
 		}
 		
 		ValidationAccount va = validationLogic.getVaLidationAcountBytoken(vc.getValidationToken());
+		if (va == null)
+		{
+			log.warn("Couldn't obtain a ValidationAccount object for token: " + vc.getValidationToken());
+			return "error";
+		}
+
+		//With sendLegacyLinks disabled, the option to transfer memberships is not available for password resets
+		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false) && ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getStatus())
+		{
+			log.warn("Was attempting to transfer memberships for a ValidationAccount of status " + va.getStatus());
+			return "error";
+
+		}
+
 		String oldUserRef = userDirectoryService.userReference(va.getUserId());
 		
 		//Try set up the ussersession

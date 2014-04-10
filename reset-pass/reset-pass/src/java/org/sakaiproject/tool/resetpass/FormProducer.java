@@ -5,11 +5,16 @@ package org.sakaiproject.tool.resetpass;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import org.joda.time.format.PeriodFormat;
+import org.joda.time.format.PeriodFormatter;
+import org.joda.time.Period;
 
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolManager;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -18,6 +23,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
@@ -63,6 +69,17 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
 	}
+
+	private static LocaleGetter localeGetter;
+	public void setLocaleGetter(LocaleGetter localeGetter)
+	{
+		this.localeGetter = localeGetter;
+	}
+
+	private Locale getLocale()
+	{
+		return localeGetter.get();
+	}
 	
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ComponentProducer#fillComponents(uk.org.ponder.rsf.components.UIContainer, uk.org.ponder.rsf.viewstate.ViewParameters, uk.org.ponder.rsf.view.ComponentChecker)
@@ -99,10 +116,68 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 			UIVerbatim.make(tofill,"main",messageLocator.getMessage("mainText", args));
 		}
 		UIForm form = UIForm.make(tofill,"form");
+		boolean skipExpirationTime=true;
+		String expirationTime=serverConfigurationService.getString("accountValidator.maxPasswordResetMinutes");
+		if (expirationTime != null && !"".equals(expirationTime))
+		{
+			try
+			{
+				int totalMinutes=Integer.parseInt(expirationTime);
+
+				skipExpirationTime=false;
+				UIOutput.make( form, "output", messageLocator.getMessage("explanation", new Object[]{getFormattedMinutes(totalMinutes)} ));
+			}
+			catch (NumberFormatException nfe)
+			{
+
+			}
+		}
+		if (skipExpirationTime)
+		{
+			UIOutput.make(form, "output", "");
+		}
 		UIInput.make(form,"input","#{userBean.email}");
-		UICommand.make(form,"submit",UIMessage.make("postForm"),"#{formHandler.processAction}");
+
+		boolean validatingAccounts = serverConfigurationService.getBoolean( "siteManage.validateNewUsers", false );
+		if ( validatingAccounts )
+		{
+			UICommand.make( form, "submit", UIMessage.make( "postForm2" ), "#{formHandler.processAction}" );
+		}
+		else
+		{
+			UICommand.make( form, "submit", UIMessage.make( "postForm" ), "#{formHandler.processAction}" );
+		}
 	}
 
+	/**
+	 * Converts some number of minutes into a presentable String'
+	 * ie for English:
+	 * 122 minutes  ->      2 hours 2 minutes
+	 * 121 minutes  ->      2 hours 1 minute
+	 * 120 minutes  ->      2 hours
+	 * 62 minutes   ->      1 hour 2 minutes
+	 * 61 minutes   ->      1 hour 1 minute
+	 * 60 minutes   ->      1 hour
+	 * 2 minutes    ->      2 minutes
+	 * 1 minutes    ->      1 minute
+	 * 0 minutes    ->      0 minutes
+	 * Works with other languages too.
+	 * @param totalMinutes some number of minutes
+	 * @return a presentable String representation of totalMinutes
+	 */
+	public String getFormattedMinutes(int totalMinutes)
+	{
+		// Create a joda time period (takes milliseconds)
+		Period period = new Period(totalMinutes*60*1000);
+		// format the period for the locale
+		/* 
+		 * Covers English, Danish, Dutch, French, German, Japanese, Portuguese, and Spanish. 
+		 * To translate into others, see http://joda-time.sourceforge.net/apidocs/org/joda/time/format/PeriodFormat.html#wordBased(java.util.Locale)
+		 * (ie. put the properties mentioned in http://joda-time.sourceforge.net/apidocs/src-html/org/joda/time/format/PeriodFormat.html#line.94 into the classpath resource bundle)
+		 */
+		PeriodFormatter periodFormatter = PeriodFormat.wordBased(getLocale());
+		return periodFormatter.print(period);
+	}
 	
 	  public List<NavigationCase> reportNavigationCases() {
 		    List<NavigationCase> togo = new ArrayList<NavigationCase>(); // Always navigate back to this view.

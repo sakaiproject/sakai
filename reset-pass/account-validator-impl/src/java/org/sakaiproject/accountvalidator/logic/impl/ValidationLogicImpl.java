@@ -54,6 +54,7 @@ import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
@@ -87,7 +88,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
 	private static Log log = LogFactory.getLog(ValidationLogicImpl.class);
-	private static final String ADMIN = "admin";
 	
 	
 	
@@ -105,39 +105,62 @@ public class ValidationLogicImpl implements ValidationLogic {
 		}
 	}
 	
+	/**
+	* Load and register one or more email templates (contained in the given
+	* .xml file) with the email template service
+	*
+	* @param fileName - the name of the .xml file to load
+	* @param templateKey - the key (name) of the template to be saved to the service
+	*/
 	private void loadTemplate(String fileName, String templateKey) {
-		//we need a user session to avoid potential NPE's
-		Session sakaiSession = sessionManager.getCurrentSession();
-		try {
-			sakaiSession.setUserId(ADMIN);
-		    sakaiSession.setUserEid(ADMIN);
-			InputStream in = ValidationLogicImpl.class.getClassLoader().getResourceAsStream(fileName);
-			if(in == null) {
-				log.warn("Could not load resource from '" + fileName + "'. Skipping ...");
-				return;
+		//Create the SecurityAdvisor (elevated permissions needed to use EmailTemplateService)
+		org.sakaiproject.authz.api.SecurityService securityService = (org.sakaiproject.authz.api.SecurityService) ComponentManager.get( org.sakaiproject.authz.api.SecurityService.class );
+		SecurityAdvisor yesMan = new SecurityAdvisor()
+		{
+			public SecurityAdvice isAllowed( String userId, String function, String reference )
+			{
+				return SecurityAdvice.ALLOWED;
 			}
-			
-			Document document = new SAXBuilder(  ).build(in);
-			List<Element> it = document.getRootElement().getChildren("emailTemplate");
-			
-			for (int i =0; i < it.size(); i++) {
-				Element xmlTemplate = (Element)it.get(i);
-				xmlToTemplate(xmlTemplate, templateKey);
+		};
+
+		try
+		{
+			// Push the yesMan SA on the stack and perform the necessary actions
+			securityService.pushAdvisor( yesMan );
+
+			// Load up the resource as an input stream
+			InputStream input = ValidationLogicImpl.class.getClassLoader().getResourceAsStream( fileName );
+			if ( input == null )
+			{
+				log.error( "Could not load resource from '" + fileName + "'. Skipping ..." );
 			}
-		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JDOMException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
+			else
+			{
+				// Parse the XML, get all the child templates
+				Document document = new SAXBuilder().build( input );
+				List<?> childTemplates = document.getRootElement().getChildren( "emailTemplate" );
+				Iterator<?> iter = childTemplates.iterator();
+
+				// Create and register a template with the service for each one found in the XML file
+				while ( iter.hasNext() )
+				{
+					xmlToTemplate( (Element) iter.next(), templateKey );
+				}
+			}
+		}
+		catch ( JDOMException e ) 
+		{ 
+			log.error( e.getMessage(), e); 
+		}
+		catch ( IOException e )
+		{
+			log.error( e.getMessage(), e);
+		}
+
+		// Pop the yesMan SA off the stack (remove elevated permissions)
 		finally
 		{
-			sakaiSession.setUserId(null);
-		    sakaiSession.setUserEid(null);
+			securityService.popAdvisor( yesMan );
 		}
 		
 	}
@@ -334,7 +357,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		///we want a direct tool url
 		String serverUrl = serverConfigurationService.getServerUrl();
-		String url = serverUrl + "/accountvalidator/faces/validate?tokenId=" + v.getValidationToken();
+		String page = getPageForAccountStatus(accountStatus);
+		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + v.getValidationToken();
 		
 		
 		replacementValues.put("url", url);
@@ -419,6 +443,34 @@ public class ValidationLogicImpl implements ValidationLogic {
 		return v;
 	}
 
+	/**
+	 * The url to the account validation form varies according to your account status / accountValidator.sendLegacyLinks. This method determines which page to use.
+	 * @param accountStatus - the accountStatus of the ValidationAccount
+	 * @return a String representing the viewID of the page that should be specified in the URL
+	 */
+	public String getPageForAccountStatus(Integer accountStatus)
+	{
+		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false))
+		{
+			if (accountStatus != null)
+			{
+				if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
+				{
+					return "passwordReset";
+				}
+				else
+				{
+					return "newUser";
+				}
+			}
+			else
+			{
+				log.warn("can't determine which account validation page to use - accountStatus is null");
+			}
+		}
+		return "validate";
+	}
+
 	private String getTemplateKey(Integer accountStatus) {
 		log.info("getTemplateKey( " + accountStatus.intValue());
 		
@@ -476,8 +528,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 				if (exisiting != null && groupProvider != null) {
 					preferedRole = groupProvider.preferredRole(preferedRole, exisiting.getRole().getId());
 				}
-				//add the new user
-				group.addMember(newuserId, preferedRole, true, false);
+				//add the new user, but don't switch their role if they're already a member
+				if (group.getMember(newuserId) == null)
+				{
+					group.addMember(newuserId, preferedRole, true, false);
+				}
 				//remove the old user
 				group.removeMember(oldUserId);
 				authzGroupService.save(group);
@@ -557,26 +612,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 			this.emailTemplateService.saveTemplate(template);
 			log.info(this + " user notification tempalte " + key + " added");
 		}
-		/*
-		else
-		{
-			EmailTemplate existingTemplate = this.emailTemplateService.getEmailTemplate(key, new Locale(locale));
-			String oVersionString = existingTemplate.getVersion() != null ? existingTemplate.getVersion().toString():null;
-			if ((oVersionString == null && versionString != null) || (oVersionString != null && versionString != null && !oVersionString.equals(versionString)))
-			{
-				existingTemplate.setSubject(subject);
-				existingTemplate.setMessage(body);
-				existingTemplate.setLocale(locale);
-				existingTemplate.setKey(key);
-				existingTemplate.setVersion(versionString != null ? Integer.valueOf(versionString) : Integer.valueOf(0));	// set version
-				existingTemplate.setOwner("admin");
-				existingTemplate.setLastModified(new Date());
-				this.emailTemplateService.updateTemplate(existingTemplate);
-				log.info(this + " user notification tempalte " + key + " updated to newer version");
-			}
-		}
-		*/
-			
 	}
 
 	public void resendValidation(String token) {
@@ -605,8 +640,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 		parameters.put("tokenId", account.getValidationToken());
 		
 		///we want a direct tool url
+		String page = getPageForAccountStatus(account.getAccountStatus());
 		String serverUrl = serverConfigurationService.getServerUrl();
-		String url = serverUrl + "/accountvalidator/faces/validate?tokenId=" + account.getValidationToken();
+		String url = serverUrl + "/accountvalidator/faces/" + page + "?tokenId=" + account.getValidationToken();
 		
 		
 		replacementValues.put("url", url);
