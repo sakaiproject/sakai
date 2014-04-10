@@ -222,6 +222,9 @@ public class RequestFilter implements Filter
 	/** The name of the Sakai property to allow passing a session id in the ATTR_SESSION request parameter */
 	protected static final String SAKAI_SESSION_PARAM_ALLOW = "session.parameter.allow";
 	
+	/** The tools allowed as lti provider **/
+	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
+	
 	/** If true, we deliver the Sakai wide session as the Http session for each request. */
 	protected int m_sakaiHttpSession = TOOL_SESSION;
 
@@ -277,6 +280,7 @@ public class RequestFilter implements Filter
 
 	protected String m_UACompatible = null;
             
+	protected boolean isLTIProviderAllowed = false;
 	
 	/**
 	 * Wraps a request object so we can override some standard behavior.
@@ -978,6 +982,8 @@ public class RequestFilter implements Filter
 
 		m_UACompatible = configService.getString(SAKAI_UA_COMPATIBLE,null);
 
+		isLTIProviderAllowed = (configService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null);
+
 	}
 
 	/**
@@ -1440,6 +1446,10 @@ public class RequestFilter implements Filter
 		//Set response headers SAK-20058
 		if (m_UACompatible != null) {
 			res.setHeader("X-UA-Compatible",m_UACompatible);
+		}
+
+		if (!isLTIProviderAllowed) {
+			res.setHeader("X-Frame-Options","SAMEORIGIN");
 		}
 
 		return res;
