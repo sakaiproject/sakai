@@ -56,7 +56,8 @@ public interface MemoryService
      * Construct a Cache with the given name (often this is the fully qualified classpath of the api
      * for the service that is being cached or the class if there is no api) or retrieve the one
      * that already exists with this name,
-     * this will operate on system defaults (probably a distributed cache without replication)
+     * this will operate on system defaults
+     *
      * @param cacheName Load a defined bean from the application context with this name or create a default cache with this name
      * @return a cache which can be used to store objects
      */
@@ -88,7 +89,7 @@ public interface MemoryService
      *        when the event reference starts with this pattern string.
      * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ
      */
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings("deprecation") // TODO remove this
     Cache newCache(String cacheName, CacheRefresher refresher, String pattern); // used in NotificationCache, AssignmentService(3), BaseContentService, BaseMessage(3)
 
     /**
@@ -110,6 +111,7 @@ public interface MemoryService
      * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
      * @deprecated since Sakai 2.9, this should no longer be used, it is not cluster safe or JSR-107 compatible
      */
-    GenericMultiRefCache newGenericMultiRefCache(String cacheName);
+    @SuppressWarnings("deprecation") // TODO remove this
+    GenericMultiRefCache newGenericMultiRefCache(String cacheName); // used in BaseAliasService and SecurityService
 
 }
