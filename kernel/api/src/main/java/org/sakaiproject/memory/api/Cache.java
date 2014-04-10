@@ -35,6 +35,7 @@ import java.io.Serializable;
  * https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/Cache.java
  * See https://jira.sakaiproject.org/browse/KNL-1162
  * Send questions to Aaron Zeckoski
+ * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
 
@@ -209,8 +210,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      *
      * @param cacheLoader the object which implements {@link CacheRefresher}
      */
-    @SuppressWarnings("deprecation")
-    void attachLoader(CacheRefresher cacheLoader);
+    void attachLoader(CacheLoader cacheLoader);
 
 
     // DEPRECATED METHODS - remove these before Sakai 11 release

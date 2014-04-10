@@ -52,6 +52,7 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
         resetCachers();
     }
 
+    @SuppressWarnings("deprecation") // TODO remove this
     @Override
     public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
         Cache c = new org.sakaiproject.memory.mock.Cache(cacheName);

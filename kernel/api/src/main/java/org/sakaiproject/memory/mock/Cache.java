@@ -22,7 +22,7 @@
 package org.sakaiproject.memory.mock;
 
 import org.sakaiproject.memory.api.CacheEventListener;
-import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 import java.util.Collection;
@@ -104,7 +104,7 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public void attachLoader(CacheRefresher cacheLoader) {
+    public void attachLoader(CacheLoader cacheLoader) {
     }
 
     @Override

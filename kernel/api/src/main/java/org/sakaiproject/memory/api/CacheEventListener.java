@@ -37,6 +37,8 @@ import java.util.EventObject;
  * @param <K> the type of key in the cache
  * @param <V> the type of value in the cache
  *
+ * See https://jira.sakaiproject.org/browse/KNL-1162
+ * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public interface CacheEventListener<K, V> extends EventListener {

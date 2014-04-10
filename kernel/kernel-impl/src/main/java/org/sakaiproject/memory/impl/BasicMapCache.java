@@ -27,7 +27,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.CacheLoader;
 
 import java.util.Map;
 import java.util.Observable;
@@ -39,6 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * No support for listener or cache loader.
  * NOTE:
  * The Observer is used for automatic cache flushing when the item is updated (removes cache entries on match).
+ * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public abstract class BasicMapCache implements Cache, Observer {
     final Log log = LogFactory.getLog(BasicMapCache.class);
@@ -53,7 +54,7 @@ public abstract class BasicMapCache implements Cache, Observer {
     /**
      * Optional object that will deal with loading missing entries into the cache on get()
      */
-    protected CacheRefresher loader = null;
+    protected CacheLoader loader = null;
     /**
      * Optional string that handles expiration of resources in this cache based on keys starting with this pattern
      */
@@ -166,7 +167,7 @@ public abstract class BasicMapCache implements Cache, Observer {
     }
 
     @Override
-    public void attachLoader(CacheRefresher cacheLoader) {
+    public void attachLoader(CacheLoader cacheLoader) {
         this.loader = cacheLoader;
     }
 

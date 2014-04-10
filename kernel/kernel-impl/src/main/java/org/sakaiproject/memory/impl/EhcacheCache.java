@@ -38,6 +38,7 @@ import java.util.ArrayList;
  * Includes support for listener and loader (Uses the Ehcache CacheEventListener)
  * NOTE:
  * The Observer is used for automatic cache flushing when the item is updated (removes cache entries on match).
+ * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     final Log log = LogFactory.getLog(BasicMapCache.class);
@@ -97,8 +98,8 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
             if (loader != null) {
                 // trigger the cache loader on cache miss
                 try {
-                    //noinspection deprecation
-                    value = loader.refresh(key, null, null);
+                    //noinspection unchecked
+                    value = loader.load(key);
                 } catch (Exception e1) {
                     value = null;
                     log.error("Cache loader failed trying to load (" + key + ") for cache (" + getName() + "), return value will be null:" + e1, e1);
@@ -178,7 +179,7 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
 
 
     /***************************************************************************************************************
-     * CacheEventListener implementation
+     * Ehcache CacheEventListener implementation
      */
 
     /**

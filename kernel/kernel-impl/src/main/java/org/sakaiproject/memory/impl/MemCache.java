@@ -21,6 +21,7 @@
 
 package org.sakaiproject.memory.impl;
 
+import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
@@ -30,8 +31,10 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.CacheRefresher;
 
+import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -43,7 +46,7 @@ import java.util.Observer;
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
  */
-public class MemCache implements Cache, Observer
+public class MemCache implements Cache, Observer, CacheEventListener
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(MemCache.class);
@@ -53,6 +56,15 @@ public class MemCache implements Cache, Observer
 
 	/** The object that will deal with expired entries. */
 	protected CacheRefresher m_refresher = null;
+
+	/**
+	 * Optional object for dealing with cache events
+	 */
+	protected org.sakaiproject.memory.api.CacheEventListener cacheEventListener = null;
+	/**
+	 * Optional object that will deal with loading missing entries into the cache on get()
+	 */
+	protected CacheLoader loader = null;
 
 	/** The string that all resources in this cache will start with. */
 	protected String m_resourcePattern = null;
@@ -101,18 +113,18 @@ public class MemCache implements Cache, Observer
 		}
 	}
 
-    /**
-     * @deprecated REMOVE THIS
-     */
+	/**
+	 * @deprecated REMOVE THIS
+	 */
 	public void destroy()
 	{
 		this.close();
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void put(String key, Object payload)
 	{
 		if (M_log.isDebugEnabled()) {
@@ -122,7 +134,7 @@ public class MemCache implements Cache, Observer
 		cache.put(new Element(key, payload));
 	}
 
-    @Override
+	@Override
 	public boolean containsKey(String key) {
 		if (M_log.isDebugEnabled()) 
 		{
@@ -135,10 +147,10 @@ public class MemCache implements Cache, Observer
 		return false;
 	} // containsKey
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Object get(String key)
 	{
 		if (M_log.isDebugEnabled())
@@ -146,14 +158,34 @@ public class MemCache implements Cache, Observer
 			M_log.debug("get(Object " + key + ")");
 		}
 
-		final Element e = cache.get(key);
-		return(e != null ? e.getObjectValue() : null);
+		final Element element = cache.get(key);
+		Object value;
+		if (element == null) {
+			if (loader != null) {
+				// trigger the cache loader on cache miss
+				try {
+					//noinspection unchecked
+					value = loader.load(key);
+				} catch (Exception e1) {
+					value = null;
+					M_log.error("Cache loader failed trying to load (" + key + ") for cache (" + getName() + "), return value will be null:" + e1, e1);
+				}
+			} else {
+				// convert to the null value when not found
+				value = null;
+			}
+		} else {
+			value = element.getObjectValue();
+		}
+		return value;
+		//final Element e = cache.get(key);
+		//return(e != null ? e.getObjectValue() : null);
 	} // get
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void clear()
 	{
 		M_log.debug("clear()");
@@ -161,48 +193,43 @@ public class MemCache implements Cache, Observer
 		cache.getStatistics().clearStatistics();
 	} // clear
 
-    @Override
-    public String getName() {
-        return this.cache.getName();
-    }
+	@Override
+	public String getName() {
+		return this.cache.getName();
+	}
 
-    @Override
-    public void close() {
-        cache.removeAll();
-        cache.getStatistics().clearStatistics();
-        this.cache.dispose();
-        // if we are not in a global shutdown
-        if (!ComponentManager.hasBeenClosed()) {
-            // remove my event notification registration
-            m_eventTrackingService.deleteObserver(this);
-        }
-    }
+	@Override
+	public void close() {
+		cache.removeAll();
+		cache.getStatistics().clearStatistics();
+		this.cache.dispose();
+		// if we are not in a global shutdown
+		if (!ComponentManager.hasBeenClosed()) {
+			// remove my event notification registration
+			m_eventTrackingService.deleteObserver(this);
+		}
+	}
 
-    @Override
-    public <T> T unwrap(Class<T> clazz) {
-        //noinspection unchecked
-        return (T) cache;
-    }
+	@Override
+	public <T> T unwrap(Class<T> clazz) {
+		//noinspection unchecked
+		return (T) cache;
+	}
 
-    @Override
-    public void registerCacheEventListener(org.sakaiproject.memory.api.CacheEventListener cacheEventListener) {
-        // TODO implement this
+	@Override
+	public void registerCacheEventListener(org.sakaiproject.memory.api.CacheEventListener cacheEventListener) {
+		this.cacheEventListener = cacheEventListener;
+		if (cacheEventListener == null) {
+			cache.getCacheEventNotificationService().unregisterListener(this);
+		} else {
+			cache.getCacheEventNotificationService().registerListener(this);
+		}
+	}
 
-        /* If has the (ehcache) EventCacheListener marker interface then
-         * also attach the cache as a listener that implements the
-         * ehcache event listener interface.
-         */
-        if (cache instanceof CacheEventListener) {
-            // add ehcahe event listener
-            Ehcache ehc = this.cache;
-            ehc.getCacheEventNotificationService().registerListener((CacheEventListener)cache);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public boolean remove(String key)
 	{
 		if (M_log.isDebugEnabled()) {
@@ -215,10 +242,10 @@ public class MemCache implements Cache, Observer
 		return found;
 	} // remove
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getDescription()
 	{
 		final StringBuilder buf = new StringBuilder();
@@ -230,6 +257,12 @@ public class MemCache implements Cache, Observer
 		if (m_refresher != null) {
 			buf.append(" Refresher");
 		}
+		if (loader != null) {
+			buf.append(" Loader");
+		}
+		if (cacheEventListener != null) {
+			buf.append(" Listener");
+		}
 		final long hits = cache.getStatistics().getCacheHits();
 		final long misses = cache.getStatistics().getCacheMisses();
 		final long total = hits + misses;
@@ -240,16 +273,13 @@ public class MemCache implements Cache, Observer
 		return buf.toString();
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void attachLoader(CacheRefresher cacheLoader) {
-        this.m_refresher = cacheLoader;
-    }
+	@Override
+	public void attachLoader(CacheLoader cacheLoader) {
+		this.loader = cacheLoader;
+	}
 
 
-    /**********************************************************************************************************************************************************************************************************************************************************
+	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -279,19 +309,95 @@ public class MemCache implements Cache, Observer
 			M_log.debug(this + ".update() [" + m_resourcePattern
 					+ "] resource: " + key + " event: " + event.getEvent());
 
-        // remove the entry if it exists in the cache
-        remove(key);
+		// remove the entry if it exists in the cache
+		remove(key);
 
 	} // continueUpdate
 
 
-    // **************************************************************************
-    // DEPRECATED methods - REMOVE THESE
-    // **************************************************************************
+	/***************************************************************************************************************
+	 * Ehcache CacheEventListener implementation
+	 */
 
-    @Override
-    public void put(Object key, Object payload, int duration) {
-        put((String)key, payload);
-    }
+	/**
+	 * Simply reducing code duplication
+	 *
+	 * @param eventType the event type
+	 * @param element   the cache element
+	 * @return a list of CacheEntryEvent objects (always with one entry)
+	 */
+	private ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> makeCacheEntryEvents(org.sakaiproject.memory.api.CacheEventListener.EventType eventType, Element element) {
+		org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent<?, ?> cee = new org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent<String, Object>(this, element.getObjectKey().toString(), element.getObjectValue(), eventType);
+		//noinspection unchecked
+		this.cacheEventListener.evaluate(cee);
+		ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> events = new ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent>(1);
+		events.add(cee);
+		return events;
+	}
+
+	@Override
+	public void notifyElementRemoved(Ehcache ehcache, Element element) throws CacheException {
+		if (this.cacheEventListener != null) {
+			ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> events = makeCacheEntryEvents(org.sakaiproject.memory.api.CacheEventListener.EventType.REMOVED, element);
+			//noinspection unchecked
+			this.cacheEventListener.onRemoved(events);
+		}
+	}
+
+	@Override
+	public void notifyElementPut(Ehcache ehcache, Element element) throws CacheException {
+		if (this.cacheEventListener != null) {
+			ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> events = makeCacheEntryEvents(org.sakaiproject.memory.api.CacheEventListener.EventType.CREATED, element);
+			//noinspection unchecked
+			this.cacheEventListener.onCreated(events);
+		}
+	}
+
+	@Override
+	public void notifyElementUpdated(Ehcache ehcache, Element element) throws CacheException {
+		if (this.cacheEventListener != null) {
+			ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> events = makeCacheEntryEvents(org.sakaiproject.memory.api.CacheEventListener.EventType.UPDATED, element);
+			//noinspection unchecked
+			this.cacheEventListener.onUpdated(events);
+		}
+	}
+
+	@Override
+	public void notifyElementExpired(Ehcache ehcache, Element element) {
+		if (this.cacheEventListener != null) {
+			ArrayList<org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent> events = makeCacheEntryEvents(org.sakaiproject.memory.api.CacheEventListener.EventType.EXPIRED, element);
+			//noinspection unchecked
+			this.cacheEventListener.onExpired(events);
+		}
+	}
+
+	@Override
+	public void notifyElementEvicted(Ehcache ehcache, Element element) {
+		notifyElementExpired(ehcache, element);
+	}
+
+	@Override
+	public void notifyRemoveAll(Ehcache ehcache) {
+	} // NOT USED
+
+	@Override
+	public void dispose() {
+	} // NOT USED
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		super.clone();
+		throw new CloneNotSupportedException("CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
+	}
+
+
+	// **************************************************************************
+	// DEPRECATED methods - REMOVE THESE
+	// **************************************************************************
+
+	@Override
+	public void put(Object key, Object payload, int duration) {
+		put((String)key, payload);
+	}
 
 }
