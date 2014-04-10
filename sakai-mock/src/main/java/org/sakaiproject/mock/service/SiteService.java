@@ -394,6 +394,14 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	{
 		return true;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#allowImportArchiveSite()
+	*/
+	public boolean allowImportArchiveSite()
+	{
+		return true;
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.site.api.SiteService#getSiteTypeStrings()
