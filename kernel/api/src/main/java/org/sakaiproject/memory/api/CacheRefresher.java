@@ -24,6 +24,9 @@ package org.sakaiproject.memory.api;
 import org.sakaiproject.event.api.Event;
 
 /**
+ * WARNING: this does NOT work and will not be called when cache entries are not found
+ * See https://jira.sakaiproject.org/browse/KNL-1226 for more details
+ *
  * This defines a kind of listener method which will be called whenever a cache miss occurs.
  * In other words, if the cache is asked to retrieve an object by a key which does not exist
  * in the cache then this method will be called if defined for that cache. Then the returned
@@ -37,10 +40,10 @@ import org.sakaiproject.event.api.Event;
  * Original comment:<br/>
  * Utility API for classes that will refresh a cache entry when expired.
  *
- * WARNING - This class will be renamed to CacheLoader to align with JSR-107 (probably in Sakai 11)
+ * @deprecated this does not work (see KNL-1226) and use of it should be removed from code OR replaced by CacheLoader
+ * @see org.sakaiproject.memory.api.CacheLoader and https://jira.sakaiproject.org/browse/KNL-1226
  */
 public interface CacheRefresher { // CacheLoader<K, V> {
-    // TODO - rename this to CacheLoader or something like that -AZ
 
     /**
      * Attempt to retrieve a value for this key from the cache user when none can be found in the cache
@@ -56,30 +59,5 @@ public interface CacheRefresher { // CacheLoader<K, V> {
      * by one with a signature like: Object refresh(Object key); 07/Oct/2007
      */
     public Object refresh(Object key, Object oldValue, Event event);
-
-    // JSR-107 CacheLoader methods below
-    /**
-     * Loads an object. Application developers should implement this
-     * method to customize the loading of a value for a cache entry. This method
-     * is called by a cache when a requested entry is not in the cache. If
-     * the object can't be loaded <code>null</code> should be returned.
-     *
-     * @param key the key identifying the object being loaded
-     * @return The value for the entry that is to be stored in the cache or
-     *         <code>null</code> if the object can't be loaded
-     * @throws CacheLoaderException if there is problem executing the loader.
-     */
-    //V load(K key) throws CacheLoaderException;
-    /**
-     * Loads multiple objects. Application developers should implement this
-     * method to customize the loading of cache entries. This method is called
-     * when the requested object is not in the cache. If an object can't be loaded,
-     * it is not returned in the resulting map.
-     *
-     * @param keys keys identifying the values to be loaded
-     * @return A map of key, values to be stored in the cache.
-     * @throws CacheLoaderException if there is problem executing the loader.
-     */
-    //Map<K, V> loadAll(Iterable<? extends K> keys) throws CacheLoaderException;
 
 }
