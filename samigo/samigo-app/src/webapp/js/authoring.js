@@ -552,36 +552,6 @@ function checkUncheckAllReleaseGroups(){
   }
 }
 
-function checkTimeSelect(){
-  var autoSubmitId;
-  var timedAssessmentId;
-  var inputList= document.getElementsByTagName("INPUT");
-  for (i = 0; i <inputList.length; i++) {
-    if(inputList[i].type=='checkbox'){
-      if(inputList[i].id.indexOf("selTimeAssess")>=0)
-        timedAssessmentId= inputList[i].id;
-      if(inputList[i].id.indexOf("automatic")>=0)
-        autoSubmitId=inputList[i].id;
-    }
-  }
-
-  if(document.getElementById(timedAssessmentId) != null)
-  {
-    if(!document.getElementById(timedAssessmentId).checked && document.getElementById(autoSubmitId) != null)
-    {
-      document.getElementById(autoSubmitId).disabled=true;
-    }
-    else if((document.getElementById(autoSubmitId) != null) && (document.getElementById(autoSubmitId).disabled != null))
-    {
-      document.getElementById(autoSubmitId).disabled=false;
-    }
-  }
-  else if((document.getElementById(autoSubmitId) != null) && (document.getElementById(autoSubmitId).disabled != null))
-  {
-    document.getElementById(autoSubmitId).disabled=false;
-  }
-}
-
 function lockdownQuestionLayout(value) {
   if (value == 1) {
     $('#assessmentSettingsAction\\:assessmentFormat input[value=1]').prop('checked', 'checked');
