@@ -487,6 +487,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SITE_VISIT_SOFTLY_DELETED);
 			functionManager().registerFunction(SECURE_REMOVE_SOFTLY_DELETED_SITE);
 			functionManager().registerFunction(SECURE_ADD_PROJECT_SITE);
+			functionManager().registerFunction(SECURE_IMPORT_ARCHIVE);
 			
 			portalSkinPrefix = serverConfigurationService().getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 
@@ -1183,6 +1184,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 	
 	public boolean allowAddProjectSite() {
 		return unlockCheck(SECURE_ADD_PROJECT_SITE, siteReference(null));
+	}
+
+	public boolean allowImportArchiveSite() {
+		return unlockCheck(SECURE_IMPORT_ARCHIVE, siteReference(null));
 	}
 	
 	/**
