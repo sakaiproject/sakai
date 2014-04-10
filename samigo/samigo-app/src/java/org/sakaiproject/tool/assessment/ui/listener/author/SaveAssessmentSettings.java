@@ -260,10 +260,18 @@ public class SaveAssessmentSettings
 		evaluation.setToGradeBook("2");
 	}
 	else {
-		if (assessmentSettings.getAnonymousGrading() != null)
-		      evaluation.setAnonymousGrading(Integer.valueOf(assessmentSettings.getAnonymousGrading()));
-		if (assessmentSettings.getToDefaultGradebook() != null)
-			evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+		if (assessmentSettings.getAnonymousGrading()) {
+		      evaluation.setAnonymousGrading(Integer.valueOf(1));
+		}
+		else {
+			evaluation.setAnonymousGrading(Integer.valueOf(2));
+		}
+		if (assessmentSettings.getToDefaultGradebook()) {
+			evaluation.setToGradeBook("1");
+		}
+		else {
+			evaluation.setToGradeBook("2");
+		}
 	}
     
     if (assessmentSettings.getScoringType()!=null)

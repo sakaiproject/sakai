@@ -564,14 +564,22 @@ implements ActionListener
 			evaluation = new EvaluationModel();
 			evaluation.setAssessmentBase(assessment.getData());
 		}
-		if (assessmentSettings.getAnonymousGrading() != null) {
-			evaluation.setAnonymousGrading(new Integer(assessmentSettings.getAnonymousGrading()));
-		}	    
+		if (assessmentSettings.getAnonymousGrading()) {
+			evaluation.setAnonymousGrading(Integer.valueOf(1));
+		}
+		else {
+			evaluation.setAnonymousGrading(Integer.valueOf(2));
+		}
+	    
 		// If there is value set for toDefaultGradebook, we reset it
 		// Otherwise, do nothing
-		if (assessmentSettings.getToDefaultGradebook() != null) {
-			evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+		if (assessmentSettings.getToDefaultGradebook()) {
+			evaluation.setToGradeBook("1");
 		}
+		else {
+			evaluation.setToGradeBook("2");
+		}
+
 		if (assessmentSettings.getScoringType() != null) {
 			evaluation.setScoringType(new Integer(assessmentSettings.getScoringType()));
 		}
@@ -600,7 +608,7 @@ implements ActionListener
 		// point = 0.
 		boolean gbError = false;
 
-		if (assessmentSettings.getToDefaultGradebook() != null && assessmentSettings.getToDefaultGradebook().equals("1")) {
+		if (assessmentSettings.getToDefaultGradebook()) {
 			if (assessment.getTotalScore().doubleValue() <= 0) {
 				String gb_err = (String) ContextUtil.getLocalizedString(
 						"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
@@ -637,8 +645,7 @@ implements ActionListener
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook()!=null && assessmentSettings.getToDefaultGradebook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
-						gbItemExists && isTitleChanged){
+				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -648,10 +655,11 @@ implements ActionListener
 				log.warn("external assessment in GB has the same title:"+e.getMessage());
 			}
 			
-			// If there is value set for toDefaultGradebook, we reset it
-			// Otherwise, do nothing
-			if (assessmentSettings.getToDefaultGradebook() != null) {
-				evaluation.setToGradeBook(assessmentSettings.getToDefaultGradebook());
+			if (assessmentSettings.getToDefaultGradebook()) {
+				evaluation.setToGradeBook("1");
+			}
+			else {
+				evaluation.setToGradeBook("2");
 			}
 
 			// If the assessment is retracted for edit, we don't sync with gradebook (only until it is republished)

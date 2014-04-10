@@ -177,9 +177,9 @@ public class PublishedAssessmentSettingsBean
   private boolean showStatistics = false;
   
   // properties of PublishedEvaluationModel
-  private String anonymousGrading;
+  private boolean anonymousGrading;
   private boolean gradebookExists;
-  private String toDefaultGradebook;
+  private boolean toDefaultGradebook;
   private String scoringType;
   private String bgColor;
   private String bgImage;
@@ -384,9 +384,9 @@ public class PublishedAssessmentSettingsBean
       EvaluationModelIfc evaluation = assessment.getEvaluationModel();
       if (evaluation != null) {
         if (evaluation.getAnonymousGrading()!=null)
-          this.anonymousGrading = evaluation.getAnonymousGrading().toString();
+          this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1") ? true : false;
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook();
+          this.toDefaultGradebook = evaluation.getToGradeBook().toString().equals("1") ? true : false;
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
         
@@ -845,19 +845,19 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     this.showStatistics = showStatistics;
   }
 
-  public String getAnonymousGrading() {
+  public boolean getAnonymousGrading() {
     return this.anonymousGrading;
   }
 
-  public void setAnonymousGrading(String anonymousGrading) {
+  public void setAnonymousGrading(boolean anonymousGrading) {
     this.anonymousGrading = anonymousGrading;
   }
 
-  public String getToDefaultGradebook() {
+  public boolean getToDefaultGradebook() {
     return this.toDefaultGradebook;
   }
 
-  public void setToDefaultGradebook(String toDefaultGradebook) {
+  public void setToDefaultGradebook(boolean toDefaultGradebook) {
     this.toDefaultGradebook = toDefaultGradebook;
   }
 

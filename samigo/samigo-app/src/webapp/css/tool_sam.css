@@ -10,6 +10,12 @@ h4.samigo-category-subhead {
   color: black;
 }
 
+h4.samigo-category-subhead-2 {
+  font-weight: bold;
+  margin-top: -2px;
+  color: black;
+}
+
 .treefolder {
  background-repeat: no-repeat;
  height: 17px;

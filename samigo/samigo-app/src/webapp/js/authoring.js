@@ -574,21 +574,21 @@ function lockdownMarkForReview(value) {
 
 function lockdownAnonyGrading(value) {
 	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:anonymousGrading1 input[value=1]').prop('checked', 'checked');
-		$('#assessmentSettingsAction\\:anonymousGrading1 input').prop('disabled', 'disabled');
+		$('#assessmentSettingsAction\\:anonymousGrading').prop('checked', 'checked');
+		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', 'disabled');
 	} 
 	else {
-		$('#assessmentSettingsAction\\:anonymousGrading1 input').prop('disabled', '');
+		$('#assessmentSettingsAction\\:anonymousGrading').prop('disabled', '');
 	}
 }
 
 function lockdownGradebook(value) {
 	if (value == 'Anonymous Users') {
-		$('#assessmentSettingsAction\\:toDefaultGradebook1 input[value=2]').prop('checked', 'checked');
-		$('#assessmentSettingsAction\\:toDefaultGradebook1 input').prop('disabled', 'disabled');
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('checked', '');
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', 'disabled');
 	} 
 	else {
-		$('#assessmentSettingsAction\\:toDefaultGradebook1 input').prop('disabled', '');
+		$('#assessmentSettingsAction\\:toDefaultGradebook').prop('disabled', '');
 	}
 }
 
