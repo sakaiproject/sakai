@@ -74,6 +74,7 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
         return newCache(cacheName, null, null);
     }
 
+    @SuppressWarnings("deprecation") // TODO remove GenericMultiRefCache
     @Override
     public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
         return null;

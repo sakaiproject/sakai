@@ -227,6 +227,9 @@ public class MemCache implements Cache, Observer
 		{
 			buf.append(" ").append(m_resourcePattern);
 		}
+		if (m_refresher != null) {
+			buf.append(" Refresher");
+		}
 		final long hits = cache.getStatistics().getCacheHits();
 		final long misses = cache.getStatistics().getCacheMisses();
 		final long total = hits + misses;

@@ -25,6 +25,8 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
@@ -33,10 +35,14 @@ import org.sakaiproject.memory.api.CacheEventListener.EventType;
 import java.util.ArrayList;
 
 /**
- * Ehcache based implementation of a Cache
- * Uses the Ehcache listener
+ * Ehcache based implementation of a Cache.
+ * Includes support for listener and loader (Uses the Ehcache CacheEventListener)
+ * NOTE:
+ * The Observer is used for automatic cache flushing when the item is updated (removes cache entries on match).
  */
 public class EhcacheCache extends BasicMapCache implements CacheEventListener {
+    final Log log = LogFactory.getLog(BasicMapCache.class);
+
     /**
      * Underlying cache implementation
      */
@@ -76,8 +82,26 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
      */
     @Override
     public Object get(String key) {
-        final Element e = cache.get(key);
-        return (e != null ? e.getObjectValue() : null);
+        final Element element = cache.get(key);
+        Object value;
+        if (element == null) {
+            if (loader != null) {
+                // trigger the cache loader on cache miss
+                try {
+                    //noinspection deprecation
+                    value = loader.refresh(key, null, null);
+                } catch (Exception e1) {
+                    value = null;
+                    log.error("Cache loader failed trying to load ("+key+") for cache ("+getName()+"), return value will be null:"+e1, e1);
+                }
+            } else {
+                // convert to the null value when not found
+                value = null;
+            }
+        } else {
+            value = element.getObjectValue();
+        }
+        return value;
     } // get
 
     /**
@@ -135,6 +159,12 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         buf.append("Ehcache (").append(getName()).append(")");
         if (m_resourcePattern != null) {
             buf.append(" ").append(m_resourcePattern);
+        }
+        if (loader != null) {
+            buf.append(" Loader");
+        }
+        if (cacheEventListener != null) {
+            buf.append(" Listener");
         }
         final long hits = cache.getStatistics().getCacheHits();
         final long misses = cache.getStatistics().getCacheMisses();

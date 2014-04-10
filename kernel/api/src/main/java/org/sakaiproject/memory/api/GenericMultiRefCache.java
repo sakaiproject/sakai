@@ -25,8 +25,10 @@ import java.util.Collection;
 
 /**
  * <p>
- * GenricMultiRefCache is a cache that holds objects and a set of references that the cached entry are dependent on - if any change, the entry is invalidated.
+ * GenericMultiRefCache is a cache that holds objects and a set of references that the cached entry are dependent on - if any change, the entry is invalidated.
  * </p>
+ * @deprecated since Sakai 2.9 - Do NOT use this anymore, it is not cluster safe or JSR-107 compatible,
+ *             if you need this functionality then it should be handled with 2 caches in your service
  */
 public interface GenericMultiRefCache extends Cache
 {

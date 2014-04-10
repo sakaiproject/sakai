@@ -106,7 +106,7 @@ public interface MemoryService
 	 * NOT Cluster safe
 	 *
 	 * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
-	 * @deprecated since Sakai 2.9, this should no longer be used, it is not cluster safe of JSR-107 compatible
+	 * @deprecated since Sakai 2.9, this should no longer be used, it is not cluster safe or JSR-107 compatible
 	 */
 	GenericMultiRefCache newGenericMultiRefCache(String cacheName);
 

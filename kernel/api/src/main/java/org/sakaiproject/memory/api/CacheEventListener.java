@@ -30,7 +30,7 @@ import java.util.EventObject;
  * or the {@link org.sakaiproject.memory.api.MemoryService}.
  *
  * This emulates the JSR-107 interfaces for cache events handling.
- * https://github.com/jsr107/jsr107spec/tree/master/src/main/java/javax/cache/event
+ * Based on https://github.com/jsr107/jsr107spec/tree/master/src/main/java/javax/cache/event
  *
  * Invoked when cache entries change or some cache event happens.
  *
@@ -86,7 +86,8 @@ public interface CacheEventListener<K, V> extends EventListener {
     void onRemoved(Iterable<CacheEntryEvent<? extends K, ? extends V>> events);
 
     /**
-     * From https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/event/EventType.java
+     * The type of event received by the listener.
+     * Based on https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/event/EventType.java
      */
     public static enum EventType {
         /**
@@ -109,9 +110,10 @@ public interface CacheEventListener<K, V> extends EventListener {
     }
 
     /**
-     * From https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/event/CacheEntryEvent.java
-     * @param <K>
-     * @param <V>
+     * A Cache entry event
+     * Based on https://github.com/jsr107/jsr107spec/blob/master/src/main/java/javax/cache/event/CacheEntryEvent.java
+     * @param <K> the type of key
+     * @param <V> the type of value
      */
     public static class CacheEntryEvent<K, V> extends EventObject {
 
@@ -130,6 +132,8 @@ public interface CacheEventListener<K, V> extends EventListener {
          */
         public CacheEntryEvent(Cache source, K key, V value, EventType eventType) {
             super(source);
+            this.key = key;
+            this.value = value;
             this.eventType = eventType;
         }
 

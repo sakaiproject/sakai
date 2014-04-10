@@ -232,7 +232,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * @param duration
      *        The time to cache the object (seconds).
      * @deprecated Since Sakai 2.5.0
-     * @see Cache#put(Object, Object)
+     * @see Cache#put(String, Object)
      */
     void put(Object key, Object payload, int duration);
 

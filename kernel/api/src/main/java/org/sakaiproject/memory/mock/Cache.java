@@ -33,6 +33,7 @@ import java.util.Map;
  * Mock Cache for use in testing
  * Partly functional (no listener/loader support)
  */
+@SuppressWarnings("deprecation") // TODO remove GenericMultiRefCache
 public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.Cache {
 
     String name;

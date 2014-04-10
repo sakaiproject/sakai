@@ -34,15 +34,14 @@ import java.util.Observable;
 import java.util.Observer;
 
 /**
- * Contains general common implementation info related to a cache
- * <p/>
- * The Observer is used for automatic cache flushing but the item is updated (removes cache entries on match)
+ * Contains general common implementation info related to a cache.
+ * No support for listener or cache loader.
+ * NOTE:
+ * The Observer is used for automatic cache flushing when the item is updated (removes cache entries on match).
  */
 public abstract class BasicMapCache implements Cache, Observer {
-    /**
-     * Our logger.
-     */
-    static Log M_log = LogFactory.getLog(BasicMapCache.class);
+    final Log log = LogFactory.getLog(BasicMapCache.class);
+
     /** the name for this cache */
     protected String cacheName = "cache";
     /** if true then enable verbose cache activity logging */
@@ -52,11 +51,11 @@ public abstract class BasicMapCache implements Cache, Observer {
      */
     protected org.sakaiproject.memory.api.CacheEventListener cacheEventListener = null;
     /**
-     * Optional object that will deal with expired entries.
+     * Optional object that will deal with loading missing entries into the cache on get()
      */
-    protected CacheRefresher m_refresher = null;
+    protected CacheRefresher loader = null;
     /**
-     * Optional string that all resources in this cache will start with.
+     * Optional string that handles expiration of resources in this cache based on keys starting with this pattern
      */
     protected String m_resourcePattern = null;
     /**
@@ -83,7 +82,7 @@ public abstract class BasicMapCache implements Cache, Observer {
         this.cacheLogging = cacheLogging;
         m_eventTrackingService = eventTrackingService;
         if (refresher != null) {
-            m_refresher = refresher;
+            loader = refresher;
         }
         m_resourcePattern = pattern;
         // register to get events - first, before others
@@ -175,7 +174,7 @@ public abstract class BasicMapCache implements Cache, Observer {
      */
     @Override
     public void attachLoader(CacheRefresher cacheLoader) {
-        this.m_refresher = cacheLoader;
+        this.loader = cacheLoader;
     }
 
 
@@ -202,8 +201,8 @@ public abstract class BasicMapCache implements Cache, Observer {
         // if this resource is not in my pattern of resources, we can ignore it
         if (!key.startsWith(m_resourcePattern)) return;
 
-        if (M_log.isDebugEnabled())
-            M_log.debug(this + ".update() [" + m_resourcePattern
+        if (log.isDebugEnabled())
+            log.debug(this + ".update() [" + m_resourcePattern
                     + "] resource: " + key + " event: " + event.getEvent());
 
         // remove the entry if it exists in the cache

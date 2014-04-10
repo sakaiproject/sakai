@@ -27,7 +27,7 @@ import org.sakaiproject.event.api.Event;
  * This defines a kind of listener method which will be called whenever a cache miss occurs.
  * In other words, if the cache is asked to retrieve an object by a key which does not exist
  * in the cache then this method will be called if defined for that cache. Then the returned
- * value will be returned from the lookup (or a null of no new value was found) and
+ * value will be returned from the lookup (or a null if no new value was found) and
  * also inserted into the cache (unless the value was null)<br/>
  * <b>WARNING:</b> This can make your cache misses very costly so you will want to be careful
  * about what you make this method actually do
