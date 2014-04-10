@@ -116,6 +116,9 @@ public class ListItem
 	protected static boolean optionalPropertiesEnabled = false;
 
     protected static final Comparator<ContentEntity> PRIORITY_SORT_COMPARATOR = ContentHostingService.newContentHostingComparator(ResourceProperties.PROP_CONTENT_PRIORITY, true);
+    
+    /** Default content type for unknown extensions. */
+    protected static final String UNKNOWN_TYPE = "application/octet-stream";
 
 	public static final String DOT = "_";
 	private static final String PROP_HIDDEN_TRUE = "true"; // SAK-23044
@@ -1649,6 +1652,15 @@ public class ListItem
 		}
 		
 	}
+	
+	//Validates a mimetype change
+	protected void validateMimetype() {
+		//If the mime type matches up with a default unknown type, set it to the unknown type
+		if (ContentTypeImageService.getContentTypeImage(null).equals(ContentTypeImageService.getContentTypeImage(this.mimetype))){
+			//Should get this from the api but it's not in there, just in the impl
+			this.mimetype = UNKNOWN_TYPE;
+		}
+	}
 
 	protected void captureMimetypeChange(ParameterParser params, String index) 
 	{
@@ -1669,7 +1681,7 @@ public class ListItem
 				}
 			}
 		}
-		
+		validateMimetype();
 	}
 
 	protected void captureQuota(ParameterParser params, String index) 
