@@ -478,6 +478,12 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public boolean allowImportArchiveSite()
+	{
+		return true;
+	}
+
+	@Override
 	public List<String> getSiteTypeStrings(String type) {
 		// TODO Auto-generated method stub
 		return null;
