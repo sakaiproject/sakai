@@ -32,6 +32,7 @@ import org.sakaiproject.memory.api.CacheRefresher;
 import java.util.Map;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Contains general common implementation info related to a cache.
@@ -41,11 +42,10 @@ import java.util.Observer;
  */
 public abstract class BasicMapCache implements Cache, Observer {
     final Log log = LogFactory.getLog(BasicMapCache.class);
-
-    /** the name for this cache */
+    /**
+     * the name for this cache
+     */
     protected String cacheName = "cache";
-    /** if true then enable verbose cache activity logging */
-    protected boolean cacheLogging = false;
     /**
      * Optional object for dealing with cache events
      */
@@ -58,32 +58,43 @@ public abstract class BasicMapCache implements Cache, Observer {
      * Optional string that handles expiration of resources in this cache based on keys starting with this pattern
      */
     protected String m_resourcePattern = null;
+
+    // TODO remove the pattern handling code
     /**
      * Constructor injected event tracking service.
      */
     protected EventTrackingService m_eventTrackingService = null;
     /**
+     * Underlying cache implementation
      * Simple and naive basic implementation of caching... not meant to be used
      */
     private Map<String, Object> cache;
 
     /**
-     * Construct the Cache. Attempts to keep complete on Event notification by calling the refresher.
+     * Construct the Cache
+     * Set the listeners and cache refreshers later
      *
-     * @param eventTrackingService Sakai ETS
-     * @param name the name for this cache
-     * @param refresher            object that will handle refreshing of event notified modified or added entries.
-     * @param pattern              "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
-     * @param cacheLogging if true then enable verbose logging for this cache
+     * @param name                 the name for this cache
      */
-    public BasicMapCache(EventTrackingService eventTrackingService, String name, CacheRefresher refresher, String pattern, boolean cacheLogging) {
-        // inject our dependencies
+    public BasicMapCache(String name) {
+        this.cache = new ConcurrentHashMap<String, Object>();
         this.cacheName = name;
-        this.cacheLogging = cacheLogging;
+    }
+
+    /**
+     * Construct the Cache. Attempts to keep complete on Event notification.
+     * Set the listeners and cache refreshers later
+     *
+     * @param name                 the name for this cache
+     * @param eventTrackingService Sakai ETS (relates to pattern use)
+     * @param pattern              "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+     * TODO remove this
+     * @deprecated use BasicMapCache(String name) instead
+     */
+    public BasicMapCache(String name, EventTrackingService eventTrackingService, String pattern) {
+        this(name);
+        // inject our dependencies
         m_eventTrackingService = eventTrackingService;
-        if (refresher != null) {
-            loader = refresher;
-        }
         m_resourcePattern = pattern;
         // register to get events - first, before others
         if (pattern != null && !"".equals(pattern)) {
@@ -91,9 +102,6 @@ public abstract class BasicMapCache implements Cache, Observer {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void put(String key, Object payload) {
         cache.put(key, payload);
@@ -104,17 +112,11 @@ public abstract class BasicMapCache implements Cache, Observer {
         return cache.containsKey(key);
     } // containsKey
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Object get(String key) {
         return cache.get(key);
     } // get
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void clear() {
         cache.clear();
@@ -147,18 +149,12 @@ public abstract class BasicMapCache implements Cache, Observer {
         this.cacheEventListener = cacheEventListener;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean remove(String key) {
         Object o = cache.remove(key);
         return (o != null);
     } // remove
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDescription() {
         final StringBuilder buf = new StringBuilder();
@@ -169,18 +165,16 @@ public abstract class BasicMapCache implements Cache, Observer {
         return buf.toString();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void attachLoader(CacheRefresher cacheLoader) {
         this.loader = cacheLoader;
     }
 
 
-    /**********************************************************************************************************************************************************************************************************************************************************
+    // TODO remove the pattern handling code
+    /****************************************************************************************************************
      * Observer implementation
-     *********************************************************************************************************************************************************************************************************************************************************/
+     ****************************************************************************************************************/
 
     /**
      * This method is called whenever any observed object is changed. We then filter out the ones

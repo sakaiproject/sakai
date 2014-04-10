@@ -28,7 +28,6 @@ import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
 import org.sakaiproject.memory.api.CacheEventListener.EventType;
 
@@ -49,24 +48,37 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     protected Ehcache cache;
 
     /**
-     * Construct the Cache. No automatic refresh handling.
+     * Construct the Cache
+     * Set the listeners and cache refreshers later
+     *
+     * @param cache the ehcache that backs this Sakai cache
      */
-    public EhcacheCache(Ehcache cache, EventTrackingService eventTrackingService, CacheRefresher refresher, String pattern, boolean cacheLogging) {
-        super(eventTrackingService, cache.getName(), refresher, pattern, cacheLogging);
+    public EhcacheCache(Ehcache cache) {
+        super(cache.getName());
         this.cache = cache;
     }
 
     /**
-     * {@inheritDoc}
+     * Construct the Cache
+     * Set the listeners and cache refreshers later
+     *
+     * @param cache                the ehcache that backs this Sakai cache
+     * @param eventTrackingService Sakai ETS (relates to pattern use)
+     * @param pattern              "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
+     * TODO remove this
+     * @deprecated use EhcacheCache(Ehcache cache) instead
      */
+    public EhcacheCache(Ehcache cache, EventTrackingService eventTrackingService, String pattern) {
+        //noinspection deprecation
+        super(cache.getName(), eventTrackingService, pattern);
+        this.cache = cache;
+    }
+
     @Override
     public void put(String key, Object payload) {
         cache.put(new Element(key, payload));
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean containsKey(String key) {
         if (cache.isKeyInCache(key)) {
@@ -77,9 +89,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         return false;
     } // containsKey
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Object get(String key) {
         final Element element = cache.get(key);
@@ -92,7 +101,7 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
                     value = loader.refresh(key, null, null);
                 } catch (Exception e1) {
                     value = null;
-                    log.error("Cache loader failed trying to load ("+key+") for cache ("+getName()+"), return value will be null:"+e1, e1);
+                    log.error("Cache loader failed trying to load (" + key + ") for cache (" + getName() + "), return value will be null:" + e1, e1);
                 }
             } else {
                 // convert to the null value when not found
@@ -104,9 +113,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         return value;
     } // get
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void clear() {
         cache.removeAll();
@@ -140,9 +146,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean remove(String key) {
         //final Object value = get(key);
@@ -150,9 +153,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         return found;
     } // remove
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public String getDescription() {
         final StringBuilder buf = new StringBuilder();
@@ -181,8 +181,15 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
      * CacheEventListener implementation
      */
 
+    /**
+     * Simply reducing code duplication
+     *
+     * @param eventType the event type
+     * @param element   the cache element
+     * @return a list of CacheEntryEvent objects (always with one entry)
+     */
     private ArrayList<CacheEntryEvent> makeCacheEntryEvents(EventType eventType, Element element) {
-        CacheEntryEvent<?,?> cee = new CacheEntryEvent<String,Object>(this, element.getObjectKey().toString(), element.getObjectValue(), eventType);
+        CacheEntryEvent<?, ?> cee = new CacheEntryEvent<String, Object>(this, element.getObjectKey().toString(), element.getObjectValue(), eventType);
         //noinspection unchecked
         this.cacheEventListener.evaluate(cee);
         ArrayList<CacheEntryEvent> events = new ArrayList<CacheEntryEvent>(1);
@@ -232,15 +239,17 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     }
 
     @Override
-    public void notifyRemoveAll(Ehcache ehcache) {} // NOT USED
+    public void notifyRemoveAll(Ehcache ehcache) {
+    } // NOT USED
 
     @Override
-    public void dispose() {} // NOT USED
+    public void dispose() {
+    } // NOT USED
 
     @Override
     public Object clone() throws CloneNotSupportedException {
         super.clone();
-        throw new CloneNotSupportedException( "CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
+        throw new CloneNotSupportedException("CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
     }
 
 }
