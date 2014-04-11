@@ -16,7 +16,6 @@
 
   <modules>
     <module>search-api/api</module>
-    <module>search-help</module>
     <module>search-test</module>
     <module>search-impl/impl</module>
     <module>search-impl/pack</module>
