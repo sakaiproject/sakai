@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <artifactId>kernel</artifactId>
@@ -227,6 +227,16 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.terracotta</groupId>
+            <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
+            <version>5.6.0</version>
+        </dependency>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-terracotta</artifactId>
+            <version>2.6.6</version>
+        </dependency>
+        <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
             <scope>compile</scope>
@@ -237,6 +247,13 @@
             <scope>compile</scope>
         </dependency>     
     </dependencies>
+
+    <repositories>
+        <repository>
+            <id>terracotta-releases</id>
+            <url>http://www.terracotta.org/download/reflector/releases</url>
+        </repository>
+    </repositories>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>

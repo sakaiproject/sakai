@@ -27,6 +27,7 @@
         <lookup-method name="securityService"            bean="org.sakaiproject.authz.api.SecurityService"/>
         <lookup-method name="toolManager"                bean="org.sakaiproject.tool.api.ToolManager"/>
         <lookup-method name="entityManager"              bean="org.sakaiproject.entity.api.EntityManager"/>
+        <lookup-method name="memoryService"              bean="org.sakaiproject.memory.api.MemoryService"/>
 	    <property name="checkDb">    <value>true</value>         </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>  </property>
         <property name="period">     <value>5</value>            </property>

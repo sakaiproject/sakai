@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <artifactId>kernel</artifactId>
@@ -318,6 +318,19 @@
         <artifactId>sakai-kernel-util</artifactId>
         <version>${project.version}</version>
       </dependency>
+      
+      <!-- bjones86 - join notification email sending -->
+      <dependency>
+        <groupId>org.sakaiproject.emailtemplateservice</groupId>
+        <artifactId>emailtemplateservice-api</artifactId>
+    </dependency>
 
   </dependencies>
-  </project>
+
+    <repositories>
+        <repository>
+            <id>terracotta-releases</id>
+            <url>http://www.terracotta.org/download/reflector/releases</url>
+        </repository>
+    </repositories>
+</project>

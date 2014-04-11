@@ -19,13 +19,13 @@
   		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
 	</bean>
 
-
-	<bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
-	    class="org.sakaiproject.memory.util.EhCacheManagerFactoryBean">
-  		<property name="configLocation">
-    	<value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
-  		</property>
-	</bean>
+    <bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
+        class="org.sakaiproject.memory.impl.SakaiCacheManagerFactoryBean">
+        <property name="configLocation">
+            <value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
+        </property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
 
 	<!-- 
 	a JMX Agent to make the Cache visable in JConsole 

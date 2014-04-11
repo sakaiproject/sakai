@@ -21,29 +21,23 @@
 
 package org.sakaiproject.event.impl;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Observable;
-import java.util.Observer;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.event.api.Event;
-import org.sakaiproject.event.api.EventDelayHandler;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.NotificationService;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.*;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.user.api.User;
+
+import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 
 /**
  * <p>
@@ -71,35 +65,20 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
-	 * Extend Observable to "public"ize setChanges, so we can set it. Why a helper object? Cause the service (which is observable) already 'extends' TurbineBaseService, and cannot also 'extend' Observable.
-	 */
-	protected class MyObservable extends Observable
-	{
-		public void setChanged()
-		{
-			super.setChanged();
-		}
-	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Event post / flow - override
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
 	 * Cause this new event to get to wherever it has to go for persistence, etc.
-	 * 
+	 *
 	 * @param event
 	 *        The new event to post.
 	 */
 	protected abstract void postEvent(Event event);
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Observer notification
+	 * Event post / flow - override
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Send notification about a new event to observers.
-	 * 
+	 *
 	 * @param event
 	 *        The event to send notification about.
 	 * @param local
@@ -128,13 +107,17 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
+	 * Observer notification
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @return the UsageSessionService collaborator.
 	 */
 	protected abstract UsageSessionService usageSessionService();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @return the SessionManager collaborator.
@@ -161,10 +144,6 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 */
 	protected abstract TimeService timeService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
@@ -172,6 +151,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	{
 		M_log.info(this + ".init()");
 	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Init and Destroy
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Final cleanup.
@@ -193,7 +176,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Construct a Event object.
-	 * 
+	 *
 	 * @param event
 	 *        The Event id.
 	 * @param resource
@@ -209,7 +192,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Construct a Event object.
-	 * 
+	 *
 	 * @param event
 	 *        The Event id.
 	 * @param resource
@@ -227,7 +210,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Construct a Event object.
-	 * 
+	 *
 	 * @param event
 	 *        The Event id.
 	 * @param resource
@@ -247,7 +230,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Post an event
-	 * 
+	 *
 	 * @param event
 	 *        The event object (created with newEvent()). Note: the current session user will be used as the user responsible for the event.
 	 */
@@ -278,7 +261,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Post an event on behalf of a user's session
-	 * 
+	 *
 	 * @param event
 	 *        The event object (created with newEvent()).
 	 * @param session
@@ -297,7 +280,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Post an event on behalf of a user.
-	 * 
+	 *
 	 * @param event
 	 *        The event object (created with newEvent()).
 	 * @param user
@@ -339,14 +322,14 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			if (delayHandler != null)
 			{
 				// Make sure there is a userid associated with the event
-				
+
 				String id = event.getUserId();
-				
-				if (id == null) 
+
+				if (id == null)
 				{
 					id = sessionManager().getCurrentSessionUserId();
 				}
-				
+
 				if (id == null)
 				{
 					id = "?";
@@ -381,11 +364,11 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	/**
 	 * Ensure that the provided event is an instance of BaseEvent.  If not, create a new BaseEvent
 	 * and transfer state.
-	 * 
+	 *
 	 * @param e
 	 * @return
 	 */
-	private BaseEvent ensureBaseEvent(Event e)
+	protected BaseEvent ensureBaseEvent(Event e)
 	{
 		BaseEvent event = null;
 		if (e instanceof BaseEvent)
@@ -405,7 +388,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 * Refired events can occur under a different user and session than was originally available.
 	 * To make sure permission exceptions aren't falsely encountered, a security advisor should be
 	 * pushed on the stack to recreate the correct environment for security checks.
-	 *  
+	 *
 	 * @param userId
 	 */
 	private SecurityAdvisor newResourceAdvisor(final String eventUserId)
@@ -426,7 +409,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Add an observer of events. The observer will be notified whenever there are new events.
-	 * 
+	 *
 	 * @param observer
 	 *        The class observing.
 	 */
@@ -441,7 +424,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Add an observer of events. The observer will be notified whenever there are new events. Priority observers get notified first, before normal observers.
-	 * 
+	 *
 	 * @param observer
 	 *        The class observing.
 	 */
@@ -456,7 +439,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Add an observer of events. The observer will be notified whenever there are new events. Local observers get notified only of event generated on this application server, not on those generated elsewhere.
-	 * 
+	 *
 	 * @param observer
 	 *        The class observing.
 	 */
@@ -471,7 +454,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 
 	/**
 	 * Delete an observer of events.
-	 * 
+	 *
 	 * @param observer
 	 *        The class observing to delete.
 	 */
@@ -480,6 +463,17 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		m_observableHelper.deleteObserver(observer);
 		m_priorityObservableHelper.deleteObserver(observer);
 		m_localObservableHelper.deleteObserver(observer);
+	}
+
+	/**
+	 * Extend Observable to "public"ize setChanges, so we can set it. Why a helper object? Cause the service (which is observable) already 'extends' TurbineBaseService, and cannot also 'extend' Observable.
+	 */
+	protected class MyObservable extends Observable
+	{
+		public void setChanged()
+		{
+			super.setChanged();
+		}
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -494,7 +488,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 	 * Event objects are posted to the EventTracking service, and may be listened for.
 	 * </p>
 	 */
-	protected class BaseEvent implements Event, Serializable
+	protected class BaseEvent implements Event
 	{
 		/**
 		 * Be a good Serializable citizen
@@ -526,82 +520,11 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		protected int m_priority = NotificationService.NOTI_OPTIONAL;
 
 		/** Event creation time. */
-		protected Time m_time = null;
-
-		/**
-		 * Access the event id string
-		 * 
-		 * @return The event id string.
-		 */
-		public String getEvent()
-		{
-			return m_id;
-		}
-
-		/**
-		 * Access the resource reference.
-		 * 
-		 * @return The resource reference string.
-		 */
-		public String getResource()
-		{
-			return m_resource;
-		}
-
-		/**
-		 * Access the resource reference.
-		 * 
-		 * @return The resource reference string.
-		 */
-		public String getContext()
-		{
-			return m_context;
-		}
-
-		
-		/**
-		 * Access the UsageSession id. If null, check for a User id.
-		 * 
-		 * @return The UsageSession id string.
-		 */
-		public String getSessionId()
-		{
-			return m_session;
-		}
-
-		/**
-		 * Access the User id. If null, check for a session id.
-		 * 
-		 * @return The User id string.
-		 */
-		public String getUserId()
-		{
-			return m_user;
-		}
-
-		/**
-		 * Is this event one that caused a modify to the resource, or just an access.
-		 * 
-		 * @return true if the event caused a modify to the resource, false if it was just an access.
-		 */
-		public boolean getModify()
-		{
-			return m_modify;
-		}
-
-		/**
-		 * Access the event's notification priority.
-		 * 
-		 * @return The event's notification priority.
-		 */
-		public int getPriority()
-		{
-			return m_priority;
-		}
+		protected Date m_time = null;
 
 		/**
 		 * Construct
-		 * 
+		 *
 		 * @param event
 		 *        The Event id.
 		 * @param resource
@@ -618,22 +541,22 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			m_modify = modify;
 			m_priority = priority;
 
-			// Find the context using the reference (let the service that it belongs to parse it) 
+			// Find the context using the reference (let the service that it belongs to parse it)
 			if (resource != null && !"".equals(resource)) {
 				Reference ref = entityManager().newReference(resource);
 				if (ref != null) {
 					m_context = ref.getContext();
 				}
 			}
-			
-			// If we still need to find the context, try the tool placement 
+
+			// If we still need to find the context, try the tool placement
 			if (m_context == null) {
 				Placement placement = toolManager().getCurrentPlacement();
 				if (placement != null) {
 					m_context = placement.getContext();
 				}
 			}
-			
+
 			// KNL-997
 			String uId = sessionManager().getCurrentSessionUserId();
 			if (uId == null)
@@ -641,13 +564,13 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 				uId = "?";
 			}
 			setUserId(uId);
-			
-			
+
+
 		}
 
 		/**
 		 * Construct
-		 * 
+		 *
 		 * @param event
 		 *        The Event id.
 		 * @param resource
@@ -666,7 +589,7 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			m_modify = modify;
 			m_priority = priority;
 			m_context = context;
-			
+
 			// KNL-997
 			String uId = sessionManager().getCurrentSessionUserId();
 			if (uId == null)
@@ -675,10 +598,10 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			}
 			setUserId(uId);
 		}
-		
+
 		/**
 		 * Construct
-		 * 
+		 *
 		 * @param seq
 		 *        The event sequence number.
 		 * @param event
@@ -695,18 +618,28 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			this(event, resource, context, modify, priority);
 			m_seq = seq;
 		}
-		
+
 		
 		public BaseEvent(long seq, String event, String resource, String context, boolean modify, int priority, Date eventDate)
 		{
 			this(event, resource, context, modify, priority);
 			m_seq = seq;
-			m_time = timeService().newTime(eventDate.getTime());
+			m_time = eventDate;
+		}
+
+		/**
+		 * Access the event id string
+		 *
+		 * @return The event id string.
+		 */
+		public String getEvent()
+		{
+			return m_id;
 		}
 
 		/**
 		 * Set the event id.
-		 * 
+		 *
 		 * @param id
 		 *        The event id string.
 		 */
@@ -723,8 +656,18 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		}
 
 		/**
+		 * Access the resource reference.
+		 *
+		 * @return The resource reference string.
+		 */
+		public String getResource()
+		{
+			return m_resource;
+		}
+
+		/**
 		 * Set the resource id.
-		 * 
+		 *
 		 * @param id
 		 *        The resource id string.
 		 */
@@ -741,8 +684,28 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		}
 
 		/**
+		 * Access the resource reference.
+		 *
+		 * @return The resource reference string.
+		 */
+		public String getContext()
+		{
+			return m_context;
+		}
+		
+		/**
+		 * Access the UsageSession id. If null, check for a User id.
+		 *
+		 * @return The UsageSession id string.
+		 */
+		public String getSessionId()
+		{
+			return m_session;
+		}
+		
+		/**
 		 * Set the session id.
-		 * 
+		 *
 		 * @param id
 		 *        The session id string.
 		 */
@@ -759,8 +722,18 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 		}
 
 		/**
+		 * Access the User id. If null, check for a session id.
+		 *
+		 * @return The User id string.
+		 */
+		public String getUserId()
+		{
+			return m_user;
+		}
+
+		/**
 		 * Set the user id.
-		 * 
+		 *
 		 * @param id
 		 *        The user id string.
 		 */
@@ -774,6 +747,26 @@ public abstract class BaseEventTrackingService implements EventTrackingService
 			{
 				m_user = null;
 			}
+		}
+
+		/**
+		 * Is this event one that caused a modify to the resource, or just an access.
+		 *
+		 * @return true if the event caused a modify to the resource, false if it was just an access.
+		 */
+		public boolean getModify()
+		{
+			return m_modify;
+		}
+
+		/**
+		 * Access the event's notification priority.
+		 *
+		 * @return The event's notification priority.
+		 */
+		public int getPriority()
+		{
+			return m_priority;
 		}
 
 		/**
