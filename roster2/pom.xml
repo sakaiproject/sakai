@@ -22,7 +22,6 @@
 
     <modules>
         <module>roster-app</module>
-        <module>roster-help</module>
     </modules>
 
     <properties>
