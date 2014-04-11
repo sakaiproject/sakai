@@ -101,7 +101,7 @@ public class HelpFrameSetRender extends Renderer
     
     writer.write("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
     writer.write("<html><head><title>" + helpWindowTitle + "</title></head>\n");
-    writer.write("<FRAMESET cols=\"30%, 70%\"><FRAMESET rows=\"250, 350\">");
+    writer.write("<FRAMESET cols=\"20%, 80%\"><FRAMESET rows=\"150, 450\">");
     writer.write("<FRAME src=\"" + searchToolUrl + "\" name=\"search\">");
     writer.write("<FRAME src=\"" + tocToolUrl + "\" name=\"toc\">");
     writer.write("</FRAMESET>\n");

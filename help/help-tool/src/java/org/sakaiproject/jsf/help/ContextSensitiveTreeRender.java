@@ -23,6 +23,7 @@ package org.sakaiproject.jsf.help;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -35,9 +36,10 @@ import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.api.app.help.Category;
 import org.sakaiproject.api.app.help.Resource;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.jsf.util.LocaleUtil;
 
 /**
  * render response
@@ -63,25 +65,23 @@ public class ContextSensitiveTreeRender extends Renderer
   public void encodeBegin(FacesContext context, UIComponent component)
       throws IOException
   {
-    
-    String skinRoot = ServerConfigurationService.getString("skin.repo",
-        "/library/skin");
-    String skin = ServerConfigurationService.getString("skin.default",
-        "default");
+    HttpServletRequest req = ((HttpServletRequest) context.getExternalContext().getRequest());
+    String sakaiHeader = (String) req.getAttribute("sakai.html.head");
 
+	Locale locale = LocaleUtil.getLocale(context);
+	String lang = locale.getLanguage();
+	if (lang == null || lang.equals("")) lang = "en";
+	
     String jsLibraryUrl = "../js";
     
     ResponseWriter writer = context.getResponseWriter();
-    writer.write("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n");
-    writer.write("<html>");
+    writer.write("<!DOCTYPE html>\n");
+    writer.write("<html lang=\"" + lang + "\">");
     writer.write("<head>\n");            
     writer.write("<title>Help Index</title>\n");            
     writer.write("<script type=\"text/javascript\" src=\"" + jsLibraryUrl
         + "/csTree.js\"></script>\n");
-    writer.write("<link href=\"" + skinRoot + "/tool_base.css\""
-        + " type=\"text/css\" rel=\"stylesheet\" />\n");
-    writer.write("<link href=\"" + skinRoot + "/" + skin + "/tool.css\""
-        + " type=\"text/css\" rel=\"stylesheet\" />\n");
+    if (sakaiHeader != null) writer.write(sakaiHeader);
     writer.write("<link href=\"../css/csTree.css\" type=\"text/css\" rel=\"stylesheet\" />");
     //writer.write("<body onload='collapseAll([\"ol\"]); openBookMark();'>");
     writer.write("</head>\n");
@@ -92,8 +92,7 @@ public class ContextSensitiveTreeRender extends Renderer
     Object value = data.getValue();
 
     // Get and validate the help id requested
-    String helpDocId = ((HttpServletRequest) context.getExternalContext()
-        .getRequest()).getParameter("help");
+    String helpDocId = req.getParameter("help");
 
     if (helpDocId != null) {
 	    Pattern p = Pattern.compile(HELP_DOC_REGEXP);
@@ -103,6 +102,10 @@ public class ContextSensitiveTreeRender extends Renderer
 	    	helpDocId = "unknown";
 	    }
     }
+
+    // TODO: make use of the userRole
+    String userRole = req.getParameter("userRole");
+    
     Set categories = (Set) value;
     
     // filter to only include top-level categories
@@ -143,9 +146,9 @@ public class ContextSensitiveTreeRender extends Renderer
       
       writer.write("<li class=\"dir helpIndex\">");
       writer.write("<h1>");
-      writer.write("<img src=\"../image/toc_closed.gif\" alt=\"\" /></td>");      
+      writer.write("<img src=\"../image/toc_closed.gif\" alt=\"\" />");      
       writer.write("<a id=\"" + id + "\" href=\"#" + category.getName()
-          + "\" onclick=\"toggle(this)\">" + category.getName() + "</a></td>");
+          + "\" onclick=\"toggle(this)\">" + category.getName() + "</a>");
       writer.write("</h1>");
 
       writer.write("<ol class=\"docs\">");
