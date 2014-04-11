@@ -15,7 +15,6 @@
 
   <modules>
     <module>tool-tool/su</module>
-    <module>tool-tool/su-help</module>
   </modules>
 
   <scm>
