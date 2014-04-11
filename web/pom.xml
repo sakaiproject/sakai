@@ -25,7 +25,6 @@
       <id>framework</id>
       <modules>
         <module>web-api/api</module>
-        <module>web-help</module>
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
         <module>web-tool/tool</module>
@@ -43,7 +42,6 @@
         <module>news-impl/pack</module>
         <module>news-tool/tool</module>
         <module>web-api/api</module>
-        <module>web-help</module>
         <module>web-impl/impl</module>
         <module>web-impl/pack</module>
         <module>web-tool/tool</module>
