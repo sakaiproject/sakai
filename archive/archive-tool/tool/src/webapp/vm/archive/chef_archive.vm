@@ -1,5 +1,3 @@
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_archive.vm,v 1.3 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
-
 <script type="text/javascript" language="JavaScript">
   focus_path = ["archive-id"];
 </script>
@@ -8,10 +6,11 @@
 		#toolbar($menu)
 	#end
 	<h3>
-		$tlang.getString("archive.vm.archive")
+		$tlang.getString("archive.vm.archive.single")
 	</h3>
 	#if ($alertMessage)<br /><div class="alertMessage">$tlang.getString("archive.vm.alert") $validator.escapeHtml($alertMessage)</div>#end
 	<form action="#toolForm("$action")" method="post">
+		
 		<h4>$tlang.getString("archive.vm.export")</h4>
 		<p class="shorttext">
 			<label for="archive-id">
@@ -19,8 +18,10 @@
 			</label>	
 			<input type="text" size="80" name="archive-id" id="archive-id" />
 		</p>
-		<p class="act" ><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>
+		<p class="act"><input type="submit" name="eventSubmit_doArchive" value="$tlang.getString("archive.vm.archive1")" class="indnt1" /></p>		
+		
 		<hr class="itemSeparator" />
+		
 		<h4>$tlang.getString("archive.vm.import")</h4>
 			<p class="shorttext">
 				<label for="import-file">
@@ -34,7 +35,7 @@
 				</label>	
 				<input type="text" size="80" name="import-id" id="import-id" />
 			</p>
-			<p class="act" >	<input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")"  class="indnt1" /></p>
+			<p class="act"><input type="submit" name="eventSubmit_doImport" value="$tlang.getString("archive.vm.import")" class="indnt1" /></p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>

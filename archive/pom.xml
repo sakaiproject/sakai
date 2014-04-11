@@ -59,6 +59,18 @@
         <artifactId>sakai-import-announcement</artifactId>
         <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.course-management</groupId>
+        <artifactId>coursemanagement-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>${sakai.lombok.version}</version>
+        <scope>provided</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
