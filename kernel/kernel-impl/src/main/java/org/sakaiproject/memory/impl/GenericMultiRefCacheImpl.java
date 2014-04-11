@@ -32,14 +32,12 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 import java.io.Serializable;
-import java.lang.ref.SoftReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
- * WARNING: This is NOT cluster safe
  * <p>
  * MultiRefCacheImpl implements the MultiRefCache.
  * </p>
@@ -49,10 +47,11 @@ import java.util.concurrent.ConcurrentSkipListSet;
  * The cache map itself becomes synchronized when it's manipulated (not when reads occur), so this added sync. for the refs fits the existing pattern.
  * </p>
  */
-public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRefCache, CacheEventListener
+public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRefCache,
+		CacheEventListener 
 	{
 	/** Our logger. */
-	private final static Log M_log = LogFactory.getLog(GenericMultiRefCacheImpl.class);
+	private static Log M_log = LogFactory.getLog(GenericMultiRefCacheImpl.class);
 
 	/** Map of reference string -> Collection of cache keys. */
 	protected final ConcurrentMap<String, ConcurrentMap<Object, Object>> m_refsStore = new ConcurrentHashMap<String, ConcurrentMap<Object, Object>>();
@@ -63,21 +62,21 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	public GenericMultiRefCacheImpl(BasicMemoryService memoryService,
 			EventTrackingService eventTrackingService, Ehcache cache)
 	{
-		super(memoryService, eventTrackingService, null, "", cache);
+		super(memoryService, eventTrackingService, "", cache);
 		cache.getCacheEventNotificationService().registerListener(this);
+
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-	public void put(String key, Object payload, String ref, Collection<String> dependRefs)
+	public void put(String key, Object payload, String ref, Collection dependRefs)
 	{
-		if(M_log.isDebugEnabled()) {
+		if(M_log.isDebugEnabled())
+		{
 			M_log.debug("put(Object " + key + ", Object " + payload + ", Reference "+ ref
 					+", Dependent Refs " + dependRefs + ")");
 		}
-		super.put(key, new MultiRefCacheEntry(payload, ref, dependRefs));
+		if (disabled()) return;
+		// Durations don't work any more (hence 0 duration).
+		super.put(key, new MultiRefCacheEntry(payload, 0, ref, dependRefs));
 
 		// Why don't we do do this in the notify handler?
 		if (ref != null)
@@ -86,16 +85,25 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		}
 		if (dependRefs != null)
 		{
-			for (String dependRef : dependRefs) {
+			for (Iterator<Object> i = dependRefs.iterator(); i.hasNext();)
+			{
+				String dependRef = (String) i.next();
 				addRefCachedKey(dependRef, key);
 			}
 		}
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * @inheritDoc
+	 */
+	public void put(String key, Object payload, int duration)
+	{
+		put(key, payload, null, null);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
 	public void put(String key, Object payload)
 	{
 		put(key, payload, null, null);
@@ -121,10 +129,9 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		cachedKeys.put(key, key);
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * @inheritDoc
+	 */
 	public void clear()
 	{
 		super.clear();
@@ -148,7 +155,8 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 			ConcurrentMap<Object, Object> keys = m_refsStore.get(ref);
 			if (keys != null && keys.remove(key) != null)
 			{
-				// remove the ref entry if it no longer has any cached keys in its collection
+				// remove the ref entry if it no longer has any cached keys in
+				// its collection
 				// TODO This isn't thread safe.
 				if (keys.isEmpty())
 				{
@@ -159,31 +167,24 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * @inheritDoc
 	 */
-	@Override
 	public String getDescription()
 	{
 		return "GenericMultiRefCache: " + super.getDescription();
 	}
 
-	@Override
-	public Properties getProperties(boolean includeExpensiveDetails) {
-		Properties p = super.getProperties(includeExpensiveDetails);
-		p.put("class", this.getClass().getSimpleName());
-		p.put("refsCount", m_refsStore.size());
-		return p;
-	}
-
-	/*************************************************************************************************************
-	 * Observer implementation
-	 *************************************************************************************************************/
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Cacher implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @inheritDoc
 	 */
 	public void update(Observable o, Object arg)
 	{
+		if (disabled()) return;
+
 		// arg is Event
 		if (!(arg instanceof Event)) return;
 		Event event = (Event) arg;
@@ -191,6 +192,28 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		// if this is just a read, not a modify event, we can ignore it
 		if (!event.getModify()) return;
 
+		// if we are holding event processing
+		if (m_holdEventProcessing)
+		{
+			m_heldEvents.add(event);
+			return;
+		}
+
+		continueUpdate(event);
+	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Observer implementation
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * Complete the update, given an event that we know we need to act upon.
+	 *
+	 * @param event
+	 *        The event to process.
+	 */
+	protected void continueUpdate(Event event)
+	{
 		String ref = event.getResource();
 
 		if (M_log.isDebugEnabled())
@@ -205,7 +228,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 			for (Iterator<Object> iKeys = keySet.iterator(); iKeys.hasNext();)
 			{
 					Object key = iKeys.next();
-					remove((String)key);
+					remove(String.valueOf(key));
 
 					if (M_log.isDebugEnabled()) {
 						M_log.debug("Removed from cache: "+ key);
@@ -216,6 +239,25 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 
 	/**
 	 * @inheritDoc
+	 */
+	public boolean isComplete()
+	{
+		// we do not support being complete
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public boolean isComplete(String path)
+	{
+		// we do not support being complete
+		return false;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @see org.sakaiproject.memory.impl.MemCache#get(java.lang.Object)
 	 */
 	@Override
 	public Object get(String key) {
@@ -237,13 +279,13 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 	public void notifyElementEvicted(Ehcache cache, Element element)
 	{
 		cleanEntityReferences(element.getObjectKey(), element
-				.getObjectValue());
+                .getObjectValue());
 	}
 
 	public void notifyElementExpired(Ehcache cache, Element element)
 	{
 		cleanEntityReferences(element.getObjectKey(), element
-				.getObjectValue());
+                .getObjectValue());
 	}
 
 	public void notifyElementPut(Ehcache cache, Element element)
@@ -286,32 +328,42 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 				"CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
 	}
 
+    @Override
+    public Properties getProperties(boolean includeExpensiveDetails) {
+        Properties p = super.getProperties(includeExpensiveDetails);
+        p.put("class", this.getClass().getSimpleName());
+        p.put("refsCount", m_refsStore.size());
+        return p;
+    }
 
-	protected class MultiRefCacheEntry extends SoftReference implements Serializable
+
+    // Added for KNL-1162
+
+	protected class MultiRefCacheEntry extends CacheEntry implements Serializable
 	{
-		private static final long serialVersionUID = -1234567890L;
 
-		/** Set if our payload is supposed to be null. */
-		protected boolean m_nullPayload = false;
-
+		/**
+		 * The serial version UID
+		 */
+		private static final long serialVersionUID = -4888170965591332845L;
 		/** These are the entity reference strings that this entry is sensitive to. */
-		protected Set<String> m_refs = new ConcurrentSkipListSet<String>();
+		protected List<Object> m_refs = new CopyOnWriteArrayList<Object>();
 
 		/**
 		 * Construct to cache the payload for the duration.
 		 *
 		 * @param payload
 		 *        The thing to cache.
+		 * @param duration
+		 *        The time (seconds) to keep this cached.
 		 * @param ref
 		 *        One entity reference that, if changed, will invalidate this entry.
 		 * @param dependRefs
 		 *        References that, if the changed, will invalidate this entry.
 		 */
-		public MultiRefCacheEntry(Object payload, String ref, Collection<String> dependRefs) {
-			// put the payload into the soft reference
-			super(payload);
-			// is it supposed to be null?
-			m_nullPayload = (payload == null);
+		public MultiRefCacheEntry(Object payload, int duration, String ref, Collection<Object> dependRefs)
+		{
+			super(payload, duration);
 			if (ref != null) m_refs.add(ref);
 			if (dependRefs != null) m_refs.addAll(dependRefs);
 		}
@@ -319,57 +371,10 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		/**
 		 * @inheritDoc
 		 */
-		public Set<String> getRefs()
+		public List<Object> getRefs()
 		{
 			return m_refs;
 		}
-
-		/**
-		 * Get the cached object.
-		 *
-		 * @param key
-		 *        The key for this entry (if null, we won't try to refresh if missing)
-		 * @return The cached object.
-		 */
-		public Object getPayload(String key)
-		{
-			// if we hold null, this is easy
-			if (m_nullPayload)
-			{
-				return null;
-			}
-
-			// get the payload
-			Object payload = this.get();
-
-			// if it has been garbage collected, and we can, refresh it
-			if (payload == null)
-			{
-				if ((m_refresher != null) && (key != null))
-				{
-					// ask the refresher for the value
-					payload = m_refresher.refresh(key, null, null);
-
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: refreshing: key: " + key + " new payload: " + payload);
-					}
-
-					// store this new value
-					put(key, payload);
-				}
-				else
-				{
-					if (m_memoryService.getCacheLogging())
-					{
-						M_log.info("cache miss: no refresh: key: " + key);
-					}
-				}
-			}
-
-			return payload;
-		}
-
-	} // MultiRefCacheEntry
+	}
 
 }
