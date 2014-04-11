@@ -18,6 +18,9 @@
 
 package org.sakaiproject.archive.impl;
 
+import java.io.IOException;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.archive.api.ArchiveService;
@@ -57,6 +60,12 @@ public class ArchiveService2Impl implements ArchiveService
 		m_siteMerger = siteMerger;
 	}
 	
+	/** Dependency: SiteZipper */
+	protected SiteZipper m_siteZipper = null;
+	public void setSiteZipper(SiteZipper siteZipper) {
+		m_siteZipper = siteZipper;
+	}
+	
 	/*********************************************/
 	/* Injected Default Settings                 */
 	/*********************************************/
@@ -64,6 +73,12 @@ public class ArchiveService2Impl implements ArchiveService
 	protected String m_storagePath = "/";
 	public void setStoragePath(String path) {
 		m_storagePath = path;
+	}
+	
+	/** Path used for processing zips **/
+	protected String m_unzipPath = "/";
+	public void setUnzipPath(String unzipPath) {
+		m_unzipPath = unzipPath;
 	}
 	
 	protected boolean m_filterSakaiServices = false;
@@ -92,10 +107,15 @@ public class ArchiveService2Impl implements ArchiveService
 	public void init() {
 
 	    m_storagePath = m_serverConfigurationService.getString("archive.storage.path", m_storagePath);
-		if ((m_storagePath != null) && (!m_storagePath.endsWith("/"))) {
+		if (!StringUtils.endsWith(m_storagePath,"/")) {
 			m_storagePath = m_storagePath + "/";
 		}
-
+		
+		m_unzipPath = m_serverConfigurationService.getString("archive.unzip.path", m_unzipPath);
+		if(!StringUtils.endsWith(m_unzipPath, "/")) {
+			m_unzipPath = m_unzipPath + "/";
+		}
+		
 		m_filterSakaiServices = m_serverConfigurationService.getBoolean("archive.merge.filter.services", m_filterSakaiServices);
 		m_filterSakaiRoles = m_serverConfigurationService.getBoolean("archive.merge.filter.roles", m_filterSakaiRoles);
 		String[] filteredServices = m_serverConfigurationService.getStrings("archive.merge.filtered.services");
@@ -107,7 +127,7 @@ public class ArchiveService2Impl implements ArchiveService
             m_filteredSakaiRoles = filteredRoles;
         }
 		
-		M_log.info("init(): storage path: " + m_storagePath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
+		M_log.info("init(): storage path: " + m_storagePath + ", unzip path: " + m_unzipPath + ", merge filter{services="+m_filterSakaiServices+", roles="+m_filterSakaiRoles+"}");
 	}
 
 	public void destroy() {
@@ -135,6 +155,24 @@ public class ArchiveService2Impl implements ArchiveService
 	public String merge(String fileName, String siteId, String creatorId)
 	{
 		return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+	}
+
+	@Override
+	public String mergeFromZip(String zipFilePath, String siteId, String creatorId) {
+		try {
+			String fileName = m_siteZipper.unzipArchive(zipFilePath, m_unzipPath);
+			//not a lot we can do with the return value here since it always returns a string. would need a reimplementation/wrapper method to return a better value (boolean or some status)
+			return m_siteMerger.merge(fileName, siteId, creatorId, m_storagePath, m_filterSakaiServices, m_filteredSakaiServices, m_filterSakaiRoles, m_filteredSakaiRoles);
+		} catch (IOException e) {
+			M_log.error("Error merging from zip: " + e.getClass() + ":" + e.getMessage());
+			return "Error merging from zip: " + e.getClass() + ":" + e.getMessage();
+		}
+	}
+
+	@Override
+	public boolean archiveAndZip(String siteId) throws IOException {
+		m_siteArchiver.archive(siteId, m_storagePath, FROM_SAKAI_2_8);
+		return m_siteZipper.zipArchive(siteId, m_storagePath);
 	}
 	
 } // ArchiveService2Impl

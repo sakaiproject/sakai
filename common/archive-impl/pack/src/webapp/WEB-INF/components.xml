@@ -11,8 +11,10 @@
  		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
  		<property name="storagePath"><value>${sakai.home}archive/</value></property>
+ 		<property name="unzipPath"><value>${sakai.home}archive-unzip/</value></property>
  		<property name="siteArchiver" ref="org_sakaiproject_archive_impl_SiteArchiver" />
  		<property name="siteMerger" ref="org_sakaiproject_archive_impl_SiteMerger" />
+ 		<property name="siteZipper" ref="org_sakaiproject_archive_impl_SiteZipper" />
 	
 		<property name="mergeFilterSakaiServices" value="true" />
 		<property name="mergeFilterSakaiRoles" value="true" />
@@ -64,6 +66,11 @@
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+	</bean>
+	
+	<bean id="org_sakaiproject_archive_impl_SiteZipper"
+		class="org.sakaiproject.archive.impl.SiteZipper">
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
 	<!-- 

@@ -1289,6 +1289,16 @@ public class BasicArchiveService
 		return name;
 	}
 
+	// SAK-25867 Stub to build
+	public boolean archiveAndZip(String siteId) throws java.io.IOException {
+		return true;
+	}
+
+	// SAK-25867 Stub to build
+	public String mergeFromZip(String zipFilePath, String siteId, String creatorId) {
+		return "";
+	}
+
 }	// BasicArchiveService
 
 

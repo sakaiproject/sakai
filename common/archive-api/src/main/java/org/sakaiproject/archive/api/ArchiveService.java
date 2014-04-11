@@ -21,6 +21,8 @@
 
 package org.sakaiproject.archive.api;
 
+import java.io.IOException;
+
 /**
  * <p>
  * ArchiveService takes care of exporting and importing entities.
@@ -70,4 +72,26 @@ public interface ArchiveService
 	 * @return A log of messages from the merge.
 	 */
 	String merge(String archiveUrl, String siteId, String siteCreatorId);
+	
+	/**
+	 * Read in an archived set of resources, and merge the entries into the specified site, and set site creator name
+	 * Allows a ZIP file to be used instead of the site archive directory
+	 * 
+	 * @param zipFilePath
+	 *        The archived site as a zip file
+	 * @param siteId
+	 *        The id of the site to merge the content into.
+	 * @param siteCreatorId
+	 *        the site creator Id
+	 * @return A log of messages from the merge.
+	 */
+	public String mergeFromZip(String zipFilePath, String siteId, String siteCreatorId);
+	
+	/**
+	 * Archive a site then compress it to a zip. 
+	 * @param siteId - id of site to be archived
+	 * @return true if archive and zip successful, false if not.
+	 * @throws IOException 
+	 */
+	public boolean archiveAndZip(String siteId) throws IOException;
 }
