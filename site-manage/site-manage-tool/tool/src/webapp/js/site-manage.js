@@ -182,7 +182,6 @@ sakai.siteTypeSetup = function(){
         $('#siteTypeList').hide();
         //hide the term select used when selecting a course when building own
         $('#termList').hide();
-        utils.resizeFrame('grow');
         //show submit button used when using templates 
         $('#submitFromTemplate').show();
         //show submit button used when building own, disable it
@@ -190,6 +189,15 @@ sakai.siteTypeSetup = function(){
         $('#submitBuildOwn').prop('disabled', true);
         //TODO: why? commenting out for now
         //$('#copyContent').prop('checked', true);
+
+        //hide/reset archive parts
+        $('#archiveSettings').hide();
+        $('#archive').prop('checked', false);
+        $('#submitBuildOwn').prop('disabled', true);
+        $('#submitFromArchive').hide();
+
+        utils.resizeFrame('grow');
+
     });
     
     $('#buildOwn').click(function(e){
@@ -214,8 +222,49 @@ sakai.siteTypeSetup = function(){
         $('#submitFromTemplateCourse').hide();
         //show the submit for build own
         $('#submitBuildOwn').show();
+        
+        //hide/reset archive parts
+        $('#archiveSettings').hide();
+        $('#archive').prop('checked', false);
+        $('#submitBuildOwn').prop('disabled', true);
+        $('#submitFromArchive').hide();
+
+        
         utils.resizeFrame('grow');
     });
+    
+    // handles display of "create site from archive"
+    $('#archive').click(function(e){
+
+        //show archive settings
+        $('#archiveSettings').show();
+        $('#submitFromArchive').show();
+        $('#submitBuildOwn').prop('disabled', false);
+        toggleArchiveTermList();
+
+        //hide and disable buildOwn section
+        $('#buildOwn').prop('checked', false);
+        $('#siteTypeList').hide();
+        $('#termList').hide();
+        $('#submitBuildOwn').hide();
+        $('#submitBuildOwn').prop('disabled', true);
+
+        //hide create from template section
+        $('#copy').prop('checked', false);
+        $('#templateSettings').hide();
+        $('#templateSettings input:checked').prop('checked', false);
+        $('#allTemplateSettings').hide();
+        $('#siteTitleField').prop('value', '');
+        $('#templateSettings select').prop('selectedIndex', 0);
+        $('#templateSettingsTitleTerm span.templateTitleTerm').hide();
+        $('#submitFromTemplate').hide().prop('disabled', true);
+        $('#submitFromTemplateCourse').hide();
+        
+        utils.resizeFrame('grow');
+        
+    });
+    
+   
     // check for a value in the create from template non-course title 
     // field and either enable or disable the submit, also check onblur below
     $('#siteTitleField').keyup(function(e){
@@ -410,6 +459,7 @@ sakai.siteTypeSetup = function(){
         $('#submitBuildOwn').prop('disabled', false);
         
     });
+    
 };
 
 sakai.setupToggleAreas = function(toggler, togglee, openInit, speed){
@@ -929,3 +979,13 @@ if (!Array.prototype.indexOf) {
          return -1;
     }
 }
+
+var toggleArchiveTermList = function() {
+    if ($('#archiveSiteType').val() == 'course') {
+        $('#archiveTermList').show();
+    } else {
+        $('#archiveTermList').hide();
+    }
+
+}
+

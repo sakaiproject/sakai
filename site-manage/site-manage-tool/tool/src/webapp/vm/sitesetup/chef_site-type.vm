@@ -35,19 +35,14 @@
     ##      $tlang.getString("sitetype.chothetyp.withtemplate")
     ##  #end
     </p>
-    <form name="typeform" id="typeform" action="#toolForm("$action")" method="post">
-        #if ($templateSites.size() > 0)
+    <form name="typeform" id="typeform" action="#toolForm("$action")&special=upload" method="post">
+        <p class="checkbox indnt1">
             ## only show the radio button when there is any template site defined
-            <p class="checkbox indnt1">
-                ## only show the radio button when there is any template site defined
-                <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
-                <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
-            </p>
-            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
-        #else
-            ## otherwise, default to the choice
-            <input type="hidden" name="createMode" id="buildOwn" value="buildOwn" />    
-        #end
+            <input type="radio" name="createMode" id="buildOwn" value="buildOwn" checked="checked"/>    
+            <label for="buildOwn">$tlang.getString("sitetype.buildown")</label>
+        </p>
+        <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("sitetype.chothetyp.withtemplate.build.own.info")</p>
+   
         ## NOTE: end if create from template enabled
         #* following block should show if "build own" has been selected,
          a site type has been picked, and then the user (from the next screen) hits "back"  - the "Build own" radio
@@ -233,6 +228,65 @@
             </div>   ## end of child of  div#templateSettings
         #end
         ## end templates enabled
+        
+        ## create site from archive
+        #if ($canImportArchive)
+            <p class="checkbox indnt1">
+                <input type="radio" id="archive" value="archive"/>
+                <label for="archive">$tlang.getString("archive.createsite")</label>
+            </p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("archive.createsite.info")</p>
+            <p class="indnt4 textPanelFooter" style="margin-bottom:5px;">$tlang.getString("archive.createsite.info.2")</p>
+
+            <div class="indnt3" id="archiveSettings" style="display:none;">
+
+                <strong class="reqStarInline"> * </strong>
+                <label for="archiveSiteType">
+                    $tlang.getString("archive.createsite.type")
+                </label>
+
+                <select name="itemType" id="archiveSiteType" onchange="toggleArchiveTermList()">
+                    #foreach ($type in $siteTypes)
+                        #if (
+                                ($type == $projectSiteType && $canAddProject) || 
+                                ($courseSiteTypeStrings.contains($type) && $canAddCourse) || 
+                                ($type == $portfolioSiteType && $canAddPortfolio)
+                            )
+                            <option value="$!type">$tlang.getFormattedMessage("sitetype.websit", $type)</option>
+                        #end
+                    #end
+                </select>
+
+                <span id="archiveTermList">
+                    <br />
+                    <strong class="reqStarInline"> * </strong>
+                    <label for="archiveSelectTerm">
+                        $tlang.getString("archive.createsite.term")
+                    </label>
+                    <select name="selectTerm" id="archiveSelectTerm">
+                        #foreach($term in $termList)
+                            <option value ="$term.eid"
+                                #if ($!selectedTerm)
+                                    #if ($term.eid == $selectedTerm.eid)
+                                        selected="selected"
+                                    #end
+                                #else
+                                    #if ($term.isCurrentTerm())
+                                        selected="selected"
+                                    #end
+                                #end
+                            >
+                            $term.title
+                            </option>
+                        #end
+                    </select> 
+                </span>
+
+            </div>
+        #end
+
+
+        ## end create site from archive
         <input type="hidden" name="back" value="$!backIndex" />
         <input type="hidden" name="templateIndex" value="$!templateIndex" />
         <input type="hidden" name="eventSubmit_doSite_type_option" value="x" />
@@ -244,6 +298,7 @@
              *#
             <input type="submit" accesskey="s"  id="submitFromTemplate" disabled="disabled" style="display:none" class="active" name="submitFromTemplate" value="$tlang.getString('sitetype.done')" onclick="showNotif('submitnotif','submitFromTemplate','typeform'); document.typeform.option.value='createOnTemplate'; document.typeform.submit(); return false;" />
             <input type="submit" accesskey="s"  id="submitFromTemplateCourse" disabled="disabled" style="display:none" class="active" name="submitFromTemplateCourse" value="$tlang.getString('sitetype.donecourse')" onclick="showNotif('submitnotif','submitFromTemplateCourse','typeform'); document.typeform.option.value='createCourseOnTemplate'; document.typeform.submit(); return false;"/>
+            <input type="submit" accesskey="s" id="submitFromArchive" style="display:none" class="active" name="submitFromArchive" value="$tlang.getString('sitetype.con')" onclick="showNotif('submitnotif','submitFromArchive','typeform'); document.typeform.option.value='createFromArchive'; document.typeform.submit(); return false;" />
             ## this submit should be ther normal one
             <input type="submit" accesskey="s"  id="submitBuildOwn" disabled="disabled" class="active" name="submitBuildOwn" value="$tlang.getString('sitetype.con')" onclick="showNotif('submitnotif','submitBuildOwn','typeform'); document.typeform.option.value='siteType'; document.typeform.submit(); return false;" />
             <input type="submit" accesskey="x" id="cancelCreate" name="cancelCreate" value="$tlang.getString('sitetype.can')" onclick="document.typeform.option.value='cancel'; document.typeform.submit(); return false;" />

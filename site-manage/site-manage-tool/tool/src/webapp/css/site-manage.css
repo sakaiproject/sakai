@@ -17,7 +17,7 @@ toggler needs
     border-top: none;
     padding: .5em
 }
-#templateSettings, #siteTypeList{
+#templateSettings, #siteTypeList, #archiveSettings{
 	padding:.5em;
 	background:#eee;
 	width:50em;
@@ -47,7 +47,7 @@ dl.defList dd{
 	min-width: 30em;
 }
 
-#templateSettings, #siteTypeList{
+#templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;
     width:60em;

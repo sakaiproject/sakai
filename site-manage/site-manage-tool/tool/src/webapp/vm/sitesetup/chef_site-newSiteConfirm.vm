@@ -302,7 +302,19 @@
 							$description
 						#end						
 					</td>
-			</tr>	
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("archive.createsite.confirm")
+				</th>
+				<td>					
+					#if ($fromArchive =="")
+						<span class="instruction">$tlang.getString("archive.createsite.confirm.none")</span>
+					#else	
+						$fromArchive
+					#end						
+				</td>
+			</tr>
 		</table>	
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

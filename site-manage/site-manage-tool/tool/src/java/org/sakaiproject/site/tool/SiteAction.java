@@ -20,7 +20,6 @@
  **********************************************************************************/
 package org.sakaiproject.site.tool;
 
-import java.util.LinkedHashMap;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -36,6 +35,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
@@ -51,6 +51,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -69,6 +70,7 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -111,6 +113,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
+import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
@@ -127,8 +130,8 @@ import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteSetupQuestionFileParser;
 import org.sakaiproject.site.util.SiteTextEditUtil;
-import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.site.util.SiteTypeUtil;
+import org.sakaiproject.site.util.ToolComparator;
 import org.sakaiproject.sitemanage.api.SectionField;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.sitemanage.api.model.SiteSetupQuestion;
@@ -151,9 +154,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.*;
-
 // for basiclti integration
-import org.sakaiproject.lti.api.LTIService;
 
 
 /**
@@ -195,6 +196,9 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.authz.api.AuthzGroupService authzGroupService = (org.sakaiproject.authz.api.AuthzGroupService) ComponentManager
 			.get(org.sakaiproject.authz.api.AuthzGroupService.class);
 
+	private org.sakaiproject.archive.api.ArchiveService archiveService = (org.sakaiproject.archive.api.ArchiveService) ComponentManager
+			.get(org.sakaiproject.archive.api.ArchiveService.class);
+	
 	private org.sakaiproject.sitemanage.api.SectionFieldProvider sectionFieldProvider = (org.sakaiproject.sitemanage.api.SectionFieldProvider) ComponentManager
 			.get(org.sakaiproject.sitemanage.api.SectionFieldProvider.class);
 	
@@ -285,7 +289,8 @@ public class SiteAction extends PagedResourceActionII {
 			"-siteInfo-importSelection",   //58
 			"-siteInfo-importMigrate",    //59
 			"-importSitesMigrate",  //60
-			"-siteInfo-importUser"
+			"-siteInfo-importUser",
+			"-uploadArchive"
 	};
 
 	/** Name of state attribute for Site instance id */
@@ -383,6 +388,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_SITE_ADD_PROJECT = "canAddProject";
 		
 	private static final String STATE_PROJECT_SITE_TYPE = "project";
+	
+	private static final String STATE_SITE_IMPORT_ARCHIVE = "canImportArchive";
 	
 	// SAK-23468
 	private static final String STATE_NEW_SITE_STATUS_ISPUBLISHED = "newSiteStatusIsPublished";
@@ -757,6 +764,10 @@ public class SiteAction extends PagedResourceActionII {
 	private String m_filePath;
 	private String moreInfoPath;
 	private String libraryPath;
+	
+	private static final String STATE_CREATE_FROM_ARCHIVE = "createFromArchive";
+	private static final String STATE_UPLOADED_ARCHIVE_PATH = "uploadedArchivePath";
+	private static final String STATE_UPLOADED_ARCHIVE_NAME = "uploadedArchiveNAme";
 	
 	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
 	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
@@ -1400,6 +1411,9 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("projectSiteType", STATE_PROJECT_SITE_TYPE);
 		context.put(STATE_SITE_ADD_PROJECT, SiteService.allowAddProjectSite());
 		
+		// can the user user create sites from archives?
+		context.put(STATE_SITE_IMPORT_ARCHIVE, SiteService.allowImportArchiveSite());
+		
 
 		
 		Site site = getStateSite(state);
@@ -1808,6 +1822,8 @@ public class SiteAction extends PagedResourceActionII {
 					.getRequiredFields());
 			context.put("fieldValues", state
 					.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS));
+			
+			context.put("fromArchive", state.getAttribute(STATE_UPLOADED_ARCHIVE_NAME));
 
 			return (String) getContext(data).get("template") + TEMPLATE[10];
 		case 12:
@@ -3409,7 +3425,19 @@ public class SiteAction extends PagedResourceActionII {
 			// only show those sites with same site type
 			putImportSitesInfoIntoContext(context, site, state, true);
 			return (String) getContext(data).get("template") + TEMPLATE[61];
+		
+		case 62:
+			/*
+			 * build context for chef_site-uploadArchive.vm
+			 */
+			
+			//back to access, continue to confirm
+			context.put("back", "18");
+
+			//now go to uploadArchive template
+			return (String) getContext(data).get("template") + TEMPLATE[62];
 		}
+			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 
@@ -4807,8 +4835,8 @@ public class SiteAction extends PagedResourceActionII {
 			return;
 		}
 		List chosenList = new ArrayList(Arrays.asList(params
-				.getStrings("selectedMembers"))); // Site id's of checked
-		// sites
+				.getStrings("selectedMembers"))); // Site id's of checked sites
+		
 		if (!chosenList.isEmpty()) {
 			
 			for (ListIterator i = chosenList.listIterator(); i.hasNext();) {
@@ -4818,6 +4846,8 @@ public class SiteAction extends PagedResourceActionII {
 					try {
 						Site site = SiteService.getSite(id);
 						site_title = site.getTitle();
+						
+						//now delete the site
 						SiteService.removeSite(site);
 						M_log.debug("Removed site: " + site.getId());
 					} catch (IdUnusedException e) {
@@ -5021,7 +5051,7 @@ public class SiteAction extends PagedResourceActionII {
 
 		List<String> pSiteTypes = siteTypeProvider.getTypesForSiteCreation();
 		String type = StringUtils.trimToNull(params.getString("itemType"));
-
+		
 		if (type == null) {
 			addAlert(state, rb.getString("java.select") + " ");
 		} else {
@@ -6274,6 +6304,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 			// commit site
 			commitSite(site);
+			
+			//merge uploaded archive if required
+			if(state.getAttribute(STATE_CREATE_FROM_ARCHIVE) == Boolean.TRUE) {
+				doMergeArchiveIntoNewSite(site.getId(), state);
+			}
 
 			if (templateSite == null) 
 			{	
@@ -8439,9 +8474,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 			}
-
+						
+			//if creating a site from an archive, go to that template
+			//otherwise go to confirm page
 			if (state.getAttribute(STATE_MESSAGE) == null) {
-				state.setAttribute(STATE_TEMPLATE_INDEX, "10");
+				if (state.getAttribute(STATE_CREATE_FROM_ARCHIVE) == Boolean.TRUE) {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "62");
+				} else {
+					state.setAttribute(STATE_TEMPLATE_INDEX, "10");
+				}
 			}
 		}
 			
@@ -14226,6 +14267,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			{
 				doSite_copyFromCourseTemplate(data);
 			}
+			else if ("createCourseOnTemplate".equals(option))
+			{
+				doSite_copyFromCourseTemplate(data);
+			}
+			else if ("createFromArchive".equals(option))
+			{
+				state.setAttribute(STATE_CREATE_FROM_ARCHIVE, Boolean.TRUE);
+				//continue with normal workflow
+				doSite_type(data);
+			}			
 		}
 	}
 	
@@ -14569,5 +14620,81 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 
 	}
+	
+	
+	/**
+	 * Handles uploading an archive file as part of the site creation workflow
+	 * @param data
+	 */
+	public void doUploadArchive(RunData data)
+	{	
+		ParameterParser params = data.getParameters();
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+	
+		//get params
+		FileItem fi = data.getParameters().getFileItem ("importFile");
+		
+		//get uploaded file into a location we can process
+		String archiveUnzipBase = ServerConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
+	
+	    //convert inputstream into actual file so we can unzip it
+	    String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
+	    
+	    //rudimentary check that the file is a zip file
+	    if(!StringUtils.endsWith(fi.getFileName(), ".zip")){
+	    	addAlert(state, rb.getString("archive.createsite.failedupload"));
+	    	return;
+	    }
+	    
+	    
+	    
+	    File tempZipFile = new File(zipFilePath);
+	    if(tempZipFile.exists()) {
+	    	tempZipFile.delete();
+	    }
+	    
+	    try {
+		    //copy contents into this file
+		    IOUtils.copyLarge(fi.getInputStream(), new FileOutputStream(tempZipFile));
+		    
+		    //set path into state so we can process it later
+		    state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
+		    state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, tempZipFile.getName());
+		    
+		} catch (Exception e) {
+	    	M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
+			addAlert(state, rb.getString("archive.createsite.failedupload"));
+	    }   
+	    	
+	    //go to confirm screen
+		state.setAttribute(STATE_TEMPLATE_INDEX, "10");
+	}
+	
+	/**
+	 * Handles merging an uploaded archive into the newly created site
+	 * This is done after the site has been created in the site creation workflow
+	 * 
+	 * @param siteId
+	 * @param state
+	 */
+	private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {	
+		
+		 String currentUserId = userDirectoryService.getCurrentUser().getId();
+		
+		 try {
+		   
+	    	String archivePath = (String)state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+		    
+		    //merge the zip into our new site
+		    //we ignore the return because its not very useful. See ArchiveService for more details
+		    archiveService.mergeFromZip(archivePath, siteId, currentUserId);
+		    
+		} catch (Exception e) {
+	    	M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
+			addAlert(state, rb.getString("archive.createsite.failedmerge"));
+	    }   
+		
+	}
+
 }
 

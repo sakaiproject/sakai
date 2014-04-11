@@ -36,7 +36,7 @@
     
             #parse("/vm/sitesetup/toolGroupMultipleDisplay.vm")
    
-            #if (!$existSite && $sites.size() > 0)
+            #if (!$existSite && !$createFromArchive && $sites.size() > 0)
             <fieldset style="clear: both">
                 <legend>
                     <h4>$tlang.getString("feat.reuse")</h4>
