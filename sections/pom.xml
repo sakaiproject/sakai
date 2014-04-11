@@ -21,7 +21,6 @@
   </scm>
 
   <modules>
-    <module>help</module>
     <module>sections-app-util</module>
     <module>sections-app</module>
   </modules>
