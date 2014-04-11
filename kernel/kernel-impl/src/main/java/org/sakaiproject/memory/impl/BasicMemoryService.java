@@ -35,7 +35,11 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.*;
+import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.GenericMultiRefCache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.util.CacheInitializer;
 
 import java.lang.reflect.Field;
@@ -45,7 +49,6 @@ import java.util.*;
  * <p>
  * BasicMemoryService is an implementation for the MemoryService which reports memory usage and runs a periodic garbage collection to keep memory available.
  * </p>
- * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
  */
 public abstract class BasicMemoryService implements MemoryService, Observer
 {
@@ -77,6 +80,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * @return the SecurityService collaborator.
 	 */
 	protected abstract SecurityService securityService();
+
+	/**
+	 * @return the UsageSessionService collaborator.
+	 */
+	protected abstract UsageSessionService usageSessionService();
 
 	/**
 	 * @return the AuthzGroupService collaborator.
@@ -157,12 +165,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				}
 				
 			});
-            M_log.info("INIT: " + cacheManager.getStatus() + ", caches: " + Arrays.asList(cacheManager.getCacheNames()));
 		}
 		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
+
 	} // init
 
 	/**
@@ -185,7 +193,57 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * MemoryService implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
+    @Override
+    public ClassLoader getClassLoader() {
+        return BasicMemoryService.class.getClassLoader();
+    }
+
+    @Override
+    public Properties getProperties() {
+        Configuration ec = cacheManager.getConfiguration();
+        Properties p = new Properties();
+        p.put("name", ec.getName());
+        p.put("source", ec.getConfigurationSource().toString());
+        p.put("timeoutSeconds", ec.getDefaultTransactionTimeoutInSeconds());
+        p.put("maxBytesDisk", ec.getMaxBytesLocalDisk());
+        p.put("maxBytesHeap", ec.getMaxBytesLocalHeap());
+        p.put("maxDepth", ec.getSizeOfPolicyConfiguration().getMaxDepth());
+        p.put("defaultCacheMaxEntries", ec.getDefaultCacheConfiguration().getMaxEntriesLocalHeap());
+        p.put("defaultCacheTimeToIdleSecs", ec.getDefaultCacheConfiguration().getTimeToIdleSeconds());
+        p.put("defaultCacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
+        p.put("defaultCacheEternal", ec.getDefaultCacheConfiguration().isEternal());
+        return p;
+    }
+
+    @Override
+    public Cache getCache(String cacheName) {
+        return newCache(cacheName);
+    }
+
+    @Override
+    public Iterable<String> getCacheNames() {
+        if (this.cacheManager != null) {
+            String[] names = cacheManager.getCacheNames();
+            return Arrays.asList(names);
+        } else {
+            return new ArrayList<String>(0);
+        }
+    }
+
+    @Override
+    public void destroyCache(String cacheName) {
+        if (this.cacheManager != null) {
+            this.cacheManager.removeCache(cacheName);
+        }
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        //noinspection unchecked
+        return (T) cacheManager;
+    }
+
+    /**
 	 * Return the amount of available memory.
 	 * 
 	 * @return the amount of available memory.
@@ -199,30 +257,35 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	/**
 	 * Cause less memory to be used by clearing any optional caches.
 	 */
-	public void resetCachers() {
+	public void resetCachers() //throws MemoryPermissionException
+	{
 		// check that this is a "super" user with the security service
 		if (!securityService().isSuperUser())
 		{
-			throw new SecurityException("Only super admin can reset cachers, current user not super admin");
+			// TODO: session id or session user id?
+			throw new SecurityException("must be admin");//MemoryPermissionException(usageSessionService().getSessionId(), EVENT_RESET, "");
 		}
 
 		// post the event so this and any other app servers in the cluster will reset
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_RESET, "", true));
-        // trigger doReset()
+
 	} // resetMemory
 
-	public void evictExpiredMembers() {
+	public void evictExpiredMembers() {//throws MemoryPermissionException {
 		// check that this is a "super" user with the security service
 		if (!securityService().isSuperUser())
 		{
-			throw new SecurityException("Only super admin can exict caches, current user not super admin");
+			// TODO: session id or session user id?
+			throw new SecurityException("must be admin");//MemoryPermissionException(usageSessionService().getSessionId(), EVENT_EXPIRE, "");
 		}
 
 		// post the event so this and any other app servers in the cluster will reset
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_EXPIRE, "", true));
-        // trigger doExpire()
-	}
 
+		
+	}
+	
+	
 	/**
 	 * Compute a status report on all memory users
 	 */
@@ -230,7 +293,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	{
 		final StringBuilder buf = new StringBuilder();
 		buf.append("** Memory report\n");
-		buf.append("freeMemory: ").append(Runtime.getRuntime().freeMemory());
+		buf.append("freeMemory: " + Runtime.getRuntime().freeMemory());
 		buf.append(" totalMemory: "); buf.append(Runtime.getRuntime().totalMemory());
 		buf.append(" maxMemory: "); buf.append(Runtime.getRuntime().maxMemory());
 		buf.append("\n\n");
@@ -245,9 +308,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
 			// Even when we're not collecting statistics ehcache knows how
 			// many objects are in the cache
-			buf.append(cache.getName()).append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
+			buf.append(cache.getName() + ": " + 
+					" count:" + cache.getStatistics().getObjectCount());
 			if (cache.isStatisticsEnabled()) {
-				buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
+				buf.append(" hits:" + hits +
+					" misses:" + misses + 
+					" hit%:" + hitRatio);
 			} else {
 				buf.append(" NO statistics (not enabled for cache)");
 			}
@@ -301,7 +367,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
 		final List<Ehcache> allCaches = getAllCaches(false);
 		for (Ehcache ehcache : allCaches) {
-			ehcache.removeAll();
+			ehcache.removeAll(); //TODO should we doNotNotifyCacheReplicators? Ian?
 			ehcache.clearStatistics();
 		}
 
@@ -317,61 +383,117 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		final List<Ehcache> allCaches = getAllCaches(false);
 		for (Ehcache ehcache : allCaches) {
 			ehcache.evictExpiredElements();
-
+			
 		}
 
 		M_log.info("doExpire(): free memory now " + Runtime.getRuntime().freeMemory());
+
+		
+	}
+	/**
+	 * Register as a cache user
+	 * @deprecated
+	 *//*
+	synchronized public void registerCacher(Cacher cacher)
+	{
+		// not needed with ehcache
+
+	} // registerCacher */
+
+	/**
+	 * Unregister as a cache user
+	 * @deprecated
+	 *//*
+	synchronized public void unregisterCacher(Cacher cacher)
+	{
+		// not needed with ehcache
+
+	} // unregisterCacher */
+
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 */
+	public Cache newCache(CacheRefresher refresher, String pattern)
+	{
+		return new MemCache(this, eventTrackingService(), refresher, pattern,
+				instantiateCache("MemCache"));
 	}
 
-    // New JSR-107 methods
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 *//*
+	public Cache newHardCache(CacheRefresher refresher, String pattern)
+	{
+		return new HardCache(this, eventTrackingService(), refresher, pattern,
+				instantiateCache("HardCache"));
+	} */
 
-    @Override
-    public ClassLoader getClassLoader() {
-        return BasicMemoryService.class.getClassLoader();
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 *//*
+	public Cache newHardCache(long sleep, String pattern)
+	{
+		return new HardCache(this, eventTrackingService(), sleep, pattern,
+				instantiateCache("HardCache"));
+	} */
 
-    @Override
-    public Properties getProperties() {
-        Configuration ec = cacheManager.getConfiguration();
-        Properties p = new Properties();
-        p.put("name", ec.getName());
-        p.put("source", ec.getConfigurationSource().toString());
-        p.put("timeoutSeconds", ec.getDefaultTransactionTimeoutInSeconds());
-        p.put("maxBytesDisk", ec.getMaxBytesLocalDisk());
-        p.put("maxBytesHeap", ec.getMaxBytesLocalHeap());
-        p.put("maxDepth", ec.getSizeOfPolicyConfiguration().getMaxDepth());
-        p.put("defaultCacheMaxEntries", ec.getDefaultCacheConfiguration().getMaxEntriesLocalHeap());
-        p.put("defaultCacheTimeToIdleSecs", ec.getDefaultCacheConfiguration().getTimeToIdleSeconds());
-        p.put("defaultCacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
-        p.put("defaultCacheEternal", ec.getDefaultCacheConfiguration().isEternal());
-        return p;
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 */
+	public Cache newCache(CacheRefresher refresher, long sleep)
+	{
+		return new MemCache(this, eventTrackingService(), refresher, sleep,
+				instantiateCache("MemCache"));
+	}
 
-    @Override
-    public Cache getCache(String cacheName) {
-        return new MemCache(this, eventTrackingService(), null, null, instantiateCache(cacheName));
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 */
+	public Cache newHardCache(CacheRefresher refresher, long sleep)
+	{
+		return new MemCache(this, eventTrackingService(), refresher, sleep,
+				instantiateCache("HardCache"));
+	}
 
-    @Override
-    public Iterable<String> getCacheNames() {
-        String[] names = cacheManager.getCacheNames();
-        return Arrays.asList(names);
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 */
+	public Cache newCache()
+	{
+		return new MemCache(this, eventTrackingService(),
+				instantiateCache("MemCache"));
+	}
 
-    @Override
-    public void destroyCache(String cacheName) {
-        if (this.cacheManager != null) {
-            this.cacheManager.removeCache(cacheName);
-        }
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 *//*
+	public Cache newHardCache()
+	{
+		return new HardCache(this, eventTrackingService(),
+				instantiateCache("HardCache"));
+	} */
 
-    @Override
-    public <T> T unwrap(Class<T> clazz) {
-        //noinspection unchecked
-        return (T) cacheManager;
-    }
+	/**
+	 * {@inheritDoc}
+	 * @deprecated
+	 *//*
+	public MultiRefCache newMultiRefCache(long sleep)
+	{
+		return new MultiRefCacheImpl(
+				this,
+				eventTrackingService(),
+				authzGroupService(),
+				instantiateCache("MultiRefCache"));
+	} */
 
-    /**********************************************************************************************************************************************************************************************************************************************************
+	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -402,10 +524,16 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			doExpire();
 		}
 	}
+	
+	
 
 	/**
-	 * @param cacheName the name of the cache
-	 * @return an Ehcache
+	 * 
+	 * @param cacheName
+	 * @param legacyMode
+	 *            If true always create a new Cache. If false, cache must be
+	 *            defined in bean factory.
+	 * @return
 	 */
 	private Ehcache instantiateCache(String cacheName)
 	{
@@ -415,7 +543,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		String name = cacheName;
 		if (name == null || "".equals(name))
 		{
-			name = "DefaultCache" + UUID.randomUUID().toString();
+			name = "DefaultCache" + UUID.randomUUID().toString();			
 		}
 		
 		// Cache creation should all go to the cache manager and be
@@ -518,7 +646,8 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		}
 		*/
 	}
-
+	
+	
 	private Ehcache getDefaultCache() throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		Field defaultCacheField = CacheManager.class.getDeclaredField("defaultCache");
 		defaultCacheField.setAccessible(true);
@@ -529,26 +658,40 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		this.cacheManager = cacheManager;
 	}
 
-	@SuppressWarnings("deprecation") // TODO remove this
-	public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
-		return new MemCache(this, eventTrackingService(), refresher, pattern, instantiateCache(cacheName));
+	public Cache newCache(String cacheName, CacheRefresher refresher,
+			String pattern) {
+		return new MemCache(this, eventTrackingService(), refresher, pattern,
+				instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName, String pattern) {
-		return newCache(cacheName, null, pattern);
+		return new MemCache(this, eventTrackingService(), pattern,
+				instantiateCache(cacheName));
+	}
+
+	public Cache newCache(String cacheName, CacheRefresher refresher) {
+		return new MemCache(this, eventTrackingService(), refresher,
+				instantiateCache(cacheName));
 	}
 
 	public Cache newCache(String cacheName) {
-		return newCache(cacheName, null, null);
+		return new MemCache(this, eventTrackingService(),
+				instantiateCache(cacheName));
 	}
-
-	@SuppressWarnings("deprecation") // TODO remove this
+/*
+	public MultiRefCache newMultiRefCache(String cacheName) {
+		return new MultiRefCacheImpl(
+				this,
+				eventTrackingService(),
+				authzGroupService(),
+				instantiateCache(cacheName));
+	}
+*/
 	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
 		return new GenericMultiRefCacheImpl(
 				this,
 				eventTrackingService(),
-				instantiateCache(cacheName)
-		);
+				instantiateCache(cacheName));
 	}
 
 }
