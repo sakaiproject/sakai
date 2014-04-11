@@ -55,6 +55,17 @@ public class EhcacheMemoryService implements MemoryService {
     SecurityService securityService;
     ServerConfigurationService serverConfigurationService;
 
+    public EhcacheMemoryService() {}
+
+    public EhcacheMemoryService(CacheManager cacheManager, SecurityService securityService, ServerConfigurationService serverConfigurationService) {
+        assert cacheManager != null;
+        assert securityService != null;
+        assert serverConfigurationService != null;
+        this.cacheManager = cacheManager;
+        this.securityService = securityService;
+        this.serverConfigurationService = serverConfigurationService;
+    }
+
     /**
      * Service INIT
      */
@@ -214,12 +225,7 @@ public class EhcacheMemoryService implements MemoryService {
     @Override
     @SuppressWarnings("deprecation")
     public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
-        if (refresher != null) {
-            log.warn("Creating refresher/pattern Cache("+cacheName+"), CacheRefresher is not supported in the distributed MemoryService implementation (and in fact is broken since 2.8), CacheRefresher will not be called!");
-            return getCache(cacheName);
-        } else {
-            return newCache(cacheName, pattern);
-        }
+        return getCache(cacheName);
     }
 
     @Override

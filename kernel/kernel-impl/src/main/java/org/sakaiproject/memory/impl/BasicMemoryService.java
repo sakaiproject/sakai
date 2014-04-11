@@ -29,13 +29,11 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
@@ -84,12 +82,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	/**
 	 * @return the UsageSessionService collaborator.
 	 */
-	protected abstract UsageSessionService usageSessionService();
+	//protected abstract UsageSessionService usageSessionService();
 
 	/**
 	 * @return the AuthzGroupService collaborator.
 	 */
-	protected abstract AuthzGroupService authzGroupService();
+	//protected abstract AuthzGroupService authzGroupService();
 	
 	/**
 	 * @return the ServerConfigurationService collaborator

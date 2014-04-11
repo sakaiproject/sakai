@@ -68,7 +68,6 @@ public class MockBasicMemoryService extends BasicMemoryService
 	return securityService;
 	}
 
-	@Override
 	protected AuthzGroupService authzGroupService()
 	{
 		return authzGroupService;
