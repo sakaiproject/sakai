@@ -16,7 +16,6 @@
 
   <modules>
     <module>admin-perms-tool</module>
-    <module>site-help</module>
     <module>site-tool/tool</module>
     <module>mergedlist-util/util</module>
   </modules>
