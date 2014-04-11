@@ -15,7 +15,6 @@
 
   <modules>
     <module>components</module>
-    <module>help</module>
     <module>syllabus-api</module>
     <module>syllabus-app</module>
     <module>syllabus-hbm</module>
