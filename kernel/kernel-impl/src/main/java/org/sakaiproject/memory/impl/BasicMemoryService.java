@@ -45,6 +45,7 @@ import java.util.*;
  * <p>
  * BasicMemoryService is an implementation for the MemoryService which reports memory usage and runs a periodic garbage collection to keep memory available.
  * </p>
+ * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
  */
 public abstract class BasicMemoryService implements MemoryService, Observer
 {
@@ -156,12 +157,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 				}
 				
 			});
+            M_log.info("INIT: " + cacheManager.getStatus() + ", caches: " + Arrays.asList(cacheManager.getCacheNames()));
 		}
 		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
-
 	} // init
 
 	/**
@@ -339,10 +340,10 @@ public abstract class BasicMemoryService implements MemoryService, Observer
         p.put("maxBytesDisk", ec.getMaxBytesLocalDisk());
         p.put("maxBytesHeap", ec.getMaxBytesLocalHeap());
         p.put("maxDepth", ec.getSizeOfPolicyConfiguration().getMaxDepth());
-        p.put("cacheMaxEntries", ec.getDefaultCacheConfiguration().getMaxEntriesLocalHeap());
-        p.put("cacheTimeToIdleSecs", ec.getDefaultCacheConfiguration().getTimeToIdleSeconds());
-        p.put("cacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
-        p.put("cacheEternal", ec.getDefaultCacheConfiguration().isEternal());
+        p.put("defaultCacheMaxEntries", ec.getDefaultCacheConfiguration().getMaxEntriesLocalHeap());
+        p.put("defaultCacheTimeToIdleSecs", ec.getDefaultCacheConfiguration().getTimeToIdleSeconds());
+        p.put("defaultCacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
+        p.put("defaultCacheEternal", ec.getDefaultCacheConfiguration().isEternal());
         return p;
     }
 
@@ -366,7 +367,8 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
     @Override
     public <T> T unwrap(Class<T> clazz) {
-        return null;
+        //noinspection unchecked
+        return (T) cacheManager;
     }
 
     /**********************************************************************************************************************************************************************************************************************************************************

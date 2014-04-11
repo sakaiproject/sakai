@@ -45,6 +45,7 @@ import java.util.*;
  * <p>
  * When the object expires, the cache calls upon a CacheRefresher to update the key's value. The update is done in a separate thread.
  * </p>
+ * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
  */
 public class MemCache implements Cache, Observer, CacheEventListener
 {

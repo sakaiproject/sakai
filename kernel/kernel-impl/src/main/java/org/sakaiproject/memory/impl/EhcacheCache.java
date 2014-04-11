@@ -27,7 +27,6 @@ import net.sf.ehcache.Element;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
 import org.sakaiproject.memory.api.CacheEventListener.EventType;
 import org.sakaiproject.memory.api.CacheStatistics;
@@ -37,12 +36,11 @@ import java.util.Properties;
 
 /**
  * Ehcache based implementation of a Cache.
- * Includes support for listener and loader (Uses the Ehcache CacheEventListener)
- * NOTE:
- * The Observer is used for automatic cache flushing when the item is updated (removes cache entries on match).
+ * Includes support for listener, loader (Uses the Ehcache CacheEventListener), and stats
+ *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class EhcacheCache extends BasicMapCache implements CacheEventListener {
+public class EhcacheCache extends BasicCache implements CacheEventListener {
     final Log log = LogFactory.getLog(BasicMapCache.class);
 
     /**
@@ -58,22 +56,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
      */
     public EhcacheCache(Ehcache cache) {
         super(cache.getName());
-        this.cache = cache;
-    }
-
-    /**
-     * Construct the Cache
-     * Set the listeners and cache refreshers later
-     *
-     * @param cache                the ehcache that backs this Sakai cache
-     * @param eventTrackingService Sakai ETS (relates to pattern use)
-     * @param pattern              "startsWith()" string for all resources that may be in this cache - if null, don't watch events for updates.
-     * TODO remove this
-     * @deprecated use EhcacheCache(Ehcache cache) instead
-     */
-    public EhcacheCache(Ehcache cache, EventTrackingService eventTrackingService, String pattern) {
-        //noinspection deprecation
-        super(cache.getName(), eventTrackingService, pattern);
         this.cache = cache;
     }
 
@@ -129,7 +111,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
 
     @Override
     public void close() {
-        super.close();
         this.cache.dispose();
     }
 
@@ -194,9 +175,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     public String getDescription() {
         final StringBuilder buf = new StringBuilder();
         buf.append("Ehcache (").append(getName()).append(")");
-        if (m_resourcePattern != null) {
-            buf.append(" ").append(m_resourcePattern);
-        }
         if (loader != null) {
             buf.append(" Loader");
         }

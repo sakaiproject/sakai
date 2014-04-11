@@ -168,16 +168,16 @@ public interface MemoryService // CacheManager
     public long getAvailableMemory();
 
     /**
-     * Cause less memory to be used by clearing any optional caches.
+     * Cause less memory to be used by clearing any and all caches.
      *
-     * @throws SecurityException if the current user does not have permission to do this.
+     * @throws SecurityException if the current user is not a super admin
      */
     void resetCachers();
 
     /**
      * Evict all expired objects from the in-memory caches
      *
-     * @throws SecurityException if the current user does not have permission to do this.
+     * @throws SecurityException if the current user is not a super admin
      */
     void evictExpiredMembers();
 

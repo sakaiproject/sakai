@@ -21,18 +21,17 @@
 
 package org.sakaiproject.memory.impl;
 
-import java.lang.management.ManagementFactory;
-
-import javax.management.MBeanServer;
-
+import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.management.ManagementService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.management.ManagementService;
+import javax.management.MBeanServer;
+import java.lang.management.ManagementFactory;
 
 /**
  * @author ieb
+ * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
  */
 public class MemoryServiceJMXAgent
 {

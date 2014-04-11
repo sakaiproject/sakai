@@ -46,6 +46,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * Manipulation of this map is synchronized. This map is not used for cache access, just when items are added and removed.<br />
  * The cache map itself becomes synchronized when it's manipulated (not when reads occur), so this added sync. for the refs fits the existing pattern.
  * </p>
+ * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
  */
 public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRefCache,
 		CacheEventListener 

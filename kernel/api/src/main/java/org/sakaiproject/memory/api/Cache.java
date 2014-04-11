@@ -223,12 +223,12 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
 
     /**
      * Attach a cache loader to this cache<br/>
-     * The loader ({@link CacheRefresher}) will put items in the cache as they are requested (if they can be found),
+     * The loader ({@link CacheLoader}) will put items in the cache as they are requested (if they can be found),
      * setting this to null will clear the loader
      * (not cluster safe)
      * <b>NOTE</b>: special method to allow self-populating for this cache
      *
-     * @param cacheLoader the object which implements {@link CacheRefresher}
+     * @param cacheLoader the object which implements {@link CacheLoader}
      */
     void attachLoader(CacheLoader cacheLoader);
 
