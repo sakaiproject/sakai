@@ -765,7 +765,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected Calendar findCalendar(String ref)
 	{
-		Calendar calendar = (Calendar) m_threadLocalManager.get(ref);
+        // TODO: do we really want to do this? -ggolden
+        // if we have done this already in this thread, use that
+        Calendar calendar = (Calendar) m_threadLocalManager.get(ref);
+        if (calendar == null)
+        {
+            calendar = m_storage.getCalendar(ref);
+
+            // "cache" the calendar in the current service in case they are needed again in this thread...
+            if (calendar != null)
+            {
+                m_threadLocalManager.set(ref, calendar);
+            }
+        }
 		return calendar;
 	} // findCalendar
 
