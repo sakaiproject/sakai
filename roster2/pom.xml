@@ -9,20 +9,16 @@
         <relativePath>../master/pom.xml</relativePath>
     </parent>
 
-    <name>Sakai Roster2 base pom</name>
+    <name>ROSTER2 TOOL</name>
     <groupId>org.sakaiproject.roster2</groupId>
-    <artifactId>roster2</artifactId>
+    <artifactId>sakai-roster2-tool</artifactId>
     <version>11-SNAPSHOT</version>
     <organization>
         <name>Sakai Project</name>
         <url>http://sakaiproject.org/</url>
     </organization>
     <inceptionYear>2010</inceptionYear>
-    <packaging>pom</packaging>
-
-    <modules>
-        <module>roster-app</module>
-    </modules>
+	<packaging>war</packaging>
 
     <properties>
         <poi.version>3.9</poi.version>
@@ -83,5 +79,125 @@
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/roster2/trunk/</developerConnection>
         <url>https://source.sakaiproject.org/svn/roster2/trunk/</url>
     </scm>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-util</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>sakai-privacy-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.course-management</groupId>
+			<artifactId>coursemanagement-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-utils</artifactId>
+		</dependency>
+		<dependency>
+	   		<groupId>org.sakaiproject.profile2</groupId>
+      		<artifactId>profile2-api</artifactId>
+    	</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi.version}</version>
+		</dependency>
+        <dependency>
+        	<groupId>org.apache.velocity</groupId>
+            <artifactId>velocity</artifactId>
+            <version>${velocity.version}</version>
+        </dependency>
+        <dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+		</dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+        </dependency>
+    </dependencies>
+
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/bundle</directory>
+				<includes>
+					<include>**/*.properties</include>
+				</includes>
+			</resource>
+			<resource>
+				<directory>${basedir}/src/java</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<plugins>
+			<!-- compress CSS and JS -->
+			<plugin>
+				<groupId>net.alchim31.maven</groupId>
+				<artifactId>yuicompressor-maven-plugin</artifactId>
+				<version>${yuicompressor.plugin.version}</version>
+				<executions>
+					<execution>
+						<id>compress</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>compress</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<sourceDirectory>${basedir}/src/webapp</sourceDirectory>
+					<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+					<nosuffix>true</nosuffix>
+					<jswarn>false</jswarn>
+					<excludes>
+						<exclude>**/*.java</exclude>
+						<exclude>**/*.html</exclude>
+						<exclude>**/*.xml</exclude>
+						<exclude>**/*.gif</exclude>
+						<exclude>**/*.png</exclude>
+						<exclude>**/*.properties</exclude>
+						<exclude>**/*.min.js</exclude>
+						<exclude>**/*-min.js</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 
 </project>
