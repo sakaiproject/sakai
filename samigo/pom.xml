@@ -23,7 +23,6 @@
 		<module>samigo-api</module>
 		<module>samigo-app</module>
 		<module>samigo-deploy</module>
-		<module>samigo-help</module>
 		<module>samigo-hibernate</module>
 		<module>samigo-pack</module>
 		<module>samigo-qti</module>
@@ -103,11 +102,6 @@
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-shared</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.samigo</groupId>
-                <artifactId>samigo-help</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
