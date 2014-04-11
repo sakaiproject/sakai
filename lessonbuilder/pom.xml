@@ -20,7 +20,6 @@
         <module>api</module>
         <module>components</module>
         <module>hbm</module>
-        <module>help</module>
         <module>tool</module>
     </modules>
     
