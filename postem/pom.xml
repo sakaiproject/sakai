@@ -20,7 +20,6 @@
     <module>postem-app</module>
     <module>postem-hbm</module>
     <module>postem-impl</module>
-    <module>postem-help</module>
   </modules>
 
   <dependencyManagement>
