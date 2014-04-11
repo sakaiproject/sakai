@@ -30,8 +30,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
 import org.sakaiproject.memory.api.CacheEventListener.EventType;
+import org.sakaiproject.memory.api.CacheStatistics;
 
 import java.util.ArrayList;
+import java.util.Properties;
 
 /**
  * Ehcache based implementation of a Cache.
@@ -148,6 +150,40 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     }
 
     @Override
+    public CacheStatistics getCacheStatistics() {
+        if (this.cache == null) {
+            throw new IllegalStateException("Cannot get stats, no cache exists");
+        }
+        return new EhcacheCacheStatistics(this.cache);
+    }
+
+    @Override
+    public Properties getProperties(boolean includeExpensiveDetails) {
+        Properties p = new Properties();
+        p.put("name", cache.getName());
+        p.put("class", this.getClass().getSimpleName());
+        p.put("cacheClass", cache.getClass().getName());
+        p.put("guid", cache.getGuid());
+        p.put("disabled", cache.isDisabled());
+        p.put("statsEnabled", cache.isStatisticsEnabled());
+        p.put("status", cache.getStatus().toString());
+        p.put("maxEntries", cache.getCacheConfiguration().getMaxEntriesLocalHeap());
+        p.put("timeToLiveSecs", cache.getCacheConfiguration().getTimeToLiveSeconds());
+        p.put("timeToIdleSecs", cache.getCacheConfiguration().getTimeToIdleSeconds());
+        p.put("eternal", cache.getCacheConfiguration().isEternal());
+        if (includeExpensiveDetails) {
+            p.put("size", cache.getSize());
+            p.put("avgGetTime", cache.getStatistics().getAverageGetTime());
+            p.put("hits", cache.getStatistics().getCacheHits());
+            p.put("misses", cache.getStatistics().getCacheMisses());
+            p.put("evictions", cache.getStatistics().getEvictionCount());
+            p.put("count", cache.getStatistics().getMemoryStoreObjectCount());
+            p.put("searchPerSec", cache.getStatistics().getSearchesPerSecond());
+        }
+        return p;
+    }
+
+    @Override
     public boolean remove(String key) {
         //final Object value = get(key);
         boolean found = cache.remove(key);
@@ -177,11 +213,6 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         return buf.toString();
     }
 
-
-    /***************************************************************************************************************
-     * Ehcache CacheEventListener implementation
-     */
-
     /**
      * Simply reducing code duplication
      *
@@ -197,6 +228,11 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
         events.add(cee);
         return events;
     }
+
+
+    /***************************************************************************************************************
+     * Ehcache CacheEventListener implementation
+     */
 
     @Override
     public void notifyElementRemoved(Ehcache ehcache, Element element) throws CacheException {
@@ -251,6 +287,29 @@ public class EhcacheCache extends BasicMapCache implements CacheEventListener {
     public Object clone() throws CloneNotSupportedException {
         super.clone();
         throw new CloneNotSupportedException("CacheEventListener implementations should throw CloneNotSupportedException if they do not support clone");
+    }
+
+    /**
+     * Ehcache stats implementation
+     */
+    public static class EhcacheCacheStatistics implements CacheStatistics {
+        final long hits;
+        final long misses;
+
+        public EhcacheCacheStatistics(Ehcache cache) {
+            this.hits = cache.getStatistics().getCacheHits();
+            this.misses = cache.getStatistics().getCacheMisses();
+        }
+
+        @Override
+        public long getCacheHits() {
+            return hits;
+        }
+
+        @Override
+        public long getCacheMisses() {
+            return misses;
+        }
     }
 
 }

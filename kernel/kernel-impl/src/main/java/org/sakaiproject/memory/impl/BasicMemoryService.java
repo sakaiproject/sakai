@@ -25,6 +25,7 @@ import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
+import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.event.CacheManagerEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,23 +43,20 @@ import java.util.*;
 
 /**
  * <p>
- * MemBasicMemoryServiceoryService is an implementation for the MemoryService which reports memory usage and runs a periodic garbage collection to keep memory available.
+ * BasicMemoryService is an implementation for the MemoryService which reports memory usage and runs a periodic garbage collection to keep memory available.
  * </p>
  */
 public abstract class BasicMemoryService implements MemoryService, Observer
 {
 
-	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(BasicMemoryService.class);
-
 	/** Event for the memory reset. */
 	protected static final String EVENT_RESET = "memory.reset";
-	
-	/** 
+	/**
 	 * Event to expire members
 	 */
 	protected static final String EVENT_EXPIRE = "memory.expire";
-
+	/** Our logger. */
+	private static Log M_log = LogFactory.getLog(BasicMemoryService.class);
 	/** The underlying cache manager; injected */
 	protected CacheManager cacheManager;
 
@@ -93,17 +91,17 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+	public boolean getCacheLogging()
+	{
+		return m_cacheLogging;
+	}
+
 	/**
 	 * Configuration: cache verbose debug
 	 */
 	public void setCacheLogging(boolean value)
 	{
 		m_cacheLogging = value;
-	}
-
-	public boolean getCacheLogging()
-	{
-		return m_cacheLogging;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -324,6 +322,41 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		M_log.info("doExpire(): free memory now " + Runtime.getRuntime().freeMemory());
 	}
 
+    // New JSR-107 methods
+
+    @Override
+    public ClassLoader getClassLoader() {
+        return BasicMemoryService.class.getClassLoader();
+    }
+
+    @Override
+    public Properties getProperties() {
+        Configuration ec = cacheManager.getConfiguration();
+        Properties p = new Properties();
+        p.put("name", ec.getName());
+        p.put("source", ec.getConfigurationSource().toString());
+        p.put("timeoutSeconds", ec.getDefaultTransactionTimeoutInSeconds());
+        p.put("maxBytesDisk", ec.getMaxBytesLocalDisk());
+        p.put("maxBytesHeap", ec.getMaxBytesLocalHeap());
+        p.put("maxDepth", ec.getSizeOfPolicyConfiguration().getMaxDepth());
+        p.put("cacheMaxEntries", ec.getDefaultCacheConfiguration().getMaxEntriesLocalHeap());
+        p.put("cacheTimeToIdleSecs", ec.getDefaultCacheConfiguration().getTimeToIdleSeconds());
+        p.put("cacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
+        p.put("cacheEternal", ec.getDefaultCacheConfiguration().isEternal());
+        return p;
+    }
+
+    @Override
+    public Cache getCache(String cacheName) {
+        return new MemCache(this, eventTrackingService(), null, null, instantiateCache(cacheName));
+    }
+
+    @Override
+    public Iterable<String> getCacheNames() {
+        String[] names = cacheManager.getCacheNames();
+        return Arrays.asList(names);
+    }
+
     @Override
     public void destroyCache(String cacheName) {
         if (this.cacheManager != null) {
@@ -331,7 +364,12 @@ public abstract class BasicMemoryService implements MemoryService, Observer
         }
     }
 
-	/**********************************************************************************************************************************************************************************************************************************************************
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        return null;
+    }
+
+    /**********************************************************************************************************************************************************************************************************************************************************
 	 * Observer implementation
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
@@ -478,8 +516,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		}
 		*/
 	}
-	
-	
+
 	private Ehcache getDefaultCache() throws SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
 		Field defaultCacheField = CacheManager.class.getDeclaredField("defaultCache");
 		defaultCacheField.setAccessible(true);
@@ -490,6 +527,7 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		this.cacheManager = cacheManager;
 	}
 
+	@SuppressWarnings("deprecation") // TODO remove this
 	public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
 		return new MemCache(this, eventTrackingService(), refresher, pattern, instantiateCache(cacheName));
 	}
@@ -502,12 +540,13 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 		return newCache(cacheName, null, null);
 	}
 
+	@SuppressWarnings("deprecation") // TODO remove this
 	public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
 		return new GenericMultiRefCacheImpl(
 				this,
 				eventTrackingService(),
 				instantiateCache(cacheName)
-        );
+		);
 	}
 
 }

@@ -28,6 +28,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheLoader;
+import org.sakaiproject.memory.api.CacheStatistics;
 
 import java.util.Map;
 import java.util.Observable;

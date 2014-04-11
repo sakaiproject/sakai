@@ -23,15 +23,17 @@ package org.sakaiproject.memory.mock;
 
 import org.sakaiproject.memory.api.CacheEventListener;
 import org.sakaiproject.memory.api.CacheLoader;
+import org.sakaiproject.memory.api.CacheStatistics;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Mock Cache for use in testing
- * Partly functional (no listener/loader support)
+ * Partly functional (no listener/loader/stats support)
  */
 @SuppressWarnings("deprecation") // TODO remove GenericMultiRefCache
 public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.Cache {
@@ -65,6 +67,25 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
 
     @Override
     public void registerCacheEventListener(CacheEventListener cacheEventListener) {}
+
+    @Override
+    public CacheStatistics getCacheStatistics() {
+        return new CacheStatistics() {
+            @Override
+            public long getCacheHits() {
+                return 0;
+            }
+            @Override
+            public long getCacheMisses() {
+                return 0;
+            }
+        };
+    }
+
+    @Override
+    public Properties getProperties(boolean includeExpensiveDetails) {
+        return new Properties();
+    }
 
     @Override
     public Object get(String key) {

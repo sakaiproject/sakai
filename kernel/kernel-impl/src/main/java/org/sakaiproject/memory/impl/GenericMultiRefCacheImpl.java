@@ -33,10 +33,7 @@ import org.sakaiproject.memory.api.GenericMultiRefCache;
 
 import java.io.Serializable;
 import java.lang.ref.SoftReference;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.Observable;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -161,18 +158,26 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		}
 	}
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public String getDescription()
 	{
 		return "GenericMultiRefCache: " + super.getDescription();
 	}
 
-    /*************************************************************************************************************
-     * Observer implementation
-     *************************************************************************************************************/
+	@Override
+	public Properties getProperties(boolean includeExpensiveDetails) {
+		Properties p = super.getProperties(includeExpensiveDetails);
+		p.put("class", this.getClass().getSimpleName());
+		p.put("refsCount", m_refsStore.size());
+		return p;
+	}
+
+	/*************************************************************************************************************
+	 * Observer implementation
+	 *************************************************************************************************************/
 
 	/**
 	 * @inheritDoc

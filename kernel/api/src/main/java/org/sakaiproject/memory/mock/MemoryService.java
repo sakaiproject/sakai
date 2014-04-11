@@ -24,6 +24,7 @@ package org.sakaiproject.memory.mock;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.*;
 
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -55,9 +56,7 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     @SuppressWarnings("deprecation") // TODO remove this
     @Override
     public Cache newCache(String cacheName, CacheRefresher refresher, String pattern) {
-        Cache c = new org.sakaiproject.memory.mock.Cache(cacheName);
-        caches.put(cacheName, c);
-        return c;
+        return getCache(cacheName);
     }
 
     @Override
@@ -66,8 +65,39 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     }
 
     @Override
+    public ClassLoader getClassLoader() {
+        return MemoryService.class.getClassLoader();
+    }
+
+    @Override
+    public Properties getProperties() {
+        return new Properties(); // empty
+    }
+
+    @Override
+    public Cache getCache(String cacheName) {
+        Cache c = caches.get(cacheName);
+        if (c == null) {
+            c = new org.sakaiproject.memory.mock.Cache(cacheName);
+            caches.put(cacheName, c);
+        }
+        return c;
+    }
+
+    @Override
+    public Iterable<String> getCacheNames() {
+        return caches.keySet();
+    }
+
+    @Override
     public void destroyCache(String cacheName) {
         caches.remove(cacheName);
+    }
+
+    @Override
+    public <T> T unwrap(Class<T> clazz) {
+        //noinspection unchecked
+        return (T) this;
     }
 
     @Override

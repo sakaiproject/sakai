@@ -22,6 +22,7 @@
 package org.sakaiproject.memory.api;
 
 import java.io.Serializable;
+import java.util.Properties;
 
 /**
  * This is an abstraction of the general concept of a cache in Sakai<br/>
@@ -190,8 +191,27 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
         <T> T unwrap(Class<T> clazz);
     }*/
 
+    /**
+     * Allows access to the statistics for a cache
+     *
+     * @return statistics for this Cache (numbers may always be zeros)
+     */
+    CacheStatistics getCacheStatistics();
 
     // SAKAI specific (no JSR-107 analog)
+
+    /**
+     * Get the {@link java.util.Properties} for this Cache
+     * (likely the ones used to create it). Changing this
+     * will not change the Cache configuration.
+     *
+     * @param includeExpensiveDetails if true then details about the Cache which
+     *                                are expensive to calculate or generate will
+     *                                also be included (like stats type information),
+     *                                leave this false to avoid slowing down the cache
+     * @return the Properties for this Cache
+     */
+    Properties getProperties(boolean includeExpensiveDetails);
 
     /**
      * Return a description of this cache (typically stats info about it)<br/>

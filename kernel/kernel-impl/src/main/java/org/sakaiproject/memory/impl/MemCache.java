@@ -33,10 +33,12 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.CacheStatistics;
 
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Properties;
 
 /**
  * <p>
@@ -226,7 +228,48 @@ public class MemCache implements Cache, Observer, CacheEventListener
 		}
 	}
 
-	/**
+	@Override
+	public CacheStatistics getCacheStatistics() {
+		final Ehcache ehcache = this.cache;
+		return new CacheStatistics() {
+			@Override
+			public long getCacheHits() {
+				return ehcache.getStatistics().getCacheHits();
+			}
+			@Override
+			public long getCacheMisses() {
+				return ehcache.getStatistics().getCacheMisses();
+			}
+		};
+	}
+
+	@Override
+	public Properties getProperties(boolean includeExpensiveDetails) {
+		Properties p = new Properties();
+		p.put("name", cache.getName());
+		p.put("class", this.getClass().getSimpleName());
+		p.put("updatePattern", m_resourcePattern);
+		p.put("guid", cache.getGuid());
+		p.put("disabled", cache.isDisabled());
+		p.put("statsEnabled", cache.isStatisticsEnabled());
+		p.put("status", cache.getStatus().toString());
+		p.put("maxEntries", cache.getCacheConfiguration().getMaxEntriesLocalHeap());
+		p.put("timeToLiveSecs", cache.getCacheConfiguration().getTimeToLiveSeconds());
+		p.put("timeToIdleSecs", cache.getCacheConfiguration().getTimeToIdleSeconds());
+		p.put("eternal", cache.getCacheConfiguration().isEternal());
+		if (includeExpensiveDetails) {
+			p.put("size", cache.getSize());
+			p.put("avgGetTime", cache.getStatistics().getAverageGetTime());
+			p.put("hits", cache.getStatistics().getCacheHits());
+			p.put("misses", cache.getStatistics().getCacheMisses());
+			p.put("evictions", cache.getStatistics().getEvictionCount());
+			p.put("count", cache.getStatistics().getMemoryStoreObjectCount());
+			p.put("searchPerSec", cache.getStatistics().getSearchesPerSecond());
+		}
+		return p;
+	}
+
+    /**
 	 * {@inheritDoc}
 	 */
 	@Override
