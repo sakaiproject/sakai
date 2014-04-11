@@ -18,7 +18,6 @@
     <url>https://source.sakaiproject.org/svn/podcasts/trunk</url>
   </scm>
   <modules>
-    <module>help</module>
     <module>pack</module>
     <module>podcasts</module>
     <module>podcasts-api</module>
