@@ -36,7 +36,6 @@ limitations under the License.
   <packaging>pom</packaging>
   <modules>
     <module>rwiki-api/api</module>
-    <module>rwiki-help</module>
     <module>rwiki-impl/impl</module>
     <module>rwiki-integration-test</module>
     <module>rwiki-model</module>
