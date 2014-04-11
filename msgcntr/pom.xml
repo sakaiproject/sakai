@@ -20,7 +20,6 @@
     <module>messageforums-components</module>
     <module>messageforums-component-impl</module>
     <module>messageforums-hbm</module>
-    <module>messageforums-help</module>
   </modules>
 
   <scm>
