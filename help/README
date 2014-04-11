@@ -1,4 +1,37 @@
-Help Configuration Sakai 2.0.1
+==Help Configuration==
+
+Sakai 10 Help Rewrite: https://jira.sakaiproject.org/browse/SAK-26062
+Sakai 10 Help Process: https://confluence.sakaiproject.org/display/ESUP/Help+Files+and+Documentation+Process+Redesign
+
+How were help files generated for Sakai 10?
+--------------------------------------------
+1) Articles were authoried in an online system called Screensteps
+2) HTML + Images were exported from Screensteps as a ZIP
+3) Files were converted using a PHP file written by Longsight (https://github.com/LongsightGroup/sakai-help-conversion)
+
+# Unzip the Screensteps export
+mkdir /tmp/help
+cd /tmp/help
+unzip export.zip
+
+# Git the code
+cd ~/
+git clone https://github.com/LongsightGroup/sakai-help-conversion.git
+cd sakai-help-conversion
+php -q sakai-help-parse.php
+
+# Optimize the PNG images from the export
+find /tmp/help/images/ -iname '*.png' -exec optipng -o7 {} \;
+find /tmp/help/images/ -name '*.png' -print0 | xargs -0 -P8 pngquant --ext .png --force 64
+
+# Remove empty image directories
+find /tmp/help/images/ -empty -type d -delete
+
+# Copy the images into the sourcecode
+rsync --delete -vzra /tmp/help/images/ /path/to/source/reference/library/images/help/en/
+
+
+----------------------------------------------------------------------------------------------------------------------------
 
 Overview:
 
