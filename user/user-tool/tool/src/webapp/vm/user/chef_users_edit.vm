@@ -1,5 +1,7 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_edit.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
+<link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
+
 <script type="text/javascript" language="JavaScript">
 	focus_path = [#if(!$user)"id"#else"first-name"#end];
 </script>
@@ -32,6 +34,11 @@ function removeOptionalAttributeBlock(elem) {
 
 </script>
 
+<script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userValidationCommon.js"></script>
+<script type="text/javascript" language="JavaScript">USER.isSuperUser =#if ($!superUser) true; #else false; #end</script>
+<script type="text/javascript" language="JavaScript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
+<script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userEditValidation.js"></script>
+
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -41,31 +48,37 @@ function removeOptionalAttributeBlock(elem) {
 		<h3>
 			$tlang.getString("useedi.revandmod")
 		</h3>
-		<p class="instruction"><span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")</p>
-
-		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
-		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post">
-			<p class="shorttext  required">
+		
+		#if ($alertMessage)<div class="alertMessage" id="alertMsg">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<form name="$form-name" id="useredit" action="#toolForm("$action")" method="post" autocomplete="on">
+			<fieldset>
+				<legend>
+ 					#if($user) $tlang.getString("useedi.edit") #else $tlang.getString("usecre.creaco")#end 
+				</legend>
+                <div class="instruction">
+                    <span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
+                </div>
+			<div class="shorttext required">
 				<label #if(!$user) for="eid" #end>
-					#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
+					#if(!$user)<span id="userIdRequired" class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
 				</label>
 				#if($!user && !$valueEid)
 					#set($valueEid=$user.Eid)
 				#end
 				#if(!$user)
 					## creating new account
-					<input type="text" name="eid" id="eid" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+					<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
 				#else
 					## modifying existing account
 					#if($!superUser)
 						## only admin type user can modify the eid field
-						<input type="text" name="eid" id="eid" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+						<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
 					#else
-						$validator.escapeHtml($!valueEid)
+						<span id="eidValue">$validator.escapeHtml($!valueEid)</span>
 					#end
 				#end
-			</p>	
-			<p class="shorttext">
+			</div>	
+			<div class="shorttext">
 				<label for="first-name">
 					$tlang.getString("usecre.firnam")
 				</label>	
@@ -74,8 +87,8 @@ function removeOptionalAttributeBlock(elem) {
 			#else
 				#if($user)$validator.escapeHtml($user.FirstName)#elseif($valueFirstName)$validator.escapeHtml($valueFirstName)#end
 			#end
-			</p>
-			<p class="shorttext">
+			</div>
+			<div class="shorttext">
 				<label for="last-name">
 					$tlang.getString("usecre.lasnam")
 				</label>
@@ -84,53 +97,64 @@ function removeOptionalAttributeBlock(elem) {
 			#else
 				#if($user)$validator.escapeHtml($user.LastName)#elseif($valueLastName)$validator.escapeHtml($valueLastName)#end
 			#end
-			</p>
-			<p class="shorttext">
+			</div>
+			<div class="shorttext">
 				<label for="email">
 					$tlang.getString("useconrem.ema")
 				</label>
 			#if ($service.allowUpdateUserEmail($user.Id) || !$user)
-				<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+                <div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			#else
 				#if($user)$validator.escapeHtml($user.Email)#elseif($valueEmail)$validator.escapeHtml($valueEmail)#end
 			#end
-			</p>	
+			</div>	
 #if ($incPw)
   #if(!$!superUser)
-      <p class="shorttext">
+      <div class="shorttext">
 				<label for="pwcur">
-					$tlang.getString("usecre.vercurpass")
+					<span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
 				</label>
 			#if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
-				<input type="password" name="pwcur" id="pwcur" />
+				<input type="password" name="pwcur" id="pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
 			#else
 				&nbsp;
 			#end
-			</p>
+			</div>
   #end
-			<p class="shorttext">
+			<div class="shorttext">
 				<label for="pw">
 					$tlang.getString("usecre.crenewpass")
 				</label>
 			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
-				<input type="password" name="pw" id="pw" />
+				<input type="password" name="pw" id="pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+                <div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
+                <div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
+				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
+                <div id="failMsg" style="display:none">$tlang.getString("pw.fail")</div>
+                <div id="strengthBar" style="display:none">
+                	<span id="strengthBarMeter" style="display:none"></span>
+				</div>
+                <div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
 			#else
 				&nbsp;
 			#end
-			</p>
-			<p class="shorttext">
+			</div>
+			<div class="shorttext">
 				<label for="pw0">
 					$tlang.getString("usecre.vernewpass")
 				</label>
 			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
-				<input type="password" name="pw0" id="pw0" />
+				<input type="password" name="pw0" id="pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
+                <div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
+                <div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
 			#else
 				&nbsp;
 			#end
-			</p>	
+			</div>	
 #end
 #if ($incType)
-			<p class="shorttext">
+			<div class="shorttext">
 				<label for="type">
 					$tlang.getString("usecre.typ")
 				</label>
@@ -147,10 +171,10 @@ function removeOptionalAttributeBlock(elem) {
 			#else
 				#if($user)$validator.escapeHtml($user.Type)#elseif($valueType)$validator.escapeHtml($valueType)#end
 			#end
-			</p>	
+			</div>	
 #end
 
- 			<p class="shorttext">
+ 			<div class="shorttext">
  				<label>$tlang.getString("disable.user")</label>
  				#set($disabled = $user.Properties.getProperty("disabled"))
  #if(!$!superUser)
@@ -158,30 +182,30 @@ function removeOptionalAttributeBlock(elem) {
  #else
                  <input type="checkbox" name="disabled" id="disabled" #if($disabled == 'true')CHECKED#end>$tlang.getString("disable")</>
  #end
- 			</p>
+ 			</div>
 
 
 #if ($user)
-			<p class="shorttext">
+			<div class="shorttext">
 				<label>$tlang.getString("useedi.creby")</label>
 				$validator.escapeHtml($user.CreatedBy.DisplayName)
-			</p>
-			<p class="shorttext">
+			</div>
+			<div class="shorttext">
 				<label>$tlang.getString("useedi.cre")</label>
 				$validator.escapeHtml($user.CreatedTime.toStringLocalFull())
-			</p>
-			<p class="shorttext">
+			</div>
+			<div class="shorttext">
 				<label>$tlang.getString("useedi.modby")</label>
 				$validator.escapeHtml($user.ModifiedBy.DisplayName)
-			</p>	
-			<p class="shorttext">
+			</div>	
+			<div class="shorttext">
 				<label>$tlang.getString("useedi.mod")</label>
 				$validator.escapeHtml($user.ModifiedTime.toStringLocalFull())
-			</p>	
-			<p class="shorttext">
+			</div>	
+			<div class="shorttext">
 				<label>$tlang.getString("useconrem.useuid")</label>
 				$validator.escapeHtml($user.Id)
-			</p>
+			</div>
 #end
 
 		## optional attributes block
@@ -215,13 +239,14 @@ function removeOptionalAttributeBlock(elem) {
 			
 			<div class="act">
 				#if($user)
-					<input type="submit" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" />
+					<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav")" accesskey="s" />
 				#else
-					<input type="submit"  class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" accesskey="s" />
+					<input type="submit" id="eventSubmit_doSave" class="active" name="eventSubmit_doSave" value="$tlang.getString("useedi.sav2")" accesskey="s" />
 				#end					
-				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" accesskey="x" />
+				<input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useedi.can")" accesskey="x" />
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                </fieldset>
 		</form>
 	</div>
 

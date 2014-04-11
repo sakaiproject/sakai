@@ -1,8 +1,14 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_create.vm,v 1.2 2005/05/24 19:36:12 gsilver.umich.edu Exp $
 
+<link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
+
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["eid"];
 </script>
+<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+<script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userValidationCommon.js"></script>
+<script type="text/javascript" language="JavaScript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
+<script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userCreateValidation.js"></script>
 
 <div class="portletBody">
 #if($menu)
@@ -12,60 +18,76 @@
 	<h3>
 		$tlang.getString("usecre.entthe")
 	</h3>
-    <p class="instruction"><span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")</p>
-
+    
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end	
 
-	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post">
-		<p class="shorttext required">
-			<label #if(!$user) for="eid" #end>
-				#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
-			</label>
-			#if(!$user)<input type="text" name="eid" id="eid" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end/>#else$validator.escapeHtml($user.Eid)#end
-		</p>
-		<p class="shorttext">
-			<label for="first-name">
-				$tlang.getString("usecre.firnam")
-			</label>
-			<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
-		</p>
-		<p class="shorttext">
-			<label for="last-name">
-				$tlang.getString("usecre.lasnam")
-			</label>
-			<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
-		</p>
-		<p class="shorttext">
-			<label for="email">
-				$tlang.getString("useconrem.ema")
-			</label>
-			<input type="text" name="email" id="email"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
-		</p>
-		<p class="shorttext required">
-			<label for="pw">
-				#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
-			</label>
-			<input type="password" name="pw" id="pw"/>
-		</p>
-		<p class="shorttext required">
-			<label for="pw0">
-				#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
-			</label>
-			<input type="password" name="pw0" id="pw0"/>
-		</p>
-		<p class="shorttext">
-			<label for="dtype">
-				$tlang.getString("usecre.typ")
-			</label>
-			<input disabled type="text" name="dtype" id="dtype" value="$type"/>
-			<input type="hidden" name="type" id="type" value="$type"/>
-		</p>
-		$!recaptchaScript
-		<div class="act">
-			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
-			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")"  accesskey="x" />
-		</div>
-		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	<form name="user-create_edit" id="user-create_edit" action="#toolForm("$action")" method="post" autocomplete="on">
+        <fieldset>
+			<legend>
+				$tlang.getString("usecre.creaco")
+			</legend>
+			<div class="instruction">
+				<span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
+			</div>
+			<div class="shorttext required">
+				<label #if(!$user) for="eid" #end>
+					#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
+				</label>
+				#if(!$user)<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
+			</div>
+			<div class="shorttext">
+				<label for="first-name">
+					$tlang.getString("usecre.firnam")
+				</label>
+				<input type="text" name="first-name" id="first-name" #if($user)value="$validator.escapeHtml($user.FirstName)"#elseif($valueFirstName)value="$validator.escapeHtml($valueFirstName)"#end/>
+			</div>
+			<div class="shorttext">
+				<label for="last-name">
+					$tlang.getString("usecre.lasnam")
+				</label>
+				<input type="text" name="last-name" id="last-name" #if($user)value="$validator.escapeHtml($user.LastName)"#elseif($valueLastName)value="$validator.escapeHtml($valueLastName)"#end/>
+			</div>
+			<div class="shorttext">
+				<label for="email">
+					$tlang.getString("useconrem.ema")
+				</label>
+				<input type="text" name="email" id="email" oninput="USER.validateEmail();" onkeyup="USER.validateEmail();" autocomplete="off"#if($user)value="$validator.escapeHtml($user.Email)"#elseif($valueEmail)value="$validator.escapeHtml($valueEmail)"#end />
+				<div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
+			</div>
+			<div class="shorttext required">
+				<label for="pw">
+					#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
+				</label>
+				<input type="password" name="pw" id="pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+				<div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
+				<div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
+				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
+				<div id="failMsg" style="display:none">$tlang.getString("pw.fail")</div>
+				<div id="strengthBar" style="display:none">
+                	<span id="strengthBarMeter" style="display:none"></span>
+				</div>
+				<div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
+			</div>
+			<div class="shorttext required">
+				<label for="pw0">
+					#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
+				</label>
+				<input type="password" name="pw0" id="pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
+				<div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
+				<div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
+			</div>
+			<div class="shorttext">
+				<label for="dtype">
+					$tlang.getString("usecre.typ")
+				</label>
+				<input disabled type="text" name="dtype" id="dtype" value="$type"/>
+				<input type="hidden" name="type" id="type" value="$type"/>
+			</div>
+			$!recaptchaScript
+			<div class="act">
+				<input type="submit" id="eventSubmit_doSave" class="active"  name="eventSubmit_doSave" value="$tlang.getString("usecre.creaco")"  accesskey="s" />
+	                        <input type="submit" id="eventSubmit_doCancel" name="eventSubmit_doCancel" value="$tlang.getString("useconrem.can")"  accesskey="x" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+        </fieldset>
 	</form>
 </div>
-

@@ -73,8 +73,10 @@ import org.sakaiproject.user.api.UserIdInvalidException;
 import org.sakaiproject.user.api.UserLockedException;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
+import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
 import org.sakaiproject.user.cover.AuthenticationManager;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.tool.PasswordPolicyHelper.TempUser;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.ExternalTrustedEvidence;
 import org.sakaiproject.util.RequestFilter;
@@ -102,6 +104,11 @@ public class UsersAction extends PagedResourceActionII
 	private static final String IMPORT_EMAIL="email";
 	private static final String IMPORT_PASSWORD="password";
 	private static final String IMPORT_TYPE="type";
+
+	// SAK-23568
+	private static final PasswordPolicyHelper pwHelper = new PasswordPolicyHelper();
+	private static final String MSG_KEY_PASSWORD_WEAK = "pw.weak";
+	private static final String MSG_KEY_PW_STRENGTH_INFO = "pw.strengthInfo";
 
 	/**
 	 * {@inheritDoc}
@@ -239,7 +246,10 @@ public class UsersAction extends PagedResourceActionII
 		//put successMessage into context and remove from state
 	    context.put("successMessage", state.getAttribute("successMessage"));
 	    state.removeAttribute("successMessage");
-		
+
+		// SAK-23568
+		pwHelper.addJavaScriptParamsToContext(context);
+
 		// check mode and dispatch
 		String mode = (String) state.getAttribute("mode");
 
@@ -1013,6 +1023,25 @@ public class UsersAction extends PagedResourceActionII
 	} // doCancel_remove
 
 	/**
+	 * Check to see if password meets requirements set in password policy.
+	 * If current user is admin, ignores password policy.
+	 *
+	 * @author plukasew, bjones86 - SAK-23568
+	 *
+	 * @param pw the password
+	 * @param user the user
+	 * @param state the session state
+	 * @return true if password is valid or if current user is admin
+	 */
+	private boolean validatePassword(String pw, User user, SessionState state) {
+		if (pw != null && !SecurityService.isSuperUser() && pwHelper.validatePassword(pw, user) == PasswordRating.FAILED) {
+			addAlert(state, rb.getString(MSG_KEY_PASSWORD_WEAK) + " " + rb.getString(MSG_KEY_PW_STRENGTH_INFO));
+			return false;
+		}
+		return true;
+	}
+
+	/**
 	 * Read the user form and update the user in state.
 	 * 
 	 * @return true if the form is accepted, false if there's a validation error (an alertMessage will be set)
@@ -1179,6 +1208,12 @@ public class UsersAction extends PagedResourceActionII
 				return false;
 			}
 
+			// SAK-23568 - make sure password meets policy requirements
+			TempUser tempUser = new TempUser(eid, null, null, null, eid, pw, null);
+			if (!validatePassword(pw, tempUser, state)) {
+				return false;
+			}
+
 			try
 			{
 				// add the user in one step so that all you need is add not update permission
@@ -1304,7 +1339,12 @@ public class UsersAction extends PagedResourceActionII
 						addAlert(state, rb.getString("usecre.pass"));
 						return false;
 					}
-	
+
+					// SAK-23568 - make sure password meets policy requirements
+					if (!validatePassword(pw, user, state)) {
+						return false;
+					}
+
 					if (pw != null) user.setPassword(pw);
 				}
 			}
