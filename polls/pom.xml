@@ -28,7 +28,6 @@
         <module>api</module>
         <module>impl</module>
         <module>pack</module>
-        <module>poll-help</module>
         <module>tool</module>
     </modules>
     
