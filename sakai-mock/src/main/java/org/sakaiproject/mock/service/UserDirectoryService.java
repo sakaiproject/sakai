@@ -270,5 +270,9 @@ public class UserDirectoryService implements
     public UserDirectoryService.PasswordRating validatePassword(String password, User user) {
 	return UserDirectoryService.PasswordRating.PASSED_DEFAULT;
     }
+    
+    public PasswordPolicyProvider getPasswordPolicy() {
+		return null;
+    }
 
 }
