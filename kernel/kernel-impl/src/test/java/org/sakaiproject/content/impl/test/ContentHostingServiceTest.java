@@ -3,9 +3,12 @@ package org.sakaiproject.content.impl.test;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Arrays;
+import java.util.List;
 
 import junit.extensions.TestSetup;
 import junit.framework.Test;
@@ -14,11 +17,14 @@ import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.FixMethodOrder;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdLengthException;
 import org.sakaiproject.exception.IdUniquenessException;
@@ -33,6 +39,7 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.util.BasicConfigItem;
 
 @FixMethodOrder(NAME_ASCENDING)
 public class ContentHostingServiceTest extends SakaiKernelTestBase {
@@ -275,5 +282,47 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		}
 		
 	}
-	
+
+	//Resources for this from http://svn.apache.org/repos/asf/tika/trunk/tika-parsers/src/test/resources/test-documents/
+	//Test mime type detector, might be useful to test it off as well
+	public void testMimeDetection() throws Exception {
+		//Some popular test cases
+		//First is really an excel file but incorrect extension
+		//Next is a Word doc with correct extension
+		//Next is an html doc with correct extension
+		//Next is an really and excel file with no extension
+		//Last is a html snippet with correct extension
+
+		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html");
+		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html");
+
+		//Set the mime magic to be true
+		ServerConfigurationService serv = getService(ServerConfigurationService.class);
+		serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.useMimeMagic","true",ServerConfigurationService.UNKNOWN));
+
+    	ContentHostingService ch = getService(ContentHostingService.class);
+    	SessionManager sm = getService(SessionManager.class);
+    	Session session = sm.getCurrentSession();
+    	session.setUserEid("admin");
+    	session.setUserId("admin");
+
+		ContentResource cr;
+    	InputStream stream;
+    	//Insert all resources to CHS
+		for (int i=0;i<fileNames.size();i++) {
+			//Add in a slash for CHS
+			String fileName = "/"+fileNames.get(i);
+			System.out.println("Loading up file:"+fileName);
+			stream = getClass().getResourceAsStream("/test-documents"+fileName);
+			assertNotNull(stream);
+			ResourcePropertiesEdit props = ch.newResourceProperties();
+			props.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
+			ch.addResource(fileName, "", stream, props ,0);
+			//Now get it back and check the mime type
+			cr = ch.getResource(fileName);
+			System.out.println("Expecting mime:" + expectedMimes.get(i)+" and got " + cr.getContentType());
+			assertEquals(cr.getContentType(), expectedMimes.get(i));
+			stream.close();
+		}
+    }
 }

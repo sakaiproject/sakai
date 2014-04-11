@@ -949,9 +949,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 			M_log.info("init(): site quota: " + m_siteQuota + ", dropbox quota: " + m_dropBoxQuota + ", body path: " + m_bodyPath + " volumes: "+ buf.toString());
 
-			// magic
-			m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
-
             int virusScanPeriod = m_serverConfigurationService.getInt(VIRUS_SCAN_CHECK_PERIOD_PROPERTY, VIRUS_SCAN_PERIOD);
             int virusScanDelay = m_serverConfigurationService.getInt(VIRUS_SCAN_START_DELAY_PROPERTY, VIRUS_SCAN_DELAY);
 
@@ -5891,6 +5888,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		
 		TikaInputStream tikastream=null;
+		// magic
+		m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
 		if (m_useMimeMagic && DETECTOR != null) {
 			ContentResourceEdit edit3=null;
 			try {
@@ -5898,7 +5897,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				tikastream = TikaInputStream.get(edit3.streamContent());
 				final Metadata metadata = new Metadata();
 				//This might not want to be set as it would advise the detector
-//				metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
+				metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
 				String match = DETECTOR.detect(tikastream,metadata).toString();
 				if (match != null) {
 					if (!StringUtils.isEmpty(match) && !match.equals(edit3.getContentType())) {
