@@ -431,7 +431,7 @@ tr#selectedReorder td.arrowHere {
 }
 /* SECTION 6 HIERARCHY */
 /* headers are used in many places for structuring things semantically - these are the plain headers - below there are others contextually defined */
-h2, h6 {
+.portletBody h2, h6 {
     color: #555;
     padding: 0;
     font-weight: bold;
@@ -1147,9 +1147,6 @@ ul.makeMenu li.menuClose a:hover {
     display: inline-block;
     margin: 2px 0 0 2px;
     font-size: 1.3em;
-}
-#show-pages {
-    margin-top: -5px
 }
 /* ===[ New alerts ]=== */
 .validationEmbedded, .validation, .alertMessage {
