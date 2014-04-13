@@ -73,18 +73,6 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
 
-	<!-- 
-	<bean id="org.sakaiproject.archive.api.ArchiveService"
-			class="org.sakaiproject.archive.impl.BasicArchiveService"
-			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
- 		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
-		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
- 		<property name="storagePath"><value>${sakai.home}archive/</value></property>
-	</bean>
-	-->
-
 	<bean id="org.sakaiproject.archive.api.ImportMetadataService"
 			class="org.sakaiproject.archive.impl.ImportMetadataServiceImpl">
 	</bean>
