@@ -1,15 +1,15 @@
-/**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/memory/util/EhCacheFactoryBean.java $
- * $Id: EhCacheFactoryBean.java 129412 2013-09-06 17:38:55Z azeckoski@unicon.net $
- ***********************************************************************************
+/******************************************************************************
+ * $URL: https://source.sakaiproject.org/svn/master/trunk/header.java $
+ * $Id: header.java 307632 2014-03-31 15:29:37Z azeckoski@unicon.net $
+ ******************************************************************************
  *
- * Copyright (c) 2012 Sakai Foundation
+ * Copyright (c) 2003-2014 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *       http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ *****************************************************************************/
 
 package org.sakaiproject.memory.impl;
 
@@ -30,6 +30,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
@@ -52,17 +53,19 @@ public class EhcacheMemoryService implements MemoryService {
     final Log log = LogFactory.getLog(EhcacheMemoryService.class);
 
     CacheManager cacheManager;
+    /**
+     * MUST be lazy loaded to avoid cyclical dependency issues
+     * i.e. NEVER use this variable directly, use the #getSecurityService() method instead
+     */
     SecurityService securityService;
     ServerConfigurationService serverConfigurationService;
 
     public EhcacheMemoryService() {}
 
-    public EhcacheMemoryService(CacheManager cacheManager, SecurityService securityService, ServerConfigurationService serverConfigurationService) {
+    public EhcacheMemoryService(CacheManager cacheManager, ServerConfigurationService serverConfigurationService) {
         assert cacheManager != null;
-        assert securityService != null;
         assert serverConfigurationService != null;
         this.cacheManager = cacheManager;
-        this.securityService = securityService;
         this.serverConfigurationService = serverConfigurationService;
     }
 
@@ -149,7 +152,7 @@ public class EhcacheMemoryService implements MemoryService {
 
     @Override
     public void resetCachers() {
-        if (!securityService.isSuperUser()) {
+        if (!getSecurityService().isSuperUser()) {
             throw new SecurityException("Only super admin can reset cachers, current user not super admin");
         }
         if (this.cacheManager != null) {
@@ -159,7 +162,7 @@ public class EhcacheMemoryService implements MemoryService {
 
     @Override
     public void evictExpiredMembers() {
-        if (!securityService.isSuperUser()) {
+        if (!getSecurityService().isSuperUser()) {
             throw new SecurityException("Only super admin can evict caches, current user not super admin");
         }
         if (this.cacheManager != null) {
@@ -295,12 +298,20 @@ public class EhcacheMemoryService implements MemoryService {
         this.cacheManager = cacheManager;
     }
 
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
+    }
+
+    SecurityService getSecurityService() {
+        // has to be lazy
+        if (securityService == null) {
+            securityService = (SecurityService) ComponentManager.get(SecurityService.class);
+        }
+        return securityService;
+    }
+
+    public void setSecurityService(SecurityService securityService) {
+        this.securityService = securityService;
     }
 
     /**

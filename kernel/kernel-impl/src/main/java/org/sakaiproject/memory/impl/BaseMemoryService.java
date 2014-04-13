@@ -1,15 +1,15 @@
-/**********************************************************************************
- * $URL: https://source.sakaiproject.org/svn/kernel/trunk/kernel-util/src/main/java/org/sakaiproject/memory/util/EhCacheFactoryBean.java $
- * $Id: EhCacheFactoryBean.java 129412 2013-09-06 17:38:55Z azeckoski@unicon.net $
- ***********************************************************************************
+/******************************************************************************
+ * $URL$
+ * $Id$
+ ******************************************************************************
  *
- * Copyright (c) 2012 Sakai Foundation
+ * Copyright (c) 2003-2014 The Apereo Foundation
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * Licensed under the Educational Community License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at
  *
- *       http://www.opensource.org/licenses/ECL-2.0
+ *       http://opensource.org/licenses/ecl2
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- **********************************************************************************/
+ *****************************************************************************/
 
 package org.sakaiproject.memory.impl;
 
@@ -49,7 +49,6 @@ public class BaseMemoryService implements MemoryService {
 
     final Log log = LogFactory.getLog(BaseMemoryService.class);
 
-    SecurityService securityService;
     ServerConfigurationService serverConfigurationService;
     CacheManager cacheManager;
 
@@ -59,21 +58,52 @@ public class BaseMemoryService implements MemoryService {
      * Service INIT
      */
     public void init() {
+        log.info("INIT");
         if (memoryService == null) {
             boolean useLegacy = false;
             if (serverConfigurationService != null) {
                 useLegacy = serverConfigurationService.getBoolean("memory.use.legacy", false);
             }
             if (useLegacy) {
-                final EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+                /* NOTE about the lazy loading:
+                MemoryService uses SecurityService, EventTrackingService, ServerConfigurationService
+                SecurityService uses MemoryService, EventTrackingService, ServerConfigurationService (and others)
+                EventTrackingService uses SecurityService (and others)
+
+                This could be tolerable as long as none of these services are used in the init.
+                BasicMemoryService uses EventTrackingService in INIT to create the Observer (and the ehcache CacheManager of course).
+                EhcacheMemoryService only uses the ehcache CacheManager during INIT.
+                Unfortunately, SecurityService sets up caches so it requires MemoryService during init.
+                Nothing uses SecurityService in the init EXCEPT the new MemoryService because
+                it needs to insert it into the selected implementation (as previously done below).
+
+                In essence, these circular dependencies between the various services make it impossible
+                for Spring to establish a viable startup order and this results in the NPE (in newCache).
+
+                The real fix for this is quite complex because the service dependency
+                graph is cyclical and basically needs to be untangled and have the
+                cycles removed (of which there are... many). The quick-ish fix for
+                this is to change the MemoryService to lazy load the SecurityService
+                and EventTrackingService (which is what we have done below).
+                 */
                 BasicMemoryService bms = new BasicMemoryService() {
+                    EventTrackingService ets;
+                    SecurityService ss;
                     @Override
                     protected EventTrackingService eventTrackingService() {
-                        return eventTrackingService;
+                        // has to be lazy
+                        if (ets == null) {
+                            ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
+                        }
+                        return ets;
                     }
                     @Override
                     protected SecurityService securityService() {
-                        return securityService;
+                        // has to be lazy
+                        if (ss == null) {
+                            ss = (SecurityService) ComponentManager.get(SecurityService.class);
+                        }
+                        return ss;
                     }
                     @Override
                     protected ServerConfigurationService serverConfigurationService() {
@@ -86,17 +116,20 @@ public class BaseMemoryService implements MemoryService {
                 bms.setCacheManager(cacheManager);
                 bms.init();
                 memoryService = bms;
-                log.info("INIT: legacy: BasicMemoryService");
+                log.info("INIT complete: legacy: BasicMemoryService");
             } else {
                 // use the newer service implementation
-                EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, securityService, serverConfigurationService);
+                EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, serverConfigurationService);
                 ems.init();
                 memoryService = ems;
-                log.info("INIT: new: EhcacheMemoryService");
+                log.info("INIT complete: new: EhcacheMemoryService");
             }
         } else {
             // using the passed in MemoryService
-            log.info("INIT: injection ("+memoryService.getClass().getName()+")");
+            log.info("INIT complete: injection ("+memoryService.getClass().getName()+")");
+        }
+        if (memoryService == null) {
+            throw new IllegalStateException("Unable to INIT MemoryService, no service could be started, system cannot operate with caching");
         }
     }
 
@@ -202,10 +235,6 @@ public class BaseMemoryService implements MemoryService {
 
     // SETTERS
 
-    public void setSecurityService(SecurityService securityService) {
-        this.securityService = securityService;
-    }
-
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
     }
@@ -214,6 +243,7 @@ public class BaseMemoryService implements MemoryService {
         this.cacheManager = cacheManager;
     }
 
+    // OPTIONAL
     public void setMemoryService(MemoryService memoryService) {
         this.memoryService = memoryService;
     }
