@@ -127,14 +127,13 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
     }
     
     /**
-     * creates a CacheConfiguration based on the cache name.  Uses several properties out of sakai.properties:
-     * <ul>
-     * <li>cluster.cache.maxEntriesLocalHeap, defaults to 1000000</li>
-     * <li>cluster.cache.timeToIdle, defaults to 120</li>
-     * <li>cluster.cache.timeToLive, defaults to 120</li>
-     * <li>cluster.cache.maxEntriesLocalDisk, defaults to 1000000</li>
-     * </ul>
-     * @param clusterCacheName
+     * Creates a CacheConfiguration based on the cache name.
+     * Any Cache properties below that are not set will use the default values
+     * Valid properties include: maxSize, timeToIdle, timeToLive, eternal
+     * Defaults: maxSize=10000, timeToIdle=600, timeToLive=600, eternal=false
+     * Configure cluster caches using: memory.cluster.{cacheName}.{property)={value}
+     *
+     * @param clusterCacheName the full name of the cache (e.g. org.sakaiproject.event.impl.ClusterEventTracking.eventsCache)
      * @return Terracotta cluster cache configuration
      */
     private CacheConfiguration createClusterCacheConfiguration(String clusterCacheName) {
