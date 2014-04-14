@@ -140,7 +140,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
         String clusterConfigName = "memory.cluster."+clusterCacheName;
         CacheConfiguration clusterCache = new CacheConfiguration(
                 clusterCacheName,
-                serverConfigurationService.getInt(clusterConfigName + ".maxSize", DEFAULT_CACHE_MAX_OBJECTS));
+                serverConfigurationService.getInt(clusterConfigName + ".maxEntries", DEFAULT_CACHE_MAX_OBJECTS));
         boolean isEternal = serverConfigurationService.getBoolean(clusterConfigName + ".eternal", false);
         if (isEternal) {
             clusterCache.eternal(true).timeToIdleSeconds(0).timeToLiveSeconds(0);
