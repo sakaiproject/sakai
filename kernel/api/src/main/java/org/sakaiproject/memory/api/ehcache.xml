@@ -21,7 +21,9 @@
     Subdirectories can be specified below the property e.g. java.io.tmpdir/one
 
     -->
+    <!-- Sakai should not use disk store -AZ
     <diskStore path="java.io.tmpdir"/>
+    -->
 
     <!--
     Specifies a CacheManagerEventListenerFactory, be used to create a CacheManagerPeerProvider,

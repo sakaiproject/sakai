@@ -73,8 +73,8 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
             ClassUtils.getMethodIfAvailable(CacheManager.class, "create", Configuration.class);
     /** cache defaults **/
     private final static String DEFAULT_CACHE_SERVER_URL = "localhost:9510";
-    private final static int DEFAULT_CACHE_TIMEOUT = 120;
-    private final static int DEFAULT_CACHE_MAX_OBJECTS = 10000000;
+    private final static int DEFAULT_CACHE_TIMEOUT = 600; // 10 mins
+    private final static int DEFAULT_CACHE_MAX_OBJECTS = 10000;
     protected final Log logger = LogFactory.getLog(getClass());
     protected ServerConfigurationService serverConfigurationService;
     private Resource configLocation;
@@ -138,18 +138,23 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
      * @return Terracotta cluster cache configuration
      */
     private CacheConfiguration createClusterCacheConfiguration(String clusterCacheName) {
+        String clusterConfigName = "memory.cluster."+clusterCacheName;
         CacheConfiguration clusterCache = new CacheConfiguration(
                 clusterCacheName,
-                serverConfigurationService.getInt(clusterCacheName + ".cache.maxEntriesLocalHeap", DEFAULT_CACHE_MAX_OBJECTS))
-            .eternal(false)
-            .timeToIdleSeconds(serverConfigurationService.getInt(clusterCacheName + ".cache.timeToIdle", DEFAULT_CACHE_TIMEOUT))
-            .timeToLiveSeconds(serverConfigurationService.getInt(clusterCacheName + ".cache.timeToLive", DEFAULT_CACHE_TIMEOUT))
+                serverConfigurationService.getInt(clusterConfigName + ".maxSize", DEFAULT_CACHE_MAX_OBJECTS))
+            .eternal(serverConfigurationService.getBoolean(clusterConfigName + ".eternal", false))
+            .timeToIdleSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToIdle", DEFAULT_CACHE_TIMEOUT))
+            .timeToLiveSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToLive", DEFAULT_CACHE_TIMEOUT))
             .terracotta(new TerracottaConfiguration()
-                .nonstop(new NonstopConfiguration()
-                    .timeoutBehavior(new TimeoutBehaviorConfiguration()
-                        .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
-                    .enabled(true)));
-        clusterCache.maxElementsOnDisk(serverConfigurationService.getInt(clusterCacheName + ".cache.maxEntriesLocalDisk", DEFAULT_CACHE_MAX_OBJECTS));
+                    .nonstop(new NonstopConfiguration()
+                            .timeoutBehavior(new TimeoutBehaviorConfiguration()
+                                    .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
+                            .enabled(true)));
+        // Make sure we NEVER go to disk
+        clusterCache.maxElementsOnDisk(0);
+        clusterCache.overflowToOffHeap(false);
+        clusterCache.setMaxBytesLocalDisk(0l);
+        clusterCache.setMaxBytesLocalOffHeap(0l);
         return clusterCache;
     }
     
@@ -162,7 +167,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
         logger.info("Initializing EhCache CacheManager");
         InputStream is = (this.configLocation != null ? this.configLocation.getInputStream() : null);
         if (this.cacheEnabled == null) {
-            this.cacheEnabled = serverConfigurationService.getBoolean("cluster.cache.enabled", false);
+            this.cacheEnabled = serverConfigurationService.getBoolean("memory.cluster.enabled", false);
         }
 
         try {
@@ -175,9 +180,9 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
             // use Terracotta server if running and available
             if (this.cacheEnabled) {
                 logger.info("Attempting to load cluster caching using Terracotta at: "+
-                        serverConfigurationService.getString("cluster.cache.server.url", DEFAULT_CACHE_SERVER_URL)+".");
+                        serverConfigurationService.getString("memory.cluster.server.urls", DEFAULT_CACHE_SERVER_URL)+".");
                 // set the URL to the server
-                String[] serverUrls = serverConfigurationService.getStrings("cluster.cache.server.urls");
+                String[] serverUrls = serverConfigurationService.getStrings("memory.cluster.server.urls");
                 // create comma-separated string of URLs
                 String serverUrlsString = StringUtils.join(serverUrls, ",");
                 terracottaConfig.setUrl(serverUrlsString);
@@ -185,10 +190,9 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                 configuration.addTerracottaConfig(terracottaConfig);
 
                 // retrieve the names of all caches that will be managed by Terracotta and create cache configurations for them
-                String[] caches = serverConfigurationService.getStrings("cluster.cache.names");
+                String[] caches = serverConfigurationService.getStrings("memory.cluster.names");
                 if (ArrayUtils.isNotEmpty(caches)) {
-                    for (int i = 0; i < caches.length; i++) {
-                        String cacheName = caches[i];
+                    for (String cacheName : caches) {
                         CacheConfiguration cacheConfiguration = this.createClusterCacheConfiguration(cacheName);
                         if (cacheConfiguration != null) {
                             configuration.addCache(cacheConfiguration);
@@ -233,7 +237,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
             // this is thrown if we can't connect to the Terracotta server on initialization
             if (this.cacheEnabled && this.cacheManager == null) {
                 logger.error("You have cluster caching enabled in sakai.properties, but do not have a Terracotta server running at "+
-                        serverConfigurationService.getString("cluster.cache.server.url", "localhost:9510")+
+                        serverConfigurationService.getString("memory.cluster.server.urls", DEFAULT_CACHE_SERVER_URL)+
                         ". Please ensure the server is running and available.", ce);
                 // use the default cache instead
                 this.cacheEnabled = false;

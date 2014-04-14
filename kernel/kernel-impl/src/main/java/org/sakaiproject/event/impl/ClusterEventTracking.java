@@ -724,7 +724,7 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
      * Initializes the events cache, if enabled
      */
     private void initCacheServer() {
-        cachingEnabled = serverConfigurationService().getBoolean("cluster.cache.enabled", false);
+        cachingEnabled = serverConfigurationService().getBoolean("memory.cluster.enabled", false);
         if (cachingEnabled) {
             eventCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache");
             /**
