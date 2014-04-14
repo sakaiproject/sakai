@@ -140,20 +140,24 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
         String clusterConfigName = "memory.cluster."+clusterCacheName;
         CacheConfiguration clusterCache = new CacheConfiguration(
                 clusterCacheName,
-                serverConfigurationService.getInt(clusterConfigName + ".maxSize", DEFAULT_CACHE_MAX_OBJECTS))
-            .eternal(serverConfigurationService.getBoolean(clusterConfigName + ".eternal", false))
-            .timeToIdleSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToIdle", DEFAULT_CACHE_TIMEOUT))
-            .timeToLiveSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToLive", DEFAULT_CACHE_TIMEOUT))
-            .terracotta(new TerracottaConfiguration()
-                    .nonstop(new NonstopConfiguration()
-                            .timeoutBehavior(new TimeoutBehaviorConfiguration()
-                                    .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
-                            .enabled(true)));
-        // Make sure we NEVER go to disk
-        clusterCache.maxElementsOnDisk(0);
+                serverConfigurationService.getInt(clusterConfigName + ".maxSize", DEFAULT_CACHE_MAX_OBJECTS));
+        boolean isEternal = serverConfigurationService.getBoolean(clusterConfigName + ".eternal", false);
+        if (isEternal) {
+            clusterCache.eternal(true).timeToIdleSeconds(0).timeToLiveSeconds(0);
+        } else {
+            clusterCache.eternal(false)
+                    .timeToIdleSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToIdle", DEFAULT_CACHE_TIMEOUT))
+                    .timeToLiveSeconds(serverConfigurationService.getInt(clusterConfigName + ".timeToLive", DEFAULT_CACHE_TIMEOUT));
+        }
+        clusterCache.terracotta(new TerracottaConfiguration()
+                .nonstop(new NonstopConfiguration()
+                        .timeoutBehavior(new TimeoutBehaviorConfiguration()
+                                .type(TimeoutBehaviorConfiguration.LOCAL_READS_TYPE_NAME))
+                        .enabled(true)));
+        // Make sure we don't go to local disk
         clusterCache.overflowToOffHeap(false);
-        clusterCache.setMaxBytesLocalDisk(0l);
-        clusterCache.setMaxBytesLocalOffHeap(0l);
+        // Required to control the L2 cache size in terracotta itself, default should be adequate
+        clusterCache.maxElementsOnDisk(10000);
         return clusterCache;
     }
     
@@ -172,6 +176,9 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
         try {
             Configuration configuration = (is != null) ? ConfigurationFactory.parseConfiguration(is) : ConfigurationFactory.parseConfiguration();
             configuration.setName(this.cacheManagerName);
+            // force the sizeof calculations to not generate lots of warnings OR degrade server performance
+            configuration.getSizeOfPolicyConfiguration().maxDepthExceededBehavior(SizeOfPolicyConfiguration.MaxDepthExceededBehavior.ABORT);
+            configuration.getSizeOfPolicyConfiguration().maxDepth(100);
 
             // Setup the Terracotta cluster config
             TerracottaClientConfiguration terracottaConfig = new TerracottaClientConfiguration();

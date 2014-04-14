@@ -304,7 +304,7 @@
             timeToIdleSeconds="360"
             timeToLiveSeconds="600"
             diskPersistent="false"
-            maxElementsOnDisk="0"
+            maxElementsOnDisk="10000"
             statistics="true"
             >
     </defaultCache>
