@@ -1,8 +1,5 @@
 package org.sakaiproject.tool.impl;
 
-import java.lang.reflect.Field;
-import java.util.HashSet;
-
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
@@ -11,10 +8,9 @@ import org.jmock.integration.junit3.MockObjectTestCase;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.SessionAttributeListener;
+import org.sakaiproject.tool.api.*;
+
+import java.lang.reflect.Field;
 
 /**
  * Provides common fixture set-up operations. This is necessary
@@ -31,9 +27,9 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 	protected ComponentManager componentManager;
 	protected ThreadLocalManager threadLocalManager;
 	protected ToolManager toolManager;
-	private int uuidDiscriminator;
 	// not used - test passes null value to MySession() constructor
 	protected SessionAttributeListener sessionListener;
+	private int uuidDiscriminator;
 	
 	protected void setUp() throws Exception {
 		this.idManager = mock(IdManager.class);
@@ -56,6 +52,11 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 			protected ToolManager toolManager() {
 				return toolManager;
 			}			
+			
+			@Override
+			protected RebuildBreakdownService rebuildBreakdownService() {
+				return null;
+			}
 		};
 		//commenting out this next line, because it doesn't seem to be needed
 		//this.sessionComponent.setClusterableTools("");
@@ -179,17 +180,17 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 			allowing(threadLocalManager).set(SessionComponent.CURRENT_SESSION, null);
 		}});
 	}
-	
-	protected void expectToolCheck(final String toolId) {
+
+	protected void allowPlacementCheck(final String context) {
 		checking(new Expectations() {{
-			Tool mockTool = mock(Tool.class);
-			one(toolManager).getCurrentTool();
-			will(returnValue(mockTool));
-			one(mockTool).getId();
-			will(returnValue(toolId));
+			Placement mockPlacement = mock(Placement.class);
+			allowing(toolManager).getCurrentPlacement();
+			will(returnValue(mockPlacement));
+			allowing(mockPlacement).getContext();
+			will(returnValue(context));
 		}});
 	}
-	
+
 	protected void allowToolCheck(final String toolId) {
 		checking(new Expectations() {{
 			Tool mockTool = mock(Tool.class);
@@ -216,6 +217,12 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 		};
 	}
 	
+	protected void tearDown() throws Exception {
+		sessionComponent.destroy();
+		// TODO try to verify Maintenance shutdown? prob overkill.
+		super.tearDown();
+	}
+	
 	protected static final class SessionHolder {
 		private Session session;
 
@@ -226,12 +233,6 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 		public void setSession(Session session) {
 			this.session = session;
 		}
-	}
-	
-	protected void tearDown() throws Exception {
-		sessionComponent.destroy();
-		// TODO try to verify Maintenance shutdown? prob overkill.
-		super.tearDown();
 	}
 	
 }

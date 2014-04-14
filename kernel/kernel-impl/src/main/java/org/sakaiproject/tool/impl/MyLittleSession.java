@@ -20,31 +20,19 @@
  **********************************************************************************/
 package org.sakaiproject.tool.impl;
 
-import java.io.Serializable;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.collections.iterators.IteratorChain;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.*;
+import org.sakaiproject.util.IteratorEnumeration;
 
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
 import javax.servlet.http.HttpSessionContext;
-
-import org.apache.commons.collections.iterators.IteratorChain;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.ContextSession;
-import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionAttributeListener;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.SessionStore;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.util.IteratorEnumeration;
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**********************************************************************************************************************************************************************************************************************************************************
  * Entity: ToolSession, ContextSession (and even HttpSession)
@@ -52,48 +40,51 @@ import org.sakaiproject.util.IteratorEnumeration;
 
 public class MyLittleSession implements ToolSession, ContextSession, HttpSession, Serializable
 {
-	/**
+    public static final String TYPE_TOOL = "tool";
+    /**
+     * Identify this as a tool or context session concretely
+     */
+    protected String m_type = TYPE_TOOL;
+    public static final String TYPE_CONTEXT = "context";
+    /**
 	 * Value that identifies the version of this class that has been Serialized.
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/**
+	/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
+	protected Map m_attributes = new ConcurrentHashMap();
+    /**
+     * Contains the tool id related to this session if there is one
+     */
+    protected String m_tool_id = null;
+    /**
+     * Contains the context id related to this session if there is one
+     */
+    protected String m_context_id = null;
+	/** The creation time of the session. */
+	protected long m_created = 0;
+	/** The session id. */
+	protected String m_id = null;
+	/** The tool placement / context id. */
+	protected String m_littleId = null;
+	/** The sakai session in which I live. */
+	protected Session m_session = null;
+	/** Time last accessed (via getSession()). */
+	protected long m_accessed = 0;
+    /**
 	 * SessionManager
 	 */
 	private transient SessionManager sessionManager;
-
 	private transient SessionStore sessionStore;
-
 	private transient ThreadLocalManager threadLocalManager;
-	
 	private transient boolean TERRACOTTA_CLUSTER;
-	
 	private transient NonPortableSession m_nonPortalSession;
-
 	private transient SessionAttributeListener sessionListener;
 
-	/** Hold attributes in a Map. TODO: ConcurrentHashMap may be better for multiple writers */
-	protected Map m_attributes = new ConcurrentHashMap();
-
-	/** The creation time of the session. */
-	protected long m_created = 0;
-
-	/** The session id. */
-	protected String m_id = null;
-
-	/** The tool placement / context id. */
-	protected String m_littleId = null;
-
-	/** The sakai session in which I live. */
-	protected Session m_session = null;
-
-	/** Time last accessed (via getSession()). */
-	protected long m_accessed = 0;
-
-	public MyLittleSession(SessionManager sessionManager, String id, Session s, String littleId,
+	public MyLittleSession(String type, SessionManager sessionManager, String id, Session s, String littleId,
 			ThreadLocalManager threadLocalManager, SessionAttributeListener sessionListener,
 			SessionStore sessionStore, NonPortableSession nonPortableSession)
 	{
+		this.m_type = type;
 		this.sessionManager = sessionManager;
 		this.m_id = id;
 		this.m_session = s;
@@ -107,6 +98,43 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
 	}
+
+    /**
+     * the session type of this session (tool OR context)
+     */
+    public String getSessionType() {
+        return m_type;
+    }
+
+    /**
+     * the tool id related to this session OR null if there is not one
+     */
+    public String getSessionToolId() {
+        return m_tool_id;
+    }
+
+    /**
+     * Set the current tool id
+     * @param m_tool_id
+     */
+    public void setSessionToolId(String m_tool_id) {
+        this.m_tool_id = m_tool_id;
+    }
+
+    /**
+     * the tool id related to this session OR null if there is not one
+     */
+    public String getSessionContextId() {
+        return m_context_id;
+    }
+
+    /**
+     * Set the current context id
+     * @param m_context_id
+     */
+    public void setSessionContextId(String m_context_id) {
+        this.m_context_id = m_context_id;
+    }
 
 	protected void resolveTransientFields()
 	{
@@ -283,6 +311,14 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 				old = m_nonPortalSession.setAttribute(name, value);
 			}
 
+			// allow the tool sessions to be more easily identified
+			if (this.m_tool_id == null && TYPE_TOOL.equals(m_type) && sessionStore instanceof SessionComponent) {
+				String toolId = ((SessionComponent)sessionStore).identifyCurrentTool();
+				if (toolId != null) {
+					this.m_tool_id = toolId;
+				}
+			}
+
 			// bind event
 			bind(name, value);
 
@@ -401,17 +437,17 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	/**
 	 * @inheritDoc
 	 */
-	public void setMaxInactiveInterval(int arg0)
+	public int getMaxInactiveInterval()
 	{
-		// TODO: just ignore this ?
+		return m_session.getMaxInactiveInterval();
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public int getMaxInactiveInterval()
+	public void setMaxInactiveInterval(int arg0)
 	{
-		return m_session.getMaxInactiveInterval();
+		// TODO: just ignore this ?
 	}
 
 	/**
@@ -470,4 +506,16 @@ public class MyLittleSession implements ToolSession, ContextSession, HttpSession
 	{
 		return false;
 	}
+
+    @Override
+    public String toString() {
+        return "MLS_"+m_type+(m_tool_id!=null?"("+m_tool_id+")":"")
+                       +(m_context_id!=null?"["+m_context_id+"]":"") +
+                       "{at=" + (m_attributes != null ? m_attributes.size() : 0) +
+                       ", id="+m_id +
+                       ", ctx='" + m_littleId + '\'' +
+                       ", " + (m_created > 0 ? new Date(m_created) : "?") +
+                       '}';
+    }
+
 }

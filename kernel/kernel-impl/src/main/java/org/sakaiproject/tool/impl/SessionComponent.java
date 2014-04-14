@@ -21,37 +21,23 @@
 
 package org.sakaiproject.tool.impl;
 
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.*;
+import org.springframework.util.StringUtils;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.springframework.util.StringUtils;
-
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionAttributeListener;
-import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.SessionStore;
-import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
 
 /**
  * <p>
@@ -60,12 +46,16 @@ import org.sakaiproject.tool.api.ToolSession;
  */
 public abstract class SessionComponent implements SessionManager, SessionStore
 {
+	/** Key in the ThreadLocalManager for binding our current session. */
+	protected final static String CURRENT_SESSION = "org.sakaiproject.api.kernel.session.current";
+	/** Key in the ThreadLocalManager for binding our current tool session. */
+	protected final static String CURRENT_TOOL_SESSION = "org.sakaiproject.api.kernel.session.current.tool";
+	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
+	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SessionComponent.class);
-
 	/** The sessions - keyed by session id. */
 	protected Map<String, Session> m_sessions = new ConcurrentHashMap<String, Session>();
-	
 	/**
 	 * The expected time sessions may be ready for expiration.  This is only an optimization
 	 * for when Terracotta is in use, to prevent faulting Session objects into the local
@@ -73,33 +63,42 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 * to determine if a session is invalid or not.
 	 */
 	protected Map<String,MutableLong> expirationTimeSuggestionMap = new ConcurrentHashMap<String, MutableLong>();
-	
-	private SessionAttributeListener sessionListener;
-
 	/** The maintenance. */
 	protected Maintenance m_maintenance = null;
-
-	/** Key in the ThreadLocalManager for binding our current session. */
-	protected final static String CURRENT_SESSION = "org.sakaiproject.api.kernel.session.current";
-
-	/** Key in the ThreadLocalManager for binding our current tool session. */
-	protected final static String CURRENT_TOOL_SESSION = "org.sakaiproject.api.kernel.session.current.tool";
-
-	/** Key in the ThreadLocalManager for access to the current servlet context (from tool-util/servlet/RequestFilter). */
-	protected final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
-
 	/** The set of tool ids that represent tools that can be clustered */
 	protected Set<String> clusterableTools = new HashSet<String>();
-
 	/** Salt for predictable session IDs */
-	protected byte[] salt = null; 
+	protected byte[] salt = null;
+	/** Configuration: default inactive period for sessions (seconds). */
+	protected int m_defaultInactiveInterval = 30 * 60;
 	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
+	/** Configuration: how often to check for inactive sessions (seconds). */
+	protected int m_checkEvery = 60;
+	private SessionAttributeListener sessionListener;
 
+	private static String byteArrayToHexStr(byte[] data)
+	{
+         char[] chars = new char[data.length * 2];
+         for (int i = 0; i < data.length; i++)
+         {
+             byte current = data[i];
+             int hi = (current & 0xF0) >> 4;
+             int lo = current & 0x0F;
+             chars[2*i] =  (char) (hi < 10 ? ('0' + hi) : ('A' + hi - 10));
+             chars[2*i+1] =  (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
+         }
+         return new String(chars);
+	}
+	
 	/** Will be used to get the current tool id when checking the whitelist */
 	protected abstract ToolManager toolManager();
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @return the ThreadLocalManager collaborator.
@@ -111,16 +110,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 */
 	protected abstract IdManager idManager();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** Configuration: default inactive period for sessions (seconds). */
-	protected int m_defaultInactiveInterval = 30 * 60;
-
+	protected abstract RebuildBreakdownService rebuildBreakdownService();
+	
 	/**
 	 * Configuration - set the default inactive period for sessions.
-	 * 
+	 *
 	 * @param value
 	 *        The default inactive period for sessions.
 	 */
@@ -138,18 +132,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 	/**
 	 * Configuration - set the default inactive period for sessions.
-	 * 
-	 * @param value
-	 *        The default inactive period for sessions.
-	 */
-	public void setInactiveInterval(int value)
-	{
-		m_defaultInactiveInterval = value;
-	}
-	
-	/**
-	 * Configuration - set the default inactive period for sessions.
-	 * 
+	 *
 	 * @return The default inactive period for sessions.
 	 */
 	public int getInactiveInterval()
@@ -157,12 +140,24 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		return m_defaultInactiveInterval;
 	}
 
-	/** Configuration: how often to check for inactive sessions (seconds). */
-	protected int m_checkEvery = 60;
+	/**
+	 * Configuration - set the default inactive period for sessions.
+	 *
+	 * @param value
+	 *        The default inactive period for sessions.
+	 */
+	public void setInactiveInterval(int value)
+	{
+		m_defaultInactiveInterval = value;
+	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Init and Destroy
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Configuration: set how often to check for inactive sessions (seconds).
-	 * 
+	 *
 	 * @param value
 	 *        The how often to check for inactive sessions (seconds) value.
 	 */
@@ -178,10 +173,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		}
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Init and Destroy
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
@@ -193,7 +184,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			m_maintenance = new Maintenance();
 			m_maintenance.start();
 		}
-                
+
         // Salt generation 64 bits long
 
 		salt = new byte[8];
@@ -209,6 +200,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		M_log.info("init(): interval: " + m_defaultInactiveInterval + " refresh: " + m_checkEvery);
 	}
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Work interface methods: SessionManager
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * Final cleanup.
 	 */
@@ -222,11 +217,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 		M_log.info("destroy()");
 	}
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Work interface methods: SessionManager
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
+	
 	/**
 	 * @inheritDoc
 	 */
@@ -241,10 +232,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	{
 		MessageDigest sha;
 		String sessionId;
-		
+
 		try {
 			sha = MessageDigest.getInstance("SHA-1");
-			
+
 			sha.reset();
 			sha.update(principal.getName().getBytes("UTF-8"));
 			sha.update((byte) 0x0a);
@@ -252,9 +243,9 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 			if (ua != null) {
 				sha.update(ua.getBytes("UTF-8"));
 			}
-			sha.update(salt);			 
-			
-			sessionId = byteArrayToHexStr(sha.digest());			 
+			sha.update(salt);
+
+			sessionId = byteArrayToHexStr(sha.digest());
 		} catch (NoSuchAlgorithmException e) {
 			// Fallback to new uuid rather than a non-hashed id
 			sessionId = idManager().createUuid();
@@ -266,10 +257,10 @@ public abstract class SessionComponent implements SessionManager, SessionStore
             //This may need to be changed to a debug
 			M_log.warn("makeSessionId fallback to Uuid!",e);
 		}
-		
+
 		return sessionId;
 	}
-	
+
 	public List<Session> getSessions() {
 	   return new ArrayList<Session>(m_sessions.values());
 	}
@@ -281,7 +272,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 	/**
 	 * Checks the current Tool ID to determine if this tool is marked for clustering.
-	 * 
+	 *
 	 * @return true if the tool is marked for clustering, false otherwise.
 	 */
 	public boolean isCurrentToolClusterable() {
@@ -308,34 +299,60 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		return false;
 	}
 
-	/**
+    /**
+     * @return id of the current tool OR null if there is not one (no current tool)
+     */
+    public String identifyCurrentTool() {
+        String toolId;
+        try {
+            toolId = toolManager().getCurrentTool().getId();
+        } catch (Exception e) {
+            toolId = null;
+        }
+        return toolId;
+    }
+
+    /**
+     * @return the current context OR null if there is not one (no current site context)
+     */
+    public String identifyCurrentContext() {
+        String contextId;
+        try {
+            contextId = toolManager().getCurrentPlacement().getContext();
+        } catch (Exception e) {
+            contextId = null;
+        }
+        return contextId;
+    }
+
+    /**
 	 * @inheritDoc
 	 */
 	public Session startSession()
 	{
 		String id = idManager().createUuid();
-		
+
 		return startSession(id);
 	}
-
+	
 	/**
 	 * @inheritDoc
 	 */
 	public Session startSession(String id)
-	{				
+	{
 		// create a non portable session object if this is a clustered environment
 		NonPortableSession nPS = new MyNonPortableSession();
-		
+
 		// create a new MutableLong object representing the current time that both
 		// the Session and SessionManager can see.
 		MutableLong currentTime = currentTimeMutableLong();
 
 		// create a new session
-		Session s = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTime);
+		Session s = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTime,rebuildBreakdownService());
 
 		// Place session into the main Session Storage, capture any old id
 		Session old = m_sessions.put(s.getId(), s);
-		
+
 		// Place an entry in the expirationTimeSuggestionMap that corresponds to the entry in m_sessions
 		expirationTimeSuggestionMap.put(id, currentTime);
 
@@ -347,7 +364,7 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 		return s;
 	}
-	
+
 	protected MutableLong currentTimeMutableLong()
 	{
 		return new MutableLong(System.currentTimeMillis());
@@ -364,15 +381,23 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		if (rv == null)
 		{
 			String id = idManager().createUuid();
-			
+
 			// create a non portable session object if this is a clustered environment
 			NonPortableSession nPS = new MyNonPortableSession();
 
-			rv = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTimeMutableLong());
+			rv = new MySession(this,id,threadLocalManager(),idManager(),this,sessionListener,m_defaultInactiveInterval,nPS,currentTimeMutableLong(), rebuildBreakdownService());
 			setCurrentSession(rv);
 		}
 
 		return rv;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public void setCurrentSession(Session s)
+	{
+		threadLocalManager().set(CURRENT_SESSION, s);
 	}
 
 	/**
@@ -395,14 +420,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	public ToolSession getCurrentToolSession()
 	{
 		return (ToolSession) threadLocalManager().get(CURRENT_TOOL_SESSION);
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public void setCurrentSession(Session s)
-	{
-		threadLocalManager().set(CURRENT_SESSION, s);
 	}
 
 	/**
@@ -455,6 +472,14 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 		activeusers.remove(null);
 
 		return activeusers.size();
+	}
+
+	public SessionAttributeListener getSessionListener() {
+		return sessionListener;
+	}
+
+	public void setSessionListener(SessionAttributeListener sessionListener) {
+		this.sessionListener = sessionListener;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -555,28 +580,6 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 				}
 			}
 		}
-	}
-
-	public SessionAttributeListener getSessionListener() {
-		return sessionListener;
-	}
-
-	public void setSessionListener(SessionAttributeListener sessionListener) {
-		this.sessionListener = sessionListener;
-	}
-
-	private static String byteArrayToHexStr(byte[] data)
-	{
-         char[] chars = new char[data.length * 2];
-         for (int i = 0; i < data.length; i++)
-         {
-             byte current = data[i];
-             int hi = (current & 0xF0) >> 4;
-             int lo = current & 0x0F;
-             chars[2*i] =  (char) (hi < 10 ? ('0' + hi) : ('A' + hi - 10));
-             chars[2*i+1] =  (char) (lo < 10 ? ('0' + lo) : ('A' + lo - 10));
-         }
-         return new String(chars);
 	}
 
 }

@@ -20,20 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.tool.impl;
 
-import java.lang.reflect.Field;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.FutureTask;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
-
 import org.apache.commons.lang.mutable.MutableLong;
 import org.jmock.Expectations;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
+
+import java.lang.reflect.Field;
+import java.util.concurrent.*;
 
 
 /**
@@ -638,7 +631,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		String uuid = nextUuid();
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				new MutableLong(System.currentTimeMillis())) {
+				new MutableLong(System.currentTimeMillis()), null) {
 			
 			// Make eclipse warnings go away and define this
 			private static final long serialVersionUID = 1L;
@@ -685,7 +678,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		};
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				expirationTimeSuggestion);
+				expirationTimeSuggestion, null);
 		return session;
 	}
 	
@@ -696,7 +689,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 		String uuid = nextUuid();
 		final MySession session = new MySession(sessionComponent,uuid,threadLocalManager,idManager,
 				sessionComponent,sessionListener,sessionComponent.getInactiveInterval(),new MyNonPortableSession(),
-				new MutableLong(System.currentTimeMillis())) {
+				new MutableLong(System.currentTimeMillis()), null) {
 			private long superGetLastAccessedTime() {
 				return super.getLastAccessedTime();
 			}

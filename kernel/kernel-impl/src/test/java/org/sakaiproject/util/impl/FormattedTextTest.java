@@ -21,8 +21,7 @@
 
 package org.sakaiproject.util.impl;
 
-import java.util.regex.Pattern;
-
+import junit.framework.TestCase;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.BasicConfigurationService;
@@ -30,18 +29,20 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.id.impl.UuidV4IdComponent;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
+import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.impl.SessionComponent;
-import org.sakaiproject.util.api.FormattedText.Level;
 import org.sakaiproject.util.BasicConfigItem;
+import org.sakaiproject.util.api.FormattedText.Level;
 
-import junit.framework.TestCase;
+import java.util.regex.Pattern;
 
 public class FormattedTextTest extends TestCase {
 
+    public static String TEST1 = "<a href=\"blah.html\" style=\"font-weight:bold;\">blah</a><div>hello there</div>";
+    public static String TEST2 = "<span>this is my span</span><script>alert('oh noes, a XSS attack!');</script><div>hello there from a div</div>";
     FormattedTextImpl formattedText;
-
     private SessionManager sessionManager;
     private ServerConfigurationService serverConfigurationService;
 
@@ -64,6 +65,10 @@ public class FormattedTextTest extends TestCase {
             protected IdManager idManager() {
                 return idManager;
             }
+            @Override
+            protected RebuildBreakdownService rebuildBreakdownService() {
+                return null;
+            }
         };
 
         // add in the config so we can test it
@@ -81,9 +86,6 @@ public class FormattedTextTest extends TestCase {
     protected void tearDown() throws Exception {
         ComponentManager.shutdown();
     }
-
-    public static String TEST1 = "<a href=\"blah.html\" style=\"font-weight:bold;\">blah</a><div>hello there</div>";
-    public static String TEST2 = "<span>this is my span</span><script>alert('oh noes, a XSS attack!');</script><div>hello there from a div</div>";
 
     // TESTS
 

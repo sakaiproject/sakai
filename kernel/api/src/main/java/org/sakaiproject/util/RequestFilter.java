@@ -21,31 +21,6 @@
 
 package org.sakaiproject.util;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
-import javax.servlet.http.HttpSession;
-
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadBase;
 import org.apache.commons.fileupload.FileUploadException;
@@ -54,13 +29,23 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+
+import javax.servlet.*;
+import javax.servlet.http.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.security.Principal;
+import java.util.*;
 
 /**
  * RequestFilter Filters all requests to Sakai tools. It is responsible for keeping the Sakai session, done using a cookie to the
@@ -69,55 +54,38 @@ import org.sakaiproject.tool.cover.SessionManager;
 @SuppressWarnings("deprecation")
 public class RequestFilter implements Filter
 {
-	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(RequestFilter.class);
-
 	/** The request attribute name used to store the Sakai session. */
 	public static final String ATTR_SESSION = "sakai.session";
-
 	/** The request attribute name used to ask the RequestFilter to output
 	 * a client cookie at the end of the request cycle. */
 	public static final String ATTR_SET_COOKIE = "sakai.set.cookie";
-	
 	/** The request attribute name (and value) used to indicated that the request has been filtered. */
 	public static final String ATTR_FILTERED = "sakai.filtered";
-
 	/** The request attribute name (and value) used to indicated that file uploads have been parsed. */
 	public static final String ATTR_UPLOADS_DONE = "sakai.uploads.done";
-
 	/** The request attribute name (and value) used to indicated that character encoding has been set. */
 	public static final String ATTR_CHARACTER_ENCODING_DONE = "sakai.character.encoding.done";
-
 	/** The request attribute name used to indicated that the *response* has been redirected. */
 	public static final String ATTR_REDIRECT = "sakai.redirect";
-
 	/** The request parameter name used to indicated that the request is automatic, not from a user action. */
 	public static final String PARAM_AUTO = "auto";
-
 	/** Config parameter to control http session handling. */
 	public static final String CONFIG_SESSION = "http.session";
-
 	/** Config parameter to control whether to check the request principal before any cookie to establish a session */
 	public static final String CONFIG_SESSION_AUTH = "sakai.session.auth";
-
 	/** Config parameter to control remote user handling. */
 	public static final String CONFIG_REMOTE_USER = "remote.user";
-
 	/** Config parameter to control tool placement URL en/de-coding. */
 	public static final String CONFIG_TOOL_PLACEMENT = "tool.placement";
-
 	/** Config parameter to control whether to set the character encoding on the request. Default is true. */
 	public static final String CONFIG_CHARACTER_ENCODING_ENABLED = "encoding.enabled";
-
 	/** Config parameter which to control character encoding to apply to the request. Default is UTF-8. */
 	public static final String CONFIG_CHARACTER_ENCODING = "encoding";
-
 	/**
 	 * Config parameter to control whether the request filter parses file uploads. Default is true. If false, the tool will need to
 	 * provide its own upload filter that executes BEFORE the Sakai request filter.
 	 */
 	public static final String CONFIG_UPLOAD_ENABLED = "upload.enabled";
-
 	/**
 	 * Config parameter to control the maximum allowed upload size (in MEGABYTES) from the browser.<br />
 	 * If defined on the filter, overrides the system property. Default is 1 (one megabyte).<br />
@@ -125,37 +93,21 @@ public class RequestFilter implements Filter
 	 * Also used as a per-request request parameter, encoded in the URL, to set the max for that particular request.
 	 */
 	public static final String CONFIG_UPLOAD_MAX = "upload.max";
-
 	/**
 	 * System property to control the maximum allowed upload size (in MEGABYTES) from the browser. Default is 1 (one megabyte). This
 	 * is an aggregate limit on the sum of all files included in a single request.
 	 */
 	public static final String SYSTEM_UPLOAD_MAX = "sakai.content.upload.max";
-
 	/**
 	 * System property to control the maximum allowed upload size (in MEGABYTES) from any other method - system wide, request
 	 * filter, or per-request.
 	 */
 	public static final String SYSTEM_UPLOAD_CEILING = "sakai.content.upload.ceiling";
-
 	/**
 	 * Config parameter (in bytes) to control the threshold at which to store uploaded files on-disk (temporarily) instead of
 	 * in-memory. Default is 1024 bytes.
 	 */
 	public static final String CONFIG_UPLOAD_THRESHOLD = "upload.threshold";
-
-	/**
-	 * Config parameter to continue (or abort, if false) upload field processing if there's a file upload max size exceeded
-	 * exception.
-	 */
-	protected static final String CONFIG_CONTINUE = "upload.continueOverMax";
-
-	/**
-	 * Config parameter to treat the max upload size as for the individual files in the request (or, if false, for the entire
-	 * request).
-	 */
-	protected static final String CONFIG_MAX_PER_FILE = "upload.maxPerFile";
-
 	/**
 	 * Config parameter that specifies the absolute path of a temporary directory in which to store file uploads. Default is the
 	 * servlet container temporary directory. Note that this is TRANSIENT storage, used by the commons-fileupload API. The files
@@ -163,43 +115,42 @@ public class RequestFilter implements Filter
 	 * permenant.
 	 */
 	public static final String CONFIG_UPLOAD_DIR = "upload.dir";
-
 	/** System property to control the temporary directory in which to store file uploads. */
 	public static final String SYSTEM_UPLOAD_DIR = "sakai.content.upload.dir";
-
 	/** Config parameter to set the servlet context for context based session (overriding the servlet's context name). */
 	public static final String CONFIG_CONTEXT = "context";
-
-	/** sakaiHttpSession setting for don't do anything. */
-	protected final static int CONTAINER_SESSION = 0;
-
-	/** sakaiHttpSession setting for use the sakai wide session. */
-	protected final static int SAKAI_SESSION = 1;
-
-	/** sakaiHttpSession setting for use the context session. */
-	protected final static int CONTEXT_SESSION = 2;
-
-	/** sakaiHttpSession setting for use the tool session, in any, else context. */
-	protected final static int TOOL_SESSION = 3;
-
-	/** Key in the ThreadLocalManager for binding our remoteUser preference. */
-	protected final static String CURRENT_REMOTE_USER = "org.sakaiproject.util.RequestFilter.remote_user";
-
-	/** Key in the ThreadLocalManager for binding our http session preference. */
-	protected final static String CURRENT_HTTP_SESSION = "org.sakaiproject.util.RequestFilter.http_session";
-
-	/** Key in the ThreadLocalManager for binding our context id. The servlet context is stored against this. */
-	protected final static String CURRENT_CONTEXT = "org.sakaiproject.util.RequestFilter.context";
-
 	/** Key in the ThreadLocalManager for access to the current http request object. */
 	public final static String CURRENT_HTTP_REQUEST = "org.sakaiproject.util.RequestFilter.http_request";
-
 	/** Key in the ThreadLocalManager for access to the current http response object. */
 	public final static String CURRENT_HTTP_RESPONSE = "org.sakaiproject.util.RequestFilter.http_response";
-
 	/** Key in the ThreadLocalManager for access to the current servlet context. */
 	public final static String CURRENT_SERVLET_CONTEXT = "org.sakaiproject.util.RequestFilter.servlet_context";
-
+	/**
+	 * Config parameter to continue (or abort, if false) upload field processing if there's a file upload max size exceeded
+	 * exception.
+	 */
+	protected static final String CONFIG_CONTINUE = "upload.continueOverMax";
+	/**
+	 * Config parameter to treat the max upload size as for the individual files in the request (or, if false, for the entire
+	 * request).
+	 */
+	protected static final String CONFIG_MAX_PER_FILE = "upload.maxPerFile";
+	/** sakaiHttpSession setting for don't do anything. */
+	protected final static int CONTAINER_SESSION = 0;
+	/** sakaiHttpSession setting for use the sakai wide session. */
+	protected final static int SAKAI_SESSION = 1;
+	/** sakaiHttpSession setting for use the context session. */
+	protected final static int CONTEXT_SESSION = 2;
+	/** sakaiHttpSession setting for use the tool session, in any, else context. */
+	protected final static int TOOL_SESSION = 3;
+	/** If true, we deliver the Sakai wide session as the Http session for each request. */
+	protected int m_sakaiHttpSession = TOOL_SESSION;
+	/** Key in the ThreadLocalManager for binding our remoteUser preference. */
+	protected final static String CURRENT_REMOTE_USER = "org.sakaiproject.util.RequestFilter.remote_user";
+	/** Key in the ThreadLocalManager for binding our http session preference. */
+	protected final static String CURRENT_HTTP_SESSION = "org.sakaiproject.util.RequestFilter.http_session";
+	/** Key in the ThreadLocalManager for binding our context id. The servlet context is stored against this. */
+	protected final static String CURRENT_CONTEXT = "org.sakaiproject.util.RequestFilter.context";
 	/** The "." character */
 	protected static final String DOT = ".";
 
@@ -224,10 +175,8 @@ public class RequestFilter implements Filter
 	
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
-	
-	/** If true, we deliver the Sakai wide session as the Http session for each request. */
-	protected int m_sakaiHttpSession = TOOL_SESSION;
-
+	/** Our log (commons). */
+	private static Log M_log = LogFactory.getLog(RequestFilter.class);
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
 	protected boolean m_sakaiRemoteUser = true;
 
@@ -281,255 +230,63 @@ public class RequestFilter implements Filter
 	protected String m_UACompatible = null;
             
 	protected boolean isLTIProviderAllowed = false;
-	
-	/**
-	 * Wraps a request object so we can override some standard behavior.
-	 */
-	public class WrappedRequest extends HttpServletRequestWrapper
-	{
-		/** The Sakai session. */
-		protected Session m_session = null;
-
-		/** Our contex (i.e. servlet context) id. */
-		protected String m_contextId = null;
-
-		public WrappedRequest(Session s, String contextId, HttpServletRequest req)
-		{
-			super(req);
-			m_session = s;
-			m_contextId = contextId;
-
-			if (m_toolPlacement)
-			{
-				extractPlacementFromParams();
-			}
-		}
-
-		public String getRemoteUser()
-		{
-			// use the "current" setting for this
-			boolean remoteUser = ((Boolean) ThreadLocalManager.get(CURRENT_REMOTE_USER)).booleanValue();
-
-			if (remoteUser && (m_session != null) && (m_session.getUserEid() != null))
-			{
-				return m_session.getUserEid();
-			}
-
-			return super.getRemoteUser();
-		}
-
-		public HttpSession getSession()
-		{
-			return getSession(true);
-		}
-
-		public HttpSession getSession(boolean create)
-		{
-			HttpSession rv = null;
-
-			// use the "current" settings for this
-			int curHttpSession = ((Integer) ThreadLocalManager.get(CURRENT_HTTP_SESSION)).intValue();
-			String curContext = (String) ThreadLocalManager.get(CURRENT_CONTEXT);
-
-			switch (curHttpSession)
-			{
-				case CONTAINER_SESSION:
-				{
-					rv = super.getSession(create);
-					break;
-				}
-
-				case SAKAI_SESSION:
-				{
-					rv = (HttpSession) m_session;
-					break;
-				}
-
-				case CONTEXT_SESSION:
-				{
-					rv = (HttpSession) m_session.getContextSession(curContext);
-					break;
-				}
-
-				case TOOL_SESSION:
-				{
-					rv = (HttpSession) SessionManager.getCurrentToolSession();
-					if (rv == null)
-					{
-						rv = (HttpSession) m_session.getContextSession(curContext);
-					}
-					break;
-				}
-			}
-
-			return rv;
-		}
-
-		/**
-		 * Pull the specially encoded tool placement id from the request parameters.
-		 */
-		protected void extractPlacementFromParams()
-		{
-			String placementId = getParameter(Tool.PLACEMENT_ID);
-			if (placementId != null)
-			{
-				setAttribute(Tool.PLACEMENT_ID, placementId);
-			}
-		}
-	}
+	// knl-640
+	private String chsDomain;
+	private String appUrl;
+	private String chsUrl;
+	private boolean useContentHostingDomain;
+	private String [] contentPaths;
+	private String [] loginPaths;
+	private String [] contentExceptions;
 
 	/**
-	 * Wraps a response object so we can override some standard behavior.
+	 * Compute the URL that would return to this server based on the current request.
+	 *
+	 * Note: this method is used by the one in /sakai-kernel-util/src/main/java/org/sakaiproject/util/Web.java
+	 *
+	 * @param req
+	 *        The request.
+	 * @return The URL back to this server based on the current request.
 	 */
-	public class WrappedResponse extends HttpServletResponseWrapper
+	public static String serverUrl(HttpServletRequest req)
 	{
-		/** The request. */
-		protected HttpServletRequest m_req = null;
+		String transport = null;
+		int port = 0;
+		boolean secure = false;
 
-		/** Wrapped Response * */
-		protected HttpServletResponse m_res = null;
-
-		public WrappedResponse(Session s, HttpServletRequest req, HttpServletResponse res)
-		{
-			super(res);
-
-			m_req = req;
-			m_res = res;
+		// if force.url.secure is set (to a https port number), use https and this port
+		String forceSecure = System.getProperty("sakai.force.url.secure");
+		if (forceSecure != null && !"".equals(forceSecure)) {
+		    // allow the value to be forced to 0 or blank to disable this
+            int portNum;
+            try {
+                portNum = Integer.parseInt(forceSecure);
+            } catch (NumberFormatException e) {
+                throw new IllegalArgumentException("force.url.secure must be set to the port number which should be a numeric value > 0 (or set it to 0 to disable secure urls)", e);
+            }
+            if (portNum > 0) {
+                transport = "https";
+                port = portNum;
+                secure = true;
+            }
+		} else {
+	        // otherwise use the request scheme and port
+			transport = req.getScheme();
+			port = req.getServerPort();
+			secure = req.isSecure();
 		}
 
-		public String encodeRedirectUrl(String url)
+		StringBuilder url = new StringBuilder();
+		url.append(transport);
+		url.append("://");
+		url.append(req.getServerName());
+		if (((port != 80) && (!secure)) || ((port != 443) && secure))
 		{
-			return rewriteURL(url);
+			url.append(":");
+			url.append(port);
 		}
 
-		public String encodeRedirectURL(String url)
-		{
-			return rewriteURL(url);
-		}
-
-		public String encodeUrl(String url)
-		{
-			return rewriteURL(url);
-		}
-
-		public String encodeURL(String url)
-		{
-			return rewriteURL(url);
-		}
-
-		public void sendRedirect(String url) throws IOException
-		{
-			url = rewriteURL(url);
-			m_req.setAttribute(ATTR_REDIRECT, url);
-			super.sendRedirect(url);
-		}
-
-		/**
-		 * Rewrites the given URL to insert the current tool placement id, if any, as the start of the path
-		 * 
-		 * @param url
-		 *        The url to rewrite.
-		 */
-		protected String rewriteURL(String url)
-		{
-			if (m_toolPlacement)
-			{
-				// if we have a tool placement to add, add it
-				String placementId = (String) m_req.getAttribute(Tool.PLACEMENT_ID);
-				if (placementId != null)
-				{
-					// compute the URL root "back" to this servlet context (rel and full)
-					StringBuilder full = new StringBuilder();
-					full.append(m_req.getScheme());
-					full.append("://");
-					full.append(m_req.getServerName());
-					if (((m_req.getServerPort() != 80) && (!m_req.isSecure()))
-							|| ((m_req.getServerPort() != 443) && (m_req.isSecure())))
-					{
-						full.append(":");
-						full.append(m_req.getServerPort());
-					}
-
-					StringBuilder rel = new StringBuilder();
-					rel.append(m_req.getContextPath());
-
-					full.append(rel.toString());
-
-					// if we match the fullUrl, or the relUrl, assume that this is a URL back to this servlet
-					if ((url.startsWith(full.toString()) || url.startsWith(rel.toString())))
-					{
-						// put the placementId in as a parameter
-						StringBuilder newUrl = new StringBuilder(url);
-						if (url.indexOf('?') != -1)
-						{
-							newUrl.append('&');
-						}
-						else
-						{
-							newUrl.append('?');
-						}
-						newUrl.append(Tool.PLACEMENT_ID);
-						newUrl.append("=");
-						newUrl.append(placementId);
-						url = newUrl.toString();
-					}
-				}
-			}
-
-			// Chain back so the wrapped response can encode the URL futher if needed
-			// this is necessary for WSRP support.
-			if (m_res != null) url = m_res.encodeURL(url);
-
-			return url;
-		}
-	}
-
-	/**
-	 * Request wrapper that exposes the parameters parsed from the multipart/mime file upload (along with parameters from the
-	 * request).
-	 */
-	static class WrappedRequestFileUpload extends HttpServletRequestWrapper
-	{
-		private Map map;
-
-		/**
-		 * Constructs a wrapped response that exposes the given map of parameters.
-		 * 
-		 * @param req
-		 *        The request to wrap.
-		 * @param paramMap
-		 *        The parameters to expose.
-		 */
-		public WrappedRequestFileUpload(HttpServletRequest req, Map paramMap)
-		{
-			super(req);
-			map = paramMap;
-		}
-
-		public Map getParameterMap()
-		{
-			return map;
-		}
-
-		public String[] getParameterValues(String name)
-		{
-			String[] ret = null;
-			Map map = getParameterMap();
-			return (String[]) map.get(name);
-		}
-
-		public String getParameter(String name)
-		{
-			String[] params = getParameterValues(name);
-			if (params == null) return null;
-			return params[0];
-		}
-
-		public Enumeration getParameterNames()
-		{
-			Map map = getParameterMap();
-			return Collections.enumeration(map.keySet());
-		}
+		return url.toString();
 	}
 
 	/**
@@ -538,7 +295,7 @@ public class RequestFilter implements Filter
 	public void destroy()
 	{
 	}
-	
+
 	private boolean startsWithAny(String source, String[] toMatch) {
 		for (String test: toMatch) {
 			if (source.startsWith(test)) {
@@ -595,7 +352,7 @@ public class RequestFilter implements Filter
 			// The FileDomain should only accept:
 			// 1) any URL's in loginPath. We have to accept POST methods here
 			//    as well so folks can log in on this node.
-			// 2) any GET URL's from contentPaths (POST's any other methods not 
+			// 2) any GET URL's from contentPaths (POST's any other methods not
 			//    allowed.
 			if (useContentHostingDomain) {
 				String requestURI = req.getRequestURI();
@@ -606,8 +363,8 @@ public class RequestFilter implements Filter
 					}
 				}
 				else {
-					if (req.getServerName().equals(chsDomain) && 
-						!(startsWithAny(requestURI, contentPaths) && !"GET".equalsIgnoreCase(req.getMethod())) && 
+					if (req.getServerName().equals(chsDomain) &&
+						!(startsWithAny(requestURI, contentPaths) && !"GET".equalsIgnoreCase(req.getMethod())) &&
 						!(startsWithAny(requestURI, loginPaths))) {
 						resp.sendRedirect(appUrl+requestURI);
 						return;
@@ -654,7 +411,7 @@ public class RequestFilter implements Filter
 					}
 					M_log.debug(sb);
 				}
-								
+
 				try
 				{
 					// mark the request as filtered to avoid re-filtering it later in the request processing
@@ -690,7 +447,7 @@ public class RequestFilter implements Filter
 						synchronized(s) {
 							// Pass control on to the next filter or the servlet
 							chain.doFilter(req, resp);
-	
+
 							// post-process response
 							postProcessResponse(s, req, resp);
 						}
@@ -699,12 +456,12 @@ public class RequestFilter implements Filter
 						chain.doFilter(req, resp);
 
 						// post-process response
-						postProcessResponse(s, req, resp);						
+						postProcessResponse(s, req, resp);
 					}
-			
+
 					// Output client cookie if requested to do so
 					if (s != null && req.getAttribute(ATTR_SET_COOKIE) != null) {
-						
+
 						// check for existing cookie
 						String suffix = getCookieSuffix();
 						Cookie c = findCookie(req, cookieName, suffix);
@@ -729,7 +486,7 @@ public class RequestFilter implements Filter
 						}
 					}
 
-					
+
 				}
 				catch (RuntimeException t)
 				{
@@ -753,7 +510,7 @@ public class RequestFilter implements Filter
 					cleared = true;
 				}
 			}
-			
+
 		}
 		finally
 		{
@@ -780,7 +537,7 @@ public class RequestFilter implements Filter
 
 	/**
 	 * If any of these files exist, delete them.
-	 * 
+	 *
 	 * @param tempFiles
 	 *        The file items to delete.
 	 */
@@ -792,26 +549,17 @@ public class RequestFilter implements Filter
 		}
 	}
 
-	// knl-640
-	private String chsDomain;
-	private String appUrl;
-	private String chsUrl;
-	private boolean useContentHostingDomain;
-	private String [] contentPaths;
-	private String [] loginPaths;
-	private String [] contentExceptions;
-	
 	/**
 	 * Place this filter into service.
-	 * 
+	 *
 	 * @param filterConfig
 	 *        The filter configuration object
 	 */
 	public void init(FilterConfig filterConfig) throws ServletException
 	{
-		
-		// Requesting the ServerConfigurationService here also triggers the promotion of certain 
-		// sakai.properties settings to system properties - see SakaiPropertyPromoter() 		
+
+		// Requesting the ServerConfigurationService here also triggers the promotion of certain
+		// sakai.properties settings to system properties - see SakaiPropertyPromoter()
 		ServerConfigurationService configService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
 
 		// knl-640
@@ -832,7 +580,7 @@ public class RequestFilter implements Filter
 			// add in default exceptions here, if desired
 			contentExceptions = new String[] { "/access/calendar/", "/access/citation/export_ris_sel/", "/access/citation/export_ris_all/" };
 		}
-		
+
 		// capture the servlet context for later user
 		m_servletContext = filterConfig.getServletContext();
 
@@ -959,10 +707,10 @@ public class RequestFilter implements Filter
 			M_log.warn("overridding " + CONFIG_MAX_PER_FILE + " setting: must be 'true' with " + CONFIG_CONTINUE + " ='true'");
 			m_uploadMaxPerFile = true;
 		}
-		
+
 		String clusterTerracotta = System.getProperty("sakai.cluster.terracotta");
 		TERRACOTTA_CLUSTER = "true".equals(clusterTerracotta);
-		
+
 		// retrieve the configured cookie name, if any
 		if (System.getProperty(SAKAI_COOKIE_NAME) != null)
 		{
@@ -974,7 +722,7 @@ public class RequestFilter implements Filter
 		{
 			cookieDomain = System.getProperty(SAKAI_COOKIE_DOMAIN);
 		}
-		
+
 		m_sessionParamAllow = configService.getBoolean(SAKAI_SESSION_PARAM_ALLOW, false);
 
 		// retrieve option to enable or disable cookie HttpOnly
@@ -999,11 +747,11 @@ public class RequestFilter implements Filter
 			req.setCharacterEncoding(m_characterEncoding);
 		}
 	}
-
+	
 	/**
 	 * if the filter is configured to parse file uploads, AND the request is multipart (typically a file upload), then parse the
 	 * request.
-	 * 
+	 *
 	 * @return If there is a file upload, and the filter handles it, return the wrapped request that has the results of the parsed
 	 *         file upload. Parses the files using Apache commons-fileuplaod. Exposes the results through a wrapped request. Files
 	 *         are available like: fileItem = (FileItem) request.getAttribute("myHtmlFileUploadId");
@@ -1202,7 +950,7 @@ public class RequestFilter implements Filter
 
 	/**
 	 * Make sure we have a Sakai session.
-	 * 
+	 *
 	 * @param req
 	 *        The request object.
 	 * @param res
@@ -1215,7 +963,7 @@ public class RequestFilter implements Filter
 		String sessionId = null;
 		boolean allowSetCookieEarly = true;
 		Cookie c = null;
-		
+
 		// automatic, i.e. not from user activity, request?
 		boolean auto = req.getParameter(PARAM_AUTO) != null;
 
@@ -1228,7 +976,7 @@ public class RequestFilter implements Filter
 		// Note: use principal instead of remote user to avoid any possible confusion with the remote user set by single-signon
 		// auth.
 		// Principal is set by our Dav interface, which this is designed to cover. -ggolden
-		
+
 		Principal principal = req.getUserPrincipal();
 
 		if (m_checkPrincipal && (principal != null) && (principal.getName() != null))
@@ -1238,7 +986,7 @@ public class RequestFilter implements Filter
 
 			// don't supply this cookie to the client
 			allowSetCookieEarly = false;
-			
+
 			// find the session
 			s = SessionManager.getSession(sessionId);
 
@@ -1247,7 +995,7 @@ public class RequestFilter implements Filter
 			{
 				s = SessionManager.startSession(sessionId);
 			}
-			
+
 			// Make these sessions expire after 10 minutes
 			s.setMaxInactiveInterval(10*60);
 		}
@@ -1258,7 +1006,7 @@ public class RequestFilter implements Filter
 			if (m_sessionParamAllow) {
 				sessionId = req.getParameter(ATTR_SESSION);
 			}
-			
+
 			// find our session id from our cookie
 			c = findCookie(req, cookieName, suffix);
 
@@ -1285,8 +1033,8 @@ public class RequestFilter implements Filter
 				s = SessionManager.getSession(sessionId);
 			}
 
-			// ignore the session id provided in a request parameter 
-			// if the session is not authenticated 
+			// ignore the session id provided in a request parameter
+			// if the session is not authenticated
 			if (reqsession && s != null && s.getUserId() == null) {
 				s = null;
 			}
@@ -1297,6 +1045,17 @@ public class RequestFilter implements Filter
 		{
 			synchronized(s) {
 				s.setActive();
+			}
+		}
+		if (s == null && sessionId != null) {
+			// check to see if this session has already been built.  If not, rebuild
+			RebuildBreakdownService rebuildBreakdownService = (RebuildBreakdownService) ComponentManager.get(RebuildBreakdownService.class);
+			if (rebuildBreakdownService != null) {
+				s = SessionManager.startSession(sessionId);
+				if (!rebuildBreakdownService.rebuildSession(s)) {
+					s.invalidate();
+					s = null;
+				}
 			}
 		}
 
@@ -1317,7 +1076,7 @@ public class RequestFilter implements Filter
 
 		// set this as the current session
 		SessionManager.setCurrentSession(s);
-		
+
 		// Now that we know the session exists, regardless of whether it's new or not, lets see if there
 		// is a UsageSession.  If so, we want to check it's serverId
 		UsageSession us = null;
@@ -1382,7 +1141,7 @@ public class RequestFilter implements Filter
 
 	/**
 	 * Detect a tool placement from the URL, and if found, setup the placement attribute and current tool session based on that id.
-	 * 
+	 *
 	 * @param s
 	 *        The sakai session.
 	 * @param req
@@ -1415,7 +1174,7 @@ public class RequestFilter implements Filter
 
 	/**
 	 * Pre-process the request, returning a possibly wrapped req for further processing.
-	 * 
+	 *
 	 * @param s
 	 *        The Sakai Session.
 	 * @param req
@@ -1428,10 +1187,10 @@ public class RequestFilter implements Filter
 
 		return req;
 	}
-
+	
 	/**
 	 * Pre-process the response, returning a possibly wrapped res for further processing.
-	 * 
+	 *
 	 * @param s
 	 *        The Sakai Session.
 	 * @param req
@@ -1457,7 +1216,7 @@ public class RequestFilter implements Filter
 
 	/**
 	 * Post-process the response.
-	 * 
+	 *
 	 * @param s
 	 *        The Sakai Session.
 	 * @param req
@@ -1467,11 +1226,27 @@ public class RequestFilter implements Filter
 	 */
 	protected void postProcessResponse(Session s, HttpServletRequest req, HttpServletResponse res)
 	{
+		RebuildBreakdownService rebuildBreakdownService = (RebuildBreakdownService) ComponentManager.get(RebuildBreakdownService.class);
+		if (rebuildBreakdownService != null) {
+		    rebuildBreakdownService.storeSession(s, req);
+		}
+	}
+
+	/**
+	 * isSessionClusteringEnabled() checks if session information is clustered.
+	 * Clustering can be either through Terracotta clustering or through
+	 * RebuildBreakdownService session clustering
+	 * @return true if sessionClustering is enabled
+	 */
+	private boolean isSessionClusteringEnabled()
+	{
+        RebuildBreakdownService rebuildBreakdownService = (RebuildBreakdownService) ComponentManager.get(RebuildBreakdownService.class);
+	    return TERRACOTTA_CLUSTER || rebuildBreakdownService.isSessionHandlingEnabled();
 	}
 
 	/**
 	 * Find a cookie by this name from the request; one with a value that has the specified suffix.
-	 * 
+	 *
 	 * @param req
 	 *        The servlet request.
 	 * @param name
@@ -1493,7 +1268,7 @@ public class RequestFilter implements Filter
 					// and the suffix passed in to this method is not null
 					// then only match the cookie if the end of the cookie
 					// value is equal to the suffix passed in.
-					if (TERRACOTTA_CLUSTER || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
+					if (isSessionClusteringEnabled() || ((suffix == null) || cookies[i].getValue().endsWith(suffix)))
 					{
 						return cookies[i];
 					}
@@ -1502,56 +1277,6 @@ public class RequestFilter implements Filter
 		}
 
 		return null;
-	}
-
-	/**
-	 * Compute the URL that would return to this server based on the current request. 
-	 * 
-	 * Note: this method is used by the one in /sakai-kernel-util/src/main/java/org/sakaiproject/util/Web.java
-	 * 
-	 * @param req
-	 *        The request.
-	 * @return The URL back to this server based on the current request.
-	 */
-	public static String serverUrl(HttpServletRequest req)
-	{
-		String transport = null;
-		int port = 0;
-		boolean secure = false;
-
-		// if force.url.secure is set (to a https port number), use https and this port
-		String forceSecure = System.getProperty("sakai.force.url.secure");
-		if (forceSecure != null && !"".equals(forceSecure)) {
-		    // allow the value to be forced to 0 or blank to disable this
-            int portNum;
-            try {
-                portNum = Integer.parseInt(forceSecure);
-            } catch (NumberFormatException e) {
-                throw new IllegalArgumentException("force.url.secure must be set to the port number which should be a numeric value > 0 (or set it to 0 to disable secure urls)", e);
-            }
-            if (portNum > 0) {
-                transport = "https";
-                port = portNum;
-                secure = true;
-            }
-		} else {
-	        // otherwise use the request scheme and port
-			transport = req.getScheme();
-			port = req.getServerPort();
-			secure = req.isSecure();
-		}
-
-		StringBuilder url = new StringBuilder();
-		url.append(transport);
-		url.append("://");
-		url.append(req.getServerName());
-		if (((port != 80) && (!secure)) || ((port != 443) && secure))
-		{
-			url.append(":");
-			url.append(port);
-		}
-
-		return url.toString();
 	}
 	
 	/**
@@ -1576,7 +1301,7 @@ public class RequestFilter implements Filter
 	}
 	
 	protected void addCookie(HttpServletResponse res, Cookie cookie) {
-		
+
 		if (!m_cookieHttpOnly) {
 			// Use the standard servlet mechanism for setting the cookie
 			res.addCookie(cookie);
@@ -1592,6 +1317,256 @@ public class RequestFilter implements Filter
 			res.addHeader("Set-Cookie", sb.toString());
 		}
 		return;
+	}
+
+	/**
+	 * Request wrapper that exposes the parameters parsed from the multipart/mime file upload (along with parameters from the
+	 * request).
+	 */
+	static class WrappedRequestFileUpload extends HttpServletRequestWrapper
+	{
+		private Map map;
+
+		/**
+		 * Constructs a wrapped response that exposes the given map of parameters.
+		 *
+		 * @param req
+		 *        The request to wrap.
+		 * @param paramMap
+		 *        The parameters to expose.
+		 */
+		public WrappedRequestFileUpload(HttpServletRequest req, Map paramMap)
+		{
+			super(req);
+			map = paramMap;
+		}
+
+		public Map getParameterMap()
+		{
+			return map;
+		}
+
+		public String[] getParameterValues(String name)
+		{
+			String[] ret = null;
+			Map map = getParameterMap();
+			return (String[]) map.get(name);
+		}
+
+		public String getParameter(String name)
+		{
+			String[] params = getParameterValues(name);
+			if (params == null) return null;
+			return params[0];
+		}
+
+		public Enumeration getParameterNames()
+		{
+			Map map = getParameterMap();
+			return Collections.enumeration(map.keySet());
+		}
+	}
+	
+	/**
+	 * Wraps a request object so we can override some standard behavior.
+	 */
+	public class WrappedRequest extends HttpServletRequestWrapper
+	{
+		/** The Sakai session. */
+		protected Session m_session = null;
+
+		/** Our contex (i.e. servlet context) id. */
+		protected String m_contextId = null;
+
+		public WrappedRequest(Session s, String contextId, HttpServletRequest req)
+		{
+			super(req);
+			m_session = s;
+			m_contextId = contextId;
+
+			if (m_toolPlacement)
+			{
+				extractPlacementFromParams();
+			}
+		}
+
+		public String getRemoteUser()
+		{
+			// use the "current" setting for this
+			boolean remoteUser = ((Boolean) ThreadLocalManager.get(CURRENT_REMOTE_USER)).booleanValue();
+
+			if (remoteUser && (m_session != null) && (m_session.getUserEid() != null))
+			{
+				return m_session.getUserEid();
+			}
+
+			return super.getRemoteUser();
+		}
+
+		public HttpSession getSession()
+		{
+			return getSession(true);
+		}
+
+		public HttpSession getSession(boolean create)
+		{
+			HttpSession rv = null;
+
+			// use the "current" settings for this
+			int curHttpSession = ((Integer) ThreadLocalManager.get(CURRENT_HTTP_SESSION)).intValue();
+			String curContext = (String) ThreadLocalManager.get(CURRENT_CONTEXT);
+
+			switch (curHttpSession)
+			{
+				case CONTAINER_SESSION:
+				{
+					rv = super.getSession(create);
+					break;
+				}
+
+				case SAKAI_SESSION:
+				{
+					rv = (HttpSession) m_session;
+					break;
+				}
+
+				case CONTEXT_SESSION:
+				{
+					rv = (HttpSession) m_session.getContextSession(curContext);
+					break;
+				}
+
+				case TOOL_SESSION:
+				{
+					rv = (HttpSession) SessionManager.getCurrentToolSession();
+					if (rv == null)
+					{
+						rv = (HttpSession) m_session.getContextSession(curContext);
+					}
+					break;
+				}
+			}
+
+			return rv;
+		}
+
+		/**
+		 * Pull the specially encoded tool placement id from the request parameters.
+		 */
+		protected void extractPlacementFromParams()
+		{
+			String placementId = getParameter(Tool.PLACEMENT_ID);
+			if (placementId != null)
+			{
+				setAttribute(Tool.PLACEMENT_ID, placementId);
+			}
+		}
+	}
+	
+	/**
+	 * Wraps a response object so we can override some standard behavior.
+	 */
+	public class WrappedResponse extends HttpServletResponseWrapper
+	{
+		/** The request. */
+		protected HttpServletRequest m_req = null;
+
+		/** Wrapped Response * */
+		protected HttpServletResponse m_res = null;
+
+		public WrappedResponse(Session s, HttpServletRequest req, HttpServletResponse res)
+		{
+			super(res);
+
+			m_req = req;
+			m_res = res;
+		}
+
+		public String encodeRedirectUrl(String url)
+		{
+			return rewriteURL(url);
+		}
+
+		public String encodeRedirectURL(String url)
+		{
+			return rewriteURL(url);
+		}
+
+		public String encodeUrl(String url)
+		{
+			return rewriteURL(url);
+		}
+
+		public String encodeURL(String url)
+		{
+			return rewriteURL(url);
+		}
+
+		public void sendRedirect(String url) throws IOException
+		{
+			url = rewriteURL(url);
+			m_req.setAttribute(ATTR_REDIRECT, url);
+			super.sendRedirect(url);
+		}
+
+		/**
+		 * Rewrites the given URL to insert the current tool placement id, if any, as the start of the path
+		 *
+		 * @param url
+		 *        The url to rewrite.
+		 */
+		protected String rewriteURL(String url)
+		{
+			if (m_toolPlacement)
+			{
+				// if we have a tool placement to add, add it
+				String placementId = (String) m_req.getAttribute(Tool.PLACEMENT_ID);
+				if (placementId != null)
+				{
+					// compute the URL root "back" to this servlet context (rel and full)
+					StringBuilder full = new StringBuilder();
+					full.append(m_req.getScheme());
+					full.append("://");
+					full.append(m_req.getServerName());
+					if (((m_req.getServerPort() != 80) && (!m_req.isSecure()))
+							|| ((m_req.getServerPort() != 443) && (m_req.isSecure())))
+					{
+						full.append(":");
+						full.append(m_req.getServerPort());
+					}
+
+					StringBuilder rel = new StringBuilder();
+					rel.append(m_req.getContextPath());
+
+					full.append(rel.toString());
+
+					// if we match the fullUrl, or the relUrl, assume that this is a URL back to this servlet
+					if ((url.startsWith(full.toString()) || url.startsWith(rel.toString())))
+					{
+						// put the placementId in as a parameter
+						StringBuilder newUrl = new StringBuilder(url);
+						if (url.indexOf('?') != -1)
+						{
+							newUrl.append('&');
+						}
+						else
+						{
+							newUrl.append('?');
+						}
+						newUrl.append(Tool.PLACEMENT_ID);
+						newUrl.append("=");
+						newUrl.append(placementId);
+						url = newUrl.toString();
+					}
+				}
+			}
+
+			// Chain back so the wrapped response can encode the URL futher if needed
+			// this is necessary for WSRP support.
+			if (m_res != null) url = m_res.encodeURL(url);
+
+			return url;
+		}
 	}
 
 

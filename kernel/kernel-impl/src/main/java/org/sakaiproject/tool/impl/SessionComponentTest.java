@@ -23,6 +23,7 @@ package org.sakaiproject.tool.impl;
 
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.RebuildBreakdownService;
 import org.sakaiproject.tool.api.ToolManager;
 
 /**
@@ -58,4 +59,11 @@ public class SessionComponentTest extends SessionComponent
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	
+	@Override
+	protected RebuildBreakdownService rebuildBreakdownService() {
+		return null;
+	}
+
 }

@@ -1,35 +1,18 @@
 package org.sakaiproject.tool.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.BrokenBarrierException;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CyclicBarrier;
-import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.jmock.Expectations;
+import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.tool.api.*;
 
 import javax.servlet.http.HttpSessionBindingEvent;
 import javax.servlet.http.HttpSessionBindingListener;
-
-import org.apache.commons.lang.mutable.MutableLong;
-import org.jmock.Expectations;
-
-import org.sakaiproject.id.api.IdManager;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.tool.api.ContextSession;
-import org.sakaiproject.tool.api.NonPortableSession;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.api.SessionAttributeListener;
-import org.sakaiproject.tool.api.SessionBindingEvent;
-import org.sakaiproject.tool.api.SessionBindingListener;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
+import java.util.*;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Verifies behavior of {@link MySession}, which
@@ -114,6 +97,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 	 *      Runnable)
 	 */
 	public void testInvalidateClearsSessionAndUnsetsItselfAsCurrent() {
+		allowToolCheck("simple.unit.test");
+		allowPlacementCheck("sakai-context-1");
 		final MyTestableSession session = createSession();
 		doTestSessionClear(session, new Runnable() {
 			public void run() {
@@ -130,6 +115,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 	 * @see #doTestSessionClear(org.sakaiproject.tool.impl.MySessionTest.MyTestableSession, Runnable)
 	 */
 	public void testClearUnbindsAttributes() {
+		allowToolCheck("simple.unit.test");
+		allowPlacementCheck("sakai-context-1");
 		final MyTestableSession session = createSession();
 		doTestSessionClear(session, new Runnable() {
 			public void run() {
@@ -176,8 +163,10 @@ public class MySessionTest extends BaseSessionComponentTest {
 	public void testClearExceptFiltersSessionAttribsButClearsAllToolAndContextSessionAttribs() {
 		MyTestableSession session = createSession();
 		ContextSession contextSession = getContextSession(session, "CONTEXT_SESSION_ID");
+		allowToolCheck("simple.unit.test");
+		allowPlacementCheck("PLACEMENT_ID");
 		ToolSession toolSession = getToolSession(session, "PLACEMENT_ID");
-		
+
 		final String sessionAttribKey1 = "SESSION_ATTRIB_KEY_1";
 		final String sessionAttribKey2 = "SESSION_ATTRIB_KEY_2";
 		final ListeningAttribValue sessionAttribValue1 = 
@@ -272,6 +261,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 		session.setUserId("USER_ID");
 		String toolSessionId = "TOOL_SESSION_ID";
 		String placementId = "TOOL_PLACEMENT_ID";
+		allowToolCheck("sakai.tool.id");
+		allowPlacementCheck(placementId);
 		ToolSession toolSession = getToolSession(session, placementId, toolSessionId);
 		assertEquals(toolSessionId, toolSession.getId());
 		assertEquals(placementId, toolSession.getPlacementId());
@@ -457,7 +448,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 	public void testNonPortableRemoveAttributeReleasesAttributeAndFiresUnbind() {
 		System.setProperty("sakai.cluster.terracotta","true");
 		MyTestableSession session = createSession();
-		expectToolCheck("simple.unit.test");
+		allowToolCheck("simple.unit.test");
 		final String sessionAttribKey = "SESSION_ATTRIB_KEY";
 		final ListeningAttribValue sessionAttribValue = 
 			setNewListeningAttribValue(session, sessionAttribKey);
@@ -474,6 +465,7 @@ public class MySessionTest extends BaseSessionComponentTest {
 		final MyTestableSession session = createSession();
 		System.setProperty("sakai.cluster.terracotta","true");
 		allowToolCheck("simple.unit.test");
+		allowPlacementCheck("sakai-context-1");
 		doTestSessionClear(session, new Runnable() {
 			public void run() {
 				session.clear();
@@ -543,79 +535,27 @@ public class MySessionTest extends BaseSessionComponentTest {
 		return new MyTestableSession(sessionComponent, sessionId, threadLocalManager, idManager, sessionListener, new MyNonPortableSession());
 	}
 
-	private static class MyTestableSession extends MySession {
-		
-		private Map<String,Object> unbindInvokedWith = new HashMap<String,Object>();
-		private Map<String,Object> bindInvokedWith = new HashMap<String,Object>();
-		
-		public MyTestableSession(SessionComponent outer, String sessionId, ThreadLocalManager threadLocalManager,
-				IdManager idManager, SessionAttributeListener sessionListener,  NonPortableSession nps) {
-			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()));
-		}
-
-		@Override
-		protected void unBind(String name, Object value) {
-			unbindInvokedWith.put(name, value);
-			super.unBind(name, value);
-		}
-		
-		@Override
-		protected void bind(String name, Object value) {
-			bindInvokedWith.put(name, value);
-			super.bind(name, value);
-		}
-	}
-	
-	private static class ListeningAttribValue implements SessionBindingListener, HttpSessionBindingListener {
-
-		private List<SessionBindingEvent> sessionValueBoundInvokedWith = 
-			Collections.synchronizedList(new ArrayList<SessionBindingEvent>());
-		private List<SessionBindingEvent> sessionValueUnboundInvokedWith = 
-			Collections.synchronizedList(new ArrayList<SessionBindingEvent>());
-		private List<HttpSessionBindingEvent> httpSessionValueBoundInvokedWith = 
-			Collections.synchronizedList(new ArrayList<HttpSessionBindingEvent>());
-		private List<HttpSessionBindingEvent> httpSessionValueUnboundInvokedWith = 
-			Collections.synchronizedList(new ArrayList<HttpSessionBindingEvent>());
-		
-		public void valueBound(SessionBindingEvent event) {
-			this.sessionValueBoundInvokedWith.add(event);
-		}
-
-		public void valueUnbound(SessionBindingEvent event) {
-			this.sessionValueUnboundInvokedWith.add(event);
-		}
-
-		public void valueBound(HttpSessionBindingEvent event) {
-			this.httpSessionValueBoundInvokedWith.add(event);
-		}
-
-		public void valueUnbound(HttpSessionBindingEvent event) {
-			this.httpSessionValueUnboundInvokedWith.add(event);
-		}
-		
-	}
-	
 	protected ListeningAttribValue setNewListeningAttribValue(
 			ToolSession toolSession, String key) {
 		ListeningAttribValue value = new ListeningAttribValue();
 		toolSession.setAttribute(key, value);
 		return value;
 	}
-
+	
 	protected ListeningAttribValue setNewListeningAttribValue(
 			ContextSession contextSession, String key) {
 		ListeningAttribValue value = new ListeningAttribValue();
 		contextSession.setAttribute(key, value);
 		return value;
 	}
-
+	
 	protected ListeningAttribValue setNewListeningAttribValue(MySession session,
 			String key) {
 		ListeningAttribValue value = new ListeningAttribValue();
 		session.setAttribute(key, value);
 		return value;
 	}
-	
+
 	protected void assertHasNoAttributes(ContextSession contextSession) {
 		assertFalse(contextSession.getAttributeNames().hasMoreElements());
 	}
@@ -623,11 +563,11 @@ public class MySessionTest extends BaseSessionComponentTest {
 	protected void assertHasNoAttributes(ToolSession toolSession) {
 		assertFalse(toolSession.getAttributeNames().hasMoreElements());
 	}
-
+	
 	protected void assertHasNoAttributes(MySession session) {
 		assertFalse(session.getAttributeNames().hasMoreElements());
 	}
-	
+
 	/**
 	 * Verifies that multiple {@link MySession#invalidate()} calls can proceed
 	 * concurrently without error and with the session properly invalidated
@@ -641,8 +581,8 @@ public class MySessionTest extends BaseSessionComponentTest {
 	 */
 	public void testConcurrentInvalidation() {
 		final MyTestableSession session = createSession();
-		Collection<ListeningAttribValue> attribValues = 
-			new ArrayList<ListeningAttribValue>(); 
+		Collection<ListeningAttribValue> attribValues =
+			new ArrayList<ListeningAttribValue>();
 		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_1"));
 		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_2"));
 		attribValues.add(setNewListeningAttribValue(session, "SESSION_ATTRIB_KEY_3"));
@@ -681,6 +621,58 @@ public class MySessionTest extends BaseSessionComponentTest {
 			assertEquals(1, attribValue.httpSessionValueUnboundInvokedWith.size());
 			assertEquals(1, attribValue.sessionValueUnboundInvokedWith.size());
 		}
+	}
+
+	private static class MyTestableSession extends MySession {
+
+		private Map<String,Object> unbindInvokedWith = new HashMap<String,Object>();
+		private Map<String,Object> bindInvokedWith = new HashMap<String,Object>();
+
+		public MyTestableSession(SessionComponent outer, String sessionId, ThreadLocalManager threadLocalManager,
+				IdManager idManager, SessionAttributeListener sessionListener,  NonPortableSession nps) {
+			super(outer, sessionId, threadLocalManager, idManager, outer, sessionListener, outer.getInactiveInterval(),nps,new MutableLong(System.currentTimeMillis()), null);
+		}
+
+		@Override
+		protected void unBind(String name, Object value) {
+			unbindInvokedWith.put(name, value);
+			super.unBind(name, value);
+		}
+
+		@Override
+		protected void bind(String name, Object value) {
+			bindInvokedWith.put(name, value);
+			super.bind(name, value);
+		}
+	}
+	
+	private static class ListeningAttribValue implements SessionBindingListener, HttpSessionBindingListener {
+
+		private List<SessionBindingEvent> sessionValueBoundInvokedWith =
+			Collections.synchronizedList(new ArrayList<SessionBindingEvent>());
+		private List<SessionBindingEvent> sessionValueUnboundInvokedWith =
+			Collections.synchronizedList(new ArrayList<SessionBindingEvent>());
+		private List<HttpSessionBindingEvent> httpSessionValueBoundInvokedWith =
+			Collections.synchronizedList(new ArrayList<HttpSessionBindingEvent>());
+		private List<HttpSessionBindingEvent> httpSessionValueUnboundInvokedWith =
+			Collections.synchronizedList(new ArrayList<HttpSessionBindingEvent>());
+
+		public void valueBound(SessionBindingEvent event) {
+			this.sessionValueBoundInvokedWith.add(event);
+		}
+
+		public void valueUnbound(SessionBindingEvent event) {
+			this.sessionValueUnboundInvokedWith.add(event);
+		}
+
+		public void valueBound(HttpSessionBindingEvent event) {
+			this.httpSessionValueBoundInvokedWith.add(event);
+		}
+
+		public void valueUnbound(HttpSessionBindingEvent event) {
+			this.httpSessionValueUnboundInvokedWith.add(event);
+		}
+
 	}
 	
 	/* Questioning the cost/benefit ration of the following:

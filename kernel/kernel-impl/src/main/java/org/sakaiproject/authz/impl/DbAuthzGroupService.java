@@ -24,6 +24,7 @@ package org.sakaiproject.authz.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
+import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -711,10 +712,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 
 			if (realmRoleGRCache != null) {
 				// KNL-1037 read the cached role and membership information
-				Map<?,?> roles = realmRoleGRCache.get(REALM_ROLES_CACHE);
+				Map<String, Role> roles = new HashMap<String, Role>();
+				
+				// dehydrate to SimpleRoles, which can be stored in a distributed Terracotta cache
+				Map<String, SimpleRole> roleProperties = realmRoleGRCache.get(REALM_ROLES_CACHE);
+				for (java.util.Map.Entry<String, SimpleRole> mapEntry : roleProperties.entrySet()) {
+					roles.put(mapEntry.getKey(), new BaseRole(mapEntry.getValue()));
+				}
 				Map<String, Member> userGrants = new HashMap<String, Member>();
-				Map<String, MemberWithRoleId> userGrantsWithRoleId = (Map<String, MemberWithRoleId>) realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
-				userGrants.putAll(getMemberMap(userGrantsWithRoleId, roles));
+				
+				Map<String, MemberWithRoleId> userGrantsWithRoleIdMap = (Map<String, MemberWithRoleId>) realmRoleGRCache.get(REALM_USER_GRANTS_CACHE);
+				userGrants.putAll(getMemberMap(userGrantsWithRoleIdMap, roles));
+				
 				realm.m_roles = roles;
 				realm.m_userGrants = userGrants;
 			} else {
@@ -838,14 +847,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			        }
 			    });
 
-                if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
-			        Map<String, Map> payLoad = new HashMap<String, Map>();
-
-			        payLoad.put(REALM_ROLES_CACHE,realm.m_roles);
-			        payLoad.put(REALM_USER_GRANTS_CACHE, getMemberWithRoleIdMap(realm.m_userGrants));
-
-			        m_realmRoleGRCache.put(realm.getId(), payLoad);
-			    }
+				if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
+					Map<String, Map> payLoad = new HashMap<String, Map>();
+					// rehydrate from SimpleRole, which can be stored in a Terracotta cache
+					Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
+					for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
+						roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());
+					}
+					Map<String, MemberWithRoleId> membersWithRoleIds = getMemberWithRoleIdMap(realm.m_userGrants);
+					payLoad.put(REALM_ROLES_CACHE, roleProperties);
+					payLoad.put(REALM_USER_GRANTS_CACHE, membersWithRoleIds);
+					m_realmRoleGRCache.put(realm.getId(), payLoad);
+				}
 			}
 		}
 

@@ -13,6 +13,7 @@
 		<lookup-method name="idManager" bean="org.sakaiproject.id.api.IdManager" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ActiveToolManager"/>
+		<lookup-method name="rebuildBreakdownService" bean="org.sakaiproject.tool.api.RebuildBreakdownService" />
 
 		<property name="clusterableTools">
 			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 
@@ -30,6 +31,22 @@
 		<property name="sessionListener" ref="org.sakaiproject.tool.api.SessionAttributeListener.journaler" />
 		-->
 	</bean>
+
+    <!--
+    RebuildBreakdownServiceImpl is responsible for converting Session data into Serializable
+    objects, storing them internally, and then converting them back into Session objects, in support
+    of Session clustering
+    Also can be used for general serialization
+    -->
+    <bean id="org.sakaiproject.tool.api.RebuildBreakdownService"
+          class="org.sakaiproject.tool.impl.RebuildBreakdownServiceImpl"
+          init-method="init">
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+        <property name="usageSessionService" ref="org.sakaiproject.event.api.UsageSessionService"/>
+    </bean>
+
 
     <!-- uncomment this if sessionListener property is enabled above -->
     <!--
@@ -70,7 +87,7 @@
 	<bean id="org.sakaiproject.tool.impl.ToolResourceFactory" class="org.sakaiproject.tool.impl.ToolResourceFactory">
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService"/>
 	</bean>
-	
+
 	<!-- Export active session data over JMX -->
 	<bean id="org.sakaiproject.tool.api.MBeanExporter" class="org.springframework.jmx.export.MBeanExporter"
 		lazy-init="false">
@@ -80,24 +97,43 @@
 			</map>
 		</property>
 		<property name="server">
-			<!-- KNL-616 - Get the platform MBeanServer, this is to stop JMXUtils logging a warning about multiple MBeanServers
-			     when the MBeanServer isn't created by the JVM at startup. -->
 			<bean class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
 		</property>
 		<property name="assembler">
-			<bean
-				class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
+			<bean class="org.springframework.jmx.export.assembler.MethodNameBasedMBeanInfoAssembler">
 				<property name="managedMethods">
-					<value>getActive5Min,getActive10Min,getActive15Min,getActive</value>
+					<value>getServerId,getServerInstance,getServerIdInstance,getActive05Min,getActive10Min,getActive15Min,getSessionsCount,getSessionsIds,getActive,getSession,invalidateSession,killSession</value>
 				</property>
 			</bean>
 		</property>
 	</bean>
 
-	<bean id="org.sakaiproject.tool.impl.JMXSessionComponent" class="org.sakaiproject.tool.impl.JMXSessionComponent">
-		<property name="sessionManager">
-			<ref bean="org.sakaiproject.tool.api.SessionManager" />
-		</property>
-	</bean>
-	
+    <!-- annotated MBean bean -->
+    <bean id="org.sakaiproject.tool.impl.JMXSessionComponent" class="org.sakaiproject.tool.impl.JMXSessionComponent">
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
+    <!-- use annotations to manage MBeans -
+    Cannot use this because -> Could not generate CGLIB subclass of class [class org.sakaiproject.search.mbeans.SearchServiceManagement]: Common causes of this problem include using a final class or a non-visible class
+    <bean id="sakaiSpringMBeanAttributeSource"
+          class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+    <bean id="sakaiSpringMBeanAssembler"
+          class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+        <property name="attributeSource" ref="sakaiSpringMBeanAttributeSource"/>
+    </bean>
+    <bean id="sakaiSpringMBeanNamingStrategy"
+          class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+        <property name="attributeSource" ref="sakaiSpringMBeanAttributeSource"/>
+    </bean>
+    <bean id="sakaiSpringMBeanExporter" class="org.springframework.jmx.export.MBeanExporter">
+        <property name="assembler" ref="sakaiSpringMBeanAssembler"/>
+        <property name="namingStrategy" ref="sakaiSpringMBeanNamingStrategy"/>
+        <property name="server">
+            <bean class="java.lang.management.ManagementFactory" factory-method="getPlatformMBeanServer"/>
+        </property>
+        <property name="autodetect" value="true"/>
+    </bean>
+    -->
+
 </beans>
