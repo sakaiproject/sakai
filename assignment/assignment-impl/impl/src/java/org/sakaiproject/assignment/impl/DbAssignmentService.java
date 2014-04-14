@@ -530,6 +530,9 @@ public class DbAssignmentService extends BaseAssignmentService
 					}
 				}
 				}
+			} catch (Exception e)
+			{
+				M_log.warn(this + ".getSubmissionsCountWhere(): assignmentRef=" + assignmentRef + " " + e.getMessage());
 			} catch (Throwable t) {
 				M_log.warn(this + ".getSubmissionsCountWhere(): ", t);
 				throw new IllegalArgumentException(t);

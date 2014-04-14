@@ -502,13 +502,15 @@ function allowClick(object)
 										## found the associated group
 										#set($groupFound=false)
 										#set($groupFound=$!site.getGroup($group))
-										#if($!groupFound)
-											#if ($count>1)
-												#set($for=$for.concat(", "))
-											#end
-											#set($for= $for.concat($groupFound.Title))
-											#set($count=$count+1)
+										#if ($count>1)
+											#set($for=$for.concat(", "))
 										#end
+										#if($!groupFound)
+											#set($for= $for.concat($groupFound.Title))
+										#else
+											#set($for= $for.concat($group))
+										#end
+										#set($count=$count+1)
 									#end
 								#end
 								<span title="$validator.escapeHtml($!for)" alt="$validator.escapeHtml($!for)">
