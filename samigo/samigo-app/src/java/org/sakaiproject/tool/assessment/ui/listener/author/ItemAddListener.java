@@ -2083,7 +2083,7 @@ public class ItemAddListener
         answerOptions.clear();
         outer: for(AnswerBean answerBean: bean.getEmiAnswerOptionsClean()){
             for(AnswerIfc currentAnswerOption: deleteAnswerOptions){
-                if(currentAnswerOption.getSequence() == answerBean.getSequence()){
+                if(currentAnswerOption.getSequence().equals(answerBean.getSequence())){
                     //update the existing answer
                     currentAnswerOption.setText(stripPtags(answerBean.getText()));
                     currentAnswerOption.setLabel(answerBean.getLabel());
@@ -2123,7 +2123,7 @@ public class ItemAddListener
         for(AnswerBean answerBean: emiQuestionAnswerCombinations){
             ItemTextIfc itemText = null;
 			for(ItemTextIfc currentItemText: deleteItemText){
-                if(currentItemText.getSequence() == answerBean.getSequence()){
+                if(currentItemText.getSequence().equals(answerBean.getSequence())){
                     itemText = currentItemText;
                     break;
                 }
@@ -2155,7 +2155,7 @@ public class ItemAddListener
                     for(AnswerIfc currentItemAnswer: deleteItemAnswerSet){
                         //if the answer option was removed before then the item
                         //answer will also be removed (not added back here)
-                        if(currentItemAnswer.getSequence() == currentAnswerOption.getSequence()){
+                        if(currentItemAnswer.getSequence().equals(currentAnswerOption.getSequence())){
                             currentItemAnswer.setText(currentAnswerOption.getText());
                             currentItemAnswer.setLabel(currentAnswerOption.getLabel());
                             currentItemAnswer.setIsCorrect(isCorrect);

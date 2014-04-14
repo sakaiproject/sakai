@@ -11,11 +11,22 @@
  */
 function checkEMIOptions(element, validEMIOptions, event) {
 	var charCode = event.charCode;
-	//A-Z or a-z
-	if (isCharAlphaUpper(charCode) || isCharAlphaLower(charCode)){
+    //A-Z or a-z
+	if (isCharGoodWhitespace(charCode) || isCharAlphaUpper(charCode) || isCharAlphaLower(charCode)){
 		return isValidOption(element, validEMIOptions, charCode);
 	}
 	return false;
+}
+/*
+ * good whitespace (tab, shift, backspace...)
+ */
+function isCharGoodWhitespace(charCode){
+    return (charCode === 0 ||
+            charCode === 8 ||
+            charCode === 9 ||
+            charCode === 14 ||
+            charCode === 15 ||
+            charCode === 127);
 }
 
 function isCharNumber(charCode){
@@ -44,7 +55,7 @@ function isCharAlpha(charCode){
 function isValidOption(element, validEMIOptions, charCode){
 	// don't use if it is not in the options
 	var keychar = String.fromCharCode(charCode).toUpperCase();
-	if (validEMIOptions.indexOf(keychar) == -1) {
+	if (validEMIOptions.indexOf(keychar) === -1) {
 		return false;
 	}
 	// now check that it is not a duplicate
@@ -52,7 +63,7 @@ function isValidOption(element, validEMIOptions, charCode){
 		element.value = element.val();
 	}
 	var index = element.value.toUpperCase().indexOf(keychar);
-	if (index == -1) {
+	if (index === -1) {
 		return true;
 	} else {
 		// check that the duplicate is not selected, then we can replace
