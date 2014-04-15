@@ -22,27 +22,20 @@
 
 package org.sakaiproject.user.impl.test;
 
-import java.util.Collection;
-
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.AuthenticatedUserProvider;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryProvider;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserFactory;
-import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.api.*;
 import org.sakaiproject.user.impl.DbUserService;
+
+import java.util.Collection;
 
 /**
  *
@@ -51,10 +44,8 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	protected static final String CONFIG = null;
 
 	private static Log log = LogFactory.getLog(AuthenticatedUserProviderTest.class);
-	
-	private UserDirectoryService userDirectoryService;
 	private static TestProvider userDirectoryProvider;
-	
+	private UserDirectoryService userDirectoryService;
 	// These services are only used to clear out various caches to make sure
 	// we're fetching from the DB.
 	private ThreadLocalManager threadLocalManager;
@@ -163,7 +154,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	 *   cacheMinutes@org.sakaiproject.user.api.UserDirectoryService=0
 	 */
 	private void clearUserFromServiceCaches(String userId) {
-		((DbUserService)userDirectoryService).getIdEidCache().removeAll();
+		((DbUserService)userDirectoryService).getIdEidCache().clear();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
 	}

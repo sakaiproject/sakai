@@ -22,16 +22,10 @@
 
 package org.sakaiproject.user.impl.test;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-
 import junit.extensions.TestSetup;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroupService;
@@ -44,6 +38,11 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.user.impl.DbUserService;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * This is a white-box-ish test which uses inner knowledge of the current
@@ -146,6 +145,18 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		}
 	}
 	
+	private static void actAsAdmin() {
+		sessionManager.getCurrentSession().setUserId("admin");
+		authzGroupService.refreshUser("admin");
+	}
+	
+	private static void clearUserFromServiceCaches(String userId) {
+		dbUserService.getIdEidCache().clear();
+		String ref = "/user/" + userId;
+		threadLocalManager.set(ref, null);
+		if (callCache != null) { callCache.remove(ref); }
+	}
+	
 	public void testGetUsersByEid() throws Exception {
 		// Our big search list should contain:
 		//   - All the legitimate provided user EIDs.
@@ -161,12 +172,12 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 			searchEids.add(String.valueOf(providedCounter));
 		}
 		searchEids.add(SURPRISE_FOR_EID_TEST_EID);	// Previously unseen
-		
+
 		// What we're really interested in is the number of DB queries, but
 		// we don't yet have an easy way to monitor that. Instead, we make
 		// sure that the provider methods are being called in the most efficient
 		// way possible.
-		
+
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		TestProvider.GET_USERS_CALLS_COUNTER = 0;
 		List<User> users = dbUserService.getUsersByEids(searchEids);
@@ -174,12 +185,12 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		searchEids.remove(NO_SUCH_EID);
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 		Assert.assertEquals(1, TestProvider.GET_USERS_CALLS_COUNTER);
-		
+
 		// Make sure caching wasn't broken. Again we need to use our inside
 		// knowledge that even when all other caching is turned off, the
 		// UDS ThreadLocal cache should keep the provider from needing to
 		// be called.
-		
+
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		for (String eid : searchEids) {
 			User user = dbUserService.getUserByEid(eid);
@@ -187,7 +198,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		}
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
-	
+
 	public void testGetUsersById() throws Exception {
 		// Our big search list should contain:
 		//   - All the existing IDs for legitimate provided users.
@@ -195,24 +206,24 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		//   - A bogus ID which won't match anyone.
 		List<String> searchIds = new ArrayList<String>(mappedUserIds);
 		searchIds.add(NO_SUCH_EID);
-		
+
 		// What we're really interested in is the number of DB queries, but
 		// we don't yet have an easy way to monitor that. Instead, we make
 		// sure that the provider methods are being called in the most efficient
 		// way possible.
-		
+
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		TestProvider.GET_USERS_CALLS_COUNTER = 0;
 		List<User> users = dbUserService.getUsers(searchIds);
 		Assert.assertEquals(mappedUserIds.size(), users.size());	// Everyone but the NO_SUCH_EID
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 		Assert.assertEquals(1, TestProvider.GET_USERS_CALLS_COUNTER);
-		
+
 		// Make sure caching wasn't broken. Again we need to use our inside
 		// knowledge that even when all other caching is turned off, the
 		// UDS ThreadLocal cache should keep the provider from needing to
 		// be called.
-		
+
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
 		for (String id : mappedUserIds) {
 			User user = dbUserService.getUser(id);
@@ -220,7 +231,6 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		}
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);
 	}
-	
 	
 	public void testSearchUsers() {
 		List<User> users = dbUserService.searchUsers("Joe", 1, 1);
@@ -232,18 +242,6 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 			fail();
 		}
  	}
-
-	private static void actAsAdmin() {
-		sessionManager.getCurrentSession().setUserId("admin");
-		authzGroupService.refreshUser("admin");
-	}
-	
-	private static void clearUserFromServiceCaches(String userId) {
-		dbUserService.getIdEidCache().removeAll();
-		String ref = "/user/" + userId;
-		threadLocalManager.set(ref, null);
-		if (callCache != null) { callCache.remove(ref); }
-	}
 
 	public static class TestProvider implements UserDirectoryProvider {
 		public static int GET_USER_CALLS_COUNTER = 0;

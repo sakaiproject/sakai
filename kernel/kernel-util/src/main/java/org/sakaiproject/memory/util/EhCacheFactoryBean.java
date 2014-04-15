@@ -60,31 +60,25 @@
 
 package org.sakaiproject.memory.util;
 
-import java.io.IOException;
-import java.util.Set;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.bootstrap.BootstrapCacheLoader;
-import net.sf.ehcache.constructs.blocking.BlockingCache;
-import net.sf.ehcache.constructs.blocking.CacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.SelfPopulatingCache;
-import net.sf.ehcache.constructs.blocking.UpdatingCacheEntryFactory;
-import net.sf.ehcache.constructs.blocking.UpdatingSelfPopulatingCache;
+import net.sf.ehcache.constructs.blocking.*;
 import net.sf.ehcache.event.CacheEventListener;
 import net.sf.ehcache.store.MemoryStoreEvictionPolicy;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.springframework.beans.factory.BeanNameAware;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.Assert;
 
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.api.ServerConfigurationService;
+import java.io.IOException;
+import java.util.Set;
 
 /**
  * {@link FactoryBean} that creates a named EHCache {@link net.sf.ehcache.Cache} instance
@@ -107,6 +101,8 @@ import org.sakaiproject.component.api.ServerConfigurationService;
  * @see #setCacheManager
  * @see EhCacheManagerFactoryBean
  * @see net.sf.ehcache.Cache
+ *
+ * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
 public class EhCacheFactoryBean implements FactoryBean, BeanNameAware, InitializingBean {
 

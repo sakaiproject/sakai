@@ -9,8 +9,7 @@
 			class="org.sakaiproject.alias.impl.DbAliasService"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
-			depends-on="org.sakaiproject.alias.api.AliasService.targetCache">
+			singleton="true">
 
 		<lookup-method name="memoryService" bean="org.sakaiproject.memory.api.MemoryService" />
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
@@ -27,20 +26,6 @@
 		<property name="autoDdl"><value>${auto.ddl}</value></property>
 		<property name="cacheMinutes"><value>5</value></property>
 		<property name="cacheCleanerMinutes"><value>15</value></property>
-	</bean>
-
-	<!-- This is a cache of reference to aliases. For a reference (eg site) key it has a value containing all the
-	     aliases pointing to that site -->
-	<bean id="org.sakaiproject.alias.api.AliasService.targetCache"
-		  class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-		<property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-		<property name="cacheName" value="org.sakaiproject.alias.api.AliasService.targetCache" />
-		<!-- If you are using this for page aliases then you probably want the size to avg number of pages per site
-		     times the size of you're site cache. -->
-		<property name="maxElementsInMemory" value="100000" />
-		<property name="timeToLive" value="300" />
-		<property name="timeToIdle" value="300" />
-		<property name="overflowToDisk" value="false" />
 	</bean>
 
 </beans>

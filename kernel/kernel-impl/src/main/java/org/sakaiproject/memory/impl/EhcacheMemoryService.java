@@ -259,15 +259,20 @@ public class EhcacheMemoryService implements MemoryService {
                 buf.append("# memory.").append(cache.getName()).append(" *ALL DEFAULTS*\n");
             } else {
                 // NOT only defaults cache, show the settings that differ from the defaults
-                buf.append("memory.").append(cache.getName()).append("=").append(maxKey).append("=").append(maxEntries);
+                buf.append("memory.").append(cache.getName()).append("=");
+                boolean first = true;
+                if (maxEntries != maxEntriesDefault) {
+                    //noinspection ConstantConditions
+                    first = addKeyValueToConfig(buf, maxKey, maxEntries, first);
+                }
                 if (ttlSecs != ttlSecsDefault) {
-                    buf.append(",").append(ttlKey).append("=").append(ttlSecs);
+                    first = addKeyValueToConfig(buf, ttlKey, ttlSecs, first);
                 }
                 if (ttiSecs != ttiSecsDefault) {
-                    buf.append(",").append(ttiKey).append("=").append(ttiSecs);
+                    first = addKeyValueToConfig(buf, ttiKey, ttiSecs, first);
                 }
                 if (eternal != eternalDefault) {
-                    buf.append(",").append(eteKey).append("=").append(eternal);
+                    addKeyValueToConfig(buf, eteKey, eternal, first);
                 }
                 buf.append("\n");
                 // TODO remove the overflow to disk check
@@ -283,6 +288,26 @@ public class EhcacheMemoryService implements MemoryService {
         log.info(rv);
 
         return rv;
+    }
+
+    /**
+     * Simple code duplication reduction
+     * Helps with generating the config strings
+     * @param buf string builder
+     * @param key the key to add
+     * @param value the value for the key
+     * @param first
+     * @return
+     */
+    private boolean addKeyValueToConfig(StringBuilder buf, String key, Object value, boolean first) {
+        if (!first) {
+            buf.append(",");
+        } else {
+            first = false;
+        }
+        buf.append(key).append("=").append(value);
+        //noinspection ConstantConditions
+        return first;
     }
 
     // DEPRECATED METHODS BELOW

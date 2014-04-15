@@ -1,21 +1,20 @@
 package org.sakaiproject.memory.util;
 
+import net.sf.ehcache.config.CacheConfiguration;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
-
-import net.sf.ehcache.config.CacheConfiguration;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 /**
  * Utility class to configure a cache. Could have used common beanutils but
  * didn't want another library.
  * 
  * @author buckett
- * 
+ * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
  */
 public class CacheInitializer {
 

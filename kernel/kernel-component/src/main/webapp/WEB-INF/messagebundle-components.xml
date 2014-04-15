@@ -22,22 +22,10 @@
  -->    
    <bean id="org.sakaiproject.messagebundle.api.MessageBundleService.target"
          class="org.sakaiproject.messagebundle.impl.CachingMessageBundleServiceImpl"
-         singleton="true" init-method="init" destroy-method="destroy" lazy-init="true"
-         depends-on="org.sakaiproject.messagebundle.cache.bundles">
+         singleton="true" init-method="init" destroy-method="destroy" lazy-init="true">
       <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
    </bean>
-   
-   <bean id="org.sakaiproject.messagebundle.cache.bundles"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        <property name="cacheName" value="org.sakaiproject.messagebundle.cache.bundles"/>
-        <property name="maxElementsInMemory" value="200" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="21600" />
-		<property name="timeToIdle" value="21600" />
-    </bean>
 
     <bean id="org.sakaiproject.messagebundle.api.MessageBundleService"
          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"

@@ -21,15 +21,17 @@
 
 package org.sakaiproject.memory.util;
 
-import java.io.IOException;
-
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 
+import java.io.IOException;
+
+/**
+ * @deprecated since Sakai 2.9, do not use this anymore (use the sakai config settings instead), this will be removed in 11
+ */
 public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache.EhCacheManagerFactoryBean {
 	private ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
     @Override

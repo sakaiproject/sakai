@@ -19,6 +19,13 @@
 
 package org.sakaiproject.user.impl;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.user.api.Authentication;
+import org.sakaiproject.user.api.AuthenticationException;
+
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
@@ -26,14 +33,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.Authentication;
-import org.sakaiproject.user.api.AuthenticationException;
 
 /**
  * Because DAV clients do not understand the concept of secure sessions, a DAV
@@ -52,17 +51,28 @@ import org.sakaiproject.user.api.AuthenticationException;
 public class AuthenticationCache {
 	private static final Log log = LogFactory.getLog(AuthenticationCache.class);
 
+    private MemoryService memoryService;
 	private Cache authCache = null;
-
-	/**
+    /**
 	 * List of algorithms to attempt to use, best ones should come first.
 	 */
 	private List<String> algorithms = Arrays.asList(new String[]{"SHA2","SHA1"});
-	
 	private Random saltGenerator = new Random();
-	
 	private int saltLength = 8;
 	
+    public void setMemoryService(MemoryService memoryService) {
+        this.memoryService = memoryService;
+    }
+
+    public void init() {
+        log.info("INIT");
+        authCache = memoryService.getCache("org.sakaiproject.user.api.AuthenticationManager");
+    }
+
+    public void destroy() {
+        if (authCache != null) authCache.close();
+    }
+
 	/**
 	* The central cache object, should be injected
 	*/
@@ -74,9 +84,8 @@ public class AuthenticationCache {
 	public Authentication getAuthentication(String authenticationId, String password)
 			throws AuthenticationException {
 		Authentication auth = null;
-		Element element =  authCache.get(authenticationId);
-		if (element != null) {
-			AuthenticationRecord record = (AuthenticationRecord)element.getObjectValue();
+		AuthenticationRecord record = (AuthenticationRecord) authCache.get(authenticationId);
+		if (record != null) {
 			byte[] salt = new byte[saltLength];
 			System.arraycopy(record.encodedPassword, 0, salt, 0, salt.length);
 			byte[] encodedPassword = getEncrypted(password, salt);
@@ -113,15 +122,15 @@ public class AuthenticationCache {
 	
 	protected void putAuthenticationRecord(String authenticationId, String password,
 			Authentication authentication) {
-		if (authCache.isKeyInCache(authenticationId)) {
+		if (authCache.containsKey(authenticationId)) {
 			// Don't indefinitely renew the cached record -- we want to force
 			// real authentication after the timeout.
 		} else {
 			byte[] salt = new byte[saltLength];
 			saltGenerator.nextBytes(salt);
 			byte[] encrypted = getEncrypted(password, salt);
-			authCache.put( new Element(authenticationId,
-					new AuthenticationRecord(encrypted, authentication) ) );
+			authCache.put(authenticationId,
+					new AuthenticationRecord(encrypted, authentication) );
 		}
 	}
 

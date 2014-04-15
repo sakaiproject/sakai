@@ -71,8 +71,7 @@
 
 	<bean id="org.sakaiproject.event.api.UsageSessionService"
 			class="org.sakaiproject.event.impl.UsageSessionServiceAdaptor"
-            init-method="init" destroy-method="destroy" singleton="true"
-            depends-on="org.sakaiproject.event.api.UsageSessionService.recentUserRefresh">
+            init-method="init" destroy-method="destroy" singleton="true">
 
         <lookup-method name="timeService"                bean="org.sakaiproject.time.api.TimeService"/>
         <lookup-method name="sqlService"                 bean="org.sakaiproject.db.api.SqlService"/>
@@ -95,18 +94,7 @@
            </map>
         </property>
 	</bean>
-	
-    <bean id="org.sakaiproject.event.api.UsageSessionService.recentUserRefresh"
-          class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager">
-           <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-       </property>
-       <property name="cacheName" value="org.sakaiproject.event.api.UsageSessionService.recentUserRefresh"/>
-       <property name="maxElementsInMemory" value="10000"/>
-       <property name="timeToIdle" value="120"/>
-       <property name="timeToLive" value="120"/>
-    </bean>
-    
+
     <!-- ActivityService -->
     <bean id="org.sakaiproject.event.api.ActivityService"
 			class="org.sakaiproject.event.impl.ActivityServiceImpl"

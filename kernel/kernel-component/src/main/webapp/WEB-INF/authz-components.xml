@@ -12,9 +12,7 @@
 			class="org.sakaiproject.authz.impl.DbAuthzGroupService"
 			init-method="init"
 			destroy-method="destroy"
-			singleton="true"
-			depends-on="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache
-			            org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache">
+			singleton="true">
 
 		<lookup-method name="sqlService" bean="org.sakaiproject.db.api.SqlService" />
 		<lookup-method name="userDirectoryService" bean="org.sakaiproject.user.api.UserDirectoryService" />
@@ -63,39 +61,5 @@
 			destroy-method="destroy"
 			singleton="true">
 	</bean>
-
-  <!-- KNL-600 caching for the realm roles groups -->
-  <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" 
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-    <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-    <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.realmRoleGroupCache" />
-    <property name="maxElementsInMemory" value="125000" />
-    <property name="timeToLive" value="3600" />
-    <property name="timeToIdle" value="0" />
-    <!-- As the base classes stored in this cache are in impl
-    writing them to disk results in an error see KNL-975 -->
-    <property name="overflowToDisk" value="false" />
-  </bean>
-
-   <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.authzUserGroupIdsCache"/>
-        <property name="maxElementsInMemory" value="2000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="21600" />
-		<property name="timeToIdle" value="21600" />
-    </bean>
-  <bean id="org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-      <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-      <property name="cacheName" value="org.sakaiproject.authz.impl.DbAuthzGroupService.maintainRolesCache"/>
-      <property name="maxElementsInMemory" value="1" />
-      <property name="diskPersistent" value="false" />
-      <property name="eternal" value="false" />
-      <property name="timeToLive" value="0" />
-      <property name="timeToIdle" value="0" />
-  </bean>
 
 </beans>

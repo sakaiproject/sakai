@@ -21,20 +21,6 @@
 
 package org.sakaiproject.user.impl;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
-
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,11 +28,15 @@ import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseDbFlatStorage;
-import org.sakaiproject.util.StorageUser;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 
 /**
@@ -81,19 +71,28 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	/*************************************************************************************************************************************************
 	 * Dependencies
 	 ************************************************************************************************************************************************/
+	/** If true, we do our locks in the remote database, otherwise we do them here. */
+	protected boolean m_useExternalLocks = true;
+
+	/*************************************************************************************************************************************************
+	 * Configuration
+	 ************************************************************************************************************************************************/
+	/** Configuration: to run the ddl on init or not. */
+	protected boolean m_autoDdl = false;
+	/** The map of database dependent handler. */
+	protected Map<String, UserServiceSql> databaseBeans;
+	/** The database handler we are using. */
+	protected UserServiceSql userServiceSql;
+	protected Cache cache = null;
 
 	/**
 	 * @return the MemoryService collaborator.
 	 */
 	protected abstract SqlService sqlService();
 
-	/*************************************************************************************************************************************************
-	 * Configuration
-	 ************************************************************************************************************************************************/
-
 	/**
 	 * Configuration: set the table name
-	 * 
+	 *
 	 * @param path
 	 *        The table name.
 	 */
@@ -102,12 +101,9 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		m_tableName = name;
 	}
 
-	/** If true, we do our locks in the remote database, otherwise we do them here. */
-	protected boolean m_useExternalLocks = true;
-
 	/**
 	 * Configuration: set the external locks value.
-	 * 
+	 *
 	 * @param value
 	 *        The external locks value.
 	 */
@@ -116,12 +112,9 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		m_useExternalLocks = Boolean.valueOf(value).booleanValue();
 	}
 
-	/** Configuration: to run the ddl on init or not. */
-	protected boolean m_autoDdl = false;
-
 	/**
 	 * Configuration: to run the ddl on init or not.
-	 * 
+	 *
 	 * @param value
 	 *        the auto ddl value.
 	 */
@@ -129,14 +122,6 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	{
 		m_autoDdl = Boolean.valueOf(value).booleanValue();
 	}
-
-	/** The map of database dependent handler. */
-	protected Map<String, UserServiceSql> databaseBeans;
-
-	/** The database handler we are using. */
-	protected UserServiceSql userServiceSql;
-
-	protected Cache cache = null;
 
 	public void setDatabaseBeans(Map databaseBeans)
 	{
@@ -186,11 +171,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			setUserServiceSql(sqlService().getVendor());
 
 			M_log.info("init(): table: " + m_tableName + " external locks: " + m_useExternalLocks);
-			
-			M_log.info("Cache [" + cache.getName() +"] " +
-					"Memory Store Eviction Policy ["+cache.getMemoryStoreEvictionPolicy()+"] ");
-						
-			
+			cache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService"); // user id/eid mapping cache
+			M_log.info("User ID/EID mapping Cache [" + cache.getName() +"]");
 
 		}
 		catch (Exception t)
@@ -218,6 +200,22 @@ public abstract class DbUserService extends BaseUserDirectoryService
 	 ************************************************************************************************************************************************/
 
 	/**
+	 * @return the cache
+	 */
+	public Cache getIdEidCache()
+	{
+		return cache;
+	}
+
+	/**
+	 * @param cache the cache to set
+	 */
+	public void setIdEidCache(Cache cache)
+	{
+		this.cache = cache;
+	}
+
+	/**
 	 * Covers for the BaseXmlFileStorage, providing User and UserEdit parameters
 	 */
 	protected class DbStorage extends BaseDbFlatStorage implements Storage, SqlReader
@@ -227,7 +225,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Construct.
-		 * 
+		 *
 		 */
 		public DbStorage()
 		{
@@ -320,7 +318,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[2] = search.toLowerCase();
 			fields[3] = search;
 			fields[4] = search;
-			
+
 			List rv = super.getSelectedResources(userServiceSql.getUserWhereSql(), "SAKAI_USER_ID_MAP.EID", fields, first, last, "SAKAI_USER_ID_MAP");
 
 			return rv;
@@ -361,7 +359,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Read properties from storage into the edit's properties.
-		 * 
+		 *
 		 * @param edit
 		 *        The user to read properties for.
 		 */
@@ -372,7 +370,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Get the fields for the database from the edit for this id, and the id again at the end if needed
-		 * 
+		 *
 		 * @param id
 		 *        The resource id
 		 * @param edit
@@ -440,7 +438,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Read from the result one set of fields to create a Resource.
-		 * 
+		 *
 		 * @param result
 		 *        The Sql query result.
 		 * @return The Resource object.
@@ -480,7 +478,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Create a mapping between the id and eid.
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @param eid
@@ -499,8 +497,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			fields[1] = eid;
 
 			if ( m_sql.dbWrite(statement, fields) ) {
-				cache.put(new Element(IDCACHE+eid,id));
-				cache.put(new Element(EIDCACHE+id,eid));
+				cache.put(IDCACHE+eid,id);
+				cache.put(EIDCACHE+id,eid);
 				return true;
 			}
 			return false;
@@ -508,7 +506,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Update the mapping
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 * @param eid
@@ -531,20 +529,20 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 			// we have a mapping, is it what we want?
 			if (eidAlready.equals(eid)) return true;
-			
+
 			// update the cache
 			// we have a mapping that needs to be updated
 			String statement = userServiceSql.getUpdateUserIdSql();
-			
-			
+
+
 
 			Object fields[] = new Object[2];
 			fields[0] = eid;
 			fields[1] = id;
 
 			if ( m_sql.dbWrite(statement, fields) ) {
-				cache.put(new Element(IDCACHE+eid,id));
-				cache.put(new Element(EIDCACHE+id,eid));
+				cache.put(IDCACHE+eid,id);
+				cache.put(EIDCACHE+id,eid);
 				return true;
 			}
 			return false;
@@ -552,7 +550,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Remove the mapping for this id
-		 * 
+		 *
 		 * @param id
 		 *        The user id.
 		 */
@@ -562,9 +560,8 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (!m_separateIdEid) return;
 
 			// clear both sides of the cache
-			Element e = cache.get(EIDCACHE+id);
-			if ( e != null ) {
-				String eid = (String) e.getObjectValue();
+            String eid = (String) cache.get(EIDCACHE+id);
+			if ( eid != null ) {
 				cache.remove(IDCACHE+eid);
 			}
 			cache.remove(EIDCACHE+id);
@@ -579,7 +576,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Check the id -> eid mapping: lookup this id and return the eid if found
-		 * 
+		 *
 		 * @param id
 		 *        The user id to lookup.
 		 * @return The eid mapped to this id, or null if none.
@@ -588,14 +585,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 		{
 			// if we are not doing separate id/eid, return the id
 			if (!m_separateIdEid) return id;
-			
+
 			{
-				Element e = cache.get(EIDCACHE+id);
+				String e = (String) cache.get(EIDCACHE+id);
 				if ( e != null ) {
-					return (String) e.getObjectValue();
+					return e;
 				}
 			}
-			
+
 			String statement = userServiceSql.getUserEidSql();
 			Object fields[] = new Object[1];
 			fields[0] = id;
@@ -604,11 +601,11 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				String eid = (String) rv.get(0);
-				cache.put(new Element(IDCACHE+eid,id));
-				cache.put(new Element(EIDCACHE+id,eid));
+				cache.put(IDCACHE+eid,id);
+				cache.put(EIDCACHE+id,eid);
 				return eid;
 			}
-			cache.put(new Element(EIDCACHE+id,null));
+			cache.put(EIDCACHE+id,null);
 
 			return null;
 		}
@@ -616,7 +613,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 
 		/**
 		 * Check the id -> eid mapping: lookup this eid and return the id if found
-		 * 
+		 *
 		 * @param eid
 		 *        The user eid to lookup.
 		 * @return The id mapped to this eid, or null if none.
@@ -637,12 +634,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (rv.size() > 0)
 			{
 				id = (String) rv.get(0);
-				cache.put(new Element(EIDCACHE+id,eid));
-				cache.put(new Element(IDCACHE+eid,id));
+				cache.put(EIDCACHE+id,eid);
+				cache.put(IDCACHE+eid,id);
 				return id;
 			}
 
-			cache.put(new Element(IDCACHE+eid,null));
+			cache.put(IDCACHE+eid,null);
 			return null;
 		}
 
@@ -651,10 +648,10 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			// if we are not doing separate id/eid, do nothing
 			if (!m_separateIdEid) return eid;
 
-			Element e = cache.get(IDCACHE+eid);
+			String e = (String) cache.get(IDCACHE+eid);
 			if ( e != null )
 			{
-				return (String) e.getObjectValue();
+				return e;
 			}
 			else
 			{
@@ -672,11 +669,11 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			}
 			return user;
 		}
-		
+
 		public List<User> getUsersByIds(Collection<String> ids)
 		{
 			List<User> foundUsers = new ArrayList<User>();
-			
+
 			// Put all the already cached user records to one side.
 			Set<String> idsToSearch = new HashSet<String>();
 			for (String id : ids)
@@ -691,19 +688,19 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					idsToSearch.add(id);
 				}
 			}
-			
+
 			UserWithEidReader userWithEidReader = new UserWithEidReader(false);
 			userWithEidReader.findMappedUsers(idsToSearch);
-				
+
 			// Add the Sakai-maintained user records.
 			foundUsers.addAll(userWithEidReader.getUsersFromSakaiData());
-				
+
 			// Finally, fill in the provided user records.
 			List<UserEdit> usersToQueryProvider = userWithEidReader.getUsersToQueryProvider();
 			if ((m_provider != null) && !usersToQueryProvider.isEmpty())
 			{
 				m_provider.getUsers(usersToQueryProvider);
-				
+
 				// Make sure that returned users are mapped and cached correctly.
 				for (UserEdit user : usersToQueryProvider)
 				{
@@ -711,14 +708,14 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					foundUsers.add(user);
 				}
 			}
-			
+
 			return foundUsers;
 		}
 
 		public List<User> getUsersByEids(Collection<String> eids)
 		{
 			List<User> foundUsers = new ArrayList<User>();
-			
+
 			// Put all the already cached user records to one side.
 			Set<String> eidsToSearch = new HashSet<String>();
 			for (String eid : eids)
@@ -733,13 +730,13 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					eidsToSearch.add(eid);
 				}
 			}
-			
+
 			UserWithEidReader userWithEidReader = new UserWithEidReader(true);
 			userWithEidReader.findMappedUsers(eidsToSearch);
-				
+
 			// Add the Sakai-maintained user records.
 			foundUsers.addAll(userWithEidReader.getUsersFromSakaiData());
-				
+
 			// We'll need to query the provider about any EIDs which did not appear
 			// in the ID-EID mapping table, since this might be the first time
 			// we've encountered them.
@@ -756,12 +753,12 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			{
 				usersToQueryProvider.add(new BaseUserEdit(null, eid));
 			}
-			
+
 			// Finally, fill in the provided user records.
 			if ((m_provider != null) && !usersToQueryProvider.isEmpty())
 			{
 				m_provider.getUsers(usersToQueryProvider);
-				
+
 				// Make sure that returned users are mapped and cached correctly.
 				for (UserEdit user : usersToQueryProvider)
 				{
@@ -770,22 +767,22 @@ public abstract class DbUserService extends BaseUserDirectoryService
 					foundUsers.add(user);
 				}
 			}
-			
+
 			return foundUsers;
 		}
-	
+
 		protected void putUserInCaches(UserEdit user)
 		{
 			// Update ID-EID mapping cache.
 			String id = user.getId();
 			String eid = user.getEid();
-			cache.put(new Element(EIDCACHE+id, eid));
-			cache.put(new Element(IDCACHE+eid, id));
-			
+			cache.put(EIDCACHE+id, eid);
+			cache.put(IDCACHE+eid, id);
+
 			// Update user record cache.
 			putCachedUser(userReference(id), user);
 		}
-	
+
 		/**
 		 * Given just a BaseUserEdit object, there's no officially supported way to
 		 * distinguish between a Sakai-stored user with all null metadata and a
@@ -801,17 +798,17 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			private List<UserEdit> usersFromSakaiData = new ArrayList<UserEdit>();
 			private List<UserEdit> usersToQueryProvider = new ArrayList<UserEdit>();
 			private boolean isEidSearch;
-			
+
 			public UserWithEidReader(boolean isEidSearch)
 			{
 				this.isEidSearch = isEidSearch;
 			}
-			
+
 			public void findMappedUsers(Collection<String> searchValues)
 			{
 				int maxEidsInQuery = userServiceSql.getMaxInputsForSelectWhereInQueries();
 				Set<String> remainingSearchValues = new HashSet<String>(searchValues);
-				
+
 				while (!remainingSearchValues.isEmpty())
 				{
 					// Break the search up into safe chunks.
@@ -830,7 +827,7 @@ public abstract class DbUserService extends BaseUserDirectoryService
 							valueIter.remove();
 						}
 					}
-					
+
 					// Use a single query to gather all obtainable fields from
 					// the Sakai user data tables.
 					Object[] valueArray = valuesForQuery.toArray();
@@ -895,21 +892,5 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			}
 
 		}
-	}
-
-	/**
-	 * @return the cache
-	 */
-	public Cache getIdEidCache()
-	{
-		return cache;
-	}
-
-	/**
-	 * @param cache the cache to set
-	 */
-	public void setIdEidCache(Cache cache)
-	{
-		this.cache = cache;
 	}
 }

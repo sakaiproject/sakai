@@ -51,21 +51,18 @@ import java.util.Collection;
  */
 public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTestBase {
 	private static Log log = LogFactory.getLog(RequireLocalAccountLegacyAuthenticationTest.class);
-	
-	private UserDirectoryService userDirectoryService;
 	private static TestProvider userDirectoryProvider;
-
-	// This service is only used to clear out various caches to make sure
-	// we're fetching from the DB.
-	private ThreadLocalManager threadLocalManager;
-	private EventTrackingService eventTrackingService;
-	
 	private static String LOCALLY_STORED_EID = "locallystoreduser";
 	private static String LOCALLY_STORED_PWD = "locallystoreduser-pwd";
 	private static String LOCALLY_STORED_EMAIL = "locallystoreduser@somewhere.edu";
 	private static String PROVIDED_EID = "provideduser";
 	private static String PROVIDED_PWD = "provideduser-pwd";
 	private static String PROVIDED_EMAIL = "provideduser@somewhere.edu";
+	private UserDirectoryService userDirectoryService;
+	// This service is only used to clear out various caches to make sure
+	// we're fetching from the DB.
+	private ThreadLocalManager threadLocalManager;
+	private EventTrackingService eventTrackingService;
 	
 	/**
 	 * A complete integration test run is a lot of overhead to take on for
@@ -135,7 +132,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 	}
 
 	private void clearUserFromServiceCaches(String userId) throws SecurityException {
-		((DbUserService)userDirectoryService).getIdEidCache().removeAll();
+		((DbUserService)userDirectoryService).getIdEidCache().clear();
 		String ref = "/user/" + userId;
 		threadLocalManager.set(ref, null);
 		// Clear all caches, as it's a test its easier todo this than

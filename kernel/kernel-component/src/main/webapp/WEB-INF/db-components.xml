@@ -11,8 +11,7 @@
         
     <bean id="org.sakaiproject.db.api.SqlService"
 			class="org.sakaiproject.db.impl.BasicSqlService"
-			init-method="init" destroy-method="destroy" singleton="true"
-            depends-on="db.cache.SAKAI_SITE_PROPERTY,db.cache.SAKAI_SITE_PAGE_PROPERTY,db.cache.SAKAI_REALM_PROPERTY,db.cache.SAKAI_ALIAS_PROPERTY,db.cache.SAKAI_SITE_GROUP_PROPERTY,db.cache.SAKAI_USER_PROPERTY">
+			init-method="init" destroy-method="destroy" singleton="true">
 
 		<lookup-method name="usageSessionService" bean="org.sakaiproject.event.api.UsageSessionService" />
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
@@ -353,6 +352,7 @@
 				<prop key="hibernate.cache.use_query_cache">true</prop>
 			</props>
 		</property>
+    <!-- NOTE that cacheProvider should really be done with a org.hibernate.cache.RegionFactory, cacheRegionFactory -->
 		<property name="cacheProvider" ref="org.hibernate.cache.CacheProvider"/>
 
 		<!--  update the database schema when starting -->
@@ -361,12 +361,13 @@
 		</property>
 
 	</bean>
-	
-	<bean id="org.hibernate.cache.CacheProvider"
-			class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
-		<property name="sakaiCacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-		<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
-	</bean>
+
+  <bean id="org.hibernate.cache.CacheProvider"
+        class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider"
+        init-method="init" destroy-method="destroy">
+    <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+    <property name="defaultCacheName" value="org.sakaiproject.springframework.orm.hibernate.L2Cache" />
+  </bean>
 
     <bean id="org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer" class="org.sakaiproject.springframework.orm.hibernate.impl.VendorHbmTransformerImpl">
         <property name="vendor">
@@ -398,54 +399,8 @@
 		</property>
           <property name="dataSource" ref="javax.sql.LazyDataSource" />
 	</bean>
-	
-	<bean id="org.sakaiproject.springframework.orm.hibernate.L2Cache" 
-  			class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-    	<property name="cacheName"><value>org.sakaiproject.springframework.orm.hibernate.L2Cache</value></property>
-    	<property name="maxElementsInMemory" ><value>100000</value></property>
-    	<property name="diskPersistent" ><value>false</value></property>
-    	<property name="eternal" ><value>false</value></property>
-    	<property name="timeToLive" ><value>300</value></property>
-    	<property name="timeToIdle" ><value>600</value></property>
-  	</bean>
 
-    <!-- beans for use in caching DB flat (uses defaults) -->
-    <bean id="db.cache.SAKAI_ALIAS_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_ALIAS_PROPERTY" />
-    </bean>
-
-    <bean id="db.cache.SAKAI_SITE_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PROPERTY" />
-    </bean>
-
-    <bean id="db.cache.SAKAI_SITE_PAGE_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_PAGE_PROPERTY" />
-    </bean>
-
-    <bean id="db.cache.SAKAI_REALM_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_REALM_PROPERTY" />
-    </bean>
-
-    <bean id="db.cache.SAKAI_SITE_GROUP_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_SITE_GROUP_PROPERTY" />
-    </bean>
-
-    <bean id="db.cache.SAKAI_USER_PROPERTY"
-           class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-       <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
-       <property name="cacheName" value="org.sakaiproject.db.BaseDbFlatStorage.SAKAI_USER_PROPERTY" />
-    </bean>
+  <!-- hibernate cache config in kernel/api/src/main/java/org/sakaiproject/memory/api/ehcache.xml -->
 
     <!-- enables JMX on hibernate -->
 	<bean id="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase.jmxAgent" 

@@ -21,161 +21,99 @@
 
 package org.sakaiproject.springframework.orm.hibernate;
 
-import java.util.Properties;
-
-import net.sf.ehcache.CacheManager;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.cache.Cache;
 import org.hibernate.cache.CacheException;
 import org.hibernate.cache.CacheProvider;
 import org.hibernate.cache.EhCache;
 import org.hibernate.cache.Timestamper;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import java.util.Properties;
+
 /**
  * This class attempts to get the Hibernate cache through Sakai locations.
+ * Updated to no longer use ehcache directly
  */
 public class SakaiCacheProvider implements CacheProvider, ApplicationContextAware
 {
 	private static final Log LOG = LogFactory.getLog(SakaiCacheProvider.class);
 
-	private CacheManager sakaiCacheManager;
+    private Cache defaultCache;
 
-	private net.sf.ehcache.Cache defaultCache;
-
-	// We make the class aware it's in Spring so it doesn't need to use the component manager.
+    private MemoryService memoryService;
+    private String defaultCacheName = "org.sakaiproject.springframework.orm.hibernate.L2Cache";
+    // We make the class aware it's in Spring so it doesn't need to use the component manager.
 	private ApplicationContext applicationContext;
 
-	public void setSakaiCacheManager(CacheManager sakaiCacheManager) {
-		this.sakaiCacheManager = sakaiCacheManager;
-	}
-	
-	public void setDefaultCache(net.sf.ehcache.Cache defaultCache) {
-		this.defaultCache = defaultCache;
-	}
+    public void setMemoryService(MemoryService memoryService) {
+        this.memoryService = memoryService;
+    }
+
+    public void setDefaultCacheName(String defaultCacheName) {
+        this.defaultCacheName = defaultCacheName;
+    }
 
 	public void setApplicationContext(ApplicationContext applicationContext)
 			throws BeansException {
 		this.applicationContext = applicationContext;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.hibernate.cache.CacheProvider#buildCache(java.lang.String,
-	 *      java.util.Properties)
-	 */
-	public Cache buildCache(final String cacheName, Properties properties)
-			throws CacheException
-			{
-		try
-		{
-			net.sf.ehcache.Cache cache = null;
-			// try to get a bean which defines this cache first
+    public void init() {
+        LOG.info("INIT: hibernate cache: "+defaultCacheName);
+        defaultCache = memoryService.getCache(defaultCacheName);
+    }
 
-			if (applicationContext.containsBean(cacheName))
-			{
-				try
-				{
-					cache = (net.sf.ehcache.Cache) applicationContext.getBean(cacheName);
-					LOG.info("Loaded cache from component manager: "+ cacheName);
-				}
-				catch (ClassCastException e)
-				{
-					LOG.warn("Illegal class type (must be net.sf.ehcache.Cache) for cache bean: "
-							+ cacheName);
-				}
-			}
-			
+    public void destroy() {
+        try {
+            defaultCache.close();
+        } catch (Exception e) {
+            // IGNORE
+        }
+    }
 
-			// try to get cache directly from ehcache next
-			if (cache == null)
-			{
-				CacheManager cacheManager = sakaiCacheManager;
-				if (cacheManager != null && cacheManager.cacheExists(cacheName))
-				{
-					cache = cacheManager.getCache(cacheName);
-					LOG.info("Loaded cache from cache manager: " + cacheName);
-				}
-			}
+    // CacheProvider
 
-			// load up the default cache bean next
-			if (cache == null)
-			{
-				cache = defaultCache;
-				if (cache != null)
-				{
-					LOG.info("Loaded Default Cache bean for "+ cacheName);
-				}
-			}
-
-			// finally just get a default cache from the cache manager
-			if (cache == null)
-			{
-				cache = sakaiCacheManager.getCache(cacheName);
-				LOG.info("Loaded default cache from cache manager: " + cacheName);
-			}
-
-			return new EhCache(cache)
-			{
-				@Override
-				public void destroy() throws CacheException
-				{
-					LOG.debug("Closing Cache, leaving cleanup to the context: "
-							+ cacheName);
-				}
-			};
-		}
-		catch (Exception e)
-		{
-			LOG.error("Failed to build Cache: " + cacheName, e);
-			throw new CacheException("Failed to build Cache: " + cacheName, e);
-		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.hibernate.cache.CacheProvider#isMinimalPutsEnabledByDefault()
-	 */
+    @Override
 	public boolean isMinimalPutsEnabledByDefault()
 	{
 		return false;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.hibernate.cache.CacheProvider#nextTimestamp()
-	 */
+    @Override
+    public org.hibernate.cache.Cache buildCache(String s, Properties properties) throws CacheException {
+        try {
+            net.sf.ehcache.Ehcache ehcache = defaultCache.unwrap(net.sf.ehcache.Ehcache.class); // Ehcache required for now
+            org.hibernate.cache.Cache rv = new EhCache(ehcache);
+            return rv;
+        } catch (Exception e) {
+            // not an ehcache so we have to die for now
+            LOG.error("Failed to build hibernate cache from ehcache: " + defaultCacheName + ":"+e, e);
+            throw new CacheException("Unable to get net.sf.ehcache.Ehcache for hibernate secondary cache", e);
+        }
+    }
+
+    @Override
 	public long nextTimestamp()
 	{
 		return Timestamper.next();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.hibernate.cache.CacheProvider#start(java.util.Properties)
-	 */
+    @Override
 	public void start(Properties arg0) throws CacheException
 	{
-		LOG.info("Starting Hibernate Cache Cache ++++++++++++++++++++++++++++++++ ");
+		LOG.info("Starting Hibernate Cache "+defaultCacheName+" ++++++++++++++++++++++++++++++++ ");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.hibernate.cache.CacheProvider#stop()
-	 */
+    @Override
 	public void stop()
 	{
-		LOG.info("Stopping Hibernate Cache Cache ------------------------------- ");
-		// leave spring to perform the shutdown
+		LOG.info("Stopping Hibernate Cache "+defaultCacheName+" ------------------------------- ");
+        defaultCache.close();
 	}
 
 }
