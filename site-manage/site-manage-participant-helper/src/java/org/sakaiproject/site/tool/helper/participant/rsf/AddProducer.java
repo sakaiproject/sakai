@@ -137,24 +137,30 @@ public class AddProducer implements ViewComponentProducer, NavigationCaseReporte
         }
         roleSelect.optionlist.setValue(roleItems.toStringArray());        
 		
-        // status choice
-    	String[] statusValues = new String[] { "active", "inactive"};
-	    String[] statusLabels = new String[] {
-	    		messageLocator.getMessage("sitegen.siteinfolist.active"), 
-	    		messageLocator.getMessage("sitegen.siteinfolist.inactive")
-	    		};
-	    StringList statusItems = new StringList();
-	    UISelect statusSelect = UISelect.make(participantForm, "select-status", null, "#{siteAddParticipantHandler.statusChoice}", handler.statusChoice);
-	    statusSelect.optionnames = UIOutputMany.make(statusLabels);
-	    String statusSelectID = statusSelect.getFullID();
-	    for (int i = 0; i < statusValues.length; ++i) {
-		    UIBranchContainer statusRow = UIBranchContainer.make(participantForm,"status-row:", Integer.toString(i));
-            UISelectLabel lb = UISelectLabel.make(statusRow, "status-label", statusSelectID, i);
-            UISelectChoice choice =UISelectChoice.make(statusRow, "status-select", statusSelectID, i);
-            UILabelTargetDecorator.targetLabel(lb, choice);
-            statusItems.add(statusValues[i]);
+        // SAK-26101 only show the status choice when "activeInactiveUser" is set to be true
+        String activeInactiveUser = handler.getServerConfigurationString("activeInactiveUser", Boolean.FALSE.toString());
+        if (activeInactiveUser.equalsIgnoreCase(Boolean.TRUE.toString()))
+        {
+        	UIOutput.make(participantForm, "status-message", messageLocator.getMessage("participant.status"));
+	        // status choice
+	    	String[] statusValues = new String[] { "active", "inactive"};
+		    String[] statusLabels = new String[] {
+		    		messageLocator.getMessage("sitegen.siteinfolist.active"), 
+		    		messageLocator.getMessage("sitegen.siteinfolist.inactive")
+		    		};
+		    StringList statusItems = new StringList();
+		    UISelect statusSelect = UISelect.make(participantForm, "select-status", null, "#{siteAddParticipantHandler.statusChoice}", handler.statusChoice);
+		    statusSelect.optionnames = UIOutputMany.make(statusLabels);
+		    String statusSelectID = statusSelect.getFullID();
+		    for (int i = 0; i < statusValues.length; ++i) {
+			    UIBranchContainer statusRow = UIBranchContainer.make(participantForm,"status-row:", Integer.toString(i));
+	            UISelectLabel lb = UISelectLabel.make(statusRow, "status-label", statusSelectID, i);
+	            UISelectChoice choice =UISelectChoice.make(statusRow, "status-select", statusSelectID, i);
+	            UILabelTargetDecorator.targetLabel(lb, choice);
+	            statusItems.add(statusValues[i]);
+	        }
+	        statusSelect.optionlist.setValue(statusItems.toStringArray());
         }
-        statusSelect.optionlist.setValue(statusItems.toStringArray());
         
     	UICommand.make(participantForm, "continue", messageLocator.getMessage("gen.continue"), "#{siteAddParticipantHandler.processGetParticipant}");
         UICommand.make(participantForm, "cancel", messageLocator.getMessage("gen.cancel"), "#{siteAddParticipantHandler.processCancel}");
