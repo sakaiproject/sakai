@@ -2537,7 +2537,7 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#shortanswerSelect").attr("checked") == 'checked' && 
+	} else if ($("#shortanswerSelect").attr("checked") == 'checked' && $("#question-graded").attr("checked") &&
 		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!="";}).length < 1) {
 	    $('#question-error').text(msg("simplepage.question-need-1"));
 	    $('#question-error-container').show();
