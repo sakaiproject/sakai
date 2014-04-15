@@ -811,8 +811,8 @@ $(document).ready(function() {
 					type: 'GET'
 				}
 			},
-			position: {	corner: {target: 'center', tooltip: 'leftMiddle'} },
-			show: { when: 'click', solo: true, effect: {length:0} },
+			position: {	my: 'left center', at: 'top center'},
+			show: { event: 'click', solo: true, effect: {length:0} },
 			hide: { when:'unfocus', fixed:true, delay: 300,  effect: {length:0} },
 			style: { classes: 'msgcntr-profile-qtip' }
 		});

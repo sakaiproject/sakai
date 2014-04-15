@@ -17,6 +17,7 @@
 		<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
   		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="/library/js/jquery/qtip/jquery.qtip-latest.min.css" />
 		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 	<%--//
