@@ -17,8 +17,10 @@
     border-bottom:1px solid #ccc
 }
 #navigatePanelSearch {
-    font-size:12px;
-    width:150px
+   font-size: 12px;
+    height: 23px;
+    margin-top: -1px;
+    width: 201px;
 }
 .jstree-search {
     border:1px solid #ffe4bb;

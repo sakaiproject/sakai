@@ -87,8 +87,8 @@
                   </button>
                   <div id="navigatePanel" class="dropdown-menu" role="menu">
                       <div class="navigatePanelControls">
-                        <div class="btn-group"><button id="navigatePanelInnerCollapse" class="btn btn-default btn-sm" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-minus"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
-                        <button id="navigatePanelInnerExpand" class="btn btn-default btn-sm" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-plus"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></div>
+                        <span class="expand_collapse"><button id="navigatePanelInnerCollapse" style="display:none" class="btn btn-link btn-xs" title="$clang.getString('collapseall')"><span class="glyphicon glyphicon-chevron-up"></span><span class="sr-only">$clang.getString('collapseall')</span></button> 
+                        <button id="navigatePanelInnerExpand" class="btn btn-link btn-xs" onclick="$('#navigatePanelInner').jstree('open_all')" title="$slang.getString('label.expand.all')"><span class="glyphicon glyphicon-chevron-down"></span><span class="sr-only">$slang.getString('label.expand.all')</span></button></span>
                         <label for="navigatePanelSearch" class="sr-only">$clang.getString('list.nav.search')</label><input placeholder="$clang.getString('list.nav.search')" type="text" id="navigatePanelSearch"/>
                         <p class="close">&times;</p>
                       </div>
@@ -212,12 +212,16 @@
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
-							<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
+							<span class="sr-only">$clang.getString('collapseall')</span>
+                            <span class="glyphicon glyphicon-chevron-up"></span>
+                            ##<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
 						<a href="javascript:document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$slang.getString('label.expand.all')">
-							<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$slang.getString('label.expand.all')" alt="$slang.getString('label.expand.all')" hspace="0" />
+                            <span class="sr-only">$slang.getString('label.expand.all')</span>
+                            <span class="glyphicon glyphicon-chevron-down"></span>
+							##<img src = "#imageLink("sakai/expand-collapse.gif")" border="0" title="$slang.getString('label.expand.all')" alt="$slang.getString('label.expand.all')" hspace="0" />
 						</a>								 
 					#end
 				</th>

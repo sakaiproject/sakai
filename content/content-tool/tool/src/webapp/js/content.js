@@ -298,10 +298,12 @@ $(document).ready(function(){
     $('#navigatePanelInnerCollapse').on('click', function(e){
         e.preventDefault();
         $('#navigatePanelInner').jstree('close_all');
+        $(this).parent('.expand_collapse').find('button').toggle();
     });
     $('#navigatePanelInnerExpand').on('click', function(e){
         e.preventDefault();
         $('#navigatePanelInner').jstree('open_all');
+        $(this).parent('.expand_collapse').find('button').toggle();
     });
     
     var collId = $('#collectionId').val();
