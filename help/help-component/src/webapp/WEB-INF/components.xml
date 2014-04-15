@@ -84,15 +84,9 @@
 				<prop key="hibernate.jdbc.use_streams_for_binary">
 					true
 				</prop>
-				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<prop key="hibernate.cache.use_query_cache">false</prop>
 			</props>
 		</property>
-		
-		<!--
-		This will share the cache with the main sessions, but the queries should 
-		be unique as will be the resuts so they will not collide.
-		-->
-		<property name="cacheProvider" ref="org.hibernate.cache.CacheProvider" />
 
 		<!--  update the database schema when starting -->
 		<property name="schemaUpdate">
