@@ -21,9 +21,9 @@
 
 package org.sakaiproject.memory.impl;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -118,8 +118,13 @@ public class EhcacheMemoryService implements MemoryService {
     }
 
     @Override
+    public <C extends org.sakaiproject.memory.api.Configuration> Cache createCache(String cacheName, C configuration) {
+        return new EhcacheCache(makeEhcache(cacheName, configuration));
+    }
+
+    @Override
     public Cache getCache(String cacheName) {
-        return new EhcacheCache(makeEhcache(cacheName));
+        return new EhcacheCache(makeEhcache(cacheName, null));
     }
 
     @Override
@@ -190,16 +195,20 @@ public class EhcacheMemoryService implements MemoryService {
         buf.append("\n\n");
 
         String[] allCacheNames = cacheManager.getCacheNames();
-
-        // summary
+        Arrays.sort(allCacheNames);
+        ArrayList<Ehcache> caches = new ArrayList<Ehcache>(allCacheNames.length);
         for (String cacheName : allCacheNames) {
             Ehcache cache = cacheManager.getCache(cacheName);
+            caches.add(cache);
+        }
+
+        // summary
+        for (Ehcache cache : caches) {
             final long hits = cache.getStatistics().getCacheHits();
             final long misses = cache.getStatistics().getCacheMisses();
             final long total = hits + misses;
             final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
-            // Even when we're not collecting statistics ehcache knows how
-            // many objects are in the cache
+            // Even when we're not collecting statistics ehcache knows how many objects are in the cache
             buf.append(cache.getName()).append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
             if (cache.isStatisticsEnabled()) {
                 buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
@@ -210,11 +219,64 @@ public class EhcacheMemoryService implements MemoryService {
         }
 
         // extended report
+        // TODO probably should remove this
         buf.append("\n** Extended Cache Report\n");
-        for (String cacheName : allCacheNames) {
-            Ehcache cache = cacheManager.getCache(cacheName);
+        for (Ehcache cache : caches) {
             buf.append(cache.toString());
             buf.append("\n");
+        }
+
+        // config report
+        buf.append("\n** Current Cache Configurations\n");
+        // determine whether to use old or new form keys
+        boolean legacyKeys = true; // set true for a 2.9/BasicMemoryService compatible set of keys
+        String maxKey = "maxEntries";
+        String ttlKey = "timeToLive";
+        String ttiKey = "timeToIdle";
+        String eteKey = "eternal";
+        //noinspection ConstantConditions
+        if (legacyKeys) {
+            maxKey = "maxElementsInMemory";
+            ttlKey = "timeToLiveSeconds";
+            ttiKey = "timeToIdleSeconds";
+        }
+        // DEFAULT cache config
+        CacheConfiguration defaults = cacheManager.getConfiguration().getDefaultCacheConfiguration();
+        long maxEntriesDefault = defaults.getMaxEntriesLocalHeap();
+        long ttlSecsDefault = defaults.getTimeToLiveSeconds();
+        long ttiSecsDefault = defaults.getTimeToIdleSeconds();
+        boolean eternalDefault = defaults.isEternal();
+        buf.append("# DEFAULTS: ").append(maxKey).append("=").append(maxEntriesDefault).append(",").append(ttlKey).append("=").append(ttlSecsDefault).append(",").append(ttiKey).append("=").append(ttiSecsDefault).append(",").append(eteKey).append("=").append(eternalDefault).append("\n");
+        // new: timeToLive=600,timeToIdle=360,maxEntries=5000,eternal=false
+        // old: timeToLiveSeconds=3600,timeToIdleSeconds=900,maxElementsInMemory=20000,eternal=false
+        for (Ehcache cache : caches) {
+            long maxEntries = cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+            long ttlSecs = cache.getCacheConfiguration().getTimeToLiveSeconds();
+            long ttiSecs = cache.getCacheConfiguration().getTimeToIdleSeconds();
+            boolean eternal = cache.getCacheConfiguration().isEternal();
+            if (maxEntries == maxEntriesDefault && ttlSecs == ttlSecsDefault && ttiSecs == ttiSecsDefault && eternal == eternalDefault) {
+                // Cache ONLY uses the defaults
+                buf.append("# memory.").append(cache.getName()).append(" *ALL DEFAULTS*\n");
+            } else {
+                // NOT only defaults cache, show the settings that differ from the defaults
+                buf.append("memory.").append(cache.getName()).append("=").append(maxKey).append("=").append(maxEntries);
+                if (ttlSecs != ttlSecsDefault) {
+                    buf.append(",").append(ttlKey).append("=").append(ttlSecs);
+                }
+                if (ttiSecs != ttiSecsDefault) {
+                    buf.append(",").append(ttiKey).append("=").append(ttiSecs);
+                }
+                if (eternal != eternalDefault) {
+                    buf.append(",").append(eteKey).append("=").append(eternal);
+                }
+                buf.append("\n");
+                // TODO remove the overflow to disk check
+                //noinspection deprecation
+                if (cache.getCacheConfiguration().isOverflowToDisk()) {
+                    // overflowToDisk. maxEntriesLocalDisk
+                    buf.append("# NOTE: ").append(cache.getName()).append(" is configured for Overflow(disk), ").append(cache.getCacheConfiguration().getMaxEntriesLocalDisk()).append(" entries\n");
+                }
+            }
         }
 
         final String rv = buf.toString();
@@ -241,14 +303,15 @@ public class EhcacheMemoryService implements MemoryService {
     @Override
     public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
         log.warn("Creating MultiRefCache("+cacheName+"), GenericMultiRefCache is not supported in the distributed MemoryService implementation, the refs handling will do nothing!");
-        return new EhcacheGenericMultiRefCache(makeEhcache(cacheName));
+        return new EhcacheGenericMultiRefCache(makeEhcache(cacheName, null));
     }
 
     /**
      * @param cacheName the name of the cache
+     * @param configuration [OPTIONAL] a config to use when building the cache, if null then use default methods to create cache
      * @return an Ehcache
      */
-    private Ehcache makeEhcache(String cacheName) {
+    private Ehcache makeEhcache(String cacheName, org.sakaiproject.memory.api.Configuration configuration) {
         String name = cacheName;
         if (name == null || "".equals(name)) {
             name = "DefaultCache" + UUID.randomUUID().toString();
@@ -263,12 +326,31 @@ public class EhcacheMemoryService implements MemoryService {
             cacheManager.addCache(name);
             cache = cacheManager.getEhcache(name);
         }
+        // apply config to the cache
+        if (configuration != null) {
+            if (configuration.getMaxEntries() >= 0) {
+                cache.getCacheConfiguration().setMaxEntriesLocalHeap(configuration.getMaxEntries());
+            }
+            if (configuration.isEternal()) {
+                cache.getCacheConfiguration().setTimeToLiveSeconds(0l);
+                cache.getCacheConfiguration().setTimeToIdleSeconds(0l);
+            } else {
+                if (configuration.getTimeToLiveSeconds() >= 0) {
+                    cache.getCacheConfiguration().setTimeToLiveSeconds(configuration.getTimeToLiveSeconds());
+                }
+                if (configuration.getTimeToIdleSeconds() >= 0) {
+                    cache.getCacheConfiguration().setTimeToIdleSeconds(configuration.getTimeToIdleSeconds());
+                }
+            }
+            cache.getCacheConfiguration().setEternal(configuration.isEternal());
+            cache.setStatisticsEnabled(configuration.isStatisticsEnabled());
+        }
 
         // warn people if they are using an old config style
         if (serverConfigurationService.getString(name) == null) {
             log.warn("Old cache configuration for cache ("+name+"), must be changed to memory."+name+" or it will be ignored");
         }
-        // load the ehcache config
+        // load the ehcache config from the Sakai config service
         String config = serverConfigurationService.getString("memory."+ name);
         if (StringUtils.isNotBlank(config)) {
             log.info("Configuring cache (" + name + "): " + config);

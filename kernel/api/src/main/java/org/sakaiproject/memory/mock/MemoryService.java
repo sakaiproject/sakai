@@ -75,6 +75,11 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     }
 
     @Override
+    public <C extends Configuration> Cache createCache(String cacheName, C configuration) {
+        return newCache(cacheName, null, null);
+    }
+
+    @Override
     public Cache getCache(String cacheName) {
         Cache c = caches.get(cacheName);
         if (c == null) {

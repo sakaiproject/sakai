@@ -23,6 +23,7 @@ package org.sakaiproject.memory.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.memory.api.Configuration;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -73,6 +74,11 @@ public class BasicMapCache extends BasicCache {
     public void clear() {
         cache.clear();
     } // clear
+
+    @Override
+    public Configuration getConfiguration() {
+        throw new IllegalArgumentException("Configuration not supported for BasicMapCache");
+    }
 
     @Override
     public void close() {

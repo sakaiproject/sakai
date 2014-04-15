@@ -55,7 +55,47 @@ public interface MemoryService // CacheManager
      */
     Properties getProperties();
 
-    //<K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) throws IllegalArgumentException;
+    /**
+     * Creates a named {@link Cache} at runtime.
+     * <p>
+     * If a {@link Cache} with the specified name is known to the CacheManager, a CacheException is thrown.
+     * <p>
+     * If a {@link Cache} with the specified name is unknown the CacheManager,
+     * one is created according to the provided {@link Configuration}
+     * after which it becomes managed by the CacheManager.
+     * <p>
+     * Prior to a {@link Cache} being created, the provided {@link Configuration}s is
+     * validated within the context of the CacheManager properties and
+     * implementation.
+     * <p>
+     * Implementers should be aware that the {@link Configuration} may be used to
+     * configure other {@link Cache}s.
+     * <p>
+     * There's no requirement on the part of a developer to call this method for
+     * each {@link Cache} an application may use.  Implementations may support
+     * the use of declarative mechanisms to pre-configure {@link Cache}s, thus
+     * removing the requirement to configure them in an application.  In such
+     * circumstances a developer may simply call either the
+     * {@link #getCache(String)} methods to acquire a previously established
+     * or pre-configured {@link Cache}.
+     *
+     * @param cacheName     the name of the {@link Cache}
+     * @param configuration a {@link Configuration} for the {@link Cache}
+     * @throws IllegalStateException         if the CacheManager is closed
+     * @throws CacheException                if there was an error configuring the
+     *                                       {@link Cache}, which includes trying
+     *                                       to create a cache that already exists.
+     * @throws IllegalArgumentException      if the configuration is invalid
+     * @throws UnsupportedOperationException if the configuration specifies
+     *                                       an unsupported feature
+     * @throws NullPointerException          if the cache configuration or name
+     *                                       is null
+     * @throws SecurityException             when the operation could not be performed
+     *                                       due to the current security settings
+     * JSR-107: <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) throws IllegalArgumentException;
+     */
+    <C extends Configuration> Cache createCache(String cacheName, C configuration);
+
     //<K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType, Class<V> valueType);
 
     /**
@@ -199,9 +239,6 @@ public interface MemoryService // CacheManager
      */
     public String getStatus();
 
-
-    // DEPRECATED METHODS BELOW - Remove for Sakai 11
-
     /**
      * Construct a Cache. Attempts to keep complete on Event notification by calling the refresher.
      *
@@ -216,6 +253,8 @@ public interface MemoryService // CacheManager
      */
     @SuppressWarnings("deprecation") // TODO remove this
     Cache newCache(String cacheName, CacheRefresher refresher, String pattern); // used in NotificationCache, AssignmentService(3), BaseContentService, BaseMessage(3)
+
+    // DEPRECATED METHODS BELOW - Remove for Sakai 11
 
     /**
      * Construct a Cache. Attempts to keep complete on Event notification by calling the refresher.
@@ -238,5 +277,24 @@ public interface MemoryService // CacheManager
      */
     @SuppressWarnings("deprecation") // TODO remove this
     GenericMultiRefCache newGenericMultiRefCache(String cacheName); // used in BaseAliasService and SecurityService
+
+    /**
+     * Thrown to indicate an exception has occurred in the Cache.
+     */
+    public static class CacheException extends RuntimeException {
+        private static final long serialVersionUID = 1L;
+        public CacheException() {
+            super();
+        }
+        public CacheException(String message) {
+            super(message);
+        }
+        public CacheException(String message, Throwable cause) {
+            super(message, cause);
+        }
+        public CacheException(Throwable cause) {
+            super(cause);
+        }
+    }
 
 }

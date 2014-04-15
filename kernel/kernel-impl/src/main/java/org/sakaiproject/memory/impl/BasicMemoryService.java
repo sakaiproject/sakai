@@ -21,7 +21,6 @@
 
 package org.sakaiproject.memory.impl;
 
-import net.sf.ehcache.CacheException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Status;
@@ -211,6 +210,11 @@ public abstract class BasicMemoryService implements MemoryService, Observer
         p.put("defaultCacheTimeToLiveSecs", ec.getDefaultCacheConfiguration().getTimeToLiveSeconds());
         p.put("defaultCacheEternal", ec.getDefaultCacheConfiguration().isEternal());
         return p;
+    }
+
+    @Override
+    public <C extends org.sakaiproject.memory.api.Configuration> Cache createCache(String cacheName, C configuration) {
+        throw new UnsupportedOperationException("BasicMemoryService does not support cache creation configuration");
     }
 
     @Override

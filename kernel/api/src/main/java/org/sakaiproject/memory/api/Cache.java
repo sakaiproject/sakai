@@ -122,7 +122,20 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      */
     void clear();
 
-    //JSR-107 <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz);
+    /**
+     * Provides a standard way to access the configuration of a cache using
+     * JCache configuration or additional proprietary configuration.
+     * <p>
+     * The returned value must be immutable.
+     * <p>
+     * If the provider's implementation does not support the specified class,
+     * the {@link IllegalArgumentException} is thrown.
+     *
+     * @return the implementation of {@link Configuration}
+     * @throws IllegalArgumentException if the caching provider doesn't support configuration
+     * JSR-107: <C extends Configuration<K, V>> C getConfiguration(Class<C> clazz);
+     */
+    Configuration getConfiguration();
 
     /**
      * Return the name of the cache.

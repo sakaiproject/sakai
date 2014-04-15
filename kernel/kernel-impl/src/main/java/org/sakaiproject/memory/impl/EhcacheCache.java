@@ -24,12 +24,14 @@ package org.sakaiproject.memory.impl;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.CacheEventListener.CacheEntryEvent;
 import org.sakaiproject.memory.api.CacheEventListener.EventType;
 import org.sakaiproject.memory.api.CacheStatistics;
+import org.sakaiproject.memory.api.Configuration;
 
 import java.util.ArrayList;
 import java.util.Properties;
@@ -103,6 +105,48 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
         cache.removeAll();
         cache.getStatistics().clearStatistics();
     } // clear
+
+    @Override
+    public Configuration getConfiguration() {
+        return new Configuration() {
+            @Override
+            public boolean isStatisticsEnabled() {
+                return cache.isStatisticsEnabled();
+            }
+
+            @Override
+            public long getMaxEntries() {
+                return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+            }
+
+            @Override
+            public long getTimeToLiveSeconds() {
+                return cache.getCacheConfiguration().getTimeToLiveSeconds();
+            }
+
+            @Override
+            public long getTimeToIdleSeconds() {
+                return cache.getCacheConfiguration().getTimeToIdleSeconds();
+            }
+
+            @Override
+            public boolean isEternal() {
+                return cache.getCacheConfiguration().isEternal();
+            }
+
+            @Override
+            public Properties getAll() {
+                CacheConfiguration cc = cache.getCacheConfiguration();
+                Properties p = new Properties();
+                p.put("maxEntries", cc.getMaxEntriesLocalHeap());
+                p.put("timeToLiveSeconds", cc.getTimeToLiveSeconds());
+                p.put("timeToIdleSeconds", cc.getTimeToIdleSeconds());
+                p.put("eternal", cc.isEternal());
+                p.put("statisticsEnabled", cache.isStatisticsEnabled());
+                return p;
+            }
+        };
+    }
 
     @Override
     public String getName() {

@@ -21,10 +21,7 @@
 
 package org.sakaiproject.memory.mock;
 
-import org.sakaiproject.memory.api.CacheEventListener;
-import org.sakaiproject.memory.api.CacheLoader;
-import org.sakaiproject.memory.api.CacheStatistics;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
+import org.sakaiproject.memory.api.*;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -47,6 +44,11 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     @Override
     public void clear() {
         map.clear();
+    }
+
+    @Override
+    public Configuration getConfiguration() {
+        return new SimpleConfiguration(1000l);
     }
 
     @Override

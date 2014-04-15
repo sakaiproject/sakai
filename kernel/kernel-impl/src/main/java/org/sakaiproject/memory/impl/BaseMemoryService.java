@@ -28,10 +28,7 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
-import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.*;
 
 import java.util.Properties;
 
@@ -148,6 +145,11 @@ public class BaseMemoryService implements MemoryService {
         log.info("SHUTDOWN");
     }
 
+    // COMMON methods
+
+
+
+
     // DELEGATED methods
 
     @Override
@@ -158,6 +160,11 @@ public class BaseMemoryService implements MemoryService {
     @Override
     public Properties getProperties() {
         return memoryService.getProperties();
+    }
+
+    @Override
+    public <C extends Configuration> Cache createCache(String cacheName, C configuration) {
+        return memoryService.createCache(cacheName, configuration);
     }
 
     @Override

@@ -24,16 +24,14 @@ package org.sakaiproject.memory.impl;
 import net.sf.ehcache.CacheException;
 import net.sf.ehcache.Ehcache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.event.CacheEventListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.Cache;
-import org.sakaiproject.memory.api.CacheLoader;
-import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.CacheStatistics;
+import org.sakaiproject.memory.api.*;
 
 import java.lang.ref.SoftReference;
 import java.util.*;
@@ -522,6 +520,49 @@ public class MemCache implements Cache, Observer, CacheEventListener
 		//if (m_derivedCache != null) m_derivedCache.notifyCacheClear();
 
 	} // clear
+
+
+    @Override
+    public Configuration getConfiguration() {
+        return new Configuration() {
+            @Override
+            public boolean isStatisticsEnabled() {
+                return cache.isStatisticsEnabled();
+            }
+
+            @Override
+            public long getMaxEntries() {
+                return cache.getCacheConfiguration().getMaxEntriesLocalHeap();
+            }
+
+            @Override
+            public long getTimeToLiveSeconds() {
+                return cache.getCacheConfiguration().getTimeToLiveSeconds();
+            }
+
+            @Override
+            public long getTimeToIdleSeconds() {
+                return cache.getCacheConfiguration().getTimeToIdleSeconds();
+            }
+
+            @Override
+            public boolean isEternal() {
+                return cache.getCacheConfiguration().isEternal();
+            }
+
+            @Override
+            public Properties getAll() {
+                CacheConfiguration cc = cache.getCacheConfiguration();
+                Properties p = new Properties();
+                p.put("maxEntries", cc.getMaxEntriesLocalHeap());
+                p.put("timeToLiveSeconds", cc.getTimeToLiveSeconds());
+                p.put("timeToIdleSeconds", cc.getTimeToIdleSeconds());
+                p.put("eternal", cc.isEternal());
+                p.put("statisticsEnabled", cache.isStatisticsEnabled());
+                return p;
+            }
+        };
+    }
 
 	/**
 	 * Remove this entry from the cache.
