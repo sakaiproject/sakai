@@ -3,67 +3,69 @@
  * For licensing, see LICENSE.html or http://ckeditor.com/license
  */
 
-(function () {
+(function() {
     if (!supportsLocalStorage()) {
         return;
     }
-   
+
     CKEDITOR.plugins.add("autosave", {
         lang: 'de,en,jp,pl,pt-BR,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
         version: 0.09,
         init: function(editor) {
-            var autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
-            var notOlderThan = editor.config.autosave_NotOlderThan != null ? editor.autosave_NotOlderThan : 1440;
-            var saveOnDestroy = editor.config.autosave_saveOnDestroy != null ? editor.autosave_saveOnDestroy : false;
-            var saveDetectionSelectors =
-                editor.config.autosave_saveDetectionSelectors != null ? editor.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
-
-            CKEDITOR.document.appendStyleSheet(this.path + 'css/autosave.min.css');
+            CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
 
             if (typeof (jQuery) === 'undefined') {
-                CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function () {
+                CKEDITOR.scriptLoader.load('http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
                     jQuery.noConflict();
 
-                    CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
-                        GenerateAutoSaveDialog(editor, autoSaveKey);
-
-                        CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
-                    });
+                    loadPlugin(editor);
                 });
 
             } else {
-                CKEDITOR.scriptLoader.load(this.path + 'js/extensions.min.js', function () {
-                    GenerateAutoSaveDialog(editor, autoSaveKey);
-
-                    CheckForAutoSavedContent(editor, autoSaveKey, notOlderThan);
+                CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
+                    loadPlugin(editor);
                 });
             }
-
-
-            $(saveDetectionSelectors).click(function () {
-                RemoveStorage(autoSaveKey);
-            });
-
-            editor.on('key', startTimer);
-
-            editor.on('destroy', function () {
-                if (saveOnDestroy) {
-                    SaveData(autoSaveKey, editor);
-                }
-            });
-
-            editor.on('uiSpace', function(event) {
-                if (event.data.space == 'bottom') {
-                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
-                        + autoSaveMessageId(event.editor)
-                        + '"class="hidden">'
-                        + event.editor.lang.autosave.autoSaveMessage
-                        + '</div></div>';
-                }
-            }, editor, null, 100);
         }
     });
-    
+
+    function loadPlugin(editorInstance) {
+        var autoSaveKey = editorInstance.config.autosave_SaveKey != null ? editorInstance.config.autosave_SaveKey : 'autosave_' + window.location;
+        var notOlderThan = editorInstance.config.autosave_NotOlderThan != null ? editorInstance.autosave_NotOlderThan : 1440;
+        var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.autosave_saveOnDestroy : false;
+        var saveDetectionSelectors =
+            editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
+
+
+        CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
+            GenerateAutoSaveDialog(editorInstance, autoSaveKey);
+
+            CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan);
+        });
+
+        jQuery(saveDetectionSelectors).click(function() {
+            RemoveStorage(autoSaveKey);
+        });
+
+        editorInstance.on('key', startTimer);
+
+        editorInstance.on('destroy', function() {
+            if (saveOnDestroy) {
+                SaveData(autoSaveKey, editorInstance);
+            }
+        });
+
+        editorInstance.on('uiSpace', function(event) {
+            if (event.data.space == 'bottom') {
+                event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
+                    + autoSaveMessageId(event.editor)
+                    + '"class="hidden">'
+                    + event.editor.lang.autosave.autoSaveMessage
+                    + '</div></div>';
+            }
+        }, editorInstance, null, 100);
+    }
+
     function autoSaveMessageId(editorInstance) {
         return 'cke_autoSaveMessage_' + editorInstance.name;
     }
@@ -71,14 +73,14 @@
     var timeOutId = 0,
         savingActive = false;
 
-    var startTimer = function (event) {
+    var startTimer = function(event) {
         if (timeOutId) {
             clearTimeout(timeOutId);
         }
         var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
         timeOutId = setTimeout(onTimer, delay * 1000, event);
     };
-    var onTimer = function (event) {
+    var onTimer = function(event) {
         if (savingActive) {
             startTimer(event);
         } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
@@ -89,59 +91,63 @@
             SaveData(autoSaveKey, editor);
 
             savingActive = false;
-        } 
+        }
     };
 
     // localStorage detection
     function supportsLocalStorage() {
         return typeof (Storage) !== 'undefined';
     }
-    
+
     function GenerateAutoSaveDialog(editorInstance, autoSaveKey) {
-        CKEDITOR.dialog.add('autosaveDialog', function () {
+        CKEDITOR.dialog.add('autosaveDialog', function() {
             return {
                 title: editorInstance.lang.autosave.title,
                 minHeight: 155,
                 height: 300,
                 width: 750,
-                onShow: function () {
+                onShow: function() {
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
-                onOk: function () {
+                onOk: function() {
                     var jsonSavedContent = LoadData(autoSaveKey);
-                    
+
                     editorInstance.setData(jsonSavedContent.data);
-                    
+
                     RemoveStorage(autoSaveKey);
                 },
-                onCancel: function () {
+                onCancel: function() {
                     RemoveStorage(autoSaveKey);
                 },
-                contents: [{
-                    label: '',
-                    id: 'general',
-                    elements: [{
-                        type: 'radio',
-                        id: 'diffType',
-                        label: editorInstance.lang.autosave.diffType,
-                        items: [[editorInstance.lang.autosave.sideBySide, 'sideBySide'], [editorInstance.lang.autosave.inline, 'inline']],
-                        'default': 'sideBySide',
-                        onClick: function () {
-                            RenderDiff(this._.dialog, editorInstance, autoSaveKey);
-                        }
-                    },{
-                        type: 'html',
-                        id: 'diffContent',
-                        html: ''
-                    }]
-                }],
+                contents: [
+                    {
+                        label: '',
+                        id: 'general',
+                        elements: [
+                            {
+                                type: 'radio',
+                                id: 'diffType',
+                                label: editorInstance.lang.autosave.diffType,
+                                items: [[editorInstance.lang.autosave.sideBySide, 'sideBySide'], [editorInstance.lang.autosave.inline, 'inline']],
+                                'default': 'sideBySide',
+                                onClick: function() {
+                                    RenderDiff(this._.dialog, editorInstance, autoSaveKey);
+                                }
+                            }, {
+                                type: 'html',
+                                id: 'diffContent',
+                                html: ''
+                            }
+                        ]
+                    }
+                ],
                 buttons: [
                     {
                         id: 'ok',
                         type: 'button',
                         label: editorInstance.lang.autosave.ok,
-                        'class': 'cke_dialog_ui_button_ok',
-                        onClick: function (evt) {
+                        'class': 'cke_dialog_ui_button_ok cke_dialog_autosave_ok',
+                        onClick: function(evt) {
                             var dialog = evt.data.dialog;
                             if (dialog.fire('ok', { hide: true }).hide !== false)
                                 dialog.hide();
@@ -152,7 +158,7 @@
                         type: 'button',
                         label: editorInstance.lang.autosave.no,
                         'class': 'cke_dialog_ui_button_cancel',
-                        onClick: function (evt) {
+                        onClick: function(evt) {
                             var dialog = evt.data.dialog;
                             if (dialog.fire('cancel', { hide: true }).hide !== false)
                                 dialog.hide();
@@ -162,7 +168,7 @@
             };
         });
     }
-    
+
     function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan) {
         // Checks If there is data available and load it
         if (localStorage.getItem(autoSaveKey)) {
@@ -186,7 +192,7 @@
                 return;
             }
 
-            var confirmMessage = editorInstance.lang.autosave.loadSavedContent.replace("{0}", moment(autoSavedContentDate).lang(editorInstance.config.language).format('LLL'));
+            var confirmMessage = editorInstance.lang.autosave.loadSavedContent.replace("{0}", moment(autoSavedContentDate).lang(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat));
             if (confirm(confirmMessage)) {
                 // Open DIFF Dialog
                 editorInstance.openDialog('autosaveDialog');
@@ -195,12 +201,12 @@
             }
         }
     }
-    
+
     function LoadData(autoSaveKey) {
         var compressedJSON = LZString.decompressFromUTF16(localStorage.getItem(autoSaveKey));
         return JSON.parse(compressedJSON);
     }
-    
+
     function SaveData(autoSaveKey, editorInstance) {
         var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getData(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
@@ -233,10 +239,9 @@
             newTextLines: newtxt,
             opcodes: opcodes,
             baseTextName: editorInstance.lang.autosave.loadedContent,
-            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format('LLL')) + '\'',
+            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat)) + '\'',
             contextSize: 3,
             viewType: dialog.getContentElement('general', 'diffType').getValue() == "inline" ? 1 : 0
         }).outerHTML + '</div>');
     }
-
 })();
