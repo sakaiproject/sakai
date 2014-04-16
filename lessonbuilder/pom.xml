@@ -189,11 +189,6 @@
 		<version>${sakai.msgcntr.version}</version>
 		<scope>provided</scope>
               </dependency>
-	      <dependency>
-		<groupId>net.sf.ehcache</groupId>
-		<artifactId>ehcache-core</artifactId>
-		<version>1.6.1</version>
-	      </dependency>
 	    </dependencies>
 	  </dependencyManagement>
 
