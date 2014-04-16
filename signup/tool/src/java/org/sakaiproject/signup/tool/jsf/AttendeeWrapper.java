@@ -160,7 +160,7 @@ public class AttendeeWrapper implements Comparable{
 	
 	/**
 	 * for sorting purpose. It's according to string alphabetic order. Last name
-	 * comes first
+	 * comes first 
 	 */
 	public int compareTo(Object o) {
 		if (o == null)
