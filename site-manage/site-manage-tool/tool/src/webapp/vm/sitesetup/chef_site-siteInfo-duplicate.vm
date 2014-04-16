@@ -5,7 +5,7 @@
 		<input type="hidden" name="eventSubmit_doDuplicate_site_option" value="x" />
 		<input type="hidden" name="option" value="cancel" />
 		<h3>
-			$tlang.getString("sitdup.dupsit") <span class="highlight">$siteTitle</span>
+			$tlang.getString("sitdup.dupsit") <span class="highlight">$validator.escapeHtml($siteTitle)</span>
 		</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitdup.alert") $alertMessage</div>#end
 			#if (!$!siteDuplicated)
