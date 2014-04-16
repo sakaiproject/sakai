@@ -587,7 +587,11 @@ public class LessonBuilderAccessService {
 						String contentType = resource.getContentType();
 						
 						// 	for url resource type, encode a redirect to the body URL
-						if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL)) {
+						// in 2.10 have to check resourcetype, but in previous releasese
+						// it doesn't get copied in site copy, so check content type. 10 doesn't set the contenttype to url
+						// so we have to check both to work in all versions
+						if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL) ||
+						    "org.sakaiproject.content.types.urlResource".equalsIgnoreCase(resource.getResourceType())) {
 							if (len < MAX_URL_LENGTH) {
 								byte[] content = resource.getContent();
 								if ((content == null) || (content.length == 0)) {

@@ -4727,10 +4727,10 @@ public class SimplePageBean {
 			
 			// 	make sure it's a URL
 			if (resource == null ||
-			    // copying resources does not preserve this field, so if we do this test, things won't
-			    // work in copied sites
-			    //		!resource.getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
-					!resource.getContentType().equals("text/url")) {
+			    // need to check both. Sakai 10 sets only resource type, but earlier releases don't
+			    // copy that when doing site copy, so for them have to check contenttype.
+			    (!resource.getResourceType().equals("org.sakaiproject.content.types.urlResource") &&
+			     !resource.getContentType().equals("text/url"))) {
 				return null;
 			}
 			
