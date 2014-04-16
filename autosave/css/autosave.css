@@ -102,3 +102,5 @@ div.autoSaveMessage div{left:42%;position:absolute;padding:2px;top:4px;font-weig
 	-o-transition: visibility 0.2s linear, opacity 0.2s linear; 
 	transition: visibility 0.2s linear, opacity 0.2s linear; 
 }
+
+a.cke_dialog_autosave_ok span {width:auto!important}

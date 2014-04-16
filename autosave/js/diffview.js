@@ -61,26 +61,26 @@ diffview = {
 			throw "Cannot build diff view; newTextLines is not defined.";
 		if (!opcodes)
 			throw "Canno build diff view; opcodes is not defined.";
-
+		
 		function celt (name, clazz) {
 			var e = document.createElement(name);
 			e.className = clazz;
 			return e;
 		}
-
+		
 		function telt (name, text) {
 			var e = document.createElement(name);
 			e.appendChild(document.createTextNode(text));
 			return e;
 		}
-
+		
 		function ctelt (name, clazz, text) {
 			var e = document.createElement(name);
 			e.className = clazz;
 			e.innerHTML = text;
 			return e;
 		}
-
+	
 		var tdata = document.createElement("thead");
 		var node = document.createElement("tr");
 		tdata.appendChild(node);
@@ -95,13 +95,13 @@ diffview = {
 			node.appendChild(ctelt("th", "texttitle", newTextName));
 		}
 		tdata = [tdata];
-
+		
 		var rows = [];
 		var node2;
-
+		
 		/**
 		 * Adds two cells to the given row; if the given row corresponds to a real
-		 * line number (based on the line index tidx and the endpoint of the
+		 * line number (based on the line index tidx and the endpoint of the 
 		 * range in question tend), then the cells will contain the line number
 		 * and the line of text from textLines at position tidx (with the class of
 		 * the second cell set to the name of the change represented), and tidx + 1 will
@@ -119,14 +119,14 @@ diffview = {
 				return tidx;
 			}
 		}
-
+		
 		function addCellsInline (row, tidx, tidx2, textLines, change) {
 			row.appendChild(telt("th", tidx == null ? "" : (tidx + 1).toString()));
 			row.appendChild(telt("th", tidx2 == null ? "" : (tidx2 + 1).toString()));
 			row.appendChild(ctelt("td", change, textLines[tidx != null ? tidx : tidx2].replace(/\t/g, "\u00a0\u00a0\u00a0\u00a0")));
 		}
-
-    for (var idx = 0; idx < opcodes.length; idx++) {
+		
+		for (var idx = 0; idx < opcodes.length; idx++) {
 			code = opcodes[idx];
 			change = code[0];
 			var b = code[1];
@@ -142,7 +142,7 @@ diffview = {
 					var jump = rowcnt - ((idx == 0 ? 1 : 2) * contextSize);
 					if (jump > 1) {
 						toprows.push(node = document.createElement("tr"));
-
+						
 						b += jump;
 						n += jump;
 						i += jump - 1;
@@ -150,7 +150,7 @@ diffview = {
 						if (!inline) node.appendChild(ctelt("td", "skip", ""));
 						node.appendChild(telt("th", "..."));
 						node.appendChild(ctelt("td", "skip", ""));
-
+						
 						// skip last lines if they're all equal
 						if (idx + 1 == opcodes.length) {
 							break;
@@ -159,7 +159,7 @@ diffview = {
 						}
 					}
 				}
-
+				
 				toprows.push(node = document.createElement("tr"));
 				if (inline) {
 					if (change == "insert") {
@@ -175,7 +175,7 @@ diffview = {
 						addCellsInline(node, b++, n++, baseTextLines, change);
 					}
 				} else {
-					var wdiff = diffString2(b < be ? baseTextLines[b]:"", n < ne ? newTextLines[n]:"");
+					var wdiff = diffString2(b < be ? baseTextLines[b]:"", n < ne ? newTextLines[n]:""); 
 					if(b < be) baseTextLines[b] = wdiff.o;
 					if(n < ne)newTextLines[n] = wdiff.n;
 					b = addCells(node, b, be, baseTextLines, change=="replace" ? "delete" : change);
@@ -186,18 +186,18 @@ diffview = {
 			for (var i = 0; i < toprows.length; i++) rows.push(toprows[i]);
 			for (var i = 0; i < botrows.length; i++) rows.push(botrows[i]);
 		}
-
+		
 		var msg = "combined <a href='http://snowtide.com/jsdifflib'>jsdifflib</a> ";
 		msg += "and John Resig's <a href='http://ejohn.org/projects/javascript-diff-algorithm/'>diff</a> ";
 		msg += "by <a href='http://richardbondi.net'>Richard Bondi</a>";
 		rows.push(node = ctelt("th", "author", msg));
 		node.setAttribute("colspan", inline ? 3 : 4);
-
+		
 		tdata.push(node = document.createElement("tbody"));
-    		for (var idx = 0; idx < rows.length; idx++) node.appendChild(rows[idx]);
-
+		for (var idx in rows) node.appendChild(rows[idx]);
+		
 		node = celt("table", "diff" + (inline ? " inlinediff" : ""));
-    		for (var idx = 0; idx < tdata.length; idx++) node.appendChild(tdata[idx]);
+		for (var idx in tdata) node.appendChild(tdata[idx]);
 		return node;
 	}
 }
