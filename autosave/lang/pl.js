@@ -1,4 +1,4 @@
-/*
+﻿/*
 Copyright (c) 2003-2012, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.html or http://ckeditor.com/license
 */
@@ -8,9 +8,9 @@ CKEDITOR.plugins.setLang('autosave', 'pl', {
     title: 'Porównanie tymczasowo zapisanej zawartości z zawartością wczytaną w witrynie',
     loadedContent: 'Zawartość wczytania',
     autoSavedContent: 'Zawartość zapisana automatycznie (z: \'',
-	ok: 'Yes, load auto-saved content',
-	no: 'No',
-	diffType: 'Widok porównawczy:',
-	sideBySide: 'Obok siebie',
-	inline: 'Osadzony'
+    ok: 'Tak, wczytaj automatycznie zapisaną treść',
+    no: 'Nie',
+    diffType: 'Widok porównawczy:',
+    sideBySide: 'Obok siebie',
+    inline: 'Osadzony'
 });
