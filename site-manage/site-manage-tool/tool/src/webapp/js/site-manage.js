@@ -726,8 +726,9 @@ var setupCategTools = function(){
             
             // SAK-22384
             var mathJaxCheckBox = buildMathJaxCheckBox(this);
+            var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
-                    + '\"><span class=\"selectedToolTitle icon-' + iconId + '\">' + $(this).next('label').text() + "</span>"
+                    + '\"><span class=\"selectedToolTitle icon-' + iconId + '\">' + safeLabelText + "</span>"
                     + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             
