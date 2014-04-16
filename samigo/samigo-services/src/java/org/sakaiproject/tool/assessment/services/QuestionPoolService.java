@@ -595,4 +595,14 @@ public class QuestionPoolService
 
 	  return agents;
   }
+  
+  // SAM-2049
+  public void transferPoolsOwnership(String ownerId, List<Long> poolIds) {
+	  try {
+		  PersistenceService.getInstance().getQuestionPoolFacadeQueries().transferPoolsOwnership(ownerId, poolIds);
+	  } catch (Exception ex) {
+		  log.error(ex);
+		  throw new RuntimeException(ex);
+	  }
+  }
 }

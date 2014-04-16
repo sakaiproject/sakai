@@ -107,6 +107,14 @@
  <h:outputText value="#{questionPoolMessages.import}"/>
   <f:param name="qpid" value="0"/>
 </h:commandLink> 
+
+<!-- SAM-2049 -->
+<h:outputText value=" #{generalMessages.separator}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" />
+<h:commandLink title="#{questionPoolMessages.t_transferPool}" rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" 
+	id="transfer" immediate="true" action="#{questionpool.transferPool}">
+	<h:outputText value="#{questionPoolMessages.transfer_pool_ownership}" />
+	<f:param name="qpid" value="0" />
+</h:commandLink>
  
 <h:outputText rendered="#{questionpool.importToAuthoring == 'false' && authorization.createQuestionPool}" escape="false" value="</p>"/>
 </div>

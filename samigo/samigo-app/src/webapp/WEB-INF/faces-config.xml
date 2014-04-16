@@ -1039,6 +1039,21 @@
       <from-outcome>copyPool</from-outcome>
       <to-view-id>/jsf/questionpool/copyPool.jsp</to-view-id>
     </navigation-case>
+    
+    <!-- SAM-2049 -->
+     <navigation-case>
+      <from-outcome>transferPoolInputUser</from-outcome>
+      <to-view-id>/jsf/questionpool/transferPoolInputUser.jsp</to-view-id>
+    </navigation-case>
+     <navigation-case>
+      <from-outcome>transferPool</from-outcome>
+      <to-view-id>/jsf/questionpool/transferPool.jsp</to-view-id>
+    </navigation-case>
+      <navigation-case>
+      <from-outcome>transferPoolConfirm</from-outcome>
+      <to-view-id>/jsf/questionpool/transferPoolConfirm.jsp</to-view-id>
+    </navigation-case>
+    
     <navigation-case>
       <from-outcome>movePool</from-outcome>
       <to-view-id>/jsf/questionpool/movePool.jsp</to-view-id>

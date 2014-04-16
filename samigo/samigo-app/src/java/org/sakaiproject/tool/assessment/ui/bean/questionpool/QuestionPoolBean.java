@@ -47,6 +47,7 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
+import org.osid.shared.SharedException;
 import org.sakaiproject.tool.assessment.business.questionpool.QuestionPoolTreeImpl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolData;
@@ -58,12 +59,16 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
+import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.cover.EventTrackingService;
 
@@ -149,6 +154,16 @@ public class QuestionPoolBean implements Serializable
   private QuestionPoolDataModel qpDataModel;
   private QuestionPoolDataModel qpDataModelCopy;
   private QuestionPoolDataModel subQpDataModel;
+  
+  // SAM-2049
+  private String sortTransferPoolProperty = "title";
+  private boolean sortTransferPoolAscending = true;
+  private QuestionPoolDataModel qpDataModelTransfer;
+  private QuestionPoolDataModel qpDataModelTransferSelected;
+  private List<Long> transferPools;
+  private String ownerId;
+  private String confirmMessage;
+  private boolean checkAll = false;
 
  private String addOrEdit;
   private String outcome;
@@ -2215,4 +2230,273 @@ String poolId = ContextUtil.lookupParam("qpid");
   		String owner = AgentFacade.getDisplayName(getAgentId());
   		return owner;
   	}
+  	
+  	// **********************************************
+  	// ****************** SAM-2049 ******************
+  	// **********************************************
+  	
+  	public boolean getSortTransferPoolAscending() {
+  		return sortTransferPoolAscending;
+  	}
+  	
+	public void setSortTransferPoolAscending(boolean sspa) {
+		sortTransferPoolAscending = sspa;
+	}
+	  
+	public String getSortTransferPoolProperty() {
+	    return sortTransferPoolProperty;
+	}
+	  
+	public void setSortTransferPoolProperty(String newProperty) {
+	    sortTransferPoolProperty= newProperty;
+	}
+	
+	public String transferPoolConfirmBack() {		
+		return "transferPoolInputUser";
+	}
+
+	public List<Long> getTransferPools() {
+		return transferPools;
+	}
+
+	public void setTransferPools(List<Long> transferPools) {
+		this.transferPools = transferPools;
+	}
+
+	public String getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(String ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public boolean isCheckAll() {
+		return checkAll;
+	}
+
+	public void setCheckAll(boolean checkAll) {
+		this.checkAll = checkAll;
+	}
+  	
+  	public QuestionPoolDataModel getTransferQpools() {	
+		buildTreeCopy();
+		setQpDataModelByLevelTransferPool();
+		log.debug("getSelectedQpools");
+		return qpDataModelTransfer;
+	}
+   
+  	public QuestionPoolDataModel getTransferSelectedQpools() {
+  		buildTreeTransferPool();
+  		setQpDataModelByLevelTransferSelectedPools();
+  		log.debug("qpDataModelTransferSelected");
+  		return qpDataModelTransferSelected;
+  	}
+  
+  	public void buildTreeTransferPool() {
+  		try {
+  			QuestionPoolService delegate = new QuestionPoolService();
+  			List<QuestionPoolFacade> qpList = new ArrayList<QuestionPoolFacade>();
+  
+  		  	if (transferPools != null ) {
+  		  		for (Long poolId : transferPools) {
+  		  			QuestionPoolFacade qpFacade =  delegate.getPool(poolId, AgentFacade.getAgentString() );
+  
+  		  			IdImpl parentId = (IdImpl) qpFacade.getParentId();
+  		  			Long parentIdLong = new Long("0");
+  
+  		  			try {
+  					  parentIdLong = Long.valueOf(parentId.getIdString());
+  		  			} catch (SharedException e) {
+  					  log.warn("error setting pool id to Long." + e.getMessage());
+  		  			}
+  		  			
+  		  			// If just the child pool will transfer but not the parent pool, set this child pool has no parent.
+  		  			if (!transferPools.contains(parentIdLong)) {
+  		  				IdImpl updateParentId = new IdImpl("0");
+  		  				qpFacade.setParentId(updateParentId);
+  		  			}
+  				  				
+  		  			qpList.add(qpFacade);
+  		  		}
+  		  		QuestionPoolIteratorFacade qpif = new QuestionPoolIteratorFacade(qpList);
+  		  		tree = new QuestionPoolTreeImpl(qpif);
+  		  	} else {
+  			  tree = new QuestionPoolTreeImpl(new QuestionPoolIteratorFacade(new ArrayList<QuestionPoolFacade>()));
+  		  	}
+  		} catch (Exception e) {
+  		  log.warn("error building transfer pool tree." + e.getMessage());
+  		  throw new RuntimeException(e);
+  	  	}	  
+  	}
+	
+	public String sortTransferPoolByColumnHeader() {
+		String sortString = ContextUtil.lookupParam("transferPoolOrderBy");
+		String ascending = ContextUtil.lookupParam("transferPoolAscending");
+		this.setSortTransferPoolProperty(sortString);
+		this.setSortTransferPoolAscending((Boolean.valueOf(ascending)).booleanValue());
+		setQpDataModelByLevelTransferPool();
+		return "transferPool";
+	}
+	
+	public void setQpDataModelByLevelTransferPool() {
+  		Collection<QuestionPoolDataIfc> objects = tree.getSortedObjects();
+
+  		// Construct the sortedList, pools need to be sorted one level at a time
+  		// so the hierachical structure can be maintained. Here, we start from root = 0,
+  		if (objects != null) {
+  			ArrayList<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
+  					getSortTransferPoolProperty(), getSortTransferPoolAscending());
+  			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
+  			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
+  					model);
+  			this.qpDataModelTransfer = qpDataModel;
+  		}
+  	}
+
+ 	public void setQpDataModelByLevelTransferSelectedPools() {
+		Collection<QuestionPoolDataIfc> objects = tree.getSortedObjects();
+
+		// Construct the sortedList, pools need to be sorted one level at a time
+		// so the hierachical structure can be maintained. Here, we start from root = 0,
+		if (objects != null) {
+			ArrayList<QuestionPoolDataIfc> sortedList = sortPoolByLevel(new Long("0"), objects,
+					"title", true);
+			ListDataModel model = new ListDataModel((List<QuestionPoolDataIfc>) sortedList);
+			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
+					model);
+			this.qpDataModelTransferSelected = qpDataModel;
+		}
+	}
+ 	
+ 	// Click transfer ownership link in main page
+	public String transferPool() {
+		// Reset transferPools, checkAll checkbox, ownerId
+		this.transferPools = null;
+		this.checkAll = false;
+		this.ownerId = null;
+		
+		buildTree();
+		setQpDataModelByLevelTransferPool();
+		return "transferPool";
+	}
+	
+	// Transfer pool tree page click continue button
+	public String transferPoolContinue() {
+               // Setup selected pools for transfer; if no pools selected, post error message
+		String transferPoolIds = ContextUtil.paramValueLike("transferPoolIds");
+               if (transferPoolIds == null || transferPoolIds.isEmpty()) {
+                    FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(rb.getString("transfer_pool_ids_null_error")));
+                    return "transferPool";
+               }
+
+		String[] poolIds = transferPoolIds.split(",");
+		List<Long> transferPoolIdLong = new ArrayList<Long>();
+		for (int i = 0; i < poolIds.length; i++) {
+                        if (poolIds[i] != null && !poolIds[i].isEmpty()) {
+                                transferPoolIdLong.add(new Long(poolIds[i]));
+                        }
+		}
+		this.transferPools = transferPoolIdLong;	
+		
+		String checkAllChecked = ContextUtil.paramValueLike("checkAllCheckbox");
+		if (checkAllChecked == null || "false".equals(checkAllChecked)) {
+			this.checkAll = false;
+		} else {
+			this.checkAll = true;
+		}
+		
+		return "transferPoolInputUser";
+	}
+	
+	// Transfer pool tree page click cancel button
+	public String cancelTransferPool() {
+		buildTree();
+		setQpDataModelByLevel();
+		return "poolList";
+	}
+	
+	// Transfer pool input user id page, click continue button
+	public String transferPoolInputUserContinue() {
+		String ownerUserId = ContextUtil.paramValueLike("owneruserId");
+		
+		// Check if the userId is null or ""
+		FacesContext context=FacesContext.getCurrentInstance();
+		String err;
+		if (ownerUserId == null || "".equals(ownerUserId)) {
+			err = rb.getString("transfer_pool_userId_null_error");
+			context.addMessage(null, new FacesMessage(err));
+			return "transferPoolInputUser";
+		}
+		
+		// Check if userId is valid
+		try { 
+			User user = UserDirectoryService.getUserByEid(ownerUserId);
+		} catch (UserNotDefinedException e) {
+			log.debug("Unable to get user by eid: " + ownerUserId);
+			err = rb.getString("transfer_pool_user_invalid");
+			context.addMessage(null, new FacesMessage(err));
+			return "transferPoolInputUser";
+		}
+		
+		this.ownerId = ownerUserId;
+		return "transferPoolConfirm";
+	}
+	
+	// Transfer pool input user id page, click back button
+	public String transferPoolInputUserBack() {
+		buildTree();
+		setQpDataModelByLevelTransferPool();
+		return "transferPool";
+	}
+	
+	public String getConfirmMessage() {
+		try {
+			User user = UserDirectoryService.getUserByEid(ownerId);
+			String userInfo = user.getDisplayName() +  " (" + this.ownerId +  ")";
+			confirmMessage = rb.getFormattedMessage("transfer_pool_confirm_owner", new String[] {userInfo});
+			return confirmMessage;
+		} catch(UserNotDefinedException e) {
+			log.warn("Unable to get user by eid: " + ownerId);
+			e.printStackTrace();
+			return "";
+		}
+	}
+	
+	public String transferPoolOwnership() {		
+		QuestionPoolService delegate = new QuestionPoolService();
+		try {
+			// Need to pass userId not eid to transfer pool.
+			String userId = UserDirectoryService.getUserId(ownerId);
+			delegate.transferPoolsOwnership(userId, transferPools);
+			
+			// Aggregate pool IDs
+			String poolIdString = "";
+			String prefix = "";
+			for (Long poolId : transferPools) {
+				poolIdString += prefix + poolId.toString();
+				prefix = ",";
+			}
+			
+			// Post event
+			Date now = new Date();	
+			User currentUser = UserDirectoryService.getCurrentUser();
+			String userEID = "";
+			if (currentUser != null) {
+				userEID = currentUser.getEid();
+			} else {
+				userEID = "[current user is null]";
+			}
+			EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.transfer", "pool(s) [" + poolIdString + "] transferred " +
+					"from " + userEID + " to " + this.ownerId + " on " + now , true));
+
+			buildTree();
+			setQpDataModelByLevel();
+			return "poolList";
+		} catch (UserNotDefinedException e) {
+			log.warn("Unable to get user by eid: " + ownerId);
+			e.printStackTrace();
+			return "";
+		}
+	}
 }

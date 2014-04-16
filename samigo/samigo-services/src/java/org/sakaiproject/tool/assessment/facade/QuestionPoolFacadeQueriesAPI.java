@@ -221,5 +221,8 @@ public interface QuestionPoolFacadeQueriesAPI
   public void removeQuestionPoolAccess(Tree tree, String user, Long questionPoolId, Long accessTypeId);   
 
   public List<AgentFacade> getAgentsWithAccess(final Long questionPoolId);
+  
+  //SAM-2049
+  public void transferPoolsOwnership(String ownerId, List<Long> poolIds);
 
 }

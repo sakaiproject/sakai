@@ -23,6 +23,8 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -63,6 +65,9 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
   private static Log log = LogFactory.getLog(QuestionPoolFacadeQueries.class);
+  
+  // SAM-2049
+  private static final String VERSION_START = " - ";
 
   public QuestionPoolFacadeQueries() {
   }
@@ -1455,5 +1460,201 @@ public class QuestionPoolFacadeQueries
 	  }
 
 	  return agents;
+  }
+  
+  // **********************************************
+  // ****************** SAM-2049 ******************
+  // **********************************************
+  
+  public List<QuestionPoolData> getAllPoolsForTransfer(final List<Long> selectedPoolIds) {  
+	  final HibernateCallback hcb = new HibernateCallback() {
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("FROM QuestionPoolData a WHERE a.questionPoolId IN (:ids)");
+			  q. setParameterList("ids", selectedPoolIds);
+			  return q.list();
+		  };
+	  };
+	  List list = getHibernateTemplate().executeFind(hcb);
+	  return list;	  
+  }
+	
+  private String createQueryString(List<Long> poolIds) {
+	  String poolIdQueryString ="";
+	  String prefix = "";
+	  for (Long poolId: poolIds) {
+		  poolIdQueryString += prefix + poolId.toString();
+		  prefix = ",";
+	  }
+	  
+  	  return poolIdQueryString;
+  }
+	    
+  private void updatePool(QuestionPoolData pooldata) {
+	  try {
+		  getHibernateTemplate().update(pooldata);
+	  } catch (Exception e) {
+		  log.warn("problem update the pool name" + e.getMessage());
+	  }	  
+  }
+  
+  private String renameDuplicate(String title) {
+	  if (title == null) {
+		  title = "";
+	  }
+  
+	  String rename = "";
+	  int index = title.lastIndexOf(VERSION_START);
+
+	  // If it is versioned
+	  if (index > -1) {
+		  String mainPart = "";
+		  String versionPart = title.substring(index);
+		  if(index > 0) {
+			  mainPart = title.substring(0, index);
+		  }
+  
+		  int nIndex = index + VERSION_START.length();
+		  String version = title.substring(nIndex);
+  
+		  int versionNumber = 0;
+		  try {
+			  versionNumber = Integer.parseInt(version);
+			  if (versionNumber < 2) {
+				  versionNumber = 2;
+			  }
+			  versionPart = VERSION_START + (versionNumber + 1);
+  			  rename = mainPart + versionPart;
+  		  } catch (NumberFormatException ex) {
+  			  rename = title + VERSION_START + "2";
+  		  }
+	  } else {
+		  rename = title + VERSION_START + "2";
+	  }
+
+	  return rename;
+  }
+	  
+  public void transferPoolsOwnership(String ownerId, final List<Long> transferPoolIds) {
+  	  Session session = null;
+  	  Connection conn = null;
+  	  PreparedStatement statement = null;
+  
+  	  // Get all pools to be transferred
+  	  List<QuestionPoolData> transferPoolsData = getAllPoolsForTransfer(transferPoolIds);
+  
+  	  // Get poolId which need to remove child-parent relationship
+  	  List<Long> needUpdatedPoolParentIdList = new ArrayList<Long>();
+  	  List<Long> updatePoolOwnerIdList = new ArrayList<Long>();
+  
+  	  for (QuestionPoolData poolTransfer : transferPoolsData) {
+  		  Long poolId = poolTransfer.getQuestionPoolId();	
+  		  updatePoolOwnerIdList.add(poolId);
+  		  
+  		  // Get remove child-parent relationship list
+  		  Long poolIdRemoveParent = poolTransfer.getParentPoolId();
+  		  if (!poolIdRemoveParent.equals(new Long("0")) && !transferPoolIds.contains(poolIdRemoveParent)) {
+  			  needUpdatedPoolParentIdList.add(poolId);
+  		  }
+  	  }
+  
+  	  // updatePoolOwnerIdList will not be empty, so no need to check the size
+  	  String updateOwnerIdInPoolTableQueryString = createQueryString(updatePoolOwnerIdList);
+  
+  	  // If all parent-children structure transfer, needUpdatedPoolParentIdList will be empty.	  
+  	  String removeParentPoolString = "";
+  	  if (needUpdatedPoolParentIdList.size() > 0) {
+  		  removeParentPoolString = createQueryString(needUpdatedPoolParentIdList);
+  	  }
+  
+  	  // I used jdbc update here since I met difficulties using hibernate to update SAM_QUESTIONPOOLACCESS_T. (it used composite-id there)
+  	  // For updating SAM_QUESTIONPOOL_T, I can use hibernate but it will have many db calls. (I didn't find an efficient way to bulk update.) So used jdbc here again.
+  	  try {
+  		  session = getSessionFactory().openSession();
+  		  conn = session.connection();
+                  boolean autoCommit = conn.getAutoCommit();
+  		  String query = "";
+  		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
+  			  query = "UPDATE sam_questionpoolaccess_t SET agentid = '" + ownerId +"' WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")" + 
+  					  " AND accesstypeid = 34";					 
+  			  statement = conn.prepareStatement(query);
+  			  statement.executeUpdate();
+  			  
+  			  query = "UPDATE sam_questionpool_t SET ownerid = '" + ownerId + "' WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
+			  statement = conn.prepareStatement(query);
+			  statement.executeUpdate();
+                          
+                          if (!autoCommit) {
+                              conn.commit();
+                          }
+  		  }
+  
+  		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
+  		  if (!"".equals(removeParentPoolString)) {
+  			  query = "UPDATE sam_questionpool_t SET parentpoolid = " + 0 + " WHERE questionpoolid IN (" + removeParentPoolString + ")";
+  			  statement = conn.prepareStatement(query);
+  			  statement.executeUpdate();	
+                          
+                          if (!autoCommit) {
+                              conn.commit();
+                          }
+  		  }
+  	  } catch (Exception ex) {
+  		  log.warn(ex.getMessage());
+	  } finally {
+  		  if (statement != null) {
+			  try {
+				  statement.close();
+			  } catch (Exception ex) {
+				  ex.printStackTrace();
+			  }
+		  }
+  		  
+  		  if (conn != null) {
+			  try {
+				  conn.close();
+			  } catch (Exception ex) {
+				  ex.printStackTrace();
+			  }
+		  }
+  		  
+  		  if (session != null) {
+  			  try {
+  				  session.close();
+			  } catch (Exception ex) {
+				  ex.printStackTrace();
+			  }
+  		  }
+  	  }
+  
+  	  // Update pool name if there is a duplicate one.	  
+	  for (QuestionPoolData pooldata : transferPoolsData) {
+		  Long poolId = pooldata.getQuestionPoolId();
+		  String title = pooldata.getTitle();
+		  boolean isUnique = poolIsUnique(poolId, title, new Long("0"), ownerId);
+		  if (!isUnique) {
+			  synchronized (title) {
+				  log.debug("Questionpool " + title + " is not unique.");
+				  int count = 0; // Alternate exit condition
+	
+				  while (!isUnique) {
+					  title = renameDuplicate(title);
+					  log.debug("renameDuplicate (title): " + title);
+					  
+					  // Recheck to confirm that new title is not a dplicate too
+					  isUnique = poolIsUnique(poolId, title, new Long("0"), ownerId);	      	  
+					  if (count++ > 99) {
+						  break; // Exit condition in case bug is introduced
+					  }
+				  }
+			  }
+			  
+			  pooldata.setTitle(title);
+			  pooldata.setOwnerId(ownerId);
+			  if (!"".equals(removeParentPoolString) && needUpdatedPoolParentIdList.contains(poolId)) {
+				  pooldata.setParentPoolId(new Long("0"));
+			  }
+			  updatePool(pooldata);
+		  }		  
+	  } 	  
   }
 }
