@@ -221,6 +221,7 @@ $(document).ajaxStop(function(){
 });
 
 $(document).ready(function(){
+    $('#navigate').prop('disabled',false)
     $('#navigatePanelSearch').keyup(function(){
          var v = $('#navigatePanelSearch').val();
          if (v.length >= 2) {

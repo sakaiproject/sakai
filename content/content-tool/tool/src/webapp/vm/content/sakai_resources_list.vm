@@ -82,7 +82,7 @@
 			<h3>
            <div class="btn-group dropdown keep-open">
                 #if (!$dropboxMode)
-                  <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown">
+                  <button id="navigate" type="button" class="btn btn-primary btn-sm" data-toggle="dropdown" disabled="disabled">
                     $clang.getString('list.nav.button.title') <span class="caret"></span>
                   </button>
                   <div id="navigatePanel" class="dropdown-menu" role="menu">
