@@ -450,4 +450,9 @@ public class MockUserDirectoryService implements UserDirectoryService
 	return UserDirectoryService.PasswordRating.PASSED_DEFAULT;
     }
 
+	@Override
+	public PasswordPolicyProvider getPasswordPolicy() {
+		return null;
+	}
+
 }
