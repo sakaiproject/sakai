@@ -72,9 +72,19 @@ public interface ExternalCalendaringService {
 	 * 
 	 * @param vevent  The VEvent to add the attendess too
 	 * @param attendees list of Users that have been invited to the event
-	 * @return
+	 * @return the VEvent for the given event or null if there was an error
 	 */
 	public VEvent addAttendeesToEvent(VEvent vevent, List<User> attendees);
+	
+	/**
+	 * Adds a list of attendees to an existing VEvent with the chair role.
+	 * This must then be turned into a Calendar before it can be turned into an ICS file.
+	 *
+	 * @param vevent  The VEvent to add the attendess too
+	 * @param attendees list of Users that will chair the event
+	 * @return the VEvent for the given event or null if there was an error
+	 */
+	public VEvent addChairAttendeesToEvent(VEvent vevent, List<User> attendees);
 	
 	/**
 	 * Set the status of an existing VEvent to cancelled.
@@ -92,6 +102,15 @@ public interface ExternalCalendaringService {
 	 * @return the Calendar for the given events or null if there was an error
 	 */
 	public Calendar createCalendar(List<VEvent> events);
+	
+	/**
+	 * Creates an iCal calendar from a list of VEvents with a specified method.
+	 *
+	 * @param events iCal VEvents
+	 * @param method the ITIP method for the calendar, e.g. "REQUEST"
+	 * @return the Calendar for the given events or null if there was an error
+	 */
+	public Calendar createCalendar(List<VEvent> events, String method);
 	
 	/**
 	 * Write an iCal calendar out to a file in the filesystem and return the path.

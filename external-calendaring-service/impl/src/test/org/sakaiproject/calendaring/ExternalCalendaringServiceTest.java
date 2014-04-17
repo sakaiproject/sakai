@@ -27,6 +27,7 @@ import java.util.UUID;
 
 import javax.annotation.Resource;
 
+import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.property.CalScale;
 import net.fortuna.ical4j.model.property.Version;
@@ -236,7 +237,35 @@ public class ExternalCalendaringServiceTest {
 		//Assert.assertEquals(LOCATION, vevent.getProperty("LOCATION"));
 		
 	}
-	
+
+	@Test
+	public void testCancellingVEventTwice() {
+
+		//generate new event
+		CalendarEvent event = generateEvent();
+
+		//create vevent
+		VEvent vevent= service.createEvent(event);
+
+		//set it to cancelled
+		VEvent cancelled = service.cancelEvent(vevent);
+		VEvent cancelledTwice = service.cancelEvent(vevent);
+
+		System.out.println("testCancellingVEventTwice");
+		System.out.println("####################");
+		System.out.println(cancelledTwice);
+
+		Assert.assertNotNull(cancelledTwice);
+
+		Calendar calendar = service.createCalendar(Collections.singletonList(cancelledTwice));
+		Assert.assertNotNull(service.toFile(calendar));
+
+		//TODO check the attributes of the vevent
+		//Assert.assertEquals(EVENT_NAME, vevent.getProperty("SUMMARY"));
+		//Assert.assertEquals(LOCATION, vevent.getProperty("LOCATION"));
+
+	}
+
 	@Test
 	public void testCreatingVEventWithUidProperty() {
 		

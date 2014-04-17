@@ -34,6 +34,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.Calendar;
 import net.fortuna.ical4j.model.DateTime;
+import net.fortuna.ical4j.model.Property;
 import net.fortuna.ical4j.model.TimeZone;
 import net.fortuna.ical4j.model.TimeZoneRegistry;
 import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
@@ -41,17 +42,10 @@ import net.fortuna.ical4j.model.ValidationException;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.component.VTimeZone;
 import net.fortuna.ical4j.model.parameter.Cn;
+import net.fortuna.ical4j.model.parameter.PartStat;
 import net.fortuna.ical4j.model.parameter.Role;
-import net.fortuna.ical4j.model.property.Attendee;
-import net.fortuna.ical4j.model.property.CalScale;
-import net.fortuna.ical4j.model.property.Description;
-import net.fortuna.ical4j.model.property.Location;
-import net.fortuna.ical4j.model.property.ProdId;
-import net.fortuna.ical4j.model.property.Sequence;
-import net.fortuna.ical4j.model.property.Status;
-import net.fortuna.ical4j.model.property.Uid;
-import net.fortuna.ical4j.model.property.Url;
-import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.parameter.Rsvp;
+import net.fortuna.ical4j.model.property.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -130,10 +124,15 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		
 		//add organiser to event
 		if(StringUtils.isNotBlank(event.getCreator())) {
-			Attendee creator = new Attendee(URI.create("mailto:" + sakaiProxy.getUserEmail(event.getCreator())));
-			creator.getParameters().add(Role.CHAIR);
-			creator.getParameters().add(new Cn(sakaiProxy.getUserDisplayName(event.getCreator())));
-			vevent.getProperties().add(creator);
+
+			String creatorEmail = sakaiProxy.getUserEmail(event.getCreator());
+
+			URI mailURI = createMailURI(creatorEmail);
+			Cn commonName = new Cn(sakaiProxy.getUserDisplayName(event.getCreator()));
+
+			Organizer organizer = new Organizer(mailURI);
+			organizer.getParameters().add(commonName);
+			vevent.getProperties().add(organizer);
 		}
 		
 		//add attendees to event with 'required participant' role
@@ -163,7 +162,28 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * {@inheritDoc}
 	 */
 	public VEvent addAttendeesToEvent(VEvent vevent, List<User> attendees) {
-		
+		return addAttendeesToEventWithRole(vevent, attendees, Role.REQ_PARTICIPANT);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public VEvent addChairAttendeesToEvent(VEvent vevent, List<User> attendees) {
+		return addAttendeesToEventWithRole(vevent, attendees, Role.CHAIR);
+	}
+
+	/**
+	 * Adds attendees to an existing event with a given role
+	 * Common logic for addAttendeesToEvent and addChairAttendeestoEvent
+	 *
+	 * @param vevent  the VEvent to add the attendess too
+	 * @param attendees list of Users that have been invited to the event
+	 * @param role      the role with which to add each user
+	 * @return          the VEvent for the given event or null if there was an error
+	 */
+	protected VEvent addAttendeesToEventWithRole(VEvent vevent, List<User> attendees, Role role) {
+
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
 			return null;
@@ -172,9 +192,11 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		//add attendees to event with 'required participant' role
 		if(attendees != null){
 			for(User u: attendees) {
-				Attendee a = new Attendee(URI.create("mailto:" + u.getEmail()));
-				a.getParameters().add(Role.REQ_PARTICIPANT);
+				Attendee a = new Attendee(createMailURI(u.getEmail()));
+				a.getParameters().add(role);
 				a.getParameters().add(new Cn(u.getDisplayName()));
+				a.getParameters().add(PartStat.ACCEPTED);
+				a.getParameters().add(Rsvp.FALSE);
 			
 				vevent.getProperties().add(a);
 			}
@@ -196,9 +218,15 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
 			return null;
 		}
-		
-		vevent.getProperties().add(new Status("CANCELLED"));
-		
+		// You can only have one status so make sure we remove any previous ones.
+		vevent.getProperties().removeAll(vevent.getProperties(Property.STATUS));
+		vevent.getProperties().add(Status.VEVENT_CANCELLED);
+
+		// Must define a sequence for cancellations. If one was not defined when the event was created use 1
+		if (vevent.getProperties().getProperty(Property.SEQUENCE) == null) {
+			vevent.getProperties().add(new Sequence("1"));
+		}
+
 		if(log.isDebugEnabled()){
 			log.debug("VEvent cancelled:" + vevent);
 		}
@@ -212,6 +240,13 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * {@inheritDoc}
 	 */
 	public Calendar createCalendar(List<VEvent> events) {
+		return createCalendar(events, null);
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public Calendar createCalendar(List<VEvent> events, String method) {
 		
 		if(!isIcsEnabled()) {
 			log.debug("ExternalCalendaringService is disabled. Enable via calendar.ics.generation.enabled=true in sakai.properties");
@@ -219,7 +254,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		}
 		
 		//setup calendar
-		Calendar calendar = setupCalendar();
+		Calendar calendar = setupCalendar(method);
 		
 		//null check
 		if(CollectionUtils.isEmpty(events)) {
@@ -316,7 +351,7 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 	 * Helper method to setup the standard parts of the calendar
 	 * @return
 	 */
-	private Calendar setupCalendar() {
+	private Calendar setupCalendar(String method) {
 		
 		String serverName = sakaiProxy.getServerName();
 		
@@ -325,7 +360,9 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		calendar.getProperties().add(new ProdId("-//"+serverName+"//Sakai External Calendaring Service//EN"));
 		calendar.getProperties().add(Version.VERSION_2_0);
 		calendar.getProperties().add(CalScale.GREGORIAN);
-		
+		if (method != null) {
+			calendar.getProperties().add(new Method(method));
+		}
 		return calendar;
 	}
 	
@@ -374,7 +411,20 @@ public class ExternalCalendaringServiceImpl implements ExternalCalendaringServic
 		sb.append(".ics");
 		return sb.toString();
 	}
-	
+
+	/**
+	 * Create a URI to be used for a person's email address that degrades nicely if one is not defined
+	 * @param email The email address as a string, can be empty or even <code>null</code>
+	 * @return the URI object
+	 */
+	private URI createMailURI(String email) {
+		if (email == null || email.isEmpty()) {
+			return URI.create("noemail");
+		} else {
+			return URI.create("mailto:" + email);
+		}
+	}
+
 	/**
 	 * init
 	 */

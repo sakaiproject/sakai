@@ -132,7 +132,7 @@ public class MockCalendarEventEdit implements CalendarEventEdit {
 
 	@Override
 	public ResourcePropertiesEdit getPropertiesEdit() {
-		return null;
+		return m_properties;
 	}
 
 	@Override
