@@ -15392,7 +15392,11 @@ public class AssignmentAction extends PagedResourceActionII
 					SecurityAdvisor sa = new SecurityAdvisor() {
 						public SecurityAdvice isAllowed(String userId, String function, String reference)
 						{
-							return function.equals(m_contentHostingService.AUTH_RESOURCE_ADD)?SecurityAdvice.ALLOWED:SecurityAdvice.PASS;
+							//Needed to be able to add or modify their own
+							if (function.equals(m_contentHostingService.AUTH_RESOURCE_ADD) || function.equals(m_contentHostingService.AUTH_RESOURCE_WRITE_OWN)) {
+								return SecurityAdvice.ALLOWED;
+							}
+							return SecurityAdvice.PASS;
 						}
 					};
 					try
