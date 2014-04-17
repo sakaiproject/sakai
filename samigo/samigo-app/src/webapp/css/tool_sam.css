@@ -709,6 +709,11 @@ div.attempts-remaining {
 #audio-mic-check {
   padding: 8px 0;
 }
+#audio-last-attempt {
+  font-style: italic;
+  font-weight: normal;
+  padding-left: 100px;
+}
 #mic-check {
     background: transparent url(/library/image/mic-check.png) no-repeat center center;
 }
