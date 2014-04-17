@@ -53,6 +53,8 @@
 
 </script>
 
+#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
+
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
 		#set($prevAction=false)
@@ -311,7 +313,13 @@
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
@@ -355,7 +363,13 @@
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $aAttachments)
 									#set ($props = false)
@@ -895,7 +909,7 @@
 	#if ($size == 0)
 	#else
 		<h4>
-			#if ($assignment.getContent().getTypeOfSubmission() == 5)
+			#if ($submissionType == 5)
 				$tlang.getString("gen.att.single")
 			#else
 				$tlang.getString("gen.att")

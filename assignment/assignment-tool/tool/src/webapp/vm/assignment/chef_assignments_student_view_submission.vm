@@ -377,7 +377,13 @@ function submitform(id)
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
@@ -421,7 +427,13 @@ function submitform(id)
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                #if ($submissionType == 5)
+                                                                    $tlang.getString("gen.noatt.single")
+                                                                #else
+                                                                    $tlang.getString("gen.noatt")
+                                                                #end
+                                                            </p>
 							#else
 								#foreach ($attachment in $aAttachments)
 									#set ($props = false)
@@ -680,7 +692,13 @@ function submitform(id)
 						#end
 					#end
 					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noatt")</p>
+						<p class="instruction">
+                                                    #if ($submissionType == 5)
+                                                        $tlang.getString("gen.noatt.single")
+                                                    #else
+                                                        $tlang.getString("gen.noatt")
+                                                    #end
+                                                </p>
 					#else
 						<table class="attachList listHier indnt1 centerLines" style="margin-bottom:.5em;margin-top:0; width:auto" summary="$tlang.getString("stuviewsubm.listsummary")">
 							#foreach ($attachment in $attachments) 
@@ -842,7 +860,13 @@ function submitform(id)
 							#end
 						#end
 						#if ($size == 0)
-							<p class="instruction">$tlang.getString("gen.noatt")</p>
+							<p class="instruction">
+                                                            #if ($submissionType == 5)
+                                                                $tlang.getString("gen.noatt.single")
+                                                            #else
+                                                                $tlang.getString("gen.noatt")
+                                                            #end
+                                                        </p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachment in $!prevFeedbackAttachments) 
@@ -1008,7 +1032,11 @@ function submitform(id)
 				 #end
 				#end
 				#if ($size == 0)
-					$tlang.getString("gen.noatt")
+					#if ($submissionType == 5)
+                                            $tlang.getString("gen.noatt.single")
+                                        #else
+                                            $tlang.getString("gen.noatt")
+                                        #end
 				#else
 					<h5>$tlang.getString("gen.stuatt")</h5>
 					<ul class="attachList indnt1">

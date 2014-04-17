@@ -7,6 +7,7 @@
     });
 </script>
 
+#set ($submissionType = $assignment.getContent().getTypeOfSubmission())
 #set($allowUpdateAssignment=$!service.allowUpdateAssignment($assignment.Reference))
 <div class="portletBody">
 		<h3>
@@ -187,7 +188,13 @@
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
@@ -231,7 +238,13 @@
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $aAttachments)
 									#set ($props = false)

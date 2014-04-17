@@ -172,7 +172,11 @@
 				#end
 			#end 
 			#if ($size == 0)
-			 $tlang.getString("gen.noatt")
+			#if ($submissionType == 5)
+                                 $tlang.getString("gen.noatt.single")
+                            #else
+                                 $tlang.getString("gen.noatt")
+                            #end
 			#else
 				<ul class="attachList indnt2">
 				#foreach ($attachment in $!submit_attachments) 

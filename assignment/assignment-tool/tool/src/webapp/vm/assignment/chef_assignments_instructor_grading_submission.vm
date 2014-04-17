@@ -255,7 +255,13 @@ function handleEnterKeyPress(ev)
 						#end
 					#end
 					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noatt")</p>
+						<p class="instruction">
+                                                    #if ($submissionType == 5)
+                                                        $tlang.getString("gen.noatt.single")
+                                                    #else
+                                                        $tlang.getString("gen.noatt")
+                                                    #end
+                                                </p>
 					#else
 						<ul class="attachList indnt1">
 							#foreach ($attachment in $attachments) 
@@ -292,7 +298,13 @@ function handleEnterKeyPress(ev)
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
@@ -336,7 +348,13 @@ function handleEnterKeyPress(ev)
 								#end
 							#end
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								#foreach ($attachment in $aAttachments)
 									#set ($props = false)
@@ -591,7 +609,13 @@ function handleEnterKeyPress(ev)
 							#end
 						#end
 						#if ($size == 0)
-							<p class="instruction">$tlang.getString("gen.noatt")</p>
+							<p class="instruction">
+                                                            #if ($submissionType == 5)
+                                                                $tlang.getString("gen.noatt.single")
+                                                            #else
+                                                                $tlang.getString("gen.noatt")
+                                                            #end
+                                                        </p>
 						#else
 							<ul class="attachList indnt1">
 								#foreach ($attachment in $value_feedback_attachment) 
@@ -626,7 +650,13 @@ function handleEnterKeyPress(ev)
 						<div class="attachcoms  toggledContent">
 							#set ($size = $prevFeedbackAttachments.size())
 							#if ($size == 0)
-								<p class="instruction">$tlang.getString("gen.noatt")</p>
+								<p class="instruction">
+                                                                    #if ($submissionType == 5)
+                                                                        $tlang.getString("gen.noatt.single")
+                                                                    #else
+                                                                        $tlang.getString("gen.noatt")
+                                                                    #end
+                                                                </p>
 							#else
 								<ul class="attachList indnt1">
 									#foreach ($prevAttachment in $!prevFeedbackAttachments) 
