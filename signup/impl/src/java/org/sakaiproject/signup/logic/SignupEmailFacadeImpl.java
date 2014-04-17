@@ -28,12 +28,9 @@ import lombok.Setter;
 import net.fortuna.ical4j.model.component.VEvent;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.impl.LogFactoryImpl;
 import org.apache.commons.validator.EmailValidator;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.email.api.AddressValidationException;
 import org.sakaiproject.email.api.Attachment;
 import org.sakaiproject.email.api.EmailAddress;
@@ -62,6 +59,9 @@ import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import javax.activation.DataSource;
+import javax.activation.FileDataSource;
 
 /**
  * <P>
@@ -153,7 +153,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 					+ meeting.getCreatorUserId());
 		}
 		
-		List<String> coordinatorIds=getExistingCoordinatorIds(meeting);
+		List<String> coordinatorIds = meeting.getCoordinatorIdsList();
 		for (String cId : coordinatorIds) {
 			try{
 				User coUser = userDirectoryService.getUser(cId);
@@ -165,20 +165,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		
 		
 		return new ArrayList<User>(organizerCoordinators);
-	}
-	
-	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
-		List<String> coUsers = new ArrayList<String>();
-		String coUserIdsString = meeting.getCoordinatorIds();
-		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
-			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
-			while(userIdTokens.hasMoreTokens()){
-				String uId = userIdTokens.nextToken();
-				coUsers.add(uId);				
-			}
-		}
-		
-		return coUsers;		
 	}
 
 	/**
@@ -661,7 +647,7 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	 * user specific attachments within the email objects themselves. So this method assembles an EmailMessage per user
 	 * 
 	 * @param email	- the signup email obj we will extract info from
-	 * @param recipients - list of users to receive email
+	 * @param recipient - list of user to receive the email
 	 * @return
 	 */
 	private EmailMessage convertSignupEmail(SignupEmailNotification email, User recipient) {
@@ -671,6 +657,10 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		//setup message
 		message.setHeaders(email.getHeader());
 		message.setBody(email.getMessage());
+		
+		// Pass a flag to the EmailService to indicate that we want the MIME multipart subtype set to alternative
+		// so that an email client can present the message as a meeting invite
+		message.setHeader("multipart-subtype", "alternative");
 		
 		//note that the headers are largely ignored so we need to repeat some things here that are actually in the headers
 		//if these are eventaully converted to proper email templates, this should be alleviated
@@ -724,232 +714,15 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	private List<Attachment> generateICS(SignupEmailNotification email, User user) {
 		
 		List<Attachment> attachments = new ArrayList<Attachment>();
-		
-		SignupMeeting meeting = email.getMeeting();
-		
-		//for each message type, determine what we need to do to get the correct ICS file.
-		if (email instanceof NewMeetingEmail || email instanceof ModifyMeetingEmail || email instanceof CancelMeetingEmail) {
-			//NOTE: sent to everyone when an event is created or modified or cancelled
-			if(logger.isDebugEnabled()){
-				logger.debug("NewMeetingEmail/ModifyMeetingEmail/CancelMeetingEmail");
-			}
-			
-			boolean cancel = false;
-			if(email instanceof CancelMeetingEmail) {
-				cancel = true;
-			}
-			
-			//only send the overall meeting ICS file to the organiser of the meeting. 
-			//Students do not need this, they get them for the timeslots when they sign up
-			String organiserUuid = meeting.getCreatorUserId();
-			List<String> organizerCoordinatorsUuid = getExistingCoordinatorIds(meeting);
-			organizerCoordinatorsUuid.add(organiserUuid);
-			
-			//if(StringUtils.equals(user.getId(), organiserUuid)) {
-			if(organizerCoordinatorsUuid.contains(user.getId())) {
-				
-				//check vevent for meeting exists, otherwise skip
-				VEvent v = meeting.getVevent();
-				if (v == null) {
-					return attachments;
-				} 
-				
-				//cancel, if required
-				if(cancel) {
-					v = calendarHelper.cancelVEvent(v);
-				}
-				
-				if(logger.isDebugEnabled()){
-					logger.debug("Organiser: " + organiserUuid + " matches user, ICS for overall meeting will be attached.");
-				}	
-				
-				//create calendar for overall meeting and final attachment
-				attachments.add(formatICSAttachment(Collections.singletonList(v)));
-				
-			} else {
-				//students only get an ICS if they have signed up to a timeslot. They get an updated ICS that contains the new times for the timeslots
-				if(logger.isDebugEnabled()){
-					logger.debug("User: " + user.getId() + " is not organiser, no ICS for overall meeting will be attached, but updated signed-up timeslots will be attached");
-				}
-				
-				//create vevent(s) for timeslot(s) the user is in
-				List<VEvent> vevents = new ArrayList<VEvent>();
-				for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
-					if(ts.getAttendee(user.getId()) != null) {
-						VEvent v = ts.getVevent();
-						if(v != null) {
-							//cancel, if required
-							if(cancel) {
-								v = calendarHelper.cancelVEvent(v);
-							}
-						
-							vevents.add(v);
-						}
-					}
-				}
-				
-				//create calendar and final attachment, if we have vevents to work with
-				if(vevents.size()>0){
-					attachments.add(formatICSAttachment(vevents));
-				}
-				
-			}
-		
-		} else if (email instanceof AddAttendeeEmail || email instanceof PromoteAttendeeEmail || email instanceof OrganizerPreAssignEmail || email instanceof AttendeeSignupOwnEmail) {
-			//NOTE: sent to attendee when they are added to an event by an organiser, or promoted, or preassigned, or they signup themselves	
-			if(logger.isDebugEnabled()){
-				logger.debug("AddAttendeeEmail/PromoteAttendeeEmail/OrganizerPreAssignEmail/AttendeeSignupOwnEmail");
-			}
-			
-			//create vevent(s) for timeslot(s) the user is in
-			List<VEvent> vevents = new ArrayList<VEvent>();
-			for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
-				if(ts.getAttendee(user.getId()) != null) {
-					VEvent v = ts.getVevent();
-					if(v != null) {
-						vevents.add(v);
-					}
-				}
-			}
-			
-			//create calendar and final attachment, if we have vevents to work with
-			if(vevents.size()>0){
-				attachments.add(formatICSAttachment(vevents));
-			}
-		} else if (email instanceof AttendeeCancellationOwnEmail) {
-			//NOTE: sent to attendee when they cancel themselves	
-			if(logger.isDebugEnabled()){
-				logger.debug("AttendeeCancellationOwnEmail");
-			}
-			
-			//use the timeslot info in this particular email object to adjust the applicable vevents
-			List<SignupTimeslot> cancelled = ((AttendeeCancellationOwnEmail) email).getRemoved();
-			List<VEvent> vevents = new ArrayList<VEvent>();
-			for(SignupTimeslot ts: cancelled) {
-				VEvent v = ts.getVevent();
-				if(v != null){
-					//set it to be cancelled, add to list
-					vevents.add(calendarHelper.cancelVEvent(v));
-				}
-			}
-			
-			//create calendar and final attachment, if we have vevents to work with
-			if(vevents.size()>0){
-				attachments.add(formatICSAttachment(vevents));
-			}
-						
-			
-		} else if (email instanceof AttendeeSignupEmail || email instanceof AttendeeCancellationEmail) {
-			//NOTE: sent to organiser when someone signs up or cancels. The output is the same, a full calendar for the meeting, with all attendees, updated.			
-			if(logger.isDebugEnabled()){
-				logger.debug("AttendeeSignupEmail/AttendeeCancellationEmail");
-			}
-			
-			//check vevent for meeting exists, otherwise skip
-			VEvent v = meeting.getVevent();
-			if (v == null) {
-				return attachments;
-			}
-			
-			//get full list of attendees for the entire meeting, update attendee list, and create ICS. This is for overall meeting, not timeslot.
-			List<SignupAttendee> attendees = new ArrayList<SignupAttendee>();
-			for(SignupTimeslot ts: meeting.getSignupTimeSlots()) {
-				attendees.addAll(ts.getAttendees());
-			}
-			
-			//turn attendeelist into list of User objects, so we can create proper Attendees for the calendar
-			List<User> users = new ArrayList<User>();
-			for(SignupAttendee a: attendees) {
-				User u = sakaiFacade.getUser(a.getAttendeeUserId());
-				if(u != null){
-					users.add(u);
-				}
-			}
-			
-			//add attendees to VEvent for overall meeting
-			VEvent vevent = calendarHelper.addAttendeesToVEvent(v, users);
-			
-			//create calendar and final attachment
-			attachments.add(formatICSAttachment(Collections.singletonList(vevent)));
-			
-		
-		} else if (email instanceof CancellationEmail) {
-			//NOTE: sent to the attendee when their signup is cancelled by an organiser
-			if(logger.isDebugEnabled()){
-				logger.debug("CancellationEmail");
-			}
-			
-			//use the timeslot info in this particular email object to adjust the applicable vevents
-			List<SignupTimeslot> cancelled = ((CancellationEmail) email).getRemoved();
-			List<VEvent> vevents = new ArrayList<VEvent>();
-			for(SignupTimeslot ts: cancelled) {
-				VEvent v = ts.getVevent();
-				if(v != null){
-					//set it to be cancelled, add to list
-					vevents.add(calendarHelper.cancelVEvent(v));
-				}
-			}
-			
-			//create calendar and final attachment, if we have vevents to work with
-			if(vevents.size()>0){
-				attachments.add(formatICSAttachment(vevents));
-			}
-		
-		} else if (email instanceof MoveAttendeeEmail || email instanceof SwapAttendeeEmail) {
-			//NOTE: sent to attendee when organiser moves them to a different timeslot/ swaps them with another user
-			if(logger.isDebugEnabled()){
-				logger.debug("MoveAttendeeEmail/SwapAttendeeEmail");
-			}
-			
-			//get new list of events. For all removed cancel them, add the added ones
-			//need to handle this separately for the two diff email object types though
-			List<SignupTimeslot> removed = new ArrayList<SignupTimeslot>();
-			List<SignupTimeslot> added = new ArrayList<SignupTimeslot>();
-			if(email instanceof MoveAttendeeEmail) {
-				removed = ((MoveAttendeeEmail) email).getRemoved();
-				added = ((MoveAttendeeEmail) email).getAdded();
-			} else if (email instanceof SwapAttendeeEmail) {
-				removed = ((SwapAttendeeEmail) email).getRemoved();
-				added = ((SwapAttendeeEmail) email).getAdded();
-			}
-			
-			//The tracking classes don't  maintain the transient VEVents we have created previously
-			//so we need to check and recreate.
-			
-			//cancel all of the removed events
-			List<VEvent> vevents = new ArrayList<VEvent>();
-			for(SignupTimeslot ts: removed) {
-				
-				//check and recreate if necessary
-				VEvent v = ensureVEventForTimeslot(meeting, ts);
-				
-				if(v != null){
-					//set it to be cancelled, add to list
-					vevents.add(calendarHelper.cancelVEvent(v));
-				}
-			}
-			
-			//add all of the new events
-			for(SignupTimeslot ts: added) {
 
-				//check and recreate if necessary
-				VEvent v = ensureVEventForTimeslot(meeting, ts);
-				
-				if(v != null){
-					vevents.add(v);
-				}
-			}
-			
-			//create calendar and final attachment, if we have vevents to work with
-			if(vevents.size()>0){
-				attachments.add(formatICSAttachment(vevents));
-			}
+		String method = email.isCancellation() ? "CANCEL" : "REQUEST";
+		final List<VEvent> events = email.generateEvents(user, calendarHelper);
 		
-		} 
-		
+		if (events.size() > 0) {
+			attachments.add(formatICSAttachment(events, method));
+		}
 		
 		/*
-		 * AutoReminderEmail - handled by cron job, not yet implemented.
 		 * Note that there is no notification if a meeting is removed altogether.
 		 */
 		
@@ -980,26 +753,20 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 	}
 	
 	/**
-	 * Under certain conditions (particular when attendee moved or swapped), the transient VEvents for timeslots are lost, so create them again.
-	 * The calendarhelper checks first though.
-	 * @param meeting	overall SignupMeeting
-	 * @param ts		SignupTimeslot we need VEvent for
-	 * @return
-	 */
-	private VEvent ensureVEventForTimeslot(SignupMeeting meeting, SignupTimeslot ts) {
-		return calendarHelper.generateVEventForTimeslot(meeting, ts);
-	}
-	
-	
-	/**
 	 * Helper to create an ICS calendar from a list of vevents, then turn it into an attachment
 	 * @param vevents list of vevents
+	 * @param method the ITIP method for the calendar, e.g. "REQUEST"
 	 * @return
 	 */
-	private Attachment formatICSAttachment(List<VEvent> vevents) {
-		String path = calendarHelper.createCalendarFile(vevents);
-		return new Attachment(new File(path), StringUtils.substringAfterLast(path, File.separator));
-		
+	private Attachment formatICSAttachment(List<VEvent> vevents, String method) {
+		String path = calendarHelper.createCalendarFile(vevents, method);
+
+		// Explicitly define the Content-Type and Content-Diposition headers so the invitation appears inline
+		String filename = StringUtils.substringAfterLast(path, File.separator);
+		String type = String.format("text/calendar; charset=\"utf-8\"; method=%s; name=signup-invite.ics", method);
+		File file = new File(path);
+		DataSource dataSource = new Attachment.RenamedDataSource(new FileDataSource(file), filename);
+		return new Attachment(dataSource, type, Attachment.ContentDisposition.INLINE);
 	}
 	
 	

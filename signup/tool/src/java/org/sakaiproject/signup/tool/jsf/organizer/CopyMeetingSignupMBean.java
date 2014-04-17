@@ -975,7 +975,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	}
 	
 	private String getValidatedMeetingCoordinators(SignupMeeting meeting){
-		List<String> allCoordinatorIds = getExistingCoordinatorIds(meeting);
+		List<String> allCoordinatorIds = meeting.getCoordinatorIdsList();
 		StringBuilder sb = new StringBuilder();
 		boolean isFirst = true;
 		for (String couId : allCoordinatorIds) {
@@ -992,20 +992,6 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 		}
 		
 		return sb.length()<1? null : sb.toString();
-	}
-	
-	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
-		List<String> coUsers = new ArrayList<String>();
-		String coUserIdsString = meeting.getCoordinatorIds();
-		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
-			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
-			while(userIdTokens.hasMoreTokens()){
-				String uId = userIdTokens.nextToken();
-				coUsers.add(uId);				
-			}
-		}
-		
-		return coUsers;		
 	}
 
 	/**

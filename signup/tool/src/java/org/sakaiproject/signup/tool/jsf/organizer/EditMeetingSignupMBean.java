@@ -1092,26 +1092,12 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	 * get the list of coords and check the appropriate ones.
 	 */
 	private void populateExistingCoordinators(){
-		List<String> existingCoUserIds = getExistingCoordinatorIds(this.signupMeeting);
+		List<String> existingCoUserIds = this.signupMeeting.getCoordinatorIdsList();
 		for (SignupUser coord : allPossibleCoordinators) {
 			if(existingCoUserIds.contains(coord.getInternalUserId())) {
 				coord.setChecked(true);
 			}
 		}
-	}
-	
-	private List<String> getExistingCoordinatorIds(SignupMeeting meeting){
-		List<String> coUsers = new ArrayList<String>();
-		String coUserIdsString = meeting.getCoordinatorIds();
-		if(coUserIdsString !=null && coUserIdsString.trim().length()>0){
-			StringTokenizer userIdTokens = new StringTokenizer(coUserIdsString,"|");
-			while(userIdTokens.hasMoreTokens()){
-				String uId = userIdTokens.nextToken();
-				coUsers.add(uId);				
-			}
-		}
-		
-		return coUsers;		
 	}
 
 	public boolean isSendEmailByOwner() {

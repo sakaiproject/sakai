@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.User;
  * attendee into the event/meeting
  * </p>
  */
-public class AddAttendeeEmail extends SignupEmailBase {
+public class AddAttendeeEmail extends AttendeeEmailBase {
 
 	private final User organizer;
 

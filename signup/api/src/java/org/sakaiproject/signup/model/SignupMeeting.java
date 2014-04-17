@@ -19,10 +19,7 @@
 
 package org.sakaiproject.signup.model;
 
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -360,6 +357,23 @@ public class SignupMeeting implements MeetingTypes, SignupMessageTypes {
 			return true;
 		}
 	}
-	
-	
+
+	/**
+	 * Breaks up the coordinatorIds string into a list object
+	 * @return a list of coordinator id strings
+	 */
+	public List<String> getCoordinatorIdsList(){
+
+		List<String> coUsers = new ArrayList<String>();
+
+		if(coordinatorIds != null && coordinatorIds.trim().length()>0){
+			StringTokenizer userIdTokens = new StringTokenizer(coordinatorIds,"|");
+			while(userIdTokens.hasMoreTokens()){
+				String uId = userIdTokens.nextToken();
+				coUsers.add(uId);
+			}
+		}
+
+		return coUsers;
+	}
 }

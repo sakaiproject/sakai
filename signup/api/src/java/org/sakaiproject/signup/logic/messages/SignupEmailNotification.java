@@ -21,8 +21,10 @@ package org.sakaiproject.signup.logic.messages;
 
 import java.util.List;
 
-import org.sakaiproject.signup.logic.SignupTrackingItem;
+import net.fortuna.ical4j.model.component.VEvent;
+import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.user.api.User;
 
 /**
  * <P>
@@ -39,7 +41,7 @@ public interface SignupEmailNotification {
 	List<String> getHeader();
 
 	/**
-	 * provide eamil message body
+	 * provide email message body
 	 * 
 	 * @return a message body string
 	 */
@@ -64,5 +66,19 @@ public interface SignupEmailNotification {
 	 * @return
 	 */
 	SignupMeeting getMeeting();	
+
+	/**
+	 * Generate a list of VEvent objects to be converted to ICal and
+	 * attached to the email.
+	 * @param user The User performing the action
+	 * @return The list of events to be attached to this email
+	 */
+	List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper);
+
+	/**
+	 * Does this type of email represent a cancellation?
+	 * @return true if it is a cancellation, false otherwise
+	 */
+	boolean isCancellation();
 
 }

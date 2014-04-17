@@ -33,7 +33,7 @@ import org.sakaiproject.user.api.User;
  * This class is used by organizer of an event/meeting to notify participants the meeting has been cancelled.
  * </p>
  */
-public class CancelMeetingEmail extends SignupEmailBase {
+public class CancelMeetingEmail extends AllUsersEmailBase {
 
 	private final User organizer;
 
@@ -56,6 +56,7 @@ public class CancelMeetingEmail extends SignupEmailBase {
 		this.meeting = meeting;
 		this.emailReturnSiteId = emailReturnSiteId;
 		this.setSakaiFacade(sakaiFacade);
+		this.cancellation = true;
 	}
 
 	/**

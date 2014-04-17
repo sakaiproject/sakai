@@ -35,7 +35,7 @@ import org.sakaiproject.user.api.User;
  * event/meeting is created
  * </p>
  */
-public class NewMeetingEmail extends SignupEmailBase {
+public class NewMeetingEmail extends AllUsersEmailBase {
 
 	private final User creator;
 

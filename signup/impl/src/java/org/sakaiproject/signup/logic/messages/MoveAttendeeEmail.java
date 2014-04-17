@@ -37,7 +37,7 @@ import org.sakaiproject.user.api.User;
  * his appointment has been changed
  * </p>
  */
-public class MoveAttendeeEmail extends SignupEmailBase implements SignupTimeslotChanges {
+public class MoveAttendeeEmail extends TransferEmailBase {
 
 	private final User organizer;
 

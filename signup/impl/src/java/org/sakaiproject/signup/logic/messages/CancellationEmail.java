@@ -24,7 +24,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import net.fortuna.ical4j.model.component.VEvent;
 import org.sakaiproject.signup.logic.SakaiFacade;
+import org.sakaiproject.signup.logic.SignupCalendarHelper;
 import org.sakaiproject.signup.logic.SignupTrackingItem;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
@@ -67,7 +69,8 @@ public class CancellationEmail extends SignupEmailBase implements SignupTimeslot
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
 		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
-		
+		this.cancellation = true;
+
 		removed = item.getRemovedFromTimeslot();
 	}
 
@@ -94,6 +97,7 @@ public class CancellationEmail extends SignupEmailBase implements SignupTimeslot
 		this.meeting = meeting;
 		this.setSakaiFacade(sakaiFacade);
 		this.emailReturnSiteId = item.getAttendee().getSignupSiteId();
+		this.cancellation = true;
 		
 		removed = item.getRemovedFromTimeslot();
 
@@ -185,6 +189,21 @@ public class CancellationEmail extends SignupEmailBase implements SignupTimeslot
 	public List<SignupTimeslot> getAdded() {
 		return Collections.EMPTY_LIST; //not applicable here
 	}
-	
+
+    /**
+     * {@inheritDoc}
+     */
+    public List<VEvent> generateEvents(User user, SignupCalendarHelper calendarHelper) {
+        List<VEvent> events = new ArrayList<VEvent>();
+        for (SignupTimeslot timeslot : this.getRemoved()) {
+            final VEvent event = timeslot.getVevent();
+            if (event != null) {
+                calendarHelper.cancelVEvent(event);
+                events.add(event);
+            }
+        }
+        return events;
+    }
+
 
 }

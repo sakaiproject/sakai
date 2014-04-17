@@ -34,7 +34,7 @@ import org.sakaiproject.user.api.User;
  * about the modification event
  * </p>
  */
-public class ModifyMeetingEmail extends SignupEmailBase {
+public class ModifyMeetingEmail extends AllUsersEmailBase {
 
 	private final User organizer;
 

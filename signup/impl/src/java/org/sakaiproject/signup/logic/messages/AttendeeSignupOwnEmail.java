@@ -33,7 +33,7 @@ import org.sakaiproject.user.api.User;
  * This class is used to notify attendee when they signup to a meeting themselves
  * </p>
  */
-public class AttendeeSignupOwnEmail extends SignupEmailBase {
+public class AttendeeSignupOwnEmail extends AttendeeEmailBase {
 
 	private final User attendee;
 	private final SignupTimeslot timeslot;

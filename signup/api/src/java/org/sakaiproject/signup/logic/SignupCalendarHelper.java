@@ -24,6 +24,7 @@ import java.util.List;
 import net.fortuna.ical4j.model.component.VEvent;
 
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
 import org.sakaiproject.signup.model.SignupTimeslot;
 import org.sakaiproject.user.api.User;
@@ -69,14 +70,22 @@ public interface SignupCalendarHelper {
 	/**
 	 * Create a calendar for a list of VEvents and return the path to the file
 	 * @param vevents	List of VEvents
-	 * @return
+	 * @return a path to the calendar file
 	 */
 	public String createCalendarFile(List<VEvent> vevents);
 	
 	/**
+	 * Create a calendar for a list of VEvents and return the path to the file
+	 * @param vevents	List of VEvents
+	 * @param method	The ITIP method for the calendar, e.g. "REQUEST"
+	 * @return a path to the calendar file
+	 */
+	public String createCalendarFile(List<VEvent> vevents, String method);
+	
+	/**
 	 * Cancel an event
 	 * @param vevent VEvent to cancel
-	 * @return
+	 * @return the updated VEvent
 	 */
 	public VEvent cancelVEvent(VEvent vevent);
 	
@@ -86,7 +95,15 @@ public interface SignupCalendarHelper {
 	 * @param users		List of Users to add
 	 * @return
 	 */
-	public VEvent addAttendeesToVEvent(VEvent vevent, List<User> users);
+	public VEvent addUsersToVEvent(VEvent vevent, List<User> users);
+	
+	/**
+	 * Add the list of SignupAttendees to the VEvent as attendees
+	 * @param vevent	VEvent to modify
+	 * @param attendees	List of Attendees to add
+	 * @return
+	 */
+	public VEvent addAttendeesToVEvent(VEvent vevent, List<SignupAttendee> attendees);
 	
 	/**
 	 * Is ICS calendar generation enabled in the external calendaring service?
