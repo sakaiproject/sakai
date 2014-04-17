@@ -11,6 +11,16 @@
     <script type="text/javascript" language="JavaScript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js">
     </script>
     <link href="/library/js/jquery/ui/1.10.3/css/smoothness/jquery-ui.css" type="text/css" rel="stylesheet" media="all" />
+    <style type="text/css">
+        #tabs img{
+            border:1px solid #ccc;
+            -webkit-box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            -moz-box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            box-shadow: 3px 3px 20px 4px rgba(204,204,204,1);
+            margin:10px;
+        }
+    </style>
+        
 		<script language="JavaScript" type="text/JavaScript">
 		<!--
         resizeFrame = function(updown){
@@ -119,19 +129,40 @@
           <div id="tabs" style="font-size:95%">
         <ul>
             <li>
-                <a href="#instr-1">Windows</a>
+                <a href="#instr-windows8">Windows 8</a>
+            </li>
+
+            <li>
+                <a href="#instr-windows7">Windows 7</a>
             </li>
             <li>
-                <a href="#instr-2">Mac</a>
+                <a href="#instr-mac">Mac</a>
             </li>
             <li>
-                <a href="#instr-3">Linux</a>
+                <a href="#instr-linux">Linux</a>
             </li>
             <li>
-                <a href="#instr-4">Older versions</a>
+                <a href="#instr-other">Other versions</a>
             </li>
         </ul>
-        <div id="instr-1">
+        <div id="instr-windows8">
+            <h4>Setting up WebDAV for Windows 8</h4> 
+            <p><strong>Note:</strong> There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.</p>
+             <ol>
+                <li>First you need to navigate to the Desktop: after logging into Windows 8, click the Desktop icon (see the screenshot below).
+                <p><img src="win8img1.png" alt ="Picture of Windows 8 desktop"/></p></li> 
+                <li>From the Desktop, click File Explorer.
+                <p><img src="win8img2.png" alt ="Picture of Windows 8 file explorer" /></p></li>
+                <li>At the top of the File Explorer window, click Computer > Map Network Drive > Map network drive.
+                <p><img src="win8img3.png" alt ="Picture of Windows 8 Mapping Netword Drive Interface" /></p></li>
+                <li>Select a vacant drive letter (e.g., Y) from the Drive drop down menu.
+                <p><img src="win8img4.png" alt ="picture of Windows 8 drive selection dialog" /></p></li>
+                <li>In the Folder field, type (or copy and paste) the URL for this site (shown above). Click Finish.</li>
+                <li>When prompted, enter your username and password and click OK.</li>
+                <li>You can now drag files and folders to and from your computer and the site Resources folder.</li>
+            </ol>
+        </div>
+        <div id="instr-windows7">
             <h4>Setting up WebDAV for Windows Vista/Windows 7</h4>
             <p>
                 <strong>Note 1</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
@@ -206,7 +237,7 @@
                 </li>
             </ol>
         </div>
-        <div id="instr-2">
+        <div id="instr-mac">
             <h4>Setting up WebDAV for Mac (OS 10.4 - 10.6)</h4>
             <p>
                 <strong>Note 1</strong>. Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a href="#osx">Cyberduck</a>.
@@ -237,7 +268,7 @@
                 You will now see a window on your screen that represents the resources in your site. You can now drag and drop files into or out of this window and delete files by dragging them to the Trash.
             </p>
         </div>
-        <div id="instr-3">
+        <div id="instr-linux">
             <h4>Setting up WebDAV for Linux (Gnome)</h4>
             <p>
                 <strong>Note</strong>: Some versions of Linux might have problems accessing My Workspace's resources, but the access to all other sites types will work fine (course, project, etc.).
@@ -347,7 +378,7 @@
                 for all avaliable commands.
             </p>
         </div>
-        <div id="instr-4">
+        <div id="instr-other">
             <h4>Setting up WebDAV for Windows XP</h4>
             <p>
                 <strong>Note</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
