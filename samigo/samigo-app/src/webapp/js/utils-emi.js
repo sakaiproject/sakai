@@ -11,8 +11,12 @@
  */
 function checkEMIOptions(element, validEMIOptions, event) {
 	var charCode = event.charCode;
+    //whitespace
+    if (isCharGoodWhitespace(charCode)){
+        return true;
+    }
     //A-Z or a-z
-	if (isCharGoodWhitespace(charCode) || isCharAlphaUpper(charCode) || isCharAlphaLower(charCode)){
+	if (isCharAlphaUpper(charCode) || isCharAlphaLower(charCode)){
 		return isValidOption(element, validEMIOptions, charCode);
 	}
 	return false;
