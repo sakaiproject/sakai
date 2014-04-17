@@ -36,6 +36,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.user.api.ExternalUserSearchUDP;
+import org.sakaiproject.user.api.AuthenticationIdUDP;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryProvider;
 import org.sakaiproject.user.api.UserEdit;
@@ -81,7 +82,7 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  * @author Ian Boston, Andrew Thornton, Daniel Parry, Raad
  * @version $Revision$
  */
-public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP
+public class FilterUserDirectoryProvider implements UserDirectoryProvider, ExternalUserSearchUDP, UsersShareEmailUDP, AuthenticationIdUDP
 {
 	/** Our log (commons). */
 	private static Log m_logger = LogFactory.getLog(FilterUserDirectoryProvider.class);
@@ -588,6 +589,21 @@ public class FilterUserDirectoryProvider implements UserDirectoryProvider, Exter
 
 		return users;
 	}
+
+	public boolean getUserbyAid(String aid, UserEdit user) {
+		if (myProvider instanceof AuthenticationIdUDP) {
+			if (((AuthenticationIdUDP)myProvider).getUserbyAid(aid, user)) {
+				return true;
+			}
+		}
+		if (nextProvider instanceof AuthenticationIdUDP) {
+			if (((AuthenticationIdUDP)nextProvider).getUserbyAid(aid, user)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 
 } // FilterUserDirectoryProvider
 
