@@ -74,7 +74,7 @@ should be included in file importing DeliveryMessages
 <f:verbatim></div></f:verbatim>
 
 <h:panelGroup rendered="#{question.attemptsRemaining == null || question.attemptsRemaining > 0}">
-  <h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}"  onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}&questionNumber=#{question.number}&questionTotal=#{part.questions}','AudioRecordingApplet','width=612,height=560,scrollbars=no, resizable=no');" >
+  <h:outputLink title="#{assessmentSettingsMessages.record_your_answer}" value="#" rendered="#{delivery.actionString!='reviewAssessment'}"  onclick="javascript:window.open('../author/audioRecordingPopup.faces?questionId=#{question.itemData.itemId}&duration=#{question.duration}&triesAllowed=#{question.triesAllowed}&attemptsRemaining=#{question.attemptsRemaining}&questionNumber=#{question.number}&questionTotal=#{part.questions}','AudioRecordingApplet','width=800,height=560,scrollbars=no, resizable=no');" >
 	<h:outputText value=" #{assessmentSettingsMessages.record_your_answer}"/>
   </h:outputLink>
 </h:panelGroup>

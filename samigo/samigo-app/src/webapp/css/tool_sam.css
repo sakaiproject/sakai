@@ -597,7 +597,7 @@ table.listHierEventLog {
     padding-bottom: 12px;
 }
 #audio-visual-container {
-    width: 590px;
+    width: 778px;
     height: 300px;
     padding: 2px;
     border: 1px solid black;
@@ -605,11 +605,11 @@ table.listHierEventLog {
 }
 #audio-analyzer {
     height: 180px;
-    width: 590px;
+    width: 778px;
     background-color: black;
 }
 #audio-timer-wrapper {
-    width: 588px;
+    width: 776px;
     height: 60px;
     background-color: #333;
     margin: 0 auto;
@@ -617,7 +617,7 @@ table.listHierEventLog {
     color: white;
 }
 #audio-scrubber {
-    width: 516px;
+    width: 704px;
     height: 12px;
     border-radius: 4px;
     background-color: #ccc;
@@ -688,7 +688,7 @@ table.listHierEventLog {
     background: transparent url(/library/image/play.png) no-repeat center 2px;
 }
 #audio-visual-container #audio-upload {
-    margin-left: 200px;
+    margin-left: 300px;
     width: 140px;
     border-radius: 5px;
     height: 40px;
