@@ -166,7 +166,13 @@ public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacade
   }
 
   public void deleteItem(Long itemId, String agent) {
-    ItemData item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId);
+	ItemData item = null;
+    try { 
+    	item = (ItemData)getHibernateTemplate().load(ItemData.class, itemId); 
+    } catch (DataAccessException e) {
+    	log.warn("unable to retrieve item " + itemId + " due to:" + e);
+    	return; 
+    }
     // get list of attachment in item
     AssessmentService service = new AssessmentService();
     List itemAttachmentList = service.getItemResourceIdList(item);
