@@ -35,6 +35,17 @@ function hideMicCheckButton() {
   $('#audio-mic-check').hide();
 }
 
+function updateAttemptsText(attemptsRemaining) {
+  if (isNaN (attemptsRemaining)) return;
+
+  console.log('Attempts remaining: ' + attemptsRemaining);
+  $('#audio-attempts').text(attemptsRemaining);
+
+  if (attemptsRemaining == 1) {
+    $('#audio-last-attempt').show();
+  }
+}
+
 function microphoneCheck(stream) {
   if (audio_context) {
     $('#volumemeter').show();
@@ -288,8 +299,7 @@ function audioAnalyzer(time) {
     
     // see if a user has attempts remaining
     attemptsRemaining--;
-    console.log('Attempts remaining: ' + attemptsRemaining);
-    $('#audio-attempts').text(attemptsRemaining);
+    updateAttemptsText(attemptsRemaining);
 
     //force the user submission!
     if (attemptsRemaining < 1) {
@@ -527,7 +537,7 @@ $(document).ready(function() {
     $('#audio-time-allowed').text(timeRemaining);
     $('#audio-max-time').text(maxSeconds);
     $('#audio-attempts-allowed').text(attemptsAllowed);
-    $('#audio-attempts').text(attemptsRemaining);
+    updateAttemptsText(attemptsRemaining);
 
     maxWidth = $('#audio-controls').width();
     if (isNaN(maxWidth) || maxWidth < 100) maxWidth = 100;
