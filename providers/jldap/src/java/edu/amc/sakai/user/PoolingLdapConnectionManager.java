@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.ObjectPool;
 import org.apache.commons.pool.impl.GenericObjectPool;
+import org.apache.commons.pool.impl.GenericObjectPool.Config;
 
 import com.novell.ldap.LDAPConnection;
 import com.novell.ldap.LDAPException;
@@ -70,14 +71,15 @@ public class PoolingLdapConnectionManager extends SimpleLdapConnectionManager {
 		}
 		factory.setConnectionManager(this);
 
-		pool = new GenericObjectPool(factory,
-				getConfig().getPoolMaxConns(), // maxActive
-				GenericObjectPool.WHEN_EXHAUSTED_BLOCK, // whenExhaustedAction
-				POOL_MAX_WAIT, // maxWait (millis)
-				getConfig().getPoolMaxConns(), // maxIdle
-				true, // testOnBorrow
-				false // testOnReturn
-				); 
+		Config poolConfig = new Config();
+		poolConfig.maxActive = getConfig().getPoolMaxConns();
+		poolConfig.maxIdle = getConfig().getPoolMaxConns();
+		poolConfig.whenExhaustedAction = GenericObjectPool.WHEN_EXHAUSTED_BLOCK;
+		poolConfig.maxWait = POOL_MAX_WAIT;
+		poolConfig.testOnBorrow = true;
+		poolConfig.testOnReturn = false;
+
+		pool = new GenericObjectPool(factory, poolConfig);
 	}
 	
 	/**
