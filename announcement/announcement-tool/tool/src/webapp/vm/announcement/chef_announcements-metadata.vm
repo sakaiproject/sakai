@@ -62,23 +62,19 @@
 			</td>
 		</tr>
 		
+		#if($releaseDate)
 		<tr>
-			<th>$tlang.getString("gen.releasedate")</th>
-			#if($releaseDate)
-				<td>$releaseDate.toStringLocalFull()</td>
-			#else
-				<td></td>
-		#end
+			<th>$tlang.getString("gen.releasedate")</th>			
+			<td>$releaseDate.toStringLocalFull()</td>
 		</tr>
+		#end
 		
+		#if($retractDate)
 		<tr>
-			<th>$tlang.getString("gen.retractdate")</th>
-			#if($retractDate)
-				<td>$retractDate.toStringLocalFull()</td>
-			#else
-				<td></td>
-		#end
+			<th>$tlang.getString("gen.retractdate")</th>			
+			<td>$retractDate.toStringLocalFull()</td>
 		</tr>
+		#end
 
 		#if ($!range)
 			<tr>
