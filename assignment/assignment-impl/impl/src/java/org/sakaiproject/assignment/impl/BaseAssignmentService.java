@@ -1006,17 +1006,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		    Collection<Group> asgGroups = assignment.getGroups();
 		    Collection<Group> allowedGroups = getGroupsAllowGetAssignment(context, currentUserId);
 		    // reject and throw PermissionException if there is no intersection
-		    if (!allowAllGroups(context) && !isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) {
-		        throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getReference());
-		    }
-		}
-		
-		if (assignment.getAccess() == Assignment.AssignmentAccess.GROUPED)
-		{
-		    Collection<Group> asgGroups = assignment.getGroups();
-		    Collection<Group> allowedGroups = getGroupsAllowGetAssignment(assignment.getContext(), currentUserId);
-		    // reject and throw PermissionException if there is no intersection
-		    if (!isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) {
+		    if (!allowAllGroups(context) && !currentUserIsCreator(assignment) && !isIntersectionGroupRefsToGroups(asgGroups, allowedGroups)) {
 		        throw new PermissionException(currentUserId, SECURE_ACCESS_ASSIGNMENT, assignment.getReference());
 		    }
 		}
@@ -1285,9 +1275,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					filtered.add(assignment);
 					break;
 				}
+				else {
+					if (currentUserIsCreator(assignment))
+					{
+						filtered.add(assignment);
+						break;
+					}
+				}
 			}
 		}
 		return filtered;
+	}
+	
+	/**
+	 * return true if the current session user is the creator of the assignment
+	 * @param assignment
+	 * @return
+	 */
+	private boolean currentUserIsCreator(Assignment assignment)
+	{
+		// return the assignment if the current user is the creator
+		String assignmentCreator = assignment.getCreator();
+		if (assignmentCreator != null && assignmentCreator.equals(UserDirectoryService.getCurrentUser().getId()))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 
 	/**
