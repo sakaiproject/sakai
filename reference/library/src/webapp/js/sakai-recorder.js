@@ -322,12 +322,13 @@ function audioAnalyzer(time) {
     var duration = maxSeconds - timeRemaining;
     // attempts is what Samigo expects to be attemptsRemaining
     // agentId is the Samigo agentId and is not the browser user agent
+    if (typeof(agentId) === 'undefined') agentId = 'ckeditorAgent';
 
     if (postUrl) {
-        var url  = postUrl + "&agent=" + agentId + "&lastDuration=" + duration + "&suffix=" + "au" + "&attempts=" + attemptsRemaining;
+      var url  = postUrl + "&agent=" + agentId + "&lastDuration=" + duration + "&suffix=" + "au" + "&attempts=" + attemptsRemaining;
     }
     else {
-	console.log ("postUrl not set yet");
+      console.log ("postUrl not set yet");
     }
 
     // disable all buttons while we upload

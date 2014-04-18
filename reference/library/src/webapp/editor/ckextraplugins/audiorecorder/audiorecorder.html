@@ -21,7 +21,7 @@ Local i18n items are in oEditor.lang.audiorecorder.*
 -->
 <body scroll="no">
                 
-                       <script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
+                       <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
                        <script type="text/javascript" src="/library/js/swfobject/swfobject.js"></script>
                        <script type="text/javascript" src="/library/js/recorder/recorder.js"></script>
                        <script type="text/javascript" src="/library/js/recorder/jRecorder.js"></script>
@@ -51,8 +51,8 @@ Local i18n items are in oEditor.lang.audiorecorder.*
 
 <p id="audio-recorder-intro">
   <script>document.write(oEditor.lang.audiorecorder.intro)</script>
-    <span id=\"audio-time-allowed\"> </span>
-    <span id=\"audio-attempts\"> </span>
+    <span id="audio-time-allowed" style="display:none"> </span>
+    <span id="audio-attempts" style="display:none"> </span>
 
   <div id="audio-controls">
     <div id="audio-timer-wrapper"><span id="audio-timer">00</span> / <span id="audio-max-time">30</span> <span><script>document.write(oEditor.lang.audiorecorder.seconds_label)</script></span></div>
