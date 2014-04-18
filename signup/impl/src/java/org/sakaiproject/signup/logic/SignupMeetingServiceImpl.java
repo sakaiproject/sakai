@@ -648,7 +648,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 		for (SignupTimeslot calendarBlock : calendarBlocks) {			
 			for (SignupSite site : signupSites) {
 				try {
-					Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
+					Calendar calendar = chooseCalendar(site);
+					
 					if (calendar == null)// something went wrong when fetching the calendar
 						continue;
 	
@@ -916,7 +917,8 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 
 			for (SignupSite site : sites) {
 				try {
-					Calendar calendar = sakaiFacade.getCalendar(site.getSiteId());
+					Calendar calendar = chooseCalendar(site);
+
 					if (calendar == null)// something went wrong when fetching the calendar
 						continue;
 
@@ -959,6 +961,16 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 			}
 		}
 
+	}
+
+	// See if additional calendar is deployed and ready to use.
+	// If not, we use the Sakai calendar tool by default.
+	private Calendar chooseCalendar(SignupSite site) throws PermissionException {
+		Calendar calendar = sakaiFacade.getAdditionalCalendar(site.getSiteId());
+		if (calendar == null) {
+			calendar = sakaiFacade.getCalendar(site.getSiteId());
+		}
+		return calendar;
 	}
 	
 	/**

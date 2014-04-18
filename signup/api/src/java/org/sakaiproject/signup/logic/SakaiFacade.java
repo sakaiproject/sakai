@@ -461,5 +461,6 @@ public interface SakaiFacade {
 	 */
 	public boolean synchonizeGroupTitle(String siteId, String groupId, String newTitle);
 	
-	
+	// Returns Google calendar if the calendar has been created in Google
+	public Calendar getAdditionalCalendar(String siteId) throws PermissionException;
 }

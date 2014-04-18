@@ -44,6 +44,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -207,7 +208,22 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
 		this.authzGroupService=authzGroupService;
 	}
-
+	// Returns Google calendar if the calendar has been created in Google
+	public Calendar getAdditionalCalendar(String siteId) throws PermissionException {
+		CalendarService additionalCalendarService = null;
+		additionalCalendarService = (CalendarService) ComponentManager.get(CalendarService.ADDITIONAL_CALENDAR);
+		if (additionalCalendarService != null){
+			if (additionalCalendarService.isCalendarToolInitialized(siteId)) {
+				try {
+					return additionalCalendarService.getCalendar(siteId);
+				} catch (IdUnusedException e) {
+					log.error("Error retrieving Calendar." + e.getMessage());
+				}
+			}
+		}
+		return null;
+	}			
+	
 	/**
 	 * regist all the permission levels, which Signup Tool required. Place any
 	 * code that should run when this class is initialized by spring here
