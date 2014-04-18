@@ -16,10 +16,11 @@
 					{
 						//normal - top is portal
 						document.write ('<link href=\"');
-						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").indexOf("portal")));
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
 						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
 						document.write ('<link href=\"');
-						document.write (a.getAttribute("href").substring(0,(a.getAttribute("href").indexOf("skin") + 5 )));
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
 						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
 					}
 					else
