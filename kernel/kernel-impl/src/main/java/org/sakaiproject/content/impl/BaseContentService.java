@@ -5894,18 +5894,22 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			ContentResourceEdit edit3=null;
 			try {
 				edit3 = editResource(edit.getId());
-				tikastream = TikaInputStream.get(edit3.streamContent());
-				final Metadata metadata = new Metadata();
-				//This might not want to be set as it would advise the detector
-				metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
-				String match = DETECTOR.detect(tikastream,metadata).toString();
-				if (match != null) {
-					if (!StringUtils.isEmpty(match) && !match.equals(edit3.getContentType())) {
-						if (M_log.isDebugEnabled()) {
-							M_log.debug("Magic: Setting content type to "+match);
+				String oldmatch = edit3.getContentType();
+				//Don't process for speical TYPE_URL type
+				if (!ResourceProperties.TYPE_URL.equals(oldmatch)) {
+					tikastream = TikaInputStream.get(edit3.streamContent());
+					final Metadata metadata = new Metadata();
+					//This might not want to be set as it would advise the detector
+					metadata.set(Metadata.RESOURCE_NAME_KEY,edit.getId());
+					String newmatch = DETECTOR.detect(tikastream,metadata).toString();
+					if (newmatch != null) {
+						if (!StringUtils.isEmpty(newmatch) && !newmatch.equals(oldmatch)) {
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("Magic: Setting content type from "+ oldmatch +" to "+newmatch);
+							}
+							edit3.setContentType(newmatch);
+							commitResourceEdit(edit3, priority);
 						}
-						edit3.setContentType(match);
-						commitResourceEdit(edit3, priority);
 					}
 				}
 			} catch (IOException e) {
