@@ -112,9 +112,10 @@
 						<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{topic.availability == 'false'}" style="margin-right:.5em"/>
 						<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{ForumTool.selectedForum.forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em"/>
 
-						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}" title=" #{topic.topic.title}" styleClass="title">
+						<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="title">
 						  <f:param value="#{topic.topic.id}" name="topicId"/>
 						  <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+						  <h:outputText value="#{topic.topic.title}"/>
 					  </h:commandLink>
                       <%-- // display  singular ('unread message') if unread message is  1 --%> 
                       <h:outputText styleClass="childrenNew" id="topic_msg_count_unread" value="  #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 

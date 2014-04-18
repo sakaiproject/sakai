@@ -89,9 +89,10 @@ $(document).ready(function() {
 				<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.forum_restricted_message}" alt="#{msgs.forum_restricted_message}" rendered="#{forum.availability == 'false'}" style="margin-right:.5em"/>
 				<%-- locked marker --%>
 				<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true'}" style="margin-right:.5em"/>
-				<h:commandLink action="#{ForumTool.processActionDisplayForum}"  value="#{forum.forum.title}" title=" #{forum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}"  styleClass="title">
-		        <f:param value="#{forum.forum.id}" name="forumId"/>
-	        </h:commandLink>
+				<h:commandLink action="#{ForumTool.processActionDisplayForum}" title=" #{forum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}"  styleClass="title">
+			        <f:param value="#{forum.forum.id}" name="forumId"/>
+			        <h:outputText value="#{forum.forum.title}"/>
+		        </h:commandLink>
 				<h:outputText value="#{forum.forum.title}" rendered="#{!ForumTool.showForumLinksInNav}"  styleClass="title" />
 				<%-- links to act on this forum --%>
 				
@@ -206,10 +207,11 @@ $(document).ready(function() {
 							<h:outputText id="draft_space" value="  - " rendered="#{topic.topic.draft == 'true'}" styleClass="title"/>
 							<h:graphicImage url="/images/silk/date_delete.png" title="#{msgs.topic_restricted_message}" alt="#{msgs.topic_restricted_message}" rendered="#{topic.availability == 'false'}" style="margin-right:.5em"/>
 							<h:graphicImage url="/images/silk/lock.png" alt="#{msgs.cdfm_forum_locked}" rendered="#{forum.locked == 'true' || topic.locked == 'true'}" style="margin-right:.5em"/>
-							<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" value="#{topic.topic.title}" title=" #{topic.topic.title}" styleClass="title">
-					      <f:param value="#{topic.topic.id}" name="topicId"/>
-					      <f:param value="#{forum.forum.id}" name="forumId"/>
-				      </h:commandLink>
+							<h:commandLink action="#{ForumTool.processActionDisplayTopic}" id="topic_title" title=" #{topic.topic.title}" styleClass="title">
+								<f:param value="#{topic.topic.id}" name="topicId"/>
+								<f:param value="#{forum.forum.id}" name="forumId"/>
+								<h:outputText value="#{topic.topic.title}"/>
+							</h:commandLink>
              
                <%-- // display  singular ('unread message') if unread message is  1 --%> 
                <h:outputText styleClass="childrenNew" id="topic_msg_count55" value="  #{topic.unreadNoMessages} #{msgs.cdfm_lowercase_unread_msg}" 
