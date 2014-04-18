@@ -76,7 +76,7 @@ private static final String msgResource =
    */
   public boolean isShowExtendedMatchingItems()
   {
-    return showExtendedMatchingItems;
+    return ServerConfigurationService.getBoolean("samigo.question.show.extendedmatchingitems",showExtendedMatchingItems); 
   }
   /**
    * Set whether extended matching items should be shown.
@@ -92,7 +92,7 @@ private static final String msgResource =
    */
   public boolean isShowFileUpload()
   {
-    return showFileUpload;
+    return ServerConfigurationService.getBoolean("samigo.question.show.fileupload",showFileUpload); 
   }
   /**
    * Set whether file upload should be shown.
@@ -108,7 +108,7 @@ private static final String msgResource =
    */
   public boolean isShowEssay()
   {
-    return showEssay;
+    return ServerConfigurationService.getBoolean("samigo.question.show.essay",showEssay); 
   }
   /**
    * Set whether essay/short answer should be shown.
@@ -124,7 +124,7 @@ private static final String msgResource =
    */
   public boolean isShowAudio()
   {
-    return showAudio;
+    return ServerConfigurationService.getBoolean("samigo.question.show.audio",showAudio); 
   }
   /**
    * Set whether audio recording should be shown.
@@ -140,7 +140,7 @@ private static final String msgResource =
    */
   public boolean isShowMatching()
   {
-    return showMatching;
+    return ServerConfigurationService.getBoolean("samigo.question.show.matching",showMatching); 
   }
   /**
    * Set whether matching should be shown.
@@ -156,7 +156,7 @@ private static final String msgResource =
    */
   public boolean isShowTrueFalse()
   {
-    return showTrueFalse;
+    return ServerConfigurationService.getBoolean("samigo.question.show.truefalse",showTrueFalse); 
   }
   /**
    * Set whether we show true/false question.
@@ -173,7 +173,7 @@ private static final String msgResource =
    */
   public boolean isShowAllMultipleChoice()
   {
-    return showMultipleChoiceMultipleCorrect && showMultipleChoiceSingleCorrect;
+	return isShowMultipleChoiceSingleCorrect() && isShowMultipleChoiceMultipleCorrect();
   }
 
   /**
@@ -182,8 +182,9 @@ private static final String msgResource =
    */
   public boolean isShowMultipleChoiceSingleCorrect()
   {
-    return showMultipleChoiceSingleCorrect;
+    return ServerConfigurationService.getBoolean("samigo.question.show.multiplechoicesinglecorrect",showMultipleChoiceSingleCorrect); 
   }
+
   /**
    * Set whether multiple choice single correct should be shown.
    * @param showMultipleChoiceSingleCorrect if this type should be shown
@@ -198,7 +199,7 @@ private static final String msgResource =
    */
   public boolean isShowMultipleChoiceMultipleCorrect()
   {
-    return showMultipleChoiceMultipleCorrect;
+    return ServerConfigurationService.getBoolean("samigo.question.show.multiplechoicemultiplecorrect",showMultipleChoiceMultipleCorrect); 
   }
   /**
    * Set whether multiple choice multiple correct should be shown.
@@ -215,7 +216,7 @@ private static final String msgResource =
 
   public boolean isShowFillInTheBlank()
   {
-    return showFillInTheBlank;
+    return ServerConfigurationService.getBoolean("samigo.question.show.fillintheblank",showFillInTheBlank); 
   }
   /**
    * Set whether fill in the blank should be shown.
@@ -225,18 +226,20 @@ private static final String msgResource =
   {
     this.showFillInTheBlank = showFillInTheBlank;
   }
+
   /**
-   * Should we show survey question?
+   * Should we show fill in numeric question?
   * @return if true
   */
 
   public boolean isShowFillInNumeric()
-     {
-       return showFillInNumeric;
-     }
-     /**
-      * Set whether fill in numeric should be shown.
-      * @param showFillInNumeric if this type should be shown
+  {
+	  return ServerConfigurationService.getBoolean("samigo.question.show.fillinnumeric",showFillInNumeric); 
+  }
+
+  /**
+   * Set whether fill in numeric should be shown.
+   * @param showFillInNumeric if this type should be shown
    */
 
   public void setShowFillInNumeric(boolean showFillInNumeric)
@@ -245,11 +248,11 @@ private static final String msgResource =
   }
   /**
    * Should we show survey question?
-  * @return if true
-  */
+   * @return if true
+   */
   public boolean isShowSurvey()
   {
-    return showSurvey;
+	  return ServerConfigurationService.getBoolean("samigo.question.show.survey",showSurvey); 
   }
   /**
    * Set whether survey should be shown.
@@ -262,7 +265,7 @@ private static final String msgResource =
   
   public boolean isShowMatrixSurvey()
   {
-	  return showMatrixSurvey;
+	  return ServerConfigurationService.getBoolean("samigo.question.show.matrixsurvey",showMatrixSurvey); 
   }
 
   public void setShowMatrixSurvey(boolean showMatrixSurvey)
@@ -274,9 +277,9 @@ private static final String msgResource =
    * Should we show CalculatedQuestion?
    * @return if true
    */
-  public boolean isCalculatedQuestion()
+  public boolean isShowCalculatedQuestion()
   {
-    return showCalculatedQuestion;
+	  return ServerConfigurationService.getBoolean("samigo.question.show.calculatedquestion",showCalculatedQuestion); 
   }
   /**
    * Set whether matching should be shown.
@@ -306,51 +309,51 @@ private static final String msgResource =
       list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE),
         getResourceDisplayName("multiple_choice_type")));
     
-    if (showSurvey)
+    if (isShowSurvey())
       list.add(new SelectItem(String.valueOf(TypeIfc.MULTIPLE_CHOICE_SURVEY),
         getResourceDisplayName("multiple_choice_surv")));
     
-    if (showMatrixSurvey)
+    if (isShowMatrixSurvey())
     	list.add(new SelectItem(String.valueOf(TypeIfc.MATRIX_CHOICES_SURVEY),
     			getResourceDisplayName("matrix_choices_surv")));
 
-    if (showEssay)
+    if (isShowEssay())
       list.add(new SelectItem(String.valueOf(TypeIfc.ESSAY_QUESTION),
     		  getResourceDisplayName("short_answer_essay")));
 
-    if (showFillInTheBlank)
+    if (isShowFillInTheBlank())
       list.add(new SelectItem(String.valueOf(TypeIfc.FILL_IN_BLANK),
     		  getResourceDisplayName("fill_in_the_blank")));
 
-    if (showFillInNumeric)
+    if (isShowFillInNumeric())
       list.add(new SelectItem(String.valueOf(TypeIfc.FILL_IN_NUMERIC),
     		  getResourceDisplayName("fill_in_numeric")));
     
-    if (showMatching)
+    if (isShowMatching())
       list.add(new SelectItem(String.valueOf(TypeIfc.MATCHING),
     		  getResourceDisplayName("matching")));
 
-    if (showTrueFalse)
+    if (isShowTrueFalse())
       list.add(new SelectItem(String.valueOf(TypeIfc.TRUE_FALSE),
     		  getResourceDisplayName("true_false")));
 
-    if (showAudio)
+    if (isShowAudio())
       list.add(new SelectItem(String.valueOf(TypeIfc.AUDIO_RECORDING),
     		  getResourceDisplayName("audio_recording")));
 
-    if (showFileUpload)
+    if (isShowFileUpload())
       list.add(new SelectItem(String.valueOf(TypeIfc.FILE_UPLOAD),
     		  getResourceDisplayName("file_upload")));
 
     // resource display name in AuthorMessages.properties
-    if (showExtendedMatchingItems)
+    if (isShowExtendedMatchingItems())
         list.add(new SelectItem(String.valueOf(TypeIfc.EXTENDED_MATCHING_ITEMS),
       		  getResourceDisplayName("extended_matching_items")));
     
-    if (selectFromQuestionPool)
+    if (isSelectFromQuestionPool())
       list.add(new SelectItem("10", getResourceDisplayName("import_from_q")));
 
-    if (showCalculatedQuestion)
+    if (isShowCalculatedQuestion())
         list.add(new SelectItem(String.valueOf(TypeIfc.CALCULATED_QUESTION), getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
     if (isSelectFromQuestionBank()) {
