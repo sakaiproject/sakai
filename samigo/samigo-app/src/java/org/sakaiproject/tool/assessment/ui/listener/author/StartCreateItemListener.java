@@ -204,7 +204,7 @@ log.debug("after getting item.getItemType() ");
                         nextpage = "audioRecItem";
                         // Set default values
                         item.setTimeAllowed("30");
-                        item.setNumAttempts("2");
+                        item.setNumAttempts("9999");
                         break;
                 case 8:
                         nextpage = "fillInBlackItem";
