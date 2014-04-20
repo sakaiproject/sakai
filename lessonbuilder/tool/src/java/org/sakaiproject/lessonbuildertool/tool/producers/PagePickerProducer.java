@@ -366,8 +366,10 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    if (entry.toplevel)
 			row.decorate(new UIFreeAttributeDecorator("style", "list-style-type:none; margin-top:0.5em"));
 		    
-		    if (entry.level < 0)
+		    if (entry.level < 0) {
 		    	UIOutput.make(row, "heading", messageLocator.getMessage("simplepage.chooser.unused"));
+			UIOutput.make(row, "chooseall");
+		    }
 		    // if no itemid, it's unused. Only canedit people will see it
 		    else if (summaryPage && entry.itemId != null) {
 		    	int level = entry.level;

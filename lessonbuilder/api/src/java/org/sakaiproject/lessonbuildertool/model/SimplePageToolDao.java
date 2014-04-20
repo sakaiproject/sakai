@@ -57,6 +57,9 @@ public interface SimplePageToolDao {
     // session flush
 	public void flush();
 
+    // session clear
+	public void clear();
+
     // returns a list of all items on the page, ordered by sequence number
 	public List<SimplePageItem> findItemsOnPage(long pageId);
 

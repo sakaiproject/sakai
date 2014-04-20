@@ -7,6 +7,7 @@ var insist = false;
 var delbutton;
 var mm_testing = 0;
 var editrow;
+var delete_orphan_enabled = true;
 
 // in case user includes the URL of a site that replaces top,
 // give them a way out. Handler is set up in the html file.
@@ -251,6 +252,14 @@ $(function() {
 			importccactive = true;
 			$('#import-cc-dialog').dialog('open');
 			checksize($('#import-cc-dialog'));
+			return false;
+		});
+
+		$('#delete-orphan-link').click(function(){
+			if (delete_orphan_enabled) {
+			    delete_orphan_enabled = false;
+			    $('#delete-orphan').click();
+			}
 			return false;
 		});
 		

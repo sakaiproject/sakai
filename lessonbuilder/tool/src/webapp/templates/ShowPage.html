@@ -229,6 +229,13 @@ function resizeiframe(id) {
                       <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
                       <div rsf:id="msg=simplepage.remove-page-explanation"></div>
                     </li>
+                    <li rsf:id="delete-orphan-li">
+                      <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
+			<input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan"/>
+                        <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="menuitem" class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
+			<div rsf:id="msg=simplepage.delete-orphan-pages-desc"></div>
+		      </form>
+                    </li>
                     <li>
                       <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
                       <!-- just a message, so will display when it should not-->

@@ -187,6 +187,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    getHibernateTemplate().flush();
 	}
 
+	public void clear() {
+	    getHibernateTemplate().clear();
+	}
+
 	public List<SimplePageItem> findItemsInSite(String siteId) {
 	    Object [] fields = new Object[1];
 	    fields[0] = siteId;
