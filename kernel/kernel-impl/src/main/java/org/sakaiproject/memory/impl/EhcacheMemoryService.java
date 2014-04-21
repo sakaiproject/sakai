@@ -346,10 +346,12 @@ public class EhcacheMemoryService implements MemoryService {
         // fetch an existing cache first if possible
         if ( cacheManager.cacheExists(name) ) {
             cache = cacheManager.getEhcache(name);
+            log.debug("Retrieved existing ehcache (" + name + ")");
         } else {
             // create a new defaulted cache
             cacheManager.addCache(name);
             cache = cacheManager.getEhcache(name);
+            log.info("Created ehcache (" + name + ") using defaults");
         }
         // apply config to the cache
         if (configuration != null) {
@@ -369,6 +371,7 @@ public class EhcacheMemoryService implements MemoryService {
             }
             cache.getCacheConfiguration().setEternal(configuration.isEternal());
             cache.setStatisticsEnabled(configuration.isStatisticsEnabled());
+            log.info("Configured ehcache (" + name + ") from inputs: " + configuration);
         }
 
         // warn people if they are using an old config style
@@ -378,9 +381,10 @@ public class EhcacheMemoryService implements MemoryService {
         // load the ehcache config from the Sakai config service
         String config = serverConfigurationService.getString("memory."+ name);
         if (StringUtils.isNotBlank(config)) {
-            log.info("Configuring cache (" + name + "): " + config);
+            log.info("Configuring ehcache (" + name + ") from Sakai config: " + config);
             try {
                 // ehcache specific code here - no exceptions thrown
+                //noinspection deprecation
                 new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());
             } catch (Exception e) {
                 // nothing to do here but proceed
@@ -396,8 +400,11 @@ public class EhcacheMemoryService implements MemoryService {
         if (serverConfigurationService != null) {
             enabled = !serverConfigurationService.getBoolean("memory.cache.statistics.force.disabled", false);
         }
-        cache.setStatisticsEnabled(enabled);
+        if (cache.isStatisticsEnabled() != enabled) {
+            cache.setStatisticsEnabled(enabled);
+        }
 
+        log.debug("Returning initialized ehcache (" + name + "): "+cache);
         return cache;
     }
 

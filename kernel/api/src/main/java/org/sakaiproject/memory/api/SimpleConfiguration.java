@@ -113,4 +113,14 @@ public class SimpleConfiguration implements Configuration {
         return p;
     }
 
+    @Override
+    public String toString() {
+        return "{" +
+                "stats:" + stats +
+                ", maxEntries:" + maxEntries +
+                ", timeToLiveSeconds:" + timeToLiveSeconds +
+                ", timeToIdleSeconds:" + timeToIdleSeconds +
+                ", eternal:" + eternal +
+                '}';
+    }
 }
