@@ -89,12 +89,18 @@ public class GradingBean {
 		    gradebookId = commentItem.getGradebookId();
 		}
 
-		if(Double.valueOf(points).equals(comment.getPoints())) {
+		Double newpoints = Double.valueOf(points);
+
+		if (newpoints.equals(comment.getPoints())) {
 			return true;
 		}
 		
+		if (newpoints < 0.0 || newpoints > commentItem.getGradebookPoints()) {
+			return false;
+		}
+
 		try {
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(Double.valueOf(points)));
+			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), gradebookId, comment.getAuthor(), Double.toString(newpoints));
 		}catch(Exception ex) {
 			ex.printStackTrace();
 		}
@@ -115,7 +121,7 @@ public class GradingBean {
 			
 			// Make sure all of the comments by this person have the grade.
 			for(SimplePageComment c : comments) {
-				c.setPoints(Double.valueOf(points));
+				c.setPoints(newpoints);
 				simplePageBean.update(c, false);
 			}
 		}
@@ -127,6 +133,7 @@ public class GradingBean {
 		boolean r = false;
 		SimpleStudentPage page = simplePageToolDao.findStudentPage(Long.valueOf(id));
 		SimplePageItem pageItem = simplePageToolDao.findItem(page.getItemId());
+		Double newpoints = Double.valueOf(points);
 		// the idea was to not update if there's no change in points
 		// but there can be reasons to want to force grades back to the gradebook,
 		// particually for group pages where the group may have changed
@@ -134,11 +141,15 @@ public class GradingBean {
 		//  return new String[] {"success", jsId, String.valueOf(page.getPoints())};
 	        //}
 		
+		if (newpoints < 0.0 || newpoints > pageItem.getGradebookPoints()) {
+			return false;
+		}
+
 		try {
 		    String owner = page.getOwner();
 		    String group = page.getGroup();
 		    if (group == null)
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(Double.valueOf(points)));
+			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(newpoints));
 		    else {
 			group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
 			AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
@@ -148,14 +159,14 @@ public class GradingBean {
 			r = true;
 			for (Member m: members)
 			    gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(),
-				m.getUserId(), Double.toString(Double.valueOf(points)));
+				       m.getUserId(), Double.toString(newpoints));
 		    }
 		}catch(Exception ex) {
 		    System.out.println("Exception updating grade " + ex);
 		}
 		
 		if(r) {
-			page.setPoints(Double.valueOf(points));
+			page.setPoints(newpoints);
 			simplePageBean.update(page, false);
 		}
 		
@@ -166,24 +177,28 @@ public class GradingBean {
 		boolean r = false;
 		SimplePageQuestionResponse response = simplePageToolDao.findQuestionResponse(Long.valueOf(id));
 		SimplePageItem questionItem = simplePageBean.findItem(response.getQuestionId());
+		Double newpoints = Double.valueOf(points);
 		
 		r = "true".equals(questionItem.getAttribute("questionGraded")) || questionItem.getGradebookId() != null;
 		if (questionItem.getGradebookId() != null)
+		    if (newpoints < 0.0 || newpoints > questionItem.getGradebookPoints()) {
+			return false;
+		    }
 		    try {
-			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(Double.valueOf(points)));
+			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), questionItem.getGradebookId(), response.getUserId(), Double.toString(newpoints));
 		    }catch(Exception ex) {
 			System.out.println("Exception updating grade " + ex);
 		    }
 		
 		if(r) {
-			response.setPoints(Double.valueOf(points));
+			response.setPoints(newpoints);
 			
 			// Only set the answer as correct if they got the maximum number of points.
 			// Unfortunately, points don't map well to the boolean correct/incorrect model,
 			// but I'd rather not clutter the faculty interface with more options.
 			if (questionItem.getGradebookPoints() == null || points == null)
 			    return false;
-			if(Double.valueOf(points).equals(Double.valueOf(questionItem.getGradebookPoints()))) {
+			if(newpoints.equals(Double.valueOf(questionItem.getGradebookPoints()))) {
 				response.setCorrect(true);
 			}else {
 				response.setCorrect(false);
