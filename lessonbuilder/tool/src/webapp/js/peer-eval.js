@@ -134,6 +134,7 @@ $(function() {
 	if ($(".peer-eval-statistics-page").length > 0) {
 		var CELL_SELECTED_BACKGROUND_COLOR = "rgb(177, 204, 235)";
 		var activityMsg = document.getElementById("simplepage.user.activity").innerHTML;
+		var ratingToolTip = document.getElementById("simplepage.peer-cell-tooltip").innerHTML;
 
 		var gradees = [];
 
@@ -218,9 +219,10 @@ $(function() {
 						for (z in gradees[x].grades[y].graders) {
 							graderString.push(gradees[x].grades[y].graders[z].name + '<span class="rubric-cell-grader-id">' + gradees[x].grades[y].graders[z].id + '</span>');
 						}
-						$("." + grade, this).html(count + '<div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
+						$("." + grade, this).html('<span class="rating">&nbsp;' + count + '&nbsp;</span><div class="rubric-graders-cell">' + graderString.join("<br>") + "</div>");
 					}
 				});
+         $(".rubric-graders-cell").parent().attr('title',ratingToolTip);               
 				if (!isValidGrade) {
 					//The activity point should be removed from all of the graders who gave this grade to this gradee.
 					for (z in gradees[x].grades[y].graders) {
