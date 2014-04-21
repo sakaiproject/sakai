@@ -32,6 +32,7 @@ import org.sakaiproject.poll.logic.PollListManager;
 import org.sakaiproject.poll.logic.PollVoteManager;
 import org.sakaiproject.poll.model.Poll;
 import org.sakaiproject.poll.model.VoteCollection;
+import org.springframework.validation.BindException;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 
@@ -79,7 +80,11 @@ public class VoteValidator implements Validator {
 	//is the poll open?
 	if (!(poll.getVoteClose().after(new Date()) && new Date().after(poll.getVoteOpen()))) {
 		logger.warn("poll is closed!");
-		errors.reject("vote_closed.voteCollection","vote closed");
+		if (!errors.hasFieldErrors("vote_closed")) {
+			errors.reject("vote_closed","vote closed");
+		} else {
+			errors.reject("vote_closed.voteCollections","vote closed");
+		}
 		return;
 	}
 		
@@ -88,7 +93,13 @@ public class VoteValidator implements Validator {
 		if (!pollVoteManager.pollIsVotable(poll))
 		{
 			logger.error("attempt to vote in " + poll.getReference() + " by unauthorized user" );
-			errors.reject("vote_noperm.voteCollection","no permissions");
+			if (!errors.hasFieldErrors("vote_noperm")) {
+				errors.reject("vote_noperm","no permissions");
+			}
+			else {
+				errors.reject("vote_noperm.voteCollection","no permissions");
+			}
+			
 			return;
 		}
 	}
@@ -96,8 +107,13 @@ public class VoteValidator implements Validator {
 	if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()>0) {
 		logger.debug("there seems to be no vote on this poll");  
 		String errStr = Integer.valueOf(poll.getMinOptions()).toString();
-		errors.reject("error_novote.voteCollection", new Object[] {errStr}, "no vote");
-		  return;
+		if (!errors.hasFieldErrors("error_novote")) {
+			errors.reject("error_novote", new Object[] {errStr}, "no vote");
+		}
+		else {
+			errors.reject("error_novote.voteCollection", new Object[] {errStr}, "no vote");
+		}
+		return;
 	} else if (votes.getOptionsSelected() == null && votes.getOption() == null && poll.getMinOptions()==0) {
 		//to do we need to map to somthing special
 		options.add("0");
@@ -116,7 +132,12 @@ public class VoteValidator implements Validator {
 	  // the exact choise case
 	  
 	  if (pollVoteManager.userHasVoted(poll.getPollId()) && poll.getLimitVoting()) {
-			errors.reject("vote_hasvoted.voteCollection","has voted");
+		  	if (!errors.hasFieldErrors("vote_hasvoted")) {
+		  		errors.reject("vote_hasvoted","has voted");
+		  	}
+		  	else {
+		  		errors.reject("vote_hasvoted.voteCollection","has voted");
+		  	}
 			return;
 		}
 	  
