@@ -2,7 +2,11 @@
 <link rel="stylesheet" type="text/css" href="style.css" />
 <wicket:panel>
    <input type="text" wicket:id="dateTextField" class="formInputField datePicker" readonly="readonly" size="8"/>
-	
+	<style>
+		.ui-datepicker-trigger{
+			display: none;
+		}
+	</style>
 	<script type="text/javascript">
 		/*
 		ranged from current year minus 100 years and cannot be past today
@@ -17,8 +21,7 @@
 				hideIfNoPrevNext: true,
 				showOn: 'both', 
 				/*buttonImage: '/library/image/silk/calendar.png',*/
-				buttonText: '',
-				buttonImageOnly: true
+				
 			});
 		});
 	</script> 

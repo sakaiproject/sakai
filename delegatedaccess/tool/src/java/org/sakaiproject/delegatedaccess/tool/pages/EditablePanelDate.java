@@ -24,6 +24,7 @@ import javax.swing.tree.TreeNode;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.AbstractReadOnlyModel;
@@ -47,6 +48,14 @@ public class EditablePanelDate  extends Panel{
 			@Override
 			public boolean isVisible() {
 				return nodeModel.isDirectAccess() && nodeModel.getNodeShoppingPeriodAdmin();
+			}
+			@Override
+			protected void onComponentTag(ComponentTag tag) {
+				super.onComponentTag(tag);
+				tag.append("size", "8", "");
+				tag.append("readonly", "readonly", "");
+				tag.append("class", "formInputField", " ");
+				tag.append("class", "datePicker", " ");
 			}
 		};
 		date.add(new AjaxFormComponentUpdatingBehavior("onchange")
