@@ -172,7 +172,6 @@
 }
 .messagesThreaded tbody tr td div.hierItemBlock .textPanel{
 	clear: both;
-	width: 60%;
     -ms-word-break: break-all;
      word-break: break-all;
 }
