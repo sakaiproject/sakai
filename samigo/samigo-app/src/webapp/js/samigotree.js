@@ -686,3 +686,29 @@ function disableCheckboxes() {
 		checkChildrenCheckboxesDisable(allCheckboxes.get(i));
 	}
 }
+
+function disableButtons() {
+
+	// Get the buttons
+	var elements = $(":submit");
+	for (i = 0; i < elements.length; i++) {
+
+		// Hide the original
+		var button = elements[i];
+		button.style.display = "none";
+
+		// Clone and disable the original
+		var newButton = document.createElement("input");
+		newButton.setAttribute("type", "button" );
+		newButton.setAttribute("id", button.getAttribute("id") + "Disabled");
+		newButton.setAttribute("name", button.getAttribute("name") + "Disabled");
+		newButton.setAttribute("value", button.getAttribute("value"));
+		newButton.setAttribute("className", button.getAttribute("className"));
+		newButton.setAttribute("disabled", "true");
+
+		// Add the clone where the original is in the DOM
+		var parent = button.parentNode;
+		parent.insertBefore(newButton, button);
+	}
+}
+
