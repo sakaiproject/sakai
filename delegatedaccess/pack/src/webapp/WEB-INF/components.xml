@@ -31,11 +31,9 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />	
     	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
     	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
-    	<property name="nodeCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"/>
-    	<property name="restrictedAuthToolsCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache"/>
-    	<property name="restrictedPublicToolsCache" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache"/>
     	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
     	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
     </bean>
     
     <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
@@ -103,57 +101,11 @@
        </property>
     </bean>
 	
-	<!-- Cache: ttl=1 hour -->
-    <bean id="org.sakaiproject.delegatedaccess.cache"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.delegatedaccess.cache</value>
-        </property>
-        <property name="maxElementsInMemory" value="1000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-        <property name="timeToIdle" value="3600" />
-    </bean>
-    
     <bean id="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProvider"
             class="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProviderImpl">
             <property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
             <property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />
     </bean>
-
-	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache"
-	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-	  <property name="cacheManager">
-	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-	  </property>
-	  <property name="cacheName">
-	    <value>org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache</value>
-	  </property>
-	</bean>
-	
-	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache"
-	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-	  <property name="cacheManager">
-	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-	  </property>
-	  <property name="cacheName">
-	    <value>org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache</value>
-	  </property>
-	</bean>
-
-	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache"
-	    class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-	  <property name="cacheManager">
-	    <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-	  </property>
-	  <property name="cacheName">
-	    <value>org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache</value>
-	  </property>
-	</bean>
 
 	<bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob" class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob">
 		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />

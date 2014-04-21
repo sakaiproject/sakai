@@ -37,7 +37,6 @@ import javax.swing.tree.TreeModel;
 
 import lombok.Getter;
 import lombok.Setter;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.apache.log4j.Logger;
@@ -56,6 +55,8 @@ import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.hierarchy.HierarchyService;
 import org.sakaiproject.hierarchy.model.HierarchyNode;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -81,24 +82,26 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private HierarchyService hierarchyService;
 	@Getter @Setter
 	private DelegatedAccessDao dao;
-	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
 	@Getter @Setter
+	private MemoryService memoryService;
+	//NodeCache stores HierarchyNodeSerialed nodes for faster lookups
 	private Cache nodeCache;
 	//Stores restricted tools map for users when they log back in
-	@Getter @Setter
 	private Cache restrictedAuthToolsCache;
 	@Getter @Setter
 	private ScheduledInvocationManager scheduledInvocationManager;
 	@Getter @Setter
 	private TimeService timeService;
 	
-	@Getter @Setter
 	private Cache restrictedPublicToolsCache;
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
 	public void init() {
 		log.info("init");
+		nodeCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache");
+		restrictedAuthToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
+		restrictedPublicToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
 	}
 
 	/**
@@ -406,13 +409,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 				session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DELEGATED_ACCESS_FLAG, true);
 				//need to clear sakai realm permissions cache for user since Denied Tools list is tied to
 				//session and permissions are a saved in a system cache
-				Element el = restrictedAuthToolsCache.get(userId);
+				Object el = restrictedAuthToolsCache.get(userId);
 				if(el != null){
-					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, el.getObjectValue());
+					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS, el);
 				}
-				Element elPub = restrictedPublicToolsCache.get(userId);
+				Object elPub = restrictedPublicToolsCache.get(userId);
 				if(elPub != null){
-					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2, elPub.getObjectValue());
+					session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_DENIED_TOOLS2, elPub);
 				}
 			}
 		}
@@ -1297,17 +1300,17 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @return
 	 */
 	private HierarchyNodeSerialized getCachedNode(String id){
-		Element el = nodeCache.get(id);
+		Object el = nodeCache.get(id);
 		HierarchyNodeSerialized node = null;
 		if(el == null){
 			node = getNode(id);
 			try{
-				nodeCache.put(new Element(id, node));
+				nodeCache.put(id, node);
 			}catch (Exception e) {
 				log.error("getCachedNode: " + id, e);
 			}
-		}else if(el.getObjectValue() instanceof HierarchyNodeSerialized){
-			node = (HierarchyNodeSerialized) el.getObjectValue();
+		}else if(el instanceof HierarchyNodeSerialized){
+			node = (HierarchyNodeSerialized) el;
 		}
 		return node;
 	}
@@ -1698,7 +1701,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 	
 	public void clearNodeCache(){
-		nodeCache.removeAll();
+		nodeCache.clear();
 	}
 	
 	public String[] getCurrentUsersAccessToSite(String siteRef){
@@ -1915,12 +1918,12 @@ public class ProjectLogicImpl implements ProjectLogic {
 			session.setAttribute(DelegatedAccessConstants.SESSION_ATTRIBUTE_ACCESS_MAP, accessMap);
 			//update restrictedToolsCache
 			try{
-				restrictedAuthToolsCache.put(new Element(userId, deniedAuthToolsMap));
+				restrictedAuthToolsCache.put(userId, deniedAuthToolsMap);
 			}catch (Exception e) {
 				log.error("grantAccessToSite: " + userId, e);
 			}
 			try{
-				restrictedPublicToolsCache.put(new Element(userId, deniedPublicToolsMap));
+				restrictedPublicToolsCache.put(userId, deniedPublicToolsMap);
 			}catch (Exception e) {
 				log.error("grantAccessToSite: " + userId, e);
 			}
