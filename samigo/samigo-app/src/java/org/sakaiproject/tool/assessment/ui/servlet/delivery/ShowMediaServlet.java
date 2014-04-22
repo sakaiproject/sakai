@@ -155,11 +155,11 @@ public class ShowMediaServlet extends HttpServlet
 	      Matcher matcher = HTTP_RANGE_PATTERN.matcher(range);
 	       
 	      if (matcher.matches()) {
-	        String startMatch = matcher.group(0);
+	        String startMatch = matcher.group(1);
 	        start = startMatch.isEmpty() ? start : Integer.valueOf(startMatch);
 	        start = start < 0 ? 0 : start;
 	   
-	        String endMatch = matcher.group(1);
+	        String endMatch = matcher.group(2);
 	        end = endMatch.isEmpty() ? end : Integer.valueOf(endMatch);
 	        end = end > fileSize - 1 ? fileSize - 1 : end;
 	        
