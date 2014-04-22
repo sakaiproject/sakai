@@ -21,6 +21,10 @@
 
 package edu.amc.sakai.user;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.*;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.pool.PoolableObjectFactory;
@@ -83,7 +87,7 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 		if (log.isDebugEnabled()) log.debug("makeObject(): assigned connection ConnectionManager");
 		conn.setConstraints(standardConstraints);
 		if (log.isDebugEnabled()) log.debug("makeObject(): assigned connection constraints");
-		conn.connect(host, port);
+		conn.connect(getHost(), port);
 		if (log.isDebugEnabled()) log.debug("makeObject(): connected connection");
 		if (useTLS) {
 			if (log.isDebugEnabled()) log.debug("makeObject(): attempting to initiate TLS");
@@ -199,7 +203,7 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
             try {
             	if ( !(livenessValidator.isConnectionAlive(conn)) )  {
             		if (log.isInfoEnabled())
-            			log.info("validateObject(): connection failed liveness test");
+            			log.info("validateObject(): connection failed liveness test, "+ conn.getHost());
             		conn.setActive(false);
             		if (log.isDebugEnabled()) log.debug("validateObject(): unset connection active flag on stale connection, returning false");
             		return false;
@@ -325,6 +329,45 @@ public class PooledLDAPConnectionFactory implements PoolableObjectFactory {
 	 */
 	public LdapConnectionLivenessValidator getConnectionLivenessValidator() {
 		return this.livenessValidator;
+	}
+	
+	/**
+	 * Get the host to connect to. Attempt to resolve all addresses for a hostname when round robin DNS
+	 * is used.
+	 *
+	 * We do this resolution low down in the stack as we don't want the results cached at all.
+	 * Unless configured otherwise the JVM will cache DNS lookups. Even if this is just for 30 seconds
+	 * (default in 1.6/1.7) it means when the pool is getting prebuilt at startup the connections will
+	 * all point to the same server.
+	 *
+	 * @return A hostname or a space separated string of IP addresses to connect to. 
+	 */
+	protected String getHost() {
+		List<InetAddress> addresses = new ArrayList<InetAddress>();
+		// The host may already be space separated.
+		StringTokenizer hosts = new StringTokenizer(host, " ");
+		while (hosts.hasMoreTokens()) {
+			try {
+				addresses.addAll(Arrays.asList(InetAddress.getAllByName(hosts.nextToken())));
+			} catch (UnknownHostException e) {
+				if (log.isDebugEnabled()) {
+					log.debug("Failed to resolve " + host + " not handling now, will deal with later.");
+				}
+			}
+		}
+		if (addresses.size() > 1) {
+			StringBuilder resolvedHosts = new StringBuilder();
+			// So that we don't always connect to the same host.
+			// Is need on platforms that don't do round robin DNS well.
+			Collections.shuffle(addresses);
+			for (InetAddress address : addresses) {
+				resolvedHosts.append(address.getHostAddress() + " ");
+			}
+			return resolvedHosts.toString();
+		} else {
+			// Just return the configured hostname and let it be resolved when making the connection.
+			return host;
+		}
 	}
 
 }
