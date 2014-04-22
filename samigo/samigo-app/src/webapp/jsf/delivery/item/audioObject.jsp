@@ -68,7 +68,8 @@
     <button id="audio-upload" onclick="postDataToServer(this);" disabled></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_recorder_post}" /><f:verbatim></button>
   </div>
 
-  <div id="audio-mic-check">
+  <%-- SAM-2317 We're going to keep the mic check hidden until more browsers support it --%>
+  <div id="audio-mic-check" style="display:none">
     <canvas id="volumemeter" width="16" height="54" style="background-color:#555;display:none"></canvas>
     <button id="mic-check" onclick="microphoneCheck(this)" disabled="disabled"> </button>
     <span></f:verbatim><h:outputFormat value=" #{deliveryMessages.audio_mic_check}" /><f:verbatim></span>
