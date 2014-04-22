@@ -337,23 +337,64 @@ public class EhcacheMemoryService implements MemoryService {
      * @return an Ehcache
      */
     private Ehcache makeEhcache(String cacheName, org.sakaiproject.memory.api.Configuration configuration) {
+        /** Indicates a cache is a new one and should be configured */
+        boolean newCache = false;
         String name = cacheName;
         if (name == null || "".equals(name)) {
             name = "DefaultCache" + UUID.randomUUID().toString();
+            log.warn("Creating cache without a name, generating dynamic name: ("+name+")");
+            newCache = true;
         }
 
         Ehcache cache;
         // fetch an existing cache first if possible
-        if ( cacheManager.cacheExists(name) ) {
+        if ( !newCache && cacheManager.cacheExists(name) ) {
             cache = cacheManager.getEhcache(name);
-            log.debug("Retrieved existing ehcache (" + name + ")");
+            if (log.isDebugEnabled()) log.debug("Retrieved existing ehcache (" + name + ")");
         } else {
             // create a new defaulted cache
             cacheManager.addCache(name);
             cache = cacheManager.getEhcache(name);
+            newCache = true;
             log.info("Created ehcache (" + name + ") using defaults");
         }
-        // apply config to the cache
+
+        if (newCache) {
+            if (log.isDebugEnabled()) log.debug("Prepared to configure new ehcache (" + name + "): "+cache);
+            // warn people if they are using an old config style
+            if (serverConfigurationService.getString(name) == null) {
+                log.warn("Old cache configuration for cache ("+name+"), must be changed to memory."+name+" or it will be ignored");
+            }
+
+            // load the ehcache config from the Sakai config service
+            String config = serverConfigurationService.getString("memory."+ name);
+            if (StringUtils.isNotBlank(config)) {
+                log.info("Configuring ehcache (" + name + ") from Sakai config: " + config);
+                try {
+                    // ehcache specific code here - no exceptions thrown
+                    //noinspection deprecation
+                    new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());
+                } catch (Exception e) {
+                    // nothing to do here but proceed
+                    log.error("Failure configuring cache (" + name + "): " + config + " :: "+e, e);
+                }
+            }
+
+            /* KNL-532 - Upgraded Ehcache 2.5.1 (2.1.0+) defaults to no stats collection.
+             * We may choose to allow configuration per-cache for performance tuning.
+             * For now, we default everything to on, while this property allows a system-wide override.
+             */
+            boolean enabled = true;
+            if (serverConfigurationService != null) {
+                enabled = !serverConfigurationService.getBoolean("memory.cache.statistics.force.disabled", false);
+            }
+            if (cache.isStatisticsEnabled() != enabled) {
+                cache.setStatisticsEnabled(enabled);
+            }
+
+        }
+
+        // apply config to the cache (every time)
         if (configuration != null) {
             if (configuration.getMaxEntries() >= 0) {
                 cache.getCacheConfiguration().setMaxEntriesLocalHeap(configuration.getMaxEntries());
@@ -374,37 +415,7 @@ public class EhcacheMemoryService implements MemoryService {
             log.info("Configured ehcache (" + name + ") from inputs: " + configuration);
         }
 
-        // warn people if they are using an old config style
-        if (serverConfigurationService.getString(name) == null) {
-            log.warn("Old cache configuration for cache ("+name+"), must be changed to memory."+name+" or it will be ignored");
-        }
-        // load the ehcache config from the Sakai config service
-        String config = serverConfigurationService.getString("memory."+ name);
-        if (StringUtils.isNotBlank(config)) {
-            log.info("Configuring ehcache (" + name + ") from Sakai config: " + config);
-            try {
-                // ehcache specific code here - no exceptions thrown
-                //noinspection deprecation
-                new CacheInitializer().configure(config).initialize(cache.getCacheConfiguration());
-            } catch (Exception e) {
-                // nothing to do here but proceed
-                log.error("Failure configuring cache (" + name + "): " + config + " :: "+e, e);
-            }
-        }
-
-        /* KNL-532 - Upgraded Ehcache 2.5.1 (2.1.0+) defaults to no stats collection.
-         * We may choose to allow configuration per-cache for performance tuning.
-         * For now, we default everything to on, while this property allows a system-wide override.
-         */
-        boolean enabled = true;
-        if (serverConfigurationService != null) {
-            enabled = !serverConfigurationService.getBoolean("memory.cache.statistics.force.disabled", false);
-        }
-        if (cache.isStatisticsEnabled() != enabled) {
-            cache.setStatisticsEnabled(enabled);
-        }
-
-        log.debug("Returning initialized ehcache (" + name + "): "+cache);
+        if (log.isDebugEnabled()) log.debug("Returning initialized ehcache (" + name + "): "+cache);
         return cache;
     }
 
