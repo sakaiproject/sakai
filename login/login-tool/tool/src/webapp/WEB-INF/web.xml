@@ -53,6 +53,13 @@
         <servlet-name>sakai.login.container</servlet-name>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
+    
+    <filter-mapping>
+        <filter-name>sakai.request.container</filter-name>
+        <servlet-name>sakai.logout.container</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    
 
     <servlet>
         <servlet-name>sakai.login</servlet-name>
@@ -60,6 +67,10 @@
         <init-param>
             <param-name>container</param-name>
             <param-value>/sakai-login-tool/container</param-value>
+        </init-param>
+        <init-param>
+        	<param-name>container-logout</param-name>
+        	<param-value>/sakai-login-tool/container/logout</param-value>
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
@@ -69,11 +80,22 @@
         <servlet-class>org.sakaiproject.login.tool.ContainerLogin</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    
+    <servlet>
+    	<servlet-name>sakai.logout.container</servlet-name>
+    	<servlet-class>org.sakaiproject.login.tool.ContainerLogout</servlet-class>
+    </servlet>
 
 	<!-- map the container login, and then cause it to trigger container authentication -->
     <servlet-mapping>
         <servlet-name>sakai.login.container</servlet-name>
         <url-pattern>/container/*</url-pattern>
+    </servlet-mapping>
+    
+    <!--  map the container logout -->
+    <servlet-mapping>
+        <servlet-name>sakai.logout.container</servlet-name>
+        <url-pattern>/container/logout</url-pattern>
     </servlet-mapping>
 
 

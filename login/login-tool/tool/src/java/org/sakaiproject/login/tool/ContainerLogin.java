@@ -123,6 +123,9 @@ public class ContainerLogin extends HttpServlet
 				session.removeAttribute(Tool.HELPER_MESSAGE);
 				session.removeAttribute(Tool.HELPER_DONE_URL);
 
+				// Mark as successfully authenticated
+				session.setAttribute(SkinnableLogin.ATTR_CONTAINER_SUCCESS, SkinnableLogin.ATTR_CONTAINER_SUCCESS);
+				
 				// redirect to the done URL
 				res.sendRedirect(res.encodeRedirectURL(url));
 
@@ -134,7 +137,7 @@ public class ContainerLogin extends HttpServlet
 			M_log.warn("Authentication Failed for: "+ remoteUser+ ". "+ ex.getMessage());
 		}
 
-		// mark the session and redirect (for login failuer or authentication exception)
+		// mark the session and redirect (for login failure or authentication exception)
 		session.setAttribute(SkinnableLogin.ATTR_CONTAINER_CHECKED, SkinnableLogin.ATTR_CONTAINER_CHECKED);
 		res.sendRedirect(res.encodeRedirectURL(getUrl(session, SkinnableLogin.ATTR_RETURN_URL)));
 	}

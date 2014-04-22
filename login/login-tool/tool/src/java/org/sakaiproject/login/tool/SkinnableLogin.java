@@ -71,6 +71,9 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	/** Session attribute set and shared with ContainerLoginTool: if set we have failed container and need to check internal. */
 	public static final String ATTR_CONTAINER_CHECKED = "sakai.login.container.checked";
 
+	/** Session attribute to show that session was successfully authenticated through the container. */
+	public static final String ATTR_CONTAINER_SUCCESS = "sakai.login.container.success";
+
 	/** Marker to indicate we are logging in the PDA Portal and should put out abbreviated HTML */
 	public static final String PDA_PORTAL_SUFFIX = "/pda/";
 
@@ -169,12 +172,20 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		if (parts[1].equals("logout"))
 		{
 			// get the session info complete needs, since the logout will invalidate and clear the session
-			String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
-
-			// logout the user
-			UsageSessionService.logout();
-
-			complete(returnUrl, null, tool, res);
+			String containerLogoutUrl = serverConfigurationService.getString("login.container.logout.url", null);
+			String containerLogout = getServletConfig().getInitParameter("container-logout");
+			if ( containerLogoutUrl != null && session.getAttribute(ATTR_CONTAINER_SUCCESS) != null &&
+					containerLogout != null)
+			{
+				res.sendRedirect(res.encodeRedirectURL(containerLogout));
+			}
+			else
+			{
+				String returnUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
+				// logout the user
+				UsageSessionService.logout();
+				complete(returnUrl, null, tool, res);
+			}
 			return;
 		}
 
