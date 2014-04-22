@@ -17,7 +17,7 @@
 		<version name="lockId" />
 
 		<property name="username" type="string">
-			<column name="username" length="36" not-null="true" index="POSTEM_STUDENT_USERNAME_I" />
+			<column name="username" length="255" not-null="true" index="POSTEM_STUDENT_USERNAME_I" />
 		</property>
 
 		<property name="lastChecked" type="timestamp">
