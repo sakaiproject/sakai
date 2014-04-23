@@ -23,7 +23,7 @@ associated sites.
 
 If you do not choose to associate this site with an existing account, 
 a new guest account will be activated for you, and its login ID will be ${userEid}. 
-Afterwards, you may log in to ${localSakaiName} using {$userEid} as your login ID and its associated password. </message>
+Afterwards, you may log in to ${localSakaiName} using ${userEid} as your login ID and its associated password. </message>
                <messagehtml>&lt;p&gt;You have been invited to one or more sites in ${localSakaiName}.&lt;/p&gt;
 
 &lt;p&gt;&lt;a href="${url}"&gt;Accept this invitation&lt;/a&gt;&lt;/p&gt;
