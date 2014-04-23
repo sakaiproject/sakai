@@ -144,7 +144,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 
         showSiteUsers = serverConfigurationService.getBoolean("portal.chat.showSiteUsers", true);
         
-        isVideoEnabled = serverConfigurationService.getBoolean("portal.chat.video", false);
+        isVideoEnabled = serverConfigurationService.getBoolean("portal.chat.video", true);
 
         if (isVideoEnabled) {
             String [] servers = serverConfigurationService.getStrings("portal.chat.video.servers");
