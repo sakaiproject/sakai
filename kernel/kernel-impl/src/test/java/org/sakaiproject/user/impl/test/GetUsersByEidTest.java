@@ -104,7 +104,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		dbUserService.setProvider(userDirectoryProvider);
 		
 		callCache = ((MemoryService) getService("org.sakaiproject.memory.api.MemoryService")).newCache(
-				"org.sakaiproject.user.api.UserDirectoryService.callCache", "/user/");
+				"org.sakaiproject.user.api.UserDirectoryService.callCache");
 
 		authzGroupService = (AuthzGroupService) getService(AuthzGroupService.class);
 

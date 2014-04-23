@@ -22,36 +22,14 @@
 
 package org.sakaiproject.user.impl;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.*;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
@@ -62,26 +40,7 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
 import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.api.AuthenticatedUserProvider;
-import org.sakaiproject.user.api.AuthenticationIdUDP;
-import org.sakaiproject.user.api.AuthenticationManager;
-import org.sakaiproject.user.api.ContextualUserDisplayService;
-import org.sakaiproject.user.api.DisplayAdvisorUDP;
-import org.sakaiproject.user.api.DisplaySortAdvisorUPD;
-import org.sakaiproject.user.api.ExternalUserSearchUDP;
-import org.sakaiproject.user.api.PasswordPolicyProvider;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserAlreadyDefinedException;
-import org.sakaiproject.user.api.UserDirectoryProvider;
-import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserFactory;
-import org.sakaiproject.user.api.UserIdInvalidException;
-import org.sakaiproject.user.api.UserLockedException;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.api.UserPermissionException;
-import org.sakaiproject.user.api.UsersShareEmailUDP;
-import org.sakaiproject.user.api.UserDirectoryService.PasswordRating;
+import org.sakaiproject.user.api.*;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.StringUtil;
@@ -91,6 +50,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.*;
 
 /**
  * <p>
@@ -603,9 +564,15 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			if (m_cacheCleanerSeconds > 0) {
 				M_log.warn("cacheCleanerSeconds@org.sakaiproject.user.api.UserDirectoryService is no longer supported");
 			}
-			m_callCache = memoryService().newCache(
-					"org.sakaiproject.user.api.UserDirectoryService.callCache",
-					userReference(""));
+
+            // caching for users
+            m_callCache = memoryService().getCache("org.sakaiproject.user.api.UserDirectoryService.callCache");
+            if (!m_callCache.isDistributed()) {
+                // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
+                M_log.info("Creating user callCache observer for event based cache expiration (for local caches)");
+                m_userCacheObserver = new UserCacheObserver();
+                eventTrackingService().addObserver(m_userCacheObserver);
+            }
 
 			// register as an entity producer
 			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
@@ -657,6 +624,34 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 	}
 
+    /**
+     * KNL-1229 Supports legacy event based cache expiration
+     */
+    UserCacheObserver m_userCacheObserver;
+
+    /**
+     * KNL-1229 Allow for legacy event based cache expiration
+     * Only used when distributed caches are not in use
+     */
+    class UserCacheObserver implements Observer {
+        @Override
+        public void update(Observable observable, Object o) {
+            if (o instanceof Event) {
+                Event event = (Event) o;
+                if (event.getResource() != null && (
+                    SECURE_UPDATE_USER_OWN.equals(event.getEvent())
+                    || SECURE_UPDATE_USER_ANY.equals(event.getEvent())
+                    || SECURE_REMOVE_USER.equals(event.getEvent())
+                    )
+                ) {
+                    String userRef = event.getResource();
+                    removeCachedUser(userRef);
+                }
+            }
+
+        }
+    }
+
 	/**
 	 * Returns to uninitialized state. You can use this method to release resources thet your Service allocated when Turbine shuts down.
 	 */
@@ -667,6 +662,8 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_provider = null;
 		m_anon = null;
 		m_passwordPolicyProvider = null;
+        m_callCache.close();
+        m_userCacheObserver = null;
 
 		M_log.info("destroy()");
 	}

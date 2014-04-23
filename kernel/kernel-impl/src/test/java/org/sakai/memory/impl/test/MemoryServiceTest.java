@@ -82,7 +82,7 @@ public class MemoryServiceTest extends TestCase
 	}
 	
 	public void testCreate() {
-		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache","");
+		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache");
 		Random r = new Random();
 		int hit = 0;
 		int miss = 0;
@@ -100,7 +100,7 @@ public class MemoryServiceTest extends TestCase
 		log.info("Hits ="+hit+" Misses="+miss);
 	}
 	public void xtestGetLong() {
-		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache","");
+		Cache cache = basicMemoryService.newCache("org.sakaiproject.alias.api.AliasService.callCache");
 		for ( int i = 0; i < 100; i++) {
 			cache.put(String.valueOf(i), i);
 		}
