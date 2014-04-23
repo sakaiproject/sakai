@@ -21,18 +21,6 @@
 
 package org.sakaiproject.alias.impl;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Observable;
-import java.util.Observer;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Arrays;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -42,21 +30,10 @@ import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.exception.IdInvalidException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -67,15 +44,13 @@ import org.sakaiproject.tool.api.SessionBindingListener;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.util.BaseResourceProperties;
-import org.sakaiproject.util.BaseResourcePropertiesEdit;
-import org.sakaiproject.util.SingleStorageUser;
-import org.sakaiproject.util.StringUtil;
-import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.*;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.*;
 
 /**
  * <p>
@@ -93,17 +68,17 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
-	/** A cache of calls to the service and the results. */
-	protected Cache m_callCache = null;
-	
 	/** A cache of calls to the getAliases calls */
 	protected GenericMultiRefCache m_targetCache = null;
-
-	private List<String> prohibited_aliases = null;
+	/** The # seconds to cache gets. 0 disables the cache. */
+	protected int m_cacheSeconds = 0;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
 	 *********************************************************************************************************************************************************************************************************************************************************/
+	/** The # seconds to cache gets. 0 disables the cache. */
+	protected int m_cacheCleanerSeconds = 0;
+	private List<String> prohibited_aliases = null;
 
 	/**
 	 * Construct storage for this service.
@@ -112,7 +87,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Access the partial URL that forms the root of resource URLs.
-	 * 
+	 *
 	 * @param relative
 	 *        if true, form within the access path only (i.e. starting with /content)
 	 * @return the partial URL that forms the root of resource URLs.
@@ -125,7 +100,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Access the internal reference which can be used to access the resource from within the system.
-	 * 
+	 *
 	 * @param id
 	 *        The alias id string.
 	 * @return The the internal reference which can be used to access the resource from within the system.
@@ -138,7 +113,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Access the alias id extracted from a alias reference.
-	 * 
+	 *
 	 * @param ref
 	 *        The alias reference string.
 	 * @return The the alias id extracted from a alias reference.
@@ -155,7 +130,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock
 	 *        The lock id string.
 	 * @param resource
@@ -175,7 +150,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Check security permission.
-	 * 
+	 *
 	 * @param lock
 	 *        The lock id string.
 	 * @param resource
@@ -194,7 +169,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 	/**
 	 * Check security permission, target modify based.
-	 * 
+	 *
 	 * @param target
 	 *        The target resource reference string.
 	 * @return true if allowed, false if not
@@ -230,14 +205,14 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			}
 		}
 
-		// TODO: fake this dependency (CalendarService.APPLICATION_ID) to keep the calendar dependencies away 
+		// TODO: fake this dependency (CalendarService.APPLICATION_ID) to keep the calendar dependencies away
 		else if (ref.getType().equals("sakai:calendar"))
 		{
 			// base this on site update, too
 			return siteService().allowUpdateSite(ref.getContext());
 		}
 
-		// TODO: fake this dependency (AnnouncementService.APPLICATION_ID) to keep the announcement dependencies away 
+		// TODO: fake this dependency (AnnouncementService.APPLICATION_ID) to keep the announcement dependencies away
 		else if (ref.getType().equals("sakai:announcement"))
 		{
 			// base this on site update, too
@@ -247,6 +222,10 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		return false;
 
 	} // unlockTargetCheck
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Dependencies
+	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * Create the live properties for the user.
@@ -275,10 +254,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		props.addProperty(ResourceProperties.PROP_MODIFIED_DATE, timeService().newTime().toString());
 
 	} // addLiveUpdateProperties
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Dependencies
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
 	 * @return the MemoryService collaborator.
@@ -320,6 +295,10 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 */
 	protected abstract FunctionManager functionManager();
 
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Configuration
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
 	/**
 	 * @return the EventTrackingService collaborator.
 	 */
@@ -330,16 +309,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 */
 	protected abstract UserDirectoryService userDirectoryService();
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Configuration
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/** The # seconds to cache gets. 0 disables the cache. */
-	protected int m_cacheSeconds = 0;
-
 	/**
 	 * Set the # minutes to cache a get.
-	 * 
+	 *
 	 * @param time
 	 *        The # minutes to cache a get (as an integer string).
 	 */
@@ -347,9 +319,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	{
 		m_cacheSeconds = Integer.parseInt(time) * 60;
 	}
-
-	/** The # seconds to cache gets. 0 disables the cache. */
-	protected int m_cacheCleanerSeconds = 0;
 
 	/**
 	 * Set the # minutes between cache cleanings.
@@ -382,10 +351,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			// <= 0 indicates no caching desired
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
-				// build a synchronized map for the call cache, automatically checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = memoryService().newCache(
-						"org.sakaiproject.alias.api.AliasService.callCache",
-						aliasReference(""));
 				m_targetCache = memoryService().newGenericMultiRefCache(
 						"org.sakaiproject.alias.api.AliasService.targetCache");
 			
@@ -588,36 +553,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 */
 	public String getTarget(String alias) throws IdUnusedException
 	{
-		// check the cache
-		String ref = aliasReference(alias);
-		if (m_callCache != null)
-		{
-			String t = (String) m_callCache.get(ref);
-			if ( t != null )
-			{
-				return t;
-			}
-			else
-			{
-				if (m_callCache.containsKey(ref))
-				{
-					M_log.warn("Null Cache Entry found, should not happen SAK-12447 ref="+ref);
-				}
-			}
-		}
-
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
 		if (a == null) throw new IdUnusedException(alias);
-
-		// cache
-		if (m_callCache != null) {
-			if ( a.getTarget() != null ) {
-				m_callCache.put(ref, a.getTarget());
-			}
-		}
-
 		return a.getTarget();
-
 	} // getTarget
 
 	/**
@@ -1045,6 +983,296 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
 	/**
+	 * Construct a new resource given just an id.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param id
+	 *        The id for the new object.
+	 * @param others
+	 *        (options) array of objects to load into the Resource's fields.
+	 * @return The new resource.
+	 */
+	public Entity newResource(Entity container, String id, Object[] others)
+	{
+		return new BaseAliasEdit(id);
+	}
+
+	/**
+	 * Construct a new resource, from an XML element.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param element
+	 *        The XML.
+	 * @return The new resource from the XML.
+	 */
+	public Entity newResource(Entity container, Element element)
+	{
+		return new BaseAliasEdit(element);
+	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * StorageUser implementation (no container)
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	/**
+	 * Construct a new resource from another resource of the same type.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param other
+	 *        The other resource.
+	 * @return The new resource as a copy of the other.
+	 */
+	public Entity newResource(Entity container, Entity other)
+	{
+		return new BaseAliasEdit((BaseAliasEdit) other);
+	}
+
+	/**
+	 * Construct a new resource given just an id.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param id
+	 *        The id for the new object.
+	 * @param others
+	 *        (options) array of objects to load into the Resource's fields.
+	 * @return The new resource.
+	 */
+	public Edit newResourceEdit(Entity container, String id, Object[] others)
+	{
+		BaseAliasEdit e = new BaseAliasEdit(id);
+		e.activate();
+		return e;
+	}
+
+	/**
+	 * Construct a new resource, from an XML element.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param element
+	 *        The XML.
+	 * @return The new resource from the XML.
+	 */
+	public Edit newResourceEdit(Entity container, Element element)
+	{
+		BaseAliasEdit e = new BaseAliasEdit(element);
+		e.activate();
+		return e;
+	}
+
+	/**
+	 * Construct a new resource from another resource of the same type.
+	 *
+	 * @param container
+	 *        The Resource that is the container for the new resource (may be null).
+	 * @param other
+	 *        The other resource.
+	 * @return The new resource as a copy of the other.
+	 */
+	public Edit newResourceEdit(Entity container, Entity other)
+	{
+		BaseAliasEdit e = new BaseAliasEdit((BaseAliasEdit) other);
+		e.activate();
+		return e;
+	}
+
+	/**
+	 * Collect the fields that need to be stored outside the XML (for the resource).
+	 *
+	 * @return An array of field values to store in the record outside the XML (for the resource).
+	 */
+	public Object[] storageFields(Entity r)
+	{
+		return null;
+	}
+
+	/**
+	 * Registered with the event service, to invalidate cache entries.
+	 * @param o The observable object.
+	 * @param arg Hopefully an Event which we can check against.
+	 */
+	@Override
+	public void update(Observable o, Object arg)
+	{
+		if (arg instanceof Event)
+		{
+			Event event = (Event) arg;
+			if (SECURE_ADD_ALIAS.equals(event.getEvent())
+					&& event.getResource().startsWith(
+					REFERENCE_ROOT + Entity.SEPARATOR))
+			{
+				String id = event.getResource().substring(
+						(REFERENCE_ROOT + Entity.SEPARATOR).length());
+				String target;
+				try
+				{
+					target = getTarget(id);
+					m_targetCache.remove(target);
+				}
+				catch (IdUnusedException e)
+				{
+					M_log.warn("Failed to find new Alias: " + id);
+				}
+			}
+		}
+	}
+
+	/**********************************************************************************************************************************************************************************************************************************************************
+	 * Storage
+	 *********************************************************************************************************************************************************************************************************************************************************/
+
+	protected interface Storage
+	{
+		/**
+		 * Open.
+		 */
+		public void open();
+
+		/**
+		 * Close.
+		 */
+		public void close();
+
+		/**
+		 * Check if an alias with this id exists.
+		 *
+		 * @param id
+		 *        The alias id (case insensitive).
+		 * @return true if an alias by this id exists, false if not.
+		 */
+		public boolean check(String id);
+
+		/**
+		 * Get the alias with this id, or null if not found.
+		 *
+		 * @param id
+		 *        The alias id (case insensitive).
+		 * @return The alias with this id, or null if not found.
+		 */
+		public AliasEdit get(String id);
+
+		/**
+		 * Get all the alias.
+		 *
+		 * @return The List (BaseAliasEdit) of all alias.
+		 */
+		public List getAll();
+
+		/**
+		 * Get all the alias in record range.
+		 *
+		 * @param first
+		 *        The first record position to return.
+		 * @param last
+		 *        The last record position to return.
+		 * @return The List (BaseAliasEdit) of all alias.
+		 */
+		public List getAll(int first, int last);
+
+		/**
+		 * Count all the aliases.
+		 *
+		 * @return The count of all aliases.
+		 */
+		public int count();
+
+		/**
+		 * Search for aliases with id or target matching criteria, in range.
+		 *
+		 * @param criteria
+		 *        The search criteria.
+		 * @param first
+		 *        The first record position to return.
+		 * @param last
+		 *        The last record position to return.
+		 * @return The List (BaseAliasEdit) of all alias.
+		 */
+		public List search(String criteria, int first, int last);
+
+		/**
+		 * Count all the aliases with id or target matching criteria.
+		 *
+		 * @param criteria
+		 *        The search criteria.
+		 * @return The count of all aliases with id or target matching criteria.
+		 */
+		public int countSearch(String criteria);
+
+		/**
+		 * Get all the alias that point at this target.
+		 *
+		 * @return The List (BaseAliasEdit) of all alias that point at this target
+		 */
+		public List getAll(String target);
+
+		/**
+		 * Get all the alias that point at this target, in record range.
+		 *
+		 * @param first
+		 *        The first record position to return.
+		 * @param last
+		 *        The last record position to return.
+		 * @return The List (BaseAliasEdit) of all alias that point at this target, in record range.
+		 */
+		public List getAll(String target, int first, int last);
+
+		/**
+		 * Add a new alias with this id.
+		 *
+		 * @param id
+		 *        The alias id.
+		 * @return The locked Alias object with this id, or null if the id is in use.
+		 */
+		public AliasEdit put(String id);
+
+		/**
+		 * Get a lock on the alias with this id, or null if a lock cannot be gotten.
+		 *
+		 * @param id
+		 *        The alias id (case insensitive).
+		 * @return The locked Alias with this id, or null if this records cannot be locked.
+		 */
+		public AliasEdit edit(String id);
+
+		/**
+		 * Commit the changes and release the lock.
+		 *
+		 * @param user
+		 *        The alias to commit.
+		 */
+		public void commit(AliasEdit alias);
+
+		/**
+		 * Cancel the changes and release the lock.
+		 *
+		 * @param user
+		 *        The alias to commit.
+		 */
+		public void cancel(AliasEdit alias);
+
+		/**
+		 * Remove this alias.
+		 *
+		 * @param user
+		 *        The alias to remove.
+		 */
+		public void remove(AliasEdit alias);
+
+		/**
+		 * Read properties from storage into the edit's properties.
+		 *
+		 * @param edit
+		 *        The user to read properties for.
+		 */
+		public void readProperties(AliasEdit edit, ResourcePropertiesEdit props);
+
+	} // Storage
+
+	/**
 	 * <p>
 	 * BaseAlias is an implementation of the CHEF Alias object.
 	 * </p>
@@ -1080,21 +1308,8 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		protected boolean m_active = false;
 
 		/**
-		 * Clean up.
-		 */
-		protected void finalize()
-		{
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancel(this);
-			}
-
-		} // finalize
-
-		/**
 		 * Construct.
-		 * 
+		 *
 		 * @param id
 		 *        The id.
 		 */
@@ -1113,7 +1328,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * ReConstruct.
-		 * 
+		 *
 		 * @param id
 		 *        The id.
 		 * @param target
@@ -1145,7 +1360,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Construct from another Alias object.
-		 * 
+		 *
 		 * @param alias
 		 *        The alias object to use for values.
 		 */
@@ -1157,7 +1372,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Construct from information in XML.
-		 * 
+		 *
 		 * @param el
 		 *        The XML DOM Element definining the alias.
 		 */
@@ -1238,8 +1453,21 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 		} // BaseAlias
 
 		/**
+		 * Clean up.
+		 */
+		protected void finalize()
+		{
+			// catch the case where an edit was made but never resolved
+			if (m_active)
+			{
+				cancel(this);
+			}
+
+		} // finalize
+
+		/**
 		 * Take all values from this object.
-		 * 
+		 *
 		 * @param alias
 		 *        The alias object to take values from.
 		 */
@@ -1262,7 +1490,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Serialize the resource into XML, adding an element to the doc under the top of the stack element.
-		 * 
+		 *
 		 * @param doc
 		 *        The DOM doc to contain the XML (or null for a string return).
 		 * @param stack
@@ -1302,7 +1530,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the alias id.
-		 * 
+		 *
 		 * @return The alias id string.
 		 */
 		public String getId()
@@ -1357,20 +1585,20 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			return m_lastModifiedTime;
 		}
 
-		
+
 		public Date getDateCreated() {
 			return new Date(m_createdTime.getTime());
 		}
 
 		public Date getDateModified() {
 			return new Date(m_lastModifiedTime.getTime());
-			
+
 		}
 
-		
+
 		/**
 		 * Access the alias target.
-		 * 
+		 *
 		 * @return The alias target.
 		 */
 		public String getTarget()
@@ -1381,7 +1609,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Set the alias target.
-		 * 
+		 *
 		 * @param target
 		 *        The alias target.
 		 */
@@ -1393,7 +1621,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the URL which can be used to access the resource.
-		 * 
+		 *
 		 * @return The URL which can be used to access the resource.
 		 */
 		public String getUrl()
@@ -1404,7 +1632,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the internal reference which can be used to access the resource from within the system.
-		 * 
+		 *
 		 * @return The the internal reference which can be used to access the resource from within the system.
 		 */
 		public String getReference()
@@ -1431,7 +1659,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the resources's properties.
-		 * 
+		 *
 		 * @return The resources's properties.
 		 */
 		public ResourceProperties getProperties()
@@ -1449,7 +1677,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Are these objects equal? If they are both Alias objects, and they have matching id's, they are.
-		 * 
+		 *
 		 * @return true if they are equal, false if not.
 		 */
 		public boolean equals(Object obj)
@@ -1470,7 +1698,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Compare this object with the specified object for order.
-		 * 
+		 *
 		 * @return A negative integer, zero, or a positive integer as this object is less than, equal to, or greater than the specified object.
 		 */
 		public int compareTo(Object obj)
@@ -1489,7 +1717,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the event code for this edit.
-		 * 
+		 *
 		 * @return The event code for this edit.
 		 */
 		protected String getEvent()
@@ -1499,7 +1727,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Set the event code for this edit.
-		 * 
+		 *
 		 * @param event
 		 *        The event code for this edit.
 		 */
@@ -1510,7 +1738,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Access the resource's properties for modification
-		 * 
+		 *
 		 * @return The resource's properties.
 		 */
 		public ResourcePropertiesEdit getPropertiesEdit()
@@ -1537,7 +1765,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 		/**
 		 * Check to see if the edit is still active, or has already been closed.
-		 * 
+		 *
 		 * @return true if the edit is active, false if it's been closed.
 		 */
 		public boolean isActiveEdit()
@@ -1595,295 +1823,5 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 
 
 	} // BaseAliasEdit
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * Storage
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	protected interface Storage
-	{
-		/**
-		 * Open.
-		 */
-		public void open();
-
-		/**
-		 * Close.
-		 */
-		public void close();
-
-		/**
-		 * Check if an alias with this id exists.
-		 * 
-		 * @param id
-		 *        The alias id (case insensitive).
-		 * @return true if an alias by this id exists, false if not.
-		 */
-		public boolean check(String id);
-
-		/**
-		 * Get the alias with this id, or null if not found.
-		 * 
-		 * @param id
-		 *        The alias id (case insensitive).
-		 * @return The alias with this id, or null if not found.
-		 */
-		public AliasEdit get(String id);
-
-		/**
-		 * Get all the alias.
-		 * 
-		 * @return The List (BaseAliasEdit) of all alias.
-		 */
-		public List getAll();
-
-		/**
-		 * Get all the alias in record range.
-		 * 
-		 * @param first
-		 *        The first record position to return.
-		 * @param last
-		 *        The last record position to return.
-		 * @return The List (BaseAliasEdit) of all alias.
-		 */
-		public List getAll(int first, int last);
-
-		/**
-		 * Count all the aliases.
-		 * 
-		 * @return The count of all aliases.
-		 */
-		public int count();
-
-		/**
-		 * Search for aliases with id or target matching criteria, in range.
-		 * 
-		 * @param criteria
-		 *        The search criteria.
-		 * @param first
-		 *        The first record position to return.
-		 * @param last
-		 *        The last record position to return.
-		 * @return The List (BaseAliasEdit) of all alias.
-		 */
-		public List search(String criteria, int first, int last);
-
-		/**
-		 * Count all the aliases with id or target matching criteria.
-		 * 
-		 * @param criteria
-		 *        The search criteria.
-		 * @return The count of all aliases with id or target matching criteria.
-		 */
-		public int countSearch(String criteria);
-
-		/**
-		 * Get all the alias that point at this target.
-		 * 
-		 * @return The List (BaseAliasEdit) of all alias that point at this target
-		 */
-		public List getAll(String target);
-
-		/**
-		 * Get all the alias that point at this target, in record range.
-		 * 
-		 * @param first
-		 *        The first record position to return.
-		 * @param last
-		 *        The last record position to return.
-		 * @return The List (BaseAliasEdit) of all alias that point at this target, in record range.
-		 */
-		public List getAll(String target, int first, int last);
-
-		/**
-		 * Add a new alias with this id.
-		 * 
-		 * @param id
-		 *        The alias id.
-		 * @return The locked Alias object with this id, or null if the id is in use.
-		 */
-		public AliasEdit put(String id);
-
-		/**
-		 * Get a lock on the alias with this id, or null if a lock cannot be gotten.
-		 * 
-		 * @param id
-		 *        The alias id (case insensitive).
-		 * @return The locked Alias with this id, or null if this records cannot be locked.
-		 */
-		public AliasEdit edit(String id);
-
-		/**
-		 * Commit the changes and release the lock.
-		 * 
-		 * @param user
-		 *        The alias to commit.
-		 */
-		public void commit(AliasEdit alias);
-
-		/**
-		 * Cancel the changes and release the lock.
-		 * 
-		 * @param user
-		 *        The alias to commit.
-		 */
-		public void cancel(AliasEdit alias);
-
-		/**
-		 * Remove this alias.
-		 * 
-		 * @param user
-		 *        The alias to remove.
-		 */
-		public void remove(AliasEdit alias);
-
-		/**
-		 * Read properties from storage into the edit's properties.
-		 * 
-		 * @param edit
-		 *        The user to read properties for.
-		 */
-		public void readProperties(AliasEdit edit, ResourcePropertiesEdit props);
-
-	} // Storage
-
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * StorageUser implementation (no container)
-	 *********************************************************************************************************************************************************************************************************************************************************/
-
-	/**
-	 * Construct a new resource given just an id.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param id
-	 *        The id for the new object.
-	 * @param others
-	 *        (options) array of objects to load into the Resource's fields.
-	 * @return The new resource.
-	 */
-	public Entity newResource(Entity container, String id, Object[] others)
-	{
-		return new BaseAliasEdit(id);
-	}
-
-	/**
-	 * Construct a new resource, from an XML element.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param element
-	 *        The XML.
-	 * @return The new resource from the XML.
-	 */
-	public Entity newResource(Entity container, Element element)
-	{
-		return new BaseAliasEdit(element);
-	}
-
-	/**
-	 * Construct a new resource from another resource of the same type.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param other
-	 *        The other resource.
-	 * @return The new resource as a copy of the other.
-	 */
-	public Entity newResource(Entity container, Entity other)
-	{
-		return new BaseAliasEdit((BaseAliasEdit) other);
-	}
-
-	/**
-	 * Construct a new resource given just an id.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param id
-	 *        The id for the new object.
-	 * @param others
-	 *        (options) array of objects to load into the Resource's fields.
-	 * @return The new resource.
-	 */
-	public Edit newResourceEdit(Entity container, String id, Object[] others)
-	{
-		BaseAliasEdit e = new BaseAliasEdit(id);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * Construct a new resource, from an XML element.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param element
-	 *        The XML.
-	 * @return The new resource from the XML.
-	 */
-	public Edit newResourceEdit(Entity container, Element element)
-	{
-		BaseAliasEdit e = new BaseAliasEdit(element);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * Construct a new resource from another resource of the same type.
-	 * 
-	 * @param container
-	 *        The Resource that is the container for the new resource (may be null).
-	 * @param other
-	 *        The other resource.
-	 * @return The new resource as a copy of the other.
-	 */
-	public Edit newResourceEdit(Entity container, Entity other)
-	{
-		BaseAliasEdit e = new BaseAliasEdit((BaseAliasEdit) other);
-		e.activate();
-		return e;
-	}
-
-	/**
-	 * Collect the fields that need to be stored outside the XML (for the resource).
-	 * 
-	 * @return An array of field values to store in the record outside the XML (for the resource).
-	 */
-	public Object[] storageFields(Entity r)
-	{
-		return null;
-	}
-
-	/**
-	 * Registered with the event service, to invalidate cache entries.
-	 * @param o The observable object.
-	 * @param arg Hopefully an Event which we can check against.
-	 */
-	@Override
-	public void update(Observable o, Object arg)
-	{
-		if (arg instanceof Event)
-		{
-			Event event = (Event) arg;
-			if (SECURE_ADD_ALIAS.equals(event.getEvent())
-					&& event.getResource().startsWith(
-					REFERENCE_ROOT + Entity.SEPARATOR))
-			{
-				String id = event.getResource().substring(
-						(REFERENCE_ROOT + Entity.SEPARATOR).length());
-				String target;
-				try
-				{
-					target = getTarget(id);
-					m_targetCache.remove(target);
-				}
-				catch (IdUnusedException e)
-				{
-					M_log.warn("Failed to find new Alias: " + id);
-				}
-			}
-		}
-	}
 } // BaseAliasService
 
