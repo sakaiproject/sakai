@@ -574,9 +574,15 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		return null;
 	}
 
-	public String parseSiteAlias(String url)
+	public String parseSiteAlias(String alias)
 	{
-		String id = ((useAliasPrefix)?SITE_ALIAS:"")+url;
+		if (alias == null)
+		{
+			return null;
+		}
+		// Prepend site alias prefix if it's being used.
+		String id = ((useAliasPrefix)?SITE_ALIAS:"")+alias;
+
 		try
 		{
 			String reference = aliasService.getTarget(id);
