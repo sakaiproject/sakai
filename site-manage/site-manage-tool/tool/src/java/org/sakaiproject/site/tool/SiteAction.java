@@ -5057,12 +5057,12 @@ public class SiteAction extends PagedResourceActionII {
 		} else {
 			state.setAttribute(STATE_TYPE_SELECTED, type);
 			setNewSiteType(state, type);
-			if (SiteTypeUtil.isCourseSite(type)) {
+			if (SiteTypeUtil.isCourseSite(type)) { // UMICH-1035
 				// redirect
 				redirectCourseCreation(params, state, "selectTerm");
-			} else if (SiteTypeUtil.isProjectSite(type)) {
+			} else if (SiteTypeUtil.isProjectSite(type)) { // UMICH-1035
 				state.setAttribute(STATE_TEMPLATE_INDEX, "13");
-			} else if (pSiteTypes != null && pSiteTypes.contains(type)) {
+			} else if (pSiteTypes != null && pSiteTypes.contains(SiteTypeUtil.getTargetSiteType(type))) {  // UMICH-1035
 				// if of customized type site use pre-defined site info and exclude
 				// from public listing
 				SiteInfo siteInfo = new SiteInfo();
@@ -5542,7 +5542,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		toolGroup.put(defaultGroupName, getOrderedToolList(state, defaultGroupName, type, checkhome));		
 	} else {	
 		// get all the groups that are available for this site type
-		List groups = ServerConfigurationService.getCategoryGroups(type);
+		List groups = ServerConfigurationService.getCategoryGroups(SiteTypeUtil.getTargetSiteType(type));
 		for(Iterator<String> itr = groups.iterator(); itr.hasNext();) {
 			String groupId = itr.next();
 			String groupName = getGroupName(groupId);
@@ -5554,7 +5554,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
       
 		// add ungroups tools to end of toolGroup list
 		String ungroupedName = getGroupName(UNGROUPED_TOOL_TITLE);
-		List ungroupedList = getUngroupedTools(ungroupedName,	 toolGroup, state, type, moreInfoDir, site);
+		List ungroupedList = getUngroupedTools(ungroupedName,	 toolGroup, state, moreInfoDir, site);
 		if (ungroupedList.size() > 0) {
 			toolGroup.put(ungroupedName, ungroupedList );
 		}	 
@@ -5600,7 +5600,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		List toolList = (List)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 
 		// mark the required tools
-		List requiredTools = ServerConfigurationService.getToolsRequired(type);
+		List requiredTools = ServerConfigurationService.getToolsRequired(SiteTypeUtil.getTargetSiteType(type));
 		
 		// add Home tool only once
 		boolean hasHomeTool = false;
@@ -5660,7 +5660,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						if (tr != null) 
 						{
 								String toolId = tr.getId();
-								if (isSiteTypeInToolCategory(type, tr) && notStealthOrHiddenTool(toolId) ) // SAK 23808
+								if (isSiteTypeInToolCategory(SiteTypeUtil.getTargetSiteType(type), tr) && notStealthOrHiddenTool(toolId) ) // SAK 23808
 								{
 									newTool = new MyTool();
 									newTool.title = tr.getTitle();
@@ -5811,13 +5811,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 	}
 
+
 	/* SAK 16600  if toolGroup mode is active; and toolGroups don't use all available tools, put remaining tools into 
 	 * 'ungrouped' group having name 'GroupName'
 	 * @param	moreInfoDir		file pointer to directory of MoreInfo content
 	 * @param	site				current site
 	 * @return	list of MyTool items 
 	 */
-	private List getUngroupedTools(String ungroupedName, Map<String,List> toolsByGroup, SessionState state, String type, File moreInforDir, Site site) {
+	private List getUngroupedTools(String ungroupedName, Map<String,List> toolsByGroup, SessionState state, File moreInforDir, Site site) {
 		// Get all tools for site
 		List ungroupedToolsOld = (List) state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
 		
@@ -5826,7 +5827,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if ( ungroupedToolsOld != null )
 			ungroupedTools.addAll(ungroupedToolsOld);
 		
-		// get all the groups that are available for this site type
+		// get all the tool groups that are available for this site  
 		for (Iterator<String> toolgroupitr = toolsByGroup.keySet().iterator(); toolgroupitr.hasNext();) {
 			String groupName = toolgroupitr.next();
 			List toolList = toolsByGroup.get(groupName);
@@ -5928,6 +5929,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// get registered tools list
 		Set categories = new HashSet();
 		categories.add(type);
+		categories.add(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
 		Set toolRegistrations = ToolManager.findTools(categories, null);
 		if ((toolRegistrations == null || toolRegistrations.size() == 0)
 			&& state.getAttribute(STATE_DEFAULT_SITE_TYPE) != null)
@@ -5935,7 +5937,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// use default site type and try getting tools again
 			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 			categories.clear();
-			categories.add(type);
+			categories.add(SiteTypeUtil.getTargetSiteType(type)); //UMICH-1035
 			toolRegistrations = ToolManager.findTools(categories, null);
 		}
 
@@ -7581,7 +7583,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 		SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
-		if (siteTitleEditable(state, site_type)) 
+		if (siteTitleEditable(state, SiteTypeUtil.getTargetSiteType(site_type))) 
 		{
 			Site.setTitle(siteInfo.title);
 		}
@@ -10392,7 +10394,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		boolean inWSetupPageList;
 
 		Set categories = new HashSet();
-		categories.add((String) state.getAttribute(STATE_SITE_TYPE));
+		// UMICH 1035
+		categories.add(siteType);
+		categories.add(SiteTypeUtil.getTargetSiteType(siteType));
 		Set toolRegistrationSet = ToolManager.findTools(categories, null);
 
 		// first looking for any tool for removal
@@ -11677,9 +11681,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			type = (String) state.getAttribute(STATE_DEFAULT_SITE_TYPE);
 		}
-		
 		if (type != null && toolIdList != null) {
-			List<String> orderedToolIds = ServerConfigurationService.getToolOrder(type);
+			List<String> orderedToolIds = ServerConfigurationService.getToolOrder(SiteTypeUtil.getTargetSiteType(type)); // UMICH-1035  
 			for (String tool_id : orderedToolIds) {
 				for (String toolId : toolIdList) {
 					String rToolId = originalToolId(toolId, tool_id);
