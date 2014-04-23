@@ -1027,6 +1027,20 @@ public class MemCache implements Cache, Observer, CacheEventListener
     }
 
     /**
+     * Indicates that a cache is distributed if true
+     */
+    protected boolean distributed = false;
+
+    public void setDistributed(boolean distributed) {
+        this.distributed = distributed;
+    }
+
+    @Override
+    public boolean isDistributed() {
+        return distributed;
+    }
+
+    /**
      * Simply reducing code duplication
      *
      * @param eventType the event type

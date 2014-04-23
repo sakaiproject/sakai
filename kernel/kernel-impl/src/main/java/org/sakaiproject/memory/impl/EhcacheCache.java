@@ -59,6 +59,10 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     public EhcacheCache(Ehcache cache) {
         super(cache.getName());
         this.cache = cache;
+        // check if distributed
+        if (cache.getCacheConfiguration() != null && cache.getCacheConfiguration().getTerracottaConfiguration() != null) {
+            this.distributed = cache.getCacheConfiguration().getTerracottaConfiguration().isClustered();
+        }
     }
 
     @Override
@@ -195,6 +199,7 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
         p.put("maxEntries", cache.getCacheConfiguration().getMaxEntriesLocalHeap());
         p.put("timeToLiveSecs", cache.getCacheConfiguration().getTimeToLiveSeconds());
         p.put("timeToIdleSecs", cache.getCacheConfiguration().getTimeToIdleSeconds());
+        p.put("distributed", isDistributed());
         p.put("eternal", cache.getCacheConfiguration().isEternal());
         if (includeExpensiveDetails) {
             p.put("size", cache.getSize());
@@ -218,20 +223,27 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     @Override
     public String getDescription() {
         final StringBuilder buf = new StringBuilder();
-        buf.append("Ehcache (").append(getName()).append(")");
+        buf.append(cache.getName()).append(" Ehcache");
         if (loader != null) {
             buf.append(" Loader");
         }
         if (cacheEventListener != null) {
             buf.append(" Listener");
         }
+        if (isDistributed()) {
+            buf.append(" Distributed");
+        }
         final long hits = cache.getStatistics().getCacheHits();
         final long misses = cache.getStatistics().getCacheMisses();
         final long total = hits + misses;
-        buf.append("  size:").append(cache.getStatistics().getObjectCount()).append("/").append(cache.getCacheConfiguration().getMaxEntriesLocalHeap())
-                .append("  hits:").append(hits).append("  misses:").append(misses)
-                .append("  hit%:").append((total > 0) ? "" + ((100l * hits) / total) : "n/a");
-
+        final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
+        // Even when we're not collecting statistics ehcache knows how many objects are in the cache
+        buf.append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
+        if (cache.isStatisticsEnabled()) {
+            buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
+        } else {
+            buf.append(" NO statistics (not enabled for cache)");
+        }
         return buf.toString();
     }
 

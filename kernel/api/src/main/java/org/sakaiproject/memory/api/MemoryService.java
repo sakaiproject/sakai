@@ -204,6 +204,7 @@ public interface MemoryService // CacheManager
      * Report the amount of unused and available memory for the JVM
      *
      * @return the amount of available memory.
+     * @deprecated since 2.9 - this should be done with a utility if that is even useful
      */
     public long getAvailableMemory();
 
@@ -218,6 +219,7 @@ public interface MemoryService // CacheManager
      * Evict all expired objects from the in-memory caches
      *
      * @throws SecurityException if the current user is not a super admin
+     * @deprecated since 2.9 - this is dangerous to run with a distributed caching system
      */
     void evictExpiredMembers();
 
@@ -230,6 +232,7 @@ public interface MemoryService // CacheManager
      * @param cacheName Load a defined bean from the application context with this name or create a default cache with this name
      * @return a cache which can be used to store objects
      * @see #getCache(String)
+     * @deprecated since 10 - use getCache instead
      */
     public Cache newCache(String cacheName);
 

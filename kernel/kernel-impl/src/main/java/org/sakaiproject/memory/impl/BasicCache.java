@@ -48,6 +48,19 @@ public abstract class BasicCache implements Cache {
      * Optional object that will deal with loading missing entries into the cache on get()
      */
     protected CacheLoader loader = null;
+    /**
+     * Indicates that a cache is distributed if true
+     */
+    protected boolean distributed = false;
+
+    public void setDistributed(boolean distributed) {
+        this.distributed = distributed;
+    }
+
+    @Override
+    public boolean isDistributed() {
+        return distributed;
+    }
 
     /**
      * Construct the Cache

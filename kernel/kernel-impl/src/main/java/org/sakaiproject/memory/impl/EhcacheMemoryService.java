@@ -202,20 +202,10 @@ public class EhcacheMemoryService implements MemoryService {
             caches.add(cache);
         }
 
-        // summary
+        // summary (cache descriptions)
         for (Ehcache cache : caches) {
-            final long hits = cache.getStatistics().getCacheHits();
-            final long misses = cache.getStatistics().getCacheMisses();
-            final long total = hits + misses;
-            final long hitRatio = ((total > 0) ? ((100l * hits) / total) : 0);
-            // Even when we're not collecting statistics ehcache knows how many objects are in the cache
-            buf.append(cache.getName()).append(": ").append(" count:").append(cache.getStatistics().getObjectCount());
-            if (cache.isStatisticsEnabled()) {
-                buf.append(" hits:").append(hits).append(" misses:").append(misses).append(" hit%:").append(hitRatio);
-            } else {
-                buf.append(" NO statistics (not enabled for cache)");
-            }
-            buf.append("\n");
+            Cache c = new EhcacheCache(cache);
+            buf.append(c.getDescription()).append("\n");
         }
 
         // extended report

@@ -300,13 +300,13 @@
     -->
     <defaultCache
             maxElementsInMemory="5000"
-            eternal="false"
             timeToIdleSeconds="360"
             timeToLiveSeconds="600"
-            diskPersistent="false"
-            maxElementsOnDisk="10000"
+            eternal="false"
             statistics="true"
-            >
+            diskPersistent="false"
+            maxElementsOnDisk="1000"
+            overflowToDisk="false">
     </defaultCache>
 
     <!--Predefined caches.  Add your cache configuration settings here.
@@ -342,6 +342,7 @@
    <cache name="org.hibernate.cache.UpdateTimestampsCache"
       maxElementsInMemory="6000"
       eternal="true"
+      statistics="true"
       overflowToDisk="false" />
 
     <!-- this cache stores the actual objects pulled out of the DB by hibernate -->
@@ -350,6 +351,7 @@
       eternal="false"
       timeToIdleSeconds="600"
       timeToLiveSeconds="1200"
+      statistics="true"
       overflowToDisk="false" />
 
 </ehcache>

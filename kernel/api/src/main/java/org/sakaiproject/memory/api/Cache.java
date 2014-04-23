@@ -245,6 +245,16 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      */
     void attachLoader(CacheLoader cacheLoader);
 
+    /**
+     * Allows a check to see if a cache is distributed or not.
+     * This should be false for any local caches or caches which do not replicate or expire
+     * entries when they are updated or removed.
+     * This is necessary in Sakai to allow legacy cluster caching support through events
+     * while also allowing for true distributed caches.
+     *
+     * @return true if this cache has distributed replication or expiration support, false otherwise
+     */
+    boolean isDistributed();
 
     // DEPRECATED METHODS - remove these before Sakai 11 release
 

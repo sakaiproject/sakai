@@ -131,6 +131,11 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
+    public boolean isDistributed() {
+        return false;
+    }
+
+    @Override
     public String getDescription() {
         return name;
     }
