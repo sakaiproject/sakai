@@ -1091,13 +1091,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			else
 			{
 				String reference = portal.getSiteNeighbourhoodService().parseSiteAlias(siteId);
-				Reference ref = EntityManager.getInstance().newReference(reference);
-				try 
+				if (reference != null)
 				{
-					return SiteService.getSiteVisit(ref.getId());
-				}
-				catch (IdUnusedException iue)
-				{
+					Reference ref = EntityManager.getInstance().newReference(reference);
+					try {
+						return SiteService.getSiteVisit(ref.getId());
+					} catch (IdUnusedException iue) {
+					}
 				}
 			}
 
