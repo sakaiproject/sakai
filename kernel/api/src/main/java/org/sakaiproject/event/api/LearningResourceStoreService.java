@@ -249,14 +249,78 @@ public interface LearningResourceStoreService {
                 this.rawMap = null;
             }
         }
+
         /**
-         * Set or clear (using null) the context for this statement
-         * @param context
-         * @see #context
+         * @see #populated
          */
-        public void setContext(LRS_Context context) {
-            this.context = context;
+        public boolean isPopulated() {
+            return populated;
         }
+
+        /**
+         * @see #rawMap
+         */
+        public Map<String, Object> getRawMap() {
+            return rawMap;
+        }
+        // GETTERS
+
+        /**
+         * @see #rawJSON
+         */
+        public String getRawJSON() {
+            return rawJSON;
+        }
+
+        /**
+         * @see #id
+         */
+        public String getId() {
+            return id;
+        }
+
+        /**
+         * @see #timestamp
+         */
+        public Date getTimestamp() {
+            return timestamp;
+        }
+
+        /**
+         * @see #stored
+         */
+        public Date getStored() {
+            return stored;
+        }
+
+        /**
+         * @see #actor
+         */
+        public LRS_Actor getActor() {
+            return actor;
+        }
+
+        /**
+         * @see #verb
+         */
+        public LRS_Verb getVerb() {
+            return verb;
+        }
+
+        /**
+         * @see #object
+         */
+        public LRS_Object getObject() {
+            return object;
+        }
+
+        /**
+         * @see #result
+         */
+        public LRS_Result getResult() {
+            return result;
+        }
+
         /**
          * Set or clear (using null) the result for this statement
          * @param result
@@ -265,73 +329,23 @@ public interface LearningResourceStoreService {
         public void setResult(LRS_Result result) {
             this.result = result;
         }
-        // GETTERS
-        /**
-         * @see #populated
-         */
-        public boolean isPopulated() {
-            return populated;
-        }
-        /**
-         * @see #rawMap
-         */
-        public Map<String, Object> getRawMap() {
-            return rawMap;
-        }
-        /**
-         * @see #rawJSON
-         */
-        public String getRawJSON() {
-            return rawJSON;
-        }
-        /**
-         * @see #id
-         */
-        public String getId() {
-            return id;
-        }
-        /**
-         * @see #timestamp
-         */
-        public Date getTimestamp() {
-            return timestamp;
-        }
-        /**
-         * @see #stored
-         */
-        public Date getStored() {
-            return stored;
-        }
-        /**
-         * @see #actor
-         */
-        public LRS_Actor getActor() {
-            return actor;
-        }
-        /**
-         * @see #verb
-         */
-        public LRS_Verb getVerb() {
-            return verb;
-        }
-        /**
-         * @see #object
-         */
-        public LRS_Object getObject() {
-            return object;
-        }
-        /**
-         * @see #result
-         */
-        public LRS_Result getResult() {
-            return result;
-        }
+
         /**
          * @see #context
          */
         public LRS_Context getContext() {
             return context;
         }
+
+        /**
+         * Set or clear (using null) the context for this statement
+         * @param context
+         * @see #context
+         */
+        public void setContext(LRS_Context context) {
+            this.context = context;
+        }
+
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
@@ -382,14 +396,6 @@ public interface LearningResourceStoreService {
          */
         String mbox;
         /**
-         * @param email the user email address
-         * @return an actor built using the given email address
-         */
-        static LRS_Actor makeFromEmail(String email) {
-            LRS_Actor actor = new LRS_Actor(email);
-            return actor;
-        }
-        /**
          * use of the empty constructor is restricted
          */
         protected LRS_Actor() {
@@ -406,25 +412,38 @@ public interface LearningResourceStoreService {
             }
             mbox = "mailto:"+email;
         }
+
         /**
-         * @param name OPTIONAL display value for this actor
+         * @param email the user email address
+         * @return an actor built using the given email address
          */
-        public void setName(String name) {
-            this.name = name;
+        static LRS_Actor makeFromEmail(String email) {
+            LRS_Actor actor = new LRS_Actor(email);
+            return actor;
         }
-        // GETTERS
+
         /**
          * @see #objectType
          */
         public String getObjectType() {
             return objectType;
         }
+        // GETTERS
+
         /**
          * @see #name
          */
         public String getName() {
             return name;
         }
+
+        /**
+         * @param name OPTIONAL display value for this actor
+         */
+        public void setName(String name) {
+            this.name = name;
+        }
+
         /**
          * @see #mbox
          */
@@ -454,6 +473,91 @@ public interface LearningResourceStoreService {
          */
         static String XAPI_VERBS_PREFIX = "http://www.adlnet.gov/expapi/verbs/";
         static String SAKAI_VERBS_PREFIX = "http://sakaiproject.org/expapi/verbs/";
+        /**
+         * REQUIRED:
+         * A URI that corresponds to a verb definition.
+         * Each verb definition corresponds to the meaning of a verb, not the word.
+         * A URI should be human-readable and contain the verb meaning.
+         * Example: www.adlnet.gov/XAPIprofile/ran(travelled_a_distance)
+         */
+        String id;
+        /**
+         * OPTIONAL:
+         * A language map containing the human readable display representation
+         * of the verb in at least one language. This does not have any impact
+         * on the meaning of the statement, but only serves to give a human-readable display
+         * of the meaning already determined by the chosen verb.
+         * Example: { "en-US" => "ran", "es" => "corrió" }
+         */
+        Map<String, String> display;
+        /**
+         * use of the empty constructor is restricted
+         */
+        protected LRS_Verb() {}
+        /**
+         * Create a verb to indicate what the user did.
+         * Limited to the restricted set of applicable verbs
+         *
+         * @param verb an ADL approved verb for 1.0
+         */
+        public LRS_Verb(SAKAI_VERB verb) {
+            this();
+            if (verb == null) {
+                throw new IllegalArgumentException("LRS_Verb SAKAI_VERB verb cannot be null");
+            }
+            id = XAPI_VERBS_PREFIX + verb.name();
+        }
+        /**
+         * Create a verb to indicate what the user did.
+         * Open to any verb (recommend using lowercase for consistency)
+         *
+         * The verb should probably come from this listing:
+         * http://tincanapi.wikispaces.com/Verbs+and+Activities
+         *
+         * @param verb a string indicating the action
+         */
+        public LRS_Verb(String verb) {
+            this();
+            if (verb == null) {
+                throw new IllegalArgumentException("LRS_Verb verb cannot be null");
+            }
+            this.id = (verb.indexOf("://") == -1 ? SAKAI_VERBS_PREFIX + verb : verb);
+        }
+
+        /**
+         * @see #id
+         */
+        public String getId() {
+            return id;
+        }
+
+        /**
+         * @see #display
+         */
+        public Map<String, String> getDisplay() {
+            return display;
+        }
+        // GETTERS
+
+        /**
+         * OPTIONAL:
+         * A language map containing the human readable display representation
+         * of the verb in at least one language. This does not have any impact
+         * on the meaning of the statement, but only serves to give a human-readable display
+         * of the meaning already determined by the chosen verb.
+         * Example: { "en-US" => "ran", "es" => "corrió" }
+         */
+        public void setDisplay(Map<String, String> display) {
+            this.display = display;
+        }
+
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
+        @Override
+        public String toString() {
+            return "Verb[id=" + id + "]";
+        }
         /**
          * Set of Sakai verbs (limited set of verbs that make sense for use in Sakai)
          * Based on ADL approved verbs for 1.0
@@ -485,87 +589,6 @@ public interface LearningResourceStoreService {
             suspended,
             terminated,
             voided,
-        }
-        /**
-         * REQUIRED: 
-         * A URI that corresponds to a verb definition. 
-         * Each verb definition corresponds to the meaning of a verb, not the word.
-         * A URI should be human-readable and contain the verb meaning.
-         * Example: www.adlnet.gov/XAPIprofile/ran(travelled_a_distance)
-         */
-        String id;
-        /**
-         * OPTIONAL: 
-         * A language map containing the human readable display representation 
-         * of the verb in at least one language. This does not have any impact 
-         * on the meaning of the statement, but only serves to give a human-readable display 
-         * of the meaning already determined by the chosen verb.
-         * Example: { "en-US" => "ran", "es" => "corrió" }
-         */
-        Map<String, String> display;
-        /**
-         * use of the empty constructor is restricted
-         */
-        protected LRS_Verb() {}
-        /**
-         * Create a verb to indicate what the user did.
-         * Limited to the restricted set of applicable verbs
-         * 
-         * @param verb an ADL approved verb for 1.0
-         */
-        public LRS_Verb(SAKAI_VERB verb) {
-            this();
-            if (verb == null) {
-                throw new IllegalArgumentException("LRS_Verb SAKAI_VERB verb cannot be null");
-            }
-            id = XAPI_VERBS_PREFIX + verb.name();
-        }
-        /**
-         * Create a verb to indicate what the user did.
-         * Open to any verb (recommend using lowercase for consistency)
-         * 
-         * The verb should probably come from this listing:
-         * http://tincanapi.wikispaces.com/Verbs+and+Activities
-         * 
-         * @param verb a string indicating the action
-         */
-        public LRS_Verb(String verb) {
-            this();
-            if (verb == null) {
-                throw new IllegalArgumentException("LRS_Verb verb cannot be null");
-            }
-            this.id = (verb.indexOf("://") == -1 ? SAKAI_VERBS_PREFIX + verb : verb);
-        }
-        /**
-         * OPTIONAL: 
-         * A language map containing the human readable display representation 
-         * of the verb in at least one language. This does not have any impact 
-         * on the meaning of the statement, but only serves to give a human-readable display 
-         * of the meaning already determined by the chosen verb.
-         * Example: { "en-US" => "ran", "es" => "corrió" }
-         */
-        public void setDisplay(Map<String, String> display) {
-            this.display = display;
-        }
-        // GETTERS
-        /**
-         * @see #id
-         */
-        public String getId() {
-            return id;
-        }
-        /**
-         * @see #display
-         */
-        public Map<String, String> getDisplay() {
-            return display;
-        }
-        /* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
-        @Override
-        public String toString() {
-            return "Verb[id=" + id + "]";
         }
     }
 
@@ -643,20 +666,21 @@ public interface LearningResourceStoreService {
             }
             this.activityType = (activityType.indexOf("://") == -1 ? XAPI_ACTIVITIES_PREFIX + activityType : activityType);
         }
+
         /**
-         * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
+         * @see #id
          */
-        public void setActivityType(String type) {
-            this.activityType = type;
+        public String getId() {
+            return id;
         }
+
         /**
-         * OPTIONAL:
-         * A language map containing the human readable description of the Activity.
-         * Example: { "en-US" => "User completed quiz 1" }
+         * @see #name
          */
-        public void setDescription(Map<String, String> desc) {
-            this.descMap = desc;
+        public Map<String, String> getActivityName() {
+            return activityName;
         }
+
         /**
          * OPTIONAL: 
          * A language map containing the human readable display representation 
@@ -669,30 +693,37 @@ public interface LearningResourceStoreService {
             this.activityName = name;
         }
         // GETTERS
-        /**
-         * @see #id
-         */
-        public String getId() {
-            return id;
-        }
-        /**
-         * @see #name
-         */
-        public Map<String, String> getActivityName() {
-            return activityName;
-        }
+
         /**
          * @see #type
          */
         public String getActivityType() {
             return activityType;
         }
+
+        /**
+         * @param activityType activity URI that refers to the type of activity. (e.g. assessment)
+         */
+        public void setActivityType(String type) {
+            this.activityType = type;
+        }
+
         /**
          * @see #descMap
          */
         public Map<String,String> getDescription() {
             return descMap;
         }
+
+        /**
+         * OPTIONAL:
+         * A language map containing the human readable description of the Activity.
+         * Example: { "en-US" => "User completed quiz 1" }
+         */
+        public void setDescription(Map<String, String> desc) {
+            this.descMap = desc;
+        }
+
         /**
          * @see java.lang.Object#toString()
          */
@@ -879,6 +910,103 @@ public interface LearningResourceStoreService {
             }
             setRawScore(raw);
         }
+
+        /**
+         * @see #scaled
+         */
+        public Float getScaled() {
+            return scaled;
+        }
+
+        /**
+         * @see #raw
+         */
+        public Number getRaw() {
+            return raw;
+        }
+
+        /**
+         * @see #min
+         */
+        public Number getMin() {
+            return min;
+        }
+
+        /**
+         * @see #max
+         */
+        public Number getMax() {
+            return max;
+        }
+
+        /**
+         * @see #success
+         */
+        public Boolean getSuccess() {
+            return success;
+        }
+        // GETTERS
+
+        /**
+         * @param success true if successful, false if not, or null if not specified
+         * @see #success
+         */
+        public void setSuccess(Boolean success) {
+            this.success = success;
+        }
+
+        /**
+         * @see #completion
+         */
+        public Boolean getCompletion() {
+            return completion;
+        }
+
+        /**
+         * @param completion true if completed, false if not, or null if not specified
+         * @see #completion
+         */
+        public void setCompletion(Boolean completion) {
+            this.completion = completion;
+        }
+
+        /**
+         * @see #duration
+         */
+        public int getDuration() {
+            return duration;
+        }
+
+        /**
+         * @param duration Time spent on the activity in seconds, set to -1 to clear this
+         * @see #duration
+         */
+        public void setDuration(int duration) {
+            this.duration = duration;
+        }
+
+        /**
+         * @see #response
+         */
+        public String getResponse() {
+            return response;
+        }
+
+        /**
+         * @param A response appropriately formatted for the given Activity.
+         * @see #response
+         */
+        public void setResponse(String response) {
+            this.response = response;
+        }
+
+        /**
+         * @see #grade
+         */
+        public String getGrade() {
+            return grade;
+        }
+
         /**
          * NOTE: always use the numeric score when possible, this is only to be used when you cannot convert to a numeric score
          * @param grade a string grade value (will be stored as an extension), null to clear
@@ -887,89 +1015,7 @@ public interface LearningResourceStoreService {
         public void setGrade(String grade) {
             this.grade = grade;
         }
-        /**
-         * @param success true if successful, false if not, or null if not specified
-         * @see #success
-         */
-        public void setSuccess(Boolean success) {
-            this.success = success;
-        }
-        /**
-         * @param completion true if completed, false if not, or null if not specified
-         * @see #completion
-         */
-        public void setCompletion(Boolean completion) {
-            this.completion = completion;
-        }
-        /**
-         * @param duration Time spent on the activity in seconds, set to -1 to clear this
-         * @see #duration
-         */
-        public void setDuration(int duration) {
-            this.duration = duration;
-        }
-        /**
-         * @param A response appropriately formatted for the given Activity.
-         * @see #response
-         */
-        public void setResponse(String response) {
-            this.response = response;
-        }
-        // GETTERS
-        /**
-         * @see #scaled
-         */
-        public Float getScaled() {
-            return scaled;
-        }
-        /**
-         * @see #raw
-         */
-        public Number getRaw() {
-            return raw;
-        }
-        /**
-         * @see #min
-         */
-        public Number getMin() {
-            return min;
-        }
-        /**
-         * @see #max
-         */
-        public Number getMax() {
-            return max;
-        }
-        /**
-         * @see #success
-         */
-        public Boolean getSuccess() {
-            return success;
-        }
-        /**
-         * @see #completion
-         */
-        public Boolean getCompletion() {
-            return completion;
-        }
-        /**
-         * @see #duration
-         */
-        public int getDuration() {
-            return duration;
-        }
-        /**
-         * @see #response
-         */
-        public String getResponse() {
-            return response;
-        }
-        /**
-         * @see #grade
-         */
-        public String getGrade() {
-            return grade;
-        }
+
         /* (non-Javadoc)
          * @see java.lang.Object#toString()
          */
@@ -1030,7 +1076,7 @@ public interface LearningResourceStoreService {
         /**
          * Platform used in the experience of this learning activity.
          */
-        String platform = "SakaiCLE";
+        String platform = "Sakai";
         // TODO include fields like team, platform, language, statement, and extensions
         /**
          * use of the empty constructor is restricted
@@ -1061,12 +1107,7 @@ public interface LearningResourceStoreService {
         public void setInstructor(LRS_Actor instructor) {
             this.instructor = instructor;
         }
-        /**
-         * @param instructorEmail Instructor user email that the statement relates to
-         */
-        public void setInstructor(String instructorEmail) {
-            this.instructor = new LRS_Actor(instructorEmail);
-        }
+
         /**
          * @param contextType must be "parent", "grouping", and "other"
          * @param activityId a URI or key identifying the activity type (e.g. http://adlnet.gov/expapi/activities/test)
@@ -1087,17 +1128,47 @@ public interface LearningResourceStoreService {
             activityId = (activityId.indexOf("://") == -1 ? XAPI_ACTIVITIES_PREFIX + activityId : activityId);
             this.activitiesMap.get(contextType).put("id", activityId);
         }
+
+        /**
+         * @see #instructor
+         */
+        public LRS_Actor getInstructor() {
+            return instructor;
+        }
+
+        /**
+         * @param instructorEmail Instructor user email that the statement relates to
+         */
+        public void setInstructor(String instructorEmail) {
+            this.instructor = new LRS_Actor(instructorEmail);
+        }
+        // GETTERS
+
+        /**
+         * @see #revision
+         */
+        public String getRevision() {
+            return revision;
+        }
+
+        /**
+         * @see #activitiesMap
+         */
+        public Map<String, Map<String, String>> getActivitiesMap() {
+            return activitiesMap;
+        }
+
         /**
          * A map of the types of context to learning activities “activity” this statement is related to.
          * Valid context types are: "parent", "grouping", and "other".
-         * For example, if I am studying a textbook, for a test, the textbook is the activity the statement is about, 
+         * For example, if I am studying a textbook, for a test, the textbook is the activity the statement is about,
          * but the test is a context activity, and the context type is "other".
          * "other" : {"id" : "http://example.adlnet.gov/xapi/example/test"}
-         * There could be an activity hierarchy to keep track of, for example question 1 on test 1 for the course Algebra 1. 
-         * When recording results for question 1, it we can declare that the question is part of test 1, 
+         * There could be an activity hierarchy to keep track of, for example question 1 on test 1 for the course Algebra 1.
+         * When recording results for question 1, it we can declare that the question is part of test 1,
          * but also that it should be grouped with other statements about Algebra 1. This can be done using parent and grouping:
-         * { 
-         *   "parent" : {"id" : "http://example.adlnet.gov/xapi/example/test 1"}, 
+         * {
+         *   "parent" : {"id" : "http://example.adlnet.gov/xapi/example/test 1"},
          *   "grouping" : {"id" : "http://example.adlnet.gov/xapi/example/Algebra1"}
          * }
          * @param activitiesMap map where the values should be strings or other maps
@@ -1105,25 +1176,7 @@ public interface LearningResourceStoreService {
         public void setActivitiesMap(Map<String, Map<String, String>> activitiesMap) {
             this.activitiesMap = activitiesMap;
         }
-        // GETTERS
-        /**
-         * @see #instructor
-         */
-        public LRS_Actor getInstructor() {
-            return instructor;
-        }
-        /**
-         * @see #revision
-         */
-        public String getRevision() {
-            return revision;
-        }
-        /**
-         * @see #activitiesMap
-         */
-        public Map<String, Map<String, String>> getActivitiesMap() {
-            return activitiesMap;
-        }
+
         /**
          * @see #revision
          */
