@@ -1030,7 +1030,7 @@ public interface LearningResourceStoreService {
         /**
          * Platform used in the experience of this learning activity.
          */
-        String platform = "SakaiCLE";
+        String platform = "Sakai";
         // TODO include fields like team, platform, language, statement, and extensions
         /**
          * use of the empty constructor is restricted
