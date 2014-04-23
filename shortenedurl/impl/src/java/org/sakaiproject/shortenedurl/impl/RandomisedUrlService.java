@@ -420,7 +420,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
   		log.debug("Sakai RandomisedUrlService init().");
   		
   		//setup cache
-  		cache = memoryService.newCache(CACHE_NAME);
+  		cache = memoryService.getCache(CACHE_NAME);
   	}
 
   	private ServerConfigurationService serverConfigurationService;

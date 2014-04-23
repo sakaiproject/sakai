@@ -78,22 +78,4 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
 	
-	<!--  Cache -->
-    <bean id="org.sakaiproject.shortenedurl.cache"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.shortenedurl.cache</value>
-        </property>
-        <property name="maxElementsInMemory" value="10000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-		<property name="timeToIdle" value="3600" />
-    </bean>
-	
-	
-
 </beans>
