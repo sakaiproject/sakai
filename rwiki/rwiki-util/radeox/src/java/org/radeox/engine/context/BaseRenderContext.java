@@ -39,10 +39,6 @@ import org.radeox.api.engine.context.RenderContext;
 
 public class BaseRenderContext implements RenderContext
 {
-	private boolean cacheable = true;
-
-	private boolean tempCacheable = false;;
-
 	private RenderEngine engine;
 
 	private Map params;
@@ -84,19 +80,4 @@ public class BaseRenderContext implements RenderContext
 		this.engine = engine;
 	}
 
-	public void setCacheable(boolean cacheable)
-	{
-		tempCacheable = cacheable;
-	}
-
-	public void commitCache()
-	{
-		cacheable = cacheable && tempCacheable;
-		tempCacheable = false;
-	}
-
-	public boolean isCacheable()
-	{
-		return cacheable;
-	}
 }

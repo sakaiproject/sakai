@@ -97,29 +97,6 @@
   	>
   </bean>
 
-
-
-  <!-- The Rendered content cache, impl uses ehcache which is initialised on first use, if cache fails
-  it is re-initialised -->
-  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache" 
-  	class="uk.ac.cam.caret.sakai.rwiki.component.radeox.service.impl.RenderCacheImpl" 
-    init-method="init" >
-    <property name="cache"><ref bean="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache.cache" /></property>
-  </bean>
-  
-  <bean id="uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache.cache" 
-  			class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-  	<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-    <property name="cacheName"><value>uk.ac.cam.caret.sakai.rwiki.service.api.radeox.RenderCache</value></property>
-    <property name="maxElementsInMemory" ><value>10000</value></property>
-    <property name="diskPersistent" ><value>false</value></property>
-    <property name="eternal" ><value>false</value></property>
-    <property name="timeToLive" ><value>300</value></property>
-    <property name="timeToIdle" ><value>600</value></property>
-  </bean>
-  
-  
-  
   <bean id="rwikiRAWHandler" 
     class="uk.ac.cam.caret.sakai.rwiki.component.service.impl.XSLTEntityHandler"  
     init-method="init"  destroy-method="destroy" >

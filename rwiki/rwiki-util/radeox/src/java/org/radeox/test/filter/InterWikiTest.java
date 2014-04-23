@@ -99,11 +99,4 @@ public class InterWikiTest extends FilterTestSupport
 				writer.toString());
 	}
 
-	public void testCacheable()
-	{
-		RenderContext renderContext = context.getRenderContext();
-		renderContext.setCacheable(false);
-		filter.filter("[stephan@SnipSnap]", context);
-		assertTrue("InterWiki is cacheable", renderContext.isCacheable());
-	}
 }

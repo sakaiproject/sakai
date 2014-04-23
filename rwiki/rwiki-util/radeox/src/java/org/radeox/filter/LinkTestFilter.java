@@ -64,11 +64,6 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 		return "filter.linktest"; //$NON-NLS-1$
 	}
 
-	protected void setUp(FilterContext context)
-	{
-		context.getRenderContext().setCacheable(true);
-	}
-
 	public void handleMatch(StringBuffer buffer, MatchResult result,
 			FilterContext context)
 	{
@@ -228,9 +223,6 @@ public class LinkTestFilter extends LocaleRegexTokenFilter
 							view = alias;
 						}
 						wikiEngine.appendCreateLink(buffer, name, view);
-						// links with "create" are not cacheable because
-						// a missing wiki could be created
-						context.getRenderContext().setCacheable(false);
 					}
 					else
 					{

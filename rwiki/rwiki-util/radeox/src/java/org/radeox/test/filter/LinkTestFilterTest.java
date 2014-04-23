@@ -90,25 +90,6 @@ public class LinkTestFilterTest extends FilterTestSupport
 				"[alias|type:stephan#hash]", context));
 	}
 
-	public void testLinkCacheable()
-	{
-		RenderContext renderContext = context.getRenderContext();
-		renderContext.setCacheable(false);
-		filter.filter("[SnipSnap]", context);
-		renderContext.commitCache();
-		assertTrue("Normal link is cacheable", renderContext.isCacheable());
-	}
-
-	public void testCreateLinkNotCacheable()
-	{
-		RenderContext renderContext = context.getRenderContext();
-		renderContext.setCacheable(false);
-		filter.filter("[Roller]", context);
-		renderContext.commitCache();
-		assertTrue("Non existing link is not cacheable", !renderContext
-				.isCacheable());
-	}
-
 	public void testLinksWithEscapedChars()
 	{
 		assertEquals("'<link>' - '&#60;link&#62;'", filter.filter("[<link>]",

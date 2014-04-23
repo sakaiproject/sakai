@@ -84,10 +84,4 @@ public interface RenderContext
 	 *        Map of parameters with name,value pairs
 	 */
 	public void setParameters(Map parameters);
-
-	public void setCacheable(boolean cacheable);
-
-	public void commitCache();
-
-	public boolean isCacheable();
 }

@@ -186,20 +186,7 @@ public class FilterPipe
 			Filter f = (Filter) filterIterator.next();
 			try
 			{
-				// assume all filters non cacheable
-				if (f instanceof CacheFilter)
-				{
-					renderContext.setCacheable(true);
-				}
-				else
-				{
-					renderContext.setCacheable(false);
-				}
 				String tmp = f.filter(output, context);
-				if (output.equals(tmp))
-				{
-					renderContext.setCacheable(true);
-				}
 				if (null == tmp)
 				{
 					log.warn("FilterPipe.filter: error while filtering: " + f);
@@ -208,7 +195,6 @@ public class FilterPipe
 				{
 					output = tmp;
 				}
-				renderContext.commitCache();
 			}
 			catch (Exception e)
 			{
