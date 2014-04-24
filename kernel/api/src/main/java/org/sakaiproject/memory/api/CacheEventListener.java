@@ -144,7 +144,7 @@ public interface CacheEventListener<K, V> extends EventListener {
          *
          * @return the key corresponding to this entry
          */
-        K getKey() {
+        public K getKey() {
             return key;
         }
 
@@ -153,7 +153,7 @@ public interface CacheEventListener<K, V> extends EventListener {
          *
          * @return the value corresponding to this entry
          */
-        V getValue() {
+        public V getValue() {
             return value;
         }
 
