@@ -3,8 +3,6 @@
 
 <beans>
 
-	<!-- We use depends-on so that the cache gets registered with the Cache manager before we run our init method
-	     which gets the cache back (with increased size) -->
 	<bean id="org.sakaiproject.alias.api.AliasService"
 			class="org.sakaiproject.alias.impl.DbAliasService"
 			init-method="init"
