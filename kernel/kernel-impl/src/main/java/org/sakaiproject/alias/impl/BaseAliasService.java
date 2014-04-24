@@ -34,6 +34,7 @@ import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.*;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -68,6 +69,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	/** The initial portion of a relative access point URL. */
 	protected String m_relativeAccessPoint = null;
 
+	/** A cache of calls to the service and the results. */
+	protected Cache m_callCache = null;
+	
 	/** A cache of calls to the getAliases calls */
 	protected GenericMultiRefCache m_targetCache = null;
 	/** The # seconds to cache gets. 0 disables the cache. */
@@ -351,6 +355,10 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			// <= 0 indicates no caching desired
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
+				// build a synchronized map for the call cache, automatically checking for expiration every 15 mins, expire on user events, too.
+				m_callCache = memoryService().newCache(
+						"org.sakaiproject.alias.api.AliasService.callCache",
+						aliasReference(""));
 				m_targetCache = memoryService().newGenericMultiRefCache(
 						"org.sakaiproject.alias.api.AliasService.targetCache");
 			
@@ -553,9 +561,36 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	 */
 	public String getTarget(String alias) throws IdUnusedException
 	{
+		// check the cache
+		String ref = aliasReference(alias);
+		if (m_callCache != null)
+		{
+			String t = (String) m_callCache.get(ref);
+			if ( t != null )
+			{
+				return t;
+			}
+			else
+			{
+				if (m_callCache.containsKey(ref))
+				{
+					M_log.warn("Null Cache Entry found, should not happen SAK-12447 ref="+ref);
+				}
+			}
+		}
+
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
 		if (a == null) throw new IdUnusedException(alias);
+
+		// cache
+		if (m_callCache != null) {
+			if ( a.getTarget() != null ) {
+				m_callCache.put(ref, a.getTarget());
+			}
+		}
+
 		return a.getTarget();
+
 	} // getTarget
 
 	/**
