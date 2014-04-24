@@ -68,7 +68,7 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	protected String m_relativeAccessPoint = null;
 
 	/** A cache of calls to the service and the results. */
-	protected Cache m_callCache = null;
+	protected Cache m_callCache = null; // TODO remove this after 10 - KNL-1229
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
 
@@ -350,10 +350,15 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			// <= 0 indicates no caching desired
 			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
 			{
-				// build a synchronized map for the call cache, automatically checking for expiration every 15 mins, expire on user events, too.
-				m_callCache = memoryService().newCache(
-						"org.sakaiproject.alias.api.AliasService.callCache",
-						aliasReference(""));
+                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
+                if (useLegacy) {
+                    m_callCache = memoryService().newCache(
+                            "org.sakaiproject.alias.api.AliasService.callCache",
+                            aliasReference(""));
+                    M_log.info("org.sakaiproject.alias.api.AliasService.callCache is enabled, will be removed after Sakai 10");
+                } else {
+                    M_log.info("org.sakaiproject.alias.api.AliasService.callCache is disabled, will be removed after Sakai 10");
+                }
 			}
 
 			// register as an entity producer
