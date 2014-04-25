@@ -352,7 +352,7 @@
 											#else
 												onclick="javascript:document.getElementById('sakai_action').value='doExpand_collection';document.getElementById('collectionId').value='$qid';document.getElementById('showForm').submit();"
 											#end
-											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /></a></span>
+											title= "$item.expandLabel"><img src="#imageLink($item.expandIconLocation)" border= "0" alt="$item.expandLabel"  /><span class="sr-only">$item.expandLabel: $validator.escapeHtml($item.name)</span></a></span>
 									#end
 									
 								#else
