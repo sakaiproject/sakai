@@ -1,22 +1,25 @@
 ## version: $Id$
+<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
+<link rel="stylesheet" href="/library/js/bootstrap-3.1.1/css/bootstrap.min.css" />
+
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">
 		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
 		<input name="sakai_action" id="sakai_action" value="doRestore" type="hidden" />
 		<input name="flow" id="flow" value="save" type="hidden" />
 		#set($rootFolderId="")
-		<div class ="breadCrumb specialLink">
-			<h3>
+			<h3><small>
 				$tlang.getString("restore.title")
-				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
-				#foreach ($item in $collectionPath)
+				$rootFolderId
+                #*
+                #foreach ($item in $collectionPath)
 					#set($rootFolderId=$item.id)
 					$validator.escapeHtml("$item.name")
 				#end
-			</h3>
+                *#
+			</small></h3>
 			## set the base collection ID
 			#set($currentFolderId=$rootFolderId)
-		</div>
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">
 						<span>
@@ -34,7 +37,7 @@
 			</div>	
 		#if (!$noRestoreItems)
             	<p class="instruction">$tlang.getString("restore.instruct") #if($!cleanupInterval)$tlang.getFormattedMessage("restore.cleanup", $!cleanupInterval)#end</p>
-		<table class="listHier lines centerLines" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
+		<table class="table table-striped  table-hover" id="restoreList" summary="$tlang.getString("restore.summary")" border="0" cellspacing="0" cellpadding="0">
 			<caption class="skip" style="display: none;">$tlang.getString("restore.caption")</caption>
 			<tbody>
 			<tr>
