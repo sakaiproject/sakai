@@ -2,11 +2,30 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
+
+    <bean name="org.sakaiproject.roster.api.SakaiProxy"
+        class="org.sakaiproject.roster.impl.SakaiProxyImpl" init-method="init">
+        <property name="courseManagementService"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+        <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+        <property name="groupProvider"><ref bean="org.sakaiproject.authz.api.GroupProvider"/></property>
+        <property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
+        <property name="connectionsLogic"><ref bean="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"/></property>
+        <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+    </bean>
+
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.roster.tool.entityprovider.RosterPOIEntityProvider">
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.roster.api.SakaiProxy"/></property>
 	</bean>
 	
 	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
 		class="org.sakaiproject.roster.tool.entityprovider.RosterSiteEntityProvider">
-	</bean>
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.roster.api.SakaiProxy"/></property>
+    </bean>
+
 </beans>

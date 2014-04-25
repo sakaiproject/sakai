@@ -1,0 +1,36 @@
+<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
+	<thead>
+		<tr>
+            <th width="35%"><a href="javascript:;">{{translate 'facet_name'}}</a></th>
+			{{#if viewUserDisplayId}}
+				<th width="10%"><a href="javascript:;">{{translate 'facet_userId'}}</a></th>
+			{{/if}}
+			<th width="15%"><a href="javascript;;">{{translate 'facet_role'}}</a></th>
+			<th width="50%">{{translate 'facet_groups'}}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{{#each membership}}
+			<tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+                <td>
+            {{#if ../viewProfile}}
+                    <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+            {{/if}}
+            {{#if ../firstNameLastName}}
+                    {{displayName}}
+            {{else}}
+                    {{sortName}}
+            {{/if}}
+            {{#if ../viewProfile}}
+                    </a>
+            {{/if}}
+                </td>
+            {{#if ../viewUserDisplayId}}
+                <td>{{displayId}}</td>
+            {{/if}}
+				<td>{{role}}</td>
+				<td>{{groupsToString}}</td>
+			</tr>
+		{{/each}}
+	</tbody>
+</table>

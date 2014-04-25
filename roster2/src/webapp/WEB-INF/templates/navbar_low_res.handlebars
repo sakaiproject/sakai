@@ -1,0 +1,15 @@
+<div class="navIntraTool rosterNavBar">
+	<select id="roster_navbar_dropdown">
+		<option value="{{overviewState}}">{{translate 'navbar_overview'}}</option>
+		<option value="{{picturesState}}">{{translate 'navbar_pics'}}</option>
+		{{#if hasGroups}}
+			<option value="{{groupMembershipState}}">{{translate 'navbar_group_membership'}}</option>
+		{{/if}}
+		{{#if canViewEnrollments}} 
+			<option value="{{enrollmentStatusState}}">{{translate 'navbar_status'}}</option>
+		{{/if}}
+		{{#if canUpdatePermissions}}
+			<option value="{{permissionsState}}">{{translate 'navbar_permissions'}}</option>
+		{{/if}}
+	</select>
+</div>

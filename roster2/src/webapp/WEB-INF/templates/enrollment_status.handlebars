@@ -1,0 +1,58 @@
+<table cellspacing="0" cellpadding="0" class="listHier rosterTable" id="roster_form_rosterTable">
+	<thead>
+		<tr>
+			<th width="45%"><a href="#">{{translate 'facet_name'}}</a></th>
+			{{#if viewDisplayId}}
+			<th width="10%"><a href="#">{{translate 'facet_userId'}}</a></th>
+			{{/if}}
+			{{#if viewEmail}}
+				<th width="20%"><a href="#">{{translate 'facet_email'}}</a></th>
+			{{/if}}
+            <th width="12.5%"><a href="#">{{translate 'facet_status'}}</a></th>
+            <th width="12.5%"><a href="#">{{translate 'facet_credits'}}</a></th>
+		</tr>
+	</thead>
+	<tbody>
+	{{#unless enrollment.length}}
+		<tr>
+			<td>{{translate 'no_participants'}}</td>
+			{{#if viewDisplayId}}
+			<td></td>
+			{{/if}}
+			{{#if viewEmail}}
+				<td></td>
+			{{/if}}
+			<td></td>
+			<td></td>
+		</tr>
+	{{else}}
+		{{#each enrollment}}
+			{{#if canViewEnrollment}}
+			    <tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+					<td>
+                    {{#if ../../viewProfile}}
+                        <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+                    {{/if}}
+                    {{#if ../../firstNameLastName}}
+                        {{displayName}}
+                    {{else}}
+                        {{sortName}}
+                    {{/if}}
+                    {{#if ../../viewProfile}}
+                        </a>
+                    {{/if}}
+					</td>
+                    {{#if ../../viewDisplayId}}
+                    <td>{{displayId}}</td>
+                    {{/if}}
+					{{#if ../../viewEmail}}
+                    <td><a href="mailto:{{email}}">{{email}}</a></td>
+					{{/if}}
+					<td>{{enrollmentStatus}}</td>
+					<td>{{credits}}</td>
+				</tr>
+			{{/if}}
+		{{/each}}
+	{{/unless}}
+	</tbody>
+</table>

@@ -40,7 +40,6 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -63,85 +62,32 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.util.ResourceLoader;
 
+import lombok.Setter;
+
 /**
  * <code>SakaiProxy</code> acts as a proxy between Roster and Sakai components.
  * 
  * @author Daniel Robinson (d.b.robinson@lancaster.ac.uk)
  * @author Adrian Fish (a.fish@lancaster.ac.uk)
  */
+@Setter
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Log log = LogFactory.getLog(SakaiProxyImpl.class);
 		
 	private CourseManagementService courseManagementService;
-	private FunctionManager functionManager = null;
-	private PrivacyManager privacyManager = null;
+	private FunctionManager functionManager;
+	private GroupProvider groupProvider;
+	private PrivacyManager privacyManager;
 	private ProfileConnectionsLogic connectionsLogic;
-	private SecurityService securityService = null;
-	private ServerConfigurationService serverConfigurationService = null;
-	private SessionManager sessionManager = null;
+	private SecurityService securityService;
+	private ServerConfigurationService serverConfigurationService;
+	private SessionManager sessionManager;
 	private SiteService siteService;
-	private ToolManager toolManager = null;
-	private UserDirectoryService userDirectoryService = null;
+	private ToolManager toolManager;
+	private UserDirectoryService userDirectoryService;
 	
-	private static SakaiProxyImpl instance = null;
-	
-	/**
-	 * Returns an instance of <code>SakaiProxyImpl</code>.
-	 * 
-	 * @return an instance of <code>SakaiProxyImpl</code>.
-	 */
-	public static SakaiProxyImpl instance() {
-		
-		if (null == instance) {
-			instance = new SakaiProxyImpl();
-		}
-		return instance;
-	}
-	
-	/**
-	 * Creates a new instance of <code>SakaiProxyImpl</code>
-	 */
-	private SakaiProxyImpl() {
-
-		org.sakaiproject.component.api.ComponentManager componentManager = 
-			org.sakaiproject.component.cover.ComponentManager.getInstance();
-
-		boolean connectionsApi;
-		try {
-			// check for Profile2 1.4.x connections API
-			Class.forName("org.sakaiproject.profile2.logic.ProfileConnectionsLogic");
-			
-			connectionsApi = true;
-			
-		} catch (ClassNotFoundException e) {
-			connectionsApi = false;
-		}
-		
-		log.info("Profile2 >=1.4.x connections API found: " + connectionsApi);
-		
-		if (true == connectionsApi) {
-			connectionsLogic = (ProfileConnectionsLogic) componentManager.get(ProfileConnectionsLogic.class);
-		}
-		
-		courseManagementService = (CourseManagementService) componentManager.get(CourseManagementService.class);
-		functionManager = (FunctionManager) componentManager.get(FunctionManager.class);
-		privacyManager = (PrivacyManager) componentManager.get(PrivacyManager.class);
-		securityService = (SecurityService) componentManager.get(SecurityService.class);
-		serverConfigurationService = (ServerConfigurationService) componentManager.get(ServerConfigurationService.class);
-		sessionManager = (SessionManager) componentManager.get(SessionManager.class);
-		siteService = (SiteService) componentManager.get(SiteService.class);
-		toolManager = (ToolManager) componentManager.get(ToolManager.class);
-		userDirectoryService = (UserDirectoryService) componentManager.get(UserDirectoryService.class);
-		
-		init();
-		
-		log.info("org.sakaiproject.roster.api.SakaiProxy initialized");
-	}	
-	
-	private void init() {
-		
-		log.info("org.sakaiproject.roster.api.SakaiProxy init()");
+	public void init() {
 		
 		List<String> registered = functionManager.getRegisteredFunctions();
 		
@@ -172,6 +118,7 @@ public class SakaiProxyImpl implements SakaiProxy {
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWEMAIL, true);
         }
+
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
         }
@@ -184,7 +131,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return securityService.isSuperUser();
 	}
 	
-	private Site getSite(String siteId) {
+	public Site getSite(String siteId) {
 
 		try {
 			return siteService.getSite(siteId);
@@ -692,9 +639,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 			rosterSite.setUserRoles(userRoles);
 		}
 
-		GroupProvider groupProvider = (GroupProvider) ComponentManager
-				.get(GroupProvider.class);
-
 		Map<String, String> statusCodes = courseManagementService
 				.getEnrollmentStatusDescriptions(new ResourceLoader()
 						.getLocale());
@@ -845,11 +789,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 	/**
 	 * {@inheritDoc}
 	 */
+    /*
 	public String getSakaiSkin() {
 		String skin = serverConfigurationService.getString("skin.default");
 		String siteSkin = siteService.getSiteSkin(getCurrentSiteId());
 		return siteSkin != null ? siteSkin : (skin != null ? skin : "default");
-	}
+	}*/
 	
 	/**
 	 * {@inheritDoc}

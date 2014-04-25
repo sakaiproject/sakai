@@ -1,0 +1,16 @@
+<table class="rosterPageHeader">
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				<h3>{{translate 'title_overview'}}: {{siteTitle}}</h3>
+			</td>
+			<td class="rosterPageHeaderRight">
+				<input id="export_button" type="button" value="{{translate 'export_roster'}}"/>
+				<input type="button" value="{{translate 'print_roster'}}" onclick="window.print()" />
+			</td>
+		</tr>
+	</tbody>
+</table>
+{{#if displayTitleMsg}}
+	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
+{{/if}}

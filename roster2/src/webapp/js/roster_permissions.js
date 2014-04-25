@@ -20,26 +20,31 @@
  */
 
 // See http://confluence.sakaiproject.org/display/RSTR/Roster2
-function RosterPermissions(data) {
+roster.RosterPermissions = function (permissions) {
+
+    var self = this;
 	
-	for(var i = 0, j = data.length; i < j; i++) {
+	permissions.forEach(function (p) {
+
 		// roster permissions
-		if ('roster.export' === data[i]) {
-			this.rosterExport = true;
-		} else if ('roster.viewallmembers' === data[i]) {
-			this.viewAllMembers = true;
-		} else if ('roster.viewenrollmentstatus' === data[i]) {
-			this.viewEnrollmentStatus = true;
-		} else if ('roster.viewgroup' === data[i]) {
-			this.viewGroup = true;
-		} else if ('roster.viewhidden' === data[i]) {
-			this.viewHidden = true;
-		} else if ('roster.viewprofile' === data[i]) {
-			this.viewProfile = true;
-		} else if ('roster.viewofficialphoto' === data[i]) {
-			this.viewOfficialPhoto = true;
-		} else if ('site.upd' === data[i]) { // sakai permissions
-			this.siteUpdate = true;
+		if ('roster.export' === p) {
+			self.rosterExport = true;
+		} else if ('roster.viewallmembers' === p) {
+			self.viewAllMembers = true;
+		} else if ('roster.viewenrollmentstatus' === p) {
+			self.viewEnrollmentStatus = true;
+		} else if ('roster.viewgroup' === p) {
+			self.viewGroup = true;
+		} else if ('roster.viewhidden' === p) {
+			self.viewHidden = true;
+		} else if ('roster.viewprofile' === p) {
+			self.viewProfile = true;
+		} else if ('roster.viewofficialphoto' === p) {
+			self.viewOfficialPhoto = true;
+		} else if ('roster.viewemail' === p) {
+			self.viewEmail = true;
+		} else if ('site.upd' === p) { // sakai permissions
+			self.siteUpdate = true;
 		}
-	}	
-}
+    });
+};

@@ -37,7 +37,8 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.roster.api.RosterMember;
 import org.sakaiproject.roster.api.RosterMemberComparator;
 import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.roster.impl.SakaiProxyImpl;
+
+import lombok.Setter;
 
 /**
  * <code>EntityProvider</code> to allow Roster to access site, membership, and
@@ -71,12 +72,9 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public final static String DEFAULT_SORT_FIELD		= RosterMemberComparator.SORT_NAME;
 	public final static int DEFAULT_SORT_DIRECTION		= RosterMemberComparator.SORT_ASCENDING;
 	
+    @Setter
 	private SakaiProxy sakaiProxy;
 	
-	public RosterSiteEntityProvider() {
-		sakaiProxy = SakaiProxyImpl.instance();
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */
@@ -149,7 +147,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 		
 		return sakaiProxy.getEnrollmentMembership(reference.getId(), enrollmentSetId);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */

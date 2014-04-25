@@ -1,0 +1,56 @@
+<table class="rosterPicturesFilter">
+	{{#if membership.length}}
+	<tbody>
+		<tr>
+			<td class="rosterPageHeaderLeft">
+				{{#if hideNames}}
+                <input id="roster_form_hide_names" type="button"
+						value="{{translate 'roster_show_names'}}" />
+				{{else}}
+                <input id="roster_form_hide_names" type="button" value="{{translate 'roster_hide_names'}}" />
+				{{/if}}
+				{{#if viewSingleColumn}}
+                <input id="roster_form_pics_view" type="button" value="{{translate 'view_table'}}"/>
+				{{else}}
+                <input id="roster_form_pics_view" type="button" value="{{translate 'view_single'}}"/>
+				{{/if}}
+			</td>
+		</tr>
+	</tbody>
+	{{/if}}
+</table>
+
+<table class="{{#unless viewSingleColumn}}rosterPictures{{else}}rosterPicturesSingleColumn{{/unless}}">
+	<tbody>
+    {{#unless membership.length}}
+		<tr><td>{{translate 'no_participants'}}</td></tr>
+	{{else}}
+        {{#if viewSingleColumn}}
+            {{#each membership}}
+        <tr>
+            <td>
+                {{profilePicture viewProfile=../../viewProfile}}
+            </td>
+            <td>
+                {{userInfo hideNames=../../hideNames firstNameLastName=../../firstNameLastName viewUserDisplayId=../../viewUserDisplayId viewProfile=../../viewProfile viewEmail=../../viewEmail viewConnections=../../viewConnections currentUserId=../../currentUserId}}
+            </td>
+        </tr>
+            {{/each}}
+        {{else}}
+            {{! We're not in single columns mode }}
+        <tr>
+            {{#each membership}}
+            <td>
+                {{profilePicture viewProfile=../../viewProfile}}
+                {{userInfo hideNames=../../hideNames firstNameLastName=../../firstNameLastName viewUserDisplayId=../../viewUserDisplayId viewProfile=../../viewProfile viewEmail=../../viewEmail viewConnections=../../viewConnections currentUserId=../../currentUserId}}
+			</td>
+                {{#if (rowComplete @index)}}
+        </tr>
+        <tr>
+                {{/if}}
+		    {{/each}}
+        </tr>
+		{{/if}}
+	{{/unless}}
+	</tbody>
+</table>

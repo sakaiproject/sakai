@@ -1,0 +1,68 @@
+<table cellpadding="0" cellspacing="0" width="100%">
+	<tbody>
+	{{#each siteGroups}}
+		<tr>
+			<td>
+				<table width="100%">
+					<tbody>
+						<tr>
+						    <td><h3>{{title}}</h3></td>
+						    <td>
+                                <div class="instruction rosterRoleGrouped">
+                                    <div class="rosterRoleTopLineGrouped">{{participants}}</div>
+                                    <div class="rosterRoleBottomLineGrouped">({{#each roles}}{{fragment}}{{/each}})</div>
+                                </div>
+						    </td>
+						</tr>
+					</tbody>
+				</table>
+				<table cellpadding="0" cellspacing="0" class="listHier rosterTable">
+					<thead>
+						<tr>
+                            <th width="25%"><a href="javascript:;">{{translate 'facet_name'}}</a></th>
+							{{#if ../viewUserDisplayId}}
+								<th width="10%"><a href="#">{{translate 'facet_userId'}}</a></th>
+							{{/if}}
+							<th width="15%"><a href="#">{{translate 'facet_role'}}</a></th>
+							<th width="50%">{{translate 'facet_groups'}}</th>
+						</tr>
+					</thead>
+                    <tbody>
+					    {{#unless members.length}}
+						<tr>
+							<td>{{translate 'no_participants'}}</td>
+							{{#if ../../viewUserDisplayId}}
+								<td></td>
+							{{/if}}
+							<td></td>
+							<td></td>
+						</tr>
+					    {{else}}
+							{{#each members}}
+                                <tr onMouseOver="this.className='rosterTableRowHighlight'" onMouseOut="this.className='rosterTableRow'">
+                                    <td>
+                                {{#if ../../../viewProfile}}
+                                        <a href="javascript:;" class="profile" rel="{{formattedProfileUrl}}">
+                                {{/if}}
+                                {{#if ../../../firstNameLastName}}
+                                        {{displayName}}
+                                {{else}}
+                                        {{sortName}}
+                                {{/if}}
+                                {{#if ../../../viewProfile}}</a>{{/if}}
+                                    </td>
+                                {{#if ../../../viewUserDisplayId}}
+                                    <td>{{displayId}}</td>
+                                {{/if}}
+                                    <td>{{role}}</td>
+                                    <td>{{groupsToString}}</td>
+                                </tr>
+						    {{/each}}
+					    {{/unless}}
+                    </tbody>
+				</table>
+			</td>
+		</tr>		
+	{{/each}}
+	</tbody>
+</table>

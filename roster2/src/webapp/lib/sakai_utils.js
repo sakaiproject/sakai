@@ -17,128 +17,98 @@
 /**
  * Adrian Fish (a.fish@lancaster.ac.uk)
  */
+(function ($) {
 
-var SakaiUtils;
+    roster.sakai = {
+        getProfileMarkup: function (userId, callback) {
 
-(function() {
+            $.ajax( {
+                url: "/direct/profile/" + userId + "/formatted",
+                dataType: "html",
+                cache: false,
+                success: function(p) {
+                    callback(p);
+                },
+                error: function(xmlHttpRequest,stat,error) {
+                    alert("Failed to get profile markup. Status: " + stat + ". Error: " + error);
+                }
+            });
+        },
+        getCurrentUserPermissions: function (siteId) {
 
-	if(SakaiUtils == null) {
-		SakaiUtils = new Object();
-    }
+            var permissions = null;
+            
+            $.ajax( {
+                url: "/direct/site/" + siteId + "/userPerms.json",
+                dataType: "json",
+                async: false,
+                cache: false,
+                success: function (perms, status) {
+                    permissions = perms.data;
+                },
+                error : function(xmlHttpRequest, stat, error) {
+                    alert("Failed to get the current user permissions. Status: " + stat + ". Error: " + error);
+                }
+            });
+            
+            return permissions;
+        },
+        getSitePermissionMatrix: function (siteId, callback) {
 
-	SakaiUtils.getProfileMarkup = function(userId, callback) {
+            $.ajax( {
+                url: "/direct/site/" + siteId + "/perms/roster.json",
+                dataType: "json",
+                cache: false,
+                success: function (p) {
+                    
+                    callback(p.data);
+                    /*
+                    var perms = [];
 
-		jQuery.ajax( {
-	       	url : "/direct/profile/" + userId + "/formatted",
-	       	dataType : "html",
-			cache: false,
-		   	success : function(p) {
-				callback(p);
-			},
-			error : function(xmlHttpRequest,stat,error) {
-				alert("Failed to get profile markup. Status: " + stat + ". Error: " + error);
-			}
-	   	});
-	}
-	
-	SakaiUtils.getCurrentUserPermissions = function(siteId,scope) {
-		var permissions = null;
-		var permissionsUrl;
-		if (undefined === scope) {
-			permissionsUrl = "/direct/site/" + siteId + "/userPerms.json";
-		} else {
-			permissionsUrl = "/direct/site/" + siteId + "/userPerms/" + scope + ".json";
-		}
-		
-		jQuery.ajax( {
-	 		url : permissionsUrl,
-	   		dataType : "json",
-	   		async : false,
-	   		cache : false,
-		   	success : function(perms,status) {
-				permissions = perms.data;
-			},
-			error : function(xmlHttpRequest,stat,error) {
-				alert("Failed to get the current user permissions. Status: " + stat + ". Error: " + error);
-			}
-	  	});
-	  	
-	  	return permissions;
-	}
+                    for (role in p.data) {
+                        var rolePerms = {role: role};
 
-	SakaiUtils.getSitePermissionMatrix = function(siteId, callback) {
+                        p.data[role].forEach(function (perm) {
+                            rolePerms[perm.replace(/\./g,"_")] = true;
+                        });
 
-        jQuery.ajax( {
-            url : "/direct/site/" + siteId + "/perms/roster.json",
-            dataType : "json",
-            cache: false,
-            success : function(p) {
-                var perms = [];
-                for(role in p.data) {
-                    var permSet = {'role':role};
-
-                    for(var i=0,j=p.data[role].length;i<j;i++) {
-                        var perm = p.data[role][i].replace(/\./g,"_");
-                        eval("permSet." + perm + " = true");
+                        perms.push(rolePerms);
                     }
 
-                    perms.push(permSet);
+                    callback(perms);
+                    */
+                },
+                error: function (xmlHttpRequest, stat, error) {
+                    alert("Failed to get permissions. Status: " + stat + ". Error: " + error);
                 }
-                callback(perms);
-            },
-            error : function(xmlHttpRequest,stat,error) {
-                alert("Failed to get permissions. Status: " + stat + ". Error: " + error);
+            });
+        },
+        savePermissions: function (siteId, checkboxClass, callback) {
+
+            var boxes = $('.' + checkboxClass);
+            var myData = {};
+            for (var i=0,j=boxes.length;i<j;i++) {
+                var box = boxes[i];
+                if (box.checked) {
+                    myData[box.id] = 'true';
+                } else {
+                    myData[box.id] = 'false';
+                }
             }
-        });
-    }
 
-	SakaiUtils.savePermissions = function(siteId,checkboxClass,callback) {
-        var boxes = $('.' + checkboxClass);
-        var myData = {};
-        for(var i=0,j=boxes.length;i<j;i++) {
-            var box = boxes[i];
-            if(box.checked)
-                myData[box.id] = 'true';
-            else
-                myData[box.id] = 'false';
+            $.ajax( {
+                url: "/direct/site/" + siteId + "/setPerms",
+                type: 'POST',
+                data: myData,
+                timeout: 30000,
+                dataType: 'text',
+                success: function (result) {
+                    callback();
+                },
+                error: function (xmlHttpRequest, status, error) {
+                    alert("Failed to save permissions. Status: " + status + '. Error: ' + error);
+                }
+            });
         }
-
-        jQuery.ajax( {
-            url : "/direct/site/" + siteId + "/setPerms",
-            type : 'POST',
-            data : myData,
-            timeout: 30000,
-            dataType: 'text',
-            success : function(result) {
-                callback();
-            },
-            error : function(xmlHttpRequest,status,error) {
-                alert("Failed to save permissions. Status: " + status + '. Error: ' + error);
-            }
-        });
-    }
-	
-	SakaiUtils.renderTrimpathTemplate = function(templateName,contextObject,output) {
-
-		var templateNode = document.getElementById(templateName);
-		var firstNode = templateNode.firstChild;
-		var template = null;
-
-		if ( firstNode && ( firstNode.nodeType === 8 || firstNode.nodeType === 4)) {
-  			template = templateNode.firstChild.data.toString();
-        } else {
-   			template = templateNode.innerHTML.toString();
-        }
-
-		var trimpathTemplate = TrimPath.parseTemplate(template,templateName);
-
-   		var render = trimpathTemplate.process(contextObject);
-
-		if (output) {
-			document.getElementById(output).innerHTML = render;
-        }
-
-		return render;
-	}
-
-}) ();
+    };
+}) (jQuery);

@@ -1,0 +1,15 @@
+<table>
+	<tr>
+		<td><span class="filterLabel">{{translate 'section_filter_pre'}}</span></td>
+		<td>
+			<select id="roster_form_section_filter" size="1">
+				<option selected="selected" value="">{{translate 'roster_sections_all'}}</option>
+				<option value={{translate 'roster_section_sep_line'}}>{{translate 'roster_section_sep_line'}}</option>
+				{{#each siteGroups}}
+					<option value={{id}}>{{title}}</option>
+				{{/each}}
+			</select>
+		</td>
+		<td><span class="filterLabel">{{translate 'section_filter_post'}}</span></td>
+	</tr>
+</table>

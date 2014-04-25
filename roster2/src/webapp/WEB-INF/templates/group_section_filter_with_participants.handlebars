@@ -1,0 +1,17 @@
+<table>
+	<tr>
+		<td><span class="filterLabel">{{translate 'section_filter_pre'}}</span></td>
+		<td>
+			<select id="roster_form_group_choice" size="1" name="roster_form:section_filter">
+				<option selected="selected" value="">{{translate 'roster_group_ungrouped'}}</option>
+				<option value={{translate 'roster_group_bygroup'}}>{{translate 'roster_group_bygroup'}}</option>
+			</select>
+		</td>
+		<td>
+			<span class="instruction">
+				<div class="rosterRoleTopLine">{{participants}}</div>
+				<div class="rosterRoleBottomLine">({{roleFragments}})</div>
+			</span>
+		</td>
+	</tr>
+</table>

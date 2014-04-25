@@ -55,7 +55,8 @@ import org.sakaiproject.roster.api.RosterMember;
 import org.sakaiproject.roster.api.RosterMemberComparator;
 import org.sakaiproject.roster.api.RosterSite;
 import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.roster.impl.SakaiProxyImpl;
+
+import lombok.Setter;
 
 /**
  * <code>RosterPOIEntityProvider</code> allows Roster to export to Excel via
@@ -121,19 +122,16 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 	public final static String FILENAME_BYGROUP		= "ByGroup";
 	public final static String FILENAME_UNGROUPED	= "Ungrouped";
 		
+    @Setter
 	private SakaiProxy sakaiProxy;
 	
+    @Setter
 	private RequestGetter requestGetter;
-		
-	public RosterPOIEntityProvider() {
-		sakaiProxy = SakaiProxyImpl.instance();
-	}
 		
 	/**
 	 * {@inheritDoc}
 	 */
 	public String getEntityPrefix() {
-
 		return ENTITY_PREFIX;
 	}
 	
@@ -146,7 +144,6 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		// user must be logged in
 		String userId = sakaiProxy.getCurrentUserId();
 		if (null == userId) {
-
 			throw new EntityException(MSG_NO_SESSION, reference.getReference());
 		}
 
@@ -158,10 +155,8 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		}
 
 		try {
-			
 			if (sakaiProxy.hasUserSitePermission(userId,
 					RosterFunctions.ROSTER_FUNCTION_EXPORT, siteId)) {
-
 				RosterSite site = sakaiProxy.getRosterSite(siteId);
 				if (null == site) {
 					throw new EntityException(MSG_UNABLE_TO_RETRIEVE_SITE, reference.getReference());
@@ -658,12 +653,5 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 				}
 			}
 		}
-	}
-		
-	/**
-	 * {@inheritDoc}
-	 */
-	public void setRequestGetter(RequestGetter requestGetter) {
-		this.requestGetter = requestGetter;
 	}
 }

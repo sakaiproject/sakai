@@ -19,15 +19,12 @@
 
 package org.sakaiproject.roster.tool;
 
-import java.io.BufferedWriter;
 import java.io.IOException;
-import java.io.Writer;
-import java.util.Properties;
+import java.util.Locale;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,12 +32,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.roster.api.SakaiProxy;
-import org.sakaiproject.roster.impl.SakaiProxyImpl;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.velocity.Template;
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.app.VelocityEngine;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
  * <code>RosterTool</code> performs basic checks and outputs a prebuilt startup
@@ -55,34 +50,23 @@ public class RosterTool extends HttpServlet {
 
 	private static final Log log = LogFactory.getLog(RosterTool.class);
 
-	private transient SakaiProxy sakaiProxy = null;
+	private SakaiProxy sakaiProxy;
 
-	private Template bootstrapTemplate = null;
-	
-	public void init(ServletConfig config) throws ServletException {
-		super.init(config);
+    public void init(ServletConfig config) throws ServletException {
 
-		if (log.isDebugEnabled()) log.debug("init");
+        super.init(config);
 
-		try {
-			VelocityEngine ve = new VelocityEngine();
-            Properties props = new Properties();
-            props.setProperty("file.resource.loader.path",config.getServletContext().getRealPath("/WEB-INF"));
-            ve.init(props);
-            bootstrapTemplate = ve.getTemplate("bootstrap.vm");
-		} catch (Throwable t) {
-			throw new ServletException("Failed to initialise RosterTool servlet.", t);
-		}
-	}
+        try {
+            ApplicationContext context
+                = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+            sakaiProxy = (SakaiProxy) context.getBean("org.sakaiproject.roster.api.SakaiProxy");
+        } catch (Throwable t) {
+            throw new ServletException("Failed to initialise RosterTool servlet.", t);
+        }
+    }
 
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
-
-		if (log.isDebugEnabled()) log.debug("doGet()");
-		
-		if (null == sakaiProxy) {
-			sakaiProxy = SakaiProxyImpl.instance();
-		}
 
 		String userId = sakaiProxy.getCurrentUserId();
 
@@ -91,34 +75,30 @@ public class RosterTool extends HttpServlet {
 			throw new ServletException("getCurrentUser returned null.");
 		}
 
-		VelocityContext ctx = new VelocityContext();
+		ResourceLoader rl = new ResourceLoader(userId, "org.sakaiproject.roster.bundle.ui");
 		
-		// This is needed so certain trimpath variables don't get parsed.
-		ctx.put("D", "$");
-       
-		ctx.put("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
+		Locale locale = rl.getLocale();
+		String language = locale.getLanguage();
+		String country = locale.getCountry();
 		
-		ctx.put("userId", userId);
-		ctx.put("state", sakaiProxy.getDefaultRosterStateString());
-		ctx.put("siteId", sakaiProxy.getCurrentSiteId());
-        ctx.put("language", (new ResourceLoader(userId)).getLocale().getLanguage());
-		ctx.put("defaultSortColumn", sakaiProxy.getDefaultSortColumn());
-        ctx.put("firstNameLastName", sakaiProxy.getFirstNameLastName());
-		ctx.put("hideSingleGroupFilter", sakaiProxy.getHideSingleGroupFilter());
-        ctx.put("viewUserDisplayId", sakaiProxy.getViewUserDisplayId());
-        ctx.put("viewEmail", sakaiProxy.getViewEmail());
-		ctx.put("superUser", sakaiProxy.isSuperUser());
-		ctx.put("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
-		
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("text/html");
-        Writer writer = new BufferedWriter(response.getWriter());
-        try {
-            bootstrapTemplate.merge(ctx,writer);
-        } catch (Exception e) {
-            log.error("Failed to merge template. Returning 500.",e);
-            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        if(country != null && !country.equals("")) {
+            language += "_" + country;
         }
-        writer.close();
+
+		request.setAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
+		request.setAttribute("userId", userId);
+		request.setAttribute("state", sakaiProxy.getDefaultRosterStateString());
+		request.setAttribute("siteId", sakaiProxy.getCurrentSiteId());
+        request.setAttribute("language", language);
+		request.setAttribute("defaultSortColumn", sakaiProxy.getDefaultSortColumn());
+        request.setAttribute("firstNameLastName", sakaiProxy.getFirstNameLastName());
+		request.setAttribute("hideSingleGroupFilter", sakaiProxy.getHideSingleGroupFilter());
+        request.setAttribute("viewUserDisplayId", sakaiProxy.getViewUserDisplayId());
+        request.setAttribute("viewEmail", sakaiProxy.getViewEmail());
+		request.setAttribute("superUser", sakaiProxy.isSuperUser());
+		request.setAttribute("i18n", rl);
+		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
+
+        request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);	
 	}
 }

@@ -21,6 +21,8 @@ package org.sakaiproject.roster.api;
 
 import java.util.List;
 
+import org.sakaiproject.site.api.Site;
+
 /**
  * Roster interface to Sakai functionality.
  * 
@@ -117,6 +119,8 @@ public interface SakaiProxy {
 	 * @return the value of the <code>roster.display.userDisplayId</code> Sakai property.
 	 */
 	public Boolean getViewUserDisplayId();
+
+	public Site getSite(String siteId);
 		
 	/**
 	 * Returns the list of viewable members from the specified site.
@@ -189,7 +193,7 @@ public interface SakaiProxy {
 	 * 
 	 * @return the name of the skin of the current site.
 	 */
-	public String getSakaiSkin();
+	//public String getSakaiSkin();
 
 	/**
 	 * Returns whether or not the current user is a super user.
