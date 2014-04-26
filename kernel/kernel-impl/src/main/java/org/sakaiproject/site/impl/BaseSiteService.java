@@ -103,7 +103,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	protected String m_relativeAccessPoint = null;
 
 	/** A site cache. */
-	protected SiteCacheImpl m_siteCache = null;
+	protected SiteCache m_siteCache = null;
 
 	/** The name/bean for the User-Site cache. */
 	protected static final String USER_SITE_CACHE = "org.sakaiproject.site.api.SiteService.userSiteCache";
@@ -453,8 +453,12 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-				// build a synchronized map for the call cache, automatiaclly checking for expiration every 15 mins.
-				m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
+                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
+                if (useLegacy) {
+                    m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
+                } else {
+                    m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService()); // ONLY keep this part -AZ
+                }
 			}
 
 			// Register our user-site cache property

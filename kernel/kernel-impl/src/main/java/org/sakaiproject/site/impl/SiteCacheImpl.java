@@ -44,9 +44,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>
  * SiteCacheImpl is a cache tuned for Site (and page / tool) access.
  * </p>
+ * @deprecated after 10, remove this for Sakai 11
  */
-public class SiteCacheImpl implements CacheEventListener
-{
+public class SiteCacheImpl implements CacheEventListener, SiteCache {
 	
 	private static Log M_log = LogFactory.getLog(SiteCacheImpl.class);
 	/** Map of a tool id to a cached site's tool configuration instance. */
@@ -102,7 +102,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 * @param payload
 	 *        The object to cache.
 	 */
-	public void put(String key, Object payload)
+	@Override
+    public void put(String key, Object payload)
 	{
 		m_cache.put(key, payload);
 	}
@@ -114,7 +115,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 *        The cache key.
 	 * @return true if the key maps to a non-expired cache entry, false if not.
 	 */
-	public boolean containsKey(String key)
+	@Override
+    public boolean containsKey(String key)
 	{
 		return m_cache.containsKey(key);
 	}
@@ -126,7 +128,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 *        The cache key.
 	 * @return The payload, or null if the payload is null, the key is not found, or the entry has expired (Note: use containsKey() to remove this ambiguity).
 	 */
-	public Object get(String key)
+	@Override
+    public Object get(String key)
 	{
 		return m_cache.get(key);
 	}
@@ -134,7 +137,8 @@ public class SiteCacheImpl implements CacheEventListener
 	/**
 	 * Clear all entries.
 	 */
-	public void clear()
+	@Override
+    public void clear()
 	{
 		m_cache.clear();
 	}
@@ -145,9 +149,10 @@ public class SiteCacheImpl implements CacheEventListener
 	 * @param key
 	 *        The cache key.
 	 */
-	public void remove(String key)
+	@Override
+    public boolean remove(String key)
 	{
-		m_cache.remove(key);
+		return m_cache.remove(key);
 	}
 
 	/**
@@ -157,7 +162,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 *        The tool's id.
 	 * @return The ToolConfiguration that has this id, from a cached site.
 	 */
-	public ToolConfiguration getTool(String toolId)
+	@Override
+    public ToolConfiguration getTool(String toolId)
 	{
 		return (ToolConfiguration) m_tools.get(toolId);
 	}
@@ -169,7 +175,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 *        The page's id.
 	 * @return The SitePage that has this id, from a cached site.
 	 */
-	public SitePage getPage(String pageId)
+	@Override
+    public SitePage getPage(String pageId)
 	{
 		return (SitePage) m_pages.get(pageId);
 	}
@@ -181,7 +188,8 @@ public class SiteCacheImpl implements CacheEventListener
 	 *        The group id.
 	 * @return The Group that has this id, from a cached site.
 	 */
-	public Group getGroup(String groupId)
+	@Override
+    public Group getGroup(String groupId)
 	{
 		return (Group) m_groups.get(groupId);
 	}
@@ -293,7 +301,7 @@ public class SiteCacheImpl implements CacheEventListener
 			return;
 		}
 
-		if (M_log.isDebugEnabled()) M_log.debug("SiteCache:"
+		if (M_log.isDebugEnabled()) M_log.debug("SiteCacheSafe:"
                         + " eventCount: " + cacheEventCount
                         + " tools: " + m_tools.size()
                         + " pages: " + m_pages.size()
