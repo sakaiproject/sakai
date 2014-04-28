@@ -233,7 +233,9 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
 
 			M_log.info(this + ".init() - period: " + m_period / 1000 + " batch: " + m_batchWrite + " checkDb: " + m_checkDb);
 
-			this.post(this.newEvent("server.start", serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown"), false));
+            String sakaiVersion = serverConfigurationService().getString("version.sakai", "unknown") + "/" + serverConfigurationService().getString("version.service", "unknown");
+            M_log.info("Server Start: serverId="+serverConfigurationService().getServerId()+",serverInstance="+serverConfigurationService().getServerInstance()+",serverIdInstance="+serverConfigurationService().getServerIdInstance()+",version="+sakaiVersion);
+			//this.post(this.newEvent("server.start", sakaiVersion, false));
 
             // initialize the caching server, if enabled
             initCacheServer();
@@ -724,6 +726,13 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
      * Initializes the events cache, if enabled
      */
     private void initCacheServer() {
+        boolean legacyCaching = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
+        if (legacyCaching) {
+            M_log.warn("Legacy memory service is incompatible with event caching, you must use the new memory service (memory.use.legacy=false) with memory.cluster.enabled=true, using legacy (DB based) event propagation instead");
+            cachingEnabled = false;
+            return;
+        }
+        // remove down to and including this line
         cachingEnabled = serverConfigurationService().getBoolean("memory.cluster.enabled", false);
         if (cachingEnabled) {
             eventCache = memoryService().newCache("org.sakaiproject.event.impl.ClusterEventTracking.eventsCache");
