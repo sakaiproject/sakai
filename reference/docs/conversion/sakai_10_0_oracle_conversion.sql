@@ -1018,7 +1018,8 @@ INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1300', 'sitePage.c
 
 -- END INFRSTR-257 Delegated Access and Hierarchy
 
--- SAK-256862 Default permissions for signup, and backfill.
+-- SAK-25862 Default permissions for signup, and backfill.
+-- SAK-21961 Assignment notifications for instructors
 
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'signup.create.group');
 INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'signup.create.group.all');
@@ -1036,6 +1037,7 @@ INSERT INTO SAKAI_REALM_FUNCTION VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, 'sign
 
 CREATE TABLE PERMISSIONS_SRC_TEMP (ROLE_NAME VARCHAR(99), FUNCTION_NAME VARCHAR(99));
 
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','asn.receive.notifications');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','signup.create.site');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','signup.delete.site');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','signup.update.site');
@@ -1050,6 +1052,7 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','signup.view.all')
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','signup.attend');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','signup.view');
 
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','asn.receive.notifications');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','signup.create.site');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','signup.delete.site');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','signup.update.site');
@@ -1082,7 +1085,7 @@ INSERT INTO SAKAI_REALM_RL_FN (REALM_KEY, ROLE_KEY, FUNCTION_KEY)
       WHERE SRRFI.REALM_KEY=SRRFD.REALM_KEY AND SRRFI.ROLE_KEY=SRRFD.ROLE_KEY AND SRRFI.FUNCTION_KEY=TMP.FUNCTION_KEY
   );
 
--- END SAK-256862 Default permissions for signup, and backfill.
+-- END SAK-25862 Default permissions for signup, and backfill.
 
 -- BEGIN SAK-25879 fix line breaks in email templates
 UPDATE EMAIL_TEMPLATE_ITEM SET SUBJECT = REPLACE(SUBJECT, chr(10), ''); 
