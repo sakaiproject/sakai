@@ -51,7 +51,9 @@ function resizeFrame(){
 				$('.showHide').prop({checked:''});
 				$('#hidden_specify').prop({checked:'checked'});
 			}
-		});	
+		});
+
+		updateEmailDropdownOptions();
 		
 	});
 </script>	
@@ -119,11 +121,11 @@ function resizeFrame(){
 		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
 		#if ( $motd )
 			## no show this selection, but set default to public
-			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" />
+			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" onclick="updateEmailDropdownOptions()" />
 		#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
 			## no show this selection, but set default to site
-			<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true"/>
-			<input type="hidden" name="announceTo" value="site" checked="checked"/>
+			<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true" onclick="updateEmailDropdownOptions()"/>
+			<input type="hidden" name="announceTo" value="site" checked="checked" onclick="updateEmailDropdownOptions()"/>
 			#if ($pubviewset)
 				## If the channel is public save it as site view, but show that we will display to public.
 				## This means if channel is un-made public announcement will revert to site access (correctly).
@@ -136,14 +138,14 @@ function resizeFrame(){
 				<p class="checkbox">
 					<input type="radio" name="announceTo" id="site" 
 						value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
-						onclick="$('#groupTable').fadeOut('slow');resizeFrame()"  />
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
 					<label for="site">$tlang.getString("displayto.site")</label>
 				</p>	
 				#if (!$!publicDisable)
 				<p class="checkbox">
 					<input type="radio" name="announceTo" id="pubview" 
 						value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
-						onclick="$('#groupTable').fadeOut('slow');resizeFrame()"   />
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
 					<label for="pubview">$tlang.getString("displayto.public")</label>
 				</p>
 				#end
@@ -159,7 +161,7 @@ function resizeFrame(){
 				<p class="checkbox">
 					<input type="radio" name="announceTo" id="groups" 
 					value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
-					onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />
+					onclick="$('#groupTable').fadeIn('slow');resizeFrame(); updateEmailDropdownOptions()"  />
 					##<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
 
 					<label for="groups">$tlang.getString("displayto.selected")</label>
@@ -489,6 +491,37 @@ function resizeFrame(){
 					elements[i].checked = newValue;
 				}
 			}
+		}
+
+		function updateEmailDropdownOptions() {
+			var defaultText = "$tlang.getString("revise.notify_high")";
+			var groupsText  = "$tlang.getString("revise.notify_high_groups")";
+
+			var options = document.getElementById('notify').children;
+			for (var i = 0; i < options.length; i++) {
+				if (options[i].text == defaultText || options[i].text == groupsText) {
+					var highOption = options[i];
+					break;
+				}
+			}
+
+			if (theAnnouncementIsForGroups()) {
+				highOption.text = groupsText;
+			} else {
+				highOption.text = defaultText;
+			}
+		}
+
+		function theAnnouncementIsForGroups() {
+			var isForGroups = false;
+			var recipientOptions = document.getElementsByName('announceTo');
+			for (var i = 0; i < recipientOptions.length; i++) {
+				if (recipientOptions[i].checked && recipientOptions[i].value == 'groups') {
+					isForGroups = true;
+					break;
+				}
+			}
+			return isForGroups;
 		}
 	-->
 </script>
