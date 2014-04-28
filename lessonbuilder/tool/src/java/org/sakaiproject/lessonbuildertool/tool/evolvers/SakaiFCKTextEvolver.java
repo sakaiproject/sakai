@@ -82,7 +82,7 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		// samigo starting with 2.8.0 has the new editor calling protocol
 		if (cle > 2 || (cle == 2 && major >= 8))
 		    isNew = true;
-		System.out.println("EditPage thinks CLE is " + cle + " major " + major + " isNew=" + isNew);
+		System.out.println("EditPage thinks Sakai version is " + cle + " major " + major + " isNew=" + isNew);
 	    }
 	    //System.out.println("isnew " + isNew);
 	    return isNew;
