@@ -200,8 +200,6 @@ public class AnnouncementAction extends PagedResourceActionII
 	/** state attribute names. */
 	private static final String STATE_CHANNEL_REF = "channelId";
 	
-	private static final String STATE_CHANNEL_PUBVIEW = "channelPubView";
-
 	private static final String PORTLET_CONFIG_PARM_NON_MERGED_CHANNELS = "nonMergedAnnouncementChannels";
 
 	private static final String PORTLET_CONFIG_PARM_MERGED_CHANNELS = "mergedAnnouncementChannels";
@@ -2134,7 +2132,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("tempSubject", state.getTempSubject());
 			context.put("tempBody", state.getTempBody());
 			
-			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
+			context.put("pubviewset", isChannelPublic(channelId));
 			Placement placement = ToolManager.getCurrentPlacement();
 			//SAK-19516, default motd to pubview so it shows up in rss
 			context.put("motd",(placement!= null && ("MOTD".equals(placement.getTitle()) && placement.getId().contains("admin"))) ? Boolean.TRUE : Boolean.FALSE);
@@ -2183,7 +2181,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("message", edit);
 
 			// find out about pubview
-			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
+			context.put("pubviewset", isChannelPublic(channelId));
 			context.put("pubview", Boolean.valueOf(edit.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
 
 			// Get/set release information
@@ -2425,7 +2423,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			context.put("message", message);
 
 			// find out about pubview
-			context.put("pubviewset", ((sstate.getAttribute(STATE_CHANNEL_PUBVIEW) ==  null) ? Boolean.FALSE : Boolean.TRUE));
+			context.put("pubviewset", isChannelPublic(channel.getId()));
 			context.put("pubview", Boolean.valueOf(message.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null));
 
 			// show all the groups in this channal that user has get message in
@@ -4526,13 +4524,6 @@ public class AnnouncementAction extends PagedResourceActionII
 		{
 			state.setAttribute(STATE_INITED, STATE_INITED);
 
-			// check if the channel is marked public read
-			if (m_securityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId))
-			{
-				state.setAttribute(STATE_CHANNEL_PUBVIEW, STATE_CHANNEL_PUBVIEW);
-			}
-
-
 			MergedList mergedAnnouncementList = new MergedList();
 
 			String[] channelArrayFromConfigParameterValue = null;
@@ -4594,6 +4585,14 @@ public class AnnouncementAction extends PagedResourceActionII
 
 	} // initState
 
+	/**
+	 * Check if the channel (in effect the site) is public. This is useful for restricting the access options
+	 * for announcements in a public site.
+	 * @param channelId The channel ID.
+	 */
+	private boolean isChannelPublic(String channelId) {
+		return m_securityService.unlock(UserDirectoryService.getAnonymousUser(), AnnouncementService.SECURE_ANNC_READ, channelId);
+	}
 
 
 	/**
