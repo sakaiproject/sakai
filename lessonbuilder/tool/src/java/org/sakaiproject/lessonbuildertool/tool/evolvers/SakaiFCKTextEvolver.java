@@ -52,14 +52,14 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
 
 	    boolean isNew = false;
-	    int cle = 2;
+	    int version = 2;
 	    int major = 6;
 	    int minor = 0;
 	    if (sakaiVersion != null) {
 		String []parts = sakaiVersion.split("\\.");
 		if (parts.length >= 1) {
 		    try {
-			cle = Integer.parseInt(parts[0]);
+			version = Integer.parseInt(parts[0]);
 		    } catch (Exception e) {
 		    };
 		}
@@ -80,9 +80,9 @@ public class SakaiFCKTextEvolver implements TextInputEvolver {
 		}
 
 		// samigo starting with 2.8.0 has the new editor calling protocol
-		if (cle > 2 || (cle == 2 && major >= 8))
+		if (version > 2 || (version == 2 && major >= 8))
 		    isNew = true;
-		System.out.println("EditPage thinks Sakai version is " + cle + " major " + major + " isNew=" + isNew);
+		System.out.println("EditPage thinks Sakai version is " + version + " major " + major + " isNew=" + isNew);
 	    }
 	    //System.out.println("isnew " + isNew);
 	    return isNew;
