@@ -61,7 +61,7 @@
                                              #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
                                      #else 
                                      	<li id="row-$rowCount">
-                                            <div class="toolListControl">
+                                            <div class="toolListControl" id="$toolId.replace(".","_")_wrap">
                                                 <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
                                                 #if ($tool.isRequired())
                                                     checked="checked" 

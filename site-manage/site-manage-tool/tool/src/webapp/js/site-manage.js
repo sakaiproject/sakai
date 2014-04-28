@@ -606,22 +606,20 @@ var setupCategTools = function(){
             $('#toolSelectionList #toolSelectionListMessage').hide();
         }
 };
-   var showAlert = function(e){
-        var pos = $(e.target).position();
+   var showAlert = function(target){
+       $('#alertBox').remove();
         var msg = $('#removalAlertMessage').val();
         var yesMsg = $('#removalAlertYesMessage').val();
         var noMsg = $('#removalAlertNoMessage').val();
-        $(e.target).parent('li').append('<div id=\"alertBox\">' + msg + '<a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></div>');
-        $(e.target).find('#alertBox').css({
-            'top': pos.top - 14,
-            'left': pos.left - 150
-        });
+        $('<li id=\"alertBox\"><span style="padding:10px 2px">' + msg + '</span><span style="padding:10px 2px"><a href=\"#\" id=\"alertBoxYes\">' + yesMsg + '</a>&nbsp;|&nbsp;<a href=\"#\" id=\"alertBoxNo\">' + noMsg + '</a></span></li>').insertAfter('#' + target);
+
         $('#alertBox a#alertBoxYes').on('click', function(){
-            $(this).parent('div').prev('a').removeClass('toolInstance').click();
+            $(this).closest('li').prev('li').remove();
+            $('#' + target +'_wrap').find('input').attr('checked',false).end().find('label').css('font-weight','normal');
             $('#alertBox').remove();
         });
         $('#alertBox a#alertBoxNo').on('click', function(){
-            $(this).closest('li').removeClass('highlightTool');
+            $(this).closest('li').prev('li').removeClass('highlightTool');
             $('#alertBox').remove();
         });
     };
@@ -890,12 +888,12 @@ var setupCategTools = function(){
         // if toolMultple; confirm delete
         if ($(this).hasClass('toolInstance')) {
             $(this).closest('li').addClass('highlightTool');
-            showAlert(e);
+            showAlert($(this).closest('li').attr('id'));
             return false;
             // remove the checkbox? put in an alert
         } else {
             // for each tool with this id, set check to false and fade in/out selectedTool display
-            setChecked(selectedId,false);            	
+            setChecked(selectedId,false);
         }
         
         // SAK-22384
