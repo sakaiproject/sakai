@@ -132,7 +132,7 @@ Licenses.
         var itemHTML = fluid.stringTemplate(templates.sourceItem, {
 	    forumid: topics.forumid,
             topicvalue: topics.topicid,
-            topiclabel: topics.topictitle 
+            topiclabel: $('<p></p>').text(topics.topictitle).html() 
         });
         return itemHTML;
     };
@@ -141,7 +141,7 @@ Licenses.
         var itemHTML = fluid.stringTemplate(templates.sourceItemDisabled, {
             forumid: topics.forumid,
             topicvalue: topics.topicid,
-            topiclabel: topics.topictitle
+            topiclabel: $('<p></p>').text(topics.topictitle).html()
         });
         return itemHTML;
     };
