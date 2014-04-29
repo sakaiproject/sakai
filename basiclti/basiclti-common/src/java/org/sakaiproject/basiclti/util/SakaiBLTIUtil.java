@@ -108,6 +108,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_CONTENTLINK_ENABLED_DEFAULT = null; // i.e. false
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
+	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
 
 	public static final String SVC_tc_profile = "tc_profile";
 	public static final String SVC_tc_registration = "tc_registration";

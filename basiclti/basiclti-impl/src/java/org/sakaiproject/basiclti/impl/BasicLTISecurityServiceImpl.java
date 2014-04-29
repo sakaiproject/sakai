@@ -50,6 +50,7 @@ import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -399,6 +400,14 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 							   Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
 							   // 2.5 Event call
 							   // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
+
+								// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
+								Session session = SessionManager.getCurrentSession(); 
+								if (session !=null) { 
+									int seconds = ServerConfigurationService.getInt(SakaiBLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
+									if ( seconds != 0 ) session.setMaxInactiveInterval(seconds); 
+								} 
+
 							   LocalEventTrackingService.post(event);
 						   } 
 						   catch (Exception e)
