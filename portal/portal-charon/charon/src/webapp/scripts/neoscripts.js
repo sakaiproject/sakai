@@ -346,7 +346,7 @@ function showToolMenu(e, xOffset){
     else {
         $('#otherSiteTools').remove();
         var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\" role=\"menu\">";
-        var siteURL = '/direct/site/' + classId + '/pages.json';
+        var siteURL = '/direct/site/' + classId + '/pages.json' + '?locale=' + portal.locale;
         scroll(0, 0)
         var pos = jqObj.offset();
         var maxToolsInt = parseInt($('#maxToolsInt').text());
@@ -578,7 +578,7 @@ var setupSiteNav = function(){
             var maxToolsInt = parseInt($('#maxToolsInt').text());
             var maxToolsText = $('#maxToolsAnchor').text();
             var goToSite = '<li class=\"submenuitem\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"></span>' + maxToolsText + '</a></li>';
-            var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json';
+            var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json' + '?locale=' + portal.locale;
             jQuery.ajax({
                 url: siteURL,
                 dataType: "json",
