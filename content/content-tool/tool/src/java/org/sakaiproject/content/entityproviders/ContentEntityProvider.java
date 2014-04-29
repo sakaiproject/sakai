@@ -221,7 +221,14 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						
 						ResourceProperties props = resource.getProperties();
 						item.setType(props.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-						item.setSize(Long.parseLong(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
+						try
+						{
+							item.setSize(Long.parseLong(props.getProperty(ResourceProperties.PROP_CONTENT_LENGTH)));
+						}
+						catch (NumberFormatException nException)
+						{
+							log.warn(this + " getSiteListItems problem of getting resource length for " + id);
+						}
 						
 						// set the proper ContentItem values
 						setContentItemValues(resource, item, props);
