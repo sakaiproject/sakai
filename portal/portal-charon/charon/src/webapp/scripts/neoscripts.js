@@ -422,7 +422,11 @@ jQuery(document).ready(function(){
 	if (portal.shortDescription) {
 	    siteTitle = siteTitle + " ("+portal.shortDescription+")"
 	}
-        $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
+	if ( portal.locale.indexOf('fr') === 0 ) {
+	    $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ' :</span> ')
+	} else {
+	    $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
+	}
     }
     
     // other site search handlers
