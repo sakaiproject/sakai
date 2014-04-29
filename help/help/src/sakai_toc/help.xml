@@ -123,8 +123,14 @@
     <property name="resources">
       <list>
         <ref bean="whatisMyWorkspace"/>
-        <ref bean="howdoIviewandeditmyaccountdetails"/>
+        <ref bean="whatisSiteNavigation"/>
+        <ref bean="whatistheMyWorkspaceToolMenu"/>
+        <ref bean="whatistheMyWorkspaceMessageoftheDay"/>
+        <ref bean="whatistheMyWorkspaceCalendar"/>
+        <ref bean="whataretheMyWorkspaceRecentAnnouncements"/>
+        <ref bean="whataretheMyWorkspaceMessageCenterNotifications"/>
         <ref bean="whatisMembership"/>
+        <ref bean="howdoIviewandeditmyaccountdetails"/>
         <ref bean="whatisWorksiteSetup"/>
         <ref bean="whatisthePreferencestool"/>
         <ref bean="whataretheResourcesinMyWorkspace"/>
@@ -145,15 +151,76 @@
       <value>sakai.iframe.myworkspace</value>
     </property>
   </bean>
-  <bean id="howdoIviewandeditmyaccountdetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="whatisSiteNavigation" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIviewandeditmyaccountdetails</value>
+      <value>whatisSiteNavigation</value>
     </property>
     <property name="name">
-      <value>How do I view and edit my account details?</value>
+      <value>What is Site Navigation?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_myWorkspaceInstructorGuide/How-do-I-view-and-edit-my-account-details-.html</value>
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-Site-Navigation-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheMyWorkspaceToolMenu" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheMyWorkspaceToolMenu</value>
+    </property>
+    <property name="name">
+      <value>What is the My Workspace Tool Menu?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Tool-Menu-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheMyWorkspaceMessageoftheDay" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheMyWorkspaceMessageoftheDay</value>
+    </property>
+    <property name="name">
+      <value>What is the My Workspace Message of the Day? </value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Message-of-the-Day-.html</value>
+    </property>
+  </bean>
+  <bean id="whatistheMyWorkspaceCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whatistheMyWorkspaceCalendar</value>
+    </property>
+    <property name="name">
+      <value>What is the My Workspace Calendar?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Calendar-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.summary.calendar</value>
+    </property>
+  </bean>
+  <bean id="whataretheMyWorkspaceRecentAnnouncements" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whataretheMyWorkspaceRecentAnnouncements</value>
+    </property>
+    <property name="name">
+      <value>What are the My Workspace Recent Announcements?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-My-Workspace-Recent-Announcements-.html</value>
+    </property>
+  </bean>
+  <bean id="whataretheMyWorkspaceMessageCenterNotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>whataretheMyWorkspaceMessageCenterNotifications</value>
+    </property>
+    <property name="name">
+      <value>What are the My Workspace Message Center Notifications?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-My-Workspace-Message-Center-Notifications-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.synoptic.messagecenter</value>
     </property>
   </bean>
   <bean id="whatisMembership" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -165,6 +232,17 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-Membership-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIviewandeditmyaccountdetails" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIviewandeditmyaccountdetails</value>
+    </property>
+    <property name="name">
+      <value>How do I view and edit my account details?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_myWorkspaceInstructorGuide/How-do-I-view-and-edit-my-account-details-.html</value>
     </property>
   </bean>
   <bean id="whatisWorksiteSetup" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -3395,7 +3473,8 @@
         <ref bean="howdoIaddatruefalsequestion"/>
         <ref bean="howdoIcreateashortansweressayquestion"/>
         <ref bean="howdoIaddafillintheblankquestion"/>
-        <ref bean="howdoIaddanumericresponseiecalculatedquestion"/>
+        <ref bean="howdoIaddanumericresponsequestion"/>
+        <ref bean="howdoIaddacalculatedquestion"/>
         <ref bean="howdoIaddanaudiorecordingquestion"/>
         <ref bean="howdoIaddafileuploadquestion"/>
         <ref bean="howdoIaddanextendedmatchingitemsquestion"/>
@@ -3519,15 +3598,26 @@
       <value>/sakai_screensteps_testsQuizzesInstructorGuide/How-do-I-add-a-fill-in-the-blank-question-.html</value>
     </property>
   </bean>
-  <bean id="howdoIaddanumericresponseiecalculatedquestion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+  <bean id="howdoIaddanumericresponsequestion" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
-      <value>howdoIaddanumericresponseiecalculatedquestion</value>
+      <value>howdoIaddanumericresponsequestion</value>
     </property>
     <property name="name">
-      <value>How do I add a numeric response (i.e. calculated) question?</value>
+      <value>How do I add a numeric response question?</value>
     </property>
     <property name="location">
-      <value>/sakai_screensteps_testsQuizzesInstructorGuide/How-do-I-add-a-numeric-response--i.e.-calculated--question-.html</value>
+      <value>/sakai_screensteps_testsQuizzesInstructorGuide/How-do-I-add-a-numeric-response-question-.html</value>
+    </property>
+  </bean>
+  <bean id="howdoIaddacalculatedquestion" class="org.sakaiproject.component.app.help.model.ResourceBean">
+    <property name="docId">
+      <value>howdoIaddacalculatedquestion</value>
+    </property>
+    <property name="name">
+      <value>How do I add a calculated question?</value>
+    </property>
+    <property name="location">
+      <value>/sakai_screensteps_testsQuizzesInstructorGuide/How-do-I-add-a-calculated-question-.html</value>
     </property>
   </bean>
   <bean id="howdoIaddanaudiorecordingquestion" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4009,6 +4099,12 @@
     <property name="resources">
       <list>
         <ref bean="whatisMyWorkspace"/>
+        <ref bean="whatisSiteNavigation"/>
+        <ref bean="whatistheMyWorkspaceToolMenu"/>
+        <ref bean="whatistheMyWorkspaceMessageoftheDay"/>
+        <ref bean="whatistheMyWorkspaceCalendar"/>
+        <ref bean="whataretheMyWorkspaceRecentAnnouncements"/>
+        <ref bean="whataretheMyWorkspaceMessageCenterNotifications"/>
         <ref bean="howdoIviewandeditmyaccountdetails"/>
         <ref bean="whatisMembership"/>
         <ref bean="whatisWorksiteSetup"/>
@@ -4531,7 +4627,7 @@
       <value>/sakai_screensteps_evaluationsOSPOSPGuide/Evaluations-Overview.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.evaluationsOSP</value>
+      <value>osp.evaluation</value>
     </property>
   </bean>
   <bean id="evaluatingSubmittedWork" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4614,7 +4710,7 @@
       <value>/sakai_screensteps_formsOSPOSPGuide/Forms-Overview.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.formsOSP</value>
+      <value>sakai.metaobj</value>
     </property>
   </bean>
   <bean id="completingFormsinResources" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4809,7 +4905,7 @@
       <value>/sakai_screensteps_glossaryOSPOSPGuide/Glossary-Overview.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.glossaryOSP</value>
+      <value>osp.glossary</value>
     </property>
   </bean>
   <bean id="addingGlossaryTermsForCIGCoordinators" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -4926,7 +5022,7 @@
       <value>/sakai_screensteps_matricesOSPOSPGuide/Matrices-Overview.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.matricesOSP</value>
+      <value>osp.matrix</value>
     </property>
   </bean>
   <bean id="userRolesandAssociatedActionsinMatrices" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5260,7 +5356,7 @@
       <value>/sakai_screensteps_portfolioTemplatesOSPOSPGuide/Portfolio-Templates-Overview--For-CIG-Coordinators-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.portfolioTemplatesOSP</value>
+      <value>osp.presTemplate</value>
     </property>
   </bean>
   <bean id="usingResourceswithPortfolioTemplatesForCIGCoordinators" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5439,7 +5535,7 @@
       <value>/sakai_screensteps_portfoliosOSPOSPGuide/Portfolios-Overview.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.portfoliosOSP</value>
+      <value>osp.presentation</value>
     </property>
   </bean>
   <bean id="portfoliosHomePage" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5600,7 +5696,7 @@
       <value>/sakai_screensteps_stylesOSPOSPGuide/Styles-Overview--For-CIG-Coordinators-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.stylesOSP</value>
+      <value>osp.style</value>
     </property>
   </bean>
   <bean id="addingStylesForCIGCoordinators" class="org.sakaiproject.component.app.help.model.ResourceBean">
@@ -5679,7 +5775,7 @@
       <value>/sakai_screensteps_settingSakaiPropertiesforOSPOSPGuide/Setting-Sakai-Properties-for-OSP--For-CIG-Coordinators-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.settingSakaiPropertiesforOSP</value>
+      <value>sakai.settingSakaiPropertiesfor</value>
     </property>
   </bean>
 </beans>
