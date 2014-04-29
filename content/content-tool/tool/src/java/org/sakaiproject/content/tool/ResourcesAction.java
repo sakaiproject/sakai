@@ -5145,6 +5145,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put ("this_site", rootTitle);
 		
 		context.put("cleanupInterval", state.getAttribute(STATE_CLEANUP_DELETED_CONTENT_INTERVAL));
+		
+		if (state.getAttribute("restored_resources") != null)
+		{
+			// show restore confirmation message
+			context.put("restoredResources", state.getAttribute("restored_resources"));
+			state.removeAttribute("restored_resources");
+		}
+		if (state.getAttribute("removed_resources") != null)
+		{
+			// show remove confirmation message
+			context.put("removedResources", state.getAttribute("removed_resources"));
+			state.removeAttribute("removed_resources");
+		}
 	      
 		return TEMPLATE_RESTORE;
 	}
@@ -7460,11 +7473,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		if (!"cancel".equalsIgnoreCase("flow")) {
 			String[] selectedItems = params.getStrings("selectedMembers");	
+			StringBuffer restoredResources = new StringBuffer();
+			StringBuffer removedResources = new StringBuffer();
 			if ("restore".equalsIgnoreCase(flow))
 			{
 				for (String selectedItem : selectedItems) {
 					try {
 						ContentHostingService.restoreResource(selectedItem);
+						restoredResources.append(selectedItem + ";");
 					} catch (Exception e) {
 						String[] args = { e.getClass().getName(), selectedItem, e.getMessage()};
 						addAlert(state, trb.getFormattedMessage("action.exception", args));					
@@ -7477,6 +7493,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				for (String selectedItem : selectedItems) {
 					try {
 						ContentHostingService.removeDeletedResource(selectedItem);
+						removedResources.append(selectedItem + ";");
 					} catch (Exception ex) {
 						String[] args = {ex.getClass().getName(),selectedItem, ex.getMessage() };
 						addAlert(state, trb.getFormattedMessage("action.exception", args));					
@@ -7484,15 +7501,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					}
 				}				
 			}
+			
+			if (restoredResources.length() > 0)
+			{
+				state.setAttribute("restored_resources", restoredResources.toString());
+			}
+			if (removedResources.length() > 0)
+			{
+				state.setAttribute("removed_resources", removedResources.toString());
+			}
 		}
-
-		
-		if (state.getAttribute(STATE_MESSAGE) == null)
-		{
-			state.setAttribute (STATE_MODE, MODE_LIST);
-
-		}	// if-else
-
 	}
 
 	/**
