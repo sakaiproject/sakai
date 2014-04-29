@@ -294,6 +294,7 @@ function allowClick(object)
 				</tr>
 				#set ($assignmentCount = 0)
 				#foreach ($assignment in $assignments)
+                                        #set ($assignmentContent = $assignment.getContent())
 					#set ($assignmentReference = $assignment.Reference)
 					#set($assignmentProperties=$!assignment.getProperties())
 					## all allow function results
@@ -312,7 +313,7 @@ function allowClick(object)
 						#set ($assignmentCount = $assignmentCount + 1)
 						<tr> 
 							<td headers="attachments" class="attach">
-								#set ($attachments = $assignment.getContent().getAttachments())
+								#set ($attachments = $assignmentContent.getAttachments())
 								#set ($size = 0)
 								#set ($props = false)
 								#if (!$!attachments.isEmpty())
@@ -344,7 +345,7 @@ function allowClick(object)
 											#end
 												$validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))
 												
-											#if ($assignment.getContent().getAllowReviewService())
+											#if ($assignmentContent.getAllowReviewService())
 												<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" />
 											#end
 											</a>
@@ -369,7 +370,7 @@ function allowClick(object)
 												#end
 											#end
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) | #end
-											#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
+											#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 											## show "view submissions" link for ungraded type of assignment
 												<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end <span class="skip">: $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end										
 										</div>
@@ -538,13 +539,14 @@ function allowClick(object)
 								$!assignment.openTime.toStringLocalFull()
 							</td>
 							<td headers="dueDate">
-							#if ($assignment.getContent().getHideDueDate() != "true" || $!allowUpdateAssignment)
+							#if ($assignmentContent.getHideDueDate() != "true" || $!allowUpdateAssignment)
 
                                 ##Instructors can still see the due date
                                 <span class="highlight">$!assignment.dueTime.toStringLocalFull()</span>
                             #end
 
 							</td>
+
 							#if ($!allowGradeSubmission)
 								#if ($!view.equals('lisofass1'))
 								#if ($!showNumSubmissionColumn)
@@ -554,7 +556,7 @@ function allowClick(object)
 									## 1- text only; 2-attachment only; 3-text and attachment; 4-Non-electronic
 									#set($ungradedNumber = $!service.getUngradedSubmissionsCount($assignment.Reference))
 									#set($totalNumber = $!service.getSubmittedSubmissionsCount($assignment.Reference))
-									#set ( $submissionType = $assignment.Content.TypeOfSubmission)
+									#set ( $submissionType = $assignmentContent.TypeOfSubmission)
 									#if ($!submissionType == 4)
 										## non-electronic assignment
 										#set ($allowSubmitUsers = $!service.allowAddSubmissionUsers($!assignment.getReference()))
@@ -573,7 +575,7 @@ function allowClick(object)
 							#end
 							#if ($withGrade && $!allowGradeSubmission)
 							<td headers="maxgrade">
-									#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
+									#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 									#if ($gradeScale == -1)
 										## Grade type not set 
 										$tlang.getString("gen.notset")
@@ -585,7 +587,7 @@ function allowClick(object)
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
-										0-$assignment.getContent().getMaxGradePointDisplay()
+										0-$assignmentContent.getMaxGradePointDisplay()
 									#elseif ($gradeScale == 4)
 										## Pass/fail grade type 
 										$tlang.getString("gen.pf")
