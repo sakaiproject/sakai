@@ -62,8 +62,9 @@
  			$(document).ready(function() {
 				setupMessageNav('messagePending');
 				setupMessageNav('messageNew');
-				if ($('div.hierItemBlock').length > 2){
+				if ($('div.hierItemBlock').size() >= 2){
 					$('.itemNav').clone().addClass('specialLink').appendTo('form')
+					$("<br/><br/>").appendTo('form');					
 				}
 			});
 </script>		
