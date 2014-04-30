@@ -33,6 +33,37 @@
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/delegatedaccess/trunk</developerConnection>
         <url>https://source.sakaiproject.org/svn/delegatedaccess/trunk</url>
     </scm>
+
+    <profiles>
+        <profile>
+            <id>sakai2.9</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+                <property><name>sakai2.9</name></property>
+            </activation>
+            <properties>
+                <hierarchy.version>1.2.6</hierarchy.version>
+                <lombok.version>0.10.6</lombok.version>
+            </properties>
+            <dependencyManagement>
+                <dependencies>
+                    <dependency>
+                        <!-- To keep make it easy to update all tool versions -->
+                        <groupId>org.projectlombok</groupId>
+                        <artifactId>lombok</artifactId>
+                        <version>${lombok.version}</version>
+                        <scope>provided</scope><!-- Lombok only needed at build time -->
+                    </dependency>
+                    <dependency>
+                        <groupId>org.sakaiproject.hierarchy</groupId>
+                        <artifactId>hierarchy-api</artifactId>
+                        <version>${hierarchy.version}</version>
+                        <scope>provided</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+        </profile>
+    </profiles>
 	
 	<dependencyManagement>
 		<dependencies>
