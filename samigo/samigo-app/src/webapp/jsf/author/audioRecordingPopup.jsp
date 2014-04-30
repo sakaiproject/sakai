@@ -46,6 +46,7 @@ $Id: audioRecordingPopup.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 
 				<f:verbatim>var localeLanguage = "</f:verbatim><h:outputText value="#{person.localeLanguage}" escape="false"/><f:verbatim>";</f:verbatim>
 				<f:verbatim>var localeCountry = "</f:verbatim><h:outputText value="#{person.localeCountry}" escape="false"/><f:verbatim>";</f:verbatim>
+				<f:verbatim>var unlimitedString = "</f:verbatim><h:outputText value="#{deliveryMessages.unlimited}" escape="false"/><f:verbatim>";</f:verbatim>
 				<f:verbatim>var agentId = "</f:verbatim><h:outputText value="#{person.id}" escape="false"/><f:verbatim>";</f:verbatim>
 				<f:verbatim>var maxSeconds = parseInt(</f:verbatim><h:outputText value="#{param.duration}" escape="false"/><f:verbatim>);</f:verbatim>
 				<f:verbatim>var attemptsAllowed = </f:verbatim><h:outputText value="#{param.triesAllowed}" escape="false"/><f:verbatim>;</f:verbatim>
