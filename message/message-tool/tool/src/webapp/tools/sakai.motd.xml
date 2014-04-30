@@ -16,7 +16,7 @@
 
 		<configuration name="message-service" value="org.sakaiproject.announcement.api.AnnouncementService" type="final" />
 		<configuration name="reset.button" value="false" type="final" />
-		<configuration name="help.id" value="sakai.announcements" type="final" />
+		<configuration name="help.id" value="sakai.motd" type="final" />
 
 	</tool>
 
