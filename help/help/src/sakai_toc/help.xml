@@ -758,7 +758,7 @@
       <value>/sakai_screensteps_emailInstructorGuide/What-is-the-Email-tool-.html</value>
     </property>
     <property name="defaultForTool">
-      <value>sakai.mailtool</value>
+      <value>sakai.mailsender</value>
     </property>
   </bean>
   <bean id="howdoIsendanEmailmessage" class="org.sakaiproject.component.app.help.model.ResourceBean">
