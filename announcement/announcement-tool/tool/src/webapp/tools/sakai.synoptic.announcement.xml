@@ -16,7 +16,7 @@
 		<configuration name="channel" value="" />
 
 		<configuration name="reset.button" value="false" type="final" />
-		<configuration name="help.id" value="sakai.announcements" type="final" />
+		<configuration name="help.id" value="sakai.synoptic.announcements" type="final" />
 
 		<configuration name="functions.require" value="annc.read" />
 
