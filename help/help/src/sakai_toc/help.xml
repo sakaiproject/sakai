@@ -183,6 +183,9 @@
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-is-the-My-Workspace-Message-of-the-Day-.html</value>
     </property>
+    <property name="defaultForTool">
+      <value>sakai.motd</value>
+    </property>
   </bean>
   <bean id="whatistheMyWorkspaceCalendar" class="org.sakaiproject.component.app.help.model.ResourceBean">
     <property name="docId">
@@ -207,6 +210,9 @@
     </property>
     <property name="location">
       <value>/sakai_screensteps_myWorkspaceInstructorGuide/What-are-the-My-Workspace-Recent-Announcements-.html</value>
+    </property>
+    <property name="defaultForTool">
+      <value>sakai.synoptic.announcements</value>
     </property>
   </bean>
   <bean id="whataretheMyWorkspaceMessageCenterNotifications" class="org.sakaiproject.component.app.help.model.ResourceBean">
