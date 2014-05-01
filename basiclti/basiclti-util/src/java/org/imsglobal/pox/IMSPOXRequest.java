@@ -263,8 +263,11 @@ public class IMSPOXRequest {
 			result = expr.evaluate(postDom, XPathConstants.NODESET);
 			nodes = (NodeList) result;
 			headerElement = (Element) nodes.item(0);
+		}catch(javax.xml.xpath.XPathExpressionException e) {
+			errorMessage = "Could not parse XPATH: "+e.getMessage();
+			return;
 		}catch(Exception e) {
-			errorMessage = "Could not parse PATH: "+e.getMessage();
+			errorMessage = "Could not parse input XML: "+e.getMessage();
 			return;
 		}
 
