@@ -39,7 +39,6 @@ alter table lesson_builder_pages add groupid varchar2(36 char);
     );
 
 alter table lesson_builder_student_pages add groupid varchar2(36 char);
-create sequence hibernate_sequence;
 --- alter table lesson_builder_items modify ownerGroups clob;
 alter table lesson_builder_items add temp clob;
 update lesson_builder_items set temp=ownerGroups;
