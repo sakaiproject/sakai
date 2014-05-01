@@ -118,14 +118,12 @@ body.portalBody {
 
 /* PART 2 - HEADER BLOCKS (BRANDING,LOGIN) */
 #headerMax, #headerMin {
-    background: #009DCE;
-    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
-    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    border-bottom: 1px solid #007194;
+    background: #fff;
+    border-bottom: 1px solid #ccc;
+    -webkit-box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+    -moz-box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+    box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+    margin-bottom:5px;
 }
 #headerMin {
     overflow: hidden;
@@ -216,26 +214,23 @@ guests, for example */
 }
 /* main rendering for all links and the submit button */
 #loginLink1, #loginLink2, form#loginForm input#submit {
+    background: none repeat scroll 0 0 #fff;
+    border: 1px solid #AAAAAA;
+    border-radius: 4px;
+    color: #555555 !important;
     display: block;
-    border-radius: 5px;
+    font-size: 13px;
     padding: 4px 6px;
     text-align: center;
     text-decoration: none;
-    background: #008DB9;
-    background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
-    background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
-    background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
-    background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
-    background: linear-gradient(top, #008DB9 0%,#007194 100%);
-    border: 1px solid #005A76;
 }
 #headerMin #loginLink1, #headerMin #loginLink2 {
     margin-top: -2px;
 }
 #loginLink1:hover, #loginLink2:hover, form#loginForm input#submit:hover {
-    background: #007194;
+    background: #fff;
     text-decoration: none;
+    border:1px solid #555
 }
 /*make secondary CAS login link (ie. Guest Login) different*/ 
 #loginLink2, #loginLink2:hover {
@@ -286,6 +281,7 @@ guests, for example */
     text-align: left;
     position:relative;
 }
+
 /* link items in above menu (some attr/vals are same as for site tool sub-menu, and submenus in othe rsites tray so both are doubled up here)*/
 ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMenuIcon, #otherSiteTools li .toolMenuIcon {
     background-color: transparent;
@@ -306,7 +302,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
     font-weight: normal;
     color: #111;
     color: #444;
-    padding: 7px 6px 6px 30px !important;
+    padding: 7px 0 6px 30px !important;
     font-size: 1em !important;
     position:relative;
 }
@@ -346,17 +342,21 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 /* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
  * the childen can be styled depending on the site type (course, project, etc). */
 .siteNavWrap {
+    background:#fff;
     width: 100%;
     font-size: 100%;
     line-height: normal;
     padding: 0;
 }
 /* wrapper for the site links, link to the 'more sites' tray, logout controls - children are #mastLogin and #linkNav*/
-#siteNav {}
+#siteNav {
+    background:#fff;
+}
 /* wrapper for the site link list and link to the 'more sites' tray - since the logo is displayed here on left, it is padded.*/
 #linkNav {
     display: block;
     padding-right: 300px;
+    bacground:#fff
 }
 /* site tab navigation: a list right padding makes room for logo and matches width of tool menu
  * if you do not have a logo you can eliminate it to save some room */
@@ -365,10 +365,11 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
     padding: 8px 0 5px 155px; /* matches the width of the toolMenu*/
     margin: 0;
     width: 100%;
-    background: transparent url(images/logo.png) 8px 4px no-repeat;
+    background: #fff url(images/logo.png) 30px 5px no-repeat;
 }
 /* the individual containers for the site links, tool menu control, tool menu*/
-ul.topnav li {
+ul.topnav > li {
+    background:#fff;
     display: inline-block;
     /* Note: IE 7 hack and IE 8 compat mode*/
     *display: inline;
@@ -377,29 +378,33 @@ ul.topnav li {
     padding: 0;
     position: relative; /*--Declare X and Y axis base for sub navigation--*/
     font-weight: bold;
-    border: 1px solid transparent;
+    border: 1px solid #ccc;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+
 }
 /* hover treatment for site links*/
 ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
-    border: 1px solid #005A76;
-    -moz-border-radius: 3px;
-    -webkit-border-radius: 3px;
-    border-radius: 3px;
+    border: 1px solid #555;
 }
 /* current site control rendering */
  ul.topnav li.nav-selected {
-     background: #008DB9;
+     background: #fff;
+     border: 1px solid #555;
+/*
     background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
     background: -webkit-linear-gradient(top, #008DB9 0%,#007194 100%);
     background: -o-linear-gradient(top, #008DB9 0%,#007194 100%);
     background: -ms-linear-gradient(top, #008DB9 0%,#007194 100%);
     background: linear-gradient(top, #008DB9 0%,#007194 100%);
-    border: 1px solid #005A76;
+    
     -moz-border-radius: 3px;
     -webkit-border-radius: 3px;
     border-radius: 3px;
- }
+
+*/ }
 /* site submenu trigger */
 ul.topnav li span.drop {
     width: 17px;
@@ -420,45 +425,45 @@ ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
     list-style: none;
     position: absolute;
     top: 31px;
-    background: #f3f3f3;
+    background: #fff;
     font-size: .9em;
     margin: 0;
-    padding: 0 !important;
+    padding: 10px 0 !important;
     display: none;
     float: left;
     width: 210px;
     border: 1px solid #ccc;
     border-width: 1px 1px 0 1px;
     z-index: 100;
-    -moz-box-shadow: 0 0 8px #444;
-    -webkit-box-shadow: 0 0 8px #444;
-    box-shadow: 0 0 8px #444;
+    -webkit-box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    box-shadow: 0 6px 12px rgba(0,0,0,.175);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
 }
 /* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
 ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
-    background: #f3f3f3;
-    border: 1px solid #ccc;
-    border-width: 0 0 1px 0;
+    background: #fff;
     width: 100%;
     position:relative;
 }
 /* some overrides for the menu in #mastLogin */
 #mastLogin ul.subnav li {
     border: none;
-    outline: 1px solid #ccc;
 }
 /* treatment for focus and hover in the site and user sub-menus, as well as submenus in other sites */
-ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
-    #mastLogin li.submenuitem:hover, #mastLogin ul.subnav li.submenuitem a:focus, #otherSiteTools li:hover {
+ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:hover, ul.topnav li ul.subnav li a:focus,
+    #mastLogin li.submenuitem:hover, #mastLogin ul.subnav li.submenuitem a:focus, #otherSiteTools li:hover, #otherSiteTools a:focus{
     text-decoration: none;
     color: #000;
-    background: #e1e1e1;
+    background-color: #eeeeee;
+    outline:none;
 }
 /* link to site */
 ul.topnav li a {
     padding: 8px 7px 8px 8px;
     font-size: 13px;
-    color: #fff;
+    color: #555;
     text-decoration: none;
     float: left;
     display: block;
@@ -492,9 +497,9 @@ li.more-tab a span {
 }
 /* container for tray that opens when "More sites" is activated, both the default and the categorized one when portal.use.dhtml.more=true in sak.props. */
 #selectSite {
-    background: #f3f3f3;
+    background: #fff;
     border-width: 0;
-    border: 1px solid #888;
+    border: 1px solid #ccc;
     color: #000;
     left: 10%;
     line-height: 1.5em;
@@ -504,20 +509,21 @@ li.more-tab a span {
     top: 0;
     vertical-align: middle;
     width: 80%;
-    z-index: 9999;
+    z-index: 10001;
     border-radius: 0px 0px 5px 5px;
     -moz-border-radius: 0px 0px 5px 5px;
     -webkit-border-radius: 0px 0px 5px 5px;
-    box-shadow: 0 0 10px #555;
-    -moz-box-shadow: 0 0 10px #555;
-    -webkit-box-shadow: 0 0 10px #555;
+    -webkit-box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+    -moz-box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+     box-shadow: 0px 1px 3px 0px rgba(204, 204, 204, 1);
+
 }
 /* mask that gets applied to the portal when "More sites" is triggered, making the tray modal sort of*/
 #portalMask {
     background-color: #ffffff;
     position: absolute;
     height: 100%;
-    z-index: 9000;
+    z-index: 1001;
     top: 0;
     left: 0;
     filter: alpha(opacity=50);
@@ -539,37 +545,30 @@ ul#otherSitesMenu {
     text-align: right;
 }
 /* style the menu for the tray - since the publish site link is the same, doubled up here */ 
+#siteStatus a {color:#555}
 ul#otherSitesMenu li, #siteStatus a {
     width: auto;
     font-size: 1.1em;
-    padding: 2px 3px 3px 3px;
+    padding: 2px 10px 3px;
     display: inline-block;
     margin: 0 4px 4px 0;
     border: 1px solid #ccc;
     border-radius: 4px;
     -moz-border-radius: 4px;
     -webkit-border-radius: 4px;
-    background: #e7e7e7;
-    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7));
-    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
-    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
-    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
-    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
-    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
-    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
-    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    background: #fff;
 }
 #otherSitesMenu li a, #otherSitesMenu li a:visited {
     display: block;
     padding: 3px;
     text-decoration: none;
-    color: #444;
+    color: #444;``
     font-weight: bold;
 }
 /* since the publish site link is the same, doubled up here */ 
-#otherSitesMenu li a:hover, #siteStatus a:hover, #siteStatus a:focus {
-    color: #009dce;
+#otherSitesMenu li:hover, #siteStatus a:hover, #siteStatus a:focus {
+    border: 1px solid #555;
+    outline:none
 }
 /*container and control to close the "Other sites tray"*/
 #otherSitesMenu #otherSiteCloseW {
@@ -601,14 +600,8 @@ ul.otherSitesCategorList {
  *  ul.otherSitesCategorList. This last one will appear once per each category
  */
 ul#otherSiteList li, ul.otherSitesCategorList li {
-    background: #009DCE;
-    background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
-    background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    border: 1px solid #005A76;
+    background: #fff;
+    border: 1px solid #ccc;
     font-weight: bold;
     position: relative;
     border-radius: 5px;
@@ -625,11 +618,12 @@ ul#otherSiteList li a, ul.otherSitesCategorList li a {
     display: block;
     padding: 8px;
     text-decoration: none;
-    color: #fff;
+    color: #555;
     white-space: nowrap;
 }
-ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span {
-    outline: 1px dotted #fff;
+ul#otherSiteList li a:focus, ul.otherSitesCategorList li a:focus{
+    color:#000;
+    background:#eee;
 }
 ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     width: 14em;
@@ -744,6 +738,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     margin: 0 0 0 0;
     color: #000;
     background: #f3f3f3;
+    z-index:0
 }
 #toolMenu ul, #subSites ul {
     width: auto;
@@ -757,25 +752,30 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     margin: 0;
     width: auto;
     padding: 0;
-    border-bottom: 1px solid #ccc;
     text-align: right;
-    background: #f3f3f3;
+    background: #fff;
+
+/*
     background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
     background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
     background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
     background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
     background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+
+*/
 }
 /* the current tool */
 #toolMenu li.selectedTool a {
     color: #009DCE !important;
     cursor: default;
+    background:#eee;
+    border-right:3px solid #009DCE;
 }
 /* eliminate the normal hover effect when it is current tool */
 #toolMenu li.selectedTool a:hover {
-    background: inherit !important;
-    *background: #f3f3f3 !important;
+    background: #eee !important;
+    *background: #eee !important;
 }
 /* span holds the tool icon bkgnd image for left hand menu 
  * and "a" the icon for tool pull downs - here a default is provided */
@@ -814,14 +814,19 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 #toolMenu li a:hover, #subSites li a:hover, #toolMenu li a:focus, #subSites li a:focus {
     text-decoration: none;
-    background: #009DCE;
+    background: #eee;
+    color: #009DCE;
+    /*
+
     background: -moz-linear-gradient(top, #009DCE 0%, #007EA5 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#009DCE), color-stop(100%,#007EA5));
     background: -webkit-linear-gradient(top, #009DCE 0%,#007EA5 100%);
     background: -o-linear-gradient(top, #009DCE 0%,#007EA5 100%);
     background: -ms-linear-gradient(top, #009DCE 0%,#007EA5 100%);
     background: linear-gradient(top, #009DCE 0%,#007EA5 100%);
-    color: #fff;
+    
+*/
+
 }
 /* link in tool menu that allows adding one more tool, may be disabled */
 #toolMenu li.moreTools {
@@ -1538,16 +1543,14 @@ div#privacy_overlay {
     -moz-border-radius: 3px;
     border-radius: 3px;
     vertical-align: middle;
-    padding: 8px !important;
+    padding: 6px 8px !important;
     outline: none;
     z-index: 200000;
-    box-shadow: 0px 0px 3px #000;
-    -webkit-box-shadow: 0px 0px 3px #000;
-    -moz-box-shadow: 0px 0px 3px #000000;
     top: 8px !important;
     left: 5px  !important;
     height: auto  !important;
-    color: #000;
+    color: #07b;
+    border: 1px solid #07b;
     width: auto  !important;
 }
 /* append the value of the accesskey attr to the text*/
