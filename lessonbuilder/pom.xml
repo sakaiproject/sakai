@@ -112,6 +112,7 @@
 	    <src2>src29</src2>
 	    <src3>src28-9</src3>
             <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
+	    <sakai.lombok.version>1.12.4</sakai.lombok.version>
           </properties>
 
 	  <!-- in 10.x these are in master/pom.xml, so we need them here for 2.8 and 2.9.
@@ -136,7 +137,15 @@
 		<artifactId>samigo-qti</artifactId>
 		<version>${sakai.samigo.version}</version>
 	      </dependency>
+	      <dependency>
+		<!-- To keep make it easy to update all tool versions -->
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>${sakai.lombok.version}</version>
+	      </dependency>
 	    </dependencies>
+
+
 	  </dependencyManagement>
 
         </profile>
