@@ -30,7 +30,7 @@
 	<target name="unzip" depends="prep" description="Expand Tomcat zip and perform cleanup.">
 	    <echo message="[INFO] Expand the Tomcat zip from the repo into the target." />
 	    <unzip
-	        src="${localRepo}/tomcat/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
+			src="${localRepo}/org/apache/tomcat/tomcat/${sakai.tomcat.version}/tomcat-${sakai.tomcat.version}.zip"
 	        dest="${basedir}/target/unpack"
 	        overwrite="true" />
 	</target>

@@ -36,7 +36,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>tomcat.tomcat</groupId>
+            <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat</artifactId>
             <version>${sakai.tomcat.version}</version>
             <type>zip</type>
