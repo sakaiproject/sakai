@@ -33,8 +33,7 @@ import org.sakaiproject.memory.api.CacheEventListener.EventType;
 import org.sakaiproject.memory.api.CacheStatistics;
 import org.sakaiproject.memory.api.Configuration;
 
-import java.util.ArrayList;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Ehcache based implementation of a Cache.
@@ -106,7 +105,7 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
 
     @Override
     public void clear() {
-        cache.removeAll();
+        cache.removeAll(false); // no listener triggers
         cache.getStatistics().clearStatistics();
     } // clear
 
@@ -245,6 +244,47 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
             buf.append(" NO statistics (not enabled for cache)");
         }
         return buf.toString();
+    }
+
+    // BULK operations - KNL-1246
+
+    @Override
+    public Map<String, Object> getAll(Set<String> keys) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if (!keys.isEmpty()) {
+            Map<Object, Element> mapElements = cache.getAll(keys);
+            for (Map.Entry<Object, Element> entry : mapElements.entrySet()) {
+                map.put(entry.getKey().toString(), entry.getValue().getObjectValue());
+            }
+        }
+        return map;
+    }
+
+    @Override
+    public void putAll(Map<String, Object> map) {
+        if (map != null && !map.isEmpty()) {
+            HashSet<Element> elements = new HashSet<Element>(map.size());
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                if (entry.getKey() != null) {
+                    elements.add( new Element(entry.getKey(), entry.getValue()) );
+                }
+            }
+            if (!elements.isEmpty()) {
+                cache.putAll(elements);
+            }
+        }
+    }
+
+    @Override
+    public void removeAll(Set<String> keys) {
+        if (!keys.isEmpty()) {
+            cache.removeAll(keys);
+        }
+    }
+
+    @Override
+    public void removeAll() {
+        cache.removeAll();
     }
 
     /**

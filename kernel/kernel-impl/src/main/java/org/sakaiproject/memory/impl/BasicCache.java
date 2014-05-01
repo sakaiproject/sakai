@@ -27,7 +27,10 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheLoader;
 import org.sakaiproject.memory.api.CacheStatistics;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * Contains general common implementation info related to a cache.
@@ -113,6 +116,52 @@ public abstract class BasicCache implements Cache {
         p.put("class", this.getClass().getSimpleName());
         return p;
     }
+
+    // BULK operations - KNL-1246
+
+    @Override
+    public Map<String, Object> getAll(Set<String> keys) {
+        HashMap<String, Object> map = new HashMap<String, Object>();
+        if (!keys.isEmpty()) {
+            for (String key : keys) {
+                if (key == null) {
+                    throw new NullPointerException("keys Set for getAll cannot contain nulls (but it does)");
+                }
+                Object value = this.get(key);
+                if (value != null) {
+                    map.put(key, value);
+                }
+            }
+        }
+        return map;
+    }
+
+    @Override
+    public void putAll(Map<String, Object> map) {
+        if (map != null && !map.isEmpty()) {
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                this.put(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    @Override
+    public void removeAll(Set<String> keys) {
+        if (!keys.isEmpty()) {
+            for (String key : keys) {
+                if (key == null) {
+                    throw new NullPointerException("keys Set for removeAll cannot contain nulls (but it does)");
+                }
+                this.remove(key);
+            }
+        }
+    }
+
+    /* KNL-1246
+     * WARNING: removeAll() cannot be implemented correctly here
+     * because we can't get the set of all keys from the Cache API methods.
+     * All implementations must override removeAll() method and probably should override the others
+     */
 
 
     // **************************************************************************

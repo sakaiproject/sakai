@@ -103,4 +103,9 @@ public class BasicMapCache extends BasicCache {
         return "BasicMap ("+getName()+"): mapSize="+cache.size();
     }
 
+    @Override
+    public void removeAll() {
+        clear(); // OK because no listeners or loaders support
+    }
+
 }

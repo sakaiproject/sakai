@@ -23,10 +23,7 @@ package org.sakaiproject.memory.mock;
 
 import org.sakaiproject.memory.api.*;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * Mock Cache for use in testing
@@ -95,6 +92,15 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
+    public Map<String, Object> getAll(Set<String> keys) {
+        Map<String, Object> m = new HashMap<String, Object>(this.map);
+        for (String key : keys) {
+            m.remove(key);
+        }
+        return m;
+    }
+
+    @Override
     public boolean containsKey(String key) {
         return map.containsKey(key);
     }
@@ -105,9 +111,26 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
+    public void putAll(Map<String, Object> map) {
+        this.map.putAll(map);
+    }
+
+    @Override
     public boolean remove(String key) {
         Object o = map.remove(key);
         return (o != null);
+    }
+
+    @Override
+    public void removeAll(Set<String> keys) {
+        for (String key : keys) {
+            this.map.remove(key);
+        }
+    }
+
+    @Override
+    public void removeAll() {
+        clear();
     }
 
     // multi ref cache

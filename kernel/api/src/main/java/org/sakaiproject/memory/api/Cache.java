@@ -22,7 +22,9 @@
 package org.sakaiproject.memory.api;
 
 import java.io.Serializable;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 /**
  * This is an abstraction of the general concept of a cache in Sakai<br/>
@@ -54,7 +56,28 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      */
     Object get(String key); // V get(K key);
 
-    //JSR-107 Map<K, V> getAll(Set<? extends K> keys);
+    /**
+     * Gets a collection of entries from the {@link Cache}, returning them as
+     * {@link Map} of the values associated with the set of keys requested.
+     * <p>
+     * If the cache is configured read-through, and a get for a key would
+     * return null because an entry is missing from the cache, the Cache's
+     * {@link CacheLoader} is called in an attempt to load the entry. If an
+     * entry cannot be loaded for a given key, the key will not be present in
+     * the returned Map.
+     *
+     * @param keys The keys whose associated values are to be returned.
+     * @return A map of entries that were found for the given keys. Keys not found
+     *         in the cache are not in the returned map.
+     * @throws NullPointerException  if keys is null or if keys contains a null
+     * @throws IllegalStateException if the cache is closed
+     * @throws RuntimeException      if there is a problem fetching the values
+     * @throws ClassCastException    if the implementation is configured to perform
+     *                               runtime-type-checking, and the key or value
+     *                               types are incompatible with those that have been
+     *                               configured for the {@link Cache}
+     */
+    Map<String, Object> getAll(Set<String> keys); // Map<K, V> getAll(Set<? extends K> keys);
 
     /**
      * Test if an entry exists in the cache for a key,
@@ -87,7 +110,36 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
     void put(String key, Object payload); // void put(K key, V value);
 
     //JSR-107 V getAndPut(K key, V value);
-    //JSR-107 void putAll(java.util.Map<? extends K, ? extends V> map);
+
+    /**
+     * Copies all of the entries from the specified map to the {@link Cache}.
+     * <p>
+     * The effect of this call is equivalent to that of calling
+     * put(key,value) on this cache once for each mapping
+     * from key <tt>k</tt> to value <tt>v</tt> in the specified map.
+     * <p>
+     * The order in which the individual puts occur is undefined.
+     * <p>
+     * The behavior of this operation is undefined if entries in the cache
+     * corresponding to entries in the map are modified or removed while this
+     * operation is in progress. or if map is modified while the operation is in
+     * progress.
+     * <p>
+     * In Default Consistency mode, individual puts occur atomically but not
+     * the entire putAll.  Listeners may observe individual updates.
+     *
+     * @param map mappings to be stored in this cache
+     * @throws NullPointerException  if map is null or if map contains null keys
+     *                               or values.
+     * @throws IllegalStateException if the cache is closed
+     * @throws RuntimeException      if there is a problem doing the put.
+     * @throws ClassCastException    if the implementation is configured to perform
+     *                               runtime-type-checking, and the key or value
+     *                               types are incompatible with those that have been
+     *                               configured for the {@link Cache}
+     */
+    void putAll(java.util.Map<String, Object> map); //void putAll(java.util.Map<? extends K, ? extends V> map);
+
     //JSR-107 boolean putIfAbsent(K key, V value);
 
     /**
@@ -112,8 +164,50 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
     //JSR-107 boolean replace(K key, V oldValue, V newValue);
     //JSR-107 boolean replace(K key, V value);
     //JSR-107 V getAndReplace(K key, V value);
-    //JSR-107 void removeAll(Set<? extends K> keys);
-    //JSR-107 void removeAll();
+
+    /**
+     * Removes entries for the specified keys.
+     * <p>
+     * The order in which the individual entries are removed is undefined.
+     * <p>
+     * For every entry in the key set, the following are called:
+     * <ul>
+     *   <li>any registered CacheEventListener</li>
+     *   <li>if the cache is a write-through cache, the CacheLoader</li>
+     * </ul>
+     * If the key set is empty, the CacheLoader is not called.
+     *
+     * @param keys the keys to remove
+     * @throws NullPointerException  if keys is null or if it contains a null key
+     * @throws IllegalStateException if the cache is closed
+     * @throws RuntimeException      if there is a problem during the remove
+     * @throws ClassCastException    if the implementation is configured to perform
+     *                               runtime-type-checking, and the key or value
+     *                               types are incompatible with those that have been
+     *                               configured for the {@link Cache}
+     */
+    void removeAll(Set<String> keys); // void removeAll(Set<? extends K> keys);
+
+    /**
+     * Removes all of the mappings from this cache.
+     * <p>
+     * The order that the individual entries are removed is undefined.
+     * <p>
+     * For every mapping that exists the following are called:
+     * <ul>
+     *   <li>any registered CacheEventListener</li>
+     *   <li>if the cache is a write-through cache, the CacheLoader</li>
+     * </ul>
+     * If the key set is empty, the CacheLoader is not called.
+     * <p>
+     * This is potentially an expensive operation as listeners are invoked.
+     * Use {@link #clear()} to avoid this.
+     *
+     * @throws IllegalStateException if the cache is closed
+     * @throws RuntimeException      if there is a problem during the remove
+     * @see #clear()
+     */
+    void removeAll();
 
     /**
      * Clear all entries from the cache (this effectively resets the cache),

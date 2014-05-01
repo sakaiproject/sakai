@@ -26,6 +26,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.*;
+import org.sakaiproject.memory.impl.BasicCache;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
@@ -43,10 +44,12 @@ import java.util.Properties;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class SiteCacheSafe implements SiteCache, Cache, CacheEventListener<String, Object>
+public class SiteCacheSafe extends BasicCache implements SiteCache, Cache, CacheEventListener<String, Object>
 {
-
     private static Log M_log = LogFactory.getLog(SiteCacheSafe.class);
+
+    private static final String CACHE_PREFIX = "org.sakaiproject.site.impl.SiteCacheImpl.";
+    private static final String MAIN_CACHE_NAME = CACHE_PREFIX+"cache";
 
     /**
      * Cache of site ref -> Site object (or Boolean which indicates the site exists)
@@ -75,7 +78,8 @@ public class SiteCacheSafe implements SiteCache, Cache, CacheEventListener<Strin
      * @param memoryService the memory service
      */
     public SiteCacheSafe(MemoryService memoryService, EventTrackingService eventTrackingService) {
-        m_cache = memoryService.getCache("org.sakaiproject.site.impl.SiteCacheImpl.cache");
+        super(MAIN_CACHE_NAME);
+        m_cache = memoryService.getCache(MAIN_CACHE_NAME);
         m_cache.registerCacheEventListener(this);
         if (!m_cache.isDistributed()) {
             // KNL_1229 use an Observer for cache cleanup when the cache is not distributed
@@ -85,9 +89,9 @@ public class SiteCacheSafe implements SiteCache, Cache, CacheEventListener<Strin
         }
         // create matching caches for the remaining elements (use an identical config so that expirations are aligned)
         Configuration cacheConfig = m_cache.getConfiguration();
-        m_cacheTools = memoryService.createCache("org.sakaiproject.site.impl.SiteCacheImpl.cacheTools", cacheConfig);
-        m_cachePages = memoryService.createCache("org.sakaiproject.site.impl.SiteCacheImpl.cachePages", cacheConfig);
-        m_cacheGroups = memoryService.createCache("org.sakaiproject.site.impl.SiteCacheImpl.cacheGroups", cacheConfig);
+        m_cacheTools = memoryService.createCache(CACHE_PREFIX+"cacheTools", cacheConfig);
+        m_cachePages = memoryService.createCache(CACHE_PREFIX+"cachePages", cacheConfig);
+        m_cacheGroups = memoryService.createCache(CACHE_PREFIX+"cacheGroups", cacheConfig);
     }
 
     /**
@@ -200,12 +204,17 @@ public class SiteCacheSafe implements SiteCache, Cache, CacheEventListener<Strin
 
     @Override
     public void put(Object key, Object payload, int duration) {
-        m_cache.put((String)key, payload);
+        m_cache.put((String) key, payload);
     }
 
     @Override
     public boolean remove(String key) {
         return m_cache.remove(key);
+    }
+
+    @Override
+    public void removeAll() {
+        m_cache.removeAll();
     }
 
     @Override
