@@ -220,7 +220,7 @@
 						<div id="accordion">
 					</f:verbatim>
 					<t:dataList value="#{SyllabusTool.entries}" var="eachEntry" layout="simple">
-						<f:verbatim><div class="group" syllabusItem="</f:verbatim>
+						<f:verbatim><div><div class="group" syllabusItem="</f:verbatim>
 						<h:outputText value="#{eachEntry.entry.syllabusId}"/>
 						<f:verbatim>"><h3></f:verbatim>
 						<f:subview id="actionIcons" rendered="#{SyllabusTool.editAble == 'true'}">
@@ -309,7 +309,7 @@
 									<br/>
 								</f:verbatim>
 							</f:subview>
-						<f:verbatim></div></div></f:verbatim>
+						<f:verbatim></div></div></div></f:verbatim>
 					</t:dataList>
 				<h:outputText value="#{msgs.syllabus_noEntry}" styleClass="instruction" rendered="#{SyllabusTool.displayNoEntryMsg}"/>
 			</syllabus:syllabus_if>				

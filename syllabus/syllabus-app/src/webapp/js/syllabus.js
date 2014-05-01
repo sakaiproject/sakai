@@ -11,7 +11,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
-	$( "#accordion" ).accordion({ 
+	$( "#accordion > div" ).accordion({ 
 		header: "> div > h3",
 		active: activeVar,
 		autoHeight: false,
@@ -47,7 +47,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 			var moved = dragStartIndex - dragEndIndex;
 			if(moved != 0){
 				//update the position:
-				postAjax($(ui.item).attr("syllabusItem"), {"move": moved}, msgs);
+				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
 			}
 		}
 		});
