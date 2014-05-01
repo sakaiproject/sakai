@@ -46,7 +46,7 @@ alter table lesson_builder_pages add groupid varchar2(36 char);
     );
 
 alter table lesson_builder_student_pages add groupid varchar2(36 char);
-alter table lesson_builder_student_pages add create sequence hibernate_sequence;;
+create sequence hibernate_sequence;;
 --- alter table lesson_builder_items modify description clob;
 alter table lesson_builder_items add temp clob;
 update lesson_builder_items set temp=description;
@@ -67,7 +67,7 @@ alter table lesson_builder_items drop column ownerGroups;
 alter table lesson_builder_items rename column temp to ownerGroups;
 
 alter table lesson_builder_items modify gradebookId varchar2(100 char);
-alter table lesson_builder_items modify altGradebook altGradebook varchar2(100 char);
+alter table lesson_builder_items modify altGradebook varchar2(100 char);
 
 create index lb_group_site on lesson_builder_groups(siteId);
 create index lb_item_gb on lesson_builder_items(gradebookid);
