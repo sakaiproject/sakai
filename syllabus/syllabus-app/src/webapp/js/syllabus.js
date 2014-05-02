@@ -129,14 +129,22 @@ function mySetMainFrameHeight(id, minHeight)
 }
 
 function expandAccordion(iframId){
-	$('.ui-accordion-content').show();
+	$('#accordion > div.ui-accordion').each(function(){
+		if(!$(this).find(".ui-accordion-content:first").is(":visible")){
+			$(this).find(".ui-accordion-header:first").click();
+		}
+	});
 	mySetMainFrameHeight(iframId);
 	$("#collapseLink").show();
 	$("#expandLink").hide();
 }
 
 function collapseAccordion(iframId){
-	$('.ui-accordion-content').hide();
+	$('#accordion > div.ui-accordion').each(function(){
+		if($(this).find(".ui-accordion-content:first").is(":visible")){
+			$(this).find(".ui-accordion-header:first").click();
+		}
+	});
 	mySetMainFrameHeight(iframId);
 	$("#collapseLink").hide();
 	$("#expandLink").show();
