@@ -613,7 +613,7 @@ public class SiteAddParticipantHandler {
 								realmEdit.addMember(user.getId(), role, statusChoice.equals("active"),
 										false);
 								addedUserEIds.add(eId);
-								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false");
+								addedUserInfos.add("uid=" + user.getId() + ";role=" + role + ";active=" + statusChoice.equals("active") + ";provided=false;siteId=" + site.getId());
 								
 								// Add the user to the list for the User Auditing Event Log
 								String currentUserId = userDirectoryService.getUserEid(sessionManager.getCurrentSessionUserId());
