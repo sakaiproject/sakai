@@ -21,6 +21,7 @@
 				ref="org.sakaiproject.id.api.IdManager"
 			/>
 		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService"/>
+		<property name="eventService" ref="org.sakaiproject.event.api.EventTrackingService"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
 		<property name="authzGroupService"  ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
