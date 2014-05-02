@@ -1755,6 +1755,13 @@ div.qtip-titlebar{
     background: none !important;
 }
 
+.qtipBodyContent{
+   font-family: 'Helvetica Neue', Arial,sans-serif !important;
+   font-size: 1.3em !important;
+   min-width: 400px !important;
+}
+
+
 /* warning displayed when js is disabled */
 #portal_js_warn {
     font-size: 1.2em;

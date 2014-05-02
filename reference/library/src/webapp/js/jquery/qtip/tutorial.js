@@ -65,7 +65,7 @@ function showTutorialPage(url, opts){
 									viewport: $(document.body)
 								},
 								style: {
-									classes: 'qtip-tipped qtip-shadow',
+									classes: 'qtip-tipped qtip-shadow qtipBodyContent',
 									tip: {
 										corner: response.data.positionTooltip
 									}
