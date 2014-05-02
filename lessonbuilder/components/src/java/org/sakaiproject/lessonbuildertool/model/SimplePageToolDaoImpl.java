@@ -120,7 +120,8 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		boolean canEdit = canEditPage();
 		// forced comments have a pageid of -1, because they are associated with
 		// more than one page. But the student can't edit them anyway, so fail it
-		if(!canEdit && pageId != -1L) {
+		//  also, top-level fake items have pageid of 0
+		if(!canEdit && pageId != -1L && pageId != 0L) {
 			SimplePage page = getPage(pageId);
 			String owner = page.getOwner();
 			String group = page.getGroup();
