@@ -13,7 +13,8 @@
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
     </bean>
-    
+
+    <!-- this causes SAK-26187 so removing it for now    
     <bean
         parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
         class="org.sakaiproject.content.entityproviders.ContentEntityProvider">
@@ -22,6 +23,6 @@
         <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
-    </bean>
+    </bean>-->
     
 </beans>
