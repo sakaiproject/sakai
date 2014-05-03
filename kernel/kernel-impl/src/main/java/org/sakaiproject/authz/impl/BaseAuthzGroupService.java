@@ -21,40 +21,12 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Vector;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupAdvisor;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.FunctionManager;
-import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
-import org.sakaiproject.authz.api.GroupFullException;
-import org.sakaiproject.authz.api.GroupIdInvalidException;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.GroupProvider;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.entity.api.Edit;
-import org.sakaiproject.entity.api.Entity;
-import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.HttpAccess;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.*;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
@@ -64,9 +36,10 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.util.StorageUser;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.util.*;
 
 /**
  * <p>
@@ -626,10 +599,32 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		// track it
 		String event = ((BaseAuthzGroup) azGroup).getEvent();
 		if (event == null) event = SECURE_UPDATE_AUTHZ_GROUP;
+        // KNL-1230 handle changes to authzgroups by processing caching changes
+        if (SECURE_UPDATE_AUTHZ_GROUP.equals(event)) {
+            // we only care about update events here
+            try {
+                HashSet<String> roles = null;
+                HashSet<String> permissions = null;
+                Set<DbAuthzGroupService.DbStorage.RoleAndFunction> lastChangedPerms = ((BaseAuthzGroup) azGroup).m_lastChangedRlFn;
+                if (lastChangedPerms != null && !lastChangedPerms.isEmpty()) {
+                    roles = new HashSet<String>();
+                    permissions = new HashSet<String>(lastChangedPerms.size());
+                    for (DbAuthzGroupService.DbStorage.RoleAndFunction rf : lastChangedPerms) {
+                        permissions.add(rf.function);
+                        roles.add(rf.role);
+                    }
+                    M_log.info("Changed permissions for roles (" + roles + ") in " + azGroup.getId() + ": " + permissions);
+                }
+                ((SakaiSecurity) securityService()).notifyRealmChanged(azGroup.getId(), roles, permissions);
+            } catch (Exception e) {
+                M_log.warn("Failure while trying to notify SS about realm changes for AZG(" + azGroup.getId() + "): " + e, e);
+            }
+        } // End KNL-1230
 		eventTrackingService().post(eventTrackingService().newEvent(event, azGroup.getReference(), true));
 
 		// close the azGroup object
 		((BaseAuthzGroup) azGroup).closeEdit();
+        ((BaseAuthzGroup) azGroup).m_lastChangedRlFn = null; // cleanup
 
 		// update the db with latest provider, and site security with the latest changes, using the updated azGroup
 		BaseAuthzGroup updatedRealm = (BaseAuthzGroup) m_storage.get(azGroup.getId());
@@ -833,7 +828,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
 			authzGroupAdvisor.remove(azGroup);
 		}
-		
+        // KNL-1230 handle removal of authzgroups by processing caching changes
+        try {
+            ((SakaiSecurity) securityService()).notifyRealmRemoved(azGroup.getId());
+        } catch (Exception e) {
+            M_log.warn("Failure while trying to notify SS about realm removal for AZG(" + azGroup.getId() + "): " + e, e);
+        } // End KNL-1230
 		// complete the azGroup
 		m_storage.remove(azGroup);
 
@@ -861,25 +861,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			return;
 		}
 
-		// check security (throws if not permitted)
-		unlock(SECURE_REMOVE_AUTHZ_GROUP, authzGroupReference(azGroupId));
-
-		// allow any advisors to make last minute changes 
-		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
-			authzGroupAdvisor.remove(azGroup);
-		}
-		
-		// complete the azGroup
-		m_storage.remove(azGroup);
-
-		// track it
-		eventTrackingService().post(eventTrackingService().newEvent(SECURE_REMOVE_AUTHZ_GROUP, azGroup.getReference(), true));
-
-		// close the azGroup object
-		((BaseAuthzGroup) azGroup).closeEdit();
-
-		// clear any site security based on this (if a site) azGroup
-		removeSiteSecurity(azGroup);
+		removeAuthzGroup(azGroup);
 	}
 
 	/**

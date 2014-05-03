@@ -21,22 +21,10 @@
 
 package org.sakaiproject.authz.impl;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -51,6 +39,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
+import java.util.*;
 
 /**
  * <p>
@@ -113,6 +103,9 @@ public class BaseAuthzGroup implements AuthzGroup
 	private BaseAuthzGroupService baseAuthzGroupService;
 
 	private UserDirectoryService userDirectoryService;
+
+    /** The most recently changed set of role/functions - ONLY valid during the save event processing on the same server */
+    public Set<DbAuthzGroupService.DbStorage.RoleAndFunction> m_lastChangedRlFn;
 
 	/**
 	 * Construct.

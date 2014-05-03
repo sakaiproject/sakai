@@ -23,13 +23,12 @@ package org.sakaiproject.authz.impl;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
@@ -102,6 +101,8 @@ public abstract class SakaiSecurity implements SecurityService
 	 */
 	protected abstract EventTrackingService eventTrackingService();
 
+    protected abstract FunctionManager functionManager();
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -124,6 +125,7 @@ public abstract class SakaiSecurity implements SecurityService
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
 
+
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
@@ -132,10 +134,336 @@ public abstract class SakaiSecurity implements SecurityService
 		// <= 0 minutes indicates no caching desired
 		if (m_cacheMinutes > 0)
 		{
-			m_callCache = memoryService().newGenericMultiRefCache(
-					"org.sakaiproject.authz.api.SecurityService.cache");
+            org.sakaiproject.component.api.ServerConfigurationService scs = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+            legacyCaching = scs.getBoolean("memory.use.legacy", legacyCaching); // TODO remove this after 10 merge
+            m_callCache = memoryService().newGenericMultiRefCache("org.sakaiproject.authz.api.SecurityService.cache"); // switch to normal Cache after 10
+            if (legacyCaching) {
+                M_log.info("Using legacy org.sakaiproject.authz.api.SecurityService.cache MultiRefCache, this cache has unsafe race conditions");
+            } else {
+                // TODO uncomment line below and keep the next line also after 10 release
+                // m_callCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.cache");
+                m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
+                m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
+            }
 		}
 	}
+
+    /**
+     * TODO remove this
+     * If true then legacy caching is being used instead of the new stuff
+     */
+    boolean legacyCaching = false;
+
+    /**
+     * Cache for holding the super user check cached results
+     * Only used in the new caching system
+     */
+    Cache m_superCache;
+    /**
+     * Cache for holding the content authz check cached results
+     * Only used in the new caching system
+     */
+    Cache m_contentCache;
+
+    /**
+     * KNL-1230
+     * Get a permission check from the cache
+     * @param key the cache key (generated using makeCacheKey)
+     * @param isSuper true if this is a super user cache entry
+     * @return boolean value if found, null if not found in the cache
+     */
+    Boolean getFromCache(String key, boolean isSuper) {
+        Boolean result = null;
+        if (m_callCache != null) {
+            if (legacyCaching) { // TODO remove after 10
+                result = (Boolean) m_callCache.get(key);
+            } else {
+                if (isSuper) {
+                    result = (Boolean) m_superCache.get(key);
+                } else {
+                    if (key.contains("@/content")) {
+                        result = (Boolean) m_contentCache.get(key);
+                    } else {
+                        result = (Boolean) m_callCache.get(key);
+                    }
+                }
+                // see note below about forced cache expiration
+            }
+        }
+        return result;
+    }
+
+    /**
+     * KNL-1230
+     * Add a permission check to the cache
+     * @param key the cache key (generated using makeCacheKey)
+     * @param payload true if the permission is granted, false if not
+     * @param entityRef NOT USED after 10
+     * @param dependRefs NOT USED after 10
+     * @param isSuper true if this is a super user cache entry
+     */
+    void addToCache(String key, Boolean payload, String entityRef, Collection<String> dependRefs, boolean isSuper) {
+        if (m_callCache != null && key != null) {
+            if (legacyCaching) { // TODO remove after 10
+                m_callCache.put(key, payload, entityRef, dependRefs);
+            } else {
+                if (isSuper) {
+                    m_superCache.put(key, payload);
+                } else {
+                    if (key.contains("@/content")) {
+                        m_contentCache.put(key, payload);
+                    } else {
+                        m_callCache.put(key, payload);
+                    }
+                }
+                // see note below about forced cache expiration
+            }
+        }
+    }
+
+    /* KNL-1230: expiration happens based on the following plan:
+    if (user.template, site.helper, etc. change) then clear entire security cache
+    else if the perms in a site changes we loop through all possible site users and the changed permissions and remove all those entries from the cache (including the entry for the anon user - e.g. unlock@@...)
+    else if the perms for a user change, same as site perms but all the user sites and the changed permissions
+    else if a user is added/removed from super user status then update the cache entry (easiest to simply make sure we update the cache when this happens rather than invalidating)
+    NOTES:
+    Cache keys are: unlock@{userId}@{perm}@{realm} AND super@{userId}
+    This strategy eliminates the need to store the invalidation keys and is much simpler to code
+    There is a very good chance many of those would not be in the cache but that should not cause a problem (however if it proves to be problematic we could do key checks to cut those down, but I don't think that is actually more efficient)
+    Getting all possible perms is cheap, that's in memory already
+    Get all siteids for a user or all userids for a site might be a little more costly, but the idea is that this is a rare case
+    Super user change is event: SiteService.SECURE_UPDATE_SITE_MEMBERSHIP with context !/site/admin
+     */
+
+    /**
+     * KNL-1230
+     * Called when realms are changed (like a realm.upd Event), should handle inputs outside the range
+     * @param azgReference should be the value from Event.ref
+     * @param roles a set of roles that changed (may be null or empty)
+     * @param permissions a set of permissions that changed (may be null or empty)
+     * @return true if this was a realm and case we handle and we took action, false otherwise
+     */
+    public boolean notifyRealmChanged(String azgReference, Set<String> roles, Set<String> permissions) {
+        if (m_callCache == null || legacyCaching) return false; // do nothing if old service is in use or no cache in use
+        if (azgReference != null) {
+            String ref = convertRealmRefToRef(azgReference); // strip off /realm/ from start
+            if ("!site.helper".equals(ref)
+                    || ref.startsWith("!user.template")
+                //|| "/site/!site".equals(ref) // we might not need this one
+            ) {
+                if (permissions != null && !permissions.isEmpty()) {
+                    // when the !site.helper or !user.template change then we need to just wipe the entire cache, this is a rare event
+                    m_callCache.clear();
+                    return true;
+                }
+
+            } else if ("/site/!admin".equals(ref)) {
+                // when the super user realm (!admin, also the event context) changes (realm.upd) then we wipe this cache out
+                if (m_superCache != null) {
+                    m_superCache.clear();
+                }
+                return true;
+
+            } else if (ref.startsWith("/content")) {
+                // content realms require special handling
+                // WARNING: this is handled in a simple but not very efficient way, should be improved later
+                m_contentCache.clear();
+                return true;
+
+            } else {
+                if (permissions != null && !permissions.isEmpty()) {
+                    // we only process the event change when there are changed permissions
+                    cacheRealmPermsChanged(ref, roles, permissions);
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * KNL-1230
+     * Called when realms are removed (like a realm.del Event)
+     * @param azgReference should be the value from Event.ref
+     * @return true if this was a realm and case we handle and we took action, false otherwise
+     */
+    public boolean notifyRealmRemoved(String azgReference) {
+        if (m_callCache == null || legacyCaching) return false; // do nothing if old service is in use or no cache in use
+        if (azgReference != null) {
+            String ref = convertRealmRefToRef(azgReference); // strip off /realm/ from start
+            if (ref.startsWith("/content")) {
+                // content realms require special handling
+                // WARNING: this is handled in a simple but not very efficient way, should be improved later
+                m_contentCache.clear();
+                return true;
+
+            } else {
+                // we only process the event change when there are changed permissions
+                cacheRealmPermsChanged(ref, null, null);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /* Don't think we need this right now but leaving it for future ref just in case -AZ
+    void cacheUserPermsChanged(String userRef, Set<String> roles, Set<String> permissions) {
+        if (m_callCache == null || legacyCaching) return; // do nothing if old service is in use or no cache in use
+        // changed he permissions for a user
+        if (permissions == null || permissions.isEmpty()) {
+            List<String> allPerms = functionManager().getRegisteredFunctions();
+            permissions = new HashSet<String>(allPerms);
+        }
+        String userId = userRef.substring(6);
+        HashSet<String> keysToInvalidate = new HashSet<String>();
+        // get all azgs for this user
+        Set<String> azgRefs = authzGroupService().getAuthzGroupsIsAllowed(userId, "*", null); // "*" means ANY permission
+        for (String ref : azgRefs) {
+            for (String perm : permissions) {
+                if (perm != null) {
+                    keysToInvalidate.add(makeCacheKey(userId, perm, ref, false));
+                }
+            }
+        }
+        // invalidate all keys (do this as a batch)
+        m_callCache.removeAll(keysToInvalidate);
+    }
+    */
+
+    /**
+     * KNL-1230
+     * Flush out unlock check caches based on changes to the permissions in an AuthzGroup
+     * @param realmRef an AuthzGroup realm reference (e.g. /site/123123-as-sda21-213-1-33233)
+     * @param roles a set of roles that changed (may be null or empty)
+     * @param permissions a set of permissions that changed (may be null or empty)
+     */
+    void cacheRealmPermsChanged(String realmRef, Set<String> roles, Set<String> permissions) {
+        if (m_callCache == null || legacyCaching) return; // do nothing if old service is in use or no cache in use
+        String azgRef = convertRealmRefToRef(realmRef);
+        if (permissions == null || permissions.isEmpty()) {
+            List<String> allPerms = functionManager().getRegisteredFunctions();
+            permissions = new HashSet<String>(allPerms);
+        }
+        HashSet<String> keysToInvalidate = new HashSet<String>();
+        // changed permissions for a role in an AZG
+        AuthzGroup azg;
+        try {
+            azg = authzGroupService().getAuthzGroup(azgRef);
+        } catch (GroupNotDefinedException e) {
+            // no group found so no invalidation needed
+            return; // SHORT CIRCUIT
+        }
+        // first handle the .anon and .auth (maybe only needed for special cases?)
+        if (roles.contains(AuthzGroupService.AUTH_ROLE)) {
+            /* .auth (AUTH_ROLE) is a special case,
+             * it could mean any possible user in the system so we cannot know which keys to invalidate.
+             * We have to just flush the entire cache
+             */
+            m_callCache.clear();
+            return; // SHORT CIRCUIT
+        }
+        boolean anon = false;
+        if (roles.contains(AuthzGroupService.ANON_ROLE)) {
+            anon = true;
+        }
+        if (!anon) {
+            Set<Role> azgRoles = azg.getRoles();
+            for (Role role : azgRoles) {
+                if (AuthzGroupService.ANON_ROLE.equals(role.getId())) {
+                    anon = true;
+                    break;
+                }
+            }
+        }
+        if (anon) {
+            // anonymous user access (ANON_ROLE) needs to force reset on anonymous changes in the site
+            for (String perm : permissions) {
+                if (perm != null) {
+                    keysToInvalidate.add(makeCacheKey(null, perm, azgRef, false));
+                }
+            }
+        }
+        // now handle all the real users
+        Set<Member> members = azg.getMembers();
+        if (members != null && !members.isEmpty()) {
+            for (Member member : members) {
+                if (member != null && member.isActive() && member.getUserId() != null) {
+                    for (String perm : permissions) {
+                        if (perm != null) {
+                            keysToInvalidate.add(makeCacheKey(member.getUserId(), perm, azgRef, false));
+                        }
+                    }
+                }
+            }
+        }
+        // invalidate all keys (do this as a batch)
+        m_callCache.removeAll(keysToInvalidate);
+    }
+
+    /**
+     * KNL-1230
+     * Convert a realm reference in to a standard reference
+     * @param realmRef a realm specific ref (e.g. /realm//site/123123-as-sda21-213-1-33233)
+     * @return a standard ref (e.g. /site/123123-as-sda21-213-1-33233)
+     */
+    String convertRealmRefToRef(String realmRef) {
+        String rv = null;
+        if (realmRef != null) {
+            // strip off the leading /realm or /realm/
+            if (realmRef.startsWith("/realm/")) {
+                rv = realmRef.substring(7);
+            } else if (realmRef.startsWith("/realm")) {
+                    rv = realmRef.substring(6);
+            } else {
+                rv = realmRef;
+            }
+        }
+        return rv;
+    }
+
+    /**
+     * KNL-1230
+     * Make a cache key for security caching
+     * @param userId the internal sakai user ID (can be null)
+     * @param function the permission
+     * @param reference the realm reference
+     * @param isSuperKey if true this is a key for tracking super users, else generate a normal realm key
+     * @return the key OR null if one cannot be properly made from these params
+     */
+    String makeCacheKey(String userId, String function, String reference, boolean isSuperKey) {
+        if (isSuperKey) {
+            if (userId != null) {
+                return "super@" + userId;
+            } else {
+                return null;
+            }
+        }
+        if (function == null || reference == null) {
+            return null;
+        }
+        // NOTE: userId can be null for this, others cannot be
+        return "unlock@" + userId + "@" + function + "@" + reference;
+    }
+
+    /**
+     * Converts a collection of authzgroup ids into authzgroup references
+     * Added when removing the old MultiRefCache - KNL-1162
+     *
+     * @param azgIds a collection of authzgroup ids
+     * @return a collection of authzgroup references (should match the incoming set of ids)
+     */
+    protected Collection<String> makeAzgRefsForAzgIds(Collection<String> azgIds) {
+        // make refs for any azg ids
+        Collection<String> azgRefs = null;
+        if (azgIds != null) {
+            azgRefs = new HashSet<String>(azgIds.size());
+            for (String azgId : azgIds) {
+                azgRefs.add(authzGroupService().authzGroupReference(azgId));
+            }
+        }
+        return azgRefs;
+    }
+
 
 	/**
 	 * Final cleanup.
@@ -143,6 +471,9 @@ public abstract class SakaiSecurity implements SecurityService
 	public void destroy()
 	{
 		M_log.info("destroy()");
+        if (m_callCache != null) m_callCache.close();
+        if (m_superCache != null) m_superCache.close();
+        if (m_contentCache != null) m_contentCache.close();
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -169,10 +500,10 @@ public abstract class SakaiSecurity implements SecurityService
 		if ((userId == null) || (userId.length() == 0)) return false;
 
 		// check the cache
-		String command = "super@" + userId;
+		String command = makeCacheKey(userId, null, null, true);
 		if (m_callCache != null)
 		{
-			final Boolean value = (Boolean) m_callCache.get(command);
+			final Boolean value = getFromCache(command, true);
 			if(value != null) return value.booleanValue();
 		}
 
@@ -203,7 +534,7 @@ public abstract class SakaiSecurity implements SecurityService
 		{
 			Collection<String> azgIds = new HashSet<String>();
 			azgIds.add("/site/!admin");
-			m_callCache.put(command, rv, null, makeAzgRefsForAzgIds(azgIds));
+			addToCache(command, rv, null, makeAzgRefsForAzgIds(azgIds), true);
 		}
 
 		return rv;
@@ -286,11 +617,11 @@ public abstract class SakaiSecurity implements SecurityService
 	protected boolean checkAuthzGroups(String userId, String function, String entityRef, Collection<String> azgs)
 	{
 		// check the cache
-		String command = "unlock@" + userId + "@" + function + "@" + entityRef;
+		String command = makeCacheKey(userId, function, entityRef, false);
 		
 		if (m_callCache != null)
 		{
-			final Boolean value = (Boolean) m_callCache.get(command);
+			final Boolean value = getFromCache(command, false);
 			if(value != null) return value.booleanValue();
 		}
 
@@ -306,29 +637,10 @@ public abstract class SakaiSecurity implements SecurityService
 		boolean rv = authzGroupService().isAllowed(userId, function, azgs);
 
 		// cache
-		if (m_callCache != null) m_callCache.put(command, rv, entityRef, makeAzgRefsForAzgIds(azgs));
+		addToCache(command, rv, entityRef, makeAzgRefsForAzgIds(azgs), false);
 
 		return rv;
 	}
-
-    /**
-     * Converts a collection of authzgroup ids into authzgroup references
-     * Added when removing the old MultiRefCache - KNL-1162
-     *
-     * @param azgIds a collection of authzgroup ids
-     * @return a collection of authzgroup references (should match the incoming set of ids)
-     */
-    protected Collection<String> makeAzgRefsForAzgIds(Collection<String> azgIds) {
-        // make refs for any azg ids
-        Collection<String> azgRefs = null;
-        if (azgIds != null) {
-            azgRefs = new HashSet<String>(azgIds.size());
-            for (String azgId : azgIds) {
-                azgRefs.add(authzGroupService().authzGroupReference(azgId));
-            }
-        }
-        return azgRefs;
-    }
 
 	/**
 	 * Access the List the Users who can unlock the lock for use with this resource.
@@ -568,7 +880,7 @@ public abstract class SakaiSecurity implements SecurityService
 		
 		eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, 
 				org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT + Entity.SEPARATOR + azGroupId, true)); 
-		
+
 		return;
 	}
 }

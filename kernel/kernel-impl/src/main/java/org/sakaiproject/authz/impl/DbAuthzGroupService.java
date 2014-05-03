@@ -1040,6 +1040,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				return new HashSet();
 			}
 
+            if ("".equals(lock) || "*".equals(lock)) {
+                // SPECIAL CASE - return all authzGroup IDs this user is active in (much faster)
+                String statement = dbAuthzGroupSql.getSelectRealmUserGroupSql("SAKAI_REALM_RL_GR.ACTIVE = '1'");
+                Object[] fields = new Object[1];
+                fields[0] = userId;
+                List dbResult = sqlService().dbRead(statement, fields, null );
+                return new HashSet(dbResult);
+            }
+
 			// Just like unlock, except we use all realms and get their ids
 			// Note: consider over all realms just those realms where there's a grant of a role that satisfies the lock
 			// Ignore realms where anon or auth satisfy the lock.
@@ -1397,6 +1406,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				fields[2] = getValueForSubquery(dbAuthzGroupSql.getInsertRealmRoleFunction3Sql(), raf.function);
 				m_sql.dbWrite(sql, fields);
 			}
+
+            // KNL-1230 need to be able to tell when changes occur in the AZG
+            HashSet<RoleAndFunction> lastChanged = new HashSet<RoleAndFunction>();
+            if (!toAdd.isEmpty()) {
+                lastChanged.addAll(toAdd);
+            }
+            if (!toDelete.isEmpty()) {
+                lastChanged.addAll(toDelete);
+            }
+            ((BaseAuthzGroup) azg).m_lastChangedRlFn = lastChanged;
 		}
 
 		protected void save_REALM_RL_GR(AuthzGroup azg)

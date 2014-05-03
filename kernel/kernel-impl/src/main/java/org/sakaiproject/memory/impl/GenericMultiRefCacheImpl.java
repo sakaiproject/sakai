@@ -92,6 +92,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 				addRefCachedKey(dependRef, key);
 			}
 		}
+        if (mrcDebug) logCacheState("put("+key+")");
 	}
 
 	/**
@@ -165,6 +166,7 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 				}
 			}
 		}
+        if (mrcDebug) logCacheState("cleanEntityReferences("+key+")");
 	}
 
 	/**
@@ -376,6 +378,50 @@ public class GenericMultiRefCacheImpl extends MemCache implements GenericMultiRe
 		{
 			return m_refs;
 		}
-	}
 
+        @Override
+        public String toString() {
+            return "MRCE["+this.get()+",refs("+(this.m_refs!=null?this.m_refs.size():"--")+")="+this.m_refs+"]";
+        }
+    }
+
+    // KNL-1230 added to assist with debugging caching issues
+    boolean mrcDebug = false; // always set to false in committed code
+    boolean mrcDebugDetailed = false;
+    void logCacheState(String operator) {
+        if (mrcDebug) {
+            String name = this.cache.getName();
+            StringBuilder refsSB = new StringBuilder();
+            refsSB.append("   * keys(").append(m_refsStore.keySet().size()).append("):").append(m_refsStore.keySet()).append("\n");
+            int countRefs = 0;
+            for (Map.Entry<String, ConcurrentMap<Object, Object>> entry : m_refsStore.entrySet()) {
+                if (entry == null) continue;
+                int count = 0;
+                if (entry.getValue() != null) {
+                   count = entry.getValue().size();
+                }
+                countRefs += count;
+                if (mrcDebugDetailed) {
+                    refsSB.append("   ").append(entry.getKey()).append(" => (").append(count).append(")").append(entry.getValue()).append("\n");
+                }
+            }
+            StringBuilder entriesSB = new StringBuilder();
+            List keys = this.cache.getKeys();
+            entriesSB.append("   * keys(").append(keys.size()).append("):").append(new ArrayList<Object>(keys)).append("\n");
+            Collection<Element> entries = this.cache.getAll(keys).values();
+            int countMaps = 0;
+            for (Element element : entries) {
+                if (element == null) continue;
+                int count = 0;
+                if (element.getObjectValue() != null && element.getObjectValue() instanceof MultiRefCacheEntry) {
+                    count = ((MultiRefCacheEntry)element.getObjectValue()).getRefs().size();
+                }
+                countMaps += count;
+                if (mrcDebugDetailed) {
+                    entriesSB.append("   ").append(element.getObjectKey()).append(" => (").append(count).append(")").append(element.getObjectValue()).append("\n");
+                }
+            }
+            M_log.info("MRC:"+name+":: "+operator+" ::\n  refsStore(Map[key => value],"+m_refsStore.size()+" + "+countRefs+" = "+(m_refsStore.size()+countRefs)+"):\n"+refsSB+"\n  entries(Ehcache[key => payload],"+keys.size()+" + "+countMaps+" = "+(keys.size()+countMaps)+"):\n"+entriesSB);
+        }
+    }
 }

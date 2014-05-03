@@ -22,6 +22,7 @@
 package org.sakaiproject.authz.impl;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
@@ -91,4 +92,9 @@ public class SakaiSecurityTest extends SakaiSecurity
 	{
 		return null;
 	}
+
+    @Override
+    protected FunctionManager functionManager() {
+        return null;
+    }
 }
