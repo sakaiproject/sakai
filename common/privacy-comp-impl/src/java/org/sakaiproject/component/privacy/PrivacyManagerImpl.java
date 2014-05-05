@@ -21,16 +21,6 @@
 
 package org.sakaiproject.component.privacy;
 
-import java.sql.SQLException;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.HashSet;
-import java.util.HashMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Hibernate;
@@ -38,6 +28,9 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.sakaiproject.api.privacy.PrivacyManager;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupAdvisor;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -50,12 +43,12 @@ import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzGroupAdvisor;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.api.Member;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
+
+import java.sql.SQLException;
+import java.util.*;
+import java.util.Map.Entry;
 
 
 public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyManager, AuthzGroupAdvisor
@@ -562,7 +555,7 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			{
 				Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
 				q.setCacheable(true);
-				q.setCacheRegion("org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache.queryGetPrivacy");
+				//SAK-26110 q.setCacheRegion("org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache.queryGetPrivacy");
 				q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);
 				q.setParameter(USER_ID, userId, Hibernate.STRING);
 				q.setParameter(RECORD_TYPE, recordType, Hibernate.STRING);
