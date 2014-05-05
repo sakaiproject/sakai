@@ -272,18 +272,6 @@
 		<property name="beanId" value="org.sakaiproject.profile2.job.KudosJob" />
 		<property name="schedulerManager" ref="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 	</bean>
-	
-	<bean id="org.sakaiproject.profile2.entity.ProfileContentProducer"
-    	class="org.sakaiproject.profile2.entity.ProfileContentProducer"
-    	init-method="init">
-    	
-		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
-    	<property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
-     	<property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
-		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
-        <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
-     	
-    </bean>
     
     <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
 -->
