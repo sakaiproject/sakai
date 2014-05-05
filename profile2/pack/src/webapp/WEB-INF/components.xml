@@ -72,8 +72,7 @@
 	<bean id="org.sakaiproject.profile2.logic.ProfilePrivacyLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePrivacyLogicImpl"
     	init-method="init"
-    	singleton="true"
-    	depends-on="org.sakaiproject.profile2.cache.privacy">
+    	singleton="true">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -84,8 +83,7 @@
 	<bean id="org.sakaiproject.profile2.logic.ProfilePreferencesLogic"
     	class="org.sakaiproject.profile2.logic.ProfilePreferencesLogicImpl"
     	init-method="init"
-    	singleton="true"
-    	depends-on="org.sakaiproject.profile2.cache.preferences">
+    	singleton="true">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
@@ -123,8 +121,7 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileConnectionsLogic"
     	class="org.sakaiproject.profile2.logic.ProfileConnectionsLogicImpl"
     	init-method="init"
-    	singleton="true"
-    	depends-on="org.sakaiproject.profile2.cache.connections">
+    	singleton="true">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
     	<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
@@ -138,8 +135,7 @@
     <bean id="org.sakaiproject.profile2.logic.ProfileKudosLogic"
     	class="org.sakaiproject.profile2.logic.ProfileKudosLogicImpl"
     	init-method="init"
-    	singleton="true"
-    	depends-on="org.sakaiproject.profile2.cache.kudos">
+    	singleton="true">
     	<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
     	<property name="cacheManager" ref="org.sakaiproject.profile2.cache.CacheManager" />
     </bean>
@@ -165,7 +161,7 @@
     <!-- ProfileSearchLogic -->
 	<bean id="org.sakaiproject.profile2.logic.ProfileSearchLogic"
 		class="org.sakaiproject.profile2.logic.ProfileSearchLogicImpl"
-		init-method="init" singleton="true" depends-on="org.sakaiproject.profile2.cache.search">
+		init-method="init" singleton="true">
 		<property name="profileLogic" ref="org.sakaiproject.profile2.logic.ProfileLogic" />
 		<property name="connectionsLogic" ref="org.sakaiproject.profile2.logic.ProfileConnectionsLogic" />
 		<property name="dao" ref="org.sakaiproject.profile2.dao.ProfileDao" />
@@ -287,87 +283,6 @@
 		<property name="sakaiProxy" ref="org.sakaiproject.profile2.logic.SakaiProxy" />
         <property name="sakaiPersonManager" ref="org.sakaiproject.api.common.edu.person.SakaiPersonManager" />
      	
-    </bean>
-    
-    
-    <!-- kudos cache: ttl=12 hours -->
-    <bean id="org.sakaiproject.profile2.cache.kudos"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.profile2.cache.kudos</value>
-        </property>
-        <property name="maxElementsInMemory" value="10000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="43200" />
-        <property name="timeToIdle" value="43200" />
-    </bean>
-    
-    <!--  preferences cache -->
-    <bean id="org.sakaiproject.profile2.cache.preferences"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.profile2.cache.preferences</value>
-        </property>
-        <property name="maxElementsInMemory" value="10000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-		<property name="timeToIdle" value="3600" />
-    </bean>
-    
-    <!--  privacy cache -->
-    <bean id="org.sakaiproject.profile2.cache.privacy"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.profile2.cache.privacy</value>
-        </property>
-        <property name="maxElementsInMemory" value="10000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="3600" />
-		<property name="timeToIdle" value="3600" />
-    </bean>
-    
-    <!--  search cache -->
-    <bean id="org.sakaiproject.profile2.cache.search"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.profile2.cache.search</value>
-        </property>
-        <property name="maxElementsInMemory" value="10000" />
-        <property name="diskPersistent" value="true" />
-        <property name="eternal" value="true" />
-        <property name="timeToLive" value="0" />
-        <property name="timeToIdle" value="0" />
-    </bean>
-    
-    <!--  connections cache: ttl=6 hours-->
-    <bean id="org.sakaiproject.profile2.cache.connections"
-        class="org.sakaiproject.memory.util.EhCacheFactoryBean">
-        <property name="cacheManager">
-            <ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-        </property>
-        <property name="cacheName">
-            <value>org.sakaiproject.profile2.cache.connections</value>
-        </property>
-        <property name="maxElementsInMemory" value="2000" />
-        <property name="diskPersistent" value="false" />
-        <property name="eternal" value="false" />
-        <property name="timeToLive" value="21600" />
-		<property name="timeToIdle" value="21600" />
     </bean>
     
     <!-- ProfileService facade (supports clients of pre 1.4 Profile2 API. See https://jira.sakaiproject.org/browse/PRFL-551
