@@ -11,12 +11,10 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+	    <version>11-SNAPSHOT</version>
 	</parent>
 
 	<dependencies>
-		
-    	<!-- EXTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket</artifactId>
@@ -67,9 +65,6 @@
       		<artifactId>commons-io</artifactId>
       		<scope>provided</scope>
    		</dependency>
-		
-		
-		<!--  INTERNAL DEPENDENCIES -->
 		<dependency>
       		<groupId>org.sakaiproject.profile2</groupId>
       		<artifactId>profile2-api</artifactId>
@@ -82,8 +77,6 @@
       		<groupId>org.sakaiproject.profile2</groupId>
       		<artifactId>profile2-bundle</artifactId>
     	</dependency>
-    	
-    	<!--  GENERIC SAKAI DEPENDENCIES -->
     	<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
@@ -110,32 +103,6 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-beans</artifactId>
 		</dependency>
-	   
-	   <!-- Sakai 2.5.x specific dependencies -->
-	   <!--
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-    	</dependency>
-    	-->
-    
-		<!-- Sakai 2.6+ specific dependencies -->
        	<dependency>
            	<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
@@ -148,10 +115,8 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
-
 	</dependencies>
 	
-
 	<build>
 		<resources>
 			<!-- include our HTML but not the Java source -->

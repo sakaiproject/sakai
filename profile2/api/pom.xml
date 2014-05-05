@@ -14,18 +14,15 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+	    <version>11-SNAPSHOT</version>
 	</parent>
 
   	<dependencies>
-
-    	<!-- EXTERNAL DEPENDENCIES -->
     	<dependency>
       		<groupId>commons-lang</groupId>
       		<artifactId>commons-lang</artifactId>
       		<scope>provided</scope>
    		</dependency>
-   		
    		<dependency>
       		<groupId>commons-codec</groupId>
       		<artifactId>commons-codec</artifactId>
@@ -34,30 +31,16 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 		</dependency>
-
-		<!--  GENERIC SAKAI DEPENDENCIES -->
 		<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
 			<scope>provided</scope>
     	</dependency>
-    	
 	    <dependency>
     		<groupId>org.sakaiproject.entitybroker</groupId>
     		<artifactId>entitybroker-api</artifactId>
     		<scope>provided</scope>
 		</dependency>
-		
-		<!-- Sakai 2.5.x specific dependencies -->
-		<!-- 
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		 -->
-		 
-		 <!-- Sakai 2.6+ specific dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

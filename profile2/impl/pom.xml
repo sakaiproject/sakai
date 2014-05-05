@@ -10,12 +10,10 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+	    <version>11-SNAPSHOT</version>
 	</parent>
   	
   	<dependencies>
-
-    	<!-- INTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>org.sakaiproject.profile2</groupId>
 			<artifactId>profile2-api</artifactId>
@@ -24,8 +22,6 @@
 			<groupId>org.sakaiproject.profile2</groupId>
 			<artifactId>profile2-util</artifactId>
 		</dependency>
-		
-    	<!-- SHARED EXTERNAL DEPENDENCIES -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
@@ -46,8 +42,6 @@
 			<groupId>org.quartz-scheduler</groupId>
 			<artifactId>quartz</artifactId>
 		</dependency>
-    	
-    	<!-- EXTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -81,17 +75,7 @@
   			<groupId>commons-io</groupId>
   			<artifactId>commons-io</artifactId>
   			<scope>provided</scope>
-  		</dependency> 
-   		<!-- 
-		<dependency>
-      		<groupId>org.sakaiproject.tinyurl</groupId>
-      		<artifactId>tinyurl-api</artifactId>
-      		<scope>provided</scope>
-   		</dependency>
-   		-->
-   		
-   		   				
-		<!--  GENERIC SAKAI DEPENDENCIES -->
+  		</dependency>
     	<dependency>
 			<groupId>org.sakaiproject.common</groupId>
 			<artifactId>sakai-common-edu-person-api</artifactId>
@@ -122,132 +106,6 @@
             <artifactId>search-api</artifactId>
       		<scope>provided</scope>
         </dependency>
-	    
-	    <!-- TESTING DEPENDENCIES -->
-	    <!-- 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-mock</artifactId>
-            <version>2.0.6</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.hsqldb</groupId>
-            <artifactId>hsqldb</artifactId>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>dom4j</groupId>
-            <artifactId>dom4j</artifactId>
-            <version>1.6.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>jta</groupId>
-            <artifactId>jta</artifactId>
-            <version>h2.1.8</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.1_3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-codec</groupId>
-            <artifactId>commons-codec</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>commons-collections</groupId>
-            <artifactId>commons-collections</artifactId>
-            <version>3.2</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <version>1.3.0</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <version>1.2_Java1.3</version>
-            <scope>test</scope>
-        </dependency>
-        -->
-        
-        <!-- Sakai 2.5.x specific dependencies -->
-        <!--
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-tool-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-user-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-authz-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-site-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-entity-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-    	<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-component-api</artifactId>
-			<scope>provided</scope>
-    	</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-content-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-event-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
- 			<artifactId>sakai-email-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		-->
-		
-		 <!-- Sakai 2.6+ specific dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

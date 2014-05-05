@@ -10,15 +10,10 @@
 	<parent>
 		<groupId>org.sakaiproject.profile2</groupId>
 		<artifactId>profile2</artifactId>
-	    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+	    <version>11-SNAPSHOT</version>
 	</parent>
   	
   	<dependencies>
-
-    	<!-- INTERNAL DEPENDENCIES -->
-		
-    	
-    	<!-- EXTERNAL DEPENDENCIES -->
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
@@ -36,25 +31,6 @@
 			<groupId>org.imgscalr</groupId>
 			<artifactId>imgscalr-lib</artifactId>
 		</dependency>
-		
-   		   				
-		<!--  GENERIC SAKAI DEPENDENCIES -->
-	     
-		<!-- Sakai 2.5.x specific dependencies -->
-		<!--	
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util-api</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.sakaiproject</groupId>
-			<artifactId>sakai-util</artifactId>
-			<version>${sakai.version}</version>
-		</dependency>
-		-->
-		
-		<!-- Sakai 2.6+ specific dependencies -->
        	<dependency>
          	<groupId>org.sakaiproject.kernel</groupId>
          	<artifactId>sakai-kernel-api</artifactId>
@@ -63,7 +39,6 @@
          	<groupId>org.sakaiproject.kernel</groupId>
          	<artifactId>sakai-kernel-util</artifactId>
      	</dependency>
-	    
   	</dependencies>
 
 	<build>
