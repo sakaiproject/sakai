@@ -21,6 +21,7 @@
 
 package org.sakaiproject.authz.impl;
 
+import net.sf.ehcache.Element;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
@@ -136,6 +137,13 @@ public abstract class SakaiSecurity implements SecurityService
 		{
             org.sakaiproject.component.api.ServerConfigurationService scs = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
             legacyCaching = scs.getBoolean("memory.use.legacy", legacyCaching); // TODO remove this after 10 merge
+            cacheDebug = scs.getBoolean("memory.SecurityService.debug", false);
+            if (cacheDebug) {
+                M_log.warn("SecurityService DEBUG logging is enabled... this is very bad for PRODUCTION and should only be used for DEVELOPMENT");
+                cacheDebugDetailed = scs.getBoolean("memory.SecurityService.debugDetails", cacheDebugDetailed);
+            } else {
+                cacheDebugDetailed = false;
+            }
             m_callCache = memoryService().newGenericMultiRefCache("org.sakaiproject.authz.api.SecurityService.cache"); // switch to normal Cache after 10
             if (legacyCaching) {
                 M_log.info("Using legacy org.sakaiproject.authz.api.SecurityService.cache MultiRefCache, this cache has unsafe race conditions");
@@ -190,6 +198,13 @@ public abstract class SakaiSecurity implements SecurityService
                 // see note below about forced cache expiration
             }
         }
+        if (cacheDebugDetailed) {
+            if (result != null) {
+                M_log.info("SScache:hit:"+key+":val="+result);
+            } else {
+                M_log.info("SScache:MISS:"+key);
+            }
+        }
         return result;
     }
 
@@ -209,11 +224,18 @@ public abstract class SakaiSecurity implements SecurityService
             } else {
                 if (isSuper) {
                     m_superCache.put(key, payload);
+                    if (cacheDebugDetailed) {
+                        M_log.info("SScache:ADD->super:"+key+"=>"+payload);
+                    }
                 } else {
                     if (key.contains("@/content")) {
                         m_contentCache.put(key, payload);
+                        if (cacheDebugDetailed) {
+                            M_log.info("SScache:ADD->content:"+key+"=>"+payload);
+                        }
                     } else {
                         m_callCache.put(key, payload);
+                        if (cacheDebugDetailed) logCacheState("addToCache("+key+", "+payload+")");
                     }
                 }
                 // see note below about forced cache expiration
@@ -254,6 +276,7 @@ public abstract class SakaiSecurity implements SecurityService
                 if (permissions != null && !permissions.isEmpty()) {
                     // when the !site.helper or !user.template change then we need to just wipe the entire cache, this is a rare event
                     m_callCache.clear();
+                    if (cacheDebug) M_log.info("SScache:changed template:CLEAR:"+ref);
                     return true;
                 }
 
@@ -261,6 +284,7 @@ public abstract class SakaiSecurity implements SecurityService
                 // when the super user realm (!admin, also the event context) changes (realm.upd) then we wipe this cache out
                 if (m_superCache != null) {
                     m_superCache.clear();
+                    if (cacheDebug) M_log.info("SScache:changed !admin:CLEAR SUPER:"+ref);
                 }
                 return true;
 
@@ -268,6 +292,7 @@ public abstract class SakaiSecurity implements SecurityService
                 // content realms require special handling
                 // WARNING: this is handled in a simple but not very efficient way, should be improved later
                 m_contentCache.clear();
+                if (cacheDebug) M_log.info("SScache:changed content:CLEAR CONTENT:"+ref);
                 return true;
 
             } else {
@@ -295,6 +320,7 @@ public abstract class SakaiSecurity implements SecurityService
                 // content realms require special handling
                 // WARNING: this is handled in a simple but not very efficient way, should be improved later
                 m_contentCache.clear();
+                if (cacheDebug) M_log.info("SScache:removed content:CLEAR CONTENT:"+ref);
                 return true;
 
             } else {
@@ -351,6 +377,7 @@ public abstract class SakaiSecurity implements SecurityService
             azg = authzGroupService().getAuthzGroup(azgRef);
         } catch (GroupNotDefinedException e) {
             // no group found so no invalidation needed
+            if (cacheDebug) M_log.warn("SScache:changed FAIL: AZG realm not found:" + azgRef + " from " + realmRef);
             return; // SHORT CIRCUIT
         }
         // first handle the .anon and .auth (maybe only needed for special cases?)
@@ -360,6 +387,7 @@ public abstract class SakaiSecurity implements SecurityService
              * We have to just flush the entire cache
              */
             m_callCache.clear();
+            if (cacheDebug) M_log.info("SScache:changed .auth:CLEAR and DONE");
             return; // SHORT CIRCUIT
         }
         boolean anon = false;
@@ -377,6 +405,7 @@ public abstract class SakaiSecurity implements SecurityService
         }
         if (anon) {
             // anonymous user access (ANON_ROLE) needs to force reset on anonymous changes in the site
+            if (cacheDebug) M_log.info("SScache:changed .anon:found in "+azgRef);
             for (String perm : permissions) {
                 if (perm != null) {
                     keysToInvalidate.add(makeCacheKey(null, perm, azgRef, false));
@@ -397,7 +426,9 @@ public abstract class SakaiSecurity implements SecurityService
             }
         }
         // invalidate all keys (do this as a batch)
+        if (cacheDebug) M_log.info("SScache:changed "+azgRef+":keys="+keysToInvalidate);
         m_callCache.removeAll(keysToInvalidate);
+        if (cacheDebug) logCacheState("cacheRealmPermsChanged("+realmRef+", roles="+roles+", perms="+permissions+")");
     }
 
     /**
@@ -441,8 +472,56 @@ public abstract class SakaiSecurity implements SecurityService
         if (function == null || reference == null) {
             return null;
         }
+        if (!legacyCaching) {
+            // SPECIAL conversion to reduce duplicate caching data
+            if (!reference.startsWith("/site") && !reference.startsWith("/content")) {
+                // try to convert this from a special reference down to the authzgroup ref
+                Reference ref = entityManager().newReference(reference);
+                Collection<String> azgs = ref.getAuthzGroups(userId);
+                for (String azgRef : azgs) {
+                    if (azgRef.startsWith("/site")) {
+                        if (cacheDebug) M_log.warn("SScache:converted ref "+reference+" to "+azgRef);
+                        reference = azgRef;
+                        break;
+                    }
+                }
+            }
+        }
         // NOTE: userId can be null for this, others cannot be
         return "unlock@" + userId + "@" + function + "@" + reference;
+    }
+
+    // KNL-1230 added to assist with debugging caching issues
+    /**
+     * Enable cache debugging output in the logs
+     * memory.SecurityService.debug=true
+     */
+    boolean cacheDebug = false;
+    /**
+     * Show extra details in the debugging including:
+     * hits and misses, adds, ref conversions, all current entries data
+     * memory.SecurityService.debugDetails=true
+     */
+    boolean cacheDebugDetailed = false;
+    void logCacheState(String operator) {
+        if (cacheDebug) {
+            String name = m_callCache.getName();
+            net.sf.ehcache.Ehcache ehcache = m_callCache.unwrap(net.sf.ehcache.Ehcache.class); // DEBUGGING ONLY
+            StringBuilder entriesSB = new StringBuilder();
+            List keys = ehcache.getKeysWithExpiryCheck(); // only current keys
+            entriesSB.append("   * keys(").append(keys.size()).append("):").append(new ArrayList<Object>(keys)).append("\n");
+            Collection<Element> entries = ehcache.getAll(keys).values();
+            int countMaps = 0;
+            for (Element element : entries) {
+                if (element == null) continue;
+                int count = 0;
+                countMaps += count;
+                if (cacheDebugDetailed) {
+                    entriesSB.append("   ").append(element.getObjectKey()).append(" => (").append(count).append(")").append(element.getObjectValue()).append("\n");
+                }
+            }
+            M_log.info("SScache:"+name+":: "+operator+" ::\n  entries(Ehcache[key => payload],"+keys.size()+" + "+countMaps+" = "+(keys.size()+countMaps)+"):\n"+entriesSB);
+        }
     }
 
     /**
