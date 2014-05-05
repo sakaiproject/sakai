@@ -19,12 +19,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.Collections;
 import java.util.List;
 
 import lombok.Setter;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sakaiproject.profile2.dao.ProfileDao;
@@ -269,10 +272,23 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	private ProfileImage getOfficialImage(String userUuid, ProfileImage image,String defaultImageUrl, boolean isSameUser) {
 		
 		String officialImageSource = sakaiProxy.getOfficialImageSource();
+		
+		log.debug("Fetching official image. userUuid: " + userUuid + ", officialImageSource: " + officialImageSource);
 				
 		//check source and get appropriate value
 		if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_URL)){
 			image.setOfficialImageUrl(getOfficialImageUrl(userUuid));
+			
+			//PRFL-790 if URL security is required, get and set bytes and remove url
+			boolean urlSecurityEnabled = Boolean.valueOf(sakaiProxy.getServerConfigurationParameter("profile2.official.image.url.secure", "false"));
+			if(urlSecurityEnabled && StringUtils.isNotBlank(image.getOfficialImageUrl())) {
+				
+				log.debug("URL Security is active");
+				byte[] imageUrlBytes = this.getUrlAsBytes(image.getOfficialImageUrl());
+				image.setUploadedImage(imageUrlBytes);
+				image.setOfficialImageUrl(null);
+			}
+						
 		} else if(StringUtils.equals(officialImageSource, ProfileConstants.OFFICIAL_IMAGE_SETTING_PROVIDER)){
 			String data = getOfficialImageEncoded(userUuid);
 			if(StringUtils.isBlank(data)) {
@@ -301,7 +317,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			}
 		}
 		image.setAltText(getAltText(userUuid, isSameUser, true));
-		
+				
 		return image;
 	}
 	
@@ -832,7 +848,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	 * @return byte[] if file ok, or null if its too big
 	 * @throws IOException
 	 */
-	private static byte[] getBytesFromFile(File file) throws IOException {
+	private byte[] getBytesFromFile(File file) throws IOException {
     
 		// Get the size of the file
 		long length = file.length();
@@ -887,6 +903,28 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		
 		return filename;
 	}
+	
+	/**
+	 * Get a URL resource as a byte[]
+	 * @param url URL to fetch
+	 * @return
+	 */
+	private byte[] getUrlAsBytes(String url) {
+		byte[] data = null;
+		try {
+			URL u = new URL(url);
+			URLConnection uc = u.openConnection();
+			uc.setReadTimeout(5000); //5 sec timeout
+			InputStream inputStream = uc.getInputStream();
+			
+			data = IOUtils.toByteArray(inputStream);
+
+		} catch (Exception e) {
+			log.error("Failed to retrieve url bytes: " + e.getClass() + ": " + e.getMessage());
+		} 
+		return data;
+	}
+	
 	
 	@Setter
 	private SakaiProxy sakaiProxy;
