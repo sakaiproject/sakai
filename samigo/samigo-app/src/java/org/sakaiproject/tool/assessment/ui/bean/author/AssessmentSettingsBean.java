@@ -1772,6 +1772,10 @@ public class AssessmentSettingsBean
 	  return releaseToGroupsAsString;
   }
   
+  public String getReleaseToGroupsAsHtml() {
+	  return FormattedText.escapeHtml(releaseToGroupsAsString,false);
+  }
+  
   public void setBlockDivs(String blockDivs){
 	  this.blockDivs = blockDivs;
   }

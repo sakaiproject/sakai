@@ -163,7 +163,7 @@
 		
 		<h:outputFormat value=" #{assessmentSettingsMessages.available_group_at}" escape="false" rendered="#{assessmentSettings.releaseTo eq 'Selected Groups'}">
 			<f:param value="#{assessmentSettings.startDateString}" />
-			<f:param value="#{assessmentSettings.releaseToGroupsAsString}" />
+			<f:param value="#{assessmentSettings.releaseToGroupsAsHtml}" />
 			<f:param value="#{assessmentSettings.publishedUrl}" />
 		</h:outputFormat>
 	</h:panelGroup>
@@ -224,7 +224,7 @@
 		
 			<h:outputFormat value=" #{assessmentSettingsMessages.available_group_at}" escape="false" rendered="#{publishedSettings.releaseTo eq 'Selected Groups'}">
 				<f:param value="#{publishedSettings.startDateString}" />
-				<f:param value="#{publishedSettings.releaseToGroupsAsString}" />
+				<f:param value="#{publishedSettings.releaseToGroupsAsHtml}" />
 				<f:param value="#{publishedSettings.publishedUrl}" />
 			</h:outputFormat>
 		</h:panelGroup>

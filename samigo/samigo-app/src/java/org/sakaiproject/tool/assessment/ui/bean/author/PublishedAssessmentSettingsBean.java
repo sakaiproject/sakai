@@ -85,7 +85,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
-
+import org.sakaiproject.util.FormattedText;
 
 public class PublishedAssessmentSettingsBean
   implements Serializable {
@@ -1634,6 +1634,10 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 
 	public String getReleaseToGroupsAsString() {
 		return releaseToGroupsAsString;
+	}
+
+	public String getReleaseToGroupsAsHtml() {
+		return FormattedText.escapeHtml(releaseToGroupsAsString,false);
 	}
 
 	public void setBlockDivs(String blockDivs){
