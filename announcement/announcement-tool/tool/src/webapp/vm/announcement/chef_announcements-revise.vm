@@ -197,7 +197,7 @@ function resizeFrame(){
 									#if($groups.size() == 1) #set($selected=true) #end
 									#set($disabled=true)
 ##									#if($allowedRemoveGroups.contains($group)) 
-										<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$group.title" value="$group.Id" #if($selected) checked="checked"#end />
+										<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$validator.escapeHtml($group.title)" value="$group.Id" #if($selected) checked="checked"#end />
 ##									#else
 ##										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
 ##									#end
