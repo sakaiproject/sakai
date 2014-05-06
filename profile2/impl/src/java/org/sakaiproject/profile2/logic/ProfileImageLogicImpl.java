@@ -64,6 +64,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 
 		ProfileImage profileImage = new ProfileImage();
         profileImage.setExternalImageUrl(getUnavailableImageURL());
+        profileImage.setDefault(true);
         return profileImage;
     }
 	
@@ -80,6 +81,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 	public ProfileImage getOfficialProfileImage(String userUuid, String siteId) {
 		
 		ProfileImage profileImage = new ProfileImage();
+		profileImage.setDefault(false); //will be overridden if required
 		
 		String currentUserId = sakaiProxy.getCurrentUserId();
 		String defaultImageUrl = getUnavailableImageURL();
@@ -89,6 +91,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			log.debug("checking if user: " + currentUserId + " has permissions in site: " + siteId);
 			if(!sakaiProxy.isUserAllowedInSite(currentUserId, ProfileConstants.ROSTER_VIEW_PHOTO, siteId)) {
 				profileImage.setExternalImageUrl(defaultImageUrl);
+				profileImage.setDefault(true);
 				return profileImage;
 			}
 		}
@@ -105,6 +108,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		ProfileImage image = new ProfileImage();
 		boolean allowed = false;
 		boolean isSameUser = false;
+		
+		image.setDefault(false); //will be overridden if it is actually a default image
 		
 		String defaultImageUrl;
 		if (ProfileConstants.PROFILE_IMAGE_THUMBNAIL == size) {
@@ -131,6 +136,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			log.error("ProfilePreferences data supplied was not for user: " + userUuid);
 			image.setExternalImageUrl(defaultImageUrl);
 			image.setAltText(getAltText(userUuid, isSameUser, false));
+			image.setDefault(true);
 			return image;
 		}
 		
@@ -139,6 +145,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			log.error("ProfilePrivacy data supplied was not for user: " + userUuid);
 			image.setExternalImageUrl(defaultImageUrl);
 			image.setAltText(getAltText(userUuid, isSameUser, false));
+			image.setDefault(true);
 			return image;
 		}
 		
@@ -146,7 +153,6 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(isSameUser){
 			allowed = true;
 		}
-		
 		
 		//if we have a siteId and it's not a my workspace site, check if the current user has permissions to view the image
 		if(StringUtils.isNotBlank(siteId)){
@@ -164,6 +170,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				log.error("Couldn't retrieve ProfilePrivacy data for user: " + userUuid + ". Using default image.");
 				image.setExternalImageUrl(defaultImageUrl);
 				image.setAltText(getAltText(userUuid, isSameUser, false));
+				image.setDefault(true);
 				return image;
 			} 
 		}
@@ -177,6 +184,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		if(!allowed){
 			image.setExternalImageUrl(defaultImageUrl);
 			image.setAltText(getAltText(userUuid, isSameUser, false));
+			image.setDefault(true);
 			return image;
 		}
 		
@@ -212,8 +220,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 		}
 		
 		if(log.isDebugEnabled()){
-			log.debug("imageType: " + imageType);
-			log.debug("size: " + size);
+			log.debug("image type: " + imageType);
+			log.debug("size requested: " + size);
 		}
 		
 		//get the image based on the global type/preference
@@ -224,6 +232,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				//if no uploaded image, use the default image url
 				if(mtba == null || mtba.getBytes() == null) {
 					image.setExternalImageUrl(defaultImageUrl);
+					image.setDefault(true);
 				} else {
 					image.setUploadedImage(mtba.getBytes());
 					image.setMimeType(mtba.getMimeType());
@@ -233,6 +242,9 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			
 			case ProfileConstants.PICTURE_SETTING_URL: 
 				image.setExternalImageUrl(getExternalProfileImageUrl(userUuid, size));
+				if(StringUtils.equals(image.getExternalImageUrl(), defaultImageUrl)){
+					image.setDefault(true);
+				}
 				image.setAltText(getAltText(userUuid, isSameUser, true));
 			break;
 			
@@ -245,6 +257,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				if(StringUtils.isBlank(gravatarUrl)) {
 					image.setExternalImageUrl(defaultImageUrl);
 					image.setAltText(getAltText(userUuid, isSameUser, false));
+					image.setDefault(true);
 				} else {
 					image.setExternalImageUrl(gravatarUrl);
 					image.setAltText(getAltText(userUuid, isSameUser, true));
@@ -254,8 +267,8 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			default:
 				image.setExternalImageUrl(defaultImageUrl);
 				image.setAltText(getAltText(userUuid, isSameUser, false));
+				image.setDefault(true);
 			break;
-				
 		}
 		
 		return image;
@@ -293,6 +306,7 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 			String data = getOfficialImageEncoded(userUuid);
 			if(StringUtils.isBlank(data)) {
 				image.setExternalImageUrl(defaultImageUrl);
+				image.setDefault(true);
 			} else {
 				image.setOfficialImageEncoded(data);
 			}
@@ -309,11 +323,13 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 					image.setUploadedImage(data);
 				} else {
 					image.setExternalImageUrl(defaultImageUrl);
+					image.setDefault(true);
 				}
 			}
 			catch (IOException e) {
 				log.error("Could not find/read official profile image file: " + filename + ". The default profile image will be used instead.");
 				image.setExternalImageUrl(defaultImageUrl);
+				image.setDefault(true);
 			}
 		}
 		image.setAltText(getAltText(userUuid, isSameUser, true));
@@ -591,6 +607,26 @@ public class ProfileImageLogicImpl implements ProfileImageLogic {
 				
 		return ProfileConstants.GRAVATAR_BASE_URL + ProfileUtils.calculateMD5(email) + "?s=200";
 	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean resetProfileImage(final String userUuid) {
+		if(dao.invalidateCurrentProfileImage(userUuid)) {
+			log.info("Invalidated profile image for user: " + userUuid);
+			return true;
+		}
+		return false;
+	}
+	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean profileImageIsDefault(final String userUuid) {
+		ProfileImage image = getProfileImage(userUuid, null, null, ProfileConstants.PROFILE_IMAGE_MAIN);
+		return image.isDefault();
+	}
+
 
 	/**
 	 * Generate the full URL to the default image (either full or thumbnail)

@@ -1532,4 +1532,7 @@ img.ui-datepicker-trigger {
 .no-pictures {
 	margin-bottom: 10px;
 }
+
+input[type="submit"].secondary {
+    color: #555 !important
 }

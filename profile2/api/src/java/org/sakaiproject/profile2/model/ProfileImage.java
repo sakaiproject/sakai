@@ -48,6 +48,7 @@ public class ProfileImage {
 	private String officialImageEncoded;
 	private String altText;
 	private String mimeType;
+	private boolean isDefault;
 		
 	/**
 	 * Get access to the binary data from either the uploaded image or the base64 encoded data

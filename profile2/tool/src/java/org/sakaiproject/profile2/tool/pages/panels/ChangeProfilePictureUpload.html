@@ -39,7 +39,16 @@
 			
 		<div wicket:id="editWarning" class="edit-other-warning">[You are editing {other person}'s image]</div>
 			
-		<p><input type="submit" wicket:id="submit" value="Upload" /></p>
+		<p>
+		<input type="submit" wicket:id="submit" value="Upload" />
+		
+		&nbsp;
+		<span wicket:id="orRemove">
+		<wicket:message key="text.or"> or </wicket:message>&nbsp;
+		<a href="" wicket:id="remove"><wicket:message key="link.image.current.remove">Remove</wicket:message></a>
+		</span>
+		</p>		
+		
 		
 	</form>
 </wicket:panel>

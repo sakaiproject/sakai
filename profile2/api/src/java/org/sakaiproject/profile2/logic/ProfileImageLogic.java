@@ -219,4 +219,20 @@ public interface ProfileImageLogic {
 	 */
 	public String getGravatarUrl(final String userUuid);
 	
+	/**
+	 * Reset the profile image for a user
+	 * 
+	 * @param userUuid uuid for the user
+	 * @return
+	 */
+	public boolean resetProfileImage(final String userUuid);
+	
+	/**
+	 * Does this use have a default profile image?
+	 * 
+	 * @param userUuid uuid for the user
+	 * @return
+	 */
+	public boolean profileImageIsDefault(final String userUuid);
+	
 }

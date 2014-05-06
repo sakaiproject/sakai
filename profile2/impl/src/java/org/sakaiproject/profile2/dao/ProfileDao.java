@@ -541,6 +541,13 @@ public interface ProfileDao {
 	 */
 	public boolean addNewCommentToWallItem(WallItemComment wallItemComment);
 	
+	/**
+	 * Invalidate the current profile image for a user.
+	 *
+	 * @param userUuid	the uuid for the user
+	 */
+	public boolean invalidateCurrentProfileImage(final String userUuid);
+	
 	// Hibernate query constants
 	final String QUERY_GET_COMPANY_PROFILE = "getCompanyProfile";
 	final String QUERY_GET_COMPANY_PROFILES = "getCompanyProfiles";

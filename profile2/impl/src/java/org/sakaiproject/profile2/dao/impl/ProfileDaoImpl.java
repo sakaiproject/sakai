@@ -1190,6 +1190,21 @@ public class ProfileDaoImpl extends HibernateDaoSupport implements ProfileDao {
 		}
 	}	
 	
+	/**
+ 	 * {@inheritDoc}
+ 	 */
+	public boolean invalidateCurrentProfileImage(final String userUuid) {
+		try {
+			ProfileImageUploaded currentImage = getCurrentProfileImageRecord(userUuid);
+			currentImage.setCurrent(false);
+			getHibernateTemplate().save(currentImage);
+			return true;
+		} catch (Exception e) {
+			log.error("invalidateCurrentProfileImage failed. "+ e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+	}
+	
 	public void init() {
 	      log.debug("init");
 	}

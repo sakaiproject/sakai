@@ -19,8 +19,10 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
@@ -33,6 +35,7 @@ import org.sakaiproject.profile2.logic.ProfileImageLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.tool.components.CloseButton;
+import org.sakaiproject.profile2.tool.components.JavascriptEventConfirmation;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -213,12 +216,43 @@ public class ChangeProfilePictureUpload extends Panel{
         	} 
 
 		};
-		
 		form.add(submitButton);
+		
+		//remove link
+		final boolean isDefault = imageLogic.profileImageIsDefault(userUuid);
+		WebMarkupContainer orRemove = new WebMarkupContainer("orRemove") {
+			
+			public boolean isVisible() {
+				return !isDefault; //only show if its not default
+			}
+		};
+		
+		SubmitLink removeLink = new SubmitLink("remove") {
+			@Override
+			public void onSubmit() {
+				boolean removed = imageLogic.resetProfileImage(userUuid);
+				if(removed) {
+					//refresh image data
+					if(sakaiProxy.isSuperUserAndProxiedToUser(userUuid)){
+						setResponsePage(new MyProfile(userUuid));
+					} else {
+						setResponsePage(new MyProfile());
+					}
+				}
+			}			
+		};
+		removeLink.setDefaultFormProcessing(false); //don't let it submit the form
+        removeLink.add(new JavascriptEventConfirmation("onclick", new ResourceModel("link.image.current.remove.confirm")));
+
+        orRemove.add(removeLink);
+		form.add(orRemove);
+		
 		
 		//add form to page
 		add(form);
     }
+	
+	
 
 }
 
