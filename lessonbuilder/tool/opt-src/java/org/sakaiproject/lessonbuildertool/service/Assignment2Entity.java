@@ -623,6 +623,12 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	return false;
     }
 
+    public boolean notPublished() {
+	if (assignment == null && haveA2)
+	    assignment = getAssignment(id);
+	return (assignment == null || assignment.getDraft() || assignment.getRemoved());
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {

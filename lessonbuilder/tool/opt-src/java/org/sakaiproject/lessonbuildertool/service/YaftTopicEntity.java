@@ -339,6 +339,10 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	    return false;
 	}
 
+	public boolean notPublished() {
+	    return false;
+	}
+
 	/**
 	 * From LessonEntity
 	 */

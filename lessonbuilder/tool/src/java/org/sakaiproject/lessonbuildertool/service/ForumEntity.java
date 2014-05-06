@@ -843,6 +843,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return false;
     }
 
+    public boolean notPublished() {
+	if (!objectExists())
+	    return true;
+	if (topic.getOpenForum().getDraft())
+	    return true;
+	return false;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public List<String> getGroups(boolean nocache) {

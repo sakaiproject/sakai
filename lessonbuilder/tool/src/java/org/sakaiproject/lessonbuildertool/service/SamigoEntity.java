@@ -723,11 +723,14 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
     }
 
     public boolean notPublished(String ref) {
-	System.out.println("notpub " + ref);
 	if (ref.startsWith("/sam_core/"))
 	    return true;
 	else
 	    return false;
+    }
+
+    public boolean notPublished() {
+	return false;
     }
 
     // return the list of groups if the item is only accessible to specific groups

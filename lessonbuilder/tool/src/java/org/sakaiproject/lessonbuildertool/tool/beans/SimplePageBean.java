@@ -4203,7 +4203,32 @@ public class SimplePageBean {
 
 		Collection<String>itemGroups = null;
 		try {
-		    itemGroups = getItemGroups(item, null, false);
+		    LessonEntity entity = null;
+		    if (!canSeeAll()) {
+			switch (item.getType()) {
+			case SimplePageItem.ASSIGNMENT:
+			    entity = assignmentEntity.getEntity(item.getSakaiId());
+			    if (entity == null || entity.notPublished())
+				return false;
+			    break;
+			case SimplePageItem.ASSESSMENT:
+			    if (quizEntity.notPublished(item.getSakaiId()))
+				return false;
+			    break;
+			case SimplePageItem.FORUM:
+			    entity = forumEntity.getEntity(item.getSakaiId());
+			    if (entity == null || entity.notPublished())
+				return false;
+			    break;
+			case SimplePageItem.BLTI:
+			    if (bltiEntity != null)
+				entity = bltiEntity.getEntity(item.getSakaiId());
+			    if (entity == null || entity.notPublished())
+				return false;
+			}
+		    }
+		    // entity can be null. passing the actual entity just avoids a second lookup
+		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
 		    visibleCache.put(item.getId(), false);
 		    return false; // underlying entity missing, don't show it

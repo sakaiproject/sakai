@@ -608,6 +608,17 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	return false;
     }
 
+    public boolean notPublished() {
+	if (!objectExists())
+	    return true;
+	String deleted = assignment.getProperties().getProperty(ResourceProperties.PROP_ASSIGNMENT_DELETED);
+	// this somewhat odd test for deleted is the one used in the Assignment code
+	if ((deleted == null || "".equals(deleted)) && !assignment.getDraft())
+	    return false;
+	else
+	    return true;
+    }
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache) {

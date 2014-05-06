@@ -158,6 +158,10 @@ public interface LessonEntity {
     // at all, so we can't produce a reference to it.
     public boolean notPublished(String ref);
 
+    // for other tools, typically used for drafts, which students can't use
+    // this version is called on an instance
+    public boolean notPublished();
+
     // return the list of groups if the item is only accessible to specific groups
     // null if it's accessible to the whole site.
     public Collection<String> getGroups(boolean nocache);
