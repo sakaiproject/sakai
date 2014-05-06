@@ -127,7 +127,7 @@
             <select name="dropboxGroupFilter_groupId" id="dropboxGroupFilter_groupId" onchange="javascript:document.getElementById('sakai_action').value='doSetDropboxGroupIdFilter';document.getElementById('showForm').submit();">
                 <option value=""#if($!dropboxGroupFilter_groupId || $dropboxGroupFilter_groupId.equals("")) selected="selected"#end>$tlang.getString("grp.all")</option>
                 #foreach($group in $dropboxGroupFilter_groups)
-                    <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$group.getTitle()</option>
+                    <option value="$group.getId()"#if($group.getId().equals($dropboxGroupFilter_groupId)) selected="selected"#end>$validator.escapeHtml($group.getTitle())</option>
                 #end
             </select>
         </div>
