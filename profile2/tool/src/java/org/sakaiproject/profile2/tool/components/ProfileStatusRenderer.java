@@ -44,6 +44,8 @@ public class ProfileStatusRenderer extends Panel {
 	private String msgClass;
 	private String dateClass;
 	
+	private boolean hasStatusSet = false;
+	
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
 	private ProfilePrivacyLogic privacyLogic;
 	
@@ -148,6 +150,8 @@ public class ProfileStatusRenderer extends Panel {
 			return;
 		}
 		
+		this.hasStatusSet = true;
+		
 		//output
 		add(new Label("message", status.getMessage())
 			.add(new AttributeModifier("class", true, new Model<String>(msgClass)))
@@ -162,6 +166,11 @@ public class ProfileStatusRenderer extends Panel {
 	private void setupBlankFields() {
 		add(new Label("message"));
 		add(new Label("date"));
+	}
+	
+	// if there is text
+	public boolean hasStatusSet() {
+		return this.hasStatusSet;
 	}
 	
 }

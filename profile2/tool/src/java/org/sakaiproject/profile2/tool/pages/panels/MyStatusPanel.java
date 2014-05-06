@@ -95,7 +95,7 @@ public class MyStatusPanel extends Panel {
 		status = new ProfileStatusRenderer("status", userId, null, "tiny") {
 			@Override
 			public boolean isVisible(){
-			   return sakaiProxy.isProfileStatusEnabled();
+			   return this.hasStatusSet() && sakaiProxy.isProfileStatusEnabled();
 			}
 		};
 		status.setOutputMarkupId(true);
@@ -117,16 +117,12 @@ public class MyStatusPanel extends Panel {
 			
 			@Override
 			public boolean isVisible(){
-			   return sakaiProxy.isProfileStatusEnabled();
+			   return status.isVisible(); //if there is text to show
 			}
 		};
 		clearLink.setOutputMarkupPlaceholderTag(true);
 		clearLink.add(new Label("clearLabel",new ResourceModel("link.status.clear")));
 	
-		//set visibility of clear link based on status and if it's editable
-		if(!status.isVisible() || !editable) {
-			clearLink.setVisible(false);
-		}
 		add(clearLink);
         
         
