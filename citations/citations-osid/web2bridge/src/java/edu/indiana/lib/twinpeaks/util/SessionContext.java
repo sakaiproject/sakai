@@ -25,7 +25,9 @@ import java.lang.*;
 import java.sql.*;
 import java.util.*;
 
-import net.sf.ehcache.*;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 
 
 /**
@@ -35,9 +37,7 @@ public class SessionContext
 {
 
 	private static org.apache.commons.logging.Log	_log = LogUtils.getLog(SessionContext.class);
-	/*
-	 * ehcache constants
-	 */
+
 	/**
 	 * Cache name
 	 */
@@ -69,57 +69,31 @@ public class SessionContext
 	 */
 	private static Cache cache;
 
+	private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
+
+
   /**
    * Private constructor - set up the cache as required
    */
   private SessionContext(String id)
   {
-		Element 			element;
+		HashMap hashmap;
 
 		try
 		{
 			if ( cache == null ) {
-				CacheManager	cacheManager;
-	  		
-				/*
-				 * Fetch singleton cache manager
-				 */
-				cacheManager = CacheManager.create();
-				/*
-				 * And create our cache (if necessary)
-				 */
-				if ((cache = cacheManager.getCache(CACHENAME)) == null)
-				{
-					cache = new Cache(CACHENAME,							// Name
-														CACHE_MEMORY_ELEMENTS, 	// Elements held in memory
-														                        // Eviction policy
-														net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
-														true, 									// Overflow to disk?
-	                          "ignored",              // Disk store - ignored, CacheManager sets it using injection
-														false, 									// Disk elements live forever?
-														CACHE_TTL, 							// Element maximum time to live
-														CACHE_IDLE_TIME, 				// Element idle time removal
-														false, 									// Disk content exists across VM restart?
-														240L,										// Disk content idle check frequency
-														null,                   // Event listeners
-														null);                  // Bootstrap cache loader
-	
-					cacheManager.addCache(cache);
-					_log.debug("Cache created: " + CACHENAME);
-				}
-				_log.debug(CACHENAME + " size = " + cache.getSize());
-				_log.debug(CACHENAME + " keys = " + cache.getKeys().toString());
+				cache = memoryService.getCache(CACHENAME);
+				_log.debug(CACHENAME + ":" + cache.toString()); 
 			}
 			/*
 			 * Fetch the session cache (create a new one if necessary)
 			 */
-			element = cache.get(id);
-			_log.debug("cache.get(" + id + ") finds " + element);
+			hashmap = (HashMap) cache.get(id);
+			_log.debug("cache.get(" + id + ") finds " + hashmap);
 
-			if (element == null)
+			if (hashmap == null)
 		{
-				element = new Element(id, new HashMap());
-				cache.put(element);
+				cache.put(id, new HashMap());
 
 				_log.debug("HashMap() created for id " + id);
 
@@ -131,7 +105,7 @@ public class SessionContext
 		}
 
 		_sessionId = id;
- 		_parameterMap = (HashMap) element.getValue();
+ 		_parameterMap = hashmap;
 	}
 
   /**

@@ -141,7 +141,7 @@ public class XServer extends DefaultHandler {
 
 		if( metasearchSession == null ) {
 			// bad state management
-			throw new RuntimeException( "XServer() - ehcache MetasearchSession is " +
+			throw new RuntimeException( "XServer() - cache MetasearchSession is " +
 					"NULL :: guid is " + guid );
 		}
 

@@ -21,14 +21,13 @@
 
 package org.sakaibrary.xserver.session;
 
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.CacheException;
-import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Element;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 
 /**
  * MetasearchSessionManager is a Singleton class designed for session
- * management in metasearching applications.  It makes use of ehcache
+ * management in metasearching applications.  It makes use of cache
  * and MetasearchSession objects indexed by globally unique identifiers
  * to hold all session state for individual sessions.
  * 
@@ -42,46 +41,20 @@ public class MetasearchSessionManager implements java.io.Serializable {
 				"org.sakaibrary.osid.repository.xserver.session.MetasearchSessionManager" );
 
   /* private static variables */
+  private static MemoryService memoryService = (MemoryService)ComponentManager.get(MemoryService.class);
   private static MetasearchSessionManager metasearchSessionManager;
   private static Cache cache;
 
   /**
    * Private constructor to ensure only one MetasearchSessionManager
-   * is instantiated.  Initializes ehcache components CacheManager
+   * is instantiated.  Initializes cache components CacheManager
    * and Cache.
    */
   private MetasearchSessionManager() {
 	  if ( cache == null ) {
-	    try {
-	    	CacheManager cacheManager = CacheManager.create();
+	    cache = memoryService.getCache(CACHE_NAME);
 	
-	      // add the cache to the CacheManager if it doesn't already exist
-	      if( !cacheManager.cacheExists( CACHE_NAME ) ) {
-	        // create a cache using ehcache 1.2.4 constructor
-	        Cache temp = new Cache( 
-	        	CACHE_NAME,    // cache name
-	            50,            // maxElementsInMemory
-	            net.sf.ehcache.store.MemoryStoreEvictionPolicy.LRU,
-	            true,          // overflowToDisk
-	            "ignored",     // disk store path - ignored, CacheManager sets it using setter injection
-	            false,         // eternal
-	            0L,            // time to live (seconds)
-	            900L,          // time to idle (seconds)
-	            false,         // diskPersistent
-	            120L,          // diskExpiryThreadIntervalSeconds
-	            null,          // registeredEventListeners
-	            null           // bootstrapCacheLoader
-	        );
-	        cacheManager.addCache( temp );
-	      }
-	
-	      // get cache for use
-	      cache = cacheManager.getCache( CACHE_NAME );
-	    } catch( CacheException ce ) {
-	      LOG.warn( "MetasearchSessionManager() failed to create CacheManager or Cache", ce );
-	    }
-	
-	    LOG.info( "ehcache session initiated properly." );
+	    LOG.info( "MetasearchSessionManager cache session initiated properly." );
 	  }
   }
 
@@ -112,11 +85,11 @@ public class MetasearchSessionManager implements java.io.Serializable {
       // given guid and ms.getGuid() should match -- TODO new Exception Type?
       if( !ms.getGuid().equals( guid ) ) {
         LOG.warn( "putMetasearchSession(): putting MetasearchSession into " +
-            "ehcache with mismatched guids..." );
+            "cache with mismatched guids..." );
       }
 
       // the following puts if guid is new, updates if guid is old
-      cache.put( new Element( guid, ms ) );
+      cache.put( guid, ms );
     }
 
     /**
@@ -128,18 +101,15 @@ public class MetasearchSessionManager implements java.io.Serializable {
      * otherwise, null
      */
     public MetasearchSession getMetasearchSession( String guid ) {
-      Element element = null;
       try {
-        element = cache.get( guid );
-      } catch( CacheException ce ) {
+        MetasearchSession ms = (MetasearchSession) cache.get( guid );
+        return ms;
+      } catch( Exception ce ) {
         LOG.warn( "MetasearchSessionManager.getMetasearchSession()" +
             " cannot get cache with guid: " + guid, ce );
       }
       
-      // element could have expired
-      boolean isExpired = ( element == null ) ? true : cache.isExpired( element );
-    
-      return isExpired ? null : ( MetasearchSession )element.getValue();
+      return null;
     }
 
 	/**

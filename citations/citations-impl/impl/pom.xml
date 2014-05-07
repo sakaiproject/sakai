@@ -75,12 +75,6 @@
       <artifactId>sakai-velocity-tool</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
-      <version>${sakai.ehcache.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
       <groupId>commons-collections</groupId>
       <artifactId>commons-collections</artifactId>
     </dependency>

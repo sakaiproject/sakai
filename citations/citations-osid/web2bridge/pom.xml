@@ -27,16 +27,18 @@
       <artifactId>servlet-api</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.sf.ehcache</groupId>
-      <artifactId>ehcache-core</artifactId>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
     </dependency>
-<!--javax.servletservlet-api${sakai.servletapi.version}-->
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
       <version>${sakai.commons-logging.version}</version>
     </dependency>
-<!--${sakai.ehcache.groupId}${sakai.ehcache.artifactId}${sakai.ehcache.version}-->
     <dependency>
       <groupId>OKI</groupId>
       <artifactId>OkiOSID</artifactId>
