@@ -7,7 +7,7 @@ var isNew=true;
 var flashPlayer = "/library/editor/ckextraplugins/movieplayer/StrobeMediaPlayback.swf";
 var youtubePlugin = "/library/editor/ckextraplugins/movieplayer/YouTubePlugin.swf";
 var videoMimeSupported = ['video/mp4','audio/mpeg','application/x-shockwave-flash','video/x-ms-wmv'];
-var audioMimeSupported = ['audio/wav'];
+var audioMimeSupported = ['audio/x-wav'];
 //IE8 compatibility
 if (!String.prototype.trim) {
     String.prototype.trim = function () {
@@ -28,80 +28,33 @@ var Audio = function (o){
 	if(o) this.setObjectElement(o);
 };
 
+//Creates an element for CKEditor
+Audio.prototype.createCKElement = function () {
+    var mediaurl = this.url.trim();
+
+	var audioElement = new CKEDITOR.dom.element('audio');
+	audioElement.setAttributes({'class': 'audioaudio'});
+	audioElement.setAttributes({'controls': 'controls'});
+	var sourceElement = new CKEDITOR.dom.element('source');
+	sourceElement.setAttributes({'src': mediaurl});
+	sourceElement.setAttributes({'type': this.contentType});
+	audioElement.append(sourceElement);
+	return audioElement;
+}
+
 /** Create Movie html */
 Audio.prototype.getInnerHTML = function (objectId){
 	var rnd = Math.floor(Math.random()*1000001);
-	var s = "<div>";
     var mediaurl = this.url.trim();
 
+	var s = "";
 	// html
     if(audioMimeSupported.contains(this.contentType)) {
-        s += '<audio class="audioaudio" controls="controls">';
-        s += '        <source src="'+mediaurl+'" type="'+this.contentType+'">';
-        s += '</audio><br>';
-        s += '<object class="audioobject" type="'+this.contentType+'" width="300" height="50">';
+		s += '<object class="audioobject" type="'+this.contentType+'" width="300" height="50">';
+	   	//s += ' classid="CLSID:6BF52A52-394A-11d3-B153-00C04F79FAA6"><param name = "url" value = "'+mediaurl+'">';
         s += '<param name = "src" value = "'+mediaurl+'">';
         s += '<param name = "autostart" value = "0"></object>';
     }
-    else if(videoMimeSupported.contains(this.contentType)) {
-			var addYoutube = "";
-			if(this.url.contains('youtube.com/')) {
-				this.url = this.url.replace(/youtube\.com\/watch\?v=/i, "youtube.com/v/");
-				addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
-			}
-
-			else if (this.url.contains('youtu.be/')) {
-			    this.url = this.url.replace("/youtu.be/", "youtube.com/v/");
-			    addYoutube = "&amp;plugin_YouTubePlugin="+youtubePlugin;
-		        }
-	
-			// Flash video (FLV)
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="application/x-shockwave-flash" ';
-			s += '        data="'+ flashPlayer +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-			s += '  <PARAM name="movie" value="'+ flashPlayer +'" />';
-		    s += '  <PARAM name="FlashVars" value="src='+encodeURI(this.url)+'&amp;showplayer=always&amp;width='+this.width+'&amp;height='+this.height+'&amp;showiconplay=true&amp;autoplay='+this.autoplay+addYoutube+'" />';
-				s += '<param name="allowFullScreen" value="true">';
-		    s += '</OBJECT>';
-	}else{
-		// Other video types that need a native plugin
-		var pluginspace, codebase, classid;
-		if(this.contentType == "video/quicktime") {
-			// QUICKTIME
-			this.autoplay = (this.autoplay == 'true' || this.autoplay == '1') ? 'true' : 'false';
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        classid="clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B" ';
-			s += '        codebase="http://www.apple.com/qtactivex/qtplugin.cab" '
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="src" value="'+ encodeURI(this.url) +'" />';
-			s += '  <PARAM name="autoplay" value="'+this.autoplay+'" />';
-			s += '  <PARAM name="controller" value="true" />';
-			s += '  <OBJECT type="'+this.contentType+'" ';
-			s += '          data="'+ encodeURI(this.url) +'" ';
-			s += '          width="'+this.width+'" height="'+this.height+'" ';
-			s += '          style="*display:none">'; // for IE6 only
-			s += '    <PARAM name="autoplay" value="'+this.autoplay+'" />';
-			s += '    <PARAM name="controller" value="true" />';
-		    s += '  </OBJECT>';
-		    s += '</OBJECT>';	
-		    
-		}else{
-			// WINDOWS MEDIA & OTHERS
-			s += '<OBJECT id="movie' + rnd + '" ';
-			s += '        type="'+this.contentType+'" ';
-			s += '        data="'+ encodeURI(this.url) +'" ';
-			s += '        width="'+this.width+'" height="'+this.height+'" >';
-		    s += '  <PARAM name="src" value="'+ encodeURI(this.url) +'" />';
-			s += '  <PARAM name="autostart" value="'+this.autoplay+'" />';
-			s += '  <PARAM name="controller" value="true" />';
-		    s += '</OBJECT>';
-		    
-		}
-	    
-	}
-	
-    s += '</div>';
 	return s;
 }
 
@@ -123,21 +76,34 @@ CKEDITOR.plugins.add( 'audiorecorder',
 	 requires : [ 'fakeobjects', 'flash', 'iframedialog' ],
    //http://alfonsoml.blogspot.com/2009/12/plugin-localization-in-ckeditor-vs.html
    lang: ['en'],
-   getPlaceholderCss : function () {
-       return 'img.cke_audiorecorder' +
+   getPlaceholderCss1 : function () {
+       return 'img.cke_audiorecorder1' +
 		    '{' +
-		    'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/placeholder.png' ) + ');' +
+		    'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/placeholder1.png' ) + ');' +
 		    'background-position: center center;' +
 		    'background-repeat: no-repeat;' +
 		    'border: 1px solid #a9a9a9;' +
-		    'width: 80px;' +
-		    'height: 80px;' +
+		    'width: 110px;' +
+		    'height: 90px;' +
 		    '}';
    },
+   getPlaceholderCss2 : function () {
+       return 'img.cke_audiorecorder2' +
+		    '{' +
+		    'background-image: url(' + CKEDITOR.getUrl( this.path + 'images/placeholder2.png' ) + ');' +
+		    'background-position: center center;' +
+		    'background-repeat: no-repeat;' +
+		    'border: 1px solid #a9a9a9;' +
+		    'width: 110px;' +
+		    'height: 90px;' +
+		    '}';
+   },
+
    onLoad: function() {
        //v4
        if (CKEDITOR.addCss) {
-	   CKEDITOR.addCss(this.getPlaceholderCss());
+	   CKEDITOR.addCss(this.getPlaceholderCss1());
+	   CKEDITOR.addCss(this.getPlaceholderCss2());
        }
    },
    init: function( editor )
@@ -153,7 +119,8 @@ CKEDITOR.plugins.add( 'audiorecorder',
       });
       //v3
       if (editor.addCss) { 
-	  editor.addCss(this.getPlaceholderCss());
+	  editor.addCss(this.getPlaceholderCss1());
+	  editor.addCss(this.getPlaceholderCss2());
       }
 	//audio_plugin.js
     CKEDITOR.dialog.add( 'audiorecorder.dlg', function( api ) {
@@ -166,7 +133,7 @@ CKEDITOR.plugins.add( 'audiorecorder',
                                 type : 'iframe',
                                 //TODO: Pass the name as a extra parameter to iframe if possible instead
                                 src : thispath + 'audiorecorder.html?parentname='+api.name,
-                                width : 530, height : 420 - (CKEDITOR.env.ie ? 10 : 0),
+                                width : 550, height : 500 - (CKEDITOR.env.ie ? 10 : 0),
                                 onContentLoad : function() {
                                     //Save the frameId
                                     var iframe = document.getElementById( this._.frameId );
@@ -193,6 +160,7 @@ CKEDITOR.plugins.add( 'audiorecorder',
 				//Don't show any buttons
                 buttons : [],
 				onHide : function () {
+					var editor = this._.editor;
 					//Try to stop the recording and update the iframe when the dialog is closed
 					audioiframe = tab1window.stopRecording();
                     // If there's no URL, just stop entirely
@@ -204,20 +172,32 @@ CKEDITOR.plugins.add( 'audiorecorder',
 
                     var e = (oAudio || new Audio()) ;
                     e.updateObject(tab1doc) ;
-										var realElement = CKEDITOR.dom.element.createFromHtml(e.getInnerHTML());
-										var fakeElement;
-                    if(!isNew) {
-                        //TODO: Is this still a problem with Safari?
-                        if(!navigator.userAgent.contains('Safari')) {
-                            //FCK.Selection.Delete();
-                        }
-												fakeElement= this._.editor.createFakeElement( realElement, 'cke_audiorecorder', 'audiorecorder', true );
-                    }else{
-												fakeElement= this._.editor.createFakeElement( realElement, 'cke_audiorecorder', 'audiorecorder', true );
-                    }
 
-										this._.editor.insertHtml(fakeElement.getOuterHtml());
-                }
+//					var newElement = new CKEDITOR.dom.element('section');
+//					newElement.setAttributes({'class': 'x'});
+//					newElement.setText("test text");
+//					editor.insertElement(newElement);
+					//Fix for IE8 because createFromHtml doesn't work, so have to create it by hand
+					var audioElement = e.createCKElement();
+					var objectElementHTML = e.getInnerHTML();
+					var objectElement = CKEDITOR.dom.element.createFromHtml(objectElementHTML);
+					var fakeElement1,fakeElement2;
+
+					if(!isNew) {
+						//TODO: Is this still a problem with Safari?
+						if(!navigator.userAgent.contains('Safari')) {
+							//FCK.Selection.Delete();
+						}
+						fakeElement1= this._.editor.createFakeElement( objectElement, 'cke_audiorecorder1', 'audiorecorder', true );
+						fakeElement2= this._.editor.createFakeElement( audioElement, 'cke_audiorecorder2', 'audiorecorder', true );
+					}else{
+						fakeElement1= this._.editor.createFakeElement( objectElement, 'cke_audiorecorder1', 'audiorecorder', true );
+						fakeElement2= this._.editor.createFakeElement( audioElement, 'cke_audiorecorder2', 'audiorecorder', true );
+					}
+
+					editor.insertHtml(fakeElement1.getOuterHtml());
+					editor.insertHtml(fakeElement2.getOuterHtml());
+				}
 
             };
 
@@ -225,8 +205,49 @@ CKEDITOR.plugins.add( 'audiorecorder',
         }) ;
 
 
-   }
+   },
+
+   //Add a filter for when we switch from source to HTML mode...this will preserve the "Fake" video element
+   //Note the 4 at the end, the filter in the flash plugin has a vlue of 5, so we only need a 4 to slip in before
+   afterInit : function( editor )
+   {
+	   var dataProcessor = editor.dataProcessor,
+	   dataFilter = dataProcessor && dataProcessor.dataFilter;
+
+	   if ( dataFilter )
+	   {
+		   //Here we want to add a new filter rule...if the source matches this property, it will be converted
+		   dataFilter.addRules(
+			   {
+				   elements :
+				   {
+					   'audio' : function( element )
+					   {
+						   if ( !isAudioEmbed( element ) )
+							   return null;
+						   //Otherwise, we return a fake element, this is the element that will be shown in WYSIWYG mode
+						   return editor.createFakeParserElement( element, 'cke_audiorecorder2','audiorecoder',true  );
+					   },
+					   'cke:object' : function( element )
+					   {
+						   if ( !isAudioEmbed( element ) )
+							   return null;
+						   //Otherwise, we return a fake element, this is the element that will be shown in WYSIWYG mode
+						   return editor.createFakeParserElement( element, 'cke_audiorecorder1','audiorecoder',true  );
+					   }
+
+				   }
+			   },
+		   4);
+	   }
+	}
+
 });
+
+function isAudioEmbed(element) {
+	var attributes = element.attributes;
+	return (attributes['class'] == 'audioaudio' || attributes['class'] == 'audioobject' );
+}
 
 /** Update Audio object from Form */
 Audio.prototype.updateObject = function (tab1doc){
@@ -265,7 +286,7 @@ Audio.prototype.getContentType = function (url) {
             (ext=="flv"||ext=="fla"||ext=="swf") ? "application/x-shockwave-flash":
             (ext=="wmv"||ext=="wm" ||ext=="avi") ? "video/x-ms-wmv":
             (ext=="asf") ? "video/x-ms-asf":
-            (ext=="wav") ? "audio/wav":
+            (ext=="wav") ? "audio/x-wav":
             (ext=="wma") ? "audio/x-ms-wma":
             (ext=="mov"||ext=="qt") ? "video/quicktime" : "video/x-ms-wmv";
     return contentType;

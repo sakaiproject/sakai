@@ -40,7 +40,7 @@ function updateAttemptsText(attemptsRemaining) {
 
   console.log('Attempts remaining: ' + attemptsRemaining);
 
-  if (attemptsRemaining > 1000 && unlimitedString) {
+  if (attemptsRemaining > 1000 && typeof unlimitedString !== 'undefined') {
     $('#audio-attempts').text(unlimitedString);
   }
   else {
@@ -196,6 +196,10 @@ function audioAnalyzer(time) {
       timeTakenMins = Math.floor(timeTaken / 60);
       timeTakenSecs = timeTaken - (timeTakenMins * 60);
 
+	  if (typeof scrubberMultiple === 'undefined') {
+		  scrubberMultiple = 0;
+	  }
+
       $('#audio-timer').text( timeTakenMins + ":" + (timeTakenSecs < 10 ? "0" : "") + timeTakenSecs );
       $('#audio-timer').css("left", timerStartPosition + (timeTaken * scrubberMultiple));
 
@@ -216,6 +220,10 @@ function audioAnalyzer(time) {
       secsTaken++;
       minsTaken = Math.floor(secsTaken / 60);
       secsToDisplay = secsTaken - (minsTaken * 60);
+
+	  if (typeof scrubberMultiple === 'undefined') {
+		  scrubberMultiple = 0;
+	  }
 
       $('#audio-timer').text( minsTaken + ":" + (secsToDisplay < 10 ? "0" : "") + secsToDisplay );
       $('#audio-timer').css("left", timerStartPosition + (secsTaken * scrubberMultiple));
@@ -544,7 +552,7 @@ $(document).ready(function() {
     $('#audio-time-allowed').text(timeRemaining);
     $('#audio-max-time').text(maxSeconds);
     
-    if (attemptsAllowed > 1000 && unlimitedString) {
+    if (attemptsAllowed > 1000 && typeof unlimitedString !== 'undefined') {
       $('#audio-attempts-allowed').text(unlimitedString);
     }
     else {
