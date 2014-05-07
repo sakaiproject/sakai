@@ -13,7 +13,7 @@
 		<timestamp name="timeAnswered" />
 		
 		<property name="questionId" type="long" not-null="true" />
-		<property name="userId" type="string" not-null="true" />
+		<property name="userId" type="string" length="99" not-null="true" />
 		<property name="correct" type="boolean" not-null="true" />
 		<property name="shortanswer" type="text" not-null="false" />
 		<property name="multipleChoiceId" type="long" not-null="false" />

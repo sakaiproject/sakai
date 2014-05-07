@@ -22,9 +22,9 @@
 	<property name="itemId" type="long" not-null="true" />
 	<property name="pageId" type="long" not-null="true" />
 	<property name="title" type="string" length="100" not-null="true" />
-	<property name="owner" type="string" length="36" not-null="true" />
+	<property name="owner" type="string" length="99" not-null="true" />
 	<property name="groupOwned" type="boolean" not-null="true" />
-	<property name="group" column="groupid" type="string" length="36" />
+	<property name="group" column="groupid" type="string" length="99" />
 	<property name="commentsSection" type="long" />
 	<property name="lastCommentChange" type="timestamp" />
 	<property name="deleted" type="boolean" />

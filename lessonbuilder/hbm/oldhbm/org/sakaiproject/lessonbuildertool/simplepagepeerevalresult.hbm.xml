@@ -18,10 +18,10 @@
 			<column name="TIME_POSTED" not-null="false"/>
 		</property>
 		<property name="grader" type="java.lang.String" >
-			<column name="GRADER" length="255" not-null="true"/>
+			<column name="GRADER" length="99" not-null="true"/>
 		</property>
 		<property name="gradee" type="java.lang.String" >
-			<column name="GRADEE" length="255" not-null="true"/>
+			<column name="GRADEE" length="99" not-null="true"/>
 		</property>
 		<property name="rowText" type="java.lang.String" >
             	<column name="ROW_TEXT" not-null="true"/>

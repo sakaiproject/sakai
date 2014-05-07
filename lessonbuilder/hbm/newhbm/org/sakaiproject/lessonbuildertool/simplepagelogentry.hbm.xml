@@ -13,12 +13,12 @@
 		<timestamp name="lastViewed" />
 		
 		<property name="itemId" type="long" not-null="true" />
-		<property name="userId" type="string" not-null="true" />
+		<property name="userId" type="string" length="99" not-null="true" />
 		<property name="firstViewed" type="timestamp" not-null="true" />
 		<property name="complete" type="boolean" not-null="true" />
 		<property name="dummy" type="boolean" not-null="true" />
 		<property name="path" type="string" length="255"/>
-		<property name="toolId" type="string" length="250" />
+		<property name="toolId" type="string" length="99" />
 		<property name="studentPageId" type="long" />
 	</class>
 </hibernate-mapping>

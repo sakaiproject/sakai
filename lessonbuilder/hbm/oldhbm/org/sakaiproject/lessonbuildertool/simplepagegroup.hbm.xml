@@ -18,8 +18,8 @@
         </id>
 
 	<property name="itemId" type="string" not-null="true" />
-	<property name="groupId" type="string" not-null="true" />
+	<property name="groupId" type="string" length="99" not-null="true" />
 	<property name="groups" type="text" />
-	<property name="siteId" type="string" length="250" />
+	<property name="siteId" type="string" length="99" />
    </class>
 </hibernate-mapping>

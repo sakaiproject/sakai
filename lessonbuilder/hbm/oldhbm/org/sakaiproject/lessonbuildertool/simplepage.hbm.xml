@@ -17,17 +17,17 @@
          <generator class="native"/>
       </id>
 
-	<property name="toolId" type="string" length="250" not-null="true" />
-	<property name="siteId" type="string" length="250" not-null="true" />
+	<property name="toolId" type="string" length="99" not-null="true" />
+	<property name="siteId" type="string" length="99" not-null="true" />
 	<property name="title" type="string" length="100" not-null="true" />
 	<property name="parent" type="long" />
 	<property name="topParent" type="long" />
 	<property name="hidden" type="boolean" />
 	<property name="releaseDate" type="timestamp" />
 	<property name="gradebookPoints" type="double" />
-	<property name="owner" type="string" length="36" />
+	<property name="owner" type="string" length="99" />
 	<property name="groupOwned" type="boolean" />
-	<property name="group" type="string" column="groupid" length="36" />
+	<property name="group" type="string" column="groupid" length="99" />
 	<property name="cssSheet" type="string" length="250" />
 
    </class>
