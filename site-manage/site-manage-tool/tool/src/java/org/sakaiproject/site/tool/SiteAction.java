@@ -3517,11 +3517,14 @@ public class SiteAction extends PagedResourceActionII {
 						{
 							Map<String, Object> m = new HashMap<String, Object>();
 							Map<String, Object> ltiToolValues = m_ltiService.getTool(Long.valueOf(ltiToolId));
-							m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
-							m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
-							m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
-							m.put("contentKey", content.get(LTIService.LTI_ID));
-							linkedLtiContents.put(ltiToolId, m);
+							if ( ltiToolValues != null )
+							{
+								m.put("toolTitle", ltiToolValues.get(LTIService.LTI_TITLE));
+								m.put("pageTitle", ltiToolValues.get(LTIService.LTI_PAGETITLE));
+								m.put(LTIService.LTI_TITLE, (String) content.get(LTIService.LTI_TITLE));
+								m.put("contentKey", content.get(LTIService.LTI_ID));
+								linkedLtiContents.put(ltiToolId, m);
+							}
 						}
 					}
 				}
