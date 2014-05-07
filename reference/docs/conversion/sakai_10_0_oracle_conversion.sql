@@ -1156,3 +1156,16 @@ create index lb_qr_questionId_userId on lesson_builder_q_responses(questionId, u
 create index lb_qr_total_qi on lesson_builder_qr_totals(questionId);
 create index lb_qr_questionId on lesson_builder_q_responses(questionId);
 -- END LSNBLDR-329
+
+-- BEGIN LSNBLDR-376
+alter table lesson_builder_student_pages modify owner varchar2(99 char);
+alter table lesson_builder_groups modify groupId varchar2(99 char);
+alter table lesson_builder_groups modify siteId varchar2(99 char);
+alter table lesson_builder_pages modify toolId varchar2(99 char);
+alter table lesson_builder_pages modify siteId varchar2(99 char);
+alter table lesson_builder_pages modify owner varchar2(99 char);
+alter table lesson_builder_pages modify groupid varchar2(99 char);
+alter table lesson_builder_comments modify author varchar2(99 char);
+alter table lesson_builder_log modify userId varchar2(99 char);
+alter table lesson_builder_log modify toolId varchar2(99 char);
+-- END LSNBLDR-376
