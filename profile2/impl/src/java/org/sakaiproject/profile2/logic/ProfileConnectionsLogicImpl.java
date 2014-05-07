@@ -512,6 +512,9 @@ public class ProfileConnectionsLogicImpl implements ProfileConnectionsLogic {
 			if(userUuids != null){
 				log.debug("Adding connections to cache for: " + userUuid);
 				cache.put(userUuid, userUuids);
+			} else {
+				//if it is null we dont want to return it like that
+				userUuids = new ArrayList<String>();
 			}
 		}
 		return userUuids;
