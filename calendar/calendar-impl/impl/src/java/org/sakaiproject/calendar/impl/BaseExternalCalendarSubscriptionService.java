@@ -21,53 +21,24 @@
 
 package org.sakaiproject.calendar.impl;
 
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
-import java.util.Stack;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Vector;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.Calendar;
-import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.api.CalendarEvent.EventAccess;
-import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.calendar.api.CalendarImporterService;
-import org.sakaiproject.calendar.api.CalendarService;
-import org.sakaiproject.calendar.api.ExternalCalendarSubscriptionService;
-import org.sakaiproject.calendar.api.ExternalSubscription;
-import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.IdUsedException;
-import org.sakaiproject.exception.ImportException;
-import org.sakaiproject.exception.InUseException;
-import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -81,6 +52,15 @@ import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 public class BaseExternalCalendarSubscriptionService implements
 		ExternalCalendarSubscriptionService
@@ -148,6 +128,12 @@ public class BaseExternalCalendarSubscriptionService implements
 
 	/** Dependency: SiteService. */
 	protected SiteService m_siteService = null;
+
+	protected MemoryService m_memoryService = null;
+
+	public void setMemoryService(MemoryService memoryService) {
+		this.m_memoryService = memoryService;
+	}
 
 	public void setCalendarService(BaseCalendarService service)
 	{
@@ -224,24 +210,9 @@ public class BaseExternalCalendarSubscriptionService implements
 	{
 		this.m_idManager = idManager;
 	}
-	
-	public void setInstitutionalSubscriptionCache(SubscriptionCache subscriptionCache)
-	{
-		this.institutionalSubscriptionCache = subscriptionCache;
-	}
-
-	public void setUserSubscriptionCache(SubscriptionCache subscriptionCache)
-	{
-		this.usersSubscriptionCache = subscriptionCache;
-	}
 
 	/** Dependency: Timer */
 	protected Timer m_timer = null;
-	
-	public void setTimer(Timer timer)
-	{
-		this.m_timer = timer;
-	}
 
 	public void init()
 	{
@@ -252,6 +223,23 @@ public class BaseExternalCalendarSubscriptionService implements
 
 		if (enabled)
 		{
+			// INIT the caches
+			long cacheRefreshRate = 43200; // 12 hours
+			SimpleConfiguration cacheConfig = new SimpleConfiguration(1000, 43200, 0); // 12 hours
+			cacheConfig.setStatisticsEnabled(true);
+			institutionalSubscriptionCache = new SubscriptionCache(
+					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache", cacheConfig));
+			usersSubscriptionCache = new SubscriptionCache(
+					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.userCache", cacheConfig));
+			// TODO replace this with a real solution for when the caches are distributed by disabling the timer and using jobscheduler
+			if (institutionalSubscriptionCache.getCache().isDistributed()) {
+				m_log.error(institutionalSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+cacheRefreshRate+" seconds, do NOT distribute this cache");
+			}
+			if (usersSubscriptionCache.getCache().isDistributed()) {
+				m_log.error(usersSubscriptionCache.getCache().getName()+" is distributed but calendar subscription caches have a local timer refresh which means they will cause cache replication storms once every "+cacheRefreshRate+" seconds, do NOT distribute this cache");
+			}
+			m_timer = new Timer(); // init timer
+
 			// iCal column map
 			try
 			{
@@ -276,7 +264,7 @@ public class BaseExternalCalendarSubscriptionService implements
 						getCalendarSubscription(reference);
 					}
 					
-				}, 0);
+				}, 0, cacheRefreshRate);
 			}
 		}
 	}
