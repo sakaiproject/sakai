@@ -17,15 +17,6 @@
         This project creates a WAR containing the Poll Tool for Sakai.
     </description>
 
-    <!-- included for staging RSF libraries -->
-    <repositories>
-      <repository>
-	<id>uct-maven2</id>
-	<url>http://source.cet.uct.ac.za/nexus/content/repositories/releases/</url>
-       </repository>
-     </repositories>
-
-
     <dependencies>
      <dependency>
             <groupId>${project.groupId}</groupId>
