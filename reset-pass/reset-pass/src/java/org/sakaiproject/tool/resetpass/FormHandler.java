@@ -78,6 +78,10 @@ public class FormHandler {
 		//otherwise lets we need some info on the user.
 		//is the user validated?
 		String userId = userBean.getUser().getId().trim();
+
+		// SAK-26189 record event in similar way to resetPassClassic()
+		eventService.post(eventService.newEvent("user.resetpass", userBean.getUser().getReference() , true));
+
 		if (!validationLogic.isAccountValidated(userId)) {
 			m_log.debug("account is not validated");
 			//its possible that the user has an outstanding Validation
