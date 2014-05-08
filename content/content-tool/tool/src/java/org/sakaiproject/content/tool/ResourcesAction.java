@@ -7471,7 +7471,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		String flow = params.getString("flow");
 		
-		if (!"cancel".equalsIgnoreCase("flow")) {
+		if (!"cancel".equalsIgnoreCase(flow)) {
 			String[] selectedItems = params.getStrings("selectedMembers");	
 			StringBuffer restoredResources = new StringBuffer();
 			StringBuffer removedResources = new StringBuffer();
@@ -7510,6 +7510,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				state.setAttribute("removed_resources", removedResources.toString());
 			}
+		}
+		else
+		{
+			// cancel and go back
+			state.setAttribute (STATE_MODE, MODE_LIST);
 		}
 	}
 
