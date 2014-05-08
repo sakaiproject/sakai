@@ -55,18 +55,18 @@
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>sakairsf</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.version}</version>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
             <groupId>uk.org.ponder.sakairsf</groupId>
             <artifactId>SakaiRSFComponents-templates</artifactId>
-            <version>${rsfutil.version}</version>
+            <version>${sakairsf.components.version}</version>
             <type>war</type>
         </dependency>
         <dependency>
