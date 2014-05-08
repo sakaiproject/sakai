@@ -61,7 +61,6 @@ import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.emailtemplateservice.model.EmailTemplate;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
-import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.genericdao.api.search.Restriction;
 import org.sakaiproject.genericdao.api.search.Search;
@@ -81,6 +80,7 @@ import org.sakaiproject.user.api.UserPermissionException;
 
 public class ValidationLogicImpl implements ValidationLogic {
 
+
 	private static final String TEMPLATE_KEY_EXISTINGUSER = "validate.existinguser";
 	private static final String TEMPLATE_KEY_NEW_USER = "validate.newUser";
 	private static final String TEMPLATE_KEY_LEGACYUSER = "validate.legacyuser";
@@ -88,6 +88,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
 	private static Log log = LogFactory.getLog(ValidationLogicImpl.class);
+	
+	
 	
 	public void init(){
 		log.info("init()");
@@ -199,11 +201,6 @@ public class ValidationLogicImpl implements ValidationLogic {
 			DeveloperHelperService developerHelperService) {
 		this.developerHelperService = developerHelperService;
 	}
-
-	private EventTrackingService eventService;
-	public void setEventService(EventTrackingService ets) {
-		eventService = ets;
-	}
 	
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(
@@ -211,6 +208,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		this.serverConfigurationService = serverConfigurationService;
 	}
 
+	
 	private SecurityService securityService;
 	public void setSecurityService(SecurityService securityService) {
 		this.securityService = securityService;
@@ -652,12 +650,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String userId = EntityReference.getIdFromRef(account.getUserId());
 		String userDisplayName = "";
 		String userEid = "";
-		String userReference = "";
 			
 		try {
 			User u = userDirectoryService.getUser(userId);
 			
-			userReference = u.getReference();
+			
 			userDisplayName = u.getDisplayName();
 			
 			userEid = u.getEid();
@@ -674,6 +671,9 @@ public class ValidationLogicImpl implements ValidationLogic {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		
+		
+		
 		
 		//information about the site(s) they have been added to
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(userId, SiteService.SITE_VISIT, null);
@@ -693,7 +693,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 				sb.append(s.getTitle());
 				siteCount++;
 			} catch (IdUnusedException e) {
-				log.info("Could not retrieve site in resendValidation(): " + siteId, e);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 			
 		}
@@ -701,10 +702,11 @@ public class ValidationLogicImpl implements ValidationLogic {
 		
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		
+		
 		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
-
-		log.info("New password validation emailed to: " + userEid + " (" + userId + ")");
-		eventService.post(eventService.newEvent("user.resetpass", userReference , true));
 	}
+
+
+
 	
 }
