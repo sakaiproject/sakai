@@ -217,7 +217,8 @@ public class ForumsExport {
 	    ret.add(item.id);
 
 	    List<ForumAttachment> attachments = item.attachments;
-	    for (ForumAttachment attach: attachments) {
+	    if (attachments != null) {
+	      for (ForumAttachment attach: attachments) {
 		// this code is to identify attachments that aren't in the normal
 		// site resources. In that case we have to make a copy of it
 		String url = null;
@@ -242,6 +243,7 @@ public class ForumsExport {
 		    String lastAtom = logical.substring(lastSlash + 1);
 		    bean.addFile(physical, "attachments/" + item.id + "/" + lastAtom, null);
 		}
+	      }
 	    }
 	}
 	return ret;
