@@ -103,7 +103,7 @@
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
-    <rsfutil.version>0.8.0-SNAPSHOT</rsfutil.version>
+    <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>0.8.0-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>0.8.0-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
