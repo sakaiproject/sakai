@@ -2055,12 +2055,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 						ContentHostingService.commitCollection(collection);
 						logger.debug("Collection commited: "+collection.getId());
 					}
-
-					if (uploadFileName.contains(".zip"))
-					{
-						ZipContentUtil zipContentUtil = new ZipContentUtil();
-						zipContentUtil.extractArchive(EntityManager.newReference(resource.getReference()));
-					}
 				}
 				else
 				{
@@ -2079,16 +2073,6 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			logger.warn("Drag and drop upload failed: " + e, e);
 		} catch (Exception e) {
 			logger.warn("Drag and drop upload failed: " + e, e);
-		} finally
-		{
-			if (uploadFileName.contains(".zip")) {
-				//remove the zip file after unpacking it
-				try {
-					ContentHostingService.removeResource(resource.getId());
-				} catch (Exception e) {
-					logger.warn("Unable to remove zip file: " + e, e);
-				}
-			}
 		}
 		
 		try
