@@ -124,17 +124,24 @@
         </f:subview>
 
 		<sakai:tool_bar separator="#{msgs.cdfm_toolbar_separator}">
-		<sakai:tool_bar_item value="#{msgs.cdfm_container_title_thread}" action="#{ForumTool.processAddMessage}" id="df_compose_message_dfAllMessages" 
-			rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}" /> 
-      	<sakai:tool_bar_item value="#{msgs.cdfm_flat_view}" action="#{ForumTool.processActionDisplayFlatView}" />
-      			<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting" value="#{msgs.cdfm_topic_settings}"
+   			<h:commandLink action="#{ForumTool.processAddMessage}" id="df_componse_message_dfAllMessages"
+		            rendered="#{ForumTool.selectedTopic.isNewResponse && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
+					<h:outputText value="#{msgs.cdfm_container_title_thread}"/>
+				</h:commandLink>
+
+			<h:commandLink action="#{ForumTool.processActionDisplayFlatView}">
+					<h:outputText value="#{msgs.cdfm_flat_view}"/>
+				</h:commandLink>
+
+      			<h:commandLink action="#{ForumTool.processActionTopicSettings}" id="topic_setting"
       				rendered="#{ForumTool.selectedTopic.changeSettings}">
 					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+					<h:outputText value="#{msgs.cdfm_topic_settings}"/>
 				</h:commandLink>
 				
-				<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" 
-				value="#{msgs.cdfm_button_bar_delete_topic}" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
+				<h:commandLink action="#{ForumTool.processActionDeleteTopicConfirm}" id="delete_confirm" accesskey="d" rendered="#{!ForumTool.selectedTopic.markForDeletion && ForumTool.displayTopicDeleteOption}">
 				<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+				<h:outputText value="#{msgs.cdfm_button_bar_delete_topic}"/>
 				</h:commandLink>
 				
 				<h:outputLink id="print" value="javascript:printFriendly('#{ForumTool.printFriendlyUrl}');">
@@ -145,10 +152,12 @@
 			<h:panelGrid columns="2" width="100%" styleClass="specialLink">
 			    <h:panelGroup>
 					<f:verbatim><div class="specialLink"><h3></f:verbatim>
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_message_forums}" title=" #{msgs.cdfm_message_forums}"
-			      		rendered="#{ForumTool.messagesandForums}" />
-			      <h:commandLink action="#{ForumTool.processActionHome}" value="#{msgs.cdfm_discussion_forums}" title=" #{msgs.cdfm_discussion_forums}"
-			      		rendered="#{ForumTool.forumsTool}" />
+			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_message_forums}" rendered="#{ForumTool.messagesandForums}">
+						<h:outputText value="#{msgs.cdfm_message_forums}"/>
+					</h:commandLink>
+			      <h:commandLink action="#{ForumTool.processActionHome}" title=" #{msgs.cdfm_discussion_forums}" rendered="#{ForumTool.forumsTool}" >
+							<h:outputText value="#{msgs.cdfm_discussion_forums}"/>
+						</h:commandLink>
       			  <f:verbatim><h:outputText value=" " /><h:outputText value=" / " /><h:outputText value=" " /></f:verbatim>
 					  <h:commandLink action="#{ForumTool.processActionDisplayForum}" title="#{ForumTool.selectedForum.forum.title}" rendered="#{ForumTool.showForumLinksInNav}">
 						<h:outputText value="#{ForumTool.selectedForum.forum.title}"/>
