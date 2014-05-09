@@ -93,19 +93,20 @@ echo <<< EOF
     }
   },
   "capability_offered": [
+        "basic-lti-launch-request",
         "User.id",
         "User.username",
         "CourseSection.sourcedId",
         "Person.sourcedId",
         "Person.name.full",
         "Membership.role",
-       "Person.name.given" ,
-       "Person.name.family" ,
-       "Person.email.primary" ,
-       "User.image" ,
-       "Result.sourcedId" ,
-       "Result.autocreate",
-       "Result.sourcedId"
+        "Person.name.given" ,
+        "Person.name.family" ,
+        "Person.email.primary" ,
+        "User.image" ,
+        "Result.sourcedId" ,
+        "Result.autocreate",
+        "Result.custom.url"
   ],
   "service_offered": [
     {

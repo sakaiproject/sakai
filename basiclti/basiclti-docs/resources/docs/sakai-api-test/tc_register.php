@@ -1,61 +1,13 @@
 <?php
-if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
- error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-} else { 
- error_reporting(E_ALL & ~E_WARNING & ~E_NOTICE);
-}
-
-$old_error_handler = set_error_handler("myErrorHandler");
-
-function myErrorHandler($errno, $errstr, $errfile, $errline)
-{
-    // echo("YO ". $errorno . $errstr . "\n");
-    if ( strpos($errstr, 'deprecated') !== false ) return true;
-    return false;
-}
-
-ini_set("display_errors", 1);
-
-/*
-if ( !isset ( $_REQUEST['b64'] ) ) {
-   die("Missing b64 parameter");
-}
-
-
-$b64 = $_REQUEST['b64'];
-session_id(md5($b64));
-*/
-session_start();
-
 require_once("util/lti_util.php");
 
 $cur_url = curPageURL();
-$cur_base = str_replace("tp.php","",$cur_url);
+$cur_base = str_replace("tc_register.php","",$cur_url);
 
-// For my application, We only allow application/xml
-$request_headers = OAuthUtil::get_headers();
-$hct = $request_headers['Content-Type'];
-if ( ! isset($hct) ) $hct = $request_headers['Content-type'];
-/*
-if ($hct != 'application/xml' ) {
-   header('Content-Type: text/plain');
-   print_r($request_headers);
-   die("Must be content type xml, found ".$hct);
-}
-*/
-
-header('Content-Type: application/vnd.ims.lti.v2.ToolProxy.id+json; charset=utf-8;');
-
-/*
-$b64 = base64_decode($b64);
-$b64 = explode(":::", $b64);
-*/
-
-$oauth_consumer_key = $b64[0];
-$oauth_consumer_secret = $b64[1];
+header('Content-Type: application/vnd.ims.lti.v2.toolproxy.id+json; charset=utf-8;');
 
 $oauth_consumer_key = '98765';
-$oauth_consumer_secret = 'secret';
+$oauth_consumer_secret = 'dontpanic';
 
 $response = '{
   "@context": "http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId",
@@ -71,22 +23,20 @@ $json_response->tool_proxy_guid = uniqid();
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);
     $json = json_decode($body);
-    // $json_response->ext_debug = "This is awesome!";
     $json = json_encode($json_response);
 } catch (Exception $e) {
-    http_response_code(400);
+    header('HTTP/1.1 400 Unauthorized', true, 400);
     echo(json_encode(array("ext_status" => "failure", "ext_detail" => $e->getMessage())));
     exit();
 }
 
 $header_key = getOAuthKeyFromHeaders();
 if ( $header_key != $oauth_consumer_key ) {
-    header("HTTP/1.1 403 Failure");
+    header('HTTP/1.1 400 Unauthorized', true, 400);
     echo(json_encode(array("ext_status" => "failure", "ext_detail" => "KEY=$oauth_consumer_key HDR=$header_key")));
    exit();
 }
 
-header("HTTP/1.1 201 Created");
+header('HTTP/1.1 201 Created', true, 201);
 print_r($json);
 
-?>

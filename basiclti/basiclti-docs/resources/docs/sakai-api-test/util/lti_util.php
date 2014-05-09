@@ -421,7 +421,7 @@ class TrivialOAuthDataStore extends OAuthDataStore {
             $consumer = new OAuthConsumer($consumer_key,"secret", NULL);
             return $consumer;
         }
-        if ( $this->consumers[$consumer_key] ) {
+        if ( isset($this->consumers[$consumer_key]) ) {
             $consumer = new OAuthConsumer($consumer_key,$this->consumers[$consumer_key], NULL);
             return $consumer;
         }
