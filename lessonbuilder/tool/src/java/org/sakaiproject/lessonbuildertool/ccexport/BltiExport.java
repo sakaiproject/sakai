@@ -61,10 +61,25 @@ public class BltiExport {
 		
 	for (Map<String,Object> content : contents) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
-	    if (id.longValue() != -1L)
+	    if (id.longValue() != -1L && entityReal(id)) {
 		ret.add("blti/" + id);
+	    }
 	}
 	return ret;
+    }
+
+    // we saw a weird site where this wasn't true. Admin had changed accessibility of tool
+    public boolean entityReal(Long bkey) {
+	Map content = ltiService.getContent(bkey);
+	if (content == null)
+	    return false;
+	Long toolKey = getLongNull(content.get(LTIService.LTI_TOOL_ID));
+	if (toolKey == null)
+	    return false;
+	Map tool = ltiService.getTool(toolKey);
+	if (tool == null)
+	    return false;
+	return true;
     }
 
     public boolean outputEntity(String bltiRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource, int version) {
@@ -79,6 +94,8 @@ public class BltiExport {
 	if (toolKey == null)
 	    return false;
 	Map tool = ltiService.getTool(toolKey);
+	if (tool == null)
+	    return false;
 	
 	String title = (String)tool.get(LTIService.LTI_TITLE);
 	String launch_url = (String)tool.get(LTIService.LTI_LAUNCH);
