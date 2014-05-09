@@ -624,7 +624,7 @@ public class ExtractionHelper
     {
       feedback.setFeedbackDelivery(feedback.FEEDBACK_ON_SUBMISSION);
     }
-    else if ("NO_FEEDBACK".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
+    else if ("NONE".equalsIgnoreCase(assessment.getAssessmentMetaDataByLabel(
     	"FEEDBACK_DELIVERY")))
     {
       feedback.setFeedbackDelivery(feedback.NO_FEEDBACK);
