@@ -1744,6 +1744,7 @@ div.qtip-titlebar{
 .qtip{
     font-size: inherit !important;
     line-height: inherit !important;
+    font-family: inherit !important;
 }
 
 .qtipClose{
