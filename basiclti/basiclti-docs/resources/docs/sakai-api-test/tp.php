@@ -10,9 +10,6 @@ require_once 'tp_messages.php';
 session_start();
 header('Content-Type: text/html; charset=utf-8'); 
 
-// Initialize, all secrets are 'secret', do not set session, and do not redirect
-$context = new BLTI("secret", false, false);
-
 $lti_message_type = $_POST["lti_message_type"];
 
 global $div_id;
@@ -81,14 +78,6 @@ if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 }
 
 $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
-
-if ( $lti_message_type == "ToolProxyReregistrationRequest" && ! $context->valid ) {
-	print "Base string:\n";
-	print htmlent_utf8($context->basestring);
-	print "Context dump:\n";
-    print htmlent_utf8($context->dump());
-	die("Signature mismatch");
-}
 
 $tc_profile_url = $_POST['tc_profile_url'];
 if ( strlen($tc_profile_url) > 1 ) {

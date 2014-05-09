@@ -1,6 +1,4 @@
 <?php
-error_reporting(E_ALL & ~E_NOTICE & ~E_DEPRECATED);
-ini_set("display_errors", 1);
 header('Content-Type: text/html; charset=utf-8');
 session_start();
 ?>
@@ -21,7 +19,7 @@ require_once("util/lti_util.php");
     $lmsdata = array(
       "lti_message_type" => "ToolProxyRegistrationRequest",
       "lti_version" => "LTI-2p0",
-      "reg_key" => "12345",
+      "reg_key" => "98765",
       "reg_password" => "dontpanic",
       "tc_profile_url" => str_replace("tc.php", "tc_profile.php", $cur_url),
       "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url)
@@ -90,9 +88,10 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   // $parms['launch_presentation_css_url'] = $cssurl;
 
   if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
-  $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
-"Finish Launch", "", "");
 
+  /* $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
+"Finish Launch", "", "");
+*/
 
   $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
     "_blank");
