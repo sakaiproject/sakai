@@ -31,10 +31,10 @@
 
     function loadPlugin(editorInstance) {
         var autoSaveKey = editorInstance.config.autosave_SaveKey != null ? editorInstance.config.autosave_SaveKey : 'autosave_' + window.location;
-        var notOlderThan = editorInstance.config.autosave_NotOlderThan != null ? editorInstance.autosave_NotOlderThan : 1440;
-        var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.autosave_saveOnDestroy : false;
+        var notOlderThan = editorInstance.config.autosave_NotOlderThan != null ? editorInstance.config.autosave_NotOlderThan : 1440;
+        var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.config.autosave_saveOnDestroy : false;
         var saveDetectionSelectors =
-            editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
+            editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.config.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
 
 
         CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
