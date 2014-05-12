@@ -180,7 +180,7 @@ that can be used or hidden,can also use a background: url(images/<image name>.<e
 }
 #loginForm label {
     padding: 0 6px;
-    color: #fff;
+    color: #555;
 }
 #eid, #pw {
     border: 1px solid #ccc;
