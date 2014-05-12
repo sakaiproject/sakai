@@ -1207,7 +1207,21 @@ public class ExtractionHelper
 		  if (importedPrependString == null) {
 			  return processedText;
 		  }
-		  String[] splittedString = processedText.split(importedPrependString);
+		  String[] splittedString = processedText.split("src=\""+importedPrependString);
+		  List<String> splittedList = new ArrayList<String>();
+		  String src = "";
+		  for (int i = 0; i < splittedString.length; i ++) {
+			  	splittedString[i] = src + splittedString[i];
+				String[] splittedRefString = splittedString[i].split("href=\""+importedPrependString);
+				String href = "";
+				for (int j = 0; j < splittedRefString.length; j++){ 
+					splittedRefString[j] = href + splittedRefString[j];
+					splittedList.add(splittedRefString[j]);
+					href = "href=\"";
+				}
+				src = "src=\"";
+		  }
+		  splittedString = splittedList.toArray(splittedString);
 		  int endIndex = 0;
 		  String filename = null;
 		  String contentType = null;
@@ -1225,8 +1239,8 @@ public class ExtractionHelper
 			  // oldSplittedResourceId[1] = group or user
 			  // oldSplittedResourceId[2] = b917f0b9-e21d-4819-80ee-35feac91c9eb or ktsao
 			  // oldSplittedResourceId[3] = Blue Hill.jpg
-			  endIndex = splittedString[i].indexOf("\"");
-			  oldResourceId = splittedString[i].substring(0, endIndex);
+			  endIndex = splittedString[i].indexOf("\"",splittedString[i].indexOf("\"")+1);
+			  oldResourceId = splittedString[i].substring(splittedString[i].indexOf("\"")+1, endIndex);
 			  String[] oldSplittedResourceId = oldResourceId.split("/");
 			  fullFilePath = unzipLocation + "/" + oldResourceId.replace(" ", "");
 			  filename = oldSplittedResourceId[oldSplittedResourceId.length - 1];
@@ -1236,6 +1250,7 @@ public class ExtractionHelper
 
 			  if (contentResource != null) {
 				  resourceId = contentResource.getId();
+				  updatedText.append(splittedString[i].substring(0,splittedString[i].indexOf("\"")+1));
 				  updatedText.append(prependString);
 				  updatedText.append(resourceId);
 				  updatedText.append(splittedString[i].substring(endIndex));
@@ -1437,9 +1452,12 @@ public class ExtractionHelper
 
 		String[] splittedString = text.split("src=\"");
 		for (int i = 0; i < splittedString.length; i ++) {
-			if (splittedString[i].indexOf(importedPrependString) > -1) {
-				int length = importedPrependString.length();
-				return splittedString[i].substring(0, splittedString[i].indexOf(importedPrependString) + length);
+			String[] splittedRefString = splittedString[i].split("href=\"");
+			for (int j = 0; j < splittedRefString.length; j++) {
+				if (splittedRefString[j].indexOf(importedPrependString) > -1) {
+					int length = importedPrependString.length();
+					return splittedRefString[j].substring(0, splittedRefString[j].indexOf(importedPrependString) + length);
+				}
 			}
 		}
 		return null;

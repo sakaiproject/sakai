@@ -317,56 +317,64 @@ public class ManifestGenerator {
 		String eid = user.getEid();
 
 		try {
-			if (description != null && description.indexOf("<img ") > -1) {
+			if (description != null && (description.indexOf("<img ") > -1 || description.indexOf("<a ") > -1)) {
 				byte[] content = null;
 				int srcStartIndex = 0;
 				int srcEndIndex = 0;
 				String src = null;
 				String resourceId = null;
 				String eidResourceId = null;
-				
+
 				String[] splittedString = description.split("<img ");
 				for (int i = 0; i < splittedString.length; i++) {
 					log.debug("splittedString[" + i + "] = "
 							+ splittedString[i]);
-					if (splittedString[i].indexOf(prependString) > -1) {
-						srcStartIndex = splittedString[i].indexOf("src=\"");
-						srcEndIndex = splittedString[i].indexOf("\"",
-								srcStartIndex + 5);
-						src = splittedString[i].substring(srcStartIndex + 5,
-								srcEndIndex);
-						
-						try {
-							src = URLDecoder.decode(src, "UTF-8");
-						} catch (UnsupportedEncodingException e) {
-							log.error(e.getMessage());
-							e.printStackTrace();
-						}
-							
-						if (src.indexOf(siteCollection) > -1) {
-							resourceId = src.replace(prependString, "");
-							content = contentHostingService.getResource(resourceId).getContent();
-							if (content != null) {
-								contentMap.put(resourceId.replace(" ", ""), content);
+					String[] splittedRefString = splittedString[i].split("<a ");
+					for (int j = 0; j < splittedRefString.length; j++) {
+						if (splittedRefString[j].indexOf(prependString) > -1) {
+							int offset = 5;
+							srcStartIndex = splittedRefString[j].indexOf("src=\"");
+							if(srcStartIndex == -1){
+								srcStartIndex = splittedRefString[j].indexOf("href=\"");
+								offset++;
 							}
-						}
-						else if (src.indexOf(userCollection) > -1) {
-							eidResourceId = src.replace(prependString, "");
-							resourceId = eidResourceId.replace(eid, userId);
-							content = contentHostingService.getResource(resourceId).getContent();
-							if (content != null) {
-								contentMap.put(eidResourceId.replace(" ", ""), content);
+							srcEndIndex = splittedRefString[j].indexOf("\"",
+									srcStartIndex + offset);
+							src = splittedRefString[j].substring(srcStartIndex + offset,
+									srcEndIndex).replace(" ", "");
+
+							try {
+								src = URLDecoder.decode(src, "UTF-8");
+							} catch (UnsupportedEncodingException e) {
+								log.error(e.getMessage());
+								e.printStackTrace();
 							}
-						}
-						else if (src.indexOf(attachment) > -1) {
-							resourceId = src.replace(prependString, "");
-							content = contentHostingService.getResource(resourceId).getContent();
-							if (content != null) {
-								contentMap.put(resourceId.replace(" ", ""), content);
+
+							if (src.indexOf(siteCollection) > -1) {
+								resourceId = src.replace(prependString, "");
+								content = contentHostingService.getResource(resourceId).getContent();
+								if (content != null) {
+									contentMap.put(resourceId, content);
+								}
 							}
-						}
-						else {
-							log.error("Neither group nor user");
+							else if (src.indexOf(userCollection) > -1) {
+								eidResourceId = src.replace(prependString, "");
+								resourceId = eidResourceId.replace(eid, userId);
+								content = contentHostingService.getResource(resourceId).getContent();
+								if (content != null) {
+									contentMap.put(eidResourceId, content);
+								}
+							}
+							else if (src.indexOf(attachment) > -1) {
+								resourceId = src.replace(prependString, "");
+								content = contentHostingService.getResource(resourceId).getContent();
+								if (content != null) {
+									contentMap.put(resourceId, content);
+								}
+							}
+							else {
+								log.error("Neither group nor user");
+							}
 						}
 					}
 				}
