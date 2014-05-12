@@ -379,6 +379,7 @@ public class SamigoExport {
 
 	    } else {
 		errStream.println(messageLocator.getMessage("simplepage.exportcc-sam-undefinedtype").replace("{1}", title).replace("{2}",assessmentTitle)); 
+		continue;
 	    }		
 	    
 	    //ignore
@@ -396,7 +397,7 @@ public class SamigoExport {
 	    // CC doesn't have survey questoins. We treat them as multiple correct single selection
 	    if (answerlist.size() > 0) {
 		for (AnswerIfc answer: answerlist) {
-		    if (survey || answer.getIsCorrect()) {
+		    if (survey || answer.getIsCorrect() != null && answer.getIsCorrect()) {
 			if (type.equals(TypeIfc.TRUE_FALSE))
 			    correctItem = answer.getText().toLowerCase();
 			else
