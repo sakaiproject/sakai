@@ -20,6 +20,7 @@
 package org.sakaiproject.portal.charon.velocity;
 
 import org.apache.commons.collections.ExtendedProperties;
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.exception.ResourceNotFoundException;
 import org.apache.velocity.runtime.resource.Resource;
 import org.apache.velocity.runtime.resource.loader.ResourceLoader;
@@ -191,7 +192,9 @@ public class LibraryWebappLoader extends ResourceLoader {
         String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
         String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
         // Don't add the prefix twice
-        if ("neoskin".equals(templates) && !skin.startsWith(prefix)) skin = prefix + skin;
+        if (StringUtils.equals("neoskin", templates) && !StringUtils.startsWith(skin, prefix)) {
+        	skin = prefix + skin;
+        }
         return skin;
     }
 
