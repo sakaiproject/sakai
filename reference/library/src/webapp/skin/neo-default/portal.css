@@ -335,8 +335,11 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 }
 #roleSwitch label, #roleSwitch a#roleSwitchAnchor {
     text-decoration: none;
-    color: #fff;
+    color: #555;
     padding: 0 5px;
+}
+#roleSwitch a#roleSwitchAnchor {
+    color:#09c
 }
 /* PART 3 - SITE NAVIGATION - children of #siteNavWrapper
 /* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
