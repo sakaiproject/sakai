@@ -50,6 +50,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -282,6 +283,13 @@ public class AssignmentSupport {
 		
 		public boolean isAvailable(String entityReference) {
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			String siteId = assn.getContext();
+			if (!sakaiProxy.isSitePublished(siteId))
+			{
+				// return false if site is unpublished
+				return false;
+			}
+			
 			if (assn != null){
 				return isAvailable(assn);
 			}else{

@@ -205,6 +205,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	/*
 	 * (non-Javadoc)
+	 * @see org.sakaiproject.dash.app.SakaiProxy#isSitePublished(java.lang.String)
+	 */
+	public boolean isSitePublished(String siteId) {
+		Site site = getSite(siteId);
+		return site != null? site.isPublished(): false;
+	}
+	
+	/*
+	 * (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.SakaiProxy#getSkinRepoProperty()
  	*/
 	public String getSkinRepoProperty(){

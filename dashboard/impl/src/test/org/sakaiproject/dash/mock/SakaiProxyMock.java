@@ -102,6 +102,11 @@ public class SakaiProxyMock implements SakaiProxy {
 		}
 		return site;
 	}
+	
+	public boolean isSitePublished(String siteId) {
+		Site site = getSite(siteId);
+		return site != null? site.isPublished(): false;
+	}
 
 	public String getSkinRepoProperty() {
 		// TODO Auto-generated method stub

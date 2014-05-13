@@ -151,6 +151,8 @@
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
     	<property name="timeService" ref="org.sakaiproject.time.api.TimeService"></property>
+    	<property name="calendarService" ref="org.sakaiproject.calendar.api.CalendarService"></property>
+    	<property name="siteService" ref="org.sakaiproject.site.api.SiteService"></property>
 	</bean>
 	
 	<bean id="org.sakaiproject.dash.entity.EntitySupportUtil" 

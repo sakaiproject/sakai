@@ -162,7 +162,6 @@ public class DashboardLogicImpl implements DashboardLogic {
 					// TODO: handle error: entityType cannot be null
 					logger.warn("TODO: handle error: entityType cannot be null");
 				} else if(dashboardEntityInfo instanceof RepeatingEventGenerator) {
-					
 					List<CalendarItem> oldDates = dao.getCalendarItems(repeatingEvent);
 					Map<Date, CalendarItem> oldDatesMap = new HashMap<Date, CalendarItem>();
 					for(CalendarItem cItem: oldDates) {
@@ -205,7 +204,12 @@ public class DashboardLogicImpl implements DashboardLogic {
 										buf.append(entry.getValue());
 										logger.warn(buf);
 									} else {
-										createCalendarLinks(calendarItem);
+
+										if (dashboardEntityInfo.isAvailable(calendarItem.getEntityReference()))
+										{
+											// after checking for availability
+											createCalendarLinks(calendarItem);
+										}
 									}
 								}
 							} catch(Exception e) {

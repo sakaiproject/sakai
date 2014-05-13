@@ -35,6 +35,7 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.content.api.ContentCollection;
+import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ResourceType;
 import org.sakaiproject.dash.listener.EventProcessor;
@@ -273,10 +274,34 @@ public class ResourceSupport {
 				if(resource == null) {
 					logger.warn("isAvailable() problem retrieving resource with entity reference " + entityReference);
 				} else {
+					String siteId = getSiteIdFromResource(resource);
+					if (!sakaiProxy.isSitePublished(siteId))
+					{
+						// return false if site is unpublished
+						return false;
+					}
+					
 					isAvailable = resource.isAvailable();
 				}
 			}
 			return isAvailable;
+		}
+
+		/**
+		 * extract the site id from the resource object
+		 * @param resource
+		 * @return
+		 */
+		private String getSiteIdFromResource(ContentResource resource) {
+			ContentCollection collection = resource.getContainingCollection();
+			String collectionId = collection.getId();
+			while (!ContentHostingService.COLLECTION_SITE.equals(collection.getId()))
+			{
+				// continue
+				collectionId = collection.getId();
+				collection = collection.getContainingCollection();
+			}
+			return collectionId.replaceAll(ContentHostingService.COLLECTION_SITE, "").replaceAll("/", "");
 		}
 		
 		public boolean isUserPermitted(String sakaiUserId, String entityReference,
@@ -667,7 +692,8 @@ public class ResourceSupport {
 		if (!sakaiProxy.isAttachmentResource(resource.getId()))
 		{
 			// only when the resource is not attachment
-			Context context = dashboardLogic.getContext(event.getContext());
+			String contextString = event.getContext();
+			Context context = dashboardLogic.getContext(contextString);
 			
 			String labelKey = "resource.added";
 			SourceType sourceType = null;
@@ -723,9 +749,14 @@ public class ResourceSupport {
 			if (dashboardLogic.getNewsItem(resourceReference) == null)
 			{
 				newsItem = dashboardLogic.createNewsItem(title, eventTime, labelKey , resourceReference, context, sourceType, resource.getContentType());
-				dashboardLogic.createNewsLinks(newsItem);
+				
+				// check whether the associated site is published or not;
+				// do not create any links if the site is unpublished
+				boolean sitePublished = false;
 				
 				if(dashboardLogic.isAvailable(newsItem.getEntityReference(), RESOURCE_TYPE_IDENTIFIER)) {
+					dashboardLogic.createNewsLinks(newsItem);
+					
 					// entity is available now -- check for retract date
 					Date retractDate = getRetractDate(newsItem.getEntityReference());
 					if(retractDate != null && retractDate.after(new Date())) {

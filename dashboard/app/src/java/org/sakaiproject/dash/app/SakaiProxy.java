@@ -178,6 +178,14 @@ public interface SakaiProxy {
 	 * @return the site, or null if the siteId does not identify a site that can be returned.
 	 */
 	public Site getSite(String siteId);
+	
+	/**
+	 * Returns whether a site is published or not
+	 *   
+	 * @param siteId
+	 * @return true if the site is published; false otherwise
+	 */
+	public boolean isSitePublished(String siteId);
 
 	/**
 	 * Wrapper for ServerConfigurationService.getString("skin.repo")

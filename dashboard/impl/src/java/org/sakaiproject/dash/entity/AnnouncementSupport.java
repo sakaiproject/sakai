@@ -40,6 +40,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
+import org.sakaiproject.dash.entity.AssignmentSupport.AssignmentEntityType;
 import org.sakaiproject.dash.model.Context;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.SourceType;
@@ -338,6 +339,24 @@ public class AnnouncementSupport{
 		}
 
 		public boolean isAvailable(String entityReference) {
+			try
+			{
+				String channelId = getChannelIdFromReference(entityReference);
+				AnnouncementChannel channel = (AnnouncementChannel) announcementService.getChannel(channelId);
+				String siteId = channel.getContext();
+				if (!sakaiProxy.isSitePublished(siteId))
+				{
+					// return false if site is unpublished
+					return false;
+				}
+			}
+			catch (Exception e)
+			{
+				logger.warn(this + " isAvailable error getting announcement channel object for announcement message " + entityReference);
+				return false;
+			}
+			
+			// now that we have published site
 			AnnouncementMessage announcement = (AnnouncementMessage) sakaiProxy.getEntity(entityReference);
 			if(announcement != null) {
 				if(announcement.getHeader().getDraft()) {

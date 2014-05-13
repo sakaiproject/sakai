@@ -37,7 +37,9 @@ import java.util.TreeSet;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.announcement.api.AnnouncementMessage;
+import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
+import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.calendar.api.RecurrenceRule;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.dash.listener.EventProcessor;
@@ -53,6 +55,10 @@ import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.event.api.Event;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
@@ -82,6 +88,16 @@ public class ScheduleSupport{
 	protected TimeService timeService;
 	public void setTimeService(TimeService timeService) {
 		this.timeService = timeService;
+	}
+	
+	protected CalendarService calendarService;
+	public void setCalendarService(CalendarService calendarService) {
+		this.calendarService = calendarService;
+	}
+	
+	protected SiteService siteService;
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
 	}
 	
 	protected DashboardLogic dashboardLogic;
@@ -275,7 +291,42 @@ public class ScheduleSupport{
 		}
 
 		public boolean isAvailable(String entityReference) {
-			return true;
+			boolean rv = false;
+			if(entityReference == null) {
+				logger.warn(this + "isAvailable() invoked with null entity reference");
+			} else {
+				CalendarEvent cEvent = (CalendarEvent) sakaiProxy.getEntity(entityReference);
+				
+				if(cEvent != null) {
+					String calendarRef = cEvent.getCalendarReference();
+					try
+					{
+						Calendar calendar = calendarService.getCalendar(calendarRef);
+						String siteId = calendar.getContext();
+						try
+						{
+							Site s = siteService.getSite(siteId);
+							if (s.isPublished())
+							{
+								rv = true;
+							}
+						}
+						catch (IdUnusedException exception)
+						{
+							logger.warn(this + " isAvailable: cannot find site " + siteId + " " + exception.getMessage());
+						}
+					}
+					catch (IdUnusedException exception)
+					{
+						logger.warn(this + " isAvailable: cannot find calendar " + calendarRef + " " + exception.getMessage());
+					}
+					catch (PermissionException exception)
+					{
+						logger.warn(this + " isAvailable: don't have permission to get calendar " + calendarRef + " " + exception.getMessage());
+					}
+				}
+			}
+			return rv;
 		}
 		
 		public boolean isUserPermitted(String sakaiUserId, String entityReference,
@@ -429,44 +480,63 @@ public class ScheduleSupport{
 				String cEventReference = cEvent.getReference();
 				
 				Context context = dashboardLogic.getContext(eventContextString);
-				
-				SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
-				
-				// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
-				// from dash_entity properties bundle for use in the dashboard list
-				String type = cEvent.getType();
-				// Based on the event-type, we may be able to select a key for a label? 
-				String key = null;
-				if(type == null) {
-					key = "schedule.key2";
-				} else {
-					key = scheduleEventTypeMap.get(type);
-					if(key == null) {
+				if (context != null)
+				{
+					boolean sitePublished = false;
+					try
+					{
+						Site s = siteService.getSite(context.getContextId());
+						if (s.isPublished())
+						{
+							sitePublished = true;
+						}
+					}
+					catch (IdUnusedException exception)
+					{
+						logger.warn(this + " ScheduleNewEventProcessor.processEvent(): cannot find site " + context.getContextId() + " " + exception.getMessage());
+					}
+					
+					SourceType sourceType = dashboardLogic.getSourceType(IDENTIFIER);
+					
+					// Third parameter in dashboardLogic.createCalendarItem() below should be a key for a label such as "Due Date: " or "Accept Until: " 
+					// from dash_entity properties bundle for use in the dashboard list
+					String type = cEvent.getType();
+					// Based on the event-type, we may be able to select a key for a label? 
+					String key = null;
+					if(type == null) {
 						key = "schedule.key2";
+					} else {
+						key = scheduleEventTypeMap.get(type);
+						if(key == null) {
+							key = "schedule.key2";
+						}
+					}
+					// is this a repeating event?
+					RecurrenceRule recurrenceRule = cEvent.getRecurrenceRule();
+					if(recurrenceRule == null) {
+						// not a repeating event so create one calendar event
+						CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
+						if (sitePublished)
+						{
+							dashboardLogic.createCalendarLinks(calendarItem);
+						}
+					} else {
+						// this is a repeating event -- create a repeating calendar item
+						String frequency = recurrenceRule.getFrequency();
+						int maxCount = recurrenceRule.getCount();
+						int interval = recurrenceRule.getInterval();
+						
+						Date lastDate = null;
+						if(recurrenceRule.getUntil() != null) {
+							lastDate = new Date(recurrenceRule.getUntil().getTime());
+						}
+						
+						RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
+								lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
+							
+						logger.debug(repeatingCalendarItem);
 					}
 				}
-				// is this a repeating event?
-				RecurrenceRule recurrenceRule = cEvent.getRecurrenceRule();
-				if(recurrenceRule == null) {
-					// not a repeating event so create one calendar event
-					CalendarItem calendarItem = dashboardLogic.createCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), key, cEventReference, context, sourceType, type, null, null);
-					dashboardLogic.createCalendarLinks(calendarItem);
-				} else {
-					// this is a repeating event -- create a repeating calendar item
-					String frequency = recurrenceRule.getFrequency();
-					int maxCount = recurrenceRule.getCount();
-					int interval = recurrenceRule.getInterval();
-					
-					Date lastDate = null;
-					if(recurrenceRule.getUntil() != null) {
-						lastDate = new Date(recurrenceRule.getUntil().getTime());
-					}
-					
-					RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
-							lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
-						
-					logger.debug(repeatingCalendarItem);
-				} 
 				
 			} else {
 				// for now, let's log the error. 
