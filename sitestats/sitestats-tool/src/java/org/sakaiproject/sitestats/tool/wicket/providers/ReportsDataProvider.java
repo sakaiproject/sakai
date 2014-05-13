@@ -187,7 +187,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 					if(sortAscending)
 						return res;
 					else return -res;
-				}else if(fieldName.equals(COL_EVENT)){
+				}else if(fieldName.equals(COL_TOOL)){
 					EventStat es1 = (EventStat) r1;
 					EventStat es2 = (EventStat) r2;
 					String s1 = SST_ers.getToolName(es1.getToolId()).toLowerCase();
