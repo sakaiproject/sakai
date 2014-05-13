@@ -103,6 +103,7 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
@@ -9347,11 +9348,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 	/**
 	 * copy tool content from old site
-	 * @param oSiteId
-	 * @param site
+	 * @param oSiteId source (old) site id
+	 * @param site destination site
+	 * @param bypassSecurity use SecurityAdvisor if true
 	 */
 	private void importToolContent(String oSiteId, Site site, boolean bypassSecurity) {
 		String nSiteId = site.getId();
+		String sourceSiteRef = null;
+		
+		try {
+			Site sourceSite = SiteService.getSite(oSiteId);
+			sourceSiteRef = sourceSite.getReference();
+		} catch (IdUnusedException e) {
+			M_log.warn(this + ".importToolContent invalid source siteId: "+oSiteId);
+		}
+		
+		EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 		
 		// import tool content
 		if (bypassSecurity)
@@ -9439,6 +9451,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			SecurityService.popAdvisor();
 		}
+      
+      EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 	}
 	/**
 	 * get user answers to setup questions
