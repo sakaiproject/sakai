@@ -524,17 +524,21 @@ public class ScheduleSupport{
 						// this is a repeating event -- create a repeating calendar item
 						String frequency = recurrenceRule.getFrequency();
 						int maxCount = recurrenceRule.getCount();
-						int interval = recurrenceRule.getInterval();
 						
 						Date lastDate = null;
 						if(recurrenceRule.getUntil() != null) {
 							lastDate = new Date(recurrenceRule.getUntil().getTime());
 						}
 						
-						RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
-								lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
-							
-						logger.debug(repeatingCalendarItem);
+						if (lastDate == null || lastDate.after(new Date()))
+						{
+							// there is no need to track past repeating schedule events
+							// most likely those were brought in when old sites were duplicated or imported
+							RepeatingCalendarItem repeatingCalendarItem = dashboardLogic.createRepeatingCalendarItem(cEvent.getDisplayName(), new Date(cEvent.getRange().firstTime().getTime()), 
+									lastDate, key, cEventReference, context, sourceType, frequency, maxCount);
+								
+							logger.debug(repeatingCalendarItem);
+						}
 					}
 				}
 				
