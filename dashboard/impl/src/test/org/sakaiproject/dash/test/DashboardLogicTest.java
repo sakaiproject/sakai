@@ -33,7 +33,6 @@ import org.sakaiproject.dash.listener.EventProcessor;
 import org.sakaiproject.dash.logic.DashboardCommonLogicImpl;
 import org.sakaiproject.dash.logic.DashboardConfigImpl;
 import org.sakaiproject.dash.logic.DashboardLogicImpl;
-import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.mock.DashboardDaoMock;
 import org.sakaiproject.dash.mock.MockTransactionManager;
 import org.sakaiproject.dash.mock.SakaiProxyMock;
@@ -306,119 +305,6 @@ public class DashboardLogicTest extends AbstractTransactionalSpringContextTests
 		//List<CalendarItem> items = repeatingCalendarItem.generateCalendarItems(lastTime);
 		//assertNotNull(items);
 		//assertFalse(items.isEmpty());
-		
-	}
-	
-	public void testCheckTaskLock() {
-		this.sakaiProxy = new SakaiProxyMock();
-		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
-		DashboardDao dao = new DashboardDaoMock();
-		
-		PlatformTransactionManager txManager = new MockTransactionManager();
-		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl(txManager );
-		
-		dashboardLogic.setDao(dao );
-		DashboardConfig dashboardConfig = new DashboardConfigImpl();
-		dashboardLogic.setDashboardConfig(dashboardConfig);
-		dashboardLogic.setSakaiProxy(sakaiProxy);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDashboardLogic(dashboardLogic);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setSakaiProxy(sakaiProxy);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDao(dao);
-		
-		String serverId00 = this.getUniqueIdentifier();
-		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId00);
-
-		// boolean checkTaskLock(String task)
-		String task00 = this.getUniqueIdentifier();
-		this.dashboardCommonLogic.checkTaskLock(task00);
-		
-		List<TaskLock> taskLocks = dao.getTaskLocks(task00);
-		assertNotNull(taskLocks);
-		assertEquals(1, taskLocks.size());
-		
-		String serverId01 = this.getUniqueIdentifier();
-		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId01);
-
-		this.dashboardCommonLogic.checkTaskLock(task00);
-		
-		taskLocks = dao.getTaskLocks(task00);
-		assertNotNull(taskLocks);
-		assertEquals(2, taskLocks.size());
-		
-		TaskLock taskLock00 = taskLocks.get(0);
-		assertNotNull(taskLock00);
-		assertNotNull(taskLock00.getId());
-		assertEquals(task00, taskLock00.getTask());
-		assertEquals(serverId00, taskLock00.getServerId());
-		
-		TaskLock taskLock01 = taskLocks.get(1);
-		assertNotNull(taskLock01);
-		assertNotNull(taskLock01.getId());
-		assertEquals(task00, taskLock01.getTask());
-		assertEquals(serverId01, taskLock01.getServerId());
-		
-		assertTrue(taskLock00.getClaimTime().before(taskLock01.getClaimTime()));
-		assertTrue(taskLock00.getLastUpdate().before(taskLock01.getLastUpdate()));
-		
-	}
-	public void testUpdateTaskLock(String task) {
-		this.sakaiProxy = new SakaiProxyMock();
-		this.dashboardCommonLogic = new DashboardCommonLogicImpl();
-		DashboardDao dao = new DashboardDaoMock();
-		
-		PlatformTransactionManager txManager = new MockTransactionManager();
-		DashboardLogicImpl dashboardLogic = new DashboardLogicImpl(txManager );
-		
-		dashboardLogic.setDao(dao );
-		DashboardConfig dashboardConfig = new DashboardConfigImpl();
-		dashboardLogic.setDashboardConfig(dashboardConfig);
-		dashboardLogic.setSakaiProxy(sakaiProxy);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDashboardLogic(dashboardLogic);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setSakaiProxy(sakaiProxy);
-		((DashboardCommonLogicImpl) this.dashboardCommonLogic).setDao(dao);
-		
-		String serverId00 = this.getUniqueIdentifier();
-		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId00);
-
-		// boolean checkTaskLock(String task)
-		String task00 = this.getUniqueIdentifier();
-		this.dashboardCommonLogic.checkTaskLock(task00);
-		
-		List<TaskLock> taskLocks = dao.getTaskLocks(task00);
-		assertNotNull(taskLocks);
-		assertEquals(1, taskLocks.size());
-		
-		String serverId01 = this.getUniqueIdentifier();
-		((SakaiProxyMock) this.sakaiProxy).setServerId(serverId01);
-
-		this.dashboardCommonLogic.checkTaskLock(task00);
-		
-		taskLocks = dao.getTaskLocks(task00);
-		assertNotNull(taskLocks);
-		assertEquals(2, taskLocks.size());
-		
-		TaskLock taskLock00 = taskLocks.get(0);
-		assertNotNull(taskLock00);
-		assertNotNull(taskLock00.getId());
-		assertEquals(task00, taskLock00.getTask());
-		assertEquals(serverId00, taskLock00.getServerId());
-		Date beforeUpdate = new Date(taskLock00.getLastUpdate().getTime());
-		
-		this.dashboardCommonLogic.updateTaskLock(task00);
-		
-		taskLocks = dao.getTaskLocks(task00);
-		assertNotNull(taskLocks);
-		assertEquals(2, taskLocks.size());
-		
-		boolean found = false;
-		for(TaskLock lock : taskLocks) {
-			if(serverId01.equals(lock.getServerId())) {
-				assertTrue(beforeUpdate.before(lock.getLastUpdate()));
-				found = true;
-				break;
-			}
-		}
-		assertTrue(found);
 		
 	}
 	
