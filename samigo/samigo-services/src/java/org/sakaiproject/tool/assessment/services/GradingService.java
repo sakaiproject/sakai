@@ -1872,6 +1872,9 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  
 	  if (data.getAnswerText() == null) return totalScore; // zero for blank
 	  
+	  if (!calculatedAnswersMap.containsKey(calcQuestionAnswerSequence)) {
+		  return totalScore;
+	  }
 	  // this variable should look something like this "42.1|2,2"
 	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
 	  
