@@ -1119,5 +1119,21 @@ public interface SiteService extends EntityProducer
 	 * @return <code>true</code> is the advisor was removed.
 	 */
 	public boolean removeSiteRemovalAdvisor(SiteRemovalAdvisor siteRemovalAdvisor);
+	
+	/**
+	 * Get the list of Sites that list the given site as a parent, ie the child sites of the given site
+	 * 
+	 * @param siteId - parent siteId
+	 * @return
+	 */
+	public List<Site> getSubSites(String siteId);
+	
+	/**
+	 * Get the parent siteId of the given site. A site can only have one parent.
+	 * 
+	 * @param siteId - child siteId
+	 * @return
+	 */
+	public String getParentSite(String siteId);
 
 } 

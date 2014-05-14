@@ -52,6 +52,7 @@ import org.w3c.dom.Element;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -3395,6 +3396,43 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 	protected Storage storage() {
 		return m_storage;
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public List<Site> getSubSites(String siteId) {
+				
+		if (StringUtils.isBlank(siteId)) {
+			return new ArrayList<Site>();
+		}
+		Map<String, String> propMap = new HashMap<String, String>();
+		propMap.put(PROP_PARENT_ID, siteId);
+		
+		return this.getSites(SelectionType.ACCESS, null, null, propMap, SiteService.SortType.TITLE_ASC, null);
+	}
+	
+	/**
+	 * @inheritDoc
+	 */
+	@Override
+	public String getParentSite(String siteId) {
+		
+		if (StringUtils.isBlank(siteId)) {
+			return null;
+		}
+		
+		String parentId = null;
+		try {
+			Site s = this.getSite(siteId);
+			ResourceProperties rp = s.getProperties();
+			parentId = rp.getProperty(PROP_PARENT_ID);
+		} catch (IdUnusedException e) {
+			M_log.error("getParentSite failed for " + siteId + ": " + e.getClass() + " : " + e.getMessage());
+			return null;
+		}
+		return parentId;
 	}
 
 }
