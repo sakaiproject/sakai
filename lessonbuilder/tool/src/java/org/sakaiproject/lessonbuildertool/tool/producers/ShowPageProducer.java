@@ -203,6 +203,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
+    // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
+        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -211,7 +213,31 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
 
+    	public static int majorVersion = getMajorVersion();
+
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
+
+	public static int getMajorVersion() {
+
+	    String sakaiVersion = ServerConfigurationService.getString("version.sakai", "2.6");
+
+	    int major = 2;
+
+	    if (sakaiVersion != null) {
+		String []parts = sakaiVersion.split("\\.");
+		if (parts.length >= 1) {
+		    try {
+			major = Integer.parseInt(parts[0]);
+		    } catch (Exception e) {
+		    };
+		}
+	    }
+
+	    System.out.println("major version " + major);
+
+	    return major;
+
+	}
 
 	static final String ICONSTYLE = "\n.portletTitle .action img {\n        background: url({}/help.gif) center right no-repeat;\n}\n.portletTitle .action img:hover, .portletTitle .action img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
@@ -341,6 +367,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
                 UIOutput.make(tofill, "html").decorate(new UIFreeAttributeDecorator("lang", localegetter.get().getLanguage()))
 		    .decorate(new UIFreeAttributeDecorator("xml:lang", localegetter.get().getLanguage()));        
+
+		UIOutput.make(tofill, "datepicker").decorate(new UIFreeAttributeDecorator("src", 
+		  (majorVersion >= 10 ? "/library" : "/lessonbuilder-tool") + "/js/lang-datepicker/lang-datepicker.js"));
 
 		boolean iframeJavascriptDone = false;
 		
@@ -2314,8 +2343,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							String peerEvalDate = i.getAttribute("rubricOpenDate");
 							String peerDueDate = i.getAttribute("rubricDueDate");
 							
-							SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy");
-							SimpleDateFormat stf = new SimpleDateFormat("hh:mm a");
 							Calendar peerevalcal = Calendar.getInstance();
 							
 							if (peerEvalDate != null && peerDueDate != null) {
@@ -2324,20 +2351,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								//Open date from attribute string
 								peerevalcal.setTimeInMillis(Long.valueOf(peerEvalDate));
 								
-								String dateStr = sdf.format(peerevalcal.getTime());
-								String timeStr = stf.format(peerevalcal.getTime());
+								String dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
 								UIOutput.make(tableRow, "peer-eval-open-date", dateStr);
-								UIOutput.make(tableRow, "peer-eval-open-time", timeStr);
 								
 								//Due date from attribute string
 								peerevalcal.setTimeInMillis(Long.valueOf(peerDueDate));
 								
-								dateStr = sdf.format(peerevalcal.getTime());
-								timeStr = stf.format(peerevalcal.getTime());
+								dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
 								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
-								UIOutput.make(tableRow, "peer-eval-due-time", timeStr);
 								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
 								
 							}else{
@@ -2346,23 +2369,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								peerevalcal.setTime(now);
 								
 								//Default open date: now
-								String dateStr = sdf.format(peerevalcal.getTime());
-								String timeStr = stf.format(peerevalcal.getTime());
+								String dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
 								UIOutput.make(tableRow, "peer-eval-open-date", dateStr);
-								UIOutput.make(tableRow, "peer-eval-open-time", timeStr);
 								
 								//Default due date: 7 days from now
 								Date later = new Date(peerevalcal.getTimeInMillis() + 604800000);
 								peerevalcal.setTime(later);
 								
-								dateStr = sdf.format(peerevalcal.getTime());
-								timeStr = stf.format(peerevalcal.getTime());
+								dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
 								//System.out.println("Setting date to " + dateStr + " and time to " + timeStr);
 								
 								UIOutput.make(tableRow, "peer-eval-due-date", dateStr);
-								UIOutput.make(tableRow, "peer-eval-due-time", timeStr);
 								UIOutput.make(tableRow, "peer-eval-allow-self", i.getAttribute("rubricAllowSelfGrade"));
 							}
 							
@@ -3632,10 +3651,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			if (releaseDate == null) {
 				releaseDate = new Date();
 			}
-			simplePageBean.setReleaseDate(releaseDate);
-			UIInput releaseForm = UIInput.make(form, "releaseDate:", "simplePageBean.releaseDate");
-			dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT);
-			dateevolver.evolveDateInput(releaseForm, page.getReleaseDate());
+			String releaseDateString = "";
+			try {
+			    releaseDateString = isoDateFormat.format(releaseDate);
+			} catch (Exception e) {
+			    System.out.println(e + "bad format releasedate " + releaseDate);
+			}
+
+			UIOutput releaseForm = UIOutput.make(form, "releaseDate:");
+			UIOutput.make(form, "currentReleaseDate", releaseDateString);
+			UIInput.make(form, "release_date", "#{simplePageBean.releaseDate}" );
 
 			if (pageItem.getPageId() == 0) {
 			    UIOutput.make(form, "prereqContainer");
@@ -3779,18 +3804,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "peer-eval-input-title", "#{simplePageBean.rubricTitle}");
 		UIInput.make(form, "peer-eval-input-row", "#{simplePageBean.rubricRow}");
 
-        UIOutput.make(form, "peer_eval_open_date_label", messageLocator.getMessage("simplepage.peer-eval.open_date"));
+		UIOutput.make(form, "peer_eval_open_date_label", messageLocator.getMessage("simplepage.peer-eval.open_date"));
        
-        UIInput openDateField = UIInput.make(form, "peer_eval_open_date:", "#{simplePageBean.peerEvalOpenDate}");
-        dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT); 
-        dateevolver.evolveDateInput(openDateField);
+		UIOutput openDateField = UIOutput.make(form, "peer_eval_open_date:");
+		UIInput.make(form, "open_date_dummy", "#{simplePageBean.peerEvalOpenDate}");
+
+		UIOutput dueDateField = UIOutput.make(form, "peer_eval_due_date:");
+		UIInput.make(form, "due_date_dummy", "#{simplePageBean.peerEvalDueDate}");
         
-        UIOutput.make(form, "peer_eval_due_date_label", messageLocator.getMessage("simplepage.peer-eval.due_date"));
-        UIInput dueDateField = UIInput.make(form, "peer_eval_due_date:", "#{simplePageBean.peerEvalDueDate}");
-        dateevolver.setStyle(FormatAwareDateInputEvolver.DATE_TIME_INPUT); 
-        dateevolver.evolveDateInput(dueDateField);
-        
-        UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
+		UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
         
 		UIBoundBoolean.make(form, "student-graded", "#{simplePageBean.graded}");
 		UIInput.make(form, "student-max", "#{simplePageBean.maxPoints}");

@@ -24,6 +24,7 @@
 
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
+import java.text.SimpleDateFormat;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -256,6 +257,9 @@ public class SimplePageBean {
 	private Date peerEvalDueDate;
 	private Date peerEvalOpenDate;
 	private boolean peerEvalAllowSelfGrade;
+
+    // almost ISO format. real thing can't be done until Java 7. uses -0400 rather than -04:00
+        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
 	
 	public void setPeerEval(boolean peerEval) {
 		this.peerEval = peerEval;
@@ -278,16 +282,30 @@ public class SimplePageBean {
 		return peerEvalDueDate;
 	}
 	
-	public void setPeerEvalDueDate(Date date){
-		this.peerEvalDueDate = date;
+        // format comes back as 2014-05-27T16:15:00-04:00
+        // have to remove the colon to get Java to parse it
+	public void setPeerEvalDueDate(String date){
+	    try {
+		if (date.substring(22,23).equals(":"))
+		    date = date.substring(0,22) + date.substring(23,25);
+		this.peerEvalDueDate = isoDateFormat.parse(date);
+	    } catch (Exception e) {
+		System.out.println(e + "bad format duedate " + date);
+	    }
 	}
 	
 	public Date getPeerEvalOpenDate() {
 		return peerEvalOpenDate;
 	}
 	
-	public void setPeerEvalOpenDate(Date date) {
-		this.peerEvalOpenDate = date;
+	public void setPeerEvalOpenDate(String date) {
+	    try {
+		if (date.substring(22,23).equals(":"))
+		    date = date.substring(0,22) + date.substring(23,25);
+		this.peerEvalOpenDate = isoDateFormat.parse(date);
+	    } catch (Exception e) {
+		System.out.println(e + "bad format duedate " + date);
+	    }
 	}
 	
 	public boolean getPeerEvalAllowSelfGrade(){
@@ -600,12 +618,21 @@ public class SimplePageBean {
 		hidePage = hide;
 	}
 
-	public void setReleaseDate(Date releaseDate) {
-		this.releaseDate = releaseDate;
+    // argument is in ISO8601 format, which has -04:00 time zone.
+    // unfortunately SimpleDateFormat can't handle that until Java 7, so we have to convert
+    // it to something that can be parsed
+	public void setReleaseDate(String date) {
+	    try {
+		if (date.substring(22,23).equals(":"))
+		    date = date.substring(0,22) + date.substring(23,25);
+		this.releaseDate = isoDateFormat.parse(date);
+	    } catch (Exception e) {
+		System.out.println(e + "bad format releasedate " + date);
+	    }
 	}
 
 	public Date getReleaseDate() {
-		return releaseDate;
+		return this.releaseDate;
 	}
 
 	public void setHasReleaseDate(boolean hasReleaseDate) {
