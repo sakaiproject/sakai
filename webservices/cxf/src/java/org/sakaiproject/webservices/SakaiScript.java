@@ -1722,24 +1722,8 @@ public class SakaiScript extends AbstractWebService {
             allSites.removeAll(moreSites);
             allSites.addAll(moreSites);
 
-            Document dom = Xml.createDocument();
-            Node list = dom.createElement("list");
-            dom.appendChild(list);
-
-            for (Iterator i = allSites.iterator(); i.hasNext(); ) {
-                Site site = (Site) i.next();
-                Node item = dom.createElement("item");
-                Node siteId = dom.createElement("siteId");
-                siteId.appendChild(dom.createTextNode(site.getId()));
-                Node siteTitle = dom.createElement("siteTitle");
-                siteTitle.appendChild(dom.createTextNode(site.getTitle()));
-
-                item.appendChild(siteId);
-                item.appendChild(siteTitle);
-                list.appendChild(item);
-            }
-
-            return Xml.writeDocumentToString(dom);
+            return getSiteListXml(allSites);
+            
         } catch (Exception e) {
             LOG.error("WS getSitesCurrentUserCanAccess(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
@@ -1817,24 +1801,7 @@ public class SakaiScript extends AbstractWebService {
                 return "<list/>";
             }
 
-            Document dom = Xml.createDocument();
-            Node list = dom.createElement("list");
-            dom.appendChild(list);
-
-            for (Site site : allSites) {
-
-                Node item = dom.createElement("item");
-                Node siteId = dom.createElement("siteId");
-                siteId.appendChild(dom.createTextNode(site.getId()));
-                Node siteTitle = dom.createElement("siteTitle");
-                siteTitle.appendChild(dom.createTextNode(site.getTitle()));
-
-                item.appendChild(siteId);
-                item.appendChild(siteTitle);
-                list.appendChild(item);
-            }
-
-            return Xml.writeDocumentToString(dom);
+            return this.getSiteListXml(allSites);
         } catch (Exception e) {
             LOG.error("WS getAllSitesForCurrentUser(): " + e.getClass().getName() + " : " + e.getMessage());
             return "<exception/>";
@@ -4091,6 +4058,80 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         }
+    }
+    
+    /**
+     * Get any subsites for a given site
+     *
+     * @param sessionid the id of a valid session
+     * @param siteid    the id of the site to retrieve the list of subsites for
+     * @return xml doc of the list of sites
+     * @throws RuntimeException returns <exception /> string if exception encountered and logs it
+     */
+    @WebMethod
+    @Path("/getSubSites")
+    @Produces("text/plain")
+    @GET
+    public String getSubSites(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
+
+        Session s = establishSession(sessionid);
+
+        try {
+            List<Site> subSites = siteService.getSubSites(siteid);
+            String xml = getSiteListXml(subSites);
+            return xml;
+        } catch (Exception e) {
+            LOG.error("WS getSubSites(): " + e.getClass().getName() + " : " + e.getMessage());
+            return "<exception/>";
+
+        }
+    }
+    
+    /**
+     * Get the parent siteId for a site, if it is a child site.
+     *
+     * @param sessionid the id of a valid session
+     * @param siteid    the id of the site to retrieve the parent site id for
+     * @return the siteId of the parent site, if there is one
+     */
+    @WebMethod
+    @Path("/getParentSite")
+    @Produces("text/plain")
+    @GET
+    public String getParentSite(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
+
+        Session s = establishSession(sessionid);
+        return siteService.getParentSite(siteid);
+    }
+    
+    /**
+     * Renders a list of sites as XML to ensure consistency amongst webservice requests
+     * 
+     * @param sites List of sites
+     * @return XML string
+     */
+    private String getSiteListXml(List<Site> sites) {
+    	Document dom = Xml.createDocument();
+        Node list = dom.createElement("list");
+        dom.appendChild(list);
+
+        for (Site site: sites) {
+            Node item = dom.createElement("item");
+            Node siteId = dom.createElement("siteId");
+            siteId.appendChild(dom.createTextNode(site.getId()));
+            Node siteTitle = dom.createElement("siteTitle");
+            siteTitle.appendChild(dom.createTextNode(site.getTitle()));
+
+            item.appendChild(siteId);
+            item.appendChild(siteTitle);
+            list.appendChild(item);
+        }
+
+        return Xml.writeDocumentToString(dom);
     }
 
 
