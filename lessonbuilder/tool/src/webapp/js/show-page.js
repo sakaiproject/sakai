@@ -875,8 +875,8 @@ $(function() {
 				return false;
 			    }
 			} 
-			$("#open_date_dummy").val($("#peer_eval_open_dateISO8601").val());
-			$("#due_date_dummy").val($("#peer_eval_due_dateISO8601").val());
+			$("#open_date_string").val($("#peer_eval_open_dateISO8601").val());
+			$("#due_date_string").val($("#peer_eval_due_dateISO8601").val());
 			return true;
 		    });
 
@@ -2060,7 +2060,7 @@ function checkEditTitleForm() {
 		$('#edit-title-error-container').show();
 	}else {
 		$('#edit-title-error-container').hide();
-		$("#release_date").val($("#releaseDateISO8601").val());
+		$("#release_date_string").val($("#releaseDateISO8601").val());
 		return true;
 	}
 }

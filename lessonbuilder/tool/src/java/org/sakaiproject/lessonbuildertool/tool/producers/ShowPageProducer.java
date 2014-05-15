@@ -3660,7 +3660,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			UIOutput releaseForm = UIOutput.make(form, "releaseDate:");
 			UIOutput.make(form, "currentReleaseDate", releaseDateString);
-			UIInput.make(form, "release_date", "#{simplePageBean.releaseDate}" );
+			UIInput.make(form, "release_date_string", "#{simplePageBean.releaseDate}" );
+			UIOutput.make(form, "release_date");
 
 			if (pageItem.getPageId() == 0) {
 			    UIOutput.make(form, "prereqContainer");
@@ -3807,10 +3808,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "peer_eval_open_date_label", messageLocator.getMessage("simplepage.peer-eval.open_date"));
        
 		UIOutput openDateField = UIOutput.make(form, "peer_eval_open_date:");
-		UIInput.make(form, "open_date_dummy", "#{simplePageBean.peerEvalOpenDate}");
+		UIInput.make(form, "open_date_string", "#{simplePageBean.peerEvalOpenDate}");
+		UIOutput.make(form, "open_date_dummy");
 
 		UIOutput dueDateField = UIOutput.make(form, "peer_eval_due_date:");
-		UIInput.make(form, "due_date_dummy", "#{simplePageBean.peerEvalDueDate}");
+		UIInput.make(form, "due_date_string", "#{simplePageBean.peerEvalDueDate}");
+		UIOutput.make(form, "due_date_dummy");
         
 		UIBoundBoolean.make(form, "peer-eval-allow-selfgrade", "#{simplePageBean.peerEvalAllowSelfGrade}");
         

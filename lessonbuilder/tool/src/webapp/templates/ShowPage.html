@@ -1162,6 +1162,7 @@ function resizeiframe(id) {
                         <div id="releaseDiv" class="indnt3">
                           <span rsf:id="releaseDate:" id="releaseDate">
 			    <span style="display:none" rsf:id="currentReleaseDate" id="currentReleaseDate"></span>
+                            <input style="display:none" rsf:id="release_date_string" type="hidden" id="release_date_string"/>
                             <input rsf:id="release_date" type="text" id="release_date"/>
                           </span>
                         </div>
@@ -1493,6 +1494,7 @@ function resizeiframe(id) {
     				<label for="open_date_dummy"><span rsf:id="peer_eval_open_date_label"></span></label><br />
     				<div style="margin-left:3em">
     				  <span rsf:id="peer_eval_open_date:">
+				    <input style="display:none" rsf:id="open_date_string" type="hidden" id="open_date_string"/>
     				    <input rsf:id="open_date_dummy" type="text"
     					   id="open_date_dummy" name="open_date_dummy"/>
     				  </span>
@@ -1504,9 +1506,9 @@ function resizeiframe(id) {
     				<label for="due_date_dummy"><span rsf:id="peer_eval_due_date_label"></span></label><br />
     				<div style="margin-left:3em">
     				  <span rsf:id="peer_eval_due_date:">
+				    <input style="display:none" rsf:id="due_date_string" type="hidden" id="due_date_string"/>
     				    <input rsf:id="due_date_dummy" type="text" 
     					   id="due_date_dummy" name="due_date_dummy"/>
-
     				  </span>
     				</div>
     			      </div>
