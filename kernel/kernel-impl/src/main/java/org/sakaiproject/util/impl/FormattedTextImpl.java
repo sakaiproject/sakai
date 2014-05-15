@@ -1160,6 +1160,15 @@ public class FormattedTextImpl implements FormattedText
         }
     }
 
+    @Override
+    public String stripHtmlFromText(String text) {
+        // KNL-1253 use Jsoup
+        if (text != null && !"".equals(text)) {
+            text = org.jsoup.Jsoup.clean(text, org.jsoup.safety.Whitelist.none());
+        }
+        return text;
+    }
+
     // PRIVATE STUFF
 
     /**

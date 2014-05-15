@@ -175,4 +175,11 @@ public class FormattedText {
         return getFormattedText().sanitizeHrefURL(urlToSanitize);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#stripHtmlFromText(String)
+     */
+    public String stripHtmlFromText(String text) {
+        return getFormattedText().stripHtmlFromText(text);
+    }
+
 }

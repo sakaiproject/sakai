@@ -182,4 +182,10 @@ public class MockFormattedText implements FormattedText {
         return urlToSanitize;
     }
 
+    @Override
+    public String stripHtmlFromText(String text) {
+        log.warn(WARNING);
+        return text;
+    }
+
 }

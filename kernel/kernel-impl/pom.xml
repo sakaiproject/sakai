@@ -283,6 +283,14 @@
       <version>1.5.3</version>
       <type>jar</type>
     </dependency>
+    <!-- KNL-1253 -->
+    <dependency>
+      <groupId>org.jsoup</groupId>
+      <artifactId>jsoup</artifactId>
+      <version>1.7.3</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
     <!-- for AOP (initially used by LRS to grab events)
     <dependency>
       <groupId>org.aspectj</groupId>

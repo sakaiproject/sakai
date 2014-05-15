@@ -388,4 +388,12 @@ public interface FormattedText {
      */
     public String sanitizeHrefURL(String urlToSanitize);
 
+    /**
+     * Strips html/xml tags from a string and returns the cleaned version
+     *
+     * @param text any text (if this is null or empty then the input text is returned unchanged)
+     * @return the cleaned string
+     */
+    public String stripHtmlFromText(String text);
+
 }
