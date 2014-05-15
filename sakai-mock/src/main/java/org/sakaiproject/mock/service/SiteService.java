@@ -428,6 +428,21 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#getSubSites()
+	 */
+	public List<Site> getSubSites(String siteId) {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.site.api.SiteService#getParentSite()
+	 */
+    public String getParentSite(String siteId) {
+		return null;
+	}
+
+
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.site.api.SiteService#getSiteIds(org.sakaiproject.site.api.SiteService.SelectionType, java.lang.Object, java.lang.String, java.util.Map, org.sakaiproject.site.api.SiteService.SortType, org.sakaiproject.javax.PagingPosition)
 	 */
 	public List<String> getSiteIds(SelectionType arg0, Object arg1, String arg2, Map<String, String> arg3, SortType arg4, PagingPosition arg5) {
