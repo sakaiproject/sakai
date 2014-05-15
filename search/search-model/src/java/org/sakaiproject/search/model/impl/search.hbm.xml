@@ -40,7 +40,6 @@
               name="name" 
               column="name" 
               not-null="true" 
-              index="isearchbuilderitem_name" 
               type="string" 
               unique="true" 
               length="255" />
@@ -82,7 +81,6 @@
               name="lockkey" 
               column="lockkey" 
               not-null="true" 
-              index="isearchwriterlock_lk" 
               type="string" 
               unique="true" 
               length="64" />
