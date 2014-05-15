@@ -37,7 +37,7 @@
 			<column name="id" length="36" not-null="true"/>
 			<generator class="uuid.hex" />
 		</id>
-		<property name="name" column="name" not-null="true" index="irwikiproperties_name" type="string" unique="true" length="255" />
+		<property name="name" column="name" not-null="true" type="string" unique="true" length="255" />
 		<property name="value" column="value" type="string" length="4000" />
 	</class>
 	
