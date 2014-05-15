@@ -69,6 +69,7 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.IdUniquenessException;
+import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -2070,8 +2071,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		catch (OverQuotaException e) {
 			addAlert(state, rb.getString("alert.over-site-upload-quota"));
-			logger.warn("Drag and drop upload failed: " + e, e);
-		} catch (Exception e) {
+			logger.warn("Drag and drop upload exceeded site quota: " + e, e);
+		}
+		catch (ServerOverloadException e) {
+			addAlert(state,contentResourceBundle.getFormattedMessage("dragndrop.overload.error",new Object[]{uploadFileName}));
+			logger.warn("Drag and drop upload overloaded the server: " + e, e);
+		}
+		catch (Exception e) {
+			addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.upload.error",new Object[]{uploadFileName}));
 			logger.warn("Drag and drop upload failed: " + e, e);
 		}
 		
