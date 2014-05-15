@@ -139,6 +139,7 @@
    				rendered="#{itemauthor.currentItem.itemType == 2}">
     <h:selectOneRadio id="mcms_credit_partial_credit"
 					  layout="pageDirection"
+					  onclick="this.form.onsubmit();this.form.submit();"
 					  onkeypress="this.form.onsubmit();this.form.submit();"
 					  value="#{itemauthor.currentItem.mcmsPartialCredit}">
       <f:selectItem itemValue="true" itemLabel="#{commonMessages.mutlipl_mc_ms_partial_credit}"  />
@@ -151,22 +152,31 @@
     
 <div id="discountDiv" class="longtext">
   <h:panelGroup id="discountTable"
-        rendered="#{itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false)}">
+        rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
+        || itemauthor.currentItem.itemType==12}">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);">
     <f:validateDoubleRange/>
   </h:inputText>
   <f:verbatim> <script type="text/javascript" defer='defer'>
-        var discDiv=document.getElementById('discountDiv');
-        var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
-        if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
-        toggleDiv.rows[0].cells[0].appendChild(discDiv);
-        }
-        else {
-       	 var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-       	 QtypeTable.rows[0].cells[0].appendChild(discDiv);
-             }
+  		var itemType = "${itemauthor.currentItem.itemType}";
+  		var discDiv=document.getElementById('discountDiv');
+		
+  		if(itemType == 1) {
+		  	var toggleDiv=document.getElementById('itemForm:partialCreadit_NegativeMarking');
+	    	if( typeof(toggleDiv) != 'undefined' && toggleDiv != null){
+	    		toggleDiv.rows[0].cells[0].appendChild(discDiv);
+	    	}else {
+	       	 	var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+	       	 	QtypeTable.rows[0].cells[0].appendChild(discDiv);
+	        }   
+  		} else{
+	    	if(itemType == 12) {
+	            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+	           	QtypeTable.rows[1].cells[0].appendChild(discDiv);
+	    	} 
+    	}  		
     </script>
   </f:verbatim>
 </h:panelGroup>

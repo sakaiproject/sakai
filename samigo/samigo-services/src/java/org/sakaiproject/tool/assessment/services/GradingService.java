@@ -965,7 +965,7 @@ public class GradingService
         }
 
         double eachItemScore = ((Double) totalItems.get(itemId)).doubleValue();
-        if((eachItemScore < 0) && !((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)))
+        if((eachItemScore < 0) && !((TypeIfc.MULTIPLE_CHOICE).equals(itemType2)||(TypeIfc.TRUE_FALSE).equals(itemType2)||(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType2)))
         {
         	itemGrading.setAutoScore( Double.valueOf(0));
         }
@@ -1304,7 +1304,7 @@ public class GradingService
     {
     	// return (double) 0;
     	// Para que descuente (For discount)
-    	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)){
+    	if ((TypeIfc.EXTENDED_MATCHING_ITEMS).equals(itemType)||(TypeIfc.MULTIPLE_CHOICE).equals(itemType)||(TypeIfc.TRUE_FALSE).equals(itemType)||(TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION).equals(itemType)){
     		return (Math.abs(answer.getDiscount().doubleValue()) * ((double) -1));
     	}else{
     		return (double) 0;

@@ -478,7 +478,7 @@ public class AssessmentService {
 						if (hasRandomPartDiscount
 								&& (itemTypeId == TypeFacade.MULTIPLE_CHOICE
 										.longValue() || itemTypeId == TypeFacade.TRUE_FALSE
-										.longValue()))
+										.longValue() || itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue()))
 							item.setDiscount(discount);
 						ItemDataIfc data = item.getData();
 						Set itemTextSet = data.getItemTextSet();
@@ -502,7 +502,8 @@ public class AssessmentService {
 											answer.setScore(score);
 										if (hasRandomPartDiscount && 
 											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
-											itemTypeId == TypeFacade.TRUE_FALSE.longValue()))
+											itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue()))
 											answer.setDiscount(discount);
 									}
 								}
