@@ -380,6 +380,13 @@ public abstract class SakaiSecurity implements SecurityService
             if (cacheDebug) M_log.warn("SScache:changed FAIL: AZG realm not found:" + azgRef + " from " + realmRef);
             return; // SHORT CIRCUIT
         }
+        if (roles == null || roles.isEmpty()) {
+            Set<Role> allGroupRoles = azg.getRoles();
+            roles = new HashSet<String>();
+            for (Role role : allGroupRoles) {
+                roles.add(role.getId());
+            }
+        }
         // first handle the .anon and .auth (maybe only needed for special cases?)
         if (roles.contains(AuthzGroupService.AUTH_ROLE)) {
             /* .auth (AUTH_ROLE) is a special case,
@@ -956,9 +963,12 @@ public abstract class SakaiSecurity implements SecurityService
 	
 		// We could turn this into a SessionStateBindingListener so it gets called automatically when
 		// the session is cleared.
-		
-		eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, 
-				org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT + Entity.SEPARATOR + azGroupId, true)); 
+		String realmRef = org.sakaiproject.authz.api.AuthzGroupService.REFERENCE_ROOT + Entity.SEPARATOR + azGroupId;
+		eventTrackingService().post(eventTrackingService().newEvent(EVENT_ROLESWAP_CLEAR, realmRef, true));
+
+		if (!legacyCaching) { // TODO remove the if block so this runs all the time after 10
+			cacheRealmPermsChanged(realmRef, null, null);
+		}
 
 		return;
 	}
