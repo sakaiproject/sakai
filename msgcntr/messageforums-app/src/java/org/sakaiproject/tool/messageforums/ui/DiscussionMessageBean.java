@@ -21,6 +21,7 @@
 package org.sakaiproject.tool.messageforums.ui;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.logging.Log;
@@ -51,6 +52,7 @@ public class DiscussionMessageBean
   private boolean hasNext;
   private boolean hasPre;
   private boolean hasChild;
+  private boolean hasNotDeletedChild;
   private int childUnread;
   private int childCount;
   private boolean hasNextThread;
@@ -261,7 +263,37 @@ public class DiscussionMessageBean
   	
   	return hasChild;
   }
-  
+
+  public boolean getHasNotDeletedDescendant(final Long messageId)
+  {
+      List childList = messageManager.getFirstLevelChildMsgs(messageId==null?this.getMessage().getId():messageId);
+      if((childList != null) && (childList.size() > 0))
+      {
+          hasNotDeletedChild = false;
+          Iterator childIter = childList.iterator();
+          while (childIter.hasNext() && !hasNotDeletedChild)
+          {
+              Message msg = (Message) childIter.next();
+              if (!msg.getDeleted()) hasNotDeletedChild = true;
+          }
+          if (!hasNotDeletedChild) 
+          {
+              // Maybe a descendant
+                childIter = childList.iterator();
+                while (childIter.hasNext() && !hasNotDeletedChild)
+                {
+                    Message msg = (Message) childIter.next();
+                    if (getHasNotDeletedDescendant(msg.getId())) hasNotDeletedChild = true;
+                }
+          }
+      }
+      else 
+      {
+          hasNotDeletedChild = false;
+      }
+      return hasNotDeletedChild;
+  }
+    
   public ArrayList getAttachList()
   {
 	  ArrayList decoAttachList = new ArrayList();

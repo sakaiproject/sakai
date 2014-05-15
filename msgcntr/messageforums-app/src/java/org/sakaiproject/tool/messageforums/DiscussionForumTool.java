@@ -7768,13 +7768,14 @@ public class DiscussionForumTool
 			
 			boolean hasModeratePerm = uiPermissionsManager.isModeratePostings(topic, forum);
 			boolean excludeDeleted = ServerConfigurationService.getBoolean("msgcntr.forums.exclude.deleted", false);
+			boolean excludeDeletedOnlyWithoutChild = ServerConfigurationService.getBoolean("msgcntr.forums.exclude.deleted.onlywithoutdescendant", true);
 			if (hasModeratePerm){
-				if (excludeDeleted){
+				if ((excludeDeleted) || (excludeDeletedOnlyWithoutChild)) {
 					Iterator msgIter = messages.iterator();
 					List msgs = new ArrayList();
 					while (msgIter.hasNext()){
 						DiscussionMessageBean msg = (DiscussionMessageBean) msgIter.next();
-						if (!msg.getDeleted())
+						if ((!msg.getDeleted()) || ((excludeDeletedOnlyWithoutChild) && (msg.getHasNotDeletedDescendant(null))))
 							msgs.add(msg);
 					}
 					return msgs;
