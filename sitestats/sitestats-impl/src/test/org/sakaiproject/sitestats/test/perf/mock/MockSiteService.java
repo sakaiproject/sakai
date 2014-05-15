@@ -498,4 +498,14 @@ public class MockSiteService implements SiteService {
 		return false;
 	}
 
+	@Override
+	public List<Site> getSubSites(String siteId) {
+		return null;
+	}
+
+	@Override
+	public String getParentSite(String siteId) {
+		return null;
+	}
+
 }
