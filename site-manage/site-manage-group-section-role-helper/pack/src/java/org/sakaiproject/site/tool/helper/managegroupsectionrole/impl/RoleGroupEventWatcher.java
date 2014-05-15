@@ -210,7 +210,7 @@ public class RoleGroupEventWatcher implements Observer
 				try
 				{
 					String realmId = ref.getId();
-					if (realmId.indexOf(SiteService.GROUP_SUBTYPE) == -1 && realmId.startsWith("/" + SiteService.SITE_SUBTYPE + "/"))
+					if (realmId != null && realmId.indexOf(SiteService.GROUP_SUBTYPE) == -1 && realmId.startsWith("/" + SiteService.SITE_SUBTYPE + "/"))
 					{
 						// not for group realm update, only for site realm updates
 						String siteId = realmId.replace(SiteService.REFERENCE_ROOT + "/", "");
