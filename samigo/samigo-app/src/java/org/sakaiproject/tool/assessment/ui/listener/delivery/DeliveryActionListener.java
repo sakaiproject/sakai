@@ -1206,7 +1206,7 @@ public class DeliveryActionListener
       itemBean.setFeedback(item.getGeneralItemFeedback());
     }
  
-    else if ( itemBean.getMaxPoints()>0) {
+    else if (itemBean.getMaxPoints()>0 && !item.getTypeId().equals(TypeIfc.MULTIPLE_CORRECT)) {
         // 
         // This is not really needed because the next Else{} will cover all other question types. 
     	// However it's much cheaper to check scores rather than looping through and check each answers. 
