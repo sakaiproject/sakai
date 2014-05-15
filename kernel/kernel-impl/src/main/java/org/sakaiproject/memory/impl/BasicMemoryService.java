@@ -214,7 +214,8 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 
     @Override
     public <C extends org.sakaiproject.memory.api.Configuration> Cache createCache(String cacheName, C configuration) {
-        throw new UnsupportedOperationException("BasicMemoryService does not support cache creation configuration");
+        M_log.warn("BasicMemoryService does not support cache creation configuration");
+        return newCache(cacheName);
     }
 
     @Override
