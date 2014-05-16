@@ -288,6 +288,7 @@ public interface FormattedText {
      * @param value
      *        The formatted text to convert
      * @return The plain text (all formatting removed)
+     * @see #stripHtmlFromText(String, boolean) for alternative mechanism
      */
     public String convertFormattedTextToPlaintext(String value);
 
@@ -397,6 +398,7 @@ public interface FormattedText {
      *                     else just removes html tags and leaves all other parts of the string intact,
      *                     NOTE: false is also slightly faster
      * @return the cleaned string
+     * @see #convertFormattedTextToPlaintext(String) for alternative mechanism
      */
     public String stripHtmlFromText(String text, boolean smartSpacing);
 
