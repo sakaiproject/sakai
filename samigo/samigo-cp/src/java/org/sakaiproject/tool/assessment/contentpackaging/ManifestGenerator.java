@@ -317,7 +317,7 @@ public class ManifestGenerator {
 		String eid = user.getEid();
 
 		try {
-			if (description != null && (description.indexOf("<img ") > -1 || description.indexOf("<a ") > -1)) {
+			if (description != null && (description.indexOf("<img ") > -1 || description.indexOf("<a ")  > -1 || description.indexOf("<a\n")  > -1)) {	
 				byte[] content = null;
 				int srcStartIndex = 0;
 				int srcEndIndex = 0;
@@ -329,7 +329,7 @@ public class ManifestGenerator {
 				for (int i = 0; i < splittedString.length; i++) {
 					log.debug("splittedString[" + i + "] = "
 							+ splittedString[i]);
-					String[] splittedRefString = splittedString[i].split("<a ");
+					String[] splittedRefString = splittedString[i].split("<a[\n|\\s]+?");
 					for (int j = 0; j < splittedRefString.length; j++) {
 						if (splittedRefString[j].indexOf(prependString) > -1) {
 							int offset = 5;
