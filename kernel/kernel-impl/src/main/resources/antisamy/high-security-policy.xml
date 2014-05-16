@@ -1804,6 +1804,8 @@
                 <literal-list>
                     <literal value="application/x-shockwave-flash" />
                     <literal value="video/x-ms-wmv" />
+                    <literal value="audio/wav" />
+                    <literal value="audio/x-wav" />
                 </literal-list>
             </attribute>
             <attribute name="data" onInvalid="removeTag">
