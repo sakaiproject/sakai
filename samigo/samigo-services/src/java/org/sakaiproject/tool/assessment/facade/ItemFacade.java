@@ -49,6 +49,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.osid.assessment.impl.ItemImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.util.FormattedText;
 
 /**
  *
@@ -930,9 +931,16 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    */
   public String getTextHtmlStripped() throws DataFacadeException
   {
+    /* old way
     String regexHTMLTag = "\\<.*?\\>";
     String regexLineBreaks = "(\\r|\\n)";
     return getText().replaceAll(regexLineBreaks,"").replaceAll(regexHTMLTag," ");
+    */
+    String text = getText();
+    if (text != null) {
+      text = FormattedText.stripHtmlFromText(text, true); // SAM-2274
+    }
+    return text;
   }
 
   /**
@@ -948,8 +956,15 @@ public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDat
    */
   public String getTextHtmlStrippedAll() throws DataFacadeException
   {
+    /*
     String regex = "\\<.*?\\>|\\n|\\r\\n";
     return getText().replaceAll(regex,"");
+    */
+    String text = getText();
+    if (text != null) {
+      text = FormattedText.stripHtmlFromText(text, false); // SAM-2274
+    }
+    return text;
   }
   
   public ArrayList getItemTextArray() {
