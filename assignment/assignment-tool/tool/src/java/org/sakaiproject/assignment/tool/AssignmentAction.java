@@ -14022,10 +14022,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		else 
 		{	
-			String contentType = fileFromUpload.getContentType();
+			String fname = StringUtils.lowerCase(fileFromUpload.getFileName());
 			
-			if (fileFromUpload.getFileName() == null || fileFromUpload.getFileName().length() == 0 
-					|| (!"application/zip".equals(contentType) &&  !"application/x-zip-compressed".equals(contentType))) 
+			if (!StringUtils.endsWithAny(fname, new String[] {".zip", ".sit"}))
 			{
 				// no file
 				addAlert(state, rb.getString("uploadall.alert.zipFile"));
