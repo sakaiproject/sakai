@@ -183,7 +183,7 @@ public class MockFormattedText implements FormattedText {
     }
 
     @Override
-    public String stripHtmlFromText(String text) {
+    public String stripHtmlFromText(String text, boolean smartSpacing) {
         log.warn(WARNING);
         return text;
     }

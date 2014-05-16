@@ -1161,10 +1161,17 @@ public class FormattedTextImpl implements FormattedText
     }
 
     @Override
-    public String stripHtmlFromText(String text) {
+    public String stripHtmlFromText(String text, boolean smartSpacing) {
         // KNL-1253 use Jsoup
         if (text != null && !"".equals(text)) {
-            text = org.jsoup.Jsoup.clean(text, org.jsoup.safety.Whitelist.none());
+            if (smartSpacing) {
+                // replace block level html with an extra space (to try to preserve the intent)
+                text = text.replaceAll("/br>", "/br> ").replaceAll("/p>", "/p> ").replaceAll("/tr>", "/tr> ");
+            }
+            text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Whitelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
+            if (smartSpacing) {
+                text = text.replaceAll("\\s+", " ").trim(); // eliminate extra whitespaces
+            }
         }
         return text;
     }

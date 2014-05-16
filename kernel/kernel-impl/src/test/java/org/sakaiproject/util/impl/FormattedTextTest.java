@@ -842,28 +842,32 @@ public class FormattedTextTest extends TestCase {
 
         // no change
         text = null;
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
         assertEquals(text, result);
 
         text = "";
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
         assertEquals(text, result);
 
         text = "azeckoski";
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
         assertEquals(text, result);
 
         // changed
         text = "<b>azeckoski</b>";
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
         assertEquals("azeckoski", result);
 
         text = "<a href='www.vt.edu'><b>azeckoski</b> is AZ</a>";
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
         assertEquals("azeckoski is AZ", result);
 
         text = "<table><tr><th>Column1</th></tr><tr><td>Row1</td></tr></table>";
-        result = formattedText.stripHtmlFromText(text);
+        result = formattedText.stripHtmlFromText(text,true);
+        assertEquals("Column1 Row1", result);
+
+        text = "<table><tr><th>Column1</th></tr><tr><td>Row1</td></tr></table>";
+        result = formattedText.stripHtmlFromText(text,false);
         assertEquals("Column1Row1", result);
     }
 

@@ -176,10 +176,10 @@ public class FormattedText {
     }
 
     /**
-     * @see org.sakaiproject.util.api.FormattedText#stripHtmlFromText(String)
+     * @see org.sakaiproject.util.api.FormattedText#stripHtmlFromText(String,boolean)
      */
-    public String stripHtmlFromText(String text) {
-        return getFormattedText().stripHtmlFromText(text);
+    public String stripHtmlFromText(String text, boolean smartSpacing) {
+        return getFormattedText().stripHtmlFromText(text, smartSpacing);
     }
 
 }
