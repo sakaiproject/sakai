@@ -153,7 +153,7 @@
 <div id="discountDiv" class="longtext">
   <h:panelGroup id="discountTable"
         rendered="#{(itemauthor.currentItem.itemType==1 &&(itemauthor.currentItem.partialCreditFlag=='false'||itemauthor.currentItem.partialCreditEnabled==false))
-        || itemauthor.currentItem.itemType==12}">
+        || itemauthor.currentItem.itemType==12 || (itemauthor.currentItem.itemType==2 && itemauthor.currentItem.mcmsPartialCredit=='false')}">
   <h:outputText value="&nbsp;&nbsp;" escape="false" />
   <h:outputLabel value="#{authorMessages.negative_point_value}"/>
   <h:inputText id="answerdsc" value="#{itemauthor.currentItem.itemDiscount}" required="true" onchange="toPoint(this.id);">
@@ -172,11 +172,18 @@
 	       	 	QtypeTable.rows[0].cells[0].appendChild(discDiv);
 	        }   
   		} else{
-	    	if(itemType == 12) {
-	            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
-	           	QtypeTable.rows[1].cells[0].appendChild(discDiv);
-	    	} 
-    	}  		
+		    	if(itemType == 12) {
+		            var QtypeTable=document.getElementById('itemForm:chooseAnswerTypeForMC');
+	        	    QtypeTable.rows[1].cells[0].appendChild(discDiv);
+			 }
+			 if(itemType == 2) {
+			     var mcmsPartialCredit = "${itemauthor.currentItem.mcmsPartialCredit}";
+   		    	     if(mcmsPartialCredit == 'false') {
+		    	          var QtypeTable=document.getElementById('itemForm:mcms_credit_partial_credit');
+			     	  QtypeTable.rows[1].cells[0].appendChild(discDiv);
+			     }
+			 }
+		}
     </script>
   </f:verbatim>
 </h:panelGroup>

@@ -937,6 +937,7 @@ public class GradingService
       //since the itr goes through each answer (multiple answers for a signle mc question), keep track
       //of its total score by itemId -> autoScore[]{user's score, total possible}
       Map<Long, Double[]> mcmcAllOrNothingCheck = new HashMap<Long, Double[]>();
+      Map<Long, Integer> countMcmcAllItemGradings = new HashMap<Long, Integer>();
       //get item information to check if it's MCMS and Not Partial Credit
       Long itemType2 = -1l;
       String mcmsPartialCredit = "";
@@ -977,6 +978,10 @@ public class GradingService
         		accumulatedScore += accumulatedScoreArr[0];
         	}
         	mcmcAllOrNothingCheck.put(itemId, new Double[]{accumulatedScore, item.getScore()});
+        	int count = 0;
+        	if(countMcmcAllItemGradings.containsKey(itemId))
+        		count = ((Integer)countMcmcAllItemGradings.get(itemId)).intValue();
+        	countMcmcAllItemGradings.put(itemId, new Integer(++count));
         }
       }
       
@@ -1034,13 +1039,28 @@ public class GradingService
       // that means the user didn't answer all of the correct answers only.  
       // We need to set their score to 0 for all ItemGrading items
       for(Entry<Long, Double[]> entry : mcmcAllOrNothingCheck.entrySet()){
-    	  if(!(MathUtils.equalsIncludingNaN(entry.getValue()[0], entry.getValue()[1], 0.0001))){
+    	  if(Double.compare(entry.getValue()[0], entry.getValue()[1]) != 0){    		  
     		  //reset all scores to 0 since the user didn't get all correct answers
     		  iter = itemGradingSet.iterator();
     		  while(iter.hasNext()){
     			  ItemGradingData itemGrading = iter.next();
-    			  if(itemGrading.getPublishedItemId().equals(entry.getKey())){
-    				  itemGrading.setAutoScore(Double.valueOf(0));
+    			  Long itemId2 = entry.getKey();
+    			  if(itemGrading.getPublishedItemId().equals(itemId2)){
+    				  AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(itemGrading.getPublishedAnswerId());
+    			      if (answer == null) {
+      					    itemGrading.setAutoScore(Double.valueOf(0));
+      			        	log.error("unable to retrieve answerIfc for: " + itemId2);
+      			        	continue;
+      			      }
+      				  if(!countMcmcAllItemGradings.containsKey(itemId2)){
+      					  	itemGrading.setAutoScore(Double.valueOf(0));
+      					  	log.error("unable to retrieve itemGrading's counter for: " + itemId2);
+      					  	continue;
+      				  }	  
+      				  double discount = (Math.abs(answer.getDiscount().doubleValue()) * ((double) -1));
+      				  int count = ((Integer)countMcmcAllItemGradings.get(itemId2)).intValue();
+      				  double itemGrDisc = discount/count;
+      				  itemGrading.setAutoScore(Double.valueOf(itemGrDisc));
     			  }
     		  }
     	  }

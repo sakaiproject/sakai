@@ -60,6 +60,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
@@ -475,10 +476,12 @@ public class AssessmentService {
 						if (hasRandomPartScore)
 							item.setScore(score);
 						long itemTypeId = item.getTypeId().longValue();
-						if (hasRandomPartDiscount
-								&& (itemTypeId == TypeFacade.MULTIPLE_CHOICE
-										.longValue() || itemTypeId == TypeFacade.TRUE_FALSE
-										.longValue() || itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue()))
+						String mcmsPartialCredit = item.getItemMetaDataByLabel(ItemMetaDataIfc.MCMS_PARTIAL_CREDIT);
+						if (hasRandomPartDiscount &&
+								(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
+								itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
+								itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+								(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
 							item.setDiscount(discount);
 						ItemDataIfc data = item.getData();
 						Set itemTextSet = data.getItemTextSet();
@@ -503,7 +506,8 @@ public class AssessmentService {
 										if (hasRandomPartDiscount && 
 											(itemTypeId == TypeFacade.MULTIPLE_CHOICE.longValue() || 
 											itemTypeId == TypeFacade.TRUE_FALSE.longValue() || 
-											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue()))
+											itemTypeId == TypeFacade.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
+											(itemTypeId == TypeFacade.MULTIPLE_CORRECT.longValue() && "false".equals(mcmsPartialCredit))))
 											answer.setDiscount(discount);
 									}
 								}
