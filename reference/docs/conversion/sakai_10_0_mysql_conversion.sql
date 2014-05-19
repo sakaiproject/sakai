@@ -1190,3 +1190,13 @@ alter table lesson_builder_comments modify author varchar (99);
 alter table lesson_builder_log modify userId varchar (99);
 alter table lesson_builder_log modify toolId varchar (99);
 -- END LSNBLDR-376
+
+-- BEGIN SAK-26230: Allow subscriptions to non-public calendars
+CREATE TABLE IF NOT EXISTS CALENDAR_OPAQUEURL (
+  `ID` varchar(36) NOT NULL,
+  `userUUID` varchar(99) DEFAULT NULL,
+  `calendarRef` varchar(99) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `calendar_opaqueurl_idx` (`userUUID`,`calendarRef`)
+);
+-- END SAK-26230
