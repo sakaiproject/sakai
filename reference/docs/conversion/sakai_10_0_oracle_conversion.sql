@@ -978,7 +978,7 @@ create table HIERARCHY_NODE_META (
 	ID number(19,0) not null,
 	hierarchyId varchar2(255),
 	isRootNode number(1,0) not null,
-	ownerId varchar2(255),
+	ownerId varchar2(99),
 	title varchar2(255),
 	description clob,
 	permToken varchar2(255),
@@ -990,7 +990,7 @@ create table HIERARCHY_PERMS (
 	ID number(19,0) not null,
 	createdOn date not null,
 	lastModified date not null,
-	userId varchar2(255) not null,
+	userId varchar2(99) not null,
 	nodeId varchar2(255) not null,
 	permission varchar2(255) not null,
 	primary key (ID)
