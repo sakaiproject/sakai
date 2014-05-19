@@ -1263,3 +1263,65 @@ alter table lti_tools add parameter text;
 alter table lti_tools add enabled_capability text;
 alter table lti_tools drop domain;
 -- END SAK-26233
+
+-- BEGIN SAK-26234 overall JIRA for MSGCNTR conversions
+alter table MFR_AREA_T add column SEND_TO_EMAIL int(11) not null DEFAULT 1;
+
+-- set the SEND_TO_EMAIL column equal to the equivalent value for SENDEMAILOUT
+update MFR_AREA_T area set area.SEND_TO_EMAIL=0 where area.SENDEMAILOUT=0 and area.TYPE_UUID = (select types.uuid from cmn_type_t types where types.KEYWORD = 'privateForums');
+
+CREATE TABLE IF NOT EXISTS MFR_MOVE_HISTORY_T (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `VERSION` int(11) NOT NULL,
+  `UUID` varchar(36) NOT NULL,
+  `CREATED` datetime NOT NULL,
+  `CREATED_BY` varchar(36) NOT NULL,
+  `MODIFIED` datetime NOT NULL,
+  `MODIFIED_BY` varchar(36) NOT NULL,
+  `MESSAGE_ID` bigint(20) NOT NULL,
+  `REMINDER` bit(1) DEFAULT NULL,
+  `FROM_TOPIC_ID` bigint(20) NOT NULL,
+  `TO_TOPIC_ID` bigint(20) NOT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+-- BEGIN SAK-24854 site members can receive a special rank
+CREATE TABLE MFR_RANK_T (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `VERSION` int(11) NOT NULL,
+  `UUID` varchar(36) NOT NULL,
+  `CREATED` datetime NOT NULL,
+  `CREATED_BY` varchar(99) NOT NULL,
+  `MODIFIED` datetime NOT NULL,
+  `MODIFIED_BY` varchar(99) NOT NULL,
+  `TITLE` varchar(255) NOT NULL,
+  `RANKTYPE` varchar(19) NOT NULL,
+  `ASSIGNTO` varchar(255) DEFAULT NULL,
+  `ASSIGNTODISPLAY` varchar(255) DEFAULT NULL,
+  `MIN_POST` bigint(20) DEFAULT NULL,
+  `CONTEXT_ID` varchar(99) NOT NULL,
+  `rankImage` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `MFR_RANK_CONTEXT_ID_I` (`CONTEXT_ID`)
+);
+
+CREATE TABLE MFR_RANKIMAGE_T (
+  `ID` bigint(20) NOT NULL AUTO_INCREMENT,
+  `VERSION` int(11) NOT NULL,
+  `CREATED` datetime NOT NULL,
+  `CREATED_BY` varchar(99) NOT NULL,
+  `MODIFIED` datetime NOT NULL,
+  `MODIFIED_BY` varchar(99) NOT NULL,
+  `ATTACHMENT_ID` varchar(255) NOT NULL,
+  `ATTACHMENT_URL` varchar(255) NOT NULL,
+  `ATTACHMENT_NAME` varchar(255) NOT NULL,
+  `ATTACHMENT_SIZE` varchar(255) NOT NULL,
+  `ATTACHMENT_TYPE` varchar(255) NOT NULL,
+  `RANKID` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`ID`)
+);
+
+ALTER TABLE MFR_RANK_T add CONSTRAINT FK7C03B22790CE9F83 FOREIGN KEY(rankImage) REFERENCES MFR_RANKIMAGE_T (ID);
+ALTER TABLE MFR_RANKIMAGE_T add CONSTRAINT FKFB02D73E7626640E FOREIGN KEY(RANKID) REFERENCES MFR_RANK_T(ID);
+-- END SAK-24854
+-- END SAK-26234
