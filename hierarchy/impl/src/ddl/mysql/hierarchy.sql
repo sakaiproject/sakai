@@ -12,7 +12,7 @@
         ID bigint not null auto_increment,
         hierarchyId varchar(255),
         isRootNode bit not null,
-        ownerId varchar(255),
+        ownerId varchar(99),
         title varchar(255),
         description text,
         permToken varchar(255),
@@ -24,7 +24,7 @@
         ID bigint not null auto_increment,
         createdOn datetime not null,
         lastModified datetime not null,
-        userId varchar(255) not null,
+        userId varchar(99) not null,
         nodeId varchar(255) not null,
         permission varchar(255) not null,
         primary key (ID)

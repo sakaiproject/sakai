@@ -20,7 +20,7 @@
          foreign-key="HIER_NODE_FKC" lazy="false" fetch="join" />
       <property name="hierarchyId" type="string" length="255" index="HIERARCHY_HID" />
       <property name="isRootNode" type="java.lang.Boolean" not-null="true" />
-      <property name="ownerId" type="string" length="255" />
+      <property name="ownerId" type="string" length="99" />
       <property name="title" type="string" length="255" />
       <property name="description" type="materialized_clob" />
       <property name="permToken" type="string" length="255" index="HIERARCHY_PERMTOKEN" />

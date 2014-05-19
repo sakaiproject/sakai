@@ -12,7 +12,7 @@
         ID number(19,0) not null,
         hierarchyId varchar2(255),
         isRootNode number(1,0) not null,
-        ownerId varchar2(255),
+        ownerId varchar2(99),
         title varchar2(255),
         description clob,
         permToken varchar2(255),

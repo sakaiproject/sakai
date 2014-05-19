@@ -19,7 +19,7 @@
         </id>
         <property name="createdOn" type="java.util.Date" not-null="true" />
         <property name="lastModified" type="java.util.Date" not-null="true" />
-        <property name="userId" type="string" length="255" not-null="true" index="HIER_PERM_USER" />
+        <property name="userId" type="string" length="99" not-null="true" index="HIER_PERM_USER" />
         <property name="nodeId" type="string" length="255" not-null="true" index="HIER_PERM_NODE" />
         <property name="permission" type="string" length="255" not-null="true" index="HIER_PERM_PERM" />
     </class>
