@@ -1214,3 +1214,52 @@ CREATE UNIQUE INDEX CONTENT_RESOURCE_BB_DEL_INDEX ON CONTENT_RESOURCE_BB_DELETE
     RESOURCE_ID
 );
 -- END SAK-26231
+
+-- BEGIN SAK-26233: LTI 2.0 tables
+CREATE TABLE IF NOT EXISTS lti_binding (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `tool_id` int(11) DEFAULT NULL,
+  `SITE_ID` varchar(99) DEFAULT NULL,
+  `settings` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+CREATE TABLE IF NOT EXISTS lti_deploy (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reg_state` tinyint(4) DEFAULT '0',
+  `title` varchar(255) DEFAULT NULL,
+  `pagetitle` varchar(255) DEFAULT NULL,
+  `description` text,
+  `status` tinyint(4) DEFAULT '0',
+  `visible` tinyint(4) DEFAULT '0',
+  `sendname` tinyint(4) DEFAULT '0',
+  `sendemailaddr` tinyint(4) DEFAULT '0',
+  `allowoutcomes` tinyint(4) DEFAULT '0',
+  `allowroster` tinyint(4) DEFAULT '0',
+  `allowsettings` tinyint(4) DEFAULT '0',
+  `allowlori` tinyint(4) DEFAULT '0',
+  `reg_launch` text,
+  `reg_key` varchar(255) DEFAULT NULL,
+  `reg_password` varchar(255) DEFAULT NULL,
+  `consumerkey` varchar(255) DEFAULT NULL,
+  `secret` varchar(255) DEFAULT NULL,
+  `reg_profile` text,
+  `settings` text,
+  `created_at` datetime NOT NULL,
+  `updated_at` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+);
+
+alter table lti_content add resource_handler text;
+alter table lti_content add settings_ext text;
+
+alter table lti_tools add version tinyint(4) DEFAULT '0';
+alter table lti_tools add resource_handler text;
+alter table lti_tools add deployment_id int(11) DEFAULT NULL;
+alter table lti_tools add settings text;
+alter table lti_tools add parameter text;
+alter table lti_tools add enabled_capability text;
+alter table lti_tools drop domain;
+-- END SAK-26233

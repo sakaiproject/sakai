@@ -1197,3 +1197,56 @@ CREATE UNIQUE INDEX CONTENT_RESOURCE_BB_DEL_INDEX ON CONTENT_RESOURCE_BB_DELETE
     RESOURCE_ID
 );
 -- END SAK-26231
+
+-- BEGIN SAK-26233: LTI 2.0 tables
+CREATE TABLE lti_binding (
+  ID NUMBER(id) NOT NULL,
+  tool_id NUMBER(11) DEFAULT NULL,
+  SITE_ID varchar2(99) DEFAULT NULL,
+  settings clob,
+  created_at TIMESTAMP NOT NULL,
+  updated_at TIMESTAMP NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE SEQUENCE lti_binding_seq INCREMENT BY 1 START WITH 1;
+
+CREATE TABLE lti_deploy (
+  id number(11) NOT NULL,
+  reg_state number(3) DEFAULT '0',
+  title varchar2(255) DEFAULT NULL,
+  pagetitle varchar2(255) DEFAULT NULL,
+  description clob,
+  status number(3) DEFAULT '0',
+  visible number(3) DEFAULT '0',
+  sendname number(3) DEFAULT '0',
+  sendemailaddr number(3) DEFAULT '0',
+  allowoutcomes number(3) DEFAULT '0',
+  allowroster number(3) DEFAULT '0',
+  allowsettings number(3) DEFAULT '0',
+  allowlori number(3) DEFAULT '0',
+  reg_launch clob,
+  reg_key varchar2(255) DEFAULT NULL,
+  reg_password varchar2(255) DEFAULT NULL,
+  consumerkey varchar2(255) DEFAULT NULL,
+  secret varchar2(255) DEFAULT NULL,
+  reg_profile clob,
+  settings clob,
+  created_at timestamp(0) NOT NULL,
+  updated_at timestamp(0) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE SEQUENCE lti_deploy_seq INCREMENT BY 1 START WITH 1;
+
+alter table lti_content add resource_handler clob;
+alter table lti_content add settings_ext clob;
+
+alter table lti_tools add version NUMBER(4) DEFAULT '0';
+alter table lti_tools add resource_handler clob;
+alter table lti_tools add deployment_id NUMBER(11) DEFAULT NULL;
+alter table lti_tools add settings clob;
+alter table lti_tools add parameter clob;
+alter table lti_tools add enabled_capability clob;
+alter table lti_tools drop domain;
+-- END SAK-26233
