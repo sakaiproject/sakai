@@ -11,11 +11,11 @@
 		<!-- <cache usage="read-write"/> -->
 		<!-- create the primary key id -->
 		<id name="opaqueUUID" type="string">
-			<column name="ID" />
+			<column name="ID" length="36" />
 		</id>
-		<property name="userUUID" type="string" length="64"
+		<property name="userUUID" type="string" length="99"
 			index="calendar_opaqueurl_idx" />
-		<property name="calendarRef" type="string" length="64"
+		<property name="calendarRef" type="string" length="99"
 			index="calendar_opaqueurl_idx" />
 	</class>
 </hibernate-mapping>
