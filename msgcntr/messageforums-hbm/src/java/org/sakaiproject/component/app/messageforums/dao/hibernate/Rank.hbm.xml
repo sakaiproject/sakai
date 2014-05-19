@@ -20,9 +20,9 @@
     <version name="version" column="VERSION" />
     <property name="uuid" column="UUID" length="36" not-null="true" />
     <property name="created" column="CREATED" not-null="true" />
-    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="99" not-null="true" />
     <property name="modified" column="MODIFIED" not-null="true" />
-    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="99" not-null="true" />
 
 
     <!-- Rank fields -->
@@ -47,7 +47,7 @@
 		</property>
 
 		<property name="contextId">
-			<column name="CONTEXT_ID" length="255" not-null="true" index="MFR_RANK_CONTEXT_ID_I" />
+			<column name="CONTEXT_ID" length="99" not-null="true" index="MFR_RANK_CONTEXT_ID_I" />
 		</property>
 
        <many-to-one name="rankImage" cascade="all" lazy="false"
