@@ -20,6 +20,9 @@
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-util</developerConnection>
     <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-util</url>
   </scm>
+  <properties>
+    <kernel.basedir>${basedir}/..</kernel.basedir>
+  </properties>
 
   <packaging>jar</packaging>
   <dependencies>

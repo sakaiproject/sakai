@@ -21,6 +21,7 @@
 
     <properties>
         <deploy.target>shared</deploy.target>
+        <kernel.basedir>${basedir}/../..</kernel.basedir>
     </properties>
 
     <dependencies>
@@ -247,13 +248,6 @@
             <scope>compile</scope>
         </dependency>     
     </dependencies>
-
-    <repositories>
-        <repository>
-            <id>terracotta-releases</id>
-            <url>http://www.terracotta.org/download/reflector/releases</url>
-        </repository>
-    </repositories>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>

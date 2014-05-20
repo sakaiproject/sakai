@@ -20,6 +20,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
+  <properties>
+    <kernel.basedir>${basedir}</kernel.basedir>
+  </properties>
 
   <modules>
     <module>api</module>
@@ -497,5 +500,34 @@
     </extensions>
 
   </build>
+
+  <repositories>
+    <!-- terracotta repo is unreliable - KNL-1257 -->
+    <repository>
+      <id>kernel_internal_mvnrepo</id>
+      <layout>default</layout>
+      <url>file://${kernel.basedir}/mvn-repo</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <!--
+    <repository>
+      <id>opencast</id>
+      <name>Opencast Repo</name>
+      <url>http://repository.opencastproject.org/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+    -->
+  </repositories>
 
 </project>

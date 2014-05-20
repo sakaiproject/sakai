@@ -15,6 +15,9 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
+  <properties>
+    <kernel.basedir>${basedir}/..</kernel.basedir>
+  </properties>
 
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-storage-util</connection>

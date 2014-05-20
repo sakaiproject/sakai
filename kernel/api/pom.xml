@@ -23,6 +23,7 @@
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>
+    <kernel.basedir>${basedir}/..</kernel.basedir>
   </properties>
   <dependencies>
     <dependency>

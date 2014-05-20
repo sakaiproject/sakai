@@ -24,6 +24,7 @@
   <properties>
     <deploy.target />
     <maven.test.jvmargs />
+    <kernel.basedir>${basedir}/..</kernel.basedir>
   </properties>
   <build>  
     <plugins>
@@ -170,17 +171,14 @@
     <dependency>
       <groupId>net.sf.ehcache</groupId>
       <artifactId>ehcache-core</artifactId>
+      <version>2.6.6</version>
+      <scope>provided</scope>
     </dependency>
+    <!-- need to load these locally - KNL-1257 -->
     <dependency>
         <groupId>org.terracotta</groupId>
         <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
         <version>5.6.0</version>
-        <scope>provided</scope>
-    </dependency>
-    <dependency>
-        <groupId>net.sf.ehcache</groupId>
-        <artifactId>ehcache-core</artifactId>
-        <version>2.6.6</version>
         <scope>provided</scope>
     </dependency>
     <dependency>
@@ -369,10 +367,4 @@
 
   </dependencies>
 
-  <repositories>
-    <repository>
-      <id>terracotta-releases</id>
-      <url>http://www.terracotta.org/download/reflector/releases</url>
-    </repository>
-  </repositories>
 </project>

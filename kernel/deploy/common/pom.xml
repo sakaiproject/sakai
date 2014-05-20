@@ -25,6 +25,7 @@
   <packaging>pom</packaging>
   <properties>
     <deploy.target>common</deploy.target>
+    <kernel.basedir>${basedir}/../..</kernel.basedir>
   </properties>
   <dependencies>
     <dependency>

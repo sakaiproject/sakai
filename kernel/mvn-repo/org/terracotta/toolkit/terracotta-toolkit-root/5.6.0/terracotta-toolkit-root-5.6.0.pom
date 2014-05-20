@@ -1,0 +1,110 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <artifactId>forge-parent</artifactId>
+    <groupId>org.terracotta.forge</groupId>
+    <version>2.4</version>
+    <relativePath/>
+  </parent>
+
+  <name>terracotta-toolkit-root</name>
+  <groupId>org.terracotta.toolkit</groupId>
+  <artifactId>terracotta-toolkit-root</artifactId>
+  <version>5.6.0</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>toolkit-api</module>
+    <module>toolkit</module>
+    <module>toolkit-impl</module>
+    <module>express-impl</module>
+    <module>truezip-repkg</module>
+    <module>toolkit-runtime</module>
+    <module>express-system-tests</module>
+    <module>tck</module>
+  </modules>
+
+  <properties>
+    <toolkit-api-version>1.6</toolkit-api-version>
+    <terracotta-toolkit.version>5.6.0</terracotta-toolkit.version>
+
+    <!-- XXX: This likely should be client API version some point in the future (when such an API exists) -->
+    <terracotta.core.version.base>3.7.6</terracotta.core.version.base>
+
+    <!-- If you're using a "patched" core version, specify that here -->
+    <!--terracotta.core.version>${terracotta.core.version.base}-patch1</terracotta.core.version-->
+    <terracotta.core.version>${terracotta.core.version.base}</terracotta.core.version>
+
+    <simulated-api.version>1.3.0</simulated-api.version>
+    <tc-maven-plugin.version>1.9.6</tc-maven-plugin.version>
+    <tim-util.version>1.0.7</tim-util.version>
+  </properties>
+
+  <profiles>
+    <profile>
+      <id>skip-system-tests</id>
+      <activation>
+        <property>
+          <name>!jenkins.publisher</name>
+        </property>
+      </activation>
+      <modules>
+        <module>toolkit-system-tests</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta</groupId>
+        <artifactId>maven-forge-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>create-manifest</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>manifest</goal>
+            </goals>
+            <configuration>
+              <rootPath>${project.basedir}/..</rootPath>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <configuration>
+              <forceCreation>true</forceCreation>
+              <archive>
+                <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
+              </archive>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>      
+    </plugins>
+  </build>
+  
+  <repositories>
+    <repository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </pluginRepository>
+  </pluginRepositories>
+</project>
