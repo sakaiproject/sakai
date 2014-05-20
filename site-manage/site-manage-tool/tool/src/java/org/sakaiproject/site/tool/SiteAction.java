@@ -9361,8 +9361,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			sourceSiteRef = sourceSite.getReference();
 		} catch (IdUnusedException e) {
 			M_log.warn(this + ".importToolContent invalid source siteId: "+oSiteId);
+			return;
 		}
 		
+		// An event for starting the site duplicat
 		EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 		
 		// import tool content
@@ -9452,7 +9454,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			SecurityService.popAdvisor();
 		}
       
-      EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+		// An event for ending the site duplicate
+		EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 	}
 	/**
 	 * get user answers to setup questions
