@@ -91,6 +91,8 @@
   	$('input').change(function() {
     	dataChanged = true;
 	});
+  	
+  	
   });
   
 	function toggleCalendarCheckbox(postCheckbox){
@@ -138,6 +140,31 @@
 		}else{
 			return deleteClick();
 		}
+	}
+	
+	function toggleAllCalendarOptions(toggleCheckbox){
+		$('.calendarBox').each(function(){
+			if(toggleCheckbox.checked){
+				//make sure that the post option is checked otherwise don't check it:
+				if($(this).parent().parent().find(".postBox:checked").length == 1){
+					this.checked = true;
+				}
+			}else{
+				this.checked = false;
+			}
+		});
+	}
+
+	function toggleAllPostOptions(toggleCheckbox){
+		$('.postBox').each(function(){
+			if(toggleCheckbox.checked){
+				this.checked = true;
+			}else{
+				this.checked = false;
+				//make sure calendar option is unchecked
+				$(this).parent().parent().find(".calendarBox").removeAttr("checked");
+			}
+		});
 	}
  </script>
 <div>
@@ -241,11 +268,11 @@
 									<h:outputText value="#{msgs.mainEditHeaderInCalendar}"/>
 									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="$('.calendarBox').not(':disabled').attr('checked', this.checked);"/>
+										<input type="checkbox" onchange="toggleAllCalendarOptions(this);"/>
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" disabled="#{!eachEntry.posted}" onchange="checkStartEndDates(this)"/>
+							<h:selectBooleanCheckbox styleClass="calendarBox" value="#{eachEntry.entry.linkCalendar}" title="#{msgs.selectThisCheckBoxCal}" onchange="checkStartEndDates(this)"/>
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
@@ -253,7 +280,7 @@
 									<h:outputText value="#{msgs.mainEditHeaderStatus}"/>
 									<f:verbatim>
 										<br/>
-										<input type="checkbox" onchange="$('.postBox').attr('checked', this.checked);"/>
+										<input type="checkbox" onchange="toggleAllPostOptions(this);"/>
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
