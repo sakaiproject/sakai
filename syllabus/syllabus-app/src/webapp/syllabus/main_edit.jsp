@@ -92,6 +92,8 @@
     	dataChanged = true;
 	});
   	
+  	//disable calendar options that are in draft:
+  	disableCalendarOptions();
   	
   });
   
@@ -163,6 +165,14 @@
 				this.checked = false;
 				//make sure calendar option is unchecked
 				$(this).parent().parent().find(".calendarBox").removeAttr("checked");
+			}
+		});
+	}
+	
+	function disableCalendarOptions(){
+		$('.calendarBox').each(function(){
+			if($(this).parent().parent().find(".postBox:checked").length == 0){
+				$(this).attr("disabled", "disabled");
 			}
 		});
 	}
