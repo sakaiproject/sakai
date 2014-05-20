@@ -94,6 +94,13 @@
   	
   	//disable calendar options that are in draft:
   	disableCalendarOptions();
+  	//add listeners to the calendar dates for the calendar checkbox:
+  	$(".dateInputStart").change(function(){
+  		checkCalendarDates(this);
+  	});
+  	$(".dateInputEnd").change(function(){
+  		checkCalendarDates(this);
+  	});
   	
   });
   
@@ -147,9 +154,14 @@
 	function toggleAllCalendarOptions(toggleCheckbox){
 		$('.calendarBox').each(function(){
 			if(toggleCheckbox.checked){
-				//make sure that the post option is checked otherwise don't check it:
-				if($(this).parent().parent().find(".postBox:checked").length == 1){
-					this.checked = true;
+				//make sure that the post option is checked otherwise don't check it as well as the start or end date isn't null
+				var startTime = $(this).parent().parent().find(".dateInputStart").val();
+				var endTime = $(this).parent().parent().find(".dateInputEnd").val();
+				if((startTime != null && "" != $.trim(startTime)) || (endTime != null && "" != $.trim(endTime))){
+					//at least one date is set, now check if the item is posted
+					if($(this).parent().parent().find(".postBox:checked").length == 1){
+						this.checked = true;
+					}
 				}
 			}else{
 				this.checked = false;
@@ -175,6 +187,17 @@
 				$(this).attr("disabled", "disabled");
 			}
 		});
+	}
+	
+	//used for when a date is changed, it will check that the calendar checkbox is not checked if
+	//both dates are empty
+	function checkCalendarDates(dateInput){
+		var startTime = $(dateInput).parent().parent().find(".dateInputStart").val();
+		var endTime = $(dateInput).parent().parent().find(".dateInputEnd").val();
+		if((startTime == null || "" == $.trim(startTime)) && (endTime == null || "" == $.trim(endTime))){
+			//both start and end dates are null, so make sure the calendar checkbox is unchecked:
+			$(dateInput).parent().parent().find(".calendarBox").removeAttr("checked");
+		}
 	}
  </script>
 <div>

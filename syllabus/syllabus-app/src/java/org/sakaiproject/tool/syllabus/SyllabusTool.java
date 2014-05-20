@@ -862,8 +862,17 @@ public class SyllabusTool
           }else{
         	  //update item:
         	  boolean posted = SyllabusData.ITEM_POSTED.equals(den.getEntry().getStatus());
+        	  //make sure calendar settings are set correctly:
+        	  if(den.getEntry().getLinkCalendar()){
+        		  if(den.getEntry().getStartDate() == null && den.getEntry().getEndDate() == null){
+        			  //can't post to calendar if dates are null
+        			  den.getEntry().setLinkCalendar(false);
+        		  }else if(!posted){
+        			  //can't post to calendar if the item is in draft
+        			  den.getEntry().setLinkCalendar(false);
+        		  }
+        	  }
         	  boolean statusChanged = den.getStatusChanged();
-        	  
         	  //this will update the calendar if it's posted and inCalendar is selected
               syllabusManager.saveSyllabus(den.getEntry());
               if(posted && statusChanged){
