@@ -178,6 +178,7 @@
 				//make sure calendar option is unchecked
 				$(this).parent().parent().find(".calendarBox").removeAttr("checked");
 			}
+			toggleCalendarCheckbox(this);
 		});
 	}
 	
