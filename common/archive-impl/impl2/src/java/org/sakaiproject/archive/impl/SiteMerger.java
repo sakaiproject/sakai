@@ -115,9 +115,21 @@ public class SiteMerger {
 		File file = new File(m_storagePath + fileName);
 		if ((file == null) || (!file.exists()))
 		{
-			results.append("file: " + file.getPath() + " not found.\n");
+			results.append("file: " + fileName + " not found.\n");
 			M_log.warn("merge(): file not found: " + file.getPath());
 			return results.toString();
+		} else {
+			try {
+				// Path outside archive location, discard !
+				File baseLocation = new File(m_storagePath);
+				if (!file.getCanonicalPath().startsWith(baseLocation.getCanonicalPath())) {
+					throw new Exception();
+		}
+			} catch (Exception ex) {
+				results.append("file: " + fileName + " not permitted.\n");
+				M_log.warn("merge(): file not permitted: " + file.getPath());
+				return results.toString();
+			}
 		}
 
 		if (file.isDirectory())
