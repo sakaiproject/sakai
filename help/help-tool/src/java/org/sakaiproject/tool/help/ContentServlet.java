@@ -85,7 +85,7 @@ public class ContentServlet extends HttpServlet
           
        	  resource = getHelpManager().getResourceByDocId(docId);
           //Possibly a fileURL
-          if (resource == null && docId.indexOf('/') >= 0) {
+          if (resource == null && docId != null && docId.indexOf('/') >= 0) {
         	  if (M_log.isDebugEnabled())
         		  M_log.debug("Adding new resource:"+docId);
         	  resource = getHelpManager().createResource();
