@@ -163,8 +163,6 @@
 					</h4>
 					<h:outputText value="#{msgs.invalid_dates}" styleClass="alertMessage" 
 									rendered="#{SyllabusTool.displayDateError}"/>
-					<h:outputText value="#{msgs.invalid_calendar}" styleClass="alertMessage" 
-									rendered="#{SyllabusTool.displayCalendarError}"/>
 					<h:panelGrid columns="1" styleClass="jsfFormTable">
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="dataStartDate">
@@ -185,6 +183,8 @@
 							<h:outputLabel for="linkCalendar">
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
+							<h:outputText value="#{msgs.invalid_calendar}" styleClass="alertMessage" 
+									rendered="#{SyllabusTool.displayCalendarError}"/>
 						</h:panelGroup>
 					</h:panelGrid>
 					

@@ -155,12 +155,14 @@
 		$('.calendarBox').each(function(){
 			if(toggleCheckbox.checked){
 				//make sure that the post option is checked otherwise don't check it as well as the start or end date isn't null
-				var startTime = $(this).parent().parent().find(".dateInputStart").val();
-				var endTime = $(this).parent().parent().find(".dateInputEnd").val();
-				if((startTime != null && "" != $.trim(startTime)) || (endTime != null && "" != $.trim(endTime))){
-					//at least one date is set, now check if the item is posted
-					if($(this).parent().parent().find(".postBox:checked").length == 1){
+				if($(this).parent().parent().find(".postBox:checked").length == 1){
+					var startTime = $(this).parent().parent().find(".dateInputStart").val();
+					var endTime = $(this).parent().parent().find(".dateInputEnd").val();
+					if((startTime != null && "" != $.trim(startTime)) || (endTime != null && "" != $.trim(endTime))){
+						//at least one date is set
 						this.checked = true;
+					}else{
+						showMessage("<h:outputText value="#{msgs.calendarDatesNeededToggle}"/>", false);
 					}
 				}
 			}else{
