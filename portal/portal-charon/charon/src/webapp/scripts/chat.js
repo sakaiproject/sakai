@@ -831,7 +831,7 @@
             }
 
             if (portal.chat.video.enabled && portal.chat.video.webrtc.isVideoEnabled()) { 
-                if (portal.chat.getSetting('videoOff')) {
+                if (portal.chat.getSetting('videoOff',true)) {
                     $('#pc_video_off_checkbox').prop('checked', true);
                     portal.chat.videoOff = true;
                 } else {
