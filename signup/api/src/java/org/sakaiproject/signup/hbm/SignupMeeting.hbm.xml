@@ -19,7 +19,7 @@
 		<property name="location" column="location" type="string" length="255" not-null="true" />
 		<property name="category" column="category" type="string" length="255" not-null="false" />
 		<property name="meetingType" column="meeting_type" type="string" length="50" not-null="true" />
-		<property name="creatorUserId" column="creator_user_id" type="string" length="255" not-null="true" />
+		<property name="creatorUserId" column="creator_user_id" type="string" length="99" not-null="true" />
 		<property name="coordinatorIds" column="coordinators_user_Ids" type="string" length="1000" not-null="false" />
 		<property name="startTime" column="start_time" type="java.util.Date" not-null="true" />
 		<property name="endTime" column="end_time" type="java.util.Date" not-null="true"/>
@@ -57,7 +57,7 @@
 			<column name="create_groups" default="0"/>
 		</property>
 		
-		<property name="uuid" column="vevent_uuid" type="string" not-null="false" />
+		<property name="uuid" column="vevent_uuid" length="36" type="string" not-null="false" />
 		
 		<list name="signupTimeSlots" cascade="save-update,delete" fetch="join">
 			<key column="meeting_id" not-null="true"/>
@@ -87,9 +87,9 @@
 			    <property name="viewByAll" type="boolean" >
 			    	<column  name="view_by_all" default="1" not-null="false"/>
 			    </property>
-			    <property name="createdBy" type="string" length="255" column="created_by" not-null="true" />
+			    <property name="createdBy" type="string" length="99" column="created_by" not-null="true" />
 			    <property name="createdDate" type="timestamp" column="created_date" not-null="true" />
-			    <property name="lastModifiedBy" type="string" length="255" column="last_modified_by" not-null="true" />
+			    <property name="lastModifiedBy" type="string" length="99" column="last_modified_by" not-null="true" />
 			    <property name="lastModifiedDate" type="timestamp" column="last_modified_date" not-null="true" />
 			</composite-element>	
 		</list>
