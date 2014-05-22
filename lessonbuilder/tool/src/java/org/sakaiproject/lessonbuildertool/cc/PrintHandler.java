@@ -110,6 +110,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String XML=".xml";
   private static final String URL="url";
   private static final String TITLE="title";
+  private static final String ID="id";
   private static final String TEXT="text";
   private static final String TEXTTYPE="texttype";
   private static final String TEXTHTML="text/html";
@@ -122,20 +123,28 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_WEBCONTENT="webcontent";
+  private static final String WEBLINK="webLink";
   private static final String CC_WEBLINK0="imswl_xmlv1p0";
   private static final String CC_WEBLINK1="imswl_xmlv1p1";
   private static final String CC_WEBLINK2="imswl_xmlv1p2";
+  private static final String CC_WEBLINK3="imswl_xmlv1p3";
+  private static final String TOPIC="topic";
   private static final String CC_TOPIC0="imsdt_xmlv1p0";
   private static final String CC_TOPIC1="imsdt_xmlv1p1";
   private static final String CC_TOPIC2="imsdt_xmlv1p2";
+  private static final String CC_TOPIC3="imsdt_xmlv1p3";
   private static final String CC_ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
   private static final String CC_ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
   private static final String CC_ASSESSMENT2="imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
+  private static final String CC_ASSESSMENT3="imsqti_xmlv1p2/imscc_xmlv1p3/assessment";
   private static final String CC_QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
   private static final String CC_QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
   private static final String CC_QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
+  private static final String CC_QUESTION_BANK3="imsqti_xmlv1p3/imscc_xmlv1p3/question-bank";
   private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
   private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
+  private static final String CC_BLTI3="imsbasiclti_xmlv1p3";
+
   private static final boolean all = false;
   private static final int MAX_ATTEMPTS = 100;
 
@@ -165,6 +174,19 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
+  private Set<String> badTypes = new HashSet<String>();
+  static private Map<String, String> badTypeNames = null;
+
+  private Map<String,String> getBadTypeNames() {
+      Map<String,String> badNames = new HashMap<String, String>();
+      
+      badNames.put("imsapip_zipv1p0", simplePageBean.getMessageLocator().getMessage("simplepage.cc_apip"));
+      badNames.put("imsiwb_iwbv1p0", simplePageBean.getMessageLocator().getMessage("simplepage.cc_iwb"));
+      badNames.put("idpfepub_epubv3p0", simplePageBean.getMessageLocator().getMessage("simplepage.cc_epub3"));
+      badNames.put("assignment_xmlv1p0", simplePageBean.getMessageLocator().getMessage("simplepage.cc_ext_assignment"));
+
+      return badNames;
+  }		      
 
   public PrintHandler(SimplePageBean bean, CartridgeLoader utils, SimplePageToolDao dao, LessonEntity q, LessonEntity l, LessonEntity b, LessonEntity a, boolean itop) {
       super();
@@ -330,7 +352,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			 " href " + resource.getAttributeValue(HREF));
 
       String type = resource.getAttributeValue(TYPE);
-      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2);
+      boolean isBank = type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3);
 
       boolean hide = false;
       List<String>roles = new ArrayList<String>();
@@ -422,9 +444,16 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      String assignmentId = a.importObject(atitle, sakaiId, mime); // sakaiid for assignment
 		  }
 	      }
-	  } else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1) || type.equals(CC_WEBLINK2)){
+	  } else if (type.equals(CC_WEBLINK0) || type.equals(CC_WEBLINK1) || type.equals(CC_WEBLINK2) || type.equals(CC_WEBLINK3)){
+	      Element linkXml =  null;
 	      String filename = getFileName(resource);
-	      Element linkXml =  parser.getXML(loader, filename);
+	      if (filename != null) {
+		  linkXml =  parser.getXML(loader, filename);
+	      } else {
+		  List<Element> children = resource.getChildren();
+		  linkXml = children.get(0);
+		  filename = resource.getAttributeValue(ID) + XML;
+	      }
 	      Namespace linkNs = ns.link_ns();
 	      Element urlElement = linkXml.getChild(URL, linkNs);
 	      String url = urlElement.getAttributeValue(HREF);
@@ -456,9 +485,21 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  sequences.set(top, seq+1);
 	      }
 	      
-	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1) || type.equals(CC_TOPIC2))){
+	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1) || type.equals(CC_TOPIC2) || type.equals(CC_TOPIC3))){
+	      Element topicXml =  null;
 	      String filename = getFileName(resource);
-	      Element topicXml =  parser.getXML(loader, filename);
+	      System.out.println("qual name " + resource.getName());
+	      if (filename != null) {
+		  topicXml =  parser.getXML(loader, filename);		  
+	      } else {
+		  List<Element> children = resource.getChildren();
+		  System.out.println("child tagname " + children.get(0).getQualifiedName());
+		  topicXml = resource.getChild(TOPIC, ns.cc_ns());
+		  System.out.println("topic child " + topicXml);
+ 		  topicXml = resource.getChild(TOPIC);
+		  System.out.println("topic child " + topicXml);
+		  topicXml = children.get(0);
+	      }
 	      Namespace topicNs = ns.topic_ns();
 	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
 	      if (topicTitle == null)
@@ -519,8 +560,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      }
 
 	  } else if (quiztool != null && (
-		  type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) || type.equals (CC_ASSESSMENT2) ||
-		  type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2))) {
+		  type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) || type.equals (CC_ASSESSMENT2) || type.equals (CC_ASSESSMENT3) ||
+		  type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3))) {
 
 	      String fileName = getFileName(resource);
 	      String sakaiId = null;
@@ -589,10 +630,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  sequences.set(top, seq+1);
 	      }
 
-	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1))
+	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3))
 	      ; // handled elsewhere
 	  // current code seems to assume that BLTI tool is part of the page so skip if no page
-	  else if (!nopage && (type.equals(CC_BLTI0) || type.equals(CC_BLTI1))) { 
+	  else if (!nopage && (type.equals(CC_BLTI0) || type.equals(CC_BLTI1) || type.equals(CC_BLTI3))) { 
 	      String filename = getFileName(resource);
 	      Element ltiXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
@@ -643,7 +684,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  } else if (type.equals(CC_WEBCONTENT) && hide) {
 	      // handled elsewhere
 	  } else
-	      System.err.println("implemented type: " + resource.getAttributeValue(TYPE));
+	      badTypes.add(resource.getAttributeValue(TYPE));
       } catch (Exception e) {
 	  e.printStackTrace();
 	  System.err.println(">>>Exception " + e);
@@ -691,7 +732,18 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       //  simplePageBean.setErrKey("simplepage.import_cc_usespattern", null);
       if (usesCurriculum)
 	  simplePageBean.setErrKey("simplepage.cc-uses-curriculum", null);
-
+      if (badTypes.size() > 0) {
+	  String typeList = "";
+	  if (badTypeNames == null)
+	      badTypeNames = getBadTypeNames();
+	  for (String badType: badTypes) {
+	      String typeName = badTypeNames.get(badType);
+	      if (typeName == null)
+		  typeName = badType;
+	      typeList = typeList + ", " + typeName;
+	  }
+	  simplePageBean.setErrKey("simplepage.cc-has-badtypes", typeList.substring(2));
+      }
   }
 
   public void startDiscussion(String topic_name, String text_type, String text, boolean isProtected) {

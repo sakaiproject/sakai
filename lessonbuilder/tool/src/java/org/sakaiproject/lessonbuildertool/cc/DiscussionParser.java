@@ -67,6 +67,8 @@ public class DiscussionParser extends AbstractParser implements ContentParser {
                CartridgeLoader the_cartridge, 
                Element the_resource,
                boolean isProtected) throws ParseException {
+      // none of this is used
+      if (false) {
     try {
       //ok, so we're looking at a discussion topic here...
       Element discussion = getXML(the_cartridge, ((Element)the_resource.getChildren(FILE, the_handler.getNs().cc_ns()).get(0)).getAttributeValue(HREF));
@@ -90,4 +92,5 @@ public class DiscussionParser extends AbstractParser implements ContentParser {
       throw new ParseException(je);
     }
   }  
+  }
 }
