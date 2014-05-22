@@ -135,6 +135,10 @@ ${sakai_html_head_js}
 #if ( $tutorial && $loggedIn )
 	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
+#if ($portal_use_global_alert_message)
+    <script type="text/javascript" language="JavaScript" src="/globalalerts/js/gam.js"></script>
+#end
+
 #if ( $neoChat && $loggedIn )
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>

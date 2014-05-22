@@ -7,6 +7,9 @@
 	var sakaiPortalWindow = "";
 	$(document).ready(function() {
 			setupSkipNav();
+			#if ($portal_use_global_alert_message)
+				setupGAM();
+			#end
 	});
 	</script>
 #end
