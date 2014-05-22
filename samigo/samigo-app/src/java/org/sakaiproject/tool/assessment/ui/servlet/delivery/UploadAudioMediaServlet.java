@@ -101,13 +101,20 @@ private static Log log = LogFactory.getLog(UploadAudioMediaServlet.class);
     // test for nonemptiness first
     if (mediaLocation != null && !(mediaLocation.trim()).equals(""))
     {
-      mediaLocation = repositoryPath+"/"+mediaLocation;
+      File repositoryPathDir = new File(repositoryPath);
+      mediaLocation = repositoryPathDir.getCanonicalPath() + "/" + mediaLocation;
       File mediaFile = new File(mediaLocation);
-      File mediaDir = mediaFile.getParentFile(); 
-      if (!mediaDir.exists())
-        mediaDir.mkdirs();
-      //log.debug("*** directory exist="+mediaDir.exists());
-      mediaIsValid=writeToFile(req, mediaLocation);
+      
+      if (mediaFile.getCanonicalPath().equals (mediaLocation)){
+    	  File mediaDir = mediaFile.getParentFile(); 
+          if (!mediaDir.exists())
+            mediaDir.mkdirs();
+          //log.debug("*** directory exist="+mediaDir.exists());
+          mediaIsValid=writeToFile(req, mediaLocation);  
+      }else{
+    	  log.debug ("****Error in file paths " + mediaFile.getCanonicalPath() + " is not equal to " + mediaLocation);
+    	  mediaIsValid=false;
+      }
 
       //this is progess for SAK-5792, comment is out for now
       //zip_mediaLocation = createZipFile(mediaDir.getPath(), mediaLocation);
