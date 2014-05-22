@@ -30,7 +30,7 @@
 				<property name="attendeeUserId" column="attendee_user_id" length="99" type="string" not-null="true" />
 	   			<property name="comments" column="comments" type="text" not-null="false" />
 				<property name="signupSiteId" column="signup_site_id" length="99" type="string" not-null="true" />
-				<property name="calendarEventId" column="calendar_event_id" length="36" type="string" not-null="false" />
+				<property name="calendarEventId" column="calendar_event_id" length="2000" type="string" not-null="false" />
 				<property name="calendarId" column="calendar_id" length="99" type="string" not-null="false" />
 				<property name="attended"  type="boolean" >
 					<column name="attended" default="0"/>
@@ -45,7 +45,7 @@
 				<property name="attendeeUserId" column="attendee_user_id" length="99" type="string" not-null="true" />
 	   			<property name="comments" column="comments" type="text" not-null="false" />
 				<property name="signupSiteId" column="signup_site_id" length="99" type="string" not-null="true" />
-				<property name="calendarEventId" column="calendar_event_id" length="36" type="string" not-null="false" />
+				<property name="calendarEventId" column="calendar_event_id" length="2000" type="string" not-null="false" />
 				<property name="calendarId" column="calendar_id" length="99" type="string" not-null="false" />
 				<!-- <property name="attended" column="attended" type="boolean" not-null="false" /> -->
 				<property name="attended"  type="boolean" >
