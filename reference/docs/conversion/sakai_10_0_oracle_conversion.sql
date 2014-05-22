@@ -1365,3 +1365,121 @@ CREATE SEQUENCE SAM_EVENTLOG_T_SEQ START WITH 1 INCREMENT BY 1;
 CREATE INDEX SAM_EVENTLOG_PROCESSID_I ON sam_eventlog_t (PROCESSID);
 CREATE INDEX SAM_EVENTLOG_SITEID_I ON sam_eventlog_t (SITEID);
 -- END SAK-26239
+
+-- BEGIN SAK-26263: Signup moved to core Sakai
+CREATE TABLE signup_meetings (
+	id number(19,0) not null,
+	version number(10,0) not null, 
+	title varchar2(255 char) not null,
+	description clob,
+	location varchar2(255 char) not null,
+	category varchar2(255 char) default null,
+	meeting_type varchar2(50 char) not null,
+	creator_user_id varchar2(99 char) not null,
+	coordinators_user_Ids   varchar2(1000 char)  default NULL,
+	start_time timestamp not null,
+	end_time timestamp not null,
+	signup_begins timestamp,
+	signup_deadline timestamp,
+	canceled number(1,0),
+	locked number(1,0),
+	allow_waitList  number(1,0)  default '1',
+	allow_comment   number(1,0)  default '1',
+	auto_reminder   number(1,0)  default '0' NULL,	
+	eid_input_mode  number(1,0)  default '0' NULL,
+	receive_email_owner number(1,0),
+	default_send_email_by_owner   number(1,0)  default '0' NULL,
+	allow_attendance  number(1,0)  default '0' NULL,
+	recurrence_id number(19,0),
+	repeat_type varchar2(20 char) default NULL,
+	maxnumof_slot 	number(10,0) default 1,
+	create_groups   number(1,0)  default '0' NULL,
+	vevent_uuid		varchar2(36) default NULL,
+	primary key (id));
+	
+CREATE TABLE signup_site_groups (
+	signup_site_id number(19,0) not null,
+	title varchar2(255 char),
+	group_id varchar2(99 char) not null,
+	calendar_event_id varchar2(36 char),
+	calendar_id varchar2(99 char),
+	list_index number(10,0) not null,
+	primary key (signup_site_id, list_index));
+	
+CREATE TABLE signup_sites (
+	id number(19,0) not null,
+	version number(10,0) not null,
+	title varchar2(255 char),
+	site_id varchar2(99 char) not null,
+	calendar_event_id varchar2(36 char),
+	calendar_id varchar2(99 char),
+	meeting_id number(19,0) not null,
+	list_index number(10,0),
+	primary key (id));
+
+CREATE TABLE signup_ts (
+	id number(19,0) not null,
+	version number(10,0) not null,
+	start_time timestamp not null,
+	end_time timestamp not null,
+	max_no_of_attendees number(10,0),
+	display_attendees number(1,0),
+	canceled number(1,0),
+	locked number(1,0),
+	group_id  VARCHAR2(99)  default NULL,
+	vevent_uuid  VARCHAR2(36)  default NULL,
+	meeting_id number(19,0) not null,
+	list_index number(10,0),
+	primary key (id));
+	
+CREATE TABLE signup_ts_attendees (
+	timeslot_id number(19,0) not null,
+	attendee_user_id varchar2(99 char) not null,
+	comments clob,
+	signup_site_id varchar2(99 char) not null,
+	calendar_event_id varchar2(36 char),
+	calendar_id varchar2(99 char),
+	attended  number(1,0)  default '0' NULL,
+	list_index number(10,0) not null,
+	primary key (timeslot_id, list_index));
+	
+CREATE TABLE signup_ts_waitinglist (
+	timeslot_id number(19,0) not null, 
+	attendee_user_id varchar2(99 char) not null,
+	comments clob,
+	signup_site_id varchar2(99 char) not null,
+	calendar_event_id varchar2(36 char),
+	calendar_id varchar2(99 char),
+	list_index number(10,0) not null,
+	attended  number(1,0)  default '0' NULL,
+	primary key (timeslot_id, list_index));
+	
+
+CREATE TABLE signup_attachments (
+   meeting_id 	number(19,0) NOT NULL,
+   resource_Id 	varchar2(255 char) default NULL,
+   file_name 	varchar2(255 char) default NULL,
+   mime_type 	varchar2(80 char) default NULL,
+   fileSize 	number(19,0) default NULL,
+   location 	clob,
+   isLink  		number(1,0),
+   timeslot_id 	number(19,0) default NULL,
+   view_by_all 	number(1,0)  default '1',
+   created_by 	varchar2(99 char) NOT NULL,
+   created_date 	timestamp NOT NULL,
+   last_modified_by 	varchar2(99 char) NOT NULL,
+   last_modified_date 	timestamp NOT NULL,
+   list_index 	number(10,0) NOT NULL,
+   PRIMARY KEY  (meeting_id,list_index));
+
+ALTER TABLE signup_site_groups add constraint FK_SIGNUP_SITE_GROUPS foreign key (signup_site_id) references signup_sites;
+ALTER TABLE signup_sites add constraint FK_SIGNUP_MEETING_SITES foreign key (meeting_id) references signup_meetings;
+ALTER TABLE signup_ts_attendees add constraint FK_SIGNUP_TIMESLOT_ATTENDEES foreign key (timeslot_id) references signup_ts;
+ALTER TABLE signup_ts_waitinglist add constraint FK_SIGNUP_TIMESLOT_WAITINGLIST foreign key (timeslot_id) references signup_ts;
+ALTER TABLE signup_ts add constraint FK_SIGNUP_MEETING_TIMESLOTS foreign key (meeting_id) references signup_meetings;
+ALTER TABLE signup_attachments add constraint FK_SIGNUP_MEETING_ATTACHMENT foreign key (meeting_id) references signup_meetings;
+
+CREATE SEQUENCE signup_meeting_ID_SEQ;
+CREATE SEQUENCE signup_sites_ID_SEQ;
+CREATE SEQUENCE signup_ts_ID_SEQ;
+-- END SAK-26263
