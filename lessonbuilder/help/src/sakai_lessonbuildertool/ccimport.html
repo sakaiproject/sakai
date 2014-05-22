@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Import Common Cartridge</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Import Common Cartridge</h2>
+
+<a name="top"> </a>
+
+<p> This function allows you to read a file in IMS Common Cartridge
+Format. This format is used by content vendors to supply instructional
+material, including tests and pages of content. Other course management
+systems such as Blackboard can also export the contents of a course
+in Common Cartridge format. So this can be used to move content
+between course management systems.
+
+<p>Use the "More Tools" pull-down and choose <strong>Import CC</strong>.</p> 
+
+<p> Currently Sakai can read Common Cartridge versions 1.0, 1.1, and 1.2.
+
+<p> When you import a Common Cartridge, it can (depending upon the cartridge)
+create new pages with content on them, and add tests, forum topics, and assignments.
+It can also create question pools. If it create a question pool, you will only see the pool
+if you go into Tests and Quizes and use "Questions Pools."
+
+<h5>Roles</h5>
+
+<p> Cartridges can specify that certain resources should be available
+only to instructors, or only instructors and "mentors." Lessons
+does not implement mentors, as there is no natural Sakai equivalent.
+Instructor-only content is intended for things such as answer sheets.
+
+<p> For the current release of Lessons, instructor-only content
+is loaded into the site, but not placed on a page. Where the tool 
+permits it, it is hidden. Currently this is implemented as follows:
+<ul>
+<li> Resources are set to be "hidden."
+<li> Assessments in Tests and Quizes (Samigo) are not published. Note
+that assessments in Mneme are never published by the import process,
+so this distincton is not necessary for Mneme.
+<li> Topics in Forums are marked as "Draft". 
+</ul>
+
+<p> No method is currently implemented to hide topics in YAFT or Jforums.
+
+<p> 
+
+</div>
+</body></html>

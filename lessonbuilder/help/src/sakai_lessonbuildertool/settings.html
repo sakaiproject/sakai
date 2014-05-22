@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+<title>Settings</title>
+<style type="text/css">
+		/* Style for specific inline images */
+		
+		/* Style for specific ordered lists */
+		
+		/* Style for specific table cells */
+		</style>
+<link type="text/css" href="/library/skin/tool_base.css" media="all" rel="stylesheet" />
+<link type="text/css" href="/library/skin/default/tool.css" media="all" rel="stylesheet" />
+</head>
+<body>
+<div class="helpBody">
+<h2>Settings </h2>
+
+<a name="top"> </a>
+
+<p> The settings dialog allows you to adjust various parameters
+of the current page:</p>
+
+<p> To use it, click on the gear icon at the upper right of the window.
+
+<ul>
+<li><strong>Don't Release Page Until All Prerequisite Pages are Completed </strong> - Select this option if you would like the page to appear/be accessible only after previously 'Required' pages have been completed/accessed. You can use this on both subpages and top-level pages (pages that appear in the
+left margin). If you use it on a subpage, the student won't be able to click on the page until all prerequisites have been completed. If you use it
+on a top-level page, the student will be ablet to click on the page in the left margin, but will get a message listing the pages that have
+to be completed first.</li>
+<li><strong>Require this page </strong> - This page must be completed before the student can access later pages.</li>
+
+<li><strong>Create gradebook entry when page is completed.</strong> - This will create a gradebook item for this
+page. Students will be given a specified number of points when they complete the page. Completing the page means
+doing all required items on it. If there aren't any required items, simply viewing the page will mark it as complete.
+
+<li> <strong>Custom CSS File</strong> - This permits you to supply a style sheet to be used with the page. This can
+be used to change fonts, add backgrounds, and make other style adjustments. Because preparing style sheets can
+be difficult, your system administrator may choose to prepare style sheets for you. If they have done so, the
+menu will show a list of system-wide style sheets. You may also upload your own. They will be available for
+any page in the site. If you name the file default.css, it will be the default for your site, i.e. it will be used for any
+page that doesn't specify a style sheet. Your system administrator may supply a system-wide default. It will be used
+for any page that doesn't specify a style sheet if you don't have you own default.</li>
+
+</ul>
+
+<p> The following options only appear on top-level pages, i.e. pages that show in the left margin:
+<li><strong>Hide this page from users.</strong> - Use this when you're not ready for students to see
+the page yet. It will not appear in the left margin.</li>
+
+<li> <strong>Hide this page until the following date</strong> - Use this when you want a page to become
+available at a certain date or time. Note that the page will show in the left margin before then, but
+won't be usable. (There is no way to specify release dates for items in the left margin.)</li>
+
+</ul>
+
+<h3> More information about style sheets </h3>
+
+<p> If you are writing a style sheet, you may find it useful to know some classes that 
+you may use, and the sections of the page that they control:
+
+<ul>
+<li>You can of course use body to change things like fonts and sizes for
+everything. However they may also affect buttons and other functional
+objects, so you may prefer to use classes for more specific things.
+Here are the major class you might want to change in your stylesheet:
+
+item-icon: This is for the icons that show on resources. The only thing
+useful I can think of is setting display:none is you don't want icons in
+your site. You may, of course, use <strong>body</strong> for any changes
+that should apply to the whole page.
+
+<li>breadcrumbs: the section with links to the page above, used in subpages and other items</li>
+<li>title: the main page title</li>
+<li>mainlist: the table containing the primary content. (Do not rely on this being a table. It
+could become a list in a later version.)</li>
+<li>itemlink: the &lt;a&gt; for resources, etc.</li>
+<li>itemtext: the text inside the &lt;a&gt;</li>
+<li>itemdescription: the description field added by the author</li>
+<li>textbox: the text inside a text block inserted by "add text"</li>
+<li>commentsDiv: the whole section with student comments</li>
+<li>commentDiv: a single student comment</li>
+<li>author: the author's name in a student comment</li>
+<li>specialCommenter: the author's name if the current user is the author</li>
+<li>commentBody: the text of a student comment</li>
+<li>studentDiv: the whole section for student pages</li>
+<li>studentTitle: the heading "Student Pages"</li>
+<li>studentLink: the &lt;a&gt; for an individal student page
+</ul> 
+
+<p><a href="#top">Back to top</a></p>
+
+
+</div>
+</body></html>

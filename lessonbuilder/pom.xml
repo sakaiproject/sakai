@@ -107,6 +107,10 @@
         <profile>
           <id>2.9</id>
     
+	  <modules>
+            <module>help</module>
+	  </modules>
+
           <properties>
 	    <hbms>oldhbm</hbms>
 	    <src2>src29</src2>
@@ -152,6 +156,10 @@
 
         <profile>
           <id>2.8</id>
+
+	  <modules>
+            <module>help</module>
+	  </modules>
 
           <properties>
 	    <!-- old versions of hbm.xml files, for 2.8 / 2.9 -->
