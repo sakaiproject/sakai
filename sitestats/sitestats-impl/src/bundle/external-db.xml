@@ -11,14 +11,15 @@
 		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
 		<property name="schemaUpdate" value="@{sitestats.externalDb.auto.ddl}"/>
 		
-		<property name="cacheProvider">
-			<bean class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider">
-				<property name="sakaiCacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
-				<property name="defaultCache" ref="org.sakaiproject.springframework.orm.hibernate.L2Cache"/>
-			</bean>
-		</property>		
+		<property name="cacheProvider" ref="org.hibernate.cache.SitestatsCacheProvider"/>
 	</bean>
 	
+	<bean id="org.hibernate.cache.SitestatsCacheProvider"
+		class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider"
+		init-method="init" destroy-method="destroy">
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+		<property name="defaultCacheName" value="org.sakaiproject.springframework.orm.hibernate.L2Cache" />
+	</bean>
 	
 	<!-- Transaction Manager -->
 	<bean id="externalSitestatsTransactionManager"
