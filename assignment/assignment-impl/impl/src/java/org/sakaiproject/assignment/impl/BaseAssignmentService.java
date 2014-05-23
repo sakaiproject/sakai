@@ -2935,7 +2935,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		StringBuilder buffer = new StringBuilder();
 		// site title and id
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
-		buffer.append(rb.getString("noti.site.url") + " " + siteUrl +newline + newline);
+		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
 		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), siteTitle}));
 		
@@ -2959,7 +2959,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		StringBuilder buffer = new StringBuilder();
 		// site title and id
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
-		buffer.append(rb.getString("noti.site.url") + " " + siteUrl +newline + newline);
+		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
 		buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
 	 		
