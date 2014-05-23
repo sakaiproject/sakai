@@ -2920,12 +2920,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String context = s.getContext();
 		
 		String siteTitle = "";
-		String siteId = "";
+		String siteUrl = "";
 		try
 		{
 			Site site = SiteService.getSite(context);
 			siteTitle = site.getTitle();
-			siteId = site.getId();
+			siteUrl = site.getUrl();
 		}
 		catch (Exception ee)
 		{
@@ -2935,7 +2935,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		StringBuilder buffer = new StringBuilder();
 		// site title and id
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
-		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
+		buffer.append(rb.getString("noti.site.url") + " " + siteUrl +newline + newline);
 		// notification text
 		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), siteTitle}));
 		
@@ -2947,11 +2947,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		String context = s.getContext();
 			
 		String siteTitle = "";
-		String siteId = "";
+		String siteUrl = "";
 		try {
 			Site site = SiteService.getSite(context);
 			siteTitle = site.getTitle();
-			siteId = site.getId();
+			siteUrl = site.getUrl();
 		}catch (Exception ee){
 			M_log.warn(this + " htmlContentReleaseResubmission(), site id =" + context + " " + ee.getMessage());
 		}
@@ -2959,7 +2959,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		StringBuilder buffer = new StringBuilder();
 		// site title and id
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
-		buffer.append(rb.getString("noti.site.id") + " " + siteId +newline + newline);
+		buffer.append(rb.getString("noti.site.url") + " " + siteUrl +newline + newline);
 		// notification text
 		buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
 	 		
