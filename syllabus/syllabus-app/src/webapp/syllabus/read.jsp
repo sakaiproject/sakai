@@ -85,13 +85,10 @@
 						<h:outputText value="#{msgs.syllabus_title}"/>
 					</h:outputLabel>
 					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
-					<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage" 
-									rendered="#{SyllabusTool.displayTitleErroMsg}"/>
 				</h:panelGroup>
 			</h:panelGrid>
 
 			<p class="longtext">
-			    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}" escape="false" />
 				<label for="" style="float:none;display:block"> <%-- outputLabel needed here instead but there is no target to id --%>
 					<h:outputText value="#{msgs.syllabus_content}"/>
 				</label>
@@ -173,8 +170,6 @@
 					<h4>
 						<h:outputText value="#{msgs.dateheader}"/>
 					</h4>
-					<h:outputText value="#{msgs.invalid_dates}" styleClass="alertMessage" 
-									rendered="#{SyllabusTool.displayDateError}"/>
 					<h:panelGrid columns="1" styleClass="jsfFormTable">
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="dataStartDate">
@@ -195,8 +190,6 @@
 							<h:outputLabel for="linkCalendar">
 								<h:outputText value="#{msgs.linkcalendartitle}"/>
 							</h:outputLabel>
-							<h:outputText value="#{msgs.invalid_calendar}" styleClass="alertMessage" 
-									rendered="#{SyllabusTool.displayCalendarError}"/>
 						</h:panelGroup>
 					</h:panelGrid>
 

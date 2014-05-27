@@ -956,6 +956,8 @@ public class SyllabusTool
       displayEvilTagMsg=false;
       displayDateError=false;
       displayCalendarError = false;
+      alertMessage = null;
+      
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -964,12 +966,12 @@ public class SyllabusTool
       {
         if(entry.getEntry().getTitle() == null)
         {
-          displayTitleErroMsg = true;
+        	alertMessage = rb.getString("empty_title_validate");
           return "edit";          
         }
         else if(entry.getEntry().getTitle().trim().equals(""))
         {
-          displayTitleErroMsg = true;
+        	alertMessage = rb.getString("empty_title_validate");
           return "edit";
         }
         if(entry.getEntry().getAsset()!=null)
@@ -985,8 +987,7 @@ public class SyllabusTool
     			}
     			if (alertMsg.length() > 0)
     			{
-    			  evilTagMsg =alertMsg.toString();
-    			  displayEvilTagMsg=true;
+    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
     			  return "edit";
     			}
     		 }
@@ -998,7 +999,7 @@ public class SyllabusTool
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-        	displayDateError = true;
+        	alertMessage = rb.getString("invalid_dates");
         	return "edit";
         }
         //calendar can not be posted to when it's saved as a draft
@@ -1187,6 +1188,7 @@ public class SyllabusTool
       displayEvilTagMsg=false;
       displayDateError=false;
       displayCalendarError = false;
+      alertMessage = null;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -1195,12 +1197,12 @@ public class SyllabusTool
       {
         if(entry.getEntry().getTitle() == null)
         {
-          displayTitleErroMsg = true;
+          alertMessage = rb.getString("empty_title_validate");
           return "edit";          
         }
         else if(entry.getEntry().getTitle().trim().equals(""))
         {
-          displayTitleErroMsg = true;
+          alertMessage = rb.getString("empty_title_validate");
           return "edit";
         }
         if(entry.getEntry().getAsset()!=null)
@@ -1216,8 +1218,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					evilTagMsg =alertMsg.toString();
-					displayEvilTagMsg=true;
+					alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
 					return "edit";
     			}
     		 }
@@ -1229,11 +1230,11 @@ public class SyllabusTool
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-        	displayDateError = true;
+        	alertMessage = rb.getString("invalid_dates");
         	return "edit";
         }
         if(entry.getEntry().getLinkCalendar() && entry.getEntry().getStartDate() == null && entry.getEntry().getEndDate() == null){
-        	displayCalendarError = true;
+        	alertMessage = rb.getString("invalid_calendar");
         	return "edit";
         }
         if (entry.justCreated == true)
@@ -1484,6 +1485,7 @@ public class SyllabusTool
       displayEvilTagMsg=false;	
       displayDateError=false;
       displayCalendarError = false;
+      alertMessage = null;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -1492,13 +1494,12 @@ public class SyllabusTool
       {
         if(entry.getEntry().getTitle() == null)
         {
-          displayTitleErroMsg = true;
-          
+        	alertMessage = rb.getString("empty_title_validate");
           return "read";          
         }
         else if(entry.getEntry().getTitle().trim().equals(""))
         {
-          displayTitleErroMsg = true;
+        	alertMessage = rb.getString("empty_title_validate");
           return "read";
         }
         if(entry.getEntry().getAsset()!=null)
@@ -1514,8 +1515,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					evilTagMsg =alertMsg.toString();
-					displayEvilTagMsg=true;
+    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
 					return "edit";
     			}
     		 }
@@ -1527,7 +1527,7 @@ public class SyllabusTool
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-        	displayDateError = true;
+        	alertMessage = rb.getString("invalid_dates");
         	return "edit";
         }
         //calendar can not be posted to when its a draft
@@ -1583,6 +1583,7 @@ public class SyllabusTool
       displayEvilTagMsg=false;	
       displayDateError=false;
       displayCalendarError = false;
+      alertMessage = null;
       if (!this.checkAccess())
       {
         return "permission_error";
@@ -1591,12 +1592,12 @@ public class SyllabusTool
       {
         if(entry.getEntry().getTitle() == null)
         {
-          displayTitleErroMsg = true;
+        	alertMessage = rb.getString("empty_title_validate");
           return "read";          
         }
         else if(entry.getEntry().getTitle().trim().equals(""))
         {
-          displayTitleErroMsg = true;
+        	alertMessage = rb.getString("empty_title_validate");
           return "read";
         }
         if(entry.getEntry().getAsset()!=null)
@@ -1612,8 +1613,7 @@ public class SyllabusTool
 				}
     			if (alertMsg.length() > 0)
     			{
-					evilTagMsg =alertMsg.toString();
-					displayEvilTagMsg=true;
+    				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
 					return "edit";
     			}
     		 }
@@ -1625,11 +1625,11 @@ public class SyllabusTool
         if(entry.getEntry().getStartDate() != null 
         		&& entry.getEntry().getEndDate() != null 
         		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-        	displayDateError = true;
+        	alertMessage = rb.getString("invalid_dates");
         	return "read";
         }
         if(entry.getEntry().getLinkCalendar() && entry.getEntry().getStartDate() == null && entry.getEntry().getEndDate() == null){
-        	displayCalendarError = true;
+        	alertMessage = rb.getString("invalid_calendar");
         	return "read";
         }
         if (entry.justCreated == false)
@@ -1760,14 +1760,15 @@ public class SyllabusTool
     displayEvilTagMsg=false;
     displayDateError=false;
     displayCalendarError = false;
+    alertMessage = null;
     if(entry.getEntry().getTitle() == null)
     {
-      displayTitleErroMsg = true;
+    	alertMessage = rb.getString("empty_title_validate");
       return "edit";          
     }
     if(entry.getEntry().getTitle().trim().equals(""))
     {
-      displayTitleErroMsg = true;
+    	alertMessage = rb.getString("empty_title_validate");
       return "edit";
     }
     if(entry.getEntry().getAsset()!=null)
@@ -1783,8 +1784,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				evilTagMsg =alertMsg.toString();
-				displayEvilTagMsg=true;
+				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
 				return "edit";
 			}
 		 }
@@ -1796,11 +1796,11 @@ public class SyllabusTool
     if(entry.getEntry().getStartDate() != null 
     		&& entry.getEntry().getEndDate() != null 
     		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-    	displayDateError = true;
+    	alertMessage = rb.getString("invalid_dates");
     	return "edit";
     }
     if(entry.getEntry().getLinkCalendar() && entry.getEntry().getStartDate() == null && entry.getEntry().getEndDate() == null){
-    	displayCalendarError = true;
+    	alertMessage = rb.getString("invalid_calendar");
     	return "edit";
     }
     return "preview";
@@ -1818,14 +1818,15 @@ public class SyllabusTool
     displayEvilTagMsg=false;  
     displayDateError=false;
     displayCalendarError = false;
+    alertMessage = null;
     if(entry.getEntry().getTitle() == null)
     {
-      displayTitleErroMsg = true;
+    	alertMessage = rb.getString("empty_title_validate");
       return "read";          
     }
     if(entry.getEntry().getTitle().trim().equals(""))
     {
-      displayTitleErroMsg = true;
+    	alertMessage = rb.getString("empty_title_validate");
       return "read";
     }
     if(entry.getEntry().getAsset()!=null)
@@ -1841,8 +1842,7 @@ public class SyllabusTool
 			}
 			if (alertMsg.length() > 0)
 			{
-				evilTagMsg =alertMsg.toString();
-				displayEvilTagMsg=true;
+				alertMessage = rb.getString("empty_content_validate") + " " + alertMsg.toString();
 				return "edit";
 			}
 		 }
@@ -1854,11 +1854,11 @@ public class SyllabusTool
     if(entry.getEntry().getStartDate() != null 
     		&& entry.getEntry().getEndDate() != null 
     		&& entry.getEntry().getStartDate().after(entry.getEntry().getEndDate())){
-    	displayDateError = true;
+    	alertMessage = rb.getString("invalid_dates");
     	return "read";
     }
     if(entry.getEntry().getLinkCalendar() && entry.getEntry().getStartDate() == null && entry.getEntry().getEndDate() == null){
-    	displayCalendarError = true;
+    	alertMessage = rb.getString("invalid_calendar");
     	return "read";
     }
     return "read_preview";

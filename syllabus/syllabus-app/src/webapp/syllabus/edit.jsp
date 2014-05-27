@@ -83,13 +83,9 @@
  					</h:outputLabel>
  					<h:inputText value="#{SyllabusTool.syllabusDataTitle}" id="title"/>
  				</h:panelGroup>
- 				<h:outputText value="#{msgs.empty_title_validate}" styleClass="alertMessage"
- 				 					rendered="#{SyllabusTool.displayTitleErroMsg}"/>
- 					
  			</h:panelGrid>
  
  			<div class="longtext">
-			    <h:outputText value="#{msgs.empty_content_validate} #{SyllabusTool.evilTagMsg}" styleClass="alertMessage"  rendered="#{SyllabusTool.displayEvilTagMsg}" escape="false" />
  				<label for="" style="float:none;display:block">
  					<h:outputText value="#{msgs.syllabus_content}"/>
  				</label>
@@ -161,8 +157,6 @@
 					<h4>
 						<h:outputText value="#{msgs.dateheader}"/>
 					</h4>
-					<h:outputText value="#{msgs.invalid_dates}" styleClass="alertMessage" 
-									rendered="#{SyllabusTool.displayDateError}"/>
 					<h:panelGrid columns="1" styleClass="jsfFormTable">
 						<h:panelGroup styleClass="shorttext">
 							<h:outputLabel for="dataStartDate">
