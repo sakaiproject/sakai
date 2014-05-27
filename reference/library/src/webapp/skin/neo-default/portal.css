@@ -392,9 +392,9 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
     border: 1px solid #555;
 }
 /* current site control rendering */
- ul.topnav li.nav-selected {
-     background: #fff;
-     border: 1px solid #555;
+ ul.topnav li.nav-selected, ul.topnav li.nav-selected:hover {
+     background: #09c;
+     border: 1px solid transparent;
 /*
     background: -moz-linear-gradient(top, #008DB9 0%, #007194 100%);
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#008DB9), color-stop(100%,#007194));
@@ -408,6 +408,9 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
     border-radius: 3px;
 
 */ }
+ul.topnav li.nav-selected a {
+    color:#fff
+}
 /* site submenu trigger */
 ul.topnav li span.drop {
     width: 17px;
