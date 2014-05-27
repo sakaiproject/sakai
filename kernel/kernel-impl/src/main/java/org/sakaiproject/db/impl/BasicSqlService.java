@@ -1266,7 +1266,11 @@ public abstract class BasicSqlService implements SqlService
 			}
 
 			// if asked to fail quietly, just return -1 if we find this error.
-			if (recordAlreadyExists || failQuiet) return -1;
+			if (recordAlreadyExists || failQuiet) {
+				LOG.warn("Sql.dbWrite(): recordAlreadyExists: " +  recordAlreadyExists + ", failQuiet: " + failQuiet + ", : error code: " 
+					+ e.getErrorCode() + ", " + "sql: " + sql + ", binds: " + debugFields(fields) + ", error: " + e.toString());
+				return -1;
+			}
 
 			// perhaps due to a mysql deadlock?
 			if (sqlServiceSql.isDeadLockError(e.getErrorCode()))
