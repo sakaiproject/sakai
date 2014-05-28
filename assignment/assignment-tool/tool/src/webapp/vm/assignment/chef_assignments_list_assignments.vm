@@ -769,7 +769,7 @@ function allowClick(object)
 			</table>
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
-					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("update")" accesskey="s" />
+					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" />
 				</p>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
