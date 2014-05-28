@@ -11,6 +11,10 @@
  */
 function checkEMIOptions(element, validEMIOptions, event) {
 	var charCode = event.charCode;
+	if(charCode === undefined) {
+		//for older IE versions
+		charCode = event.keyCode;
+	}
     //whitespace
     if (isCharGoodWhitespace(charCode)){
         return true;
@@ -63,7 +67,7 @@ function isValidOption(element, validEMIOptions, charCode){
 		return false;
 	}
 	// now check that it is not a duplicate
-	if (typeof element.value === 'undefined') {
+	if (typeof element.value === undefined) {
 		element.value = element.val();
 	}
 	var index = element.value.toUpperCase().indexOf(keychar);
