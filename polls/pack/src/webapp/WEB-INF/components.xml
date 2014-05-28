@@ -52,6 +52,18 @@
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+
+		<!-- inject other resources -->
+		<property name="emailTemplates" ref="org.sakaiproject.poll.emailtemplates.List" />
 	</bean>
 
+	<!-- Setup email templates -->
+	<bean id="org.sakaiproject.poll.emailtemplates.List" class="java.util.ArrayList">
+		<constructor-arg>
+      		<list>
+        		<value>org/sakaiproject/poll/templates/notifyDeletedOption.xml</value>
+        		<value>org/sakaiproject/poll/templates/notifyDeletedOption-zh_CN.xml</value>
+      		</list>      
+    	</constructor-arg>
+  	</bean>
 </beans>

@@ -129,6 +129,11 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void setEmailTemplateService(EmailTemplateService emailTemplateService) {
     	this.emailTemplateService = emailTemplateService;
     }
+
+    private ArrayList<String> emailTemplates;
+    public void setEmailTemplates(ArrayList<String> emailTemplates) {
+    	this.emailTemplates = emailTemplates;
+    }
     
     private EventTrackingService eventTrackingService;
     public void setEventTrackingService(EventTrackingService ets) {
@@ -236,10 +241,8 @@ public class ExternalLogicImpl implements ExternalLogic {
     public void init() {
     	log.info("init()");
     	
-    	//TODO this should be set by injection
-    	List<String> templates = new ArrayList<String>();
-    	templates.add(FILE_NOTIFY_DELETED_OPTION_TEMPLATE);
-    	emailTemplateService.processEmailTemplates(templates);
+    	// this is set by injection
+    	emailTemplateService.processEmailTemplates(emailTemplates);
     }
     
     public List<String> getSitesForUser(String userId, String permission) {
