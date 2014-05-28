@@ -166,6 +166,18 @@
 
   <pluginRepositories>
     <pluginRepository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
       <id>codehaus plugin repository</id>
       <url>https://nexus.codehaus.org/content/repositories/releases/</url>
       <releases>
@@ -191,6 +203,15 @@
     </pluginRepository>
   </pluginRepositories>
   <repositories>
+   <repository>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <layout>default</layout>
+      <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
     <repository>
       <id>sakai-maven</id>
       <name>Sakai Maven Repo</name>
