@@ -223,6 +223,10 @@
     }
 
     function RemoveStorage(autoSaveKey) {
+        if (timeOutId) {
+            clearTimeout(timeOutId);
+        }
+
         localStorage.removeItem(autoSaveKey);
     }
 
