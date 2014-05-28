@@ -1981,7 +1981,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		String resourceGroup = toolSession.getAttribute("resources.request.create_wizard_collection_id").toString();
 
-		if (!("undefined".equals(fullPath)))
+		if (!("undefined".equals(fullPath) || "".equals(fullPath)))
 		{
 			//Received a file that is inside an uploaded folder 
 			//Try to create a collection with this folder and to add the file inside it after
