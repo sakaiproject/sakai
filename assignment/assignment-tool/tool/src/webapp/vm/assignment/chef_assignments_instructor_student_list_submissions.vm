@@ -131,7 +131,7 @@
 						#set($submitterId=$!member.getDisplayId())
 						#if ($!submitterId)
 							##attach the displayId
-							#set($submitterName=$submitterName.concat("(").concat($submitterId).concat(")"))
+							#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
 							#end
 						<tr>
 							<td headers="studentname" class="specialLink">	
