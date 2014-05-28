@@ -1,6 +1,10 @@
 <!-- $Id$ -->
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
-##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_grading_submission.vm,v 1.10 2005/06/03 15:32:15 zqian.umich.edu Exp $ -->
+#set( $H = '-' )
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
 <script type="text/javascript">
 focus_path = [ '$fField' ];
 function handleEnterKeyPress(ev)
@@ -689,10 +693,11 @@ function handleEnterKeyPress(ev)
 							#set($resubmitStyle="display:none")
 						#end
 						<p class="checkbox" id="tempAllowRes" #if ($submissionType == 4) style = "display:none"#end>
-							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none'}" /> 
+							<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $submissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitContainer').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitContainer').style.display = 'none';}" /> 
 							<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 	    				</p>
-						<span id="allowResubmitNumber" style="$!resubmitStyle">
+						<div id="allowResubmitContainer" style="$!resubmitStyle">
+						  <span id="allowResubmitNumber">
 							&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label for="allowResubmitNumberSelect">
 								$tlang.getString("allow.resubmit.number")
 							</label>&nbsp;
@@ -704,42 +709,31 @@ function handleEnterKeyPress(ev)
 								#end
 								<option value="-1" #if($!value_allowResubmitNumber == -1)selected="selected"#end>$tlang.getString("allow.resubmit.number.unlimited")</option>
 							</select>
-						</span>
-						&nbsp;&nbsp;&nbsp;
-						<span id="allowResubmitTime" style="$!resubmitStyle">
-							## only show date selection when allowed to resubmit
-							<label>
+						  </span>
+						  <span>&nbsp;</span>
+						  <span id="allowResubmitTime">
+							<label for="allowResubmitDate">
 								$tlang.getString("gen.acesubunt")
 							</label>&nbsp;
-							#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
-							$tlang.getString("gen.at") 
-							<label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
-                            <select name="$name_ResubmitHour" id="$name_ResubmitHour">
-								#foreach ($i in [1..12])
-									#if ($i == $value_ResubmitHour)
-										<option value="$i" selected="selected">$i</option>
-									#else
-										<option value="$i">$i</option>
-									#end
-								#end
-							</select>
-                            <label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
-							<select name="$name_ResubmitMin" id="$name_ResubmitMin">
-								#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-									<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-								#end
-							</select>
-                            <label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
-							<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
-								#foreach ($i in ["AM", "PM"])
-									#if ($i == $value_ResubmitAMPM)
-										<option value="$i" selected="selected">$i</option>
-									#else
-										<option value="$i">$i</option>
-									#end
-								#end
-							</select>
-						</span>
+							<input type="text" id="allowResubmitDate" name="allowResubmitDate" class="datepicker" value="">
+
+							<script type="text/javascript">
+								localDatePicker({
+									input:'#allowResubmitDate', 
+									useTime:1, 
+									val:"$value_ResubmitYear$H$value_ResubmitMonth$H$value_ResubmitDay $value_ResubmitHour:$value_ResubmitMin",
+									parseFormat: 'YYYY-MM-DD HH:mm',
+									ashidden:{
+										month:"allow_resubmit_closeMonth",
+										day:"allow_resubmit_closeDay",
+										year:"allow_resubmit_closeYear",
+										hour:"allow_resubmit_closeHour",
+										minute:"allow_resubmit_closeMin"
+									}
+								});
+							</script>
+						  </span>
+						</div> <!-- End of the allowResubmitContainer -->
 					#end
 		<div class="navPanel">
 		  <div class="viewNav highlight" style="width:70%;line-height:1.4em;padding-top:.75em;">
