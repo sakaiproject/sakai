@@ -502,16 +502,29 @@
   </build>
 
   <repositories>
-    <!-- terracotta repo is unreliable - KNL-1257 -->
     <repository>
-      <id>kernel_internal_mvnrepo</id>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
       <layout>default</layout>
-      <url>file://${kernel.basedir}/mvn-repo</url>
+      <url>http://repo1.maven.org/maven2</url>
       <snapshots>
         <enabled>false</enabled>
       </snapshots>
     </repository>
-    <!--
+    <repository>
+      <id>sakai-maven</id>
+      <name>Sakai Maven Repo</name>
+      <layout>default</layout>
+      <url>http://source.sakaiproject.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
     <repository>
       <id>opencast</id>
       <name>Opencast Repo</name>
@@ -527,7 +540,6 @@
       <id>terracotta-releases</id>
       <url>http://www.terracotta.org/download/reflector/releases</url>
     </repository>
-    -->
   </repositories>
 
 </project>
