@@ -47,7 +47,7 @@
             RemoveStorage(autoSaveKey);
         });
 
-        editorInstance.on('key', startTimer);
+        editorInstance.on('change', startTimer);
 
         editorInstance.on('destroy', function() {
             if (saveOnDestroy) {
