@@ -366,7 +366,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  while (mdroles.hasNext()) {
 	      Element role = (Element)mdroles.next();
 	      if (!"Learner".equals(role.getChildText("value",  ns.lom_ns()))) {
-		  usesRole = true;
+		  // roles currently only implemented for visible objects. We may want to fix that.
+		  if (!hide && !isBank)
+		      usesRole = true;
 	      }
 	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns()))) {
 		  roles.add(getGroupForRole("Mentor"));
