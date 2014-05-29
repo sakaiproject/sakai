@@ -938,8 +938,8 @@ alter table MFR_PVT_MSG_USR_T add REPLIED number(1, 0) default 0 not null;
 -- ------------
 
 -- https://jira.sakaiproject.org/browse/SAK-24337
-alter table GB_GRADEBOOK_T add TOTAL_POINTS_DISPLAYED number(1, 0) not null;
-alter table GB_GRADEBOOK_T add COURSE_AVERAGE_DISPLAYED number(1, 0) not null;
+alter table GB_GRADEBOOK_T add TOTAL_POINTS_DISPLAYED number(1,0) default '0' not null;
+alter table GB_GRADEBOOK_T add COURSE_AVERAGE_DISPLAYED number(1,0) default '0' not null;
 
 update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=1, COURSE_AVERAGE_DISPLAYED=1 where COURSE_GRADE_DISPLAYED=1;
 update GB_GRADEBOOK_T set TOTAL_POINTS_DISPLAYED=0, COURSE_AVERAGE_DISPLAYED=0 where COURSE_GRADE_DISPLAYED=0;
@@ -1093,7 +1093,9 @@ UPDATE EMAIL_TEMPLATE_ITEM SET SUBJECT = REPLACE(SUBJECT, chr(13), '');
 -- END SAK-25879
 
 -- BEGIN SAK-25951 fix line breaks in email templates
-ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY username VARCHAR(255) NOT NULL;
+-- Migrating from 2.9 to 10_0 : the following alter should already be in place. Uncommenting
+-- will not harm anything, but will report an error in the upgrade.
+-- ALTER TABLE SAKAI_POSTEM_STUDENT MODIFY username VARCHAR(255) NOT NULL;
 -- END SAK-25951
 
 -- BEGIN SAK-24427 / SAK-25532
@@ -1200,7 +1202,7 @@ CREATE UNIQUE INDEX CONTENT_RESOURCE_BB_DEL_INDEX ON CONTENT_RESOURCE_BB_DELETE
 
 -- BEGIN SAK-26233: LTI 2.0 tables
 CREATE TABLE lti_binding (
-  ID NUMBER(id) NOT NULL,
+  ID NUMBER(11) NOT NULL,
   tool_id NUMBER(11) DEFAULT NULL,
   SITE_ID varchar2(99) DEFAULT NULL,
   settings clob,
@@ -1248,7 +1250,7 @@ alter table lti_tools add deployment_id NUMBER(11) DEFAULT NULL;
 alter table lti_tools add settings clob;
 alter table lti_tools add parameter clob;
 alter table lti_tools add enabled_capability clob;
-alter table lti_tools drop domain;
+alter table lti_tools drop column domain;
 -- END SAK-26233
 
 -- BEGIN SAK-26234 overall JIRA for MSGCNTR conversions
