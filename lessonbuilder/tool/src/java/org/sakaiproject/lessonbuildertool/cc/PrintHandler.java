@@ -123,6 +123,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
     
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_WEBCONTENT="webcontent";
+  private static final String LAR0="associatedcontent/imscc_xmlv1p0/learning-application-resource";
+  private static final String LAR1="associatedcontent/imscc_xmlv1p1/learning-application-resource";
+  private static final String LAR2="associatedcontent/imscc_xmlv1p2/learning-application-resource";
+  private static final String LAR3="associatedcontent/imscc_xmlv1p3/learning-application-resource";
+
   private static final String WEBLINK="webLink";
   private static final String CC_WEBLINK0="imswl_xmlv1p0";
   private static final String CC_WEBLINK1="imswl_xmlv1p1";
@@ -140,7 +145,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String CC_QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
   private static final String CC_QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
   private static final String CC_QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
-  private static final String CC_QUESTION_BANK3="imsqti_xmlv1p3/imscc_xmlv1p3/question-bank";
+  private static final String CC_QUESTION_BANK3="imsqti_xmlv1p2/imscc_xmlv1p3/question-bank";
   private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
   private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
   private static final String CC_BLTI3="imsbasiclti_xmlv1p3";
@@ -485,7 +490,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  sequences.set(top, seq+1);
 	      }
 	      
-	  } else if (topictool != null && ( type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1) || type.equals(CC_TOPIC2) || type.equals(CC_TOPIC3))){
+	  } else if (type.equals(CC_TOPIC0) || type.equals(CC_TOPIC1) || type.equals(CC_TOPIC2) || type.equals(CC_TOPIC3)){
+	    if (topictool != null) {
 	      Element topicXml =  null;
 	      String filename = getFileName(resource);
 	      System.out.println("qual name " + resource.getName());
@@ -558,11 +564,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  sequences.set(top, seq+1);
 		  // System.out.println("finished with forum item");
 	      }
-
-	  } else if (quiztool != null && (
-		  type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) || type.equals (CC_ASSESSMENT2) || type.equals (CC_ASSESSMENT3) ||
-		  type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3))) {
-
+	    }
+	  } else if (type.equals(CC_ASSESSMENT0) || type.equals(CC_ASSESSMENT1) || type.equals (CC_ASSESSMENT2) || type.equals (CC_ASSESSMENT3) ||
+		     type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3)) {
+	    if (quiztool != null) {
 	      String fileName = getFileName(resource);
 	      String sakaiId = null;
 	      
@@ -629,11 +634,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
 		  sequences.set(top, seq+1);
 	      }
-
+	    }
 	  } else if (type.equals(CC_QUESTION_BANK0) || type.equals(CC_QUESTION_BANK1) || type.equals(CC_QUESTION_BANK2) || type.equals(CC_QUESTION_BANK3))
 	      ; // handled elsewhere
 	  // current code seems to assume that BLTI tool is part of the page so skip if no page
-	  else if (!nopage && (type.equals(CC_BLTI0) || type.equals(CC_BLTI1) || type.equals(CC_BLTI3))) { 
+	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1) || type.equals(CC_BLTI3)) { 
+	    if (!nopage) {
 	      String filename = getFileName(resource);
 	      Element ltiXml =  parser.getXML(loader, filename);
 	      XMLOutputter outputter = new XMLOutputter();
@@ -681,7 +687,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			System.out.println("LTI Import Failed..");
 		    }
 		}
-	  } else if (type.equals(CC_WEBCONTENT) && hide) {
+	    }
+	  } else if ((type.equals(CC_WEBCONTENT) && hide) || type.equals(LAR0) || type.equals(LAR1) || type.equals(LAR2) || type.equals(LAR3)) {
 	      // handled elsewhere
 	  } else
 	      badTypes.add(resource.getAttributeValue(TYPE));

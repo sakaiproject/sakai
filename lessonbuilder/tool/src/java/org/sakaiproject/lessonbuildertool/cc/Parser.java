@@ -308,13 +308,15 @@ public class Parser extends AbstractParser {
                               the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
       the_handler.setCCItemXml(the_item, resource, this, utils, false);
       ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
-      if (parser==null) {
-	  System.out.println("content type not recognised " + resource.getAttributeValue(CC_RES_TYPE));
-	  return;
-      }
+      // we don't use parsers for content that is handled entirely in PrintHandler
+      //      if (parser==null) {
+      //	  System.out.println("content type not recognised " + resource.getAttributeValue(CC_RES_TYPE));
+      //	  return;
+      //      }
       processResource(resource,
                       the_handler);
-      parser.parseContent(the_handler, utils, resource, isProtected(resource));
+      if (parser != null)
+	  parser.parseContent(the_handler, utils, resource, isProtected(resource));
       the_handler.endCCItem();
     } else {
       the_handler.startCCFolder(the_item);
