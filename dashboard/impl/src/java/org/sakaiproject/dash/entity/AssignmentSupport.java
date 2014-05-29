@@ -417,8 +417,8 @@ public class AssignmentSupport {
 				CalendarItem calendarDueDateItem = calendarDueDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getDueTime().getTime()), "assignment.due.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 				CalendarItem calendarCloseDateItem = dashboardLogic.createCalendarItem(assn.getTitle(), new Date(assn.getCloseTime().getTime()), "assignment.close.date", assnReference, context, sourceType, (String) null, (RepeatingCalendarItem) null, (Integer) null);
 
-
 				if(dashboardLogic.isAvailable(assnReference, IDENTIFIER)) {
+
 					// add the news links as appropriate
 					dashboardLogic.createNewsLinks(newsItem);
 					
