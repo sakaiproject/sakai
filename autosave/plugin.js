@@ -5,6 +5,7 @@
 
 (function() {
     if (!supportsLocalStorage()) {
+        CKEDITOR.plugins.add("autosave", {}); //register a dummy plugin to pass CKEditor plugin initialization process
         return;
     }
 
@@ -96,7 +97,16 @@
 
     // localStorage detection
     function supportsLocalStorage() {
-        return typeof (Storage) !== 'undefined';
+        if (typeof (Storage) === 'undefined') {
+            return false;
+        }
+
+        try {
+            localStorage.getItem("___test_key");
+            return true;
+        } catch (e) {
+            return false;
+        }
     }
 
     function GenerateAutoSaveDialog(editorInstance, autoSaveKey) {
