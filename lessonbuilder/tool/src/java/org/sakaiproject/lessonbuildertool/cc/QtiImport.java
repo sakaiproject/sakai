@@ -1678,21 +1678,25 @@ public class QtiImport {
 	return usesCurriculum;
     }
 
-    public boolean mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s, SimplePageBean b) throws IOException {
+    public boolean mainproc (InputStream i, PrintWriter o, boolean isBank, String base, String s, SimplePageBean b, Document d) throws IOException {
 
         out = o;
 	filebase = base;
 	siteId = s;
 	bean = b;
 
-	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+
 
 	try {
-	    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-	    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-
-	    DocumentBuilder builder = factory.newDocumentBuilder();
-	    document = builder.parse(i);
+	    if (d != null)
+		document = d;
+	    else {
+		DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+		factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+		DocumentBuilder builder = factory.newDocumentBuilder();
+		document = builder.parse(i);
+	    }
 
 	    NodeList sections = null;
 	    if (isBank) {

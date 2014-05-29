@@ -48,10 +48,22 @@ public class Ns  {
 						Namespace.getNamespace("blti", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0"),
 						Namespace.getNamespace("blti", "http://www.imsglobal.org/xsd/imsbasiclti_v1p0")};
 
+    private static final Namespace LTICC_NS[] = {Namespace.NO_NAMESPACE,
+						Namespace.NO_NAMESPACE,
+						Namespace.NO_NAMESPACE,
+						Namespace.getNamespace("lticc", "http://www.imsglobal.org/xsd/imslticc_v1p3")};
+
+    private static final Namespace QTICC_NS[] = {Namespace.NO_NAMESPACE,
+						Namespace.NO_NAMESPACE,
+						Namespace.NO_NAMESPACE,
+						 Namespace.getNamespace("qticc", "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")};
+
     private static final Namespace CSMD_NS[] = {Namespace.NO_NAMESPACE,
 						Namespace.NO_NAMESPACE,
 						Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscsmetadata_v1p0"),
 						Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscsmetadata_v1p0")};
+
+
 
     public void setVersion(int v) {
 	version = v;
@@ -89,8 +101,16 @@ public class Ns  {
 	return BLTI_NS[version];
     }
 
+    public Namespace lticc_ns() {
+	return LTICC_NS[version];
+    }
+
     public Namespace csmd_ns() {
 	return CSMD_NS[version];
+    }
+    
+    public Namespace qticc_ns() {
+	return QTICC_NS[version];
     }
 
 }

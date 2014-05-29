@@ -62,6 +62,8 @@ import java.io.CharArrayWriter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.net.URLEncoder;
+import org.w3c.dom.Document;
+import org.jdom.output.DOMOutputter;
 
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.tool.api.ToolManager;
@@ -138,6 +140,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String CC_TOPIC1="imsdt_xmlv1p1";
   private static final String CC_TOPIC2="imsdt_xmlv1p2";
   private static final String CC_TOPIC3="imsdt_xmlv1p3";
+  private static final String QUESTIONS="questestinterop";
   private static final String CC_ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
   private static final String CC_ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
   private static final String CC_ASSESSMENT2="imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
@@ -146,6 +149,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String CC_QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
   private static final String CC_QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
   private static final String CC_QUESTION_BANK3="imsqti_xmlv1p2/imscc_xmlv1p3/question-bank";
+  private static final String CART_LTI_LINK="cartridge_basiclti_link";
   private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
   private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
   private static final String CC_BLTI3="imsbasiclti_xmlv1p3";
@@ -341,7 +345,9 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public String getGroupForRole(String role) {
       // if group already exists, this will return the existing one
       try {
-	  return GroupPermissionsService.makeGroup(siteId, role);
+	  String g = GroupPermissionsService.makeGroup(siteId, role, null, simplePageBean);
+	  return g;
+	  //	  return GroupPermissionsService.makeGroup(siteId, role);
       } catch (Exception e) {
 	  System.err.println("Unable to create group " + role);
 	  return null;
@@ -457,8 +463,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      if (filename != null) {
 		  linkXml =  parser.getXML(loader, filename);
 	      } else {
-		  List<Element> children = resource.getChildren();
-		  linkXml = children.get(0);
+		  linkXml = resource.getChild(WEBLINK, ns.link_ns());
 		  filename = resource.getAttributeValue(ID) + XML;
 	      }
 	      Namespace linkNs = ns.link_ns();
@@ -496,17 +501,10 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	    if (topictool != null) {
 	      Element topicXml =  null;
 	      String filename = getFileName(resource);
-	      System.out.println("qual name " + resource.getName());
 	      if (filename != null) {
 		  topicXml =  parser.getXML(loader, filename);		  
 	      } else {
-		  List<Element> children = resource.getChildren();
-		  System.out.println("child tagname " + children.get(0).getQualifiedName());
-		  topicXml = resource.getChild(TOPIC, ns.cc_ns());
-		  System.out.println("topic child " + topicXml);
- 		  topicXml = resource.getChild(TOPIC);
-		  System.out.println("topic child " + topicXml);
-		  topicXml = children.get(0);
+		  topicXml = resource.getChild(TOPIC, ns.topic_ns());
 	      }
 	      Namespace topicNs = ns.topic_ns();
 	      String topicTitle = topicXml.getChildText(TITLE, topicNs);
@@ -572,26 +570,40 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	    if (quiztool != null) {
 	      String fileName = getFileName(resource);
 	      String sakaiId = null;
+	      String base = baseName;
+	      org.w3c.dom.Document quizDoc = null;
+	      InputStream instream = null;
 	      
-	      if (itemsAdded.get(fileName) == null) {
+	      // not already added
+	      if (fileName == null || itemsAdded.get(fileName) == null) {
+
+		File qtitemp = File.createTempFile("ccqti", "txt");
+		PrintWriter outwriter = new PrintWriter(qtitemp);
+
+		// assessment in file
+		if (fileName != null) {
+
 		  itemsAdded.put(fileName, SimplePageItem.DUMMY); // don't add the same test more than once
 
-		  InputStream instream = utils.getFile(fileName);
-		  //		  ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		  //PrintWriter outwriter = new PrintWriter(baos);
-		  File qtitemp = File.createTempFile("ccqti", "txt");
-		  PrintWriter outwriter = new PrintWriter(qtitemp);
+		  instream = utils.getFile(fileName);
 	      
 		  // I'm going to assume that URLs in the CC files are legal, but if
 		  // I add to them I nneed to URLencode what I add
-		  String base = baseUrl + fileName;
+		  base = baseUrl + fileName;
 		  int slash = base.lastIndexOf("/");
 		  if (slash >= 0)
 		      base = base.substring(0, slash+1); // include trailing slash
 
+		  // assessment inline
+		} else {
+		  Element quizXml = (Element)resource.getChild(QUESTIONS, ns.qticc_ns()).clone();
+		  // we work in jdom. Qti parser needs w3c
+		  quizDoc = new DOMOutputter().output(new org.jdom.Document(quizXml));
+		}
+
 		  QtiImport imp = new QtiImport();
 		  try {
-		      boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean);
+		      boolean thisUsesPattern = imp.mainproc(instream, outwriter, isBank, base, siteId, simplePageBean, quizDoc);
 		      if (thisUsesPattern)
 			  usesPatternMatch = true;
 		      if (imp.getUsesCurriculum())
@@ -643,7 +655,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  else if (type.equals(CC_BLTI0) || type.equals(CC_BLTI1) || type.equals(CC_BLTI3)) { 
 	    if (!nopage) {
 	      String filename = getFileName(resource);
-	      Element ltiXml =  parser.getXML(loader, filename);
+	      Element ltiXml = null;
+	      if (filename != null) 
+		  ltiXml =  parser.getXML(loader, filename);
+	      else {
+		  ltiXml = resource.getChild(CART_LTI_LINK, ns.lticc_ns());
+	      }
 	      XMLOutputter outputter = new XMLOutputter();
 	      String strXml = outputter.outputString(ltiXml);       
 	      Namespace bltiNs = ns.blti_ns();

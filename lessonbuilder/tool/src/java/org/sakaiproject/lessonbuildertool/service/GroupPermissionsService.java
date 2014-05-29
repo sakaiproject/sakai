@@ -41,6 +41,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -83,10 +84,7 @@ public class GroupPermissionsService {
 	    convertGroupsTable();
 	}
 
-	public static String makeGroup(String siteId, String title) throws IOException {
-	    return makeGroup(siteId, title, null);
-	}
-	public static String makeGroup(String siteId, String title, String ref) throws IOException {
+	public static String makeGroup(String siteId, String title, String ref, SimplePageBean simplePageBean) throws IOException {
 		Site site = null;
 		AuthzGroup realm = null;
 
@@ -149,6 +147,8 @@ public class GroupPermissionsService {
 		group.getProperties().addProperty("group_prop_wsetup_created", Boolean.TRUE.toString());
 		try {
 			SiteService.save(site);
+			// clear cached current site
+			simplePageBean.clearCurrentSite();
 		} catch (IdUnusedException e) {
 			log.warn("ID unused", e);
 		} catch (PermissionException e) {

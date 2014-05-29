@@ -1440,6 +1440,11 @@ public class SimplePageBean {
 		return currentSite;
 	}
 
+    // after someone else hacks on the site
+	public void clearCurrentSite() {  
+	    currentSite = null;
+	}
+
     // find page to show in next link
     // If the current page is a LB page, and it has a single "next" link on it, use that
 
@@ -2497,7 +2502,7 @@ public class SimplePageBean {
 						ourGroupName = utf8truncate(ourGroupName, 99);
 					    else if (ourGroupName.length() > 99) 
 						ourGroupName = ourGroupName.substring(0, 99);
-					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, i.getSakaiId());
+					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, i.getSakaiId(), this);
 					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group
