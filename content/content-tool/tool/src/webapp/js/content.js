@@ -312,9 +312,10 @@ $(document).ready(function(){
     });
     
     var collId = $('#collectionId').val();
-    collId = collId.substring(0, collId.length - 1);
+    collId = collId.substring(0, collId.length - 1).split('/');
+    var rootId =  '/' + collId[1] + '/' + collId[2];
     // construct a url to /direct based on current site
-    var url = '/direct/content' + collId.replace('/group/', '/site/') + '.json';
+    var url = '/direct/content' + rootId.replace('/group/', '/site/') + '.json';
     $('#navigate').click(function(){
         if ($('#navigatePanelInner ul').length === 0) {
             var jqxhr = $.getJSON(url, function(data){
