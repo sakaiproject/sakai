@@ -84,7 +84,7 @@ var renderHierarchyWithJsonTree = function(data){
     //massage the json so that we can use jsonTree
     var user;
     $.each(data.content_collection, function(i, item){
-        item.text = item.title;
+        item.text = escapeHtml(item.title);
         //get item.id field to turn into a jsTree happy item.id
         if (mode === 'group') {
             item.id = item.url.substr(item.url.indexOf('/group/' + siteId));
@@ -219,6 +219,10 @@ $(document).ajaxStart(function(){
 $(document).ajaxStop(function(){
     $('#spinner').hide();
 });
+
+var escapeHtml = function (str) {
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') ;
+}
 
 $(document).ready(function(){
     $('#navigate').prop('disabled',false)
