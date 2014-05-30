@@ -408,7 +408,7 @@ ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
     border-radius: 3px;
 
 */ }
-ul.topnav li.nav-selected a {
+ul.topnav > li.nav-selected > a {
     color:#fff
 }
 /* site submenu trigger */
