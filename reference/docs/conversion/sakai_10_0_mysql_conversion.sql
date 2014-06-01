@@ -1493,3 +1493,13 @@ ALTER TABLE signup_attachments
 	foreign key (meeting_id) 
 	references signup_meetings (id);
 -- END SAK-26263
+
+
+-- BEGIN KNL-1260: Add admin site perms
+
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1400', '!admin', 'Delegated Access', '0', 19, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1450', '!admin-1400', '!admin', 'sakai.adminsiteperms', 1, 'Admin Site Perms', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1400', 'sitePage.customTitle', 'true');
+
+-- END SAK-26263
+
