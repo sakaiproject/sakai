@@ -2601,59 +2601,74 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 		//get special users
 		String config = serverConfigurationService.getString("webservice.specialUsers", "admin,postmaster");
 		String[] items = StringUtils.split(config, ',');
-		List<String> specialUsers = Arrays.asList(items);
+		//get the myworkspace site id for those users
+		List<String> specialUserWSIds = new ArrayList<String>();
+		for (Iterator userIds = Arrays.asList(items).iterator(); userIds.hasNext();) {
+			String myWorkspaceId = siteService.getUserSiteId((String) userIds.next());
+			specialUserWSIds.add(myWorkspaceId);
+		}
 		
-		//now get all users
-		List<String> allUsers = new ArrayList<String>();
+		// get a list of all myworkspace sites (seems to only return sites for provided users)
+		List<Site> sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, "myworkspace", 
+			null, null, null, null);
+		HashMap<String,Site> siteHash = new HashMap();
+		for (Iterator j = sites.iterator(); j.hasNext();) { 
+			Site thisSite = (Site)j.next();
+			siteHash.put( thisSite.getId(), thisSite );
+		}
+		
+			
+		// now add additional myworkspace sites for native sakai users
 		List<User> users = userDirectoryService.getUsers();
 		for (Iterator i = users.iterator(); i.hasNext();) { 
 			User user = (User) i.next();
-			allUsers.add(user.getId());
-		}
-		
-		//remove special users
-		allUsers.removeAll(specialUsers);
-		
-		//now add a page to each site, and the tool to that page
-		for (Iterator j = allUsers.iterator(); j.hasNext();) { 
-			String userid = StringUtils.trim((String)j.next());
-			
-			LOG.info("Processing user:" + userid);
-		
-			String myWorkspaceId = siteService.getUserSiteId(userid);
-		
-			Site siteEdit = null;
-			SitePage sitePageEdit = null;
-			
+			String myWorkspaceId = siteService.getUserSiteId(user.getId());
+			if ( siteHash.containsKey(myWorkspaceId) )
+				continue;
 			try {
-				siteEdit = siteService.getSite(myWorkspaceId);
+				Site siteEdit = siteService.getSite(myWorkspaceId);
+				siteHash.put( siteEdit.getId(), siteEdit );
 			} catch (IdUnusedException e) {
 				LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
 				continue;
 			}
 			
-			sitePageEdit = siteEdit.addPage();
-			sitePageEdit.setTitle(pagetitle);
-			sitePageEdit.setLayout(pagelayout);
-			
-			//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
-			//deal with this here and just set to the number of pages - 1 so its at the bottom.
-			int numPages = siteEdit.getPages().size();
-			if(position > numPages) {
-				position = numPages-1;
+		}
+		
+		//now add a page to each site, and the tool to that page
+		for (Iterator j = siteHash.values().iterator(); j.hasNext();) { 
+			Site siteEdit = (Site)j.next();
+			String siteId = siteEdit.getId();
+			LOG.info("Processing site:" + siteId);
+		
+			// if the site is not for special user
+			if (!specialUserWSIds.contains(siteId))
+			{
+				SitePage sitePageEdit = null;
+				
+				sitePageEdit = siteEdit.addPage();
+				sitePageEdit.setTitle(pagetitle);
+				sitePageEdit.setLayout(pagelayout);
+				
+				//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
+				//deal with this here and just set to the number of pages - 1 so its at the bottom.
+				int numPages = siteEdit.getPages().size();
+				if(position > numPages) {
+					position = numPages-1;
+				}
+				
+				sitePageEdit.setPosition(position);
+				sitePageEdit.setPopup(popup);
+				
+				ToolConfiguration tool = sitePageEdit.addTool();
+				Tool t = tool.getTool();
+				
+				tool.setTool(toolid, toolManager.getTool(toolid));
+				tool.setTitle(tooltitle);
+				
+				siteService.save(siteEdit);
+				LOG.info("Page added for site:" + siteId);
 			}
-			
-			sitePageEdit.setPosition(position);
-			sitePageEdit.setPopup(popup);
-			
-			ToolConfiguration tool = sitePageEdit.addTool();
-			Tool t = tool.getTool();
-			
-			tool.setTool(toolid, toolManager.getTool(toolid));
-			tool.setTitle(tooltitle);
-			
-			siteService.save(siteEdit);
-			LOG.info("Page added for user:" + userid);
 
 		}
 		return "success";
