@@ -20,7 +20,7 @@
     <directive name="connectionTimeout" value="5000" />
     <directive name="maxStyleSheetImports" value="3" />
     <!-- FORMATTING -->
-    <directive name="formatOutput" value="true" /><!-- default: true -->
+    <directive name="formatOutput" value="false" /><!-- default: true -->
     <directive name="preserveComments" value="false" /><!-- default: false -->
     <directive name="preserveSpace" value="false" /><!-- default: false -->
   </directives>
