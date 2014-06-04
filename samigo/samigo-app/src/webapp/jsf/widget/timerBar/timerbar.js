@@ -93,7 +93,7 @@ if (hasTimeLimit) {
 	else PBouter.style.visibility="visible";
 }
 else {
-	if (showTimeWarning=="true") {
+	if (showTimeWarning==true) {
 		//alert("You have less than 30 min...");
 		show30MinWarning();
 	}
