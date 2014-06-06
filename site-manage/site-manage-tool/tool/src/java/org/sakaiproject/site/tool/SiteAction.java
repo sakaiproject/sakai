@@ -8884,12 +8884,28 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						try {
 							String oldSiteId = (String) state
 									.getAttribute(STATE_SITE_INSTANCE_ID);
+							
+							// Retrieve the source site reference to be used in the EventTrackingService
+							// notification of the start/end of a site duplication.
+							String sourceSiteRef = null;
+							try {
+								Site sourceSite = SiteService.getSite(oldSiteId);
+								sourceSiteRef = sourceSite.getReference();
+								
+							} catch (IdUnusedException e) {
+								M_log.warn(this + ".actionForTemplate; case29: invalid source siteId: "+oldSiteId);
+								return;
+							}
+
 							// SAK-20797
 							long oldSiteQuota = this.getSiteSpecificQuota(oldSiteId);
 							
 							Site site = SiteService.addSite(newSiteId,
 									getStateSite(state));
 							
+							// An event for starting the "duplicate site" action
+							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+                        
 							// get the new site icon url
 							if (site.getIconUrl() != null)
 							{
@@ -8928,7 +8944,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							
 							try {
 								SiteService.save(site);
-							
+
 								// import tool content
 								importToolContent(oldSiteId, site, false);
 	
@@ -8992,6 +9008,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							sendSiteNotification(state, site, null);
 
 							state.setAttribute(SITE_DUPLICATED, Boolean.TRUE);
+							
+							// An event for ending the "duplicate site" action
+							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
+
 						} catch (IdInvalidException e) {
 							addAlert(state, rb.getString("java.siteinval"));
 							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + newSiteId, e);
@@ -9354,19 +9374,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private void importToolContent(String oSiteId, Site site, boolean bypassSecurity) {
 		String nSiteId = site.getId();
-		String sourceSiteRef = null;
-		
-		try {
-			Site sourceSite = SiteService.getSite(oSiteId);
-			sourceSiteRef = sourceSite.getReference();
-		} catch (IdUnusedException e) {
-			M_log.warn(this + ".importToolContent invalid source siteId: "+oSiteId);
-			return;
-		}
-		
-		// An event for starting the site duplicat
-		EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-		
+
 		// import tool content
 		if (bypassSecurity)
 		{
@@ -9454,8 +9462,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			SecurityService.popAdvisor();
 		}
       
-		// An event for ending the site duplicate
-		EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_END, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
 	}
 	/**
 	 * get user answers to setup questions
