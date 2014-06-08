@@ -27,14 +27,32 @@ config.extraPlugins = 'autosave';
 ````
 
 #####Optional
-The Default autosavekey can be overidden from the config ...
+
+####Auto save Key
+The Default autosavekey can be overridden from the config ...
 
 ````js
 config.autosave_SaveKey = 'autosaveKey';
 ````
 
-The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can beoveridden from the config ...
+####Ignore Content older then X
+The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can be overidden from the config ...
 
 ````js
 config.autosave_NotOlderThan = 1440;
 ````
+
+####Save Content on Destroy
+Setting to Save content on editor destroy (Default is false) ...
+
+````js
+config.autosave_saveOnDestroy = false;
+````
+
+####Save Detection Selectors
+Setting to set the Save button to inform the plugin when the content is saved by the user and doesn't need to be stored temporary ...
+
+````js
+config.autosave_saveDetectionSelectors = "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
+````
+
