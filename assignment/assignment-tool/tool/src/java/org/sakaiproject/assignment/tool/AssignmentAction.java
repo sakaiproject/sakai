@@ -5750,7 +5750,7 @@ public class AssignmentAction extends PagedResourceActionII
 		{
 			// check the submission inputs based on the submission type
 			int submissionType = a.getContent().getTypeOfSubmission();
-			if (submissionType == 1)
+			if (submissionType == Assignment.TEXT_ONLY_ASSIGNMENT_SUBMISSION)
 			{
 				// for the inline only submission
 				if (text.length() == 0)
@@ -5758,7 +5758,7 @@ public class AssignmentAction extends PagedResourceActionII
 					addAlert(state, rb.getString("youmust7"));
 				}
 			}
-			else if (submissionType == 2)
+			else if (submissionType == Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
 			{
 				// for the attachment only submission
 				List v = (List) state.getAttribute(ATTACHMENTS);
@@ -5767,7 +5767,7 @@ public class AssignmentAction extends PagedResourceActionII
 					addAlert(state, rb.getString("youmust1"));
 				}
 			}
-			else if (submissionType == 3)
+			else if (submissionType == Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION)
 			{	
 				// for the inline and attachment submission
 				List v = (List) state.getAttribute(ATTACHMENTS);
@@ -5776,6 +5776,16 @@ public class AssignmentAction extends PagedResourceActionII
 					addAlert(state, rb.getString("youmust2"));
 				}
 			}
+			else if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+			{
+				// for the single uploaded file only submission
+				List v = (List) state.getAttribute(ATTACHMENTS);
+				if ((v == null) || (v.size() == 0))
+				{
+					addAlert(state, rb.getString("youmust1"));
+				}
+			}
+
 		}
 	}
 	
