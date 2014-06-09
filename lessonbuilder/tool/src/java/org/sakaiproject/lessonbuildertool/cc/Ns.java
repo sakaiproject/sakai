@@ -1,12 +1,12 @@
 package org.sakaiproject.lessonbuildertool.cc;
 
+import java.util.Map;
+import java.util.HashMap;
 import org.jdom.Namespace;
 
-// most version dependencies should be in this file. 
+// all version dependencies should be in this file. 
 // Parser sets the right index for the current version
 // then everything else gets namespaces from here
-
-// in addition look for the xxx0 and xxx1 in Parser.java and PrintHandler.java
 
 public class Ns  {
     private int version = 0;
@@ -113,4 +113,55 @@ public class Ns  {
 	return QTICC_NS[version];
     }
 
+    private static final Map<String, String> resourceTypes;
+
+    private static final String CC_WEBCONTENT="webcontent";
+    private static final String LAR="learning-application-resource";
+    private static final String WEBLINK="webLink";
+    private static final String TOPIC="topic";
+    private static final String ASSESSMENT="assessment";
+    private static final String QUESTION_BANK="question-bank";
+    private static final String BLTI="basiclti";
+    private static final String UNKNOWN="unknown";
+
+
+    static {
+	resourceTypes = new HashMap<String, String>();
+	resourceTypes.put("webcontent", CC_WEBCONTENT);
+	resourceTypes.put("associatedcontent/imscc_xmlv1p0/learning-application-resource", LAR);
+	resourceTypes.put("associatedcontent/imscc_xmlv1p1/learning-application-resource", LAR);
+	resourceTypes.put("associatedcontent/imscc_xmlv1p2/learning-application-resource", LAR);
+	resourceTypes.put("associatedcontent/imscc_xmlv1p3/learning-application-resource", LAR);
+	resourceTypes.put("imswl_xmlv1p0", WEBLINK);
+	resourceTypes.put("imswl_xmlv1p1", WEBLINK);
+	resourceTypes.put("imswl_xmlv1p2", WEBLINK);
+	resourceTypes.put("imswl_xmlv1p3", WEBLINK);
+	resourceTypes.put("imsdt_xmlv1p0", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p1", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p2", TOPIC);
+	resourceTypes.put("imsdt_xmlv1p3", TOPIC);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p0/assessment", ASSESSMENT);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p1/assessment", ASSESSMENT);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p2/assessment", ASSESSMENT);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p3/assessment", ASSESSMENT);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p0/question-bank", QUESTION_BANK);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p1/question-bank", QUESTION_BANK);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p2/question-bank", QUESTION_BANK);
+	resourceTypes.put("imsqti_xmlv1p2/imscc_xmlv1p3/question-bank", QUESTION_BANK);
+	resourceTypes.put("imsbasiclti_xmlv1p0", BLTI);
+	resourceTypes.put("imsbasiclti_xmlv1p1", BLTI);
+	// 2 seems to have used v1p1
+	resourceTypes.put("imsbasiclti_xmlv1p3", BLTI);
+    }
+
+    public String normType(String type) {
+	// default is web content. Any undefined type will thus be treated as a file with
+	// no known semantics.
+	String newtype = resourceTypes.get(type);
+	if (newtype == null)
+	    return UNKNOWN;
+	else
+	    return newtype;
+    }
+    
 }

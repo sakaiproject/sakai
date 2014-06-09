@@ -77,40 +77,10 @@ public class Parser extends AbstractParser {
   
   CartridgeLoader utils; 
   
-  private static final Map<String, ContentParser> parsers;
-  
   private static final String IMS_MANIFEST="imsmanifest.xml";
-  
-  private static final String LAR0="associatedcontent/imscc_xmlv1p0/learning-application-resource";
-  private static final String LAR1="associatedcontent/imscc_xmlv1p1/learning-application-resource";
-  private static final String LAR2="associatedcontent/imscc_xmlv1p2/learning-application-resource";
-  private static final String LAR3="associatedcontent/imscc_xmlv1p3/learning-application-resource";
-  private static final String DISCUSSION0="imsdt_xmlv1p0";
-  private static final String DISCUSSION1="imsdt_xmlv1p1";
-  private static final String DISCUSSION2="imsdt_xmlv1p2";
-  private static final String DISCUSSION3="imsdt_xmlv1p3";
-  private static final String ASSESSMENT0="imsqti_xmlv1p2/imscc_xmlv1p0/assessment";
-  private static final String ASSESSMENT1="imsqti_xmlv1p2/imscc_xmlv1p1/assessment";
-  private static final String ASSESSMENT2="imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
-  private static final String ASSESSMENT3="imsqti_xmlv1p3/imscc_xmlv1p3/assessment";
-  private static final String WEBLINK0="imswl_xmlv1p0";
-  private static final String WEBLINK1="imswl_xmlv1p1";
-  private static final String WEBLINK2="imswl_xmlv1p2";
-  private static final String WEBLINK3="imswl_xmlv1p3";
-  private static final String WEBCONTENT="webcontent";
-  private static final String QUESTION_BANK0="imsqti_xmlv1p2/imscc_xmlv1p0/question-bank";
-  private static final String QUESTION_BANK1="imsqti_xmlv1p2/imscc_xmlv1p1/question-bank";
-  private static final String QUESTION_BANK2="imsqti_xmlv1p2/imscc_xmlv1p2/question-bank";
-  private static final String QUESTION_BANK3="imsqti_xmlv1p3/imscc_xmlv1p3/question-bank";
-  private static final String CC_BLTI0="imsbasiclti_xmlv1p0";
-  private static final String CC_BLTI1="imsbasiclti_xmlv1p1";
-    // there is no 2
-  private static final String CC_BLTI3="imsbasiclti_xmlv1p3";
   
   private static final String AUTH_QUERY="/ims:manifest/auth:authorizations";
   private static final String ITEM_QUERY="/ims:manifest/ims:organizations/ims:organization/ims:item";
-  
-  private static final QuestionBankParser qbp;
   
   private static final String AUTH_IMPORT="import";
   private static final String AUTH_ACCESS="access";
@@ -131,34 +101,9 @@ public class Parser extends AbstractParser {
   private static final String CC_ITEM_IDREF="identifierref";
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_RESOURCE="resource";
+  private static final String QUESTION_BANK="question-bank";
   private static final String CC_RESOURCES="resources";
   private static final String CC_RES_TYPE="type";
-  
-  static {
-    qbp=new QuestionBankParser();
-    parsers=new HashMap<String, ContentParser>();
-    parsers.put(LAR0, new LearningApplicationResourceParser());
-    parsers.put(LAR1, new LearningApplicationResourceParser());
-    parsers.put(LAR2, new LearningApplicationResourceParser());
-    parsers.put(LAR3, new LearningApplicationResourceParser());
-    //    parsers.put(DISCUSSION0, new DiscussionParser());
-    //    parsers.put(DISCUSSION1, new DiscussionParser());
-    //    parsers.put(DISCUSSION2, new DiscussionParser());
-    //    parsers.put(DISCUSSION3, new DiscussionParser());
-    //    parsers.put(ASSESSMENT0, new AssessmentParser());
-    //    parsers.put(ASSESSMENT1, new AssessmentParser());
-    //    parsers.put(ASSESSMENT2, new AssessmentParser());
-    //    parsers.put(ASSESSMENT3, new AssessmentParser());
-    //    parsers.put(WEBLINK0, new WebLinkParser());
-    //    parsers.put(WEBLINK1, new WebLinkParser());
-    //    parsers.put(WEBLINK2, new WebLinkParser());
-    //    parsers.put(WEBLINK3, new WebLinkParser());
-    parsers.put(WEBCONTENT, new WebContentParser());
-    //    parsers.put(CC_BLTI0, new BLTIParser());
-    //    parsers.put(CC_BLTI1, new BLTIParser());
-    // there is no CC_BLTI2
-    //    parsers.put(CC_BLTI3, new BLTIParser());
-  }
   
   private
   Parser(CartridgeLoader the_cu) {
@@ -218,19 +163,11 @@ public class Parser extends AbstractParser {
       if (the_manifest.getChild(CC_RESOURCES, ns.cc_ns()) != null &&
 	  the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()) != null)
       for (Iterator iter=the_manifest.getChild(CC_RESOURCES, ns.cc_ns()).getChildren(CC_RESOURCE, ns.cc_ns()).iterator(); iter.hasNext(); ) {
+	  // this is called for question banks and other things that aren't really items, but that's OK
         Element resource=(Element)iter.next();
-        if (resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK0) ||
-	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK1) ||
-	    resource.getAttributeValue(CC_RES_TYPE).equals(QUESTION_BANK2)) {
-	    // I know it's not really an item, but it uses the same code as an assessment
-	    the_handler.setCCItemXml(null, resource, this, utils, true);
-	    processResource(resource, the_handler);
-	    qbp.parseContent(the_handler, utils, resource, isProtected(resource));
-        } else {
-	    // create the resource if it wasn't already on a page
-	    the_handler.setCCItemXml(null, resource, this, utils, true);
-	    processResource(resource, the_handler);
-	}
+	// create the resource if it wasn't already on a page
+	the_handler.setCCItemXml(null, resource, this, utils, true);
+	processResource(resource, the_handler);
       }
       the_handler.endManifest();
     } catch (JDOMException e) {
@@ -307,16 +244,8 @@ public class Parser extends AbstractParser {
       the_handler.startCCItem(the_item.getAttributeValue(CC_ITEM_ID),
                               the_item.getChildText(CC_ITEM_TITLE, ns.cc_ns()));
       the_handler.setCCItemXml(the_item, resource, this, utils, false);
-      ContentParser parser=parsers.get(resource.getAttributeValue(CC_RES_TYPE));
-      // we don't use parsers for content that is handled entirely in PrintHandler
-      //      if (parser==null) {
-      //	  System.out.println("content type not recognised " + resource.getAttributeValue(CC_RES_TYPE));
-      //	  return;
-      //      }
       processResource(resource,
                       the_handler);
-      if (parser != null)
-	  parser.parseContent(the_handler, utils, resource, isProtected(resource));
       the_handler.endCCItem();
     } else {
       the_handler.startCCFolder(the_item);
