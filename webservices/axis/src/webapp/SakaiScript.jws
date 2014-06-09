@@ -2611,7 +2611,7 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 		// get a list of all myworkspace sites (seems to only return sites for provided users)
 		List<Site> sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, "myworkspace", 
 			null, null, null, null);
-		HashMap<String,Site> siteHash = new HashMap();
+		HashMap<String,Site> siteHash = new HashMap<String,Site>();
 		for (Iterator j = sites.iterator(); j.hasNext();) { 
 			Site thisSite = (Site)j.next();
 			siteHash.put( thisSite.getId(), thisSite );
