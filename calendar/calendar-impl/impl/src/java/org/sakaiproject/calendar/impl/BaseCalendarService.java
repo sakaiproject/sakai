@@ -6307,7 +6307,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			// build the description, adding links to attachments if necessary
 			StringBuffer description = new StringBuffer("");
 			if ( event.getDescription() != null && !event.getDescription().equals("") )
-				description.append(event.getDescription().replace('\r', '\n'));
+				description.append(event.getDescription());
 			
 			List attachments = event.getAttachments();
 			if(attachments != null){
@@ -6315,17 +6315,18 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 					Reference attachment = (Reference) iter.next();
 					description.append("\n");
 					description.append(attachment.getUrl());
-					description.append("\n");					
+					description.append("\n");
 				}
 			}
 			if(description.length() > 0) {
-                //Replace \r with \n
-				icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));			
-            }
-		    	
-			if ( event.getLocation() != null && !event.getLocation().equals("") )
-            icalEvent.getProperties().add(new Location(event.getLocation()));
-			
+				//Replace \r with \n
+				icalEvent.getProperties().add(new Description(description.toString().replace('\r', '\n')));
+			}
+
+			if ( event.getLocation() != null && !event.getLocation().equals("") ) {
+				icalEvent.getProperties().add(new Location(event.getLocation().replace('\r', '\n')));
+			}
+
 			try
 			{
 				String organizer = m_userDirectoryService.getUser( event.getCreator() ).getDisplayName();
