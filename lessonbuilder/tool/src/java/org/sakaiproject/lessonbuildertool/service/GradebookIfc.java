@@ -26,6 +26,7 @@ package org.sakaiproject.lessonbuildertool.service;
 import java.util.Map;
 import java.util.Date;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 
 /**
  * Interface to Gradebook
@@ -44,10 +45,11 @@ public class GradebookIfc {
     public boolean addExternalAssessment(final String gradebookUid, final String externalId, final String externalUrl,
 					 final String title, final double points, final Date dueDate, final String externalServiceDescription) {
 	try {
-	    gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription);
-	} catch (org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException e) {
-	    // already exists. Say it worked
-	    return true;
+	    // if already exists, update it
+	    if (gbExternalService.isExternalAssignmentDefined(gradebookUid, externalId))
+		return updateExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate);
+	    else
+		gbExternalService.addExternalAssessment(gradebookUid, externalId, externalUrl, title, points, dueDate, externalServiceDescription);
 	} catch (Exception e) {
 	    System.out.println("failed add " + e);
 	    return false;
@@ -69,7 +71,11 @@ public class GradebookIfc {
 
     public boolean removeExternalAssessment(final String gradebookUid, final String externalId) {
 	try {
+	    
 	    gbExternalService.removeExternalAssessment(gradebookUid, externalId);
+	} catch (AssessmentNotFoundException e) {
+	    // already done
+	    return true;
 	} catch (Exception e) {
 	    System.out.println("failed remove " + e);
 	    return false;
