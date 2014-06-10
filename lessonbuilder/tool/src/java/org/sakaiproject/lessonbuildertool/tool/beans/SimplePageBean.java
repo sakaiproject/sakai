@@ -622,6 +622,9 @@ public class SimplePageBean {
     // unfortunately SimpleDateFormat can't handle that until Java 7, so we have to convert
     // it to something that can be parsed
 	public void setReleaseDate(String date) {
+	    if (date.equals(""))
+		this.releaseDate = null;
+	    else
 	    try {
 		if (date.substring(22,23).equals(":"))
 		    date = date.substring(0,22) + date.substring(23,25);

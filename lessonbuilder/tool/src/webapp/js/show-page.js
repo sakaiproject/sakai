@@ -242,6 +242,8 @@ $(function() {
 				    val: $("#currentReleaseDate").text(),
 				    ashidden: { iso8601: 'releaseDateISO8601' }
 			    });
+			if ($("#currentReleaseDate").text() == '')
+			    $("#page-releasedate").removeAttr('checked');
 
 			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
@@ -2060,7 +2062,10 @@ function checkEditTitleForm() {
 		$('#edit-title-error-container').show();
 	}else {
 		$('#edit-title-error-container').hide();
-		$("#release_date_string").val($("#releaseDateISO8601").val());
+		if ($("#page-releasedate").attr('checked') == 'checked')
+		    $("#release_date_string").val($("#releaseDateISO8601").val());
+		else
+		    $("#release_date_string").val('');
 		return true;
 	}
 }

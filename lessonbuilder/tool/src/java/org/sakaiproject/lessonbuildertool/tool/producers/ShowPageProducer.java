@@ -3648,16 +3648,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 			UIBoundBoolean.make(form, "page-releasedate", "#{simplePageBean.hasReleaseDate}", (releaseDate != null));
 
-			if (releaseDate == null) {
-				releaseDate = new Date();
-			}
 			String releaseDateString = "";
+
+			if (releaseDate != null) {
 			try {
 			    releaseDateString = isoDateFormat.format(releaseDate);
 			} catch (Exception e) {
 			    System.out.println(e + "bad format releasedate " + releaseDate);
 			}
-
+			}
+			
 			UIOutput releaseForm = UIOutput.make(form, "releaseDate:");
 			UIOutput.make(form, "currentReleaseDate", releaseDateString);
 			UIInput.make(form, "release_date_string", "#{simplePageBean.releaseDate}" );
