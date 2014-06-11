@@ -170,7 +170,7 @@ public class FormattedTextTest extends TestCase {
         //assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
         //assertTrue( result.contains("target=\"_blank\"")); // adds target in
         assertTrue( result.contains("<div>hello there</div>"));
-        assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\">blah</a>\n<div>hello there</div>", result);
+        assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\">blah</a><div>hello there</div>", result);
 
         strFromBrowser = TEST1;
         errorMessages = new StringBuilder();
@@ -181,13 +181,13 @@ public class FormattedTextTest extends TestCase {
         //assertFalse( result.contains("style=\"font-weight:bold;\"")); // strips this out
         //assertTrue( result.contains("target=\"_blank\"")); // adds target in
         assertTrue( result.contains("<div>hello there</div>"));
-        assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\">blah</a>\n<div>hello there</div>", result);
+        assertEquals("<a href=\"blah.html\" style=\"font-weight: bold;\" target=\"_blank\">blah</a><div>hello there</div>", result);
 
         strFromBrowser = TEST2;
         errorMessages = new StringBuilder();
         result = formattedText.processFormattedText(strFromBrowser, errorMessages, false);
         assertNotNull(result);
-        assertEquals("<span>this is my span</span>\n<div>hello there from a div</div>", result);
+        assertEquals("<span>this is my span</span><div>hello there from a div</div>", result);
 
         String SVG_BAD = "<div>hello</div><embed allowscriptaccess=\"always\" type=\"image/svg+xml\" src=\"data:image/svg+xml;base64,PHN2ZyB4bWxuczpzdmc9Imh0dH A6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcv MjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hs aW5rIiB2ZXJzaW9uPSIxLjAiIHg9IjAiIHk9IjAiIHdpZHRoPSIxOTQiIGhlaWdodD0iMjAw IiBpZD0ieHNzIj48c2NyaXB0IHR5cGU9InRleHQvZWNtYXNjcmlwdCI+YWxlcnQoIlh TUyIpOzwvc2NyaXB0Pjwvc3ZnPg==\"></embed>";
         strFromBrowser = SVG_BAD;
