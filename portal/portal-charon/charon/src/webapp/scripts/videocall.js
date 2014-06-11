@@ -535,7 +535,7 @@
                 portal.chat.setSetting('videoOff', true, /* localStorage */ true);
                 portal.chat.videoOff = true;
             } else {
-                portal.chat.setSetting('videoOff', false);
+                portal.chat.setSetting('videoOff', false, /* localStorage */ true);
                 portal.chat.videoOff = false;
             }
         });
