@@ -3504,24 +3504,28 @@ public class SimplePageBean {
 				}
 			}
 			// adjust gradebook entry
-
-			// add is set if the gradebook change worked. This avoids having our
-			// information and the gradebook out of sync. We always try to reset things,
-			// for safety in case somehow we are out of sync. The code in gradebookIfc
-			// works with the actual gradebook code to make sure the right thing happens
 			boolean add = false;
-			if (newPoints == null) {
+			if (newPoints == null && currentPoints != null) {
 				add = gradebookIfc.removeExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId());
-			} else if (newPoints != null) {
-			    // will add or update as appropriate
-				add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null, pageTitle, newPoints, null, "Lesson Builder");
-				if (add)
+			} else if (newPoints != null && currentPoints == null) {
+				add = gradebookIfc.addExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+						       	pageTitle, newPoints, null, "Lesson Builder");
+				
+				if(!add) {
+					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+				} else
 				    needRecompute = true;
+			} else if (currentPoints != null && 
+					(!currentPoints.equals(newPoints) || !pageTitle.equals(page.getTitle()))) {
+				add = gradebookIfc.updateExternalAssessment(site.getId(), "lesson-builder:" + page.getPageId(), null,
+							  	pageTitle, newPoints, null);
+				if(!add) {
+					setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
+				} else if (!currentPoints.equals(newPoints))
+					needRecompute = true;
 			}
-			if (add) // gradebook change worked.
+			if (add)
 			    page.setGradebookPoints(newPoints);
-			else
-			    setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
 			boolean oldDownloads = site.getProperties().getProperty("lessonbuilder-nodownloadlinks") != null;
 			if (oldDownloads != nodownloads) {
 			    if (oldDownloads)
@@ -5700,19 +5704,21 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// to avoid sync problems, always reset things
-
+				if(comment.getGradebookId() == null || !comment.getGradebookPoints().equals(points)) {
 					String pageTitle = "";
 					String gradebookId = "";
 					
-					// did gradebook change work?
 					boolean add = true;
 					
 					if(comment.getPageId() >= 0) {
 						pageTitle = getPage(comment.getPageId()).getTitle();
 						gradebookId = "lesson-builder:comment:" + comment.getId();
 						
-						add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+						if(comment.getGradebookId() != null && !comment.getGradebookPoints().equals(points))
+						    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
+							      pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null);
+						else
+						    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:comment:" + comment.getId(), null,
 								pageTitle + " Comments (item:" + comment.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 						if(!add) {
 							setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
@@ -5720,8 +5726,6 @@ public class SimplePageBean {
 							comment.setGradebookTitle(pageTitle + " Comments (item:" + comment.getId() + ")");
 						}
 					}else {
-					    // ?? this block seems completely bogus. There's no edit tool for comments on student pages
-					    // and if there were, a gradebook operation would be needed
 						// Must be a student page comments tool.
 						SimpleStudentPage studentPage = simplePageToolDao.findStudentPage(Long.valueOf(comment.getSakaiId()));
 						SimplePageItem studentPageItem = simplePageToolDao.findItem(studentPage.getItemId());
@@ -5737,13 +5741,11 @@ public class SimplePageBean {
 						comment.setGradebookPoints(points);
 						regradeComments(comment);
 					}
-			// else no grading requested by user
-			}else if(comment.getPageId() >= 0) { // not on student page
-		               
-			    if (gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId())) {
+				}
+			}else if(comment.getGradebookId() != null && comment.getPageId() >= 0) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), comment.getGradebookId());
 				comment.setGradebookId(null);
 				comment.setGradebookPoints(null);
-			    }
 			}
 			
  			// for forced comments, the UI won't ever do this, but if
@@ -6081,8 +6083,8 @@ public class SimplePageBean {
 		if (!graded || (gradebookTitle != null && gradebookTitle.trim().equals("")))
 		    gradebookTitle = null;
 
-		if(gradebookTitle != null) {
-			// Creating new gradebook entry or updating
+		if(gradebookTitle != null && (item.getGradebookId() == null || item.getGradebookId().equals(""))) {
+			// Creating new gradebook entry
 			
 			String gradebookId = "lesson-builder:question:" + item.getId();
 			String title = gradebookTitle;
@@ -6098,13 +6100,19 @@ public class SimplePageBean {
 				item.setGradebookId(gradebookId);
 				item.setGradebookTitle(title);
 			}
-		}else if(gradebookTitle == null) {
-			// Removing an existing gradebook entry. 
+		}else if(gradebookTitle != null) {
+			// Updating an old gradebook entry
 			
-		    if (gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId())) {
+			gradebookIfc.updateExternalAssessment(getCurrentSiteId(), item.getGradebookId(), null, gradebookTitle, pointsInt, null);
+			
+			item.setGradebookTitle(gradebookTitle);
+		}else if(gradebookTitle == null && (item.getGradebookId() != null && !item.getGradebookId().equals(""))) {
+			// Removing an existing gradebook entry
+			
+			gradebookIfc.removeExternalAssessment(getCurrentSiteId(), item.getGradebookId());
 			item.setGradebookId(null);
 			item.setGradebookTitle(null);
-		    }
+
 		}
 		
 		item.setAttribute("questionGraded", String.valueOf(graded));
@@ -6325,9 +6333,12 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// always update things
+				if(page.getGradebookId() == null || !page.getGradebookPoints().equals(points)) {
 				 	boolean add = false;
-					add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
+					if (page.getGradebookId() != null && !page.getGradebookPoints().equals(points))
+					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null);
+					else 
+					    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page:" + page.getId(), null, getPage(page.getPageId()).getTitle() + " Student Pages (item:" + page.getId() + ")", Integer.valueOf(maxPoints), null, "Lesson Builder");
 					
 					if(!add) {
 						setErrMessage(messageLocator.getMessage("simplepage.no-gradebook"));
@@ -6337,11 +6348,11 @@ public class SimplePageBean {
 						page.setGradebookPoints(points);
 						regradeStudentPages(page);
 					}
-			} else {  // not graded
-			    if (gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId())) {
+				}
+			}else if(page.getGradebookId() != null) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getGradebookId());
 				page.setGradebookId(null);
 				page.setGradebookPoints(null);
-			    }
 			}
 			
 			// Handling the grading of comments on pages
@@ -6354,11 +6365,14 @@ public class SimplePageBean {
 					return "failure";
 				}
 				
-				// always reset
+				if(page.getAltGradebook() == null || !page.getAltPoints().equals(points)) {
 					String title = getPage(page.getPageId()).getTitle() + " Student Page Comments (item:" + page.getId() + ")";
 					boolean add = false;
-
-					add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+					if(page.getAltGradebook() != null && !page.getAltPoints().equals(points))
+					    add = gradebookIfc.updateExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
+											title, points, null);
+					else
+					    add = gradebookIfc.addExternalAssessment(getCurrentSiteId(), "lesson-builder:page-comment:" + page.getId(), null,
 							title, points, null, "Lesson Builder");
 					// The assessment couldn't be added
 					if(!add) {
@@ -6369,12 +6383,12 @@ public class SimplePageBean {
 						page.setAltPoints(points);
 						regradeStudentPageComments(page);
 					}
-			} else { // not graded
-			    if (gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook())) {
+				}
+			}else if(page.getAltGradebook() != null) {
+				gradebookIfc.removeExternalAssessment(getCurrentSiteId(), page.getAltGradebook());
 				page.setAltGradebook(null);
 				page.setAltPoints(null);
 				ungradeStudentPageComments(page);
-			    }
 			}
 			
 			update(page);
