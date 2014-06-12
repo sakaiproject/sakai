@@ -115,6 +115,7 @@ USER.verifyPasswordsMatch = function () {
 USER.validateEmail = function () {
     USER.emailValid = false;
     var email = USER.get("email");
+    var emailWarningMsg = USER.get("emailWarningMsg");
 
     if (email === null) {
         USER.emailValid = true;

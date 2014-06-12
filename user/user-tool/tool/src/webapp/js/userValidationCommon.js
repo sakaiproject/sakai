@@ -45,10 +45,14 @@ USER.trim = function (inputString) {
 // Show/hide the given element
 USER.display = function (element, show) {
     if (show) {
-        element.style.display = "block";
+        if (element) {
+            element.style.display = "block";
+        }
     }
     else {
-        element.style.display = "none";
+        if (element) {
+            element.style.display = "none";
+        }
     }
 }
 
