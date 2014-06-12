@@ -29,7 +29,12 @@
 			}	
 			if (document.getElementById('gradeFile') && document.getElementById('gradeFile').checked)
 			{
-					extraInfoArray[extraInfoArray.length]="gradeFile=true";
+				if (document.getElementById('gradeFileFormat_excel').checked)
+				{
+					extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_excel').value;
+				} else {
+					extraInfoArray[extraInfoArray.length]="gradeFile=true&gradeFileFormat="+document.getElementById('gradeFileFormat_csv').value;
+				}
 			}
 			if (document.getElementById('feedbackTexts') && document.getElementById('feedbackTexts').checked)
 			{
@@ -129,6 +134,14 @@
 				## grade files
 				<input id="gradeFile" type="checkbox" value="gradeFile" name="choices" #if($!hasGradeFile)checked="checked"#end />
 				<label for="gradeFile">$tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
+			</p>
+				<p class="checkbox indnt3">
+					<input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end />
+					<label for="gradeFileFormat_csv">$tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
+					<input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end />
+					<label for="gradeFileFormat_excel">$tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
+				</p>
+			<p class="checkbox indnt2">
 				#if ($!includeSubmissionText)
 					## feedback text
 					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" #if($!hasFeedbackText)checked="checked"#end />

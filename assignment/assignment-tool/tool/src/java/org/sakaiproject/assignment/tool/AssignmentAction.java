@@ -166,6 +166,12 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
 
 import au.com.bytecode.opencsv.CSVReader;
+
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
+
 /**
  * <p>
  * AssignmentAction is the action class for the assignment tool.
@@ -784,6 +790,7 @@ public class AssignmentAction extends PagedResourceActionII
 	private static final String UPLOAD_ALL_HAS_SUBMISSION_TEXT = "upload_all_has_submission_text";
 	private static final String UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT = "upload_all_has_submission_attachment";
 	private static final String UPLOAD_ALL_HAS_GRADEFILE = "upload_all_has_gradefile";
+	private static final String UPLOAD_ALL_GRADEFILE_FORMAT = "upload_all_gradefile_format";
 	private static final String UPLOAD_ALL_HAS_COMMENTS= "upload_all_has_comments";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_TEXT= "upload_all_has_feedback_text";
 	private static final String UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT = "upload_all_has_feedback_attachment";
@@ -4172,6 +4179,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("hasSubmissionText", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT));
 		context.put("hasSubmissionAttachment", state.getAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT));
 		context.put("hasGradeFile", state.getAttribute(UPLOAD_ALL_HAS_GRADEFILE));
+		String gradeFileFormat = (String) state.getAttribute(UPLOAD_ALL_GRADEFILE_FORMAT);
+		if (gradeFileFormat==null) gradeFileFormat="csv";
+		context.put("gradeFileFormat", gradeFileFormat);		
 		context.put("hasComments", state.getAttribute(UPLOAD_ALL_HAS_COMMENTS));
 		context.put("hasFeedbackText", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT));
 		context.put("hasFeedbackAttachment", state.getAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT));
@@ -14057,6 +14067,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT);
 					state.removeAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT);
 					state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
+					state.removeAttribute(UPLOAD_ALL_GRADEFILE_FORMAT);
 					state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 					state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
@@ -14071,6 +14082,8 @@ public class AssignmentAction extends PagedResourceActionII
 					boolean hasSubmissionAttachment = uploadAll_readChoice(choices, "studentSubmissionAttachment");
 					// should contain grade file
 					boolean hasGradeFile = uploadAll_readChoice(choices, "gradeFile");	
+					String  gradeFileFormat = params.getString("gradeFileFormat");
+					if ("excel".equals(gradeFileFormat)) {gradeFileFormat="excel";} else {gradeFileFormat="csv";}; 
 					// inline text
 					boolean hasFeedbackText = uploadAll_readChoice(choices, "feedbackTexts");
 					// comments.txt should be available
@@ -14086,6 +14099,7 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_TEXT, Boolean.valueOf(hasSubmissionText));
 					state.setAttribute(UPLOAD_ALL_HAS_SUBMISSION_ATTACHMENT, Boolean.valueOf(hasSubmissionAttachment));
 					state.setAttribute(UPLOAD_ALL_HAS_GRADEFILE, Boolean.valueOf(hasGradeFile));
+					state.setAttribute(UPLOAD_ALL_GRADEFILE_FORMAT, gradeFileFormat);
 					state.setAttribute(UPLOAD_ALL_HAS_COMMENTS, Boolean.valueOf(hasComment));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT, Boolean.valueOf(hasFeedbackText));
 					state.setAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT, Boolean.valueOf(hasFeedbackAttachment));
@@ -14121,7 +14135,7 @@ public class AssignmentAction extends PagedResourceActionII
 								hasSubmissionText, hasSubmissionAttachment,
 								hasGradeFile, hasFeedbackText, hasComment,
 								hasFeedbackAttachment, submissionTable,
-								assignment, fileContentStream);
+								assignment, fileContentStream,gradeFileFormat);
 					}
 			
 					if (state.getAttribute(STATE_MESSAGE) == null)
@@ -14168,9 +14182,9 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean hasSubmissionText, boolean hasSubmissionAttachment,
 			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
 			boolean hasFeedbackAttachment, HashMap submissionTable,
-			Assignment assignment, InputStream fileContentStream) {
+			Assignment assignment, InputStream fileContentStream,String gradeFileFormat) {
 		// a flag value for checking whether the zip file is of proper format: 
-		// should have a grades.csv file if there is no user folders
+		// should have a grades.csv file or grades.xls if there is no user folders
 		boolean zipHasGradeFile = false;
 		// and if have any folder structures, those folders should be named after at least one site user (zip file could contain user names who is no longer inside the site)
 		boolean zipHasFolder = false;
@@ -14181,7 +14195,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		// as stated from UI, we expected the zip file to have structure as follows
 		//       assignment_name/user_eid/files
-		// or assignment_name/grades.csv
+		// or assignment_name/grades.csv or assignment_name/grades.xls
 		boolean validZipFormat = true;
 		
 		try
@@ -14202,13 +14216,13 @@ public class AssignmentAction extends PagedResourceActionII
 				String entryName = entry.getName();
 				if (!entry.isDirectory() && entryName.indexOf("/.") == -1)
 				{
-					if (entryName.endsWith("grades.csv"))
+					if (entryName.endsWith("grades.csv") || entryName.endsWith("grades.xls"))
 					{
+						if (hasGradeFile && entryName.endsWith("grades.csv") && "csv".equals(gradeFileFormat))
+						{
 						// at least the zip file has a grade.csv
 						zipHasGradeFile = true;
 						
-						if (hasGradeFile)
-						{
 							// read grades.cvs from zip
 							CSVReader reader = new CSVReader(new InputStreamReader(zipFile.getInputStream(entry)));
 
@@ -14224,7 +14238,6 @@ public class AssignmentAction extends PagedResourceActionII
 					        			// has grade information
 						        		try
 						        		{
-
                                                                             String _the_eid = items[1];
                                                                             if (!assignment.isGroup()) {
 						        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
@@ -14265,10 +14278,89 @@ public class AssignmentAction extends PagedResourceActionII
 					        		}
 						        }
 							}
-						}
-					}
-					else 
-					{
+						} //end of csv grades import
+
+						//Excel file import
+						if (hasGradeFile && entryName.endsWith("grades.xls") && "excel".equals(gradeFileFormat)) {
+							// at least the zip file has a grade.csv
+							zipHasGradeFile = true;
+
+							// read grades.xls from zip
+							POIFSFileSystem fsFileSystem = new POIFSFileSystem(zipFile.getInputStream(entry));
+							HSSFWorkbook workBook = new HSSFWorkbook(fsFileSystem);
+							HSSFSheet hssfSheet = workBook.getSheetAt(0);
+							//Iterate the rows
+							Iterator rowIterator = hssfSheet.rowIterator();
+							int count = 0;
+							while (rowIterator.hasNext()) {
+								HSSFRow hssfRow = (HSSFRow) rowIterator.next();
+								//We skip first row (= header row)
+								if (count > 0) {
+									double gradeXls = -1;
+									String itemString = null;
+									// has grade information
+									try {
+										String _the_eid = hssfRow.getCell(1).getStringCellValue();
+										if (!assignment.isGroup()) {
+											User u = UserDirectoryService.getUserByEid(hssfRow.getCell(1).getStringCellValue()/*user eid*/);
+											if (u == null) throw new Exception("User not found!");
+											_the_eid = u.getId();
+										}
+										UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(_the_eid);
+										if (w != null) {
+											itemString = assignment.isGroup() ? hssfRow.getCell(3).toString() : hssfRow.getCell(4).toString();
+											int gradeType = assignment.getContent().getTypeOfGrade();
+											if (gradeType == Assignment.SCORE_GRADE_TYPE) {
+												//Parse the string to double using the locale format
+												try {
+													itemString = assignment.isGroup() ? hssfRow.getCell(3).getStringCellValue() : hssfRow.getCell(4).getStringCellValue();
+													if ((itemString != null) && (itemString.trim().length() > 0)) {
+														NumberFormat nbFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
+														gradeXls = nbFormat.parse(itemString).doubleValue();
+													}
+												} catch (Exception e) {
+													try {
+														gradeXls = assignment.isGroup() ? hssfRow.getCell(3).getNumericCellValue() : hssfRow.getCell(4).getNumericCellValue();
+													} catch (Exception e2) {
+														gradeXls = -1;
+													}
+												}
+												if (gradeXls != -1) {
+													// get localized number format
+													NumberFormat nbFormat = NumberFormat.getInstance();
+													try {
+														Locale locale = null;
+														ResourceLoader rb = new ResourceLoader();
+														locale = rb.getLocale();
+														nbFormat = NumberFormat.getNumberInstance(locale);
+														itemString = nbFormat.format(gradeXls);
+													} catch (Exception e) {
+														M_log.warn("Error while retrieving local number format, using default ", e);
+													}
+												} else {
+													itemString = "";
+												}
+
+												validPointGrade(state, itemString);
+											} else if (gradeType == Assignment.PASS_FAIL_GRADE_TYPE) {
+												itemString = validatePassFailGradeValue(state, itemString);
+											} else {
+												validLetterGrade(state, itemString);
+											}
+											if (state.getAttribute(STATE_MESSAGE) == null) {
+												w.setGrade(gradeType == Assignment.SCORE_GRADE_TYPE ? scalePointGrade(state, itemString) : itemString);
+												submissionTable.put(_the_eid, w);
+											}
+										}
+									} catch (Exception e) {
+										M_log.warn(this + ":uploadAll_parseZipFile " + e.getMessage());
+									}
+								}
+								count++;
+							}
+						} //end of Excel grades import
+
+					} else {
 						String[] pathParts = entryName.split("/");
 						if (pathParts.length <=2)
 						{
@@ -14784,6 +14876,7 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_ATTACHMENT);
 		state.removeAttribute(UPLOAD_ALL_HAS_FEEDBACK_TEXT);
 		state.removeAttribute(UPLOAD_ALL_HAS_GRADEFILE);
+		state.removeAttribute(UPLOAD_ALL_GRADEFILE_FORMAT);
 		state.removeAttribute(UPLOAD_ALL_HAS_COMMENTS);
 		state.removeAttribute(UPLOAD_ALL_WITHOUT_FOLDERS);
 		state.removeAttribute(UPLOAD_ALL_RELEASE_GRADES);
