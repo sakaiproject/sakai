@@ -42,6 +42,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -202,8 +203,8 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, String id)
 	{
-		this.siteService = siteService;
-		authzGroupService = siteService.authzGroupService();
+		setupServices(siteService, sessionManager, userDirectoryService);
+
 		m_id = id;
 
 		// setup for properties
@@ -217,8 +218,10 @@ public class BaseSite implements Site
 
 		// if the id is not null (a new site, rather than a reconstruction)
 		// add the automatic (live) properties
-		if (m_id != null)
+		if (m_id != null) {
 			siteService.addLiveProperties(this);
+		}
+
 	}
 
 	/**
@@ -232,11 +235,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, Site other)
 	{
-		this.siteService = siteService;
-		authzGroupService = siteService.authzGroupService();
-
-		BaseSite bOther = (BaseSite) other;
-		set(bOther, true);
+		this(siteService, other, true);
 	}
 
 	/**
@@ -250,8 +249,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, Site other, boolean exact)
 	{
-		this.siteService = siteService;
-		authzGroupService = siteService.authzGroupService();
+		setupServices(siteService, sessionManager, userDirectoryService);
 		BaseSite bOther = (BaseSite) other;
 		set(bOther, exact);
 	}
@@ -264,8 +262,7 @@ public class BaseSite implements Site
 	 */
 	public BaseSite(BaseSiteService siteService, Element el, TimeService timeService)
 	{
-		this.siteService = siteService;
-		authzGroupService = siteService.authzGroupService();
+		setupServices(siteService, sessionManager, userDirectoryService);
 
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
@@ -522,11 +519,8 @@ public class BaseSite implements Site
 			String modifiedBy, Time modifiedOn, boolean customPageOrdered,
 			boolean isSoftlyDeleted, Date softlyDeletedDate, boolean descriptionLoaded, SessionManager sessionManager, UserDirectoryService userDirectoryService)
 	{
-		this.siteService = siteService;
-		this.authzGroupService = siteService.authzGroupService();
-		this.sessionManager = sessionManager;
-		this.userDirectoryService = userDirectoryService;
-		
+		setupServices(siteService, sessionManager, userDirectoryService);
+
 		// setup for properties
 		m_properties = new BaseResourcePropertiesEdit();
 
@@ -571,6 +565,38 @@ public class BaseSite implements Site
 	}
 
 	/**
+	 * Sets up the services needed by the BaseSite to operate
+	 * @param siteService the BSS
+	 * @param sessionManager the SM
+	 * @param userDirectoryService the UDS
+	 * @throws java.lang.IllegalStateException if the services would be null
+	 */
+	void setupServices(BaseSiteService siteService, SessionManager sessionManager, UserDirectoryService userDirectoryService) {
+		this.siteService = siteService;
+		if (this.siteService == null) {
+			this.siteService = (BaseSiteService) ComponentManager.get(SiteService.class);
+			if (this.siteService == null) {
+				throw new IllegalStateException("Cannot get the SiteService when constructing BaseSite");
+			}
+		}
+		this.authzGroupService = this.siteService.authzGroupService();
+		this.sessionManager = sessionManager;
+		if (this.sessionManager == null) {
+			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+			if (this.sessionManager == null) {
+				throw new IllegalStateException("Cannot get the SessionManager when constructing BaseSite");
+			}
+		}
+		this.userDirectoryService = userDirectoryService;
+		if (this.userDirectoryService == null) {
+			this.userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+			if (this.userDirectoryService == null) {
+				throw new IllegalStateException("Cannot get the UserDirectoryService when constructing BaseSite");
+			}
+		}
+	}
+
+	/**
 	 * Set me to be a deep copy of other (all but my id).
 	 * 
 	 * Note that this no longer triggers lazy loading as of KNL-1011. This should
@@ -578,7 +604,7 @@ public class BaseSite implements Site
 	 * If a copy is made of a site that is not fully loaded, it should stay lazy,
 	 * rather than accidentally triggering fetches.
 	 *
-	 * @param bOther
+	 * @param other
 	 *        the other to copy.
 	 * @param exact
 	 *        If true, we copy ids - else we generate new ones for site, page
@@ -607,9 +633,27 @@ public class BaseSite implements Site
 		m_type = other.m_type;
 		m_pubView = other.m_pubView;
 		m_customPageOrdered = other.m_customPageOrdered;
+		if (this.siteService == null) {
+			this.siteService = (BaseSiteService) ComponentManager.get(SiteService.class);
+			if (this.siteService == null) {
+				M_log.error("Cannot set the SiteService when set from BaseSite");
+			}
+		}
 		sessionManager = other.sessionManager;
+		if (this.sessionManager == null) {
+			this.sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
+			if (this.sessionManager == null) {
+				M_log.error("Cannot set the SessionManager when set from BaseSite");
+			}
+		}
 		userDirectoryService = other.userDirectoryService;
-		
+		if (this.userDirectoryService == null) {
+			this.userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+			if (this.userDirectoryService == null) {
+				M_log.error("Cannot set the UserDirectoryService when set from BaseSite");
+			}
+		}
+
 		//site copies keep soft site deletion flags
 		m_isSoftlyDeleted = other.m_isSoftlyDeleted;
 		m_softlyDeletedDate = other.m_softlyDeletedDate;
