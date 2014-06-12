@@ -111,22 +111,22 @@ function removeOptionalAttributeBlock(elem) {
 			</div>	
 #if ($incPw)
   #if(!$!superUser)
-      <div class="shorttext">
-				<label for="pwcur">
-					<span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
-				</label>
-			#if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
-				<input type="password" name="pwcur" id="pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
-			#else
-				&nbsp;
-			#end
-			</div>
+    #if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
+        <div class="shorttext">
+            <label for="pwcur">
+                <span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
+            </label>
+            <input type="password" name="pwcur" id="pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
+        </div>
+    #else
+        &nbsp;
+    #end
   #end
+		#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 			<div class="shorttext">
 				<label for="pw">
 					$tlang.getString("usecre.crenewpass")
 				</label>
-			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 				<input type="password" name="pw" id="pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
                 <div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
                 <div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
@@ -136,22 +136,18 @@ function removeOptionalAttributeBlock(elem) {
                 	<span id="strengthBarMeter" style="display:none"></span>
 				</div>
                 <div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
-			#else
-				&nbsp;
-			#end
 			</div>
 			<div class="shorttext">
 				<label for="pw0">
 					$tlang.getString("usecre.vernewpass")
 				</label>
-			#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 				<input type="password" name="pw0" id="pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
                 <div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
                 <div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
-			#else
-				&nbsp;
-			#end
-			</div>	
+			</div>
+		#else
+			&nbsp;
+		#end
 #end
 #if ($incType)
 			<div class="shorttext">
