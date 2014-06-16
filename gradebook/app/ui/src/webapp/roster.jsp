@@ -32,8 +32,11 @@
 			   <iframe id="dialogFrame" name="dialogFrame" width="100%" height="100%" frameborder="0"></iframe>
 	    </div>
 
-		<h2>
+        <div class="navPanel">
+    		<h3 class="viewNav">
 			<h:outputText value="#{msgs.roster_page_title}"/>
+            </h3>
+            <div class="listNav">
 			<h:commandButton
 				id="exportExcel"
 				value="#{msgs.roster_export_excel}"
@@ -55,7 +58,8 @@
 				rendered="#{!rosterBean.emptyEnrollments}"
 				style="float: right"
 				/>
-		</h2>
+    		</div>
+        </div>
 
   	<h:panelGrid cellpadding="0" cellspacing="0" columns="2"
 			columnClasses="itemName"
