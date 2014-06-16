@@ -823,7 +823,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		if (helpurl != null) {
-		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "helpbutton" : "helpbutton2")).
+		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "helpbutton" : "helpbutton2"), helpurl).
 			decorate(new UIFreeAttributeDecorator("onclick",
 			         "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
 			decorate(new UIFreeAttributeDecorator("title",
@@ -836,7 +836,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 
 		if (reseturl != null) {
-		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "resetbutton" : "resetbutton2")).
+		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "resetbutton" : "resetbutton2"), reseturl).
 			decorate(new UIFreeAttributeDecorator("onclick",
 				"location.href='" + reseturl + "'; return false")).
 			decorate(new UIFreeAttributeDecorator("title",
