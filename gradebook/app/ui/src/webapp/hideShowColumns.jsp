@@ -29,8 +29,7 @@
    			<f:facet name="header">
    				<h:outputText value="#{msgs.hide_show_hide}"/>
    			</f:facet>
-   			<h:selectBooleanCheckbox id="hide" value="#{colVar.hideInAllGradesTable}"/>
-            <h:outputLabel for="hide" value="#{msgs.hide_show_hide}" />
+   			<h:selectBooleanCheckbox id="hide" value="#{colVar.hideInAllGradesTable}" title="#{msgs.hide_show_hide} #{colVar.name}" />
    		</h:column>
    		<h:column rendered="#{colVar.assignmentColumn}">
    			<f:facet name="header">
