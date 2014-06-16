@@ -33,7 +33,7 @@
                             <span id="preferredTime" class="server-time"></span>
                         #end
                         ${rloader.site_servertime_label}
-                        <span id="serverTime" class="server-time"></span>
+                        <span id="serverTime" class="server-time" aria-live="off"></span>
                     </li>
                     <script>
                             // <!--

@@ -1014,7 +1014,7 @@ your browser doesn't support iframes
 			</div>
       <div class="server-time-container">
 				Server Time:
-				<span id="serverTime" class="server-time"/>
+				<span id="serverTime" class="server-time" aria-live="off"/>
 			</div>
       <script type="text/javascript">
 				updateFooterTime = (function() {
