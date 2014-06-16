@@ -33,14 +33,14 @@
  	            <h4><h:outputText value="#{msgs.import_entire_template}"/></h4>
  	            <br />
 		        <h:form id="gbExportForm">
-              <h:graphicImage value="/../../library/image/sakai/excel.gif" />
+              <h:graphicImage value="/../../library/image/sakai/excel.gif" alt="" />
               <h:commandLink actionListener="#{rosterBean.exportXlsNoCourseGrade}">
                 <h:outputText value="#{msgs.import_entire_template_excel}"/>
               </h:commandLink>
               
               <h:outputText value="#{msgs.import_entire_template_or}" />
                 
- 	    	      <h:graphicImage value="images/silk/page_white.png" />
+ 	    	      <h:graphicImage value="images/silk/page_white.png" alt="" />
     	    	  <h:commandLink actionListener="#{rosterBean.exportCsvNoCourseGrade}">
         	      <h:outputText value="#{msgs.import_entire_template_csv}"/>
  	        		</h:commandLink>
