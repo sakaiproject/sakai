@@ -68,9 +68,9 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 				</div>
 			</div>	
 			<div id="chatPresenceWrapper">			
-				<div class="chatListHeadWrapper">
+				<h3 class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_user}" />
-				</div>
+				</h3>
 				<iframe
 					name="Presence"
 					id="Presence"
