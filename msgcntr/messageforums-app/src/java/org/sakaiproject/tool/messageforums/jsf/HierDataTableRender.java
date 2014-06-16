@@ -318,6 +318,7 @@ public class HierDataTableRender extends HtmlBasicRenderer
 					if (dmb.getChildCount() > 0) {
 
 						writer.startElement("img", null);
+						writer.writeAttribute("alt", "", null);
 						writer.writeAttribute("src", BARIMG, null);
 						writer.writeAttribute("style", CURSOR, null);
 						writer.writeAttribute("id", "_id_" + dmb.getMessage().getId() + "__img_hide_division_", null);

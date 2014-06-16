@@ -56,13 +56,13 @@
 					<h:outputText value=" #{msgs.cdfm_closeb}" styleClass="textPanelFooter"/>
 					<p style="padding:0;margin:.5em 0" id="openLinkBlock" class="toggleParent">
 						<a href="#" id="showMessage" class="toggle show">
-							<h:graphicImage url="/images/collapse.gif"/>	
+							<h:graphicImage url="/images/collapse.gif" alt=""/>	
 							<h:outputText value=" #{msgs.cdfm_read_full_rep_tomessage}" />
 						</a>
 					</p>
 					<p style="padding:0;margin:.5em 0" id="hideLinkBlock" class="toggleParent">
 						<a href="#" id="hideMessage" class="toggle show">
-							<h:graphicImage url="/images/expand.gif" />					
+							<h:graphicImage url="/images/expand.gif" alt="" />					
 							<h:outputText value=" #{msgs.cdfm_hide_full_rep_tomessage}"/>
 						</a>
 					</p>
@@ -74,7 +74,7 @@
 						style="font-size:.9em;width:auto;margin-left:1em" border="0">
 						<h:column rendered="#{!empty ForumTool.selectedMessage.message.attachments}">
 						<sakai:contentTypeMap fileType="#{eachAttach.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>
-  							  <h:graphicImage id="exampleFileIcon" value="#{imagePath}" />
+  							  <h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />
 					<%----%>
 						</h:column>
 						<h:column>
@@ -154,7 +154,7 @@
 				columnClasses="attach,bogus,specialLink itemAction,bogus,bogus" style="width:auto">
 				<h:column>
 			  	<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-				<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />				
+				<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />				
 				</h:column>
 				  <h:column>
 					  <f:facet name="header">

@@ -39,7 +39,7 @@
                                            rendered="#{ForumTool.selectedTopic.hasExtendedDesciption}" 
                                            title="#{msgs.cdfm_read_full_description}"
                                            styleClass="show">
-                                <h:graphicImage url="/images/collapse.gif"/>
+                                <h:graphicImage url="/images/collapse.gif" alt="" />
                                 <h:outputText value="#{msgs.cdfm_read_full_description}" />
                                 <f:param value="dfCompose" name="redirectToProcessAction"/>
                                 <f:param value="true" name="composeExpand"/>
@@ -50,7 +50,7 @@
                                            rendered="#{ForumTool.selectedTopic.readFullDesciption}"
                                            title=" #{msgs.cdfm_hide_full_description}"
                                            styleClass="hide">
-                                <h:graphicImage url="/images/expand.gif"/>
+                                <h:graphicImage url="/images/expand.gif" alt="" />
                                 <h:outputText value="#{msgs.cdfm_hide_full_description}" />
                                 <f:param value="dfCompose" name="redirectToProcessAction"/>
                             </h:commandLink>                    
@@ -105,7 +105,7 @@
                         <h:outputText value="#{msgs.cdfm_title}"/>
                     </f:facet>
                     <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>                                    
-                    <h:graphicImage id="exampleFileIcon" value="#{imagePath}" />                            
+                    <h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt=""  />                            
                     <h:outputText value=" "/>
                     <h:outputText value="#{eachAttach.attachment.attachmentName}"/>
                 </h:column>

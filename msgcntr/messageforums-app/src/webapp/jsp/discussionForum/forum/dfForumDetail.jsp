@@ -56,7 +56,7 @@
 		  		<f:subview id="longDesc" rendered="#{!empty forum.attachList || (ForumTool.selectedForum.forum.extendedDescription != '' &&  ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>')}">
 				<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}"  styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
 						onclick="resize();$(this).next('.hide').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();">
-					<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_view}" />
+					<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText value="#{msgs.cdfm_view}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
                                         <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
                                         <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -64,7 +64,7 @@
 			  
 				<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
 						onclick="resize();$(this).prev('.show').toggle(); $('div.toggle:first', $(this).parents('table.forumHeader')).slideToggle(resize);$(this).toggle();">
-					<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide}" />
+					<h:graphicImage url="/images/expand.gif" alt="" /> <h:outputText value="#{msgs.cdfm_hide}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
                                         <h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty ForumTool.selectedForum.attachList && ForumTool.selectedForum.forum.extendedDescription != '' && ForumTool.selectedForum.forum.extendedDescription != null && ForumTool.selectedForum.forum.extendedDescription != '<br/>'}"/>
                                         <h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty ForumTool.selectedForum.attachList}"/>
@@ -81,7 +81,7 @@
 				<h:dataTable  styleClass="attachListTable" value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
 				    <h:column>
 				        <sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>                                                                 
-				        <h:graphicImage id="exampleFileIcon" value="#{imagePath}" />                            
+				        <h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />                            
 				    </h:column>
 				    <h:column>        
 				        <h:outputLink value="#{eachAttach.url}" target="_blank">
@@ -168,7 +168,7 @@
 						<f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
 						<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}" styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
 								onclick="resize();$(this).next('.hide').toggle(); $('td div.toggle', $(this).parents('tr:first')).slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/collapse.gif"/><h:outputText value="#{msgs.cdfm_view}" />
+								<h:graphicImage url="/images/collapse.gif" alt=""/><h:outputText value="#{msgs.cdfm_view}" />
 								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -176,7 +176,7 @@
 				  
 						<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
 								onclick="resize();$(this).prev('.show').toggle(); $('td div.toggle', $(this).parents('tr:first')).slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/expand.gif"/><h:outputText value="#{msgs.cdfm_hide}" />
+								<h:graphicImage url="/images/expand.gif" alt=""/><h:outputText value="#{msgs.cdfm_hide}" />
 								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -193,7 +193,7 @@
 				
 							<h:dataTable styleClass="listHier attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0" columnClasses="attach,bogus">
 					  <h:column>
-									<h:graphicImage url="/images/attachment.gif" />
+									<h:graphicImage url="/images/attachment.gif" alt="" />
 						</h:column>
 						<h:column>
 						<h:outputLink value="#{eachAttach.url}" target="_blank">

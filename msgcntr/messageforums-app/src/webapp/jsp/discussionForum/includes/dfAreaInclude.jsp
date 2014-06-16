@@ -142,7 +142,7 @@ $(document).ready(function() {
 	  			<f:subview id="longDesc" rendered="#{!empty forum.attachList || (forum.forum.extendedDescription != '' &&  forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>')}">
 				<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}"  styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
 						onclick="toggleExtendedDescription($(this).next('.hide'), $('div.toggle:first', $(this).parents('table.forumHeader')), $(this));">
-					<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_view}" />
+					<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText value="#{msgs.cdfm_view}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty forum.attachList && forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty forum.attachList}"/>
@@ -151,7 +151,7 @@ $(document).ready(function() {
 				<%--//designNote: these link always show up even after you  have "zeroed out" a long description because it always saves a crlf --%>
 				<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
 						onclick="toggleExtendedDescription($(this).prev('.show'), $('div.toggle:first', $(this).parents('table.forumHeader')), $(this));">
-					<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide}" />
+					<h:graphicImage url="/images/expand.gif" alt=""/> <h:outputText value="#{msgs.cdfm_hide}" />
 					<h:outputText value=" #{msgs.cdfm_full_description}"  rendered="#{forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_and}"  rendered="#{!empty forum.attachList && forum.forum.extendedDescription != '' && forum.forum.extendedDescription != null && forum.forum.extendedDescription != '<br/>'}"/>
 					<h:outputText value=" #{msgs.cdfm_attach}"  rendered="#{!empty forum.attachList}"/>
@@ -167,7 +167,7 @@ $(document).ready(function() {
 					<h:dataTable  styleClass="attachListTable" value="#{forum.attachList}" var="eachAttach" rendered="#{!empty forum.attachList}" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0" cellpadding="3" cellspacing="0">
 			<h:column>
 			<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-			<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />				
+			<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />				
 		  </h:column>
 		  <h:column>
 							<%--
@@ -276,7 +276,7 @@ $(document).ready(function() {
 							<f:subview id="longDescTopic" rendered="#{!empty topic.attachList || (topic.topic.extendedDescription != '' &&  topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>')}">
 							<h:outputLink id="forum_extended_show" value="javascript:void(0)" title="#{msgs.cdfm_view}" styleClass="show" style="#{ForumTool.alwaysShowFullDesc  ? 'display:none' : 'display:block'}"
 									onclick="toggleExtendedDescription($(this).next('.hide'), $('td div.toggle:first', $(this).parents('tr:first')), $(this));">
-									<h:graphicImage url="/images/collapse.gif"/><h:outputText value="#{msgs.cdfm_view}" />
+									<h:graphicImage url="/images/collapse.gif" alt=""/><h:outputText value="#{msgs.cdfm_view}" />
 									<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -284,7 +284,7 @@ $(document).ready(function() {
 				  
 							<h:outputLink id="forum_extended_hide" value="javascript:void(0)" title="#{msgs.cdfm_hide}" styleClass="hide" style="#{ForumTool.alwaysShowFullDesc ? 'display:block' : 'display:none'}"
 									onclick="toggleExtendedDescription($(this).prev('.show'), $('td div.toggle:first', $(this).parents('tr:first')), $(this));">
-									<h:graphicImage url="/images/expand.gif"/><h:outputText value="#{msgs.cdfm_hide}" />
+									<h:graphicImage url="/images/expand.gif" alt=""/><h:outputText value="#{msgs.cdfm_hide}" />
 									<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty topic.attachList && topic.topic.extendedDescription != '' && topic.topic.extendedDescription != null && topic.topic.extendedDescription != '<br/>'}"/>
 									<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty topic.attachList}"/>
@@ -300,7 +300,7 @@ $(document).ready(function() {
 								<%--//desNote:attach list --%>
 								<h:dataTable  styleClass="attachListTable" value="#{topic.attachList}" var="eachAttach" rendered="#{!empty topic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em" border="0">
 					  <h:column>
-										<h:graphicImage url="/images/attachment.gif"/>
+										<h:graphicImage url="/images/attachment.gif" alt=""/>
 <%--						<h:outputLink value="#{eachAttach.attachmentUrl}" target="_blank">
 							<h:outputText value="#{eachAttach.attachmentName}" />
 						</h:outputLink>--%>

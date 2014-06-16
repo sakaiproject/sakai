@@ -71,7 +71,7 @@ if (thisId == null)
 			</p>
 			<p>
 				<a id="hide" class="hide"  href="#">
-					<h:graphicImage url="/images/expand.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
+					<h:graphicImage url="/images/expand.gif" alt="" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
 				</a>
 			</p>
 			<div class="textPanel toggle" id="toggle">
@@ -79,7 +79,7 @@ if (thisId == null)
 				<h:dataTable value="#{ForumTool.selectedForum.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedForum.attachList}" styleClass="listHier" columnClasses="bogus">
 			    <h:column>
 			    	<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />						
+					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />						
 <%--  				  <h:outputLink value="#{eachAttach.attachmentUrl}" target="_new_window">
 	  				  <h:outputText value="#{eachAttach.attachmentName}"  style="text-decoration:underline;"/>
 		  		  </h:outputLink>--%>

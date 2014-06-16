@@ -64,10 +64,10 @@
 				    <h:outputText id="topic_shortDescription"  value="#{ForumTool.selectedTopic.topic.shortDescription}"/>
 			</p>
 			<p><a id="show" class="show"  href="#">
-				<h:graphicImage url="/images/collapse.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
+				<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
 			</a></p>
 			<p><a id="hide" class="hide"  href="#">
-				<h:graphicImage url="/images/expand.gif" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
+				<h:graphicImage url="/images/expand.gif" alt="" /><h:outputText   value="#{msgs.cdfm_full_description}"/>
 			</a></p>
 				
 			<div class="textPanel toggle"  id="toggle">
@@ -75,7 +75,7 @@
 				<h:dataTable value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" styleClass="listHier" columnClasses="attach,bogus">
 				  <h:column>
 					<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />					
+					<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt="" />					
 					</h:column>
 					  <h:column>
 					<h:outputLink value="#{eachAttach.url}" target="_blank">

@@ -38,13 +38,13 @@
 						<div>
 		     <p style="padding:0;margin:.5em 0" id="openLinkBlock" class="toggleParent">
 					<a href="#" id="showMessage" class="toggle show">
-						<h:graphicImage url="/images/expand.gif"/>	
+						<h:graphicImage url="/images/expand.gif" alt=""/>	
 						<h:outputText value=" #{msgs.cdfm_hide_full_description}" />
 					</a>
 				</p>
 				<p style="padding:0;margin:.5em 0" id="hideLinkBlock" class="toggleParent">
 					<a href="#" id="hideMessage" class="toggle show">
-						<h:graphicImage url="/images/collapse.gif" />					
+						<h:graphicImage url="/images/collapse.gif" alt="" />					
 						<h:outputText value=" #{msgs.cdfm_read_full_description}"/>
 					</a>
 				</p>

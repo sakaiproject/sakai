@@ -168,7 +168,7 @@
 					  <h:outputText value="#{ForumTool.selectedTopic.topic.title}" />
 						<%--//designNote: up arrow should go here - get decent image and put title into link. --%>
 						<h:commandLink action="#{ForumTool.processActionDisplayForum}"  title="#{msgs.cdfm_up_level_title}" rendered="#{ForumTool.showForumLinksInNav}" style="margin-left:.3em">
-							<h:graphicImage url="/images/silk/arrow_turn_up.gif" style="vertical-align:top;padding:0;margin-top:-2px"/>	
+							<h:graphicImage url="/images/silk/arrow_turn_up.gif" style="vertical-align:top;padding:0;margin-top:-2px" alt="" />	
 							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 						</h:commandLink>
 					  <f:verbatim></h3></div></f:verbatim>
@@ -222,7 +222,7 @@
 						<h:outputLink id="forum_extended_show" value="#" title="#{msgs.cdfm_view}" styleClass="show"
 								rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"
 							onclick="resize();$(this).next('.hide').toggle(); $('div.toggle').slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/collapse.gif"/><h:outputText value="#{msgs.cdfm_view}" />
+								<h:graphicImage url="/images/collapse.gif" alt="" /><h:outputText value="#{msgs.cdfm_view}" />
 								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList && ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
@@ -232,7 +232,7 @@
 					<h:outputLink id="forum_extended_hide" value="#" title="#{msgs.cdfm_hide}" style="display:none " styleClass="hide" 
 								rendered="#{!empty ForumTool.selectedTopic.attachList || ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"
 							onclick="resize();$(this).prev('.show').toggle(); $('div.toggle').slideToggle(resize);$(this).toggle();">
-								<h:graphicImage url="/images/expand.gif"/><h:outputText value="#{msgs.cdfm_hide}" />
+								<h:graphicImage url="/images/expand.gif" alt="" /><h:outputText value="#{msgs.cdfm_hide}" />
 								<h:outputText value=" #{msgs.cdfm_full_description}" rendered="#{ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_and}" rendered="#{!empty ForumTool.selectedTopic.attachList && ForumTool.selectedTopic.topic.extendedDescription != '' && ForumTool.selectedTopic.topic.extendedDescription != null && ForumTool.selectedTopic.topic.extendedDescription != '<br/>'}"/>
 								<h:outputText value=" #{msgs.cdfm_attach}" rendered="#{!empty ForumTool.selectedTopic.attachList}"/>
@@ -243,7 +243,7 @@
 						<h:dataTable styleClass="listHier" value="#{ForumTool.selectedTopic.attachList}" var="eachAttach" rendered="#{!empty ForumTool.selectedTopic.attachList}" cellpadding="3" cellspacing="0" columnClasses="attach,bogus" style="font-size:.9em;width:auto;margin-left:1em">
 					  <h:column>
 						<sakai:contentTypeMap fileType="#{eachAttach.attachment.attachmentType}" mapType="image" var="imagePath" pathPrefix="/library/image/"/>									
-						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" />						
+						<h:graphicImage id="exampleFileIcon" value="#{imagePath}" alt=""  />						
 						</h:column>
 						<h:column>
 						<h:outputLink value="#{eachAttach.url}" target="_blank">
@@ -283,8 +283,8 @@
 			<h:column id="_toggle">
 				<f:facet name="header">
 					<h:commandLink action="#{ForumTool.processActionToggleExpanded}" immediate="true" title="#{msgs.cdfm_collapse_expand_all}">
-							<h:graphicImage value="/images/collapse-expand.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded == 'true'}" />
-							<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded != 'true'}" />
+							<h:graphicImage value="/images/collapse-expand.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded == 'true'}" alt=""  />
+							<h:graphicImage value="/images/expand-collapse.gif" style="vertical-align:middle" rendered="#{ForumTool.expanded != 'true'}" alt=""  />
 					</h:commandLink>
 				</f:facet>
 			</h:column>
@@ -402,7 +402,7 @@
 						<h:outputText value="&nbsp;" escape="false"/>
 					</f:facet>
                	
-					<h:graphicImage value="/images/trans.gif" rendered="#{message.read}" style="margin-left:.5em"/>
+					<h:graphicImage value="/images/trans.gif" rendered="#{message.read}" style="margin-left:.5em" alt="" />
 					<h:graphicImage value="/images/trans.gif" rendered="#{!message.read}"
 						alt="#{msgs.cdfm_mark_as_read}" title="#{msgs.cdfm_mark_as_read}"
 						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);" styleClass="markAsReadIcon"/>
