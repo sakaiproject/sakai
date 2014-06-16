@@ -111,7 +111,7 @@
 				</td>
 				<td headers="Title">$validator.escapeHtml($site.Title)</td>
 				<td headers="Published">#if($site.isPublished())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.pub")" />#end</td>
-				<td  headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joi")" />#end</td>
+				<td  headers="Joinable">#if($site.isJoinable())<img src="#imageLink("sakai/checkon.gif")" border="0" alt="$tlang.getString("sitlis.joialt")" />#end</td>
 				<td headers="Type">$validator.escapeHtml($site.Type)</td>
 				<td headers="Description">
 					#if ($site.ShortDescription && $site.ShortDescription !="")
