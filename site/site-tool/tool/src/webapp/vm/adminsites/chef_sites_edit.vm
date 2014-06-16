@@ -247,17 +247,14 @@
 		<h4>
 			$tlang.getString("sitedi.conedi")
 		</h4>	
-			<p class="instruction">$tlang.getString("sitedi.addeditprops")</p>
 		<div class="act">
-			<input type="submit" name="eventSubmit_doProperties" value="$tlang.getString("sitedi.props")" />
+			<input type="submit" name="eventSubmit_doProperties" value="$tlang.getString("sitedi.addeditprops")" />
 		</div>
-		<p class="instruction">$tlang.getString("sitedi.addeditpages")</p>
 		<div class="act">
-			<input type="submit" name="eventSubmit_doPages" value="$tlang.getString("sitedi.pag")" />
+			<input type="submit" name="eventSubmit_doPages" value="$tlang.getString("sitedi.addeditpages")" />
 		</div>
-		<p class="instruction">$tlang.getString("sitedi.addeditgroups")</p>
 		<div class="act">
-			<input type="submit" name="eventSubmit_doGroups" value="$tlang.getString("sitedi.grp")" />
+			<input type="submit" name="eventSubmit_doGroups" value="$tlang.getString("sitedi.addeditgroups")" />
 		</div>
 ##		$tlang.getString("sitedi.specon")
 ##		<div class="alertMessage">$tlang.getString("sitedi.sitcre")</div>
