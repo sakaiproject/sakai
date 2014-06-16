@@ -5518,8 +5518,8 @@ public class AssignmentAction extends PagedResourceActionII
 						// for resubmissions
 						// when resubmit, keep the Returned flag on till the instructor grade again.
 						Time now = TimeService.newTime();
-						if (sEdit.getGraded() && sEdit.getReturned() && sEdit.getGradeReleased())
-						{
+
+						// need this to handle feedback and comments, which we have to do even if ungraded
 							// get the previous graded date
 							String prevGradedDate = sEdit.getProperties().getProperty(AssignmentConstants.PROP_LAST_GRADED_DATE);
 							if (prevGradedDate == null)
@@ -5529,6 +5529,9 @@ public class AssignmentAction extends PagedResourceActionII
 								sEdit.getProperties().addProperty(AssignmentConstants.PROP_LAST_GRADED_DATE, prevGradedDate);
 							}
 							
+						if (sEdit.getGraded() && sEdit.getReturned() && sEdit.getGradeReleased())
+						{
+
 							// add the current grade into previous grade histroy
 							String previousGrades = (String) sEdit.getProperties().getProperty(
 									ResourceProperties.PROP_SUBMISSION_SCALED_PREVIOUS_GRADES);
@@ -5582,6 +5585,10 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setGrade("");
 							sEdit.setGradeReleased(false);
 							
+						}
+
+						// following involves content, not grading, so always do on resubmit, not just if graded
+
 							// clean the ContentReview attributes
 							sEdit.setReviewIconUrl(null);
 							sEdit.setReviewScore(0); // default to be 0?
@@ -5632,7 +5639,6 @@ public class AssignmentAction extends PagedResourceActionII
 							sEdit.setFeedbackText("");
 							sEdit.setFeedbackComment("");
 							sEdit.clearFeedbackAttachments();
-						}
 						
 						sEdit.setAssignment(a);
 
