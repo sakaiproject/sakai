@@ -239,13 +239,13 @@
 				<div class="sakaiCopyrightInfo">${bottomNavCopyright}</div>
 				<div class="serviceInfo">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
 				#if ($showServerTime == "true")
-			 	<div class="server-time-container">
+			 	<div class="server-time-container" aria-live="off">
 					#if ($showPreferredTzTime == "true")
 						${rloader.site_preferredtime_label}
 						<span id="preferredTime" class="server-time"></span><br />
 					#end
 					${rloader.site_servertime_label}
-					<span id="serverTime" class="server-time" aria-live="off"></span>
+					<span id="serverTime" class="server-time"></span>
 				</div>
 				<script type="text/javascript">
 					// <!--

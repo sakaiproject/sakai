@@ -27,13 +27,13 @@
                     <div class="service-info-panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
                 </li>
                 #if ($showServerTime == "true")
-                    <li class="server-time-container">
+                    <li class="server-time-container" aria-live="off">
                         #if ($showPreferredTzTime == "true")
                             ${rloader.site_preferredtime_label}
                             <span id="preferredTime" class="server-time"></span>
                         #end
                         ${rloader.site_servertime_label}
-                        <span id="serverTime" class="server-time" aria-live="off"></span>
+                        <span id="serverTime" class="server-time"></span>
                     </li>
                     <script>
                             // <!--

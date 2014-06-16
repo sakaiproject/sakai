@@ -1012,9 +1012,9 @@ your browser doesn't support iframes
 				- 
 				Server "<xsl:value-of select="$config/server"/>"
 			</div>
-      <div class="server-time-container">
+      <div class="server-time-container" aria-live="off">
 				Server Time:
-				<span id="serverTime" class="server-time" aria-live="off"/>
+				<span id="serverTime" class="server-time" />
 			</div>
       <script type="text/javascript">
 				updateFooterTime = (function() {
