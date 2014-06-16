@@ -845,6 +845,9 @@ table.hierItemBlock td h4, table.hierItemBlock td h5, table.hierItemBlock td h6,
     margin-bottom: .5em;
     border-bottom: 1px dotted silver;
 }
+h3.chatListHeadWrapper {
+    margin-top: 0;
+}
 #chatPresenceHeadWrapper, .chatPresenceHeadWrapper {
     margin-bottom: .5em;
     padding: 0 0 .2em .2em;
