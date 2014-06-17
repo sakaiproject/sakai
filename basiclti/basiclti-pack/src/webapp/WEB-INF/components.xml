@@ -15,6 +15,13 @@
             <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         </bean>
 
+        <bean id="org.sakaiproject.lti.api.SiteMembershipUpdater"
+                class="org.sakaiproject.lti.impl.SiteMembershipUpdaterImpl"
+                singleton="true">
+            <property name="roleMapper"><ref bean="org.sakaiproject.lti.api.LTIRoleMapper"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        </bean>
+
         <bean id="org.sakaiproject.lti.api.LTIService"
                 class="org.sakaiproject.lti.impl.DBLTIService"
                 init-method="init"

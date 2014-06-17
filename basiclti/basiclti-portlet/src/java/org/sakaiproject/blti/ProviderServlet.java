@@ -40,13 +40,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.basiclti.BasicLTIUtil;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
-import org.sakaiproject.lti.api.LTIRoleMapper;
+import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -110,7 +108,7 @@ public class ProviderServlet extends HttpServlet {
     private Method getPreferencesRecordForUserMethod = null;
     private Method savePreferencesRecordMethod = null;
 
-    private LTIRoleMapper ltiRoleMapper = null;
+    private SiteMembershipUpdater siteMembershipUpdater = null;
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -166,10 +164,9 @@ public class ProviderServlet extends HttpServlet {
 
 		super.init(config);
 
-        ltiRoleMapper = (LTIRoleMapper) ComponentManager.getInstance().get("org.sakaiproject.lti.api.LTIRoleMapper");
-
-        if (ltiRoleMapper == null) {
-            throw new ServletException("Failed to set role mapper.");
+        siteMembershipUpdater = (SiteMembershipUpdater) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteMembershipUpdater");
+        if (siteMembershipUpdater  == null) {
+            throw new ServletException("Failed to set site membership updater.");
         }
 
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
@@ -293,7 +290,7 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteCreation, user, site);
 
-            site = addOrUpdateSiteMembership(payload, isTrustedConsumer, user, site);
+            site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, isTrustedConsumer, user, site);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteMembership, user, site);
 
@@ -643,50 +640,6 @@ public class ProviderServlet extends HttpServlet {
 
         }
         return toolPlacementId;
-    }
-
-    private Site addOrUpdateSiteMembership(Map payload, boolean trustedConsumer, User user, Site site) throws LTIException {
-
-        Map.Entry<String, String> roleTuple = ltiRoleMapper.mapLTIRole(payload, user, site, trustedConsumer);
-        String userrole = roleTuple.getKey();
-        String newRole = roleTuple.getValue();
-
-        try {
-            Role currentRoleObject = site.getUserRole(user.getId());
-            String currentRole = null;
-            if (currentRoleObject != null) {
-                currentRole = currentRoleObject.getId();
-            }
-
-            if (!newRole.equals(currentRole)) {
-                site.addMember(user.getId(), newRole, true, false);
-                if (currentRole == null) {
-                    M_log.info("Added role=" + newRole + " user=" + user.getId() + " site=" + site.getId() + " LMS Role=" + userrole);
-                } else {
-                    M_log.info("Old role=" + currentRole + " New role=" + newRole + " user=" + user.getId() + " site=" + site.getId()+ " LMS Role=" + userrole);
-                }
-
-                pushAdvisor();
-                String tool_id = (String) payload.get("tool_id");
-                try {
-                    SiteService.save(site);
-                    M_log.info("Site saved role=" + newRole + " user="+ user.getId() + " site=" + site.getId());
-
-                } catch (Exception e) {
-                    throw new LTIException("launch.site.save", "siteId="+ site.getId() + " tool_id=" + tool_id, e);
-                } finally {
-                    popAdvisor();
-                }
-
-            }
-        } catch (Exception e) {
-            M_log.warn("Could not add user to site role=" + userrole + " user="+ user.getId() + " site=" + site.getId());
-            M_log.warn(e.getLocalizedMessage(), e);
-            throw new LTIException( "launch.join.site", "siteId="+site.getId(), e);
-
-        }
-
-        return site;
     }
 
     protected Site findOrCreateSite(Map payload, boolean trustedConsumer) throws LTIException {
