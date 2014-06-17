@@ -19,7 +19,6 @@
 
 package org.sakaiproject.blti;
 
-import java.lang.reflect.Method;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URI;
@@ -53,6 +52,9 @@ import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.profile2.logic.ProfileImageLogic;
+import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
+import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -100,14 +102,10 @@ public class ProviderServlet extends HttpServlet {
 	private static ResourceLoader rb = new ResourceLoader("basiclti");
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
-    
-    private Object profileImageLogicObject = null;
-    private Method saveOfficialImageUrlMethod = null;
-    private Object profilePreferencesLogicObject = null;
-    private Method setUseOfficialImageMethod = null;
-    private Method getPreferencesRecordForUserMethod = null;
-    private Method savePreferencesRecordMethod = null;
 
+    private ProfileImageLogic profileImageLogic = null;
+    private ProfilePreferencesLogic profilePreferencesLogic = null;
+    
     private SiteMembershipUpdater siteMembershipUpdater = null;
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
@@ -169,6 +167,16 @@ public class ProviderServlet extends HttpServlet {
             throw new ServletException("Failed to set site membership updater.");
         }
 
+        profileImageLogic = (ProfileImageLogic) ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfileImageLogic");
+        if (profileImageLogic   == null) {
+            throw new ServletException("Failed to set profileImageLogic.");
+        }
+
+        profilePreferencesLogic = (ProfilePreferencesLogic) ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfilePreferencesLogic");
+        if (profilePreferencesLogic    == null) {
+            throw new ServletException("Failed to set profilePreferencesLogic.");
+        }
+
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
 
         // load all instance of BLTIProcessor in component mgr by type detection
@@ -183,37 +191,8 @@ public class ProviderServlet extends HttpServlet {
                         .compareTo(((BLTIProcessor) (o2)).getOrder());
             }
         });
-        
-        setupProfile2Methods();
 	}
 	
-    /**
-     * BLTI-155. Use reflection to lookup the Profile2 methods we need for setting profile
-     * pictures provided by consumers
-     */
-	private void setupProfile2Methods() {
-        // BLTI-155 START
-        // Test whether Profile2 is available and setup the reflective methods if so
-        profileImageLogicObject = ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfileImageLogic");
-        profilePreferencesLogicObject = ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfilePreferencesLogic");
-                
-        if(profileImageLogicObject != null && profilePreferencesLogicObject != null) {
-        	M_log.debug("Profile2 is installed.");
-        	// It is. Cache the methods for later use.
-            try {
-            	saveOfficialImageUrlMethod = profileImageLogicObject.getClass().getMethod("saveOfficialImageUrl", new Class[] { String.class,String.class});
-                getPreferencesRecordForUserMethod = profilePreferencesLogicObject.getClass().getMethod("getPreferencesRecordForUser", new Class[] { String.class });
-                Class preferencesClazz = Class.forName("org.sakaiproject.profile2.model.ProfilePreferences");
-                setUseOfficialImageMethod = preferencesClazz.getMethod("setUseOfficialImage", new Class[] { boolean.class});
-                savePreferencesRecordMethod = profilePreferencesLogicObject.getClass().getMethod("savePreferencesRecord", new Class[] { preferencesClazz });
-                M_log.debug("Methods cached.");
-            } catch(Exception e) {
-            	M_log.warn("Tried to locate the profile2 api but failed. Consumer user_image launch parameters WILL NOT be shown");
-            }
-        }
-        // BLTI-155 END
-	}
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doPost(request, response);
 	}
@@ -897,16 +876,14 @@ public class ProviderServlet extends HttpServlet {
     	if(imageUrl != null && imageUrl.length() > 0) {
     		M_log.debug("User image supplied by consumer: " + imageUrl);
     	        
-    		if(saveOfficialImageUrlMethod != null && getPreferencesRecordForUserMethod != null && setUseOfficialImageMethod != null && savePreferencesRecordMethod != null) {
-    			try {
-    				saveOfficialImageUrlMethod.invoke(profileImageLogicObject, new Object[] {user.getId(), imageUrl});
-    				Object prefs = getPreferencesRecordForUserMethod.invoke(profilePreferencesLogicObject, new String [] { user.getId() });
-    				setUseOfficialImageMethod.invoke(prefs,new Object[] { true });
-    				savePreferencesRecordMethod.invoke(profilePreferencesLogicObject,new Object[] { prefs });
-    			} catch(Exception e) {
-    				M_log.error("Failed to setup launcher's Profile2 picture.",e);
-    			}
-    		}
+            try {
+                profileImageLogic.saveOfficialImageUrl(user.getId(), imageUrl);
+                ProfilePreferences prefs = profilePreferencesLogic.getPreferencesRecordForUser(user.getId());
+                prefs.setUseOfficialImage(true);
+                profilePreferencesLogic.savePreferencesRecord(prefs);
+            } catch(Exception e) {
+                M_log.error("Failed to setup launcher's Profile2 picture.",e);
+            }
     	}
     }
 
