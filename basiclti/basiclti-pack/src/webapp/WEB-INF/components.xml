@@ -3,23 +3,29 @@
 
 <beans>
         <bean id="org.sakaiproject.basiclti.service.BasicLTISecurityService"
-                        class="org.sakaiproject.basiclti.impl.BasicLTISecurityServiceImpl"
-                        init-method="init"
-                        destroy-method="destroy"
-                        singleton="true">
+                class="org.sakaiproject.basiclti.impl.BasicLTISecurityServiceImpl"
+                init-method="init"
+                destroy-method="destroy"
+                singleton="true">
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.LTIRoleMapper"
+                class="org.sakaiproject.lti.impl.LTIRoleMapperImpl"
+                singleton="true">
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         </bean>
 
         <bean id="org.sakaiproject.lti.api.LTIService"
-                        class="org.sakaiproject.lti.impl.DBLTIService"
-                        init-method="init"
-                        destroy-method="destroy"
-                        singleton="true">
-                <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-                <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-                <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
-                <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
-                <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-                <property name="autoDdl"><value>${auto.ddl}</value></property>
+                class="org.sakaiproject.lti.impl.DBLTIService"
+                init-method="init"
+                destroy-method="destroy"
+                singleton="true">
+            <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+            <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+            <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+            <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+            <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+            <property name="autoDdl"><value>${auto.ddl}</value></property>
         </bean>
 
 </beans>
