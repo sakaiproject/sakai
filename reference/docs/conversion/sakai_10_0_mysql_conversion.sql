@@ -1250,7 +1250,7 @@ alter table lti_tools drop domain;
 alter table MFR_AREA_T add column SEND_TO_EMAIL int(11) not null DEFAULT 1;
 
 -- set the SEND_TO_EMAIL column equal to the equivalent value for SENDEMAILOUT
-update MFR_AREA_T area set area.SEND_TO_EMAIL=0 where area.SENDEMAILOUT=0 and area.TYPE_UUID = (select types.uuid from cmn_type_t types where types.KEYWORD = 'privateForums');
+update MFR_AREA_T area set area.SEND_TO_EMAIL=0 where area.SENDEMAILOUT=0 and area.TYPE_UUID = (select types.uuid from CMN_TYPE_T types where types.KEYWORD = 'privateForums');
 
 CREATE TABLE IF NOT EXISTS MFR_MOVE_HISTORY_T (
   `ID` bigint(20) NOT NULL AUTO_INCREMENT,
