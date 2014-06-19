@@ -45,6 +45,10 @@
 	<h3>
 		$tlang.getString("archive.download.heading")
 	</h3>
+	
+	#if($archives.size() == 0)
+		<p>$tlang.getString("archive.download.none")</p>
+	#else
 		
 	
 		<table class="listHier lines" cellspacing="0">
@@ -66,7 +70,7 @@
     	#foreach($archive in $archives)
     		<tr>
     			<td>
-					<a href="javascript:void(0);" rel="../test.html" class="downloadLink">
+					<a href="javascript:void(0);" rel="$!archive.filename" class="downloadLink">
         				#if ($archive.siteTitle)
         					$!archive.siteTitle <span class="smalltext">($!archive.siteId)</span>
         				#else 
@@ -87,6 +91,7 @@
 		#end
 		
 	</table>
+	#end
 		
 	
 </div>
