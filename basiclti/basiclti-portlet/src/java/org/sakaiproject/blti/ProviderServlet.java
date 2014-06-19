@@ -35,26 +35,27 @@ import javax.servlet.http.HttpServletResponse;
 import net.oauth.*;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.basiclti.BasicLTIUtil;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
+import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
+import org.sakaiproject.lti.api.UserFinderOrCreator;
+import org.sakaiproject.lti.api.UserLocaleSetter;
+import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.id.cover.IdManager;
-import org.sakaiproject.profile2.logic.ProfileImageLogic;
-import org.sakaiproject.profile2.logic.ProfilePreferencesLogic;
-import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -66,10 +67,9 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
+
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
@@ -103,10 +103,12 @@ public class ProviderServlet extends HttpServlet {
 	private static final String BASICLTI_RESOURCE_LINK = "blti:resource_link_id";
     private static final String LTI_CONTEXT_ID = "lti_context_id";
 
-    private ProfileImageLogic profileImageLogic = null;
-    private ProfilePreferencesLogic profilePreferencesLogic = null;
-    
+    // All loaded from the component manager
     private SiteMembershipUpdater siteMembershipUpdater = null;
+    private SiteEmailPreferenceSetter siteEmailPreferenceSetter = null;
+    private UserFinderOrCreator userFinderOrCreator = null;
+    private UserLocaleSetter userLocaleSetter = null;
+    private UserPictureSetter userPictureSetter = null;
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -162,19 +164,29 @@ public class ProviderServlet extends HttpServlet {
 
 		super.init(config);
 
+        siteEmailPreferenceSetter = (SiteEmailPreferenceSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteEmailPreferenceSetter");
+        if (siteEmailPreferenceSetter  == null) {
+            throw new ServletException("Failed to set siteEmailPreferenceSetter.");
+        }
+
         siteMembershipUpdater = (SiteMembershipUpdater) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteMembershipUpdater");
-        if (siteMembershipUpdater  == null) {
-            throw new ServletException("Failed to set site membership updater.");
+        if (siteMembershipUpdater == null) {
+            throw new ServletException("Failed to set siteMembershipUpdater.");
         }
 
-        profileImageLogic = (ProfileImageLogic) ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfileImageLogic");
-        if (profileImageLogic   == null) {
-            throw new ServletException("Failed to set profileImageLogic.");
+        userFinderOrCreator = (UserFinderOrCreator) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserFinderOrCreator");
+        if (userFinderOrCreator  == null) {
+            throw new ServletException("Failed to set userFinderOrCreator.");
         }
 
-        profilePreferencesLogic = (ProfilePreferencesLogic) ComponentManager.getInstance().get("org.sakaiproject.profile2.logic.ProfilePreferencesLogic");
-        if (profilePreferencesLogic    == null) {
-            throw new ServletException("Failed to set profilePreferencesLogic.");
+        userPictureSetter = (UserPictureSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserPictureSetter");
+        if (userPictureSetter == null) {
+            throw new ServletException("Failed to set userPictureSettter.");
+        }
+
+        userLocaleSetter = (UserLocaleSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserLocaleSetter");
+        if (userLocaleSetter == null) {
+            throw new ServletException("Failed to set userLocaleSettter.");
         }
 
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
@@ -250,24 +262,24 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
-            User user = findOrCreateUser(payload, isTrustedConsumer);
+            User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer, ipAddress);
             
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
             loginUser(ipAddress, user);
-
-            // This needs to happen after login, when we have a session for the user.
-            setupUserLocale(payload, user, isTrustedConsumer);
-            
-            setupUserPicture(payload, user, isTrustedConsumer);
             
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
+            // This needs to happen after login, when we have a session for the user.
+            userLocaleSetter.setupUserLocale(payload, user, isTrustedConsumer);
+            
+            userPictureSetter.setupUserPicture(payload, user, isTrustedConsumer);
+
             Site site = findOrCreateSite(payload, isTrustedConsumer);
 
-            setupUserEmailPreferenceForSite(payload, user, site, isTrustedConsumer);
-
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteCreation, user, site);
+
+            siteEmailPreferenceSetter.setupUserEmailPreferenceForSite(payload, user, site, isTrustedConsumer);
 
             site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, isTrustedConsumer, user, site);
 
@@ -762,96 +774,6 @@ public class ProviderServlet extends HttpServlet {
         }
     }
 
-    protected String getEid(Map payload, boolean trustedConsumer, String user_id) throws LTIException {
-        String eid;
-        String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
-        String ext_sakai_provider_eid = (String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
-
-
-        if(BasicLTIUtil.isNotBlank(ext_sakai_provider_eid)){
-			eid = (String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID);
-		} else {
-
-			if(trustedConsumer) {
-				try {
-					eid = UserDirectoryService.getUserEid(user_id);
-				} catch (Exception e) {
-					M_log.error(e.getLocalizedMessage(), e);
-					throw new LTIException( "launch.user.invalid", "user_id="+user_id, e);
-				}
-			} else {
-				eid = oauth_consumer_key + ":" + user_id;
-			}
-			if (M_log.isDebugEnabled()) {
-				M_log.debug("eid=" + eid);
-			}
-		}
-        return eid;
-    }
-
-    protected User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException {
-        User user;
-        String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
-
-        // Get the eid, either from the value provided or if trusted get it from the user_id,otherwise construct it.
-        String eid = getEid(payload, trustedConsumer, user_id);
-
-
-        // If we did not get first and last name, split lis_person_name_full
-        final String fullname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_FULL);
-        String fname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_GIVEN);
-        String lname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_FAMILY);
-        String email = (String) payload.get(BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY);
-
-        if (fname == null && lname == null && fullname != null) {
-            int ipos = fullname.trim().lastIndexOf(' ');
-            if (ipos == -1) {
-                fname = fullname;
-            } else {
-                fname = fullname.substring(0, ipos);
-                lname = fullname.substring(ipos + 1);
-            }
-        }
-        
-        // If trusted consumer, login, otherwise check for existing user and create one if required
-        // Note that if trusted, then the user must have already logged into Sakai in order to have an account stub created for them
-        // otherwise this will fail since they don't exist. Perhaps this should be addressed?
-        if (trustedConsumer) {
-            try {
-                user = UserDirectoryService.getUser(user_id);
-            } catch (UserNotDefinedException e) {
-                throw new LTIException("launch.user.invalid", "user_id=" + user_id, e);
-            }
-
-        } else {
-
-            try {
-                user = UserDirectoryService.getUserByEid(eid);
-            } catch (Exception e) {
-                if (M_log.isDebugEnabled()) {
-                    M_log.debug(e.getLocalizedMessage(), e);
-                }
-                user = null;
-            }
-
-            if (user == null) {
-                try {
-                    String hiddenPW = IdManager.createUuid();
-                    UserDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
-                    M_log.info("Created user=" + eid);
-                    user = UserDirectoryService.getUserByEid(eid);
-                } catch (Exception e) {
-                    throw new LTIException("launch.create.user", "user_id=" + user_id, e);
-                }
-            }
-
-            // post the login event
-            // eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN,
-            // null, true));
-        }
-        return user;
-    }
-
     private void loginUser(String ipAddress, User user) {
         Session sess = SessionManager.getCurrentSession();
         UsageSessionService.login(user.getId(), user.getEid(), ipAddress, null, UsageSessionService.EVENT_LOGIN_WS);
@@ -859,105 +781,6 @@ public class ProviderServlet extends HttpServlet {
         sess.setUserEid(user.getEid());
     }
     
-    /**
-     * BLTI-155. If Profile2 is installed, set the profile picture to the user_image url, if supplied.
-     * 
-     * @param payload The LTI launch parameters in a Map
-     * @param user The provisioned user who MUST be already logged in.
-     * @param isTrustedConsumer If this is true, do nothing as we assume that a local
-     * 							user corresponding to the consumer user already exists
-     */
-    private void setupUserPicture(Map payload, User user, boolean isTrustedConsumer) {
-    	
-    	if(isTrustedConsumer) return;
-    	
-    	String imageUrl = (String) payload.get(BasicLTIConstants.USER_IMAGE);
-    	        
-    	if(imageUrl != null && imageUrl.length() > 0) {
-    		M_log.debug("User image supplied by consumer: " + imageUrl);
-    	        
-            try {
-                profileImageLogic.saveOfficialImageUrl(user.getId(), imageUrl);
-                ProfilePreferences prefs = profilePreferencesLogic.getPreferencesRecordForUser(user.getId());
-                prefs.setUseOfficialImage(true);
-                profilePreferencesLogic.savePreferencesRecord(prefs);
-            } catch(Exception e) {
-                M_log.error("Failed to setup launcher's Profile2 picture.",e);
-            }
-    	}
-    }
-
-    private void setupUserLocale(Map payload, User user, boolean isTrustedConsumer) {
-
-    	if(isTrustedConsumer) return;
-
-        // BLTI-153. Set up user's language.
-        String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
-        if(locale != null && locale.length() > 0) {
-            try {
-                PreferencesEdit pe = null;
-                try {
-                    pe = PreferencesService.edit(user.getId());
-                } catch(IdUnusedException idue) {
-                    pe = PreferencesService.add(user.getId());
-                }
-                
-                ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
-                propsEdit.removeProperty(Preferences.FIELD_LOCALE);
-                propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
-                PreferencesService.commit(pe);
-            } catch(Exception e) {
-                M_log.error("Failed to setup launcher's locale",e);
-            }
-        }
-    }
-    
-    /**
-     * Picks up the ext_email_delivery_preference parameter, if supplied, and reflects it in the user's preferences
-     * as a site override for the tool being launched. This is *not* an official part of the LTI 1.1 spec; this
-     * functionality will probably become part of a LTI 2.0 consumer preferences service.
-     */
-    private void setupUserEmailPreferenceForSite(Map payload, User user, Site site, boolean isTrustedConsumer) {
-
-    	if(isTrustedConsumer) return;
-
-        // Set up user's email preference.
-        String emailDeliveryPreference = (String) payload.get("ext_email_delivery_preference");
-        if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
-
-            try {
-
-                PreferencesEdit pe = null;
-                try {
-                    pe = PreferencesService.edit(user.getId());
-                } catch(IdUnusedException idue) {
-                    pe = PreferencesService.add(user.getId());
-                }
-                
-                if(emailDeliveryPreference != null && emailDeliveryPreference.length() > 0) {
-
-                    int notificationPref = NotificationService.PREF_IMMEDIATE;
-
-                    if(emailDeliveryPreference.equals("none")) {
-                        notificationPref = NotificationService.PREF_NONE;
-                    } else if(emailDeliveryPreference.equals("digest")) {
-                        notificationPref = NotificationService.PREF_DIGEST;
-                    }
-
-                    String toolId = ((String) payload.get("tool_id")).replaceFirst("\\.",":");
-
-                    ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit(NotificationService.PREFS_TYPE + toolId + "_override");
-                    propsEdit.removeProperty(site.getId());
-                    propsEdit.addProperty(site.getId(), Integer.toString(notificationPref));
-                }
-
-                PreferencesService.commit(pe);
-            } catch(Exception e) {
-                M_log.error("Failed to setup launcher's locale and/or email preference.",e);
-            }
-        }
-    }
-
     protected boolean isTrustedConsumer(Map payload) {
         boolean isTrustedConsumer = false;
         String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
