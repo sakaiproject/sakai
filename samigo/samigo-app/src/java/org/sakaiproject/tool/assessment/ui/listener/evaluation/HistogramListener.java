@@ -466,12 +466,17 @@ public class HistogramListener
                                 //need to only get gradings for students that answered this question
                                 List<AssessmentGradingData> filteredGradings =
                             		filterGradingData(submissionsSortedForDiscrim, questionScores.getItemId());
+                                
+                                // SAM-2228: loop control issues because of unsynchronized collection access
+                                int filteredGradingsSize = filteredGradings.size();
+                                percent27ForThisQuestion = filteredGradingsSize*27/100;
+                                
                                 for (int i = 0; i < percent27ForThisQuestion; i++) {
                                     lowerQuartileStudents.add(((AssessmentGradingData)
                                 	filteredGradings.get(i)).getAgentId());
                                     //
                                     upperQuartileStudents.add(((AssessmentGradingData)
-                                    	filteredGradings.get(questionScores.getNumResponses()-1-i)).getAgentId());
+                                    filteredGradings.get(filteredGradingsSize-1-i)).getAgentId());
                                 }
                              }
                           }
