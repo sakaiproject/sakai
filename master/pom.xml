@@ -104,8 +104,8 @@
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
-    <sakairsf.components.version>0.8.0-SNAPSHOT</sakairsf.components.version>
-    <sakairsf.version>0.8.0-SNAPSHOT</sakairsf.version>
+    <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
+    <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
     <reflectutils.version>0.9.19</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
