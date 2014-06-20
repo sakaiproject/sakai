@@ -83,7 +83,7 @@
 			##assignment title
 			<tr>
 				<th>
-					$tlang.getString('assignment')
+					$tlang.getString('assignment.title')
 				</th>
 				<td>
                                         #assignmentTitleIcon($assignment)
