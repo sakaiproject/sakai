@@ -420,6 +420,16 @@ public class SamigoExport {
 	    out.println("              <fieldlabel>cc_profile</fieldlabel>");
 	    out.println("              <fieldentry>" + profile + "</fieldentry>");
 	    out.println("            </qtimetadatafield>");
+	    if (type.equals(TypeIfc.ESSAY_QUESTION)) {
+	    out.println("            <qtimetadatafield>");
+	    out.println("              <fieldlabel>qmd_scoringpermitted</fieldlabel>");
+	    out.println("              <fieldentry>Yes</fieldentry>");
+	    out.println("            </qtimetadatafield>");
+	    out.println("            <qtimetadatafield>");
+	    out.println("              <fieldlabel>qmd_computerscored</fieldlabel>");
+	    out.println("              <fieldentry>No</fieldentry>");
+	    out.println("            </qtimetadatafield>");
+	    }
 	    out.println("          </qtimetadata>");
 	    out.println("        </itemmetadata>");
 
