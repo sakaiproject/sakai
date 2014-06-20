@@ -434,7 +434,7 @@ wrappers for all panels - receive the focus after a tab click
     margin-top:0;
 }
 #motdTextDiv .motdText{
-    padding: 10px 0;
+    padding: 0;
 }
 
 #motdTextDivDismiss{
