@@ -641,6 +641,7 @@ public class QtiImport {
 	String question = null;
 	String model = null;
 	String feedback = null;
+	Double score = 1.0;
 
 	title = getAttribute(item, "title");
 	ident = getAttribute(item, "ident");
@@ -695,6 +696,19 @@ public class QtiImport {
 	    feeditem = getNextByName(feeditem, "itemfeedback");
 	}
 
+	Node response = getFirstByName(item, "resprocessing");
+	if (response != null)
+	    response = getFirstByName(response, "outcomes");
+	if (response != null)
+	    response = getFirstByName(response, "decvar");
+	if (response != null)
+	    try {
+		    String maxval = getAttribute(response, "maxvalue");
+		    Double numval = Double.parseDouble(maxval);
+		    if (numval > score)
+			score = numval;
+	    } catch (Exception ignore) {};
+
 	if (debug) System.err.println("feedback " + feedback);
 	if (debug) System.err.println("model " + model);
 
@@ -742,7 +756,7 @@ public class QtiImport {
 	out.println("  </presentation>");
 	out.println("  <resprocessing>");
 	out.println("    <outcomes>");
-	out.println("      <decvar defaultval=\"0\" maxvalue=\"1.0\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Integer\"></decvar>");
+	out.println("      <decvar defaultval=\"0\" maxvalue=\"" + score + "\" minvalue=\"0\" varname=\"SCORE\" vartype=\"Integer\"></decvar>");
 	out.println("    </outcomes>");
 	out.println("  </resprocessing>");
 	paras++;
