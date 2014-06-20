@@ -23,13 +23,14 @@
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-
+import java.util.Map;
+import java.util.TreeMap;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
-
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AttachmentIfc;
@@ -91,6 +92,14 @@ public class ImportQuestionsToAuthoring implements ActionListener
       String itemId= "";
 
       ArrayList destItems= ContextUtil.paramArrayValueLike("importCheckbox");
+      
+      // SAM-2341 - sort based on question text
+      Map<ItemFacade, SectionFacade> copiedQuestions = new TreeMap<ItemFacade, SectionFacade>(new Comparator<ItemFacade>() {
+          @Override
+          public int compare(ItemFacade obj1, ItemFacade obj2) {
+              return obj1.getText().compareTo(obj2.getText());
+          }
+      });
 
       if (destItems.size() > 0) {
 
@@ -150,17 +159,21 @@ public class ImportQuestionsToAuthoring implements ActionListener
                 int insertPosInt= insertPosIntvalue + 1 ;
                 itemfacade.setSequence(Integer.valueOf(insertPosInt));
            }
-
-
-          delegate.saveItem(itemfacade);
-          // remove POOLID metadata if any,
-          delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
-          delegate.deleteItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
-
-          delegate.addItemMetaData(itemfacade.getItemId(), ItemMetaData.PARTID,section.getSectionId().toString(),  AgentFacade.getAgentString());
-
+          
+          // SAM-2341 - add the items to a collection sorted on question title
+          copiedQuestions.put(itemfacade, section);
         }
         itempos= itempos+1;   // for next item in the destItem.
+      }
+      
+      // SAM-2341 - now do the copies after all selected questions have been sorted
+      for (ItemFacade item : copiedQuestions.keySet()) {
+          section = copiedQuestions.get(item);
+          delegate.saveItem(item);
+          // remove POOLID metadata if any,
+          delegate.deleteItemMetaData(item.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
+          delegate.deleteItemMetaData(item.getItemId(), ItemMetaData.PARTID, AgentFacade.getAgentString());
+          delegate.addItemMetaData(item.getItemId(), ItemMetaData.PARTID, section.getSectionId().toString(), AgentFacade.getAgentString());
       }
 
       // reset InsertPosition
