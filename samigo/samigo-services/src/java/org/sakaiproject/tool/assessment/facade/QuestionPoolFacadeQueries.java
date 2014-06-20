@@ -217,7 +217,7 @@ public class QuestionPoolFacadeQueries
   public ArrayList getBasicInfoOfAllPools(final String agentId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.questionPoolId  " +
+	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
 	    		                              "in (select ac.questionPoolId from QuestionPoolAccessData ac where agentId= ?)");
 	    		q.setString(0, agentId);
 	    		return q.list();
@@ -233,7 +233,7 @@ public class QuestionPoolFacadeQueries
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
       QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(),
-          a.getTitle());
+          a.getTitle(), a.getParentPoolId());
       poolList.add(f);
     }
     return poolList;

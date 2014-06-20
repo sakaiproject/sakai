@@ -826,15 +826,33 @@ public class ItemAuthorBean
 
 
     QuestionPoolService delegate = new QuestionPoolService();
-    ArrayList qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
-    Iterator iter = qplist.iterator();
+    ArrayList<QuestionPoolFacade> qplist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    Iterator<QuestionPoolFacade> iter = qplist.iterator();
 
     try {
       while(iter.hasNext())
       {
         QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
-        poolListSelectItems.add(new SelectItem((pool.getQuestionPoolId().toString()), FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName())));
-
+        
+        // SAM-2269 - if the parent pool ID is greater than 0 (question pool IDs start at 1), get the parent pool
+        Long parentPoolID = pool.getParentPoolId();
+        QuestionPoolFacade parent = null;
+        if (parentPoolID > 0) {
+            for (QuestionPoolFacade qp : qplist) {
+                if (parentPoolID.equals(qp.getQuestionPoolId())) {
+                    parent = qp;
+                    break;
+                }
+            }
+        }
+        
+        // SAM-2269 - add the appropriate string to the list
+        String original = pool.getDisplayName() + " (" + delegate.getCountItems(pool.getQuestionPoolId()) + ")";
+        if (parent != null) {
+            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), FormattedText.convertFormattedTextToPlaintext(parent.getDisplayName() + ": " + original)));
+        } else {
+            poolListSelectItems.add(new SelectItem(pool.getQuestionPoolId().toString(), FormattedText.convertFormattedTextToPlaintext(original)));
+        }
       }
 
     }

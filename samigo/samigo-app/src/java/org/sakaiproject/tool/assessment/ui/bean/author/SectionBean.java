@@ -370,8 +370,7 @@ private List attachmentList;
       //Huong's new
       int items = delegate.getCountItems(pool.getQuestionPoolId() );	
       if(items>0){
-    	  String resultListName= FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName())+"("+ items +")" ;	
-    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()),resultListName) );
+    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist)));
       }
     }
     //  add pool which is currently used in current Part for modify part
@@ -385,8 +384,7 @@ private List attachmentList;
           // if the pool still exists, it's possible that the pool has been deleted  
           int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
           if(currItems>0){
-        	String currPoolName= FormattedText.convertFormattedTextToPlaintext(currPool.getDisplayName())+"("+ currItems +")" ;
-            resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), currPoolName));  
+              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist)));  
           }
         }
         else {
@@ -396,6 +394,44 @@ private List attachmentList;
 
     Collections.sort(resultPoolList, new ItemComparator());
     return resultPoolList;
+  }
+  
+  /**
+   * Determine the correct string to display in the drop down for 'Random draw from question pool' option.
+   * Format is:  [parent pool name]: pool name (# of questions)
+   * Where the parent pool name part is only displayed if the pool is a sub-pool.
+   * 
+   * This is important because subpool names are not unique across parent pools, which can result in 
+   * multiple pools with the same name in the dropdown UI.
+   * 
+   * @author bjones86 - SAM-2269
+   * 
+   * @param pool
+   * 			the question pool
+   * @param items
+   * 			the number of questions in this pool
+   * @param allPools
+   * 			a List of all pools in the database
+   * @return a string to display in the UI's drop down for the given question pool
+   */
+  @SuppressWarnings("deprecation")
+  private String getPoolTitleValueForRandomDrawDropDown(QuestionPoolFacade pool, int items, List<QuestionPoolFacade> allPools) {
+ 
+        // Build the string in the original format
+        String original = FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName()) + " (" + items + ")";
+
+        // If the parent pool ID is greater than 0 (question pool IDs start at 1), return the string with the parent pool name prefixed
+        Long parentPoolID = pool.getParentPoolId();
+        if(parentPoolID > 0) {
+            for(QuestionPoolFacade qp : allPools) {
+                if(parentPoolID.equals(qp.getQuestionPoolId())) {
+                    return FormattedText.convertFormattedTextToPlaintext(qp.getDisplayName()) + ": " + original;
+                }
+            }
+        }
+
+        // Otherwise, it has no parent or the parent wasn't found, return the original string
+        return original;
   }
 
   class ItemComparator implements Comparator {
