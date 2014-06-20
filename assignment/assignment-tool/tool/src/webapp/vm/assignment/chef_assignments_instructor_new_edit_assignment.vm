@@ -7,6 +7,7 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" />
 
 <script type="text/javascript">
 $(document).ready(function() {
@@ -992,19 +993,46 @@ $(document).ready(function() {
 		
 		
 		## group/section support
-		#if ($allowAddSiteAssignment)
-			#if ($!groups)
-				<h4>
-					$!tlang.getString('access')
-				</h4>
+                <h4>$!tlang.getString('access')</h4>
+                #set( $class = "" )
+                #if( !$!groupsList )
+                    #set( $class = "disabled" )
+                #end
+
+                #if( $allowAddSiteAssignment )
+                    #set( $selectedGroupsNotFound = true )
+                    #foreach( $group in $!groupsList )
+                        #foreach( $aGroupRef in $assignmentGroups )
+                            #set( $aGroup = $!site.getGroup( $!aGroupRef ) )
+                            #if( $!group.Id == $!aGroup.Id )
+                                #set( $selectedGroupsNotFound = false )
+                            #end
+                        #end
+                    #end
+
+                    <div id="messages">
+                    #if( $!range == "groups" && $selectedGroupsNotFound )
+                        #if( $!groupsList.size() > 0 )
+                            <div id="msgSelectedGroupsGoneOtherGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneOtherGroupsPresent" )</div>
+                        #else
+                            <div id="msgSelectedGroupsGoneNoGroups" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.selectedGroupsGoneNoGroups" )</div>
+                        #end
+                    #elseif( !$!groupsList )
+                        <div id="msgNoGroupsPresent" class="messageInformation indnt2" style="width: 80% !important;">$tlang.getString( "settings.access.noGroupsPresent" )</div>
+                    #end
+                    </div>
+
                                  #if ($group_submissions_enabled)
                                     <p class="checkbox  indnt2">
-                                        #if (!$!value_CheckIsGroupSubmission.equals("1"))
-                                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" />
-                                        #else
-                                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" checked="checked" />
+                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1"
+                            #if ($!value_CheckIsGroupSubmission.equals("1") && !$!groupsList)
+                                checked="checked"
                                         #end
-                                        <label for="$name_CheckIsGroupSubmission">
+                            #if( !$!groupsList )
+                                disabled="disabled"
+                            #end
+                            />
+                            <label for="$name_CheckIsGroupSubmission" class="$class">
                                             $tlang.getString("group.issubmit")
                                         </label>
                                     </p>
@@ -1022,48 +1050,65 @@ $(document).ready(function() {
                                 #end
 
 				<p class="checkbox  indnt2">
-				#if (!$!allowGroupAssignmentsInGradebook)
-						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end 
-						onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow');resizeFrame()};$('#groupTable').fadeOut('slow');resizeFrame()" />
+                    #if( !$!allowGroupAssignmentsInGradebook )
+                        <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame()};$('#groupTable').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame();" 
+                        #if( $!range == "site" || $selectedGroupsNotFound )
+                            checked="checked"
+                        #end
+                        />
 					#else
-						<input type="radio" name="range" id="site" value="site" #if($!range == "site")checked="checked"#end  onclick="$('#groupTable').fadeOut('slow');resizeFrame()"  />
+                        <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame();" 
+                        #if( $!range == "site" || $selectedGroupsNotFound )
+                            checked="checked"
 					#end
+                        />
+                    #end
 					<label for="site">$tlang.getString("displayto.site")</label>
-				</p>	
-			#else
-				##if there is no group for the site, assignment is defaulted to site-range, and no need to surface the choice in UI
-				<input type="hidden" name="range" id="site" value="site" />
-			#end
-		#elseif ($allowAddAssignment)
-			<h4>
-				$!tlang.getString('access')
-			</h4>
+                    </p>
+		#elseif( $allowAddAssignment )
 			#if ($!groups.size() >1)
-				<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+                        <label class="$class" for="groups">$tlang.getString("groups")</label>
 			#else
-				<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+                        <label class="$class" for="groups">$tlang.getString("group")</label>
 			#end
 		#end
-		#if ($!groups)
+
 			## added group awareness
 			<p class="checkbox indnt2">
-				#if (!$!allowGroupAssignmentsInGradebook)
-					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow');resizeFrame()"  />
+                #if( !$!allowGroupAssignmentsInGradebook )
+                    <input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); showOrHideAccessMessages( true ); resizeFrame();" 
+                    #if( $!range == "groups" && !$selectedGroupsNotFound )
+                        checked="checked"
+                    #elseif( !$!groupsList )
+                        disabled="disabled"
+                    #end
+                    />
 				#else
-					<input type="radio" name="range" id="groups" value="groups" #if($!range == "groups")checked="checked"#end onclick="$('#groupTable').fadeIn('slow');resizeFrame()"  />  
+                    <input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); showOrHideAccessMessages( true ); resizeFrame();" 
+                    #if( $!range == "groups" && !$selectedGroupsNotFound )
+                        checked="checked"
+                    #elseif( !$!groupsList )
+                        disabled="disabled"
 				#end
-				
-				<label for="groups">$tlang.getString("displayto.selected")</label>
-			</p>	
-			#if($!range == "groups" || $!assignment.Access == $groupAccess)
-				#set ($listDisplay="block")
+                    />  
+                #end
+                    <label class="$class" for="groups">$tlang.getString("displayto.selected")</label>
+                </p>
+
+                #set( $selectGroupsDisplay = "block" )
+                #if( (($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound) || $selectedGroupsNotFound || $!range == "site" )
+                    #set( $selectGroupsDisplay = "none" )
+                #end
+                #if( ($!range == "groups" || $!assignment.Access == $groupAccess) && !$selectedGroupsNotFound )
+                    #set( $listDisplay = "block" )
 			#else
-				#set ($listDisplay="none")
+                    #set( $listDisplay = "none" )
 			#end
+                <div id="msgSelectGroups" class="messageInformation indnt3" style="width: 80% !important; display: $selectGroupsDisplay">$tlang.getString( "settings.access.selectGroups" )</div>
 			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 					<tr>
 						<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-							<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+                            <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="javascript:toggleSelectAll(this, 'selectedGroups'); showOrHideSelectGroupsMessage();"  />
 						</th>
 						<th id ="groupname">
 								$tlang.getString('gen.title')
@@ -1082,25 +1127,21 @@ $(document).ready(function() {
 										#set($selected = true)
 									#end
 								#end
-								<input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+                                <input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="showOrHideSelectGroupsMessage();" />
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
-								#if ($group_submissions_enabled)
-                                                                    #sectionIcon($group)
-                                                                #end
                                                                 <label for="id-$group.Id">
 									$validator.escapeHtml($group.Title)
 								</label>	
 							</td>
-							<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here                                                                
+                            <td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
                                                                 #set($description = "")
-								#set($description=$group.Description)
+                                #set($description = $group.Description)
 								$validator.escapeHtml($!description)
 							</td>
 						</tr>
 					#end
 				</table>
-		#end
 		## whether to show the instructor notification choices
 		#if ($!name_assignment_instructor_notifications)
             <fieldset>

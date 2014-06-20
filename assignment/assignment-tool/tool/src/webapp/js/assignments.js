@@ -337,6 +337,83 @@ function setupItemNavigator(){
         $('.' + what).prop('disabled','disabled').addClass('disabled');
         $('.messageProgress').css('visibility','visible');
         
-    })
+    });
+}
+
+// SAK-26349
+function showOrHideAccessMessages(groupRadioSelected) {
     
+    // Get the elements
+    var container = document.getElementById("messages");
+    var groupMsg = document.getElementById("msgSelectGroups");
+    var children = container.getElementsByTagName("div");
+    
+    // Show/hide the messages
+    if (groupRadioSelected) {
+        showOrHideSelectGroupsMessage();
+        for (i = 0; i < children.length; i++) {
+            if (children[i].id !== groupMsg.id) {
+                children[i].style.display = "none";
+            }
+        }
+    } 
+    else {
+        showOrHideSelectGroupsMessage();
+        for (i = 0; i < children.length; i++) {
+            if (children[i].id !== groupMsg.id) {
+                children[i].style.display = "block";
+            }
+        }
+    }
+}
+
+function showOrHideSelectGroupsMessage() {
+    
+    // Get the elements
+    var groupMsg = document.getElementById("msgSelectGroups");
+    var groupsRadio = document.getElementById("groups");
+    var checkboxes = document.getElementsByName("selectedGroups");
+    
+    // Determine if groups are selected
+    var groupsSelected = false;
+    for (i = 0; i < checkboxes.length; i++) {
+        if (checkboxes[i].checked === true) {
+            groupsSelected = true;
+        }
+    }
+        
+    // Show/hide the groups message
+    if (groupsRadio.checked && !groupsSelected) {
+        groupMsg.style.display = "block";
+    } 
+    else {
+        groupMsg.style.display = "none";
+    }
+}
+
+function toggleGroups(clickedElement) {
+
+    // Get the elements
+    var parent = clickedElement.parentNode;
+    var childDivs = parent.getElementsByTagName("div");
+    
+    // Show/hide the groups panel
+    for (i = 0; i < childDivs.length; i++) {
+        if(childDivs[i].id === "groupsPanel") {
+            if (childDivs[i].style.display === "none") {
+                childDivs[i].style.display = "block";
+            } 
+            else {
+                childDivs[i].style.display = "none";
+            }
+            
+            // Change the triangle disclosure icon as appropriate
+            if (clickedElement.className === "collapse") {
+                clickedElement.className = "expand";
+            } 
+            else {
+                clickedElement.className = "collapse";
+            }
+        }
+    }
 }

@@ -4,6 +4,9 @@
 ## Assignments - list view
 #parse("/vm/assignment/assignment_macros.vm")
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
+<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery.min.js"></script>
+<script type="text/javascript" src="/sakai-assignment-tool/js/assignments.js"></script>
+
 <script type="text/javascript">
   focus_path = ["search"];
 </script>
@@ -193,8 +196,8 @@ function allowClick(object)
 							#end 
 						</a>
 					</th>
-					#if ($!groups && $!allowGradeSubmission)
-						##only show it when there is at least a group in site
+                                        
+					#if ($!allowGradeSubmission)
 						<th id="$tlang.getString('gen.visible')">
 							#if (!$sortedBy.equalsIgnoreCase("$tlang.getString('gen.visible')"))
 								<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=for")'; return false;"   title="$tlang.getString('gen.sortbyfor')">$tlang.getString("gen.visible")</a>
@@ -489,34 +492,46 @@ function allowClick(object)
 										#end
 									#end
 							</td>
-							#if ($!groups && $!allowGradeSubmission)
-							<td  style="padding-bottom:0">
-								## only show it when there is at least one group
-								## assignment range
-								#set($for="")
-								#if ($assignment.Access.toString().equals("site"))
-									##site assignment
-									#set($for=$tlang.getString("range.allgroups"))
-								#else
-									#set($count=1)
-									#foreach ($group in $assignment.Groups)
-										## found the associated group
-										#set($groupFound=false)
-										#set($groupFound=$!site.getGroup($group))
-										#if ($count>1)
-											#set($for=$for.concat(", "))
+						#if ($!allowGradeSubmission)
+							<td style="padding-bottom:0" headers="for">
+								#set( $groupTitleList = [] )
+								#set( $siteRelease = $assignment.Access.toString().equals("site") )
+								#if( !$siteRelease )
+									#foreach( $groupID in $assignment.Groups )
+										#set( $group = $!site.getGroup( $groupID ) )
+										#if( $!group )
+											#set( $success = $groupTitleList.add( $validator.escapeHtml( $group.Title ) ) )
+											#set( $group = false )
 										#end
-										#if($!groupFound)
-											#set($for= $for.concat($groupFound.Title))
-										#else
-											#set($for= $for.concat($group))
-										#end
-										#set($count=$count+1)
 									#end
 								#end
-								<span title="$validator.escapeHtml($!for)" alt="$validator.escapeHtml($!for)">
-								$validator.escapeHtml($validator.limit($!for, 40))
-								</span>
+
+								#if( $siteRelease )
+									$tlang.getString("gen.viewallgroupssections")
+								#elseif( $groupTitleList.size() > 0 )
+									<div class="groupsContainer">
+										<h4 class="collapse" onclick="toggleGroups( this ); resizeFrame();">
+											$groupTitleList.size()
+											#if( $groupTitleList.size() == 1 )
+												$tlang.getString( "selected.group" )
+											#else
+												$tlang.getString( "selected.groups" )
+											#end
+										</h4>
+
+										<div id="groupsPanel" style="display: none;">
+											<ul>
+												#foreach( $title in $groupTitleList )
+													<li>$title</li>
+												 #end
+											</ul>
+										</div>
+									</div>
+								#else
+									<div class="alertMessage">
+										$tlang.getString( "assignment.inaccessible" )
+									</div>
+								#end
 							</td>
 							#end
 							<td headers="status">
