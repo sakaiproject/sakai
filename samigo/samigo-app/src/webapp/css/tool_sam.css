@@ -906,4 +906,15 @@ background-color:#DBDBDB;
     margin-left: 150px;
 }
 
+div.expand, div.collapse {
+    cursor: pointer !important;
+    padding-left: 1em !important;
+}
 
+div.expand {
+    background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+}
+
+div.collapse {
+    background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}

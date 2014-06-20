@@ -42,6 +42,7 @@
 <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
 <link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
+<link type="text/css" href="/samigo-app/css/tool_sam.css" rel="stylesheet" media="all"/>
 <script type="text/JavaScript">
 
 function clickPendingSelectActionLink(field){
@@ -419,21 +420,21 @@ $(document).ready(function() {
 
       <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" rendered="#{publishedAssessment.releaseTo eq 'Anonymous Users'}" />
       <h:outputText value="#{authorFrontDoorMessages.entire_site}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users' && publishedAssessment.releaseTo ne 'Selected Groups'}" />
-      <h:outputText value="#{authorFrontDoorMessages.selected_groups}" rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}"/>
-	  <f:verbatim><span class="info"></f:verbatim>
-	  <h:graphicImage id="infoImg" url="/images/info_icon.gif" alt="" rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}" styleClass="infoDiv"/>
+      
+        <t:div>
+            <t:div id="groupsHeader" onclick="#{publishedAssessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{publishedAssessment.groupCount gt 0 ? 'collapse' : ''}">
+                <h:outputText value="#{publishedAssessment.groupCount} " rendered ="#{publishedAssessment.releaseTo eq 'Selected Groups'}" />
+                <h:outputText value="#{authorFrontDoorMessages.selected_groups} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and (publishedAssessment.groupCount gt 1 or publishedAssessment.groupCount eq 0)}"/>
+                <h:outputText value="#{authorFrontDoorMessages.selected_group} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount eq 1}"/>
+            </t:div>
+            <t:div id="groupsPanel" style="display: none;">
+                <t:dataList layout="unorderedList" value="#{publishedAssessment.releaseToGroupsList}" var="group">
+                    <h:outputText value="#{group}" />
+                </t:dataList>
+            </t:div>
+        </t:div>
 
-	  <t:dataTable var="releaseToGroups" styleClass="makeInfo" style="display:none;z-index:2000;" value="#{publishedAssessment.releaseToGroupsList}" 
-		rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}">
-		<t:column>
-	 	    <f:verbatim><span class="whiteSpaceNoWrap"></f:verbatim>
-			<h:outputText value="#{releaseToGroups}" />
-		    <f:verbatim></span></f:verbatim>
 		</t:column>
-	  </t:dataTable>
-	  <f:verbatim></span></f:verbatim>
-
-    </t:column>
 
     <t:column headerstyleClass="releaseDate" styleClass="releaseDate">
       <f:facet name="header">

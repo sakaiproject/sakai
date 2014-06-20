@@ -369,6 +369,8 @@ public class AuthorActionListener
 				  PublishedAssessmentSettingsBean publishedAssessmentSettingsBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 				  publishedAssessmentSettingsBean.setAssessmentId(f.getPublishedAssessmentId());
 				  String [] groupsAuthorized = publishedAssessmentSettingsBean.getGroupsAuthorized();
+                                  
+				  if(groupsAuthorized != null && groupsAuthorized.length > 0) {
 				  for (int i = 0; i < groupsAuthorized.length; i++) {
 					  if (groupUsersIdMap.get(groupsAuthorized[i]) != null) {
 						  for (String userId : groupUsersIdMap.get(groupsAuthorized[i])) {
@@ -376,6 +378,7 @@ public class AuthorActionListener
 						  }
 					  }
 				  }
+			  }
 			  }
 			  else {
 				  userIdList = siteUsersIdList;

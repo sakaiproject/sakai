@@ -197,11 +197,14 @@ public class CalendarServiceHelperImpl implements CalendarServiceHelper {
 					Iterator groupIter = groups.iterator();
 					while (groupIter.hasNext()) {
 						Group group = (Group) groupIter.next();
+                                                
+						if(authorizedGroupsArray != null && authorizedGroupsArray.length > 0) {
 						for(int i = 0; i < authorizedGroupsArray.length; i++){
 							if(authorizedGroupsArray[i].equals(group.getId())){
 								authorizedGroups.add(group);
 							}
 						}
+ 						}
 					}		    	 
 				}
 			}
