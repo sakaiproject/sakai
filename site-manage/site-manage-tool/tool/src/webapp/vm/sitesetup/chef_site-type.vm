@@ -63,6 +63,10 @@
                     </p>        
                     #if ($courseTypeWithPerm)
                         <div class="indnt3" id="termList" style="display:none;">
+                        
+                        #if( !$hasTerms )
+                        	<p>$tlang.getFormattedMessage( "sitetype.noterms", $type )</p>
+                        #else
                             <p class="required">
                                 <span class ="reqStar" id="term-required" style="height:1em;border:1px solid transparent"> * </span>
                                 <label for="selectTerm">
@@ -85,7 +89,8 @@
                                         </option>
                                     #end
                                 </select> 
-                            </p>    
+                            </p>
+                        #end
                         </div>  
                     #end ## end of #if ($courseTypeWithPerm)
                 #end ## end of #if (courseTypeWithPerm || portfolioTypeWithPerm || projectTypeWithPerm))

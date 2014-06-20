@@ -451,13 +451,22 @@ sakai.siteTypeSetup = function(){
     // this handles selections on the site type list (trad course, project, portfolio, etc.)
     $('#siteTypeList input').click(function(e){
         if ($(this).attr('id') == 'course') {
+
+        	if( $( '#selectTerm option' ).length == 0)
+        	{
+        		$( '#submitBuildOwn' ).attr( 'disabled', 'disabled' );
+        	}
+            else
+            {
+            	$( '#submitBuildOwn' ).attr( 'disabled', '' );
+            }
+        	
             $('#termList').show();
         }
         else {
             $('#termList').hide();
+        	$('#submitBuildOwn').prop('disabled', false);
         }
-        $('#submitBuildOwn').prop('disabled', false);
-        
     });
     
 };

@@ -745,11 +745,14 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String CONTEXT_FILTER_TERMS = "filterTerms";
 	private final static String SAK_PROP_SKIP_MANUAL_COURSE_CREATION = "wsetup.skipManualCourseCreation";
 	private final static String SAK_PROP_SKIP_COURSE_SECTION_SELECTION = "wsetup.skipCourseSectionSelection";
-	private static final String SAK_PROP_FILTER_TERMS = "worksitesetup.filtertermdropdowns";
 
 	private List prefLocales = new ArrayList();
 	
 	private static final String VM_ALLOWED_ROLES_DROP_DOWN 	= "allowedRoles";
+	
+	// bjones86 - SAK-23256
+	private static final String SAK_PROP_FILTER_TERMS = "worksitesetup.filtertermdropdowns";
+	private static final String CONTEXT_HAS_TERMS = "hasTerms";
 	
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
@@ -1500,7 +1503,10 @@ public class SiteAction extends PagedResourceActionII {
 			//term filter:
 			Hashtable termViews = new Hashtable();
 			termViews.put(TERM_OPTION_ALL, rb.getString("list.allTerms"));
-			List<AcademicSession> aSessions = setTermListForContext(context, state, false);
+			
+			// bjones86 - SAK-23256
+			List<AcademicSession> aSessions = setTermListForContext( context, state, false, false );
+			
 			if(aSessions != null){
 				for(AcademicSession s : aSessions){
 					termViews.put(s.getTitle(), s.getTitle());
@@ -1618,7 +1624,14 @@ public class SiteAction extends PagedResourceActionII {
 			String typeSelected = (String) state.getAttribute(STATE_TYPE_SELECTED);
 			context.put("typeSelected", state.getAttribute(STATE_TYPE_SELECTED) != null?state.getAttribute(STATE_TYPE_SELECTED):types.get(0));
 			
-			setTermListForContext(context, state, true); // true => only
+			// bjones86 - SAK-23256
+			Boolean hasTerms = Boolean.FALSE;
+			List<AcademicSession> termList = setTermListForContext( context, state, true, true ); // true => only
+            if( termList != null && termList.size() > 0 )
+            {
+            	hasTerms = Boolean.TRUE;
+            }
+            context.put( CONTEXT_HAS_TERMS, hasTerms );
 			
 			// upcoming terms
 			setSelectedTermForContext(context, state, STATE_TERM_SELECTED);
@@ -2924,7 +2937,9 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("isCourseSite", Boolean.TRUE);
 				context.put("currentTermId", site.getProperties().getProperty(
 						Site.PROP_SITE_TERM));
-				setTermListForContext(context, state, true); // true upcoming only
+				
+				// bjones86 - SAK-23256
+				setTermListForContext( context, state, true, false ); // true upcoming only
 			} else {
 				context.put("isCourseSite", Boolean.FALSE);
 			}
@@ -2964,7 +2979,9 @@ public class SiteAction extends PagedResourceActionII {
 						.getAttribute(SITE_PROVIDER_COURSE_LIST);
 				coursesIntoContext(state, context, site);
 
-				List<AcademicSession> terms = setTermListForContext(context, state, true); // true -> upcoming only
+				// bjones86 - SAK-23256
+				List<AcademicSession> terms = setTermListForContext( context, state, true, false ); // true -> upcoming only
+				
 				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
 				
 				if (terms != null && terms.size() > 0)
@@ -4390,7 +4407,10 @@ public class SiteAction extends PagedResourceActionII {
 				.getAttribute("manualCourseSectionList"));
 		context.put("term", (AcademicSession) state
 				.getAttribute(STATE_TERM_SELECTED));
-		setTermListForContext(context, state, true); //-> future terms only
+		
+		// bjones86 - SAK-23256
+		setTermListForContext( context, state, true, false ); //-> future terms only
+		
 		context.put(STATE_TERM_COURSE_LIST, state
 				.getAttribute(STATE_TERM_COURSE_LIST));
 		context.put("tlang", rb);
@@ -12933,8 +12953,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return toolIdList;
 	} // getToolsAvailableForImport
 
+	// bjones86 - SAK-23256 - added userFilteringIfEnabled parameter
 	private List<AcademicSession> setTermListForContext(Context context, SessionState state,
-			boolean upcomingOnly) {
+			boolean upcomingOnly, boolean useFilteringIfEnabled) {
 		List<AcademicSession> terms;
 		if (upcomingOnly) {
 			terms = cms != null?cms.getCurrentAcademicSessions():null;
@@ -12942,6 +12963,18 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			terms = cms != null?cms.getAcademicSessions():null;
 		}
 		if (terms != null && terms.size() > 0) {
+			
+			// bjones86 - SAK-23256
+			if( useFilteringIfEnabled )
+			{
+				if( !SecurityService.isSuperUser() )
+				{
+					if( ServerConfigurationService.getBoolean( SAK_PROP_FILTER_TERMS,  false ) )
+					{
+						terms = filterTermDropDowns();
+					}
+				}
+			}
 			
 			context.put("termList", sortAcademicSessions(terms));
 		}
@@ -12954,6 +12987,58 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			context.put("selectedTerm", state.getAttribute(stateAttribute));
 		}
 	} // setSelectedTermForContext
+	
+	/**
+	 * Removes any academic sessions that the user is not currently enrolled in
+	 * 
+	 * @author bjones86 - SAK-23256
+	 * 
+	 * @return the filtered list of academic sessions
+	 */
+	public List<AcademicSession> filterTermDropDowns()
+	{
+		List<AcademicSession> academicSessions = new ArrayList<AcademicSession>();
+		User user = UserDirectoryService.getCurrentUser();
+		
+		if( cms != null && user != null)
+		{
+			Map<String, String> sectionRoles = cms.findSectionRoles( user.getEid() );			
+			if( sectionRoles != null )
+			{
+				// Iterate through all the sections and add their corresponding academic sessions to our return value
+				Set<String> sectionEids = sectionRoles.keySet();
+				Iterator<String> itr = sectionEids.iterator();
+				while( itr.hasNext() )
+				{
+					String sectionEid = itr.next();
+					Section section = cms.getSection( sectionEid );
+					if( section != null )
+					{
+						CourseOffering courseOffering = cms.getCourseOffering( section.getCourseOfferingEid() );
+						if( courseOffering != null )
+						{
+							academicSessions.add( courseOffering.getAcademicSession() );
+						}
+					}
+				}
+			}
+		}
+		
+		// Remove duplicates
+		for( int i = 0; i < academicSessions.size(); i++ )
+		{
+			for( int j = i + 1; j < academicSessions.size(); j++ )
+			{
+				if( academicSessions.get( i ).getEid().equals( academicSessions.get( j ).getEid() ) )
+				{
+					academicSessions.remove( academicSessions.get( j ) );
+					j--; //stay on this index (ie. j will get incremented back)
+				}
+			}
+		}
+		
+		return academicSessions;
+	}
 
 	/**
 	 * rewrote for 2.4
