@@ -2485,7 +2485,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			M_log.debug("refreshAuthzGroup()");
 			if ((realm == null) || (m_provider == null)) return;
 
-			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
+			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", false);
 
 			// check to see whether this is of group realm or not
 			// if of Group Realm, get the containing Site Realm
