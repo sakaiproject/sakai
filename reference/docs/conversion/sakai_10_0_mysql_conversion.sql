@@ -1060,6 +1060,12 @@ INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','signup.view.all');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('access','signup.attend');
 INSERT INTO PERMISSIONS_SRC_TEMP values ('access','signup.view');
 
+INSERT INTO PERMISSIONS_SRC_TEMP values ('maintain','calendar.options');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('access','calendar.options');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Instructor','calendar.options');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Teaching Assistant','calendar.options');
+INSERT INTO PERMISSIONS_SRC_TEMP values ('Student','calendar.options');
+
 -- lookup the role and function numbers
 CREATE TABLE PERMISSIONS_TEMP (ROLE_KEY INTEGER, FUNCTION_KEY INTEGER);
 INSERT INTO PERMISSIONS_TEMP (ROLE_KEY, FUNCTION_KEY)
