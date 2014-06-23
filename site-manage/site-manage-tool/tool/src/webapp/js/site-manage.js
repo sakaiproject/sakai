@@ -454,11 +454,11 @@ sakai.siteTypeSetup = function(){
 
         	if( $( '#selectTerm option' ).length == 0)
         	{
-        		$( '#submitBuildOwn' ).attr( 'disabled', 'disabled' );
+        		$( '#submitBuildOwn' ).attr( 'disabled', true );
         	}
             else
             {
-            	$( '#submitBuildOwn' ).attr( 'disabled', '' );
+            	$( '#submitBuildOwn' ).attr( 'disabled', false );
             }
         	
             $('#termList').show();
