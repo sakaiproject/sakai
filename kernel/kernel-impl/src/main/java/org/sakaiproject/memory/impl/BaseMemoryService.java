@@ -22,6 +22,7 @@
 package org.sakaiproject.memory.impl;
 
 import net.sf.ehcache.CacheManager;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityService;
@@ -44,6 +45,10 @@ import java.util.Properties;
  */
 public class BaseMemoryService implements MemoryService {
 
+    public static final String TYPE_EHCACHE = "ehcache";
+    public static final String TYPE_HAZELCAST = "hazelcast";
+    public static final String TYPE_LEGACY = "legacy";
+
     final Log log = LogFactory.getLog(BaseMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
@@ -57,9 +62,19 @@ public class BaseMemoryService implements MemoryService {
     public void init() {
         log.info("INIT");
         if (memoryService == null) {
+            // defaults - ehcache (new)
             boolean useLegacy = false;
+            String cacheManagerType = TYPE_EHCACHE;
             if (serverConfigurationService != null) {
                 useLegacy = serverConfigurationService.getBoolean("memory.use.legacy", useLegacy);
+                cacheManagerType = serverConfigurationService.getString("memory.cachemanager", cacheManagerType);
+                cacheManagerType = StringUtils.lowerCase(cacheManagerType);
+                if (TYPE_LEGACY.equalsIgnoreCase(cacheManagerType)) {
+                    useLegacy = true;
+                }
+                if (cacheManagerType == null) {
+                    cacheManagerType = TYPE_EHCACHE;
+                }
             }
             if (useLegacy) {
                 /* NOTE about the lazy loading:
@@ -115,11 +130,31 @@ public class BaseMemoryService implements MemoryService {
                 memoryService = bms;
                 log.info("INIT complete: legacy: BasicMemoryService");
             } else {
-                // use the newer service implementation
-                EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, serverConfigurationService);
-                ems.init();
-                memoryService = ems;
-                log.info("INIT complete: new: EhcacheMemoryService");
+                // use the newer service implementations
+                if (TYPE_EHCACHE.equals(cacheManagerType)) {
+                    // EhCache based implementation
+                    EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, serverConfigurationService);
+                    ems.init();
+                    memoryService = ems;
+                    log.info("INIT complete: new: EhcacheMemoryService");
+
+                } else if (TYPE_HAZELCAST.equals(cacheManagerType)) {
+                    // HazelCast based implementation
+                    throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): Hazelcast is not yet supported");
+
+                /* Add new implementation service init here -AZ
+                } else if (TYPE_NEW.equals(cacheManagerType)) {
+                    // NEW based implementation
+                    NewMemoryService nms = new NewMemoryService(serverConfigurationService);
+                    nms.init();
+                    memoryService = nms;
+                    log.info("INIT complete: new: EhcacheMemoryService");
+                 */
+
+                } else {
+                    // die if we configure an unsupported caching system type
+                    throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): memory.cachemanager must be set to a valid type like ehcache or legacy");
+                }
             }
         } else {
             // using the passed in MemoryService
@@ -137,8 +172,15 @@ public class BaseMemoryService implements MemoryService {
         if (memoryService != null) {
             if (memoryService instanceof EhcacheMemoryService) {
                 ((EhcacheMemoryService)memoryService).destroy();
+
             } else if (memoryService instanceof BasicMemoryService) {
                 ((BasicMemoryService)memoryService).destroy();
+
+            /* Add new implementation destroy here -AZ
+            } else if (memoryService instanceof BasicMemoryService) {
+                ((BasicMemoryService)memoryService).destroy();
+            */
+
             }
         }
         memoryService = null;
