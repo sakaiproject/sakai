@@ -220,9 +220,14 @@
         </dependency>
         <!-- distributed caching -->
         <dependency>
-            <groupId>com.hazelcast</groupId>
-            <artifactId>hazelcast</artifactId>
-            <scope>compile</scope>
+          <groupId>com.hazelcast</groupId>
+          <artifactId>hazelcast</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <dependency>
+          <groupId>com.hazelcast</groupId>
+          <artifactId>hazelcast-client</artifactId>
+          <scope>compile</scope>
         </dependency>
         <!-- ehcache + distributed ehcache -->
         <dependency>

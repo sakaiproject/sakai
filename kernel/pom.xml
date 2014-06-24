@@ -105,6 +105,12 @@
         <version>3.2.3</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-client</artifactId>
+        <version>3.2.3</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- centralize the versions for distributed ehcache - MUST match ehcache-core 2.6.6 -->
       <dependency>
         <groupId>org.terracotta</groupId>

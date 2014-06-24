@@ -42,7 +42,7 @@ public class BasicMapCache extends BasicCache {
      * Underlying cache implementation
      * Simple and naive basic implementation of caching... not meant to be used
      */
-    private Map<String, Object> cache;
+    Map<String, Object> cache;
 
     /**
      * Construct the Cache
@@ -53,6 +53,12 @@ public class BasicMapCache extends BasicCache {
     public BasicMapCache(String name) {
         super(name);
         this.cache = new ConcurrentHashMap<String, Object>();
+    }
+
+    public BasicMapCache(String name, Map<?, ?> map) {
+        super(name);
+        //noinspection unchecked
+        this.cache = (Map<String, Object>) map;
     }
 
     @Override

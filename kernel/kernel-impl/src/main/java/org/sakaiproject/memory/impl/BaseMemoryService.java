@@ -140,7 +140,10 @@ public class BaseMemoryService implements MemoryService {
 
                 } else if (TYPE_HAZELCAST.equals(cacheManagerType)) {
                     // HazelCast based implementation
-                    throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): Hazelcast is not yet supported");
+                    HazelcastMemoryService hcms = new HazelcastMemoryService(serverConfigurationService);
+                    hcms.init();
+                    memoryService = hcms;
+                    log.info("INIT complete: new: HazelcastMemoryService");
 
                 /* Add new implementation service init here -AZ
                 } else if (TYPE_NEW.equals(cacheManagerType)) {
@@ -176,9 +179,12 @@ public class BaseMemoryService implements MemoryService {
             } else if (memoryService instanceof BasicMemoryService) {
                 ((BasicMemoryService)memoryService).destroy();
 
+            } else if (memoryService instanceof HazelcastMemoryService) {
+                ((HazelcastMemoryService)memoryService).destroy();
+
             /* Add new implementation destroy here -AZ
-            } else if (memoryService instanceof BasicMemoryService) {
-                ((BasicMemoryService)memoryService).destroy();
+            } else if (memoryService instanceof NewMemoryService) {
+                ((NewMemoryService)memoryService).destroy();
             */
 
             }
