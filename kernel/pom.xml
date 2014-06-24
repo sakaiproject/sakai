@@ -96,11 +96,37 @@
     </profile>
   </profiles>
 
+  <dependencyManagement>
+    <dependencies>
+      <!-- centralize the versions for hazelcast -->
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast</artifactId>
+        <version>3.2.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- centralize the versions for distributed ehcache - MUST match ehcache-core 2.6.6 -->
+      <dependency>
+        <groupId>org.terracotta</groupId>
+        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
+        <version>5.6.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-terracotta</artifactId>
+        <version>2.6.6</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
     <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
   </scm>
+
   <issueManagement>
     <system>jira</system>
     <url>http://jira.sakaiproject.org/browse/KNL</url>

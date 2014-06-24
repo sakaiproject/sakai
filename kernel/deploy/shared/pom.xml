@@ -146,11 +146,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
             <scope>compile</scope>
@@ -167,15 +162,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-ehcache</artifactId>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
             <artifactId>hibernate-jpa-2.0-api</artifactId>
             <scope>compile</scope>
         </dependency>
+
         <dependency>
             <groupId>javax.sql</groupId>
             <artifactId>jdbc-stdext</artifactId>
@@ -227,15 +218,32 @@
             <artifactId>jaxen</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- distributed caching -->
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <!-- ehcache + distributed ehcache -->
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-ehcache</artifactId>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>org.terracotta</groupId>
             <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
-            <version>5.6.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-terracotta</artifactId>
-            <version>2.6.6</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
@@ -246,7 +254,7 @@
             <groupId>backport-util-concurrent</groupId>
             <artifactId>backport-util-concurrent</artifactId>
             <scope>compile</scope>
-        </dependency>     
+        </dependency>
     </dependencies>
 
     <scm>
