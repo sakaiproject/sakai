@@ -38,6 +38,7 @@ import java.util.Date;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.StringEscapeUtils;
 
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
@@ -722,8 +723,24 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	return null;
     }
 
+    //   aaa/bb/../cc ==>
+    //   aaa/cc
+    public String removeDotDot(String s) {
+	while (true) {
+	    int i = s.indexOf("/../");
+	    if (i < 1)
+		return s;
+	    int j = s.lastIndexOf("/", i-1);
+	    if (j < 0)
+		j = 0;
+	    else
+		j = j + 1;
+	    s = s.substring(0, j) + s.substring(i+4);
+	}
+    }
+
     // returns SakaiId of thing just created
-    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String>attachmentHrefs, boolean hide) {
+    public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String baseDir, String siteId, List<String>attachmentHrefs, boolean hide) {
 
 	DiscussionForum ourForum = null;
 	DiscussionTopic ourTopic = null;
@@ -789,30 +806,30 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 
 	    ourTopic = discussionForumManager.createTopic(ourForum);
 	    ourTopic.setTitle(topicTitle);
-	    StringBuilder attachHtml = new StringBuilder("");
+
 	    if (attachmentHrefs != null && attachmentHrefs.size() > 0) {
 		for (String href: attachmentHrefs) {
+		    // we don't have any real label for attachments. About all we can do is use the filename, without path
 		    String label = href;
 		    int slash = label.lastIndexOf("/");
 		    if (slash >= 0)
 			label = label.substring(slash+1);
 		    if (label.equals(""))
 			label = "Attachment";
-		    attachHtml.append("<p><a target='_blank' href='");
-		    attachHtml.append(base);
-		    attachHtml.append(href);
-		    attachHtml.append("'>");
-		    attachHtml.append(label);
-		    attachHtml.append("</a>");
+
+		    // basedir is a folder in contenthosting starting with /group/ where our content has been loaded
+		    // discussionForum needs a Sakai content resource ID for the attachment
+		    Attachment thisDFAttach = discussionForumManager.createDFAttachment(removeDotDot(baseDir + href), label);
+		    ourTopic.addAttachment(thisDFAttach);
 		}
 	    }
 
 	    String shortText = null;
 	    if (texthtml) {
-		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base) + attachHtml.toString());
+		ourTopic.setExtendedDescription(text.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
 		shortText = FormattedText.convertFormattedTextToPlaintext(text);
 	    } else {
-		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text) + attachHtml.toString());
+		ourTopic.setExtendedDescription(FormattedText.convertPlaintextToFormattedText(text));
 		shortText = text;
 	    }
 	    shortText = org.apache.commons.lang.StringUtils.abbreviate(shortText,254);

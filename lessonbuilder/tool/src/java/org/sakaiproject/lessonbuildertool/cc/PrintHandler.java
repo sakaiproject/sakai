@@ -514,6 +514,12 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      if (slash >= 0)
 		  base = base.substring(0, slash+1); // include trailing slash
 
+	      // collection id rather than URL
+	      String baseDir = baseName + filename;
+	      slash = baseDir.lastIndexOf("/");
+	      if (slash >= 0)
+		  baseDir = baseDir.substring(0, slash+1); // include trailing slash
+
 	      if (texthtml) {
 		  text =  text.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
 	      }
@@ -521,13 +527,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      // I'm going to assume that URLs in the CC files are legal, but if
 	      // I add to them I nneed to URLencode what I add
 
+	      // filebase will be directory name for discussion.xml, since attachments are relative to that
+	      String filebase = filename;
+	      slash = filebase.lastIndexOf("/");
+	      if (slash >= 0)
+		  filebase = filebase.substring(0, slash+1); // include trailing slash
+
 	      Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
 	      List<Element>attachments = new ArrayList<Element>();
 	      if (attachmentlist != null)
 		  attachments = attachmentlist.getChildren();
 	      List<String>attachmentHrefs = new ArrayList<String>();
-	      for (Element a: attachments) 
+	      for (Element a: attachments) {
+		  // file has to be there for the forum attachment handling to work
+		  addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
 		  attachmentHrefs.add(a.getAttributeValue(HREF));
+	      }
 
 	      ForumInterface f = (ForumInterface)topictool;
 
@@ -540,7 +555,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String sakaiId = itemsAdded.get(filename);
 	      if (sakaiId == null) {
 	          if ( f != null ) 
-	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, siteId, attachmentHrefs, hide);
+	              sakaiId = f.importObject(title, topicTitle, text, texthtml, base, baseDir, siteId, attachmentHrefs, hide);
 		  if (sakaiId != null)
 		      itemsAdded.put(filename, sakaiId);
 	      }
@@ -1081,6 +1096,25 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       if (all)
 	  System.err.println("set qti qb details: "+the_ident);  
   }
+
+    // xxx/abc/../ccc
+    // xxx/ccc
+    // xxx/../ccc
+    // ccc
+
+    public String removeDotDot(String s) {
+	while (true) {
+	    int i = s.indexOf("/../");
+	    if (i < 1)
+		return s;
+	    int j = s.lastIndexOf("/", i-1);
+	    if (j < 0)
+		j = 0;
+	    else
+		j = j + 1;
+	    s = s.substring(0, j) + s.substring(i+4);
+	}
+    }
 
 }
 

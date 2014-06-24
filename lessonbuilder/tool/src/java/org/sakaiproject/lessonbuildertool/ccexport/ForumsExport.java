@@ -320,7 +320,12 @@ public class ForumsExport {
 
 	String text = "<div>" + item.text + " </div>";
 
-	for (ForumAttachment a: item.attachments) {
+	out.println("  <text texttype=\"text/html\">" + bean.fixup(text, resource) + "</text>");
+
+	if (item.attachments.size() > 0) {
+	    out.println("  <attachments>");
+
+	    for (ForumAttachment a: item.attachments) {
 
 	    String logical = a.logical;
 	    String physical = a.physical;
@@ -345,12 +350,14 @@ public class ForumsExport {
 		lastAtom = URL; // for URL use the whole URL for the text
 	    else {
 		URL = "../" + bean.getLocation(physical); 
-		URL = "$IMS-CC-FILEBASE$" + Validator.escapeUrl(URL.replaceAll("//", "/"));
+		URL = StringEscapeUtils.escapeXml(URL.replaceAll("//", "/"));
 	    }
-	    text += "\n<a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>";
+	    out.println("    <attachment href=\"" + URL + "\"/>");
 	    bean.addDependency(resource, physical);
+	    }
+
+	    out.println("  </attachments>");
 	}
-	out.println("  <text texttype=\"text/html\">" + bean.fixup(text, resource) + "</text>");
 	out.println("</topic>");
 
 	return true;
