@@ -28,6 +28,7 @@
 	<link href="browser.css" type="text/css" rel="stylesheet" />
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<script type="text/javascript" src="js/common.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript">
 
 var oListManager = new Object() ;
@@ -101,7 +102,7 @@ oListManager.GetFolderRowHtml = function( folderName, folderUrl, folderPath, gui
 				(oConnector.ShowAllTypes ? sLink : '') +
 				'<img alt="" src="images/Folder.gif" id="fld' + guid + '" width="16" height="16" border="0">' +
 				(oConnector.ShowAllTypes ? '<\/a>' : '') + '&nbsp;' +
-				(oConnector.ShowAllTypes ? sLink : '') + folderName +
+				(oConnector.ShowAllTypes ? sLink : '') + $('<p></p>').text(folderName).html() +
 		(oConnector.ShowAllTypes ? '<\/a>' : '') + 
 		getFldOpts(guid, folderPath) + '<\/span><br\/>' ;
 }
@@ -116,7 +117,7 @@ oListManager.GetFileRowHtml = function( fileName, fileUrl, fileSize )
 
 	return '<img src="images/spacer.gif" width="19" height="20" \/>&nbsp;' + sLink +
 				'<img alt="" src="images/icons/' + sIcon + '.gif" width="16" height="16" border="0"><\/a>&nbsp;' +
-				sLink + fileName +
+				sLink + $('<p></p>').text(fileName).html() +
 				'<\/a>' +
 			'&nbsp;(' +
 				fileSize +
