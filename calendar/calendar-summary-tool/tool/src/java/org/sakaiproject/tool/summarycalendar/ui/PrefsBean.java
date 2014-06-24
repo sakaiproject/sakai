@@ -34,6 +34,7 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.application.FacesMessage.Severity;
@@ -99,6 +100,7 @@ public class PrefsBean {
 	private static transient SessionManager		M_sm						= (SessionManager) ComponentManager.get(SessionManager.class.getName());
 	private static transient ServerConfigurationService M_cfg				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 
+	private static final Pattern COLOR_HEX_PATTERN = Pattern.compile("^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$");
 	
 	// ######################################################################################
 	// Main methods
@@ -125,13 +127,21 @@ public class PrefsBean {
 		return false;
 	}
 	
+	private String getValidatedColorValue(String componentId) throws Exception {
+		String value = getValueFromFacesContext(componentId);
+		if (!COLOR_HEX_PATTERN.matcher(value).matches()) {
+			throw new Exception("Invalid hex color code.");
+		}
+		return value;
+	}
+	
 	public String update() {
 		try{
 			// read from FacesContext
 			setSelectedViewMode(getValueFromFacesContext("prefsForm:selectViewMode"));
-			setSelectedHighPriorityColor(getValueFromFacesContext("prefsForm:highPriorityColor"));
-			setSelectedMediumPriorityColor(getValueFromFacesContext("prefsForm:mediumPriorityColor"));
-			setSelectedLowPriorityColor(getValueFromFacesContext("prefsForm:lowPriorityColor"));
+			setSelectedHighPriorityColor(getValidatedColorValue("prefsForm:highPriorityColor"));
+			setSelectedMediumPriorityColor(getValidatedColorValue("prefsForm:mediumPriorityColor"));
+			setSelectedLowPriorityColor(getValidatedColorValue("prefsForm:lowPriorityColor"));
 			setSelectedHighPriorityEvents(getValuesFromFacesContext("prefsForm:highPriorityEvents"));
 			setSelectedMediumPriorityEvents(getValuesFromFacesContext("prefsForm:mediumPriorityEvents"));
 			setSelectedLowPriorityEvents(getValuesFromFacesContext("prefsForm:lowPriorityEvents"));
