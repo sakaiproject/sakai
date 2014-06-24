@@ -2341,6 +2341,7 @@ function buttonRemoveHighlightc() {
 function addHighlight(dropDiv) {
 	if(!lessonBuilderAnimationLocked) {
 		if(!dropDiv.is(":visible")) {
+			closeDropdowns();
 			lessonBuilderAnimationLocked = true;
 			hideMultimedia();
 			reposition();
@@ -2385,6 +2386,7 @@ function toggleDropdown(dropDiv, button) {
 			dropdownViaClick = false;
 			button.focus();
 		}else {
+			closeDropdowns();
 			lessonBuilderAnimationLocked = true;
 			hideMultimedia();
 			reposition();
