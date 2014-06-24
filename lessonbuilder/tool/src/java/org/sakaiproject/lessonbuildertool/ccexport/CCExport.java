@@ -178,6 +178,7 @@ public class CCExport {
     // current we don't support 1.0
     public static final int V11 = 1;
     public static final int V12 = 2;
+    public static final int V13 = 3;
 
     /*
      * maintain global lists of resources, adding as they are referenced on a page or
@@ -196,6 +197,8 @@ public class CCExport {
 	siteId = sid;
 	if ("1.1".equals(params.getVersion()))
 	    version = V11;
+	else if ("1.3".equals(params.getVersion()))
+	    version = V13;
 	if ("1".equals(params.getBank()))
 	    doBank = true;
 
@@ -854,6 +857,10 @@ public class CCExport {
 		out.println("  </metadata>");
 	    break;
 
+	    case V13:
+		out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"cctd0001\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1\"\n  xmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource\"\n  xmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest\"\n  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n  xsi:schemaLocation=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd \n  http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd \n  http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.3.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n        <lomimscc:title>\n          <lomimscc:string language=\"en-US\">" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>\n        </lomimscc:title>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n");
+		break;
+
 	    default:
 	    out.print(
 		      "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"sakai1\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1\"\nxmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource\"\nxmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest\"\nxmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\nxsi:schemaLocation=\"                                                                                                                        \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lomresource_v1p0.xsd                  \n  http://www.imsglobal.org/xsd/imsccv1p2/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p2/ccv1p2_imscp_v1p2_v1p0.xsd                     \n  http://ltsc.ieee.org/xsd/imsccv1p2/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p2/LOM/ccv1p2_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.2.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n	<lomimscc:title>\n	  <lomimscc:string>" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>\n	</lomimscc:title>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n ");
@@ -875,6 +882,13 @@ public class CCExport {
 		topicid = "imsdt_xmlv1p1";
 		linkid = "imswl_xmlv1p1";
 		usestr = "";
+		break;
+	    case V13:
+		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p3/assessment";
+		bankid = "imsqti_xmlv1p2/imscc_xmlv1p3/question-bank";
+		topicid = "imsdt_xmlv1p3";
+		linkid = "imswl_xmlv1p3";
+		usestr = " intendeduse=\"assignment\"";
 		break;
 	    default:
 		qtiid = "imsqti_xmlv1p2/imscc_xmlv1p2/assessment";
@@ -973,6 +987,15 @@ public class CCExport {
 		    out.println("<webLink xmlns=\"http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1\"");
 		    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 		    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p1/imswl_v1p1 http://www.imsglobal.org/profile/cc/ccv1p1/ccv1p1_imswl_v1p1.xsd\">");
+		    out.println("  <title>" + StringEscapeUtils.escapeXml(res.title) + "</title>");
+		    out.println("  <url href=\"" + StringEscapeUtils.escapeXml(res.url) + "\"/>");
+		    out.println("</webLink>");
+		    break;
+		case V13:
+		    out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		    out.println("<webLink xmlns=\"http://www.imsglobal.org/xsd/imsccv1p3/imswl_v1p3\"");
+		    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imsccv1p3/imswl_v1p3 ");
+		    out.println("      http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imswl_v1p3.xsd\">");
 		    out.println("  <title>" + StringEscapeUtils.escapeXml(res.title) + "</title>");
 		    out.println("  <url href=\"" + StringEscapeUtils.escapeXml(res.url) + "\"/>");
 		    out.println("</webLink>");

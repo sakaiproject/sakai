@@ -121,6 +121,15 @@ public class BltiExport {
 	    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
 	    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imslticc_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticc_v1p0.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd\">");
 	    break;
+	case CCExport.V13:
+	    out.println("<cartridge_basiclti_link");
+	    out.println("      xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
+	    out.println("      xmlns:blti=\"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");
+	    out.println("      xmlns:lticm=\"http://www.imsglobal.org/xsd/imslticm_v1p0\"");
+	    out.println("      xmlns:lticp=\"http://www.imsglobal.org/xsd/imslticp_v1p0\"");
+	    out.println("      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+	    out.println("      xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imslticc_v1p3 http://www.imsglobal.org/xsd/lti/ltiv1p3/imslticc_v1p3.xsd http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0p1.xsd\">");
+	    break;
 	default:
 	    out.println("<cartridge_basiclti_link xmlns=\"http://www.imsglobal.org/xsd/imslticc_v1p0\"");
 	    out.println("      xmlns:blti = \"http://www.imsglobal.org/xsd/imsbasiclti_v1p0\"");

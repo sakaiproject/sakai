@@ -288,6 +288,8 @@ $(function() {
 			// jquery click doesn't actually click, so get the js object and do a native click call
                         if ($('#export-cc-v11').attr('checked') == 'checked') {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.1"));
+			} else if ($('#export-cc-v13').attr('checked') == 'checked') {
+                            $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.3"));
                         } else {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
                         }
