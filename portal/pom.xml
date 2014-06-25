@@ -23,7 +23,6 @@
         <module>portal-impl/impl</module>
         <!-- Mercury portal retired as of 2.8, see http://jira.sakaiproject.org/browse/SAK-19001 -->
         <!-- <module>portal-mercury/mercury</module> --> 
-        <!-- <module>portal-portlet-tool/tool</module> -->
         <module>portal-render-api/api</module>
         <module>portal-render-impl/impl</module>
         <module>portal-render-impl/pack</module>
@@ -36,6 +35,15 @@
         <module>portal-util/util</module>
         <module>portal-xsl/tool</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>remove-10</id>
+            <modules>
+                <module>portal-portlet-tool/tool</module>
+            </modules>
+        </profile>
+    </profiles>
 
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
