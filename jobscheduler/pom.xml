@@ -36,6 +36,13 @@
         <module>scheduler-test-component-shared</module>
       </modules>
     </profile>
+	<profile>
+		<id>remove-10</id>
+		<modules>
+			<module>scheduler-configurable-job-test-component</module>
+			<module>scheduler-configurable-job-test-component-shared</module>
+		</modules>
+	</profile>
   </profiles>
 
   <scm>
