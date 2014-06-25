@@ -54,6 +54,12 @@
             <artifactId>entitybroker-api</artifactId>
         </dependency>
         <dependency>
+          <groupId>${lessons-sakai-portal-util}</groupId>
+          <artifactId>${lessons-sakai-portal-util-artifact}</artifactId>
+          <version>${lessons-sakai-portal-util-version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-utils</artifactId>
             <!--version>${sakai.entitybroker.version}</version-->
