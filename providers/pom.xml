@@ -30,6 +30,17 @@
     <module>openldap</module>
     <module>sample</module>
   </modules>
+
+  <profiles>
+      <profile>
+          <id>remove-10</id>
+          <modules>
+              <module>jldap-integration-test</module>
+              <module>cm-authz-integration-test</module>
+          </modules>
+      </profile>
+  </profiles>
+
   <dependencyManagement>
     <dependencies>
       <dependency>
