@@ -45,6 +45,12 @@
         <module>deploy</module>
       </modules>
     </profile>
+    <profile>
+        <id>remove-10</id>
+        <modules>
+            <module>ddl</module>
+        </modules>
+    </profile>
   </profiles>
 
   <distributionManagement>
