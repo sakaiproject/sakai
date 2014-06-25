@@ -208,9 +208,7 @@
             <id>pack</id>
             <modules>
 				<module>master</module>
-                <module>pack/pack-src</module>
-                <module>pack/pack-bin</module>
-                <module>pack/pack-demo</module>
+                <module>pack</module>
             </modules>
         </profile>
         <profile>
