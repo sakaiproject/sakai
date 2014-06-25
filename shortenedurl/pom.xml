@@ -48,6 +48,15 @@
         <module>pack</module>
         <module>tool</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>remove-10</id>
+            <modules>
+                <module>ddl</module>
+            </modules>
+        </profile>
+    </profiles>
     
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</connection>
