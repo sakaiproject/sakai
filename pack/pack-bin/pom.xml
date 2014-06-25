@@ -6,6 +6,7 @@
         <groupId>org.sakaiproject.pack</groupId>
         <artifactId>pack</artifactId>
         <version>11-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
     </parent>
 
     <name>Sakai Pack Binary</name>
