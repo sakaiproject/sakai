@@ -1,10 +1,6 @@
 <f:view>
 		<%
-		  String thisId = request.getParameter("panel");
-		  if (thisId == null) 
-		  {
-	    	thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
-		  }
+		  String thisId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId();
 		%>
 	<script type="text/javascript">
 		var thisId = "<%= thisId %>";
