@@ -64,6 +64,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
@@ -636,15 +637,16 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            DateFormat df = DateFormat.getDateInstance(DateFormat.MEDIUM);
            if (this.currentChannel.getStartDate() != null && this.currentChannel.getEndDate() != null) {
                msg = getMessageFromBundle("custom_date_display", 
-                       new Object[] {df.format(this.currentChannel.getStartDate()), df.format(this.currentChannel.getEndDate())}
+                       new Object[] {TimeService.newTime(this.currentChannel.getStartDate().getTime()).toStringLocalDate(), 
+                    		   TimeService.newTime(this.currentChannel.getEndDate().getTime()).toStringLocalDate()}
                );
            } else if (this.currentChannel.getStartDate() != null) {
                msg = getMessageFromBundle("custom_date_display_start", 
-                       new Object[] {df.format(this.currentChannel.getStartDate()), ""}
+                       new Object[] {TimeService.newTime(this.currentChannel.getStartDate().getTime()).toStringLocalDate(), ""}
                );
            } else if (this.currentChannel.getEndDate() != null) {
                msg = getMessageFromBundle("custom_date_display_end", 
-                       new Object[] {"", df.format(this.currentChannel.getEndDate())}
+                       new Object[] {"", TimeService.newTime(this.currentChannel.getEndDate().getTime()).toStringLocalDate()}
                );
            }
        }
