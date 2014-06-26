@@ -418,26 +418,11 @@ td div.title{
 .permissionRow .ui-icon-triangle-1-s { background-position: -64px -16px; }
 .permissionRow .ui-icon-triangle-1-e { background-position: -32px -16px; }
 .permissionRow .ui-accordion-content { background: #eee; border: 1px solid #ccc; }
-.permissionRow .ui-accordion-header { 
-	background: #eee; 
-	border-radius: 4px;
-	cursor:pointer;
+.permissionRow span.ui-accordion-header {
 	margin-left: 4em;
-	padding: .1em .4em .1em 0;
-	border: 1px solid #ccc;
 	display:inline-block;
-	height: 1.75em;
-}
-.permissionRow .ui-accordion-header:hover { 
-	border: 1px solid #666;
 }
 .permissionRow .ui-accordion-header.ui-state-active {
-	border-radius: 4px 4px 0 0;
-	position:relative;
-	top: 1px;
-	border-bottom:none;
-}
-.permissionRow .ui-accordion-header.ui-state-active:hover {
 	border-bottom:none;
 }
 
