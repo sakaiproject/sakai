@@ -578,7 +578,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			if(userId == null || eventId == null || resourceRef == null)
 				return;
 			consolidateEvent(date, eventId, resourceRef, userId, siteId);
-		} else if(getServerEvents().contains(e.getEvent())){
+		} else if(getServerEvents().contains(e.getEvent()) && !isMyWorkspaceEvent(e)){
 			
 			//it's a server event
 			if(LOG.isDebugEnabled()) {
@@ -1532,6 +1532,10 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	
 	private boolean isUserLoginEvent(Event e) {
 		return StringUtils.equals(StatsManager.LOGIN_EVENTID, e.getEvent());
+	}
+	
+	private boolean isMyWorkspaceEvent(Event e) {
+		return e.getResource() != null && e.getResource().startsWith("/site/~");
 	}
 	
 	private Date getTruncatedDate(Date date) {
