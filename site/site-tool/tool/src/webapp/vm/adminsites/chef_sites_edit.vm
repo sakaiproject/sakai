@@ -234,7 +234,7 @@
 					<tr>
 						<th>
 							<label for="param_$paramName">
-								$paramName:
+								$validator.escapeHtml($paramName):
 							</label>
 						</th>
 						<td>
