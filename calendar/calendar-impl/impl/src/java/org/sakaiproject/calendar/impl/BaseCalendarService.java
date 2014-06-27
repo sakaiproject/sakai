@@ -29,6 +29,7 @@ import net.fortuna.ical4j.model.TimeZoneRegistryFactory;
 import net.fortuna.ical4j.model.component.VEvent;
 import net.fortuna.ical4j.model.parameter.Value;
 import net.fortuna.ical4j.model.property.*;
+
 import org.apache.avalon.framework.logger.ConsoleLogger;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -88,6 +89,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.stream.StreamSource;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -3475,6 +3477,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			};
 		}
 
+		/**
+		 * Checks if user has permission to modify any event (or fields) in this calendar
+		 * @param function
+		 * @return
+		 */
+		@Override
+		public boolean canModifyAnyEvent(String function) {
+			return AUTH_MODIFY_CALENDAR_ANY.equals(function);		
+		}
+		
 	} // class BaseCalendar
 
 	

@@ -1113,6 +1113,16 @@ public class BaseExternalCalendarSubscriptionService implements
 			return filtered;
 
 		}
+
+		/**
+		 * Checks if user has permission to modify any event (or fields) in this calendar
+		 * @param function
+		 * @return
+		 */
+		@Override
+		public boolean canModifyAnyEvent(String function){
+			return CalendarService.AUTH_MODIFY_CALENDAR_ANY.equals(function);
+		}
 	}
 
 	public class ExternalCalendarEvent implements CalendarEvent

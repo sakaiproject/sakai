@@ -264,6 +264,14 @@ public interface Calendar
 	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has remove event permissions in, empty if none.
 	 */
 	Collection getGroupsAllowRemoveEvent( boolean own );
+	
+	/**
+	 * Checks if user has permission to modify any event (or fields) in this calendar
+	 * @param function
+	 * @return
+	 */
+	public boolean canModifyAnyEvent(String function);
+
 
 }	// Calendar
 
