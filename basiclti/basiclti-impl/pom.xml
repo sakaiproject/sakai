@@ -77,6 +77,10 @@
             <artifactId>hsqldb</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.quartz-scheduler</groupId>
+            <artifactId>quartz</artifactId>
+        </dependency>
 	<!--
         <dependency>
             <groupId>oracle.jdbc.driver.OracleDriver</groupId>

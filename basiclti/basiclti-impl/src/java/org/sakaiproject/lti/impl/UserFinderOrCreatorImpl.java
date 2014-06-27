@@ -43,7 +43,7 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         this.userDirectoryService = userDirectoryService;
     }
 
-    public User findOrCreateUser(Map payload, boolean trustedConsumer, String ipAddress) throws LTIException {
+    public User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException {
 
         User user;
         String user_id = (String) payload.get(BasicLTIConstants.USER_ID);

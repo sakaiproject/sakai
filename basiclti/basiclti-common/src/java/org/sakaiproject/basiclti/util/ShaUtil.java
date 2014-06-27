@@ -26,6 +26,18 @@ public class ShaUtil {
 	private static final char[] TOHEX = "0123456789abcdef".toCharArray();
 	public static final String UTF8 = "UTF8";
 
+    public static byte[] sha1(final String todigest) {
+        try {
+            byte[] b = todigest.getBytes("UTF-8");
+            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+            return sha1.digest(b);
+        } catch (UnsupportedEncodingException e) {
+            throw new Error(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new Error(e);
+        }
+    }
+
 	public static String sha1Hash(final String tohash) {
 		byte[] b = null;
 		try {

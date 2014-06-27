@@ -528,6 +528,18 @@ public abstract class BaseLTIService implements LTIService {
 		return null;
 	}
 
+    protected abstract Object insertMembershipsJobDao(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion);
+
+    public Object insertMembershipsJob(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion) {
+        return insertMembershipsJobDao(siteId, membershipsId, membershipsUrl, consumerKey, ltiVersion);
+    }
+
+	protected abstract List<Map<String, Object>> getMembershipsJobsDao();
+
+	public List<Map<String, Object>> getMembershipsJobs() {
+		return getMembershipsJobsDao();
+	}
+
 	public Object insertTool(Properties newProps) {
 		return insertToolDao(newProps, getContext(), isAdmin(), isMaintain());
 	}

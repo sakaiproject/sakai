@@ -7,7 +7,20 @@
                 init-method="init"
                 destroy-method="destroy"
                 singleton="true">
-            </bean>
+        </bean>
+
+        <bean id="org.sakaiproject.lti.api.LTIService"
+                class="org.sakaiproject.lti.impl.DBLTIService"
+                init-method="init"
+                destroy-method="destroy"
+                singleton="true">
+            <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+            <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+            <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+            <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+            <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+            <property name="autoDdl"><value>${auto.ddl}</value></property>
+        </bean>
 
         <bean id="org.sakaiproject.lti.api.UserFinderOrCreator"
                 class="org.sakaiproject.lti.impl.UserFinderOrCreatorImpl"
@@ -47,17 +60,26 @@
             <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         </bean>
 
-        <bean id="org.sakaiproject.lti.api.LTIService"
-                class="org.sakaiproject.lti.impl.DBLTIService"
-                init-method="init"
-                destroy-method="destroy"
+        <bean id="org.sakaiproject.lti.api.SiteMembershipsSynchroniser"
+                class="org.sakaiproject.lti.impl.SiteMembershipsSynchroniserImpl"
                 singleton="true">
-            <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
-            <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
-            <property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
-            <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
-            <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
-            <property name="autoDdl"><value>${auto.ddl}</value></property>
+            <property name="userFinderOrCreator"><ref bean="org.sakaiproject.lti.api.UserFinderOrCreator"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+            <property name="siteMembershipUpdater"><ref bean="org.sakaiproject.lti.api.SiteMembershipUpdater"/></property>
+            <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
         </bean>
 
+        <bean id="org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob"
+                class="org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob">
+            <property name="ltiService"><ref bean="org.sakaiproject.lti.api.LTIService"/></property>
+            <property name="siteMembershipsSynchroniser"><ref bean="org.sakaiproject.lti.api.SiteMembershipsSynchroniser"/></property>
+        </bean>
+
+        <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.ltiSiteMemberships"
+                class="org.sakaiproject.component.app.scheduler.jobs.SpringStatefulJobBeanWrapper"
+                singleton="true" init-method="init">
+            <property name="beanId"><value>org.sakaiproject.lti.impl.jobs.SiteMembershipsSyncJob</value></property>
+            <property name="jobName"><value>Synchronise LTI Site Memberships</value></property>
+            <property name="schedulerManager"><ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" /></property>
+        </bean>
 </beans>

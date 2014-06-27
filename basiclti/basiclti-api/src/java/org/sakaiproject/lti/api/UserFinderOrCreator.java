@@ -26,5 +26,5 @@ import org.sakaiproject.lti.api.LTIException;
  */
 public interface UserFinderOrCreator {
 
-    public User findOrCreateUser(Map payload, boolean trustedConsumer, String ipAddress) throws LTIException;
+    public User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException;
 }

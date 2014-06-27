@@ -121,11 +121,50 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			foorm.autoDDL("lti_tools", LTIService.TOOL_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_deploy", LTIService.DEPLOY_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			foorm.autoDDL("lti_binding", LTIService.BINDING_MODEL, m_sql, m_autoDdl, doReset, M_log);
+			foorm.autoDDL("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, m_sql, m_autoDdl, doReset, M_log);
 			super.init();
 		} catch (Exception t) {
 			M_log.warn("init(): ", t);
 		}
 	}
+
+    /**
+     *
+     */
+    public Object insertMembershipsJobDao(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion) {
+
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("insertMembershipsJobDao(" + siteId + "," + membershipsId + "," + membershipsUrl + "," + consumerKey + "," + ltiVersion + ")");
+        }
+
+        // First, check if there is already a job for this site.
+        List<Map<String, Object>> existing = getMembershipsJobsDao(siteId);
+        if (existing == null || existing.size() == 0) {
+            Map<String, Object> props = new HashMap<String, Object>();
+            props.put(LTI_SITE_ID, siteId);
+            props.put("memberships_id", membershipsId);
+            props.put("memberships_url", membershipsUrl);
+            props.put("consumerkey", consumerKey);
+            props.put("lti_version", ltiVersion);
+            return insertThingDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, props, siteId, false, true);
+        } else {
+            return "SITE_ALREADY_JOBBED";
+        }
+    }
+
+	public  List<Map<String, Object>> getMembershipsJobsDao() {
+
+        M_log.debug("getMembershipsJobDao()");
+
+        return getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, null, null, null, 0, 0, null, true);
+    }
+
+	private List<Map<String, Object>> getMembershipsJobsDao(String siteId) {
+
+        M_log.debug("getMembershipsJobDao(" + siteId + ")");
+
+        return getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, "SITE_ID = '" + siteId + "'", null, null, 0, 0, siteId, true);
+    }
 
 	/**
 	 * 
@@ -565,7 +604,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 		}
 
 		// TODO: Remove this as a parameter
-		if (!isMaintainRole) return null;
+		if (!isMaintainRole) {
+            M_log.debug("Not in maintain role. Nothing will be inserted. Returning null ...");
+            return null;
+        }
 
 		HashMap<String, Object> newMapping = new HashMap<String, Object>();
 

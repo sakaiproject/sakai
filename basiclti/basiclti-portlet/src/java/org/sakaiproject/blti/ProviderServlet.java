@@ -46,11 +46,14 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.lti.api.BLTIProcessor;
 import org.sakaiproject.lti.api.LTIException;
+import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteEmailPreferenceSetter;
 import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.UserLocaleSetter;
 import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
+import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.basiclti.util.ShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -105,10 +108,12 @@ public class ProviderServlet extends HttpServlet {
 
     // All loaded from the component manager
     private SiteMembershipUpdater siteMembershipUpdater = null;
+    private SiteMembershipsSynchroniser siteMembershipsSynchroniser  = null;
     private SiteEmailPreferenceSetter siteEmailPreferenceSetter = null;
     private UserFinderOrCreator userFinderOrCreator = null;
     private UserLocaleSetter userLocaleSetter = null;
     private UserPictureSetter userPictureSetter = null;
+    private LTIService ltiService = null;
 
     private List<BLTIProcessor> bltiProcessors = new ArrayList();
 
@@ -174,6 +179,11 @@ public class ProviderServlet extends HttpServlet {
             throw new ServletException("Failed to set siteMembershipUpdater.");
         }
 
+        siteMembershipsSynchroniser = (SiteMembershipsSynchroniser) ComponentManager.getInstance().get("org.sakaiproject.lti.api.SiteMembershipsSynchroniser");
+        if (siteMembershipsSynchroniser == null) {
+            throw new ServletException("Failed to set siteMembershipsSynchroniser.");
+        }
+
         userFinderOrCreator = (UserFinderOrCreator) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserFinderOrCreator");
         if (userFinderOrCreator  == null) {
             throw new ServletException("Failed to set userFinderOrCreator.");
@@ -187,6 +197,11 @@ public class ProviderServlet extends HttpServlet {
         userLocaleSetter = (UserLocaleSetter) ComponentManager.getInstance().get("org.sakaiproject.lti.api.UserLocaleSetter");
         if (userLocaleSetter == null) {
             throw new ServletException("Failed to set userLocaleSettter.");
+        }
+
+        ltiService = (LTIService) ComponentManager.getInstance().get("org.sakaiproject.lti.api.LTIService");
+        if (ltiService  == null) {
+            throw new ServletException("Failed to set ltiService.");
         }
 
         ApplicationContext ac = WebApplicationContextUtils.getWebApplicationContext(config.getServletContext());
@@ -262,7 +277,7 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
-            User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer, ipAddress);
+            User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer);
             
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
@@ -282,6 +297,8 @@ public class ProviderServlet extends HttpServlet {
             siteEmailPreferenceSetter.setupUserEmailPreferenceForSite(payload, user, site, isTrustedConsumer);
 
             site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, isTrustedConsumer, user, site);
+
+            syncSiteMembershipsOnceThenSchedule(payload, site, isTrustedConsumer);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteMembership, user, site);
 
@@ -833,4 +850,40 @@ public class ProviderServlet extends HttpServlet {
 
 		return null;
 	}
+
+    private void syncSiteMembershipsOnceThenSchedule(Map payload, Site site, boolean isTrustedConsumer) throws LTIException {
+
+        if (isTrustedConsumer) return;
+
+        M_log.debug("synchSiteMembershipsOnceThenSchedule");
+
+        if (!ServerConfigurationService.getBoolean(SakaiBLTIUtil.INCOMING_ROSTER_ENABLED, false)) {
+            M_log.info("LTI Memberships synchronization disabled.");
+            return;
+        }
+
+        String membershipsUrl = (String) payload.get("ext_ims_lis_memberships_url");
+
+        if (!BasicLTIUtil.isNotBlank(membershipsUrl)) {
+            M_log.info("LTI Memberships extension is not supported.");
+            return;
+        }
+
+        if(M_log.isDebugEnabled()) M_log.debug("Memberships URL: " + membershipsUrl);
+
+        String membershipsId = (String) payload.get("ext_ims_lis_memberships_id");
+
+        if (!BasicLTIUtil.isNotBlank(membershipsId)) {
+            M_log.info("No memberships id supplied. Memberships will NOT be synchronized.");
+            return;
+        }
+
+        String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
+        String siteId = site.getId();
+        String callbackType = (String) payload.get(BasicLTIConstants.LTI_VERSION);
+
+        siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
+
+        ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
+    }
 }

@@ -55,6 +55,23 @@ public interface LTIService {
 	 */
 	public boolean isMaintain();
 
+    /**
+     * Adds a memberships job. Quartz uses these to sync memberships for LTI
+     * sites
+     *
+     * @param newProps
+     * @return
+     */
+    public Object insertMembershipsJob(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion);
+
+    /**
+     * Gets all the memberships jobs. Quartz uses these to sync memberships for LTI
+     * sites
+     *
+     * @return A list of row mappings
+     */
+    public List<Map<String, Object>> getMembershipsJobs();
+
 	/**
 	 * 
 	 * @return
@@ -585,6 +602,13 @@ public interface LTIService {
 		"settings:text:hidden=true:maxlength=8096",
 		"created_at:autodate",
 		"updated_at:autodate" };
+
+	static String[] MEMBERSHIPS_JOBS_MODEL = { 
+		"SITE_ID:text:maxlength=99:required=true",
+		"memberships_id:text:maxlength=256:required=true",
+		"memberships_url:text:maxlength=4000:required=true",
+		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=255",
+		"lti_version:text:maxlength=32:required=true"};
 
 	/** Static constants for data fields */
 
