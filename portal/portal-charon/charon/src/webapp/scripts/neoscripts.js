@@ -537,9 +537,9 @@ var setupSiteNav = function(){
             // Trigger click on the drop <span>, passing true to set focus on
             // the first tool in the dropdown.
             jQuery(this).parent().find(".drop").trigger('click',[true]);
-        } else if (e.keyCode == 27) { // uparrow
+        } else if (e.keyCode == 38) { // uparrow
             $(this).parent().children('a').focus();
-            $(this).slideUp('fast');
+            $('.nav-submenu').hide();
         }
     }
 
