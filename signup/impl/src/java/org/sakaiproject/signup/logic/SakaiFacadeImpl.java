@@ -1078,10 +1078,10 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	/**
 	 * {@inheritDoc}
 	 */
-    public SecurityAdvisor pushAllowCalendarEdit() {
+    public SecurityAdvisor pushAllowCalendarEdit(final Calendar calendar) {
         SecurityAdvisor advisor = new SecurityAdvisor() {
             public SecurityAdvice isAllowed(String userId, String function, String reference) {
-                if(CalendarService.AUTH_MODIFY_CALENDAR_ANY.equals(function)) {
+                if(calendar != null && calendar.canModifyAnyEvent(function)) {
                     return SecurityAdvice.ALLOWED;
                 } else {
                     return SecurityAdvice.NOT_ALLOWED;

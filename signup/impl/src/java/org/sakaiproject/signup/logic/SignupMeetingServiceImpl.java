@@ -681,7 +681,7 @@ public class SignupMeetingServiceImpl implements SignupMeetingService, Retry, Me
 					/*for custom_ts type, TF/instructor has no modification here eventId is null*/
 					if (eventId != null && eventId.trim().length() > 1) {
 						//allow attendee to update calendar
-                        SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit();
+                        SecurityAdvisor advisor = sakaiFacade.pushAllowCalendarEdit(calendar);
 
 						try {
 							eventEdit = calendar.getEditEvent(eventId,

@@ -395,7 +395,7 @@ public interface SakaiFacade {
     /**
      * Allow calendar.revise.any for the current user
      */ 
-    public SecurityAdvisor pushAllowCalendarEdit();
+    public SecurityAdvisor pushAllowCalendarEdit(Calendar calendar);
 
     /**
      * Standard privileged push for the current user
