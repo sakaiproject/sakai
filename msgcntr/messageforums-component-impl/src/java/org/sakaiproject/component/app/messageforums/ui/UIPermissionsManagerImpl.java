@@ -1249,8 +1249,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	Collection groups = null;
       	try
       	{
-      		Site currentSite = SiteService.getSite(getContextId());
-      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+      		Site currentSite = SiteService.getSite(siteId);
+      		groups = currentSite.getGroupsWithMember(userId);
       	}
         catch(IdUnusedException iue)
         {
