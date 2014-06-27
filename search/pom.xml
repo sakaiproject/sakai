@@ -67,39 +67,8 @@
   <reporting>
     <plugins>
       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>jxr-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-pmd-plugin</artifactId>
-        <configuration>
-          <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
-          <sourceEncoding>utf-8</sourceEncoding>
-          <minimumTokens>20</minimumTokens>
-          <targetJdk>1.5</targetJdk>
-          <rulesets>
-            <ruleset>/rulesets/basic.xml</ruleset>
-            <ruleset>/rulesets/braces.xml</ruleset>
-            <ruleset>/rulesets/unusedcode.xml</ruleset>
-            <ruleset>/rulesets/clone.xml</ruleset>
-            <ruleset>/rulesets/codesize.xml</ruleset>
-            <ruleset>/rulesets/coupling.xml</ruleset>
-            <ruleset>/rulesets/design.xml</ruleset>
-            <ruleset>/rulesets/strictexception.xml</ruleset>
-            <ruleset>/rulesets/migrating.xml</ruleset>
-            <ruleset>/rulesets/junit.xml</ruleset>
-            <ruleset>/rulesets/strings.xml</ruleset>
-            <ruleset>/rulesets/javabeans.xml</ruleset>
-            <ruleset>/rulesets/finalizers.xml</ruleset>
-            <ruleset>/rulesets/optimizations.xml</ruleset>
-            <ruleset>/rulesets/j2ee.xml</ruleset>
-          </rulesets>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -151,10 +120,6 @@
             <report>aggregate</report>
           </reports>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jxr-plugin</artifactId>
       </plugin>
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
