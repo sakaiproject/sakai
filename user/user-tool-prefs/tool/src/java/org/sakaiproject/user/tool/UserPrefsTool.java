@@ -2441,6 +2441,7 @@ public class UserPrefsTool
 		if ("course".equals(type))
 		{
 			term = siteProperties.getProperty("term");
+			if (term==null) term = msgs.getString("moresite_no_term","");
 		}
 		else if ("project".equals(type))
 		{
