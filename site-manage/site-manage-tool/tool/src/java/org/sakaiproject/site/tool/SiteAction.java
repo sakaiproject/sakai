@@ -5745,8 +5745,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		try {
 			Collection<File> files = FileUtils.listFiles(infoDir, new WildcardFileFilter(toolId+"*"), null);
 			if (files.isEmpty()==false) {
-				File mFile = files.iterator().next();
-				moreInfoUrl = libraryPath + mFile.getName(); // toolId;
+					for (File mFile : files) {
+						String name = mFile.getName();
+						int lastIndexOf = name.lastIndexOf('.');
+						String fNameWithOutExtension = name.substring(0,lastIndexOf);
+						if (fNameWithOutExtension.equals(toolId)) {
+							moreInfoUrl = libraryPath + mFile.getName();
+							break;
+						}
+						
+					}
 			}
 		} catch (Exception e) {
 			M_log.info("unable to read moreinfo" + e.getMessage());
