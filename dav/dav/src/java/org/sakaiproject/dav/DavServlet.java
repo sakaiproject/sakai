@@ -1998,19 +1998,20 @@ public class DavServlet extends HttpServlet
 		if(parts.length == 4 && parts[1].equals("group-user")){
 			try
 			{
-				// if successful, the context is already a valid user EID
-				UserDirectoryService.getUserByEid(parts[3]);
+				// try using it as an ID
+				resourceName = UserDirectoryService.getUserEid(parts[3]);
 			}
 			catch (UserNotDefinedException tryId)
 			{
 				try
 				{
-					// try using it as an ID
-					resourceName = UserDirectoryService.getUserEid(parts[3]);
+					// if successful, the context is already a valid user EID
+					UserDirectoryService.getUserByEid(parts[3]);
 				}
 				catch (UserNotDefinedException notId)
 				{
 					// if context was not a valid ID, leave it alone
+					M_log.warn("getResourceNameSAKAI could not find either id or eid: " + parts[3]);
 				}
 			}
 		 }
