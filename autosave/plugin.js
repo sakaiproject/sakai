@@ -31,7 +31,7 @@
     });
 
     function loadPlugin(editorInstance) {
-        var autoSaveKey = editorInstance.config.autosave_SaveKey != null ? editorInstance.config.autosave_SaveKey : 'autosave_' + window.location;
+        var autoSaveKey = editorInstance.config.autosave_SaveKey != null ? editorInstance.config.autosave_SaveKey : 'autosave_' + window.location + "_" + editorInstance.id;
         var notOlderThan = editorInstance.config.autosave_NotOlderThan != null ? editorInstance.config.autosave_NotOlderThan : 1440;
         var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.config.autosave_saveOnDestroy : false;
         var saveDetectionSelectors =
@@ -87,7 +87,7 @@
         } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
             savingActive = true;
             var editor = event.editor,
-                autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location;
+                autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location + "_" + editorInstance.id;
 
             SaveData(autoSaveKey, editor);
 
