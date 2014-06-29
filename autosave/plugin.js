@@ -87,7 +87,7 @@
         } else if (event.editor.checkDirty() || event.editor.plugins.bbcode) {
             savingActive = true;
             var editor = event.editor,
-                autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location + "_" + editorInstance.id;
+                autoSaveKey = editor.config.autosave_SaveKey != null ? editor.config.autosave_SaveKey : 'autosave_' + window.location + "_" + editor.id;
 
             SaveData(autoSaveKey, editor);
 
