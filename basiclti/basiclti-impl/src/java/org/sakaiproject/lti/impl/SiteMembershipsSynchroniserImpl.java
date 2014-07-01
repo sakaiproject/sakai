@@ -75,6 +75,12 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
         if (BasicLTIConstants.LTI_VERSION_1.equals(callbackType)) {
             synchronizeLTI1SiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key);
+        } else if ("ext-moodle-2".equals(callbackType)) {
+            // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
+            // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
+            // think this will ever become core and the first time memberships will appear in core lti
+            // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
+            synchronizeMoodleExtSiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key);
         }
     }
 
@@ -112,6 +118,79 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             connection.setUseCaches (false);
             BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
             bw.write(OAuth.formEncode(om.getParameters()));
+            bw.flush();
+            bw.close();
+
+            processMembershipsResponse(connection, site, oauth_consumer_key);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) throws LTIException {
+
+        // Lookup the secret
+        final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
+        final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
+        if (oauth_secret == null) {
+            throw new LTIException( "launch.key.notfound", oauth_consumer_key, null);
+        }
+
+        String type = "readMembershipsWithGroups";
+        String uuid = UUID.randomUUID().toString();
+        String xml = "<sourcedId>" + membershipsId + "</sourcedId>";
+
+        StringBuilder sb = new StringBuilder("<?xml version = \"1.0\" encoding = \"UTF-8\"?>");
+        sb.append("<imsx_POXEnvelope xmlns = \"http://www.imsglobal.org/services/ltiv1p1/xsd/imsoms_v1p0\">");
+        sb.append("<imsx_POXHeader>");
+        sb.append("<imsx_POXRequestHeaderInfo>");
+        sb.append("<imsx_version>V1.0</imsx_version>");
+        sb.append("<imsx_messageIdentifier>" + uuid + "</imsx_messageIdentifier>");
+        sb.append("</imsx_POXRequestHeaderInfo>");
+        sb.append("</imsx_POXHeader>");
+        sb.append("<imsx_POXBody>");
+        sb.append("<" + type + "Request>");
+        sb.append(xml);
+        sb.append("</" + type + "Request>");
+        sb.append("</imsx_POXBody>");
+        sb.append("</imsx_POXEnvelope>");
+
+        String callXml = sb.toString();
+
+        if(M_log.isDebugEnabled()) M_log.debug("callXml: " + callXml);
+
+        String bodyHash = OAuthSignatureMethod.base64Encode(ShaUtil.sha1(callXml));
+        M_log.debug(bodyHash);
+
+        OAuthMessage om = new OAuthMessage("POST", membershipsUrl, null);
+        om.addParameter("oauth_body_hash", bodyHash);
+        om.addParameter("oauth_consumer_key", oauth_consumer_key);
+        om.addParameter("oauth_signature_method", "HMAC-SHA1");
+        om.addParameter("oauth_version", "1.0");
+        om.addParameter("oauth_timestamp", new Long(new Date().getTime()).toString());
+
+        OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
+
+        try {
+            OAuthSignatureMethod osm = OAuthSignatureMethod.newMethod("HMAC-SHA1",new OAuthAccessor(oc));
+            osm.sign(om);
+
+            String authzHeader = om.getAuthorizationHeader(null);
+
+            if(M_log.isDebugEnabled()) M_log.debug("AUTHZ HEADER: " + authzHeader);
+
+            URL url = new URL(membershipsUrl);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setDoOutput(true);
+            connection.setDoInput(true);
+            connection.setInstanceFollowRedirects(false); 
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", authzHeader);
+            connection.setRequestProperty("Content-Length", "" + Integer.toString(callXml.getBytes().length));
+            connection.setRequestProperty("Content-Type", "text/xml");
+            connection.setUseCaches (false);
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+            bw.write(callXml);
             bw.flush();
             bw.close();
 

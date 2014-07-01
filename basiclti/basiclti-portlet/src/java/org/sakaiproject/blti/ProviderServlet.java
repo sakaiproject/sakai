@@ -882,6 +882,15 @@ public class ProviderServlet extends HttpServlet {
         String siteId = site.getId();
         String callbackType = (String) payload.get(BasicLTIConstants.LTI_VERSION);
 
+        String lms = (String) payload.get("ext_lms");
+        if (BasicLTIUtil.isNotBlank(lms) && lms.equals("ext-moodle-2")) {
+            // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
+            // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
+            // think this will ever become core and the first time memberships will appear in core lti
+            // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
+            callbackType = "ext-moodle-2";
+        }
+
         siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
 
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
