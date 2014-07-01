@@ -13,9 +13,9 @@
 		</style>	
 	
 	
-	
-	  <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-	  <script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
+	  <script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	  <script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
+	  
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
@@ -358,10 +358,11 @@
 										
 				<h:inputHidden value="step2" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 				<sakai:button_bar>
-					<sakai:button_bar_item id="goNextPage" action="#{NewSignupMeetingBean.processSave}" value="#{msgs.publish_button}"/> 
+					<h:commandButton id="goNextPage" action="#{NewSignupMeetingBean.processSave}" value="#{msgs.publish_button}" onclick='displayProcessingIndicator(this);'/> 
 					<sakai:button_bar_item id="assignStudents" action="#{NewSignupMeetingBean.proceesPreAssignAttendee}" value="#{msgs.assign_attendee_publish_button}" disabled="#{NewSignupMeetingBean.announcementType}"/> 
 					<sakai:button_bar_item id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
-					<sakai:button_bar_item id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}" immediate="true"/>  
+					<sakai:button_bar_item id="Cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}" immediate="true"/>
+					<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />  
                 </sakai:button_bar>
 
 			 </h:form>

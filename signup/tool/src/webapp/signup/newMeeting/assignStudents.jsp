@@ -11,6 +11,8 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
+		<script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
 		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 						
@@ -155,9 +157,10 @@
 			   
 				<h:inputHidden value="assignAttendee" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 				<sakai:button_bar>
-					<sakai:button_bar_item id="publish" action="#{NewSignupMeetingBean.processAssignStudentsAndPublish}" value="#{msgs.publish_button}"/>
+					<h:commandButton id="publish" action="#{NewSignupMeetingBean.processAssignStudentsAndPublish}" value="#{msgs.publish_button}" onclick='displayProcessingIndicator(this);'/>
 				 	<sakai:button_bar_item id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
 					<sakai:button_bar_item id="cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/>  
+					<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
                 </sakai:button_bar>
 
 			 </h:form>
