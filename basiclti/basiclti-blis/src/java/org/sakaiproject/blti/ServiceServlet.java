@@ -24,9 +24,11 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.Properties;
 import java.util.Enumeration;
@@ -68,6 +70,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.exception.IdUnusedException;
@@ -651,10 +654,10 @@ public class ServiceServlet extends HttpServlet {
 			SakaiBLTIUtil.pushAdvisor();
 			boolean success = false;
 			try { 
-				List<Map<String,String>> lm = new ArrayList<Map<String,String>>();
+				List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
 				Set<Member> members = site.getMembers();
 				for (Member member : members ) {
-					Map<String,String> mm = new TreeMap<String,String>();
+					Map<String,Object> mm = new TreeMap<String,Object>();
 					Role role = member.getRole();
 					String ims_user_id = member.getUserId();
 					mm.put("/user_id",ims_user_id);
@@ -686,6 +689,22 @@ public class ServiceServlet extends HttpServlet {
 							mm.put("/person_sourcedid",user.getEid());
 						}
 					}
+
+                    Collection groups = site.getGroupsWithMember(ims_user_id);
+
+                    if (groups.size() > 0) {
+                        List<Map<String, Object>> lgm = new ArrayList<Map<String, Object>>();
+                        for (Iterator i = groups.iterator();i.hasNext();) {
+                            Group group = (Group) i.next();
+                            Map<String, Object> groupMap = new HashMap<String, Object>();
+                            groupMap.put("/id", group.getId());
+                            groupMap.put("/title", group.getTitle());
+                            groupMap.put("/set", new HashMap(groupMap));
+                            lgm.add(groupMap);
+                        }
+                        mm.put("/groups/group", lgm);
+                    }
+
 					lm.add(mm);
 				}
 				theMap.put("/message_response/members/member", lm);
