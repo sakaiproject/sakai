@@ -660,7 +660,12 @@ public class ServiceServlet extends HttpServlet {
 					mm.put("/user_id",ims_user_id);
 					String ims_role = "Learner";
 					if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
+                    // This is incorrect according to
+                    // http://developers.imsglobal.org/ext_membership.html. It
+                    // should be roles. If we can determine that nobody is using
+                    // the role tag, we should remove it.
 					mm.put("/role",ims_role);
+					mm.put("/roles",ims_role);
 					User user = null;
 					if ( "true".equals(allowOutcomes) && assignment != null ) {
 						user = UserDirectoryService.getUser(ims_user_id);
