@@ -29,6 +29,7 @@ import java.util.List;
 import java.text.DateFormat;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -140,6 +141,9 @@ public class AssignmentPickerProducer implements ViewComponentProducer, Navigati
 			}
 
 			UIForm form = UIForm.make(tofill, "assignment-picker");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			if (createLinks.size() == 0) {
 			    System.out.println("creatlinks " + createLinks.size());

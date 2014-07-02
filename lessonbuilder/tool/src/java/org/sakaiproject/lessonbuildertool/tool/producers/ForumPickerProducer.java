@@ -35,6 +35,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -138,6 +139,9 @@ public class ForumPickerProducer implements ViewComponentProducer, NavigationCas
 			List<LessonEntity> topics = forumEntity.getEntitiesInSite();
 
 			UIForm form = UIForm.make(tofill, "forum-picker");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			if (createLinks.size() == 0) {
 			    UIOutput.make(tofill, "error-div");

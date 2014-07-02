@@ -9,7 +9,7 @@ function setGradingDoneHook(item) {
     gradingDoneHook = item;
 }
 
-function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elBinding) {
+function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, csrfFieldId, elBinding) {
 	//var idField = $(this).parents("div").children(".gradingForm").children(".idField");
 	//var pointsField = $(this).parents("div").children(".gradingForm").children(".pointsField");
 	
@@ -17,6 +17,7 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elB
 	var pointsField = document.getElementById(pointsFieldId);
 	var jsIdField = document.getElementById(jsIdFieldId);
 	var typeField = document.getElementById(typeFieldId);
+	var csrfField = document.getElementById(csrfFieldId);
 	
 	var ajaxUrl = idField.form.action;
 
@@ -48,7 +49,7 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, elB
 	}
 
 	// setup the function which initiates the AJAX request
-	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField, typeField], ajaxUrl, [elBinding], callback);
+	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField, typeField, csrfField], ajaxUrl, [elBinding], callback);
 	// setup the input field event to trigger the ajax request function
 	pointsField.onchange = updater; // send request when field changes
 	

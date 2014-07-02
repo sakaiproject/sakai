@@ -29,6 +29,7 @@ import java.util.List;
 import java.net.URLEncoder;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -175,6 +176,9 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			}
 
 			UIForm form = UIForm.make(tofill, "blti-picker");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			List<LessonEntity> plist = bltiEntity.getEntitiesInSite();
 

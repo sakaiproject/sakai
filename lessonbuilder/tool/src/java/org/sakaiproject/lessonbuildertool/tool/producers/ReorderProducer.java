@@ -206,6 +206,10 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 			}
 
 			UIForm form = UIForm.make(tofill, "form");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
+
 			if (secondPageId != null)
 			    UIInput.make(form, "otherpage", "#{simplePageBean.selectedEntity}", secondPageId.toString());
 			UIInput.make(form, "order", "#{simplePageBean.order}");

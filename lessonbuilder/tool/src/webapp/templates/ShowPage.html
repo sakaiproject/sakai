@@ -232,6 +232,7 @@ function resizeiframe(id) {
                     </li>
                     <li rsf:id="delete-orphan-li">
                       <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
+			<input type="hidden" rsf:id="csrf1" />
 			<input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan"/>
                         <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="menuitem" class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
 			<div rsf:id="msg=simplepage.delete-orphan-pages-desc"></div>
@@ -448,6 +449,7 @@ function resizeiframe(id) {
                               <a rsf:id="add-comment-link" class="usebutton switchLink" onclick="switchEditors($(this))"><span style="font-weight:normal; color:#555" rsf:id="add-comment-text"></span></a>
                             </div>
                             <form class="commentArea" rsf:id="comment-form">
+                              <input type="hidden" rsf:id="csrf2" />
                                 <input type="hidden" rsf:id="comment-item-id"></input>
                                 <input type="hidden" rsf:id="comment-edit-id" class="comment-edit-id"></input>
                                 
@@ -590,6 +592,7 @@ function resizeiframe(id) {
                                 <h3 class="questionText" rsf:id="questionText"></h3>
                                 <div class="multiplechoiceDiv" rsf:id="multipleChoiceDiv">
                                     <form action="#" rsf:id="multipleChoiceForm" class="multipleChoiceForm">
+				      <input type="hidden" rsf:id="csrf4" />
                                         <input type="hidden" rsf:id="multipleChoiceId" />
                                         <span rsf:id="multipleChoiceSelect:"></span>
                                         <div rsf:id="multipleChoiceAnswer:" class="multipleChoiceAnswer">
@@ -603,6 +606,7 @@ function resizeiframe(id) {
                                 
                                 <div class="shortanswerDiv" rsf:id="shortanswerDiv">
                                     <form action="#" rsf:id="shortanswerForm" class="shortanswerForm">
+				      <input type="hidden" rsf:id="csrf5" />
                                         <input type="hidden" rsf:id="shortanswerId" />
                                         <span rsf:id="msg=simplepage.answer"></span>
                                         <input type="text" rsf:id="shortanswerInput" />
@@ -676,6 +680,7 @@ function resizeiframe(id) {
 		</div>
 		
 		<form class="rubricSelection" rsf:id="rubricSelection" style="display:none;">
+                  <input type="hidden" rsf:id="csrf6" />
 		  <input type="text" class="rubricPeerGrade" id="rubricPeerGrade" rsf:id="rubricPeerGrade"></input>
 		  <input class="bold" type="submit" onclick="return true;" id="update-peer-eval-grade" rsf:id="update-peer-eval-grade" />
 		</form>
@@ -685,6 +690,7 @@ function resizeiframe(id) {
 			<input type="hidden" class="jsIdField" id="gradingForm-jsId" rsf:id="gradingForm-jsId"></input>
 			<input type="hidden" class="pointsField" id="gradingForm-points" rsf:id="gradingForm-points"></input>
 			<input type="hidden" class="typeField" id="gradingForm-type" rsf:id="gradingForm-type"></input>
+			<input type="hidden" class="csrfField" id="csrf" rsf:id="csrf"/>
 		</form>
 		
 		<script rsf:id="gradingForm-init" type="text/javascript">
@@ -747,6 +753,7 @@ function resizeiframe(id) {
 				</div>
 				
                 <form action="#" rsf:id="subpage-form" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf7" />
                     <p class="shorttext required">
                         <span class="reqStar">*</span>
                         <label class="pageTitle" rsf:id="subpage-label" for="subpage-title"></label>
@@ -777,6 +784,8 @@ function resizeiframe(id) {
 					</div>
 				</div>
       <form action="#" rsf:id="edit-form" class="controlsPanel">
+        <input type="hidden" rsf:id="csrf8" />
+
                     <div class="">
 
                         <p class="shorttext required">
@@ -917,6 +926,7 @@ function resizeiframe(id) {
 					</div>
                 </div>
                 <form action="#" rsf:id="add-multimedia-form" method="post" enctype="multipart/form-data">
+		  <input type="hidden" rsf:id="csrf9" />
                     <div class="border instructionPanel">
                         <p class="instruction" rsf:id="msg=simplepage.add_file_instructions"></p>
                         <p class="mm-additional"> 
@@ -984,6 +994,7 @@ function resizeiframe(id) {
 
             <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf10" />
                     <div class="">
                         <p class="shorttext required">
                             <label rsf:id="width-label" for="width">Page Title</label>
@@ -1052,6 +1063,7 @@ function resizeiframe(id) {
 			
 			<div id="import-cc-dialog" rsf:id="import-cc-dialog">
                 <form action="#" rsf:id="import-cc-form" method="post" enctype="multipart/form-data" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf11" />
                     <div class="">                  
                       <p class="required shorttext">
                         <label rsf:id="msg=simplepage.import_cc_file" for="cc_file" id="cc-dialog-label">File</label> <br />
@@ -1138,6 +1150,8 @@ function resizeiframe(id) {
 				</div>
 				
                 <form action="#" rsf:id="title-form" enctype="multipart/form-data" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf14" />
+
                     <p class="shorttext required">
                         <span class="reqStar">*</span>
                         <label class="pageTitle" rsf:id="pageTitleLabel" for="pageTitle">Page Title</label>
@@ -1219,6 +1233,7 @@ function resizeiframe(id) {
                     </div>
                 </div>
                 <form action="#" rsf:id="new-page-form">
+                  <input type="hidden" rsf:id="csrf15" />
                     <div>
                         <p class="shorttext">
                             <span class="reqStar">*</span>
@@ -1258,6 +1273,8 @@ function resizeiframe(id) {
                 <div class="controlsPanel">
                     <div class="instruction" rsf:id="remove-page-explanation"></div>
                     <form action="#" rsf:id="remove-page-form">
+                      <input type="hidden" rsf:id="csrf16" />
+
                       <p class="act">
                           <input class="bold" type="submit" rsf:id="remove-page-submit" id="remove-page-submit" />
                           <input type="submit" rsf:id="remove-page-cancel"  onclick="closeRemovePageDialog(); return false" />
@@ -1275,6 +1292,7 @@ function resizeiframe(id) {
 				</div>
 				
             <form action="#" rsf:id="youtube-form" class="controlsPanel">
+              <input type="hidden" rsf:id="csrf17" />
                         <input type="hidden" rsf:id="youtubeEditId" id="youtubeEditId" />
                          <p class="shorttext required">
                             <label for="youtubeURL"><span rsf:id="msg=simplepage.youtube_url"></span></label>
@@ -1317,6 +1335,7 @@ function resizeiframe(id) {
 				</div>
 
 				<form action="#" rsf:id="movie-form" class="controlsPanel">
+				  <input type="hidden" rsf:id="csrf18" />
 						<input type="hidden" rsf:id="movieEditId" id="movieEditId" />
 						<p class="shorttext required">
 							<label for="movie-width">Width: </label>
@@ -1373,6 +1392,8 @@ function resizeiframe(id) {
 			
 			<div id="comments-dialog" rsf:id="comments-dialog">
        <form action="#" rsf:id="comments-form" class="controlsPanel">
+         <input type="hidden" rsf:id="csrf19" />
+
                     <div class="">
                         <input type="hidden" rsf:id="commentsEditId" id="commentsEditId" />
                         <p class="checkbox">
@@ -1413,6 +1434,7 @@ function resizeiframe(id) {
 			<div id="peer-eval-create-dialog" rsf:id="peer-eval-create-dialog">
 			  <!-- On open, it needs to pull the related information in and set the values... -->
 			  <form class="peer-eval-create-form">
+
 			    <div id="peer-eval-create-div">
 			      <div id="rubric-title">
 				<label for="rubric-title">Title</label>
@@ -1448,6 +1470,7 @@ function resizeiframe(id) {
 	
 			<div id="student-dialog" rsf:id="student-dialog">
                 <form action="#" rsf:id="student-form" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf20" />
 
                         <input type="hidden" rsf:id="studentEditId" id="studentEditId" />
                             <p class="checkbox">
@@ -1582,6 +1605,8 @@ function resizeiframe(id) {
 			  </div>
 
                 <form action="#" rsf:id="question-form" class="controlsPanel">
+                  <input type="hidden" rsf:id="csrf21" />
+
                     <div class="border controlsPanel">
                         <input type="hidden" rsf:id="questionEditId" id="questionEditId" />
                         <div align="left" style="padding:10px 0">

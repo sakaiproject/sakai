@@ -16,6 +16,7 @@ import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -233,12 +234,17 @@ public class CommentGradingPaneProducer implements ViewComponentProducer, ViewPa
 		}
 		
 		UIForm gradingForm = UIForm.make(tofill, "gradingForm");
+
 		gradingForm.viewparams = new SimpleViewParameters(UVBProducer.VIEW_ID);
+
 		UIInput idInput = UIInput.make(gradingForm, "gradingForm-id", "gradingBean.id");
 		UIInput jsIdInput = UIInput.make(gradingForm, "gradingForm-jsId", "gradingBean.jsId");
 		UIInput pointsInput = UIInput.make(gradingForm, "gradingForm-points", "gradingBean.points");
 		UIInput typeInput = UIInput.make(gradingForm, "gradingForm-type", "gradingBean.type");
-		UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, "gradingBean.results"});
+		Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+		UIInput csrfInput = UIInput.make(gradingForm, "csrf", "gradingBean.csrfToken", (sessionToken == null ? "" : sessionToken.toString()));
+
+		UIInitBlock.make(tofill, "gradingForm-init", "initGradingForm", new Object[] {idInput, pointsInput, jsIdInput, typeInput, csrfInput, "gradingBean.results"});
 	}
 	
 	public ViewParameters getViewParameters() {

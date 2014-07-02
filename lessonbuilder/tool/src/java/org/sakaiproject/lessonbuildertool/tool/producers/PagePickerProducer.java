@@ -33,6 +33,7 @@ import java.util.HashMap;
 import java.util.Date;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -341,6 +342,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    UIOutput.make(tofill, "sharedpageexplanation");
 
 		UIForm form = UIForm.make(tofill, "page-picker");
+		Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+		if (sessionToken != null)
+		    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 		ArrayList<String> values = new ArrayList<String>();
 		ArrayList<String> initValues = new ArrayList<String>();

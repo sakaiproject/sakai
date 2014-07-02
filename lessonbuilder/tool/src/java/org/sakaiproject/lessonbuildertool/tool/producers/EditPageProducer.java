@@ -41,6 +41,7 @@ import org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.tool.cover.SessionManager;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
@@ -138,6 +139,9 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			UIOutput.make(tofill, "page-title", simplePageBean.getCurrentPage().getTitle());
 			
 			UIForm form = UIForm.make(tofill, "page_form");
+			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+			if (sessionToken != null)
+			    UIInput.make(form, "csrf", "simplePageBean.csrfToken", sessionToken.toString());
 
 			// Rich Text Input
 			UIInput instructions = UIInput.make(form, "page:", "#{simplePageBean.contents}");

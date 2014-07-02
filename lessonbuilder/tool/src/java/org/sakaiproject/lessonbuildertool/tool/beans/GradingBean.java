@@ -16,12 +16,15 @@ import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.tool.cover.SessionManager;
+
 
 public class GradingBean {
 	public String id;
 	public String points;
 	public String jsId;
 	public String type;
+        public String csrfToken;
 	
 	private SimplePageToolDao simplePageToolDao;
 	private GradebookIfc gradebookIfc;
@@ -39,8 +42,17 @@ public class GradingBean {
 		this.simplePageBean = simplePageBean;
 	}
 	
+        public boolean checkCsrf() {
+	    Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+	    if (sessionToken != null && sessionToken.toString().equals(csrfToken)) {
+		return true;
+	    }
+	    else
+		return false;
+	}
+
 	public String[] getResults() {
-		if(simplePageBean.getEditPrivs() != 0) {
+		if(simplePageBean.getEditPrivs() != 0 || !checkCsrf()) {
 			return new String[]{"failure", jsId, "-1"};
 		}
 		
@@ -70,6 +82,7 @@ public class GradingBean {
 	
 	private boolean gradeComment() {
 		boolean r = false;
+		
 		
 		SimplePageComment comment = simplePageToolDao.findCommentByUUID(id);
 		SimplePageItem commentItem = simplePageToolDao.findItem(comment.getItemId());
