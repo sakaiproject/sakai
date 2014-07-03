@@ -5,6 +5,26 @@
     $(document).ready(function(){
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
     });
+
+var reportsExpanded = false;
+function handleReportsTriangleDisclosure(btn)
+{
+	var reportsDiv = document.getElementById("reportsDiv");
+	if (reportsExpanded)
+	{
+		btn.src="/library/image/sakai/expand.gif";
+		btn.alt="$tlang.getString('review.report.expand')";
+		reportsDiv.style.display="none";
+	}
+	else
+	{
+		btn.src="/library/image/sakai/collapse.gif";
+		btn.alt="$tlang.getString('review.report.collapse')";
+		reportsDiv.style.display="block";
+		resizeFrame();
+	}
+	reportsExpanded = !reportsExpanded;
+}
 </script>
 <div class="portletBody">
 	#set ($assignment = $submission.Assignment)
@@ -136,17 +156,44 @@
 				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
 					<tr>
 						<th>
-							$tlang.getString("review.report")
+							$reviewServiceName&nbsp;$tlang.getString("review.report")
 						</th>
 							<td>
 							#if (!$submission)
 								$tlang.getString("review.notavail")
-							#elseif ($submission.getReviewReport().equals("Error"))
-								<div class="alertMessage" >$!submission.getReviewError()</div>
 							#else
-								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
-							
-								<a href="$submission.getReviewReport()" target="_blank">$tlang.getString("review.viewreport")</a>
+								#set($reviewResults=$submission.ContentReviewResults)
+								#if ($reviewResults.size() >= 3)
+									<div class="discTria">
+										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="/library/image/sakai/expand.gif" alt="$tlang.getString('review.report.expand')"/>
+										## TODO: reconsider for i18n
+										$reviewResults.size() $tlang.getString("review.reports")
+									</div>
+									<div id="reportsDiv" style="display:none;">
+								#end
+								#foreach ($reviewResult in $reviewResults)
+									<div>
+										#set ($props = $reviewResult.getContentResource().Properties)
+										<span class="reportIcon">
+										
+										#if ($reviewResult.getReviewReport().equals("Error"))
+											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+										#else
+											<a href="$reviewResult.getReviewReport()" target="_blank">
+												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+											</a>
+										#end
+										</span>
+										#if ($reviewResult.isInline())
+											$tlang.getString("submission.inline")
+										#else
+											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+									</div>
+								#end
+								#if ($reviewResults.size() >= 3)
+									</div>
+								#end
 							#end
 							</td>
 				
@@ -330,7 +377,7 @@
 					<div class="textPanel">$submission.getSubmittedText()</div>
 				#end
 			#end
-			#set ($submittedAttachments = $submission.SubmittedAttachments)
+			#set ($submittedAttachments = $submission.VisibleSubmittedAttachments)
 			#set ($size = 0)
 			#set ($props = false)
 			#foreach ($attachment in $submittedAttachments) 

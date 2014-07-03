@@ -50,7 +50,23 @@
 					}
    	}
 
-
+	function handleReportsTriangleDisclosure(header, content)
+	{
+		var headerSrc = header.src;
+		var expand = "#imageLink("sakai/expand.gif")";
+		var collapse = "#imageLink("sakai/collapse.gif")";
+		if (headerSrc.indexOf(expand, headerSrc.length - expand.length) !== -1)
+		{
+			header.src = collapse;
+			content.removeAttribute("style");
+			resizeFrame();
+		}
+		else if (headerSrc.indexOf(collapse, headerSrc.length - collapse.length) !== -1)
+		{
+			header.src = expand;
+			content.style.display = "none";
+		}
+	}
 </script>
 
 #set ($submissionType = $assignment.getContent().getTypeOfSubmission())
@@ -554,7 +570,7 @@
 					#if ($allowReviewService && $assignment.getContent().AllowReviewService)
 						<th id="reviewService">
 							<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" onkeypress="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_submitReview")'; return false;" title="$tlang.getString("gen.sorbyreview")">
-								$tlang.getString("gen.rev")
+								$reviewServiceName
 								#if ($sortedBy.equals($!sort_submitReview)) 
 									#if ($sortedAsc.equals("true")) 
 										<img id="sort_ascending_review" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
@@ -750,16 +766,38 @@
 							#end	
 							#if ($allowReviewService && $assignment.getContent().AllowReviewService)
 								<td headers="reviewService">
-								 #if ($submission.getReviewScore() == -1)
-                                     <div class="alertMessage" >$!submission.getReviewError()</div>
-                                 #elseif ($submission.getReviewScore() == -2)
-                                     $tlang.getString("review.noreport")  
-								 #else
-								 <a href="$submission.getReviewReport()" target="_blank" title="View report: score $submission.getReviewScore()">
-								 <img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
-								 </a>
-								 #end
-									
+
+									#set($reviewResults = $submission.ContentReviewResults)
+									#if ($reviewResults.size() >= 3)
+										<div>
+											<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this, this.parentNode.parentNode.children[1]); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+											## TODO: reconsider for i18n:
+											$reviewResults.size() $tlang.getString("review.reports")
+										</div>
+										<div id="reportsDiv" style="display:none;">
+									#end
+									#foreach($reviewResult in $reviewResults)
+										<div>
+											#set ($props = $reviewResult.getContentResource().Properties)
+											<span class="reportIcon">
+											#if ($reviewResult.getReviewReport().equals("Error"))
+												<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+											#else
+												<a href="$reviewResult.getReviewReport()" target="_blank">
+													<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+												</a>
+											#end
+											</span>
+											#if ($reviewResult.isInline())
+												$tlang.getString("submission.inline")
+											#else
+												$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+											#end
+										</div>
+									#end
+									#if ($reviewResults.size() >= 3)
+										</div>
+									#end
 								</td>
 							#end
 							<td headers="gradereleased">

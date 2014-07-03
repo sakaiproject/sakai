@@ -43,7 +43,50 @@ function submitform(id)
 		theForm.submit();
 	}
 }
-		
+	
+var reportsExpanded = false;
+function handleReportsTriangleDisclosure(btn)
+{
+	var reportsDiv = document.getElementById("reportsDiv");
+	if (reportsExpanded)
+	{
+		btn.src = "#imageLink("sakai/expand.gif")";
+		btn.alt = "$tlang.getString('review.report.expand')";
+		reportsDiv.style.display="none";
+	}
+	else
+	{
+		btn.src = "#imageLink("sakai/collapse.gif")";
+		btn.alt = "$tlang.getString('review.report.collapse')";
+		reportsDiv.style.display="block";
+		resizeFrame();
+	}
+	reportsExpanded = !reportsExpanded;
+}	
+
+/* Enables the submit/resubmit button. If checkForFile is true, then it disables the submit/resubmit button if the clonableUpload button has no value*/
+function enableSubmitUnlessNoFile(checkForFile)
+{
+	var btnPost = document.getElementById('post');
+	var doEnable = true;
+	if (checkForFile)
+	{
+		var btnClonableUpload = document.getElementById('clonableUpload');
+		if (btnClonableUpload && btnClonableUpload.value == "")
+		{
+			doEnable = false;
+		}
+	}
+
+	if (doEnable)
+	{
+		btnPost.removeAttribute('disabled');
+	}
+	else
+	{
+		btnPost.setAttribute('disabled', 'disabled');
+	}
+}
 </script>
 
 
@@ -75,6 +118,7 @@ function submitform(id)
 	#if ($allowSubmit && !$submission && $!closeTime && $currentTime.after($closeTime) )
 		<div class="alertMessage">$tlang.getString("stuviewsubm.theclodat")</div><div class="clear"></div>
 	#end
+
 	#if ($!canSubmit)
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 		#if ($!submission && $timeSubmitted)
@@ -297,16 +341,39 @@ function submitform(id)
 				#if($!submitted && $!timeSubmitted && $allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
 					<tr>
 						<th>
-							$tlang.getString("review.report")
+							$reviewServiceName&nbsp;$tlang.getString("review.report")
 						</th>
 							<td>
-							#if ($submission.getReviewReport().equalsIgnoreCase("Error"))
-								<div class="alertMessage" >$!submission.getReviewError()</div>
-							#else
-								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
-							
-								<a href="$submission.getReviewReport()" target="_blank">$tlang.getString("review.viewreport")</a>
-							#end
+								#set($reviewResults=$submission.ContentReviewResults)
+								#if ($reviewResults.size() >= 3)
+									<div class="discTria">
+										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										$reviewResults.size() $tlang.getString("review.reports")
+									</div>
+									<div id="reportsDiv" style="display:none;">
+								#end
+								#foreach ($reviewResult in $reviewResults)
+									<div>
+										#set ($props = $reviewResult.getContentResource().Properties)
+										<span class="reportIcon">
+										#if ($reviewResult.getReviewReport().equals("Error"))
+											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+										#else
+											<a href="$reviewResult.getReviewReport()" target="_blank">
+												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+											</a>
+										#end
+										</span>
+										#if ($reviewResult.isInline())
+											$tlang.getString("submission.inline")
+										#else
+											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+									</div>
+								#end
+								#if ($reviewResults.size() >= 3)
+									</div>
+								#end
 							</td>
 				
 					</tr>
@@ -464,8 +531,6 @@ function submitform(id)
 				<h3>$tlang.getString("gen.submission")</h3> 
 		#end	
 
-
-
 		## show special instruction if this is for an non-electronic submission type of assignment
 		#if ($!nonElectronicType)
 			<p class="instruction">
@@ -535,6 +600,7 @@ function submitform(id)
 		<input type="hidden" name="option" id="option" value="cancel" />
 		<input type="hidden" name="currentAttachment" value="" />
 		<input type="hidden" name="assignmentId" value="$assignment.Reference" />
+
 		#if ($!canSubmit)
 			## if a draft submission or the submission has been returned and has not yet submitted
 			## 1- text only; 2-attachment only; 3-text and attachment
@@ -595,7 +661,6 @@ function submitform(id)
 		#end
 #end
 
-
 			## We are allowing the instructor to submit as long as assignment is not non-electronic and not deleted
 			#if (!$submissionType != 4 && !$!deleted.equalsIgnoreCase("true") && $!allowAddAssignment && $!allowSubmitByInstructor && $!student) 
 				<h4>$tlang.getString("submitforstudent")</h4>
@@ -621,6 +686,12 @@ function submitform(id)
 								#elseif ($submissionType==3)
 									$tlang.getString("gen.theassall4")
 								#end
+							#end
+							#if ($plagiarismNote)
+								<p>
+									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+									<em>$plagiarismNote</em>
+								</p>
 							#end
 							</p>
 							<table border="0">
@@ -660,9 +731,21 @@ function submitform(id)
 						#end							
 					#end*#
 				#end
+			#else
+				#set ($unsubmittableInline = true)
 			#end
+
+			#set ($size = 0)
+			#set ($props = false)
+			#foreach ($attachment in $attachments)
+				#set ($props = $attachment.Properties)
+				#if ($!props)
+					#set ($size = $size + 1)
+				#end
+			#end
+
 			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5)) 
-				#if ($submissionType==2)
+				#if ($submissionType==2 && !$unsubmittableInline)
 					<p class="instruction">
 						#if (($submitted && !$returned) || ($returned && $!timeReturned && $!timeSubmitted && $!timeReturned.before($!timeSubmitted)) || ($!closeTime && $currentTime.after($closeTime)))
 							## for submitted not yet returned submission; or returned by resubmitted submission; or after close date
@@ -672,6 +755,25 @@ function submitform(id)
 						#end
 					</p>
 				#end	
+				#if (($submissionType == 2) || ($submissionType == 5))
+					#if ($plagiarismNote)
+						<p>
+							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
+							<em>$plagiarismNote</em>
+						</p>
+					#end
+					#if ($unsubmittableInline && ""!="$!value_submission_text")
+						<div class="assignmentUnsubmittable">
+							<h3>$tlang.getString("gen.orisub")</h3>
+							<p class="assignmentWarning">$tlang.getString("stuviewsubm.typesubhaschanged.inline")</p>
+							<div class="assignmentInline">
+								$validator.escapeHtmlFormattedText($!value_submission_text)
+							</div>
+						</div>
+					#end
+				#end
+			#end
+			#if (($submissionType==2) || ($submissionType==3) || ($submissionType==5 && $size < 2))
 				<div class="highlightPanel" style="background:#ffe">
 					<h3 style="margin-top:0;margin-bottom:.5em">
 						#if ($submissionType == 5)
@@ -680,17 +782,6 @@ function submitform(id)
 							$tlang.getString("gen.att")
 						#end
 					</h3>	
-					#if ($assignment.getContent().getAllowReviewService())
-						<p class="instruction"><img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" /> $reviewIndicator</p>
-					#end
-					#set ($size = 0)
-					#set ($props = false)
-					#foreach ($attachment in $attachments) 
-						#set ($props = $attachment.Properties) 
-						#if ($!props)
-							#set ($size = $size + 1)
-						#end
-					#end
 					#if ($size == 0)
 						<p class="instruction">
                                                     #if ($submissionType == 5)
@@ -790,8 +881,98 @@ function submitform(id)
 							</p>	
 				 		</div>
 					#end
-				#end
+				#elseif ($submissionType == 5)
+					## attachments > 1, but the assignment type is single uploaded file only
+
+					##defines a macro to display attachment details
+					#macro (attachmentDetails)
+						#if ($props.getBooleanProperty($props.NamePropIsCollection))
+							<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")"/>
+						#else
+							<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+						#end
+						<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+						#propertyDetails($props)
+					#end
+					<div class="assignmentAttachBox">
+					<h3>
+						#if ($submissionType == 5)
+							$tlang.getString("gen.att.single")
+						#else
+							$tlang.getString("gen.att")
+						#end
+					</h3>
+					<p> $tlang.getString("stuviewsubm.typesubhaschanged.singleUploadedFileOnly")</p>
+					#foreach ($attachment in $attachments)
+						#set ($props = false)
+						#set ($props = $attachment.Properties)
+						#if ($!props)
+							<div class="assignmentAttachRadio">
+								<input type="radio" name="attachmentSelection" value="$attachments.indexOf($attachment)" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(false);">
+								#attachmentDetails()
+								<br>
+							</div>
+						#end
+					#end
+
+					<div class="assignmentAttachRadio assignmentAttachmentHighlight">
+						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(true);" checked />
+						<span>
+							#set($attachment = $newSingleUploadedFile)
+							#set($props = false)
+							#set($props = $attachment.Properties)
+							#if ($props)
+								#attachmentDetails()
+								<a href="#" onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='removeNewSingleUploadedFile'; document.addSubmissionForm.submit(); return false;">
+									$tlang.getString("stuviewsubm.removeatt")<span class="skip"> $validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</span>
+								</a>
+								<br>
+							#else
+								$tlang.getString("stuviewsubm.uploadnew")
+								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
+								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+							#end
+						</span>
+					</div>
+
 				</div>
+			#else
+				## this is where we show any previous attachments when the submission type doesn't allow them
+				#if ($size != 0)
+					<div class="assignmentUnsubmittableAttachments">
+						<h3>
+							#if ($submissionType == 5)
+								$tlang.getString("gen.stuatt.single")
+							#else
+								$tlang.getString("gen.stuatt")
+							#end
+						</h3>
+						<p class="assignmentWarning">$tlang.getString("stuviewsubm.typesubhaschanged.attach")</p>
+						<table class="attachList listHier indnt1 centerLines" style="width:auto;" summary="$tlang.getString("stuviewsubm.listsummary.simple")">
+							#foreach ($attachment in $attachments)
+								#set ($props = false)
+								#set ($props = $attachment.Properties)
+								#if ($!props)
+									<tr>
+										<td>
+											#if ($props.getBooleanProperty($props.NamePropIsCollection))
+												<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.folatt")" />
+											#else
+												<img src = "#imageLink($contentTYpeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
+											#end
+											<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
+										</td>
+										<td>
+											#propertyDetails($props)
+										</td>
+									</tr>
+								#end
+							#end
+						</table>
+					</div>
+				#end
+			#end
+			</div>
 				
 				#if ($returned && $!timeReturned && ($!timeSubmitted && $!timeReturned && $!timeReturned.after($!timeSubmitted) || !$!timeSubmitted))
 					#if (($!submission.FeedbackComment) && ($submission.FeedbackComment.trim().length()>0))
@@ -952,6 +1133,9 @@ function submitform(id)
 								id="post" 
 								value="$!name"
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
+								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile)
+									disabled
+								#end
 							/>
 					## for single file upload case, no need for preview or save draft
 					#if ($submissionType!=5)
@@ -991,8 +1175,8 @@ function submitform(id)
 							/>
 							#end
 
-                            #if ($submissionType==5)
-                                <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>
+                            #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
+                                <span class="messageInformation">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
                             #else
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
                             #end
@@ -1038,7 +1222,13 @@ function submitform(id)
                                             $tlang.getString("gen.noatt")
                                         #end
 				#else
-					<h5>$tlang.getString("gen.stuatt")</h5>
+					<h5>
+						#if ($submissionType == 5)
+							$tlang.getString("gen.stuatt.single")
+						#else
+							$tlang.getString("gen.stuatt")
+						#end
+					</h5>
 					<ul class="attachList indnt1">
 						#foreach ($attachment in $submittedAttachments) 
 							#set ($props = false)

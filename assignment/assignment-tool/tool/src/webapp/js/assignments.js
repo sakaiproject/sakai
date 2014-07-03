@@ -417,3 +417,35 @@ function toggleGroups(clickedElement) {
         }
     }
 }
+
+function highlightSelectedAttachment()
+{
+	endsWith = function(str, suffix)
+	{
+		return str.indexOf(suffix, str.length - suffix.length) !== -1;
+	}
+
+	var classSuffix = " assignmentAttachmentHighlight";
+	var radioButtons = document.getElementsByName("attachmentSelection");
+	for (i = 0; i < radioButtons.length; i++)
+	{
+		var parentDiv = radioButtons[i].parentNode;
+		if (radioButtons[i].checked)
+		{
+			if (!endsWith(parentDiv.className, classSuffix))
+			{
+				//add the highlight css class
+				parentDiv.className+=classSuffix;
+			}
+		}
+		else
+		{
+			if (endsWith(parentDiv.className, classSuffix))
+			{
+				//remove the highlight css class
+				var cn = parentDiv.className;
+				parentDiv.className=cn.substring(0, cn.length - classSuffix.length);
+			}
+		}
+	}
+}

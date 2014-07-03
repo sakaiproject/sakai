@@ -26,6 +26,26 @@ function handleEnterKeyPress(ev)
    	 		if ($pan.is(':visible') && ev.target.id !== 'peerReviewInfo' && ev.target.id !== 'infoImg' && ev.target.id !== 'grade') $pan.hide();
 		});
     });
+
+var reportsExpanded = false;
+function handleReportsTriangleDisclosure(btn)
+{
+	var reportsDiv = document.getElementById("reportsDiv");
+	if (reportsExpanded)
+	{
+		btn.src = "#imageLink("sakai/expand.gif")";
+		btn.alt = "$tlang.getString('review.report.expand')";
+		reportsDiv.style.display="none";
+	}
+	else
+	{
+		btn.src = "#imageLink("sakai/collapse.gif")";
+		btn.alt = "$tlang.getString('review.report.collapse')";
+		reportsDiv.removeAttribute("style");
+		resizeFrame();
+	}
+	reportsExpanded = !reportsExpanded;
+}
 </script>
 <div class="portletBody">
 <ul class="navIntraTool actionToolBar">
@@ -198,20 +218,46 @@ function handleEnterKeyPress(ev)
 					</td>
 				</tr>
 			#end
-				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+				#if($allowReviewService && $assignment.getContent().AllowReviewService)
 					<tr>
 						<th>
-							$tlang.getString("review.report")
+							$reviewServiceName&nbsp;$tlang.getString("review.report")
 						</th>
 							<td>
 							#if (!$submission)
                                 				$tlang.getString("review.notavail")
-                            				#elseif ($submission.getReviewReport().equals("Error"))
-								<div class="alertMessage" >$!submission.getReviewError()</div>
 							#else
-								<img src="$submission.getReviewIconUrl()" alt="$submission.getReviewScore()">
-							
-								<a href="$submission.getReviewReport()" target="_blank">$tlang.getString("review.viewreport")</a>
+								#set($reviewResults=$submission.ContentReviewResults)
+								#if ($reviewResults.size() >= 3)
+									<div class="discTria">
+										<input class="disclosureTriangle" type="image" onclick="handleReportsTriangleDisclosure(this); return false;" src="#imageLink("sakai/expand.gif")" alt="$tlang.getString('review.report.expand')"/>
+										## TODO: reconsider for i18n:
+										$reviewResults.size() $tlang.getString("review.reports")
+									</div>
+									<div id="reportsDiv" style="display:none;">
+								#end
+								#foreach ($reviewResult in $reviewResults)
+									<div>
+										#set ($props = $reviewResult.getContentResource().Properties)
+										<span class="reportIcon">
+										#if ($reviewResult.getReviewReport().equals("Error"))
+											<img src="/library/skin/images/error.png" alt="$reviewResult.getReviewError()" title="$reviewResult.getReviewError()">
+										#else
+											<a href="$reviewResult.getReviewReport()" target="_blank">
+												<img src="$reviewResult.getReviewIconURL()" alt="$reviewResult.getReviewScore()" title="$reviewResult.getReviewScore()">
+											</a>
+										#end
+										</span>
+										#if ($reviewResult.isInline())
+											$tlang.getString("submission.inline")
+										#else
+											$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))
+										#end
+									</div>
+								#end
+								#if ($reviewResults.size() >= 3)
+									</div>
+								#end
 							#end
 							</td>
 				
@@ -380,22 +426,29 @@ function handleEnterKeyPress(ev)
 				</div>
 			#end
 			<h3>$tlang.getString("gen.subm")</h3>
-				#if ($submissionType == 4)
+				#set($hasInline = $value_feedback.text.length() > 0)
+				#set($size = 0)
+				#if ($!submission.submitted || !$alertGradeDraft)
+					#set ($props = false)
+					#foreach ($attachment in $submission.SubmittedAttachments)
+						#set ($props = $attachment.Properties)
+						#if ($!props)
+							#set ($size = $size + 1)
+						#end
+					#end
+				#end
+				#if ($submissionType == 4 && !$hasInline && $size == 0)
 					## if this is non-electronic submission
 					<p class="instruction">$tlang.getString("nonelec_instruction2")</p>
-				#elseif ($submissionType!=2)
-					## if there is a text
-## redundant
-##					<p class="instruction">
-##						$tlang.getString("gen.submittedtext")
-##					</p>
+				#else
 					#if(($submission.submitted || !$alertGradeDraft) && $!value_feedback_text.length() >0 )
 						<p class="instruction">$tlang.getString("gradingsub.belisthe")</p>
 						<table border="0"><tr><td>
 						<textarea name="$name_feedback_text" id="$name_feedback_text" rows="30" wrap="virtual" cols="80">$validator.escapeHtmlFormattedTextarea($!value_feedback_text)</textarea>		
 						#chef_setupformattedtextarea($name_feedback_text)
 						</td></tr></table>
-					#else
+					#elseif($submissionType!=2 && $submissionType!=4)
+						## This message only shows when the submission type allows submitted text and the submission doesn't contain submitted text
 						<p class="instruction">$tlang.getString("gradingsub.nosubmittedtext")</p>
 					#end
 					## for returned submission, show the instructor comment as well
@@ -405,34 +458,33 @@ function handleEnterKeyPress(ev)
 							$cheffeedbackhelper.showPrevFeedback($cheffeedbackhelper.escapeAssignmentFeedback($!prevFeedbackText))
 						</div>
 					#end
-				#end
-				## submitted attachment
-				
-			 #if ($submissionType!=1 && $submissionType!=4) ## do not show attach messages if no attach are allowed...
-					<h3>
-						#if ($submissionType == 5)
-							$tlang.getString("gen.stuatt.single")
-						#else
-							$tlang.getString("gen.stuatt")
-						#end
-					</h3>
-					#set ($size = 0)
-					#if ($!submission.submitted || !$alertGradeDraft)
-						#set ($props = false)
-						#foreach ($attachment in $submission.SubmittedAttachments) 
-							#set ($props = $attachment.Properties) 
-							#if ($!props)
-								#set ($size = $size + 1)
+					## submitted attachment
+
+					#set ($attachAllowed = $submissionType != 1 && $submissionType != 4)
+					#if ($attachAllowed || $size != 0) ##do not show attach messages if no attach are allowed unless an attach is present anyway.
+						<h3>
+							#if ($submissionType == 5)
+								$tlang.getString("gen.stuatt.single")
+							#else
+								$tlang.getString("gen.stuatt")
 							#end
-						#end
+						</h3>
 					#end
-					#if ($size == 0)
-						<p class="instruction">$tlang.getString("gen.noattsubmitted")</p>
-					#else
+					#if ($size == 0 && $attachAllowed)
+						## only display in submission types taht are supposed to have attachments
+						<p class="instruction">
+							#if ($submissionType == 5)
+								$tlang.getString("gen.noattsubmitted.single")
+							#else
+								$tlang.getString("gen.noattsubmitted")
+							#end
+						</p>
+					#elseif ($size != 0)
+						## There are attachments. We don't care which submission type it really is, they need to be displayed
 						<ul class="attachList indnt1">
-							#foreach ($attachment in $submission.SubmittedAttachments) 
+							#foreach ($attachment in $submission.VisibleSubmittedAttachments)
 								#set ($props = false)
-								#set ($props = $attachment.Properties) 
+								#set ($props = $attachment.Properties)
 								#if ($!props)
 									<li>
 										#if ($props.getBooleanProperty($props.NamePropIsCollection))
@@ -440,7 +492,7 @@ function handleEnterKeyPress(ev)
 										#else
 											<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt="$tlang.getString("gen.filatt")" />
 										#end
-										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>						
+										<a href="$attachment.Url" target="_blank">$validator.escapeHtml($props.getPropertyFormatted($props.NamePropDisplayName))</a>
 										#propertyDetails($props)
 									</li>
 								#end
@@ -448,6 +500,7 @@ function handleEnterKeyPress(ev)
 						</ul>
 					#end
 				#end
+
 				#*					<!-- Grade types
 						GRADE_TYPE_NOT_SET: -1; 
 						UNGRADED_GRADE_TYPE: 1; 
