@@ -1166,14 +1166,49 @@ public class FormattedTextImpl implements FormattedText
         if (text != null && !"".equals(text)) {
             if (smartSpacing) {
                 // replace block level html with an extra space (to try to preserve the intent)
-                text = text.replaceAll("/br>", "/br> ").replaceAll("/p>", "/p> ").replaceAll("/tr>", "/tr> ");
+                text = addSmartSpacing(text);
             }
             text = org.jsoup.Jsoup.clean(text, "", org.jsoup.safety.Whitelist.none(), new org.jsoup.nodes.Document.OutputSettings().prettyPrint(false).outline(false));
             if (smartSpacing) {
-                text = text.replaceAll("\\s+", " ").trim(); // eliminate extra whitespaces
+                text = eliminateExtraWhiteSpace(text);
             }
         }
         return text;
+    }
+
+    @Override
+    public String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences)
+    {
+        // KNL-1267	--bbailla2
+        if (!stripEscapeSequences)
+        {
+            return stripHtmlFromText(text, smartSpacing);
+        }
+
+        if (smartSpacing)
+        {
+            text = addSmartSpacing(text);
+        }
+
+        org.jsoup.nodes.Document document = org.jsoup.Jsoup.parse(text);
+        org.jsoup.nodes.Element body = document.body();
+        //remove any html tags, unescape any escape characters
+        String strippedText = body.text();
+        //&nbsp; are converted to char code 160, java doesn't treat it like whitespace, so replace it with ' '
+        //Could there be others like this?
+        strippedText = strippedText.replace((char)160, ' ');
+        strippedText = eliminateExtraWhiteSpace(strippedText);
+        return strippedText;
+    }
+
+    private String addSmartSpacing(String text)
+    {
+        return text.replaceAll("/br>", "/br> ").replaceAll("/p>", "/p> ").replaceAll("/tr>", "/tr> ");
+    }
+
+    private String eliminateExtraWhiteSpace(String text)
+    {
+        return text.replaceAll("\\s+", " ").trim();
     }
 
     // PRIVATE STUFF

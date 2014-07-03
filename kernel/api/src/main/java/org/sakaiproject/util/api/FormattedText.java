@@ -402,4 +402,18 @@ public interface FormattedText {
      */
     public String stripHtmlFromText(String text, boolean smartSpacing);
 
+    /**
+     * Strips html/xml tags from a string and returns the cleaned version.
+     *
+     * @param text any text (if this is null or empty then the input text is returned unchanged)
+     * @param smartSpacing if true then try to make the text represent the intent of the html,
+     *                     trims out duplicate spaces, converts block type html into a space, etc.,
+     *                     else just removes html tags and leaves all other parts of the string intact,
+     *                     NOTE: false is also slightly faster
+     * @param stripEscapeSequences if true, strips out any escape sequences such as '&nbsp;'
+     * @return the cleaned string
+     * @see #convertFormattedTextToPlaintext(String) for alternative mechanism
+     */
+     public String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences);
+
 }

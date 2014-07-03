@@ -182,4 +182,11 @@ public class FormattedText {
         return getFormattedText().stripHtmlFromText(text, smartSpacing);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#stripHtmlFromText(String,boolean,boolean)
+     */
+    public static String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences) {
+        return getFormattedText().stripHtmlFromText(text, smartSpacing, stripEscapeSequences);
+    }
+
 }

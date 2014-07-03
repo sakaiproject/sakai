@@ -188,4 +188,11 @@ public class MockFormattedText implements FormattedText {
         return text;
     }
 
+    @Override
+    public String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences)
+	{
+		log.warn(WARNING);
+		return text;
+	}
+
 }
