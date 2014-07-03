@@ -17,6 +17,7 @@
   <modules>
     <module>content-review-api/model</module>
     <module>content-review-api/public</module>
+    <module>contentreview-federated</module>
   </modules>
 
   <scm>
