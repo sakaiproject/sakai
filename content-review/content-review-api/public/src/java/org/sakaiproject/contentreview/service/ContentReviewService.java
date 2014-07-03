@@ -47,12 +47,11 @@ public interface ContentReviewService {
 	 *  
 	 *  @param userID if nulll current user is used
 	 *  @param SiteId is null current site is used
-	 *  @param Entity reference to the task this is for
-	 *  @param Reference to the content object that should be submitted
+	 *  @param assignmentReference reference to the task this is for
+	 *  @param content list of content resources to be queued
 	 *  
 	 */
-	public void queueContent(String userId, String siteId, String taskId, String contentId)
-	throws QueueException;
+	public void queueContent(String userId, String siteId, String assignmentReference, List<ContentResource> content) throws QueueException;
 	
 	/**
 	 *  Retrieve a score for a specific item
@@ -62,39 +61,42 @@ public interface ContentReviewService {
 	 * @throws ReportException
 	 * @throws Exception
 	  */
-	public int getReviewScore(String contentId)
-	throws QueueException, ReportException, Exception;
-	
+	public int getReviewScore(String contentId, String assignmentRef, String userId) throws QueueException,
+                        ReportException, Exception;
+
 	/**
 	 *  Get the URL of the report
 	 * @param contentId
+	 * @param assignmentRef
 	 * @return the url
 	 * @throws QueueException
 	 * @throws ReportException
 	 * * * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}
 	 */
-	public String getReviewReport(String contentId)
+	public String getReviewReport(String contentId, String assignmentRef)
 	throws QueueException, ReportException;
 	
 	/**
 	 * Get the URL of a report constructed for a student
 	 * @param contentId
+	 # @param assignmentRef
 	 * @return
 	 * @throws QueueException
 	 * @throws ReportException
 	 * */
-	public String getReviewReportStudent(String contentId)
+	public String getReviewReportStudent(String contentId, String assignmentRef)
 	throws QueueException, ReportException;
 	
 	/**
 	 * Get the URL for a report constructed for an Instructor
 	 * 
 	 * @param contentId
+	 * @param assignmentRef
 	 * @return
 	 * @throws QueueException
 	 * @throws ReportException
 	 */
-	public String getReviewReportInstructor(String contentId)
+	public String getReviewReportInstructor(String contentId, String assignmentRef)
 	throws QueueException, ReportException;
 	
 	
