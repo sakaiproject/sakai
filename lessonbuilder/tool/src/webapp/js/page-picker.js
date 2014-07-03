@@ -39,4 +39,10 @@ $('#hide-items').on('click', function (e) {
     return false;
 });
 
+$("#chooseall").change(function(){
+	$(".deletebox").prop('checked', $("#chooseall").prop('checked'));
 });
+
+});
+
+    
