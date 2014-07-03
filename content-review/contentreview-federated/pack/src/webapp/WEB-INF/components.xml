@@ -9,8 +9,9 @@
 		init-method="init">
 		<property name="providers">
 			<list>
-				<!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/-->
+				<!--ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceTii"/>
 	            		<ref bean="org.sakaiproject.contentreview.service.ContentReviewServiceVeriCite"/>
+					-->
 			</list>
 		</property>
 
