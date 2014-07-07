@@ -25,7 +25,7 @@ $(function() {
 			$("#peer-eval-create-dialog .peer-eval-create-form").html(blankRubricTemplate);
 
 			if (isNew) {
-				addCategoryRow("#peer-eval-create-dialog #peer-eval-create-table", "category-1", -1);
+				addCategoryRow("#peer-eval-create-dialog #peer-eval-create-table", "", -1);
 				$("#peer-eval-create-dialog #peer-eval-create-table" + " tbody tr:last input:first").click(function() {
 					$(this).unbind("click");
 					$(this).val("");

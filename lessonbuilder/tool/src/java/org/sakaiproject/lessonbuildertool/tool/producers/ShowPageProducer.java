@@ -4255,7 +4255,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	
 	private void makeSamplePeerEval(UIContainer parent)
 	{
-		UIOutput.make(parent, "peer-eval-sample-title", "Sample Peer Evaluation");
+		UIOutput.make(parent, "peer-eval-sample-title", messageLocator.getMessage("simplepage.peer-eval.sample.title"));
 		
 		UIBranchContainer peerReviewRows = UIBranchContainer.make(parent, "peer-eval-sample-data:");
 		UIOutput.make(peerReviewRows, "peer-eval-sample-id", "1");
