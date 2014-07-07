@@ -117,7 +117,7 @@
 	##dropdown.status.2.label=DEE EE EFF
 		
 	## allow us to iterate using this string converted to an int
-	#set($count = $tlang.getString("dropdown.${type}.count"))
+	#set($count = $tlang.getString("dropdown.${type}.count").trim())
 	#set($Integer = 0)
 	
 	<select name="${propname}" id="${propname}">
