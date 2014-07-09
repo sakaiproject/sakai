@@ -293,8 +293,8 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		//Next is an really and excel file with no extension
 		//Last is a html snippet with correct extension
 
-		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html");
-		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html");
+		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html", "testCSS.css", "testHTMLBody.html");
+		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html", "text/css", "text/html");
 
 		//Set the mime magic to be true
 		ServerConfigurationService serv = getService(ServerConfigurationService.class);
