@@ -323,7 +323,8 @@ public class YaftTopicEntity implements LessonEntity, ForumInterface {
 	/**
 	 * From ForumInterface
 	 */
-	public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String siteId, List<String> attachmentHrefs, boolean hide) {
+        public String importObject(String title, String topicTitle, String text, boolean texthtml, String base, String baseDir, String siteId, List<String>arrachmenthrefs, boolean hide) {
+
 		return null;
 	}
 

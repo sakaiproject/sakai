@@ -39,16 +39,22 @@ import java.util.Iterator;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.jdom.Element;
+import org.jdom.Namespace;
+
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.AssignmentEdit;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentContentEdit;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.cover.AssignmentService;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -123,6 +129,11 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
     static MessageLocator messageLocator = null;
     public void setMessageLocator(MessageLocator m) {
 	messageLocator = m;
+    }
+
+    static AssignmentSupplementItemService assignmentSupplementItemService = null;
+    public void setAssignmentSupplementItemService(AssignmentSupplementItemService a) {
+	assignmentSupplementItemService = a;
     }
 
     public void init () {
@@ -800,6 +811,160 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    System.out.println("can't create assignment " + e);
 	};
 	return null;
+    }
+
+    /*
+    <assignment xmlns="http://www.imsglobal.org/xsd/imscc_extensions/assignment"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.imsglobal.org/xsd/imscc_extensions/assignment http://www.imsglobal.org/profile/cc/cc_extensions/cc_extresource_assignmentv1p0_v1p0.xsd"
+  identifier="AssigmentId">
+  <title>Title of the Assignment</title>
+  <!-- text/plain or text/html -->
+  <text texttype="text/plain">Example of text for the learner  i.e. the assignment being set.</text>
+  <instructor_text texttype="text/plain">Example of test for the instructor.</instructor_text>
+  <gradable points_possible="10.0">true</gradable>
+  <attachments>
+	<!-- All, Learner, Manager, Instructor -->
+    <attachment href="Variant.html" role="All" />
+  </attachments>
+  <submission_formats>
+	<!-- text, html, uri or file -->
+    <format  type="html" />
+  </submission_formats>
+</assignment>
+
+    */
+
+    public String importObject(Element resource, Namespace ns, String baseDir, List<String>attachments) {
+	String context = ToolManager.getCurrentPlacement().getContext();
+	try {
+	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
+	    // title
+	    String title = resource.getChildText("title", ns);
+	    c.setTitle(title);
+
+	    // instructions
+	    String instructions = resource.getChildText("text", ns);
+	    if (instructions == null)
+		c.setInstructions("");
+	    else {
+		Element instructionsElement = resource.getChild("text", ns);
+		String type = instructionsElement.getAttributeValue("texttype");
+		if ("text/plain".equals(type))
+		    instructions = FormattedText.convertPlaintextToFormattedText(instructions);
+		c.setInstructions(instructions);
+	    }
+
+	    // c.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
+	    c.setHonorPledge(1);  // no 
+
+	    // submission type
+	    Element submissiontypes = resource.getChild("submission_formats", ns);
+	    if (submissiontypes == null)
+		c.setTypeOfSubmission(3);  // inline and attachment
+	    else {
+		int submittype = 0;
+		List<Element> submissionTypeList = submissiontypes.getChildren();
+		if (submissionTypeList != null)
+		    for (Element submissionType: submissionTypeList) {
+			String type = submissionType.getAttributeValue("type");
+			if ("html".equals(type) || "text".equals(type))
+			    submittype |= 1; // inline
+			if ("uri".equals(type) || "file".equals(type))
+			    submittype |= 2; // attach
+		    }
+		c.setTypeOfSubmission(submittype);
+	    }
+	    
+	    c.setAllowReviewService(false);
+
+	    String gradable = resource.getChildText("gradable", ns);
+	    if (gradable == null || "false".equals(gradable))
+		c.setTypeOfGrade(1);   // ungraded
+	    else {
+		Element gradeElement = resource.getChild("gradable", ns);
+		String pointString = gradeElement.getAttributeValue("points_possible");
+		Double pointF = 100.0;
+		int points = 1000;
+		if (pointString != null) {
+		    try {
+			pointF = Double.parseDouble(pointString);
+		    } catch (Exception ignore) {
+		    }
+		    // points is scaled by 10
+		    points = (int)Math.round(pointF * 10);
+		    if (points < 1)
+			points = 1000;
+		}
+		c.setTypeOfGrade(3);   // points
+		c.setMaxGradePoint(points);
+	    }
+
+	    c.setAllowAttachments(true);
+	    c.clearAttachments();
+
+	    if (attachments != null) {
+		for (String attach: attachments) {
+		    c.addAttachment(EntityManager.newReference("/content" + removeDotDot(baseDir + attach)));
+		}
+	    }
+
+	    c.setContext(context);
+	    AssignmentService.commitEdit(c);
+
+	    AssignmentEdit a = AssignmentService.addAssignment(context);
+	    Time now = TimeService.newTime();
+	    a.setOpenTime(now);
+
+	    TimeBreakdown year = now.breakdownLocal();
+	    year.setYear(year.getYear() + 1);
+	    now = TimeService.newTimeLocal(year);
+	    a.setDueTime(now);
+
+	    a.setDraft(false);
+	    a.setAccess(Assignment.AssignmentAccess.SITE);
+	    a.clearGroupAccess();
+	    a.setSection("");
+	    a.setTitle(title);
+	    a.setContent(c);
+	    
+	    AssignmentService.commitEdit(a);
+
+	    // instructor text -- map to note
+	    String note = resource.getChildText("instructor_text", ns);
+	    if (note != null) {
+		Element instructionsElement = resource.getChild("instructor_text", ns);
+		String type = instructionsElement.getAttributeValue("texttype");
+		if ("text/html".equals(type))
+		    note = FormattedText.convertFormattedTextToPlaintext(note);
+		
+		AssignmentNoteItem nNote = assignmentSupplementItemService.newNoteItem();
+		nNote.setAssignmentId(a.getId());
+		nNote.setNote(note);
+		nNote.setShareWith(0);
+		nNote.setCreatorId(UserDirectoryService.getCurrentUser().getId());
+		assignmentSupplementItemService.saveNoteItem(nNote);
+	    }
+
+	    return "/assignment/" + a.getId();
+	} catch (Exception e) {
+	    System.out.println("can't create assignment " + e);
+	};
+	return null;
+    }
+
+    public String removeDotDot(String s) {
+	while (true) {
+	    int i = s.indexOf("/../");
+	    if (i < 1)
+		return s;
+	    int j = s.lastIndexOf("/", i-1);
+	    if (j < 0)
+		j = 0;
+	    else
+		j = j + 1;
+	    s = s.substring(0, j) + s.substring(i+4);
+	}
     }
 
     public String getSiteId() {

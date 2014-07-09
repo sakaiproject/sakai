@@ -208,6 +208,7 @@ simplePageBean.peerEvalAllowSelfGrade
 
     <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
     <property name="messageLocator" ref="messageLocator"/>
+    <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"

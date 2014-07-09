@@ -58,11 +58,20 @@ public class Ns  {
 						Namespace.NO_NAMESPACE,
 						 Namespace.getNamespace("qticc", "http://www.imsglobal.org/xsd/ims_qtiasiv1p2")};
 
+    private static final Namespace ASSIGN_NS[] = {Namespace.NO_NAMESPACE,
+						  Namespace.NO_NAMESPACE,
+						  Namespace.NO_NAMESPACE,
+						  Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscc_extensions/assignment")};
+
     private static final Namespace CSMD_NS[] = {Namespace.NO_NAMESPACE,
 						Namespace.NO_NAMESPACE,
 						Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscsmetadata_v1p0"),
 						Namespace.getNamespace("", "http://www.imsglobal.org/xsd/imscsmetadata_v1p0")};
 
+    private static final Namespace CPX_NS[] = {Namespace.NO_NAMESPACE,
+					       Namespace.NO_NAMESPACE,
+					       Namespace.NO_NAMESPACE,
+					       Namespace.getNamespace("cpx", "http://www.imsglobal.org/xsd/imsccv1p3/imscp_extensionv1p2")};
 
 
     public void setVersion(int v) {
@@ -113,6 +122,14 @@ public class Ns  {
 	return QTICC_NS[version];
     }
 
+    public Namespace assign_ns() {
+	return ASSIGN_NS[version];
+    }
+
+    public Namespace cpx_ns() {
+	return CPX_NS[version];
+    }
+
     private static final Map<String, String> resourceTypes;
 
     private static final String CC_WEBCONTENT="webcontent";
@@ -122,6 +139,7 @@ public class Ns  {
     private static final String ASSESSMENT="assessment";
     private static final String QUESTION_BANK="question-bank";
     private static final String BLTI="basiclti";
+    private static final String ASSIGNMENT="assignment"; // version 1.3 extended type
     private static final String UNKNOWN="unknown";
 
 
@@ -152,6 +170,7 @@ public class Ns  {
 	resourceTypes.put("imsbasiclti_xmlv1p1", BLTI);
 	// 2 seems to have used v1p1
 	resourceTypes.put("imsbasiclti_xmlv1p3", BLTI);
+	resourceTypes.put("assignment_xmlv1p0", ASSIGNMENT);
     }
 
     public String normType(String type) {

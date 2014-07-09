@@ -122,6 +122,11 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String ATTACHMENT="attachment";
   private static final String ATTACHMENTS="attachments";
   private static final String INTENDEDUSE="intendeduse";
+  private static final String VARIANT="variant";
+  private static final String IDENTIFIERREF="identifierref";
+  private static final String IDENTIFIER="identifier";
+  private static final String RESOURCES="resources";
+  private static final String RESOURCE="resource";
     
   private static final String CC_ITEM_TITLE="title";
   private static final String CC_WEBCONTENT="webcontent";
@@ -130,6 +135,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   private static final String TOPIC="topic";
   private static final String QUESTIONS="questestinterop";
   private static final String ASSESSMENT="assessment";
+  private static final String ASSIGNMENT="assignment";
   private static final String QUESTION_BANK="question-bank";
   private static final String CART_LTI_LINK="cartridge_basiclti_link";
   private static final String BLTI="basiclti";
@@ -160,11 +166,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   boolean usesCurriculum = false;
   boolean importtop = false;
   Integer assignmentNumber = 1;
+  Element manifestXml = null;
 
     // this is the CC file name for all files added
   private Set<String> filesAdded = new HashSet<String>();
     // this is the CC file name (of the XML file) -> Sakaiid for non-file items
   private Map<String,String> itemsAdded = new HashMap<String,String>();
+  private Map<String,String> assignsAdded = new HashMap<String,String>();
   private Set<String> badTypes = new HashSet<String>();
   static private Map<String, String> badTypeNames = null;
 
@@ -346,6 +354,38 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       String type = ns.normType(resource.getAttributeValue(TYPE));
       boolean isBank = type.equals(QUESTION_BANK);
+
+      // first question: is this the resource we want to use, or is there are preferable variant?
+      Element variant = resource.getChild(VARIANT, ns.cpx_ns());
+      if (variant != null) {
+	  String variantId = variant.getAttributeValue(IDENTIFIERREF);
+	  Element variantResource = null;
+	  if (variantId != null) {
+	      Element resourcesNode = manifestXml.getChild(RESOURCES, ns.cc_ns());
+	      if (resourcesNode != null) {
+		  List<Element> resources = resourcesNode.getChildren(RESOURCE, ns.cc_ns());
+		  if (resources != null) {
+		      for (Element e: resources) {
+			  if (variantId.equals(e.getAttributeValue(IDENTIFIER))) {
+			      variantResource = e;
+			      break;
+			  }
+		      }
+		  }
+	      }
+	      if (variantResource == null) {
+	      } else {
+		  // we now have the variant resource. Only use it if we recognize the type	      
+		  String variantType = ns.normType(variantResource.getAttributeValue(TYPE));
+		  // if we recognize the type, use the variant. By definition the variant is preferred, so we'll use
+		  // it if we recognize it.
+		  if (!UNKNOWN.equals(variantType)) {
+		      type = variantType;
+		      resource = variantResource;
+		  }
+	      }
+	  }
+      }	      
 
       boolean hide = false;
       List<String>roles = new ArrayList<String>();
@@ -711,9 +751,65 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		    }
 		}
 	    }
+	  } else if (type.equals(ASSIGNMENT)) {
+	      Element assignXml =  null;
+	      String filename = getFileName(resource);
+	      if (filename != null) {
+		  assignXml =  parser.getXML(loader, filename);		  
+	      } else {
+		  assignXml = resource.getChild(ASSIGNMENT, ns.assign_ns());
+	      }
+	      Namespace assignNs = ns.assign_ns();
+
+	      // filebase will be directory name for discussion.xml, since attachments are relative to that
+	      String filebase = filename;
+	      int slash = filebase.lastIndexOf("/");
+	      if (slash >= 0)
+		  filebase = filebase.substring(0, slash+1); // include trailing slash
+
+	      // collection id rather than URL
+	      String baseDir = baseName + filename;
+	      slash = baseDir.lastIndexOf("/");
+	      if (slash >= 0)
+		  baseDir = baseDir.substring(0, slash+1); // include trailing slash
+
+	      // let importobject handle most of this, but we have to
+	      // process the attachments to make sure they're present
+
+	      Element attachmentlist = assignXml.getChild(ATTACHMENTS, assignNs);
+	      List<Element>attachments = new ArrayList<Element>();
+	      if (attachmentlist != null)
+		  attachments = attachmentlist.getChildren();
+	      List<String>attachmentHrefs = new ArrayList<String>();
+	      // note that we ignore the role attribute. No obvious way to implement it.
+	      for (Element a: attachments) {
+		  // file has to be there
+		  addFile(removeDotDot(filebase + a.getAttributeValue(HREF)));
+		  attachmentHrefs.add(a.getAttributeValue(HREF));
+	      }
+
+	      // need to prevent duplicates, as we're likely to see the same resource more than once.
+	      // Remember that we've produced this resource ID.
+	      String resourceId = resource.getAttributeValue(IDENTIFIER);
+	      String assignmentId = assignsAdded.get(resourceId);
+	      if (assignmentId == null) {
+		  AssignmentInterface a = (AssignmentInterface) assigntool;
+		  assignmentId = a.importObject(assignXml, assignNs, baseDir, attachmentHrefs); // sakaiid for assignment
+		  if (assignmentId != null)
+		      assignsAdded.put(resourceId, assignmentId);
+	      }
+
+	      if (assignmentId!= null && !hide) {
+		  SimplePageItem item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
+		  simplePageBean.saveItem(item);
+		  if (roles.size() > 0)
+		      simplePageBean.setItemGroups(item, roles.toArray(new String[0]));
+		  sequences.set(top, seq+1);
+	      }
+
 	  } else if (((type.equals(CC_WEBCONTENT) || (type.equals(UNKNOWN))) && hide) || type.equals(LAR)) {
 	      // handled elsewhere
-	  }
+	  } 
 	  if (type.equals(UNKNOWN))
 	      badTypes.add(resource.getAttributeValue(TYPE));
       } catch (Exception e) {
@@ -748,6 +844,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void setManifestXml(Element the_xml) {
+      manifestXml = the_xml;
       if (all)
 	  System.err.println("manifest xml: "+the_xml);
 

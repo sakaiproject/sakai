@@ -41,6 +41,9 @@ import java.lang.reflect.Method;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import org.jdom.Element;
+import org.jdom.Namespace;
+
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.content.cover.ContentHostingService;
@@ -51,6 +54,7 @@ import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
 import org.sakaiproject.assignment2.model.constants.AssignmentConstants;
 import org.sakaiproject.assignment2.model.Assignment2;
 import org.sakaiproject.assignment2.model.AssignmentAttachment;
+import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -249,7 +253,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
     }
 
     public Assignment getAssignment(Long id, boolean nocache) {
-	Assignment ret = (Assignment)assignmentCache.get(id);
+	Assignment ret = (Assignment)assignmentCache.get(id.toString());
 	if (!nocache && ret != null)
 	    return ret;
 
@@ -396,7 +400,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	String idString = ref.substring(i+1);
 
 	if (typeString.equals(ASSIGNMENT2)) {
-	    Assignment2Entity entity = new Assignment2Entity(TYPE_ASSIGNMENT2, idString, 1);
+	    Assignment2Entity entity = new Assignment2Entity(TYPE_ASSIGNMENT2, idString, 1); // 
 	    entity.setSimplePageBean(bean);
 	    return entity;
 	} else if (nextEntity != null) {
@@ -626,7 +630,8 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
     public boolean notPublished() {
 	if (assignment == null && haveA2)
 	    assignment = getAssignment(id);
-	return (assignment == null || assignment.getDraft() || assignment.getRemoved());
+	// getAssignment tests draft and removed, so if it's been removed we'll get null
+	return (assignment == null);
     }
 
     // return the list of groups if the item is only accessible to specific groups
@@ -816,6 +821,104 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	}
 
 	return null;
+    }
+
+
+    public String importObject(Element resource, Namespace ns, String baseDir, List<String>attachments) {
+	String contextId = ToolManager.getCurrentPlacement().getContext();
+        Assignment2 assignment = new Assignment2();
+        assignment.setContextId(contextId);
+        assignment.setCreateDate(new Date());
+        assignment.setCreator("ADMIN");
+        assignment.setDraft(false);
+
+	// instructions
+	String instructions = resource.getChildText("text", ns);
+	if (instructions == null)
+	    assignment.setInstructions("");
+	else {
+	    Element instructionsElement = resource.getChild("text", ns);
+	    String type = instructionsElement.getAttributeValue("texttype");
+	    if ("text/plain".equals(type))
+		instructions = FormattedText.convertPlaintextToFormattedText(instructions);
+	    assignment.setInstructions(instructions);
+	}
+
+        assignment.setSendSubmissionNotifications(false);
+        assignment.setOpenDate(new Date());
+        assignment.setRemoved(false);
+
+	// submission type
+	Element submissiontypes = resource.getChild("submission_formats", ns);
+	int submittype;
+	if (submissiontypes == null)
+	    submittype = 2;
+	else {
+	    boolean inline = false;
+	    boolean attach = false;
+	    List<Element> submissionTypeList = submissiontypes.getChildren();
+	    if (submissionTypeList != null)
+		for (Element submissionType: submissionTypeList) {
+		    String type = submissionType.getAttributeValue("type");
+		    if ("html".equals(type) || "text".equals(type))
+			inline = true;
+		    if ("uri".equals(type) || "file".equals(type))
+			attach = true;
+		}
+	    if (attach) {
+		if (inline)
+		    submittype = 2;
+		else
+		    submittype = 1;
+	    } else
+		submittype = 0;
+	}
+	assignment.setSubmissionType(submittype);
+
+	assignment.setGraded(false);
+	assignment.setHonorPledge(false);
+	assignment.setHasAnnouncement(false);
+	assignment.setAddedToSchedule(false);
+	//        assignment.setSortIndex(sortIndex);
+	String title = resource.getChildText("title", ns);
+        assignment.setTitle(title);
+        assignment.setRequiresSubmission(true);
+        assignment.setNumSubmissionsAllowed(1);
+
+	try {
+	    saveMethod.invoke(dao, assignment);
+	} catch (Exception e) {
+	    System.out.println("invoke failed " + e);
+	    return null;
+	}
+
+	if (attachments != null) {
+	    for (String attach: attachments) {
+		AssignmentAttachment attachment = new AssignmentAttachment(assignment, removeDotDot(baseDir + attach));
+		try {
+		    saveMethod.invoke(dao, attachment);
+		} catch (Exception e) {
+		    System.out.println("invoke failed " + e);
+		}
+	    }
+	}
+
+	return "/assignment2/" + assignment.getId();
+
+    }
+
+    public String removeDotDot(String s) {
+	while (true) {
+	    int i = s.indexOf("/../");
+	    if (i < 1)
+		return s;
+	    int j = s.lastIndexOf("/", i-1);
+	    if (j < 0)
+		j = 0;
+	    else
+		j = j + 1;
+	    s = s.substring(0, j) + s.substring(i+4);
+	}
     }
 
     public String getSiteId() {
