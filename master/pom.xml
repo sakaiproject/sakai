@@ -1150,6 +1150,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.shortenedurl</groupId>
+        <artifactId>shortenedurl-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-syllabus-api</artifactId>
         <version>${sakai.version}</version>
