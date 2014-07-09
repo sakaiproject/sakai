@@ -592,7 +592,9 @@ div.msgcntr-profile-qtip {
     background-color: #fff;
 }
 .qtip-content .profile2-profile-content{
-	width: 270px;
+    float: right;
+    overflow: auto;
+    max-height: 200px;
 }
 .createTopicsForGroupsPanel {
     margin-left: 3em;
