@@ -108,7 +108,10 @@ public class IFrameAction extends VelocityPortletPaneledAction
 	
 	/** The Annotated URL Tool's url attribute, in state, config and context. */
 	protected final static String TARGETPAGE_URL = "TargetPageUrl";
-	
+   
+	/** The Annotated URL Tool's popup attribute, in state, config and context. */
+	protected final static String TARGETPAGE_POPUP = "TargetPagePopup";
+   
 	/** The Annotated URL Tool's name attribute, in state, config and context. */
 	protected final static String TARGETPAGE_NAME = "TargetPageName";
 	
@@ -313,16 +316,14 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		state.setAttribute(ANNOTATED_TEXT, config.getProperty(ANNOTATED_TEXT, ""));
 		
 		
+		// set Annotated URL Tool attributes if TargetPageUrl is defined
 		if(config.getProperty(TARGETPAGE_URL)!=null)
-				{
-			// set Target page url for Annotated URL Tool
-		state.setAttribute(TARGETPAGE_URL,config.getProperty(TARGETPAGE_URL));
-		
-		
-		// set Target page name for Annotated URL Tool
-		state.setAttribute(TARGETPAGE_NAME,config.getProperty(TARGETPAGE_NAME));
-				}
-		
+		{
+			state.setAttribute(TARGETPAGE_URL,config.getProperty(TARGETPAGE_URL));
+			state.setAttribute(TARGETPAGE_NAME,config.getProperty(TARGETPAGE_NAME));
+			state.setAttribute(TARGETPAGE_POPUP,config.getProperty(TARGETPAGE_POPUP));
+		}
+      
 		// set the title
 		state.setAttribute(TITLE, placement.getTitle());
 		
@@ -763,6 +764,7 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		
 		//for annotatedurl
 		context.put(TARGETPAGE_URL, state.getAttribute(TARGETPAGE_URL));
+		context.put(TARGETPAGE_POPUP, state.getAttribute(TARGETPAGE_POPUP));
 		context.put(TARGETPAGE_NAME, state.getAttribute(TARGETPAGE_NAME));
 		context.put(ANNOTATED_TEXT, state.getAttribute(ANNOTATED_TEXT));
 		

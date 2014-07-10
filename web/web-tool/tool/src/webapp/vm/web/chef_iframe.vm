@@ -32,10 +32,8 @@
 				}
 				document.getElementById(innerIframeName).style.height=iHeight + "px";
 				height += iHeight;
-				if (frame) 
-				{
-					frame.height = height;
-				}
+
+				frame.height = height;
 			}	
 		}
 		
@@ -52,11 +50,15 @@
 
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
 
-	#if($TargetPageUrl)
-         <h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
-         $desp      
-     #end
-	 	<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em  -2em">
+		#if($TargetPageUrl && !$TargetPagePopup)
+			<h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
+			$desp		  
+		#end
+		#if($TargetPageUrl && $TargetPagePopup)
+			<h3><a target="_blank" href=$TargetPageUrl>$TargetPageName</a></h3><br>
+			$desp		  
+		#end
+		<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em	 -2em">
 		<iframe 
 			title="$tlang.getString("gen.info.title.message")"
 			width="100%"
