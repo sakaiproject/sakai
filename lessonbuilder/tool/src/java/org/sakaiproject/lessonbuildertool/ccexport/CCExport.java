@@ -125,7 +125,7 @@ public class CCExport {
 	String title;
 	String url;
 	boolean islink;
-	List<String> dependencies;
+	Set<String> dependencies;
     }
 
     // map of all file resource to be included in cartridge
@@ -272,7 +272,7 @@ public class CCExport {
 	res.sakaiId = sakaiId;
 	res.resourceId = getResourceId();
 	res.location = location;
-	res.dependencies = new ArrayList<String>();
+	res.dependencies = new HashSet<String>();
 	res.use = use;
 	res.islink = false;
 	fileMap.put(sakaiId, res);
@@ -445,7 +445,7 @@ public class CCExport {
 	    res.resourceId = getResourceId();
 	    res.location = "cc-objects/" + res.resourceId + ".xml";
 	    res.sakaiId = sakaiId;
-	    res.dependencies = new ArrayList<String>();
+	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
 	    samigoMap.put(res.sakaiId, res);
@@ -455,7 +455,7 @@ public class CCExport {
 	    res.resourceId = getResourceId();
 	    res.location = "cc-objects/" + res.resourceId + ".xml";
 	    res.sakaiId = null;
-	    res.dependencies = new ArrayList<String>();
+	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
 	    samigoBank = res;
@@ -502,7 +502,7 @@ public class CCExport {
 	    int slash = sakaiId.indexOf("/");
 	    res.location = "attachments/" + sakaiId.substring(slash+1) + "/assignmentpage.html";
 	    res.sakaiId = sakaiId;
-	    res.dependencies = new ArrayList<String>();
+	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
 	    assignmentMap.put(res.sakaiId, res);
@@ -515,12 +515,24 @@ public class CCExport {
 	try {
 	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
 
+		String xmlHref = entry.getValue().location;
+		xmlHref = xmlHref.substring(0, xmlHref.length()-4) + "xml";
+
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
 		out.putNextEntry(zipEntry);
 		boolean ok = assignmentExport.outputEntity(entry.getValue().sakaiId, out, errStream, this, entry.getValue());
 		if (!ok)
 		    return false;
+
+		if (version >= V13) {
+		    zipEntry = new ZipEntry(xmlHref);
+
+		    out.putNextEntry(zipEntry);
+		    ok = assignmentExport.outputEntity2(entry.getValue().sakaiId, out, errStream, this, entry.getValue());
+		    if (!ok)
+			return false;
+		}
 
 	    }
 	} catch (Exception e) {
@@ -541,7 +553,7 @@ public class CCExport {
 	    res.resourceId = getResourceId();
 	    res.location = "cc-objects/" + res.resourceId + ".xml";
 	    res.sakaiId = sakaiId;
-	    res.dependencies = new ArrayList<String>();
+	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
 	    forumsMap.put(res.sakaiId, res);
@@ -579,7 +591,7 @@ public class CCExport {
 	    res.resourceId = getResourceId();
 	    res.location = ("cc-objects/" + res.resourceId + ".xml");
 	    res.sakaiId = sakaiId;
-	    res.dependencies = new ArrayList();
+	    res.dependencies = new HashSet();
 	    res.use = null;
 	    res.islink = false;
 	    bltiMap.put(res.sakaiId, res);
@@ -626,7 +638,7 @@ public class CCExport {
 		res.sakaiId = ("/text/" + item.getId());
 		res.resourceId = getResourceId();
 		res.location = location;
-		res.dependencies = new ArrayList();
+		res.dependencies = new HashSet();
 		res.use = null;
 		res.islink = false;
 		fileMap.put(res.sakaiId, res);
@@ -714,7 +726,7 @@ public class CCExport {
 		    res.sakaiId = ("/text/" + item.getId());
 		    res.resourceId = getResourceId();
 		    res.location = location;
-		    res.dependencies = new ArrayList();
+		    res.dependencies = new HashSet();
 		    res.use = null;
 		    res.islink = false;
 		    fileMap.put(res.sakaiId, res);
@@ -858,7 +870,28 @@ public class CCExport {
 	    break;
 
 	    case V13:
-		out.print("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<manifest identifier=\"cctd0001\"\n  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1\"\n  xmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource\"\n  xmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest\"\n  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" \n  xsi:schemaLocation=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd \n  http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd \n  http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd\">\n  <metadata>\n    <schema>IMS Common Cartridge</schema>\n    <schemaversion>1.3.0</schemaversion>\n    <lomimscc:lom>\n      <lomimscc:general>\n        <lomimscc:title>\n          <lomimscc:string language=\"en-US\">" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>\n        </lomimscc:title>\n      </lomimscc:general>\n    </lomimscc:lom>\n  </metadata>\n");
+		out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+		out.println("<manifest identifier=\"cctd0001\"");
+		out.println("  xmlns=\"http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1\"");
+		out.println("  xmlns:lom=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource\"");
+		out.println("  xmlns:lomimscc=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest\"");
+		out.println("  xmlns:cpx=\"http://www.imsglobal.org/xsd/imsccv1p3/imscp_extensionv1p2\"");
+		out.println("  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" ");
+		out.println("  xsi:schemaLocation=\"http://ltsc.ieee.org/xsd/imsccv1p3/LOM/resource http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lomresource_v1p0.xsd ");
+		out.println("                       http://www.imsglobal.org/xsd/imsccv1p3/imscp_v1p1 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_imscp_v1p2_v1p0.xsd ");
+		out.println("                       http://ltsc.ieee.org/xsd/imsccv1p3/LOM/manifest http://www.imsglobal.org/profile/cc/ccv1p3/LOM/ccv1p3_lommanifest_v1p0.xsd ");
+		out.println("                       http://www.imsglobal.org/xsd/imsccv1p3/imscp_extensionv1p2 http://www.imsglobal.org/profile/cc/ccv1p3/ccv1p3_cpextensionv1p2_v1p0.xsd\">");
+		out.println("  <metadata>");
+		out.println("    <schema>IMS Common Cartridge</schema>");
+		out.println("    <schemaversion>1.3.0</schemaversion>");
+		out.println("    <lomimscc:lom>");
+		out.println("      <lomimscc:general>");
+		out.println("        <lomimscc:title>");
+		out.println("          <lomimscc:string language=\"en-US\">" + StringEscapeUtils.escapeXml(title) + "</lomimscc:string>");
+		out.println("        </lomimscc:title>");
+		out.println("      </lomimscc:general>");
+		out.println("    </lomimscc:lom>");
+		out.println("  </metadata>");
 		break;
 
 	    default:
@@ -930,11 +963,29 @@ public class CCExport {
 		out.println("    </resource>");
 	    }
 	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
+		String variantId = null;
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + usestr + ">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
 		for (String d: entry.getValue().dependencies)
 		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		if (version >= V13) {
+		    variantId = getResourceId();
+		    out.println("      <cpx:variant identifier=\"" + getResourceId() + "\" identifierref=\"" + variantId + "\">");
+		    out.println("        <cpx:metadata/>");
+		    out.println("      </cpx:variant>");
+		}
 		out.println("    </resource>");
+
+		// output the preferred version for 1.3 and up
+		if (version >= V13) {
+		    String xmlHref = entry.getValue().location;
+		    xmlHref = xmlHref.substring(0, xmlHref.length()-4) + "xml";
+		    out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(xmlHref) + "\" identifier=\"" + variantId + "\" type=\"assignment_xmlv1p0\">");
+		    out.println("      <file href=\"" + StringEscapeUtils.escapeXml(xmlHref) + "\"/>");
+		    for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
+		    out.println("    </resource>");
+		}
 	    }
 
 	    for (Map.Entry<String, Resource> entry: forumsMap.entrySet()) {

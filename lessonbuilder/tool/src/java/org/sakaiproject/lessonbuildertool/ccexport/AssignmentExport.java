@@ -220,6 +220,11 @@ public class AssignmentExport {
 	public String title;
 	public String instructions;
 	public List<String> attachments;
+	boolean gradable;
+	boolean forpoints;
+	double maxpoints;
+	boolean allowtext;
+	boolean allowfile;
     }
 
 
@@ -252,6 +257,33 @@ public class AssignmentExport {
 	
 	AssignmentContent content = assignment.getContent();
 	ret.instructions = content.getInstructions();
+	
+	ret.maxpoints = 0.0;
+	ret.gradable = false;
+	ret.forpoints = false;
+
+	int typeOfGrade = content.getTypeOfGrade();
+	// in Sakai only point-based goes to gradebook.
+	// in CC we have gradeable with optional point value
+	// I've chosen to specify a point value only for question with a point value
+	
+        switch (typeOfGrade) {
+	case 3: ret.maxpoints = content.getMaxGradePoint() / 10.0; 
+	    ret.forpoints = true;
+	case 2: 
+	case 4:
+	case 5: ret.gradable = true;
+	}
+
+	ret.allowtext = false;
+	ret.allowfile = false;
+
+	int typeOfSubmission = content.getTypeOfSubmission();
+	switch (typeOfSubmission) {
+	case 1: ret.allowtext = true; break;
+	case 2: ret.allowfile = true; break;
+	case 3: ret.allowtext = true; ret.allowfile = true; break;
+	}
 
 	List<Reference>attachments = content.getAttachments();
 
@@ -326,6 +358,86 @@ public class AssignmentExport {
 	}
 	out.println("</body>");
 	out.println("</html>");
+
+	return true;
+   }
+
+    public boolean outputEntity2(String assignmentRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
+
+	AssignmentItem contents = getContents(assignmentRef);
+	if (contents == null)
+	    return false;
+	
+	String title = contents.title;
+	String attachmentDir = "attachments/" + contents.id + "/";
+
+	String instructions = bean.relFixup(contents.instructions, resource);
+	List<String>attachments = contents.attachments;
+
+	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	out.println("<assignment xmlns=\"http://www.imsglobal.org/xsd/imscc_extensions/assignment\"");
+        out.println("     xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+        out.println("     xsi:schemaLocation=\"http://www.imsglobal.org/xsd/imscc_extensions/assignment http://www.imsglobal.org/profile/cc/cc_extensions/cc_extresource_assignmentv1p0_v1p0.xsd\"");
+        out.println("  identifier=\"AssigmentId\">");
+
+	if (title == null || title.length() == 0)
+	    title = "Assignment";
+	out.println("  <title>" + StringEscapeUtils.escapeXml(title) + "</title>");
+	if (instructions != null && instructions.length() > 0)
+	    out.println("  <text texttype=\"text/html\">" + StringEscapeUtils.escapeXml(instructions) + "</text>");
+	// spec requires an instructor text even though we don't normally have one.
+	out.println("<instructor_text texttype=\"text/plain\"></instructor_text>");
+	out.println("<gradable" + (contents.forpoints ? (" points_possible=\"" + contents.maxpoints + "\"") : "") + ">" + 
+		    contents.gradable + "</gradable>");
+
+	if (attachments.size() > 0) {
+	    out.println("  <attachments>");
+
+	    for (String sakaiId: attachments) {
+		if (sakaiId.startsWith("/content/"))
+		    sakaiId = sakaiId.substring("/content".length());
+
+		String URL = null;
+		// if it is a URL, need the URL rather than copying the file
+		try {
+		    ContentResource res = ContentHostingService.getResource(sakaiId);
+		    String type = res.getContentType();
+		    if ("text/url".equals(type)) {
+			URL = new String(res.getContent());
+		    }
+		} catch (Exception e) {
+		}
+
+		String location = bean.getLocation(sakaiId);
+		int lastSlash = sakaiId.lastIndexOf("/");
+		String lastAtom = sakaiId.substring(lastSlash + 1);
+
+		if (URL != null) {
+		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
+		} else {
+		    if (location.startsWith(attachmentDir))
+			URL = lastAtom;  // if in attachment dir, relative reference
+		    else
+			URL = "../../" + location;  // else it's in the normal site content
+		    URL = URL.replaceAll("//", "/");
+		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
+		    bean.addDependency(resource, sakaiId);
+		}
+	    }
+	    out.println("  </attachments>");
+	}
+	out.println("  <submission_formats>");
+	// our text input is HTML
+	if (contents.allowtext)
+	    out.println("    <format  type=\"html\" />");
+	// file input allows both file and URL
+	if (contents.allowfile) {
+	    out.println("    <format  type=\"file\" />");
+	    out.println("    <format  type=\"url\" />");
+	}
+	out.println("  </submission_formats>");
+
+	out.println("</assignment>");
 
 	return true;
    }

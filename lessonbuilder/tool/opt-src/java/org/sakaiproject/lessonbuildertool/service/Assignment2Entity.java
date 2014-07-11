@@ -862,7 +862,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 		    String type = submissionType.getAttributeValue("type");
 		    if ("html".equals(type) || "text".equals(type))
 			inline = true;
-		    if ("uri".equals(type) || "file".equals(type))
+		    if ("url".equals(type) || "file".equals(type))
 			attach = true;
 		}
 	    if (attach) {

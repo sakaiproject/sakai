@@ -870,7 +870,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 			String type = submissionType.getAttributeValue("type");
 			if ("html".equals(type) || "text".equals(type))
 			    submittype |= 1; // inline
-			if ("uri".equals(type) || "file".equals(type))
+			if ("url".equals(type) || "file".equals(type))
 			    submittype |= 2; // attach
 		    }
 		c.setTypeOfSubmission(submittype);

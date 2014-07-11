@@ -211,7 +211,7 @@ public class Assignment2Export extends AssignmentExport {
 
 	try {
 	    connection = SqlService.borrowConnection();
-	    String sql="select INSTRUCTIONS, DUE_DATE, GRADEBOOK_ITEM_ID, TITLE, ASSIGNMENT_ID from A2_ASSIGNMENT_T where ASSIGNMENT_ID = ?";
+	    String sql="select INSTRUCTIONS, DUE_DATE, GRADEBOOK_ITEM_ID, TITLE, ASSIGNMENT_ID, REQUIRES_SUBMISSION, SUBMISSION_TYPE, GRADED from A2_ASSIGNMENT_T where ASSIGNMENT_ID = ?";
 	    Object fields[] = new Object[1];
 	    fields[0] = new Long(assignmentId);
 	    List<AssignmentItem>items = SqlService.dbRead(connection, sql, fields, new SqlReader()
@@ -224,6 +224,21 @@ public class Assignment2Export extends AssignmentExport {
 			    item.title = result.getString(4);
 			    item.instructions = result.getString(1);
 			    item.attachments = new ArrayList<String>();
+			    int requiressubmit = result.getInt(7);
+			    int submittype = result.getInt(7);
+			    item.allowfile = false;
+			    item.allowtext = false;
+			    if (requiressubmit != 0) {
+				if (submittype == 1 || submittype == 2)
+				    item.allowfile = true;
+				if (submittype == 0 || submittype == 2)
+				    item.allowtext = true;
+			    }
+			    item.gradable = (result.getInt(8) != 0);
+			    // a2 doesn't keep the grading scale. It uses the gradebook. But on import we don't set
+			    // up the gradebook entry. For constency we say it's gradeable but don't give a point value.
+			    item.forpoints = false;
+			    item.maxpoints = 0.0;
 			    return item;
 			} catch (Exception e) {
 			    return null;
