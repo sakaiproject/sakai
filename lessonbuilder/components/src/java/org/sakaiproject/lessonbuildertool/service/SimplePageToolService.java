@@ -49,6 +49,7 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 	private static Log log = LogFactory.getLog(SimplePageToolService.class);
 
 	SqlService sqlService = null;
+	boolean autoDdl = false;
 
 	private ResourceLoader resourceLoader;
  
@@ -69,6 +70,14 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 	    return httpAccess;
 	}
 
+	public void setSqlService(SqlService sqlService) {
+		this.sqlService = sqlService;
+	}
+
+	public void setAutoDdl(boolean autoDdl) {
+		this.autoDdl = autoDdl;
+	}
+
 	public SimplePageToolService() {}
 
 	public void init() {
@@ -84,12 +93,12 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 		if (registered == null || !registered.contains(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL))
 		    FunctionManager.registerFunction(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL);
 
-		sqlService = org.sakaiproject.db.cover.SqlService.getInstance();
-
 		try {
 			// hibernate will do the tables, but we need this for the indices
+		    if (autoDdl) {
 			sqlService.ddl(this.getClass().getClassLoader(), "simplepage");
 			log.info("Completed Lesson Builder DDL");
+		    }
 		} catch (Exception e) {
 			log.warn("Unable to DDL Lesson Builder", e);
 		}
