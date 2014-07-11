@@ -57,6 +57,7 @@
           lockdownQuestionLayout(navVal);
           lockdownMarkForReview(navVal);
           showHideReleaseGroups();
+          checkUncheckTimeBox();
         });
       </script>
 
@@ -212,11 +213,11 @@
       <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
         <h:outputText value="#{assessmentSettingsMessages.has_time_limit} " />
         <h:selectBooleanCheckbox id="selTimeAssess" onclick="checkUncheckTimeBox();setBlockDivs();" value="#{publishedSettings.valueMap.hasTimeAssessment}" />
-        <h:selectOneMenu id="timedHours" value="#{publishedSettings.timedHours}" disabled="#{!publishedSettings.valueMap.hasTimeAssessment}" >
+        <h:selectOneMenu id="timedHours" value="#{publishedSettings.timedHours}" >
           <f:selectItems value="#{publishedSettings.hours}" />
         </h:selectOneMenu>
         <h:outputText value="#{assessmentSettingsMessages.timed_hours} " />
-        <h:selectOneMenu id="timedMinutes" value="#{publishedSettings.timedMinutes}" disabled="#{!publishedSettings.valueMap.hasTimeAssessment}">
+        <h:selectOneMenu id="timedMinutes" value="#{publishedSettings.timedMinutes}">
           <f:selectItems value="#{publishedSettings.mins}" />
         </h:selectOneMenu>
         <h:outputText value="#{assessmentSettingsMessages.timed_minutes} " />

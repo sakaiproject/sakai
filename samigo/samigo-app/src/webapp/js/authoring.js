@@ -517,6 +517,7 @@ function checkUncheckTimeBox(){
           else
             document.getElementById(timedHourId).options[i].selected = false;
         }
+        document.getElementById(timedHourId).disabled = true;
       }
       if(document.getElementById(timedMinuteId) != null)
       {
@@ -527,14 +528,16 @@ function checkUncheckTimeBox(){
           else
             document.getElementById(timedMinuteId).options[i].selected = false;
         }
+        document.getElementById(timedMinuteId).disabled = true;
       }
     }
     else 
     { // SAM-2121: now the "Timed Assessment" box is checked"
       // I wish we didn't have to submit this form now, but I could not get it to work properly without submitting.
-      //document.getElementById(timedHourId).disabled = false;
-      //document.getElementById(timedMinuteId).disabled = false;
-      document.forms[0].submit();
+      // SAM-2262: fixed
+      document.getElementById(timedHourId).disabled = false;
+      document.getElementById(timedMinuteId).disabled = false;
+      //document.forms[0].submit();
     }    
   }
 }
