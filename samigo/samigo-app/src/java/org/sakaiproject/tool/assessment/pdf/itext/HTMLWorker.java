@@ -57,6 +57,8 @@ import java.util.HashMap;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
+import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 
@@ -64,7 +66,9 @@ import com.lowagie.text.Chunk;
 import com.lowagie.text.DocListener;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
+import com.lowagie.text.ElementTags;
 import com.lowagie.text.ExceptionConverter;
+import com.lowagie.text.FontFactory;
 import com.lowagie.text.FontFactoryImp;
 import com.lowagie.text.HeaderFooter;
 import com.lowagie.text.Image;
@@ -80,6 +84,7 @@ import com.lowagie.text.html.simpleparser.Img;
 import com.lowagie.text.html.simpleparser.IncCell;
 import com.lowagie.text.html.simpleparser.IncTable;
 import com.lowagie.text.html.simpleparser.StyleSheet;
+import com.lowagie.text.pdf.BaseFont;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.xml.simpleparser.SimpleXMLDocHandler;
@@ -90,7 +95,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 	protected ArrayList objectList;
 	protected DocListener document;
 	private Paragraph currentParagraph;
-	private ChainedProperties cprops = new ChainedProperties();
+	private ChainedProperties cprops;
 	private Stack stack = new Stack();
 	private boolean pendingTR = false;
 	private boolean pendingTD = false;
@@ -107,6 +112,17 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 	/** Creates a new instance of HTMLWorker */
 	public HTMLWorker(DocListener document) {
 		this.document = document;
+		cprops = new ChainedProperties();
+		String fontName = ServerConfigurationService.getString("pdf.default.font");
+		if (StringUtils.isNotBlank(fontName)) {
+			FontFactory.registerDirectories();
+			if (FontFactory.isRegistered(fontName)) {
+				HashMap fontProps = new HashMap();
+				fontProps.put(ElementTags.FACE, fontName);
+				fontProps.put("encoding", BaseFont.IDENTITY_H);
+				cprops.addToChain("face", fontProps);
+			}
+		}
 	}
 
 	public void setStyleSheet(StyleSheet style) {
@@ -274,14 +290,14 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 				float lp = 0.0f;
 				if (maxWidth > 0 && 
 						((width != null && Integer.parseInt(width) > maxWidth)
-								|| (width == null && (int)img.width() > maxWidth))
+								|| (width == null && (int)img.getWidth() > maxWidth))
 				) {
-					wp = lengthParse(String.valueOf(maxWidth), (int)img.width());
+					wp = lengthParse(String.valueOf(maxWidth), (int)img.getWidth());
 					lp = wp;
 				}
 				else {
-					wp = lengthParse(width, (int)img.width());
-					lp = lengthParse(height, (int)img.height());
+					wp = lengthParse(width, (int)img.getWidth());
+					lp = lengthParse(height, (int)img.getHeight());
 				}
 				if (wp > 0 && lp > 0)
 					img.scalePercent(wp, lp);
@@ -334,7 +350,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 					img.setAlignment(Image.TEXTWRAP);
 
 					float bottom = 0.0f;
-					float top = img.top();
+					float top = img.getTop();
 					float prevHeight = 0.0f;
 					float prevRise = 0.0f;
 
@@ -351,31 +367,31 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 							if (sibling.hasAttributes())
 								prevRise = sibling.getTextRise();
 							prevHeight = 0.0f;
-							if (sibling.font() != null) {
-								prevHeight = sibling.font().getCalculatedSize();
+							if (sibling.getFont() != null) {
+								prevHeight = sibling.getFont().getCalculatedSize();
 							}
 						}
 					}
 
 					if ("absMiddle".equalsIgnoreCase(align)) {
 						if (prevHeight > 0)
-							bottom += (img.scaledHeight() / 2.0f) - (prevHeight  / 2.0f);
-						else if (img.scaledHeight() > 0)
-							bottom += img.scaledHeight() / 2.0f;
+							bottom += (img.getScaledHeight() / 2.0f) - (prevHeight  / 2.0f);
+						else if (img.getScaledHeight() > 0)
+							bottom += img.getScaledHeight() / 2.0f;
 					}
 					else if ("middle".equalsIgnoreCase(align)) {
-						if (img.scaledHeight() > 0)
-							bottom += (img.scaledHeight() / 2.0f);
+						if (img.getScaledHeight() > 0)
+							bottom += (img.getScaledHeight() / 2.0f);
 					}
 					else if ("bottom".equalsIgnoreCase(align) || "baseline".equalsIgnoreCase(align)
 							|| "absbottom".equalsIgnoreCase(align)) {
 						//baseline and absbottom should have some slight tweeking from bottom, but not sure what??
 					}
 					else if ("top".equalsIgnoreCase(align)) {
-						bottom += img.scaledHeight() - prevHeight;
+						bottom += img.getScaledHeight() - prevHeight;
 					}
 					else if ("texttop".equalsIgnoreCase(align)) {
-						bottom += img.scaledHeight() - (prevHeight - prevRise);
+						bottom += img.getScaledHeight() - (prevHeight - prevRise);
 					}
 
 					cprops.removeChain(tag);
@@ -397,7 +413,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 				inBLOCK = true;
 				if (currentParagraph != null)
 					endElement("p");
-				currentParagraph = FactoryProperties.createParagraph(h);
+				currentParagraph = FactoryProperties.createParagraph(cprops);
 				currentParagraph.add(factoryProperties.createChunk("\n", cprops));
 				return;
 			}
@@ -452,9 +468,9 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 			}
 			if (tag.equals("p")) {
 				cprops.addToChain(tag, h);
-				currentParagraph = FactoryProperties.createParagraph(h);
+				currentParagraph = FactoryProperties.createParagraph(cprops);
 				if (inBLOCK) {
-					currentParagraph.setIndentationLeft(currentParagraph.indentationLeft() + 40.0F);
+					currentParagraph.setIndentationLeft(currentParagraph.getIndentationLeft() + 40.0F);
 				}
 				return;
 			}
@@ -600,7 +616,7 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 				((com.lowagie.text.List)list).add(item);
 				ArrayList cks = item.getChunks();
 				if (!cks.isEmpty())
-					item.listSymbol().setFont(((Chunk)cks.get(0)).font());
+					item.getListSymbol().setFont(((Chunk)cks.get(0)).getFont());
 				stack.push(list);
 				return;
 			}
@@ -759,6 +775,9 @@ public class HTMLWorker implements SimpleXMLDocHandler, DocListener {
 
 	public boolean setMarginMirroring(boolean marginMirroring) {
 		return true;
+	}
+	public boolean setMarginMirroringTopBottom(boolean marginMirroring) {
+		return false;
 	}
 
 	public boolean setMargins(float marginLeft, float marginRight, float marginTop, float marginBottom) {
