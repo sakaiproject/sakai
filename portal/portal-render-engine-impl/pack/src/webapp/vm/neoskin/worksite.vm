@@ -36,6 +36,11 @@
 			<a href="#sitetabs" class="skip" title="${rloader.sit_jumpworksite}" accesskey="w">
 				${rloader.sit_jumpworksite}
 			</a>
+            #if ($tabsSites.tabsMoreSitesShow)
+                <a href="#" id="openDrawer" class="skip internalSkip" title="${rloader.sit_jumpdrawer}" accesskey="m">
+                     ${rloader.sit_jumpdrawer}
+                </a>
+            #end
 		</div>
 
 #parse("/vm/neoskin/includePageWithNav.vm")
