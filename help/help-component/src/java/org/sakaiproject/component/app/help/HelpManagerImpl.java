@@ -57,14 +57,16 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
+import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexWriter;
+import org.apache.lucene.index.IndexWriterConfig;
 import org.apache.lucene.index.Term;
-import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.queryParser.QueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
+import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Searcher;
 import org.apache.lucene.search.TermQuery;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
@@ -407,12 +409,12 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 		String luceneFolder = LUCENE_INDEX_PATH + File.separator + locale;
 
-		Searcher searcher = null;
+        IndexReader reader = null;
 		FSDirectory dir = null;
 		try
 		{
-			dir = FSDirectory.open(new File(luceneFolder));
-			searcher = new IndexSearcher(dir, false);
+            reader = DirectoryReader.open(FSDirectory.open(new File(luceneFolder)));
+			IndexSearcher searcher = new IndexSearcher(reader);
 			LOG.debug("Searching for: " + query.toString());
 
 			//Hits hits = searcher.search(query);
@@ -434,9 +436,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		}
 		finally 
 		{
-			if (searcher != null) {
+            //http://mail-archives.apache.org/mod_mbox/lucene-java-user/201304.mbox/%3CCAGaRif0agg+XCXbccdxUmB5h9v5dHqjEvwi5X_vmU3sMM20QZg@mail.gmail.com%3E
+			if (reader != null) {
 				try {
-					searcher.close();
+					reader.close();
 				} catch (IOException e) {
 					//nothing to do
 				}
@@ -459,8 +462,8 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 	protected Set<Resource> searchResources(String queryStr, String defaultField)
 	throws ParseException
 	{
-		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_29);
-		QueryParser parser = new QueryParser(Version.LUCENE_29, defaultField, analyzer);
+		Analyzer analyzer = new StandardAnalyzer(Version.LUCENE_40);
+		QueryParser parser = new QueryParser(Version.LUCENE_40, defaultField, analyzer);
 		Query query = parser.parse(queryStr);
 		return searchResources(query);
 	}
@@ -1025,9 +1028,11 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 			Date start = new Date();
 			try
 			{
-				//writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_29), true);
+				//writer = new IndexWriter(luceneIndexPath, new StandardAnalyzer(Version.LUCENE_40), true);
 				FSDirectory directory = FSDirectory.open(new File(luceneIndexPath));
-				writer = new IndexWriter(directory, new StandardAnalyzer(Version.LUCENE_29), true, IndexWriter.MaxFieldLength.UNLIMITED);
+                IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_40, new StandardAnalyzer(Version.LUCENE_40));
+
+				writer = new IndexWriter(directory, config);
 			}
 			catch (IOException e)
 			{
@@ -1040,7 +1045,7 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 			try
 			{
-				writer.optimize();
+//				writer.optimize();
 				writer.commit();
 				writer.close();
 			}

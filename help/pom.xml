@@ -13,6 +13,9 @@
   <artifactId>help-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
+  <properties>
+      <sakai.lucene.version>4.5.1</sakai.lucene.version>
+  </properties>
 
   <modules>
     <module>help</module>
@@ -22,6 +25,30 @@
     <module>help-tool</module>
   </modules>
 
+  <dependencyManagement>
+      <dependencies>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-core</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-queries</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-queryparser</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-analyzers-common</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+      </dependencies>
+  </dependencyManagement>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</developerConnection>
