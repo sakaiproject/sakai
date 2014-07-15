@@ -21,12 +21,7 @@
 
 package org.sakaiproject.site.impl;
 
-import java.util.Collection;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.Vector;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -251,12 +246,20 @@ public class BaseSitePage implements SitePage, Identifiable
 				.setLazy(((BaseResourceProperties) other.getProperties()).isLazy());
 
 		// deep copy the tools
+        List<BaseToolConfiguration> otherTools = new ArrayList<BaseToolConfiguration>(bOther.getTools());
+        List<BaseToolConfiguration> copiedTools = new ArrayList<BaseToolConfiguration>(otherTools.size());
+        for (BaseToolConfiguration tool : otherTools) {
+            copiedTools.add(new BaseToolConfiguration(siteService, tool, this, exact));
+        }
+        m_tools = new ResourceVector(copiedTools);
+/* KNL-1279 - remove thread unsafe code
 		m_tools = new ResourceVector();
 		for (Iterator iTools = bOther.getTools().iterator(); iTools.hasNext();)
 		{
 			BaseToolConfiguration tool = (BaseToolConfiguration) iTools.next();
 			m_tools.add(new BaseToolConfiguration(siteService,tool, this, exact));
 		}
+*/
 		m_toolsLazy = ((BaseSitePage) other).m_toolsLazy;
 
 		m_siteId = bOther.m_siteId;
