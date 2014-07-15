@@ -413,8 +413,10 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 		FSDirectory dir = null;
 		try
 		{
-            reader = DirectoryReader.open(FSDirectory.open(new File(luceneFolder)));
+			dir = FSDirectory.open(new File(luceneFolder));
+			reader = DirectoryReader.open(dir);
 			IndexSearcher searcher = new IndexSearcher(reader);
+
 			LOG.debug("Searching for: " + query.toString());
 
 			//Hits hits = searcher.search(query);
