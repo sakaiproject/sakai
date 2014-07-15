@@ -1047,7 +1047,6 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 
 			try
 			{
-//				writer.optimize();
 				writer.commit();
 				writer.close();
 			}
