@@ -297,7 +297,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    } catch (Exception ignore) {};
 	}	
 	if (ret != null)
-	    assignmentCache.put(id, ret, DEFAULT_EXPIRATION);
+	    assignmentCache.put(id.toString(), ret, DEFAULT_EXPIRATION);
 	return ret;
     }
 
