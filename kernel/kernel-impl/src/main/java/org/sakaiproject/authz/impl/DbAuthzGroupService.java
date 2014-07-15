@@ -918,10 +918,9 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (authzGroupIds == null || userid == null || authzGroupIds.size() < 1)
 				return new ArrayList(); // empty list
 
-			UserAndGroups uag = null;
 			// first consult the cache
-			if (authzUserGroupIdsCache.containsKey(userid)) {
-				uag = (UserAndGroups) authzUserGroupIdsCache.get(userid);
+			UserAndGroups uag = (UserAndGroups) authzUserGroupIdsCache.get(userid);
+			if (uag != null) {
 				List<String> result = uag.getRealmQuery(new HashSet<String>(authzGroupIds));
 				if (M_log.isDebugEnabled()) M_log.debug(uag);
 				if (result != null) {
