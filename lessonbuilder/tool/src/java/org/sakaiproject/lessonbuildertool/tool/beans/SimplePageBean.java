@@ -3685,16 +3685,24 @@ public class SimplePageBean {
 		return false;
 	    }
 
-	    String maxFileSizeInMB = ServerConfigurationService.getString("content.upload.max", "1");
-	    int maxFileSizeInBytes = 1024 * 1024;
+	    // implement precedence rules: ceiling if set, else max, else 20
+	    String max = ServerConfigurationService.getString("content.upload.max", null);
+	    String ceiling = ServerConfigurationService.getString("content.upload.ceiling", null);
+	    String effective = ceiling;
+	    if (effective == null)
+		effective = max;
+	    if (effective == null)
+		effective = "20";
+	    long maxFileSizeInBytes = 20 * 1024 * 1024;
 	    try {
-		maxFileSizeInBytes = Integer.parseInt(maxFileSizeInMB) * 1024 * 1024;
+		maxFileSizeInBytes = Long.parseLong(effective) * 1024 * 1024;
 	    } catch(NumberFormatException e) {
 		log.warn("Unable to parse content.upload.max retrieved from properties file during upload");
 	    }
 
 	    if (uploadedFileSize > maxFileSizeInBytes) {
-		setErrMessage(messageLocator.getMessage("simplepage.filetoobig").replace("{}", maxFileSizeInMB));
+		String limit = Long.toString(maxFileSizeInBytes / (1024*1024));
+		setErrMessage(messageLocator.getMessage("simplepage.filetoobig").replace("{}", limit));
 		return false;
 	    }
 	    return true;
