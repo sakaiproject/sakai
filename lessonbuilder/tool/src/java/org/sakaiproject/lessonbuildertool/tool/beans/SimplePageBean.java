@@ -3677,6 +3677,29 @@ public class SimplePageBean {
 		}
 	}
 	
+	private boolean uploadSizeOk(MultipartFile file) {
+	    long uploadedFileSize = file.getSize();
+
+	    if (uploadedFileSize == 0) {
+		setErrMessage(messageLocator.getMessage("simplepage.filezero"));
+		return false;
+	    }
+
+	    String maxFileSizeInMB = ServerConfigurationService.getString("content.upload.max", "1");
+	    int maxFileSizeInBytes = 1024 * 1024;
+	    try {
+		maxFileSizeInBytes = Integer.parseInt(maxFileSizeInMB) * 1024 * 1024;
+	    } catch(NumberFormatException e) {
+		log.warn("Unable to parse content.upload.max retrieved from properties file during upload");
+	    }
+
+	    if (uploadedFileSize > maxFileSizeInBytes) {
+		setErrMessage(messageLocator.getMessage("simplepage.filetoobig").replace("{}", maxFileSizeInMB));
+		return false;
+	    }
+	    return true;
+	}
+
 	private String uploadFile(String collectionId) {
 		String name = null;
 		String mimeType = null;
@@ -3685,11 +3708,12 @@ public class SimplePageBean {
 		if (multipartMap.size() > 0) {
 			// 	user specified a file, create it
 			file = multipartMap.values().iterator().next();
-			if (file.isEmpty())
-				file = null;
 		}
 		
 		if (file != null) {
+			if (!uploadSizeOk(file))
+			    return null;
+
 			try {
 				contentHostingService.checkCollection(collectionId);
 			}catch(Exception ex) {
@@ -5202,11 +5226,16 @@ public class SimplePageBean {
 			if (multipartMap.size() > 0) {
 				// 	user specified a file, create it
 				file = multipartMap.values().iterator().next();
+				// zero length is valid. We get that if it's not a file upload
 				if (file.isEmpty())
-					file = null;
+				    file = null;
+
 			}
 			
 			if (file != null) {
+				if (!uploadSizeOk(file))
+				    return;
+
 				String collectionId = getCollectionId(false);
 				// 	user specified a file, create it
 				name = file.getOriginalFilename();
@@ -5422,11 +5451,12 @@ public class SimplePageBean {
 	    if (multipartMap.size() > 0) {
 		// user specified a file, create it
 		file = multipartMap.values().iterator().next();
-		if (file.isEmpty())
-		    file = null;
 	    }
 
 	    if (file != null) {
+		if (!uploadSizeOk(file))
+		    return;
+
 		File cc = null;
 		File root = null;
 		try {

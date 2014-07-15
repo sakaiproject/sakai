@@ -987,6 +987,7 @@ function resizeiframe(id) {
                         <input type="hidden" rsf:id="mm-mime-type" id="mm-mime-type" />
                         <input type="hidden" rsf:id="mm-is-website" id="mm-is-website" />
 		        <p id="checkingwithhost" rsf:id="msg=simplepage.checkingwithhost"></p>
+			<p id="mm-loading" rsf:id="msg=simplepage.loading"></p>
                     </div>
                 </form>			    
 			</div>
@@ -1105,7 +1106,7 @@ function resizeiframe(id) {
                         <input class="bold" type="submit" id="import-cc-submit" rsf:id="import-cc-submit" />
                         <input type="submit" rsf:id="mm-cancel" onclick="closeImportCcDialog(); return false" />
                       </p>
-                      <p class="hideOnDialog" id="loading" rsf:id="msg=simplepage.loading">
+                      <p id="import-cc-loading" rsf:id="msg=simplepage.loading">
                       </p>
 
 
@@ -1133,9 +1134,6 @@ function resizeiframe(id) {
 					    <input class="bold" type="submit" id="export-cc-submit" rsf:id="export-cc-submit" />
 					    <input type="submit" rsf:id="export-cc-cancel" onclick="closeExportCcDialog(); return false" />
 					  </p>
-					  <p class="hideOnDialog" id="loading" rsf:id="msg=simplepage.loading">
-					  </p>
-
 
 					</div>
 				</form>

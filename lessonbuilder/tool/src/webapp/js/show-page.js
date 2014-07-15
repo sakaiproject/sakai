@@ -3,6 +3,7 @@ var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
 var importccactive = false;
+var mmactive = false;
 var insist = false;
 var delbutton;
 var mm_testing = 0;
@@ -260,6 +261,7 @@ $(function() {
 			var position =  $(this).position();
 			$("#import-cc-dialog").dialog("option", "position", [position.left, position.top]);
 			oldloc = $(".dropdown a");
+			$("#import-cc-loading").hide();
 			importccactive = true;
 			$('#import-cc-dialog').dialog('open');
 			checksize($('#import-cc-dialog'));
@@ -308,7 +310,7 @@ $(function() {
 			if (!importccactive)
 			    return false;
 			importccactive = false;
-			$('#loading').show();
+			$("#import-cc-loading").show();
 			return true;
 	    	});
 
@@ -385,6 +387,11 @@ $(function() {
 			    //  there's another button to try the other alterantive
 
 			}
+			// prevent double click
+			if (!mmactive)
+			    return false;
+			mmactive = false;
+			$('#mm-loading').show();
 			// actually do the submit
 			return true;
 	    	});
@@ -1171,6 +1178,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
@@ -1494,6 +1503,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
@@ -1523,6 +1534,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			oldloc = $(this);
@@ -1551,6 +1564,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			oldloc = $(this);
@@ -1579,6 +1594,8 @@ $(function() {
 			$(".mm-url-section").hide();
 			oldloc = $(".dropdown a");
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
@@ -1694,6 +1711,8 @@ $(function() {
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
+			$("#mm-loading").hide();
+			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
 			$("#add-multimedia-dialog").dialog('open');
