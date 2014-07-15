@@ -1633,7 +1633,23 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Fall back to default of using the page Id.
 			page = p.getPageId();
 		}
-		return "/site/" + p.getSiteId() + "/page/" + page;
+		
+		Session session = SessionManager.getCurrentSession();
+		boolean isMobileDevice = (Boolean)session.getAttribute("is_mobile_device");
+		
+		StringBuilder portalPageUrl = new StringBuilder();
+		
+		//SAK-26625 direct tool links need to be prefixed with pda instead of site to remain inside the pda portal
+		if(isMobileDevice) {
+			portalPageUrl.append("/pda/");
+		} else {
+			portalPageUrl.append("/site/");
+		}
+		portalPageUrl.append(p.getSiteId());
+		portalPageUrl.append("/page/");
+		portalPageUrl.append(page);
+
+		return portalPageUrl.toString();
 	}
 
 	/**
