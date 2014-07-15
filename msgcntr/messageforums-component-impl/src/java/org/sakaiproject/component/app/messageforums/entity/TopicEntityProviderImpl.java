@@ -337,7 +337,15 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 				for (DiscussionForum forum : forums) {
 					if(forum.getDraft().equals(Boolean.FALSE)){
-						DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle());
+					        Long forumOpenDate = null;
+					        Long forumCloseDate = null;
+					        if (forum.getAvailabilityRestricted()) {
+					            forumOpenDate = forum.getOpenDate() != null ? forum.getOpenDate().getTime()/1000 : null; 
+					            forumCloseDate = forum.getCloseDate() != null ? forum.getCloseDate().getTime()/1000 : null;
+					        }
+					             
+						DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forum.getLocked(), 
+						        forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName());
 
 						List<DiscussionTopic> topics = forum.getTopics();
 						int viewableTopics = 0;
@@ -363,8 +371,16 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 										unreadMessages = getMessageManager().findUnreadViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
 									}
 									totalMessages = getMessageManager().findViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
-
-									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, totalMessages, ""));
+									
+									Long topicOpenDate = null;
+									Long topicCloseDate = null;
+									if (topic.getAvailabilityRestricted()) {
+									    topicOpenDate = topic.getOpenDate() != null ? topic.getOpenDate().getTime()/1000 : null; 
+									    topicCloseDate = topic.getCloseDate() != null ? topic.getCloseDate().getTime()/1000 : null;
+									}
+									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, 
+									        totalMessages, "", topic.getLocked(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
+									        topicOpenDate, topicCloseDate, topic.getDefaultAssignName()));
 									viewableTopics++;
 								}						  
 							}

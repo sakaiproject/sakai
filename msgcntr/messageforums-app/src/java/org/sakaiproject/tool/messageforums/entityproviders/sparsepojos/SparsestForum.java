@@ -60,6 +60,30 @@ public class SparsestForum {
 	private Boolean isDraft;
 	
 	@Getter
+	private Boolean isAvailabilityRestricted;
+	
+	/**
+         * An epoch date in seconds. NOT milliseconds.
+         */
+	@Getter
+	private Long openDate;
+	
+	/**
+         * An epoch date in seconds. NOT milliseconds.
+         */
+	@Getter
+	private Long closeDate;
+	
+	@Getter
+	private Boolean isLocked;
+	
+	@Getter
+	private Boolean isPostFirst;
+	
+	@Getter
+	private String assocGradebookItemName;
+	
+	@Getter
 	private List<SparseAttachment> attachments = new ArrayList<SparseAttachment>();
 	
 	public SparsestForum(DiscussionForum fatForum, DeveloperHelperService dhs) {
@@ -75,6 +99,16 @@ public class SparsestForum {
 		this.modifiedDate = fatForum.getModified().getTime()/1000;
 		this.modifier = fatForum.getModifiedBy();
 		this.isDraft = fatForum.getDraft();
+		this.isAvailabilityRestricted = fatForum.getAvailabilityRestricted();
+		
+		if (this.isAvailabilityRestricted != null && this.isAvailabilityRestricted) {
+		    this.openDate = fatForum.getOpenDate() != null ? fatForum.getOpenDate().getTime()/1000 : null;	
+		    this.closeDate = fatForum.getCloseDate() != null ? fatForum.getCloseDate().getTime()/1000 : null;
+		}
+		
+		this.isLocked = fatForum.getLocked();
+		this.isPostFirst = fatForum.getPostFirst();
+		this.assocGradebookItemName = fatForum.getDefaultAssignName();
 		
 		for(Attachment attachment : (List<Attachment>) fatForum.getAttachments()) {
 			String url = dhs.getServerURL() + "/access/content" + attachment.getAttachmentId();

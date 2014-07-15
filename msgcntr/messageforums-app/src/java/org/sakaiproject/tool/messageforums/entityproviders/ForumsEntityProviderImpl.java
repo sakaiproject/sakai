@@ -282,9 +282,9 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		}
 		
 		// This call gets the attachments for the messages but not the topic. Unexpected, yes. Cool, not.
-		Topic fatTopic = forumManager.getTopicByIdWithMessagesAndAttachments(topicId);
+		DiscussionTopic fatTopic = (DiscussionTopic)forumManager.getTopicByIdWithMessagesAndAttachments(topicId);
 		
-		if(!uiPermissionsManager.isRead(topicId,((DiscussionTopic)fatTopic).getDraft(),false,userId,forumManager.getContextForTopicById(topicId))) {
+		if(!uiPermissionsManager.isRead(topicId,fatTopic.getDraft(),false,userId,forumManager.getContextForTopicById(topicId))) {
 			LOG.error("'" + userId + "' is not authorised to read topic '" + topicId + "'.");
 			throw new EntityException("You are not authorised to read this topic.","",HttpServletResponse.SC_UNAUTHORIZED);
 		}
