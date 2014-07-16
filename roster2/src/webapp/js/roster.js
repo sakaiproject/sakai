@@ -939,7 +939,7 @@
             if (roster.viewEmail) {
                 overviewSortParams = { headers:{0: {sorter: 'urls'}, 1: {sorter: 'urls'}}, sortList:roster.DEFAULT_SORT_LIST };
             } else {
-                overviewSortParams = { headers: {}, sortList:roster.DEFAULT_SORT_LIST };
+                overviewSortParams = { headers: {0: {sorter:'urls'}}, sortList:roster.DEFAULT_SORT_LIST };
             }
         }
         
@@ -982,6 +982,11 @@
             }
         }
 
+        overviewSortParams.textExtraction = function(node) { 
+            // Just return the innerText, not the HTML  
+            return node.innerText; 
+        } 
+
         return overviewSortParams;
     };
 
@@ -1014,6 +1019,11 @@
             } else {
                 groupSortParams.sortList = [[1,0]];
             }
+        }
+
+        groupSortParams.textExtraction = function(node) {
+            // Just return the innerText, not the HTML  
+            return node.innerText;
         }
 
         return groupSortParams;
