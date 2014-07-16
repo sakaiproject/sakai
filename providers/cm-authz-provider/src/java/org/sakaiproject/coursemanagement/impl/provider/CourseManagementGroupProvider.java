@@ -104,8 +104,8 @@ public class CourseManagementGroupProvider implements GroupProvider {
 				for(Iterator<Entry<String, String>> rrRoleIter = rrUserRoleMap.entrySet().iterator(); rrRoleIter.hasNext();) {
 					Entry<String, String> entry = rrRoleIter.next();
 					String userEid = entry.getKey();
-					String existingRole = entry.getValue();
-					String rrRole = rrUserRoleMap.get(userEid);
+					String existingRole = userRoleMap.get(userEid);
+					String rrRole = entry.getValue();
 
 					// The Role Resolver has found no role for this user
 					if(rrRole == null) {
