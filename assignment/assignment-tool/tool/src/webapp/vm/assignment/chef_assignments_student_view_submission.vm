@@ -233,16 +233,16 @@ function enableSubmitUnlessNoFile(checkForFile)
 					</td>
 				</tr>
 				##resubmit number
-				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
 					<tr>
 						<th>
 							$tlang.getString("allow.resubmit.number")
 						</th>
 						<td>
-							$resubmitNumber
+							#if ($!resubmitNumber) $resubmitNumber #else 0 #end 
 						</td>
 					</tr>
-					## resubmit close time
+				## resubmit close time
+				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
 					<tr>
 						<th>
 							$tlang.getString("allow.resubmit.closeTime")
