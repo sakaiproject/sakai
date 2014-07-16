@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <registration>
-	<tool id="sakai.scorm.singlepackage.tool" title="Scorm Player for a Single Package"
+	<tool id="sakai.scorm.singlepackage.tool" title="SCORM Player for a Single Package"
 		description="Used to play a single SCORM package per placement">
 		<category name="course" />
 		<category name="project" />

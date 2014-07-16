@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <registration>
-	<tool id="sakai.scorm.tool" title="Scorm Player"
+	<tool id="sakai.scorm.tool" title="SCORM Player"
 		description="For playing SCORM content">
 		<category name="course" />
 		<category name="project" />
