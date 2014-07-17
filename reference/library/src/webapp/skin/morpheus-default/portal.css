@@ -2776,7 +2776,7 @@ a#toggleToolMenu {
 }
 
 /* line 1622, sass/portal.scss */
-.sakaiMinimizePageNavigation #toolMenu li span.menuTitle, .sakaiMinimizePageNavigation #subSites li span.menuTitle {
+.sakaiMinimizePageNavigation #toolMenu li span.menuTitle {
   display: inline !important;
   position: fixed !important;
   height: 1px !important;

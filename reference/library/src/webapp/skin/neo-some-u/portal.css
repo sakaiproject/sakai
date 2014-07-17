@@ -1636,7 +1636,7 @@ a#toggleToolMenu {
     -moz-opacity: 0.5;
     opacity: 0.5;
 }
-.sakaiMinimizePageNavigation #toolMenu li span.menuTitle, .sakaiMinimizePageNavigation #subSites li span.menuTitle {
+.sakaiMinimizePageNavigation #toolMenu li span.menuTitle {
     display: inline !important; 
     position: fixed !important; 
     height: 1px !important; 
@@ -1646,12 +1646,12 @@ a#toggleToolMenu {
     left: 0px; 
     padding: 0px 0px 0px 0px !important; 
 }
-.sakaiMinimizePageNavigation #toolMenu li span.toolMenuIcon, .sakaiMinimizePageNavigation #subSites li span.toolMenuIcon {
+.sakaiMinimizePageNavigation #toolMenu li span.toolMenuIcon {
     top:2px;
     left:2px;   
 }
 
-.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
+.sakaiMinimizePageNavigation #toolMenu li a {
     width:20px;
     height: 16px;
 }

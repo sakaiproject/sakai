@@ -1581,11 +1581,11 @@ a#toggleToolMenu {
     -moz-opacity: 0.5;
     opacity: 0.5;
 }
-.sakaiMinimizePageNavigation #toolMenu li span, .sakaiMinimizePageNavigation #subSites li span {
+.sakaiMinimizePageNavigation #toolMenu li span {
     background-position: center left;
     padding-left: 25px;
 }
-.sakaiMinimizePageNavigation #toolMenu li a, .sakaiMinimizePageNavigation #subSites li a {
+.sakaiMinimizePageNavigation #toolMenu li a {
     display: block;
     height: 16px;
     padding-right: 0 !important;
