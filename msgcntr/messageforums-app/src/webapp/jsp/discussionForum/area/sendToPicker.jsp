@@ -4,13 +4,16 @@
         <div>
           <div class="sakai-ppkr-to-container">
             <p>
-              Click <em style="font-weight: bolder;">Add Individuals.</em>
+</f:verbatim>
+              <h:outputText value="#{msgs.rank_picker_click_add_individuals}" escape="false"/>
+<f:verbatim>
             </p>
           </div>
         </div>
     </div>
-  
     <div class="sakai-ppkr-to-choice">
-        <input class="display-sakai-ppkr" type="button" style="float: right;" value="Add Individuals..." onclick="resizeFrameForDialog();" />
+</f:verbatim>
+        <h:commandButton value="#{msgs.rank_picker_btn_add_individuals}" type="button" style="float: right;" styleClass="display-sakai-ppkr" onclick="resizeFrameForDialog();"/>
+<f:verbatim>
     </div>
 </f:verbatim>

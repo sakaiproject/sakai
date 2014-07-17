@@ -31,6 +31,17 @@
                 minpost.value="0";
                 return true;
             }
+            var thresholdHint='<%=msgs.getString("rank_threshold_hint")%>';
+            function showThresholdHint(obj){
+                if (obj.value == '') {
+                    obj.value=thresholdHint; 
+                }
+            }
+            function hideThresholdHint(obj){
+                if (obj.value == thresholdHint ) {
+                    obj.value='';
+                }
+            }
         </script>
 
         <h:form enctype="multipart/form-data" id="addRank">
@@ -100,9 +111,9 @@
                     </h:selectOneRadio>
                     <f:verbatim></td><td id="minpostbox"  valign="bottom" style="padding: 0.1em 0;"></f:verbatim>                                 
                     <h:inputText  id="minpost" value="#{ForumTool.forumRankBean.minPosts}" 
-                                  onfocus="if (this.value == '- Enter threshold number -' ) this.value='';"  
-                                  onblur="if (this.value == '') { this.value='- Enter threshold number -'; }"/>
-                    <f:verbatim></td></tr></table></div></f:verbatim>                
+                                  onfocus="hideThresholdHint(this)"  
+                                  onblur="showThresholdHint(this)"/>
+                    <f:verbatim></td></tr></table></f:verbatim>                
                     <f:verbatim><div class="addrank_msgbox"></f:verbatim>
                     <h:outputText styleClass="addrank_msgtext" id="addrank_note" value="#{msgs.addrank_note}" />
                     <f:verbatim> </div> </f:verbatim>                
@@ -150,7 +161,7 @@
                 if (hiddenvalue =="1"){
                         radio2.checked = false;
                         type1div.style.display="block";
-                        minpost.value='- Enter threshold number -';
+                        minpost.value=thresholdHint;
                         minpost.disabled=true;
                 } else if (hiddenvalue =="2") {
                             radio1.checked = false;
@@ -160,7 +171,7 @@
                           radio2.checked = false;
                           radio1.checked = false;
                           minpost.disabled=true;
-                          minpost.value='- Enter threshold number -';
+                          minpost.value=thresholdHint;
                 }
             -->
             </script>

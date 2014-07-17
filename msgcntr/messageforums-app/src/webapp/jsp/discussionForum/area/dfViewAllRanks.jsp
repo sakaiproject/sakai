@@ -63,14 +63,14 @@
                         <h:outputText value="#{msgs.assigned_to}" />
                     </f:facet>
                     <h:outputText value="#{eachrank.rank.assignToDisplay}" rendered="#{eachrank.rank.type == 1}" />
-                    <h:outputText value="n/a" rendered="#{eachrank.rank.type == 2}" />
+                    <h:outputText value="#{msgs.rank_na}" rendered="#{eachrank.rank.type == 2}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
                         <h:outputText value="#{msgs.min_posts}" />
                     </f:facet>
                     <h:outputText value="#{eachrank.rank.minPosts}" rendered="#{eachrank.rank.type == 2}" />
-                    <h:outputText value="n/a" rendered="#{eachrank.rank.type == 1}" />
+                    <h:outputText value="#{msgs.rank_na}" rendered="#{eachrank.rank.type == 1}" />
                 </h:column>
                 <h:column>
                     <f:facet name="header">
