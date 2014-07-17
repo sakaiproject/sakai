@@ -1313,6 +1313,12 @@ public class HelpManagerImpl extends HibernateDaoSupport implements HelpManager
 				Set<Category> sortedCategories = new TreeSet<Category>();		    
 				Set<Category> categories = localizedToc.getCategories();
 				sortedCategories.addAll(categories);
+				
+				for (Category cat : categories) {
+					if (hideHelp.contains(cat.getName())) {
+						sortedCategories.remove(cat);
+					}
+				}
 				localizedToc.setCategories(sortedCategories);
 			}
 		}
