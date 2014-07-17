@@ -93,7 +93,7 @@ Licenses.
     var searchByName = function () {
         var contents = $("#searchTopic").val().replace(/^\s+|\s+$/g, '').toLowerCase();
         if (!(contents === "")) {
-            var regex = new RegExp("\\b" + contents);
+            var regex = new RegExp(contents);
             $(".shown-by-filter", sourceList).each(function () {
                 var item = $(this);
                 var name = item.text().replace(/^\s+|\s+$/g, '').toLowerCase();
