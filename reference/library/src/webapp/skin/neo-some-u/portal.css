@@ -791,6 +791,9 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
     background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
 }
+#subSites {
+    border: 1px solid #ccc;
+}
 /* the current tool */
 #toolMenu li.selectedTool a {
     color: #000;

@@ -666,6 +666,10 @@ html>body .dhtml_more_tabs {
 	text-align: right;
 }
 
+#subSites {
+    border: 1px solid #ccc;
+}
+
 /*span shim for fine grained manipulation of link display (decorative)
 also hide if are going to be using icon links (as background of <a> nad <li>
 */

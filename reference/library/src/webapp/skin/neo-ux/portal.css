@@ -667,6 +667,10 @@ html>body .dhtml_more_tabs {
 
 }
 
+#subSites {
+    border: 1px solid #ccc;
+}
+
 #toolMenu li{
     padding-right:5px;
 }
