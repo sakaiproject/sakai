@@ -304,7 +304,7 @@
                                                   <f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
                                           </h:commandLink>
 
-					<h:outputText escape="false" styleClass="textPanelFooter"  value=" to #{message.message.topic.title}" />
+					<h:outputText escape="false" styleClass="textPanelFooter"  value="#{message.message.topic.title}" />
 				</h:panelGroup>
 				<%-- moved--%>
 

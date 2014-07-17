@@ -1,8 +1,5 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
-    
 <f:verbatim>
-    <div class="topic-picker" id="topic-picker" title="Move Thread(s)">
+    <h:outputText escape="false" value='<div class="topic-picker" id="topic-picker" title="#{msgs.move_thread}">'/>
         <div class="selected-threads-to-move">
             <div style="padding-left: .3em; margin-top: .5em">
                 <h:outputText value="#{msgs.move_thread_info1}"  />
@@ -22,7 +19,7 @@
                 <input class="topic-search-field" type="text" value="" id="searchTopic" /><br />
                 <label><h:outputText value="#{msgs.in_forum}"  /></label>
                 <select style="margin-left: 0.5em;" name="forumDropdown" class="forumDropdown">
-                    <option value="select-forum" id="select-forum">- Select Forum -</option>
+                    <option value="select-forum" id="select-forum"><h:outputText value="#{msgs.select_forum}"/></option>
                 </select>
             </div>
             <div style="padding-left: .3em; margin-top: 1em">
@@ -34,7 +31,11 @@
         <div class="topic-source">
             <div class="topic-filter-header">
                 <span class="topic-header-h3"><h:outputText value="#{msgs.topics}"  /></span>
-                (showing <span class="topic-source-counter">0</span> of <span class="topic-source-total">0</span> topics)
+                (<h:outputText value="#{msgs.move_showing}"/> 
+                <span class="topic-source-counter">0</span> 
+                <h:outputText value="#{msgs.move_of}"/>
+                <span class="topic-source-total">0</span>
+                <h:outputText value="#{msgs.move_topics}"/>)
             </div>
             <div class="topic-source-picker">
                 <div id="source-scroller" class="flc-scroller scroller"  style="max-height: 270px;" tabindex="0">
@@ -47,8 +48,8 @@
         </div>
 
         <div class="topic-submit">
-            <input class="topic-btn-cancel" value="Cancel" tabindex="0" type="button" />
-            <input class="topic-btn-save" disabled value="Move Thread(s) to Selected Topic" tabindex="0" type="button" />
+        	<h:commandButton type="button" value="#{msgs.move_cancel}" styleClass="topic-btn-cancel" />
+        	<h:commandButton type="button" value="#{msgs.move_move}" styleClass="topic-btn-save"/>
         </div>
     </div>
     <div id="data" style="display:none">
