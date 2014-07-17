@@ -13,12 +13,12 @@
 
 <sakai:view title="Forums">
 <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
-<link rel="stylesheet" href="/messageforums-tool/css/jquery-ui-1.7.2.custom.css" type="text/css" />
+<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
 
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js"></script>
+<script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/forum.js"></script>
