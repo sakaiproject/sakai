@@ -1,4 +1,3 @@
-<%@ page language="java" contentType="text/html; charset=ISO-8859-1" pageEncoding="ISO-8859-1"%>
 
 <f:verbatim>
     <div id="assigntobox" class="sakai-ppkr-to-container-scroller flc-scroller" tabindex="0">
