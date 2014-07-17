@@ -169,6 +169,20 @@
 							#end 
 						</a>
 					</th>
+					#if($show_id_column)
+						<th id="id">
+							<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_id)")" title ="$tlang.getString('list.sortbyid')"> 
+								$tlang.getString("list.id")
+								#if ($currentSortedBy.equals($sortby_id)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+					#end
 					<th id="type">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_type)")" title ="$tlang.getString('list.sortbytype')"> 
 							$tlang.getString("list.type")
@@ -257,6 +271,11 @@
                                     </a>
 								</h4>
 							</td>
+							#if($show_id_column)
+								<td headers="id">
+									$validator.escapeHtml($site.getId())
+								</td>
+							#end
 							<td headers="type">
 								#set($type="")
 								#set($type = $site.getType())
