@@ -11593,9 +11593,9 @@ public class AssignmentAction extends PagedResourceActionII
 		HashMap n = new HashMap();
 		n.put(Integer.valueOf(2), rb.getString("letter"));
 		n.put(Integer.valueOf(3), rb.getString("points"));
-		n.put(Integer.valueOf(4), rb.getString("pass"));
+		n.put(Integer.valueOf(4), rb.getString("passfail"));
 		n.put(Integer.valueOf(5), rb.getString("check"));
-		n.put(Integer.valueOf(1), rb.getString("ungra"));
+		n.put(Integer.valueOf(1), rb.getString("gen.nograd"));
 		return n;
 
 	} // gradeTypeTable
