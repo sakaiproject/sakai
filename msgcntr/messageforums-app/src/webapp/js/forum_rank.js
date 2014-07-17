@@ -430,7 +430,7 @@ String.prototype.hashCode = function() {
     		role = roles[i];
     		roleOption = roleOptionTemplate.clone(true);
     		roleOption.text(role.roleId);
-    		roleOption.val('role-' + role.roleId);
+    		roleOption.val('role-' + role.roleId.hashCode());  // use hashCode instead, since roleID might contain special char.
     		roleOption.attr('id', role.membershipItemId);
     		roleOption.data('role', roles[i]);
     		roleFilterSelect.append(roleOption);
@@ -446,7 +446,7 @@ String.prototype.hashCode = function() {
 		}
         var itemHTML = fluid.stringTemplate(templates.sourceItem, {
             membershipItemId: user.membershipItemId, 
-            roleId: user.roleId, 
+            roleId: user.roleId.hashCode(), 
             groupsClasses: groupClasses,
             displayName: user.userDisplayName,
             titleEid: user.eid
