@@ -369,7 +369,7 @@ public class PDFAssessmentBean implements Serializable {
 
 				if (!(item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) || item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))) {
 					contentBuffer.append("<br />");
-					contentBuffer.append(item.getItemData().getText());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(item.getItemData().getText())));
 					contentBuffer.append("<br />");
 				}
 				if (item.getItemData().getItemAttachmentList() != null && item.getItemData().getItemAttachmentList().size() > 0) {
@@ -403,7 +403,7 @@ public class PDFAssessmentBean implements Serializable {
 						contentBuffer.append("<br />");
 					}
 					contentBuffer.append("<br />");
-					contentBuffer.append(item.getItemData().getText());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(item.getItemData().getText())));
 					contentBuffer.append("<br />");
 				}
 
@@ -472,10 +472,10 @@ public class PDFAssessmentBean implements Serializable {
 						if (matching.getText() == null) break;
 						
 						contentBuffer.append("<tr><td colspan='10'>");
-						contentBuffer.append(matching.getText());
+						contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(matching.getText())));
 						contentBuffer.append("</td>");
 						contentBuffer.append("<td colspan='10'>");
-						contentBuffer.append(answer);
+						contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(answer)));
 						contentBuffer.append("</td></tr>");
 					}
 
@@ -563,24 +563,34 @@ public class PDFAssessmentBean implements Serializable {
 			else
 				contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
 				
-			contentBuffer.append("<td colspan='10'>");
-			if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
-				contentBuffer.append(answer.getLabel());
-				contentBuffer.append(". ");
-			}
-			
-			contentBuffer.append(answer.getText());
-			contentBuffer.append("</td>");
-			contentBuffer.append("<td colspan='9'>");
 			if (printSetting.getShowKeysFeedback()) {
+				contentBuffer.append("<td colspan='10'>");
+				if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
+					contentBuffer.append(answer.getLabel());
+					contentBuffer.append(". ");
+				}
+				
+				contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(answer.getText())));
+				contentBuffer.append("</td>");
+				contentBuffer.append("<td colspan='9'>");
 				contentBuffer.append("<h6>");
 				contentBuffer.append(commonMessages.getString("feedback"));
 				contentBuffer.append(": ");
 				if (answer.getGeneralAnswerFeedback() != null && !answer.getGeneralAnswerFeedback().equals(""))
-					contentBuffer.append(answer.getGeneralAnswerFeedback());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(answer.getGeneralAnswerFeedback())));
 				else 
 					contentBuffer.append("--------");
 				contentBuffer.append("</h6>");
+			}
+			else {
+				contentBuffer.append("<td colspan='19'>");
+				if (!item.getItemData().getTypeId().equals(TypeIfc.MULTIPLE_CHOICE_SURVEY)) {
+					contentBuffer.append(answer.getLabel());
+					contentBuffer.append(". ");
+				}
+				
+				contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(answer.getText())));
+				contentBuffer.append("</td>");
 			}
 			contentBuffer.append("</td>");
 		}
@@ -588,7 +598,7 @@ public class PDFAssessmentBean implements Serializable {
 		if (item.getItemData().getTypeId().equals(TypeIfc.TRUE_FALSE)) {
 			contentBuffer.append("<td colspan='1'><img src='/samigo-app/images/radiounchecked.gif' /></td>");
 			contentBuffer.append("<td colspan='19'>");
-			contentBuffer.append(answer.getText());
+			contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(answer.getText())));
 			contentBuffer.append("</td>");
 		}
 
@@ -640,7 +650,7 @@ public class PDFAssessmentBean implements Serializable {
 				contentBuffer.append(commonMessages.getString("feedback"));
 				contentBuffer.append(": ");
 				if (item.getItemData().getGeneralItemFeedback() != null && !item.getItemData().getGeneralItemFeedback().equals(""))
-					contentBuffer.append(item.getItemData().getGeneralItemFeedback());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(item.getItemData().getGeneralItemFeedback())));
 				else 
 					contentBuffer.append("--------");
 			}
@@ -656,14 +666,14 @@ public class PDFAssessmentBean implements Serializable {
 				contentBuffer.append(printMessages.getString("correct_feedback"));
 				contentBuffer.append(": ");
 				if (item.getItemData().getCorrectItemFeedback() != null && !item.getItemData().getCorrectItemFeedback().equals(""))
-					contentBuffer.append(item.getItemData().getCorrectItemFeedback());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(item.getItemData().getCorrectItemFeedback())));
 				else 
 					contentBuffer.append("--------");
 				contentBuffer.append("<br />");
 				contentBuffer.append(printMessages.getString("incorrect_feedback"));
 				contentBuffer.append(": ");
 				if (item.getItemData().getInCorrectItemFeedback() != null && !item.getItemData().getInCorrectItemFeedback().equals(""))
-					contentBuffer.append(item.getItemData().getInCorrectItemFeedback());
+					contentBuffer.append(FormattedText.convertPlaintextToFormattedText(FormattedText.convertFormattedTextToPlaintext(item.getItemData().getInCorrectItemFeedback())));
 				else 
 					contentBuffer.append("--------");
 			}
