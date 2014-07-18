@@ -357,8 +357,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 
       // first question: is this the resource we want to use, or is there are preferable variant?
       Element variant = resource.getChild(VARIANT, ns.cpx_ns());
-      if (variant != null) {
+      Set<String>seen = new HashSet<String>();
+      while (variant != null) {
 	  String variantId = variant.getAttributeValue(IDENTIFIERREF);
+	  // prevent loop. If we've seen it, exit
+	  if (seen.contains(variantId))
+	      break;
+	  seen.add(variantId);
+	  variant = null; // to stop loop unless we find a valid next variant
 	  Element variantResource = null;
 	  if (variantId != null) {
 	      Element resourcesNode = manifestXml.getChild(RESOURCES, ns.cc_ns());
@@ -374,6 +380,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		  }
 	      }
 	      if (variantResource == null) {
+		  // should be impossible. means there was a variant pointing to a non-existent resource
 	      } else {
 		  // we now have the variant resource. Only use it if we recognize the type	      
 		  String variantType = ns.normType(variantResource.getAttributeValue(TYPE));
@@ -383,6 +390,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      type = variantType;
 		      resource = variantResource;
 		  }
+		  // next step for loop. want to check next one even if the source was unusable
+		  variant = variantResource.getChild(VARIANT, ns.cpx_ns());			      
 	      }
 	  }
       }	      
@@ -549,16 +558,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      texthtml = true;
 	      }
 
-	      String base = baseUrl + filename;
-	      int slash = base.lastIndexOf("/");
-	      if (slash >= 0)
-		  base = base.substring(0, slash+1); // include trailing slash
+	      String base = baseUrl;
+	      if (filename != null) {
+		  base = baseUrl + filename;
+		  int slash = base.lastIndexOf("/");
+		  if (slash >= 0)
+		      base = base.substring(0, slash+1); // include trailing slash
+	      }
 
 	      // collection id rather than URL
-	      String baseDir = baseName + filename;
-	      slash = baseDir.lastIndexOf("/");
-	      if (slash >= 0)
-		  baseDir = baseDir.substring(0, slash+1); // include trailing slash
+	      String baseDir = baseName;
+	      if (filename != null) {
+		  baseDir = baseName + filename;
+		  int slash = baseDir.lastIndexOf("/");
+		  if (slash >= 0)
+		      baseDir = baseDir.substring(0, slash+1); // include trailing slash
+	      }
 
 	      if (texthtml) {
 		  text =  text.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
@@ -568,10 +583,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      // I add to them I nneed to URLencode what I add
 
 	      // filebase will be directory name for discussion.xml, since attachments are relative to that
-	      String filebase = filename;
-	      slash = filebase.lastIndexOf("/");
-	      if (slash >= 0)
-		  filebase = filebase.substring(0, slash+1); // include trailing slash
+	      String filebase = "";
+	      if (filename != null) {
+		  filebase = filename;
+		  int slash = filebase.lastIndexOf("/");
+		  if (slash >= 0)
+		      filebase = filebase.substring(0, slash+1); // include trailing slash
+	      }
 
 	      Element attachmentlist = topicXml.getChild(ATTACHMENTS, topicNs);
 	      List<Element>attachments = new ArrayList<Element>();
@@ -614,7 +632,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	    if (quiztool != null) {
 	      String fileName = getFileName(resource);
 	      String sakaiId = null;
-	      String base = baseName;
+	      String base = baseUrl;
 	      org.w3c.dom.Document quizDoc = null;
 	      InputStream instream = null;
 	      
@@ -762,16 +780,30 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      Namespace assignNs = ns.assign_ns();
 
 	      // filebase will be directory name for discussion.xml, since attachments are relative to that
-	      String filebase = filename;
-	      int slash = filebase.lastIndexOf("/");
-	      if (slash >= 0)
-		  filebase = filebase.substring(0, slash+1); // include trailing slash
+	      String filebase = "";
+	      if (filename != null) {
+		  filebase = filename;
+		  int slash = filebase.lastIndexOf("/");
+		  if (slash >= 0)
+		      filebase = filebase.substring(0, slash+1); // include trailing slash
+	      }
+
+	      String base = baseUrl;
+	      if (filename != null) {
+		  base = baseUrl + filename;
+		  int slash = base.lastIndexOf("/");
+		  if (slash >= 0)
+		      base = base.substring(0, slash+1); // include trailing slash
+	      }
 
 	      // collection id rather than URL
-	      String baseDir = baseName + filename;
-	      slash = baseDir.lastIndexOf("/");
-	      if (slash >= 0)
-		  baseDir = baseDir.substring(0, slash+1); // include trailing slash
+	      String baseDir = baseName;
+	      if (filename != null) {
+		  baseDir = baseName + filename;
+		  int slash = baseDir.lastIndexOf("/");
+		  if (slash >= 0)
+		      baseDir = baseDir.substring(0, slash+1); // include trailing slash
+	      }
 
 	      // let importobject handle most of this, but we have to
 	      // process the attachments to make sure they're present
@@ -794,7 +826,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String assignmentId = assignsAdded.get(resourceId);
 	      if (assignmentId == null) {
 		  AssignmentInterface a = (AssignmentInterface) assigntool;
-		  assignmentId = a.importObject(assignXml, assignNs, baseDir, attachmentHrefs); // sakaiid for assignment
+		  assignmentId = a.importObject(assignXml, assignNs, base, baseDir, attachmentHrefs); // sakaiid for assignment
 		  if (assignmentId != null)
 		      assignsAdded.put(resourceId, assignmentId);
 	      }

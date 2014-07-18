@@ -824,7 +824,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
     }
 
 
-    public String importObject(Element resource, Namespace ns, String baseDir, List<String>attachments) {
+    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments) {
 	String contextId = ToolManager.getCurrentPlacement().getContext();
         Assignment2 assignment = new Assignment2();
         assignment.setContextId(contextId);
@@ -841,6 +841,9 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    String type = instructionsElement.getAttributeValue("texttype");
 	    if ("text/plain".equals(type))
 		instructions = FormattedText.convertPlaintextToFormattedText(instructions);
+	    else
+		instructions = instructions.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
+
 	    assignment.setInstructions(instructions);
 	}
 

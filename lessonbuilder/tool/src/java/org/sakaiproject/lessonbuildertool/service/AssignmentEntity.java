@@ -835,7 +835,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     */
 
-    public String importObject(Element resource, Namespace ns, String baseDir, List<String>attachments) {
+    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments) {
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
 	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
@@ -852,6 +852,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 		String type = instructionsElement.getAttributeValue("texttype");
 		if ("text/plain".equals(type))
 		    instructions = FormattedText.convertPlaintextToFormattedText(instructions);
+		else
+		    instructions = instructions.replaceAll("\\$IMS-CC-FILEBASE\\$", base);
 		c.setInstructions(instructions);
 	    }
 
@@ -935,8 +937,10 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    if (note != null) {
 		Element instructionsElement = resource.getChild("instructor_text", ns);
 		String type = instructionsElement.getAttributeValue("texttype");
+		// unfortunately we can only store plain text. Replacing IMS-CC-FILEBASE may be futile in this case,
+		// but it seems better to do it than not.
 		if ("text/html".equals(type))
-		    note = FormattedText.convertFormattedTextToPlaintext(note);
+		    note = FormattedText.convertFormattedTextToPlaintext(note.replaceAll("\\$IMS-CC-FILEBASE\\$", base));
 		
 		AssignmentNoteItem nNote = assignmentSupplementItemService.newNoteItem();
 		nNote.setAssignmentId(a.getId());

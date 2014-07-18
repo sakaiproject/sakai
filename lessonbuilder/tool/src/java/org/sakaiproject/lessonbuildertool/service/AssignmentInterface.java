@@ -37,6 +37,6 @@ import java.util.List;
 public interface AssignmentInterface {
 
     public String importObject(String title, String href, String mime);
-    public String importObject(Element e, Namespace ns, String baseDir, List<String>attachments);
+    public String importObject(Element e, Namespace ns, String base, String baseDir, List<String>attachments);
 
 }
