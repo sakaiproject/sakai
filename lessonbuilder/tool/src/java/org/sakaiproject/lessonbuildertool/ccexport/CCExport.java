@@ -125,6 +125,7 @@ public class CCExport {
 	String title;
 	String url;
 	boolean islink;
+	boolean isbank;
 	Set<String> dependencies;
     }
 
@@ -132,6 +133,7 @@ public class CCExport {
     Map<String, Resource> fileMap = new HashMap<String, Resource>();
     // map of all Samigo tests
     Map<String, Resource> samigoMap = new HashMap<String, Resource>();
+    Map<Long, Resource> poolMap = new HashMap<Long, Resource>();
     Resource samigoBank = null;
     // map of all Assignments
     Map<String, Resource> assignmentMap = new HashMap<String, Resource>();
@@ -275,6 +277,7 @@ public class CCExport {
 	res.dependencies = new HashSet<String>();
 	res.use = use;
 	res.islink = false;
+	res.isbank = false;
 	fileMap.put(sakaiId, res);
 	return res;
     }
@@ -448,17 +451,34 @@ public class CCExport {
 	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
+	    res.isbank = false;
 	    samigoMap.put(res.sakaiId, res);
 	}
-	if (doBank && samigoExport.havePoolItems()) {
-	    Resource res = new Resource();
-	    res.resourceId = getResourceId();
-	    res.location = "cc-objects/" + res.resourceId + ".xml";
-	    res.sakaiId = null;
-	    res.dependencies = new HashSet<String>();
-	    res.use = null;
-	    res.islink = false;
-	    samigoBank = res;
+	List<Long> poolIds = samigoExport.getAllPools();
+	if (doBank && poolIds.size() > 0) {
+	    if (version >= V13) {
+		for (Long poolId: poolIds) {
+		    Resource res = new Resource();
+		    res.resourceId = getResourceId();
+		    res.location = "cc-objects/" + res.resourceId + ".xml";
+		    res.sakaiId = null;
+		    res.dependencies = new HashSet<String>();
+		    res.use = null;
+		    res.islink = false;
+		    res.isbank = false;
+		    poolMap.put(poolId, res);
+		}
+	    } else {
+		Resource res = new Resource();
+		res.resourceId = getResourceId();
+		res.location = "cc-objects/" + res.resourceId + ".xml";
+		res.sakaiId = null;
+		res.dependencies = new HashSet<String>();
+		res.use = null;
+		res.islink = false;
+		res.isbank = false;
+		poolMap.put(1L, res);
+	    }
 	}
 	return true;
     }
@@ -474,12 +494,14 @@ public class CCExport {
 		    return false;
 
 	    }
-	    if (samigoBank != null) {
-		ZipEntry zipEntry = new ZipEntry(samigoBank.location);
-		out.putNextEntry(zipEntry);
-		boolean ok = samigoExport.outputBank(out, errStream, this, samigoBank, version);
-		if (!ok)
-		    return false;
+	    if (poolMap.size() > 0) {
+		for (Map.Entry<Long, Resource> entry: poolMap.entrySet()) {
+		    ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
+		    out.putNextEntry(zipEntry);
+		    boolean ok = samigoExport.outputBank(entry.getKey(), out, errStream, this, samigoBank, version);
+		    if (!ok)
+			return false;
+		}
 	    }
 	} catch (Exception e) {
 	    log.error("output sam " + e);
@@ -505,6 +527,7 @@ public class CCExport {
 	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
+	    res.isbank = false;
 	    assignmentMap.put(res.sakaiId, res);
 	}
 
@@ -555,6 +578,7 @@ public class CCExport {
 	    res.dependencies = new HashSet<String>();
 	    res.use = null;
 	    res.islink = false;
+	    res.isbank = false;
 	    forumsMap.put(res.sakaiId, res);
 	}
 	return true;
@@ -593,6 +617,7 @@ public class CCExport {
 	    res.dependencies = new HashSet();
 	    res.use = null;
 	    res.islink = false;
+	    res.isbank = false;
 	    bltiMap.put(res.sakaiId, res);
 	}
 	return true;
@@ -640,6 +665,7 @@ public class CCExport {
 		res.dependencies = new HashSet();
 		res.use = null;
 		res.islink = false;
+		res.isbank = false;
 		fileMap.put(res.sakaiId, res);
 	    }
 	} catch (Exception e) {
@@ -728,6 +754,7 @@ public class CCExport {
 		    res.dependencies = new HashSet();
 		    res.use = null;
 		    res.islink = false;
+		    res.isbank = false;
 		    fileMap.put(res.sakaiId, res);
 		    embedMap.put(item.getId(), relFixup(embedCode, res));
 		    // item won't have a title, so we have to specify one. But with an embed code
@@ -954,13 +981,14 @@ public class CCExport {
 	    }
 
 	    // question bank
-	    if (samigoBank != null) {
-		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(samigoBank.location) + "\" identifier=\"" + samigoBank.resourceId + "\" type=\"" + bankid + "\">");
-		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(samigoBank.location) + "\"/>");
-		for (String d: samigoBank.dependencies)
+	    for (Map.Entry<Long, Resource> entry: poolMap.entrySet()) {
+		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"" + bankid + "\">");
+		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		for (String d: entry.getValue().dependencies)
 		    out.println("      <dependency identifierref=\"" + d + "\"/>");
 		out.println("    </resource>");
 	    }
+
 	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
 		String variantId = null;
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"webcontent\"" + usestr + ">");
