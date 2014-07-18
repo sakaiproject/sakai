@@ -637,6 +637,11 @@ var setupToolToggle = function(toggleClass){
       }
   );
     $('#toggleToolMenu').click(function(){
+
+        // If the sub site flyout is enabled, we don't want to leave it
+        // hanging out in space, so hide it.
+        $('#subSites').filter(':visible').hide();
+
         if ($('#toggleNormal').is(':visible')) {
             sakaiRestoreNavigation();
             document.cookie = "sakai_nav_minimized=false; path=/";
