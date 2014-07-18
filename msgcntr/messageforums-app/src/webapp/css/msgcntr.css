@@ -40,8 +40,8 @@
 	line-height: 1.5em;
 }
 .toggle .textPanel {
-    -ms-word-break: break-all;
-     word-break: break-all;
+    -ms-word-break: break-word;
+     word-break: break-word;
 }
 .topicBloc{
 	/*inner container topic metadata in forum list view, or single topic view*/
@@ -69,8 +69,8 @@
 	display: block;
 	margin: .5em 0;
     font-size:.85em;
-    -ms-word-break: break-all;
-     word-break: break-all;
+    -ms-word-break: break-word;
+     word-break: break-word;
 }
 .messageNew{
 	color: #000;
@@ -172,8 +172,8 @@
 }
 .messagesThreaded tbody tr td div.hierItemBlock .textPanel{
 	clear: both;
-    -ms-word-break: break-all;
-     word-break: break-all;
+    -ms-word-break: break-word;
+     word-break: break-word;
 }
 .titleBarBorder{
 	/*create an underline under message title + metadata in view body thread view*/
