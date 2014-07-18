@@ -515,9 +515,6 @@ public class CCExport {
 	try {
 	    for (Map.Entry<String, Resource> entry: assignmentMap.entrySet()) {
 
-		String xmlHref = entry.getValue().location;
-		xmlHref = xmlHref.substring(0, xmlHref.length()-4) + "xml";
-
 		ZipEntry zipEntry = new ZipEntry(entry.getValue().location);
 
 		out.putNextEntry(zipEntry);
@@ -526,6 +523,8 @@ public class CCExport {
 		    return false;
 
 		if (version >= V13) {
+		    String xmlHref = "cc-objects/" + entry.getValue().resourceId + ".xml";
+
 		    zipEntry = new ZipEntry(xmlHref);
 
 		    out.putNextEntry(zipEntry);
@@ -978,8 +977,7 @@ public class CCExport {
 
 		// output the preferred version for 1.3 and up
 		if (version >= V13) {
-		    String xmlHref = entry.getValue().location;
-		    xmlHref = xmlHref.substring(0, xmlHref.length()-4) + "xml";
+		    String xmlHref = "cc-objects/" + entry.getValue().resourceId + ".xml";
 		    out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(xmlHref) + "\" identifier=\"" + variantId + "\" type=\"assignment_xmlv1p0\">");
 		    out.println("      <file href=\"" + StringEscapeUtils.escapeXml(xmlHref) + "\"/>");
 		    for (String d: entry.getValue().dependencies)

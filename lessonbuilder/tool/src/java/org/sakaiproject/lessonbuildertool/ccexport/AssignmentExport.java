@@ -308,8 +308,8 @@ public class AssignmentExport {
 	
 	String title = contents.title;
 	String attachmentDir = "attachments/" + contents.id + "/";
-
 	String instructions = bean.relFixup(contents.instructions, resource);
+
 	List<String>attachments = contents.attachments;
 
 	out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
@@ -369,9 +369,10 @@ public class AssignmentExport {
 	    return false;
 	
 	String title = contents.title;
-	String attachmentDir = "attachments/" + contents.id + "/";
+	String attachmentDir = "cc-objects/" + contents.id + "/";
 
-	String instructions = bean.relFixup(contents.instructions, resource);
+	// relFixup is for stuff that's in an actual HTML file, fixup for stuff in an XML descriptor
+	String instructions = bean.fixup(contents.instructions, resource);
 	List<String>attachments = contents.attachments;
 
 	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
@@ -384,7 +385,7 @@ public class AssignmentExport {
 	    title = "Assignment";
 	out.println("  <title>" + StringEscapeUtils.escapeXml(title) + "</title>");
 	if (instructions != null && instructions.length() > 0)
-	    out.println("  <text texttype=\"text/html\">" + StringEscapeUtils.escapeXml(instructions) + "</text>");
+	    out.println("  <text texttype=\"text/html\">" + instructions + "</text>");
 	// spec requires an instructor text even though we don't normally have one.
 	out.println("<instructor_text texttype=\"text/plain\"></instructor_text>");
 	out.println("<gradable" + (contents.forpoints ? (" points_possible=\"" + contents.maxpoints + "\"") : "") + ">" + 
@@ -415,10 +416,10 @@ public class AssignmentExport {
 		if (URL != null) {
 		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
 		} else {
-		    if (location.startsWith(attachmentDir))
-			URL = lastAtom;  // if in attachment dir, relative reference
-		    else
-			URL = "../../" + location;  // else it's in the normal site content
+		    // if (location.startsWith(attachmentDir))
+		    //   URL = lastAtom;  // if in attachment dir, relative reference
+		    // else
+			URL = "../" + location;  // else it's in the normal site content
 		    URL = URL.replaceAll("//", "/");
 		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
 		    bean.addDependency(resource, sakaiId);

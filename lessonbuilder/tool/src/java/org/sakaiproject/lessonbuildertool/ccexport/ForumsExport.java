@@ -302,6 +302,8 @@ public class ForumsExport {
 // be files but not URLs, and they must be in a special directory for this forum topic.
 // Since we need to be able to support URLs, don't include any attachments. Instead, 
 // append it as URLs at the end of the document. 
+//   However none of their examples actually work this way. So I reimplemented it using
+// actual attachments.
 
 	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	switch (version) {
