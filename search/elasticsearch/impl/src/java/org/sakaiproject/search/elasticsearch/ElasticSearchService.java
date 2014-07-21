@@ -210,6 +210,9 @@ public class ElasticSearchService implements SearchService {
         if (!properties.containsKey("cluster.name")) {
             properties.put("cluster.name", serverConfigurationService.getServerName());
         }
+        if (!properties.containsKey("script.disable_dynamic")) {
+            properties.put("script.disable_dynamic", "true");
+        }
 
         // ES calls need these, store these away
         setNodeName((String) properties.get("node.name"));
