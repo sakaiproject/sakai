@@ -189,6 +189,20 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						// set the proper ContentItem values
 						setContentItemValues(collection, item, props);
 						
+						if (item.getTitle() == null && id.equals(wsCollectionId))
+						{
+							// for the root level collection, use site title as the collection title
+							try
+							{
+								Site site = siteService.getSite(siteId);
+								item.setTitle(site.getTitle());
+							}
+							catch (IdUnusedException e)
+							{
+								log.warn(this + " getSiteListItems: Cannot find site with id=" + siteId);
+							}
+						}
+						
 						rv.add(item);
 					}
 					catch (IdUnusedException e)
