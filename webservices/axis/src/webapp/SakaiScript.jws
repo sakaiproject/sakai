@@ -70,8 +70,9 @@ import org.w3c.dom.Node;
  */
  
 public class SakaiScript {
-	
-private static final Log LOG = LogFactory.getLog(SakaiScript.class);
+
+private static final Log LOG = LogFactory.getLog("org.sakaiproject.axis.SakaiScript");
+
 
 private static final String ADMIN_SITE_REALM = "/site/!admin";
 private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
@@ -1339,14 +1340,11 @@ public String addNewToolToPage( String sessionid, String siteid, String pagetitl
 			SitePage pageEdit = (SitePage) i.next();
 			if (pageEdit.getTitle().equals(pagetitle))
 			{
-				ToolConfiguration tool = pageEdit.addTool();
-				Tool t = tool.getTool();
-				
-				tool.setTool(toolid, toolManager.getTool(toolid));
-				tool.setTitle(tooltitle);
+				ToolConfiguration tool = pageEdit.addTool(toolManager.getTool(toolid));
+				//tool.setTitle(tooltitle);
 				//toolEdit.setTitle(tooltitle);
 				//toolEdit.setToolId(toolid);
-				tool.setLayoutHints(layouthints);
+				//tool.setLayoutHints(layouthints);
 			}
 		}
 		siteService.save(siteEdit);
@@ -2609,12 +2607,15 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 		}
 		
 		// get a list of all myworkspace sites (seems to only return sites for provided users)
+		// IMPORTANT: 
+		// the Site Object returned by the following call is result of lazy-get, so that the tool set in SitePage object is not populated
+		// You need to get the fully populated Site object by using SiteService.getSite(siteId) call
 		List<Site> sites = siteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.ANY, "myworkspace", 
 			null, null, null, null);
-		HashMap<String,Site> siteHash = new HashMap<String,Site>();
+		HashSet<String> siteIdSet = new HashSet<String>();
 		for (Iterator j = sites.iterator(); j.hasNext();) { 
 			Site thisSite = (Site)j.next();
-			siteHash.put( thisSite.getId(), thisSite );
+			siteIdSet.add( thisSite.getId());
 		}
 		
 			
@@ -2623,32 +2624,65 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 		for (Iterator i = users.iterator(); i.hasNext();) { 
 			User user = (User) i.next();
 			String myWorkspaceId = siteService.getUserSiteId(user.getId());
-			if ( siteHash.containsKey(myWorkspaceId) )
+			if ( siteIdSet.contains(myWorkspaceId) )
+			{
+				LOG.debug("Contains site for " + myWorkspaceId);
 				continue;
+			}
 			try {
 				Site siteEdit = siteService.getSite(myWorkspaceId);
-				siteHash.put( siteEdit.getId(), siteEdit );
+				siteIdSet.add(siteEdit.getId());
 			} catch (IdUnusedException e) {
-				LOG.error("No workspace for user: " + myWorkspaceId + ", skipping...");
+				LOG.info("No workspace for user: " + myWorkspaceId + ", skipping...");
 				continue;
 			}
 			
 		}
 		
+		// set up count
+		int totalCount = siteIdSet.size();
+		int count=0;
 		//now add a page to each site, and the tool to that page
-		for (Iterator j = siteHash.values().iterator(); j.hasNext();) { 
-			Site siteEdit = (Site)j.next();
-			String siteId = siteEdit.getId();
-			LOG.info("Processing site:" + siteId);
-		
+		for (Iterator<String> j = siteIdSet.iterator(); j.hasNext();) { 
+			String siteId = j.next();
+			Site siteEdit = siteService.getSite(siteId);
+			String pageId = null;
 			// if the site is not for special user
-			if (!specialUserWSIds.contains(siteId))
+			if(!specialUserWSIds.contains(siteId) && !siteService.isSpecialSite(siteId))
 			{
 				SitePage sitePageEdit = null;
 				
-				sitePageEdit = siteEdit.addPage();
-				sitePageEdit.setTitle(pagetitle);
-				sitePageEdit.setLayout(pagelayout);
+				// check whether there is already a page with the page title
+				List<SitePage> pageList = siteEdit.getOrderedPages();
+				for (Iterator<SitePage> iPageList = pageList.iterator();iPageList.hasNext();)
+				{
+					SitePage iPage= iPageList.next();
+					if (pagetitle.equals(iPage.getTitle()))
+					{
+						// found the right page
+						pageId = iPage.getId();
+						break;
+					}
+				}
+				if (pageId != null)
+				{
+					LOG.debug("Page found for site:" + siteId + " with pageId=" + pageId);
+				}
+				else
+				{ 
+					sitePageEdit = siteEdit.addPage();
+					pageId = sitePageEdit.getId();
+					sitePageEdit.setTitle(pagetitle);
+					sitePageEdit.setLayout(pagelayout);
+					sitePageEdit.setPopup(popup);
+					sitePageEdit.addTool(toolManager.getTool(toolid));
+					siteService.save(siteEdit);
+					LOG.debug("Page added for site:" + siteId);
+				}
+				
+				// get the saved site
+				siteEdit=siteService.getSite(siteId);
+				sitePageEdit = siteEdit.getPage(pageId);
 				
 				//KNL-250, SAK-16819 - if position too large, will throw ArrayIndexOutOfBoundsException
 				//deal with this here and just set to the number of pages - 1 so its at the bottom.
@@ -2657,19 +2691,24 @@ public String addNewToolToAllWorkspaces(String sessionid, String toolid, String 
 					position = numPages-1;
 				}
 				
-				sitePageEdit.setPosition(position);
-				sitePageEdit.setPopup(popup);
-				
-				ToolConfiguration tool = sitePageEdit.addTool();
-				Tool t = tool.getTool();
-				
-				tool.setTool(toolid, toolManager.getTool(toolid));
-				tool.setTitle(tooltitle);
-				
-				siteService.save(siteEdit);
-				LOG.info("Page added for site:" + siteId);
+				int pagePosition = sitePageEdit.getPosition();
+				if (pagePosition != position)
+				{
+					// set the page position
+					LOG.debug("Page:" + sitePageEdit + "  position=" + sitePageEdit.getPosition() + " position_new=" + position);
+					sitePageEdit.setPosition(position);
+					siteEdit.setCustomPageOrdered(true);
+					siteService.save(siteEdit);
+					LOG.debug("Page moved");
+				}
 			}
-
+			
+			// count update and output log message
+			count++;
+			if (count%10 == 0)
+			{
+				LOG.info("updated " + count + " out of " + totalCount + " MyWorkspace sites.");
+			}
 		}
 		return "success";
 	}
