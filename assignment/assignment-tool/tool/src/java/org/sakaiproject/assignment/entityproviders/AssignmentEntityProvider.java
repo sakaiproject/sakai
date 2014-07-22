@@ -207,6 +207,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * the attachment list
 		 */
 		private List<DecoratedAttachment> attachments;
+		
+		/**
+		 * Grade scale description.
+		 */
+		private String gradeScale;
 
 		public SimpleAssignment() {
 		}
@@ -250,6 +255,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						name, url);
 				this.attachments.add(decoratedAttachment);
 			}
+			// Translate grade scale from its numeric value to its description.
+			this.gradeScale = a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade());
 		}
 	}
 
