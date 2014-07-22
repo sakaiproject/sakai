@@ -187,12 +187,29 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 	  CKEDITOR.replace(targetId, ckconfig);
       //SAK-22505
       CKEDITOR.on('dialogDefinition', function(e) {
+          // Take the dialog name and its definition from the event
+          // data.
           var dialogName = e.data.name;
           var dialogDefinition = e.data.definition;
           dialogDefinition.dialog.parts.dialog.setStyles(
               {
                   position : 'absolute'
               });
+
+          if ( dialogName == 'link' )
+          {
+              var targetTab = dialogDefinition.getContents('target');
+              var linkTypeItems = targetTab.elements[0].children[0].items;
+              var itemsNoPopup = [];
+              for (i=0;i<linkTypeItems.length;i++) {
+                  if (linkTypeItems[i][1] != "popup") {
+                      itemsNoPopup.push(linkTypeItems[i]);
+                  }
+              }
+              targetTab.elements[0].children[0].items = itemsNoPopup;
+
+          }
+
       });
 }
 
