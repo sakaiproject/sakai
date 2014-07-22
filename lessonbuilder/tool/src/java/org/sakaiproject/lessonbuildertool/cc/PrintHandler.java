@@ -397,24 +397,30 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
       }	      
 
       boolean hide = false;
-      List<String>roles = new ArrayList<String>();
+      Set<String>roles = new HashSet<String>();
+      // version 1 and higher are different formats, hence a slightly weird test
       Iterator mdroles = resource.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
       if (mdroles != null) {
 	  while (mdroles.hasNext()) {
 	      Element role = (Element)mdroles.next();
-	      if (!"Learner".equals(role.getChildText("value",  ns.lom_ns()))) {
+	      Iterator values = role.getDescendants(new ElementFilter("value", ns.lom_ns()));
+	      if (values != null) {
+		  while (values.hasNext()) {
+		      Element value = (Element)values.next();
+		      String roleName = value.getTextTrim();
+		      if (!"Learner".equals(roleName)) {
 		  // roles currently only implemented for visible objects. We may want to fix that.
 		  if (!hide && !isBank)
 		      usesRole = true;
 	      }
-	      if ("Mentor".equals(role.getChildText("value",  ns.lom_ns()))) {
+		      if ("Mentor".equals(roleName))
 		  roles.add(getGroupForRole("Mentor"));
-	      }
-	      if ("Instructor".equals(role.getChildText("value",  ns.lom_ns()))) {
+		      if ("Instructor".equals(roleName))
 		  roles.add(getGroupForRole("Instructor"));
 	      }
 	  }
       }	  
+      }
       if (nopage)
 	  hide = true;
 
@@ -464,7 +470,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 			  AssignmentInterface a = (AssignmentInterface) assigntool;
 			  // file hasn't been written yet to contenthosting. A2 requires it to be there
 			  addFile(href);
-			  String assignmentId = a.importObject(title, sakaiId, mime); // sakaiid for assignment
+			  String assignmentId = a.importObject(title, sakaiId, mime, false); // sakaiid for assignment
 			  if (assignmentId!= null) {
 			      item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.ASSIGNMENT, assignmentId, title);
 			      sakaiId = assignmentId;
@@ -493,7 +499,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      addFile(resource.getAttributeValue(HREF));
 		      // in this case there's no item to take a title from
 		      String atitle = simplePageBean.getMessageLocator().getMessage("simplepage.importcc-assigntitle").replace("{}", (assignmentNumber++).toString());
-		      String assignmentId = a.importObject(atitle, sakaiId, mime); // sakaiid for assignment
+		      String assignmentId = a.importObject(atitle, sakaiId, mime, true); // sakaiid for assignment
 		  }
 	      }
 	  } else if (type.equals(WEBLINK)) {
@@ -747,8 +753,8 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      }
               if ( sb.length() > 0 ) custom = sb.toString();
 
-	      String launchUrl = ltiXml.getChildText("secure_launch_url", bltiNs);
-	      if ( launchUrl == null ) launchUrl = ltiXml.getChildText("launch_url", bltiNs);
+	      String launchUrl = ltiXml.getChildTextTrim("secure_launch_url", bltiNs);
+	      if ( launchUrl == null ) launchUrl = ltiXml.getChildTextTrim("launch_url", bltiNs);
 
               	String sakaiId = null;
               	if ( bltitool != null ) {
@@ -826,7 +832,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      String assignmentId = assignsAdded.get(resourceId);
 	      if (assignmentId == null) {
 		  AssignmentInterface a = (AssignmentInterface) assigntool;
-		  assignmentId = a.importObject(assignXml, assignNs, base, baseDir, attachmentHrefs); // sakaiid for assignment
+		  assignmentId = a.importObject(assignXml, assignNs, base, baseDir, attachmentHrefs, hide); // sakaiid for assignment
 		  if (assignmentId != null)
 		      assignsAdded.put(resourceId, assignmentId);
 	      }
@@ -1143,12 +1149,22 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   }
 
   public void setResourceMetadataXml(Element the_md) {
+      // version 1 and higher are different formats, hence a slightly weird test
       Iterator mdroles = the_md.getDescendants(new ElementFilter("intendedEndUserRole", ns.lom_ns()));
+      if (mdroles != null) {
       while (mdroles.hasNext()) {
 	  Element role = (Element)mdroles.next();
+	      Iterator values = role.getDescendants(new ElementFilter("value", ns.lom_ns()));
+	      if (values != null) {
+		  while (values.hasNext()) {
 	  if (roles == null)
 	      roles = new HashSet<String>();
-	  roles.add(role.getChildText("value",  ns.lom_ns()));
+		      Element value = (Element)values.next();
+		      String roleName = value.getTextTrim();
+		      roles.add(roleName);
+		  }
+	      }
+	  }
       }
 
       if (all)

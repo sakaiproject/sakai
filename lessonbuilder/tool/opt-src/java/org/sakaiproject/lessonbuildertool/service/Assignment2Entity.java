@@ -762,13 +762,13 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 
     }
 
-    public String importObject(String title, String href, String mime){
+    public String importObject(String title, String href, String mime, boolean hide){
 	String contextId = ToolManager.getCurrentPlacement().getContext();
         Assignment2 assignment = new Assignment2();
         assignment.setContextId(contextId);
         assignment.setCreateDate(new Date());
         assignment.setCreator("ADMIN");
-        assignment.setDraft(false);
+        assignment.setDraft(hide);
         assignment.setInstructions(messageLocator.getMessage("simplepage.assign_seeattach"));
         assignment.setSendSubmissionNotifications(false);
         assignment.setOpenDate(new Date());
@@ -824,13 +824,13 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
     }
 
 
-    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments) {
+    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide) {
 	String contextId = ToolManager.getCurrentPlacement().getContext();
         Assignment2 assignment = new Assignment2();
         assignment.setContextId(contextId);
         assignment.setCreateDate(new Date());
         assignment.setCreator("ADMIN");
-        assignment.setDraft(false);
+        assignment.setDraft(hide);
 
 	// instructions
 	String instructions = resource.getChildText("text", ns);

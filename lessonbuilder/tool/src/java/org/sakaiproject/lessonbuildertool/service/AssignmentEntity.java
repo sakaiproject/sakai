@@ -771,7 +771,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     }
 
-    public String importObject(String title, String href, String mime){
+    public String importObject(String title, String href, String mime, boolean hide){
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
 	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
@@ -798,7 +798,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    now = TimeService.newTimeLocal(year);
 	    a.setDueTime(now);
 
-	    a.setDraft(false);
+	    a.setDraft(hide);
 	    a.setAccess(Assignment.AssignmentAccess.SITE);
 	    a.clearGroupAccess();
 	    a.setSection("");
@@ -835,7 +835,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     */
 
-    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments) {
+    public String importObject(Element resource, Namespace ns, String base, String baseDir, List<String>attachments, boolean hide) {
 	String context = ToolManager.getCurrentPlacement().getContext();
 	try {
 	    AssignmentContentEdit c = AssignmentService.addAssignmentContent(context);
@@ -923,7 +923,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	    now = TimeService.newTimeLocal(year);
 	    a.setDueTime(now);
 
-	    a.setDraft(false);
+	    a.setDraft(hide);
 	    a.setAccess(Assignment.AssignmentAccess.SITE);
 	    a.clearGroupAccess();
 	    a.setSection("");
