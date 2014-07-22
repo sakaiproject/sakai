@@ -27,8 +27,13 @@ import javax.faces.context.FacesContext;
 import javax.faces.context.ResponseWriter;
 import javax.faces.render.Renderer;
 
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.ResourceLoader;
+
 public class SyllabusIframeRender extends Renderer
 {
+	private ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.syllabus.bundle.Messages");
+	
   public boolean supportsComponentType(UIComponent component)
   {
     return (component instanceof org.sakaiproject.jsf.syllabus.SyllabusIframeComponent);
@@ -72,13 +77,19 @@ public class SyllabusIframeRender extends Renderer
       {
       	redirectUrl = "http://" + redirectUrl;
       }
-      writer.write("<iframe src=\"" + redirectUrl + "\"");
-      writer.write(" width=\"" + widthIn + "\"");
-      writer.write(" height=\"" + heightIn + "\"");
-      writer.write(" style=\"margin-top:1em;clear:both\"");
-      writer.write(" frameborder=\"0\"");
-      writer.write(" scrolling=\"auto\"");      
-      writer.write("><script type='text/javascript'>window.onbeforeunload = function(){ return ''; }; $(window).load(function () {window.onbeforeunload = null;});</script></iframe>");
+      boolean secureHttp = ServerConfigurationService.getServerUrl().startsWith("https");
+      if(redirectUrl.startsWith("http:") && secureHttp){
+    	  writer.write("<script type='text/javascript'>window.open('" + redirectUrl + "');</script>");
+    	  writer.write(rb.getFormattedMessage("iframeSecurity", new String[]{redirectUrl}));
+      }else{
+    	  writer.write("<iframe src=\"" + redirectUrl + "\"");
+    	  writer.write(" width=\"" + widthIn + "\"");
+    	  writer.write(" height=\"" + heightIn + "\"");
+    	  writer.write(" style=\"margin-top:1em;clear:both\"");
+    	  writer.write(" frameborder=\"0\"");
+    	  writer.write(" scrolling=\"auto\"");      
+    	  writer.write("><script type='text/javascript'>window.onbeforeunload = function(){ return ''; }; $(window).load(function () {window.onbeforeunload = null;});</script></iframe>");
+      }
     }
   }
 }
