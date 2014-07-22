@@ -165,6 +165,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		   CKEDITOR.plugins.addExternal('wordcount',basePath+'wordcount/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('fmath_formula',basePath+'fmath_formula/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js'); 
 			 /*
 			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
 			  and to extraPlugins. This also needs extra stylesheets.
@@ -181,7 +182,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.extraPlugins+="atd-ckeditor,";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
 
-			 ckconfig.extraPlugins+="audiorecorder,movieplayer,wordcount,fmath_formula";
+			 ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula";
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);
