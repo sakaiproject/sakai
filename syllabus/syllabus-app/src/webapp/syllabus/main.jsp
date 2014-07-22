@@ -91,6 +91,20 @@
 	function showConfirmAddHelper(){
 		showConfirmAdd(msgs,'<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>');
 	}
+	
+	// in case user includes the URL of a site that replaces top,
+	// give them a way out. Handler is set up in the html file.
+	// Unload it once the page is fully loaded.
+	$(window).load(function () {
+        window.onbeforeunload = null;
+	});
+
+	// in case an iframe tries to replace the top, we have to give the author a way
+	// to get to the page to remove it. This will be cancelled in the javascript
+	// after all content has loaded.
+	window.onbeforeunload = function()
+	{ return ""; };// default message is OK
+	
 </script>
 
 <%-- gsilver: global things about syllabus tool:
