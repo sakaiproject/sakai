@@ -2093,6 +2093,7 @@ isRTL:false
 		cfg.altFieldTimeOnly = false;
 		cfg.showTimepicker = options.useTime;
 		cfg.parseFormat = options.parseFormat;
+		cfg.timeFormat = options.timeFormat;
 
 		// disable the input field on show as to not display a tablet keyboard
 		cfg.onClose = function(dateText, inst) {
