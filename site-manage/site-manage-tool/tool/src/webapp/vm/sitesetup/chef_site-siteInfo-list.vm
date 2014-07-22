@@ -15,6 +15,9 @@
 			collapsible: true,
 			change: function(event, ui){
 				utils.resizeFrame();
+			},
+			activate: function(event, ui){
+				utils.resizeFrame();
 			}
 		});
 	  });
