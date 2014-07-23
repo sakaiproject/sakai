@@ -8773,12 +8773,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 									SessionManager.setCurrentSession(session);
 									SessionManager.setCurrentToolSession(toolSession);
-									importToolIntoSite(selectedTools, importTools,
-											existingSite);
+									importToolIntoSite(selectedTools, importTools, existingSite);
 									existingSite = getStateSite(state); // refresh site for
 									// WC and News
 									commitSite(existingSite);
-									userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									if (ServerConfigurationService.getBoolean("site.setup.import.notification", true)) {
+										userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									}
 									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 								}
 							};
@@ -8840,9 +8841,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									SessionManager.setCurrentSession(session);
 									SessionManager.setCurrentToolSession(toolSession);
 									// Remove all old contents before importing contents from new site
-									importToolIntoSiteMigrate(selectedTools, importTools,
-											existingSite);
-									userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									importToolIntoSiteMigrate(selectedTools, importTools, existingSite);
+									if (ServerConfigurationService.getBoolean("site.setup.import.notification", true)) {
+										userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									}
 									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 								}
 							};
