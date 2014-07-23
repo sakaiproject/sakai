@@ -83,5 +83,11 @@
 		     topic.id in ( :topicIdList )
 		 ]]>
   </query>
+  
+    <query name="findNumRoleWithPermissionInTopic">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.topic.id = :id and membership.name = :roleName and membership.permissionLevelName = :permissionLevelName
+    ]]>
+  </query>
 
 </hibernate-mapping>

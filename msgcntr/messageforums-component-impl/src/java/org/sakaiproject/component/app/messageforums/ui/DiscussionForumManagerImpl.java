@@ -1797,28 +1797,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     if (isInstructor() || securityService.isSuperUser() || isTopicOwner(t)) {
       return true;
     }
-
-    //SAK-12685 If topic's permission level name is "None", then can't access 
-    boolean nonePermission = false;
-    User user=userDirectoryService.getCurrentUser();
-    String role=AuthzGroupService.getUserRole(user.getId(), getContextSiteId());
-    Set membershipItemSet = t.getMembershipItemSet();
-    Iterator it = membershipItemSet.iterator();
-    while(it.hasNext()) {
-    	DBMembershipItem membershipItem =(DBMembershipItem)it.next();
-    	String roleName = membershipItem.getName();
-    	String permissionName = membershipItem.getPermissionLevelName();
-    	if(roleName.equals(role) && permissionName.equals(PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE)){
-    		nonePermission = true;
-    		break;
-    	}    	
-    }   
-
-    if (t.getDraft().equals(Boolean.FALSE) && !nonePermission && t.getAvailability() != null && t.getAvailability()) {
-    	return true;
+    else if (t.getDraft().equals(Boolean.TRUE) || t.getAvailability() == null || !t.getAvailability()) {
+    	return false;
     }
 
-    return false;
+    //SAK-12685 If topic's permission level name is "None", then can't access 
+    User user=userDirectoryService.getCurrentUser();
+    String role=AuthzGroupService.getUserRole(user.getId(), getContextSiteId());
+    return !forumManager.doesRoleHavePermissionInTopic(t.getId(), role, PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
   }
 
   /**

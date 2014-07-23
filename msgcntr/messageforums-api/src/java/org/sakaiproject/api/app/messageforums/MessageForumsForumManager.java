@@ -252,4 +252,13 @@ public interface MessageForumsForumManager {
 	 */
 	public Topic getTopicByIdWithMemberships(final Long topicId);
 
+	/**
+	 * Returns true/false whether the role has the named permission.
+	 * Created this method to avoid iterating over hundreds of DBMembershipItems.
+	 * @param topicId
+	 * @param roleName
+	 * @param permissionName
+	 * @return
+	 */
+	public boolean doesRoleHavePermissionInTopic(final Long topicId, final String roleName, final String permissionName);
 }

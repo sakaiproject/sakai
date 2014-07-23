@@ -1569,6 +1569,26 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			return (Topic) getHibernateTemplate().execute(hcb);
 		}
+		
+		public boolean doesRoleHavePermissionInTopic(final Long topicId, final String roleName, final String permissionName) {
+
+			if (topicId == null) {
+				throw new IllegalArgumentException("Null Argument");
+			}      
+
+			HibernateCallback hcb = new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.getNamedQuery("findNumRoleWithPermissionInTopic");
+					q.setParameter("id", topicId, Hibernate.LONG);          
+					q.setParameter("roleName", roleName, Hibernate.STRING);
+					q.setParameter("permissionLevelName", permissionName, Hibernate.STRING);
+					return q.uniqueResult();
+				}
+			};
+			
+			int countRows = ((Integer) getHibernateTemplate().execute(hcb)).intValue();
+			return countRows > 0 ? true : false;
+		}
 
 		
 
