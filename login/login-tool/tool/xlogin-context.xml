@@ -15,7 +15,7 @@
         <property name="renew" value="false"/>
         <property name="gateway" value="false"/>
         <!-- the serv-->
-        <property name="service" value="https://smartsite-stage.tappakegga.edu/portal/login"/>
+        <property name="service" value="https://smartsite-stage.tappakegga.edu/sakai-login-tool/container"/>
     </bean>
 
     <bean id="org.jasig.cas.client.validation.Cas20ServiceTicketValidator.serverUrl" class="java.lang.String">
@@ -25,7 +25,7 @@
     <bean
             id="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter"
             class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
-        <property name="service" value="https://smartsite-stage.tappakegga.edu/portal/login"/>
+        <property name="service" value="https://smartsite-stage.tappakegga.edu/sakai-login-tool/container"/>
         <property name="ticketValidator">
             <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
                 <constructor-arg ref="org.jasig.cas.client.validation.Cas20ServiceTicketValidator.serverUrl"/>
@@ -33,12 +33,13 @@
         </property>
     </bean>
 
+    <bean id="org.jasig.cas.client.util.HttpServletRequestWrapperFilter" class="org.jasig.cas.client.util.HttpServletRequestWrapperFilter"></bean> 
 
     <bean id="org.springframework.security.util.FilterChainProxy"
           class="org.springframework.security.util.FilterChainProxy">
         <sec:filter-chain-map path-type="ant">
             <sec:filter-chain pattern="/container/**"
-                              filters="org.sakaiproject.login.filter.SakaiCasAuthenticationFilter,org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter"/>
+                              filters="org.sakaiproject.login.filter.SakaiCasAuthenticationFilter,org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter,org.jasig.cas.client.util.HttpServletRequestWrapperFilter"/>
         </sec:filter-chain-map>
     </bean>
 
