@@ -310,7 +310,8 @@ public class CCExport {
 		    continue;
 
 		if (e instanceof ContentResource) {
-		    boolean islink = ((ContentResource)e).getContentType().equals("text/url");
+		    boolean islink = ((ContentResource)e).getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
+			((ContentResource)e).getContentType().equals("text/url");
 		    String location = null;
 		    if (islink) {
 			location = "attachments/" + getResourceIdPeek() + ".xml";
