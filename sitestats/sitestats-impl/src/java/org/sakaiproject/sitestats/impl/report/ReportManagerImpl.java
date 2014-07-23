@@ -532,7 +532,30 @@ public class ReportManagerImpl extends HibernateDaoSupport implements ReportMana
 			if(reportDef.getModifiedOn() == null) {
 				reportDef.setModifiedOn(new Date());
 			}
-			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(reportDef.getReportParams()));
+
+            ReportParams params = reportDef.getReportParams();
+
+            boolean isResourcesReport = params.getWhat().equals(ReportManager.WHAT_RESOURCES);
+
+            boolean isResourceEvent = false;
+
+            for (String eventId : params.getWhatEventIds()) {
+                if (eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_NEW)
+                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_READ)
+                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_REVS)
+                    || eventId.equals(ReportManager.WHAT_RESOURCES_ACTION_DEL)) {
+                    isResourceEvent = true;
+                }
+            }
+
+            if (!isResourcesReport && !isResourceEvent) {
+                // This has nothing to do with resources, so null the whatResourceAction
+                params.setWhatResourceAction(null);
+            } else {
+                params.setWhatToolIds(Arrays.asList("sakai.resources"));
+            }
+
+			reportDef.setReportDefinitionXml(DigesterUtil.convertReportParamsToXml(params));
 		}catch(Exception e) {
 			LOG.warn("saveReportDefinition(): unable to generate xml string from report parameters.", e);
 			return false;
