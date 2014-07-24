@@ -1,6 +1,7 @@
 package org.sakaiproject.component.app.messageforums.entity;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -102,7 +103,11 @@ implements SynopticMsgcntrItemEntityProvider, CoreEntityProvider, AutoRegisterEn
 			return null;
 		}
 		
-		SynopticMsgcntrItem smi = synopticMsgcntrManager.getSiteSynopticMsgcntrItem(userId, siteId); 
+		List<SynopticMsgcntrItem> smiList = synopticMsgcntrManager.getSiteSynopticMsgcntrItems(Arrays.asList(userId), siteId);
+		SynopticMsgcntrItem smi = null;
+		if(smiList != null && smiList.size() == 1){
+			smi = smiList.get(0);
+		}
 		if (smi == null) {
 			smi = synopticMsgcntrManager.createSynopticMsgcntrItem(null, null, null);
 		}

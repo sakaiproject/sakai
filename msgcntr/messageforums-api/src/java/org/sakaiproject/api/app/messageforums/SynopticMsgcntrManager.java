@@ -2,6 +2,7 @@ package org.sakaiproject.api.app.messageforums;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface SynopticMsgcntrManager {
 	
@@ -17,25 +18,25 @@ public interface SynopticMsgcntrManager {
 	
 	public List<SynopticMsgcntrItem> getWorkspaceSynopticMsgcntrItems(final String userId);
 
-	public SynopticMsgcntrItem getSiteSynopticMsgcntrItem(final String userId, final String siteId);
+	public List<SynopticMsgcntrItem> getSiteSynopticMsgcntrItems(final List<String> userIds, final String siteId);
 	
 	public SynopticMsgcntrItem createSynopticMsgcntrItem(String userId, String siteId, String siteTitle);
 	
-	public void saveSynopticMsgcntrItem(SynopticMsgcntrItem item);
+	public void saveSynopticMsgcntrItems(List<SynopticMsgcntrItem> items);
 	
-	public void incrementMessagesSynopticToolInfo(String userId, String siteId);
+	public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId);
 	
-	public void incrementForumSynopticToolInfo(String userId, String siteId);
+	public void incrementForumSynopticToolInfo(List<String> userIds, String siteId);
 	
-	public void decrementMessagesSynopticToolInfo(String userId, String siteId);
+	public void decrementMessagesSynopticToolInfo(List<String> userIds, String siteId);
 	
-	public void decrementForumSynopticToolInfo(String userId, String siteId);
+	public void decrementForumSynopticToolInfo(List<String> userIds, String siteId);
 	
 	public void setMessagesSynopticInfoHelper(String userId, String siteId, int newMessageCount);
 	
 	public void setForumSynopticInfoHelper(String userId, String siteId, int newMessageCount);
 		
-	public void resetMessagesAndForumSynopticInfo(String userId, String siteId);
+	public void resetMessagesAndForumSynopticInfo(List<String> userIds, String siteId, List<SynopticMsgcntrItem> items);
 	
 	public void resetAllUsersSynopticInfoInSite(String siteId);
 	
@@ -43,7 +44,7 @@ public interface SynopticMsgcntrManager {
 	
 	public void deleteSynopticMsgcntrItem(SynopticMsgcntrItem item);
 
-	public void createOrUpdateSynopticToolInfo(String userId, String siteId, String siteTitle, int unreadMessageCount, int unreadForumCount);
+	public void createOrUpdateSynopticToolInfo(List<String> userIds, String siteId, String siteTitle, Map<String, Integer[]> unreadCounts);
 	
 	/**
 	 * This method is used to get live information regarding the new message count per user for a forum ID

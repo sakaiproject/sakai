@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
@@ -304,11 +306,14 @@ public class UpdateSynopticMessageCounts implements Job{
 			//loop through all users in site and update their information:
 			HashMap<String, Integer> userHM = null;
 			Integer count = null;
+			Map<String, Integer[]> unreadCountMap = new HashMap<String, Integer[]>();
+			List<String> userIds = new ArrayList<String>();
 			while(usersMap.next()){
 				int unreadPrivate = 0;
 				int unreadForum = 0;
 
 				String userId = usersMap.getString("USER_ID");
+				userIds.add(userId);
 
 				//message count:			
 				if (isMessageForumsPageInSite || isMessagesPageInSite) 
@@ -389,9 +394,10 @@ public class UpdateSynopticMessageCounts implements Job{
 
 				//update synoptic tool info:
 				if(unreadPrivate != 0 || unreadForum != 0 || updateNewMembersOnly || addItemsWhenNoUnreadCounts){
-					SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadPrivate, unreadForum);
+					unreadCountMap.put(userId, new Integer[]{unreadPrivate, unreadForum});
 				}
 			}
+			SynopticMsgcntrManagerCover.createOrUpdateSynopticToolInfo(userIds, siteId, siteTitle, unreadCountMap);
 		}catch (Exception e){
 			LOG.warn(e);
 		}finally{

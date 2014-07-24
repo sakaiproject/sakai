@@ -34,7 +34,7 @@
 	</query>
 	
 	<query name="findSiteSynopticMsgcntrItems">
-	  <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl as s where s.userId = :userId and s.siteId = :siteId ]]>
+	  <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.SynopticMsgcntrItemImpl as s where s.userId in ( :userIds ) and s.siteId = :siteId ]]>
 	</query>
 	
 	<query name="findSynopticMsgcntrItemById">

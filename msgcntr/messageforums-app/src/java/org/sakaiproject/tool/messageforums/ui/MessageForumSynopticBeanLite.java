@@ -2,6 +2,7 @@ package org.sakaiproject.tool.messageforums.ui;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -172,9 +173,7 @@ public class MessageForumSynopticBeanLite {
 				if(resetSynopticInfo){
 					//update synoptic item since the db is out of sync:
 					getSynopticMsgcntrManager()
-					.resetMessagesAndForumSynopticInfo(
-							synopticMsgcntrItem.getUserId(),
-							synopticMsgcntrItem.getSiteId());
+					.resetMessagesAndForumSynopticInfo(Arrays.asList(synopticMsgcntrItem.getUserId()), synopticMsgcntrItem.getSiteId(), Arrays.asList(synopticMsgcntrItem));
 				}		
 			}
 			
@@ -199,18 +198,18 @@ public class MessageForumSynopticBeanLite {
 	
 	
 	public void proccessActionSaveChanges(){
-		boolean anySaved = false;
+		List<SynopticMsgcntrItem> items = new ArrayList<SynopticMsgcntrItem>();
 		for (Iterator iterator = getContents().iterator(); iterator.hasNext();) {
 			DecoratedSynopticMsgcntrItem dSynItem = (DecoratedSynopticMsgcntrItem) iterator.next();
 			if(dSynItem.hasChanged()){
-				anySaved = true;
-				getSynopticMsgcntrManager().saveSynopticMsgcntrItem(dSynItem.getSynopticMsgcntrItem());
+				items.add(dSynItem.getSynopticMsgcntrItem());
 			}
 		}
 		
-		if(anySaved){
+		if(items.size() > 0){
 			//reset my contents to update information
 			myContents = null;
+			getSynopticMsgcntrManager().saveSynopticMsgcntrItems(items);
 		}
 	}
 	
@@ -222,7 +221,7 @@ public class MessageForumSynopticBeanLite {
 		if(siteHomepageContent != null){
 			return siteHomepageContent;
 		}
-		SynopticMsgcntrItem synItem;
+		SynopticMsgcntrItem synItem = null;
 		if(isMyWorkspace()){
 			//do nothing
 		}else if(getCurrentUser() == null){
@@ -240,7 +239,10 @@ public class MessageForumSynopticBeanLite {
 			
 		}else{
 			//findSiteSynopticMsgcntrItems
-			synItem = getSynopticMsgcntrManager().getSiteSynopticMsgcntrItem(getCurrentUser(), getContext());
+			List<SynopticMsgcntrItem> synItems = getSynopticMsgcntrManager().getSiteSynopticMsgcntrItems(Arrays.asList(getCurrentUser()), getContext());
+			if(synItems != null && synItems.size() == 1){
+				synItem = synItems.get(0);
+			}
 			if(synItem != null){
 				Site site;
 				try {
@@ -267,20 +269,24 @@ public class MessageForumSynopticBeanLite {
 				
 				//calling resetMessagesAndForumSynopticInfo will create a new item (if needed) and 
 				//set the correct counts for new messgaes
-				getSynopticMsgcntrManager().resetMessagesAndForumSynopticInfo(userId, siteId);
-				
-				SynopticMsgcntrItem synopticMsgcntrItem = getSynopticMsgcntrManager().getSiteSynopticMsgcntrItem(userId, siteId);
-				
-				Site site;
-				try {
-					//only add if the site exists:
-					site = SiteService.getSite(synopticMsgcntrItem.getSiteId());
-					siteHomepageContent = new DecoratedSynopticMsgcntrItem(synopticMsgcntrItem, site);	
-				} catch (IdUnusedException e) {
-					//we not longer need this record so delete it
-					getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
-					e.printStackTrace();
-				}			
+				getSynopticMsgcntrManager().resetMessagesAndForumSynopticInfo(Arrays.asList(userId), siteId, synItems);
+				List<SynopticMsgcntrItem> synopticMsgcntrItems = getSynopticMsgcntrManager().getSiteSynopticMsgcntrItems(Arrays.asList(userId), siteId);
+				SynopticMsgcntrItem synopticMsgcntrItem = null;
+				if(synopticMsgcntrItems != null && synopticMsgcntrItems.size() == 1){
+					synopticMsgcntrItem = synopticMsgcntrItems.get(0);
+				}
+				if(synopticMsgcntrItem != null){
+					Site site;
+					try {
+						//only add if the site exists:
+						site = SiteService.getSite(synopticMsgcntrItem.getSiteId());
+						siteHomepageContent = new DecoratedSynopticMsgcntrItem(synopticMsgcntrItem, site);	
+					} catch (IdUnusedException e) {
+						//we not longer need this record so delete it
+						getSynopticMsgcntrManager().deleteSynopticMsgcntrItem(synopticMsgcntrItem);
+						e.printStackTrace();
+					}			
+				}
 			}
 		}
 		

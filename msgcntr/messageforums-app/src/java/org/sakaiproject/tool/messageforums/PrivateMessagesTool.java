@@ -2132,16 +2132,17 @@ private   int   getNum(char letter,   String   a)
   
 	  String siteId = getSiteId();
 	  String currentUser = getUserId();
-
+	  List<String> userIds = new ArrayList<String>();
 	  for (User user : recipients) {
 		  if(updateCurrentUser || (!updateCurrentUser && !currentUser.equals(user.getId())))
-			  incrementMessagesSynopticToolInfo(user.getId(), siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
+			  userIds.add(user.getId());
 	  }
+	  incrementMessagesSynopticToolInfo(userIds, siteId, SynopticMsgcntrManager.NUM_OF_ATTEMPTS);
   }
   
-  public void incrementMessagesSynopticToolInfo(String userId, String siteId, int numOfAttempts) {
+  public void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId, int numOfAttempts) {
 		try {
-			getSynopticMsgcntrManager().incrementMessagesSynopticToolInfo(userId, siteId);
+			getSynopticMsgcntrManager().incrementMessagesSynopticToolInfo(userIds, siteId);
 		} catch (HibernateOptimisticLockingFailureException holfe) {
 
 			// failed, so wait and try again
@@ -2161,7 +2162,7 @@ private   int   getNum(char letter,   String   a)
 				System.out
 						.println("PrivateMessagesTool: incrementMessagesSynopticToolInfo: HibernateOptimisticLockingFailureException: attempts left: "
 								+ numOfAttempts);
-				incrementMessagesSynopticToolInfo(userId, siteId, numOfAttempts);
+				incrementMessagesSynopticToolInfo(userIds, siteId, numOfAttempts);
 			}
 		}
 

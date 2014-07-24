@@ -2,6 +2,7 @@ package org.sakaiproject.api.app.messageforums.cover;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -31,34 +32,34 @@ public class SynopticMsgcntrManagerCover {
 		}
 	}
 
-	public static void incrementMessagesSynopticToolInfo(String userId, String siteId){
+	public static void incrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
 		SynopticMsgcntrManager service = getInstance();
 		if(service != null)			
-			service.incrementMessagesSynopticToolInfo(userId, siteId);
+			service.incrementMessagesSynopticToolInfo(userIds, siteId);
 	}
 
-	public static void incrementForumSynopticToolInfo(String userId, String siteId){
+	public static void incrementForumSynopticToolInfo(List<String> userIds, String siteId){
 		SynopticMsgcntrManager service = getInstance();
 		if(service != null)			
-			service.incrementForumSynopticToolInfo(userId, siteId);
+			service.incrementForumSynopticToolInfo(userIds, siteId);
 	}
 
-	public static void decrementMessagesSynopticToolInfo(String userId, String siteId){
+	public static void decrementMessagesSynopticToolInfo(List<String> userIds, String siteId){
 		SynopticMsgcntrManager service = getInstance();
 		if(service != null)			
-			service.decrementMessagesSynopticToolInfo(userId, siteId);
+			service.decrementMessagesSynopticToolInfo(userIds, siteId);
 	}
 
-	public static void decrementForumSynopticToolInfo(String userId, String siteId){
+	public static void decrementForumSynopticToolInfo(List<String> userIds, String siteId){
 		SynopticMsgcntrManager service = getInstance();
 		if(service != null)			
-			service.decrementForumSynopticToolInfo(userId, siteId);
+			service.decrementForumSynopticToolInfo(userIds, siteId);
 	}
 	
-	public static void createOrUpdateSynopticToolInfo(String userId, String siteId, String siteTitle, int unreadMessageCount, int unreadForumCount){
+	public static void createOrUpdateSynopticToolInfo(List<String> userIds, String siteId, String siteTitle, Map<String, Integer[]> unreadCounts){
 		SynopticMsgcntrManager service = getInstance();
 		if(service != null)			
-			service.createOrUpdateSynopticToolInfo(userId, siteId, siteTitle, unreadMessageCount, unreadForumCount);
+			service.createOrUpdateSynopticToolInfo(userIds, siteId, siteTitle, unreadCounts);
 	}
 	
 	public static HashMap<String, Integer> getUserToNewMessagesForForumMap(String siteId, Long forumId, Long topicId){
