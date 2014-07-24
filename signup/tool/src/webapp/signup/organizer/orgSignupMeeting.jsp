@@ -17,18 +17,44 @@
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
 		
 		<h:form id="modifyMeeting">
-			<sakai:tool_bar>
-				<sakai:tool_bar_item value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" />
-				<sakai:tool_bar_item value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
-				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
-				<h:outputLink id="print" value="javascript:window.print();">
-						<h:graphicImage url="/images/printer.png"
-							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" styleClass="openCloseImageIcon"/>
-						<h:outputText value="#{msgs.print_event}" escape="false"/>
-				</h:outputLink>
-			</sakai:tool_bar>
+			<h:panelGroup>
+				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
+				<h:panelGroup rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}">				
+						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
+					<h:commandLink value="#{msgs.modify_event}" action="#{OrganizerSignupMBean.modifyMeeting}" rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.meetingExpired}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"> 	
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:commandLink value="#{msgs.copy_event}" action="#{OrganizerSignupMBean.copyMeeting}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<h:panelGroup>
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:commandLink value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled}">
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:commandLink value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:outputLink id="print" value="javascript:window.print();">
+							<h:graphicImage url="/images/printer.png"
+								alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" styleClass="openCloseImageIcon"/>
+							<h:outputText value="#{msgs.print_event}" escape="false"/>
+					</h:outputLink>				
+				<f:verbatim></span></li>
+				
+			  </ul></f:verbatim>
+			</h:panelGroup>
 		</h:form>
+		
 		<sakai:view_content>
 
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
@@ -440,7 +466,7 @@
 										   					
 										   						<h:panelGrid columns="2"  style="width:50%;">
 										   							<h:commandButton id="edit_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.editTimeslotAttendee}"/>
-										   							<h:commandButton id="edit_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels();return false;" immediate="true"/>
+										   							<h:commandButton id="edit_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels();return false;" immediate="true"/>
 										   						</h:panelGrid>
 									   					
 									   					</h:panelGrid>
@@ -475,7 +501,7 @@
 					   								
 					   								<h:panelGroup>
 						   						    	<h:commandButton id="addPanel_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendee}"/>
-						   								<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+						   								<h:commandButton id="addPanel_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;"/>
 						   							</h:panelGroup>
 						   							
 						   							<%--  pad last column --%>
@@ -581,7 +607,7 @@
 								   								
 									   							<h:panelGroup>
 								   						    		<h:commandButton id="addWaiter_okBtn" value="#{msgs.ok_button}" action="#{OrganizerSignupMBean.addAttendeeToWList}"/>
-						   											<h:commandButton id="addWaiter_cancelBtn" value="#{msgs.cancel_button}" action="" onclick="clearPanels(); return false;"/>
+						   											<h:commandButton id="addWaiter_cancelBtn" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanels(); return false;"/>
 						   										</h:panelGroup>
 									   							
 									   							<%--  pad last column --%>
@@ -633,7 +659,7 @@
 							
 							 	
 					<sakai:button_bar>					
-						<sakai:button_bar_item id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
+						<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
 	                </sakai:button_bar>
 	                
 	                <h:outputText value="&nbsp;" escape="false"/>

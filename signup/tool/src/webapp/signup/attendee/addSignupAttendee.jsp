@@ -64,8 +64,8 @@
 				</h:panelGrid>
 				
 				<sakai:button_bar>
-					<sakai:button_bar_item id="save" action="#{AttendeeSignupMBean.attendeeSaveSignup}" value="#{msgs.event_button_finish}"/> 
-					<sakai:button_bar_item id="Cancel" action="meeting" value="#{msgs.cancel_button}"  immediate="true"/>  
+					<h:commandButton id="save" action="#{AttendeeSignupMBean.attendeeSaveSignup}" value="#{msgs.event_button_finish}"/> 
+					<h:commandButton id="Cancel" action="meeting" value="#{msgs.cancel_button}"  immediate="true"/>  
                 </sakai:button_bar>
 
 			 </h:form>

@@ -72,7 +72,7 @@
 					</sakai:doc_section>										
 						
 					<sakai:button_bar>					
-							<sakai:button_bar_item id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
+							<h:commandButton id="goback" action="listMeetings" value="#{msgs.goback_button}"/>					
 		            </sakai:button_bar>
 		            
 	            	<h:outputText value="&nbsp;" escape="false"/>

@@ -131,8 +131,8 @@
 		   								<h:inputText id="addAttendeeEidInput" size="40" value="#{NewSignupMeetingBean.userInputEidOrEmail}" rendered="#{NewSignupMeetingBean.eidInputMode}" />
 	   								</h:panelGroup>
 	   								<h:panelGroup>
-		   						    	<h:commandButton value="#{msgs.ok_button}" action="#{NewSignupMeetingBean.addAttendee}" />
-		   								<h:commandButton value="#{msgs.cancel_button}" action="" onclick="clearPanel(); return false;" />
+		   						    	<h:commandButton id="addOk" value="#{msgs.ok_button}" action="#{NewSignupMeetingBean.addAttendee}" />
+		   								<h:commandButton id="cancleOk" value="#{msgs.cancel_button}" action="doNothing" onclick="clearPanel(); return false;" />
 		   							</h:panelGroup>
 		   						</h:panelGrid>
 				   			</h:panelGroup>
@@ -158,8 +158,8 @@
 				<h:inputHidden value="assignAttendee" binding="#{NewSignupMeetingBean.currentStepHiddenInfo}"/>
 				<sakai:button_bar>
 					<h:commandButton id="publish" action="#{NewSignupMeetingBean.processAssignStudentsAndPublish}" value="#{msgs.publish_button}" onclick='displayProcessingIndicator(this);'/>
-				 	<sakai:button_bar_item id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
-					<sakai:button_bar_item id="cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/>  
+				 	<h:commandButton id="goBack" action="#{NewSignupMeetingBean.goBack}" value="#{msgs.goback_button}"/>
+					<h:commandButton id="cancel" action="#{NewSignupMeetingBean.processCancel}" value="#{msgs.cancel_button}"  immediate="true"/>  
 					<h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.publish_processing_submit_message}" />
                 </sakai:button_bar>
 

@@ -22,8 +22,8 @@
 				<sakai:messages />
 				
 				<sakai:button_bar>
-					<sakai:button_bar_item id="cancelTimeslot" action="#{OrganizerSignupMBean.cancelTimeslot}" value="#{msgs.cancel_timeslot_button}"/> 			
-					<sakai:button_bar_item id="cancel" action="organizerMeeting" value="#{msgs.cancel_button}"  immediate="true"/>  
+					<h:commandButton id="cancelTimeslot" action="#{OrganizerSignupMBean.cancelTimeslot}" value="#{msgs.cancel_timeslot_button}"/> 			
+					<h:commandButton id="cancel" action="organizerMeeting" value="#{msgs.cancel_button}"  immediate="true"/>  
                 </sakai:button_bar>
 				
 			</h:form>

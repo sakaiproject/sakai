@@ -109,7 +109,7 @@
 				
 				<sakai:button_bar>
 					<h:commandButton id="doSave"  action="#{UserDefineTimeslotBean.doSave}" actionListener="#{UserDefineTimeslotBean.validateTimeslots}"   value="#{msgs.continue_button}"/>			
-					<sakai:button_bar_item id="cancel" action="#{UserDefineTimeslotBean.doCancel}" value="#{msgs.cancel_button}"/>
+					<h:commandButton id="cancel" action="#{UserDefineTimeslotBean.doCancel}" value="#{msgs.cancel_button}"/>
                 </sakai:button_bar>
 
 			 </h:form>

@@ -101,7 +101,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	
 	
 	@Getter @Setter
-	protected String categoryFilter = ""; // default setting is blank, which means all categories
+	protected String categoryFilter = CATERGORY_FILER_ALL; // default setting is blank, which means all categories
 
 
 	/**
@@ -279,7 +279,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 			}
 			
 			lastUpdatedCatTime = curr_time;
-			categories.add(0, new SelectItem("", Utilities.rb.getString("filter_categories_top")));
+			categories.add(0, new SelectItem(CATERGORY_FILER_ALL, Utilities.rb.getString("filter_categories_top")));
 			allCategories = categories;
 		}
 		
@@ -553,7 +553,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 		//SIGNUP-173 filter list by categoryFilter 
 		//if no category, add them all
 		List<SignupMeeting> filteredCategorySignupMeetings = new ArrayList<SignupMeeting>();
-		if(StringUtils.isNotBlank(categoryFilter)) {
+		if(StringUtils.isNotBlank(categoryFilter) && !StringUtils.equals(CATERGORY_FILER_ALL,categoryFilter)) {
 			for(SignupMeeting s: signupMeetings) {
 				if(StringUtils.equals(s.getCategory(), categoryFilter)) {
 					filteredCategorySignupMeetings.add(s);
@@ -1125,10 +1125,12 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	public String processSelectedCategory(ValueChangeEvent vce) {
 		String selectedCategory = (String) vce.getNewValue();
 		//note that blank values are allowed
-		setCategoryFilter(selectedCategory);
-		setSignupMeetings(null);// reset
+		if(!categoryFilter.equals(selectedCategory)){
+			setCategoryFilter(selectedCategory);
+			setSignupMeetings(null);// reset
+		}
 		
-		return MAIN_EVENTS_LIST_PAGE_URL;
+		return "";
 	}
 	
 	

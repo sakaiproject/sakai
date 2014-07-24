@@ -30,7 +30,7 @@
 				</h:panelGrid>
 				<h:panelGrid columns="3">
 					<h:panelGroup>
-					    <h:outputLabel value="#{msgs.events_dropdownbox_title}&nbsp;"  for="viewByRange" />
+					    <h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" />
 						<h:selectOneMenu id="viewByRange" value="#{DownloadEventBean.viewDateRang}" valueChangeListener="#{DownloadEventBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{DownloadEventBean.viewDropDownList}"/>
 						</h:selectOneMenu>
@@ -39,7 +39,7 @@
 					<!-- filter by category dropdown -->
 					<h:panelGroup>
 						<h:panelGroup styleClass="padLeft"> 
-							<h:outputLabel value="#{msgs.filter_by_category}&nbsp;" for="viewByCategory"/>
+							<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" />
 							<h:selectOneMenu id="viewByCategory" value="#{DownloadEventBean.categoryFilter}" valueChangeListener="#{DownloadEventBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
 								<f:selectItems value="#{DownloadEventBean.allCategoriesForFilter}"/>
 							</h:selectOneMenu>

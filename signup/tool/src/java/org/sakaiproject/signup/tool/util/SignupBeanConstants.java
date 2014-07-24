@@ -125,4 +125,6 @@ public interface SignupBeanConstants {
 	
 	public static final String FULL_DATA_BOTH_VERSION="full_data";
 	
+	public static final String CATERGORY_FILER_ALL="_ALL_";
+	
 }

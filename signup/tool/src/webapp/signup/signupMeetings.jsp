@@ -13,11 +13,28 @@
 		<script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>	
 		<h:form id="addMeeting">
-			<sakai:tool_bar>
-				<sakai:tool_bar_item value="#{msgs.add_new_event}" action="#{SignupMeetingsBean.addMeeting}" rendered="#{SignupMeetingsBean.allowedToCreate}"/>
-				<sakai:tool_bar_item value="#{msgs.permission_feature_link}" action="#{SignupPermissionsUpdateBean.processPermission}" rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"/>
-				<sakai:tool_bar_item value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadSelections}" />
-			</sakai:tool_bar>
+			<h:panelGroup>
+				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
+				<h:panelGroup rendered="#{SignupMeetingsBean.allowedToCreate}">
+						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
+							<h:commandLink value="#{msgs.add_new_event}" action="#{SignupMeetingsBean.addMeeting}" rendered="#{SignupMeetingsBean.allowedToCreate}"/>
+					<f:verbatim></span></li></f:verbatim>
+				 </h:panelGroup>
+				 
+				<h:panelGroup rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"> 	
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>	
+						<h:commandLink value="#{msgs.permission_feature_link}" action="#{SignupPermissionsUpdateBean.processPermission}" rendered="#{SignupPermissionsUpdateBean.showPermissionLink}"/>
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<h:panelGroup>
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>
+						<h:commandLink value="#{msgs.event_pageTop_link_for_download}" action="#{DownloadEventBean.downloadSelections}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+			  <f:verbatim></ul></f:verbatim>
+			</h:panelGroup>
 		</h:form>
 
 		<sakai:view_content>
@@ -35,7 +52,7 @@
 				<h:panelGrid columns="3">
 					<!-- view range dropdown -->
 					<h:panelGroup>
-						<h:outputLabel value="#{msgs.events_dropdownbox_title}&nbsp;"  for="viewByRange"/>
+						<h:outputLabel value="#{msgs.events_dropdownbox_title} "  for="viewByRange" />
 						<h:selectOneMenu id="viewByRange" value="#{SignupMeetingsBean.viewDateRang}" valueChangeListener="#{SignupMeetingsBean.processSelectedRange}" onchange="if(validateIEDisabledItem(this)){submit()};">
 							<f:selectItems value="#{SignupMeetingsBean.viewDropDownList}"/>
 						</h:selectOneMenu>
@@ -44,7 +61,7 @@
 					<!-- filter by category dropdown -->
 					<h:panelGroup>
 						<h:panelGroup styleClass="padLeft"> 
-							<h:outputLabel value="#{msgs.filter_by_category}&nbsp;" for="viewByCategory"/>
+							<h:outputLabel value="#{msgs.filter_by_category} " for="viewByCategory" />
 							<h:selectOneMenu id="viewByCategory" value="#{SignupMeetingsBean.categoryFilter}" valueChangeListener="#{SignupMeetingsBean.processSelectedCategory}" onchange="if(validateIEDisabledItem(this)){submit()};">
 								<f:selectItems value="#{SignupMeetingsBean.allCategoriesForFilter}"/>
 							</h:selectOneMenu>

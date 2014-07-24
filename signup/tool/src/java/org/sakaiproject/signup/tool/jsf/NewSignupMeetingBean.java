@@ -507,7 +507,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 	public String goNext() {
 		if (validationError) {
 			validationError = false;
-			return "";
+			return ADD_MEETING_STEP1_PAGE_URL;
 		}
 
 		String step = (String) currentStepHiddenInfo.getValue();
@@ -520,7 +520,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			if(isUserDefinedTS()){
 				/*get the timeslots schedules for further process*/
 				if(!Utilities.isDataIntegritySafe(isUserDefinedTS(),UserDefineTimeslotBean.NEW_MEETING,getUserDefineTimeslotBean()))
-					return "";
+					return ADD_MEETING_STEP1_PAGE_URL;
 				
 				this.customTimeSlotWrpList=getUserDefineTimeslotBean().getDestTSwrpList();
 			}
@@ -528,7 +528,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
-		return "";
+		return ADD_MEETING_STEP1_PAGE_URL;
 	}
 	
 	/**
@@ -825,7 +825,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			return ADD_MEETING_STEP2_PAGE_URL;
 		}
 
-		return "";
+		return ADD_MEETING_STEP1_PAGE_URL;
 	}
 
 	/**
@@ -988,23 +988,26 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			attendeeEidOrEmail = (String) newAttendeeInput.getValue();
 		}
 		
+		if(attendeeEidOrEmail ==null || attendeeEidOrEmail.length() <1)
+			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
+		
 		//check if there are multiple email addresses associated with input
 		List<String> associatedEids = getEidsForEmail(attendeeEidOrEmail.trim());
 		if(associatedEids.size() > 1) {
 			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("exception.multiple.eids"), new Object[] {attendeeEidOrEmail, StringUtils.join(associatedEids, ", ")}));
-			return "";
+			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
 		}
 
 		String attendeeUserId = getUserIdForEidOrEmail(attendeeEidOrEmail.trim());
 		if(StringUtils.isBlank(attendeeEidOrEmail)){
 			Utilities.addErrorMessage(Utilities.rb.getString("exception.no.such.user") + attendeeEidOrEmail);
-			return "";
+			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
 		}
 		
 		SignupUser attendeeSignUser = getSakaiFacade().getSignupUser(this.signupMeeting, attendeeUserId);
 		if(attendeeSignUser ==null){
 			Utilities.addErrorMessage(MessageFormat.format(Utilities.rb.getString("user.has.no.permission.attend"), new Object[] {attendeeEidOrEmail}));
-			return "";
+			return PRE_ASSIGN_ATTENDEE_PAGE_URL;
 		}
 		
 		SignupAttendee attendee = new SignupAttendee(attendeeUserId, attendeeSignUser.getMainSiteId());
@@ -1015,7 +1018,7 @@ public class NewSignupMeetingBean implements MeetingTypes, SignupMessageTypes, S
 			timeslotWrapper.addAttendee(attendee, sakaiFacade.getUserDisplayLastFirstName(attendeeUserId));
 		}
 
-		return "";
+		return PRE_ASSIGN_ATTENDEE_PAGE_URL;
 	}
 
 	/**

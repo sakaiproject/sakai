@@ -19,15 +19,30 @@
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
 			
 		<h:form id="signupMeeting">
-			<sakai:tool_bar>
-				<sakai:tool_bar_item id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
-				<sakai:tool_bar_item id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"/>
-				<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
-					<h:graphicImage url="/images/printer.png"
-							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-					<h:outputText value="#{msgs.print_event}" escape="false"/>
-				</h:outputLink>
-			</sakai:tool_bar>
+		   <h:panelGroup>
+				<f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
+				<h:panelGroup>
+						<f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
+					<h:commandLink id="download_xls" value="#{msgs.event_pageTop_link_for_download_xls}" action="#{DownloadEventBean.downloadOneEventAsExcel}" />
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<h:panelGroup rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"> 	
+					<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:commandLink id="download_csv" value="#{msgs.event_pageTop_link_for_download_csv}" action="#{DownloadEventBean.downloadOneEventAsCsv}" rendered="#{DownloadEventBean.csvExportEnabled && DownloadEventBean.currentUserAllowedUpdateSite}"/>
+					<f:verbatim></span></li></f:verbatim>
+				</h:panelGroup>
+				
+				<f:verbatim><li role="menuitem" ><span></f:verbatim>
+					<h:outputLink id="print" value="javascript:window.print();">
+							<h:graphicImage url="/images/printer.png"
+								alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" styleClass="openCloseImageIcon"/>
+							<h:outputText value="#{msgs.print_event}" escape="false"/>
+					</h:outputLink>				
+				<f:verbatim></span></li>
+								
+			  </ul></f:verbatim>		
+			</h:panelGroup>
 		</h:form>
 		
 		<sakai:view_content>
@@ -327,19 +342,19 @@
 						<f:facet name="header">
 							<h:outputText value="#{msgs.tab_event_action}" escape="false"/>
 						</f:facet>
-						<sakai:button_bar_item id="addMe" styleClass="actButton"
+						<h:commandButton id="addMe" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeSignup}" value="#{msgs.event_button_signup}"
 							rendered="#{timeSlotWrapper.availableForSignup && !timeSlotWrapper.currentUserSignedUp}"
 							disabled="#{!AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp || AttendeeSignupMBean.currentUserSignedup || timeSlotWrapper.currentUserSignedUp ||timeSlotWrapper.timeSlot.locked || timeSlotWrapper.timeSlot.canceled ||AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}" />
-						<sakai:button_bar_item id="Cancel" styleClass="actButton"
+						<h:commandButton id="Cancel" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeCancelSignup}" value="#{msgs.participant_cancel_button}"
 							rendered="#{timeSlotWrapper.currentUserSignedUp }" 
 							disabled="#{timeSlotWrapper.timeSlot.canceled}"/>
-						<sakai:button_bar_item id="addMeOnWaitingList" styleClass="actButton"
+						<h:commandButton id="addMeOnWaitingList" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeAddToWaitingList}" value="#{msgs.add_waitlist_button}" title="#{msgs.tool_tip_add_waitlist}"
 							rendered="#{!timeSlotWrapper.currentUserOnWaitingList && !timeSlotWrapper.availableForSignup && !timeSlotWrapper.currentUserSignedUp}" 
 							disabled="#{!AttendeeSignupMBean.meetingWrapper.meeting.allowWaitList || !AttendeeSignupMBean.meetingWrapper.meeting.startToSignUp || timeSlotWrapper.timeSlot.locked || timeSlotWrapper.timeSlot.canceled ||AttendeeSignupMBean.meetingWrapper.meeting.passedDeadline}"/>
-						<sakai:button_bar_item id="CancelWaitingList" styleClass="actButton"
+						<h:commandButton id="CancelWaitingList" styleClass="actButton"
 							action="#{AttendeeSignupMBean.attendeeRemoveFromWaitingList}" value="#{msgs.remove_waitlist_button}"
 							rendered="#{timeSlotWrapper.currentUserOnWaitingList}" 
 							disabled="#{timeSlotWrapper.timeSlot.canceled}"/>
@@ -349,7 +364,7 @@
 
 
 				<sakai:button_bar>
-					<sakai:button_bar_item styleClass="actButton" id="goBack"
+					<h:commandLink styleClass="actButton" id="goBack"
 						action="listMeetings" value="#{msgs.goback_button}" />
 				</sakai:button_bar>
 

@@ -65,7 +65,7 @@
 				</h:panelGrid>
 															
 				<sakai:button_bar>			
-					<sakai:button_bar_item id="Back" action="organizerMeeting" value="#{msgs.goback_button}"  immediate="true"/>  
+					<h:commandButton id="Back" action="organizerMeeting" value="#{msgs.goback_button}"  immediate="true"/>  
                 </sakai:button_bar>
 
 			 </h:form>

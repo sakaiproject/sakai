@@ -366,7 +366,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 	public String processSaveModify() {
 		if (validationError) {
 			validationError = false;
-			return "";
+			return MODIFY_MEETING_PAGE_URL;
 		}
 
 		try {

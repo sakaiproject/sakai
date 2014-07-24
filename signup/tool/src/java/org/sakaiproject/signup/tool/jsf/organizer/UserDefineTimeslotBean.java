@@ -277,7 +277,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 	public String doSave() {
 		if (validationError) {
 			validationError = false;
-			return "";
+			return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 		}
 		// init("");
 		preProcess();
@@ -312,7 +312,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		
 		if (this.validationError) {
 			this.validationError = false;
-			return "";
+			return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 		}
 
 		Calendar calendar = Calendar.getInstance();
@@ -330,7 +330,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 		getTimeSlotWrpList().add(tsWrp);
 		setPositionIndex(this.timeSlotWrpList);
 
-		return "";
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 	}
 
 	public String deleteTSblock() {
@@ -361,7 +361,7 @@ public class UserDefineTimeslotBean implements SignupBeanConstants {
 				
 		}
 
-		return "";
+		return CUSTOM_DEFINED_TIMESLOT_PAGE_URL;
 	}
 	
 	private boolean isEmptyTimeslotWrpList(){

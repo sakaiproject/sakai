@@ -270,7 +270,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 	public String processSaveCopy() {
 		if (validationError) {
 			validationError = false;
-			return "";
+			return COPTY_MEETING_PAGE_URL;
 		}
 
 		SignupMeeting sMeeting = getSignupMeeting();
@@ -311,7 +311,7 @@ public class CopyMeetingSignupMBean extends SignupUIBaseBean {
 			return ORGANIZER_MEETING_PAGE_URL;
 		} catch (SignupUserActionException ue) {
 			Utilities.addErrorMessage(ue.getMessage());
-			return "";
+			return COPTY_MEETING_PAGE_URL;
 		} catch (Exception e) {
 			logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
 			Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
