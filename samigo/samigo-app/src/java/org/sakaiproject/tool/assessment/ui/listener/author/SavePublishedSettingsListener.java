@@ -182,7 +182,9 @@ implements ActionListener
 	    	newTitle = assessment.getTitle();
 	    // getTitleDecoration() returns "" if null or NONE module is passed
 	    titleDecoration = secureDeliveryService.getTitleDecoration( assessmentSettings.getSecureDeliveryModule(), new ResourceLoader().getLocale() );
-	    newTitle = newTitle + " " + titleDecoration;
+	    if (titleDecoration != null && !titleDecoration.trim().equals("")) {
+	    	newTitle = newTitle + " " + titleDecoration;
+	    }
 	    assessment.setTitle( newTitle );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
 	    
