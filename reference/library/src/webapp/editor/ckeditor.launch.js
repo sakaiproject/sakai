@@ -192,10 +192,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
           // data.
           var dialogName = e.data.name;
           var dialogDefinition = e.data.definition;
-          dialogDefinition.dialog.parts.dialog.setStyles(
-              {
-                  position : 'absolute'
-              });
+
+          var onShow = dialogDefinition.onShow;
+          dialogDefinition.onShow = function() {
+              var result = onShow.call(this);
+              this.move(this.getPosition().x, $(e.editor.container.$).position().top);
+              return result;
+          }
 
           if ( dialogName == 'link' )
           {
