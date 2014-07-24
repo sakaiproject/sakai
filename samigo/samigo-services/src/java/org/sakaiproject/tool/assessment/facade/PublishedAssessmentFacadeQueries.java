@@ -1421,7 +1421,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		final ArrayList groupIds = getSiteGroupIdsForCurrentUser(siteId);
 		String query = "";
 		if (groupIds.size() > 0) {
-			query = "select new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
+			query = "select distinct new PublishedAssessmentData(p.publishedAssessmentId, p.title, "
 				+ " c.releaseTo, c.startDate, c.dueDate, c.retractDate, "
 				+ " c.feedbackDate, f.feedbackDelivery, f.feedbackComponentOption, f.feedbackAuthoring, c.lateHandling, "
 				+ " c.unlimitedSubmissions, c.submissionsAllowed, em.scoringType, p.status, p.lastModifiedDate, c.timeLimit) "
@@ -2157,7 +2157,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		
 		// Get total no. of submission per assessment by the given agent
 		if (groupIds.size() > 0) {
-			final String hql = "select new AssessmentGradingData("
+			final String hql = "select distinct new AssessmentGradingData("
 				+ " a.assessmentGradingId, p.publishedAssessmentId, p.title, a.agentId,"
 				+ " a.submittedDate, a.isLate,"
 				+ " a.forGrade, a.totalAutoScore, a.totalOverrideScore,a.finalScore,"

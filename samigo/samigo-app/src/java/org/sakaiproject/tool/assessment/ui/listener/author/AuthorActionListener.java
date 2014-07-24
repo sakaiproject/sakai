@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -369,15 +370,17 @@ public class AuthorActionListener
 				  PublishedAssessmentSettingsBean publishedAssessmentSettingsBean = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 				  publishedAssessmentSettingsBean.setAssessmentId(f.getPublishedAssessmentId());
 				  String [] groupsAuthorized = publishedAssessmentSettingsBean.getGroupsAuthorized();
-                                  
+				  //Use a set to avoid duplicated entries in the userList
+				  HashSet<String> uuser = new HashSet<String>();                
 				  if(groupsAuthorized != null && groupsAuthorized.length > 0) {
 				  for (int i = 0; i < groupsAuthorized.length; i++) {
 					  if (groupUsersIdMap.get(groupsAuthorized[i]) != null) {
-						  for (String userId : groupUsersIdMap.get(groupsAuthorized[i])) {
-							  userIdList.add(userId);
+						  for (String userId : groupUsersIdMap.get(groupsAuthorized[i])) {							
+							  uuser.add(userId);
 						  }
 					  }
 				  }
+				  userIdList = new ArrayList<String>(uuser);
 			  }
 			  }
 			  else {
