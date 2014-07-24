@@ -39,6 +39,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.net.URLDecoder;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -433,6 +434,25 @@ public class CCExport {
 
 	return true;
 
+    }
+
+    // xxx/abc/../ccc
+    // xxx/ccc
+    // xxx/../ccc
+    // ccc
+
+    public String removeDotDot(String s) {
+	while (true) {
+	    int i = s.indexOf("/../");
+	    if (i < 1)
+		return s;
+	    int j = s.lastIndexOf("/", i-1);
+	    if (j < 0)
+		j = 0;
+	    else
+		j = j + 1;
+	    s = s.substring(0, j) + s.substring(i+4);
+	}
     }
 
     public boolean addAllSamigo(String siteId) {
@@ -970,6 +990,8 @@ public class CCExport {
 		    type = linkid;
 		out.println("    <resource href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\" identifier=\"" + entry.getValue().resourceId + "\" type=\"" + type + "\"" + use + ">");
 		out.println("      <file href=\"" + StringEscapeUtils.escapeXml(entry.getValue().location) + "\"/>");
+		for (String d: entry.getValue().dependencies)
+		    out.println("      <dependency identifierref=\"" + d + "\"/>");
 		out.println("    </resource>");
 	    }
 
@@ -1160,7 +1182,9 @@ public class CCExport {
 	// http://lessonbuilder.sakaiproject.org/53605/
 	StringBuilder ret = new StringBuilder();
 	String sakaiIdBase = "/group/" + siteId;
-	Pattern target = Pattern.compile("/access/content/group/" + siteId + "|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
+	// I'm matching against /access/content/group not /access/content/group/SITEID, because SITEID can in some installations
+	// be user chosen. In that case there could be escaped characters, and the escaping in HTML URL's isn't unique. 
+	Pattern target = Pattern.compile("(?:https?:)?(?://[-a-zA-Z0-9.]+(?::[0-9]+)?)?/access/content(/group/)|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
 	Matcher matcher = target.matcher(s);
 	// technically / isn't allowed in an unquoted attribute, but sometimes people
 	// use sloppy HTML	
@@ -1173,17 +1197,27 @@ public class CCExport {
 	    }		
 	    String sakaiId = null;
 	    int start = matcher.start();
-	    if (s.regionMatches(false, start, "/access", 0, 7)) { // matched /access/content...
-		int sakaistart = start + "/access/content".length(); //start of sakaiid, can't find end until we figure out quoting
-		int last = start + "/access/content/group/".length() + siteId.length();
-		if (s.regionMatches(true, (start - server.length()), server, 0, server.length())) {    // servername before it
-		    start -= server.length();
-		    if (s.regionMatches(true, start - 7, "http://", 0, 7)) {   // http:// or https:// before that
-			start -= 7;
-		    } else if (s.regionMatches(true, start - 8, "https://", 0, 8)) {
-			start -= 8;
-		    }
+	    if (matcher.start(1) >= 0) { // matched /access/content...
+		// make sure it's the right siteid. This approach will get it no matter
+		// how the siteid is url encoded
+		int startsite = matcher.end(1);
+		int last = s.indexOf("/", startsite);
+		if (last < 0)
+		    continue;
+		String sitepart = null;
+		try {
+		    sitepart = URLDecoder.decode(s.substring(startsite, last), "UTF-8");
+		} catch (Exception e) {
+		    System.out.println("decode failed in CCExport " + e);
 		}
+		if (!siteId.equals(sitepart))
+		    continue;
+
+		// it matches, now map it
+		// unfortunately the hostname and port are a bit unpredictable. Don't use them for match. I think siteids are
+		// unique enough that if /access/content/group/SITEID matches that should be enough
+		int sakaistart = matcher.start(1); //start of sakaiid, can't find end until we figure out quoting
+
 		// need to find sakaiend. To do that we need to find the close quote
 		int sakaiend = 0;
 		char quote = s.charAt(start-1);
@@ -1197,10 +1231,15 @@ public class CCExport {
 		    else
 			sakaiend = s.length();
 		}
-		sakaiId = s.substring(sakaistart, sakaiend);
+		try {
+		    sakaiId = removeDotDot(URLDecoder.decode(s.substring(sakaistart, sakaiend), "UTF-8"));
+		} catch (Exception e) {
+		    System.out.println("Exception in CCExport URLDecoder " + e);
+		}
 		ret.append(s.substring(index, start));
 		ret.append("$IMS-CC-FILEBASE$..");
-		index = last;  // start here next time
+		ret.append(removeDotDot(s.substring(last, sakaiend)));
+		index = sakaiend;  // start here next time
 	    } else { // matched http://lessonbuilder.sakaiproject.org/
 		int last = matcher.end(); // should be start of an integer
 		int endnum = s.length();  // end of the integer
@@ -1220,6 +1259,8 @@ public class CCExport {
 			sakaiId.startsWith(sakaiIdBase)) {
 			ret.append(s.substring(index, start));
 			ret.append("$IMS-CC-FILEBASE$.." + sakaiId.substring(sakaiIdBase.length()));
+			if (s.charAt(endnum) == '/')
+			    endnum++;
 			index = endnum;
 		    }
 		}
@@ -1239,7 +1280,9 @@ public class CCExport {
 	// http://lessonbuilder.sakaiproject.org/53605/
 	StringBuilder ret = new StringBuilder();
 	String sakaiIdBase = "/group/" + siteId;
-	Pattern target = Pattern.compile("/access/content/group/" + siteId + "|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
+	// I'm matching against /access/content/group not /access/content/group/SITEID, because SITEID can in some installations
+	// be user chosen. In that case there could be escaped characters, and the escaping in HTML URL's isn't unique. 
+	Pattern target = Pattern.compile("(?:https?:)?(?://[-a-zA-Z0-9.]+(?::[0-9]+)?)?/access/content(/group/)|http://lessonbuilder.sakaiproject.org/", Pattern. CASE_INSENSITIVE);
 	Matcher matcher = target.matcher(s);
 	// technically / isn't allowed in an unquoted attribute, but sometimes people
 	// use sloppy HTML	
@@ -1252,17 +1295,24 @@ public class CCExport {
 	    }		
 	    String sakaiId = null;
 	    int start = matcher.start();
-	    if (s.regionMatches(false, start, "/access", 0, 7)) { // matched /access/content...
-		int sakaistart = start + "/access/content".length(); //start of sakaiid, can't find end until we figure out quoting
-		int last = start + "/access/content/group/".length() + siteId.length();
-		if (s.regionMatches(true, (start - server.length()), server, 0, server.length())) {    // servername before it
-		    start -= server.length();
-		    if (s.regionMatches(true, start - 7, "http://", 0, 7)) {   // http:// or https:// before that
-			start -= 7;
-		    } else if (s.regionMatches(true, start - 8, "https://", 0, 8)) {
-			start -= 8;
-		    }
+	    if (matcher.start(1) >= 0) { // matched /access/content...
+		// make sure it's the right siteid. This approach will get it no matter
+		// how the siteid is url encoded
+		int startsite = matcher.end(1);
+		int last = s.indexOf("/", startsite);
+		if (last < 0)
+		    continue;
+		String sitepart = null;
+		try {
+		    sitepart = URLDecoder.decode(s.substring(startsite, last), "UTF-8");
+		} catch (Exception e) {
+		    System.out.println("decode failed in CCExport " + e);
 		}
+		if (!siteId.equals(sitepart))
+		    continue;
+
+		int sakaistart = matcher.start(1); //start of sakaiid, can't find end until we figure out quoting
+
 		// need to find sakaiend. To do that we need to find the close quote
 		int sakaiend = 0;
 		char quote = s.charAt(start-1);
@@ -1276,16 +1326,19 @@ public class CCExport {
 		    else
 			sakaiend = s.length();
 		}
-		last = sakaiend;
-		sakaiId = s.substring(sakaistart, sakaiend);
-		ret.append(s.substring(index, start));
+		try {
+		    sakaiId = removeDotDot(URLDecoder.decode(s.substring(sakaistart, sakaiend), "UTF-8"));
+		} catch (Exception e) {
+		    System.out.println("Exception in CCExport URLDecoder " + e);
+		}
 		// do the mapping. resource.location is a relative URL of the page we're looking at
 		// sakaiid is the URL of the object, starting /group/
 		String base = getParent(resource.location);
 		String thisref = sakaiId.substring(sakaiIdBase.length()+1);
 		String relative = relativize(thisref, base);
+		ret.append(s.substring(index, start));
 		ret.append(relative.toString());
-		index = last;  // start here next time
+		index = sakaiend;  // start here next time
 	    } else { // matched http://lessonbuilder.sakaiproject.org/
 		int last = matcher.end(); // should be start of an integer
 		int endnum = s.length();  // end of the integer
@@ -1308,6 +1361,8 @@ public class CCExport {
 			String thisref = sakaiId.substring(sakaiIdBase.length()+1);
 			String relative = relativize(thisref, base);
 			ret.append(relative);
+			if (s.charAt(endnum) == '/')
+			    endnum++;
 			index = endnum;
 		    }
 		}
