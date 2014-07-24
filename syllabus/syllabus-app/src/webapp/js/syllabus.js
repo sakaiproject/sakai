@@ -288,6 +288,7 @@ function setupEditable(msgs, iframId){
 					$("button.editable-submit").click(function(event){
 						for ( instance in CKEDITOR.instances ){
 					        CKEDITOR.instances[instance].updateElement();
+					        CKEDITOR.instances[instance].destroy();
 						}
 					});
 					mySetMainFrameHeight(iframId, 600);
