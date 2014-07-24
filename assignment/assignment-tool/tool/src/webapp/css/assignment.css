@@ -158,3 +158,9 @@
 {
 	vertical-align: middle;
 }
+
+/* SAK-26349 */
+label.disabled {
+    color: #aaa;
+}
+
