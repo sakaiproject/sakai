@@ -218,6 +218,9 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
 		public SimpleAssignment(Assignment a) {
 			super();
+			if (a == null){
+				return;
+			}
 			this.id = a.getId();
 			this.contentReference = a.getContentReference();
 			this.openTime = a.getOpenTime();
@@ -242,21 +245,23 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
 			
-			this.instructions = a.getContent().getInstructions();
-
-			this.attachments = new ArrayList<DecoratedAttachment>();
-			List<Reference> attachment_list = (List<Reference>) a.getContent()
-					.getAttachments();
-			for (Reference attachment : attachment_list) {
-				String url = attachment.getUrl();
-				String name = attachment.getProperties().getPropertyFormatted(
-						attachment.getProperties().getNamePropDisplayName());
-				DecoratedAttachment decoratedAttachment = new DecoratedAttachment(
-						name, url);
-				this.attachments.add(decoratedAttachment);
+			if (a.getContent() != null){
+				this.instructions = a.getContent().getInstructions();
+	
+				this.attachments = new ArrayList<DecoratedAttachment>();
+				List<Reference> attachment_list = (List<Reference>) a.getContent()
+						.getAttachments();
+				for (Reference attachment : attachment_list) {
+					String url = attachment.getUrl();
+					String name = attachment.getProperties().getPropertyFormatted(
+							attachment.getProperties().getNamePropDisplayName());
+					DecoratedAttachment decoratedAttachment = new DecoratedAttachment(
+							name, url);
+					this.attachments.add(decoratedAttachment);
+				}
+				// Translate grade scale from its numeric value to its description.
+				this.gradeScale = a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade());
 			}
-			// Translate grade scale from its numeric value to its description.
-			this.gradeScale = a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade());
 		}
 	}
 
