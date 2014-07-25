@@ -2716,6 +2716,66 @@
                 <regexp name="systemColor"/>
             </regexp-list>
         </property>
+        <property name="border-radius" description="This property allows you to add rounded borders to elements">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="percentage"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </property>
+        <property name="border-top-left-radius" description="This property allows you to add rounded borders to elements">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="percentage"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </property>
+        <property name="border-top-right-radius" description="This property allows you to add rounded borders to elements">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="percentage"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </property>
+        <property name="border-bottom-right-radius" description="This property allows you to add rounded borders to elements">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="percentage"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </property>
+        <property name="border-bottom-left-radius" description="This property allows you to add rounded borders to elements">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="percentage"/>
+                <regexp name="length"/>
+            </regexp-list>
+        </property>
         <property name="border-right-color" description="">
             <category-list>
                 <category value="visual"/>
