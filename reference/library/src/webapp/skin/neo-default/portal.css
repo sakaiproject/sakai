@@ -1194,7 +1194,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 .icon-sakai-sitesetup {
     background-position: -324px -0px;
 }
-.icon-sakai-site-roster {
+.icon-sakai-site-roster, .icon-sakai-site-roster2 {
     background-position: -144px -522px;
 }
 .icon-sakai-synoptic-messagecenter {
