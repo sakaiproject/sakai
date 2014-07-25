@@ -58,7 +58,7 @@ public class XLoginHandler extends BasePortalHandler
 		{
 			try
 			{
-				portal.doLogin(req, res, session, "", true);
+				portal.doLogin(req, res, session, null, true);
 				return END;
 			}
 			catch (Exception ex)
