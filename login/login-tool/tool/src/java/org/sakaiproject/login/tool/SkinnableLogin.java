@@ -476,8 +476,10 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		rcontext.put("xloginChoiceIcon", serverConfigurationService.getString("xlogin.choice.icon"));
 		//the URLs for these are set above, as containerLoginUrl and xloginUrl
 
-		rcontext.put("containerLoginChoiceText", serverConfigurationService.getString("container.login.choice.text"));
-		rcontext.put("xloginChoiceText", serverConfigurationService.getString("xlogin.choice.text"));
+		rcontext.put("containerLoginChoiceText", serverConfigurationService.getString("container.login.choice.text",
+				serverConfigurationService.getString("login.text")));
+		rcontext.put("xloginChoiceText", serverConfigurationService.getString("xlogin.choice.text",
+				serverConfigurationService.getString("xlogin.text")));
 
 		return rcontext;
 	}
