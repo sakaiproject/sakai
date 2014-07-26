@@ -624,7 +624,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         SearchResponse response = client.prepareSearch(indexName)
                 .setQuery(matchAllQuery())
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
-                .setFilter(missingFilter(SearchService.FIELD_CONTENTS))
+                .setPostFilter(missingFilter(SearchService.FIELD_CONTENTS))
                 .setSize(contentIndexBatchSize)
                 .addFields(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID)
                 .execute().actionGet();
@@ -692,7 +692,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         DeleteResponse deleteResponse  = prepareDelete(id, siteId).execute().actionGet();
 
         if (log.isDebugEnabled()) {
-            if (deleteResponse.isNotFound()) {
+            if (!deleteResponse.isFound()) {
                 log.debug("could not delete doc with by id: " + id + " it wasn't found");
             } else {
                 log.debug("ES deleted a doc with id: " + deleteResponse.getId());
@@ -716,7 +716,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
                 if (response.isFailed()) {
                     log.error("problem deleting doc: " + response.getId() + " error: " + response.getFailureMessage());
-                } else if (deleteResponse.isNotFound()) {
+                } else if (!deleteResponse.isFound()) {
                     log.debug("ES could not find a doc with id: " + deleteResponse.getId() + " to delete.");
                 } else {
                     log.debug("ES deleted a doc with id: " + deleteResponse.getId());

@@ -21,9 +21,9 @@
         <maven.compiler.target>6</maven.compiler.target>
 
         <!-- dependencies versions -->
-        <elasticsearch.version>0.90.7</elasticsearch.version>
+        <elasticsearch.version>1.1.2</elasticsearch.version>
         <guava.version>11.0.2</guava.version>
-        <lucene.version>2.9.4</lucene.version>
+        <lucene.version>4.7.2</lucene.version>
     </properties>
 
 

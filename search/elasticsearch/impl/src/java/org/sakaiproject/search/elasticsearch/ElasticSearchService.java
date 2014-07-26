@@ -298,7 +298,7 @@ public class ElasticSearchService implements SearchService {
                  OrFilterBuilder siteFilter = orFilter().add(
                          termsFilter(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])).execution("bool"));
 
-                 searchRequestBuilder.setFilter(siteFilter);
+                 searchRequestBuilder.setPostFilter(siteFilter);
              } else {
                  query.must(termsQuery(SearchService.FIELD_SITEID, siteIds.toArray(new String[siteIds.size()])));
              }
@@ -736,7 +736,7 @@ public class ElasticSearchService implements SearchService {
         OrFilterBuilder siteFilter = orFilter().add(
                 termsFilter(SearchService.FIELD_SITEID, sites).execution("bool"));
 
-        searchRequestBuilder.setFilter(siteFilter);
+        searchRequestBuilder.setPostFilter(siteFilter);
 
         log.debug("search request: " + searchRequestBuilder.toString());
 
