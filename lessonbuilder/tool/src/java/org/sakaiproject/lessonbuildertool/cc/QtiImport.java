@@ -21,6 +21,7 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.DOMException;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.util.FormattedText;
 
 public class QtiImport {
 
@@ -95,6 +96,18 @@ public class QtiImport {
 	if (meta != null && meta.item(0) != null)
 	    return meta.item(0).getTextContent();
 
+	// cc version. look at all metadata items for the profile
+	String ccProfile = null;
+	meta=((Element)itemnode).getElementsByTagName("qtimetadatafield");
+	for (int i = 0; i < meta.getLength(); i++) {
+	    Node label = getFirstByName(meta.item(i), "fieldlabel");
+	    if ("cc_profile".equals(getText(label))) {
+		Node value = getFirstByName(meta.item(i), "fieldentry");
+		ccProfile = getText(value);
+		break;
+	    }
+	}
+
 	// response_lid is for multiple choice, true false and matching
 	// matching has an explicit type, so just need to see if true false
 	NodeList lid=((Element)itemnode).getElementsByTagName("response_lid");
@@ -123,6 +136,13 @@ public class QtiImport {
 		if (text2 != null && text2.item(0) != null)
 		    answer2 = text2.item(0).getTextContent();
 	    }
+
+	    // there's nothing to say that a true false question
+	    // has to use English. However Samigo depends upon it.
+	    // It presents localized alternatives, but the database
+	    // shows true and false. But if there's some other answer
+	    // we have no way of knowing which is true and which false.
+	    // so the only safe approach is to treat it as multiple choice.
 
 	    if (answer1.equalsIgnoreCase("True") && 
 		answer2.equalsIgnoreCase("False") ||
@@ -244,7 +264,7 @@ public class QtiImport {
 
 	String texttype = mattextl.getAttribute("texttype");
 	if (texttype != null && texttype.equals("text/plain"))
-	    retText = "<pre>\n" + retText + "\n</pre>";
+	    retText = FormattedText.convertPlaintextToFormattedText(retText);
 	else
 	    retText =  retText.replaceAll("\\$IMS-CC-FILEBASE\\$", filebase);
 
@@ -387,7 +407,7 @@ public class QtiImport {
 
 	Node resproc = getFirstByName(item, "resprocessing");
 	if (presentation == null) {
-	    System.err.println("can't find <resprocessing>");
+	    System.err.println("can't find <resprocessing> " + getAttribute(item, "ident"));
 	    return false;
 	}
 
@@ -881,7 +901,7 @@ public class QtiImport {
 
 	Node resproc = getFirstByName(item, "resprocessing");
 	if (presentation == null) {
-	    System.err.println("can't find <resprocessing>");
+	    System.err.println("can't find <resprocessing> " + getAttribute(item, "ident"));
 	    return false;
 	}
 
@@ -1235,7 +1255,7 @@ public class QtiImport {
 
 	Node resproc = getFirstByName(item, "resprocessing");
 	if (resproc == null) {
-	    System.err.println("can't find <resprocessing>");
+	    System.err.println("can't find <resprocessing> " + getAttribute(item, "ident"));
 	    return false;
 	}
 
@@ -1484,6 +1504,7 @@ public class QtiImport {
 	    }
 	    out.println("    </respcondition>");
 	}
+
 	out.println("  </resprocessing>");
 
 	if (feedback != null && !feedback.trim().equals("") ||
@@ -1531,7 +1552,7 @@ public class QtiImport {
 
 	Node resproc = getFirstByName(item, "resprocessing");
 	if (resproc == null) {
-	    System.err.println("Can't find <resprocessing>");
+	    System.err.println("can't find <resprocessing> " + getAttribute(item, "ident"));
 	}
 
 	if (resproc != null) {

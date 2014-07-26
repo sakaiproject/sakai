@@ -299,6 +299,12 @@ public class CCExport {
 
     }
 
+    public static boolean islink(ContentResource r) {
+	return r.getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
+	    r.getContentType().equals("text/url");
+    }
+
+
     public boolean addAllFiles(ContentCollection baseCol, int baselen) {
 	try {
 
@@ -311,8 +317,7 @@ public class CCExport {
 		    continue;
 
 		if (e instanceof ContentResource) {
-		    boolean islink = ((ContentResource)e).getResourceType().equals("org.sakaiproject.content.types.urlResource") ||
-			((ContentResource)e).getContentType().equals("text/url");
+		    boolean islink = islink((ContentResource)e);
 		    String location = null;
 		    if (islink) {
 			location = "attachments/" + getResourceIdPeek() + ".xml";
@@ -576,8 +581,8 @@ public class CCExport {
 		    if (!ok)
 			return false;
 		}
-
 	    }
+
 	} catch (Exception e) {
 	    log.error("Lessons export error outputting file, outputAllAssignments " + e);
 	    setErrKey("simplepage.exportcc-fileerr", e.getMessage());

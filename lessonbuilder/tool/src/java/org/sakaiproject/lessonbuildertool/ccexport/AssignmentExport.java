@@ -48,6 +48,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.util.Validator;
 
 import org.w3c.dom.Document;
 
@@ -170,14 +171,11 @@ public class AssignmentExport {
 	    List<String>attachments = item.attachments;
 		
 	    // special case. one attachment and nothing else.
-	    // just export the attachment
-	    String intendeduse = null;
-	    if ((instructions == null || instructions.trim().equals("")) &&
-		(attachments != null && attachments.size() == 1)) {
-		intendeduse = "assignment";  // simple case. just set intended use for attachment
-	    } else { // complex case. need to do full assignment generation
-		ret.add(item.id);
-	    }
+	    // just export the attachment.
+	    // removed this code. Interaction with version 1.3 has made this
+	    // too complex to test and maintain.
+
+	    ret.add(item.id);
 
 	    // arrange to include the attachments
 	    for (String sakaiId: attachments) {
@@ -189,8 +187,7 @@ public class AssignmentExport {
 		// if it is a URL, need the URL rather than copying the file
 		try {
 		    ContentResource resource = ContentHostingService.getResource(sakaiId);
-		    String type = resource.getContentType();
-		    if ("text/url".equals(type)) {
+		    if (CCExport.islink(resource)) {
 			url = new String(resource.getContent());
 		    }
 		} catch (Exception e) {
@@ -205,9 +202,7 @@ public class AssignmentExport {
 		    assignmentId = assignmentId.substring(i+1);
 		    int lastSlash = sakaiId.lastIndexOf("/");
 		    String lastAtom = sakaiId.substring(lastSlash + 1);
-		    bean.addFile(sakaiId, "attachments/" + assignmentId + "/" + lastAtom, intendeduse);
-		} else if (intendeduse != null) {  // already there, just set intended use
-		    bean.setIntendeduse(sakaiId, intendeduse);
+		    bean.addFile(sakaiId, "attachments/" + assignmentId + "/" + lastAtom, null);
 		}
 	    }
 	}
@@ -307,7 +302,6 @@ public class AssignmentExport {
 	    return false;
 	
 	String title = contents.title;
-	String attachmentDir = "attachments/" + contents.id + "/";
 	String instructions = bean.relFixup(contents.instructions, resource);
 
 	List<String>attachments = contents.attachments;
@@ -320,47 +314,60 @@ public class AssignmentExport {
 	    out.println(instructions);
 	    out.println("</div> ");
 	}
-	for (String sakaiId: attachments) {
-	    if (sakaiId.startsWith("/content/"))
-		sakaiId = sakaiId.substring("/content".length());
 
-	    String URL = null;
-	    // if it is a URL, need the URL rather than copying the file
-	    try {
-		ContentResource res = ContentHostingService.getResource(sakaiId);
-		String type = res.getContentType();
-		if ("text/url".equals(type)) {
-		    URL = new String(res.getContent());
-		}
-	    } catch (Exception e) {
-	    }
 
-	    String location = bean.getLocation(sakaiId);
-	    int lastSlash = sakaiId.lastIndexOf("/");
-	    String lastAtom = sakaiId.substring(lastSlash + 1);
+	out.println(outputAttachments(resource, attachments, bean, "../../"));
 
-	    if (URL != null) {
-		out.println("<a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(URL) + "</a><br/>");
-	    } else {
-		if (location.startsWith(attachmentDir))
-		    URL = lastAtom;  // if in attachment dir, relative reference
-		else
-		    URL = "../../" + location;  // else it's in the normal site content
-		URL = URL.replaceAll("//", "/");
-		try {
-		    out.println("<a href=\"" + URLEncoder.encode(URL, "UTF-8") + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>");
-
-		} catch (java.io.UnsupportedEncodingException e) {
-		    System.out.println("UTF-8 unsupported");
-		}
-		bean.addDependency(resource, sakaiId);
-	    }
-	}
 	out.println("</body>");
 	out.println("</html>");
 
 	return true;
    }
+
+    static String outputAttachments(CCExport.Resource resource, List<String>attachments, CCExport bean, String prefix) {
+
+	StringBuilder out = new StringBuilder();
+
+	if (attachments.size() > 0) {
+	    out.append("<ul>\n");
+
+	    for (String sakaiId: attachments) {
+		if (sakaiId.startsWith("/content/"))
+		    sakaiId = sakaiId.substring("/content".length());
+		
+		String URL = null;
+		// if it is a URL, need the URL rather than copying the file
+		if (!sakaiId.startsWith("///")) {
+		    try {
+			ContentResource res = ContentHostingService.getResource(sakaiId);
+			if (CCExport.islink(res)) {
+			    URL = new String(res.getContent());
+			}
+		    } catch (Exception e) {
+		    }
+		}
+		
+		String location = bean.getLocation(sakaiId);
+		int lastSlash = sakaiId.lastIndexOf("/");
+		String lastAtom = sakaiId.substring(lastSlash + 1);
+		
+		// assumption here is that if the user entered a URL, it's in valid syntax
+		// if we generate it from file location, it needs to be escaped
+		if (URL != null) {
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(URL) + "</a>\n");
+		} else {
+		    URL = prefix + Validator.escapeUrl(location);  // else it's in the normal site content
+		    URL = URL.replaceAll("//", "/");
+		    out.append("<li><a href=\"" + URL + "\">" + StringEscapeUtils.escapeHtml(lastAtom) + "</a><br/>\n");
+		    bean.addDependency(resource, sakaiId);
+		}
+	    }
+	    out.append("</ul>\n");
+	}
+
+	return out.toString();
+
+    }
 
     public boolean outputEntity2(String assignmentRef, ZipPrintStream out, PrintStream errStream, CCExport bean, CCExport.Resource resource) {
 
@@ -369,11 +376,29 @@ public class AssignmentExport {
 	    return false;
 	
 	String title = contents.title;
-	String attachmentDir = "cc-objects/" + contents.id + "/";
 
 	// relFixup is for stuff that's in an actual HTML file, fixup for stuff in an XML descriptor
 	String instructions = bean.fixup(contents.instructions, resource);
 	List<String>attachments = contents.attachments;
+
+	// the spec doesn't allow URLs in attachments, so if any of our attachments are URLs,
+	// put the attachments as a list inside the instructions
+	boolean useAttachments = (attachments.size() > 0);
+	for (String sakaiId: attachments) {
+	    if (sakaiId.startsWith("/content/"))
+		sakaiId = sakaiId.substring("/content".length());
+
+	    String URL = null;
+	    // if it is a URL, need the URL rather than copying the file
+	    try {
+		ContentResource res = ContentHostingService.getResource(sakaiId);
+		if (CCExport.islink(res)) {
+		    useAttachments = false;
+		    break;
+		}
+	    } catch (Exception e) {
+	    }
+	}
 
 	out.println("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	out.println("<assignment xmlns=\"http://www.imsglobal.org/xsd/imscc_extensions/assignment\"");
@@ -384,14 +409,17 @@ public class AssignmentExport {
 	if (title == null || title.length() == 0)
 	    title = "Assignment";
 	out.println("  <title>" + StringEscapeUtils.escapeXml(title) + "</title>");
-	if (instructions != null && instructions.length() > 0)
+	if (useAttachments || attachments.size() == 0)
 	    out.println("  <text texttype=\"text/html\">" + instructions + "</text>");
+	else
+	    out.println("  <text texttype=\"text/html\">" + StringEscapeUtils.escapeXml("<div>") + instructions + StringEscapeUtils.escapeXml(outputAttachments(resource, attachments, bean, "$IMS-CC-FILEBASE$../") + "</div>") + "</text>");
+	
 	// spec requires an instructor text even though we don't normally have one.
 	out.println("<instructor_text texttype=\"text/plain\"></instructor_text>");
 	out.println("<gradable" + (contents.forpoints ? (" points_possible=\"" + contents.maxpoints + "\"") : "") + ">" + 
 		    contents.gradable + "</gradable>");
 
-	if (attachments.size() > 0) {
+	if (useAttachments) {
 	    out.println("  <attachments>");
 
 	    for (String sakaiId: attachments) {
@@ -402,8 +430,7 @@ public class AssignmentExport {
 		// if it is a URL, need the URL rather than copying the file
 		try {
 		    ContentResource res = ContentHostingService.getResource(sakaiId);
-		    String type = res.getContentType();
-		    if ("text/url".equals(type)) {
+		    if (CCExport.islink(res)) {
 			URL = new String(res.getContent());
 		    }
 		} catch (Exception e) {
@@ -416,10 +443,7 @@ public class AssignmentExport {
 		if (URL != null) {
 		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
 		} else {
-		    // if (location.startsWith(attachmentDir))
-		    //   URL = lastAtom;  // if in attachment dir, relative reference
-		    // else
-			URL = "../" + location;  // else it's in the normal site content
+		    URL = "../" + location;  // else it's in the normal site content
 		    URL = URL.replaceAll("//", "/");
 		    out.println("    <attachment href=\"" + StringEscapeUtils.escapeXml(URL) + "\" role=\"All\" />");
 		    bean.addDependency(resource, sakaiId);
