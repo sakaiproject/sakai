@@ -2852,11 +2852,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				return false;
 			}
 		} else if (i.getType() == SimplePageItem.ASSIGNMENT) {
+		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
+			if (available && (i.isPrerequisite()) {
+			    simplePageBean.checkItemPermissions(i, true);
+			}
 			LessonEntity lessonEntity = assignmentEntity.getEntity(i.getSakaiId(), simplePageBean);
 			if (available && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
-				}
 
 				GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 				params.setSendingPage(currentPage.getPageId());
@@ -2871,11 +2872,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.ASSESSMENT) {
+		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
+			if (available && (i.isPrerequisite()) {
+			    simplePageBean.checkItemPermissions(i, true);
+			}
 			LessonEntity lessonEntity = quizEntity.getEntity(i.getSakaiId(),simplePageBean);
 			if (available && lessonEntity != null && (canEditPage || !quizEntity.notPublished(i.getSakaiId()))) {
-				if (i.isPrerequisite()) {
-					simplePageBean.checkItemPermissions(i, true);
-				}
 				// we've hacked Samigo to look at a special lesson builder
 				// session
 				// attribute. otherwise at the end of the test, Samigo replaces
@@ -2896,6 +2898,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				fake = true; // need to set this in case it's available for missing entity
 			}
 		} else if (i.getType() == SimplePageItem.FORUM) {
+		    // assignments won't let us get the entity if we're not in the group, so set up permissions before other tests
+			if (available && (i.isPrerequisite()) {
+			    simplePageBean.checkItemPermissions(i, true);
+			}
 			LessonEntity lessonEntity = forumEntity.getEntity(i.getSakaiId());
 			if (available && lessonEntity != null && (canEditPage || !lessonEntity.notPublished())) {
 				if (i.isPrerequisite()) {
