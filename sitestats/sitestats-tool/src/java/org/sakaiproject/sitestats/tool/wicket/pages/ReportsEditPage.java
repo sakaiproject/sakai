@@ -1361,50 +1361,6 @@ public class ReportsEditPage extends BasePage {
 			
 		}
 		
-		@Override
-		protected void convertInput() {
-			String[] paths = getInputAsArray();
-
-			// nothing selected
-			if(paths == null || paths.length == 0){
-				setConvertedInput(null);
-				return;
-			}
-
-			// convert
-			List converted = new ArrayList(paths.length);
-			for(int i = 0; i < paths.length; i++){
-				String path = paths[i];
-				if(!Strings.isEmpty(path)){
-					/*
-					 * option component path sans select component path =
-					 * relative path from group to option since we know the
-					 * option is child of select
-					 */
-					path = path.substring(getPath().length() + 1);
-
-					// retrieve the selected option component
-					SelectOption option = (SelectOption) get(path);
-
-					if(option == null){
-						throw new WicketRuntimeException(
-								"submitted http post value ["
-										+ Arrays.toString(paths)
-										+ "] for SelectOption component ["
-										+ getPath()
-										+ "] contains an illegal relative path element ["
-										+ path
-										+ "] which does not point to an SelectOption component. Due to this the Select component cannot resolve the selected SelectOption component pointed to by the illegal value. A possible reason is that component hierarchy changed between rendering and form submission.");
-					}
-					converted.add(option.getDefaultModelObject());
-				}
-			}
-			if(converted.isEmpty()){
-				setConvertedInput(null);
-			}else{
-				setConvertedInput(converted);
-			}
-		}
 	}
 }
 
