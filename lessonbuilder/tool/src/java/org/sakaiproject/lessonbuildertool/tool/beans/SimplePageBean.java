@@ -2519,6 +2519,8 @@ public class SimplePageBean {
 					if (lessonEntity != null) {
 					    String groups = getItemGroupString (i, lessonEntity, true);
 					    ourGroupName = messageLocator.getMessage("simplepage.access-group").replace("{}", getNameOfSakaiItem(i));
+					    // backup in case group was created by old code
+					    String oldGroupName = "Access: " + getNameOfSakaiItem(i);
 					    // this can produce duplicate names. Searches are actually done based
 					    // on entity reference, not title, so this is acceptable though confusing
 					    // to users. But using object ID's for the name would be just as confusing.
@@ -2526,7 +2528,7 @@ public class SimplePageBean {
 						ourGroupName = utf8truncate(ourGroupName, 99);
 					    else if (ourGroupName.length() > 99) 
 						ourGroupName = ourGroupName.substring(0, 99);
-					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, i.getSakaiId(), this);
+					    String groupId = GroupPermissionsService.makeGroup(getCurrentPage().getSiteId(), ourGroupName, oldGroupName, i.getSakaiId(), this);
 					    saveItem(simplePageToolDao.makeGroup(i.getSakaiId(), groupId, groups, getCurrentPage().getSiteId()));
 
 					    // update the tool access control to point to our access control group

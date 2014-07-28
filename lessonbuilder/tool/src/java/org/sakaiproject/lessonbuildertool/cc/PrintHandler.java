@@ -335,7 +335,7 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public String getGroupForRole(String role) {
       // if group already exists, this will return the existing one
       try {
-	  String g = GroupPermissionsService.makeGroup(siteId, role, null, simplePageBean);
+	  String g = GroupPermissionsService.makeGroup(siteId, role, role, null, simplePageBean);
 	  return g;
 	  //	  return GroupPermissionsService.makeGroup(siteId, role);
       } catch (Exception e) {

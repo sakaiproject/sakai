@@ -84,7 +84,7 @@ public class GroupPermissionsService {
 	    convertGroupsTable();
 	}
 
-	public static String makeGroup(String siteId, String title, String ref, SimplePageBean simplePageBean) throws IOException {
+	public static String makeGroup(String siteId, String title, String oldTitle, String ref, SimplePageBean simplePageBean) throws IOException {
 		Site site = null;
 		AuthzGroup realm = null;
 
@@ -99,8 +99,10 @@ public class GroupPermissionsService {
 
 		// see if group exists. must be visible
 		Collection<Group> allGroups = site.getGroups();
+		String retId = null;
 		for (Group group: allGroups) {
-		    // ref is null for groups that aren't access groups, e.g. "Mentor"
+		    // This is used by CC code to create groups having nothign to do with access control.
+		    // In that case ref == null.
 		    if (ref != null) {
 			// unfortunately old groups won't have this. If it's there, use it, 
 			// otherwise use title
@@ -112,12 +114,18 @@ public class GroupPermissionsService {
 				continue;
 			}
 		    }
-		    if (title.equals(group.getTitle())) {
+		    // if the group was created by pre-10.0 code, it won't have the property.
+		    // In that case match the title. But use a title generated as we used
+		    // to generate them, i.e non-internationalized, since that's what would be there
+		    if (oldTitle.equals(group.getTitle())) {
 			if (group.getProperties().getProperty("group_prop_wsetup_created") != null) {
-			    return group.getId();
+			    retId = group.getId();
 			}
 		    }
 		}
+		// no matching groupRef, did we find something with the right title?
+		if (retId != null)
+		    return retId;
 
 		// need to copy all site roles into new gruop
 		// in theory they should be the same, but if someone has setup
