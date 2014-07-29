@@ -694,8 +694,8 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (ImportException e)
 		{
-			m_log.error("Error loading calendar subscription '" + calendarName
-					+ "' (will NOT retry again): " + url, e);
+			m_log.info("Error loading calendar subscription '" + calendarName
+					+ "' (will NOT retry again): " + url);
 			String subscriptionId = getIdFromSubscriptionUrl(url);
 			String reference = calendarSubscriptionReference(context, subscriptionId);
 			calendar = new ExternalCalendarSubscription(reference);
@@ -711,18 +711,18 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 		catch (MalformedURLException e)
 		{
-			m_log.error("Mal-formed URL in calendar subscription '" + calendarName
-					+ "': " + url, e);
+			m_log.info("Mal-formed URL in calendar subscription '" + calendarName
+					+ "': " + url);
 		}
 		catch (IOException e)
 		{
-			m_log.error("Unable to read calendar subscription '" + calendarName
-					+ "' from URL (I/O Error): " + url, e);
+			m_log.info("Unable to read calendar subscription '" + calendarName
+					+ "' from URL (I/O Error): " + url);
 		}
 		catch (Exception e)
 		{
-			m_log.error("Unknown error occurred while reading calendar subscription '"
-					+ calendarName + "' from URL: " + url, e);
+			m_log.info("Unknown error occurred while reading calendar subscription '"
+					+ calendarName + "' from URL: " + url);
 		}
 		finally
 		{
