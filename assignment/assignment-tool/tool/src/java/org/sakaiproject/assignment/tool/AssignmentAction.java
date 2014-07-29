@@ -6700,8 +6700,12 @@ public class AssignmentAction extends PagedResourceActionII
 			    }
 			}
 		}
-		else
+		else if (!Integer.valueOf(Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION).equals(state.getAttribute(NEW_ASSIGNMENT_SUBMISSION_TYPE)))
 		{
+			/* 
+			 * SAK-26640: If the instructor switches to non-electronic by mistake, the resubmissions settings should persist so they can be easily retrieved.
+			 * So we only reset resubmit params for electronic assignments.
+			 */
 			resetAllowResubmitParams(state);
 		}
 		

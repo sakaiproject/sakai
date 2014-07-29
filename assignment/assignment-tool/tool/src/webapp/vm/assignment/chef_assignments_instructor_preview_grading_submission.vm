@@ -230,13 +230,15 @@
 				#end
 			</div>
 			<br />
-			<p>
-				$tlang.getString("allow.resubmit.number"): $!allowResubmitNumber
-			</p>
-			#if ($!allowResubmitCloseTime)
+			#if ($!submissionType != 4)
 				<p>
-					$tlang.getString("gen.acesubunt"): $!allowResubmitCloseTime
+					$tlang.getString("allow.resubmit.number"): $!allowResubmitNumber
 				</p>
+				#if ($!allowResubmitCloseTime)
+					<p>
+						$tlang.getString("gen.acesubunt"): $!allowResubmitCloseTime
+					</p>
+				#end
 			#end
 			<p class="act">
 				<input accesskey="d" name="eventSubmit_doSave_preview_grade_submission" type="submit" value="$tlang.getString("gen.savdragra")" title="$tlang.getString("gen.savdratit")" class="active" />

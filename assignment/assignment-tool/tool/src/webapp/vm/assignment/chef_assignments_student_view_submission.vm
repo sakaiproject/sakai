@@ -233,6 +233,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 					</td>
 				</tr>
 				##resubmit number
+				#if ($submissionType != 4)
 					<tr>
 						<th>
 							$tlang.getString("allow.resubmit.number")
@@ -241,16 +242,17 @@ function enableSubmitUnlessNoFile(checkForFile)
 							#if ($!resubmitNumber) $resubmitNumber #else 0 #end 
 						</td>
 					</tr>
-				## resubmit close time
-				#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
-					<tr>
-						<th>
-							$tlang.getString("allow.resubmit.closeTime")
-						</th>
-						<td>
-							$resubmitCloseTime
-						</td>
-					</tr>
+					## resubmit close time
+					#if($!resubmitNumber && !$!resubmitNumber.equals("0") )
+						<tr>
+							<th>
+								$tlang.getString("allow.resubmit.closeTime")
+							</th>
+							<td>
+								$resubmitCloseTime
+							</td>
+						</tr>
+					#end
 				#end
 				## no need to show status if this is for an non-electronic submission type of assignment
 					#if (!$!nonElectronicType)

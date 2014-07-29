@@ -163,6 +163,52 @@ $(document).ready(function() {
 			excludePercentages.disabled = false;
 		}
 	}
+
+	## handles the Student Submissions dropdown	--bbailla2
+	function switchAssignmentSubmissionType()
+	{
+		var useReview = document.getElementById('$name_UseReviewService');
+		var lblUseReview=document.getElementById('lblReviewService');
+		var reviewSwitchNe1 = document.getElementById('review.switch.ne.1');
+		var reviewSwitchNe2 = document.getElementById('review.switch.ne.2');
+		if(document.getElementById('subType').value != 4)
+		{
+			#if ($allowReviewService)
+				reviewSwitchNe1.style.display='none';
+				lblReviewService.className='';
+				reviewSwitchNe2.style.display='none';
+				useReview.disabled=false;
+			#end
+			## SAK-26640	--bbailla2
+			document.getElementById('tempAllowRes').style.display = 'block';
+			if (document.getElementById('allowResToggle').checked)
+			{
+				document.getElementById('allowResubmitNumber').style.display = 'block';
+				document.getElementById('allowResubmitTime').style.display = 'block';
+				document.getElementById('resubmitNotification').style.display = 'block';
+				resizeFrame();
+			}
+		}
+		else
+		{ 
+			#if ($allowReviewService)
+				if (useReview.checked)
+				{
+					reviewSwitchNe2.style.removeProperty('display');
+					toggleReviewServiceOptions(this.checked);
+				}
+				useReview.checked=false;
+				useReview.disabled=true;
+				lblUseReview.className='instruction';
+				reviewSwitchNe1.style.removeProperty('display');
+			#end
+			## SAK-26640	--bbailla2
+			document.getElementById('tempAllowRes').style.display = 'none';
+			document.getElementById('allowResubmitNumber').style.display = 'none';
+			document.getElementById('allowResubmitTime').style.display = 'none'; 
+			document.getElementById('resubmitNotification').style.display = 'none';
+		}
+	}
 </script>
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
@@ -438,7 +484,7 @@ $(document).ready(function() {
 			<label for="subType">
 				$tlang.getString("gen.stusub")
 			</label>
-			<select name="$name_SubmissionType" id="subType" title="$tlang.getString("gen.subformat")" onchange="var useReview = document.getElementById('$name_UseReviewService'); var lblUseReview = document.getElementById('lblReviewService'); var reviewSwitchNe1 = document.getElementById('review.switch.ne.1'); var reviewSwitchNe2 = document.getElementById('review.switch.ne.2'); if (document.getElementById('subType').value != 4) { reviewSwitchNe1.style.display='none'; lblReviewService.className=''; reviewSwitchNe2.style.display='none'; useReview.disabled=false; document.getElemenbById('tempAllowRes').style.display = 'block'; resizeFrame(); } else{ if (useReview.checked) { reviewSwitchNe2.style.removeProperty('display'); toggleReviewServiceOptions(this.checked); } useReview.checked=false; useReview.disabled=true; lblUseReview.className='instruction'; reviewSwitchNe1.style.removeProperty('display'); document.getElementById('tempAllowRes').style.display = 'none'; document.getElementById('allowResToggle').checked=false; document.getElementById('allowResubmitNumber').style.display = 'none'; document.getElementById('allowResubmitTime').style.display = 'none'; }" /> >
+			<select name="$name_SubmissionType" id="subType" onchange="switchAssignmentSubmissionType();" >
 				#foreach ($i in [1..$!value_totalSubmissionTypes])
 					#if ($i == $value_SubmissionType)
 						<option value="$i" selected="selected">$submissionTypeTable.get($i)</option>
@@ -456,7 +502,7 @@ $(document).ready(function() {
 			#set($resubmitStyle="display:none")
 		#end
 		<p class="checkbox" id="tempAllowRes" #if ($value_SubmissionType == 4) style = "display:none"#end>
-			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber && $value_SubmissionType != 4) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" /> 
+			<input type="checkbox" id="allowResToggle" name ="allowResToggle" #if($!value_allowResubmitNumber) checked="checked"#end onclick="if(checked){document.getElementById('allowResubmitNumber').style.display = 'block';document.getElementById('allowResubmitTime').style.display = 'block';document.getElementById('resubmitNotification').style.display = 'block';resizeFrame();}else{document.getElementById('allowResubmitNumber').style.display = 'none';document.getElementById('allowResubmitTime').style.display = 'none';document.getElementById('resubmitNotification').style.display = 'none';}" /> 
 			<label for="allowResToggle">$tlang.getString("allowResubmit")</label>
 	    </p>
 		<p class="shorttext" id="allowResubmitNumber" style="$!resubmitStyle">
