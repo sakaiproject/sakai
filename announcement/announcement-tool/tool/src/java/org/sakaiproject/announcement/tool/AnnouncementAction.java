@@ -1279,7 +1279,7 @@ public class AnnouncementAction extends PagedResourceActionII
 	
 		context.put("showMessagesList", showMessagesList.iterator());
 		context.put("messageListVector", showMessagesList);
-
+		context.put("showMessagesList2", showMessagesList.iterator());
 		context.put("totalPageNumber", sstate.getAttribute(STATE_TOTAL_PAGENUMBER));
 		context.put("formPageNumber", FORM_PAGE_NUMBER);
 		context.put("prev_page_exists", sstate.getAttribute(STATE_PREV_PAGE_EXISTS));
