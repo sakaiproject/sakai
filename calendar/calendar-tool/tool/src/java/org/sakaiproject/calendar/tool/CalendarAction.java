@@ -3305,8 +3305,8 @@ extends VelocityPortletStateAction
 	
 	protected Vector getNewEvents(int year, int month, int day, CalendarActionState state, RunData rundata, int time, int numberofcycles,Context context,CalendarEventVector CalendarEventVectorObj)
 	{
-		boolean firstTime = true;
-		Vector events = new Vector();
+		boolean firstTime = true; // Don't need to do complex checking the first time.
+		Vector events = new Vector(); // A vector of vectors, each of the vectors containing a range of previous events.
 		
 		Time timeObj = TimeService.newTimeLocal(year,month,day,time,00,00,000);
 		
@@ -3322,25 +3322,25 @@ extends VelocityPortletStateAction
 			
 			calEvent = CalendarEventVectorObj.getEvents(timeRangeObj);
 			
-			Vector vectorObj = new Vector();
+			Vector vectorObj = new Vector(); // EventDisplay of calevent.
 			EventDisplayClass eventDisplayObj;
-			Vector newVectorObj = null;
+			Vector newVectorObj = null; // Ones we haven't see before?
 			boolean swapflag=true;
 			EventDisplayClass eventdisplayobj = null;
 			
-			if (calEvent.hasNext())
+			if (calEvent.hasNext()) // While we still have more events in this range.
 			{
-				int i = 0;
+				int i = 0; // Size of vectorObj
 				while (calEvent.hasNext())
 				{
 					eventdisplayobj = new EventDisplayClass();
 					eventdisplayobj.setEvent((CalendarEvent)calEvent.next(),false,i);
 					
-					vectorObj.add(i,eventdisplayobj);
+					vectorObj.add(i,eventdisplayobj); // Copy into vector, wrapping in EventDisplay
 					i++;
 				} // while
 				
-				if(firstTime)
+				if(firstTime) // First range
 				{
 					events.add(range,vectorObj);
 					firstTime = false;
@@ -3350,36 +3350,37 @@ extends VelocityPortletStateAction
 					while(swapflag == true)
 					{
 						swapflag=false;
-						for(int mm = 0; mm<events.size();mm++)
+						for(int mm = 0; mm<events.size();mm++) // Loop through all the previous ranges.
 						{
-							int eom, mv =0;
-							Vector evectorObj = (Vector)events.elementAt(mm);
-							if(evectorObj.isEmpty()==false)
+							// 
+							Vector evectorObj = (Vector)events.elementAt(mm); // One vector range.
+							if(!evectorObj.isEmpty())
 							{
-								for(eom = 0; eom<evectorObj.size();eom++)
+								for(int eom = 0; eom<evectorObj.size();eom++) // loop through previous range.
 								{
 									if(!"".equals(evectorObj.elementAt(eom)))
 									{
+										// Event ID.
 										String eomId = (((EventDisplayClass)evectorObj.elementAt(eom)).getEvent()).getId();
 										newVectorObj = new Vector();
-										for(mv = 0; mv<vectorObj.size();mv++)
+										for(int mv = 0; mv<vectorObj.size();mv++) // Loop back through the current range.
 										{
 											if(!"".equals(vectorObj.elementAt(mv)))
 											{
 												String vectorId = (((EventDisplayClass)vectorObj.elementAt(mv)).getEvent()).getId();
-												if (vectorId.equals(eomId))
+												if (vectorId.equals(eomId)) // Exists in a previous range.
 												{
 													eventDisplayObj = (EventDisplayClass)vectorObj.elementAt(mv);
 													eventDisplayObj.setFlag(true);
-													if (mv != eom)
+													if (mv != eom) // index of current range, 
 													{
 														swapflag = true;
 														vectorObj.removeElementAt(mv);
 														for(int x = 0 ; x<eom;x++)
 														{
-															if(vectorObj.isEmpty()==false)
+															if(!vectorObj.isEmpty())
 															{
-																newVectorObj.add(x,vectorObj.elementAt(0));
+																newVectorObj.add(x,vectorObj.elementAt(0)); // Copy data into new array.
 																vectorObj.removeElementAt(0);
 															}
 															else
@@ -3387,7 +3388,7 @@ extends VelocityPortletStateAction
 																newVectorObj.add(x,"");
 															}
 														}// for
-														newVectorObj.add(eom, eventDisplayObj);
+														newVectorObj.add(eom, eventDisplayObj); // Add the one that's out of position.
 														int neweom = eom;
 														neweom = neweom+1;
 														

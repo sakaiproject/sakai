@@ -805,7 +805,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			// allocate a new unique event id
 			// String id = getUniqueId();
-			String id = getUniqueIdBasedOnFields(displayName, description, type, location);
+			String id = getUniqueIdBasedOnFields(displayName, description, type, location, m_id);
 
 			// create event
 			ExternalCalendarEvent edit = new ExternalCalendarEvent(m_context, m_id, id);
@@ -1044,10 +1044,15 @@ public class BaseExternalCalendarSubscriptionService implements
 		}
 
 		protected String getUniqueIdBasedOnFields(String displayName, String description,
-				String type, String location)
+				String type, String location, String calendarId)
 		{
-			StringBuffer key = new StringBuffer(); 
-			key.append(displayName + description + type + location);
+			StringBuilder key = new StringBuilder();
+			key.append(displayName);
+			key.append(description);
+			key.append(type);
+			key.append(location);
+			key.append(calendarId);
+
 			String id = null;
 			int n = 0;
 			boolean unique = false;
