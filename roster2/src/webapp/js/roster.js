@@ -21,6 +21,16 @@
 
 (function ($) {
 
+    // jquery.i18n
+	$.i18n.properties({
+	    name:'ui', 
+	    path:'/sakai-roster2-tool/bundle/',
+	    mode: 'both',
+	    language: roster.language
+	});
+    
+	roster.i18n = $.i18n.map;
+	
     roster.ADMIN = 'admin';
 
     roster.STATE_OVERVIEW = 'overview';

@@ -206,6 +206,30 @@
 					</excludes>
 				</configuration>
 			</plugin>
+		    <plugin>
+		        <artifactId>maven-resources-plugin</artifactId>
+		        <version>2.6</version>
+		        <executions>
+		          <execution>
+		            <id>copy-resources</id>
+		            <phase>process-resources</phase>
+		            <goals>
+		              <goal>copy-resources</goal>
+		            </goals>
+		            <configuration>
+		              <outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+		              <resources>          
+		                <resource>
+		                  <directory>${basedir}/src/bundle/org/sakaiproject/roster</directory>
+		                  <includes>
+		                  	<include>**/*.properties</include>
+		                  </includes>
+		                </resource>
+		              </resources>              
+		            </configuration>            
+		          </execution>
+		        </executions>
+		    </plugin>
 		</plugins>
 	</build>
 
