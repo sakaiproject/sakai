@@ -230,7 +230,7 @@ function mySetMainFrameHeightViewCell(id)
 			
 			<f:subview id="optionsView" rendered="#{(mfSynopticBeanLite.myContentsSize > 0)}">
 				<sakai:tool_bar>			
-					<f:verbatim><a id="showOptions" name="showOptions" class="optionLink" href="#" onclick="$('.optionsTable').fadeIn(resize);$('.optionLink').toggle();$('.workspaceTable').fadeIn();$('.noActivity').fadeOut();$('.hideInfo').fadeIn();"></a></f:verbatim>			  	
+					<f:verbatim><a id="showOptions" name="showOptions" class="optionLink" href="#" onclick="$('.optionsTable').fadeIn(resize);$('.optionLink').parent().parent().toggle();$('.workspaceTable').fadeIn();$('.noActivity').fadeOut();$('.hideInfo').fadeIn();"></a></f:verbatim>			  	
 		 		</sakai:tool_bar>
 	
 				
@@ -369,7 +369,7 @@ function mySetMainFrameHeightViewCell(id)
 	 		</f:verbatim>
 	 		<h:commandButton id="update" value="#{msgs.syn_update}" action="#{mfSynopticBeanLite.proccessActionSaveChanges}"/>	 		
 	 		<f:verbatim>
-	 			<input type="button" id="cancel" value='</f:verbatim><h:outputText value="#{msgs.syn_cancel}"/><f:verbatim>' onclick="$('.optionsTable').fadeOut(resize);$('.optionLink').toggle();SynMainLite.resetCheckboxes();$('.hideInfo').fadeOut();if(SynMainLite.getCount() == 1){$('.noActivity').fadeIn();$('.workspaceTable').fadeOut();};">
+	 			<input type="button" id="cancel" value='</f:verbatim><h:outputText value="#{msgs.syn_cancel}"/><f:verbatim>' onclick="$('.optionsTable').fadeOut(resize);$('.optionLink').parent().parent().toggle();SynMainLite.resetCheckboxes();$('.hideInfo').fadeOut();if(SynMainLite.getCount() == 1){$('.noActivity').fadeIn();$('.workspaceTable').fadeOut();};">
 	 		</f:verbatim> 		
 	 		<f:verbatim> 		
 	 			</div> 			
