@@ -28,7 +28,7 @@
 	  var selectElement = document.getElementById(selectId);
 	  var url = selectElement.options[selectElement.selectedIndex].title;
 	  if (!url) url = "$fairuseurl"; 
-	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=700,resizable=no,toolbar=no,location=no,status=no");
+	  if (url && url!="") window.open(url,"MoreInfoCopyrightWindow","scrollbars=yes,menubar=no,height=400,width=700,resizable=yes,toolbar=no,location=no,status=no");
 	  return false;
 	}
 	function hideOptionalProperties(index, metadataGroup)
