@@ -18,10 +18,10 @@ function getSelectDate (prefix) {
   var sHour = parseInt(getSelect(document.getElementById(prefix+"hour")));
   var sMinute = parseInt(getSelect(document.getElementById(prefix+"min")));
   var sAmpm = getSelect(document.getElementById(prefix+"ampm"));
-  if (sAmpm == "PM") {
+  if (sAmpm === "PM") {
       sHour += 12;
   }
-  else if (sHour == 12) {
+  else if (sHour === 12) {
       sHour = 0;
   }
   return new Date(sYear,sMonth-1,sDay,sHour,sMinute,0,0);
@@ -36,7 +36,7 @@ function setSelectDate (prefix,dateval) {
         var sHour = dateval.getHours();
         var sAmpm = sHour >= 12 ? 'PM' : 'AM';
         sHour = sHour % 12;
-        if (sHour == 0) {
+        if (sHour === 0) {
            sHour = 12; 
         }
         setSelect(document.getElementById(prefix+"hour"),sHour);
@@ -65,7 +65,7 @@ function setupAssignNew(){
     $('#' + showNode + '-node').fadeIn('slow');
     $('.validationError').hide();
     
-    if ($('#value_allPurpose').val() == 'true') {
+    if ($('#value_allPurpose').val() === 'true') {
         $('#noAllPurpose').hide('');
         $('#hasAllPurpose').show('');
     }
@@ -76,7 +76,7 @@ function setupAssignNew(){
         var roleType;
         actionType = this.id.substring(0, this.id.indexOf('_'));
         roleType = this.id.substring(this.id.indexOf('_') + 1);
-        if (actionType == "expand") {
+        if (actionType === "expand") {
 
             $('#roleDiv_' + roleType).show('');
             $('#collapse_' + roleType).show('');
@@ -95,8 +95,8 @@ function setupAssignNew(){
         $('.validationError').hide();
         nodeType = this.id.substring(0, this.id.indexOf('_'));
         linkType = this.id.substring((this.id.indexOf('_') + 1));
-        if (linkType == "delete") {
-            if (nodeType == "allPurpose") {
+        if (linkType === "delete") {
+            if (nodeType === "allPurpose") {
                 $('#' + nodeType + '_title').val('');
                 $('#' + nodeType + '_title_holder').val('');
                 // uncheck all checkboxes 
@@ -119,13 +119,13 @@ function setupAssignNew(){
 		        $('#extraNodeLinkList').show();
             resizeFrame('grow');
         }
-        if (linkType == "add" || linkType == "edit") {
+        if (linkType === "add" || linkType === "edit") {
             $('.extraNode').hide();
             $('#' + this.id.substring(0, this.id.indexOf('_')) + '-node').fadeIn('slow');
 		        $('#extraNodeLinkList').hide();
             resizeFrame('grow');
         }
-        location.href = '#extraNodesTop'
+        location.href = '#extraNodesTop';
     });
     $(".extraNodeInput").click(function(){
         $('.validationError').hide();
@@ -138,29 +138,29 @@ function setupAssignNew(){
         defTitle = $('#' + nodeType + '_title_holder').val();
         defTo = $('#' + nodeType + '_to_holder').val();
         
-        if (inputType == "cancel") {
+        if (inputType === "cancel") {
 		        $('#extraNodeLinkList').show();		
-            if (nodeType == "allPurpose") {
+            if (nodeType === "allPurpose") {
                 $('#' + nodeType + '_title').val(defTitle);
             }
             $('#' + nodeType + '_text').val(defText);
             $('#' + nodeType + '_to').val(defTo);
             $('.extraNode').hide();
-            location.href = '#extraNodesTop'
+            location.href = '#extraNodesTop';
         }
-        if (inputType == "save") {
+        if (inputType === "save") {
             validation = 'ok';
-            var titleOK
-            var textOK
-            var toOK
+            var titleOK;
+            var textOK;
+            var toOK;
             var message = '';
-            if (nodeType == "allPurpose") {
-                if ($('#' + nodeType + '_title').val() == '') {
+            if (nodeType === "allPurpose") {
+                if ($('#' + nodeType + '_title').val() === '') {
                     $('#' + nodeType + '_title_message').show();
                     validation = 'failed';
                 }
                 var selector_checked = $("#allPurposeGroupLists input:checked").length;
-                if (selector_checked == 0) {
+                if (selector_checked === 0) {
                     $('#' + nodeType + '_userselect').show();
                     validation = 'failed';
                 }
@@ -168,7 +168,7 @@ function setupAssignNew(){
                 // need to check the date sequence
                 // release date
                 var allPurposeReleaseHour = $('#' + nodeType + '_releaseHour').val();
-                if ($('#' + nodeType + '_releaseAMPM').val()=="PM")
+                if ($('#' + nodeType + '_releaseAMPM').val()==="PM")
                 {
                 	allPurposeReleaseHour=parseInt(allPurposeReleaseHour) + 12;
                 }
@@ -181,7 +181,7 @@ function setupAssignNew(){
                 								0); // milliseconds
                 // retract date
                 var allPurposeRetractHour = $('#' + nodeType + '_retractHour').val();
-                if ($('#' + nodeType + '_retractAMPM').val()=="PM")
+                if ($('#' + nodeType + '_retractAMPM').val()==="PM")
                 {
                 	allPurposeRetractHour= parseInt(allPurposeRetractHour) + 12;
                 }
@@ -203,14 +203,14 @@ function setupAssignNew(){
                 titleOK = true;
             }
             
-            if ($('#' + nodeType + '_text').val() == '') {
+            if ($('#' + nodeType + '_text').val() === '') {
                 $('#' + nodeType + '_text_message').show();
                 validation = 'failed';
             }
             else {
                 textOK = true;
             }
-            if (To == 0) {
+            if (To === 0) {
                 $('#' + nodeType + '_to_message').show();
                 validation = 'failed';
             }
@@ -218,7 +218,7 @@ function setupAssignNew(){
                 toOK = true;
             }
             
-            if (validation == 'ok') {
+            if (validation === 'ok') {
                 if (titleOK) {
                     $('#' + nodeType + '_title_holder').val(Title);
                 }
@@ -233,12 +233,12 @@ function setupAssignNew(){
                 $('#value_' + nodeType).val('true');
                 $('.extraNode').hide();
                 $('.validationError').hide();
-                location.href = '#extraNodesTop'
-			        $('#extraNodeLinkList').show();			
+                location.href = '#extraNodesTop';
+                $('#extraNodeLinkList').show();			
             }
             else {
                 resizeFrame('grow');
-                location.href = '#extraNodesBoxTop'
+                location.href = '#extraNodesBoxTop';
             }
         }
     });
@@ -282,12 +282,12 @@ function setupAssignNew(){
 
 	function resizeFrame(updown) 
 	{
-		if (top.location != self.location) 	 {
+		if (top.location !== self.location) 	 {
 			var frame = parent.document.getElementById(window.name);
 		}	
 			if( frame ) 
 		{
-			if(updown=='shrink')
+			if(updown==='shrink')
 			{
 				var clientH = document.body.clientHeight;
 			}
@@ -314,7 +314,7 @@ function setupToggleAreas(toggler, togglee, openInit, speed){
 		// togglee=class of container to expand
 		// openInit=true - all togglee open on enter
 		// speed=speed of expand/collapse animation
-	  if (openInit == true && openInit != null) {
+	  if (openInit === true && openInit !== null) {
 				$('.expand').hide();
     }
     else {
