@@ -3088,7 +3088,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				ParameterParser params = rundata.getParameters();
 				
 				// get release/retract dates
-				final String specify = params.getString(SPECIFY_DATES);
+				final String specify = params.getString(HIDDEN);
 				final boolean use_start_date = params.getBoolean("use_start_date");
 				final boolean use_end_date = params.getBoolean("use_end_date");
 				Time releaseDate = null;
