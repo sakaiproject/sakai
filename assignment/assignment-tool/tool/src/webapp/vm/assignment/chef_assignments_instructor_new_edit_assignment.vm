@@ -133,8 +133,10 @@ $(document).ready(function() {
 		var section = document.getElementById("reviewServiceOptions");
 		if(checked){
 			section.style.display="block";
+			resizeFrame('grow');
 		}else{
 			section.style.display="none";
+			resizeFrame('shrink');
 		}
 	}
 	
