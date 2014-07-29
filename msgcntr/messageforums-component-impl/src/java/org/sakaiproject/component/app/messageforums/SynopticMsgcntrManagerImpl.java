@@ -80,7 +80,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 
 	public List<SynopticMsgcntrItem> getSiteSynopticMsgcntrItems(final List<String> userIds, final String siteId) {
-
+		if(userIds == null || userIds.size() == 0){
+			return new ArrayList<SynopticMsgcntrItem>();
+		}
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
 				Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
@@ -122,6 +124,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 	}
 	
 	private void incAndDecSynopticToolInfo(List<String> userIds, String siteId, boolean messages, boolean increment){
+		if(userIds == null || userIds.size() == 0){
+			return;
+		}
 		  List<SynopticMsgcntrItem> items = getSiteSynopticMsgcntrItems(userIds, siteId);
 		  //first, find the users who don't have an item yet:
 		  List<String> missingUsers = new ArrayList<String>(userIds);
