@@ -10,12 +10,12 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.cheftool.Context;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -43,12 +43,13 @@ import org.sakaiproject.util.ResourceLoader;
 public class JoinableSiteSettings
 {
 	// Logger
-	private static Log log = LogFactory.getLog( JoinableSiteSettings.class );
+	private static final Log log = LogFactory.getLog( JoinableSiteSettings.class );
 	
 	// API's
-	private static UserDirectoryService 	userDirectoryService 	= (UserDirectoryService) 	ComponentManager.get( UserDirectoryService.class );
-	private static SiteService 				siteService 			= (SiteService) 		 	ComponentManager.get( SiteService.class );
-	private static DeveloperHelperService 	developerHelperService	= (DeveloperHelperService) 	ComponentManager.get( DeveloperHelperService.class );
+	private static final UserDirectoryService 	userDirectoryService 	= (UserDirectoryService) 	ComponentManager.get( UserDirectoryService.class );
+	private static final SiteService 		siteService 		= (SiteService) 		ComponentManager.get( SiteService.class );
+	private static final DeveloperHelperService 	developerHelperService	= (DeveloperHelperService) 	ComponentManager.get( DeveloperHelperService.class );
+        private static final ServerConfigurationService serverConfigService     = (ServerConfigurationService)  ComponentManager.get( ServerConfigurationService.class );
 	
 	// State variable names
 	private static final String STATE_JOIN_SITE_GROUP_ID				= "state_join_site_group";
@@ -91,6 +92,7 @@ public class JoinableSiteSettings
 	private static final String CONTEXT_JOIN_SITE_GROUP_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinGroupEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 		= "joinExcludeEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinLimitEnabledLocalDisabledGlobal";
+	private static final String CONTEXT_UI_SERVICE = "uiService";
 	
 	// Message keys
 	private static final String MSG_KEY_UNJOINABLE 			= "join.unjoinable";
@@ -111,7 +113,11 @@ public class JoinableSiteSettings
 	private static final String FORM_PREFIX				= "form_";
 	private static final String SITE_REF_PREFIX			= "/site/";
 	private static final String SITE_BROWSER_MODE		= "sitebrowser.mode";
+	private static final String DEFAULT_UI_SERVICE          = "Sakai";
 	public  static final String SITE_BROWSER_JOIN_MODE 	= "join";
+	
+	// sakai.properties
+	private static final String SAK_PROP_UI_SERVICE = "ui.service";
 	
 	/**********************************************************************************************
 	 ********************* SiteBrowserAction Methods (Site Browser tool) **************************
@@ -920,6 +926,8 @@ public class JoinableSiteSettings
 			return false;
 		}
 		
+		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
+		
 		if( isSiteJoinable )
 		{
 			putGlobalEnabledSettingsIntoContext( context );
@@ -950,6 +958,8 @@ public class JoinableSiteSettings
 		{
 			return false;
 		}
+		
+		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
 		
 		if( isSiteJoinable )
 		{
@@ -1058,6 +1068,8 @@ public class JoinableSiteSettings
 		{
 			return false;
 		}
+		
+		context.put( CONTEXT_UI_SERVICE, serverConfigService.getString( SAK_PROP_UI_SERVICE, DEFAULT_UI_SERVICE ) );
 		
 		putGlobalEnabledSettingsIntoContext( context );
 		updateContextFromSiteInfo( context, siteInfo );
