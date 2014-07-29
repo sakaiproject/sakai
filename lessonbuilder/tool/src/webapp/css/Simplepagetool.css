@@ -741,7 +741,7 @@ background-color: #e8e8e8
 	height: 55px;
 }
 .questionText, .questionStatusText {
-	white-space:pre;
+	white-space:pre-wrap;
 	margin-bottom: 0.5em;
 	margin-top: 0em;
 }
