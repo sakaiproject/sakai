@@ -6,6 +6,7 @@
 	<script type="text/javascript" src="/sakai-site-manage-tool/js/jquery.asmselect.js"></script>
 	<link type="text/css" href="/sakai-site-manage-tool/css/jquery.asmselect.css" rel="stylesheet" media="screen" />
 #end
+<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>
 <script type="text/javascript">
 <!-- hide from non-JS browsers
 	function checkPublish(checked)
@@ -150,7 +151,7 @@
 					$tlang.getString("ediacc.pri")
 				</label>
 			</p>
-			<p class="checkbox indnt1" style="margin-bottom:2em">
+			<p class="checkbox indnt1">
 				<input type="radio" name="include" id="access_public" value="true" #if($!include)checked="checked"#end
 				aria-describedby="site_vis_inst" 
                 />
@@ -199,7 +200,7 @@
 			## set site joinable and joiner role
 			<p class="radio indnt1">
 				<input type="radio" name="joinable" id="unjoinable" value="false" #if (!$joinable) checked="checked"#end 
-				onclick="this.checked ? document.getElementById('joinerrole').style.visibility='hidden':  document.getElementById('joinerrole').style.visibility='visible'"
+				onclick="this.checked ? document.getElementById('joinerrole').style.display='none' : document.getElementById('joinerrole').style.display='block'; utils.resizeFrame();"
 				aria-describedby="site_glob_inst"
                 />
 				<label for="unjoinable">
@@ -208,14 +209,14 @@
 			</p>
 			<p class="radio indnt1">
 				<input type="radio" name="joinable" id="joinable" value="true" #if ($joinable) checked="checked"#end 
-				onclick="this.checked ? document.getElementById('joinerrole').style.visibility='visible':  document.getElementById('joinerrole').style.visibility='hidden'"
+				onclick="this.checked ? document.getElementById('joinerrole').style.display='block' : document.getElementById('joinerrole').style.display='none'; utils.resizeFrame();"
 				aria-describedby="site_glob_inst"
                 />
 				<label for="joinable">
 					$tlang.getString("ediacc.canbejoi")
 				</label>
 			</p>
-			<div id="joinerrole" #if ($joinable) style="visibility:visible" #else  style="visibility:hidden" #end>
+			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
 			     <div class="messageValidation indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
 				<p class="checkbox indnt3">
 					<label for="joinerRole">
@@ -283,7 +284,7 @@
 					<p class="checkbox indnt4">
 						<input name="chkJoinLimitByAccountType" id="chkJoinLimitByAccountType" type="checkbox" 
 							onclick="this.checked ? document.getElementById( 'joinerAccountTypes' ).style.display='block' 
-							: document.getElementById('joinerAccountTypes').style.display='none'"
+							: document.getElementById('joinerAccountTypes').style.display='none'; utils.resizeFrame();"
 							#if( $joinLimitByAccountType ) checked="checked" #end
 							#if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) disabled #end />
 						<label for="chkJoinLimitByAccountType" #if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) class="instruction" #end>
