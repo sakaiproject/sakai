@@ -1,0 +1,10 @@
+//////////////////////////////
+// MODULES: Styles that are layout independent 
+//////////////////////////////
+
+@import "_footer_variables";
+
+.container.footer {
+  background: $footer-background;
+  color: $footer-color;
+}
