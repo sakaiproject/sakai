@@ -1,0 +1,13 @@
+//////////////////////////////
+// MODULES: Styles that are layout independent 
+//////////////////////////////
+
+@import "_icons_variables";
+@import "_icons_extendables";
+
+// include icon font
+@include web-font-face($icon-font-name, $icon-font-file-name, $icon-font-weight, $icon-font-style, $icon-inline-fonts);
+
+@include generate-icons($fallback-icon, before, '', 'ico-font-icons');
+
+@include generate-icons($tool-icons, before, '.icon-', 'ico-font-icons');
