@@ -21,7 +21,8 @@ var dialogutil = dialogutil || {};
 				$("#" + divId).delay(500, function(){dialogutil.turnOnPortalOverlay();});
 				dialogutil.updateMainFrameHeight(window.name, frameId, vHeight);
 				
-			}
+			},
+			zIndex: 10
 		});
 
 		$("#" + divId).dialog( "option", "position", "top");
@@ -84,6 +85,8 @@ var dialogutil = dialogutil || {};
 			{
 				localHeight = document.body.scrollHeight;
 			}
+			
+			localHeight +=10;
 
 			var jqFrame = $("#" + frameId);
 			
