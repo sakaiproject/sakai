@@ -169,7 +169,7 @@
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
 			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove"
 			headerClass="gbHeader"
-			styleClass="listHier">
+			styleClass="listHier lines nolines">
 			<h:column>
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">

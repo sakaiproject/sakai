@@ -58,7 +58,7 @@
 			sortColumn="#{courseGradeDetailsBean.sortColumn}"
             sortAscending="#{courseGradeDetailsBean.sortAscending}"
             columnClasses="left,left,left,left,left"
-			styleClass="listHier">
+			styleClass="listHier lines nolines">
 			<h:column>
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="studentSortName" propertyName="studentSortName" arrow="true" immediate="false" actionListener="#{courseGradeDetailsBean.sort}">
