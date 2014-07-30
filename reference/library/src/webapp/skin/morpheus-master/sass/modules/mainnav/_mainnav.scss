@@ -1,0 +1,131 @@
+//////////////////////////////
+// MODULES: Styles that are layout independent 
+//////////////////////////////
+
+@import "_mainnav_variables";
+
+//.siteNavWrap {
+//  position: relative;
+//  clear: both;
+//  z-index: 2000;
+//  width: 100%;
+//}
+
+[aria-labelledby="sitetabs"] {
+  font-size: $mainmenu-font-size;
+  line-height: $mainmenu-line-height;
+  
+  li {
+    position: relative;
+    
+    a {
+      text-decoration: none;
+      border: none;
+      font-weight: bold;
+      color: $mainmenu-link-color;
+
+      &:visited {
+        color: $mainmenu-visited-link-color;
+      }
+    }
+  }
+}
+
+
+[aria-labelledby="sitetabs"] {
+
+  @include respond-to('full navigation') {
+
+    @include horizontal-list;
+    
+    @if $old-ie-8 {
+      background-image: url(data:image/gif;base64,R0lGODlhCgAmAIAAAO3t7dTU1CH5BAAAAAAALAAAAAAKACYAAAIXhI+py+0Po5y02ouz3hyHD4biSJbmKRYAOw==);
+      background-repeat: repeat;
+    }
+    @include experimental-value(background-image, $repeating-linear-gradient, false, true, false, false);
+
+    [role="menubar"] {
+      margin: 0;
+      padding: 0 0 0 .25em;
+
+      &:before {
+        float: left;
+        font-size: 2.2em;
+      }
+    }
+
+    .nav-menu {
+      @include horizontal-list-item;
+      padding-top: 5px;
+      padding-bottom: 5px;
+    }
+  }
+
+  @include respond-to('narrow navigation') {
+
+    [role="menubar"] {
+      margin: 0;
+      padding: 0;
+      list-style-type: none;
+      
+      // hide Sakai logo
+      &:before {
+        display: none;
+      }
+      
+      li {
+        margin: 0;
+        padding: 0;   
+        a {
+          display: block;
+        }
+      }
+    }
+  }
+}
+
+[aria-labelledby="sitetabs"] li a,
+[aria-labelledby="sitetabs"] li a:visited,  
+[aria-labelledby="sitetabs"] li.nav-selected.tab-dim a {
+
+  @include respond-to('full navigation') {
+    
+    @include border-radius(calc-em(3px, $base-font-size));
+    padding: $mainmenu-full-nav-padding;
+    color: $mainmenu-link-color;
+    background: $mainmenu-background;
+    @include transition-property(( color, background));
+    @include transition-duration(180ms);
+    @include transition-timing-function(ease-in); 
+  }
+  @include respond-to('narrow navigation') {
+    
+    padding: $mainmenu-full-nav-padding;
+    color: $mainmenu-link-color;
+    background: $mainmenu-background;
+    @include transition-property(( color, background));
+    @include transition-duration(180ms);
+    @include transition-timing-function(ease-in); 
+  }
+}
+
+[aria-labelledby="sitetabs"] li a:hover,
+[aria-labelledby="sitetabs"] li a:focus,
+[aria-labelledby="sitetabs"] li.nav-selected a,
+[aria-labelledby="sitetabs"] li.nav-selected.tab-dim a:hover {
+
+  @include respond-to('full navigation') {
+    color: $mainmenu-active-link-color;
+    background: $mainmenu-active-background;
+    border: none;
+  }
+  
+  @include respond-to('narrow navigation') {
+    color: $mainmenu-active-link-color;
+    background: $mainmenu-active-background;
+    border: none;
+  }
+}
+
+
+@include generate-icons($sakai-logo, before, '', 'ico-font-icons');

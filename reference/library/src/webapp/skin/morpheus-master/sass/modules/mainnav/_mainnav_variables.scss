@@ -1,0 +1,28 @@
+//////////////////////////////
+// VARIABLES: For Modules specific styles 
+//////////////////////////////
+
+@import "layout/portal/_portal_variables";
+
+$mainmenu-font-size: 1em;
+$mainmenu-line-height: 2.5em;
+
+$mainmenu-color: #fff;
+$mainmenu-nav-background: nth($light-grey, 4);
+
+$mainmenu-link-color: $link-color;
+$mainmenu-visited-link-color: darken($mainmenu-link-color, 2.2%);
+$mainmenu-background: tint(nth($light-grey, 6), 2%);
+
+$mainmenu-active-link-color: nth($light-grey, 6);
+$mainmenu-active-background: shade(nth($primary, 1), 4%);
+
+$mainmenu-border-bottom: 0px $mainmenu-active-background solid;
+
+$mainmenu-full-nav-padding: .25em .5em .3333em .5em;
+
+$repeating-linear-gradient: repeating-linear-gradient($mainmenu-nav-background, $mainmenu-nav-background 45px, $mainmenu-active-background 45px, $mainmenu-active-background 50px);
+
+$sakai-logo: (
+  '[role="menubar"]': '\e600'
+);
