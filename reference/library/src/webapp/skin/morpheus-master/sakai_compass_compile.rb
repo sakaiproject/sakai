@@ -4,7 +4,7 @@ require 'fileutils'
 require 'optparse'
 
 BASENAME = File.basename(__FILE__)
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 opts = {
   comp_dst: './css',
@@ -66,7 +66,7 @@ Dir.glob(File.expand_path('*.scss', opts[:conf_src])).each do |file|
   # Extract theme name from config file
   build_name = /_(.+)\.scss$/.match(File.basename(file))[1]
 
-  cmd = "compass compile " +
+  cmd = "compass compile -e production --force " +
     "--sass-dir #{opts[:sass_src]} " +
     "--css-dir ../#{build_name}/"
 
