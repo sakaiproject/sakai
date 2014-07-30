@@ -2,6 +2,10 @@
 // EXTENDABLES: Common reusable classes. Go extend yourself!
 //////////////////////////////
 
+@import 'toolkit';
+
+//@include toolkit-set('clearfix extend', true);
+
 %element-invisible {
   // http://snook.ca/archives/html_and_css/hiding-content-for-accessibility
   position: absolute !important;
