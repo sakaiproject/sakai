@@ -127,15 +127,16 @@
 	height: 2.5em;
 }
 
-.assignmentAttachRadio input, .assignmentAttachRadio img
+.assignmentAttachRadio input, .assignmentAttachRadio img, .assignmentAttachRadio span
 {
-	vertical-align: bottom;
+	line-height: 2.5em;
+	vertical-align: middle;
 }
 
 .assignmentAttachRadio input[type=file]
 {
-	position: relative;
-	top: 3px;
+	line-height: 2.5em;
+	vertical-align: middle;
 }
 
 .assignmentAttachmentHighlight
