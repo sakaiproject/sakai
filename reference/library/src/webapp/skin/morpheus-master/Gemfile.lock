@@ -1,5 +1,5 @@
 GEM
-  remote: https://rubygems.org/
+  remote: http://rubygems.org/
   specs:
     breakpoint (2.4.2)
       sass (~> 3.3.0)
