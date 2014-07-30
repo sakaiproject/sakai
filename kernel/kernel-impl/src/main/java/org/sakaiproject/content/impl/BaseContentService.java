@@ -113,6 +113,7 @@ import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
 import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
+import org.sakaiproject.entity.api.HardDeleteAware;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -192,7 +193,7 @@ import org.apache.tika.mime.MimeTypes;
  * </p>
  */
 public abstract class BaseContentService implements ContentHostingService, CacheRefresher, ContextObserver, EntityTransferrer, 
-SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator
+SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRefMigrator, HardDeleteAware
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(BaseContentService.class);
@@ -14003,6 +14004,62 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		//unsupported, use macro name as is.
 		return macroName;
 	}
+    
+    /**
+     * Implementation of HardDeleteAware to allow content to be fully purged
+     */
+    public void hardDelete(String siteId) {
+    	
+		/* Needs to cater for both db and filesystem storage, and there are a couple of situations to be handled
+		 * 1. FS storage. File content is actually deleted so we can just issue a delete on the files and we are done.
+		 * 2. FS storage + restore function enabled. File is deleted as per 1 however a copy of file is retained in bodyPathDeleted location
+		 * 3. DB storage. Binary is (meant to be) deleted. Backup binary is created.
+		 * 
+		 * Therefore we need to delete the files (1 handled), then get any backed up files and delete them also (2 and 3 handled). Then delete the collection to finalise things.
+		 */
+    	
+    	//get collection for the site
+    	String collectionId = getSiteCollection(siteId);
+		M_log.debug("collectionId: " + collectionId);
+		
+    	
+    	//handle 1
+		try {
+			List<ContentResource> resources = getAllResources(collectionId);
+	    	for(ContentResource resource: resources) {
+				M_log.debug("Removing resource: " + resource.getId());
+	    		removeResource(resource.getId());
+	    	}
+		} catch (Exception e) {
+			e.printStackTrace();
+			//ignore and try to proceed
+		} 
+
+    	//handle2
+		//only for 2.10 - comment this out for 2.9 and below
+		try {
+	    	List<ContentResource> deletedResources = getAllDeletedResources(collectionId);
+	    	for(ContentResource deletedResource: deletedResources) {
+				M_log.debug("Removing deleted resource: " + deletedResource.getId());
+	    		removeDeletedResource(deletedResource.getId());
+	    	}
+		} catch (Exception e) {
+			e.printStackTrace();
+			//ignore and try to proceed
+		} 
+		
+		//cleanup
+		try {
+			M_log.debug("Removing collection: " + collectionId);
+			removeCollection(collectionId);
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			//ignore and try to proceed
+		} 
+    	
+    	
+    }
 
 } // BaseContentService
 
