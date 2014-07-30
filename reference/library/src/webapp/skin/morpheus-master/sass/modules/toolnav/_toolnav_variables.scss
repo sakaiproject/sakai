@@ -1,0 +1,59 @@
+//////////////////////////////
+// VARIABLES: For Modules specific styles 
+//////////////////////////////
+
+$toolnav-color: $link-color;
+$toolnav-gradient-pos: top;
+$toolnav-gradient-stop-1: shade(nth($light-grey, 5), 5%);
+$toolnav-gradient-stop-2: shade(nth($light-grey, 5), 7%);
+
+//$toolnav-text-shadow: -1px 0 1px rgba(#000, .25), 1px 1px 0 rgba(#fff, .75);
+$toolnav-text-shadow: none;
+
+$toolnav-letter-spacing: .015em;
+$toolnav-selected-color: nth($light-grey, 6);
+$toolnav-selected-background-color: rgba(nth($primary, 1), 1);
+$toolnav-selected-background-gradient-stop-1: shade(nth($primary, 1), 5%);
+$toolnav-selected-background-gradient-stop-2: tint(nth($primary, 1), 5%);
+//$toolnav-selected-box-shadow: 0 -1px 1px rgba(#000, .25), inset 1px 1px 5px rgba(#000, .75),  0 1px 1px rgba(#fff, .5);  // changed to border top and bottom
+$toolnav-selected-border-top: shade($toolnav-selected-background-color, 10%) 1px solid;
+$toolnav-selected-border-bottom: tint($toolnav-selected-background-color, 10%) 1px solid;
+//$toolnav-selected-text-shadow: -1px -1px 0 rgba(#333, .3333), 1px 1px 0 rgba(#fff, .3333); 
+$toolnav-selected-text-shadow: $toolnav-text-shadow;
+ 
+$toolnav-hover-background-color: rgba(nth($primary, 1),1);
+$toolnav-hover-color: $toolnav-selected-color;
+$toolnav-hover-text-shadow: $toolnav-selected-text-shadow;
+
+$toolnav-hover-border-top: 1px solid lighten(nth($light-grey, 3), 10%);
+$toolnav-hover-border-bottom: 1px solid nth($light-grey, 6);
+$toolnav-font-size: 1em;
+$toolnav-padding: 0.25em 0.25em 0.15em .5em;
+$toolnav-line-height: 1.5em;
+
+$toolnav-workspace-color: nth($light-grey, 6);
+$toolnav-workspace-background-color: shade(nth($light-grey, 5), 5%);
+
+$toolnav-category-title-color: nth($light-grey, 1);
+$toolnav-category-title-text-shadow: -1px 0 0 rgba(0,0,0,0.125),1px 0 0 rgba(255,255,255,0.25);
+$toolnav-category-title-background-fallback: #a7a7a7;
+$toolnav-category-title-background: rgba(nth($light-grey, 3), .5);
+
+$toolnav-site-status-margin: 0 20px 20px !important;
+
+$toolnav-presence-wrapper-padding: 5px 0 0;
+$toolnav-presence-wrapper-margin: 0 10px 0;
+$toolnav-presence-wrapper-border-top: 1px dotted #AAA;
+
+$toolnav-dark-color: nth($light-grey, 6);
+$toolnav-dark-gradient-pos: top;
+$toolnav-dark-gradient-stop-1: nth($dark-grey, 4);
+$toolnav-dark-gradient-stop-2: shade(nth($dark-grey, 4), 20%);
+
+$toolnav-category-icons: (
+  information: '\e601', 
+  communication: '\e605', 
+  content: '\e602', 
+  activities-and-assessment: '\e038', 
+  utilities: '\e603'
+);

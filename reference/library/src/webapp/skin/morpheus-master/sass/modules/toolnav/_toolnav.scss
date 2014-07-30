@@ -1,0 +1,129 @@
+//////////////////////////////
+// MODULES: Styles that are layout independent 
+//////////////////////////////
+
+@import "_toolnav_variables";
+
+#siteType {
+  @extend %element-invisible;
+}
+
+.nav-tools {
+  
+  ul {
+    display: block;
+    margin: 0;
+    padding: 0;
+    @include no-bullets;
+
+    li {
+      display: block;
+      width: 100%;
+      font-size: $toolnav-font-size;
+      line-height: $toolnav-line-height;
+      
+      a {
+        display: block;
+        padding: $toolnav-padding;
+        width: 100%;
+        border-top: transparent 1px solid;
+        border-bottom: transparent 1px solid;
+        color: $toolnav-color;
+        text-shadow: $toolnav-text-shadow;
+        text-indent: 0;
+        letter-spacing: $toolnav-letter-spacing;
+        @extend %break-word;
+        @include transition-property(( border-color ));
+        @include transition-duration(250ms);
+        @include transition-timing-function(ease-in);
+
+        &:before {
+          background: transparent;
+          color: $toolnav-color;
+          text-shadow: $toolnav-text-shadow;
+          @include border_radius(1.5em);
+          @include transition-property(( color, background, text-shadow ));
+          @include transition-duration(250ms);
+          @include transition-timing-function(ease-in);
+        }
+ 
+        &:hover, 
+        &:focus,
+        &:active {
+          border-top: $toolnav-hover-border-top;
+          border-bottom: $toolnav-hover-border-bottom;
+          text-decoration: none;
+
+          &:before {
+            background: $toolnav-hover-background-color;
+            color: $toolnav-hover-color;
+            text-shadow: $toolnav-hover-text-shadow;
+          }
+        }
+      }
+      
+      .workspace & { 
+        text-shadow: $toolnav-selected-text-shadow;
+
+        & a:before {
+          color: $toolnav-selected-color;
+          text-shadow: $toolnav-selected-text-shadow;
+        }
+      }
+      
+      &.selectedTool {
+      
+        a {
+          background: $toolnav-selected-background-color;
+          color: $toolnav-selected-color;
+          border-top: $toolnav-selected-border-top;
+          border-bottom: $toolnav-selected-border-bottom;
+          text-shadow: $toolnav-selected-text-shadow;
+          font-weight: normal;
+        
+          &:before {
+            color: $toolnav-selected-color;
+            text-shadow: $toolnav-selected-text-shadow;
+          }
+        
+          &:hover, 
+          &:focus,
+          &:active {
+            border-top: $toolnav-selected-border-top;
+            border-bottom: $toolnav-selected-border-bottom;
+            color: $toolnav-selected-color;
+          }
+        }
+      } 
+    } 
+  }
+   
+   // fixes margins on the toolnav in my workspace area when minimized
+  .workspace.sakaiMinimizePageNavigation & ul { 
+    margin: 0 .1em;
+  }
+}
+
+.nav-tools {
+
+  .hidden {
+
+    &:after {
+      // adds an invisiblity icon after the item (eye with slash)
+      @extend %ico-font-base;
+      margin: 0 .25em 0 0;
+      padding: .25em;
+      color: nth($light-grey,3);
+      content: '\e607';
+    }
+  }
+  // fix rendering bug on help icon weird whitespace issue on chrome/safari/firefox
+  // check other browsers to see if this the case
+  .icon-sakai-help {
+
+    span {
+      margin-left: -5px;
+    }
+  }
+}
+
