@@ -1,0 +1,75 @@
+//////////////////////////////
+// EXTENDABLES: For Base styles 
+//////////////////////////////
+
+%thin {
+  @include wf-loader($font-name, $font-name-lc, 100);
+}
+
+%thin-italic {
+  @include wf-loader($font-name, $font-name-lc, 100, italic);
+}
+
+%extra-light {
+  @include wf-loader($font-name, $font-name-lc, 200);
+}
+
+%extra-light-italic {
+  @include wf-loader($font-name, $font-name-lc, 200, italic);
+}
+
+%light {
+  @include wf-loader($font-name, $font-name-lc, 300);
+}
+
+%light-italic {
+  @include wf-loader($font-name, $font-name-lc, 300, italic);
+}
+
+%normal {
+  @include wf-loader($font-name, $font-name-lc, 400);
+}
+
+%italic {
+  @include wf-loader($font-name, $font-name-lc, 400, italic);
+}
+
+%medium {
+  @include wf-loader($font-name, $font-name-lc, 500);
+}
+
+%medium-italic {
+  @include wf-loader($font-name, $font-name-lc, 500, italic);
+}
+
+%semi-bold {
+  @include wf-loader($font-name, $font-name-lc, 600);
+}
+
+%semi-bold-italic {
+  @include wf-loader($font-name, $font-name-lc, 600, italic);
+}
+
+%bold {
+  @include wf-loader($font-name, $font-name-lc, 700);
+}
+
+%bold-italic {
+  @include wf-loader($font-name, $font-name-lc, 700, italic);
+}
+
+%extra-bold {
+  @include wf-loader($font-name, $font-name-lc, 800);
+}
+
+%extra-bold-italic {
+  @include wf-loader($font-name, $font-name-lc, 800, italic);
+}
+
+%ultra-bold {
+  @include wf-loader($font-name, $font-name-lc, 900);
+}
+
+%ultra-bold-italic {
+  @include wf-loader($font-name, $font-name-lc, 900, italic);
+}
