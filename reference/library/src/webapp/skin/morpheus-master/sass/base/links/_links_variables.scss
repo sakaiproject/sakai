@@ -2,8 +2,21 @@
 // VARIABLES: For Base styles 
 //////////////////////////////
 
+$link-color: desaturate(darken(nth($primary, 1), 7%), 4%); // WCAG compliant http://contrast-finder.tanaguru.com/
+$link-text-decoration: none;
+$link-border-width: false;
 
+/// Visited
+$link-visited-link-color: darken($link-color, 2.2%); // WCAG compliant
+$link-visited-border-width: $link-border-width;
 
+/// Hover
+$link-hover-link-color: lighten($link-color, 10%);
+$link-hover-text-decoration: none; 
+$link-hover-border-width: 0 0 1px 0;
+$link-hover-border-style: solid;
+/// Active
+$link-active-link-color: $link-color;
 
 //////////////////////////////
 // DEFAULT VARIABLES
