@@ -2,10 +2,12 @@
 // MIXINS: Mixins should have arguments. Otherwise use extendables...
 //////////////////////////////
 
+@import "compass/css3/font-face";
+
 @mixin simple-background-gradient($color, $background-gradient-pos, $background-gradient-1, $background-gradient-2) {
   color: $color;
   // provide background color for older IEs
-  background-color: background-color-mix($background-gradient-1, $background-gradient-2);
+  background-color: mix($background-gradient-1, $background-gradient-2);
   @include background-image(linear-gradient($background-gradient-pos, $background-gradient-1, $background-gradient-2));
 }
 
@@ -64,4 +66,65 @@
 @mixin content-before-after($content, $before: default, $after:false ) {
   @if $before { &:before { content: $content; } }
   @if $after { &:after { content: $content; } }
+}
+
+@mixin background-gradient($direction: top, $start: true, $start-pos: 0 default, $mid: false, $mid-pos: 33% default, $end: false, $end-pos: 66% default, $final: false) {
+  @if $mid { background: $mid; }
+  @else { background: $start; }  
+  @if $final { @include background-image(linear-gradient($direction, $start $start-pos, $mid $mid-pos, $end $end-pos, $final)); }
+  @else { @include background-image(linear-gradient($direction, $start $start-pos, $mid $mid-pos, $end $end-pos)); }
+}
+
+@mixin web-font-face($font-name, $font-file-name, $font-weight: normal, $font-style: normal, $inline-fonts: false) { 
+  @if $inline-fonts and $font-name {
+  @include font-face(
+    $font-name, 
+    inline-font-files(
+      "#{$font-file-name}.woff", woff, 
+      "#{$font-file-name}.ttf", truetype, 
+      "#{$font-file-name}.svg", svg
+    ), 
+    "#{$font-file-name}.eot",  
+    $font-weight, 
+    $font-style
+  );
+  }
+  @else if $font-name { 
+    @include font-face(
+      $font-name, 
+      font-files(
+        "#{$font-file-name}.woff", woff, 
+        "#{$font-file-name}.ttf", truetype,
+        "#{$font-file-name}.svg##{$font-name}", svg
+      ), 
+      "#{$font-file-name}.eot", 
+      $font-weight, 
+      $font-style
+    );
+  }
+}
+
+@mixin web-font-family($font-name: false) {
+  @if $font-name { font-family: $font-name; }
+}
+
+@mixin generate-icons($icons, $pseudo: before, $prefix: '', $extend: '') {
+  @each $class, $unicode-character in $icons {
+    #{$prefix}#{$class}:#{$pseudo} {
+      content:  $unicode-character;
+      @if ($extend != '') {
+        @extend %#{$extend};
+        //@warn "$extend is #{$extend}"
+      } 
+    }
+  }
+}
+
+// IE Fixin Mixins
+@mixin opacitIE($opacity) {
+  // Could be extended for other older browsers if needed http://css-tricks.com/css-transparency-settings-for-all-broswers/
+  @if $legacy-support-for-ie6 or $legacy-support-for-ie7 {
+    zoom: 1;  // trigger hasLayout
+  }
+  filter: unquote("alpha(opacity=#{round($opacity * 100)})");
 }
