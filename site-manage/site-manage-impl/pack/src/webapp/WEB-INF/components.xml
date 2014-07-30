@@ -103,4 +103,29 @@
     	<property name="databaseSourceKey"><value>S</value></property>
     </bean>
 
+    <bean id="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
+        class="org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob"
+        init-method="init">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.SeedSitesAndUsers"
+        class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+        singleton="true" init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.sitemanage.impl.job.SeedSitesAndUsersJob</value>
+        </property>
+        <property name="jobName">
+            <value>Create sites, users and content for testing.</value>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
 </beans>
