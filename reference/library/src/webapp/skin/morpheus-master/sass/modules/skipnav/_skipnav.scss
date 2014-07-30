@@ -1,0 +1,58 @@
+//////////////////////////////
+// MODULES: Styles that are layout independent 
+//////////////////////////////
+
+@import "_skipnav_variables";
+
+.nav-skip {
+  background: nth($primary, 1);
+  display: block;
+  z-index: 10;
+  position: relative;
+  @include clearfix($extend: true); // https://github.com/team-sass/toolkit#clearfix
+  
+  &:before {
+    font-size: $sakai-logo-mobile-font-size;
+    position: absolute;
+    left: calc( 50% - ( #{$sakai-logo-mobile-font-size} / 2 ) ); // http://caniuse.com/calc (this is only visible on mobile so no need to support old IE)
+    padding-top: .275em;
+    color: nth($light-grey, 6);
+  }
+  
+  [role="menu"] {
+    margin: 0;
+    padding: 0;
+    display: block;
+    list-style-type: none;
+
+    [role="menuitem"] {
+      
+      a {
+        display: inline-block;
+        float: left;
+        font-size: 2em;
+        color: nth($light-grey, 5);
+        
+        &:hover {
+          text-decoration: none;
+          border: none;
+        }
+        
+        &.jump--content {
+          display: none; // hide
+        }
+        
+        &.jump--worksite {
+          float: right;
+        }
+      }
+
+      span {
+        display: none;
+      }
+    }
+  }
+}
+
+@include generate-icons($skipnav-icons, before, '.jump--', 'ico-font-icons');
+@include generate-icons($header-icon, before, '.', 'ico-font-icons');
