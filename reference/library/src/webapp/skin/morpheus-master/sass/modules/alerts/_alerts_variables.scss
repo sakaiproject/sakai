@@ -1,0 +1,36 @@
+//////////////////////////////
+// VARIABLES: For Modules specific styles 
+//////////////////////////////
+
+$alerts-icon-opacity: 0.5;
+$alerts-icon-font-size: 1.75em;
+$alerts-icon-line-height: .75em;
+$alerts-icon-padding-push: .15em;
+$alerts-icon-margin-pull: -.05em; // negative margin related to padding
+
+
+$alerts-information-color: #468847;
+$alerts-information-background-color: #dff0d8;
+$alerts-information-border-color: #d6e9c6;
+
+$alerts-highlight-color: #333;
+$alerts-highlight-background-color: #faedab;
+$alerts-highlight-font-bold: false;
+$alerts-highlight-font-italic: false;
+$alerts-highlight-font-uppercase: false; 
+$alerts-highlight-font-variant: false;
+
+$alerts-instruction-color: #595959; // checked for WCAG
+$alerts-instruction-font-bold: false;
+$alerts-instruction-font-italic: true;
+$alerts-instruction-font-uppercase: false; 
+$alerts-instruction-font-variant: false;
+
+$alerts-instruction-highlight-font-bold: true;
+$alerts-instruction-highlight-font-italic: false;
+$alerts-instruction-highlight-font-uppercase: false; 
+$alerts-instruction-highlight-font-variant: false;
+
+$alerts-step-color: nth($light-grey , 2);
+$alerts-step-background-color: nth($light-grey , 6);
+$alerts-step-border-color: nth($light-grey , 4);  

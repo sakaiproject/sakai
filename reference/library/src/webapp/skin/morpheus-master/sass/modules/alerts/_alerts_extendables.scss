@@ -1,0 +1,26 @@
+//////////////////////////////
+// EXTENDABLES: For Modules 
+//////////////////////////////
+
+%sakai-messages {
+  // override padding and margin as extendables changes the cascade
+  padding: .5em 1em .5em .75em !important;
+  margin: .5em 0 .5em 0 !important;
+  display: inline-block;
+  background-image: none;
+  line-height: 1.5em;
+  width: auto;
+}
+
+%alerts-icon {
+  @extend %ico-font-base;
+  font-size: $alerts-icon-font-size;
+  line-height: $alerts-icon-line-height;
+  @if $old-ie-8 {
+    @include opacitIE($alerts-icon-opacity);
+  }
+  opacity: $alerts-icon-opacity;
+  vertical-align: middle;
+  padding: 0 $alerts-icon-padding-push 0 0;
+  margin: 0 0 0 $alerts-icon-margin-pull;
+}
