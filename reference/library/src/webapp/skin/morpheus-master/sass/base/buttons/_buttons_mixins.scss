@@ -1,0 +1,27 @@
+//////////////////////////////
+// MIXINS: For Base 
+//////////////////////////////
+
+@mixin button-theme($button-color, $button-background, $button-gradient-pos: top, $button-background-color-offset: 3%, $disabled: false, $button-disabled-opacity: .75, $button-text-shadow: 0 -1px 0 ) {
+  
+  // Globals
+  $button-gradient-stop-2: shade($button-background, $button-background-color-offset) !global;
+  $button-hover-gradient-stop-2: tint($button-background, $button-background-color-offset)  !global;                                    
+  $button-active-gradient-stop-1: shade($button-background, $button-background-color-offset) !global;
+  $button-dark-color: shade($button-gradient-stop-2, 15%) !global;
+  $button-text-shadow-color: rgba( mix( invert($button-color), $button-background, 75%), .75) !global;
+  
+  @include simple-background-gradient($button-color, $button-gradient-pos, $button-background, $button-gradient-stop-2);
+  @include text-shadow($button-text-shadow $button-text-shadow-color);
+  border-color: $button-dark-color;
+  @if $disabled { opacity: $button-disabled-opacity;}
+  @if $disabled == false {
+  &:hover,
+  &:focus {
+    @include simple-background-gradient($button-color, $button-gradient-pos, $button-background, $button-hover-gradient-stop-2);
+  }  
+  &:active {
+    @include simple-background-gradient($button-color, $button-gradient-pos, $button-active-gradient-stop-1, $button-background);
+  }
+  }
+}
