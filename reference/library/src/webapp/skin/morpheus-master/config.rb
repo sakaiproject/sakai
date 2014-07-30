@@ -1,8 +1,10 @@
 # Require any additional compass plugins here.
-require 'compass-pattern-primer'
 require 'toolkit'
 require 'compass-normalize'
 require 'compass_formalize'
+require 'color-schemer'
+require 'breakpoint'
+require 'singularitygs'
 
 # Set this to the root of your project when deployed:
 http_path = "/"
@@ -16,8 +18,10 @@ fonts_dir = "fonts"
 # You can select your preferred output style here (can be overridden via the command line):
 # output_style = :expanded or :nested or :compact or :compressed
 
+output_style = (environment == :production) ? :compressed : :expanded
+
 # To enable relative paths to assets via compass helper functions. Uncomment:
-# relative_assets = true
+relative_assets = true
 
 # To disable debugging comments that display the original location of your selectors. Uncomment:
 # line_comments = false
@@ -28,3 +32,10 @@ fonts_dir = "fonts"
 # preferred_syntax = :sass
 # and then run:
 # sass-convert -R --from scss --to sass sass scss && rm -rf sass && mv scss sass
+
+
+sass_options = { :debug_info => true }
+
+sass_options = {:sourcemap => true}
+enable_sourcemaps = true
+
