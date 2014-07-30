@@ -250,11 +250,11 @@ function sakaiMinimizeNavigation(){
         $('#portalContainer').addClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#toolMenuWrap').addClass('minimize-tool-nav');
+        $('.nav-tools').addClass('is-minimized');
     }
-    $('#toggleToolMax').addClass('hidden').removeClass('show');
+    $('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
-    $('#toggleNormal').addClass('show').removeClass('hidden');
+    $('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
 }
 
 function sakaiRestoreNavigation(){
@@ -266,9 +266,10 @@ function sakaiRestoreNavigation(){
     if (portal.toggle.tools) {
         $('#toolMenuWrap').removeClass('minimize-tool-nav');
     }
-	$('#toggleToolMax').addClass('show').removeClass('hidden');
-    $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
-	$('#toggleNormal').addClass('hidden').removeClass('show');
+    $('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
+    
+    
+    $('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
 }
 
 function updatePresence(){
@@ -703,3 +704,34 @@ function addArrowNavAndDisableTabNav(ul,callback) {
         }
     });
 }
+/**
+ * For Responsive Menus in Morpheus: Adds classes to the <body>
+ */
+
+function toggleToolsNav(){
+  event.preventDefault();
+  $('body').toggleClass('nav-tools-displayed');
+}
+
+function toggleSitesNav(){
+  event.preventDefault();
+  $('body').toggleClass('nav-sites-displayed');
+}
+
+$(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
+$(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
+// Google Webfont
+WebFontConfig = {
+  google: { families: [ 'Open+Sans:300italic,400italic,600italic,700italic,400,600,300,700:latin' ] }
+};
+(function() {
+  var wf = document.createElement('script');
+  wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+    '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+  wf.type = 'text/javascript';
+  wf.async = 'true';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(wf, s);
+})();
+
+// note here is useless but triggers compilation tasks
