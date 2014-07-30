@@ -128,7 +128,11 @@ public class PrefsBean {
 	}
 	
 	private String getValidatedColorValue(String componentId) throws Exception {
-		String value = getValueFromFacesContext(componentId);
+        
+		String value = getValueFromFacesContext(componentId).trim();
+		if ("".equals(value)) {
+			return value;
+		}
 		if (!COLOR_HEX_PATTERN.matcher(value).matches()) {
 			throw new Exception("Invalid hex color code.");
 		}
