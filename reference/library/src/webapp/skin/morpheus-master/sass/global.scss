@@ -3,18 +3,24 @@
 
 @import "compass/typography";
 @import "compass/css3";
+@import 'breakpoint';
+@import 'toolkit';  // tint-stack, shade-stack etc 
+@import 'color-schemer';
 
+
+@import "theme/common/_common_variables";
+@import "_configurations";
 @import "partials/_browsers";
 @import "partials/_extendables";
 @import "partials/_functions";
 @import "partials/_mixins";
 @import "partials/_colors";
 
-@import "compass-pattern-primer";
+// Reset 
+@import "normalize";
+@import "formalize";
 
 @import "layout/breakpoints/_breakpoints";
-
-@import "_configurations";
 
 @import "base/page/_page";
 @import "base/typography/_typography";
