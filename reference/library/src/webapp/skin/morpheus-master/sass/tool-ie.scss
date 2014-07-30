@@ -1,6 +1,6 @@
 @charset "UTF-8";
 
-$legacy-support-for-ie8: true;
+$old-ie-8: true;
 
 // No need to calculate ems that aren't being used
 $breakpoint-to-ems: false;
