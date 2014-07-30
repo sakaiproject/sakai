@@ -29,6 +29,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -2204,8 +2205,8 @@ public class SiteAction extends PagedResourceActionII {
 				if (groups != null)
 				{
 					// filter out only those groups that are manageable by site-info
-					Collection<Group> filteredGroups = new ArrayList<Group>();
-					Collection<Group> filteredSections = new ArrayList<Group>();
+					List<Group> filteredGroups = new ArrayList<Group>();
+					List<Group> filteredSections = new ArrayList<Group>();
 					Collection<String> viewMembershipGroups = new ArrayList<String>();
 					Collection<String> unjoinableGroups = new ArrayList<String>();
 					for (Group g : groups)
@@ -2231,14 +2232,24 @@ public class SiteAction extends PagedResourceActionII {
 							unjoinableGroups.add(g.getId());
 						}
 					}
+					Collections.sort(filteredGroups, new Comparator<Group>(){
+						public int compare(Group o1, Group o2) {
+							return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+						}
+					});
 					context.put("groups", filteredGroups);
+					Collections.sort(filteredSections, new Comparator<Group>(){
+						public int compare(Group o1, Group o2) {
+							return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+						}
+					});
 					context.put("sections", filteredSections);
 					context.put("viewMembershipGroups", viewMembershipGroups);
 					context.put("unjoinableGroups", unjoinableGroups);
 				}
 				
 				//joinable groups:
-				Collection<JoinableGroup> joinableGroups = new ArrayList<JoinableGroup>();
+				List<JoinableGroup> joinableGroups = new ArrayList<JoinableGroup>();
 				if(site.getGroups() != null){
 					//find a list of joinable-sets this user is already a member of
 					//in order to not display those groups as options
@@ -2312,6 +2323,11 @@ public class SiteAction extends PagedResourceActionII {
 						}
 					}
 					if(joinableGroups.size() > 0){
+						Collections.sort(joinableGroups, new Comparator<JoinableGroup>(){
+							public int compare(JoinableGroup g1, JoinableGroup g2){
+								return g1.getTitle().compareToIgnoreCase(g2.getTitle());
+							}
+						});
 						context.put("joinableGroups", joinableGroups);
 					}
 				}
