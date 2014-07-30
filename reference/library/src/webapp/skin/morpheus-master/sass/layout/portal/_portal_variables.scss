@@ -2,5 +2,13 @@
 // VARIABLES: For Layout specific styles 
 //////////////////////////////
 
-//$container-background: $body-background-color;
-$portal-background: lighten(nth($black,6),1%);
+$container-background: $body-background-color;
+$portal-background: lighten(nth($light-grey,6),1%);
+
+$portal-max-width: 80em;
+$portal-tool-menu-max-width: 15em;
+
+$portal-tool-menu-width: ($portal-tool-menu-max-width / $portal-max-width) * 100%;
+
+$content-max-width: $portal-tool-menu-max-width - $portal-max-width;
+$content-width:  100% - $portal-tool-menu-width;
