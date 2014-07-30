@@ -736,7 +736,7 @@ var setupCategTools = function(){
             var safeLabelText = $('<p></p>').text($(this).next('label').text()).html();
             var newListItem = '<li id=\"' + thisToolId
                     + '\"><span class=\"selectedToolTitle icon-' + iconId + '\">' + safeLabelText + "</span>"
-                    + mathJaxCheckBox + "<span>" + removeLink + '</span></li>';
+                    + mathJaxCheckBox + "<input type=\"text\" class=\"pageAliasInput\" >123<span>" + removeLink + '</span></li>';
             $('#toolSelectionList ul').append(newListItem);
             
             // append to selected tool list

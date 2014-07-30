@@ -16,6 +16,10 @@
 			#else
 				$tlang.getString("sitegen.sitedel.deleting1")
 			#end
+			
+			#if($hardDelete)
+				<p>$tlang.getString("sitegen.sitedel.hard")</p>
+			#end
 		</div>
 		<p class="highlight">
 			#if($removals.size() == 1)
@@ -47,6 +51,8 @@
 		#if($removals && $removals.size() != 0)
 			#if($softDelete)
 				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.softly.delete")" />
+			#elseif($hardDelete)
+				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.hard.button")" />
 			#else	
 				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSite_delete_confirmed" value="$tlang.getString("sitegen.sitedel.remove")" />
 			#end
