@@ -3,7 +3,26 @@
 //////////////////////////////
 
 
+$bs: border-box;
 
+$body-font-family: 'Helvetica Neue', Arial, sans-serif;
+$secondary-font: $body-font-family;
+$header-font-family: $body-font-family;
+$blockquote-font-family: $body-font-family;
+
+$body-font-size: 16px; 
+$body-line-height: 1.5em; 
+
+/// body
+$body-background-color: lighten(nth($light-grey , 6), 15%);
+$body-background-rgba: rgba($body-background-color, 1);
+$body-border-width: false;
+
+$body-margin: 0 0 1em 0;
+$body-padding: 0;
+
+$html-border-width: false;
+$html-background-color: transparent;
 
 //////////////////////////////
 // DEFAULT VARIABLES
