@@ -143,13 +143,13 @@ time {
   @include content-before-after($time-content);
 }
 
-pre {
-  @extend %force-wrap;
-  @include margin-padding(margin, $pre-margin, $pre-margin-pos);
-  @include margin-padding(padding, $pre-padding);
-  @include border-outline(border, $pre-border-width, $pre-border-style, $pre-border-color);
-  @include border-radius($pre-border-radius);
-  font-family: $pre-font-family;
-  @include type-size($pre-font-size, $pre-line-height);
-  @include simple-background-gradient($pre-color, $pre-gradient-pos, $pre-gradient-stop-1, $pre-gradient-stop-2);
-}
+//pre {
+//  @extend %force-wrap;
+//  @include margin-padding(margin, $pre-margin, $pre-margin-pos);
+//  @include margin-padding(padding, $pre-padding);
+//  @include border-outline(border, $pre-border-width, $pre-border-style, $pre-border-color);
+//  @include border-radius($pre-border-radius);
+//  font-family: $pre-font-family;
+//  @include type-size($pre-font-size, $pre-line-height);
+//  @include simple-background-gradient($pre-color, $pre-gradient-pos, $pre-gradient-stop-1, $pre-gradient-stop-2);
+//}
