@@ -2,70 +2,38 @@
     <!-- include bottom -->
     #if ( !$pagepopup)
         <footer id="footer" role="contentinfo">
-            <ul>
-                <li class="footer=ext-nav">
-                    <ul id="footer-links">
-                        #foreach ( $bn in $bottomNav )
-                            <li>
-                                <span>${bn}</span>
-                            </li>
-                        #end
-                    </ul>
-                </li>
+            <ul id="footer-links" class="footer--nav__links footer--bottom-nav">
+                #foreach ( $bn in $bottomNav )
+                    <li>
+                        <span>${bn}</span>
+                    </li>
+                #end
+            </ul>
+            <ul class="footer--nav__links footer--bottom-nav">
                 <li id="footer-info">
                     #foreach ( $pb in $bottomNavPoweredBy )    
-                        <a href="${pb.poweredByUrl}" target="_blank">
-                            <img src="${pb.poweredByImage}" alt="${pb.poweredByAltText}">
-                            <span class="skip"> (${rloader.site_newwindow})</span>
+                        <a href="${pb.poweredByUrl}" class="external__link"><span class="sakai powered-by external">${pb.poweredByAltText}</span><span class="skip external">(${rloader.site_newwindow})</span>
                         </a>
                     #end
                     <!-- end include Bottom -->
                 </li>
-                <li class="sakai-copyright-info">${bottomNavCopyright}</li>
-                <li class="service-info">
-                    <a href="#" class="service-info-control">Build Info</a>
-                    <div class="service-info-panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
+                <li class="sakai copyright-info">${bottomNavCopyright}</li>
+            </ul>
+            <ul class="footer--nav__links footer--bottom-nav">
+            <li class="sakai build-info">
+                <a href="#" class="sakai build-info__control">Build Info</a>
+                <div class="sakai build-info__panel">${bottomNavService} - ${bottomNavServiceVersion} - Sakai ${bottomNavSakaiVersion} (Kernel ${bottomNavKernelVersion}) - Server ${bottomNavServer}</div>
+            </li>
+            #if ($showServerTime == "true")
+                <li class="server-time-container" aria-live="off">
+                    #if ($showPreferredTzTime == "true")
+                        ${rloader.site_preferredtime_label}
+                        <span id="preferredTime" class="server-time preferred"></span>
+                    #end
+                    ${rloader.site_servertime_label}
+                    <span id="serverTime" class="server-time"></span>
                 </li>
-                #if ($showServerTime == "true")
-                    <li class="server-time-container" aria-live="off">
-                        #if ($showPreferredTzTime == "true")
-                            ${rloader.site_preferredtime_label}
-                            <span id="preferredTime" class="server-time"></span>
-                        #end
-                        ${rloader.site_servertime_label}
-                        <span id="serverTime" class="server-time"></span>
-                    </li>
-                    <script>
-                            // <!--
-                            updateFooterTime = (function() {
-                                #if ($showPreferredTzTime == "true")
-                                    var preferredTzDisplay='${preferredTzDisplay}';
-                                    var preferredServerDateAndGMTOffset = new Date(${preferredTzGMTOffset});
-                                    var preferredLocalOffset = preferredServerDateAndGMTOffset.getTime() - (new Date()).getTime();
-                                #end
-                                var serverTzDisplay='${serverTzDisplay}';
-                                var serverServerDateAndGMTOffset = new Date(${serverTzGMTOffset})
-                                var serverLocalOffset = serverServerDateAndGMTOffset.getTime() - (new Date()).getTime();
-                                return function() {
-                                    var offsetDate = new Date((new Date()).getTime() + serverLocalOffset);
-                                    var dateString = offsetDate.toUTCString()
-                                    .replace(/GMT/, serverTzDisplay)
-                                    .replace(/UTC/, serverTzDisplay);
-                                    document.getElementById('serverTime').innerHTML = dateString;
-                                    #if ($showPreferredTzTime == "true")
-                                        var offsetDate = new Date((new Date()).getTime() + preferredLocalOffset);
-                                        var dateString = offsetDate.toUTCString()
-                                        .replace(/GMT/, preferredTzDisplay)
-                                        .replace(/UTC/, preferredTzDisplay);
-                                        document.getElementById('preferredTime').innerHTML = dateString;
-                                    #end
-                                    setTimeout('updateFooterTime()', 1000);
-                                };
-                            })();
-                            updateFooterTime();
-                            // --> 
-                        </script>
-                #end
+            #end
             </ul>
         </footer> <!--  Q: what is this an end to? A: id="footer" -->
         <div class="container extras">
@@ -134,7 +102,7 @@
                     </div>
                 </div>
             <!-- Trimpath template for the profile connections list -->
-            <div id="pc_connections_template" class="hidden">
+            <div id="pc_connections_template" class="is-hidden">
             <!--
                 
                 {for connection in connections}
@@ -170,7 +138,7 @@
                 
             </div>
             <!-- Trimpath template for the present users list -->
-            <div id="pc_site_users_template" class="hidden"><!--
+            <div id="pc_site_users_template" class="is-hidden"><!--
                 {for user in siteUsers}
                     <li class="pc_site_user">
                         {if !user.offline}
@@ -240,12 +208,6 @@
                         </iframe>
                     #else
                         <div id="presenceIframe"></div>
-                        <script>
-                            //these are global variables...
-                            var sakaiPresenceTimeDelay = ${sitePages.sakaiPresenceTimeDelay};
-                            var sakaiPresenceFragment = "${sitePages.pageNavPresenceUrl}?output_fragment=yes&auto=true";
-                            var sakaiLastPresenceTimeOut = setTimeout('updatePresence()', sakaiPresenceTimeDelay); 
-                        </script>
                     #end
                 </div> <!-- End of div#presenceArea -->
             #end
