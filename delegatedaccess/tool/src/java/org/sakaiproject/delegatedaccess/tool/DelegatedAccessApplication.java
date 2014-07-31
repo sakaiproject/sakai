@@ -26,6 +26,7 @@ import org.apache.wicket.protocol.http.WebRequestCycle;
 import org.apache.wicket.protocol.http.WebResponse;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.delegatedaccess.tool.pages.UserPage;
+import org.sakaiproject.delegatedaccess.tool.pages.UserPageSiteSearch;
 
 
 /**
@@ -60,7 +61,7 @@ public class DelegatedAccessApplication extends WebApplication {
 		getApplicationSettings().setAccessDeniedPage(UserPage.class);
 
 		//to put this app into deployment mode, see web.xml
-
+		mountBookmarkablePage("shopping", UserPageSiteSearch.class);
 	}
 
 	/**

@@ -26,6 +26,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -435,4 +436,17 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public User getUserByEid(String eid);
+	
+	/**
+	 * get site reference from site id
+	 * @param context
+	 * @return
+	 */
+	public String siteReference(String context);
+	
+	/**
+	 * get current placement
+	 * @return
+	 */
+	public Placement getCurrentPlacement();
 }

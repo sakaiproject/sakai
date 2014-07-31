@@ -19,6 +19,39 @@
 
 <body>
 <wicket:extend>
+	<style>
+		#permalinkHolder{
+			border:1px solid #ccc;
+			display:none;
+			background:#ffe;
+			position:absolute;
+			padding:5px;
+		}
+		
+		#permalinkHolder a{
+			font-weight:bold;
+			top:0;right:4px;
+			outline:none;padding:0;
+			display:block;position:absolute;
+		}
+	</style>
+	<script type="text/javascript">
+				$(document).ready(function() {
+					$('.permaLink').click(function(event){
+						event.preventDefault();
+						$('#permalinkHolder').css({
+							'top': event.pageY + 20,
+						});
+						$('#permalinkHolder').fadeIn('fast');
+						$('#permalinkHolder input').focus().select();
+					});
+					$('#permalinkHolder .closeMe').click(function(event){
+						event.preventDefault();
+						$('#permalinkHolder').fadeOut('fast');
+					});
+				});
+	</script>
+
 	<br/>
 	<wicket:enclosure child="currentLink">
 	<a wicket:id="currentLink">
@@ -76,6 +109,15 @@
 	<br/>
 	<br/>	
 	<span wicket:id="searchResultsTitle">Results for: </span><span wicket:id="searchString" style="font-weight: bold">user search string</span>
+	<wicket:enclosure child="permaLink">
+		<br/>
+		(<a href="javascript:void(0);" class="permaLink"><wicket:message key="permaLink"/></a>)
+		<div id="permalinkHolder">
+			<a class="closeMe" href="#" style="">x</a>
+			<span style="display:block" styleClass="textPanelFooter"><wicket:message key="permaLinkMessage"/></span>
+			<input type="text" wicket:id="permaLink" size="35"/>
+		</div>
+	</wicket:enclosure>
 	<br/>
 	<div wicket:id="navigatorTop"></div>
 	<wicket:enclosure child="searchResult">

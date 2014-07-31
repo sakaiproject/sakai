@@ -34,6 +34,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.delegatedaccess.logic.ProjectLogic;
 import org.sakaiproject.delegatedaccess.logic.SakaiProxy;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 
 
@@ -56,6 +57,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	@SpringBean(name="org.sakaiproject.delegatedaccess.logic.ProjectLogic")
 	protected ProjectLogic projectLogic;
+	
+	@SpringBean(name="org.sakaiproject.entitybroker.DeveloperHelperService")
+	protected DeveloperHelperService developerHelperService;
 
 	Link<Void> accessPageLink;
 	Link<Void> shoppingAdminLink;

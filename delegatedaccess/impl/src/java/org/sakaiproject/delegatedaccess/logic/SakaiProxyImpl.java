@@ -47,7 +47,6 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.email.api.EmailService;
-import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -58,6 +57,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.api.SiteService.SortType;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -65,9 +65,6 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 
 /**
  * Implementation of our SakaiProxy API
@@ -681,5 +678,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 	
 	public boolean allowAccessAdminsSetBecomeUserPerm(){
 		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_ACCESS_ADMIN_ALLOW_SET_ALLOW_BECOME_USER, true);
+	}
+	
+	public String siteReference(String context){
+		return siteService.siteReference(context);
+	}
+	
+	public Placement getCurrentPlacement(){
+		return toolManager.getCurrentPlacement();
 	}
 }

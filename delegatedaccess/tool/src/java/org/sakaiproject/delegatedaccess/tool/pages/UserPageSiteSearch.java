@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.basic.Label;
@@ -46,14 +47,12 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
-import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.util.SiteSearchResultComparator;
+import org.sakaiproject.user.api.User;
 
 /**
  * 
@@ -76,7 +75,34 @@ public class UserPageSiteSearch extends BasePage {
 	private boolean currentStatisticsFlag = false;
 	private Map<String, String> toolsMap;
 
+	public UserPageSiteSearch(PageParameters params){
+		String search = "";
+		if(params.containsKey("search")){
+			search = params.getString("search");
+		}
+		Map<String, String> advancedFields = new HashMap<String, String>();
+		if(params.containsKey("term")){
+			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, params.getString("term"));
+		}
+		if(params.containsKey("instructor")){
+			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, params.getString("instructor"));
+			//set type:
+			String instructorType = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR;
+			if(params.containsKey("instructorType") && DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(params.getString("instructorType"))){
+				instructorType = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER;
+			}
+			advancedFields.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, instructorType);
+		}
+		
+		buildPage(search, advancedFields, false, false);
+	}
+	
 	public UserPageSiteSearch(final String search, final Map<String, String> advancedFields, final boolean statistics, final boolean currentStatisticsFlag){
+		buildPage(search, advancedFields, statistics, currentStatisticsFlag);
+	}
+		
+	@SuppressWarnings("unchecked")
+	public void buildPage(final String search, final Map<String, String> advancedFields, final boolean statistics, final boolean currentStatisticsFlag){
 		this.search = search;
 		this.statistics = statistics;
 		this.currentStatisticsFlag = currentStatisticsFlag;
@@ -180,6 +206,54 @@ public class UserPageSiteSearch extends BasePage {
 				return searchString;
 			}
 		};
+		final IModel<String> permaLinkModel = new IModel<String>(){
+
+			@Override
+			public void detach() {
+			}
+
+			@Override
+			public String getObject() {
+				String path = "/shopping";
+				
+				Map<String, String> params = new HashMap<String, String>();
+				//Search
+				if(searchModel.getObject() != null){
+					params.put("search", searchModel.getObject());
+				}
+				//term:
+				if(termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject())){
+					params.put("term", termFieldModel.getObject().getValue());
+				}
+				//instructor
+				if(instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject())){
+					params.put("instructor", instructorFieldModel.getObject());
+					if(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER.equals(selectedInstructorOption)){
+						params.put("instructorType", DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER);
+					}else{
+						params.put("instructorType", DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR);
+					}
+				}
+				String context = sakaiProxy.siteReference(sakaiProxy.getCurrentPlacement().getContext());
+				
+				String url = "";
+				try{
+					String tool = "sakai.delegatedaccess";
+					if(isShoppingPeriodTool()){
+						tool += ".shopping";
+					}
+					url = developerHelperService.getToolViewURL(tool, path, params, context);
+				}catch (Exception e) {
+
+				}
+				return url;
+			}
+
+			@Override
+			public void setObject(String arg0) {			
+			}
+			
+		};
 		Form<?> form = new Form("form"){
 			@Override
 			protected void onSubmit() {
@@ -239,7 +313,14 @@ public class UserPageSiteSearch extends BasePage {
 				|| (termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject()));
 			}
 		});
-
+		add(new TextField("permaLink", permaLinkModel){
+			@Override
+			public boolean isVisible() {
+				return (searchModel.getObject() != null && !"".equals(searchModel.getObject()))
+				|| (instructorFieldModel.getObject() != null && !"".equals(instructorFieldModel.getObject()))
+				|| (termFieldModel.getObject() != null && !"".equals(termFieldModel.getObject()));
+			}
+		});
 		//search result table:
 		//Headers
 		Link<Void> siteTitleSort = new Link<Void>("siteTitleSortLink"){
