@@ -146,5 +146,7 @@ morpheus-master/
 You can add your own file to the `morpheus-master/sass/theme` i.e. `_morpheus-my-university.scss`.  You can add your custom variables to your `_morpheus-my-university.scss` to override the default variables in `morpheus-master/`.
 When you run `./sakai_compass_compile.rb` it  will create a `morpheus-my-university` directory and compile and copy the css to that directory.
 
+## TK Advanced: Using grunt for active development of Morpheus. 
+
   
 
