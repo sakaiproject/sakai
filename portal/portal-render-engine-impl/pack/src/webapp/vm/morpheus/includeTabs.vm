@@ -25,8 +25,8 @@
 
 <!-- START VM includeTabs.vm -->
     <div class="${tabsCssClass}">
-        <div id="maxToolsInt" class="hidden">$maxToolsInt</div>
-        <div id="maxToolsAnchor" class="hidden">${rloader.sit_alltools}</div>
+        <div id="maxToolsInt" class="is-hidden">$maxToolsInt</div>
+        <div id="maxToolsAnchor" class="is-hidden">${rloader.sit_alltools}</div>
         <div id="siteNav">
             <!-- login component -->
             <div id="mastLogin">
@@ -90,11 +90,11 @@
             </div> <!--  end of div#mastLogin -->
             
             <!-- end login component -->
-            <nav id="linkNav" role="navigation" aria-labelledby="sitetabs">
+            <nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="nav nav-sites">
             <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
             <script>var sakai_portal_ie_detected=false;</script>
             <!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
-            <h1 class="skip" id="sitetabs">${rloader.sit_worksiteshead}</h1>
+            <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
             <ul class="topnav" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
                 #foreach ( $site in $tabsSites.tabsSites ) 
                     #if (${site.isCurrentSite})
@@ -139,11 +139,11 @@
             </div>
         #end
         #if ($tabsSites.tabsMoreSitesShow)
-            <div id="selectSite" class="hidden">
+            <div id="selectSite" class="is-hidden">
                 <div id="otherSiteSearch"> 
                     <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
-                    <a id="imgSearch" href="#" class="hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
-                    <span id="noSearchResults" class="hidden">${rloader.sit_search_none}</span>
+                    <a id="imgSearch" href="#" class="is-hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
+                    <span id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</span>
                 </div>
                 <ul id="otherSitesMenu">
                     #if (${tabsSites.worksiteToolUrl})
@@ -201,20 +201,5 @@
                 #end
             </div>
         #end ## end of #if ($tabsSites.tabsMoreSitesShow)
-        <script>
-            jQuery(document).ready(function() {
-                setupSiteNav();
-                // sakai_portal_ie_detected should have been set above
-                if (sakai_portal_ie_detected) {
-                    // SAK-22308
-                    //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
-                    var $ul_topnav = jQuery('ul#topnav');
-                    var aria_label_val = $ul_topnav.attr('aria-label');
-                    jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
-                    jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
-                    $ul_topnav.removeAttr('aria-label');
-                }
-            });
-        </script>
     </div> <!-- /end of div.tabsCssClass -->
 <!-- END VM includeTabs.vm -->
