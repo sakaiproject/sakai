@@ -53,6 +53,10 @@ public class CourseSectionUtil {
 			}
 			section.setMeetings(meetings);
 		}
+		
+		// SAK-22831 ensure eid is set in the section so the sections_eid group property is also set when the group is decorated
+		section.setEid(officialSection.getEid());
+		
 		// Ensure that the group is decorated properly, so the group properties are
 		// persisted with the correct section metadata
 		section.decorateGroup(group);
