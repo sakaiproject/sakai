@@ -45,18 +45,20 @@ import org.apache.fop.apps.FopFactory;
 import org.apache.fop.apps.MimeConstants;
 import org.apache.xml.serializer.DOMSerializer;
 import org.apache.xml.serializer.ToXMLSAXHandler;
+import org.apache.xml.serializer.ToSAXHandler;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
+import org.w3c.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
+public class BaseFOPSerializer extends ToSAXHandler implements ContentHandler
 {
 
 	private static final Log logger = LogFactory
@@ -73,6 +75,8 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 	private ContentHandler contentHandler = null;
 
 	private Fop fop = null;
+	
+	private ToXMLSAXHandler sax = null;
 
 	protected String mimeType = MimeConstants.MIME_PDF;
 
@@ -252,6 +256,7 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 		outputFormat = null;
 		writer = null;
 		outputStream = null;
+		sax = null;
 		return false;
 	}
 
@@ -279,6 +284,9 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 			{
 				throw new SAXException(e);
 			}
+		}
+		if (sax == null) {
+			sax = new ToXMLSAXHandler(contentHandler,"UTF-8");
 		}
 	}
 
@@ -344,7 +352,6 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 		catch (SAXException e)
 		{
 			logger.error(e);
-			e.printStackTrace();
 		}
 		contentHandler.setDocumentLocator(locator);
 		
@@ -389,4 +396,89 @@ public class BaseFOPSerializer extends ToXMLSAXHandler implements ContentHandler
 		contentHandler.startPrefixMapping(prefix, uri);		
 	}
 
+    public boolean setEscaping(boolean escape) throws SAXException
+    {
+		initContentHandler();
+		return sax.setEscaping(escape);
+    }
+
+	@Override
+	public void attributeDecl(String arg0, String arg1, String arg2,
+			String arg3, String arg4) throws SAXException {
+		initContentHandler();
+		sax.attributeDecl(arg0,arg1,arg2,arg3,arg4);
+	}
+
+	@Override
+	public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
+		initContentHandler();
+		sax.comment(arg0,arg1,arg2);
+	}
+
+	@Override
+	public void elementDecl(String arg0, String arg1) throws SAXException {
+		initContentHandler();
+		sax.elementDecl(arg0,arg1);
+	}
+
+	@Override
+	public void endCDATA() throws SAXException {
+		initContentHandler();
+		sax.endCDATA();
+	}
+
+	@Override
+	public void endDTD() throws SAXException {
+		initContentHandler();
+		sax.endDTD();
+	}
+
+	@Override
+	public void endElement(String arg0) throws SAXException {
+		initContentHandler();
+		sax.endElement(arg0);
+	}
+
+	@Override
+	public void externalEntityDecl(String arg0, String arg1, String arg2)
+			throws SAXException {
+		initContentHandler();
+		sax.externalEntityDecl(arg0, arg1, arg2);
+	}
+
+	@Override
+	public void internalEntityDecl(String arg0, String arg1)
+			throws SAXException {
+		initContentHandler();
+		sax.internalEntityDecl(arg0, arg1);
+	}
+
+	@Override
+	public void serialize(Node arg0) throws IOException {
+		try {
+			initContentHandler();
+		} catch (SAXException e) {
+			logger.error(e);
+		}
+		sax.serialize(arg0);
+	}
+
+	@Override
+	public void startCDATA() throws SAXException {
+		initContentHandler();
+		sax.startCDATA();
+	}
+
+	@Override
+	public void startEntity(String arg0) throws SAXException {
+		initContentHandler();
+		sax.startEntity(arg0);
+	}
+
+	@Override
+	public boolean startPrefixMapping(String arg0, String arg1, boolean arg2)
+			throws SAXException {
+		initContentHandler();
+		return sax.startPrefixMapping(arg0, arg1,arg2);
+	}
 }

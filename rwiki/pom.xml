@@ -94,6 +94,27 @@ limitations under the License.
         <version>${project.version}</version>
         <type>jar</type>
       </dependency>
+      <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xmlParserAPIs</artifactId>
+          <version>2.6.2</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <version>2.11.0</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>xalan</groupId>
+          <artifactId>xalan</artifactId>
+          <version>2.7.2</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
     </dependencies>
   </dependencyManagement>
 </project>
