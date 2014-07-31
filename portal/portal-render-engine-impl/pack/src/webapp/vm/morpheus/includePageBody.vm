@@ -4,12 +4,18 @@
 ##
 <!-- START VM includePageBody.vm -->
 
-<h1 class="skip" id="tocontent">${rloader.sit_contentshead}</h1>
+<h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
 
     <main id="$pageWrapperClass" role="main">
     #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
 
-        <div id="$pageColumnLayout" class="page-columns first">
+        #if ($pageColumnLayout == 'col1' ) 
+            #set( $columnClasses = "page-single" )
+        #elseif ($pageColumnLayout == 'col1of2' ) 
+            #set( $columnClasses = "page-columns first" )
+        #end
+        <div id="$pageColumnLayout" class="${columnClasses}">
+
             #foreach ( $tool in $pageColumn0Tools )
                 #if ( $tool ) 
                     <!-- start Tool -->
