@@ -1,45 +1,15 @@
 ##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
     #parse("/vm/morpheus/includeStandardHead.vm")
-    <body class="portalBody">
+    <body class="portalBody" $pageSiteType>
         #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
         <noscript>
             <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
         </noscript>
         
         ## Might take this out. Leaving it for now. MR
-        #if ( ${portal_add_mobile_link} )
-            <span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
-        #end
-        
-        #if ( $pageTop )
-            <script>
-                var sakaiPortalWindow = "";
-                $(document).ready(function() {
-                    setupSkipNav();
-                });
-            </script>
-        #end
-        
-        #if ( !${loginTopLogin} )
-        
-            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
-                <script>
-                    $(document).ready(function() {
-                        var toggleClass=""
-                        
-                        #if ( ${portal_allow_minimize_tools} )
-                            toggleClass="toggleTools"
-                        #end
-                        
-                        #if ( ${portal_allow_minimize_navigation} )
-                            toggleClass= toggleClass + "toggleNav"
-                        #end
-                            setupToolToggle(toggleClass);
-                    });
-                </script>
-            #end
-            
-        #end
+        ##if ( ${portal_add_mobile_link} )
+            ##<span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
+        ##end
         
         <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="container portal outer minimize-site-nav" #else class="container portal outer" #end>
             ## Skip Nav
@@ -76,6 +46,152 @@
             #parse("/vm/morpheus/includePageWithNav.vm")
             
         </div> <!-- end div.container.portal.outer -->
+        <script>
+            ## SAK-16484 Allow Javascript to easily get at user details.
+            ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
+            var portal = { 
+                "chat": {
+                    "enabled": $!{neoChat}
+                },
+                "loggedIn": $!{loggedIn},
+                "portalPath": "$!{portalPath}",
+                "loggedOutUrl": "$!{loggedOutUrl}",
+                "siteId": "$!{siteId}",
+                "siteTitle": "$!{siteTitle}",
+                "shortDescription" : "$!{shortDescription}",
+                "locale": "$!{locale}",
+                "user": {
+                    "id": "$!{userId}",
+                    "eid": "$!{userEid}"
+                },
+                "timeoutDialog" : {
+                "enabled": $!{timeoutDialogEnabled},
+                "seconds": $!{timeoutDialogWarningSeconds}
+                },
+                "toggle" : {
+                    "allowauto": $!{portal_allow_auto_minimize},
+                    "tools": $!{portal_allow_minimize_tools},
+                    "sitenav": $!{portal_allow_minimize_navigation}
+                }
+            };
+        </script>
+        
+        #if ( ${bufferedResponse} && ${responseHead} ) 
+        ## Make sure we at least have a jQuery 1.9 or higher, log messages
+        <script>
+            var needJQuery = true;
+            if ( window.jQuery ) {
+                tver = jQuery.fn.jquery;
+                if ( tver.indexOf('1.9.') == 0 ) {
+                    window.console && console.log('Tool loaded jQuery '+tver);
+                    needJQuery = false;
+                } else {
+                    toggleJQuery = true;
+                    window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
+                    jQuery.noConflict();
+                }
+            }
+            if ( needJQuery ) {
+                document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            }
+        </script>
+        <script>
+            if ( needJQuery ) {
+                window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
+            }
+        </script>
+        #else 
+            ${sakai_html_head_js}
+            <script src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
+        #end
+        
+        #if ( $loggedIn )
+            <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
+        #end
+        <!--[if lt IE 9]>
+            <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
+        <![endif]-->
+        <script src="${pageScriptPath}trimpath-template-latest.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
+        
+        #if ( $tutorial && $loggedIn )
+            <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+        #end
+        
+        #if ( $neoChat && $loggedIn )
+            <script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
+            <script>
+                var portalChatPollInterval = ${portalChatPollInterval};
+            </script>
+            <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
+        #end
+        
+        #if ( ${styleable} )
+            <script src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}"></script>
+            <script>
+                window.onload = insertStyleAbleStyles;
+            </script>
+            #if ( ${styleableStyleSheet} )
+                <style title="StyleAble">${styleableStyleSheet}</style>
+            #end
+            #if ( ${styleableJS} )
+                <script>
+                    ${styleableJS} 
+                </script>
+            #end
+        #end
+        #if ( $pageTop )
+            <script>
+                var sakaiPortalWindow = "";
+                $(document).ready(function() {
+                    setupSkipNav();
+                });
+            </script>
+        #end
+        
+        #if ( !${loginTopLogin} )
+        
+            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
+                <script>
+                    $(document).ready(function() {
+                        var toggleClass=""
+                        
+                        #if ( ${portal_allow_minimize_tools} )
+                            toggleClass="toggleTools"
+                        #end
+                        
+                        #if ( ${portal_allow_minimize_navigation} )
+                            toggleClass= toggleClass + "toggleNav"
+                        #end
+                            setupToolToggle(toggleClass);
+                    });
+                </script>
+            #end
+            
+        #end
+        <script>
+            jQuery(document).ready(function() {
+                setupSiteNav();
+                // sakai_portal_ie_detected should have been set above
+                if (sakai_portal_ie_detected) {
+                    // SAK-22308
+                    //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
+                    var $ul_topnav = jQuery('ul#topnav');
+                    var aria_label_val = $ul_topnav.attr('aria-label');
+                    jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
+                    jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
+                    $ul_topnav.removeAttr('aria-label');
+                }
+            });
+        </script>
+        <script>
+            document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
+        </script>
         <!-- END VM site.vm -->
     </body>
 </html>
