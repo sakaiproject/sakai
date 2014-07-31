@@ -1334,7 +1334,23 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public boolean allowRemoveSite(String id)
 	{
-		return unlockCheck(SECURE_REMOVE_SITE, siteReference(id));
+		String lock = SECURE_REMOVE_SITE;
+		if(serverConfigurationService().getBoolean("site.soft.deletion", false))
+		{
+			try
+			{
+				Site site = getSite(id);
+				if (site.isSoftlyDeleted())
+				{
+					lock = SECURE_REMOVE_SOFTLY_DELETED_SITE;
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				// Ignore
+			}
+		}
+		return unlockCheck(lock, siteReference(id));
 	}
 
 	/**
