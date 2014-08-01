@@ -690,6 +690,8 @@ public class FCKConnectorServlet extends HttpServlet {
 			 element.setAttribute("url", contentHostingService.getUrl(current));
                         element.setAttribute("name", myCollection.getProperties().getProperty(
                                              myCollection.getProperties().getNamePropDisplayName()));
+                        //CLE-11175: Added children count to decide whether to show expand button as we removed nested iteration of files
+                        element.setAttribute("childrenCount", myCollection.getMemberCount()+"");
                         // by adding the folders to this collection, they will be sorted for display
                         sortedFolders.add(element);
                    }
@@ -701,7 +703,6 @@ public class FCKConnectorServlet extends HttpServlet {
               // now append the folderse to the parent document in sorted order
               for (Element folder: sortedFolders) {
                  Node addedFolder = folders.appendChild(folder);
-		  getResources(folder.getAttribute("path"), addedFolder, doc, collectionBase, type); 
               }
 
               getFilesOnly(dir, root, doc, type);
