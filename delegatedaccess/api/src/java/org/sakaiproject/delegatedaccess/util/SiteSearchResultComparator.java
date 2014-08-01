@@ -85,6 +85,8 @@ public class SiteSearchResultComparator implements Comparator<SiteSearchResult> 
 			}else if(arg0.isSitePublished()){
 				return 1;
 			}
+		case DelegatedAccessConstants.SEARCH_COMPARE_PROVIDERS:
+			return arg0.getProviders().compareToIgnoreCase(arg1.getProviders());
 		case DelegatedAccessConstants.SEARCH_COMPARE_SITE_TITLE:
 		default:
 			return arg0.getSiteTitle().compareToIgnoreCase(arg1.getSiteTitle());

@@ -128,6 +128,9 @@
     	<th><a wicket:id="instructorSortLink"><span wicket:id="instructorSortLinkLabel"/></a></th>
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
     	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
+    	<wicket:enclosure child="providersSortLink">
+    		<th><a wicket:id="providersSortLink"><wicket:message key="providers"/></a></th>
+    	</wicket:enclosure>
     	<wicket:enclosure child="publishedSortLink">
     		<th><a wicket:id="publishedSortLink"><wicket:message key="published"/></a></th>
     	</wicket:enclosure>
@@ -153,6 +156,12 @@
        	 </wicket:enclosure>
        	 <td><span wicket:id="term">term</span></td>
        	 <td><span wicket:id="siteId">site id</span></td>
+       	 <wicket:enclosure child="providers">
+	       	 <td>
+	       	 	<span wicket:id="providers">providers</span>
+	       	 	<a wicket:id="providersLookupLink"><wicket:message key="lookupProviders"/></a>
+	       	 </td>
+       	 </wicket:enclosure>
        	 <wicket:enclosure child="published">
        	 	<td><span wicket:id="published">Yes</span></td>
        	 </wicket:enclosure>

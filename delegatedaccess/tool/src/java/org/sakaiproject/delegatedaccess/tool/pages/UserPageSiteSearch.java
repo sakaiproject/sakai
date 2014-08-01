@@ -384,6 +384,19 @@ public class UserPageSiteSearch extends BasePage {
 		instructorSort.add(new Label("instructorSortLinkLabel", instructorSortLabel));
 		add(instructorSort);
 		
+		Link<Void> providersSort = new Link<Void>("providersSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PROVIDERS);
+			}
+			@Override
+			public boolean isVisible() {
+				//this helps hide all the extra columns with the wicket:enclosure in the html
+				return !isShoppingPeriodTool() && sakaiProxy.isProviderIdLookupEnabled();
+			}
+		};
+		add(providersSort);
+		
 		Link<Void> publishedSort = new Link<Void>("publishedSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
@@ -396,7 +409,6 @@ public class UserPageSiteSearch extends BasePage {
 			}
 		};
 		add(publishedSort);
-
 		
 		Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
@@ -465,6 +477,7 @@ public class UserPageSiteSearch extends BasePage {
 				};
 				siteTitleLink.add(new Label("siteTitle", siteSearchResult.getSiteTitle()));
 				item.add(siteTitleLink);
+				final String siteRef = siteSearchResult.getSiteReference();
 				final String siteId = siteSearchResult.getSiteId();
 				item.add(new Label("siteId", siteId));
 				item.add(new Label("term", siteSearchResult.getSiteTerm()));
@@ -494,6 +507,29 @@ public class UserPageSiteSearch extends BasePage {
 							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
 					}
 				});
+				item.add(new Label("providers", new AbstractReadOnlyModel<String>(){
+			            @Override
+			            public String getObject(){
+			            	return siteSearchResult.getProviders();
+			            }
+					}){
+					@Override
+					public boolean isVisible() {
+						return !isShoppingPeriodTool() && sakaiProxy.isProviderIdLookupEnabled();
+					}
+				});
+				item.add(new Link<Void>("providersLookupLink"){
+					private static final long serialVersionUID = 1L;
+					public void onClick() {
+						siteSearchResult.setProviders(sakaiProxy.getProviderId(siteRef));
+					}
+
+					@Override
+					public boolean isVisible() {
+						return !isShoppingPeriodTool() && sakaiProxy.isProviderIdLookupEnabled() && "".equals(siteSearchResult.getProviders());
+					}
+				});
+				
 				StringResourceModel publishedModel = siteSearchResult.isSitePublished() ? new StringResourceModel("yes", null) : new StringResourceModel("no", null);
 				item.add(new Label("published", publishedModel){
 					@Override

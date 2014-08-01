@@ -449,4 +449,18 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public Placement getCurrentPlacement();
+	
+	/**
+	 * if this is set to true, then a "provider id lookup" column will be added to DA search results
+	 * delegatedaccess.enableProviderIdLookup
+	 * @return
+	 */
+	public boolean isProviderIdLookupEnabled();
+	
+	/**
+	 * returns the provider id for a realm
+	 * @param siteRef
+	 * @return
+	 */
+	public String getProviderId(String siteRef);
 }

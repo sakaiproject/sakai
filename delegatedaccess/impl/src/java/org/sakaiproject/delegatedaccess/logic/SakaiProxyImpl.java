@@ -687,4 +687,17 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public Placement getCurrentPlacement(){
 		return toolManager.getCurrentPlacement();
 	}
+
+	@Override
+	public boolean isProviderIdLookupEnabled() {
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_ACCESS_ENABLE_PROVIDER_ID_LOOKUP, false);
+	}
+	
+	public String getProviderId(String siteRef){
+		try {
+			return authzGroupService.getAuthzGroup(siteRef).getProviderGroupId();
+		} catch (GroupNotDefinedException e) {
+			return "";
+		}		
+	}
 }

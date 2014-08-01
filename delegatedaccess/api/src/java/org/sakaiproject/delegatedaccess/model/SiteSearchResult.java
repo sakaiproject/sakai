@@ -40,6 +40,7 @@ public class SiteSearchResult implements Serializable {
 	private String modifiedBy;
 	private String modifiedBySortName;
 	private boolean hasInstructor = true;
+	private String providers = "";
 	
 	public SiteSearchResult(Site site, List<User> instructors, String termProp){
 		this.site = new SiteSerialized(site, termProp);
@@ -263,5 +264,13 @@ public class SiteSearchResult implements Serializable {
 	}
 	public boolean isHasInstructor() {
 		return hasInstructor;
+	}
+
+	public String getProviders() {
+		return providers;
+	}
+
+	public void setProviders(String providers) {
+		this.providers = providers;
 	}
 }

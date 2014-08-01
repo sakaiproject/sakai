@@ -43,6 +43,7 @@ public class DelegatedAccessConstants {
 	public static final int SEARCH_COMPARE_ACCESS_MODIFIED_BY = 11;
 	public static final int SEARCH_COMPARE_LEVEL = 12;
 	public static final int SEARCH_COMPARE_PUBLISHED = 13;
+	public static final int SEARCH_COMPARE_PROVIDERS = 14;
 	public static final String SCHOOL_PROPERTY = "School";
 	public static final String DEPEARTMENT_PROPERTY = "Department";
 	public static final String SUBJECT_PROPERTY = "Subject";
@@ -120,6 +121,7 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_SHOPPING_INSTRUCTOR_EDITABLE = "delegatedaccess.shopping.instructorEditable";
 	public static final String PROPERTIES_HIDE_ROLES_FOR_VIEW_ACCESS = "delegatedaccess.siteaccess.instructorViewable.hiddenRoles";
 	public static final String PROPERTIES_ACCESS_ADMIN_ALLOW_SET_ALLOW_BECOME_USER = "delegatedaccess.allow.accessadmin.set.allowBecomeUser";
+	public static final String PROPERTIES_ACCESS_ENABLE_PROVIDER_ID_LOOKUP= "delegatedaccess.enableProviderIdLookup";
 	public static final String NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE = "siteHierarchyJobLastRunDate:";
 	public static final String SITE_HIERARCHY_USER = "777dv0f43bd90sdf012uf";
 	public static final int MAX_SITES_PER_PAGE = 10000;
