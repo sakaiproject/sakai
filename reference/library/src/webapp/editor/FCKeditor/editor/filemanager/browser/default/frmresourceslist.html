@@ -53,13 +53,13 @@ function getGUID()
                 });
 }
 
-function getToggle( guid, isEmpty, isOpen, toggleMethod )
+function getToggle( guid, isEmpty, isOpen, toggleMethod,folderPath )
 {
 	return (isEmpty ? 
 		'<img src="images/spacer.gif" width="19" height="20" \/>' :
 		'<img src="' + (isOpen ? 'images/collapse.gif' : 'images/expand.gif') + 
 		'" width="19" height="20" id="img' +
-		guid + '" onclick="' + toggleMethod + '(\'' + guid + '\')" \/>'
+		guid + '" onclick="' + toggleMethod + '(\'' + guid + '\',\'' + folderPath + '\')" \/>'
 	       );
 }
 
@@ -94,7 +94,7 @@ oListManager.GetFolderRowHtml = function( folderName, folderUrl, folderPath, gui
 	// Build the link to view the folder.
 	var sLink = '<a href="#" onclick="LinkItem(\'' + ProtectPath( folderUrl ) + '\', false);return false;">' ;
 
-	var toggleExp = '<span id="tgl' + guid + '">' + getToggle(guid, isEmpty, false, 'toggleFld') + '<\/span>';
+	var toggleExp = '<span id="tgl' + guid + '">' + getToggle(guid, isEmpty, false, 'toggleFld',folderPath) + '<\/span>';
 
 	return toggleExp + '&nbsp;' +
 		'<span id="fldRow' + guid + '" onmouseover="showFldOpt(\'' + guid +
@@ -317,7 +317,6 @@ function GetResourcesCallBack( fckXml )
                 alert( 'The server didn\'t reply with a proper XML data. Please check your configuration.' ) ;
                 return ;
         }
-
 	var oHtml = new StringBuilder() ;
 	var fldGuid = oListManager.resourcesOpFldGuid;
 	var sCurrentFolderUrl   = oFolderNode.attributes.getNamedItem('url').value ;
@@ -330,23 +329,37 @@ function GetResourcesCallBack( fckXml )
 	var fldGrp = document.getElementById('grp' + fldGuid);
 	fldGrp.innerHTML = oHtml.ToString();
 	var fldOpen = (fldGrp.className == 'grpExpanded');
-	document.getElementById('tgl' + fldGuid).innerHTML = getToggle(fldGuid, noChildren, fldOpen, (fldGuid.length >= 32) ? 'toggleFld' : 'toggleGrp');
+	document.getElementById('tgl' + fldGuid).innerHTML = getToggle(fldGuid, noChildren, fldOpen, (fldGuid.length >= 32) ? 'toggleFld' : 'toggleGrp',oFolderNode.attributes.getNamedItem('path').value);
 	oListManager.resourcesOpFldGuid = '';
 }
 
-function toggleGrp( item )
+function toggleGrp( item,folderPath )
 {
+
         var tGrp = document.getElementById('grp' + item);
         var tImg = document.getElementById('img' + item);
         var currState = (tGrp.className == 'grpCollapsed');
+        // get the resources inside current folder
+        if(currState && folderPath && 0 !== folderPath.length){
+        	oConnector.CurrentFolder = folderPath;
+        	oListManager.resourcesOpFldGuid = item;
+        	var origFolderPath = oConnector.CurrentFolder ;
+        	
+            dialogText = '<b>Please wait, loading ...<\/b><br/><br/><img border="0" src="images/loadingbar.gif" />';
+            document.getElementById('tgl' + item).innerHTML = getDialog('loadingDiv', 200, 50, dialogText, 1.3);
+
+            oConnector.SendCommand( 'GetResources', null, GetResourcesCallBack );
+        	oConnector.CurrentFolder = origFolderPath;
+        }
+        
         tGrp.className = currState ? 'grpExpanded' : 'grpCollapsed';
         tImg.src = currState ? 'images/collapse.gif' : 'images/expand.gif';
         return currState;
 }
 
-function toggleFld( item )
+function toggleFld( item,folderPath )
 {
-    var currState = toggleGrp(item);
+    var currState = toggleGrp(item,folderPath );
 	tFld.src = currState ? 'images/FolderOpened.gif' : 'images/Folder.gif';
 }
 
@@ -366,7 +379,9 @@ function AddResourceRows( oHtml, fckXml, oNodesFolders, oNodesFiles, sXmlPrefix,
         {
 		var folderChildren = fckXml.SelectNodesContext('Folders/Folder', oNodes[i], sXmlPrefix + '[' + i + ']/Folders/Folder' );
 		var fileChildren = fckXml.SelectNodesContext('Files/File', oNodes[i], sXmlPrefix + '[' + i + ']/Files/File' );
-		var noChildren = ((folderChildren.length + fileChildren.length) == 0);
+		var childrenCount = oNodes[i].attributes.getNamedItem('childrenCount').value;
+		//get children count from server response
+		var noChildren = (childrenCount == 0);
                 var sFolderName = oNodes[i].attributes.getNamedItem('name').value ;
 		var sFolderUrl = oNodes[i].attributes.getNamedItem('url').value;
 		var sFolderPath = oNodes[i].attributes.getNamedItem('path').value;
@@ -476,7 +491,7 @@ function GetResourcesAssignsTestsTopicsCallBack( fckXml )
 	var folderInitNodes = fckXml.SelectNodes( 'Connector/Folders/Folder' );
 	var fileInitNodes = fckXml.SelectNodes( 'Connector/Files/File' );
 	oHtml.Append( '<span id="tglResources">' );
-        oHtml.Append( getToggle('Resources', !((folderInitNodes.length + fileInitNodes.length) > 0), !oConnector.ShowAllTypes, 'toggleGrp') ) ;
+        oHtml.Append( getToggle('Resources', !((folderInitNodes.length + fileInitNodes.length) > 0), !oConnector.ShowAllTypes, 'toggleGrp','') ) ;
 	oHtml.Append( '<\/span>' );
         oHtml.Append( '<\/td><td colspan="3" class="ListHeading">Resources' );
 	oHtml.Append( getFldOpts('Resources', sCurrentFolderPath, true) + '<img src="images/spacer.gif" width="1" height="16" /><\/td><\/tr>' ) ;
