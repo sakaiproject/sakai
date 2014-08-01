@@ -125,10 +125,13 @@
     <tbody>
     	<tr>
     	<th><a wicket:id="siteTitleSortLink"><wicket:message key="siteTitleHeader"/></a></th>
-    	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
+    	<th><a wicket:id="instructorSortLink"><span wicket:id="instructorSortLinkLabel"/></a></th>
     	<th><a wicket:id="termSortLink"><wicket:message key="termHeader"/></a></th>
+    	<th><a wicket:id="siteIdSortLink"><wicket:message key="siteIdHeader"/></a></th>
+    	<wicket:enclosure child="publishedSortLink">
+    		<th><a wicket:id="publishedSortLink"><wicket:message key="published"/></a></th>
+    	</wicket:enclosure>
     	<th><a wicket:id="accessSortLink"><wicket:message key="access"/></a></th>
-   		<th><a wicket:id="instructorSortLink"><span wicket:id="instructorSortLinkLabel"/></a></th>
     	<wicket:enclosure child="startDateSortLink">
 	    	<th><a wicket:id="startDateSortLink"><wicket:message key="startDate"/></a></th>
 	    	<th><a wicket:id="endDateSortLink"><wicket:message key="endDate"/></a></th>
@@ -142,15 +145,18 @@
     	</tr>
        <tr wicket:id="searchResult">
        	 <td><a wicket:id="siteTitleLink"><span wicket:id="siteTitle">test</span></a></td>
-       	 <td><span wicket:id="siteId">site id</span></td>
-       	 <td><span wicket:id="term">term</span></td>
-       	 <td><span wicket:id="access">!site.course:instructor</span></td>
        	 <wicket:enclosure child="instructor">
 	       	 <td>
 	       	 	<span wicket:id="instructor">Last, First</span>
 	       	 	<a wicket:id="instructorLookupLink"><wicket:message key="lookupInstructor"/></a>
 	       	 </td>
        	 </wicket:enclosure>
+       	 <td><span wicket:id="term">term</span></td>
+       	 <td><span wicket:id="siteId">site id</span></td>
+       	 <wicket:enclosure child="published">
+       	 	<td><span wicket:id="published">Yes</span></td>
+       	 </wicket:enclosure>
+       	 <td><span wicket:id="access">!site.course:instructor</span></td>
        	 <wicket:enclosure child="startDate">
 	       	 <td><span wicket:id="startDate">1/1/2012</span></td>
 	       	 <td><span wicket:id="endDate">12/21/2012</span></td>

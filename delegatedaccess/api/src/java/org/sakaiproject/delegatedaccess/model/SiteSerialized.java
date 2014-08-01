@@ -26,6 +26,7 @@ public class SiteSerialized implements Serializable{
 	private String title;
 	private String term;
 	private String reference;
+	private boolean published = false;
 
 	public SiteSerialized(Site site, String termProp){
 		this.id = site.getId();
@@ -37,14 +38,16 @@ public class SiteSerialized implements Serializable{
 			term = prop.toString();
 		}
 		this.reference = site.getReference();
+		this.setPublished(site.isPublished());
 	}
 	
-	public SiteSerialized(String id, String title, String term){
+	public SiteSerialized(String id, String title, String term, boolean published){
 		this.id = id;
 		this.title = title;
 		this.url = "/portal/site/" + id;
 		this.term = term;
 		this.reference = "/site/" + id;
+		this.setPublished(published);
 	}
 
 	public String getUrl() {
@@ -85,5 +88,13 @@ public class SiteSerialized implements Serializable{
 
 	public void setReference(String reference) {
 		this.reference = reference;
+	}
+
+	public boolean isPublished() {
+		return published;
+	}
+
+	public void setPublished(boolean published) {
+		this.published = published;
 	}
 }

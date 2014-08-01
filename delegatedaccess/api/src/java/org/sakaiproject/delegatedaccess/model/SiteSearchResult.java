@@ -191,6 +191,10 @@ public class SiteSearchResult implements Serializable {
 		return getSite().getReference();
 	}
 	
+	public boolean isSitePublished(){
+		return getSite().isPublished();
+	}
+	
 	public class UserSerialized implements Serializable{
 
 		private String userId;

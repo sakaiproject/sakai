@@ -384,6 +384,20 @@ public class UserPageSiteSearch extends BasePage {
 		instructorSort.add(new Label("instructorSortLinkLabel", instructorSortLabel));
 		add(instructorSort);
 		
+		Link<Void> publishedSort = new Link<Void>("publishedSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PUBLISHED);
+			}
+			@Override
+			public boolean isVisible() {
+				//this helps hide all the extra columns with the wicket:enclosure in the html
+				return !isShoppingPeriodTool();
+			}
+		};
+		add(publishedSort);
+
+		
 		Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
@@ -478,6 +492,13 @@ public class UserPageSiteSearch extends BasePage {
 					public boolean isVisible() {
 						return (instructorField == null || "".equals(instructorField)) 
 							&& siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0;
+					}
+				});
+				StringResourceModel publishedModel = siteSearchResult.isSitePublished() ? new StringResourceModel("yes", null) : new StringResourceModel("no", null);
+				item.add(new Label("published", publishedModel){
+					@Override
+					public boolean isVisible() {
+						return !isShoppingPeriodTool();
 					}
 				});
 				String access = isShoppingPeriodTool() ? siteSearchResult.getAccessRoleString() :siteSearchResult.getAccessString(); 

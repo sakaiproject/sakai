@@ -698,23 +698,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 		if(advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE)){
 			instructorType = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE);
 		}
-		List<String[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), instructorType, publishedSitesOnly);
+		List<Object[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), instructorType, publishedSitesOnly);
 		if(siteResults != null && siteResults.size() > 0){
 			//create an array of the siteIds returned:
 			String[] siteIds = new String[siteResults.size()];
 			int i = 0;
-			for(String[] site : siteResults){
-				siteIds[i] = site[0];
+			for(Object[] site : siteResults){
+				siteIds[i] = (String) site[0];
 				i++;
 			}
 			Map<String, Map<String, String>> termProps = dao.searchSitesForProp(new String[]{termField}, siteIds);
-			for(String[] site : siteResults){
+			for(Object[] site : siteResults){
 				List<User> instructors = new ArrayList<User>();
-				if(site.length == 3){
+				if(site.length == 4){
 					//this means the results came back with instructor data:
-					instructors.add(instructorMap.get(site[2]));
+					instructors.add(instructorMap.get(site[3]));
 				}
-				sites.put(site[0], new SiteSearchResult(new SiteSerialized(site[0], site[1], termValue), instructors, termField));
+				sites.put((String) site[0], new SiteSearchResult(new SiteSerialized((String) site[0], (String) site[1], termValue, (Boolean) site[2]), instructors, termField));
 			}	
 		}
 		

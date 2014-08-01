@@ -52,7 +52,7 @@ public interface DelegatedAccessDao {
 	 * @param publishedOnly
 	 * @return
 	 */
-	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, String instructorType, boolean publishedOnly);
+	public List<Object[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, String instructorType, boolean publishedOnly);
 	
 	/**
 	 * returns a list of {siteId, map{name->value}} for the site ids and properties searched

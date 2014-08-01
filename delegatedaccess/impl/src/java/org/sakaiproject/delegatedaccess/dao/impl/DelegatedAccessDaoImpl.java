@@ -268,7 +268,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 	}
 	
-	public List<String[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, String insturctorType, boolean publishedOnly){
+	public List<Object[]> searchSites(String titleSearch, Map<String, String> propsMap, String[] instructorIds, String insturctorType, boolean publishedOnly){
 		try{
 			if(titleSearch == null){
 				titleSearch = "";
@@ -316,19 +316,19 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				query += " " + getStatement("select.siteSearchPublishedOnly");
 			}
 			
-			return (List<String[]>) getJdbcTemplate().query(query, params, new RowMapper() {
+			return (List<Object[]>) getJdbcTemplate().query(query, params, new RowMapper() {
 				
 				 public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 					 if(noInstructors){
-						 return new String[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE")};
+						 return new Object[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE"), resultSet.getBoolean("PUBLISHED")};
 					 }else{
-						 return new String[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE"), resultSet.getString("USER_ID")};
+						 return new Object[]{resultSet.getString("SITE_ID"), resultSet.getString("TITLE"), resultSet.getBoolean("PUBLISHED"), resultSet.getString("USER_ID")};
 					 }
 				}
 			});
 		}catch (DataAccessException ex) {
 			log.error("Error executing query: " + ex.getClass() + ":" + ex.getMessage(), ex);
-			return new ArrayList<String[]>();
+			return new ArrayList<Object[]>();
 		}
 	}
 	
