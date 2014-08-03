@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.scoringservice.api;
 
+import java.util.List;
+
 import org.springframework.core.Ordered;
 
 /**
@@ -100,4 +102,53 @@ public interface ScoringAgent extends Ordered {
 
     boolean isEnabled(String gradebookUid, String gradebookItemId);
 
+    /**
+     *  
+     * @return the location for an image representing this ScoringAgent
+     */
+    String getImageReference();
+    
+    /**
+     * 
+     * @param gradebookUid
+     * @param gradebookItemId
+     * @return The user interface code will call this method to get a url for retrieving all student scores from the external app for the ScoringComponent
+     * associated with the given gradebook item
+     */
+    String getScoresUrl(String gradebookUid, String gradebookItemId);
+    
+    /**
+     * 
+     * @param gradebookUid
+     * @param gradebookItemId
+     * @param studentUid
+     * @return The user interface code will call this method to get a url for retrieving the given student's score from the external app for 
+     * the ScoringComponent associated with the given gradebook item
+     */
+    String getScoreUrl(String gradebookUid, String gradebookItemId, String studentUid);
+    
+    /**
+     * 
+     * @param gradebookUid
+     * @param studentUid
+     * @return The user interface code will call this method to get a url for retrieving all of the given student's scores for all gradebook items
+     * that are associated with the external ScoringAgent
+     */
+    String getStudentScoresUrl(String gradebookUid, String studentUid);
+    
+    /**
+     * 
+     * @param gradebookUid
+     * @return a list of the ScoringComponents registered for 
+     * gradebook items in the given gradebook
+     */
+    List<ScoringComponent> getScoringComponents(String gradebookUid);
+    
+    /**
+     * Copy the ScoringComponent associations for the gradebook items in one site to the gradebook items
+     * in another site. Useful for Duplicate Site and Import from Site functionality.
+     * @param fromGradebookUid the gradebookUid of the gradebook you are transferring data from
+     * @param toGradebookUid the gradebookUid of the gradebook you are transferring data to
+     */
+    void transferScoringComponentAssociations(String fromGradebookUid, String toGradebookUid);
 }
