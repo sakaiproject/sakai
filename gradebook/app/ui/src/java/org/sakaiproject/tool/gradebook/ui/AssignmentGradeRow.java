@@ -39,6 +39,10 @@ public class AssignmentGradeRow implements Serializable {
     private List eventRows;
     private String eventsLogTitle;
     private boolean userCanGrade;
+    // ScoringAgent integration
+    private boolean scoringComponentEnabled;
+    private String scoringComponentUrl;
+    private String retrieveScoreUrl;
 
     public AssignmentGradeRow(Assignment assignment, Gradebook gradebook) {
     	this.assignment = assignment;
@@ -138,5 +142,56 @@ public class AssignmentGradeRow implements Serializable {
     public void setUserCanGrader(boolean userCanGrade) {
     	this.userCanGrade = userCanGrade;
     }
+    
+    /**
+     * 
+     * @return true if a ScoringComponent (such as a rubric from an external scoring service) 
+     * has been associated with this assignment
+     */
+    public boolean isScoringComponentEnabled() {
+    	return this.scoringComponentEnabled;
+    }
+    
+    /**
+     * true if a ScoringComponent (such as a rubric from an external scoring service) 
+     * has been associated with this assignment
+     * @param scoringComponentEnabled
+     */
+    public void setScoringComponentEnabled(boolean scoringComponentEnabled) {
+    	this.scoringComponentEnabled = scoringComponentEnabled;
+    }
+    
+    /**
+     * 
+     * @return the URL for grading this assignment and student via an external
+     * ScoringAgent, if a ScoringComponent has been associated with this assignment
+     */
+    public String getScoringComponentUrl() {
+    	return this.scoringComponentUrl;
+    }
+    
+    /**
+     * the URL for grading this assignment and student via an external
+     * ScoringAgent, if a ScoringComponent has been associated with this assignment
+     * @param scoringComponentUrl
+     */
+    public void setScoringComponentUrl(String scoringComponentUrl) {
+    	this.scoringComponentUrl = scoringComponentUrl;
+    }
+	/**
+	 * @return the URL for retrieving the student's score from the external
+	 * ScoringComponent
+	 */
+	public String getRetrieveScoreUrl() {
+		return retrieveScoreUrl;
+	}
+	/**
+	 * @param retrieveScoreUrl 
+	 * the URL for retrieving the student's score from the external
+	 * ScoringComponent
+	 */
+	public void setRetrieveScoreUrl(String retrieveScoreUrl) {
+		this.retrieveScoreUrl = retrieveScoreUrl;
+	}
 
 }

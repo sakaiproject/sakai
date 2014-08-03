@@ -57,6 +57,13 @@
       <groupId>org.sakaiproject.edu-services.sections</groupId>
       <artifactId>sections-api</artifactId>
     </dependency>
+<!-- ScoringService integration -->
+	<dependency>
+        <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+        <artifactId>scoring-service-api</artifactId>
+        <scope>provided</scope>
+        <version>${sakai.version}</version>
+    </dependency>
 <!-- Standalone component -->
 	<!--    <dependency>
       <groupId>org.sakaiproject.edu-services.sections</groupId>

@@ -51,6 +51,11 @@
 			<property-name>gradebookExternalAssessmentService</property-name>
 			<value>#{org_sakaiproject_service_gradebook_GradebookExternalAssessmentService}</value>
 		</managed-property>
+		<managed-property>
+            <description>Gradebook Scoring Agent Manager</description>
+            <property-name>scoringAgentManager</property-name>
+            <value>#{org_sakaiproject_tool_gradebook_business_GradebookScoringAgentManager}</value>
+        </managed-property>
         <managed-property>
 			<property-name>configurationBean</property-name>
 			<value>#{configurationBean}</value>

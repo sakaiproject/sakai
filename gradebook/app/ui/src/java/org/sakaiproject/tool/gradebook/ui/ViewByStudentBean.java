@@ -81,6 +81,8 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     private List gradebookItems;
     private String studentUid;
     private Gradebook gradebook;
+    
+    private ScoringAgentData scoringAgentData;
 
     private static final Map columnSortMap;
     private static final String SORT_BY_NAME = "name";
@@ -257,6 +259,10 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     	
     	
     	initializeStudentGradeData();
+    	
+    	if (isScoringAgentEnabled()) {
+    		scoringAgentData = initializeScoringAgentData(getGradebookUid(), null, studentUid);
+    	}
     }
 
 
@@ -385,6 +391,10 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
      */
     public void setIsInstructorView(boolean isInstructorView) {
     	this.isInstructorView = isInstructorView;
+    }
+    
+    public ScoringAgentData getScoringAgentData() {
+    	return this.scoringAgentData;
     }
     
     /**
@@ -716,6 +726,33 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     					anyExternallyMaintained = true;
     				} else {
     					rowStyles.append("internal");
+    				}
+    				
+    				// if scoring agent is enabled for this gradebook
+    				if (isScoringAgentEnabled()) {
+    					// check to see if a ScoringComponent has been associated
+    					// with this gradebook item
+    					if (getScoringAgentManager()
+    							.isScoringComponentEnabledForGbItem(getGradebookUid(), gr.getAssociatedAssignment().getId())) {
+    						gr.setScoringComponentEnabled(true);
+    						
+    						// if the user can grade, add the grading url. otherwise, view only
+    						String url;
+    						Long gbItemId = gr.getAssociatedAssignment().getId();
+    						if (gr.isUserCanGrade() && isInstructorView) {
+    							url = getScoringAgentManager()
+    									.getScoreStudentUrl(getGradebookUid(), gbItemId, studentUid);
+    							gr.setRetrieveScoreUrl(getScoringAgentManager().getScoreUrl(getGradebookUid(), gbItemId, studentUid));
+    						} else {
+    							// show the view-only score in the scoring component for this student
+    							url = getScoringAgentManager()
+    									.getViewStudentScoreUrl(getGradebookUid(), gbItemId, studentUid);
+    						}
+    						
+    						gr.setScoringComponentUrl(url);
+    					} else {
+    						gr.setScoringComponentEnabled(false);
+    					}
     				}
     			} 
 

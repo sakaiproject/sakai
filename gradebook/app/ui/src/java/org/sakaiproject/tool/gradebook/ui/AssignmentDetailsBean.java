@@ -75,6 +75,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	private boolean isAllStudentsViewOnly = true;  // with grader perms, user may be able to grade/comment a selection
 													// of the students and view the rest. If all view only, disable
 													// the buttons
+	private ScoringAgentData scoringAgentData;
 
     public class ScoreRow implements Serializable {
         private AssignmentGradeRecord gradeRecord;
@@ -82,6 +83,12 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         private Comment comment;
         private List eventRows;
         private boolean userCanGrade;
+        // if a ScoringComponent is associated with this assignment, this
+        // is the URL for scoring this student
+        private String scoringComponentUrl;
+        // this url can be called to retrieve grade info for this student
+        // from the external scoring service
+        private String retrieveScoreUrl;
  
 		public ScoreRow() {
 		}
@@ -96,6 +103,19 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
             for (Iterator iter = gradingEvents.iterator(); iter.hasNext();) {
             	GradingEvent gradingEvent = (GradingEvent)iter.next();
             	eventRows.add(new GradingEventRow(gradingEvent));
+            }
+
+            if (isScoringAgentEnabled()) {
+            	// show the gradable vs. the view-only version of the scoring component
+            	if (userCanGrade && !assignment.isExternallyMaintained()) {
+            		this.scoringComponentUrl = getScoringAgentManager().
+            				getScoreStudentUrl(getGradebookUid(), assignmentId, enrollment.getUser().getUserUid());
+            		this.retrieveScoreUrl = getScoringAgentManager().
+                			getScoreUrl(getGradebookUid(), assignmentId, enrollment.getUser().getUserUid());
+            	} else {
+            		this.scoringComponentUrl = getScoringAgentManager().
+            				getViewStudentScoreUrl(getGradebookUid(), assignmentId, enrollment.getUser().getUserUid());
+            	}  	
             }
 		}
 
@@ -184,6 +204,24 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         }
         public void setUserCanGrade(boolean userCanGrade) {
         	this.userCanGrade = userCanGrade;
+        }
+        
+        /**
+         * 
+         * @return the URL to launch the ScoringComponent for grading this student
+         * via a ScoringAgent, if it exists
+         */
+        public String getScoringComponentUrl() {
+        	return this.scoringComponentUrl;
+        }
+        
+        /**
+         * 
+         * @return the URL for retrieving this student's grade from the
+         * external scoring agent
+         */
+        public String getRetrieveScoreUrl() {
+        	return this.retrieveScoreUrl;
         }
 	}
 
@@ -467,6 +505,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
                 FacesUtil.addErrorMessage(getLocalizedString("assignment_details_assignment_removed"));
 			}
 		}
+		
+		if (isScoringAgentEnabled()) {
+			scoringAgentData = initializeScoringAgentData(getGradebookUid(), assignmentId, null);
+		}
 	}
 	
 	private void copyDroppedFromGradeFlag(List<AssignmentGradeRecord> dest, List<AssignmentGradeRecord> source) {
@@ -714,6 +756,10 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
 	}
 	public boolean isAllStudentsViewOnly() {
 		return isAllStudentsViewOnly;
+	}
+	
+	public ScoringAgentData getScoringAgentData() {
+		return this.scoringAgentData;
 	}
 
 	/**

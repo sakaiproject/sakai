@@ -1,6 +1,7 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
+<script src="js/scoringAgent/integration.js" type="text/javascript"></script>
 
 
 <f:view>
@@ -169,7 +170,7 @@
 			sortAscending="#{assignmentDetailsBean.sortAscending}"
 			columnClasses="gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove,gbMessageAbove"
 			headerClass="gbHeader"
-			styleClass="listHier lines nolines">
+			styleClass="listHier lines nolines gradingTable">
 			<h:column>
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="studentSortName" arrow="true" immediate="false" actionListener="#{assignmentDetailsBean.sort}">
@@ -206,6 +207,8 @@
 					<h:graphicImage value="images/log.png" alt="#{msgs.inst_view_log_alt}"/>
 				</h:outputLink>
 			</h:column>
+
+			<%@include file="/inc/scoringAgent/assignmentDetails.jspf"%>
 
 			<h:column>
 				<f:facet name="header">

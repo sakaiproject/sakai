@@ -2,6 +2,7 @@
 <link href="dhtmlpopup/dhtmlCommentPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/frameAdjust.js" type="text/javascript"></script>
+<script src="js/scoringAgent/integration.js" type="text/javascript"></script>
 
 <f:view>
 	<div class="portletBody">
@@ -117,6 +118,8 @@
 					</h:outputText>
 					<h:outputText value="#{msgs.score_null_placeholder}" rendered="#{row.assignment && row.associatedAssignment.dueDate == null}"/>
 				</h:column>
+				
+				<%@include file="/inc/scoringAgent/studentView.jspf"%>
 				
 				<h:column>
 					<f:facet name="header">

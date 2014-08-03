@@ -18,6 +18,11 @@
 
 		</div>
 
+		<t:aliasBean alias="#{bean}" value="#{editAssignmentBean}">
+			<%-- add link to attach a scoring component  --%>
+			<%@include file="/inc/scoringAgent/editAssignment.jspf"%>
+		</t:aliasBean>
+
 		<p class="act calendarPadding">
 			<h:commandButton
 				id="saveButton"

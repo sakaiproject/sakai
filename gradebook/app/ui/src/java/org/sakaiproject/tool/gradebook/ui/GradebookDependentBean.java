@@ -50,6 +50,7 @@ import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.GradeMapping;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.business.GradebookScoringAgentManager;
 import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.UserDirectoryService;
 import org.sakaiproject.tool.gradebook.jsf.FacesUtil;
@@ -172,6 +173,10 @@ public abstract class GradebookDependentBean extends InitializableBean {
 
 	public GradebookExternalAssessmentService getGradebookExternalAssessmentService() {
 		return getGradebookBean().getGradebookExternalAssessmentService();
+	}
+	
+	public GradebookScoringAgentManager getScoringAgentManager() {
+		return getGradebookBean().getScoringAgentManager();
 	}
 
 	// Because these methods are referred to inside "rendered" tag attributes,
@@ -563,6 +568,22 @@ public abstract class GradebookDependentBean extends InitializableBean {
     	
     	return gradeEntryByLetter.booleanValue();
     }
+    
+    private transient Boolean scoringAgentEnabled;
+    /**
+     * 
+     * @return true if a ScoringAgent has been enabled
+     * for this gradebook to allow scoring via an external
+     * scoring service
+     */
+    public boolean isScoringAgentEnabled() {
+    	if (scoringAgentEnabled == null) {
+    		scoringAgentEnabled = getGradebookBean().getScoringAgentManager()
+    				.isScoringAgentEnabledForGradebook(getGradebookUid());
+    	}
+    	
+    	return scoringAgentEnabled;
+    }
 
 	/**
 	 * Set proper text for navigation button on assignment detials and
@@ -747,5 +768,51 @@ public abstract class GradebookDependentBean extends InitializableBean {
 	public void setIsExistingConflictScale(boolean isExistingConflictScale)
 	{
 		this.isExistingConflictScale = isExistingConflictScale;
+	}
+	
+	/**
+	 * 
+	 * @param gradebookUid
+	 * @param gradebookItemId Optional - if null, will only populate the data related to
+	 * the ScoringAgent itself, ie name and image ref
+	 * @param studentUid Optional - if not null, will populate fields related to this student's data
+	 * @return a {@link ScoringAgentData} object representing the scoring data
+	 * associated with the given gradebookUid and optionally gradebookItemId or studentUid
+	 */
+	public ScoringAgentData initializeScoringAgentData(String gradebookUid, Long gradebookItemId, String studentUid) {
+		ScoringAgentData data = new ScoringAgentData();
+		if (isScoringAgentEnabled()) {
+			data.setScoringAgentName(getScoringAgentManager().getScoringAgentName());
+			data.setScoringAgentImageRef(getScoringAgentManager().getScoringAgentImageRef());
+			data.setScoringComponentUrl(getScoringAgentManager().getScoringComponentUrl(gradebookUid, gradebookItemId));
+			
+			if (gradebookItemId != null) {
+				boolean scoringComponentEnabled = getScoringAgentManager().isScoringComponentEnabledForGbItem(gradebookUid, gradebookItemId);
+				data.setScoringComponentEnabled(scoringComponentEnabled);
+				
+				if (scoringComponentEnabled) {
+					data.setScoringComponentName(getScoringAgentManager().getScoringComponentName(gradebookUid, gradebookItemId));
+					data.setScoringComponentUrl(getScoringAgentManager().getScoringComponentUrl(gradebookUid, gradebookItemId));
+					data.setScoreAllUrl(getScoringAgentManager().getScoreAllUrl(gradebookUid, gradebookItemId));
+					data.setRetrieveScoresUrl(getScoringAgentManager().getScoresUrl(gradebookUid, gradebookItemId));
+				}
+			}
+			
+			if (studentUid != null) {
+				data.setRetrieveStudentScoresUrl(getScoringAgentManager().getStudentScoresUrl(gradebookUid, studentUid));
+			}
+			
+			// There are several places in the UI where the text requires parameterized bundle
+			// references, but the JSF component does not allow parameters. We will build
+			// them here instead. For example, alt tags on the image
+			data.setSelectScoringComponentText(getLocalizedString("selectScoringComponent", new String[]{data.getScoringAgentName()}));
+			data.setViewWithScoringAgentText(getLocalizedString("viewWithScoringAgent", new String[]{data.getScoringAgentName()}));
+			data.setGradeWithScoringAgentText(getLocalizedString("gradeWithScoringAgent", new String[]{data.getScoringAgentName()}));
+			data.setGradeAllWithScoringAgentText(getLocalizedString("gradeAllWithScoringAgent", new String[]{data.getScoringAgentName()}));
+			data.setRefreshAllGradesText(getLocalizedString("refreshAllGrades", new String[]{data.getScoringAgentName()}));
+			data.setRefreshGradeText(getLocalizedString("refreshGrade", new String[]{data.getScoringAgentName()}));
+		}
+		
+		return data;
 	}
 }

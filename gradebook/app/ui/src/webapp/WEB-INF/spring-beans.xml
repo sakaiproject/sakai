@@ -97,4 +97,9 @@
 	<bean id="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"
 		class="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"/>
 
+    <!-- for handling integration with an external scoring agent -->
+	  <bean id="org_sakaiproject_tool_gradebook_business_GradebookScoringAgentManager" class="org.sakaiproject.tool.gradebook.business.impl.GradebookScoringAgentManagerImpl">
+		<property name="scoringService" ref="org.sakaiproject.scoringservice.api.ScoringService"/>
+	</bean>
+
 </beans>

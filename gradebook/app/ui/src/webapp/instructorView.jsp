@@ -1,6 +1,8 @@
 <link href="dhtmlpopup/dhtmlPopup.css" rel="stylesheet" type="text/css" />
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <script src="js/dynamicSizeCheck.js" type="text/javascript"></script>
+<script src="/library/js/jquery.js" type="text/javascript"></script>
+<script src="js/scoringAgent/integration.js" type="text/javascript"></script> 
 
 <f:view>
 	<div class="portletBody">
@@ -136,7 +138,7 @@
 				columnClasses="attach,left,center,center,center,center,center,center,external"
 				rowClasses="#{instructorViewBean.rowStyles}"
 				headerClasses="attach,left,center,center,center,center,center,center comments,bogus"
-				styleClass="listHier lines nolines"
+				styleClass="listHier lines nolines gradingTable"
 				expanded="true"
 				rowIndexVar="rowIndex">
 				
@@ -222,6 +224,8 @@
 				</h:outputLink>
 				</h:column>
 				
+				 <%@include file="/inc/scoringAgent/instructorView.jspf"%>
+
 				<h:column>
 					<f:facet name="header">
 						<t:commandSortHeader columnName="pointsEarned" propertyName="pointsEarned" immediate="true" arrow="true">

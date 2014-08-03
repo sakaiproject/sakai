@@ -37,6 +37,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.business.GradebookManager;
+import org.sakaiproject.tool.gradebook.business.GradebookScoringAgentManager;
 import org.sakaiproject.tool.gradebook.facades.*;
 
 /**
@@ -66,7 +67,8 @@ public class GradebookBean extends InitializableBean {
     private ConfigurationBean configurationBean;
     private GradebookPermissionService gradebookPermissionService;
     private GradebookExternalAssessmentService gradebookExternalAssessmentService;
-
+    private GradebookScoringAgentManager scoringAgentManager;
+    
     /**
      * @return Returns the gradebookId.
      */
@@ -225,6 +227,13 @@ public class GradebookBean extends InitializableBean {
 	}
 	public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService gradebookExternalAssessmentService) {
 		this.gradebookExternalAssessmentService = gradebookExternalAssessmentService;
+	}
+	
+	public GradebookScoringAgentManager getScoringAgentManager() {
+		return this.scoringAgentManager;
+	}
+	public void setScoringAgentManager(GradebookScoringAgentManager scoringAgentManager) {
+		this.scoringAgentManager = scoringAgentManager;
 	}
 }
 

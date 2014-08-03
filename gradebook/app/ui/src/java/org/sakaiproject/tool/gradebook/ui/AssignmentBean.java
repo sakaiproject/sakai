@@ -67,6 +67,8 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
     private boolean selectedCategoryDropsScores;
     private boolean selectedAssignmentIsOnlyOne;
     private List<Category> categories;
+    
+    private ScoringAgentData scoringAgentData;
 
     // added to support bulk gradebook item creation
     public List newBulkItems; 
@@ -152,6 +154,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 			
 			newBulkItems.add(item);
 		}
+        }
+        
+        if (isScoringAgentEnabled()) {
+        	scoringAgentData = initializeScoringAgentData(getGradebookUid(), assignment.getId(), null);
         }
 }
 
@@ -721,6 +727,10 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 
 	public void setSelectedAssignmentIsOnlyOne(boolean selectedAssignmentIsOnlyOne) {
 		this.selectedAssignmentIsOnlyOne = selectedAssignmentIsOnlyOne;
+	}
+	
+	public ScoringAgentData getScoringAgentData() {
+		return this.scoringAgentData;
 	}
 
 }

@@ -1,0 +1,9 @@
+<h:column rendered="#{studentViewBean.scoringAgentEnabled}">
+	<f:facet name="header">
+		<h:outputText value="#{studentViewBean.scoringAgentData.viewWithScoringAgentText}" />
+	</f:facet>
+	<h:outputLink value="#" onclick='showPopup(encodeUrl("#{row.scoringComponentUrl}")); return false;' 
+							rendered="#{row.assignment && row.scoringComponentEnabled }">
+		<h:graphicImage value="#{studentViewBean.scoringAgentData.scoringAgentImageRef}" alt="#{studentViewBean.scoringAgentData.viewWithScoringAgentText}" title="#{studentViewBean.scoringAgentData.viewWithScoringAgentText}"/>
+	</h:outputLink>
+</h:column>
