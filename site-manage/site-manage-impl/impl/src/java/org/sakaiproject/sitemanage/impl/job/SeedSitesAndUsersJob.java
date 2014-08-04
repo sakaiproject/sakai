@@ -98,9 +98,9 @@ public class SeedSitesAndUsersJob implements Job {
 	private Faker faker = new Faker();
 	private Random randomGenerator = new Random();
 
-	private Map<String, User> students = new HashMap<String, User>();
-	private Map<String, User> instructors = new HashMap<String, User>();
-	private Map<String, Site> sites = new HashMap<String, Site>();
+	private Map<String, User> students;
+	private Map<String, User> instructors;
+	private Map<String, Site> sites;
 
 	public void init() {
 		numberOfSites = serverConfigurationService.getInt("site.seed.create.sites", 5);
@@ -122,7 +122,7 @@ public class SeedSitesAndUsersJob implements Job {
 		};
 	}
 
-	public void seedData() {		
+	private void seedData() {		
 		long totalBytes = 0;
 		
 		while (totalBytes < repositorySize) {
@@ -169,7 +169,7 @@ public class SeedSitesAndUsersJob implements Job {
 		}
 	}
 	
-	private long sizeOfResources() {
+	private long getSizeOfResources() {
 		StringBuffer sb = new StringBuffer();
 		for (Site site : sites.values()) {
 			if (sb.length() > 0) {
@@ -208,7 +208,7 @@ public class SeedSitesAndUsersJob implements Job {
 		return "/group/" + site.getId() + "/searchdata/";
 	}
 
-	public void createSites() throws PermissionException, IdInvalidException, IdUsedException, IdUnusedException {
+	private void createSites() throws PermissionException, IdInvalidException, IdUsedException, IdUnusedException {
 		for (long i = 0; i < numberOfSites; i++) {
 			try {
 	            createSite(faker.bothify("????_###?_####").toUpperCase(), "course");
@@ -218,7 +218,7 @@ public class SeedSitesAndUsersJob implements Job {
 		}
 	}
 	
-	public void createSite(String title, String type) throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
+	private void createSite(String title, String type) throws IdInvalidException, IdUsedException, PermissionException, IdUnusedException {
 		Site site = siteService.addSite(title, type);
 		site.setPublished(true);
 		site.setTitle(title);
@@ -230,7 +230,7 @@ public class SeedSitesAndUsersJob implements Job {
 		log.info("createSite, created site: " + site.getId());
 	}
 
-	public void createStudents() {
+	private void createStudents() {
 		for (long i = 0; i < numberOfStudents; i++) {
 			User user = createUser("registered");
 			if (user != null) {
@@ -239,7 +239,7 @@ public class SeedSitesAndUsersJob implements Job {
 		}
 	}
 
-	public void createInstructors() {
+	private void createInstructors() {
 		for (long i = 0; i < numberOfInstructorsPerSite; i++) {
 			User user = createUser("maintain");
 			if (user != null) {
@@ -248,7 +248,7 @@ public class SeedSitesAndUsersJob implements Job {
 		}
 	}
 	
-	public User createUser(String userType) {
+	private User createUser(String userType) {
 		User user = null;
 			String lastName = faker.name().lastName();
 			String eid = faker.numerify("#########");
@@ -266,7 +266,7 @@ public class SeedSitesAndUsersJob implements Job {
 		return user;
 	}
 
-	public void createEnrollments() {
+	private void createEnrollments() {
 		String[] studentsArray = students.keySet().toArray(new String[] {});
 		for (String siteId : sites.keySet()) {
 			Site site = sites.get(siteId);
@@ -302,6 +302,10 @@ public class SeedSitesAndUsersJob implements Job {
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
 		log.info("SeedSitesAndUsersJob started.");
+		
+		students = new HashMap<String, User>();
+		instructors = new HashMap<String, User>();
+		sites = new HashMap<String, Site>();
 
 		Session session = sessionManager.getCurrentSession();
 		String currentUser = session.getUserId();
@@ -327,6 +331,10 @@ public class SeedSitesAndUsersJob implements Job {
 		
 		session.setUserId(currentUser);
 		session.setUserEid(currentUser);
+		
+		students = null;
+		instructors = null;
+		sites = null;
 		
 		log.info("SeedSitesAndUsersJob completed.");
 	}
