@@ -909,8 +909,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
         }
 
-		String vendor_code = (String) info.get("vendor_code");
-		String product_code = (String) info.get("product_code");
+		String instance_guid = (String) info.get("instance_guid");
 
         if ( profileTools.size() < 1 ) {
 			addAlert(state,rb.getString("deploy.activate.notools"));
@@ -937,9 +936,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Loop through all of the tools
 		for ( Properties profileTool : profileTools ) {
 			String resource_type_code = (String) profileTool.get("resource_type_code");
-			String resource_handler = vendor_code;
-			if ( ! resource_handler.endsWith("/") && ! resource_handler.startsWith("/") ) resource_handler = resource_handler + "/" ;
-			resource_handler = resource_handler + product_code;
+			String resource_handler = instance_guid;
 			if ( ! resource_handler.endsWith("/") && ! resource_handler.startsWith("/") ) resource_handler = resource_handler + "/" ;
 			resource_handler = resource_handler + resource_type_code;
 			Map<String,Object> tool = ltiService.getToolForResourceHandlerDao(resource_handler);
