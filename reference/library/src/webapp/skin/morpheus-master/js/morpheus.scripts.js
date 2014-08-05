@@ -1,3 +1,16 @@
+/**
+ * For Footer toggles in Morpheus
+ */
+
+$(".js-footer-toggle__panel").addClass("is-hidden");
+$(".js-footer-toggle__control").addClass("plus");
+
+$('.js-footer-toggle__control').click(function() {
+event.preventDefault();
+$(this).next('.js-footer-toggle__panel').toggleClass("is-hidden is-visible");
+//$(this).next('pre').next(".source__link").slideToggle("fast");
+$(this).toggleClass("plus minus");
+});
 /* dhtml_view_sites
  * displays the More Sites div
  * note the technique of recasting the function after initalization
