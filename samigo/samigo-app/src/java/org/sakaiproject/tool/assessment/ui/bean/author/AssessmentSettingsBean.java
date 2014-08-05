@@ -459,7 +459,7 @@ public class AssessmentSettingsBean
       this.secureDeliveryModuleExitPassword = secureDeliveryService.decryptPassword( this.secureDeliveryModule, 
     		  (String) assessment.getAssessmentMetaDataByLabel( SecureDeliveryServiceAPI.EXITPWD_KEY ) );
       
-      if ( secureDeliveryModule == null ) {
+      if ( secureDeliveryModule == null || secureDeliveryModule.trim().length() == 0) {
     	  this.secureDeliveryModule = SecureDeliveryServiceAPI.NONE_ID;
       }
       else if ( ! secureDeliveryService.isSecureDeliveryModuleAvailable( secureDeliveryModule ) ) {
