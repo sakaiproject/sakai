@@ -195,9 +195,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
-              var result = onShow.call(this);
               this.move(this.getPosition().x, $(e.editor.container.$).position().top);
-              return result;
+              if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
+                  var result = onShow.call(this);
+                  return result;
+              }
           }
 
           if ( dialogName == 'link' )
