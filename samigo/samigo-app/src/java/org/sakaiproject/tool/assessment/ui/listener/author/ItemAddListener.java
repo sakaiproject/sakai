@@ -698,9 +698,7 @@ public class ItemAddListener
         update = true;
         // if modify ,itemid shouldn't be null , or 0.
         Long oldId = Long.valueOf(bean.getItemId());
-        if (isPendingOrPool) {
         	delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
-        }
     	item = delegate.getItem(oldId,AgentFacade.getAgentString());
       }
       else{
@@ -2396,14 +2394,30 @@ public class ItemAddListener
   
   private void preparePublishedTextForMatrixSurvey(ItemFacade item,
 		  ItemBean bean, ItemService delegate){
-	  Set textSet = item.getItemTextSet();
-	  Iterator textIter = textSet.iterator();
-	  HashMap itemTextMap = new HashMap();
-	  while (textIter.hasNext()) {
-		  ItemTextIfc itemText = (ItemTextIfc) textIter.next();
-		  itemTextMap.put(itemText.getSequence(), itemText);
+	  String[] rowChoices = returnMatrixChoices(bean,"row");
+	  String[] columnChoices = returnMatrixChoices(bean,"column");
+
+	  bean.setInstruction(bean.getItemText());
+	  item.getData().setInstruction(bean.getItemText());
+	  HashSet publishedTextSet = new HashSet();
+	  
+	  for(int i = 0; i<rowChoices.length;i++)
+	  {
+		  PublishedItemText publishedItemText = new PublishedItemText();
+		  publishedItemText.setItem(item.getData());
+		  publishedItemText.setSequence(Long.valueOf(i+1));
+		  publishedItemText.setText(rowChoices[i]);
+		  HashSet publishedAnswerSet = new HashSet();
+		  PublishedAnswer publishedAnswer = null;
+		  for(int j=0; j< columnChoices.length;j++){
+			  publishedAnswer = new PublishedAnswer(publishedItemText,columnChoices[j],Long.valueOf(j+1),null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
+			  publishedAnswerSet.add(publishedAnswer);
 	  }  
+		  publishedItemText.setAnswerSet(publishedAnswerSet);
+		  publishedTextSet.add(publishedItemText);
   }
+	  item.setItemTextSet(publishedTextSet);
+	}
 
   private static ArrayList getFIBanswers(String entiretext) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
