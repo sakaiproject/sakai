@@ -2453,7 +2453,7 @@ public class DbContentService extends BaseContentService
 				// write the file
 				out = new FileOutputStream(file);
 
-				int byteCount = 0;
+				long byteCount = 0;
 				// chunk
 				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
 				int lenRead;
