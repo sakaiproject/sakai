@@ -143,6 +143,10 @@
 						    </h:dataTable>
           				</h:panelGroup>
           				
+          				<h:panelGroup rendered="#{question.questionType == 60}">
+          					<h:outputText value="#{question.correctAnswer}"/>
+          				</h:panelGroup>
+          				
 		 			</h:panelGrid>
 				</h:column>
 		 	</h:dataTable> 

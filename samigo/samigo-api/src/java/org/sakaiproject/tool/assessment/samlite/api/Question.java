@@ -13,6 +13,8 @@ public class Question {
 	public static final int TRUE_FALSE_QUESTION = 30;
 	public static final int SHORT_ESSAY_QUESTION = 40;
     public static final int EXTENDED_MATCHING_ITEMS_QUESTION = 50;
+	public static final int FILL_IN_NUMERIC_QUESTION = 60;
+	
     // for EMI question
     private String themeText;
     private String leadInText;

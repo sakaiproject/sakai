@@ -69,9 +69,11 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
 	private Pattern correctFillInPattern, answerPattern, endQuestionPattern, correctMultipleChoicePattern;
 	private Pattern shortEssayPattern, correctTruePattern, correctFalsePattern, unnecessaryTruePattern, unnecessaryFalsePattern;
+	private Pattern correctfillInNumericPattern,complexNumberPattern,intervalPattern,realPattern;
 	
 	private Pattern startOfQuestionNumericPattern;
 	private Pattern pointsPattern;
+	String realPatternString = "((\\+||\\-)?(\\d+((\\.|\\,)\\d+)?)((E|e)(\\-|\\+)?\\d+)?)";
 	
 	private Pattern extendedMatchingCorrectAnswersPattern;
 	
@@ -80,11 +82,16 @@ public class SamLiteServiceImpl implements SamLiteService {
 		startOfQuestionNumericPattern = Pattern.compile("^(\\d+\\.|\\)|\\]\\s*)", Pattern.CASE_INSENSITIVE);
 		correctAnswerPattern = Pattern.compile("^\\*");
 		correctMultipleChoicePattern = Pattern.compile("^\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
-		correctFillInPattern = Pattern.compile("^\\*\\s*(.*)");
+		correctFillInPattern = Pattern.compile("^\\*\\s*(?!\\{)(.*)");
 		answerPattern = Pattern.compile("^([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		
 		// REGEX: ^(\d+\.+ ).*\[[a-z[ ,]]*\].* - start with digits point space then string containing brackets with [a-z] commas or spaces 
 		extendedMatchingCorrectAnswersPattern = Pattern.compile("^(\\d+\\.+ ).*\\[[a-z[ ,]]*\\].*", Pattern.CASE_INSENSITIVE);
+		
+		correctfillInNumericPattern = Pattern.compile("^\\*\\{(.*)\\}");
+		complexNumberPattern = Pattern.compile("^\\*\\{"+realPatternString+"(\\s*)(\\+||\\-)(\\s*)"+realPatternString+"(i|I)}");
+		intervalPattern = Pattern.compile("^\\*\\{(\\s*)"+realPatternString+"(\\s*)(\\|)(\\s*)"+realPatternString+"(\\s*)}");
+		realPattern = Pattern.compile("^\\*\\{"+realPatternString+"}");
 	} 
 	
 	public Question saveLast(QuestionGroup questionGroup, Question question) {
@@ -215,8 +222,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 	}
 	
 	
-	private void parseLine(Question question, String line) {		
-  		boolean isEndOfQuestion = endQuestionPattern.matcher(line).find();
+	private void parseLine(Question question, String line) {				
+		boolean isEndOfQuestion = endQuestionPattern.matcher(line).find();
 		boolean isCorrectAnswer = correctAnswerPattern.matcher(line).lookingAt();
 		Matcher answerMatcher = answerPattern.matcher(line);
 		boolean isAnswer = answerMatcher.find();
@@ -241,6 +248,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			boolean isFI = fillInMatcher.find();
 			boolean isTrue = correctTruePattern.matcher(line).find();
 			boolean isFalse = correctFalsePattern.matcher(line).find();
+			Matcher fillInNumericMatcher = correctfillInNumericPattern.matcher(line);
+			boolean isFillInNumeric = fillInNumericMatcher.find();
 			
 			if (isMC) {
 				String earlierCorrectAnswer = question.getCorrectAnswer();
@@ -266,6 +275,11 @@ public class SamLiteServiceImpl implements SamLiteService {
 			} else if (isFI) {
 	  			question.setCorrectAnswer(fillInMatcher.group(1));
 		  		question.setQuestionType(Question.FILL_IN_THE_BLANK_QUESTION);
+	  		} else if (isFillInNumeric) {
+				String correctAnswer = fillInNumericMatcher.group(1);
+				if(isValidNumericResponse(line))
+					question.setCorrectAnswer(correctAnswer);
+		  		question.setQuestionType(Question.FILL_IN_NUMERIC_QUESTION);
 	  		}
 		} else if (isEmptyTrue || isEmptyFalse) {
 			// Do nothing, since the 'correct' true or false answer is all we need.
@@ -434,6 +448,9 @@ public class SamLiteServiceImpl implements SamLiteService {
 		case Question.FILL_IN_THE_BLANK_QUESTION:
 			processFillInQuestion(section, question);
 			break;
+		case Question.FILL_IN_NUMERIC_QUESTION:
+			processFillInNumericQuestion(section, question);
+			break;	
 		case Question.SHORT_ESSAY_QUESTION:
 			processShortEssayQuestion(section, question);
 			break;
@@ -790,6 +807,71 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildItemFeedback(item, "InCorrect");
 	}
 	
+	private void processFillInNumericQuestion(SectionType section, Question question) {
+		ItemType item = section.addNewItem();
+		item.setTitle("Numeric Response");
+		
+		ItemmetadataType itemMetaData = item.addNewItemmetadata();
+		QtimetadataType qtiMetaData = itemMetaData.addNewQtimetadata();
+		
+		buildMetaDataField(qtiMetaData, "qmd_itemtype", "Numeric Response");
+		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
+		
+		ItemrubricType itemRubric = item.addNewItemrubric();
+		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();
+		mattext.setCharset(DEFAULT_CHARSET);
+		mattext.setTexttype("text/plain");
+
+		PresentationType presentation = item.addNewPresentation();
+		presentation.setLabel("FIN");
+		FlowType flow = presentation.addNewFlow();
+		flow.setClass1("Block");
+		MaterialType material = flow.addNewMaterial();
+		buildMattext(material.addNewMattext(), cdata(question.getQuestion()));
+		
+		MaterialType material2 = flow.addNewMaterial();
+		buildMattext(material2.addNewMattext());
+		
+		ResponseStrType responseStr = flow.addNewResponseStr();
+		responseStr.setRcardinality(ResponseStrType.Rcardinality.ORDERED);
+		responseStr.setRtiming(ResponseStrType.Rtiming.NO);
+		
+		RenderFibType renderFib = responseStr.addNewRenderFib();
+		renderFib.setCharset(DEFAULT_CHARSET);
+		renderFib.setColumns("5");
+		renderFib.setEncoding("UTF_8");
+		renderFib.setFibtype(RenderFibType.Fibtype.STRING);
+		renderFib.setPrompt(RenderFibType.Prompt.BOX);
+		renderFib.setRows("1");
+		
+		MaterialType material3 = flow.addNewMaterial();
+		buildMattext(material3.addNewMattext());
+		
+		ResprocessingType resProcessing = item.addNewResprocessing();
+		OutcomesType outcomes = resProcessing.addNewOutcomes();
+		DecvarType decvar = outcomes.addNewDecvar();
+		decvar.setDefaultval("0");
+		decvar.setMaxvalue(question.getQuestionPoints());
+		decvar.setMinvalue("0");
+		decvar.setVarname("SCORE");
+		decvar.setVartype(DecvarType.Vartype.INTEGER);
+		
+		RespconditionType respCondition = resProcessing.addNewRespcondition();
+		respCondition.setContinue(RespconditionType.Continue.YES);
+		ConditionvarType condition = respCondition.addNewConditionvar();
+		OrType or = condition.addNewOr();
+		VarequalType varequal = or.addNewVarequal();
+		varequal.setCase(VarequalType.Case.NO);
+		varequal.setStringValue(cdata(question.getCorrectAnswer()));
+		SetvarType setvar = respCondition.addNewSetvar();
+		setvar.setAction(SetvarType.Action.ADD);
+		setvar.setVarname("SCORE");
+		setvar.setStringValue("0");
+		
+		buildItemFeedback(item, "Correct");
+		buildItemFeedback(item, "InCorrect");
+	}
+	
 	private void processShortEssayQuestion(SectionType section, Question question) {
 		ItemType item = section.addNewItem();
 		item.setTitle("Essay Question");
@@ -831,4 +913,13 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildItemFeedback(item, "InCorrect");
 	}
 	
+	private boolean isValidNumericResponse(String numericResponse){
+		Matcher complexNumberMatcher = complexNumberPattern.matcher(numericResponse);
+		boolean isComplexNumber = complexNumberMatcher.find();
+		Matcher isIntervalMatcher = intervalPattern.matcher(numericResponse);
+		boolean isInterval = isIntervalMatcher.find();
+		Matcher isRealMatcher = realPattern.matcher(numericResponse);
+		boolean isReal = isRealMatcher.find();
+		return (isComplexNumber || isInterval || isReal);
+	}
 }

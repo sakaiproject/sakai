@@ -193,6 +193,18 @@
 				    		</div>
 					    </td>
 					  </tr>
+					  <tr>
+					  	<td align="left" valign="top">
+						    <a href="javascript:toggleLayer('example_fn_question');"><h:outputText value="#{samLiteMessages.example_fn_label}"/></a>
+						    <div id="example_fn_question" class="inopPanel" style="display:none">
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_fn_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
+				    			<h:outputText value="#{samLiteMessages.example_fn_question_format4}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_fn_question_text}"/><p/>
+				    			<h:outputText value="#{samLiteMessages.example_fn_answer}"/>			    			
+				    		</div>
+					    </td>
+					  </tr>				  
 					</table>
 				</td>
 			    </tr>

@@ -152,6 +152,8 @@ public class SamLiteBean implements Serializable {
 			return rb.getString("sam_lite_true_false");
 		case Question.SHORT_ESSAY_QUESTION:
 			return rb.getString("sam_lite_short_essay");
+		case Question.FILL_IN_NUMERIC_QUESTION:
+			return rb.getString("sam_lite_fill_in_numeric");
 		};
 		return "Unrecognized Type";
 	}
