@@ -690,7 +690,7 @@ public class FCKConnectorServlet extends HttpServlet {
 			 element.setAttribute("url", contentHostingService.getUrl(current));
                         element.setAttribute("name", myCollection.getProperties().getProperty(
                                              myCollection.getProperties().getNamePropDisplayName()));
-                        //CLE-11175: Added children count to decide whether to show expand button as we removed nested iteration of files
+                        // SAK-27756 Added children count to decide whether to show expand button as we removed nested iteration of files
                         element.setAttribute("childrenCount", myCollection.getMemberCount()+"");
                         // by adding the folders to this collection, they will be sorted for display
                         sortedFolders.add(element);
