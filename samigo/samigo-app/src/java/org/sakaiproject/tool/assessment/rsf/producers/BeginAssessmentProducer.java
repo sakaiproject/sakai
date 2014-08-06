@@ -221,17 +221,6 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
           UIBranchContainer.make(tofill, "unlimited:");
         }
         
-        if (delivery.getFeedbackComponent().getShowImmediate()) {
-          UIBranchContainer.make(tofill, "immediate:");
-        }
-        else if (delivery.getFeedbackComponent().getShowNoFeedback()) {
-          UIBranchContainer.make(tofill, "nofeedback:");
-        }
-        else if (delivery.getFeedbackComponent().getShowDateFeedback()) {
-          UIBranchContainer feedback = UIBranchContainer.make(tofill, "feedback:");
-          UIOutput.make(feedback, "feedBackDate", delivery.getSettings().getFeedbackDate().toString());
-        }
-
         if (delivery.getDueDate() != null) {
           UIBranchContainer duedate = UIBranchContainer.make(tofill, "duedate:");
           UIOutput.make(duedate, "duedate", delivery.getDueDateString());
