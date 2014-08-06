@@ -13,9 +13,6 @@
   <artifactId>help-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <properties>
-      <sakai.lucene.version>4.5.1</sakai.lucene.version>
-  </properties>
 
   <modules>
     <module>help</module>
