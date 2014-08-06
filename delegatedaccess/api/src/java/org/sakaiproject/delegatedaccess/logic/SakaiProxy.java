@@ -463,4 +463,19 @@ public interface SakaiProxy {
 	 * @return
 	 */
 	public String getProviderId(String siteRef);
+	
+	/**
+	 * returns a label for a hierarchy if it exists:
+	 * delegatedaccess.search.hierarchyLabel.{hierarchyLevel}
+	 * @param hierarchyLevel
+	 * @return
+	 */
+	public String getHierarchySearchLabel(String hierarchyLevel);
+	
+	/**
+	 * If this is set to true, then the term dropdown option in the search pages will be hidden
+	 * delegatedaccess.search.hideTerm
+	 * @return
+	 */
+	public boolean isSearchHideTerm();
 }

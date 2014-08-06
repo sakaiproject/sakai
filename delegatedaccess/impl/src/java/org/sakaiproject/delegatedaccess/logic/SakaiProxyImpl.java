@@ -700,4 +700,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return "";
 		}		
 	}
+	
+	public String getHierarchySearchLabel(String hierarchyLevel){
+		return serverConfigurationService.getString(DelegatedAccessConstants.PROPERTIES_SEARCH_HIERARCH_LABEL + hierarchyLevel, hierarchyLevel);
+	}
+	
+	public boolean isSearchHideTerm(){
+		return serverConfigurationService.getBoolean(DelegatedAccessConstants.PROPERTIES_SEARCH_HIDE_TERM, false);
+	}
 }

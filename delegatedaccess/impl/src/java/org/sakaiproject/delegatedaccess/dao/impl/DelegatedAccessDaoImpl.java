@@ -626,4 +626,101 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 		}
 
 	}
+	
+	
+	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap){
+		Map<String, Set<String>> returnMap = new HashMap<String, Set<String>>();
+		if(hierarchySearchMap == null || hierarchySearchMap.size() == 0){
+			return returnMap;
+		}
+		
+		/*
+		 * Goal is to create a query that looks similar to this:
+		 * 
+		 * select ssp1.NAME, ssp1.value, ssp2.NAME, ssp2.value, ssp3.NAME, ssp3.value
+			from SAKAI_SITE_PROPERTY ssp1
+			right join sakai_site_property ssp2 on ssp1.SITE_ID = ssp2.SITE_ID and ssp2.NAME = 'School'
+			right join sakai_site_property ssp3 on ssp2.SITE_ID = ssp3.SITE_ID and ssp3.NAME= 'Subject' and ssp3.VALUE='SUBJ2'
+			where ssp1.NAME = 'Department' 
+			Group By ssp1.NAME, ssp1.value, ssp2.NAME, ssp2.value, ssp3.NAME, ssp3.value
+		 */
+		final int mapSize = hierarchySearchMap.size();
+		String query = "select ";
+		for(int i = 0; i < mapSize; i++){
+			if(oracle){
+				query += "ssp" + i + ".NAME, dbms_lob.substr(ssp" + i + ".VALUE), ";
+			}else{
+				query += "ssp" + i + ".NAME, ssp" + i + ".VALUE, ";
+			}
+		}
+		//chop off the trailing ", "
+		query = query.substring(0, query.length() - 2) + " ";
+		
+		int i = 0;
+		String whereClause = "";
+		for(Entry<String, String> entry : hierarchySearchMap.entrySet()){
+			if(i == 0){
+				query += "from SAKAI_SITE_PROPERTY ssp0 ";
+				whereClause = "where ssp0.NAME = '" + entry.getKey() + "'";
+				if(entry.getValue() != null && !"".equals(entry.getValue().trim())){
+					if(oracle){
+						whereClause += " and dbms_lob.substr(ssp0.VALUE) = '" + entry.getValue().trim() + "'";
+					}else{
+						whereClause += " and ssp0.VALUE = '" + entry.getValue().trim() + "'";
+					}
+				}
+			}else{
+				query += "right join SAKAI_SITE_PROPERTY ssp" + i + " on ssp0.SITE_ID = ssp" + i + ".SITE_ID and ssp" + i + ".NAME = '" + entry.getKey() + "' ";
+				if(entry.getValue() != null && !"".equals(entry.getValue().trim())){
+					if(oracle){
+						query += "and dbms_lob.substr(ssp" + i + ".VALUE) = '" + entry.getValue().trim() + "' ";
+					}else{
+						query += "and ssp" + i + ".VALUE = '" + entry.getValue().trim() + "' ";
+					}
+				}
+			}
+			i++;
+		}
+		query += whereClause + " Group By ";
+		for(i = 0; i < mapSize; i++){
+				query += "ssp" + i + ".NAME, ";
+				if(oracle){
+					query += "dbms_lob.substr(ssp" + i + ".VALUE), ";
+				}else{
+					query += "ssp" + i + ".VALUE, ";
+				}
+		}
+		//chop off the trailing ", "
+		query = query.substring(0, query.length() - 2);
+		
+		List<List<String>> results =  (List<List<String>>) getJdbcTemplate().query(query, new Object[]{}, new RowMapper() {
+
+			public Object mapRow(ResultSet resultSet, int i) throws SQLException {
+				List<String> results = new ArrayList<String>();
+				for(i = 0; i < mapSize * 2; i++){
+					results.add(resultSet.getString(i + 1));
+				}
+				return results;
+			}
+		});
+		if(results != null){
+			for(List<String> result : results){
+				if(result.size() == mapSize * 2){
+					for(i = 0; i < mapSize; i++){
+						String key = result.get(i * 2);
+						String value = result.get((i * 2) + 1);
+						Set<String> values = new HashSet<String>();
+						if(returnMap.containsKey(key)){
+							values = returnMap.get(key);
+						}
+						values.add(value);
+						returnMap.put(key, values);
+					}
+				}
+			}
+		}
+		
+		return returnMap;
+	}
+	
 }

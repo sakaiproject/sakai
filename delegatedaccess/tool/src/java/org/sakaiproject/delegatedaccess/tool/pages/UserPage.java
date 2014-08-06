@@ -16,15 +16,22 @@
 
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeModel;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -37,10 +44,15 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.markup.html.tree.BaseTree;
 import org.apache.wicket.markup.html.tree.LinkTree;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
@@ -63,6 +75,10 @@ public class UserPage  extends BaseTreePage{
 	private TreeModel treeModel = null;
 	private String userId;
 	private String selectedInstructorOption = DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR;
+	public Map<String, List<SelectOption>> hierarchySelectOptions;
+	public Map<String, SelectOption> hierarchySearchMap;
+	public List<String> nodeSelectOrder;
+	public Map<String, String> hierarchyLabels = new HashMap<String, String>();
 	
 	protected AbstractTree getTree()
 	{
@@ -202,16 +218,25 @@ public class UserPage  extends BaseTreePage{
 		final PropertyModel<String> messageModel = new PropertyModel<String>(this, "search");
 		final PropertyModel<String> instructorFieldModel = new PropertyModel<String>(this, "instructorField");
 		final PropertyModel<SelectOption> termFieldModel = new PropertyModel<SelectOption>(this, "termField");
-		Form<?> form = new Form("form"){
+		final Form<?> form = new Form("form"){
 			@Override
 			protected void onSubmit() {	
-				Map<String, String> advancedOptions = new HashMap<String,String>();
+				Map<String, Object> advancedOptions = new HashMap<String,Object>();
 				if(termField != null && !"".equals(termField.getValue())){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_TERM, termField.getValue());
 				}
 				if(instructorField != null && !"".equals(instructorField)){
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR, instructorField);
 					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE, selectedInstructorOption);
+				}
+				Map<String, String> hierarchySearchFields = new HashMap<String, String>();
+				for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
+					if(entry.getValue() != null && !"".equals(entry.getValue().getValue().trim())){
+						hierarchySearchFields.put(entry.getKey(), entry.getValue().getValue().trim());
+					}
+				}
+				if(hierarchySearchFields.size() > 0){
+					advancedOptions.put(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS, hierarchySearchFields);
 				}
 				//need to set the tree model so that is is the full model
 				setResponsePage(new UserPageSiteSearch(search, advancedOptions, false, false));
@@ -250,11 +275,116 @@ public class UserPage  extends BaseTreePage{
 		for(String[] entry : sakaiProxy.getTerms()){
 			termOptions.add(new SelectOption(entry[1], entry[0]));
 		}
-		ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
-		DropDownChoice termFieldDropDown = new DropDownChoice("termField", termFieldModel, termOptions, choiceRenderer);
+		final ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		DropDownChoice termFieldDropDown = new DropDownChoice("termField", termFieldModel, termOptions, choiceRenderer){
+			@Override
+			public boolean isVisible() {
+				return !sakaiProxy.isSearchHideTerm();
+			}
+		};
 		//keeps the null option (choose one) after a user selects an option
 		termFieldDropDown.setNullValid(true);
 		form.add(termFieldDropDown);
+		
+		//hierarchy dropdown:
+		String[] hierarchyTmp = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
+		if(hierarchyTmp == null || hierarchyTmp.length == 0){
+			hierarchyTmp = DelegatedAccessConstants.DEFAULT_HIERARCHY;
+		}
+		final String[] hierarchy = hierarchyTmp;
+		WebMarkupContainer hierarchyDiv = new WebMarkupContainer("hierarchyFields");
+		final Comparator<SelectOption> optionComparator = new SelectOptionComparator();
+		if(hierarchySelectOptions == null || hierarchySelectOptions.size() == 0){
+			nodeSelectOrder = new ArrayList<String>();
+			hierarchySearchMap = new HashMap<String, SelectOption>();
+			for(String s : hierarchy){
+				hierarchySearchMap.put(s, null);
+				nodeSelectOrder.add(s);
+				hierarchyLabels.put(s, sakaiProxy.getHierarchySearchLabel(s));
+			}
+			Map<String, String> searchParams = new HashMap<String, String>();
+			for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
+				searchParams.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue().getValue());
+			}
+			Map<String, Set<String>> hierarchyOptions = projectLogic.getHierarchySearchOptions(searchParams);
+			hierarchySelectOptions = new HashMap<String, List<SelectOption>>();
+			for(Entry<String, Set<String>> entry : hierarchyOptions.entrySet()){
+				List<SelectOption> options = new ArrayList<SelectOption>();
+				for(String s : entry.getValue()){
+					options.add(new SelectOption(s, s));
+				}
+				Collections.sort(options, optionComparator);
+				hierarchySelectOptions.put(entry.getKey(), options);
+			}
+		}
+		DataView dropdowns = new DataView("hierarchyDropdowns", new IDataProvider<String>(){
+
+			@Override
+			public void detach() {
+				
+			}
+
+			@Override
+			public Iterator<? extends String> iterator(int first, int count) {
+				return nodeSelectOrder.subList(first, first + count).iterator();
+			}
+
+			@Override
+			public IModel<String> model(final String arg0) {
+				return new AbstractReadOnlyModel<String>() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public String getObject() {
+						return arg0;
+					}
+				};
+			}
+
+			@Override
+			public int size() {
+				return nodeSelectOrder.size();
+			}
+			
+		}) {
+
+			@Override
+			protected void populateItem(Item item) {
+				final String hierarchyLevel = item.getModelObject().toString();
+				item.add(new Label("hierarchyLabel", hierarchyLabels.containsKey(hierarchyLevel) ? hierarchyLabels.get(hierarchyLevel) : hierarchyLevel));
+				final DropDownChoice choice = new DropDownChoice("hierarchyLevel", new NodeSelectModel(hierarchyLevel), hierarchySelectOptions.get(hierarchyLevel), choiceRenderer);
+				//keeps the null option (choose one) after a user selects an option
+				choice.setNullValid(true);
+				choice.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+					protected void onUpdate(AjaxRequestTarget target) {
+						Map<String, String> searchParams = new HashMap<String, String>();
+						for(Entry<String, SelectOption> entry : hierarchySearchMap.entrySet()){
+							searchParams.put(entry.getKey(), entry.getValue() == null ? "" : entry.getValue().getValue());
+						}
+						Map<String, Set<String>> hierarchyOptions = projectLogic.getHierarchySearchOptions(searchParams);
+						hierarchySelectOptions = new HashMap<String, List<SelectOption>>();
+						for(Entry<String, Set<String>> entry : hierarchyOptions.entrySet()){
+							List<SelectOption> options = new ArrayList<SelectOption>();
+							for(String s : entry.getValue()){
+								options.add(new SelectOption(s, s));
+							}
+							Collections.sort(options, optionComparator);
+							hierarchySelectOptions.put(entry.getKey(), options);
+						}
+						
+						//refresh everything:
+						target.addComponent(form);
+					}
+				});
+				item.add(choice);
+			}
+
+			
+		};
+		hierarchyDiv.add(dropdowns);
+		form.add(hierarchyDiv);
+		
+		
 		form.add(new WebMarkupContainer("searchHeader"));
 		form.add(new Button("submitButton"));
 
@@ -279,6 +409,38 @@ public class UserPage  extends BaseTreePage{
 			}else{
 				treeModel = projectLogic.createAccessTreeModelForUser(userId, false, cascade);
 			}
+		}
+	}
+	
+	private class SelectOptionComparator implements Comparator<SelectOption>, Serializable{
+
+		@Override
+		public int compare(SelectOption o1, SelectOption o2) {
+			return o1.getLabel().compareTo(o2.getLabel());
+		}
+	}
+	
+	private class NodeSelectModel implements IModel<SelectOption>, Serializable{
+
+		private String nodeId;
+		
+		public NodeSelectModel(String nodeId){
+			this.nodeId = nodeId;
+		}
+
+		@Override
+		public void detach() {
+		
+		}
+
+		@Override
+		public SelectOption getObject() {
+			return hierarchySearchMap.get(nodeId);
+		}
+
+		@Override
+		public void setObject(SelectOption arg0) {
+			hierarchySearchMap.put(nodeId, arg0);
 		}
 	}
 }

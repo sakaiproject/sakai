@@ -108,6 +108,7 @@ public class DelegatedAccessConstants {
 	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE_INSTRUCTOR = "instructor";
 	public static final String ADVANCED_SEARCH_INSTRUCTOR_TYPE_MEMBER = "member";
 	public static final String ADVANCED_SEARCH_TERM = "termField";
+	public static final String ADVANCED_SEARCH_HIERARCHY_FIELDS = "hierarchyFields";
 	public static final String PROPERTIES_TERMFIELD = "delegatedaccess.termfield";
 	public static final String PROPERTIES_TERM_USE_CM_API = "delegatedaccess.term.useCourseManagementApi";
 	public static final String PROPERTIES_TERM_SHOW_LATEST_X_TERMS = "delegatedaccess.term.showLatestXTerms";
@@ -122,6 +123,8 @@ public class DelegatedAccessConstants {
 	public static final String PROPERTIES_HIDE_ROLES_FOR_VIEW_ACCESS = "delegatedaccess.siteaccess.instructorViewable.hiddenRoles";
 	public static final String PROPERTIES_ACCESS_ADMIN_ALLOW_SET_ALLOW_BECOME_USER = "delegatedaccess.allow.accessadmin.set.allowBecomeUser";
 	public static final String PROPERTIES_ACCESS_ENABLE_PROVIDER_ID_LOOKUP= "delegatedaccess.enableProviderIdLookup";
+	public static final String PROPERTIES_SEARCH_HIDE_TERM = "delegatedaccess.search.hideTerm";
+	public static final String PROPERTIES_SEARCH_HIERARCH_LABEL = "delegatedaccess.search.hierarchyLabel.";
 	public static final String NODE_PERM_SITE_HIERARCHY_JOB_LAST_RUN_DATE = "siteHierarchyJobLastRunDate:";
 	public static final String SITE_HIERARCHY_USER = "777dv0f43bd90sdf012uf";
 	public static final int MAX_SITES_PER_PAGE = 10000;

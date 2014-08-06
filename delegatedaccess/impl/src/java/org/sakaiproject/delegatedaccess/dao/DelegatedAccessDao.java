@@ -119,4 +119,19 @@ public interface DelegatedAccessDao {
 	 * @return
 	 */
 	public List<String> getSitesWithDelegatedAccessTool(String[] siteIds);
+	
+	/**
+	 * Given a map of hierarchy key->value, it will return the list of available options for all hierarchy levels
+	 * 
+	 * for example: 
+	 * hierarchy = School, Dept, Subj
+	 * 
+	 * params: {School=>"", Dept=>"Dept1", Subj=>""}
+	 * 
+	 * return: {School=>{"school1", "school2"}, Dept=>{"Dept1"}, Subj=>{"Subj1", Subj2", "Subj3"}}
+	 * 
+	 * @param hierarchySearchMap
+	 * @return
+	 */
+	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap);
 }

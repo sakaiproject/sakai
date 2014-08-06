@@ -93,6 +93,8 @@ public class ProjectLogicImpl implements ProjectLogic {
 	private TimeService timeService;
 	
 	private Cache restrictedPublicToolsCache;
+	
+	private Cache hierarchySearchCache;
 	/**
 	 * init - perform any actions required here for when this bean starts up
 	 */
@@ -101,6 +103,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		nodeCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.nodeCache");
 		restrictedAuthToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedAuthToolsCache");
 		restrictedPublicToolsCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.restrictedPublicToolsCache");
+		hierarchySearchCache = memoryService.newCache("org.sakaiproject.delegatedaccess.logic.ProjectLogic.hierarchySearchCache");
 	}
 
 	/**
@@ -582,7 +585,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		}
 	}
 	
-	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData){
+	public List<SiteSearchResult> searchUserSites(String search, Map<String, Object> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData){
 		List<SiteSearchResult> returnList = new ArrayList<SiteSearchResult>();
 		List<String> resultSiteIds = new ArrayList<String>();
 		if(search == null){
@@ -627,7 +630,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//of sites we need to look up
 		if (!(advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM) != null
-				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).trim()))) {
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toString().trim()))) {
 			String termField = sakaiProxy.getTermField();
 			Map<String, Map<String, String>> termProps = dao.searchSitesForProp(new String[]{termField}, resultSiteIds.toArray(new String[resultSiteIds.size()]));
 			for(SiteSearchResult result : returnList){
@@ -641,7 +644,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		return returnList;
 	}
 
-	public Collection<SiteSearchResult> searchSites(String search, Map<String, String> advancedOptions, boolean publishedSitesOnly){
+	public Collection<SiteSearchResult> searchSites(String search, Map<String, Object> advancedOptions, boolean publishedSitesOnly){
 		if("".equals(search)){
 			search = null;
 		}
@@ -656,27 +659,45 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//add term field restriction if it exist:
 		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_TERM)
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM) != null
-				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).trim())) {
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toString().trim())) {
 			//add term field to propMap for search
-			termValue = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM);
+			termValue = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toString();
 			propsMap.put(termField, termValue);
 			//check if we need to remove the searchByIdSite b/c of the term
 			if(searchByIdSite != null && searchByIdSite.getProperties() != null
 					&& searchByIdSite.getProperties().getProperty(termField) != null
-					&& searchByIdSite.getProperties().getProperty(termField).toLowerCase().contains(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM))){
+					&& searchByIdSite.getProperties().getProperty(termField).toLowerCase().contains(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_TERM).toString())){
 				//do nothing, we found it
 			}else{
 				//doesn't exist in this term, remove it
 				searchByIdSite = null;
 			}	
 		}
+		//hierarchy fields search
+		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS)
+				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS) != null
+				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS) instanceof Map) {
+			Map<String, String> hierarchyParams = (Map<String, String>) advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_HIERARCHY_FIELDS);
+			for(Entry<String, String> entry : hierarchyParams.entrySet()){
+				propsMap.put(entry.getKey(), entry.getValue());
+				//check if we need to remove the searchByIdSite b/c of the hierarchy key/value
+				if(searchByIdSite != null && searchByIdSite.getProperties() != null
+						&& searchByIdSite.getProperties().getProperty(entry.getKey()) != null
+						&& searchByIdSite.getProperties().getProperty(entry.getKey()).toLowerCase().contains(entry.getValue())){
+					//do nothing, we found it
+				}else{
+					//doesn't exist in this hierarchy, remove it
+					searchByIdSite = null;
+				}
+			}
+		}
 		
 		//add instructor restriction
 		Map<String, User> instructorMap = new HashMap<String, User>();
 		if (advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR)
 				&& advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR) != null
-				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).trim())) {
-			List<User> searchUsers = sakaiProxy.searchUsers(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR));
+				&& !"".equals(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).toString().trim())) {
+			List<User> searchUsers = sakaiProxy.searchUsers(advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR).toString());
 			//since we added a site by searching for ID, we need to make sure that at least 1 user is a member,
 			//otherwise, remove it from the results:
 			boolean foundSearchByIdMember = searchByIdSite == null ? true : false;
@@ -696,7 +717,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		//pass in whether it's an instructor or member search (if exists)
 		String instructorType = "";
 		if(advancedOptions != null && advancedOptions.containsKey(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE)){
-			instructorType = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE);
+			instructorType = advancedOptions.get(DelegatedAccessConstants.ADVANCED_SEARCH_INSTRUCTOR_TYPE).toString();
 		}
 		List<Object[]> siteResults = dao.searchSites(search, propsMap, instructorMap.keySet().toArray(new String[instructorMap.keySet().size()]), instructorType, publishedSitesOnly);
 		if(siteResults != null && siteResults.size() > 0){
@@ -2711,5 +2732,21 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}
 		}
 		syncMyworkspaceToolForUser(userId);
+	}
+	
+	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap){
+		List<String> orderedKeys = new ArrayList<String>(hierarchySearchMap.keySet());
+		Collections.sort(orderedKeys);
+		String key = "";
+		for(String k : orderedKeys){
+			key += k + ";" + (hierarchySearchMap.get(k) == null ? "" : hierarchySearchMap.get(k)) + ";";
+		}
+		if(hierarchySearchCache.containsKey(key)){
+			return (Map<String, Set<String>>) hierarchySearchCache.get(key); 
+		}else{
+			Map<String, Set<String>> results = dao.getHierarchySearchOptions(hierarchySearchMap);
+			hierarchySearchCache.put(key, results);
+			return results;
+		}
 	}
 }

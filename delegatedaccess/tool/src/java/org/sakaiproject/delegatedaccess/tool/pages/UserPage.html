@@ -77,15 +77,29 @@
 				  </wicket:container>
 				</td>
 			</tr>
-			<tr>
-				<td align='right'>
-					<wicket:message key="termField"/>
-				</td>
-				<td>
-					<select wicket:id="termField">
-					</select>
-				</td>
-			</tr>
+			<wicket:enclosure child="termField">
+				<tr>
+					<td align='right'>
+						<wicket:message key="termField"/>
+					</td>
+					<td>
+						<select wicket:id="termField">
+						</select>
+					</td>
+				</tr>
+			</wicket:enclosure>
+			<div class="hierarchyFields" wicket:id="hierarchyFields">
+				<wicket:component wicket:id="hierarchyDropdowns">
+					<tr>
+						<td align='right'>
+							<span wicket:id="hierarchyLabel">Dept</span>:
+						</td>
+						<td>
+							<select wicket:id="hierarchyLevel" onchange=" this.form.submit();"/>
+						</td>								
+					</tr>
+				</wicket:component>
+			</div>
 			<tr>
 				<td/>
 				<td align='right'>

@@ -89,7 +89,7 @@ public interface ProjectLogic {
 	 * @param activeShoppingData
 	 * @return
 	 */
-	public List<SiteSearchResult> searchUserSites(String search, Map<String, String> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData);
+	public List<SiteSearchResult> searchUserSites(String search, Map<String, Object> advancedOptions, boolean shoppingPeriod, boolean activeShoppingData);
 
 	/**
 	 * returns the tree model of a user's delegated access.  Each node in the tree has the NodeModel object
@@ -375,4 +375,6 @@ public interface ProjectLogic {
 	 * @param userId
 	 */
 	public void removeAllPermsForUser(String userId);
+	
+	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap);
 }
