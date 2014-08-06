@@ -46,10 +46,9 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	 */
 	private PrintWriter writer = null;
 
-	/**
-	 * The default content type for all portlets.
-	 */
-	private String contentType = "text/html";
+	private String contentType = null;
+
+	private boolean isCommitted = false;
 
 	private int contentLength = -1;
 
@@ -72,6 +71,14 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	}
 
 	@Override
+	public boolean isCommitted()
+	{
+		boolean retval = isCommitted || super.isCommitted();
+		// System.out.println("isCommitted ="+isCommitted+" retval="+retval);
+		return retval;
+	}
+
+	@Override
 	public String getContentType()
 	{
 		// System.out.println("contentType = "+contentType);
@@ -82,6 +89,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	public void setContentType(String newType)
 	{
 		// System.out.println("setContentType = "+contentType);
+		super.setContentType(newType);
 		contentType = newType;
 	}
 
@@ -92,8 +100,10 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 
 	@Override
 	public void sendRedirect(String redirectUrl)
+        throws java.io.IOException
 	{
 		// System.out.println("sendRedirect = "+redirectUrl);
+		isCommitted = true;
 		redirect = redirectUrl;
 	}
 
@@ -101,6 +111,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	public PrintWriter getWriter()
 	{
 		// System.out.println("getWriter()");
+		isCommitted = true;
 		return writer;
 	}
 
@@ -108,6 +119,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 	public ServletOutputStream getOutputStream() throws java.io.IOException
 	{
 		// System.out.println("getOutputStream()");
+		isCommitted = true;
 		return outStream;
 	}
 
@@ -139,7 +151,7 @@ public class ByteArrayServletResponse extends HttpServletResponseWrapper
 		throws IOException
 	{
 		// System.out.println("Forwarding request CT="+contentType+" CL="+contentLength);
-		super.setContentType(contentType);
+		if ( contentType != null ) super.setContentType(contentType);
 		if ( contentLength > 0 ) super.setContentLength(contentLength);
 		ServletOutputStream output = super.getOutputStream();
 		if ( redirect != null ) super.sendRedirect(redirect);
