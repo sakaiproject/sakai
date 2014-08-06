@@ -271,6 +271,9 @@ public class SiteSearchResult implements Serializable {
 	}
 
 	public void setProviders(String providers) {
+		if(providers == null){
+			providers = "";
+		}
 		this.providers = providers;
 	}
 }

@@ -16,6 +16,9 @@
 
 package org.sakaiproject.delegatedaccess.tool.pages;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +30,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -40,6 +44,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
 import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.navigation.paging.PagingNavigator;
 import org.apache.wicket.markup.repeater.DefaultItemReuseStrategy;
@@ -52,6 +57,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.target.resource.ResourceStreamRequestTarget;
+import org.apache.wicket.util.resource.FileResourceStream;
+import org.apache.wicket.util.resource.IResourceStream;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.model.SiteSearchResult;
@@ -67,7 +75,7 @@ import org.sakaiproject.user.api.User;
  *
  */
 public class UserPageSiteSearch extends BasePage {
-
+	private static final Logger log = Logger.getLogger(UserPageSiteSearch.class);
 	private int orderBy = DelegatedAccessConstants.SEARCH_COMPARE_DEFAULT;
 	private boolean orderAsc = true;
 	private SiteSearchResultDataProvider provider;
@@ -483,7 +491,7 @@ public class UserPageSiteSearch extends BasePage {
 		});
 		//search result table:
 		//Headers
-		Link<Void> siteTitleSort = new Link<Void>("siteTitleSortLink"){
+		final Link<Void> siteTitleSort = new Link<Void>("siteTitleSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SITE_TITLE);
@@ -494,8 +502,11 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
+		final Label siteTitleLabel = new Label("siteTitleLabel", new StringResourceModel("siteTitleHeader", null));
+		siteTitleSort.add(siteTitleLabel);
 		add(siteTitleSort);
-		Link<Void> siteIdSort = new Link<Void>("siteIdSortLink"){
+		
+		final Link<Void> siteIdSort = new Link<Void>("siteIdSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_SITE_ID);
@@ -506,8 +517,11 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
+		final Label siteIdSortLabel = new Label("siteIdSortLabel", new StringResourceModel("siteIdHeader", null));
+		siteIdSort.add(siteIdSortLabel);
 		add(siteIdSort);
-		Link<Void> termSort = new Link<Void>("termSortLink"){
+		
+		final Link<Void> termSort = new Link<Void>("termSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_TERM);
@@ -518,19 +532,11 @@ public class UserPageSiteSearch extends BasePage {
 				return provider.size() > 0;
 			}
 		};
+		final Label termSortLabel = new Label("termSortLabel", new StringResourceModel("termHeader", null));
+		termSort.add(termSortLabel);
 		add(termSort);
-		Link<Void> instructorSort = new Link<Void>("instructorSortLink"){
-			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR);
-			}
-
-			@Override
-			public boolean isVisible() {
-				return provider.size() > 0;
-			}
-		};
-		AbstractReadOnlyModel<String> instructorSortLabel = new AbstractReadOnlyModel<String>() {
+		
+		AbstractReadOnlyModel<String> instructorSortLabelModel = new AbstractReadOnlyModel<String>() {
 
 			@Override
 			public String getObject() {
@@ -541,10 +547,22 @@ public class UserPageSiteSearch extends BasePage {
 				}
 			}
 		};
-		instructorSort.add(new Label("instructorSortLinkLabel", instructorSortLabel));
+		final Link<Void> instructorSort = new Link<Void>("instructorSortLink"){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_INSTRUCTOR);
+			}
+
+			@Override
+			public boolean isVisible() {
+				return provider.size() > 0;
+			}
+		};
+		final Label instructorSortLabel = new Label("instructorSortLabel", instructorSortLabelModel);
+		instructorSort.add(instructorSortLabel);
 		add(instructorSort);
 		
-		Link<Void> providersSort = new Link<Void>("providersSortLink"){
+		final Link<Void> providersSort = new Link<Void>("providersSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PROVIDERS);
@@ -555,9 +573,11 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool() && sakaiProxy.isProviderIdLookupEnabled();
 			}
 		};
+		final Label providersSortLabel = new Label("providersSortLabel", new StringResourceModel("providers", null));
+		providersSort.add(providersSortLabel);
 		add(providersSort);
 		
-		Link<Void> publishedSort = new Link<Void>("publishedSortLink"){
+		final Link<Void> publishedSort = new Link<Void>("publishedSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_PUBLISHED);
@@ -568,17 +588,21 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
+		final Label publishedSortLabel = new Label("publishedSortLabel", new StringResourceModel("published", null));
+		publishedSort.add(publishedSortLabel);
 		add(publishedSort);
 		
-		Link<Void> accessSort = new Link<Void>("accessSortLink"){
+		final Link<Void> accessSort = new Link<Void>("accessSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS);
 			}
 		};
+		final Label accessSortLabel = new Label("accessSortLabel", new StringResourceModel("access", null));
+		accessSort.add(accessSortLabel);
 		add(accessSort);
 		
-		Link<Void> startDateSort = new Link<Void>("startDateSortLink"){
+		final Link<Void> startDateSort = new Link<Void>("startDateSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_START_DATE);
@@ -589,17 +613,41 @@ public class UserPageSiteSearch extends BasePage {
 				return statistics;
 			}
 		};
+		final Label startDateSortLabel = new Label("startDateSortLabel", new StringResourceModel("startDate", null));
+		startDateSort.add(startDateSortLabel);
 		add(startDateSort);
 		
-		Link<Void> endDateSort = new Link<Void>("endDateSortLink"){
+		final Link<Void> endDateSort = new Link<Void>("endDateSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_END_DATE);
 			}
+			@Override
+			public boolean isVisible() {
+				return statistics;
+			}
 		};
+		final Label endDateSortLabel = new Label("endDateSortLabel", new StringResourceModel("endDate", null));
+		endDateSort.add(endDateSortLabel);
 		add(endDateSort);
 		
-		Link<Void> accessModifiedBySort = new Link<Void>("accessModifiedBySortLink"){
+		final Label showAuthToolsHeader = new Label("showAuthToolsHeader", new StringResourceModel("showAuthToolsHeader", null)){
+			@Override
+			public boolean isVisible() {
+				return statistics;
+			}
+		};
+		add(showAuthToolsHeader);
+		
+		final Label showPublicToolsHeader = new Label("showPublicToolsHeader", new StringResourceModel("showPublicToolsHeader", null)){
+			@Override
+			public boolean isVisible() {
+				return statistics;
+			}
+		};
+		add(showPublicToolsHeader);
+		
+		final Link<Void> accessModifiedBySort = new Link<Void>("accessModifiedBySortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED_BY);
@@ -610,14 +658,23 @@ public class UserPageSiteSearch extends BasePage {
 				return !isShoppingPeriodTool();
 			}
 		};
+		final Label accessModifiedBySortLabel = new Label("accessModifiedBySortLabel", new StringResourceModel("accessModifiedBy", null));
+		accessModifiedBySort.add(accessModifiedBySortLabel);
 		add(accessModifiedBySort);
 		
-		Link<Void> accessModifiedOnSort = new Link<Void>("accessModifiedOnSortLink"){
+		final Link<Void> accessModifiedOnSort = new Link<Void>("accessModifiedOnSortLink"){
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
 				changeOrder(DelegatedAccessConstants.SEARCH_COMPARE_ACCESS_MODIFIED);
 			}
+			@Override
+			public boolean isVisible() {
+				//this helps hide all the extra columns with the wicket:enclosure in the html
+				return !isShoppingPeriodTool();
+			}
 		};
+		final Label accessModifiedOnSortLabel = new Label("accessModifiedOnSortLabel", new StringResourceModel("accessModifiedOn", null));
+		accessModifiedOnSort.add(accessModifiedOnSortLabel);
 		add(accessModifiedOnSort);
 
 		//Data:
@@ -726,6 +783,145 @@ public class UserPageSiteSearch extends BasePage {
 		dataView.setItemReuseStrategy(new DefaultItemReuseStrategy());
 		dataView.setItemsPerPage(DelegatedAccessConstants.SEARCH_RESULTS_PAGE_SIZE);
 		add(dataView);
+		
+		IModel<File> exportSearchModel = new AbstractReadOnlyModel<File>() {
+
+			@Override
+			public File getObject() {
+				List<SiteSearchResult> data = provider.getData();
+				try{
+					String seperator = "\t";
+					String lineBreak = "\n";
+					File file = File.createTempFile(new StringResourceModel("searchExportFileName", null).getObject(), ".csv");
+					FileWriter writer = new FileWriter(file.getAbsolutePath());
+					//write headers:
+					StringBuffer sb = new StringBuffer();
+					if(siteTitleSort.isVisible()){
+						sb.append(siteTitleLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(instructorSort.isVisible()){
+						sb.append(instructorSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(termSort.isVisible()){
+						sb.append(termSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(siteIdSort.isVisible()){
+						sb.append(siteIdSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(providersSort.isVisible()){
+						sb.append(providersSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(publishedSort.isVisible()){
+						sb.append(publishedSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(accessSort.isVisible()){
+						sb.append(accessSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(startDateSort.isVisible()){
+						sb.append(startDateSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(endDateSort.isVisible()){
+						sb.append(endDateSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(showAuthToolsHeader.isVisible()){
+						sb.append(showAuthToolsHeader.getDefaultModelObjectAsString() + seperator);
+					}
+					if(showPublicToolsHeader.isVisible()){
+						sb.append(showPublicToolsHeader.getDefaultModelObjectAsString() + seperator);
+					}
+					if(accessModifiedBySort.isVisible()){
+						sb.append(accessModifiedBySortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					if(accessModifiedOnSort.isVisible()){
+						sb.append(accessModifiedOnSortLabel.getDefaultModelObjectAsString() + seperator);
+					}
+					sb.append(lineBreak);
+
+					String yes = new StringResourceModel("yes", null).getObject();
+					String no = new StringResourceModel("no", null).getObject();
+					
+					for(SiteSearchResult siteSearchResult : data){
+						if(siteTitleSort.isVisible()){
+							sb.append(siteSearchResult.getSiteTitle() + seperator);
+						}
+						if(instructorSort.isVisible()){
+							if(siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0){
+								//we need to look up instructor:
+								boolean foundInstructors = false;
+								for(User user : sakaiProxy.getInstructorsForSite(siteSearchResult.getSiteId())){
+									siteSearchResult.addInstructor(user);
+									foundInstructors = true;
+								}
+								if(!foundInstructors){
+									siteSearchResult.setHasInstructor(false);
+								}
+							}
+							sb.append(siteSearchResult.getInstructorsString() + seperator);
+						}
+						if(termSort.isVisible()){
+							sb.append(siteSearchResult.getSiteTerm() + seperator);
+						}
+						if(siteIdSort.isVisible()){
+							sb.append(siteSearchResult.getSiteId() + seperator);
+						}
+						if(providersSort.isVisible()){
+							if("".equals(siteSearchResult.getProviders())){
+								//look up providers if it isn't already set
+								siteSearchResult.setProviders(sakaiProxy.getProviderId(siteSearchResult.getSiteReference()));
+							}
+							sb.append(siteSearchResult.getProviders() + seperator);
+						}
+						if(publishedSort.isVisible()){
+							sb.append((siteSearchResult.isSitePublished() ? yes: no) + seperator);
+						}
+						if(accessSort.isVisible()){
+							sb.append((isShoppingPeriodTool() ? siteSearchResult.getAccessRoleString() :siteSearchResult.getAccessString()) + seperator);
+						}
+						if(startDateSort.isVisible()){
+							sb.append(siteSearchResult.getShoppingPeriodStartDateStr() + seperator);
+						}
+						if(endDateSort.isVisible()){
+							sb.append(siteSearchResult.getShoppingPeriodEndDateStr() + seperator);
+						}
+						if(showAuthToolsHeader.isVisible()){
+							sb.append(siteSearchResult.getAuthToolsString(toolsMap) + seperator);
+						}
+						if(showPublicToolsHeader.isVisible()){
+							sb.append(siteSearchResult.getPublicToolsString(toolsMap) + seperator);
+						}
+						if(accessModifiedBySort.isVisible()){
+							sb.append(siteSearchResult.getModifiedBySortName() + seperator);
+						}
+						if(accessModifiedOnSort.isVisible()){
+							sb.append(siteSearchResult.getModifiedStr() + seperator);
+						}
+						sb.append(lineBreak);
+					}
+					
+					writer.append(sb.toString());
+					writer.flush();
+					writer.close();
+
+					return file;
+				}catch(IOException e){
+					log.error(e.getMessage(), e);
+					return null;
+				}
+			}
+		};
+
+		add(new DownloadLink("exportData", exportSearchModel){
+			@Override
+			public void onClick(){
+				Object fileObj = getModelObject();
+				if(fileObj != null && fileObj instanceof File){
+					File file = (File) fileObj;
+					IResourceStream resourceStream = new FileResourceStream(new org.apache.wicket.util.file.File(file));
+					getRequestCycle().setRequestTarget(new ResourceStreamRequestTarget(resourceStream, file.getName()).setFileName(new StringResourceModel("searchExportFileName", null).getObject() + ".csv"));
+				}
+			}
+		});
+		
 		//Navigation
 		//add a pager to our table, only visible if we have more than SEARCH_RESULTS_PAGE_SIZE items
 		add(new PagingNavigator("navigatorTop", dataView) {
