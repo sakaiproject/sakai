@@ -407,15 +407,10 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-
-
-
-
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
-
 
 		if ( allowBuffer ) {
 			BC = pdah.bufferContent(req, res, session, toolId,
@@ -427,11 +422,16 @@ public class SiteHandler extends WorksiteHandler
 				StringBuffer queryUrl = req.getRequestURL();
 				String queryString = req.getQueryString();
 				if ( queryString != null ) queryUrl.append('?').append(queryString);
-				// SAK-25494 - This probably should be a log.debug later
 				String msg = "Post buffer bypass CTI="+commonToolId+" URL="+queryUrl;
 				String redir = bufferResponse.getRedirect();
-				if ( redir != null ) msg = msg + " redirect to="+redir;
-				log.warn(msg);
+
+				// We are concerned when we neither got output, nor a redirect
+				if ( redir != null ) {
+					msg = msg + " redirect to="+redir;
+					log.debug(msg);
+				} else {
+					log.warn(msg);
+				}
 				bufferResponse.forwardResponse();
 				return;
 			}
@@ -440,6 +440,12 @@ public class SiteHandler extends WorksiteHandler
 
 		// Include the buffered content if we have it
 		if ( BC instanceof Map ) {
+			if ( req.getMethod().equals("POST") ) {
+				StringBuffer queryUrl = req.getRequestURL();
+				String queryString = req.getQueryString();
+				if ( queryString != null ) queryUrl.append('?').append(queryString);
+				log.warn("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
+			}
 			rcontext.put("bufferedResponse", Boolean.TRUE);
 			Map<String,String> bufferMap = (Map<String,String>) BC;
 			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
@@ -447,11 +453,6 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 
-
-
-
-
-		
 		// Have we been requested to display minimized and are we logged in?
 		if (session.getUserId() != null ) {
 			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
