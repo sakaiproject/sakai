@@ -17,13 +17,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- maven-compiler-plugin config -->
-        <maven.compiler.source>6</maven.compiler.source>
-        <maven.compiler.target>6</maven.compiler.target>
-
-        <!-- dependencies versions -->
-        <elasticsearch.version>1.1.2</elasticsearch.version>
-        <guava.version>11.0.2</guava.version>
-        <lucene.version>4.7.2</lucene.version>
+        <maven.compiler.source>${sakai.jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${sakai.jdk.version}</maven.compiler.target>
     </properties>
 
 
@@ -39,17 +34,12 @@
             <dependency>
                 <groupId>org.elasticsearch</groupId>
                 <artifactId>elasticsearch</artifactId>
-                <version>${elasticsearch.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.elasticsearch</groupId>
-                <artifactId>elasticsearch-cloud-aws</artifactId>
-                <version>1.10.0</version>
+                <version>${sakai.elasticsearch.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <version>11.0.2</version>
             </dependency>
             <dependency>
                 <groupId>org.mockito</groupId>
