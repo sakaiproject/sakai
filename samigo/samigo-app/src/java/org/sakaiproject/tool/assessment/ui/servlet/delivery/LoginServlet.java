@@ -28,8 +28,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.faces.context.ExternalContext;
-import javax.faces.context.FacesContext;
+import javax.faces.component.UICommand;
+import javax.faces.component.UIComponent;
+import javax.faces.event.ActionEvent;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -243,7 +244,11 @@ public class LoginServlet
         }
         else {
           DeliveryActionListener deliveryListener = new DeliveryActionListener();
-          deliveryListener.processAction(null);
+          //This has to be setup if it's coming from direct otherwise it doesn't start right
+          UIComponent uic = new UICommand();
+          uic.setId("beginAssessment");
+          ActionEvent ae = new ActionEvent(uic);
+          deliveryListener.processAction(ae);
         }
         
         //TODO: Should be something a bit more robust as validate() can retun a lot of things...
