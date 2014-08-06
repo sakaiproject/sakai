@@ -54,12 +54,6 @@
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>aopalliance</groupId>
-                    <artifactId>aopalliance</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
         <!--dependency>
             <groupId>org.eclipse.jetty</groupId>
@@ -140,6 +134,15 @@
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
+
+        <!-- SAK-27503 we do not want aopalliance JAR deployed in our WAR! -->
+        <dependency>
+            <groupId>aopalliance</groupId>
+            <artifactId>aopalliance</artifactId>
+            <version>1.0</version>
+            <scope>provided</scope>
+        </dependency>
+
         <dependency>
         	<groupId>com.thoughtworks.paranamer</groupId>
         	<artifactId>paranamer</artifactId>
