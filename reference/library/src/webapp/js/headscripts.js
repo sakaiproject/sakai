@@ -26,6 +26,14 @@ var focus_path;
 var ignoreCourier = false;
 var doubleDeep = false;
 
+function inIframe () {
+	try {
+		return window.self !== window.top;
+	} catch (e) {
+		return true;
+	}
+}
+
 function openWindow(url, title, options)
 {
 	var win = top.window.open(url, title.replace(/[ -]+/g, ''), options);
@@ -236,12 +244,15 @@ function clickOnEnter(event, element)
 // set the parent iframe's height to hold our entire contents
 function setMainFrameHeight(id)
 {
+	if ( ! inIframe() ) return;
 	// some browsers need a moment to finish rendering so the height and scroll are correct
 	setTimeout("setMainFrameHeightNow('"+id+"')",1);
 }
 
 function setMainFrameHeightNow(id)
 {
+	// If we have been inlined, do nothing
+	if ( ! inIframe() ) return;
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
 	if (typeof window.name != "undefined" && id != window.name) return;
