@@ -5,7 +5,14 @@
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["eid"];
 </script>
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery.js"></script>
+<script type="text/javascript">
+if ( window.jQuery ) {
+    window.console && console.log("jQuery already loaded "+jQuery.fn.jquery);
+} else {
+    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js?version=">'+'\x3C/script>')
+    window.console && console.log("Loaded jQuery");
+}
+</script>
 <script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userValidationCommon.js"></script>
 <script type="text/javascript" language="JavaScript">USER.isPasswordPolicyEnabled =#if ($!isPasswordPolicyEnabled) true; #else false; #end</script>
 <script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userCreateValidation.js"></script>
