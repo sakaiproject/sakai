@@ -956,7 +956,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("withGrade", state.getAttribute(WITH_GRADES));
 		
 		// the grade type table
-		context.put("gradeTypeTable", gradeTypeTable);
+		context.put("gradeTypeTable", gradeTypeTable());
 
         // set the allowSubmitByInstructor option
         context.put("allowSubmitByInstructor", AssignmentService.getAllowSubmitByInstructor());
@@ -2525,7 +2525,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("monthTable", monthTable());
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 
@@ -2915,7 +2915,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("monthTable", monthTable());
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -3081,7 +3081,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("user", state.getAttribute(STATE_USER));
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
@@ -3401,7 +3401,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 		User user = (User) state.getAttribute(STATE_USER);
 		context.put("user", user);
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
 
@@ -3611,7 +3611,7 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("taggable", Boolean.valueOf(true));
 		}
 
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("attachments", state.getAttribute(ATTACHMENTS));
 		
 		
@@ -3769,7 +3769,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 
 		context.put("currentTime", TimeService.newTime());
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("hideAssignmentFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_ASSIGNMENT_FLAG));
 		context.put("hideStudentViewFlag", state.getAttribute(VIEW_ASSIGNMENT_HIDE_STUDENT_VIEW_FLAG));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
@@ -4053,7 +4053,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		context.put("assignment_expand_flag", state.getAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG));
 		context.put("user", sessionUser);
-		context.put("submissionTypeTable", submissionTypeTable);
+		context.put("submissionTypeTable", submissionTypeTable());
 		context.put("instructorAttachments", state.getAttribute(ATTACHMENTS));
 		context.put("contentTypeImageService", state.getAttribute(STATE_CONTENT_TYPE_IMAGE_SERVICE));
 		context.put("service", AssignmentService.getInstance());
@@ -11592,27 +11592,31 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * construct a HashMap using the integer as the key and grade type String as the value
 	 */
-	private static final HashMap gradeTypeTable = new HashMap();
-	static {
+	private HashMap gradeTypeTable(){
+		
+		HashMap gradeTypeTable = new HashMap();
 		gradeTypeTable.put(Integer.valueOf(1), rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_NOGRADE_PROP));
 		gradeTypeTable.put(Integer.valueOf(2), rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_LETTER_PROP));
 		gradeTypeTable.put(Integer.valueOf(3), rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_POINTS_PROP));
 		gradeTypeTable.put(Integer.valueOf(4), rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_PASS_FAIL_PROP));
 		gradeTypeTable.put(Integer.valueOf(5), rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_CHECK_PROP));
-
+		
+		return gradeTypeTable;
 	} // gradeTypeTable
 
 	/**
 	 * construct a HashMap using the integer as the key and submission type String as the value
 	 */
-	private static final HashMap submissionTypeTable = new HashMap();
-	static {
+	private HashMap submissionTypeTable(){
+		
+		HashMap submissionTypeTable = new HashMap();
 		submissionTypeTable.put(Integer.valueOf(1), rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_INLINE_PROP));
 		submissionTypeTable.put(Integer.valueOf(2), rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_ATTACHMENTS_ONLY_PROP));
 		submissionTypeTable.put(Integer.valueOf(3), rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_INLINE_AND_ATTACHMENTS_PROP));
 		submissionTypeTable.put(Integer.valueOf(4), rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP));
 		submissionTypeTable.put(Integer.valueOf(5), rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP));
 
+		return submissionTypeTable;
 	} // submissionTypeTable
 	
 	/**
