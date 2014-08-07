@@ -184,7 +184,7 @@
 
                                         <%-- Rank IMAGE --%>
                     <h:panelGroup rendered="#{message.authorRank != null}">
-                        <h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.rankImageId}" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" alt=\"\" height=\"35\" width=\"35\" />" />
+                        <h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.attachmentId}" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" alt=\"\" height=\"35\" width=\"35\" />" />
                     </h:panelGroup>
 
                                         <%-- Rank NAME--%>

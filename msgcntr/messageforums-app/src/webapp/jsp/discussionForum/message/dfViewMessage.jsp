@@ -260,7 +260,7 @@
 			                                        <%-- Rank IMAGE --%>
                         <f:verbatim><div></f:verbatim>
                     <h:panelGroup rendered="#{ForumTool.selectedMessage.authorRank != null}">
-                        <h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.rankImageId}" value="<img src=\"#{ForumTool.selectedMessage.authorRank.rankImage.attachmentUrl}\" alt=\"\" height=\"35\" width=\"35\" />" />
+                        <h:outputText escape="false" rendered="#{not empty ForumTool.selectedMessage.authorRank.rankImage.attachmentId}" value="<img src=\"#{ForumTool.selectedMessage.authorRank.rankImage.attachmentUrl}\" alt=\"\" height=\"35\" width=\"35\" />" />
                     </h:panelGroup>
                         <f:verbatim></div></f:verbatim>
 
