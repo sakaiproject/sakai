@@ -222,6 +222,20 @@ Below added by gopalrc Nov 2007
         </f:facet>
         <h:outputText value="#{item.numberOfStudentsWithZeroAnswers}" escape="false" />
     </h:column>
+	
+	<h:column rendered="#{histogramScores.showObjectivesColumn=='true'}">
+        <f:facet name="header">
+            <h:outputText escape="false" value="#{evaluationMessages.obj}" />
+        </f:facet>
+        <h:outputText value="#{item.objectives}" escape="false" />
+    </h:column>
+    
+    <h:column rendered="#{histogramScores.showObjectivesColumn=='true'}">
+        <f:facet name="header">
+            <h:outputText escape="false" value="#{evaluationMessages.keywords}" />
+        </f:facet>
+        <h:outputText value="#{item.keywords}" escape="false" />
+    </h:column>
 
     <h:column rendered="#{histogramScores.maxNumberOfAnswers>0}">
         <f:facet name="header">

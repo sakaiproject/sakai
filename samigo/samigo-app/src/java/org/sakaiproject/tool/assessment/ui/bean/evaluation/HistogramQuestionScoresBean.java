@@ -107,6 +107,9 @@ public class HistogramQuestionScoresBean
   
   private Long subQuestionSequence;
   private boolean showIndividualAnswersInDetailedStatistics;
+  
+  private String objectives;
+  private String keywords;
 
   /**
    * Creates a new HistogramQuestionScoresBean object.
@@ -1154,5 +1157,21 @@ public class HistogramQuestionScoresBean
   public void setShowIndividualAnswersInDetailedStatistics(
 		boolean showIndividualAnswersInDetailedStatistics) {
 	this.showIndividualAnswersInDetailedStatistics = showIndividualAnswersInDetailedStatistics;
+  }
+  
+  public String getObjectives() {
+      return objectives;
+  }
+   
+  public void setObjectives(String objectives) {
+      this.objectives = objectives;
+  }
+    
+  public String getKeywords() {
+      return keywords;
+  }
+ 
+  public void setKeywords(String keywords) {
+      this.keywords = keywords;
   }
 }

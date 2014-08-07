@@ -216,6 +216,44 @@ $Id$
 </h:panelGrid>
 </p>
 
+<div class="objectives" rendered="#{histogramScores.showObjectivesColumn=='true'}">
+
+<h:dataTable value="#{histogramScores.objectives}" var="obj">
+       <h:column>
+               <f:facet name="header">
+                       <h:outputText escape="false" value="#{evaluationMessages.obj}" /> 
+               </f:facet>
+               <h:outputText value="#{obj.key}" escape="false" />
+       </h:column>
+       <h:column>
+               <f:facet name="header">
+                       <h:outputText escape="false" value="#{evaluationMessages.objPercent}" />
+                </f:facet>
+                <h:outputText value="#{obj.value}%" escape="false" />
+       </h:column>
+</h:dataTable>
+
+</div>
+
+<div class="keywords" rendered="#{histogramScores.showObjectivesColumn=='true'}">
+
+<h:dataTable value="#{histogramScores.keywords}" var="keyword">
+       <h:column>
+               <f:facet name="header">
+                       <h:outputText escape="false" value="#{evaluationMessages.keywords}" /> 
+               </f:facet>
+               <h:outputText value="#{keyword.key}" escape="false" />
+       </h:column>
+       <h:column>
+               <f:facet name="header">
+                       <h:outputText escape="false" value="#{evaluationMessages.objPercent}" />
+                </f:facet>
+                <h:outputText value="#{keyword.value}%" escape="false" />
+       </h:column>
+</h:dataTable>
+
+</div>
+
 <h:panelGroup>
     <f:verbatim><h4></f:verbatim>
     <h:outputText value="#{evaluationMessages.q_view}" />

@@ -12,7 +12,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.TreeSet;
 
 import javax.faces.component.html.HtmlSelectOneMenu;
@@ -34,8 +37,10 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentBaseIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
@@ -316,6 +321,12 @@ public class HistogramListener
 				   }
 			}
 
+			  boolean showObjectivesColumn = Boolean.parseBoolean(pub.getAssessmentMetaDataByLabel(AssessmentBaseIfc.HASMETADATAFORQUESTIONS));
+			  Map<String, Double> objectivesCorrect = new HashMap<String, Double>();
+			  Map<String, Integer> objectivesCounter = new HashMap<String, Integer>();
+			  Map<String, Double> keywordsCorrect = new HashMap<String, Double>();
+			  Map<String, Integer> keywordsCounter = new HashMap<String, Integer>();
+			  
 			  assessmentName = pub.getTitle();
 
 			  List<? extends SectionDataIfc> parts = pub.getSectionArraySorted();
@@ -398,6 +409,13 @@ public class HistogramListener
 					  questionScores.setRandomType(isRandompart);
                       questionScores.setPoolName(poolName);
 					  ItemDataIfc item = itemsIter.next();
+					  
+					  if (showObjectivesColumn) {
+						  String obj = item.getItemMetaDataByLabel(ItemMetaDataIfc.OBJECTIVE);
+						  questionScores.setObjectives(obj);
+						  String key = item.getItemMetaDataByLabel(ItemMetaDataIfc.KEYWORD);
+						  questionScores.setKeywords(key);
+					  }
 
 					  //String type = delegate.getTextForId(item.getTypeId());
 					  String type = getType(item.getTypeId().intValue());
@@ -556,6 +574,60 @@ public class HistogramListener
 						  maxNumOfAnswers = questionScores.getHistogramBars().length >maxNumOfAnswers ? questionScores.getHistogramBars().length : maxNumOfAnswers;
 					  }
 				  }
+				  
+				  if (showObjectivesColumn) {
+					  // Get the percentage correct by objective
+					  String obj = questionScores.getObjectives();
+					  if (obj != null && !"".equals(obj)) {
+						  String[] objs = obj.split(",");
+						  for (int i=0; i < objs.length; i++) {
+							  if (objectivesCorrect.get(objs[i]) != null) {
+								  int divisor = objectivesCounter.get(objs[i]) + 1;
+								  // newavg = avg + ((q3 - avg)/index)
+								  Double newAvg = objectivesCorrect.get(objs[i]) + (
+								  (Double.parseDouble(questionScores.getPercentCorrect()) - objectivesCorrect.get(objs[i])
+								  ) / divisor);
+                              
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                              
+								  objectivesCounter.put(objs[i], divisor);
+								  objectivesCorrect.put(objs[i], newAvg);
+							  } else {
+								  Double newAvg = Double.parseDouble(questionScores.getPercentCorrect());
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                              
+								  objectivesCounter.put(objs[i], 1);
+								  objectivesCorrect.put(objs[i], newAvg);
+							  }
+						  }
+					  }
+				                                                                   
+					  // Get the percentage correct by keyword
+					  String key = questionScores.getKeywords();
+					  if (key != null && !"".equals(key)) {
+						  String [] keys = key.split(",");
+						  for (int i=0; i < keys.length; i++) {
+							  if (keywordsCorrect.get(keys[i]) != null) {
+								  int divisor = keywordsCounter.get(keys[i]) + 1;
+								  Double newAvg = keywordsCorrect.get(keys[i]) + (
+								  (Double.parseDouble(questionScores.getPercentCorrect()) - keywordsCorrect.get(keys[i])
+								  ) / divisor);
+                              
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                              
+								  keywordsCounter.put(keys[i], divisor);
+								  keywordsCorrect.put(keys[i], newAvg);
+							  } else {
+								  Double newAvg = Double.parseDouble(questionScores.getPercentCorrect());
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+                              
+								  keywordsCounter.put(keys[i], 1);
+								  keywordsCorrect.put(keys[i], newAvg);
+							  }
+						  }
+					  }
+				  }
+				  
 				  //i.e. for EMI questions we add detailed stats for the whole
 				  //question as well as for the sub-questions
 				  if (questionScores.getQuestionType().equals(TypeIfc.EXTENDED_MATCHING_ITEMS.toString()) 
@@ -588,6 +660,26 @@ public class HistogramListener
 			  sortQuestionScoresByLabel(detailedStatistics);
 			  histogramScores.setDetailedStatistics(detailedStatistics);
 			  histogramScores.setMaxNumberOfAnswers(maxNumOfAnswers);
+			  histogramScores.setShowObjectivesColumn(showObjectivesColumn);
+			  
+			  if (showObjectivesColumn) {
+				  List<Entry<String, Double>> objectivesList = new ArrayList<Entry<String, Double>>(objectivesCorrect.entrySet());
+				  Collections.sort(objectivesList, new Comparator<Entry<String, Double>>() {
+					  public int compare(Entry<String, Double> e1, Entry<String, Double> e2) {
+						  return e1.getKey().compareTo(e2.getKey());
+					  }
+				  });
+				  histogramScores.setObjectives(objectivesList);
+				  
+				  List<Entry<String, Double>> keywordsList = new ArrayList<Entry<String, Double>>(keywordsCorrect.entrySet());
+				  
+				  Collections.sort(keywordsList, new Comparator<Entry<String, Double>>() {
+					  public int compare(Entry<String, Double> e1, Entry<String, Double> e2) {
+						  return e1.getKey().compareTo(e2.getKey());
+					  }
+				  });
+				  histogramScores.setKeywords(keywordsList);
+			  }
 
 			  // test to see if it gets back empty map
 			  if (assessmentMap.isEmpty()) {

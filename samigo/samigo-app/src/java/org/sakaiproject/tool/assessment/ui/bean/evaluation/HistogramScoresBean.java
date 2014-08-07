@@ -28,6 +28,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
 import javax.faces.model.SelectItem;
@@ -85,6 +86,9 @@ public class HistogramScoresBean
   private boolean randomType;   // true = has at least one random draw part
   private List<PublishedSectionData> assesmentParts = new ArrayList<PublishedSectionData>();
   private List<SelectItem> selectItemParts = new ArrayList<SelectItem>();
+  private boolean showObjectivesColumn;
+  private List<Entry<String, Double>> objectives;
+  private List<Entry<String, Double>> keywords;
 
 
   /**
@@ -951,6 +955,36 @@ publishedId = ppublishedId;
 
   public void setDetailedStatistics(List<HistogramQuestionScoresBean> detailedStatistics) {
 	this.detailedStatistics = detailedStatistics;
+  }
+  
+  public boolean getShowObjectivesColumn()
+  {
+    return showObjectivesColumn;
+  }
+
+  public void setShowObjectivesColumn(boolean showObjectivesColumn)
+  {
+    this.showObjectivesColumn = showObjectivesColumn;
+  }
+  
+  public List<Entry<String, Double>> getObjectives() 
+  {
+         return objectives;
+  }
+  
+  public void setObjectives(List<Entry<String, Double>> objectives)
+  {
+         this.objectives = objectives;
+  }
+  
+  public List<Entry<String, Double>> getKeywords() 
+  {
+         return keywords;
+  }
+  
+  public void setKeywords(List<Entry<String, Double>> keywords)
+  {
+         this.keywords = keywords;
   }
 	
   public boolean getShowDiscriminationColumn() {
