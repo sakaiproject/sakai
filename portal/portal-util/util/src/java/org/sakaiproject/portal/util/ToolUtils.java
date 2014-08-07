@@ -45,6 +45,7 @@ public class ToolUtils
 {
 
 	public static final String PORTAL_INLINE_EXPERIMENTAL = "portal.inline.experimental";
+	public static final String PORTAL_INLINE_EXPERIMENTAL_DEFAULT = "true";
 
 	/**
 	 * Determine if this is an inline request.
@@ -145,7 +146,8 @@ public class ToolUtils
 		if ( count != 1 ) return pageUrl;
 		if ( isPortletPlacement(pageTool) ) return pageUrl;
 
-		String trinity = ServerConfigurationService.getString(PORTAL_INLINE_EXPERIMENTAL, "false");
+		String trinity = ServerConfigurationService.getString(PORTAL_INLINE_EXPERIMENTAL, 
+			PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if ( ! "true".equals(trinity) ) return pageUrl;
 
 		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId) );

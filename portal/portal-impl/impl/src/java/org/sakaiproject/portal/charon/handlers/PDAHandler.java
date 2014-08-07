@@ -99,8 +99,12 @@ public class PDAHandler extends SiteHandler
 	private static final String IFRAME_SUPPRESS_PROP = "portal.pda.iframesuppress";
 	// SAK-22285 - says these fail in a frame
 	// private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.profile2:sakai.synoptic.messagecenter:sakai.sitestats:sakai.sitestats.admin";
+
 	// SAK-25494 with the post bufffer check now working, it seems as though we can inline everything
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:";
+	// private static final String IFRAME_SUPPRESS_DEFAULT = ":all:";
+
+    // SAK-27774 - We are going inline default but a few tools need a crutch - This is Sakai 11 only do not back-port or merge this
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.resources:sakai.dropbox:sakai.samigo:sakai.preferences:sakai.lessonbuildertool:";
 	
 	public PDAHandler()
 	{

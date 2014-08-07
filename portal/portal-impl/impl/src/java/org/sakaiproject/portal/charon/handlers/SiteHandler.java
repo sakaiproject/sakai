@@ -353,7 +353,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// Check for incomplete URLs in the case of inlined tools
-		String trinity = ServerConfigurationService.getString(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, "false");
+		String trinity = ServerConfigurationService.getString(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, 
+			ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 		if ( "true".equals(trinity) && toolId == null) {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
 				false, null, null);
