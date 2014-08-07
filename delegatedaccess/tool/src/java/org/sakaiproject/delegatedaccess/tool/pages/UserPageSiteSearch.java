@@ -738,7 +738,12 @@ public class UserPageSiteSearch extends BasePage {
 				item.add(new Link<Void>("providersLookupLink"){
 					private static final long serialVersionUID = 1L;
 					public void onClick() {
-						siteSearchResult.setProviders(sakaiProxy.getProviderId(siteRef));
+						String providers = sakaiProxy.getProviderId(siteRef);
+						if(providers == null || "".equals(providers)){
+							//set it to a empty space so that the link will hide itself
+							providers = " ";
+						}
+						siteSearchResult.setProviders(providers);
 					}
 
 					@Override
