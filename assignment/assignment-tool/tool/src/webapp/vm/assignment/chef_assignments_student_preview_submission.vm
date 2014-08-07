@@ -71,7 +71,7 @@
 					$tlang.getString("gen.grasca")
 				</th>
 				<td>
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
 					$gradeScale
 					#if ($gradeTypeTable.get($assignment.getContent().getTypeOfGrade()) == $!tlang.getString("points"))
 						($tlang.getString("stupresub.max") $assignment.getContent().getMaxGradePointDisplay())

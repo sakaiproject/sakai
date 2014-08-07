@@ -14,6 +14,11 @@ import lombok.Setter;
 
 import org.sakaiproject.assignment.api.Assignment;
 import org.sakaiproject.assignment.api.Assignment.AssignmentAccess;
+import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
+import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
+import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
+import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -213,6 +218,32 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 */
 		private String gradeScale;
 
+		/**
+		 * Submission type description (e.g. inline only, inline and attachments)
+		 */
+		private String submissionType;
+		
+		/**
+		 * Allow re-submission flag
+		 */
+		private boolean allowResubmission;
+		
+		/**
+		 * Supplement items: model answer text
+		 */
+		private String modelAnswerText;
+
+		/**
+		 * Supplement items: private note text
+		 */
+		private String privateNoteText;
+		
+		
+		/**
+		 * Supplement items: all purpose item text
+		 */
+		private String allPurposeItemText;
+		
 		public SimpleAssignment() {
 		}
 
@@ -260,7 +291,27 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					this.attachments.add(decoratedAttachment);
 				}
 				// Translate grade scale from its numeric value to its description.
-				this.gradeScale = a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade());
+				this.gradeScale = a.getContent().getTypeOfGradeString();
+				
+				// Use the number of submissions allowed as an indicator that re-submission is permitted.
+				if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null && a.getContent().getTypeOfSubmission() != 4){
+					this.allowResubmission = true;
+				}
+				this.submissionType = a.getContent().getTypeOfSubmissionString();
+			}
+			
+			// Supplement Items
+			AssignmentModelAnswerItem assignmentModelAnswerItem = assignmentSupplementItemService.getModelAnswer(a.getId());
+			if (assignmentModelAnswerItem != null) {
+				this.modelAnswerText = assignmentModelAnswerItem.getText();
+			}
+			AssignmentNoteItem assignmentNoteItem = assignmentSupplementItemService.getNoteItem(a.getId());
+			if (assignmentNoteItem != null) {
+				this.privateNoteText = assignmentNoteItem.getNote();
+			}
+			AssignmentAllPurposeItem assignmentAllPurposeItem = assignmentSupplementItemService.getAllPurposeItem(a.getId());
+			if (assignmentAllPurposeItem != null) {
+				this.allPurposeItemText =  assignmentAllPurposeItem.getText();
 			}
 		}
 	}
@@ -275,7 +326,8 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 	private SessionManager sessionManager;
 	@Setter
 	private SiteService siteService;
-
+	@Setter
+	private AssignmentSupplementItemService assignmentSupplementItemService;
 	
 	// HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
 	public String[] getHandledOutputFormats() {

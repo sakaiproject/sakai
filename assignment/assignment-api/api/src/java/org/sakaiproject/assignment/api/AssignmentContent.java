@@ -100,12 +100,15 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	/**
 	 * Access a string describing the type of grade.
 	 * 
-	 * @param gradeType -
-	 *        The integer representing the type of grade.
 	 * @return Description of the type of grade.
 	 */
-	public String getTypeOfGradeString(int gradeType);
+	public String getTypeOfGradeString();
 
+	/**
+	 * Access a string describing the type of submission.
+	 * @return Description of the type of submission.
+	 */
+	public String getTypeOfSubmissionString(); 
 	/**
 	 * Gets the maximum grade if grade type is SCORE_GRADE_TYPE(3)
 	 * 

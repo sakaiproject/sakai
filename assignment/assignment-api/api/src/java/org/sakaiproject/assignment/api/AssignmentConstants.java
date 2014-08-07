@@ -115,4 +115,21 @@ public class AssignmentConstants {
 	public static final String ALL = "all";
 	
 	public static final String PROP_LAST_GRADED_DATE = "last_graded_date";
+	
+	// Property name for Grade Type (scale) options
+	public static final String ASSN_GRADE_TYPE_NOGRADE_PROP = "gen.nograd";
+	public static final String ASSN_GRADE_TYPE_LETTER_PROP = "letter";
+	public static final String ASSN_GRADE_TYPE_POINTS_PROP = "points";
+	public static final String ASSN_GRADE_TYPE_PASS_FAIL_PROP = "passfail";
+	public static final String ASSN_GRADE_TYPE_CHECK_PROP = "check";
+	public static final String ASSN_GRADE_TYPE_UNKNOWN_PROP = "grade.type.unknown";
+	
+	// Property name for Submission Type options
+	public static final String ASSN_SUBMISSION_TYPE_INLINE_PROP = "inlin";
+	public static final String ASSN_SUBMISSION_TYPE_ATTACHMENTS_ONLY_PROP = "attaonly";
+	public static final String ASSN_SUBMISSION_TYPE_INLINE_AND_ATTACHMENTS_PROP = "inlinatt";
+	public static final String ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP = "nonelec";
+	public static final String ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP = "singleatt";
+	public static final String ASSN_SUBMISSION_TYPE_UNKNOWN_PROP = "submission.type.unknown";
+
 }

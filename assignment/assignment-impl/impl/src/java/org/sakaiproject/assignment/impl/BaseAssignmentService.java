@@ -5063,7 +5063,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 					if (allowGradeSubmission(aRef))
 					{
-					    zipGroupSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(),
+					    zipGroupSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(), a.getContent().getTypeOfSubmission(),
 					            new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment,gradeFileFormat);
 
 					    if (exceptionMessage.length() > 0)
@@ -5104,7 +5104,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 				if (allowGradeSubmission(aRef))
 				{
-					zipSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(a.getContent().getTypeOfGrade()), a.getContent().getTypeOfSubmission(), 
+					zipSubmissions(aRef, a.getTitle(), a.getContent().getTypeOfGradeString(), a.getContent().getTypeOfSubmission(), 
 							new SortedIterator(submissions.iterator(), new AssignmentComparator("submitterName", "true")), out, exceptionMessage, withStudentSubmissionText, withStudentSubmissionAttachment, withGradeFile, withFeedbackText, withFeedbackComment, withFeedbackAttachment, withoutFolders,gradeFileFormat);
 	
 					if (exceptionMessage.length() > 0)
@@ -9302,6 +9302,44 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
+		 * Access a string describing the type of submission.
+		 * @return Description of the type of submission.
+		 */
+		public String getTypeOfSubmissionString(){
+			
+			String retVal = null;
+
+			switch (m_typeOfSubmission)
+			{
+				case 1:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_INLINE_PROP);
+					break;
+
+				case 2:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_ATTACHMENTS_ONLY_PROP);
+					break;
+
+				case 3:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_INLINE_AND_ATTACHMENTS_PROP);
+					break;
+
+				case 4:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_NON_ELECTRONIC_PROP);
+					break;
+
+				case 5:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_SINGLE_ATTACHMENT_PROP);
+					break;
+
+				default:
+					retVal = rb.getString(AssignmentConstants.ASSN_SUBMISSION_TYPE_UNKNOWN_PROP);
+					break;
+			}
+
+			return retVal;
+		}
+		
+		/**
 		 * Get the type of valid submission.
 		 * 
 		 * @return int - Type of Submission.
@@ -9314,38 +9352,36 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		/**
 		 * Access a string describing the type of grade.
 		 * 
-		 * @param gradeType -
-		 *        The integer representing the type of grade.
 		 * @return Description of the type of grade.
 		 */
-		public String getTypeOfGradeString(int type)
-		{
+		public String getTypeOfGradeString(){
+			
 			String retVal = null;
 
-			switch (type)
+			switch (m_typeOfGrade)
 			{
 				case 1:
-					retVal = rb.getString("ungra");
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_NOGRADE_PROP);
 					break;
 
 				case 2:
-					retVal = rb.getString("letter");
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_LETTER_PROP);
 					break;
 
 				case 3:
-					retVal = rb.getString("points");
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_POINTS_PROP);
 					break;
 
 				case 4:
-					retVal = rb.getString("passfail");
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_PASS_FAIL_PROP);
 					break;
 
 				case 5:
-					retVal = rb.getString("check");
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_CHECK_PROP);
 					break;
 
 				default:
-					retVal = "Unknown Grade Type";
+					retVal = rb.getString(AssignmentConstants.ASSN_GRADE_TYPE_UNKNOWN_PROP);
 					break;
 			}
 

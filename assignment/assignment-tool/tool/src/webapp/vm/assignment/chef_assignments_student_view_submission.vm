@@ -294,7 +294,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 				</tr>
 				#end				
 				#if ($withGrade)
-					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString($assignment.getContent().getTypeOfGrade()))
+					#set ($gradeScale = $assignment.getContent().getTypeOfGradeString())
 					#if ($submission.getGraded() && $submission.getGradeReleased())
 						<tr>	
 							<th>
