@@ -795,50 +795,89 @@ public class UserPageSiteSearch extends BasePage {
 			public File getObject() {
 				List<SiteSearchResult> data = provider.getData();
 				try{
-					String seperator = "\t";
+					String seperator = ",";
 					String lineBreak = "\n";
 					File file = File.createTempFile(new StringResourceModel("searchExportFileName", null).getObject(), ".csv");
 					FileWriter writer = new FileWriter(file.getAbsolutePath());
 					//write headers:
 					StringBuffer sb = new StringBuffer();
 					if(siteTitleSort.isVisible()){
-						sb.append(siteTitleLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(siteTitleLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(instructorSort.isVisible()){
-						sb.append(instructorSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(instructorSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(termSort.isVisible()){
-						sb.append(termSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(termSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(siteIdSort.isVisible()){
-						sb.append(siteIdSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(siteIdSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(providersSort.isVisible()){
-						sb.append(providersSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(providersSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(publishedSort.isVisible()){
-						sb.append(publishedSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(publishedSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(accessSort.isVisible()){
-						sb.append(accessSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(accessSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(startDateSort.isVisible()){
-						sb.append(startDateSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(startDateSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(endDateSort.isVisible()){
-						sb.append(endDateSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(endDateSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(showAuthToolsHeader.isVisible()){
-						sb.append(showAuthToolsHeader.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(showAuthToolsHeader.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(showPublicToolsHeader.isVisible()){
-						sb.append(showPublicToolsHeader.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(showPublicToolsHeader.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(accessModifiedBySort.isVisible()){
-						sb.append(accessModifiedBySortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(accessModifiedBySortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					if(accessModifiedOnSort.isVisible()){
-						sb.append(accessModifiedOnSortLabel.getDefaultModelObjectAsString() + seperator);
+						sb.append("\"");
+						sb.append(accessModifiedOnSortLabel.getDefaultModelObjectAsString());
+						sb.append("\"");
+						sb.append(seperator);
 					}
 					sb.append(lineBreak);
 
@@ -847,7 +886,10 @@ public class UserPageSiteSearch extends BasePage {
 					
 					for(SiteSearchResult siteSearchResult : data){
 						if(siteTitleSort.isVisible()){
-							sb.append(siteSearchResult.getSiteTitle() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getSiteTitle());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(instructorSort.isVisible()){
 							if(siteSearchResult.isHasInstructor() && siteSearchResult.getInstructors().size() == 0){
@@ -861,44 +903,80 @@ public class UserPageSiteSearch extends BasePage {
 									siteSearchResult.setHasInstructor(false);
 								}
 							}
-							sb.append(siteSearchResult.getInstructorsString() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getInstructorsString());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(termSort.isVisible()){
-							sb.append(siteSearchResult.getSiteTerm() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getSiteTerm());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(siteIdSort.isVisible()){
-							sb.append(siteSearchResult.getSiteId() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getSiteId());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(providersSort.isVisible()){
 							if("".equals(siteSearchResult.getProviders())){
 								//look up providers if it isn't already set
 								siteSearchResult.setProviders(sakaiProxy.getProviderId(siteSearchResult.getSiteReference()));
 							}
-							sb.append(siteSearchResult.getProviders() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getProviders());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(publishedSort.isVisible()){
-							sb.append((siteSearchResult.isSitePublished() ? yes: no) + seperator);
+							sb.append("\"");
+							sb.append((siteSearchResult.isSitePublished() ? yes: no) );
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(accessSort.isVisible()){
-							sb.append((isShoppingPeriodTool() ? siteSearchResult.getAccessRoleString() :siteSearchResult.getAccessString()) + seperator);
+							sb.append("\"");
+							sb.append((isShoppingPeriodTool() ? siteSearchResult.getAccessRoleString() :siteSearchResult.getAccessString()));
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(startDateSort.isVisible()){
-							sb.append(siteSearchResult.getShoppingPeriodStartDateStr() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getShoppingPeriodStartDateStr());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(endDateSort.isVisible()){
-							sb.append(siteSearchResult.getShoppingPeriodEndDateStr() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getShoppingPeriodEndDateStr());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(showAuthToolsHeader.isVisible()){
-							sb.append(siteSearchResult.getAuthToolsString(toolsMap) + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getAuthToolsString(toolsMap));
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(showPublicToolsHeader.isVisible()){
-							sb.append(siteSearchResult.getPublicToolsString(toolsMap) + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getPublicToolsString(toolsMap));
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(accessModifiedBySort.isVisible()){
-							sb.append(siteSearchResult.getModifiedBySortName() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getModifiedBySortName());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						if(accessModifiedOnSort.isVisible()){
-							sb.append(siteSearchResult.getModifiedStr() + seperator);
+							sb.append("\"");
+							sb.append(siteSearchResult.getModifiedStr());
+							sb.append("\"");
+							sb.append(seperator);
 						}
 						sb.append(lineBreak);
 					}
