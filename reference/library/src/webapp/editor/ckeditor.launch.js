@@ -19,6 +19,17 @@
  *
  ******************************************************************************/
 
+//http://www.quirksmode.org/js/findpos.html
+function findPos(obj) {
+    var curleft = curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curleft += obj.offsetLeft;
+            curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+        return [curleft,curtop];
+    }
+}
 var sakai = sakai || {};
 sakai.editor = sakai.editor || {};
 sakai.editor.editors = sakai.editor.editors || {};
@@ -195,7 +206,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
-              this.move(this.getPosition().x, $(e.editor.container.$).position().top);
+              var pos = findPos(e.editor.container.$);
+              this.move(this.getPosition().x, pos[1]);
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
                   var result = onShow.call(this);
                   return result;
