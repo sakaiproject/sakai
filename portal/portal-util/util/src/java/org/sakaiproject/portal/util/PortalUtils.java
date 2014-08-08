@@ -94,10 +94,13 @@ public class PortalUtils
              "       }\n" +
              "}\n" +
              "if ( needJQuery ) {\n" +
-             "       document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
+             "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getScriptPath() + "jquery/jquery-1.9.1.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
-                 "}\n" +
+             "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
+                 getScriptPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + 
+                 "\">'+'\\x3C/script>')\n" +
+             "}\n" +
              "</script>\n" +
              "<script type=\"text/javascript\">\n" +
              "if ( needJQuery ) {\n" +

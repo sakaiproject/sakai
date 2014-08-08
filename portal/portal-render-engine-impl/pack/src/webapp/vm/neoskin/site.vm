@@ -4,31 +4,8 @@
 #if (${portal_add_mobile_link})<div  id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></div>#end
 #if ( $pageTop )
 <script type="text/javascript">
-	var sakaiPortalWindow = "";
-	$(document).ready(function() {
-			setupSkipNav();
-			#if ($portal_use_global_alert_message)
-				setupGAM();
-			#end
-	});
-	</script>
-#end
-#if (!${loginTopLogin})
-#if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
-<script type="text/javascript">
-	$(document).ready(function() {
-
-		var toggleClass=""
-		#if (${portal_allow_minimize_tools})
-			toggleClass="toggleTools"
-		#end
-		#if (${portal_allow_minimize_navigation})	
-			toggleClass= toggleClass + "toggleNav"
-		#end
-				setupToolToggle(toggleClass);
-	});
-</script>
-#end
+   var sakaiPortalWindow = "";
+   </script>
 #end
 <!-- site.vm -->
 
@@ -146,5 +123,62 @@
 </div>
 <!-- end includeSiteNav -->
 <!-- end site.vm -->
+
+#parse("/vm/neoskin/includePortalJavaScript.vm")
+
+<!-- JavaScript from includeTabs.vm -->
+
+<!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
+<script type="text/javascript">var sakai_portal_ie_detected=false;</script>
+<!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
+
+<script type="text/javascript">
+    jQuery(document).ready(function() {
+        setupSiteNav();
+        // sakai_portal_ie_detected should have been set above
+        if (sakai_portal_ie_detected) {
+            // SAK-22308
+            //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
+            var $ul_topnav = jQuery('ul#topnav');
+            var aria_label_val = $ul_topnav.attr('aria-label');
+            jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
+            jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
+            $ul_topnav.removeAttr('aria-label');
+        }
+    });
+</script>
+
+<!-- JavaScript from the top of site.vm -->
+
+#if ( $pageTop )
+<script type="text/javascript">
+	$(document).ready(function() {
+			setupSkipNav();
+			#if ($portal_use_global_alert_message)
+				setupGAM();
+			#end
+	});
+	</script>
+#end
+#if (!${loginTopLogin})
+#if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
+<script type="text/javascript">
+	$(document).ready(function() {
+
+		var toggleClass=""
+		#if (${portal_allow_minimize_tools})
+			toggleClass="toggleTools"
+		#end
+		#if (${portal_allow_minimize_navigation})	
+			toggleClass= toggleClass + "toggleNav"
+		#end
+				setupToolToggle(toggleClass);
+	});
+</script>
+#end
+#end
+
+<!-- End JavaScript from the top of site.vm -->
+
 	</body>
 </html>

@@ -52,5 +52,8 @@
 </div>
 <!-- end includeSiteNav -->
 <!-- end site.vm -->
+
+#parse("/vm/neoskin/includePortalJavaScript.vm")
+
 	</body>
 </html>
