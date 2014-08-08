@@ -140,7 +140,7 @@ public class AssignmentSupport {
 				// {user-name} 
 				ResourceProperties props = assn.getProperties();
 				// "grade-type": ""
-				values.put(VALUE_GRADE_TYPE, assn.getContent().getTypeOfGradeString(assn.getContent().getTypeOfGrade()));
+				values.put(VALUE_GRADE_TYPE, assn.getContent().getTypeOfGradeString());
 
 				try {
 					DateFormat df = DateFormat.getDateTimeInstance();
