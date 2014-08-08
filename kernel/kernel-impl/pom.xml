@@ -362,13 +362,6 @@
       <artifactId>tomcat-jdbc</artifactId>
       <scope>test</scope>
    </dependency>
-
-      <dependency>
-        <groupId>org.sakaiproject.kernel</groupId>
-        <artifactId>sakai-kernel-util</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-
   </dependencies>
 
 </project>
