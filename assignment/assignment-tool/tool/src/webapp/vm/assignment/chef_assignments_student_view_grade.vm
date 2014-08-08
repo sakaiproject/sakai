@@ -1,9 +1,23 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_student_view_grade.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
     $(document).ready(function(){
         setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+        $( "#accordion" ).accordion({
+	        	heightStyle: 'content',
+	        	active: 0,
+	        	collapsible: true,
+	        	change: function(event, ui){
+	                    resizeFrame();
+	            },
+	            activate: function(event, ui){
+	                    resizeFrame();
+	            }
+            }
+        );
     });
 
 var reportsExpanded = false;
@@ -465,16 +479,19 @@ function handleReportsTriangleDisclosure(btn)
 				##Show reviewer feedback from peer review (if exist and the peer review is closed)
 				#if ($peerReviews)
 					<h3>$tlang.getString("gen.peerReviews") </h3>
+					<div id="accordion">
 					#foreach($review in $peerReviews)
 						<h5>$review.assessorDisplayName</h5>
-						<br/>
+						<div>
 						$tlang.getFormattedMessage("gen.score.display", $review.getScoreDisplay())
 						<br/>
 						#if($!review.getComment() && $review.getComment().length()>0)
 							<b>$tlang.getString("gen.comments")</b> 
 							<div class="textPanel">$validator.escapeHtmlFormattedText($review.getComment())</div>
 						#end
+						</div>
 					#end
+					</div>
 				#end
 			#end
 		<form action="#toolForm("AssignmentAction")" method="post" >
