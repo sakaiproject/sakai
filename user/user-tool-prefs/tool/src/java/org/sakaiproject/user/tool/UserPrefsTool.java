@@ -64,7 +64,7 @@ import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
 import org.sakaiproject.util.ResourceLoader;
-
+import org.sakaiproject.util.FormattedText;
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -1193,10 +1193,10 @@ public class UserPrefsTool
 			SelectItem excludeItem = null;
 
 			if ("1".equals(sitetablabel)) {
-			    excludeItem = new SelectItem(element.getId(), element.getTitle());
+			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null),element.getTitle());
 			}
 			else {
-			    excludeItem = new SelectItem(element.getId(), shortdesc);
+			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
 			}
 			prefExcludeItems.add(excludeItem);
 		}
@@ -1213,10 +1213,10 @@ public class UserPrefsTool
 
 			SelectItem orderItem = null;
 			if ("1".equals(sitetablabel)) {
-			    orderItem = new SelectItem(element.getId(), element.getTitle());
+			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null), element.getTitle());
 			}
 			else {
-			    orderItem = new SelectItem(element.getId(), shortdesc);
+			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
 			}
 
 			prefOrderItems.add(orderItem);
