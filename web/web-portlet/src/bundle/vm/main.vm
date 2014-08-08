@@ -1,4 +1,5 @@
 <div class="portletBody">
+${includeLatestJQuery}
 #if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
 #if ($!popup) 
 #if ( ! $!popupdone) 

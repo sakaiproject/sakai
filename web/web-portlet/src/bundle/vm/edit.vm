@@ -1,3 +1,4 @@
+${includeLatestJQuery}
 <script type="text/javascript">
 $(document).ready(function() {
     $('form:first *:input[type!=hidden]:first').focus();

@@ -30,6 +30,10 @@
             <artifactId>sakai-component-manager</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>

@@ -105,6 +105,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.portal.util.PortalUtils;
 
 import org.apache.commons.validator.routines.UrlValidator;
 
@@ -406,6 +407,7 @@ public class PortletIFrame extends GenericPortlet {
                 String csrfToken = (String) session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
                 if ( csrfToken != null ) context.put("sakai_csrf_token", csrfToken);
 				context.put("tlang", rb);
+				context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("PortletIFrame"));
 				context.put("validator", validator);
 				context.put("source",url);
 				context.put("height",height);
@@ -554,6 +556,7 @@ public class PortletIFrame extends GenericPortlet {
             String csrfToken = (String) session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
             if ( csrfToken != null ) context.put("sakai_csrf_token", csrfToken);
 			context.put("tlang", rb);
+			context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("PortletIFrame"));
 			context.put("validator", validator);
 			sendAlert(request,context);
 
