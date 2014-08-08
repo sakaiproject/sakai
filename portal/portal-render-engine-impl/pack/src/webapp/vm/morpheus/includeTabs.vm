@@ -91,9 +91,6 @@
             
             <!-- end login component -->
             <nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="nav nav-sites">
-            <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
-            <script>var sakai_portal_ie_detected=false;</script>
-            <!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
             <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
             <ul class="topnav" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
                 #foreach ( $site in $tabsSites.tabsSites ) 

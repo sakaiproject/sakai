@@ -55,4 +55,8 @@
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
 
+        <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
+        <script>var sakai_portal_ie_detected=false;</script>
+        <!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
+
     </head>
