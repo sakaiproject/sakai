@@ -1160,6 +1160,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageScriptPath", PortalUtils.getScriptPath());
 		rcontext.put("portalCDNPath", PortalUtils.getCDNPath());
 		rcontext.put("portalCDNQuery", PortalUtils.getCDNQuery());
+		rcontext.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Portal"));
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));

@@ -57,7 +57,6 @@ public class PortalUtils
 	 */
 	public static String getCDNQuery()
 	{
-	
 		long expire = ServerConfigurationService.getInt("portal.cdn.expire",0);
 		String version = ServerConfigurationService.getString("portal.cdn.version");
 		if ( expire < 1 && version == null ) return "";
@@ -70,6 +69,42 @@ public class PortalUtils
 			if ( version != null ) retval = retval + "&";
 		}
 		if ( version != null ) retval = retval + "version=" + version;
+		return retval;
+	}
+
+	/**
+	 * Returns the text to intelligently include the latest version of jQuery
+     * 
+     * @param where A string to be used in browser console log messages
+	 */
+	public static String includeLatestJQuery(String where)
+	{
+        String retval = 
+             "<script type=\"text/javascript\">\n" +
+             "var needJQuery = true;\n" +
+             "if ( window.jQuery ) {\n" +
+             "       tver = jQuery.fn.jquery;\n" +
+             "       if ( tver.indexOf('1.9.') == 0 ) {\n" +
+             "               window.console && console.log('"+where+" detected jQuery '+tver);\n" +
+             "               needJQuery = false;\n" +
+             "       } else {\n" +
+             "               toggleJQuery = true;\n" +
+             "               window.console && console.log('Warning: "+where+" unloading jQuery '+tver);\n" +
+             "               jQuery.noConflict();\n" +
+             "       }\n" +
+             "}\n" +
+             "if ( needJQuery ) {\n" +
+             "       document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
+                 getScriptPath() + "jquery/jquery-1.9.1.min.js" + getCDNQuery() + 
+                 "\">'+'\\x3C/script>')\n" +
+                 "}\n" +
+             "</script>\n" +
+             "<script type=\"text/javascript\">\n" +
+             "if ( needJQuery ) {\n" +
+             "       window.console && console.log('"+where+" loaded jQuery '+jQuery.fn.jquery);\n" +
+             "}\n" +
+             "</script>\n";
+
 		return retval;
 	}
 
