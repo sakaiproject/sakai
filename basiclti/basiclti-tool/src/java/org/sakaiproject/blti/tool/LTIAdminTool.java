@@ -66,6 +66,7 @@ import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.portal.util.PortalUtils;
 
 // TODO: FIX THIS
 import org.sakaiproject.tool.cover.SessionManager;
@@ -157,6 +158,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData rundata, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		state.removeAttribute(STATE_ID);
 		state.removeAttribute(STATE_TOOL_ID);
 		state.removeAttribute(STATE_POST);
@@ -176,6 +178,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
 			return "lti_error";
@@ -228,6 +231,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
 			return "lti_error";
@@ -277,6 +281,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.view"));
 			return "lti_error";
@@ -319,6 +324,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String stateId = (String) state.getAttribute(STATE_ID);
 		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isMaintain() ) {
@@ -373,6 +379,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.delete"));
 			return "lti_error";
@@ -467,6 +474,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
 			return "lti_error";
@@ -542,6 +550,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isAdmin() ) {
 			addAlert(state,rb.getString("error.admin.edit"));
 			return "lti_error";
@@ -565,6 +574,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isAdmin() ) {
 			addAlert(state,rb.getString("error.admin.view"));
 			return "lti_error";
@@ -600,6 +610,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String stateId = (String) state.getAttribute(STATE_ID);
 		state.removeAttribute(STATE_ID);
 		if ( ! ltiService.isAdmin() ) {
@@ -696,6 +707,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.activate"));
 			return "lti_error";
@@ -752,6 +764,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	{
 
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isAdmin() ) {
 			addAlert(state,rb.getString("error.admin.activate"));
 			return "lti_error";
@@ -972,6 +985,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isAdmin() ) {
 			addAlert(state,rb.getString("error.admin.view"));
 			return "lti_error";
@@ -1005,6 +1019,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isAdmin() ) {
 			addAlert(state,rb.getString("error.maintain.delete"));
 			return "lti_error";
@@ -1077,6 +1092,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.view"));
 			return "lti_error";
@@ -1103,6 +1119,7 @@ System.out.println("newTool="+newTool);
 	{
 		String contextString = toolManager.getCurrentPlacement().getContext();
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String stateToolId = (String) state.getAttribute(STATE_TOOL_ID);
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.edit"));
@@ -1359,6 +1376,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) return "lti_content_redirect";
@@ -1371,6 +1389,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		String returnUrl = (String) state.getAttribute(STATE_REDIRECT_URL);
 		state.removeAttribute(STATE_REDIRECT_URL);
 		if ( returnUrl == null ) return "lti_content_redirect";
@@ -1386,6 +1405,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		state.removeAttribute(STATE_SUCCESS);
 
 		Properties previousPost = (Properties) state.getAttribute(STATE_POST);
@@ -1471,6 +1491,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.delete"));
 			return "lti_error";
@@ -1538,6 +1559,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.link"));
 			return "lti_error";
@@ -1590,6 +1612,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		if ( ! ltiService.isMaintain() ) {
 			addAlert(state,rb.getString("error.maintain.link"));
 			return "lti_error";
@@ -1639,6 +1662,7 @@ System.out.println("newTool="+newTool);
 			RunData data, SessionState state)
 	{
 		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		context.put("messageSuccess",state.getAttribute(STATE_SUCCESS));
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_top_refresh";

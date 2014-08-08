@@ -65,6 +65,10 @@
             <groupId>${sakai.velocity.groupId}</groupId>
             <artifactId>sakai-velocity-tool</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
