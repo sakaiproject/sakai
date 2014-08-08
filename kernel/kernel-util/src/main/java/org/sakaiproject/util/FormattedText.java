@@ -189,4 +189,10 @@ public class FormattedText {
         return getFormattedText().stripHtmlFromText(text, smartSpacing, stripEscapeSequences);
     }
 
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#makeShortenedText(String)
+     */
+    public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod) {
+        return getFormattedText().makeShortenedText(text, maxLength, separator, cutMethod);
+}
 }

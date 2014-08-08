@@ -40,6 +40,17 @@ import java.util.regex.Pattern;
 
 public class FormattedTextTest extends TestCase {
 
+	private static final String [] SITE_TITLES = new String[] {
+		"This is a really long site with a very high number of characters on it, an probably with strange behaviour in the portal.",
+		"This is a really long site with a very high number of characters on it, an probably with strange behaviour in the portal.",
+		"Short",
+		"Not so long title"
+	};
+	
+	private static final String [] CUT_METHODS = new String[]{"100:0","50:50","0:100","70:30","-1","100:100","a:b"};
+	private static final int [] MAX_LENGTHS = new int[]{25,50,15,8,25,50,125};
+	private static final String [] CUT_SEPARATORS = new String[]{" ...","...","{..}"," ...","...","{..}","......"};
+	
     public static String TEST1 = "<a href=\"blah.html\" style=\"font-weight:bold;\">blah</a><div>hello there</div>";
     public static String TEST2 = "<span>this is my span</span><script>alert('oh noes, a XSS attack!');</script><div>hello there from a div</div>";
     FormattedTextImpl formattedText;
@@ -869,6 +880,31 @@ public class FormattedTextTest extends TestCase {
         text = "<table><tr><th>Column1</th></tr><tr><td>Row1</td></tr></table>";
         result = formattedText.stripHtmlFromText(text,false);
         assertEquals("Column1Row1", result);
+    }
+
+    public void testGetShortenedTitles() {
+        for (String siteTitle:SITE_TITLES) {
+            for (int k=0; k<CUT_METHODS.length; k++) {
+                ServerConfigurationService scs = new BasicConfigurationService();
+                scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.cut.method", CUT_METHODS[k], "FormattedTextTest"));
+                scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.maxlength", MAX_LENGTHS[k], "FormattedTextTest"));
+                scs.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("site.title.cut.separator", CUT_SEPARATORS[k], "FormattedTextTest"));
+                formattedText.setServerConfigurationService(scs);
+                String resumeTitle = formattedText.makeShortenedText(siteTitle, null, null, null);
+                // The resume title has the defined length (if has enough length)
+                assertEquals(Math.min(MAX_LENGTHS[k],siteTitle.length()),resumeTitle.length());
+                if (siteTitle.length()>MAX_LENGTHS[k] && MAX_LENGTHS[k]>=10) {
+                    // The title must to be cut, so it has to contains cut separator
+                    assertEquals(true,resumeTitle.contains(CUT_SEPARATORS[k]));
+                } else if (siteTitle.length()>MAX_LENGTHS[k]) {
+                    // Title truncate
+                    assertEquals(siteTitle.trim().substring(0,MAX_LENGTHS[k]),resumeTitle);
+                } else {
+                    // Title without change
+                    assertEquals(siteTitle.trim(),resumeTitle);
+                }
+            }
+        }
     }
 
 }

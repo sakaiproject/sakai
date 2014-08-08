@@ -416,4 +416,15 @@ public interface FormattedText {
      */
      public String stripHtmlFromText(String text, boolean smartSpacing, boolean stripEscapeSequences);
 
+     /**
+      * General utility to make shortened titles and descriptions (or any string really).
+      *
+      * @param text the full site title (or desc) to shorten
+      * @param maxLength maximum length for the string before it is shortened (and after shortening) (null defaults to 25)
+      * @param separator the separator string to use (null defaults to '...')
+      * @param cutMethod the string key method for cutting (null defaults to '100:0')
+      * @return the shortened string
+      */
+     public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod);
+
 }
