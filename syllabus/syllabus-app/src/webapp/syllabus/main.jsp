@@ -33,6 +33,7 @@
 
 <script type="text/javascript">
 	var msgs;
+	var mainframeId = '<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>';
 	// if redirected, just open in another window else
 	// open with size approx what actual print out will look like
 	function printFriendly(url) {
