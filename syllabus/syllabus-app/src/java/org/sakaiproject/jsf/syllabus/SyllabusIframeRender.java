@@ -79,9 +79,10 @@ public class SyllabusIframeRender extends Renderer
       }
       boolean secureHttp = ServerConfigurationService.getServerUrl().startsWith("https");
       if(redirectUrl.startsWith("http:") && secureHttp){
-    	  writer.write("<script type='text/javascript'>window.open('" + redirectUrl + "');$(window).load(function (){mySetMainFrameHeight(mainframeId);});</script>");
+    	  writer.write("<script type='text/javascript'>window.open('" + redirectUrl + "');</script>");
     	  writer.write(rb.getFormattedMessage("iframeSecurity", new String[]{redirectUrl}));
       }else{
+    	  writer.write("<script type='text/javascript'>setTimeout(function(){mySetMainFrameHeight(mainframeId);}, 1000);</script>");
     	  writer.write("<iframe src=\"" + redirectUrl + "\"");
     	  writer.write(" width=\"" + widthIn + "\"");
     	  writer.write(" height=\"" + heightIn + "\"");
