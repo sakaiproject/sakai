@@ -10,14 +10,7 @@
 	<sakai:view_container title="#{msgs.prefs_title}">
 	<sakai:view_content>
 <f:verbatim>
-<script type="text/javascript">
-if ( window.jQuery ) {
-    window.console && console.log("jQuery already loaded "+jQuery.fn.jquery);
-} else {
-    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js?version=">'+'\x3C/script>')
-    window.console && console.log("Loaded jQuery");
-}
-</script>
+<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 <script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
 </f:verbatim>
