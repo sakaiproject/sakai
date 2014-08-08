@@ -22,7 +22,7 @@
 
 // Validate the user ID from the form
 USER.validateUserId = function () {
-    var eid = USER.get("eid");
+    var eid = USER.get("user_eid");
     var userIdReq = USER.get("userIdRequired");
     USER.userValid = false;
     if (eid === null || userIdReq === null || USER.trim(eid.value).length > 0) {
@@ -41,12 +41,12 @@ USER.validatePassword = function () {
     var strengthInfo = USER.get("strengthInfo");
     var strengthBar = USER.get("strengthBar");
     var strengthBarMeter = USER.get("strengthBarMeter");
-    var pw = USER.get("pw");
+    var pw = USER.get("user_pw");
 
     // If there's a password field and the password policy is enabled, get the password valud and the user ID
     if (pw !== null && USER.isPasswordPolicyEnabled) {
         var pass = pw.value;
-        var eid = USER.get("eid");
+        var eid = USER.get("user_eid");
         var eidValue = USER.get("eidValue");
         var username = "";
         if (eid !== null) {
@@ -84,8 +84,8 @@ USER.validatePassword = function () {
 
 // Verify the passwords match
 USER.verifyPasswordsMatch = function () {
-    var pw = USER.get("pw");
-    var pw0 = USER.get("pw0");
+    var pw = USER.get("user_pw");
+    var pw0 = USER.get("user_pw0");
     var matchMsg = USER.get("matchMsg");
     var noMatchMsg = USER.get("noMatchMsg");
     USER.passwordsMatch = false;
@@ -137,7 +137,7 @@ USER.validateEmail = function () {
 
 // Validate the current password from the form
 USER.validateCurrentPassword = function () {
-    var pwcur = USER.get("pwcur");
+    var pwcur = USER.get("user_pwcur");
     USER.currentPassValid = true;
     if (pwcur !== null) {
         USER.currentPassValid = pwcur.value.length > 0;

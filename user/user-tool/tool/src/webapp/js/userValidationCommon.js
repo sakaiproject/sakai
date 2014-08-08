@@ -71,7 +71,7 @@ USER.displayStrengthInfo = function () {
     if (USER.isPasswordPolicyEnabled) {
         var showStrengthInfo = false;
         var strengthInfo = USER.get("strengthInfo");
-        var passField = USER.get("pw");
+        var passField = USER.get("user_pw");
         if (passField !== null && passField.value.length > 0) {
             if (!USER.passwordValid || (!USER.passwordStrong && passField === document.activeElement)) {
                 showStrengthInfo = true;

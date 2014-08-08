@@ -3,7 +3,7 @@
 <link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
 
 <script type="text/javascript" language="JavaScript">
-	focus_path = ["eid"];
+	focus_path = ["user_eid"];
 </script>
 <script type="text/javascript">
 if ( window.jQuery ) {
@@ -37,10 +37,10 @@ if ( window.jQuery ) {
 				<span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
 			</div>
 			<div class="shorttext required">
-				<label #if(!$user) for="eid" #end>
+				<label #if(!$user) for="user_eid" #end>
 					#if(!$user)<span class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
 				</label>
-				#if(!$user)<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
+				#if(!$user)<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($valueEid)value="$validator.escapeHtml($valueEid)"#end />#else$validator.escapeHtml($user.Eid)#end
 			</div>
 			<div class="shorttext">
 				<label for="first-name">
@@ -62,10 +62,10 @@ if ( window.jQuery ) {
 				<div id="emailWarningMsg" style="display:none">$tlang.getString("useact.invemail")</div>
 			</div>
 			<div class="shorttext required">
-				<label for="pw">
+				<label for="user_pw">
 					#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.crenewpass")
 				</label>
-				<input type="password" name="pw" id="pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+				<input type="password" name="pw" id="user_pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
 				<div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
 				<div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
 				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
@@ -76,10 +76,10 @@ if ( window.jQuery ) {
 				<div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
 			</div>
 			<div class="shorttext required">
-				<label for="pw0">
+				<label for="user_pw0">
 					#if ($pwRequired) <span class="reqStar">*</span> #end $tlang.getString("usecre.vernewpass")
 				</label>
-				<input type="password" name="pw0" id="pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
+				<input type="password" name="pw0" id="user_pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
 				<div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
 				<div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
 			</div>

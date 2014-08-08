@@ -22,8 +22,8 @@
 
 // Validate the password from the form
 USER.validatePassword = function () {
-    var username = USER.trim(USER.get("eid").value);
-    var pw = USER.get("pw").value;
+    var username = USER.trim(USER.get("user_eid").value);
+    var pw = USER.get("user_pw").value;
     var strongMsg = USER.get("strongMsg");
     var moderateMsg = USER.get("moderateMsg");
     var weakMsg = USER.get("weakMsg");
@@ -54,8 +54,8 @@ USER.validatePassword = function () {
 
 // Verify the passwords match
 USER.verifyPasswordsMatch = function () {
-    var pw = USER.get("pw").value;
-    var pw2 = USER.get("pw0").value;
+    var pw = USER.get("user_pw").value;
+    var pw2 = USER.get("user_pw0").value;
     var matchMsg = USER.get("matchMsg");
     var noMatchMsg = USER.get("noMatchMsg");
 
@@ -74,7 +74,7 @@ USER.verifyPasswordsMatch = function () {
 
 // Validate the user ID from the form
 USER.validateUserId = function () {
-    var userId = USER.trim(USER.get("eid").value);
+    var userId = USER.trim(USER.get("user_eid").value);
     USER.userValid = userId.length > 0;
     USER.validatePassword();
 };

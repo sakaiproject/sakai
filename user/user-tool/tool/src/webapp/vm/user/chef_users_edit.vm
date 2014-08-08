@@ -65,7 +65,7 @@ function removeOptionalAttributeBlock(elem) {
                     <span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
                 </div>
 			<div class="shorttext required">
-				<label #if(!$user) for="eid" #end>
+				<label #if(!$user) for="user_eid" #end>
 					#if(!$user)<span id="userIdRequired" class="reqStar">*</span>#end $tlang.getString("useconrem.useid")
 				</label>
 				#if($!user && !$valueEid)
@@ -73,12 +73,12 @@ function removeOptionalAttributeBlock(elem) {
 				#end
 				#if(!$user)
 					## creating new account
-					<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+					<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
 				#else
 					## modifying existing account
 					#if($!superUser)
 						## only admin type user can modify the eid field
-						<input type="text" name="eid" id="eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
+						<input type="text" name="eid" id="user_eid" oninput="USER.validateUserId();" onkeyup="USER.validateUserId();" autocomplete="off" #if($!valueEid)value="$validator.escapeHtml($!valueEid)"#end/>
 					#else
 						<span id="eidValue">$validator.escapeHtml($!valueEid)</span>
 					#end
@@ -119,10 +119,10 @@ function removeOptionalAttributeBlock(elem) {
   #if(!$!superUser)
     #if ($service.allowUpdateUserName($user.Id) || $service.allowUpdateUserEmail($user.Id) || $service.allowUpdateUserPassword($user.Id) || !$user)
         <div class="shorttext">
-            <label for="pwcur">
+            <label for="user_pwcur">
                 <span class="reqStar">*</span> $tlang.getString("usecre.vercurpass")
             </label>
-            <input type="password" name="pwcur" id="pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
+            <input type="password" name="pwcur" id="user_pwcur" oninput="USER.validateCurrentPassword();" onkeyup="USER.validateCurrentPassword();" autocomplete="off" />
         </div>
     #else
         &nbsp;
@@ -130,10 +130,10 @@ function removeOptionalAttributeBlock(elem) {
   #end
 		#if ($service.allowUpdateUserPassword($user.Id) || !$user)
 			<div class="shorttext">
-				<label for="pw">
+				<label for="user_pw">
 					$tlang.getString("usecre.crenewpass")
 				</label>
-				<input type="password" name="pw" id="pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
+				<input type="password" name="pw" id="user_pw" oninput="USER.validatePassword();" onkeyup="USER.validatePassword();" onblur="USER.displayStrengthInfo();" onfocus="USER.displayStrengthInfo();" autocomplete="off" />
                 <div id="strongMsg" style="display:none">$tlang.getString("pw.strong")</div>
                 <div id="moderateMsg" style="display:none">$tlang.getString("pw.moderate")</div>
 				<div id="weakMsg" style="display:none">$tlang.getString("pw.weak")</div>
@@ -144,10 +144,10 @@ function removeOptionalAttributeBlock(elem) {
                 <div id="strengthInfo" style="display:none">$tlang.getString("pw.strengthInfo")</div>
 			</div>
 			<div class="shorttext">
-				<label for="pw0">
+				<label for="user_pw0">
 					$tlang.getString("usecre.vernewpass")
 				</label>
-				<input type="password" name="pw0" id="pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
+				<input type="password" name="pw0" id="user_pw0" oninput="USER.verifyPasswordsMatch();" onkeyup="USER.verifyPasswordsMatch();" autocomplete="off" />
                 <div id="matchMsg" style="display:none">$tlang.getString("pw.match")</div>
                 <div id="noMatchMsg" style="display:none">$tlang.getString("pw.noMatch")</div>
 			</div>
