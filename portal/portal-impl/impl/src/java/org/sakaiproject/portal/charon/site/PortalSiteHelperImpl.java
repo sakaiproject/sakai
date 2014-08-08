@@ -78,6 +78,7 @@ import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * @author ieb
@@ -329,72 +330,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
-	 * SAK-23567 Gets an array with 2 int values {left,right}
-	 * 	left: left percentage (before cut separator)
-	 * 	right: right percentage (after separator)
-	 */
-	protected int [] getCutMethod(String siteTitleCutMethodString) {
- 		String [] siteTitleCutMethod = siteTitleCutMethodString.split(":");
- 		int [] cutMethod = new int[]{100,0};
- 		try {
- 			if (siteTitleCutMethod.length==2) {
- 				cutMethod[0] = Integer.parseInt(siteTitleCutMethod[0]);
- 				cutMethod[1] = Integer.parseInt(siteTitleCutMethod[1]);
- 				if (cutMethod[0]+cutMethod[1]!=100) throw new Exception();
- 			}
- 		} catch (Throwable ex) {
- 			cutMethod[0] = 100; cutMethod[1] = 0;
- 		}
- 		return cutMethod;
-	}
-
-	/**
-	 * SAK-23567 Gets the shortened version of the title
-	 * 
-	 * Controlled by "site.title.cut.method", "site.title.maxlength", and "site.title.cut.separator"
-	 * 
-	 * @param fullTitle the full site title (or desc) to shorten
-	 * @return the trimmed title
-	 */
-	protected String makeShortenedTitle(String fullTitle) {
-	    // this method defines the defaults for the 3 configuration options
-	    return getResumeTitle(fullTitle
-	            ,ServerConfigurationService.getString("site.title.cut.method", "100:0")
-	            ,ServerConfigurationService.getInt("site.title.maxlength", 25)
-	            ,ServerConfigurationService.getString("site.title.cut.separator", " ..."));
-	}
-
-	/**
-	 * TESTING ONLY
-	 * use {@link #makeShortenedTitle(String)} instead
-	 * 
-	 * SAK-23567 Gets the resumed version of the title
-	 * 
-	 * @param fullTitle
-	 * @param cutMethod
-	 * @param siteTitleMaxLength
-	 * @param cutSeparator
-	 * @return the trimmed title
-	 */
-	protected String getResumeTitle(String fullTitle,String cutMethod,int siteTitleMaxLength,String cutSeparator) {
-		String titleStr = fullTitle;
-		if ( titleStr != null ) {
-			titleStr = titleStr.trim();
-			if ( titleStr.length() > siteTitleMaxLength && siteTitleMaxLength >= 10 ) {
-				int [] siteTitleCutMethod = getCutMethod(cutMethod);
-				int begin = Math.round(((siteTitleMaxLength-cutSeparator.length())*siteTitleCutMethod[0])/100);
-				int end = Math.round(((siteTitleMaxLength-cutSeparator.length())*siteTitleCutMethod[1])/100);
-				// Adjust odd character to the begin
-				begin += (siteTitleMaxLength - (begin + cutSeparator.length() + end));  
-				titleStr = ((begin>0)?titleStr.substring(0,begin):"") + cutSeparator +((end>0)?titleStr.substring(titleStr.length()-end):"");
-			} else if ( titleStr.length() > siteTitleMaxLength ) {
-				titleStr = titleStr.substring(0,siteTitleMaxLength);
-			}
-		}
-		return titleStr;
-	}
-
-	/**
 	 * Explode a site into a map suitable for use in the map
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
@@ -421,7 +356,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
 		String fullTitle = s.getTitle();
-		String titleStr = makeShortenedTitle(fullTitle);
+		String titleStr = FormattedText.makeShortenedText(fullTitle, null, null, null);
 		m.put("siteTitle", Web.escapeHtml(titleStr));
 		m.put("fullTitle", Web.escapeHtml(fullTitle));
 		m.put("siteDescription", s.getHtmlDescription());
@@ -429,7 +364,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		if ( s.getShortDescription() !=null && s.getShortDescription().trim().length()>0 ){
 			// SAK-23895:  Allow display of site description in the tab instead of site title
 			String shortDesc = s.getShortDescription(); 
-			String shortDesc_trimmed = makeShortenedTitle(shortDesc);
+			String shortDesc_trimmed = FormattedText.makeShortenedText(shortDesc, null, null, null);
 			m.put("shortDescription", Web.escapeHtml(shortDesc_trimmed));
 		}
 
