@@ -12,9 +12,7 @@
 <sakai:view_content>
 
 <f:verbatim>
-
-<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-
+  <!-- No need to load jQuery - MyInfusion includes jQuery 1.6.1 -->
   <script type="text/javascript" src="/library/js/fluid/1.4/MyInfusion.js">//</script>
   <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">//</script>
 <script type="text/javascript">
@@ -24,11 +22,13 @@ function checkReloadTop() {
     if (check == 'true' ) parent.location.reload();
 }
 
-jQuery(document).ready(function () {
-    setTimeout('checkReloadTop();', 1500);
-    setupMultipleSelect();
-    setupPrefsGen();
-});
+if ( inIframe() ) {
+    jQuery(document).ready(function () {
+        setTimeout('checkReloadTop();', 1500);
+        setupMultipleSelect();
+        setupPrefsGen();
+    });
+}
 //-->
 </script>
 <t:outputText style="display:none" styleClass="checkboxSelectMessage" value="#{msgs.prefs_checkbox_select_message}"/>
