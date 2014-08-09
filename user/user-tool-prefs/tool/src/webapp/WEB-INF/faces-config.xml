@@ -112,7 +112,7 @@
         </description>
         <managed-bean-name>Portal</managed-bean-name>
         <managed-bean-class>org.sakaiproject.portal.util.PortalBean</managed-bean-class>
-        <managed-bean-scope>session</managed-bean-scope>
+        <managed-bean-scope>request</managed-bean-scope>
         <managed-property>
             <description>Caller</description>
             <property-name>caller</property-name>
