@@ -15,6 +15,17 @@
         init: function(editor) {
             CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
 
+            editor.on('uiSpace', function (event) {
+                if (event.data.space == 'bottom') {
+
+                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
+                        + autoSaveMessageId(event.editor)
+                        + '"class="hidden">'
+                        + event.editor.lang.autosave.autoSaveMessage
+                        + '</div></div>';
+                }
+            }, editor, null, 100);
+
             if (typeof (jQuery) === 'undefined') {
                 CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
                     jQuery.noConflict();
@@ -55,16 +66,6 @@
                 SaveData(autoSaveKey, editorInstance);
             }
         });
-
-        editorInstance.on('uiSpace', function(event) {
-            if (event.data.space == 'bottom') {
-                event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
-                    + autoSaveMessageId(event.editor)
-                    + '"class="hidden">'
-                    + event.editor.lang.autosave.autoSaveMessage
-                    + '</div></div>';
-            }
-        }, editorInstance, null, 100);
     }
 
     function autoSaveMessageId(editorInstance) {
