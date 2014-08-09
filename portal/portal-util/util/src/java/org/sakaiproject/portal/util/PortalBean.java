@@ -32,16 +32,8 @@ public class PortalBean
 
     public void setCaller(String caller)
     {
-System.out.println("HELLO WORLD");
         this.caller = caller;
     }
-/*
-    public String getCaller()
-    {
-System.out.println("HELLO WORLD 2");
-        return this.caller;
-    }
-*/
 
 	/**
 	 * Returns an absolute URL for "/library" servlet with CDN path as necessary
