@@ -30,7 +30,7 @@
             <properties>
                 <maven.test.jvmargs />
                 <poi.version>3.9</poi.version>
-                <lucene.version>2.9.4</lucene.version>
+                <lucene.version>4.5.0</lucene.version>
                 <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
             </properties>
         </profile>
@@ -50,7 +50,7 @@
             <properties>
                 <maven.test.jvmargs />
                 <poi.version>3.9</poi.version>
-                <lucene.version>2.9.4</lucene.version>
+                <lucene.version>4.5.0</lucene.version>
                 <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
             </properties>
         </profile>
@@ -119,22 +119,6 @@
       <artifactId>sakai-kernel-util</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-core</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-orm</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-api</artifactId>
     </dependency>
@@ -153,30 +137,7 @@
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.search</groupId>
-      <artifactId>search-model</artifactId>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.sakaiproject.search</groupId>
       <artifactId>search-util</artifactId>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-core</artifactId>
-      <version>${lucene.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-highlighter</artifactId>
-      <version>${lucene.version}</version>
-      <type>jar</type>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.lucene</groupId>
-      <artifactId>lucene-spellchecker</artifactId>
-      <version>${lucene.version}</version>
       <type>jar</type>
     </dependency>
     <dependency>
@@ -187,11 +148,6 @@
     <dependency>
       <groupId>commons-logging</groupId>
       <artifactId>commons-logging</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>commons-dbcp</groupId>
-      <artifactId>commons-dbcp</artifactId>
-      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>jtidy</groupId>
