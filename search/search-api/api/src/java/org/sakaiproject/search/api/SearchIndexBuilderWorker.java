@@ -24,8 +24,6 @@ package org.sakaiproject.search.api;
 import java.sql.SQLException;
 import java.util.List;
 
-import org.sakaiproject.search.model.SearchWriterLock;
-
 public interface SearchIndexBuilderWorker 
 {
 
@@ -39,17 +37,6 @@ public interface SearchIndexBuilderWorker
 	 * Should the thread be running
 	 */
 	boolean isRunning();
-	/**
-	 * get the current running Lock
-	 * @return
-	 */
-	SearchWriterLock getCurrentLock();
-
-	/**
-	 * get a list of node status records
-	 * @return
-	 */
-	List<SearchWriterLock> getNodeStatus();
 
 	/**
 	 * destroy the search index builder worker and release all resources
