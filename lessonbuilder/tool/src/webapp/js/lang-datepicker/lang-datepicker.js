@@ -2298,8 +2298,12 @@ isRTL:false
 		 * Init the app by making a request for a language file.
 		 * Failing the locale, we look for the base language
 		 */
-         var userLocale = (window.top.sakai.locale.userLocale) ? window.top.sakai.locale.userLocale.replace("_", "-") : 'en-US';
-         var userLang = (window.top.sakai.locale.userLanguage) ? window.top.sakai.locale.userLanguage : 'en';
+		var userLocale = document.getElementById("locale").innerHTML.replace("_", "-");
+		var localeIndex = userLocale.indexOf("-");
+		if (localeIndex > 0)
+		    userLang = userLocale.substring(0, localeIndex);
+		else
+		    userLang = userLocale;
 
          // First try the full locale (fr-CA) then try just the language (fr)
          if (typeof $.datepicker.regional[userLocale] !== "undefined") {
