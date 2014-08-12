@@ -1032,9 +1032,169 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			Collections.reverse(msgs);
 		}
 
-		return msgs;
+		return filterGroupAccess(msgs, c.getContext(), c.getReference());
 	}
 
+	/**
+	 * Filter messages based on group access
+	 * @param msgs Messages to filter
+	 * @param context The context for this channel
+	 * @param reference The internal reference for this channel
+	 * @return Filtered list of Messages
+	 */
+	public List <Message> filterGroupAccess(List <Message> msgs, String context, String reference) {
+		// check for the allowed groups of the current end use if we need it, and only once
+		List filtered = new Vector();
+		Collection allowedGroups = null;
+		
+		for (int i = 0; i < msgs.size(); i++)
+		{
+			Message msg = (Message) msgs.get(i);
+
+			// if grouped, check that the end user has get access to any of this message's groups; reject if not
+			if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED)
+			{
+				// check the message's groups to the allowed (get) groups for the current user
+				Collection msgGroups = msg.getHeader().getGroups();
+
+				// we need the allowed groups, so get it if we have not done so yet
+				if (allowedGroups == null)
+				{
+					allowedGroups = getGroupsAllowFunction(SECURE_READ, context, reference);
+				}
+
+				// reject if there is no intersection in groups, but go through and validate special case
+				if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)) {
+					User currentUsr=null;
+					try {
+						currentUsr = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
+
+					} catch (UserNotDefinedException e1) {
+						// TODO Auto-generated catch block
+						M_log.info("User Not Defined: " + e1.getMessage());
+					}
+					
+//					boolean isViewingAs = (m_securityService.getUserEffectiveRole(context) != null);
+					
+					//its possible the user wasn't found above
+					String userId = "";
+					if (currentUsr != null) {
+						userId = currentUsr.getId();
+					}
+					
+					//If user is not instructor 
+					
+					Site site = null;
+					try {
+						site = m_siteService.getSite(context);
+					} catch (IdUnusedException e) {
+						// TODO Auto-generated catch block
+						M_log.debug("Site not found for " + context + " " + e.getMessage());
+					}
+
+					//If the user is not an instructor then move on to the next one
+					if (!isUserInstructor(userId, site)){
+						continue;	
+					}
+				}
+			}
+			//Add it to the group filtered list
+			filtered.add(msg);
+		}
+		return filtered;
+	}
+	
+	/**
+	 * See if the collection of group reference strings has at least one group that is in the collection of Group objects.
+	 * 
+	 * @param groupRefs
+	 *        The collection (String) of group references.
+	 * @param groups
+	 *        The collection (Group) of group objects.
+	 * @return true if there is interesection, false if not.
+	 */
+	protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
+	{
+		for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
+		{
+			String findThisGroupRef = (String) iRefs.next();
+			for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
+			{
+				String thisGroupRef = ((Group) iGroups.next()).getReference();
+				if (thisGroupRef.equals(findThisGroupRef))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+	
+	/**
+	 * Get the groups of this channel's contex-site that the end user has permission to "function" in.
+	 * 
+	 * @param function
+	 *        The function to check
+	 * @return The Collection (Group) of groups defined for the context of this channel that the end user has specified permissions in, empty if none.
+	 */
+	protected Collection<Group> getGroupsAllowFunction(String function, String m_context, String reference)
+	{
+		Collection<Group> rv = new Vector<Group>();
+
+		try
+		{
+			// get the channel's site's groups
+			Site site = m_siteService.getSite(m_context);
+			Collection<Group> groups = site.getGroups();
+
+			// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
+			if (m_securityService.isSuperUser() || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
+					&& unlockCheck(function, reference)))
+			{
+				return groups;
+			}
+
+			// otherwise, check the groups for function
+
+			// get a list of the group refs, which are authzGroup ids
+			Collection<String> groupRefs = new Vector<String>();
+			for (Iterator<Group> i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				groupRefs.add(group.getReference());
+			}
+
+			// ask the authzGroup service to filter them down based on function
+			groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_sessionManager.getCurrentSessionUserId(),
+					eventId(function), groupRefs);
+
+			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
+			for (Iterator<Group> i = groups.iterator(); i.hasNext();)
+			{
+				Group group = (Group) i.next();
+				if (groupRefs.contains(group.getReference()))
+				{
+					rv.add(group);
+				}
+			}
+		}
+		catch (IdUnusedException e)
+		{
+		}
+
+		return rv;
+	}
+	
+	private boolean isUserInstructor(String userId, Site site){
+		if(site != null && site.getMember(userId) != null){
+			if(m_securityService.unlock(userId, "site.upd", m_siteService.siteReference(site.getId()))){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Access a list of channel ids that are defined related to the context.
 	 * 
@@ -2198,14 +2358,6 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		/**
 		 * @inheritDoc
 		 */
-		public Collection getGroupsAllowGetMessage()
-		{
-			return getGroupsAllowFunction(SECURE_READ);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
 		public int getCount() throws PermissionException
 		{
 			// Allow the Storage to indicate "not implemented"
@@ -2635,6 +2787,14 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		} // cancelMessage
 
 		/**
+		 * @inheritDoc
+		 */
+		public Collection getGroupsAllowGetMessage()
+		{
+			return getGroupsAllowFunction(SECURE_READ);
+		}
+
+		/**
 		 * check permissions for addMessage().
 		 * 
 		 * @return true if the user is allowed to addMessage(...), false if not.
@@ -2980,104 +3140,26 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// filter out
 			List filtered = new Vector();
 
-			// check for the allowed groups of the current end use if we need it, and only once
-			Collection allowedGroups = null;
-
-			for (int i = 0; i < msgs.size(); i++)
-			{
+			for (int i = 0; i < msgs.size(); i++) {
 				Message msg = (Message) msgs.get(i);
-
-				// if grouped, check that the end user has get access to any of this message's groups; reject if not
-				if (msg.getHeader().getAccess() == MessageHeader.MessageAccess.GROUPED)
-				{
-					// check the message's groups to the allowed (get) groups for the current user
-					Collection msgGroups = msg.getHeader().getGroups();
-
-					// we need the allowed groups, so get it if we have not done so yet
-					if (allowedGroups == null)
-					{
-						allowedGroups = getGroupsAllowGetMessage();
-					}
-
-					// reject if there is no intersection
-					if (!isIntersectionGroupRefsToGroups(msgGroups, allowedGroups)){ //continue;
-
-						MessageEdit msg1=(MessageEdit) msg;
-						MessageHeaderEdit header = msg1.getHeaderEdit();
-						User currentUsr=null;
-						try {
-							currentUsr = m_userDirectoryService.getUser(m_sessionManager.getCurrentSessionUserId());
-
-						} catch (UserNotDefinedException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
-						}
-						
-						String context = m_siteService.siteReference(m_entityManager.newReference(msg1.getReference()).getContext());
-						boolean isViewingAs = (m_securityService.getUserEffectiveRole(context) != null);
-						
-						//its possible the user wasn't found above
-						String userId = "";
-						if (currentUsr != null) {
-							userId = currentUsr.getId();
-						}
-						
-						//convert it into draft, if the associated group is deleted
-						//do not convert it into draft when you are switching from and to view as mode
-						if (userId.equals(header.getFrom().getId())  && !isViewingAs){						
-							header.setDraft(true);
-							try {
-								header.clearGroupAccess();
-							} catch (PermissionException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
-							this.commitDraftChanges(msg1);
-							msg=(Message) msg1;
-
-						}
-						else continue;						
-					}
-				}
-
 				// reject if the filter rejects
 				if ((filter != null) && (!filter.accept(msg))) continue;
-
 				// if not rejected, keep
 				filtered.add(msg);
 			}
 
-			return filtered;
-
+			return filterGroupAccess(filtered);
 		} // findFilterMessages
 
 		/**
-		 * See if the collection of group reference strings has at least one group that is in the collection of Group objects.
-		 * 
-		 * @param groupRefs
-		 *        The collection (String) of group references.
-		 * @param groups
-		 *        The collection (Group) of group objects.
-		 * @return true if there is interesection, false if not.
+		 * Filter messages based on group access
+		 * @param msgs Messages to filter
+		 * @return Filtered list of Messages
 		 */
-		protected boolean isIntersectionGroupRefsToGroups(Collection groupRefs, Collection groups)
-		{
-			for (Iterator iRefs = groupRefs.iterator(); iRefs.hasNext();)
-			{
-				String findThisGroupRef = (String) iRefs.next();
-				for (Iterator iGroups = groups.iterator(); iGroups.hasNext();)
-				{
-					String thisGroupRef = ((Group) iGroups.next()).getReference();
-					if (thisGroupRef.equals(findThisGroupRef))
-					{
-						return true;
-					}
-				}
-			}
-
-			return false;
+		public List <Message> filterGroupAccess(List <Message> msgs) {
+			return BaseMessage.this.filterGroupAccess(msgs, m_context, getReference());
 		}
-		
+
 		/**
 		 * Test a collection of Group object for the specified group reference
 		 * @param groups The collection (Group) of groups
@@ -3165,51 +3247,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		protected Collection<Group> getGroupsAllowFunction(String function)
 		{
-			Collection<Group> rv = new Vector<Group>();
-
-			try
-			{
-				// get the channel's site's groups
-				Site site = m_siteService.getSite(m_context);
-				Collection<Group> groups = site.getGroups();
-
-				// if the user has SECURE_ALL_GROUPS in the context (site), and the function for the channel (channel,site), or is super, select all site groups
-				if (m_securityService.isSuperUser() || (m_securityService.unlock(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(m_context))
-						&& unlockCheck(function, getReference())))
-				{
-					return groups;
-				}
-
-				// otherwise, check the groups for function
-
-				// get a list of the group refs, which are authzGroup ids
-				Collection<String> groupRefs = new Vector<String>();
-				for (Iterator<Group> i = groups.iterator(); i.hasNext();)
-				{
-					Group group = (Group) i.next();
-					groupRefs.add(group.getReference());
-				}
-
-				// ask the authzGroup service to filter them down based on function
-				groupRefs = m_authzGroupService.getAuthzGroupsIsAllowed(m_sessionManager.getCurrentSessionUserId(),
-						eventId(function), groupRefs);
-
-				// pick the Group objects from the site's groups to return, those that are in the groupRefs list
-				for (Iterator<Group> i = groups.iterator(); i.hasNext();)
-				{
-					Group group = (Group) i.next();
-					if (groupRefs.contains(group.getReference()))
-					{
-						rv.add(group);
-					}
-				}
-			}
-			catch (IdUnusedException e)
-			{
-			}
-
-			return rv;
+			return BaseMessage.this.getGroupsAllowFunction(function,m_context,getReference());
 		}
+		
 
 		/******************************************************************************************************************************************************************************************************************************************************
 		 * SessionBindingListener implementation
