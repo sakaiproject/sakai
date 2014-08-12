@@ -336,6 +336,15 @@ public interface GradebookService {
 	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml);
 	
 	/**
+	 * 
+	 * @param gradebookUid
+	 * @return a {@link GradebookInformation} object that contains information about this
+         * Gradebook that may be useful to consumers outside the Gradebook tool
+         * 
+	 */
+	public GradebookInformation getGradebookInformation(String gradebookUid);
+	
+	/**
 	 * Attempt to merge archived gradebook data (notably the assignnments) into a new gradebook.
 	 * 
 	 * Assignment definitions whose names match assignments that are already in

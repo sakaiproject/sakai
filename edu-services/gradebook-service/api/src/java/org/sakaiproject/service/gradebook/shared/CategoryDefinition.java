@@ -33,6 +33,10 @@ public class CategoryDefinition {
     private Long id;
     private String name;
     private Double weight;
+    private Integer drop_lowest;
+    private Integer dropHighest;
+    private Integer keepHighest;
+    
     private List<Assignment> assignmentList;
     
     /**
@@ -105,5 +109,29 @@ public class CategoryDefinition {
      */
 	public void setAssignmentList(List<Assignment> assignmentList) {
 		this.assignmentList = assignmentList;
+	}
+
+	public Integer getDrop_lowest() {
+		return drop_lowest;
+	}
+
+	public void setDrop_lowest(Integer drop_lowest) {
+		this.drop_lowest = drop_lowest;
+	}
+
+	public Integer getDropHighest() {
+		return dropHighest;
+	}
+
+	public void setDropHighest(Integer dropHighest) {
+		this.dropHighest = dropHighest;
+	}
+
+	public Integer getKeepHighest() {
+		return keepHighest;
+	}
+
+	public void setKeepHighest(Integer keepHighest) {
+		this.keepHighest = keepHighest;
 	}
 }

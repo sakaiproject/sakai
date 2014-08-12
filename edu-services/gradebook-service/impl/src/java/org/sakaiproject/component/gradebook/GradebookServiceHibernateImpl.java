@@ -54,6 +54,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameExcept
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookFrameworkService;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
@@ -458,6 +459,38 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebookDefinition.setCategory(getCategories(gradebookId));
 		
 		return VersionedExternalizable.toXml(gradebookDefinition);
+	}
+	
+	
+	public GradebookInformation getGradebookInformation(String gradebookUid) {
+		
+		if (gradebookUid == null ) {
+	          throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
+	      }
+	    
+	        if (!currentUserHasEditPerm(gradebookUid) && !currentUserHasGradingPerm(gradebookUid)) {
+	            log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to access gb information");
+                    throw new SecurityException("You do not have permission to access gradebook information in site " + gradebookUid);
+	        }
+	        
+		Gradebook gradebook = getGradebook(gradebookUid);
+		if(gradebook==null) {
+			throw new IllegalArgumentException("Their is no gradbook associated with this Id: "+gradebookUid);
+		}
+		
+		GradebookInformation gradebookInfo = new GradebookInformation();
+		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
+		if(selectedGradeMapping!=null) {
+			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
+		}
+		gradebookInfo.setAssignments(getAssignments(gradebookUid));
+		gradebookInfo.setGradeType(gradebook.getGrade_type());
+		gradebookInfo.setCategoryType(gradebook.getCategory_type());	
+		gradebookInfo.setCategory(getCategories(gradebook.getId()));
+		gradebookInfo.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
+		return gradebookInfo;
 	}
 	
 	public void transferGradebookDefinitionXml(String fromGradebookUid, String toGradebookUid, String fromGradebookXml) {
@@ -2696,6 +2729,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setId(category.getId());
 	        categoryDef.setName(category.getName());
 	        categoryDef.setWeight(category.getWeight());
+	        categoryDef.setDrop_lowest(category.getDrop_lowest());
+	        categoryDef.setDropHighest(category.getDropHighest());
+	        categoryDef.setKeepHighest(category.getKeepHighest());
 	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
 	    }
 
