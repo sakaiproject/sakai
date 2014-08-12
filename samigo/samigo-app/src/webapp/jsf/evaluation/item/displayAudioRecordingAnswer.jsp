@@ -36,7 +36,7 @@ should be included in file importing DeliveryMessages
         <h:outputText escape="false" value="
         	<audio controls=\"controls\">
         		<source src=\"/samigo-app/servlet/ShowMedia?mediaId=#{media.mediaId}\" type=\"audio/wav\"/>
-        	</object>" 
+        	</audio>" 
         />
 
 	  <f:verbatim><br /></f:verbatim>
