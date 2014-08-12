@@ -30,6 +30,12 @@ public class Gradebook {
 
     public List<Student> students = new Vector<Student>();
     public List<GradebookItem> items = new Vector<GradebookItem>();
+    public List<Category> category = new Vector<Category>();
+    public boolean displayReleasedGradeItemsToStudents =false;
+    public String gradebookScale=null;
+    public boolean isPointFlag=false;
+    public boolean isPercentFlag=false;
+    public boolean isLetterGradeFlag=false;
 
     public Gradebook(String id) {
         this.id = id;
