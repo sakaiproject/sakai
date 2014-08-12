@@ -2733,13 +2733,17 @@ public class SimplePageBean {
 
 				// if no change, don't worry
 				LessonEntity existing = assignmentEntity.getEntity(i.getSakaiId());
-				String ref = existing.getReference();
+				String ref = null;
+				if (existing != null)
+				    ref = existing.getReference();
 				// if same quiz, nothing to do
-				if (!ref.equals(selectedAssignment)) {
+				if ((existing == null) || !ref.equals(selectedAssignment)) {
 				    // if access controlled, clear restriction from old assignment and add to new
 				    if (i.isPrerequisite()) {
-					i.setPrerequisite(false);
-					checkControlGroup(i, false);
+					if (existing !=  null) {
+					    i.setPrerequisite(false);
+					    checkControlGroup(i, false);
+					}
 					// sakaiid and name are used in setting control
 					i.setSakaiId(selectedAssignment);
 					i.setName(selectedObject.getTitle());
@@ -2802,20 +2806,16 @@ public class SimplePageBean {
 
 				// if no change, don't worry
 				LessonEntity existing = bltiEntity.getEntity(i.getSakaiId());
-				String ref = existing.getReference();
+				String ref = null;
+				if (existing != null)
+				    ref = existing.getReference();
 				// if same item, nothing to do
-				if (!ref.equals(selectedBlti)) {
+				if ((existing == null) || !ref.equals(selectedBlti)) {
 				    // if access controlled, clear restriction from old assignment and add to new
-				    if (i.isPrerequisite()) {
-					i.setPrerequisite(false);
-					// sakaiid and name are used in setting control
-					i.setSakaiId(selectedBlti);
-					i.setName(selectedObject.getTitle());
-					i.setPrerequisite(true);
-				    } else {
-					i.setSakaiId(selectedBlti);
-					i.setName(selectedObject.getTitle());
-				    }
+				    // group access not used for BLTI items, so don't need the setcontrolgroup
+				    // logic from other item types
+				    i.setSakaiId(selectedBlti);
+				    i.setName(selectedObject.getTitle());
 				    if (format == null || format.trim().equals(""))
 					i.setFormat("");
 				    else
@@ -3381,13 +3381,17 @@ public class SimplePageBean {
 				i = findItem(itemId);
 				// do getEntity/getreference to normalize, in case sakaiid is old format
 				LessonEntity existing = quizEntity.getEntity(i.getSakaiId(),this);
-				String ref = existing.getReference();
+				String ref = null;
+				if (existing != null)
+				    ref = existing.getReference();
 				// if same quiz, nothing to do
-				if (!ref.equals(selectedQuiz)) {
+				if ((existing == null) || !ref.equals(selectedQuiz)) {
 				    // if access controlled, clear restriction from old quiz and add to new
 				    if (i.isPrerequisite()) {
-					i.setPrerequisite(false);
-					checkControlGroup(i, false);
+					if (existing != null) {
+					    i.setPrerequisite(false);
+					    checkControlGroup(i, false);
+					}
 					// sakaiid and name are used in setting control
 					i.setSakaiId(selectedQuiz);
 					i.setName(selectedObject.getTitle());
