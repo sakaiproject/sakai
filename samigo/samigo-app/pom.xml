@@ -311,6 +311,13 @@
 					<include>**/*.sql</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>${basedir}/src/resources</directory>
+				<includes>
+					<include>**/*.ttf</include>
+					<include>**/*.ttc</include>
+				</includes>
+			</resource>
 		</resources>
 		<!--  <sourceDirectory>src</sourceDirectory> -->
 		<testResources>

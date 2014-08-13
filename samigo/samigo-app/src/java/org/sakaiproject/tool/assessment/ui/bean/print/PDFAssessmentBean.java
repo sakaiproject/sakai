@@ -49,6 +49,9 @@ import com.lowagie.text.html.simpleparser.StyleSheet;
 import com.lowagie.text.pdf.PdfPCell;
 import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
+import com.lowagie.text.Font;
+import com.lowagie.text.FontFactoryImp;
+import com.lowagie.text.pdf.BaseFont;
 
 /**
  * 
@@ -817,6 +820,7 @@ public class PDFAssessmentBean implements Serializable {
 
 			float prevs = 0;
 
+			props.put("font_factory", new CustomFontFactory());
 			props.put("img_baseurl", ServerConfigurationService.getServerUrl());
 			worker.setInterfaceProps(props);
 
@@ -979,4 +983,22 @@ public class PDFAssessmentBean implements Serializable {
 		return "" + items;
 	}
 
+	/**
+	 * This class pulls in the default font from sakai.properties
+	 */
+	protected class CustomFontFactory extends FontFactoryImp {
+		private final String defaultFontname;
+
+		public CustomFontFactory() {
+			super();
+			
+			defaultFontname = ServerConfigurationService.getString("pdf.default.font", "DejaVu Sans");
+			registerDirectory(this.getClass().getResource("fonts").getFile());
+		}
+
+		@Override
+		public Font getFont(String fontname, String encoding, boolean embedded, float size, int style, Color color, boolean cached) {
+			return super.getFont(defaultFontname, BaseFont.IDENTITY_H, embedded, size, style, color, cached);
+		}
+	}
 }
