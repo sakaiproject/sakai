@@ -248,12 +248,12 @@ public class EditAssessmentListener
 			  log.debug("third condition = hiddenTools is empty");
 		  }
 	  }
-	  String printAssessment = ServerConfigurationService.getString("samigo.printAssessment");
+	  boolean printAssessment = ServerConfigurationService.getBoolean("samigo.printAssessment", true);
 
 	  if (((ToolManager.getTool("sakai.questionbank.printout") != null)
 			  && (stealthTools != null && !stealthTools.contains("sakai.questionbank.printout"))
 			  && (hiddenTools != null && !hiddenTools.contains("sakai.questionbank.printout")))
-			  || Boolean.parseBoolean(printAssessment)) {
+			  || printAssessment) {
 		  assessmentBean.setShowPrintLink(true);
 	  }
 	  else {

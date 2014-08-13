@@ -690,7 +690,7 @@ public class AuthorBean implements Serializable
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList1.add(new SelectItem("edit_pending", com.getString("edit_action")));
 		  pendingActionList1.add(new SelectItem("preview_pending", com.getString("action_preview")));
-		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+		  if (ServerConfigurationService.getBoolean("samigo.printAssessment", true)) {
 			  pendingActionList1.add(new SelectItem("print_pending", com.getString("action_print")));
 		  }
 		  pendingActionList1.add(new SelectItem("settings_pending", com.getString("settings_action")));
@@ -723,7 +723,7 @@ public class AuthorBean implements Serializable
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  pendingActionList2.add(new SelectItem("edit_pending", com.getString("edit_action")));
 		  pendingActionList2.add(new SelectItem("preview_pending", com.getString("action_preview")));
-		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+		  if (ServerConfigurationService.getBoolean("samigo.printAssessment", true)) {
 			  pendingActionList2.add(new SelectItem("print_pending", com.getString("action_print")));
 		  }
 		  pendingActionList2.add(new SelectItem("settings_pending", com.getString("settings_action")));
@@ -754,7 +754,7 @@ public class AuthorBean implements Serializable
 
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  publishedActionList.add(new SelectItem("preview_published", com.getString("action_preview")));
-		  if (Boolean.parseBoolean(ServerConfigurationService.getString("samigo.printAssessment"))) {
+		  if (ServerConfigurationService.getBoolean("samigo.printAssessment", true)) {
 			  publishedActionList.add(new SelectItem("print_published", com.getString("action_print")));
 		  }
 		  publishedActionList.add(new SelectItem("settings_published", com.getString("settings_action")));
