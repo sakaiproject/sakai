@@ -19,6 +19,7 @@ import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
+import uk.org.ponder.rsf.components.UIInitBlock;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIMessage;
@@ -50,6 +51,7 @@ public class PageListProducer
     public FrameAdjustingProducer frameAdjustingProducer;
     public ServerConfigurationService serverConfigurationService;
     public String ALLOW_TITLE_EDIT = "org.sakaiproject.site.tool.helper.order.rsf.PageListProducer.allowTitleEdit";
+    public String ALLOW_REORDER = "site-manage.pageorder.allowreorder";
     
     public String getViewID() {
         return VIEW_ID;
@@ -61,6 +63,7 @@ public class PageListProducer
     }
     
     public void fillComponents(UIContainer tofill, ViewParameters viewparams,
+
             ComponentChecker checker) {
 
         if (handler.update) {
@@ -196,6 +199,13 @@ public class PageListProducer
             }
  
             frameAdjustingProducer.fillComponents(tofill, "resize", "resetFrame");
+
+            //If allow reorder is set, show the sort-alpha button and startup the javascript to allow reordering
+            if (serverConfigurationService.getBoolean(ALLOW_REORDER, true)) {
+                UIInitBlock.make(tofill, "jsreorder","enableReorder",new Object[] {});
+
+                fullyDecorate(UICommand.make(pageForm, "sort_alpha", UIMessage.make("sort_alpha"), "#{SitePageEditHandler.sort_alpha}"), UIMessage.make("sort_alpha"));
+            }
  
         }
         else {
