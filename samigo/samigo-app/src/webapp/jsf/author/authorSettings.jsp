@@ -94,7 +94,7 @@
 
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_template_information} </h4>" />
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_template_information} </h4>" escape="false"/>
   <f:verbatim> <div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell">
         <h:outputText escape="false" rendered="#{assessmentSettings.templateDescription!=null}" value="#{assessmentSettings.templateDescription}" />
@@ -103,7 +103,7 @@
 </h:panelGroup>
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" />
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" escape="false"/>
   <f:verbatim><div class="tier2" id="assessment-intro"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell" id="first" summary="#{templateMessages.enter_template_info_section}">
 
@@ -358,7 +358,7 @@
 
   <!-- FEEDBACK AUTHORING -->
  <h:panelGrid columns="2" border="0" rendered="#{assessmentSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
-   <h:outputLabel value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_authoring} </h4>" />
+   <h:outputLabel escape="false" value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_authoring} </h4>" />
          <h:selectOneMenu id="feedbackAuthoring" value="#{assessmentSettings.feedbackAuthoring}" >
            <f:selectItem itemValue="1" itemLabel="#{commonMessages.question_level_feedback}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.sectionlevel_feedback}"/>
@@ -368,7 +368,7 @@
 
  <!-- FEEDBACK DELIVERY -->
  <h:panelGrid columns="3" border="0" rendered="#{assessmentSettings.valueMap.feedbackType_isInstructorEditable==true}">
- <h:outputLabel value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_delivery} </h4>" />
+ <h:outputLabel escape="false" value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_delivery} </h4>" />
     
         <h:selectOneMenu id="feedbackDelivery" value="#{assessmentSettings.feedbackDelivery}" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
@@ -500,7 +500,7 @@
  
   <!-- *** COLORS AND GRAPHICS	*** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" />
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" escape="false"/>
     <f:verbatim><div class="tier2"></f:verbatim>
  
         <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">

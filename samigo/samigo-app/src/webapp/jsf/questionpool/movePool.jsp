@@ -31,7 +31,7 @@
   <f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
       <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{questionPoolMessages.mv_p"/></title>
+      <title><h:outputText value="#{questionPoolMessages.mv_p}"/></title>
                         <!-- stylesheet and script widgets -->
 <script type="text/JavaScript">
 <%@ include file="/js/samigotree.js" %>

@@ -333,10 +333,7 @@ document.links[newindex].onclick();
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
 <h:inputHidden id="assessmentID" value="#{delivery.assessmentId}"/>
 <h:inputHidden id="assessTitle" value="#{delivery.assessmentTitle}" />
-<!-- h:inputHidden id="ItemIdent" value="#{item.ItemIdent}"/ -->
-<!-- h:inputHidden id="ItemIdent2" value="#{item.itemNo}"/ -->
-<!-- h:inputHidden id="currentSection" value="#{item.currentSection}"/ -->
-<!-- h:inputHidden id="insertPosition" value="#{item.insertPosition}"/ -->
+
 <%-- PART/ITEM DATA TABLES --%>
 
 <h:panelGrid columns="1" width="100%" rendered="#{delivery.pageContents.isNoParts && delivery.navigation eq '1'}" border="0">
@@ -356,8 +353,7 @@ document.links[newindex].onclick();
       <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
       <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
          </h:panelGroup>
-      <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
-      <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
+
       <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{deliveryMessages.pt}" 
          rendered="#{delivery.actionString=='reviewAssessment'}"/>
 </h:panelGrid>
@@ -474,7 +470,7 @@ document.links[newindex].onclick();
       rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl'
 				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.continue}" 
+				   && delivery.navigation eq '1' && !delivery.doContinue}" 
       onclick="pauseTiming='false'; disableSubmit()" />
   </h:panelGrid>
 
@@ -495,18 +491,18 @@ document.links[newindex].onclick();
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.navigation ne '1' && ((delivery.previous && delivery.continue) || (!delivery.previous && delivery.continue) || (delivery.previous && !delivery.continue))}" />
+              && delivery.navigation ne '1' && ((delivery.previous && delivery.doContinue) || (!delivery.previous && delivery.doContinue) || (delivery.previous && !delivery.doContinue))}" />
   </h:panelGrid>
 
   <%-- NEXT --%>
   <h:panelGrid columns="1" border="0" columnClasses="act">
     <h:commandButton id="next1" type="submit" value="#{commonMessages.action_next}"
-    action="#{delivery.next_page}" disabled="#{!delivery.continue}"
+    action="#{delivery.next_page}" disabled="#{!delivery.doContinue}"
     onclick="disableNext()" onkeypress="" 
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && (delivery.previous && !delivery.continue)}" />
+              && (delivery.previous && !delivery.doContinue)}" />
 
     <h:commandButton id="next" type="submit" value="#{commonMessages.action_next}"
     action="#{delivery.next_page}" styleClass="active"
@@ -514,7 +510,7 @@ document.links[newindex].onclick();
 	rendered="#{(delivery.actionString=='previewAssessment'
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
-              && delivery.continue}" />
+              && delivery.doContinue}" />
 
   </h:panelGrid>
 
@@ -553,7 +549,7 @@ document.links[newindex].onclick();
     rendered="#{(delivery.actionString=='previewAssessment'  
                  ||delivery.actionString=='takeAssessment'
                  || (delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin))
-            && delivery.navigation eq '1' && delivery.continue && !delivery.hasTimeLimit}"
+            && delivery.navigation eq '1' && delivery.doContinue && !delivery.hasTimeLimit}"
     onclick="disableSaveAndExit2();" />
   </h:panelGrid>
 
@@ -563,13 +559,13 @@ document.links[newindex].onclick();
     action="#{delivery.confirmSubmit}" styleClass="active"
     rendered="#{(delivery.actionString=='takeAssessment' ||delivery.actionString=='takeAssessmentViaUrl' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
-             && !delivery.continue}"
+             && !delivery.doContinue}"
     onclick="disableSubmitForGrade()" />
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit}"
     action="#{delivery.confirmSubmit}"  id="submitForm1" styleClass="active"
-    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.continue && delivery.anonymousLogin}"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl' && delivery.doContinue && delivery.anonymousLogin}"
     onclick="pauseTiming='false'; disableSubmit1();" />
 
   <%-- SUBMIT FOR GRADE FOR LINEAR ACCESS --%>
@@ -578,7 +574,7 @@ document.links[newindex].onclick();
       rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl'
 				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.continue}" 
+				   && delivery.navigation eq '1' && !delivery.doContinue}" 
       onclick="pauseTiming='false'; disableSubmit()" />
 
   </h:panelGrid>

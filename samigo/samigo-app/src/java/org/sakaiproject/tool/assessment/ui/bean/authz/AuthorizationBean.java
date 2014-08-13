@@ -25,7 +25,10 @@ package org.sakaiproject.tool.assessment.ui.bean.authz;
 
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
+import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
+import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.cover.ToolManager;
 //import org.sakaiproject.spring.SpringBeanLocator;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -51,12 +54,17 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   private boolean adminTemplatePrivilege = false;
   private boolean adminQuestionPoolPrivilege = false;
 
-  public AuthorizationBean(){}
+  public AuthorizationBean(){
+  }
 
   public HashMap getAuthzMap(){
     return map;
   }
   public boolean getAdminPrivilege(){
+	  if(!this.initializedPerm){
+		  initializePermission();
+		  this.initializedPerm=true;
+	  }
     return getPrivilege("admin_privilege");
   }
 
@@ -232,6 +240,25 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
      map.put(functionName+"_"+siteId, Boolean.valueOf(privilege));
      //log.debug(functionName+"_"+siteId+"="+privilege);
      return privilege;
+  }
+  
+  private boolean initializedPerm =  false;
+  /**
+   * This will initialize the user permissions and related assessment's list 
+   */
+  private void initializePermission(){
+	  //this is moved from original roleCheckStaticInclude.jsp page, which is not working for JSF 1.2 up.
+	  addAllPrivilege(ToolManager.getCurrentPlacement().getContext());
+	  if (!adminPrivilege)
+	  {
+	          SelectActionListener listener = new SelectActionListener();
+	          listener.processAction(null);
+	  }    
+	  else
+	  {
+	     AuthorActionListener authorlistener = new AuthorActionListener();
+	     authorlistener.processAction(null);
+	  }
   }
 
   public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){

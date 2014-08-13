@@ -2286,7 +2286,7 @@ public class DeliveryBean
     questionIndex = newindex;
   }
 
-  public boolean getContinue()
+  public boolean getDoContinue()
   {
     return next_page;
   }

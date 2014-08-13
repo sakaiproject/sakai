@@ -12,7 +12,7 @@
   stopping right before
 
 div class="tier1"
-  h:dataTable width="100%" value="#{delivery.pageContents.partsContents}" var="part"
+  
 
 then take all the submit for grading buttons, with the <p class="act"> before them, and all the way to the end
 
@@ -139,7 +139,7 @@ function saveTime()
     action="#{delivery.submitForGrade}" styleClass="active" 
     rendered="#{(delivery.actionString=='takeAssessment' || delivery.actionString=='previewAssessment') 
              && delivery.navigation ne '1' 
-             && !delivery.continue}"
+             && !delivery.doContinue}"
 	disabled="#{delivery.actionString=='previewAssessment'}" 
     onclick="disableSubmitForGrade()" onkeypress="" />
 
@@ -153,7 +153,7 @@ function saveTime()
       action="#{delivery.submitForGrade}"  id="submitForm" styleClass="active"
       rendered="#{(delivery.actionString=='takeAssessment'
 				   || delivery.actionString=='previewAssessment')
-				   && delivery.navigation eq '1' && !delivery.continue}" 
+				   && delivery.navigation eq '1' && !delivery.doContinue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
       onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
 

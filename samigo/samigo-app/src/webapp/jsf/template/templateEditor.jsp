@@ -347,7 +347,7 @@
     <div class="longtext"><h:outputLabel value="#{templateMessages.late_handling}"/></div>
         <div class="tier3">
      <h:panelGrid columns="2"
-      summary="#{templateMessages.late_handling_sub">
+      summary="#{templateMessages.late_handling_sub}">
 
         <h:selectBooleanCheckbox id="late_handling"
           value="#{template.valueMap.lateHandling_isInstructorEditable}"/>
@@ -369,7 +369,7 @@
     <div class="longtext"><h:outputLabel value="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}"/></div>
         <div class="tier3">
      <h:panelGrid columns="2"
-      summary="#{templateMessages.automatic_submission" rendered="#{templateIndex.automaticSubmissionEnabled}">
+      summary="#{templateMessages.automatic_submission}" rendered="#{templateIndex.automaticSubmissionEnabled}">
 
         <h:selectBooleanCheckbox id="automatic_submission"
           value="#{template.valueMap.automaticSubmission_isInstructorEditable}"/>

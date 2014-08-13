@@ -119,13 +119,9 @@
    </h:selectOneMenu>
    </h:panelGrid>
 
-<!--h:message for="assignToPool" rendered="#{sectionBean.type != '1'}" styleClass="validate"/-->
+
    <h:outputText value="#{authorMessages.number_of_qs}" />
 
-<!--h:selectOneMenu disabled="#{sectionBean.type == '1'}" required="true" id="sumSelected" value="#{sectionBean.numberSelected}"-->
-    
-     <!--f:selectItems value="#{sectionBean.poolsAvailable}" /-->
-  <!--/h:selectOneMenu-->
 
    <h:panelGrid>
    <h:inputText id="numSelected" disabled="#{sectionBean.type == '1' || !author.isEditPendingAssessmentFlow}" value="#{sectionBean.numberSelected}" />

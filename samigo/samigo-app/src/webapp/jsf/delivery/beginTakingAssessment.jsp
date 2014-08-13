@@ -37,7 +37,7 @@
       </title>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>; isMacintosh_Netscape();">
- <!--h:outputText value="<body #{delivery.settings.bgcolor} #{delivery.settings.background}>" escape="false" /-->
+ 
 <!--div class="portletBody"-->
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
@@ -67,13 +67,13 @@
 <f:verbatim></h3></f:verbatim>
 
 <div class="tier1">
- <h4> <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.for} #{delivery.courseName} " escape="false"/></h4>
+ <h4> <h:outputText value="\"#{delivery.assessmentTitle}\" #{deliveryMessages.t_for} #{delivery.courseName} " escape="false"/></h4>
 <div class="tier2">
 </div>
 
 <h:messages styleClass="messageSamigo" rendered="#{! empty facesContext.maximumSeverity}" layout="table"/>
  
-<!-- ASSESSMENT INTRODUCTION-->
+<!-- ASSESSMENT INTRODUCTION -->
 <h:outputText value="<br/>#{delivery.instructorMessage}<br/>" escape="false" rendered="#{delivery.instructorMessage != null && delivery.instructorMessage != ''}"/>
 
   <!-- ASSESSMENT ATTACHMENTS -->

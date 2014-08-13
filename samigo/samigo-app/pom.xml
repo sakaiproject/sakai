@@ -67,11 +67,34 @@
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-app</artifactId>
         </dependency>
+        <!-- remove the default api/imp 1.1_02 version from JSF prject with new 1.2 version  -->
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-widgets-sun-depend</artifactId>
+            <exclusions>
+	            <exclusion>
+	                    <groupId>javax.faces</groupId>
+	                    <artifactId>jsf-api</artifactId>
+	             </exclusion>
+	             <exclusion>
+	                    <groupId>javax.faces</groupId>
+	                    <artifactId>jsf-impl</artifactId>
+	             </exclusion>
+	        </exclusions>
             <type>pom</type>
         </dependency>
+        <dependency>
+            	<groupId>javax.faces</groupId>
+            	<artifactId>jsf-api</artifactId>
+            	<version>1.2_15</version>
+        </dependency>
+        <dependency>
+            	<groupId>javax.faces</groupId>
+            	<artifactId>jsf-impl</artifactId>
+               <version>1.2_15</version>
+        </dependency>
+		<!-- end of JSF related version issue -->
+		        
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>

@@ -88,7 +88,7 @@
 
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" />
+  <h:outputLabel escape="false" value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" />
   <div class="tier2" id="assessment-intro">
     <h:panelGrid columns="2" columnClasses="samigoCell" id="first" summary="#{templateMessages.enter_template_info_section}">
 
@@ -158,7 +158,7 @@
 
 <samigo:hideDivision title="#{assessmentSettingsMessages.heading_availability}"> 
 
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_released_to} </h4>" />
+  <h:outputLabel escape="false" value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_released_to} </h4>" />
   <!-- *** RELEASED TO *** -->
   <h:panelGroup>
     <h:outputText value="#{assessmentSettingsMessages.released_to} " />
@@ -350,7 +350,7 @@
 
   <!-- FEEDBACK AUTHORING -->
   <h:panelGrid columns="2" border="0" rendered="#{publishedSettings.valueMap.feedbackAuthoring_isInstructorEditable==true}">
-   <h:outputLabel value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_authoring} </h4>" />
+   <h:outputLabel escape="false" value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_authoring} </h4>" />
          <h:selectOneMenu id="feedbackAuthoring" value="#{publishedSettings.feedbackAuthoring}" >
            <f:selectItem itemValue="1" itemLabel="#{commonMessages.question_level_feedback}"/>
            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.sectionlevel_feedback}"/>
@@ -360,7 +360,7 @@
 
  <!-- FEEDBACK DELIVERY -->
  <h:panelGrid columns="3" border="0" rendered="#{publishedSettings.valueMap.feedbackType_isInstructorEditable==true}">
- <h:outputLabel value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_delivery} </h4>" />
+ <h:outputLabel value="<h4 class=\"samigo-category-subhead-2\"> #{commonMessages.feedback_delivery} </h4>" escape="false"/>
     
         <h:selectOneMenu id="feedbackDelivery" value="#{publishedSettings.feedbackDelivery}" onclick="setBlockDivs();disableAllFeedbackCheck(this.value);">
           <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.immediate_feedback}"/>
@@ -540,7 +540,7 @@
 
   <!-- *** COLORS AND GRAPHICS	*** -->
 <h:panelGroup rendered="#{publishedSettings.valueMap.bgColor_isInstructorEditable==true}" >
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" />
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" escape="false" />
 	<f:verbatim><div class="tier2"></f:verbatim>
 
         <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{publishedSettings.bgColorSelect}">

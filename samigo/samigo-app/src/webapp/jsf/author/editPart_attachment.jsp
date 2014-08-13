@@ -46,14 +46,14 @@
 
   <h:panelGroup rendered="#{!sectionBean.hasAttachment}">
     <sakai:button_bar>
-     <sakai:button_bar_item action="#{sectionBean.addAttachmentsRedirect}"
+     <h:commandButton action="#{sectionBean.addAttachmentsRedirect}"
            value="#{authorMessages.add_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
 
   <h:panelGroup rendered="#{sectionBean.hasAttachment}">
     <sakai:button_bar>
-     <sakai:button_bar_item action="#{sectionBean.addAttachmentsRedirect}"
+     <h:commandButton action="#{sectionBean.addAttachmentsRedirect}"
            value="#{authorMessages.add_remove_attachments}"/>
     </sakai:button_bar>
   </h:panelGroup>
