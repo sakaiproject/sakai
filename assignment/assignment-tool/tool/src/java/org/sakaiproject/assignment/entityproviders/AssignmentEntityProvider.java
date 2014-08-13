@@ -217,7 +217,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * Grade scale description.
 		 */
 		private String gradeScale;
-
+		
+		/**
+		 * Max points used when grade scale = "Points"
+		 */
+		private String gradeScaleMaxPoints;
+		
 		/**
 		 * Submission type description (e.g. inline only, inline and attachments)
 		 */
@@ -292,6 +297,11 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 				}
 				// Translate grade scale from its numeric value to its description.
 				this.gradeScale = a.getContent().getTypeOfGradeString();
+				
+				// If grade scale is "points" we also capture the maximum points allowed.
+				if (a.getContent().getTypeOfGrade() == 3) {
+					this.gradeScaleMaxPoints = a.getContent().getMaxGradePointDisplay();
+				}
 				
 				// Use the number of submissions allowed as an indicator that re-submission is permitted.
 				if (a.getProperties().getProperty(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null && a.getContent().getTypeOfSubmission() != 4){
