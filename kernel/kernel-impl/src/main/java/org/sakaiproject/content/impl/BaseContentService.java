@@ -13885,7 +13885,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
             }
             // zip files are not too large to extract so do the extract
             extractZipArchive.extractArchive(resourceId);
-            commitResource(resource); // KNL-1220
+            cancelResource(resource); //commitResource(resource); // KNL-1220
         }
     }
     
