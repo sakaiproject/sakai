@@ -1793,7 +1793,7 @@ $(function() {
 		
 		$("#studentPointsBox").val($("#studentPointsBox").parent().children(".pointsSpan").text());
 		
-		$("#studentPointsBox").live('change', function(){
+		$("#studentPointsBox").on('change', function(){
 			var img = $(this).parent().children("img");
 			img.attr("src", getStrippedImgSrc(img.attr("id")) + "no-status.png");
 			$(this).addClass("unsubmitted");
