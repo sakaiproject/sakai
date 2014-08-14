@@ -109,7 +109,6 @@
   <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-     <!-- use this in real  value="#{section.sectionNumberList}" -->
   </h:selectOneMenu>
   </h:panelGrid>
 

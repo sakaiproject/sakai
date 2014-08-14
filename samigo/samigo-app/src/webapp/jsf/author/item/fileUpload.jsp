@@ -111,7 +111,6 @@
   <f:verbatim>&nbsp;</f:verbatim>  <h:outputLabel value="#{authorMessages.assign_to_p}" />
   <h:selectOneMenu id="assignToPart" value="#{itemauthor.currentItem.selectedSection}">
      <f:selectItems  value="#{itemauthor.sectionSelectList}" />
-     <!-- use this in real  value="#{section.sectionNumberList}" -->
   </h:selectOneMenu>
 
   </h:panelGrid>
@@ -133,7 +132,7 @@
  <!-- FEEDBACK -->
  <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
   <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" />
+  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" escape="false"/>
 
 
   <!-- WYSIWYG -->

@@ -199,7 +199,7 @@
 
  <h:panelGroup rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
  <f:verbatim><div class="longtext"></f:verbatim>
-  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" />
+  <h:outputLabel value="#{commonMessages.feedback_optional}<br />" escape="false"/>
 <f:verbatim><div class="tier2"></f:verbatim>
   <!-- WYSIWYG -->
   <h:panelGrid>
