@@ -356,6 +356,7 @@ public class RequestFilter implements Filter
 			//    allowed.
 			if (useContentHostingDomain) {
 				String requestURI = req.getRequestURI();
+				if(req.getQueryString() != null) requestURI += "?" + req.getQueryString();
 				if (startsWithAny(requestURI, contentPaths) && "GET".equalsIgnoreCase(req.getMethod())) {
 					if  (!req.getServerName().equals(chsDomain) && !(startsWithAny(requestURI, contentExceptions))) {
 						resp.sendRedirect(chsUrl+requestURI);
