@@ -1885,14 +1885,16 @@ public class DbContentService extends BaseContentService
                    // if we have been configured to use an external file system
                    if (m_bodyPath != null)
                    {
-                       // form the file name
-                       File file = new File(externalResourceFileName(m_bodyPathDeleted, edit));
+                       if (m_bodyPathDeleted != null) {
+                           // form the file name
+                           File file = new File(externalResourceFileName(m_bodyPathDeleted, edit));
 
-                       // delete
-                       if (file.exists())
-                       {
-                           file.delete();
-                       }                   
+                           // delete
+                           if (file.exists())
+                           {
+                               file.delete();
+                           }                   
+                       }
                    }
 
                    // otherwise use the database
@@ -1967,6 +1969,10 @@ public class DbContentService extends BaseContentService
 		*/
 	   public void commitDeletedResource(ContentResourceEdit edit, String uuid) throws ServerOverloadException
 	   {
+
+		   if (m_bodyPathDeleted == null) { 
+			   return;
+		   }
 		   boolean goin = in();
 		   try
 		   {

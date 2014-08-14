@@ -912,7 +912,12 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						m_bodyPathDeleted = null;
 					}
 				}
+			} else {
+				if (m_bodyPath != null) {
+					M_log.info("m_bodyPathDeleted is not set as a property. Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService if you want to allow for deletion of resources");
+				}
 			}
+
 
 			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)
