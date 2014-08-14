@@ -10885,40 +10885,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 		
-			
-			try {
-				if (el.getAttribute("reviewScore")!=null)
-					m_reviewScore = Integer.parseInt(el.getAttribute("reviewScore"));
-				else
-					m_reviewScore = -1;
-			}
-			catch (NumberFormatException nfe) {
-				m_reviewScore = -1;
-				M_log.warn(":BaseAssignmentSubmission(Element) " + nfe.getMessage());
-			}
-			try {
-			// The report given by the content review service
-				if (el.getAttribute("reviewReport")!=null)
-					m_reviewReport = el.getAttribute("reviewReport");
-				else 
-					m_reviewReport = "no report available";
-				
-			// The status of the review service
-				if (el.getAttribute("reviewStatus")!=null)
-					m_reviewStatus = el.getAttribute("reviewStatus");
-				else 
-					m_reviewStatus = "";
-
-            // The status of the review service
-                if (el.getAttribute("reviewError")!=null)
-                    m_reviewError = el.getAttribute("reviewError");
-                else
-                    m_reviewError = "";
-
-			}
-			catch (Exception e) {
-				M_log.error("error constructing Submission: " + e);
-			}
+			m_reviewScore = -1;
+			m_reviewReport = "no report available";
+			m_reviewStatus = "";
+            m_reviewError = "";
 			
 			//get the review Status from ContentReview rather than using old ones
 			if (contentReviewService != null) {
@@ -10957,41 +10927,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					{
 						if ("submission".equals(qName) && entity == null)
 						{
-							try {
-								if (StringUtils.trimToNull(attributes.getValue("reviewScore"))!=null)
-									m_reviewScore = Integer.parseInt(attributes.getValue("reviewScore"));
-								else
-									m_reviewScore = -1;
-							}
-							catch (NumberFormatException nfe) {
-								m_reviewScore = -1;
-								M_log.warn(":AssignmentSubmission:getContentHandler:DefaultEntityHandler " + nfe.getMessage());
-							}
-							try {
-							// The report given by the content review service
-								if (attributes.getValue("reviewReport")!=null)
-									m_reviewReport = attributes.getValue("reviewReport");
-								else 
-									m_reviewReport = "no report available";
-								
-							// The status of the review service
-								if (attributes.getValue("reviewStatus")!=null)
-									m_reviewStatus = attributes.getValue("reviewStatus");
-								else 
-									m_reviewStatus = "";
-
-								// The status of the review service
-								if (attributes.getValue("reviewError")!=null) {
-								    m_reviewError = attributes.getValue("reviewError");
-								} else {
-								    m_reviewError = "";
-								}
-
-							}
-							catch (Exception e) {
-								M_log.error("error constructing Submission: " + e);
-							}
-							
+							m_reviewScore = -1;
+							m_reviewReport = "no report available";
+							m_reviewStatus = "";
+							m_reviewError = "";
 							
 							int numAttributes = 0;
 							String intString = null;
@@ -11193,13 +11132,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			// SAK-13408 -The XML implementation in Websphere throws an LSException if the
 			// attribute is null, while in Tomcat it assumes an empty string. The following
-			// sets the attribute to an empty string if the value is null. 
-			submission.setAttribute("reviewScore",m_reviewScore == null ? "" : Integer.toString(m_reviewScore));
-			submission.setAttribute("reviewReport",m_reviewReport == null ? "" : m_reviewReport);
-			submission.setAttribute("reviewStatus",m_reviewStatus == null ? "" : m_reviewStatus);
-			submission.setAttribute("reviewError",m_reviewError == null ? "" : m_reviewError);
-
-			
+			// sets the attribute to an empty string if the value is null. 			
 			submission.setAttribute("id", m_id == null ? "" : m_id);
 			submission.setAttribute("context", m_context == null ? "" : m_context);
 			submission.setAttribute("scaled_grade", m_grade == null ? "" : m_grade);
