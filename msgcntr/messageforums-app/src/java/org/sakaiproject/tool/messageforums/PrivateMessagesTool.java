@@ -1594,7 +1594,13 @@ public void processChangeSelectView(ValueChangeEvent eve)
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
-    lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    if (null != lrss) {
+    	try{
+    		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    	}catch(Exception e){
+    		LOG.error(e.getMessage(), e);
+    	}
+    }
     return SELECTED_MESSAGE_PG;
   }
 
@@ -2101,7 +2107,13 @@ private   int   getNum(char letter,   String   a)
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_ADD, getEventMessage(pMsg), false);
     EventTrackingService.post(event);
-    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), pMsg.getTitle(), SAKAI_VERB.shared), "msgcntr");
+    if (null != lrss) {
+    	try{
+    		lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), pMsg.getTitle(), SAKAI_VERB.shared), "msgcntr");
+    	}catch(Exception e){
+    		LOG.error(e.getMessage(), e);
+    	}
+    }
     
     if(fromMainOrHp != null && !"".equals(fromMainOrHp))
     {
@@ -2414,7 +2426,13 @@ private   int   getNum(char letter,   String   a)
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
-    lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    if (null != lrss) {
+    	try{
+    		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    	}catch(Exception e){
+    		LOG.error(e.getMessage(), e);
+    	}
+    }
     return null;
   }
 
@@ -2469,7 +2487,13 @@ private   int   getNum(char letter,   String   a)
     LearningResourceStoreService lrss = (LearningResourceStoreService) ComponentManager
             .get("org.sakaiproject.event.api.LearningResourceStoreService");
     Event event = EventTrackingService.newEvent("msgcntr", "read private message", true);
-        lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    if (null != lrss) {
+    	try{
+    		lrss.registerStatement(getStatementForUserReadPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle()), "msgcntr");
+    	}catch(Exception e){
+    		LOG.error(e.getMessage(), e);
+    	}
+    }
     return null;
   }
   
@@ -2718,7 +2742,13 @@ private   int   getNum(char letter,   String   a)
     	            .get("org.sakaiproject.event.api.LearningResourceStoreService");
     	    Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_RESPONSE, getEventMessage(rrepMsg), false);
     	    EventTrackingService.post(event);
-    	    lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+    	    if (null != lrss) {
+    	    	try{
+    	    		lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+    	    	}catch(Exception e){
+    	    		LOG.error(e.getMessage(), e);
+    	    	}
+    	    }
     	}
     	//reset contents
     	resetComposeContents();
@@ -3069,7 +3099,13 @@ private   int   getNum(char letter,   String   a)
                     .get("org.sakaiproject.event.api.LearningResourceStoreService");
             Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false);
             EventTrackingService.post(event);
-            lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+            if (null != lrss) {
+            	try{
+            		lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+            	}catch(Exception e){
+            		LOG.error(e.getMessage(), e);
+            	}
+            }
     	}
     	//reset contents
     	resetComposeContents();    	    	
@@ -3330,7 +3366,13 @@ private   int   getNum(char letter,   String   a)
 	                    .get("org.sakaiproject.event.api.LearningResourceStoreService");
 	          Event event = EventTrackingService.newEvent(DiscussionForumService.EVENT_MESSAGES_FORWARD, getEventMessage(rrepMsg), false);
 	          EventTrackingService.post(event);
-	          lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+	          if (null != lrss) {
+	        	  try{
+	        		  lrss.registerStatement(getStatementForUserSentPvtMsg(lrss.getEventActor(event), getDetailMsg().getMsg().getTitle(), SAKAI_VERB.responded), "msgcntr");
+	        	  }catch(Exception e){
+	          		LOG.error(e.getMessage(), e);
+	        	  }
+	          }
 		  }
 		  //reset contents
 		  resetComposeContents();
