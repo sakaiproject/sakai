@@ -183,50 +183,6 @@ public class ForumsEmailService {
 			content.append(reply.getBody());
 			content.append(newline);
 			content.append(newline);
-			List<Message> listOfMessages = reply.getTopic().getMessages(); //Obtaining the list of messages related to the current topic
-			String openindent = "<p style='text-indent: ";  //Creating the structure in order to apply the correct text-indent
-			String openindentclose = "em'>";
-			String closeindent = "</p>";
-			int i=0;
-			for(Message message : listOfMessages){  //Building the threaded topic.
-				String indent = openindent + 4*i + openindentclose;
-				content.append(indent);
-				content.append(DiscussionForumTool.getResourceBundleString("email.body.location")
-				+ " "
-				+ sitetitle + " " + greaterThanHtml + " "
-				+ " <a href=\""
-				+ getRedirectURL(currentSite)
-				+ "\" target=\"_blank\" >" 
-				+ DiscussionForumTool.getResourceBundleString("cdfm_discussion_forums")
-				+ "</a>"
-				+ " " + greaterThanHtml + " "
-				+ forumtitle
-				+ " " + greaterThanHtml + " "
-				+ topictitle
-				+ " " + greaterThanHtml + " " + threadtitle);
-				content.append(closeindent);
-				content.append(newline);
-				content.append(indent);
-				content.append(DiscussionForumTool.getResourceBundleString("email.body.author")
-				+ " " + message.getAuthor());
-				content.append(closeindent);
-				content.append(newline);
-				content.append(indent);
-				content.append(DiscussionForumTool.getResourceBundleString("email.body.msgtitle")
-				+ " " + message.getTitle());
-				content.append(closeindent);
-				content.append(newline);
-				content.append(indent);
-				content.append(DiscussionForumTool.getResourceBundleString("email.body.msgposted")
-				+ " " + formatter.format(message.getCreated()));
-				content.append(closeindent);
-				content.append(newline);
-				content.append(indent);
-				content.append(message.getBody());
-				content.append(closeindent);
-				content.append(newline);
-				i++; 
-			}
 			if (log.isDebugEnabled()) {
 				log.debug("Email content: " + content.toString());
 			}
