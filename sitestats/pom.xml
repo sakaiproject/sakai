@@ -31,9 +31,9 @@
     <mysql.version>5.1.25</mysql.version>
     <!-- <ojdbc.version>10.2.0.2.0</ojdbc.version> -->
     <fop.version>1.0</fop.version>
-    <poi.version>3.9</poi.version>
+    <poi.version>3.10-FINAL</poi.version>
     <jfreechart.version>1.0.5</jfreechart.version>
-    <sst.wicket.version>1.4.19</sst.wicket.version>
+    <sst.wicket.version>1.4.23</sst.wicket.version>
     <sst.slf4j.version>1.4.3</sst.slf4j.version>
   </properties>
 
