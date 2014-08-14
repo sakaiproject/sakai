@@ -236,7 +236,7 @@
 						<h:graphicImage value="/images/sortdescending.gif" rendered="#{mfStatisticsBean.nameSort && !mfStatisticsBean.ascending}" alt="#{msgs.stat_sort_name}"/>
 					</h:commandLink>
   				</f:facet>
-  				<h:outputLink value="dfStatisticsAllAuthoredMsgForOneUser" target="dialogFrame"
+  				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser" target="dialogFrame"
 					onclick="dialogLinkClick(this);">
 					<f:param value="#{stat.siteUserId}" name="siteUserId"/>
   				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
@@ -300,7 +300,7 @@
   			<h:column rendered="#{mfStatisticsBean.selectedAssign == 'Default_0'}">
   				<f:facet name="header">
   				</f:facet>
-  				<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
+  				<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 						onclick="dialogLinkClick(this);">
 						<f:param value="#{mfStatisticsBean.selectedAllTopicsForumId}" name="forumId"/>
 						<f:param value="#{mfStatisticsBean.selectedAllTopicsTopicId}" name="topicId"/>

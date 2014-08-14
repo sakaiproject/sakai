@@ -238,7 +238,7 @@
   				 </h:column>
 
   				 <h:column>
-  					<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
+  					<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 						onclick="dialogLinkClick(this);">
 						<f:param value="#{stat.forumId}" name="forumId"/>
 						<f:param value="#{stat.topicId}" name="topicId"/>

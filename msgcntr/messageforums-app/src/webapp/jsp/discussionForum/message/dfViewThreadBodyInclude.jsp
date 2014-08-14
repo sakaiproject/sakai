@@ -134,7 +134,7 @@
                     </h:panelGroup>
 					<%-- link to grade --%>
 					<h:panelGroup rendered="#{ForumTool.selectedTopic.isPostToGradebook && ForumTool.gradebookExist}">
-						<h:outputLink value="../message/dfMsgGrade" target="dialogFrame"
+						<h:outputLink value="/tool/#{ForumTool.currentToolId}/discussionForum/message/dfMsgGrade" target="dialogFrame"
 							onclick="dialogLinkClick(this);">
 							<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
 							<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
