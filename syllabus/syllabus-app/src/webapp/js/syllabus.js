@@ -52,7 +52,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		}
 		});
 	}
-	if(openDataId && openDataId != ''){
+	if(activeVar === false && openDataId && openDataId != ''){
 		//instructor is working on this data item, keep it open and focused on when refreshing
 		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
 		
