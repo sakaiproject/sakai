@@ -157,6 +157,9 @@
     					</div>
     				</div>
     			#end
+
+			## SAK-17606
+			#if (!$value_CheckAnonymousGrading.equals("true"))
     			<p>
         			<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
         			<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
@@ -167,6 +170,7 @@
             					onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
             			#end
                 </p>
+            #end
             #end
 		#set($disableGrade=false)
 		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
@@ -619,11 +623,15 @@
 					#if ($!submission)## && $submission.submitted) 
 						#set($returnedTime = $submission.getTimeReturned())
 						#set($submitTime = $submission.getTimeSubmitted())
+
+						## SAK-17606
+						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+
 						<tr>
 							<td headers="allowResubmit" class="screenOnly smallCol">
 								#set($userId = $!siteUser)
 								<input type="checkbox" name="selectedAllowResubmit" value="$!submitterId" id="check_$submitterDisplayId" />
-								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") $validator.escapeHtml($submitterName)</label>
+								<label for="check_$submitterDisplayId" class="skip">$tlang.getString("allowResubmission.select.student") #if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</label>
 							</td>
 							<td headers="attachment" class="attach">
 							 #set($size=0)
@@ -647,7 +655,14 @@
 										<span class="highlight">$tlang.getString("gen.dra2") </span>
 										#end
 									#end
+									
+									## SAK-17606
+									#if ($value_CheckAnonymousGrading.equals("true"))
+										$anonymousSubmissionId
+									#else
 									$validator.escapeHtml($submitterName)
+									#end
+
 									#if ($gusers)
 									   <div style="font-size: smaller; color: blue;">
 									   #foreach ($user in $gusers)
@@ -669,7 +684,7 @@
 								    #end
 									#if(!$disableGrade)
 										<div class="itemAction">
-											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:$validator.escapeHtml($submitterName)</span></a>
+											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
 											#foreach ($provider in $providers)
 												#set ($item = $producer.getItem($submission, $siteUser.getId()))
 												#set ($helperInfo = false)
@@ -690,11 +705,23 @@
 												<span class="highlight">$tlang.getString("gen.dra2") </span>
 												#end
 											#end
-											$validator.escapeHtml($submitterName)
+											
+											## SAK-17606
+											#if ($value_CheckAnonymousGrading.equals("true"))
+												$anonymousSubmissionId
+											#else
+												$validator.escapeHtml($submitterName)
+											#end
+
 										</a>
 									#else
+										## SAK-17606
+                                                                                #if ($value_CheckAnonymousGrading.equals("true"))
+                                                                                    $anonymousSubmissionId
+                                                                                #else
 										$validator.escapeHtml($submitterName)
 									#end
+								#end
 								#end
 							</td>
 							<td headers="submitted">

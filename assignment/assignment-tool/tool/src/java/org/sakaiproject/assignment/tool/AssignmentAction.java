@@ -20,6 +20,7 @@
 
 package org.sakaiproject.assignment.tool;
 
+import au.com.bytecode.opencsv.CSVReader;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,10 +56,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.tools.zip.ZipEntry;
 import org.apache.tools.zip.ZipFile;
 import org.sakaiproject.announcement.api.AnnouncementChannel;
@@ -92,8 +96,8 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -113,6 +117,8 @@ import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.contentreview.service.ContentReviewService;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -165,13 +171,6 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
-
-import au.com.bytecode.opencsv.CSVReader;
-
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 
 /**
  * <p>
@@ -804,6 +803,10 @@ public class AssignmentAction extends PagedResourceActionII
 	// view all or grouped submission list
 	private static final String VIEW_SUBMISSION_LIST_OPTION = "view_submission_list_option";
 	
+	/************************* SAK-17606 - Upload all grades.csv columns ********************/
+	private static final int IDX_GRADES_CSV_EID = 1;
+	private static final int IDX_GRADES_CSV_GRADE = 5;
+	
 	// search string for submission list
 	private static final String VIEW_SUBMISSION_SEARCH = "view_submission_search";
 	
@@ -872,6 +875,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 	/** To know if grade_submission go from view_students_assignment view or not **/
 	private static final String FROM_VIEW = "from_view";
+	
+	/** SAK-17606 - Property for whether an assignment user anonymous grading (user settable). */
+	private static final String NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING = "new_assignment_check_anonymous_grading";
 	
 	private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
 	public void setAssignmentPeerAssessmentService(AssignmentPeerAssessmentService assignmentPeerAssessmentService){
@@ -2364,8 +2370,11 @@ public class AssignmentAction extends PagedResourceActionII
 		if (state.getAttribute(ANNOUNCEMENT_CHANNEL) != null)
 			context.put("name_CheckAutoAnnounce", ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE);
 		context.put("name_CheckAddHonorPledge", NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE);
+                
+		// SAK-17606
+		context.put("name_CheckAnonymousGrading", NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
-                context.put("name_CheckIsGroupSubmission", NEW_ASSIGNMENT_GROUP_SUBMIT);
+		context.put("name_CheckIsGroupSubmission", NEW_ASSIGNMENT_GROUP_SUBMIT);
 		String gs = (String) state.getAttribute(NEW_ASSIGNMENT_GROUP_SUBMIT);
 		if (gs == null) gs = "0";
 		// set the values
@@ -2400,6 +2409,9 @@ public class AssignmentAction extends PagedResourceActionII
 		String maxGrade = (String) state.getAttribute(NEW_ASSIGNMENT_GRADE_POINTS);
 		context.put("value_GradePoints", displayGrade(state, maxGrade));
 		context.put("value_Description", state.getAttribute(NEW_ASSIGNMENT_DESCRIPTION));
+		
+		// SAK-17606
+		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 		
 		//Peer Assessment
 		context.put("value_UsePeerAssessment", state.getAttribute(NEW_ASSIGNMENT_USE_PEER_ASSESSMENT));
@@ -2903,6 +2915,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_CheckAutoAnnounce", state.getAttribute(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE));
 		context.put("value_CheckAddHonorPledge", state.getAttribute(NEW_ASSIGNMENT_CHECK_ADD_HONOR_PLEDGE));
 		context.put("honor_pledge_text", ServerConfigurationService.getString("assignment.honor.pledge", rb.getString("gen.honple2")));
+                
+		// SAK-17606
+		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
 		// get all available assignments from Gradebook tool except for those created from
 		if (isGradebookDefined())
@@ -3016,6 +3031,10 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				gradeType = a.getContent().getTypeOfGrade();
 			}
+                        
+			// SAK-17606
+			state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+                        
 			boolean allowToGrade=true;
 			String associateGradebookAssignment = StringUtils.trimToNull(a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
 			if (associateGradebookAssignment != null)
@@ -3101,6 +3120,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("value_feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
 		context.put("value_feedback_text", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT));
 		context.put("value_feedback_attachment", state.getAttribute(ATTACHMENTS));
+                
+		// SAK-17606
+		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
 		// format to show one decimal place in grade
 		context.put("value_grade", (gradeType == 3) ? displayGrade(state, (String) state.getAttribute(GRADE_SUBMISSION_GRADE))
@@ -3410,6 +3432,9 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("feedback_comment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT));
 		context.put("feedback_text", feedbackText);
 		context.put("feedback_attachment", state.getAttribute(GRADE_SUBMISSION_FEEDBACK_ATTACHMENT));
+                
+		// SAK-17606
+		context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
 		// format to show one decimal place
 		String grade = (String) state.getAttribute(GRADE_SUBMISSION_GRADE);
@@ -3493,6 +3518,9 @@ public class AssignmentAction extends PagedResourceActionII
 				accessPointUrl = accessPointUrl.concat(view);
 			}
 			context.put("accessPointUrl", accessPointUrl);
+
+			// SAK-17606
+			state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, assignment.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 				
 			if (AssignmentService.getAllowGroupAssignments())
 			{
@@ -3513,6 +3541,9 @@ public class AssignmentAction extends PagedResourceActionII
 					context.put("groups", new SortedIterator(groupsAllowGradeAssignment.iterator(), new AssignmentComparator(state, sort, asc)));
 				}
 			}
+
+			// SAK-17606
+			context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 			
 			List<SubmitterSubmission> userSubmissions = prepPage(state);
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
@@ -5819,7 +5850,19 @@ public class AssignmentAction extends PagedResourceActionII
 						    sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
 						}
 
-						sEdit.addSubmissionLogEntry(new java.util.Date() + " " + u.getDisplayName() + " (" + u.getEid() + ") " + (post ? "submitted" : "saved draft"));
+						// SAK-17606
+						StringBuilder log = new StringBuilder();
+						log.append(new java.util.Date());
+						log.append(" ");
+						boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+						if(!anonymousGrading){
+								log.append(u.getDisplayName());
+								log.append(" (");
+								log.append(u.getEid());
+								log.append(") ");
+						}
+						log.append(post ? "submitted" : "saved draft");
+						sEdit.addSubmissionLogEntry(log.toString());
 
 						AssignmentService.commitEdit(sEdit);
 					}
@@ -5875,7 +5918,19 @@ public class AssignmentAction extends PagedResourceActionII
 							    sPropertiesEdit.removeProperty(AssignmentSubmission.SUBMITTER_USER_ID);
 							}
 
-							edit.addSubmissionLogEntry(new java.util.Date() + " " + u.getDisplayName() + " (" + u.getEid() + ") " + (post ? "submitted" : "saved draft"));
+							// SAK-17606
+							StringBuilder log = new StringBuilder();
+							log.append(new java.util.Date());
+							log.append(" ");
+							boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+							if(!anonymousGrading){
+									log.append(u.getDisplayName());
+									log.append(" (");
+									log.append(u.getEid());
+									log.append(") ");
+							}
+							log.append(post ? "submitted" : "saved draft");
+							edit.addSubmissionLogEntry(log.toString());
 							
 							AssignmentService.commitEdit(edit);
 						}
@@ -6580,6 +6635,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String grading = params.getString(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK);
 		state.setAttribute(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, grading);
+
+		// SAK-17606
+		state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, params.getString(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 
 		// only when choose to associate with assignment in Gradebook
 		String associateAssignment = params.getString(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
@@ -7362,6 +7420,9 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			String allowResubmitNumber = state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER) != null?(String) state.getAttribute(AssignmentSubmission.ALLOW_RESUBMIT_NUMBER):null;
 
+			// SAK-17606
+			String checkAnonymousGrading = state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING) != null? (String) state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING):"";
+
 			// SAK-26319 - we no longer clear the resubmit number for non electronic submissions; the instructor may switch to another submission type in the future	--bbailla2
 
 			//Peer Assessment
@@ -7475,8 +7536,11 @@ public class AssignmentAction extends PagedResourceActionII
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
 				oAssociateGradebookAssignment = aPropertiesEdit.getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 				Time resubmitCloseTime = getTimeFromState(state, ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
-				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit, post, resubmitCloseTime);
-                //TODO: ADD_DUE_DATE
+
+				// SAK-17606
+				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit, post, resubmitCloseTime, checkAnonymousGrading);
+
+				//TODO: ADD_DUE_DATE
 				// the notification option
 				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
 				{
@@ -8496,7 +8560,7 @@ public class AssignmentAction extends PagedResourceActionII
                 }
 	}
 
-	private void editAssignmentProperties(AssignmentEdit a, String checkAddDueTime, String checkAutoAnnounce, String addtoGradebook, String associateGradebookAssignment, String allowResubmitNumber, ResourcePropertiesEdit aPropertiesEdit, boolean post, Time closeTime) 
+	private void editAssignmentProperties(AssignmentEdit a, String checkAddDueTime, String checkAutoAnnounce, String addtoGradebook, String associateGradebookAssignment, String allowResubmitNumber, ResourcePropertiesEdit aPropertiesEdit, boolean post, Time closeTime, String checkAnonymousGrading)
 	{
 		if (aPropertiesEdit.getProperty("newAssignment") != null)
 		{
@@ -8522,6 +8586,9 @@ public class AssignmentAction extends PagedResourceActionII
 		aPropertiesEdit.addProperty(ResourceProperties.NEW_ASSIGNMENT_CHECK_AUTO_ANNOUNCE, checkAutoAnnounce);
 		aPropertiesEdit.addProperty(NEW_ASSIGNMENT_ADD_TO_GRADEBOOK, addtoGradebook);
 		aPropertiesEdit.addProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT, associateGradebookAssignment);
+                
+		// SAK-17606
+		aPropertiesEdit.addProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, checkAnonymousGrading);
 
 		if (post && addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ADD))
 		{
@@ -9094,6 +9161,9 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					state.setAttribute(NEW_ASSIGNMENT_RANGE, "groups");
 				}
+				
+				// SAK-17606
+				state.setAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING, properties.getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 				
 				// put the resubmission option into state
 				assignment_resubmission_option_into_state(a, null, state);
@@ -11448,6 +11518,9 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(ALLPURPOSE_RETRACT_DATE);
 		state.removeAttribute(ALLPURPOSE_ACCESS);
 		state.removeAttribute(ALLPURPOSE_ATTACHMENTS);
+                
+		// SAK-17606
+		state.removeAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
 
 	} // resetNewAssignment
 	
@@ -12406,11 +12479,39 @@ public class AssignmentAction extends PagedResourceActionII
 				}
 				else
 				{
+					// SAK-17606
+					boolean anonymousGrading = false;
+					try {
+							// if anonymous grading is set we sort this differently
+							Assignment assignment = AssignmentService.getAssignment(u1.getSubmission().getAssignmentId());
+							ResourceProperties properties = assignment.getProperties();
+							anonymousGrading = properties.getBooleanProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
+					}
+					catch (IdUnusedException e) {
+							M_log.warn(this + ":comparator " + e.getMessage());
+					}
+					catch (PermissionException e) {
+							M_log.warn(this + ":comparator " + e.getMessage());
+					}
+					catch (EntityPropertyNotDefinedException e) {
+							anonymousGrading = false;
+							M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " not defined " + e.getMessage());
+					}
+					catch (EntityPropertyTypeException e) {
+							anonymousGrading = false;
+							M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " type not defined " + e.getMessage());
+					}
+					if (anonymousGrading) {
+							String anon1 = u1.getSubmission().getAnonymousSubmissionId();
+							String anon2 = u2.getSubmission().getAnonymousSubmissionId();
+							result = compareString(anon1, anon2);
+					} else {
 					String lName1 = u1.getUser() == null ? u1.getGroup().getTitle(): u1.getUser().getSortName();
 					String lName2 = u2.getUser() == null ? u2.getGroup().getTitle(): u2.getUser().getSortName();
 					result = compareString(lName1, lName2);
 				}
 			}
+                        }
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME))
 			{
 				// sorted by submission time
@@ -14501,6 +14602,9 @@ public class AssignmentAction extends PagedResourceActionII
 					state.setAttribute(UPLOAD_ALL_WITHOUT_FOLDERS, Boolean.valueOf(withoutFolders));
 					state.setAttribute(UPLOAD_ALL_RELEASE_GRADES, Boolean.valueOf(releaseGrades));
 					
+					// SAK-17606
+					HashMap anonymousSubmissionAndEidTable = new HashMap();
+					
 					// constructor the hashmap for all submission objects
 					HashMap submissionTable = new HashMap();
 					List submissions = null;
@@ -14518,6 +14622,9 @@ public class AssignmentAction extends PagedResourceActionII
 								AssignmentSubmission s = (AssignmentSubmission) sIterator.next();
                                                                 String _eid = s.getSubmitterId();
 								submissionTable.put(_eid, new UploadGradeWrapper(s.getGrade(), s.getSubmittedText(), s.getFeedbackComment(), hasSubmissionAttachment?new ArrayList():s.getSubmittedAttachments(), hasFeedbackAttachment?new ArrayList():s.getFeedbackAttachments(), (s.getSubmitted() && s.getTimeSubmitted() != null)?s.getTimeSubmitted().toString():"", s.getFeedbackText()));	
+                                                                
+								// SAK-17606
+								anonymousSubmissionAndEidTable.put(s.getAnonymousSubmissionId(), _eid);
 							   } catch (Throwable _eidprob) {} 
 									}
 								}
@@ -14530,7 +14637,7 @@ public class AssignmentAction extends PagedResourceActionII
 								hasSubmissionText, hasSubmissionAttachment,
 								hasGradeFile, hasFeedbackText, hasComment,
 								hasFeedbackAttachment, submissionTable,
-								assignment, fileContentStream,gradeFileFormat);
+								assignment, fileContentStream,gradeFileFormat, anonymousSubmissionAndEidTable);
 					}
 			
 					if (state.getAttribute(STATE_MESSAGE) == null)
@@ -14577,7 +14684,7 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean hasSubmissionText, boolean hasSubmissionAttachment,
 			boolean hasGradeFile, boolean hasFeedbackText, boolean hasComment,
 			boolean hasFeedbackAttachment, HashMap submissionTable,
-			Assignment assignment, InputStream fileContentStream,String gradeFileFormat) {
+			Assignment assignment, InputStream fileContentStream,String gradeFileFormat, HashMap anonymousSubmissionAndEidTable) {
 		// a flag value for checking whether the zip file is of proper format: 
 		// should have a grades.csv file or grades.xls if there is no user folders
 		boolean zipHasGradeFile = false;
@@ -14611,6 +14718,9 @@ public class AssignmentAction extends PagedResourceActionII
 				String entryName = entry.getName();
 				if (!entry.isDirectory() && entryName.indexOf("/.") == -1)
 				{
+					// SAK-17606
+					String anonTitle = rb.getString("grading.anonymous.title");
+                                    
 					if (entryName.endsWith("grades.csv") || entryName.endsWith("grades.xls"))
 					{
 						if (hasGradeFile && entryName.endsWith("grades.csv") && "csv".equals(gradeFileFormat))
@@ -14635,7 +14745,18 @@ public class AssignmentAction extends PagedResourceActionII
 						        		{
                                                                             String _the_eid = items[1];
                                                                             if (!assignment.isGroup()) {
-						        			User u = UserDirectoryService.getUserByEid(items[1]/*user eid*/);
+						        			
+                                                                                // SAK-17606
+                                                                                User u = null;
+						        			// check for anonymous grading
+						        			if (!items[IDX_GRADES_CSV_EID].contains(anonTitle)) {
+                                                                                    u = UserDirectoryService.getUserByEid(items[IDX_GRADES_CSV_EID]);
+						        			} else { // anonymous so pull the real eid out of our hash table
+                                                                                    String anonId = items[IDX_GRADES_CSV_EID];
+                                                                                    String eid = (String) anonymousSubmissionAndEidTable.get(anonId);
+                                                                                    u = UserDirectoryService.getUserByEid(eid);
+						        			}
+                                                                                
                                                                                 if (u ==  null) throw new Exception("User not found!");
                                                                                 _the_eid = u.getId();   
 						        				}
@@ -14777,11 +14898,16 @@ public class AssignmentAction extends PagedResourceActionII
 								{
 									userEid = userEid.substring(0, userEid.indexOf("/"));
 								}
-								// get the eid part
-								if (userEid.indexOf("(") != -1)                                                                      
+								// SAK-17606 - get the eid part
+								if ((userEid.indexOf("(") != -1) && !userEid.contains(anonTitle))
 								{
 									userEid = userEid.substring(userEid.indexOf("(")+1, userEid.indexOf(")"));
 								}
+                                                                if (userEid.contains(anonTitle)) { // anonymous grading so we have to figure out the eid
+                                                                    //get eid out of this slick table we made earlier
+                                                                    userEid = (String) anonymousSubmissionAndEidTable.get(userEid);
+                                                                }
+                                                                
 								userEid=StringUtils.trimToNull(userEid);
                                                                 if (!assignment.isGroup()) {
                                                                     try {

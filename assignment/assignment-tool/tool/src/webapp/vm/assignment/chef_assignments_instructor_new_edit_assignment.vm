@@ -839,6 +839,7 @@ $(document).ready(function() {
 				#end
 			</div>
 		#end
+                <h4>$!tlang.getString('grading')</h4>
 		#if ($!withGrade && $!withGradebook)
 			## show the "Add to Gradebook" choices or not
 			#if(!$!allowGroupAssignmentsInGradebook)
@@ -846,9 +847,6 @@ $(document).ready(function() {
 			#else
 				#set ($addToGBDisplay="block")
 			#end
-				<h4>
-					$!tlang.getString('grading')
-				</h4>
 				<div style="display:$!addToGBDisplay">
 				<div class="checkbox  indnt2" style="display:$!addToGBDisplay">
 					## hide the assignment list from Gradebook when clicked
@@ -976,6 +974,23 @@ $(document).ready(function() {
 				</p>
 			#end
 		#end
+
+		## SAK-17606 - Show the anonymous grading checkbox
+		#if ($withGrade && $withGradebook)
+			<br />
+		#end
+		<p class="checkbox indnt2">
+		#if ($value_CheckAnonymousGrading.equals("true"))
+			<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true" checked="checked" />
+		#else
+			<input id="$name_CheckAnonymousGrading" name="$name_CheckAnonymousGrading" type="checkbox" value="true" />
+		#end
+		<label for="$name_CheckAnonymousGrading">
+		$tlang.getString("grading.anonymous") 
+		</label>
+		</p>
+		## end anonymous check
+
 		## Peer Assessment
 		#if ($allowPeerAssessment)
 			<div style="display:block">

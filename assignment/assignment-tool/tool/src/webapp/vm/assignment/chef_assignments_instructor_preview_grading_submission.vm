@@ -69,7 +69,15 @@
 							#end
 							#set ($count = $count + 1)
 						#end
-						$!submitterNames
+						
+						## SAK-17606
+						#set($anonymousSubmissionId = $submission.getAnonymousSubmissionId())
+						#if ($value_CheckAnonymousGrading.equals("true"))
+							$anonymousSubmissionId
+						#else
+							$validator.escapeHtml($!submitterNames)
+						#end
+
 					</td>
 				</tr>
 				#if ($!submissionType != 4)

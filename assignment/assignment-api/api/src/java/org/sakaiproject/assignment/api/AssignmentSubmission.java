@@ -286,4 +286,10 @@ public interface AssignmentSubmission extends Entity
 	 * Return a list of objects containing the ContentReviewResults	--bbailla2
 	 */
 	public List<ContentReviewResult> getContentReviewResults();
+        
+        /**
+        * SAK-17606 - Method to return a specialized string for anonymous grading.
+        * @return
+        */
+        public String getAnonymousSubmissionId();
 }

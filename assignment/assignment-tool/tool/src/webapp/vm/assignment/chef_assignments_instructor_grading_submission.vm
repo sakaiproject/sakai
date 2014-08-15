@@ -186,7 +186,13 @@ function handleReportsTriangleDisclosure(btn)
 						#end
 						#set ($count = $count + 1)
 					#end
+					
+					## SAK-17606
+					#if ($value_CheckAnonymousGrading.equals("true"))
+						$validator.escapeHtml($submission.anonymousSubmissionId)
+					#else
 					$validator.escapeHtml($!submitterNames)
+					#end
 				</td>
 			</tr>
 			#if ($!submissionType != 4)
