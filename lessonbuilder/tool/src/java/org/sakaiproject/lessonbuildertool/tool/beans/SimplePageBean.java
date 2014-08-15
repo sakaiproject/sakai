@@ -4356,6 +4356,8 @@ public class SimplePageBean {
 				return false;
 			}
 		    }
+		    popAdvisor();
+		    pushed = false;
 		    // entity can be null. passing the actual entity just avoids a second lookup
 		    itemGroups = getItemGroups(item, entity, false);
 		} catch (IdUnusedException exc) {
