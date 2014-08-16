@@ -29,7 +29,7 @@
             </dependencies>
             <properties>
                 <maven.test.jvmargs />
-                <poi.version>3.9</poi.version>
+                <poi.version>3.10-FINAL</poi.version>
                 <lucene.version>4.5.0</lucene.version>
                 <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
             </properties>
@@ -49,7 +49,7 @@
             </dependencies>
             <properties>
                 <maven.test.jvmargs />
-                <poi.version>3.9</poi.version>
+                <poi.version>3.10-FINAL</poi.version>
                 <lucene.version>4.5.0</lucene.version>
                 <bouncycastle.artifact.version>jdk16</bouncycastle.artifact.version>
             </properties>
