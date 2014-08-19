@@ -227,26 +227,18 @@
 		  		styleClass="actionLink" 
 		  		onmousedown="assignWarningClick(this);"
 			    rendered="#{SyllabusTool.editAble == 'true'}">
-			    	<f:verbatim>
-			    		<img src="/library/image/silk/add.png"/>&nbsp;&nbsp;
-			    	</f:verbatim>
 			    	<h:outputText value="#{msgs.bar_new}"/>
 			</h:commandLink>
 		   	<h:commandLink
 					action="#{SyllabusTool.processListNewBulkMainEdit}"
 					onmousedown="assignWarningClick(this);"
 		   			rendered="#{SyllabusTool.editAble == 'true'}">
-		   				<h:graphicImage url="/images/AddBulk.png"/>
-						<f:verbatim>&nbsp;&nbsp;</f:verbatim>
 						<h:outputText value="#{msgs.bar_new_bulk}"/>
 		   	</h:commandLink>
 		   	<h:commandLink
 					action="#{SyllabusTool.processStudentView}"
 					onmousedown="assignWarningClick(this);"
 		   			rendered="#{SyllabusTool.editAble == 'true'}">
-		   				<f:verbatim>
-			    			<img src="/library/image/silk/arrow_undo.png"/>&nbsp;&nbsp;
-			    		</f:verbatim>
 			    		<h:outputText value="#{msgs.bar_student_view}"/>
 			</h:commandLink>
 		   			

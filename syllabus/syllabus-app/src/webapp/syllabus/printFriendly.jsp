@@ -29,7 +29,6 @@
 	<h:form>
 		 	<div class="noprint">
 				<a id="printIcon" href="" onClick="javascript:window.print();">
-					<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
 					<h:outputText value="#{msgs.send_to_printer}" />
 				</a>
 				<h:outputText value=" " /><h:outputText value="|" /><h:outputText value=" " />

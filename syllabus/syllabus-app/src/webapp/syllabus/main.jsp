@@ -120,7 +120,6 @@
 				<li class="firstToolBarItem">
 					<span>
 							<a href="javascript:void(0)" onclick="showConfirmAddHelper();">
-								<img src="/library/image/silk/add.png" class="actionImage add" title="</f:verbatim><h:outputText value="#{msgs.clickToAddNewItem}"/><f:verbatim>">&nbsp;&nbsp;
 								</f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim>
 							</a>
 							<input type="hidden" id="siteId" value="</f:verbatim><h:outputText value="#{SyllabusTool.siteId}"/><f:verbatim>">
@@ -130,8 +129,6 @@
 					<span>
 					</f:verbatim>
 						<h:commandLink action="#{SyllabusTool.processListNewBulkMain}">
-							<h:graphicImage url="/images/AddBulk.png"/>
-							<f:verbatim>&nbsp;&nbsp;</f:verbatim>
 							<h:outputText value="#{msgs.bar_new_bulk}"/>
 						</h:commandLink>
 					<f:verbatim>
@@ -141,7 +138,6 @@
 					<span>
 					</f:verbatim>
 						<h:commandLink action="#{SyllabusTool.processCreateAndEdit}">
-							<f:verbatim><img src="/library/image/silk/pencil.png">&nbsp;&nbsp;</f:verbatim>
 							<h:outputText value="#{msgs.bar_create_edit}"/>
 						</h:commandLink>
 					<f:verbatim>
@@ -151,7 +147,6 @@
 					<span>
 					</f:verbatim>
 						<h:commandLink action="#{SyllabusTool.processRedirect}">
-							<f:verbatim><img src="/library/image/silk/arrow_switch.png">&nbsp;&nbsp;</f:verbatim>
 							<h:outputText value="#{msgs.bar_redirect}"/>
 						</h:commandLink>
 					<f:verbatim>
@@ -177,8 +172,6 @@
 					<span>
 					</f:verbatim>
 						<h:outputLink id="print" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
-							<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-							<f:verbatim>&nbsp;&nbsp;</f:verbatim>
 							<h:outputText value="#{msgs.printView}"/>
 						</h:outputLink>
 					<f:verbatim>
@@ -212,8 +205,6 @@
 						<span>
 							</f:verbatim>
 								<h:outputLink id="printIcon" value="javascript:printFriendly('#{SyllabusTool.printFriendlyUrl}');">
-									<h:graphicImage url="/images/printer.png" alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-									<f:verbatim>&nbsp;&nbsp;</f:verbatim>
 									<h:outputText value="#{msgs.printView}"/>
 								</h:outputLink>
 							<f:verbatim>
