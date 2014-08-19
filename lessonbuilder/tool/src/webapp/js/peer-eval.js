@@ -52,7 +52,7 @@ $(function() {
 
 			//add radio button with label
 			var label = $("#peer-eval-create-dialog input[name=peer-eval-input-title]").val();
-			var idLabel = label.split(" ").join("-");
+			var idLabel = "peer-eval-id-label";
 			idLabel = idLabel + $("[id^=" + idLabel + "]").length;
 			$rubricRadioContainer.append('<div>' + '<input type="radio" name="student-peer-review-create" id="' + idLabel + '" class="indent" />' + '<label for="' + idLabel + '"><span>' + label + '</span></label><br />' + '<div style="display:none;" class="rubricForm"></div></div>');
 
