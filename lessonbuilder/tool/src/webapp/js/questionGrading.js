@@ -33,7 +33,7 @@ $(function() {
 		$(value).val($(value).parent().children(".pointsSpan").text());
 	});
 	
-	$(".pointsBox").live('change', function(){
+	$(".pointsBox").on('change', function(){
 		var img = $(this).parent().children("img");
 		img.attr("src", getStrippedImgSrc(img.attr("id")) + "no-status.png");
 		$(this).addClass("unsubmitted");

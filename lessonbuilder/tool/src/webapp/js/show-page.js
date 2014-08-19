@@ -37,11 +37,11 @@ function checksize(oe) {
 
 function checkgroups(elt, groups) {
     var groupar = groups.split(",");
-    elt.find('input').removeAttr('checked');
+    elt.find('input').prop('checked', false);
     for (i = 0; i < groupar.length; i++) {
 	var inp = elt.find('input[value="' + groupar[i] + '"]');
 	if (inp != null)
-	    inp.attr('checked', 'checked');
+	    inp.prop('checked', true);
     }
 }
 
@@ -230,10 +230,10 @@ $(function() {
 			var position =  $(this).position();
 			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
 			if ($("#page-points").val() == '') {
-				$("#page-gradebook").attr("checked", false);
-				$("#page-points").attr("disabled", true);
+				$("#page-gradebook").prop("checked", false);
+				$("#page-points").prop("disabled", true);
 			} else { 
-				$("#page-gradebook").attr("checked", true);
+				$("#page-gradebook").prop("checked", true);
 			}
 
 			localDatePicker({
@@ -244,7 +244,7 @@ $(function() {
 				    ashidden: { iso8601: 'releaseDateISO8601' }
 			    });
 			if ($("#currentReleaseDate").text() == '')
-			    $("#page-releasedate").removeAttr('checked');
+			    $("#page-releasedate").prop('checked', false);
 
 			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
@@ -253,7 +253,7 @@ $(function() {
 		});
 
 		$("#releaseDiv input").change(function(){
-			$("#page-releasedate").attr('checked', 'checked');
+			$("#page-releasedate").prop('checked', true);
 		    });
 
 		$('#import-cc').click(function(){
@@ -288,14 +288,14 @@ $(function() {
 
 		$('#export-cc-submit').click(function(){
 			// jquery click doesn't actually click, so get the js object and do a native click call
-                        if ($('#export-cc-v11').attr('checked') == 'checked') {
+                        if ($('#export-cc-v11').prop('checked')) {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.1"));
-			} else if ($('#export-cc-v13').attr('checked') == 'checked') {
+			} else if ($('#export-cc-v13').prop('checked')) {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.3"));
                         } else {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/version=[0-9.]*/, "version=1.2"));
                         }
-                        if ($('#export-cc-bank').attr('checked') == 'checked') {
+                        if ($('#export-cc-bank').prop('checked')) {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=1"));
                         } else {
                             $("#export-cc-link").attr('href', $("#export-cc-link").attr('href').replace(/bank=[01]/, "bank=0"));
@@ -437,13 +437,13 @@ $(function() {
 	    	});
 		
 		$("#page-gradebook").click(function(){
-			if ($("#page-gradebook").attr("checked")) {
+			if ($("#page-gradebook").prop("checked")) {
 				if ($("#page-points").val() == '')
 					$("#page-points").val('1');
-				$("#page-points").attr("disabled", false);
+				$("#page-points").prop("disabled", false);
 			} else {
 				$("#page-points").val('');
-				$("#page-points").attr("disabled", true);
+				$("#page-points").prop("disabled", true);
 			}
 	    });
 
@@ -515,9 +515,9 @@ $(function() {
 			}
 
 			if(row.find(".prerequisite-info").text() === 'true') {
-			    $('#youtube-prerequisite').attr('checked','checked');
+			    $('#youtube-prerequisite').prop('checked',true);
 			} else {
-			    $('#youtube-prerequisite').removeAttr('checked');
+			    $('#youtube-prerequisite').prop('checked', false);
 			}
 
 			var itemid = row.find(".mm-item-id").text();
@@ -576,9 +576,9 @@ $(function() {
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
 			if (row.find(".movie-prerequisite").text() == 'true') {
-			    $('#movie-prerequisite').attr('checked','checked');
+			    $('#movie-prerequisite').prop('checked', true);
 			} else {
-			    $('#movie-prerequisite').removeAttr('checked');
+			    $('#movie-prerequisite').prop('checked', false);
 			}
 			$("#mimetype4").val(row.find(".mm-type").text());
 			var position =  row.position();
@@ -618,32 +618,32 @@ $(function() {
 			
 			var anon = row.find(".commentsAnon").text();
 			if(anon == "true") {
-				$("#comments-anonymous").attr("checked", true);
+				$("#comments-anonymous").prop("checked", true);
 				$("#comments-anonymous").attr("defaultChecked", true)
 			}else {
-				$("#comments-anonymous").attr("checked", false);
+				$("#comments-anonymous").prop("checked", false);
 			}
 			
 			var required = row.find(".commentsitem-required").text();
 			if(required == "true") {
-				$("#comments-required").attr("checked", true);
+				$("#comments-required").prop("checked", true);
 			}else {
-				$("#comments-required").attr("checked", false);
+				$("#comments-required").prop("checked", false);
 			}
 			
 			var prerequisite = row.find(".commentsitem-prerequisite").text();
 			if(prerequisite == "true") {
-				$("#comments-prerequisite").attr("checked", true);
+				$("#comments-prerequisite").prop("checked", true);
 			}else {
-				$("#comments-prerequisite").attr("checked", false);
+				$("#comments-prerequisite").prop("checked", false);
 			}
 			
 			var grade = row.find(".commentsGrade").text();
 			if(grade == "true") {
-				$("#comments-graded").attr("checked", true);
+				$("#comments-graded").prop("checked", true);
 				$("#comments-graded").attr("defaultChecked", true)
 			}else {
-				$("#comments-graded").attr("checked", false);
+				$("#comments-graded").prop("checked", false);
 			}
 			
 			$("#comments-max").val(row.find(".commentsMaxPoints").text());
@@ -698,7 +698,7 @@ $(function() {
 			    }
 			}
 			var groupOwned = row.find(".student-group-owned").text();
-			$("#student-group-owned").attr("checked",(groupOwned == "true"));
+			$("#student-group-owned").prop("checked",(groupOwned == "true"));
 			if (groupOwned == "true")
 			    $("#student-group-show").show();
 
@@ -708,18 +708,18 @@ $(function() {
 			
 			var anon = row.find(".studentAnon").text();
 			if(anon == "true") {
-				$("#student-anonymous").attr("checked", true);
+				$("#student-anonymous").prop("checked", true);
 				$("#student-anonymous").attr("defaultChecked", true)
 			}else {
-				$("#student-anonymous").attr("checked", false);
+			        $("#student-anonymous").prop("checked", false);
 			}
 			
 			var comments = row.find(".studentComments").text();
 			if(comments == "true") {
-				$("#student-comments").attr("checked", true);
+				$("#student-comments").prop("checked", true);
 				$("#student-comments").attr("defaultChecked", true)
 			}else {
-				$("#student-comments").attr("checked", false);
+				$("#student-comments").prop("checked", false);
 			}
 			
 			/* RU Rubrics ********************************************* */
@@ -727,10 +727,10 @@ $(function() {
 			//The following decides whether to have the box already checked when it is first opened.
 			var peerReview = row.find(".peer-eval").text();
 			if(peerReview == "true") {
-				$("#peer-eval-check").attr("checked", true);
+				$("#peer-eval-check").prop("checked", true);
 				$("#peer-eval-check").attr("defaultChecked", true);
 			}else {
-				$("#peer-eval-check").attr("checked", false);
+				$("#peer-eval-check").prop("checked", false);
 			}
 			
 			$("#available-rubrics-container").html("");//Add sample rubric			
@@ -758,33 +758,33 @@ $(function() {
 			
 			var forcedAnon = row.find(".forcedAnon").text();
 			if(forcedAnon == "true") {
-				$("#student-comments-anon").attr("checked", true);
+				$("#student-comments-anon").prop("checked", true);
 				$("#student-comments-anon").attr("defaultChecked", true)
 			}else {
-				$("#student-comments-anon").attr("checked", false);
+				$("#student-comments-anon").prop("checked", false);
 			}
 			
 			var required = row.find(".studentitem-required").text();
 			if(required == "true") {
-				$("#student-required").attr("checked", true);
+				$("#student-required").prop("checked", true);
 			}else {
-				$("#student-required").attr("checked", false);
+				$("#student-required").prop("checked", false);
 			}
 			var prerequisite = row.find(".studentitem-prerequisite").text();
 			if(prerequisite == "true") {
-				$("#student-prerequisite").attr("checked", true);
+				$("#student-prerequisite").prop("checked", true);
 			}else {
-				$("#student-prerequisite").attr("checked", false);
+				$("#student-prerequisite").prop("checked", false);
 			}
 
-			if(!$("#student-comments").attr("checked")) {
-				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
-				$("#student-comments-graded").attr("disabled", true).removeAttr("checked");
-				$("#student-comments-max").attr("disabled", true).val("");
+			if(!$("#student-comments").prop("checked")) {
+				$("#student-comments-anon").prop("disabled", true).prop("checked", false);
+				$("#student-comments-graded").prop("disabled", true).prop("checked", false);
+				$("#student-comments-max").prop("disabled", true).val("");
 			}else {
-				$("#student-comments-anon").removeAttr("disabled");
-				$("#student-comments-graded").removeAttr("disabled");
-				$("#student-comments-max").removeAttr("disabled");
+				$("#student-comments-anon").prop("disabled", false);
+				$("#student-comments-graded").prop("disabled", false);
+				$("#student-comments-max").prop("disabled", false);
 			}
 			
 			/* RU Rubrics ********************************************* */
@@ -807,35 +807,35 @@ $(function() {
 				    ashidden: { iso8601: 'peer_eval_open_dateISO8601' }
 			    });
 
-			if(!$("#peer-eval-check").attr("checked")) {
-				$("#available-rubrics-container input").attr("disabled", true).removeAttr("checked");
+			if(!$("#peer-eval-check").prop("checked")) {
+				$("#available-rubrics-container input").prop("disabled", true).prop("checked", false);
 				$(".student-peer-review-selected").val("");
 				
 				$("#peer-eval-open-date").hide();
 				$("#peer-eval-due-date").hide();
 				$("#peer-eval-allow-self-div").hide();
 			}else {
-				$("#available-rubrics-container input").removeAttr("disabled");
+				$("#available-rubrics-container input").prop("disabled", false);
 				
 				$("#peer-eval-open-date").show();
 				$("#peer-eval-due-date").show();
 				$("#peer-eval-allow-self-div").show();
-				$("#peer-eval-allow-selfgrade").attr("Checked", false);
+				$("#peer-eval-allow-selfgrade").prop("checked", false);
 			}
 			var selfEval = row.find(".peer-eval-allow-self").text();
 			
 			if(selfEval == "true") {
-				$("#peer-eval-allow-selfgrade").attr("checked", true);
+				$("#peer-eval-allow-selfgrade").prop("checked", true);
 	 			$("#peer-eval-allow-selfgrade").attr("defaultChecked", true);
 			}else {
-				$("#peer-eval-allow-selfgrade").attr("checked", false);
+				$("#peer-eval-allow-selfgrade").prop("checked", false);
 			}
 			var grade = row.find(".studentGrade").text();
 			if(grade == "true") {
-				$("#student-graded").attr("checked", true);
+				$("#student-graded").prop("checked", true);
 				$("#student-graded").attr("defaultChecked", true)
 			}else {
-				$("#student-graded").attr("checked", false);
+				$("#student-graded").prop("checked", false);
 			}
 			
 			$("#student-max").val(row.find(".studentMaxPoints").text());
@@ -845,10 +845,10 @@ $(function() {
 			
 			grade = row.find(".studentGrade2").text();
 			if(grade == "true") {
-				$("#student-comments-graded").attr("checked", true);
+				$("#student-comments-graded").prop("checked", true);
 				$("#student-comments-graded").attr("defaultChecked", true)
 			}else {
-				$("#student-comments-graded").attr("checked", false);
+				$("#student-comments-graded").prop("checked", false);
 			}
 			
 			$("#student-comments-max").val(row.find(".studentMaxPoints2").text());
@@ -870,7 +870,7 @@ $(function() {
 		});
 		
 		$("#update-student").click(function(){
-			if (!insist && $("#student-group-owned").attr("checked")) {
+			if (!insist && $("#student-group-owned").prop("checked")) {
 			    var groups = "";
 			    if ($('#student-grouplist input:checked').size() > 0) {
 				$("#student-grouplist input:checked").each(function(index) {
@@ -904,40 +904,40 @@ $(function() {
 		    });
 
 		$("#student-comments").click(function() {
-			if(!$("#student-comments").attr("checked")) {
-				$("#student-comments-anon").attr("disabled", true).removeAttr("checked");
-				$("#student-comments-graded").attr("disabled", true).removeAttr("checked");
-				$("#student-comments-max").attr("disabled", true).val("");
+			if(!$("#student-comments").prop("checked")) {
+				$("#student-comments-anon").prop("disabled", true).prop("checked", false);
+				$("#student-comments-graded").prop("disabled", true).prop("checked", false);
+				$("#student-comments-max").prop("disabled", true).val("");
 			}else {
-				$("#student-comments-anon").removeAttr("disabled");
-				$("#student-comments-graded").removeAttr("disabled");
-				$("#student-comments-max").removeAttr("disabled");
+				$("#student-comments-anon").prop("disabled", false);
+				$("#student-comments-graded").prop("disabled", false);
+				$("#student-comments-max").prop("disabled", false);
 			}
 		});
 		
 		/* RU Rubrics ********************************************* */
 		$("#peer-eval-check").change(function() {
-			if(!$("#peer-eval-check").attr("checked")) {
-				$("#available-rubrics-container input").attr("disabled", true).removeAttr("checked");
+			if(!$("#peer-eval-check").prop("checked")) {
+				$("#available-rubrics-container input").prop("disabled", true).prop("checked", false);
 				/*show the dateEvolver */
 				$("#peer-eval-open-date").hide();
 				$("#peer-eval-due-date").hide();
 				$("#peer-eval-allow-self-div").hide();
 			}else {
 				console.log("#peer-eval-check is checked");
-				$("#available-rubrics-container input").removeAttr("disabled");
+				$("#available-rubrics-container input").prop("disabled", false);
 				
 				$("#peer-eval-open-date").show();
 				$("#peer-eval-due-date").show();
 				$("#peer-eval-allow-self-div").show();
-				$("#peer-eval-allow-selfgrade").attr("checked", false);
+				$("#peer-eval-allow-selfgrade").prop("checked", false);
 			}
 		});
 		
 		$("#student-peer-review-create").hover(function(){$(this).css("cursor", "default")});
 		$("#student-peer-review-create").click(function(){
-			if(!$("#peer-eval-check").attr("checked")) {
-				$("#peer-eval-check").attr("checked", true);
+			if(!$("#peer-eval-check").prop("checked")) {
+				$("#peer-eval-check").prop("checked", true);
 				$("#peer-eval-check").change();
 			}
 			displayBlankRubric(true);
@@ -981,18 +981,18 @@ $(function() {
 			$("#questionEditId").val("-1");
 			$("#question-text-input").val("");
 			$("#question-answer-input").val("");
-			$("#question-graded").attr("checked", false);
+			$("#question-graded").prop("checked", false);
 			$("#question-gradebook-title").val("");
 			$("#question-max").val("");
-			$("#question-required").attr("checked", false);
-			$("#question-prerequisite").attr("checked", false);
-			$("#question-show-poll").attr("checked", false);
+			$("#question-required").prop("checked", false);
+			$("#question-prerequisite").prop("checked", false);
+			$("#question-show-poll").prop("checked", false);
 			$("#multipleChoiceSelect").click();
 			resetMultipleChoiceAnswers();
 			resetShortanswers();
 			
-			$("#multipleChoiceSelect").removeAttr("disabled");
-			$("#shortanswerSelect").removeAttr("disabled");
+			$("#multipleChoiceSelect").prop("disabled", false);
+			$("#shortanswerSelect").prop("disabled", false);
 			checkQuestionGradedForm();
 			
 			$("#question-correct-text").val("");
@@ -1039,8 +1039,8 @@ $(function() {
 			// We can't have these disabled when trying to select them (which we do to set the type
 			// in the dialog).  They're disabled again later in this function so that users can't
 			// change the question type of an already existing question.
-			$("#multipleChoiceSelect").removeAttr("disabled");
-			$("#shortanswerSelect").removeAttr("disabled");
+			$("#multipleChoiceSelect").prop("disabled", false);
+			$("#shortanswerSelect").prop("disabled", false);
 			
 			var questionType = row.find(".questionType").text();
 			if(questionType === "shortanswer") {
@@ -1077,29 +1077,29 @@ $(function() {
 					answerSlot.find(".question-multiplechoice-answer-id").val(id);
 					answerSlot.find(".question-multiplechoice-answer").val(text);
 					if(correct == "true") {
-						answerSlot.find(".question-multiplechoice-answer-correct").attr("checked", true);
+						answerSlot.find(".question-multiplechoice-answer-correct").prop("checked", true);
 					}else {
-						answerSlot.find(".question-multiplechoice-answer-correct").attr("checked", false);
+						answerSlot.find(".question-multiplechoice-answer-correct").prop("checked", false);
 					}
 				});
 				
 				var questionShowPoll = row.find(".questionShowPoll").text();
 				if(questionShowPoll == "true") {
-					$("#question-show-poll").attr("checked", true);
+					$("#question-show-poll").prop("checked", true);
 				}else {
-					$("#question-show-poll").attr("checked", false);
+					$("#question-show-poll").prop("checked", false);
 				}
 			}
 			
 			// Don't allow question types to be changed.  Simplifies consistency in grading on the backend.
-			$("#multipleChoiceSelect").attr("disabled", "disabled");
-			$("#shortanswerSelect").attr("disabled", "disabled");
+			$("#multipleChoiceSelect").prop("disabled", true);
+			$("#shortanswerSelect").prop("disabled", true);
 			
 			var questionGraded = row.find(".questionGrade").text();
 			if(questionGraded == "true") {
-				$("#question-graded").attr("checked", true);
+				$("#question-graded").prop("checked", true);
 			}else {
-				$("#question-graded").attr("checked", false);
+				$("#question-graded").prop("checked", false);
 			}
 			
 			checkQuestionGradedForm();
@@ -1126,16 +1126,16 @@ $(function() {
 			
 			var required = row.find(".questionitem-required").text();
 			if(required == "true") {
-				$("#question-required").attr("checked", true);
+				$("#question-required").prop("checked", true);
 			}else {
-				$("#question-required").attr("checked", false);
+				$("#question-required").prop("checked", false);
 			}
 			
 			var prerequisite = row.find(".questionitem-prerequisite").text();
 			if(prerequisite == "true") {
-				$("#question-prerequisite").attr("checked", true);
+				$("#question-prerequisite").prop("checked", true);
 			}else {
-				$("#question-prerequisite").attr("checked", false);
+				$("#question-prerequisite").prop("checked", false);
 			}
 			
 			$("#delete-question-div").show();
@@ -1237,18 +1237,18 @@ $(function() {
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq == "true") {
-				$("#item-prerequisites").attr("checked", true);
+				$("#item-prerequisites").prop("checked", true);
 				$("#item-prerequisites").attr("defaultChecked", true);
 			}else {
-				$("#item-prerequisites").attr("checked", false);
+				$("#item-prerequisites").prop("checked", false);
 			}
 			
 	                var samewindow = row.find(".item-samewindow").text();
 	                if (samewindow != '') {
 	                    if (samewindow == "true")
-	                        $("#item-newwindow").attr("checked", false);
+	                        $("#item-newwindow").prop("checked", false);
 	                    else
-	                        $("#item-newwindow").attr("checked", true);
+	                        $("#item-newwindow").prop("checked", true);
 	                    $("#newwindowstuff").show();
 	                }
 
@@ -1263,18 +1263,18 @@ $(function() {
 	                    $("#pagestuff").show();
 			    var pagenext = row.find(".page-next").text();
 			    if(pagenext == "true") {
-				$("#item-next").attr("checked", true);
+				$("#item-next").prop("checked", true);
 				$("#item-next").attr("defaultChecked", true);
 			    }else {
-				$("#item-next").attr("checked", false);
+				$("#item-next").prop("checked", false);
 			    }
 
 			    var pagebutton = row.find(".page-button").text();
 			    if(pagebutton == "true") {
-				$("#item-button").attr("checked", true);
+				$("#item-button").prop("checked", true);
 				$("#item-button").attr("defaultChecked", true);
 			    }else {
-				$("#item-button").attr("checked", false);
+				$("#item-button").prop("checked", false);
 			    }
 
 			    $("#change-page-p").show();
@@ -1338,8 +1338,8 @@ $(function() {
 					$("#require-label").text(msg("simplepage.require_submit_blti"));
 					if (format == '')
 					    format = 'page';
-					$(".format").attr("checked", false);
-					$("#format-" + format).attr("checked", true);
+					$(".format").prop("checked", false);
+					$("#format-" + format).prop("checked", true);
 					$("#formatstuff").show();
 					$("#edit-item-object-p").show();
 					fixitemshows();
@@ -1373,11 +1373,11 @@ $(function() {
 					$("#assignment-points-label").show();
 					
 					if(req == "false") {
-						$("#item-required2").attr("checked", false);
+						$("#item-required2").prop("checked", false);
 					}else {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
-						$("#item-required2").attr("checked", true);
+						$("#item-required2").prop("checked", true);
 						$("#item-required2").attr("defaultChecked", true);
 						
 						$("#assignment-points").val(req);
@@ -1391,10 +1391,10 @@ $(function() {
 					if(req == "true") {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
-						$("#item-required2").attr("checked", true);
+						$("#item-required2").prop("checked", true);
 						$("#item-required2").attr("defaultChecked", true);
 					}else {
-						$("#item-required2").attr("checked", false);
+						$("#item-required2").prop("checked", false);
 					}
 				}else if(type == 2) {
 					// Letter Grade
@@ -1405,11 +1405,11 @@ $(function() {
 					$("#assignment-dropdown-selection").show();
 					
 					if(req == "false") {
-						$("#item-required2").attr("checked", false);
+						$("#item-required2").prop("checked", false);
 					}else {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
-						$("#item-required2").attr("checked", true);
+						$("#item-required2").prop("checked", true);
 						$("#item-required2").attr("defaultChecked", true);
 						
 						$("#assignment-dropdown-selection").val(req);
@@ -1426,10 +1426,10 @@ $(function() {
 					if(req == "true") {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
-						$("#item-required2").attr("checked", true);
+						$("#item-required2").prop("checked", true);
 						$("#item-required2").attr("defaultChecked", true);
 					}else {
-						$("#item-required2").attr("checked", false);
+						$("#item-required2").prop("checked", false);
 					}
 				}
 			} else {
@@ -1455,13 +1455,13 @@ $(function() {
 			}
 
 			if(row.find(".status-image").attr("src") == undefined) {
-			    $("#item-required").attr("checked", false);
+			    $("#item-required").prop("checked", false);
 			} else if (row.find(".status-image").attr("src").indexOf("not-required.png") > -1) {
-				$("#item-required").attr("checked", false);
+				$("#item-required").prop("checked", false);
 			} else {
 				// Need both of these statements, because of a stupid
 				// little IE bug.
-				$("#item-required").attr("checked", true);
+				$("#item-required").prop("checked", true);
 				$("#item-required").attr("defaultChecked", true);
 			}
 
@@ -1637,9 +1637,9 @@ $(function() {
 			}
 
 			if(row.find(".prerequisite-info").text() === 'true') {
-			    $('#multi-prerequisite').attr('checked','checked');
+			    $('#multi-prerequisite').prop('checked', true);
 			} else {
-			    $('#multi-prerequisite').removeAttr('checked');
+			    $('#multi-prerequisite').prop('checked', false);
 			}
 
 			$("#height").val(row.find(".mm-height").text());
@@ -1787,9 +1787,9 @@ $(function() {
 				}
 		});
 		 
-		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").attr("disabled", "disabled");
-		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").attr("disabled", "disabled");
-		$("#cssDropdown-selection").children(":contains(----------)").attr("disabled", "disabled");
+		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.site") + "---)").prop("disabled", true);
+		$("#cssDropdown-selection").children(":contains(---" + msg("simplepage.system") + "---)").prop("disabled", true);
+		$("#cssDropdown-selection").children(":contains(----------)").prop("disabled", true);
 		
 		$("#studentPointsBox").val($("#studentPointsBox").parent().children(".pointsSpan").text());
 		
@@ -2078,12 +2078,12 @@ function checkEditTitleForm() {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
-	}else if ($("#page-gradebook").attr("checked") && !isFinite(parseFloat($("#page-points").val()))) {
+	}else if ($("#page-gradebook").prop("checked") && !isFinite(parseFloat($("#page-points").val()))) {
 		$('#edit-title-error').text(msg("simplepage.integer-expected"));
 		$('#edit-title-error-container').show();
 	}else {
 		$('#edit-title-error-container').hide();
-		if ($("#page-releasedate").attr('checked') == 'checked')
+		if ($("#page-releasedate").prop('checked'))
 		    $("#release_date_string").val($("#releaseDateISO8601").val());
 		else
 		    $("#release_date_string").val('');
@@ -2219,7 +2219,7 @@ function checkEditItemForm() {
 		$('#edit-item-error-container').show();
 		return false;
         } else if ((requirementType == 3 || requirementType == 6) && 
-		   $("#item-required2").attr("checked") && !isFinite(parseFloat($("#assignment-points").val()))) {
+		   $("#item-required2").prop("checked") && !isFinite(parseFloat($("#assignment-points").val()))) {
 		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
 		return false;
@@ -2241,31 +2241,31 @@ function checkSubpageForm() {
 }
 
 function disableSecondaryRequirements() {
-	$("item-required2").attr("disabled", true);
-	$("assignment-dropdown-selection").attr("disabled", true);
-	$("assignment-points").attr("disabled", true);
+	$("item-required2").prop("disabled", true);
+	$("assignment-dropdown-selection").prop("disabled", true);
+	$("assignment-points").prop("disabled", true);
 }
 
 function disableSecondarySubRequirements() {
-	$("assignment-dropdown-selection").attr("disabled", true);
-	$("assignment-points").attr("disabled", true);
+	$("assignment-dropdown-selection").prop("disabled", true);
+	$("assignment-points").prop("disabled", true);
 }
 
 function setUpRequirements() {
-	if($("#item-required").attr("checked")) {
-		$("#item-required2").attr("disabled", false);
+	if($("#item-required").prop("checked")) {
+		$("#item-required2").prop("disabled", false);
 		
-		if($("#item-required2").attr("checked")) {
-			$("#assignment-dropdown-selection").attr("disabled", false);
-			$("#assignment-points").attr("disabled", false);
+		if($("#item-required2").prop("checked")) {
+			$("#assignment-dropdown-selection").prop("disabled", false);
+			$("#assignment-points").prop("disabled", false);
 		}else {
-			$("#assignment-dropdown-selection").attr("disabled", true);
-			$("#assignment-points").attr("disabled", true);
+			$("#assignment-dropdown-selection").prop("disabled", true);
+			$("#assignment-points").prop("disabled", true);
 		}
 	}else {
-		$("#item-required2").attr("disabled", true);
-		$("#assignment-dropdown-selection").attr("disabled", true);
-		$("#assignment-points").attr("disabled", true);
+		$("#item-required2").prop("disabled", true);
+		$("#assignment-dropdown-selection").prop("disabled", true);
+		$("#assignment-points").prop("disabled", true);
 	}
 }
 
@@ -2469,7 +2469,7 @@ function addMultipleChoiceAnswer() {
 	var num = $("#extraMultipleChoiceAnswers").find("div").length + 2; // Should be currentNumberOfAnswers + 1
 	
 	clonedAnswer.find(".question-multiplechoice-answer-id").val("-1");
-	clonedAnswer.find(".question-multiplechoice-answer-correct").attr("checked", false);
+	clonedAnswer.find(".question-multiplechoice-answer-correct").prop("checked", false);
 	clonedAnswer.find(".question-multiplechoice-answer").val("");
 	
 	clonedAnswer.attr("id", "multipleChoiceAnswerDiv" + num);
@@ -2552,21 +2552,21 @@ function deleteAnswer(el) {
 // Enabled or disables the subfields under grading in the question dialog
 function checkQuestionGradedForm() {
 	if($("#question-graded").is(":checked")) {
-		$("#question-max").removeAttr("disabled");
-		$("#question-gradebook-title").removeAttr("disabled");
+		$("#question-max").prop("disabled", false);
+		$("#question-gradebook-title").prop("disabled", false);
 	}else {
-		$("#question-max").attr("disabled", "disabled");
-		$("#question-gradebook-title").attr("disabled", "disabled");
+		$("#question-max").prop("disabled", true);
+		$("#question-gradebook-title").prop("disabled", true);
 	}
 }
 
 // Prepares the question dialog to be submitted
 function prepareQuestionDialog() {
-	if ($("#question-graded").attr("checked") && !isFinite(parseFloat($("#question-max").val()))) {
+	if ($("#question-graded").prop("checked") && !isFinite(parseFloat($("#question-max").val()))) {
 	    $('#question-error').text(msg("simplepage.integer-expected"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if($("#question-graded").attr("checked") && $("#question-gradebook-title").val() == '') {
+	} else if($("#question-graded").prop("checked") && $("#question-gradebook-title").val() == '') {
 	    $('#question-error').text(msg("simplepage.gbname-expected"));
 	    $('#question-error-container').show();
 	    return false;
@@ -2574,12 +2574,12 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.missing-question-text"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#multipleChoiceSelect").attr("checked") == 'checked' && 
+	} else if ($("#multipleChoiceSelect").prop("checked") && 
 		   $(".question-multiplechoice-answer").filter(function(index){return $(this).val() != '';}).length < 2) {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#shortanswerSelect").attr("checked") == 'checked' && $("#question-graded").attr("checked") &&
+	} else if ($("#shortanswerSelect").prop("checked") && $("#question-graded").prop("checked") &&
 		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!="";}).length < 1) {
 	    $('#question-error').text(msg("simplepage.question-need-1"));
 	    $('#question-error-container').show();
@@ -2591,8 +2591,8 @@ function prepareQuestionDialog() {
 	updateShortanswers();
 	
 	// RSF bugs out if we don't undisable these before submitting
-	$("#multipleChoiceSelect").removeAttr("disabled");
-	$("#shortanswerSelect").removeAttr("disabled");
+	$("#multipleChoiceSelect").prop("disabled", false);
+	$("#shortanswerSelect").prop("disabled", false);
 	return true;
 }
 
@@ -2601,7 +2601,7 @@ function resetMultipleChoiceAnswers() {
 	var firstMultipleChoice = $("#copyableMultipleChoiceAnswerDiv");
 	firstMultipleChoice.find(".question-multiplechoice-answer-id").val("-1");
 	firstMultipleChoice.find(".question-multiplechoice-answer").val("");
-	firstMultipleChoice.find(".question-multiplechoice-answer-correct").attr("checked", false);
+	firstMultipleChoice.find(".question-multiplechoice-answer-correct").prop("checked", false);
 	$("#extraMultipleChoiceAnswers").empty();
 }
 
