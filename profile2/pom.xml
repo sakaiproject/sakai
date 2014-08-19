@@ -20,7 +20,7 @@
   <inceptionYear>2008</inceptionYear>
 
   <properties>
-    <wicket.version>1.4.21</wicket.version>
+    <wicket.version>1.4.23</wicket.version>
     <log4j.version>1.2.14</log4j.version>
     <slf4j.version>1.4.2</slf4j.version>
     <twitter4j.version>3.0.5</twitter4j.version>
