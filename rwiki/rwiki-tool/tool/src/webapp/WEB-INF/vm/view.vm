@@ -17,7 +17,7 @@
 			rearrangeBreadCrumb();
 		})
 	</script>
-	<ul class="navIntraTool">
+	<ul class="navIntraTool actionToolBar">
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
 	    ##  $homeBean $viewBean $resourceLoaderBean )

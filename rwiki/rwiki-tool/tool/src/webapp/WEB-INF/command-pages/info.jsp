@@ -173,7 +173,7 @@
     	</div>
       <div id="rwiki_container">
 	<div class="portletBody">
-	  <div class="navIntraTool">
+	  <div class="navIntraTool actionToolBar">
 	    <form action="?#" method="get" class="rwiki_searchForm">
 	     	<rwiki:commandlinks 
 							useHomeLink="true"

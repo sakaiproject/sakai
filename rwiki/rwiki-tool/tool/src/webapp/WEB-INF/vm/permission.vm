@@ -4,7 +4,7 @@
 #header(${rlb.jsp_permission_denied} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
-	<div class="navIntraTool">
+	<div class="navIntraTool actionToolBar">
 	  <form action="?#" method="get" class="rwiki_searchForm">
 	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
 	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 

@@ -91,33 +91,7 @@ div.tabOn {
 li.autoSaveOffClass { display: none }
 #rwiki_container { height: 100%; width: 100% }
 #guillotineFixer { clear: both }
-#toolbarButtonSave {
-	background: url(/library/image/silk/page_save.png) center center no-repeat
-}
-#toolbarButtonBold {
-	background: url(/library/image/silk/text_bold.png) center center no-repeat
-}
-#toolbarButtonItalic {
-	background: url(/library/image/silk/text_italic.png) center center no-repeat
-}
-#toolbarButtonSuper {
-	background: url(/library/image/silk/text_superscript.png) center center no-repeat
-}
-#toolbarButtonSub {
-	background: url(/library/image/silk/text_subscript.png) center center no-repeat
-}
-#toolbarButtonHeading { }
-#toolbarButtonTable {
-	background: url(/library/image/silk/table.png) center center no-repeat
-}
-#toolbarButtonLink {
-	background: url(/library/image/silk/page_link.png) center center no-repeat
-}
-#toolbarButtonImage {
-	background: url(/library/image/silk/picture.png) center center no-repeat
-}
 #toolbarButtonRecover {
-	background: url(/library/image/silk/arrow_undo.png) center center no-repeat;
 	height: 1.7em;
 	vertical-align: middle
 }
@@ -228,10 +202,6 @@ a.anchorpoint { vertical-align: top }
 .rwiki_searchBox label{ padding-left: 1em }
 .rwiki_searchBox input { border: 1px solid #cccccc }
 .rwiki_searchBox input:focus { border: 1px solid #777 }
-#homeLink, #viewLink, #editLink, #infoLink, #historyLink, #watchLink{ padding-left: 1.6em !important; line-height: 2em }
-#homeLink {
-	background: url(/library/image/silk/application_home.png) center left no-repeat
-}
 .printLinks{
 	padding: 3px;
 	float: right;
@@ -251,22 +221,6 @@ a.anchorpoint { vertical-align: top }
 	background: url(/library/image/printer.png) center right no-repeat;
 	text-decoration: none !important
 }
-#viewLink {
-	background: url(/library/image/silk/application_view_detail.png) center left no-repeat
-}
-#editLink {
-	background: url(/library/image/silk/application_edit.png) center left no-repeat
-}
-#infoLink {
-	background: url(/library/image/silk/information.png) center left no-repeat
-}
-#historyLink {
-	background: url(/library/image/silk/time.png) center left no-repeat
-}
-#watchLink {
-	background: url(/library/image/silk/email_go.png) center left no-repeat
-}
-
 
 /*breadcrumb*/
 h3.breadcrumb{

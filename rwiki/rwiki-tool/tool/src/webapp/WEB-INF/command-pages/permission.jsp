@@ -42,7 +42,7 @@
 			<jsp:expression>request.getAttribute("sakai.html.body.onload")</jsp:expression>parent.updCourier(doubleDeep,ignoreCourier); callAllLoaders();</jsp:attribute>
 		<div id="rwiki_container">
 			<div class="portletBody">
-					<div class="navIntraTool">
+					<div class="navIntraTool actionToolBar">
 						<form action="?#" method="get" class="rwiki_searchForm">
 							    	  	<rwiki:commandlinks 
 							useHomeLink="true"
