@@ -84,7 +84,6 @@ public class ImportQuestionsToAuthoring implements ActionListener
       SectionService sectiondelegate = new SectionService();
       AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
       ItemAuthorBean itemauthor = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
-      int itempos= 0;
       SectionFacade section = null;
       ItemFacade itemfacade = null;
       boolean newSectionCreated = false;
@@ -133,42 +132,40 @@ public class ImportQuestionsToAuthoring implements ActionListener
 
         if (section!=null) {
           itemfacade.setSection(section);
-
-
-          if ( (itemauthor.getInsertPosition() ==null) || ("".equals(itemauthor.getInsertPosition())) ) {
-              if (newSectionCreated) {
-           		  itemfacade.setSequence(Integer.valueOf(itempos + 1));
-              }
-              else {
-            	  // if adding to the end
-            	  if (section.getItemSet() != null) {
-            		  itemfacade.setSequence(Integer.valueOf(section.getItemSet().size() + 1));
-            	  }
-            	  else {
-            		  // this is a new part 
-            		  itemfacade.setSequence(Integer.valueOf(1));
-            	  }
-              }
-           }
-           else {
-                // if inserting or a question
-                String insertPos = itemauthor.getInsertPosition();
-                ItemAddListener itemAddListener = new ItemAddListener();
-                int insertPosIntvalue = Integer.valueOf(insertPos).intValue() + itempos;
-                itemAddListener.shiftSequences(delegate, section, Integer.valueOf(insertPosIntvalue));
-                int insertPosInt= insertPosIntvalue + 1 ;
-                itemfacade.setSequence(Integer.valueOf(insertPosInt));
-           }
           
           // SAM-2341 - add the items to a collection sorted on question title
           copiedQuestions.put(itemfacade, section);
         }
-        itempos= itempos+1;   // for next item in the destItem.
       }
       
-      // SAM-2341 - now do the copies after all selected questions have been sorted
+      // SAM-2385
+      List<ItemFacade> items = new ArrayList<ItemFacade>();
+      items.addAll(copiedQuestions.keySet());
       for (ItemFacade item : copiedQuestions.keySet()) {
+          
+          // Set up the sequence based off the index in the sorted collection, rather than a loop counter
           section = copiedQuestions.get(item);
+          if (itemauthor.getInsertPosition() == null || "".equals(itemauthor.getInsertPosition())) {
+              // If adding to new section
+              if ("-1".equals(qpoolbean.getSelectedSection())) {
+                  item.setSequence(items.indexOf(item) + 1);
+              } else {
+                // If adding to the end
+                if (section.getItemSet() != null) {
+                    item.setSequence(section.getItemSet().size() + 1);
+                } else {
+                    item.setSequence(1);
+                }
+              }
+          } else {
+              // If inserting a question
+              ItemAddListener itemAddListener = new ItemAddListener();
+              int insertPosition = Integer.valueOf(itemauthor.getInsertPosition()) + items.indexOf(item) + 1;
+              itemAddListener.shiftSequences(delegate, section, insertPosition);
+              item.setSequence(insertPosition);
+          }
+          
+          // Now do the copies after all selected questions have been sorted
           delegate.saveItem(item);
           // remove POOLID metadata if any,
           delegate.deleteItemMetaData(item.getItemId(), ItemMetaData.POOLID, AgentFacade.getAgentString());
