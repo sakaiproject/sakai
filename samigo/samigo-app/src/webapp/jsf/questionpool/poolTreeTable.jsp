@@ -75,7 +75,7 @@
  <f:verbatim><span class="itemAction"></f:verbatim>
  <!-- Add Pool -->
  <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && authorization.createQuestionPool && pool.ownerId==questionpool.agentId}"  styleClass="tier#{questionpool.tree.currentLevel}" id="addlink" immediate="true" action="#{questionpool.addPool}">
-  <h:outputText id="add" value="#{questionPoolMessages.add}"/>
+  <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 <!-- Copy Pool -->

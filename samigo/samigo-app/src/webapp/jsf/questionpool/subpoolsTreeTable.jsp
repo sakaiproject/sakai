@@ -70,7 +70,7 @@
 
 <!-- Add SubPools -->
 <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="addlink" immediate="true" action="#{questionpool.addPool}">	
-  <h:outputText id="add" value="#{questionPoolMessages.add}"/>
+  <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
 </h:commandLink>
 
