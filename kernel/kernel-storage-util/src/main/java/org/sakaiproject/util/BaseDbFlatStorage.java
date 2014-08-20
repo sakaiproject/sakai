@@ -1363,8 +1363,10 @@ public class BaseDbFlatStorage
 				fields[3] = extraId;
 			}
 
+			// The value might be null if it's a list of values.
+			// TODO support persisting to the database lists of values.
 			// dont write it if there's only an empty string for value
-			if (value.length() > 0)
+			if (value != null && value.length() > 0)
 			{
 				m_sql.dbWrite(statement, fields);
 			}
