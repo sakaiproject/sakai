@@ -116,7 +116,7 @@
 		includeHandle: true,
         embedMethod: 'auto',
         // "auto", "append", "fill"		
-        onProviderNotFound: function() {alert("not found")},
+        onProviderNotFound: function() {},
         beforeEmbed: function() {},
         afterEmbed: function() {},
         onEmbed: false,
@@ -167,7 +167,6 @@
 
     function embedCode(container, externalUrl, embedProvider) {
       if ($('#jqoembeddata').data(externalUrl)!=undefined && embedProvider.embedtag.tag!='iframe'){
-
         var oembedData = {code: $('#jqoembeddata').data(externalUrl)};
         success(oembedData, externalUrl, container);
       }else if (embedProvider.yql) {
@@ -282,6 +281,7 @@
             success(oembedData, externalUrl,container);
         }
       } else {
+
         var requestUrl = getRequestUrl(embedProvider, externalUrl),
             ajaxopts = $.extend({
                 url: requestUrl,
