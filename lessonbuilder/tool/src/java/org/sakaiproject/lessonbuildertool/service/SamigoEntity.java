@@ -176,8 +176,8 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 
     public void destroy()
     {
-	assessmentCache.destroy();
-	assessmentCache = null;
+	//	assessmentCache.destroy();
+	//	assessmentCache = null;
 
 	log.info("destroy()");
     }

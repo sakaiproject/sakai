@@ -149,8 +149,8 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 
     public void destroy()
     {
-	bltiCache.destroy();
-	bltiCache = null;
+	//	bltiCache.destroy();
+	//	bltiCache = null;
 
 	log.info("destroy()");
     }

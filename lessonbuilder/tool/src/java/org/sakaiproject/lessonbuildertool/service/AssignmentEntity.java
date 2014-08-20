@@ -146,8 +146,8 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     public void destroy()
     {
-	assignmentCache.destroy();
-	assignmentCache = null;
+	//	assignmentCache.destroy();
+	//	assignmentCache = null;
 
 	log.info("destroy()");
     }

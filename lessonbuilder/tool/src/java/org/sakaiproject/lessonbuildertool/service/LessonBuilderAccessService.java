@@ -267,8 +267,8 @@ public class LessonBuilderAccessService {
 	}
 
 	public void destroy() {
-		accessCache.destroy();
-		accessCache = null;
+	    //		accessCache.destroy();
+	    //		accessCache = null;
 	}
 
 
