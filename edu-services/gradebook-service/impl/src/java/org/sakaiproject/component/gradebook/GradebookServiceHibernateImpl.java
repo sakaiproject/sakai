@@ -3044,4 +3044,38 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
             eventTrackingService.postEvent("gradebook.updateItemScore","/gradebook/"+gradebookUid+"/"+assignmentName+"/"+studentUid+"/"+pointsEarned+"/student");
         }
     }
+	
+	/**
+	 * Calculates the average grade for the entire course.
+	 */
+	public String getAverageCourseGrade(String gradebookUid) {
+	    if (gradebookUid == null) {
+	        throw new IllegalArgumentException("Null gradebookUid passed to getAverageCourseGrade");
+	    }
+	    // Check user has permission to invoke method.
+	    if (!currentUserHasGradeAllPerm(gradebookUid)) {
+	        throw new SecurityException("User " + authn.getUserUid() + 
+                        " attempted to access the average course grade without permission in gb " + 
+                        gradebookUid + " using gradebookService.getAverageCourseGrade");
+	    }
+	    
+	    String courseGradeLetter = null;
+	    Gradebook gradebook = getGradebook(gradebookUid);
+	    if (gradebook != null) {
+		    CourseGrade courseGrade = getCourseGrade(gradebook.getId());
+		    Set<String> studentUids = getAllStudentUids(gradebookUid);
+		    // This call handles the complex rules of which assignments and grades to include in the calculation
+		    List<CourseGradeRecord> courseGradeRecs = getPointsEarnedCourseGradeRecords(courseGrade, studentUids);
+		    if (courseGrade != null) {
+		    	// Calculate the course mean grade whether the student grade was manually entered or auto-calculated.
+		    	courseGrade.calculateStatistics(courseGradeRecs, studentUids.size());
+		    }
+		    
+		    if (courseGrade.getMean() != null) {
+		        courseGradeLetter = gradebook.getSelectedGradeMapping().getGrade(courseGrade.getMean());
+		    }
+	    }
+	    return courseGradeLetter;
+	}
+	
 }

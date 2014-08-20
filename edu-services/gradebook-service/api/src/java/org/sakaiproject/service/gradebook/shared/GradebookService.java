@@ -838,5 +838,11 @@ public interface GradebookService {
 	public PointsPossibleValidation isPointsPossibleValid(String gradebookUid, org.sakaiproject.service.gradebook.shared.Assignment gradebookItem, 
 	        Double pointsPossible);
 	   
+	/**
+	 * Computes the Average Course Grade as a letter.   
+	 * @param gradebookUid
+	 * @return
+	 */
+	public String getAverageCourseGrade(String gradebookUid);
 
 }
