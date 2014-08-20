@@ -394,6 +394,9 @@ public class ExternalLogic {
         } catch (IdUnusedException e1) {
             throw new IllegalArgumentException("No course found with id (" + siteId + ")");
         }
+        // Get students grades for course. This method handles grade overrides.
+        Map courseGradeMap = gradebookService.getImportCourseGrade(siteId, false);
+        
         String siteRef = site.getReference();
         // use the method gradebook uses internally
         List<User> studentUsers = securityService.unlockUsers("section.role.student", siteRef);
@@ -401,6 +404,9 @@ public class ExternalLogic {
             Student s = new Student(user.getId(), user.getEid(), user.getDisplayName(), user.getSortName(), user.getEmail());
             s.fname = user.getFirstName();
             s.lname = user.getLastName();
+            if (courseGradeMap!= null && courseGradeMap.containsKey(s.username)){
+            	s.grade = (String)courseGradeMap.get(s.username); // Pull student course grade from the map.
+            }
             students.add(s);
         }
         /*** this only works in the post-2.5 gradebook -AZ
@@ -530,6 +536,7 @@ public class ExternalLogic {
             throw new SecurityException("User ("+userId+") cannot access gradebook in site ("+siteId+")");
         }
         Gradebook gb = new Gradebook(gbID);
+        gb.averageGrade = gradebookService.getAverageCourseGrade(gbID);
         gb.students = getStudentsForCourse(siteId);
         Map<String, String> studentUserIds = new ConcurrentHashMap<String, String>();
         for (Student student : gb.students) {
