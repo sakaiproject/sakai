@@ -892,4 +892,13 @@ public interface AssignmentService extends EntityProducer
 	public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String search, String aRef, String contextString);	
 
 	public String escapeInvalidCharsEntry(String accentedString);
+	
+	/*
+	 * If the assignment uses anonymous grading returns true, else false
+	 *
+	 * SAK-27824
+	 *
+	 * Params: AssignmentSubmission s
+	 */
+	public boolean assignmentUsesAnonymousGrading(Assignment a);
 }

@@ -162,6 +162,8 @@
 											&nbsp;
 										</td>
 										<td headers="assignment">
+											## SAK-27824
+											#if ($assignmentService.assignmentUsesAnonymousGrading($assignment) != true)
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
                                                 #if ($allowAddAssignment && $allowSubmitByInstructor)
@@ -171,6 +173,9 @@
                                                     </a>
                                                 </div>
                                                 #end
+											#else
+												$validator.limit($validator.escapeHtml($assignment.Title), 40) ($tlang.getString("grading.anonymous.title"))
+											#end
 											</h5>
 										</td>
 										<td headers="submitted">
