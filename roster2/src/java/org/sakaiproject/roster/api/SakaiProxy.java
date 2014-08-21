@@ -53,6 +53,13 @@ public interface SakaiProxy {
 	 * @return the ID of the current site.
 	 */
 	public String getCurrentSiteId();
+
+	/**
+	 * Returns the locale_string property of the current site.
+	 * 
+	 * @return the locale_string property of the current site.
+	 */
+	public String getCurrentSiteLocale();
 	
 	/**
 	 * Returns the value of the <code>roster.default.state</code> Sakai

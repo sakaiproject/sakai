@@ -154,6 +154,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getCurrentSiteId() {
 		return toolManager.getCurrentPlacement().getContext();
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getCurrentSiteLocale() {
+
+		String siteId = toolManager.getCurrentPlacement().getContext();
+        Site currentSite = getSite(siteId);
+
+        if (currentSite != null) {
+            String locale = currentSite.getProperties().getProperty("locale_string");
+            if (locale != null) {
+                return locale;
+            }
+        }
+
+        return null;
+	}
 	
 	/**
 	 * {@inheritDoc}

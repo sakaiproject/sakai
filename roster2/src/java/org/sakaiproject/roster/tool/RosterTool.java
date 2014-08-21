@@ -21,6 +21,8 @@ package org.sakaiproject.roster.tool;
 
 import java.io.IOException;
 import java.util.Locale;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -75,14 +77,42 @@ public class RosterTool extends HttpServlet {
 			throw new ServletException("getCurrentUser returned null.");
 		}
 
-		ResourceLoader rl = new ResourceLoader(userId, "org.sakaiproject.roster.bundle.ui");
-		
-		Locale locale = rl.getLocale();
-		String language = locale.getLanguage();
-		String country = locale.getCountry();
-		
-        if(country != null && !country.equals("")) {
+        String siteLanguage = sakaiProxy.getCurrentSiteLocale();
+
+        Locale locale = null;
+        ResourceLoader rl = null;
+
+        if (siteLanguage != null) {
+            String[] parts = siteLanguage.split("_");
+            if (parts.length == 1) {
+                locale = new Locale(parts[0]);
+            } else if (parts.length == 2) {
+                locale = new Locale(parts[0], parts[1]);
+            } else if (parts.length == 3) {
+                locale = new Locale(parts[0], parts[1], parts[2]);
+            }
+            rl = new ResourceLoader("org.sakaiproject.roster.i18n.ui");
+            rl.setContextLocale(locale);
+        } else {
+            rl = new ResourceLoader(userId, "org.sakaiproject.roster.i18n.ui");
+            locale = rl.getLocale();
+        }
+
+        if (locale == null || rl == null) {
+            log.error("Failed to load the site or user i18n bundle");
+        }
+
+        String language = locale.getLanguage();
+        String country = locale.getCountry();
+            
+        if (country != null && !country.equals("")) {
             language += "_" + country;
+        }
+
+        Map<String, String> escaped = new HashMap<String, String>();
+
+        for (Object key : rl.keySet()) {
+            escaped.put((String) key, ((String) rl.get(key)).replace("\\u", "\\\\u"));
         }
 
 		request.setAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
@@ -95,6 +125,7 @@ public class RosterTool extends HttpServlet {
 		request.setAttribute("hideSingleGroupFilter", sakaiProxy.getHideSingleGroupFilter());
         request.setAttribute("viewUserDisplayId", sakaiProxy.getViewUserDisplayId());
         request.setAttribute("viewEmail", sakaiProxy.getViewEmail());
+        request.setAttribute("i18n", rl);
 		request.setAttribute("superUser", sakaiProxy.isSuperUser());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
 

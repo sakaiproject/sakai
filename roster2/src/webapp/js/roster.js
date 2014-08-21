@@ -21,16 +21,6 @@
 
 (function ($) {
 
-    // jquery.i18n
-	$.i18n.properties({
-	    name:'ui', 
-	    path:'/sakai-roster2-tool/bundle/',
-	    mode: 'both',
-	    language: roster.language
-	});
-    
-	roster.i18n = $.i18n.map;
-	
     roster.ADMIN = 'admin';
 
     roster.STATE_OVERVIEW = 'overview';
@@ -1164,6 +1154,10 @@
     Handlebars.registerPartial('user_info', Handlebars.partials['user_info']);
 
     Handlebars.registerHelper('translate', function (key) {
+        var t = roster.i18n[key];
+        if (key === 'title_msg') {
+            console.log('VAL:' + t);
+        }
         return roster.i18n[key];
     });
 
