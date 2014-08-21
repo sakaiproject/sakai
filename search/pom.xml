@@ -20,6 +20,7 @@
     <module>search-impl/impl</module>
     <module>search-impl/pack</module>
     <module>search-integration-test</module>
+    <module>search-model</module>
     <module>search-util</module>
     <module>search-tool/tool</module>
     <module>elasticsearch</module>
