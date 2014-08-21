@@ -616,6 +616,7 @@ ul.alertMessage{
 /*see: create a draft announcement - see the list*/
 .highlight{
 	color: #b01111;
+    font-weight:bold;
 }
 
 /*see: top of resources*/
