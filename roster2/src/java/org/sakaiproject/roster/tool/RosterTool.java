@@ -109,12 +109,6 @@ public class RosterTool extends HttpServlet {
             language += "_" + country;
         }
 
-        Map<String, String> escaped = new HashMap<String, String>();
-
-        for (Object key : rl.keySet()) {
-            escaped.put((String) key, ((String) rl.get(key)).replace("\\u", "\\\\u"));
-        }
-
 		request.setAttribute("sakaiHtmlHead", (String) request.getAttribute("sakai.html.head"));
 		request.setAttribute("userId", userId);
 		request.setAttribute("state", sakaiProxy.getDefaultRosterStateString());
