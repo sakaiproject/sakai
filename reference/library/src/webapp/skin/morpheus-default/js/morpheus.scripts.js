@@ -266,9 +266,9 @@ function sakaiRestoreNavigation(){
     if (portal.toggle.tools) {
         $('#toolMenuWrap').removeClass('minimize-tool-nav');
     }
-	$('#toggleToolMax').addClass('show').removeClass('hidden');
+    $('#toggleToolMax').addClass('show').removeClass('hidden');
     $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
-	$('#toggleNormal').addClass('hidden').removeClass('show');
+    $('#toggleNormal').addClass('hidden').removeClass('show');
 }
 
 function updatePresence(){
@@ -337,7 +337,7 @@ function showToolMenu(e, xOffset){
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
     $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
-        $('#otherSiteTools').remove();
+        $('#otherSiteTools').toggle();
     }
     else {
         $('#otherSiteTools').remove();
@@ -363,7 +363,7 @@ function showToolMenu(e, xOffset){
                 subsubmenu = subsubmenu + goToSite
             }
             subsubmenu = subsubmenu + "</ul>"
-            $('#portalOuterContainer').append(subsubmenu);
+            $('#otherSiteList').append(subsubmenu);
             $('#otherSiteTools').css({
                 'top': pos.top + 28,
                 'left': pos.left - xOffset
@@ -414,9 +414,9 @@ jQuery(document).ready(function(){
     //var siteTitle = ($('.nav-selected span:first').text())
     var siteTitle = portal.siteTitle;
     if (siteTitle) {
-	if (portal.shortDescription) {
-	    siteTitle = siteTitle + " ("+portal.shortDescription+")"
-	}
+    if (portal.shortDescription) {
+        siteTitle = siteTitle + " ("+portal.shortDescription+")"
+    }
         $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
     }
     
@@ -472,19 +472,19 @@ jQuery(document).ready(function(){
     
     //bind directurl checkboxes
     if ( jQuery('a.tool-directurl').length ) jQuery('a.tool-directurl').cluetip({
-    	local: true,
-    	arrows: true,
-		cluetipClass: 'jtip',
-		sticky: true,
-		cursor: 'pointer',
-		activation: 'click',
-		closePosition: 'title',
-		closeText: '<img src="/library/image/silk/cross.png" alt="close">'
+        local: true,
+        arrows: true,
+        cluetipClass: 'jtip',
+        sticky: true,
+        cursor: 'pointer',
+        activation: 'click',
+        closePosition: 'title',
+        closeText: '<img src="/library/image/silk/cross.png" alt="close">'
     });
 
-	// Shows or hides the subsites in a popout div. This isn't used unless
-	// portal.showSubsitesAsFlyout is set to true in sakai.properties.
-	jQuery("#toggleSubsitesLink").click(function (e) {
+    // Shows or hides the subsites in a popout div. This isn't used unless
+    // portal.showSubsitesAsFlyout is set to true in sakai.properties.
+    jQuery("#toggleSubsitesLink").click(function (e) {
         var subsitesLink = $(this);
         if($('#subSites').css('display') == 'block') {
             $('#subSites').hide();
@@ -520,7 +520,7 @@ var setupSiteNav = function(){
         $(this).prev('ul').slideDown('fast')
      });
 
-	fixTopNav = function(e){
+    fixTopNav = function(e){
         if (e.keyCode == 40) { // downarrow
             e.preventDefault();
             jQuery('#selectSite').hide();
@@ -534,14 +534,14 @@ var setupSiteNav = function(){
         }
     }
 
-	// SAK-25505 - Switch from live() to on()
-	// $( "a.offsite" ).live( "click", function() {
-	// $('.topnav > li.nav-menu > a').live('keydown', function(e){
-	if ( $(document).on ) {
-		$(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
-	} else {
-		$('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
-	}
+    // SAK-25505 - Switch from live() to on()
+    // $( "a.offsite" ).live( "click", function() {
+    // $('.topnav > li.nav-menu > a').live('keydown', function(e){
+    if ( $(document).on ) {
+        $(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
+    } else {
+        $('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
+    }
     
     jQuery("ul.topnav > li").mouseleave(function(){
         $(this).find('ul').slideUp('fast')
@@ -557,10 +557,10 @@ var setupSiteNav = function(){
          */
         e.preventDefault()
         var jqObjDrop = $(e.target);
-        if (jqObjDrop.parent('li').find('ul').length) {
-            jqObjDrop.parent('li').find('ul').slideDown('fast')
+        if (jqObjDrop.closest('li').find('ul').length) {
+            jqObjDrop.closest('li').find('ul').slideDown('fast')
             if(focusFirstLink) {
-                jqObjDrop.parent().find("ul.subnav a:first").focus();
+                jqObjDrop.closest('li').find("ul.subnav a:first").focus();
             }
         }
         else {
@@ -613,9 +613,9 @@ var setupToolToggle = function(toggleClass){
     });
     $('#toggler').addClass(toggleClass)
     
-	$('#toggleToolMenu').hover(function () {
+    $('#toggleToolMenu').hover(function () {
          $(this).find('span').addClass('toggleToolMenuHover')
-	}, 
+    }, 
       function () {
          $(this).find('span').removeClass('toggleToolMenuHover')
       }
@@ -652,19 +652,19 @@ var setupSkipNav = function(){
 
 //handles showing either the short url or the full url, depending on the state of the checkbox 
 //(if configured, otherwise returns url as-is as according to the url shortening entity provder)
-function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
-	
-	if($(checkbox).is(':checked')) {
-		
-		$.ajax({
-			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
-			success: function(shortUrl) {
-				$('.'+textbox).val(shortUrl);
-			}
-		}); 
-	} else {
-		$('.'+textbox).val(defaultUrl);
-	}
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {      
+    
+    if($(checkbox).is(':checked')) {
+        
+        $.ajax({
+            url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+            success: function(shortUrl) {
+                $('.'+textbox).val(shortUrl);
+            }
+        }); 
+    } else {
+        $('.'+textbox).val(defaultUrl);
+    }
 }
 
 /* Callback is a function and is called after sliding up ul */

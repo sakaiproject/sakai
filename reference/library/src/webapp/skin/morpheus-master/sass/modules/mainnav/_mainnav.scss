@@ -11,6 +11,63 @@
 //  width: 100%;
 //}
 
+
+ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
+  list-style: none;
+  position: absolute;
+  top: 31px;
+  background: #fff;
+  font-size: .9em;
+  margin: 0;
+  padding: 10px 0 !important;
+  float: left;
+  width: 210px;
+  border: 1px solid #ccc;
+  border-width: 1px 1px 0 1px;
+  z-index: 100;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+/* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
+ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
+  background: #fff;
+  width: 100%;
+  position: relative;
+}
+
+/* some overrides for the menu in #mastLogin */
+#mastLogin ul.subnav li {
+  border: none;
+}
+
+ul.topnav li span.drop {
+  margin: 0 0 0 5px;
+  padding: 2px 2px 2px 8px;
+  width: 10px;
+}
+
+ul.topnav li span.drop:before {
+  content:"v"
+}
+ul.topnav li span.drop:hover {
+  color:#fff;
+}
+ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li a {
+  color: #444;
+  font-size: 1em !important;
+  padding:0;
+  font-weight: normal;
+  position: relative;
+  text-decoration: none;
+  display:block;
+  width: 100% !important;
+  background:#fff;
+}
+
 [aria-labelledby="sitetabs"] {
   font-size: $mainmenu-font-size;
   line-height: $mainmenu-line-height;
