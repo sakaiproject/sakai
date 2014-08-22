@@ -123,6 +123,7 @@ public class RosterTool extends HttpServlet {
 		request.setAttribute("superUser", sakaiProxy.isSuperUser());
 		request.setAttribute("siteMaintainer", sakaiProxy.isSiteMaintainer(sakaiProxy.getCurrentSiteId()));
 
+        response.setContentType("text/html");
         request.getRequestDispatcher("/WEB-INF/bootstrap.jsp").include(request, response);	
 	}
 }
