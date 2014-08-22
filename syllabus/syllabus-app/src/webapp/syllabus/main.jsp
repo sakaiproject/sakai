@@ -75,6 +75,8 @@
 			setupToggleImages("publish", "publish", "publishOn", "publishOff", msgs);
 			//Calendar Toggle
 			setupToggleImages("linkCalendar", "linkCal", "linkCalOn", "linkCalOff", msgs);
+			//Public/Private to the world toggle
+			setupToggleImages("view", "linkWorld", "linkWorldOn", "linkWorldOff", msgs);
 		}else{
 			//remove CSS classes (otherwise you get those hover over "pencil edit" images
 			$(".editItem").removeClass("editItem");
@@ -235,6 +237,8 @@
 							<h:graphicImage url="/images/lightbulb_off.gif" styleClass="actionIcon publish publishOff" title="#{msgs.clickToPublish}" style="#{eachEntry.status == eachEntry.draftStatus ? '' : 'display:none'}"/>
 							<h:graphicImage url="/images/calendar_view_month.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToRemoveCal}" styleClass="actionIcon linkCal linkCalOn" style="#{eachEntry.entry.linkCalendar ? '' : 'display:none'}"/>
 							<h:graphicImage url="/images/calendar_view_month_no.png" rendered="#{SyllabusTool.calendarExistsForSite}" title="#{msgs.clickToAddCal}" styleClass="actionIcon linkCal linkCalOff" style="#{eachEntry.entry.linkCalendar ? 'display:none' : ''}"/>
+							<h:graphicImage url="/images/world.png" title="#{msgs.clickToHideWorld}" styleClass="actionIcon linkWorld linkWorldOn" style="#{eachEntry.entry.view == 'yes' ? '' : 'display:none'}"/>
+							<h:graphicImage url="/images/world_off.png" title="#{msgs.clickToAddWorld}" styleClass="actionIcon linkWorld linkWorldOff" style="#{eachEntry.entry.view == 'no' ? '' : 'display:none'}"/>
 							<f:verbatim>
 								<img src="/library/image/silk/cross.png" class="actionImage delete" onclick="showConfirmDeleteHelper(this, event);" title="</f:verbatim><h:outputText value="#{msgs.clickToDelete}"/><f:verbatim>">
 							</f:verbatim>

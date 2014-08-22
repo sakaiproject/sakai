@@ -449,6 +449,13 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 							data.setLinkCalendar(false);
 						}
 						syllabusManager.saveSyllabus(data);
+					}else if("view".equals(params.get("toggle"))){
+						if(status){
+							data.setView("yes");
+						}else{
+							data.setView("no");
+						}
+						syllabusManager.saveSyllabus(data);
 					}
 				}else if(params.containsKey("delete")){
 					//Delete item
