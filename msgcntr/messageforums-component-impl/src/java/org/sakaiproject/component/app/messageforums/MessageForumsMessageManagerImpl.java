@@ -896,7 +896,7 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
         return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
     }
     
-    public int findMessageCountByForumId(final Long forumId) {
+    public List<Object[]> findMessageCountByForumId(final Long forumId) {
         if (forumId == null) {
             LOG.error("findMessageCountByForumId failed with forumId: " + forumId);
             throw new IllegalArgumentException("Null Argument");
@@ -908,11 +908,11 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery("findMessageCountByForumId");
                 q.setParameter("forumId", forumId, Hibernate.LONG);
-                return q.uniqueResult();
+                return q.list();
             }
         };
 
-        return ((Integer) getHibernateTemplate().execute(hcb)).intValue();        
+        return (List<Object[]>) getHibernateTemplate().execute(hcb);        
     }
     
     /*
@@ -958,16 +958,16 @@ public class MessageForumsMessageManagerImpl extends HibernateDaoSupport impleme
 
 
 
-    public int findMessageCountTotal() {
+    public List<Object[]> findMessageCountTotal() {
     	HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery("findMessageCountTotal");
                 q.setParameter("contextId", getContextId(), Hibernate.STRING);
-                return q.uniqueResult();
+                return q.list();
             }
     	};
     	
-    	return ((Integer)getHibernateTemplate().execute(hcb)).intValue();
+    	return (List<Object[]>)getHibernateTemplate().execute(hcb);
     }
     
     public UnreadStatus findUnreadStatusByUserId(final Long topicId, final Long messageId, final String userId){

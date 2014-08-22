@@ -46,6 +46,8 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.app.messageforums.TestUtil;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -73,11 +75,13 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   private SecurityService securityService;
   private DiscussionForumManager forumManager;
   private AreaManager areaManager;
+  private MemoryService memoryService;
+  private Cache userGroupMembershipCache;
 
   public void init()
   {
      LOG.info("init()");
-    ;
+     userGroupMembershipCache = memoryService.newCache("org.sakaiproject.component.app.messageforums.ui.UIPermissionsManagerImpl.userGroupMembershipCache");
   }
 
   /**
@@ -926,7 +930,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  userMemberships.add(currRole);
 	  // now, add any groups the user is a member of
 	  try {
-		  Collection groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
+		  Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+		  Collection groups = getGroupsWithMember(site, getCurrentUserId());
 	
 		  Iterator groupIter = groups.iterator();
 		  while (groupIter.hasNext())
@@ -949,7 +954,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     List memberof = new ArrayList();
     try
     {
-      Collection groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
+      Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+	  Collection groups = getGroupsWithMember(site, getCurrentUserId());
       for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
         Group currentGroup = (Group) groupIterator.next();
@@ -973,7 +979,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     List memberof = new ArrayList();
     try
     {
-      Collection groups = SiteService.getSite(siteId).getGroupsWithMember(getCurrentUserId());
+    	Site site = SiteService.getSite(siteId);
+  	  Collection groups = getGroupsWithMember(site, getCurrentUserId());
       
       for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
@@ -1032,7 +1039,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	try
       	{
       		Site currentSite = SiteService.getSite(getContextId());
-      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+       	    groups = getGroupsWithMember(currentSite, getCurrentUserId());
       	}
         catch(IdUnusedException iue)
         {
@@ -1136,7 +1143,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	try
       	{
       		Site currentSite = SiteService.getSite(getContextId());
-      		groups = currentSite.getGroupsWithMember(getCurrentUserId());
+      		groups = getGroupsWithMember(currentSite, getCurrentUserId());
       	}
         catch(IdUnusedException iue)
         {
@@ -1250,7 +1257,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
       	try
       	{
       		Site currentSite = SiteService.getSite(siteId);
-      		groups = currentSite.getGroupsWithMember(userId);
+      		groups = getGroupsWithMember(currentSite, userId);
       	}
         catch(IdUnusedException iue)
         {
@@ -1502,7 +1509,8 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     try
     {
-      Collection groups = SiteService.getSite(toolManager.getCurrentPlacement().getContext()).getGroupsWithMember(getCurrentUserId());
+      Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
+      Collection groups = getGroupsWithMember(site, getCurrentUserId());
       for (Iterator groupIterator = groups.iterator(); groupIterator.hasNext();)
       {
         Group currentGroup = (Group) groupIterator.next();
@@ -1557,7 +1565,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	try
   	{
   		Site currentSite = SiteService.getSite(siteId);
-  		groups = currentSite.getGroupsWithMember(userId);
+  		groups = getGroupsWithMember(currentSite, userId);
   	}
     catch(IdUnusedException iue)
     {
@@ -1570,4 +1578,25 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   	ThreadLocalManager.set("message_center_membership_topic", topicItems);
 	ThreadLocalManager.set("message_center_permission_set", Boolean.valueOf(true));
   }
+  
+  public Collection getGroupsWithMember(Site site, String userId){
+	  String id = site.getReference() + "/" + userId;
+	  Object el = userGroupMembershipCache.get(id);
+	  if(el == null){
+		  Collection groups = site.getGroupsWithMember(userId);
+		  userGroupMembershipCache.put(id, groups);
+		  return groups;
+	  }else{
+		  return (Collection) el;
+	  }
+	  
+	}
+	
+	public MemoryService getMemoryService() {
+		return memoryService;
+	}
+	
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
+	}
 }

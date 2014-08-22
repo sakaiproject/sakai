@@ -74,9 +74,9 @@ public interface MessageForumsMessageManager {
     public void deleteUnreadStatus(Long topicId, Long messageId);
 
     public int findMessageCountByTopicId(Long topicId);
-    public int findMessageCountByForumId(Long forumId);
+    public List<Object[]> findMessageCountByForumId(Long forumId);
     
-    public int findMessageCountTotal();
+    public List<Object[]> findMessageCountTotal();
     
     public int findViewableMessageCountByTopicIdByUserId(Long topicId, String userId);
     

@@ -699,6 +699,8 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 											if (!isTopicModerated.booleanValue() || (isTopicModerated.booleanValue() && 
 													getUiPermissionsManager().isModeratePostings(topicId, dForum.getIsLocked(), dForum.getIsDraft(), isTopicLocked, isTopicDraft, userId, siteId)))
 											{
+												//TODO: to improve this performance, try using the logic in MessageForumStatisticsBean.getTopicStatistics
+												//essentially, get the number of possible messages for that user and subtract the number read.  See commit for SAK-27810 for more details.
 												dcms.get(userId).setUnreadForumsAmt(dcms.get(userId).getUnreadForumsAmt() + getMessageManager().findUnreadMessageCountByTopicIdByUserId(topicId, userId));
 											}
 											else

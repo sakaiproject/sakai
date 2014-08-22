@@ -33,6 +33,7 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.user.api.User;
 
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
@@ -251,6 +252,8 @@ public interface DiscussionForumManager
    * @return true, only if user has site.upd
    */
   public boolean isInstructor(String userId, String siteId);
+  public boolean isInstructor(User user, String siteId);
+  public boolean isInstructor(User user);
 
   /**
    * @return

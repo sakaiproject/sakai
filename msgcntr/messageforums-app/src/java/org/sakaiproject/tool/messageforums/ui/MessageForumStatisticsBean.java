@@ -55,6 +55,7 @@ import org.sakaiproject.api.app.messageforums.UserStatistics;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -498,7 +499,8 @@ public class MessageForumStatisticsBean {
 		//clear any gradebook info:
 		resetGradebookVariables();
 
-		int totalForum = messageManager.findMessageCountTotal();
+		Map<String, Integer> studentTotalCount = getStudentTopicMessagCount();
+		
 		Map<String, DecoratedCompiledMessageStatistics> tmpStatistics = new TreeMap<String, DecoratedCompiledMessageStatistics>();
 
 		// process the returned read statistics for the students to get them sorted by user id
@@ -509,7 +511,10 @@ public class MessageForumStatisticsBean {
 				userStats = new DecoratedCompiledMessageStatistics();
 				tmpStatistics.put((String)readStat[0], userStats);
 			}
-			
+			Integer totalForum = 0;
+			if(studentTotalCount.containsKey((String) readStat[0])){
+				totalForum = studentTotalCount.get((String) readStat[0]);
+			}
 			if (totalForum > 0) {
 				userStats.setReadForumsAmt((Integer)readStat[1]);
 			} else {
@@ -525,7 +530,10 @@ public class MessageForumStatisticsBean {
 				userStats = new DecoratedCompiledMessageStatistics();
 				tmpStatistics.put((String)authoredStat[0], userStats);
 			}
-			
+			Integer totalForum = 0;
+			if(studentTotalCount.containsKey((String) authoredStat[0])){
+				totalForum = studentTotalCount.get((String) authoredStat[0]);
+			}
 			if (totalForum > 0) {
 				userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
 			} else {
@@ -535,10 +543,13 @@ public class MessageForumStatisticsBean {
 
 		// now process the users from the list of site members to add display information
 		// this will also prune the list of members so only the papropriate ones are displayed
-		courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
-		List members = membershipManager.convertMemberMapToList(courseMemberMap);
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 
+		if(courseMemberMap == null){
+			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+		}
+		List members = membershipManager.convertMemberMapToList(courseMemberMap);
+		
 		for (Iterator i = members.iterator(); i.hasNext();) {
 			MembershipItem item = (MembershipItem) i.next();
 			
@@ -553,6 +564,10 @@ public class MessageForumStatisticsBean {
 				userInfo.setSiteUserId(item.getUser().getId());
 				userInfo.setSiteUser(item.getName());
 
+				Integer totalForum = 0;
+				if(studentTotalCount.containsKey(item.getUser().getId())){
+					totalForum = studentTotalCount.get(item.getUser().getId());
+				}
 				if (totalForum > 0) {
 					userInfo.setUnreadForumsAmt(totalForum - userInfo.getReadForumsAmt());
 					userInfo.setPercentReadFOrumsAmt((double)userInfo.getReadForumsAmt() / (double)totalForum);
@@ -598,12 +613,42 @@ public class MessageForumStatisticsBean {
 		final List<DecoratedCompiledMessageStatistics> statistics = new ArrayList<DecoratedCompiledMessageStatistics>();
 				
 		if((selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)) || selectedAllTopicsForumId != null && !"".equals(selectedAllTopicsForumId)){
-			int totalForum = 0;
+			Map<String, Integer> userMessageTotal = new HashMap<String, Integer>();
+			DiscussionForum forum = forumManager.getForumByIdWithTopics(Long.parseLong(selectedAllTopicsForumId));
+			Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
 			if(selectedAllTopicsTopicId != null && !"".equals(selectedAllTopicsTopicId)){
-				totalForum = messageManager.findMessageCountByTopicId(Long.parseLong(selectedAllTopicsTopicId));
+				DiscussionTopic currTopic = forumManager.getTopicById(Long.parseLong(selectedAllTopicsTopicId));
+				int topicMessages = messageManager.findMessageCountByTopicId(Long.parseLong(selectedAllTopicsTopicId));
+				userMessageTotal = getStudentTopicMessagCount(forum, currTopic, topicMessages, overridingPermissionMap);
 			}else{
-				totalForum = messageManager.findMessageCountByForumId(Long.parseLong(selectedAllTopicsForumId));
+				//totalForum = messageManager.findMessageCountByForumId(Long.parseLong(selectedAllTopicsForumId));
+				List<Object[]> totalTopcsCountList = messageManager.findMessageCountByForumId(forum.getId());
+				Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
+				for(Object[] objArr : totalTopcsCountList){
+					totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+				}
+				for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
+					DiscussionTopic currTopic = (DiscussionTopic)itor.next();
+
+					Integer topicCount = totalTopcsCountMap.get(currTopic.getId());
+					if(topicCount == null){
+						topicCount = 0;
+					}
+
+					Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, overridingPermissionMap);
+					for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
+						Integer studentCount = entry.getValue();
+						if(userMessageTotal.containsKey(entry.getKey())){
+							studentCount += userMessageTotal.get(entry.getKey());
+						}
+						userMessageTotal.put(entry.getKey(), studentCount);
+					}
+				}
 			}
+			
+			
+			
+			
 			Map<String, DecoratedCompiledMessageStatistics> tmpStatistics = new TreeMap<String, DecoratedCompiledMessageStatistics>();
 
 			// process the returned read statistics for the students to get them sorted by user id
@@ -620,7 +665,10 @@ public class MessageForumStatisticsBean {
 					userStats = new DecoratedCompiledMessageStatistics();
 					tmpStatistics.put((String)readStat[0], userStats);
 				}
-
+				Integer totalForum = 0;
+				if(userMessageTotal.containsKey((String) readStat[0])){
+					totalForum = userMessageTotal.get((String) readStat[0]);
+				}
 				if (totalForum > 0) {
 					userStats.setReadForumsAmt((Integer)readStat[1]);
 				} else {
@@ -642,7 +690,10 @@ public class MessageForumStatisticsBean {
 					userStats = new DecoratedCompiledMessageStatistics();
 					tmpStatistics.put((String)authoredStat[0], userStats);
 				}
-
+				Integer totalForum = 0;
+				if(userMessageTotal.containsKey((String) authoredStat[0])){
+					totalForum = userMessageTotal.get((String) authoredStat[0]);
+				}
 				if (totalForum > 0) {
 					userStats.setAuthoredForumsAmt((Integer)authoredStat[1]);
 				} else {
@@ -697,7 +748,10 @@ public class MessageForumStatisticsBean {
 
 				userInfo.setSiteUserId(item.getId());
 				userInfo.setSiteUser(item.getName());
-
+				Integer totalForum = 0;
+				if(userMessageTotal.containsKey(item.getId())){
+					totalForum = userMessageTotal.get(item.getId());
+				}
 				if (totalForum > 0) {
 					userInfo.setUnreadForumsAmt(totalForum - userInfo.getReadForumsAmt());
 					userInfo.setPercentReadFOrumsAmt((double)userInfo.getReadForumsAmt() / (double)totalForum);
@@ -2664,5 +2718,83 @@ public class MessageForumStatisticsBean {
 			this.name = name;
 		}
 		
-	}	
+	}
+	
+	public Map<String, Integer> getStudentTopicMessagCount(){
+		//Get a map of the user's total messages count. Take into account everything about their access
+		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
+		List<Object[]> totalTopcsCountList = messageManager.findMessageCountTotal();
+		Map<Long, Integer> totalTopcsCountMap = new HashMap<Long, Integer>();
+		for(Object[] objArr : totalTopcsCountList){
+			totalTopcsCountMap.put((Long) objArr[0], (Integer) objArr[1]);
+		}
+		Map<String, Boolean> overridingPermissionMap = getOverridingPermissionsMap();
+
+		//loop through the topics and add the counts if user has access:
+		List<DiscussionForum> tempForums = forumManager.getForumsForMainPage();
+		for (DiscussionForum forum: tempForums) {
+			for (Iterator itor = forum.getTopicsSet().iterator(); itor.hasNext(); ) {
+				DiscussionTopic currTopic = (DiscussionTopic)itor.next();
+				
+				Integer topicCount = totalTopcsCountMap.get(currTopic.getId());
+				if(topicCount == null){
+					topicCount = 0;
+				}
+				
+				Map<String, Integer> totalTopicCountMap = getStudentTopicMessagCount(forum, currTopic, topicCount, overridingPermissionMap);
+				for(Entry<String, Integer> entry : totalTopicCountMap.entrySet()){
+					Integer studentCount = entry.getValue();
+					if(studentTotalCount.containsKey(entry.getKey())){
+						studentCount += studentTotalCount.get(entry.getKey());
+					}
+					studentTotalCount.put(entry.getKey(), studentCount);
+				}
+			}
+		}
+		
+		return studentTotalCount;
+	}
+	
+	public Map<String, Integer> getStudentTopicMessagCount(DiscussionForum forum, DiscussionTopic currTopic, Integer topicTotalCount, Map<String, Boolean> overridingPermissionMap){
+		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
+		for(Entry<String, Boolean> entry: overridingPermissionMap.entrySet()){
+
+			if ((!forum.getDraft() && forum.getAvailability() && currTopic.getDraft().equals(Boolean.FALSE) && currTopic.getAvailability())
+					|| entry.getValue())
+			{ // this is the start of the big topic if
+				// set the message count for moderated topics, otherwise it will be set later
+				if(uiPermissionsManager.isRead(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())){
+					Integer topicCount = topicTotalCount;
+					if(topicCount == null){
+						topicCount = 0;
+					}
+					if (currTopic.getModerated() && !uiPermissionsManager.isModeratePostings(currTopic, (DiscussionForum)currTopic.getOpenForum(), entry.getKey())) {
+						topicCount = messageManager.findViewableMessageCountByTopicIdByUserId(currTopic.getId(), entry.getKey());
+					}
+					Integer totalCount = studentTotalCount.get(entry.getKey());
+					if(totalCount == null){
+						totalCount = 0;
+					}
+					totalCount += topicCount;
+					studentTotalCount.put(entry.getKey(), totalCount);
+				}
+			}
+		}
+		return studentTotalCount;
+	}
+	
+	public Map<String, Boolean> getOverridingPermissionsMap(){
+		Map<String, Boolean> overridingPermissionMap = new HashMap<String, Boolean>();
+		if(courseMemberMap == null){
+			courseMemberMap = membershipManager.getAllCourseMembers(true,false,false,null);
+		}
+		List members = membershipManager.convertMemberMapToList(courseMemberMap);
+		for (Iterator i = members.iterator(); i.hasNext();) {
+			MembershipItem item = (MembershipItem) i.next();
+			if (null != item.getUser()) {
+				overridingPermissionMap.put(item.getUser().getId(), forumManager.isInstructor(item.getUser()) || SecurityService.isSuperUser(item.getUser().getId()));
+			}
+		}
+		return overridingPermissionMap;
+	}
 }

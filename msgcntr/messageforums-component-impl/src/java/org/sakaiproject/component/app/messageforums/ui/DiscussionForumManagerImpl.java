@@ -74,6 +74,8 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -112,13 +114,15 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private ContentHostingService contentHostingService;
   private UIPermissionsManager permissionsManager;
   private EntityBroker entityBroker;
+  private MemoryService memoryService;
+  private Cache allowedFunctionsCache;
   
   public static final int MAX_NUMBER_OF_SQL_PARAMETERS_IN_LIST = 1000;
 
   public void init()
   {
      LOG.info("init()");
-    ;
+     allowedFunctionsCache = memoryService.newCache("org.sakaiproject.component.app.messageforums.ui.DiscussionForumManagerImpl.allowedFunctionsCache");
   }
   
   public void setEntityBroker(EntityBroker entityBroker) {
@@ -919,7 +923,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @param user
    * @return
    */
-  private boolean isInstructor(User user)
+  public boolean isInstructor(User user)
   {
     if (LOG.isDebugEnabled())
     {
@@ -951,7 +955,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    * @param siteId
    * @return
    */
-  private boolean isInstructor(User user, String siteId)
+  public boolean isInstructor(User user, String siteId)
   {
     if (LOG.isDebugEnabled())
     {
@@ -2267,11 +2271,22 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         	if(type.equals(DBMembershipItem.TYPE_GROUP))
         	{
         	  level = permissionLevelManager.getDefaultNonePermissionLevel();
-        	}else if (AuthzGroupService.getAllowedFunctions(name, siteIds)
-        			.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
-        		level = permissionLevelManager.getDefaultOwnerPermissionLevel();
         	}else{
-        		level = permissionLevelManager.getDefaultContributorPermissionLevel();
+        		//check cache first:
+        		Set allowedFunctions = null;
+        		String cacheId = contextSiteId + "/" + name;
+        		Object el = allowedFunctionsCache.get(cacheId);
+        		if(el == null){
+        			allowedFunctions = AuthzGroupService.getAllowedFunctions(name, siteIds);
+        			allowedFunctionsCache.put(cacheId, allowedFunctions);
+        		}else{
+        			allowedFunctions = (Set) el;
+        		}
+        		if (allowedFunctions.contains(SiteService.SECURE_UPDATE_SITE)){        			        	        	
+        			level = permissionLevelManager.getDefaultOwnerPermissionLevel();
+        		}else{
+        			level = permissionLevelManager.getDefaultContributorPermissionLevel();
+        		}
         	}
         	
         }
@@ -2515,6 +2530,14 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
 	public List<Attachment> getTopicAttachments(Long topicId) {
 		return forumManager.getTopicAttachments(topicId);
+	}
+
+	public MemoryService getMemoryService() {
+		return memoryService;
+	}
+
+	public void setMemoryService(MemoryService memoryService) {
+		this.memoryService = memoryService;
 	}
        
 }
