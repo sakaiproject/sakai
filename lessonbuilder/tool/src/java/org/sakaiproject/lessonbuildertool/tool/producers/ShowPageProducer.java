@@ -800,6 +800,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 		String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+
+		System.out.println("reseturl " + reseturl + " helpurl " + helpurl );
+
 		String skinName = null;
 		String skinRepo = null;
 		String iconBase = null;

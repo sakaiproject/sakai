@@ -55,6 +55,8 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.services.qti.QTIService;
+import org.sakaiproject.util.FormattedText;                                     
+
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
 import org.w3c.dom.Document;
@@ -371,7 +373,7 @@ public class SamigoEntity implements LessonEntity, QuizEntity {
 	    assessment = getPublishedAssessment(id);
 	if (assessment == null)
 	    return null;
-	return assessment.getTitle();
+	return FormattedText.convertFormattedTextToPlaintext(assessment.getTitle());
     }
 
     public String getAssessmentAlias(Long publishedId) {

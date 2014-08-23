@@ -87,6 +87,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.util.FormattedText;                                     
 
 import org.w3c.dom.Document;
 
@@ -217,7 +218,7 @@ public class SamigoExport {
 
 	// boolean anonymousGrading = assessment.getEvaluationModel().getAnonymousGrading().equals(EvaluationModelIfc.ANONYMOUS_GRADING);
 
-	String assessmentTitle = assessment.getTitle();
+	String assessmentTitle = FormattedText.convertFormattedTextToPlaintext(assessment.getTitle());
 
 	// SortedMap<Long,String> questions = new TreeMap<Long,String>();
 
