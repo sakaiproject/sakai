@@ -233,6 +233,12 @@
 					<span class="highlight"> $tlang.getString("gen.nograd")</span>	
 				#elseif ($!grade && $grade.length()>0)
 					$grade
+					
+				<!--for grading via an external scoring service, if enabled for an associated gradebook item -->
+				#if($scoringComponentEnabled)
+					#parse ("/vm/assignment/chef_assignments_scoring_agent.vm")	
+				#end
+			        
 				#else
 					$tlang.getString("ungra")
 				#end

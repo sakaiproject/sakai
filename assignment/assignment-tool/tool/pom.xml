@@ -65,6 +65,13 @@
             <groupId>org.sakaiproject.edu-services.gradebook</groupId>
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
+        <!-- ScoringService integration -->
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+            <artifactId>scoring-service-api</artifactId>
+            <version>${sakai.version}</version>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.sakaiproject.entitybroker</groupId>
             <artifactId>entitybroker-api</artifactId>

@@ -139,6 +139,9 @@ import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.scoringservice.api.ScoringAgent;
+import org.sakaiproject.scoringservice.api.ScoringComponent;
+import org.sakaiproject.scoringservice.api.ScoringService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -1435,6 +1438,9 @@ public class AssignmentAction extends PagedResourceActionII
                                     context.put("selectedGroup", s.getSubmitterId());
                                     context.put("originalGroup", s.getSubmitterId());
                                 }
+                                
+                setScoringAgentProperties(context, assignment, s, false);
+                                
 				ResourceProperties p = s.getProperties();
 				if (p.getProperty(ResourceProperties.PROP_SUBMISSION_PREVIOUS_FEEDBACK_TEXT) != null)
 				{
@@ -1917,6 +1923,8 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			context.put("canSubmit", Boolean.valueOf(AssignmentService.canSubmit((String) state.getAttribute(STATE_CONTEXT_STRING), assignment)));
 			
+			setScoringAgentProperties(context, assignment, submission, false);
+
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
 			
@@ -2030,6 +2038,9 @@ public class AssignmentAction extends PagedResourceActionII
 
 			// can the student view model answer or not
 			canViewAssignmentIntoContext(context, assignment, submission);
+			
+			// scoring agent integration
+			setScoringAgentProperties(context, assignment, submission, false);
 			
 			//peer review
 			if(assignment.getAllowPeerAssessment() 
@@ -3060,6 +3071,10 @@ public class AssignmentAction extends PagedResourceActionII
 			submissionId = s.getId();
 			context.put("submission", s);
 			
+			if(a != null) {
+				setScoringAgentProperties(context, a, s, true);
+			}
+
 			// show alert if student is working on a draft
 			if (!s.getSubmitted() // not submitted
 				&& ((s.getSubmittedText() != null && s.getSubmittedText().length()> 0) // has some text
@@ -3418,8 +3433,13 @@ public class AssignmentAction extends PagedResourceActionII
 			gradeType = a.getContent().getTypeOfGrade();
 		}
 
-		// submission
-		context.put("submission", getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_instructor_preview_grade_submission_context", state));
+		// submission		
+		AssignmentSubmission submission = getSubmission((String) state.getAttribute(GRADE_SUBMISSION_SUBMISSION_ID), "build_instructor_preview_grade_submission_context", state);
+		context.put("submission", submission);
+				
+		if(a != null) {
+			setScoringAgentProperties(context, a, submission, false);
+		}
 
 		User user = (User) state.getAttribute(STATE_USER);
 		context.put("user", user);
@@ -16363,5 +16383,81 @@ public class AssignmentAction extends PagedResourceActionII
 		return rv;
 	}
 
+	/**
+	 * Set properties related to grading via an external scoring service. This service may be enabled for the
+	 * associated gradebook item.
+	 */
+	protected void setScoringAgentProperties(Context context, Assignment assignment, AssignmentSubmission submission, boolean gradeView) {
+		String associatedGbItem = StringUtils.trimToNull(assignment.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT));
+		if (submission != null && associatedGbItem != null && assignment.getContent().getTypeOfGrade() == 3) {
+			ScoringService scoringService = (ScoringService)  ComponentManager.get("org.sakaiproject.scoringservice.api.ScoringService");
+			ScoringAgent scoringAgent = scoringService.getDefaultScoringAgent();
+			
+			String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+			boolean scoringAgentEnabled = scoringAgent != null && scoringAgent.isEnabled(gradebookUid, null);			
+			String studentId = submission.getSubmitterId();
+			
+			if (scoringAgentEnabled) {
+				String gbItemName;
+				if (assignment.getReference().equals(associatedGbItem)) {
+					// this gb item is controlled by this tool
+					gbItemName = assignment.getTitle();
+				} else {
+					// this assignment was associated with an existing gb item
+					gbItemName = associatedGbItem;
+				}
+				GradebookService gbService = (GradebookService)  ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				org.sakaiproject.service.gradebook.shared.Assignment gbItem = null;
+				try {
+					gbItem = gbService.getAssignment(gradebookUid, gbItemName);
+				} catch (SecurityException se) {
+					// the gradebook method above is overzealous about security when retrieving the gb item by name. It doesn't
+					// allow student-role users to access the assignment via this method. So we
+					// have to retrieve all viewable gb items and filter to get the one we want, unfortunately, if we hit an exception.
+					// If gb item isn't released in the gb, scoring agent info will not be available.
+					List<org.sakaiproject.service.gradebook.shared.Assignment> viewableGbItems = gbService.getViewableAssignmentsForCurrentUser(gradebookUid);
+					if (viewableGbItems != null && !viewableGbItems.isEmpty()) {
+						for (org.sakaiproject.service.gradebook.shared.Assignment viewableGbItem : viewableGbItems) {
+							if(gbItemName.equals(viewableGbItem.getName())) {
+								gbItem = viewableGbItem;
+								break;
+							}
+						}
+					}
+				}
+				
+				if (gbItem != null) {
+					String gbItemId = Long.toString(gbItem.getId());
+					
+					// Determine if a scoring component (like a rubric) has been associated with this gradebook item
+					ScoringComponent component = scoringService.getScoringComponent(
+							scoringAgent.getAgentId(), gradebookUid, gbItemId);
+					boolean scoringComponentEnabled = component != null;
+					
+					context.put("scoringComponentEnabled", scoringComponentEnabled);
+					
+					if (scoringComponentEnabled) {
+						context.put("scoringAgentImage", scoringAgent.getImageReference());
+						context.put("scoringAgentName", scoringAgent.getName());
+						
+						// retrieve the appropriate url
+						if (gradeView) {
+							context.put("scoreUrl", scoringAgent.getScoreLaunchUrl(gradebookUid, gbItemId, studentId));
+							context.put("refreshScoreUrl", scoringService.getDefaultScoringAgent().getScoreUrl(gradebookUid, gbItemId, studentId) + "&t=gb");
+							context.put("scoreText",rb.getFormattedMessage("scoringAgent.grade", new Object[]{scoringAgent.getName()}));
+						} else {
+							// only retrieve the graded rubric if grade has been released. otherwise, keep it generic
+							String scoreStudent = null;
+							if (submission.getGradeReleased()) {
+								scoreStudent = studentId;
+							}
+							context.put("scoreUrl", scoringAgent.getViewScoreLaunchUrl(gradebookUid, gbItemId, scoreStudent));
+							context.put("scoreText",rb.getFormattedMessage("scoringAgent.view", new Object[]{scoringAgent.getName()}));
+						}
+					}
+				}
+			}
+		}
+	}
 
 }	
