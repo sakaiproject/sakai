@@ -32,7 +32,7 @@ public class Student extends User {
     public Student(String userId, String username, String name, String sortName, String email) {
         super(userId, username, name, sortName, email);
     }
-    
-    public String grade;
+    // student course grade
+    public String courseGrade;
     
 }

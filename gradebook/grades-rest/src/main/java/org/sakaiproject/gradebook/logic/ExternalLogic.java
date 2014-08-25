@@ -405,7 +405,7 @@ public class ExternalLogic {
             s.fname = user.getFirstName();
             s.lname = user.getLastName();
             if (courseGradeMap!= null && courseGradeMap.containsKey(s.username)){
-            	s.grade = (String)courseGradeMap.get(s.username); // Pull student course grade from the map.
+            	s.courseGrade = (String)courseGradeMap.get(s.username); // Pull student course grade from the map.
             }
             students.add(s);
         }
@@ -536,7 +536,7 @@ public class ExternalLogic {
             throw new SecurityException("User ("+userId+") cannot access gradebook in site ("+siteId+")");
         }
         Gradebook gb = new Gradebook(gbID);
-        gb.averageGrade = gradebookService.getAverageCourseGrade(gbID);
+        gb.averageCourseGrade = gradebookService.getAverageCourseGrade(gbID);
         gb.students = getStudentsForCourse(siteId);
         Map<String, String> studentUserIds = new ConcurrentHashMap<String, String>();
         for (Student student : gb.students) {
