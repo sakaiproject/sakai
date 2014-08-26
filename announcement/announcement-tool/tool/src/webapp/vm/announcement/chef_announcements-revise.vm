@@ -32,9 +32,7 @@ function resizeFrame(){
 		#end
 		$('.showHide').click(function(){
 			if ($('.showHide:checked')){
-				$('.beginEnd').prop({checked:''});
 				$('.showHideDates').fadeOut('slow')
-
 			}
 		});	
 		$('#hidden_specify').click(function(){
