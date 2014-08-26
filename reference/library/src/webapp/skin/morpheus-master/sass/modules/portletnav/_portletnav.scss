@@ -25,18 +25,24 @@
       border: none;
     }
   
-    &:before {
+    &:before, 
+    &:after  {
       font-size: 1.5em;
     }
     
     &.inline {
     
-      &:before {
-        font-size: inherit;
-      }
     }
     &.help {
       margin-right: 1em;
+    }
+    
+    &.reset {
+    
+      &:before, 
+      &:after {
+        font-size: .8em;
+      }
     }
   }
 }
@@ -72,4 +78,4 @@
   border-bottom: 1em $main-background solid; // creates a fake bottom margin between tools. Needs to blend with the background so it's the same color
 }
 
-@include generate-icons($portletnav-icons, before, '.title-tools.', 'ico-font-icons');
+@include generate-icons($portletnav-icons, after, '.title-tools.', 'ico-font-icons');
