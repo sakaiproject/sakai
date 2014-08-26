@@ -32,7 +32,7 @@
     </ul>
 #end
 
-<div id="container" class="container portal" $pageSiteType>
+<div id="container" class="box portal" $pageSiteType>
 
     #if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
         #parse("/vm/morpheus/includePageNav.vm")

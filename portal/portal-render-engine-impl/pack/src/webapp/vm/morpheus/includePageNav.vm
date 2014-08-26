@@ -1,9 +1,9 @@
 <!-- START VM includePageNav.vm -->
 
 #if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
-    <div id="toolMenuWrap" class="container nav nav-tools is-minimized">
+    <div id="toolMenuWrap" class="box nav nav-tools is-minimized">
 #else
-    <div id="toolMenuWrap" class="container nav nav-tools">
+    <div id="toolMenuWrap" class="box nav nav-tools">
 #end
     
         <div id="togglebar" class="nav nav-toggle">

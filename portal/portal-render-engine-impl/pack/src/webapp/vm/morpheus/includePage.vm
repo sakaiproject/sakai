@@ -4,7 +4,7 @@
 ##
 <!-- START VM includePage.vm --> 
     
-<div id="container" class="container portal" $pageSiteType>
+<div id="container" class="box portal" $pageSiteType>
     
     #parse("/vm/morpheus/includePageBody.vm")
 

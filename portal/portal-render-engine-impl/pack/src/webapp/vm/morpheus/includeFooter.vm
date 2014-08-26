@@ -1,4 +1,4 @@
-<div class="container footer">
+<div class="box footer">
     <!-- include bottom -->
     #if ( !$pagepopup)
         <footer id="footer" role="contentinfo">
@@ -36,7 +36,7 @@
             #end
             </ul>
         </footer> <!--  Q: what is this an end to? A: id="footer" -->
-        <div class="container extras">
+        <div class="box extras">
             #if ( ${loggedIn})
                 <div id="footerAppTray">
                     #if ( $neoChat )
