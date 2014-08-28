@@ -761,6 +761,9 @@ public class IFrameAction extends VelocityPortletPaneledAction
 		String special = (String) state.getAttribute(SPECIAL);
 		context.put(URL, url);
 		context.put(HEIGHT, state.getAttribute(HEIGHT));
+		if(url != null && url.startsWith("http:") && ServerConfigurationService.getServerUrl().startsWith("https:")){
+			context.put("popup", true);
+		}
 		
 		//for annotatedurl
 		context.put(TARGETPAGE_URL, state.getAttribute(TARGETPAGE_URL));

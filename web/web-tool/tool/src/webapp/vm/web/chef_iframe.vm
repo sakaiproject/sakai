@@ -59,6 +59,15 @@
 			$desp		  
 		#end
 		<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em	 -2em">
+		#if($!popup)
+			<script type="text/javascript" language="JavaScript">
+				window.open('$!url','_blank');
+			</script>
+			<p>	$tlang.getString("gen.trouble.loading")</p> 
+			<p>
+			<a href="$source" onclick="window.open('$!url','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
+			</p>
+		#else
 		<iframe 
 			title="$tlang.getString("gen.info.title.message")"
 			width="100%"
@@ -74,6 +83,7 @@
   			 #end
 			onload="updateMainFrameHeight();">
 		</iframe>
+		#end
 	</div>
 </div>
 
