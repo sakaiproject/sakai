@@ -22,6 +22,7 @@
 package org.sakaiproject.assignment.impl;
 
 import au.com.bytecode.opencsv.CSVWriter;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
@@ -90,6 +91,7 @@ import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import java.io.*;
 import java.text.Normalizer;
 import java.text.NumberFormat;
@@ -101,6 +103,7 @@ import java.util.zip.ZipOutputStream;
 //Export to excel
 import java.text.ParseException;
 import java.text.DecimalFormat;
+
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRichTextString;
 import org.apache.poi.ss.usermodel.Cell;
@@ -6852,6 +6855,20 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							nAssignment.setSection(oAssignment.getSection());
 							nAssignment.setTitle(oAssignment.getTitle());
 							nAssignment.setPosition_order(oAssignment.getPosition_order());
+							
+							nAssignment.setAllowPeerAssessment(nAssignment.getAllowPeerAssessment());
+							nAssignment.setPeerAssessmentAnonEval(oAssignment.getPeerAssessmentAnonEval());
+							nAssignment.setPeerAssessmentInstructions(oAssignment.getPeerAssessmentInstructions());
+							nAssignment.setPeerAssessmentNumReviews(oAssignment.getPeerAssessmentNumReviews());
+							nAssignment.setPeerAssessmentStudentViewReviews(oAssignment.getPeerAssessmentStudentViewReviews());
+							nAssignment.setPeerAssessmentPeriod(oAssignment.getPeerAssessmentPeriod());
+							if(nAssignment.getPeerAssessmentPeriod() == null && nAssignment.getCloseTime() != null){
+								// set the peer period time to be 10 mins after accept until date
+								GregorianCalendar c = new GregorianCalendar();
+								c.setTimeInMillis(nAssignment.getCloseTime().getTime());
+								c.add(GregorianCalendar.MINUTE, 10);
+								nAssignment.setPeerAssessmentPeriod(TimeService.newTime(c.getTimeInMillis()));
+							}
 							// properties
 							ResourcePropertiesEdit p = nAssignment.getPropertiesEdit();
 							p.clear();
