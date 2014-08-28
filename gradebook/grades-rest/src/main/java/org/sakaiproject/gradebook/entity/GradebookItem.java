@@ -33,6 +33,7 @@ public class GradebookItem extends SparseGradebookItem {
     public Date dueDate;
     public String type = "internal"; // this is the externalAppName or "internal"
     public boolean released = false;
+    public boolean includedInCourseGrade = false;
     public boolean deleted = false;
 
     public List<GradebookItemScore> scores = new Vector<GradebookItemScore>();
@@ -64,10 +65,10 @@ public class GradebookItem extends SparseGradebookItem {
 
     protected GradebookItem() {}
     public GradebookItem(String gradebookId, String name) {
-        this(gradebookId, name, null, null, null, false);
+        this(gradebookId, name, null, null, null, false, false);
     }
     public GradebookItem(String gradebookId, String name, Double pointsPossible,
-            Date dueDate, String type, boolean released) { 
+            Date dueDate, String type, boolean released, boolean includedInCourseGrade) { 
         super(null, name);
 
         if (gradebookId == null || "".equals(gradebookId)) {
@@ -85,6 +86,7 @@ public class GradebookItem extends SparseGradebookItem {
             this.type = type;
         }
         this.released = released;
+        this.includedInCourseGrade = includedInCourseGrade;
     }
 
     @Override

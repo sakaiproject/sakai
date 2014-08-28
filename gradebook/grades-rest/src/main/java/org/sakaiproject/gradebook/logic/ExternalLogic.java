@@ -578,7 +578,7 @@ public class ExternalLogic {
         // build up the items listing
         GradebookItem gbItem = new GradebookItem(gbID, assignment.getName(), assignment
                 .getPoints(), assignment.getDueDate(), assignment.getExternalAppName(),
-                assignment.isReleased());
+                assignment.isReleased(), assignment.isCounted());
         gbItem.id = assignment.getId();
         /*
          *  We have to iterate through each student and get the grades out... 
@@ -926,7 +926,7 @@ public class ExternalLogic {
              *      gradebookExternalAssessmentService.removeExternalAssessment(gradebookId, externalId);
              */
             gradebookExternalAssessmentService.removeExternalAssessment(gradebookId, externalId);
-            removed = new GradebookItem(gradebookId, a.getName(), a.getPoints(), a.getDueDate(), a.getCategoryName(), a.isReleased());
+            removed = new GradebookItem(gradebookId, a.getName(), a.getPoints(), a.getDueDate(), a.getCategoryName(), a.isReleased(), a.isCounted());
             removed.id = a.getId();
             removed.deleted = true;
         }
