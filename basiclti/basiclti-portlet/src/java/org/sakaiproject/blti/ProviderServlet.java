@@ -883,7 +883,7 @@ public class ProviderServlet extends HttpServlet {
         String callbackType = (String) payload.get(BasicLTIConstants.LTI_VERSION);
 
         String lms = (String) payload.get("ext_lms");
-        if (BasicLTIUtil.isNotBlank(lms) && lms.equals("ext-moodle-2")) {
+        if (BasicLTIUtil.isNotBlank(lms) && lms.equals("moodle-2")) {
             // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
             // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
             // think this will ever become core and the first time memberships will appear in core lti
