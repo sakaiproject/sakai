@@ -601,6 +601,31 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		return coordinators;
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@SuppressWarnings("unchecked")
+	public List<SignupUser> getAllPossbileCoordinatorsOnFastTrack(SignupMeeting meeting) {
+		List<SignupUser> coordinators = new ArrayList<SignupUser>();
+		List<SignupSite> signupSites = meeting.getSignupSites();
+		Set<String> userIdsHasPermissionToCreate = new HashSet<String>();
+		if (signupSites != null) {
+			for (SignupSite site: signupSites) {
+				//Only thing we miss here is that the view permission is not checked. the Chance is very small.
+				userIdsHasPermissionToCreate.addAll(getUserIdsHasPermissionToCreate(site));
+			}
+		}
+		
+		List<User> sakaiUsers = userDirectoryService.getUsers(userIdsHasPermissionToCreate);
+		for (User user : sakaiUsers) {
+			SignupUser signupUser = new SignupUser(user.getEid(), user.getId(), user.getFirstName(), user.getLastName(), 
+					null, "", true);
+	 				coordinators.add(signupUser);	
+	 	}
+
+		return coordinators;
+	}
+	
 	private Set<String> getUserIdsHasPermissionToCreate(SignupSite site) {
 		Set<String> userIds = new HashSet<String>();
 		userIds.addAll(getUserIdsWithPermission(SIGNUP_CREATE_SITE, site.getSiteId()));

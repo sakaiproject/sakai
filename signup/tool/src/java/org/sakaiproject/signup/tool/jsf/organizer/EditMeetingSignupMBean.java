@@ -220,7 +220,7 @@ public class EditMeetingSignupMBean extends SignupUIBaseBean {
 		this.locations = null;
 		
 		/*pre-load all possible coordinators for step2*/
-		this.allPossibleCoordinators = this.sakaiFacade.getAllPossibleCoordinators(this.signupMeeting);
+		this.allPossibleCoordinators = this.sakaiFacade.getAllPossbileCoordinatorsOnFastTrack(this.signupMeeting);
 		populateExistingCoordinators();
 
 	}

@@ -240,6 +240,18 @@ public interface SakaiFacade {
 	public List<SignupUser> getAllPossibleCoordinators(SignupMeeting meeting);
 	
 	/**
+	 * get all coordinators, who have create meeting permission in the event/meeting
+	 * This method is much efficient and fast. It may have extra people, who don't have view permission,
+	 * which we have not checked. The chances are very small since they are the site instructor/tf
+	 * 
+	 * @param meeting
+	 *            a SignupMeeting object
+	 * @return a list of SignupMeeting objects
+	 */
+	
+	public List<SignupUser> getAllPossbileCoordinatorsOnFastTrack(SignupMeeting meeting);
+	
+	/**
 	 * test whether a user has permission to create a meeting in a meeting
 	 * @param meeting
 	 * @param userId
