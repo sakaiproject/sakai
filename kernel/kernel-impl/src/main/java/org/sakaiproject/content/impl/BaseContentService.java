@@ -4670,6 +4670,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public void addResourceToDeleteTable(ContentResourceEdit edit, String uuid, String userId) throws PermissionException, ServerOverloadException
 	{
+		if (m_bodyPathDeleted == null) {
+			return;
+		}
 		String id = edit.getId();
 		String content_type = edit.getContentType();
 
