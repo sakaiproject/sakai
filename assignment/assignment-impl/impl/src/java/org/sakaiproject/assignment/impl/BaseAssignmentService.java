@@ -11709,8 +11709,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		public String getGradeDisplay()
 		{
 			Assignment m = getAssignment();
+			return getGradeDisplay(m.getContent().getTypeOfGrade());
+		}
+		
+		public String getGradeDisplay(int typeOfGrade)
+		{	
 			String grade = getGrade();
-			if (m.getContent().getTypeOfGrade() == Assignment.SCORE_GRADE_TYPE)
+			if (typeOfGrade == Assignment.SCORE_GRADE_TYPE)
 			{
 				if (grade != null && grade.length() > 0 && !"0".equals(grade))
 				{
@@ -11759,14 +11764,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					return StringUtils.trimToEmpty(grade);
 				}
 			}
-			else if (m.getContent().getTypeOfGrade() == Assignment.UNGRADED_GRADE_TYPE) {
+			else if (typeOfGrade == Assignment.UNGRADED_GRADE_TYPE) {
 				String ret = "";
 				if (grade != null) {
 					if (grade.equalsIgnoreCase("gen.nograd")) ret = rb.getString("gen.nograd");
 				}
 				return ret;
 			}
-			else if (m.getContent().getTypeOfGrade() == Assignment.PASS_FAIL_GRADE_TYPE) {
+			else if (typeOfGrade == Assignment.PASS_FAIL_GRADE_TYPE) {
 				String ret = rb.getString("ungra");
 				if (grade != null) {
 					if (grade.equalsIgnoreCase("Pass")) ret = rb.getString("pass");
@@ -11774,7 +11779,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				}
 				return ret;
 			}
-			else if (m.getContent().getTypeOfGrade() == Assignment.CHECK_GRADE_TYPE) {
+			else if (typeOfGrade == Assignment.CHECK_GRADE_TYPE) {
 				String ret = rb.getString("ungra");
 				if (grade != null) {
 					if (grade.equalsIgnoreCase("Checked")) ret = rb.getString("gen.checked");

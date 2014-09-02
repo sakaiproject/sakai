@@ -3502,13 +3502,19 @@ public class AssignmentAction extends PagedResourceActionII
 
 		String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 		Assignment assignment = getAssignment(assignmentRef, "build_instructor_grade_assignment_context", state);
+		
+		// getContent() early and store it, this call is expensive, always making a db call due to lack of caching in this tool
+		AssignmentContent assignmentContent = assignment == null ? null : assignment.getContent();
+		
 		if (assignment != null)
 		{
 			context.put("assignment", assignment);
 			state.setAttribute(EXPORT_ASSIGNMENT_ID, assignment.getId());
-			if (assignment.getContent() != null) 
+			if (assignmentContent != null) 
 			{
-				context.put("value_SubmissionType", Integer.valueOf(assignment.getContent().getTypeOfSubmission()));
+				context.put("assignmentContent", assignmentContent);
+				context.put("value_SubmissionType", Integer.valueOf(assignmentContent.getTypeOfSubmission()));
+				context.put("typeOfGrade", assignmentContent.getTypeOfGrade());
 			}
 			
 			// put creator information into context
@@ -3627,7 +3633,7 @@ public class AssignmentAction extends PagedResourceActionII
 			            		if (_agrade != null) {
 			                		_ugrades.put(
 			                        	_users[i].getId(),
-			                        	assignment.getContent() != null && assignment.getContent().getTypeOfGrade() == 3 ?
+			                        	assignmentContent != null && assignmentContent.getTypeOfGrade() == 3 ?
 			                                	displayGrade(state, _agrade): _agrade);
 			            		}	
 			        	}
@@ -3694,7 +3700,7 @@ public class AssignmentAction extends PagedResourceActionII
 		letterGradeOptionsIntoContext(context);
 		
 		// ever set the default grade for no-submissions
-		if (assignment != null && assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+		if (assignment != null && assignmentContent != null && assignmentContent.getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 		{
 			// non-electronic submissions
 			context.put("form_action", "eventSubmit_doSet_defaultNotGradedNonElectronicScore");
@@ -3943,6 +3949,8 @@ public class AssignmentAction extends PagedResourceActionII
 			{
 				context.put("value_feedback_text", s.getFeedbackFormattedText());
 			}
+
+			context.put("value_feedback_text", s.getSubmittedText());
 			List v = EntityManager.newReferenceList();
 			Iterator attachments = s.getFeedbackAttachments().iterator();
 			while (attachments.hasNext())
@@ -9833,6 +9841,8 @@ public class AssignmentAction extends PagedResourceActionII
 			AssignmentSubmission s = getSubmission(submissionId, "putSubmissionInfoIntoState", state);
 			if (s != null)
 			{
+				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getSubmittedText());
+				/*
 				if ((s.getFeedbackText() == null) || (s.getFeedbackText().length() == 0))
 				{
 					state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getSubmittedText());
@@ -9841,6 +9851,7 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					state.setAttribute(GRADE_SUBMISSION_FEEDBACK_TEXT, s.getFeedbackText());
 				}
+				*/
 				state.setAttribute(GRADE_SUBMISSION_FEEDBACK_COMMENT, s.getFeedbackComment());
 
 				List v = EntityManager.newReferenceList();

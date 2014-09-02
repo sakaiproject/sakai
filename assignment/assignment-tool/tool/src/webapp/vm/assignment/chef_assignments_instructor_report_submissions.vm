@@ -231,7 +231,9 @@
 					</tr>
 					#foreach ($submission in $submissions)
 						#set ($assignment = $submission.getSubmission().getAssignment())
-						#set ($submissionType = $assignment.Content.TypeOfSubmission)
+                        #set ($assignmentContent = $assignment.getContent())
+                        #set ($submissionType = $assignmentContent.TypeOfSubmission)
+						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
 						<tr>
 							<td headers="studentname">
 							#set ($submitterNames = "")
@@ -262,7 +264,7 @@
 							<td headers="grade">
 								#if ($submission.getSubmission())
 									#if ($submission.getSubmission().Graded)
-										#if ($assignment.getContent().TypeOfGrade == 1)
+										#if ($typeOfGrade == 1)
 											$tlang.getString("gen.nograd")
 										#else
                                             #if ($submission.group)
@@ -280,7 +282,7 @@
 								&nbsp;
 							</td>
 							<td headers="scale">
-								#set ($gradeScale = $assignment.getContent().getTypeOfGrade())
+								#set ($gradeScale = $typeOfGrade)
 									#if ($gradeScale == -1)
 										## Grade type not set 
 										$tlang.getString("gen.notset")
@@ -292,7 +294,7 @@
 										A-F
 									#elseif ($gradeScale == 3)
 										## Score based grade type
-										0-$assignment.getContent().getMaxGradePointDisplay()
+										0-$assignmentContent.getMaxGradePointDisplay()
 									#elseif ($gradeScale == 4)
 										## Pass/fail grade type 
 										 $tlang.getString("gen.pf")
