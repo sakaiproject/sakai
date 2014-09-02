@@ -6022,15 +6022,30 @@ public class AssignmentAction extends PagedResourceActionII
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
 		//avoid semicolons in filenames, right?
 		dform.applyPattern("yyyy-MM-dd_HH-mm-ss");
-		StringBuilder sb_resourceId = new StringBuilder("InlineSubmission_");
+		StringBuilder sb_resourceId = new StringBuilder("InlineSub_");
 		String u = "_";
-		sb_resourceId.append(siteId).append(u).append(edit.getAssignmentId()).append(u).append(currentDisplayName).append(u);
+		sb_resourceId.append(edit.getAssignmentId()).append(u).append(currentDisplayName).append(u);
 		if (submitter != null)
 		{
-			sb_resourceId.append("on_behalf_of_").append(submitter.getDisplayId()).append(u);
+			sb_resourceId.append("for_").append(submitter.getDisplayId()).append(u);
 		}
-		sb_resourceId.append(dform.format(new Date())).append(".html");
-		String resourceId = sb_resourceId.toString();
+		sb_resourceId.append(dform.format(new Date()));
+
+		String fileExtension = ".html";
+
+		/* 
+		 * TODO: add and use a method in ContentHostingService to get the length of the ID of an attachment collection
+		 * Attachment collections currently look like this:
+		 * /attachment/dc126c4a-a48f-42a6-bda0-cf7b9c4c5c16/Assignments/eac7212a-9597-4b7d-b958-89e1c47cdfa7/
+		 * See BaseContentService.addAttachmentResource for more information
+		 */
+		String toolName = "Assignments";
+		// TODO: add and use a method in IdManager to get the maxUuidLength
+		int maxUuidLength = 36;
+		int esl = Entity.SEPARATOR.length();
+		int attachmentCollectionLength = ContentHostingService.ATTACHMENTS_COLLECTION.length() + siteId.length() + esl + toolName.length() + esl + maxUuidLength + esl;
+		int maxChars = ContentHostingService.MAXIMUM_RESOURCE_ID_LENGTH - attachmentCollectionLength - fileExtension.length() - 1;
+		String resourceId = StringUtils.substring(sb_resourceId.toString(), 0, maxChars) + fileExtension;
 
 		ResourcePropertiesEdit inlineProps = m_contentHostingService.newResourceProperties();
 		inlineProps.addProperty(ResourceProperties.PROP_DISPLAY_NAME, rb.getString("submission.inline"));
@@ -6063,7 +6078,7 @@ public class AssignmentAction extends PagedResourceActionII
 		try
 		{
 			m_securityService.pushAdvisor(sa);
-			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, contentStream, inlineProps);
+			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
 			// TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service	--bbailla2
 			String contentUserId = UserDirectoryService.getCurrentUser().getId();
 			if(submitter != null){
