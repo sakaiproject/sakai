@@ -8741,6 +8741,15 @@ public class AssignmentAction extends PagedResourceActionII
         opts.put("dtstart", dform.format(openTime.getTime()));
         opts.put("dtdue", dform.format(dueTime.getTime()));
         //opts.put("dtpost", dform.format(closeTime.getTime()));       
+        opts.put("title", assign.getTitle());
+        opts.put("instructions", assign.getInstructions());
+        if(assign.getAttachments() != null && assign.getAttachments().size() > 0){
+        	List<String> attachments = new ArrayList<String>();
+        	for(Reference ref : assign.getAttachments()){
+        		attachments.add(ref.getReference());
+        	}
+        	opts.put("attachments", attachments);
+        }
         try {
             contentReviewService.createAssignment(assign.getContext(), assign.getReference(), opts);
 			return true;
