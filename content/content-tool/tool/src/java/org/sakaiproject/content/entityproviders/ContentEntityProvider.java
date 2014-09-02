@@ -306,6 +306,11 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 		item.setContainer(entity.getContainingCollection().getReference());
 		item.isVisible = !entity.isHidden() && entity.isAvailable();
+		item.isHidden = entity.isHidden();
+		if(entity.getReleaseDate() != null) {
+             item.setFromDate(entity.getReleaseDate().toStringGmtFull());
+             item.setEndDate(entity.getRetractDate().toStringGmtFull());
+         }
 	}
 	
 	/**
@@ -492,9 +497,18 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		
 		@Getter @Setter
 		private boolean isVisible;
+		
+		@Getter @Setter
+		private boolean isHidden;
 
 		@Getter @Setter
 		private long numChildren=0;
+		
+		@Getter @Setter
+        private String fromDate;
+
+        @Getter @Setter
+        private String endDate;
 	}
 	
 	/**
