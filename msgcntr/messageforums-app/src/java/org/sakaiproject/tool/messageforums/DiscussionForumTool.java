@@ -7827,7 +7827,7 @@ public class DiscussionForumTool
 				Iterator msgIter = messages.iterator();
 				while (msgIter.hasNext()){
 					DiscussionMessageBean msg = (DiscussionMessageBean) msgIter.next();
-					if ((msg.isMsgApproved() || msg.getIsOwn()) && (!excludeDeleted || (excludeDeleted && !msg.getDeleted())))
+					if ((msg.isMsgApproved() || msg.getIsOwn()) && (!excludeDeleted || (excludeDeleted && !msg.getDeleted()) || (excludeDeletedOnlyWithoutChild && msg.getHasNotDeletedDescendant(null))))
 						viewableMsgs.add(msg);
 				}
 			}
