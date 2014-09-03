@@ -309,8 +309,10 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		item.isHidden = entity.isHidden();
 		if(entity.getReleaseDate() != null) {
              item.setFromDate(entity.getReleaseDate().toStringGmtFull());
-             item.setEndDate(entity.getRetractDate().toStringGmtFull());
          }
+		if(entity.getRetractDate()!=null) {
+		item.setEndDate(entity.getRetractDate().toStringGmtFull());
+		}
 	}
 	
 	/**
@@ -470,45 +472,45 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	 * Simplified helper class to represent an individual content item
 	 */
 	public static class ContentItem {
-		
+
 		@Getter @Setter
 		private String title;
-		
+
 		@Getter @Setter
 		private String description;
-		
+
 		@Getter @Setter
 		private String url;
-		
+
 		@Getter @Setter
 		private String type;
-		
+
 		@Getter @Setter
 		private long size;
-		
+
 		@Getter @Setter
 		private String author;
-		
+
 		@Getter @Setter
 		private String modifiedDate;
-		
+
 		@Getter @Setter
 		private String container;
-		
+
 		@Getter @Setter
 		private boolean isVisible;
-		
+
 		@Getter @Setter
 		private boolean isHidden;
 
 		@Getter @Setter
 		private long numChildren=0;
-		
-		@Getter @Setter
-        private String fromDate;
 
-        @Getter @Setter
-        private String endDate;
+		@Getter @Setter
+		private String fromDate;
+
+		@Getter @Setter
+		private String endDate;
 	}
 	
 	/**
