@@ -89,12 +89,15 @@
 		<%-- If message actually deleted, don't display links --%>
 		<h:panelGroup rendered="#{!message.deleted}" styleClass="itemToolBar">
 				<%-- mark as read link --%>
-					<h:graphicImage value="/images/trans.gif"
-						alt="#{msgs.cdfm_mark_as_read}" 
+					<h:outputLink value="javascript:void(0);"
 						title="#{msgs.cdfm_mark_as_read}" 
 						rendered="#{!message.read}"
 						styleClass="markAsReadIcon"
-						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);"/>
+						onclick="doAjax(#{message.message.id}, #{ForumTool.selectedTopic.topic.id}, this);">
+						<h:graphicImage value="/images/trans.gif"/>
+						<h:outputText value="#{msgs.cdfm_mark_as_read}"/>
+					</h:outputLink>
+					<h:outputText escape="false"  value="<span class=\"otherActions\">&nbsp;#{msgs.cdfm_toolbar_separator}&nbsp;</span>" rendered="#{!message.read}"/>
 				<%-- Reply link --%>
 				<h:panelGroup rendered="#{ForumTool.selectedTopic.isNewResponseToResponse && message.msgApproved && !ForumTool.selectedTopic.locked && !ForumTool.selectedForum.locked == 'true'}">
 					<h:commandLink action="#{ForumTool.processDfMsgReplyMsgFromEntire}" title="#{msgs.cdfm_reply}"> 
