@@ -91,7 +91,7 @@ ${server_url}${dav_group}${site_alias}
 #end
 ${server_url}${dav_group}$site_id
 #end
-" />
+" readonly />
 	</p>
 	
 	<script type="text/javascript">
