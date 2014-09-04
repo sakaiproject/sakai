@@ -982,11 +982,6 @@
             }
         }
 
-        overviewSortParams.textExtraction = function(node) { 
-            // Just return the innerText, not the HTML  
-            return node.innerText; 
-        } 
-
         return overviewSortParams;
     };
 
@@ -1019,11 +1014,6 @@
             } else {
                 groupSortParams.sortList = [[1,0]];
             }
-        }
-
-        groupSortParams.textExtraction = function(node) {
-            // Just return the innerText, not the HTML  
-            return node.innerText;
         }
 
         return groupSortParams;
