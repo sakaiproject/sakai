@@ -97,6 +97,15 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	 */
 	public int getTypeOfGrade();
 
+    /**
+     * Access a string describing the type of grade.
+     * @deprecated Use getTypeOfGradeString() instead.
+     * @param gradeType -
+     *        The integer representing the type of grade.
+     * @return Description of the type of grade.
+     */
+    public String getTypeOfGradeString(int gradeType);
+
 	/**
 	 * Access a string describing the type of grade.
 	 * 

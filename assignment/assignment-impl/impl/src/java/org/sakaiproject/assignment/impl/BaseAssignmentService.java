@@ -9423,6 +9423,17 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_typeOfSubmission;
 		}
 
+	    /**
+	     * Access a string describing the type of grade.
+	     * @deprecated Use getTypeOfGradeString() instead.
+	     * @param gradeType -
+	     *        The integer representing the type of grade.
+	     * @return Description of the type of grade.
+	     */
+	    public String getTypeOfGradeString(int gradeType){
+	    	return getTypeOfGradeString();
+	    }
+	    
 		/**
 		 * Access a string describing the type of grade.
 		 * 
