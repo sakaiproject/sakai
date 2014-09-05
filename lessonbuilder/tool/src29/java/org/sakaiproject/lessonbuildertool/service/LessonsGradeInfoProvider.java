@@ -183,19 +183,23 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     */
 
     boolean isUserInPath(String userId, Set<Path>paths, String siteId) {
+	nextpath:
 	for (Path path: paths) {
-	    Set<String>groupIds = path.groups;
-	    if (groupIds == null)  // no constraint
+	    if (path.groups == null)  // no constraint
 		return true;
 
-	    ArrayList<String> groups = new ArrayList<String>();
-	    for (String groupId: groupIds)
+	    for (Set<String>groupIds: path.groups) {
+		ArrayList<String> groups = new ArrayList<String>();
+		for (String groupId: groupIds)
 		    groups.add("/site/" + siteId + "/group/" + groupId);
 		
-	    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-	    // have to match all
-	    if (matched.size() == groups.size())
-		return true;
+		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
+		// have to at least one
+		if (matched.size() < 1)
+		    continue nextpath;
+	    }
+	    // matched all in path
+	    return true;
 	}
 	return false;
     }
@@ -205,20 +209,21 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	Set<String>retUsers = new HashSet<String>();
 
 	for (Path path: paths) {
-	    Set<String>groupIds = path.groups;
-	    if (groupIds == null)  // no constraint
+	    if (path.groups == null)  // no constraint
 		return new HashSet<String>(userIds);
 
 	    // users for this path. It's users who are in all the groups
 	    Set<String> pathUsers = new HashSet<String>(userIds);
-	    for (String groupId: groupIds) {
+
+	    for (Set<String>groupIds: path.groups) {
 		Set<String> groups = new HashSet<String>();
-		groups.add("/site/" + siteId + "/group/" + groupId);
-		
+		for (String groupId: groupIds)
+		    groups.add("/site/" + siteId + "/group/" + groupId);
 		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(groups));
 		pathUsers.retainAll(okUsers);
 	    }
-	    // these users are in all groups, add them to be returned
+
+	    // these users are in all path elements, add them to be returned
 	    retUsers.addAll(pathUsers);
 	}
 

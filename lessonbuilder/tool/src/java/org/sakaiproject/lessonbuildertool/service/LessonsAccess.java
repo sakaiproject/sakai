@@ -120,7 +120,7 @@ public class LessonsAccess {
     public class Path implements Cloneable{
 	Long itemId;
 	boolean topLevel;
-	Set<String>groups;
+	List<Set<String>>groups;
 	public Path clone() {
 	    Path ret = new Path();
 	    ret.itemId = this.itemId;
@@ -237,7 +237,10 @@ public class LessonsAccess {
 		Path path = new Path();
 		path.itemId = item.getId();
 		path.topLevel = (item.getPageId() == 0);
-		path.groups = itemGroups;
+		if (itemGroups != null) {
+		    path.groups = new ArrayList<Set<String>>();
+		    path.groups.add(itemGroups);
+		}
 		// TODO: check for duplicates
 		ret.add(path);
 	    } else {
@@ -246,15 +249,15 @@ public class LessonsAccess {
 		    // the values will end up cached. That means we can't
 		    // modify the values in place, but have to copy them first
 		    path = path.clone();
-		    if (path.groups == null)
-			path.groups = itemGroups;
-		    else if (itemGroups == null)
+		    if (itemGroups == null)
 			; // use path.groups as is
-		    else {
+		    else if (path.groups == null) {
+			path.groups = new ArrayList<Set<String>>();
+			path.groups.add(itemGroups);
+		    } else {
 			// note: we can't modify that set in path.groups, because it coudl be shared
 			// with other copies of this Path
-			itemGroups.addAll(path.groups);  // add to list or constraints, i.e. you have to be in all the groups
-			path.groups = itemGroups;
+			path.groups.add(itemGroups);  // add to list or constraints, i.e. you have to be in all the groups
 		    }
 		    ret.add(path);
 		}
@@ -280,12 +283,13 @@ public class LessonsAccess {
 	Set<Path> paths = getPagePaths(pageId, false);
 
 	for (Path path: paths) {
-	    if (path.groups == null) 
-		path.groups = itemGroups;
-	    else if (itemGroups == null)
-		; // nothing needed
-	    else
-		path.groups.addAll(itemGroups);
+	    if (itemGroups == null)
+		; // leave path.groups as is
+	    else if (path.groups == null) {
+		path.groups = new ArrayList<Set<String>>();
+		path.groups.add(itemGroups);
+	    } else
+		path.groups.add(itemGroups);
 	}
 
 	return paths;
@@ -311,6 +315,7 @@ public class LessonsAccess {
 
 	Set<Path> paths = getPagePaths(pageId);
 
+	nextpath:
 	for (Path path: paths) {
 	    if (path.itemId != null) {
 		// page needs to be marked available. When the containing page
@@ -363,15 +368,17 @@ public class LessonsAccess {
 	    if (path.groups == null) 
 		return true;
 	    else {
-		Set<String>groupIds = path.groups;
-		ArrayList<String> groups = new ArrayList<String>();
-		for (String groupId: groupIds)
-		    groups.add("/site/" + siteId + "/group/" + groupId);
-		
-		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, currentUserId);
-		// have to match all
-		if (matched.size() == groups.size())
-		    return true;
+		for (Set<String>groupIds: path.groups) {
+		    ArrayList<String> groups = new ArrayList<String>();
+		    for (String groupId: groupIds)
+			groups.add("/site/" + siteId + "/group/" + groupId);
+		    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, currentUserId);
+		    // must match at least one
+		    if (matched.size() < 1)
+			continue nextpath;
+		}
+		// matched all of the items o the path
+		return true;
 	    }
 
 	}
