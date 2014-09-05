@@ -418,10 +418,13 @@ public class SignupMeetingWrapper implements SignupBeanConstants {
 			eventMainAttachments.clear();
 			attendeeAttachments.clear();
 			for (SignupAttachment attach: attachments) {
-				if(attach.getTimeslotId() !=null && ! attach.getViewByAll())
-					this.attendeeAttachments.add(attach);
-				else if( attach.getViewByAll())
-					this.eventMainAttachments.add(attach);
+				if(attach !=null){
+					//it happens once for null value in Yale Prod. and need safeguard here
+					if(attach.getTimeslotId() !=null && ! attach.getViewByAll())
+						this.attendeeAttachments.add(attach);
+					else if( attach.getViewByAll())
+						this.eventMainAttachments.add(attach);
+				}
 				
 				//TODO other cases: such as attachment for a specific time slot only.
 			}
