@@ -36,6 +36,8 @@ import org.sakaiproject.service.gradebook.shared.ExternalAssignmentProvider;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
+import org.sakaiproject.lessonbuildertool.service.LessonsAccess.Path;
 
 import java.util.*;
 
@@ -58,6 +60,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     private AuthzGroupService authzGroupService;
     private SecurityService securityService;
     private MemoryService memoryService;
+    private LessonsAccess lessonsAccess;
 
     public void init() {
 	cache = memoryService
@@ -120,6 +123,14 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	return true;
     }
 
+    boolean isPathSetGrouped(Set<Path> paths) {
+	for (Path path: paths) {
+	    if (path.groups == null)
+		return false;
+	}
+	return true;
+    }
+
     // is access to this item restricted by group access
     public boolean isAssignmentGrouped(String id) {
 	if (!id.startsWith("lesson-builder:"))
@@ -141,11 +152,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    } catch (Exception e){
 		return false;
 	    }
-	    Set<String> groupIds = getPageGroups(pageId, new HashSet<Long>());
-	    if (groupIds == null)
-		return false;
+	    return isPathSetGrouped(lessonsAccess.getPagePaths(pageId, false));
 
-	    return true;
 	}
 
 	SimplePageItem item = null;
@@ -159,11 +167,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    return false;
 	}
 
-	Set<String> groupIds = getItemGroups(item);
-	if (groupIds == null)
-	    return false;
+	return isPathSetGrouped(lessonsAccess.getItemPaths(itemId));
 
-	return true;
     }
 
     // my best estimate is about 100 bytes / call. The maximum likely chain is 
@@ -177,92 +182,47 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
       [], i.e. empty set, means impossible
     */
 
-    Set<String> getItemGroups (SimplePageItem item) {
-	return getItemGroups(item, new HashSet<Long>());
-    }
+    boolean isUserInPath(String userId, Set<Path>paths, String siteId) {
+	for (Path path: paths) {
+	    Set<String>groupIds = path.groups;
+	    if (groupIds == null)  // no constraint
+		return true;
 
-    // find all groups allowed to use this item
-    // intersect group directly associated with item
-    // and groups allowed to use the page it's on
-
-    Set<String> getItemGroups (SimplePageItem item, Set<Long>seen) {
-
-	// null is a possible value. Because get returns null if something isn't
-	// in the cache, use "null" for null. could also check whether it's in the cache
-	// but documentation says this is expensive
-	Object cached = cache.get(String.valueOf(item.getId()));
-	//	Object cached = null; // for testing
-	if (cached != null) {
-	    if (cached instanceof String) // "null"
-		return null;
-	    return (Set<String>)cached;
+	    ArrayList<String> groups = new ArrayList<String>();
+	    for (String groupId: groupIds)
+		    groups.add("/site/" + siteId + "/group/" + groupId);
+		
+	    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
+	    // have to match all
+	    if (matched.size() == groups.size())
+		return true;
 	}
-	Long itemId = (Long)item.getId();
-
-	if (seen.contains(itemId)) // loop, can't really get there
-	    return new HashSet<String>();
-	seen.add(itemId); // note that we're in progress, to stop infinte loop
-
-	// if either has no restriction use the other
-	// otherwise intersect them
-
-	String itemGroupString = item.getGroups();
-	Set<String>itemGroups = null;
-	if (itemGroupString != null && itemGroupString.length() > 0)
-	    itemGroups = new HashSet<String>(Arrays.asList(itemGroupString.split(",")));
-	/// System.out.println("item " + item.getId() + "local groups " + itemGroups);
-
-	Set<String>  pageGroups = getPageGroups(item.getPageId(), seen);
-	/// System.out.println("item " + item.getId() + "page groups " + pageGroups);
-	if (itemGroups == null)
-	    itemGroups = pageGroups;
-	else if (pageGroups == null)
-            ; //nothing
-	else
-	    itemGroups.retainAll(pageGroups);
-	if (itemGroups == null)
-	    cache.put(String.valueOf(item.getId()), "null");
-	else
-	    cache.put(String.valueOf(item.getId()), itemGroups);
-	/// System.out.println("item " + item.getId() + " returned " + itemGroups);
-
-        // no longer is progress
-	seen.remove(itemId);
-	return itemGroups;
+	return false;
     }
-	    
-    // return all group allowed to access this page
-    // find all items that point to the page and
-    // take the union of groups allowed t use each
 
-    Set<String> getPageGroups(long pageId, Set<Long>seen) {
-	/// System.out.println("page " + pageId + " getgroups");
-	// if pageid is 0 this is a top level page. No further constraints
-	if (pageId == 0)
-	    return null;
+    Set<String> usersInPath(Collection<String> userIds, Set<Path>paths, String siteId) {
 
-	Set<String> ret = new HashSet<String>();
+	Set<String>retUsers = new HashSet<String>();
 
-	// List of items with this page on it
-	List<SimplePageItem> items = dao.findPageItemsBySakaiId(Long.toString(pageId));
-	/// System.out.print("page " + pageId + " called from items ");
-	/// for (SimplePageItem item: items) {
-	///	    System.out.print(item.getId() + " ");
-	/// }
-	/// System.out.println();
+	for (Path path: paths) {
+	    Set<String>groupIds = path.groups;
+	    if (groupIds == null)  // no constraint
+		return new HashSet<String>(userIds);
 
-	for (SimplePageItem item: items) {
-	    // union all their groups
-	    Set<String> pageGroups = getItemGroups(item, seen);
+	    // users for this path. It's users who are in all the groups
+	    Set<String> pathUsers = new HashSet<String>(userIds);
+	    for (String groupId: groupIds) {
+		Set<String> groups = new HashSet<String>();
+		groups.add("/site/" + siteId + "/group/" + groupId);
+		
+		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(groups));
+		pathUsers.retainAll(okUsers);
+	    }
+	    // these users are in all groups, add them to be returned
+	    retUsers.addAll(pathUsers);
+	}
 
-	    /// System.out.println("page " + pageId + "item " + item.getId() + " " + pageGroups);
-	    // except if we find one that's unconstrained, the final result is thta
-	    if (pageGroups == null)
-		return null;
-	    ret.addAll(pageGroups);
-	 }
-	/// System.out.println("page " + pageId + " returns " + ret);
-	return ret;
+	return retUsers;
     }
 
     public boolean isAssignmentVisible(String id, String userId) {
@@ -271,26 +231,30 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    return false;
 	String prefix = id.substring(0, i);
 	String itemNum = id.substring(i+1);
-
-	// if it's a page rather than an item
-	if ("lesson-builder".equals(prefix))
-	    return isAssignmentPageVisible(itemNum, userId);
-
-	SimplePageItem item = null;
 	long itemId = 0;
 	try {
 	    itemId = Long.parseLong(itemNum);
-	    item = dao.findItem(itemId);
-	    if (item == null)
-		return false;
-	} catch (Exception e){
+	} catch (Exception e) {
 	    return false;
 	}
+
+	Set<Path> paths = null;
+
+	// if it's a page rather than an item
+	if ("lesson-builder".equals(prefix))
+	    paths = lessonsAccess.getPagePaths(itemId, false);
+	else {
+	    SimplePageItem item = dao.findItem(itemId);
+	    paths = lessonsAccess.getItemPaths(itemId);
+	    itemId = item.getPageId();
+	}
+
+	// itemId is now the pageId, no matter what kind of thing this is
 
 	// there are two things to check. One is whether the user is in the site.
 	// the other is whether the item is grouped. If so, is the user in that group
 
-	SimplePage page = dao.getPage(item.getPageId());
+	SimplePage page = dao.getPage(itemId);
 	String siteId = page.getSiteId();
 	String ref = "/site/" + siteId;
 	boolean visible = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
@@ -299,49 +263,10 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
 	// can access the site. If not grouped, we're done.
 
-	Set<String> groupIds = getItemGroups(item);
-	if (groupIds == null)
+	if (!isPathSetGrouped(paths))
 	    return true;
 
-	ArrayList<String> groups = new ArrayList<String>();
-	for (String groupId: groupIds)
-	    groups.add("/site/" + siteId + "/group/" + groupId);
-	List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-	return (matched.size() > 0);
-    }
-
-    public boolean isAssignmentPageVisible(String pageNum, String userId) {
-	SimplePage page = null;
-	long pageId = 0;
-	try {
-	    pageId = Long.parseLong(pageNum);
-	    page = dao.getPage(pageId);
-	    if (page == null)
-		return false;
-	} catch (Exception e){
-	    return false;
-	}
-
-	// there are two things to check. One is whether the user is in the site.
-	// the other is whether the item is grouped. If so, is the user in that group
-
-	String siteId = page.getSiteId();
-	String ref = "/site/" + siteId;
-	boolean visible = securityService.unlock(userId, SimplePage.PERMISSION_LESSONBUILDER_READ, ref);
-	if (!visible)
-	    return false;
-
-	// can access the site. If not grouped, we're done.
-
-	Set<String> groupIds = getPageGroups(pageId, new HashSet<Long>());
-	if (groupIds == null)
-	    return true;
-
-	ArrayList<String> groups = new ArrayList<String>();
-	for (String groupId: groupIds)
-	    groups.add("/site/" + siteId + "/group/" + groupId);
-	List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-	return (matched.size() > 0);
+	return isUserInPath(userId, paths, siteId);
     }
 
     public List<String> getExternalAssignmentsForCurrentUser(String gradebookUid) {
@@ -357,47 +282,21 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 
 	List<SimplePageItem> externalItems = dao.findGradebookItems(gradebookUid);
 	for (SimplePageItem item : externalItems) {
-
-	    Set<String> groupIds = getItemGroups(item);
-	    /// System.out.println("item " + item.getId() + " " + groupIds);
-	    if (groupIds ==  null) {
+	    Set<Path> paths = lessonsAccess.getItemPaths(item.getId());
+	    if (isUserInPath(userId, paths, gradebookUid)) {
 		if (item.getGradebookId() != null)
 		    ret.add(item.getGradebookId());
 		if (item.getAltGradebook() != null)
 		    ret.add(item.getAltGradebook());
-	    } else {
-		ArrayList<String> groups = new ArrayList<String>();
-		for (String groupId: groupIds) {
-		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
-		}
-		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-		if (matched.size() > 0) {
-		    if (item.getGradebookId() != null)
-			ret.add(item.getGradebookId());
-		    if (item.getAltGradebook() != null)
-			ret.add(item.getAltGradebook());
-		}
 	    }
 	}
 				       
 	List<SimplePage> externalPages = dao.findGradebookPages(gradebookUid);
 	for (SimplePage page : externalPages) {
-
-	    Set<String> groupIds = getPageGroups(page.getPageId(), new HashSet<Long>());
-	    /// System.out.println("item " + item.getId() + " " + groupIds);
-	    if (groupIds ==  null) {
+	    Set<Path> paths = lessonsAccess.getPagePaths(page.getPageId(), false);
+	    if (isUserInPath(userId, paths, gradebookUid)) {
 		if (page.getGradebookPoints() != null)
 		    ret.add("lesson-builder:" + page.getPageId());
-	    } else {
-		ArrayList<String> groups = new ArrayList<String>();
-		for (String groupId: groupIds) {
-		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
-		}
-		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, userId);
-		if (matched.size() > 0) {
-		    if (page.getGradebookPoints() != null)
-			ret.add("lesson-builder:" + page.getPageId());
-		}
 	    }
 	}
 
@@ -417,6 +316,20 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     }
 
     public Map<String, List<String>> getAllExternalAssignments(String gradebookUid, Collection<String> studentIds) {
+	//System.out.println("isassignmentgrouped lesson-builder:1788 " + isAssignmentGrouped("lesson-builder:1788"));
+	//System.out.println("isassignmentgrouped lesson-builder:comment:7289 " + isAssignmentGrouped("lesson-builder:comment:7289"));
+	//System.out.println("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//System.out.println("isUserInPath " + isUserInPath("c08d3ac9-c717-472a-ad91-7ce0b434f42f", lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//HashSet<String> userset = new HashSet<String>();
+	//userset.add("c08d3ac9-c717-472a-ad91-7ce0b434f42f");
+	//userset.add("9d1a25ba-4735-48c4-bd5e-ff329f9f7749");
+
+	//System.out.println("usersInPath " + usersInPath(userset, lessonsAccess.getPagePaths(1788L,false),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//System.out.println("userInPath " + usersInPath(userset, lessonsAccess.getItemPaths(7289L),"60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+	//System.out.println(isAssignmentVisible("lesson-builder:1788", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
+	//System.out.println(isAssignmentVisible("lesson-builder:comment:7289", "c08d3ac9-c717-472a-ad91-7ce0b434f42f"));
+	//System.out.println(getExternalAssignmentsForCurrentUser("60c04ab8-40e5-4eb6-9f8d-7006ed023109"));
+
 	Map<String,List<String>> allExternals = new HashMap<String, List<String>>();
 
 	String ref = "/site/" + gradebookUid;
@@ -436,65 +349,33 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	List<SimplePageItem> externalItems = dao.findGradebookItems(gradebookUid);
 	for (SimplePageItem item: externalItems) {
 
-	    Set<String> groupIds = getItemGroups(item);
-	    if (groupIds == null) {
-		// no restriction add to all users
-		for (String userId : studentIds)
-		    if (allExternals.containsKey(userId)) {
-			if (item.getGradebookId() != null)
-			    allExternals.get(userId).add(item.getGradebookId());
-			if (item.getAltGradebook() != null)
-			    allExternals.get(userId).add(item.getAltGradebook());
-		    }
-	    } else {
-		// restricted to group
-		Set<String> groups = new HashSet<String>();
-		for (String groupId: groupIds)
-		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+	    Set<Path> paths = lessonsAccess.getItemPaths(item.getId());
+	    Set<String> users = usersInPath(studentIds, paths, gradebookUid);
 
-		// see if anyone on our list is in one of the groups
-		// this call is new, but this code is only needed for 2.9.1 and later
-		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(groups));
-		okUsers.retainAll(studentIds);
-		for (String userId : okUsers)
-		    if (allExternals.containsKey(userId)) {
-			if (item.getGradebookId() != null)
-			    allExternals.get(userId).add(item.getGradebookId());
-			if (item.getAltGradebook() != null)
-			    allExternals.get(userId).add(item.getAltGradebook());
-		    }
-	    }
+	    // add this assignment to all users that are in the groups
+	    for (String userId : users)
+		if (allExternals.containsKey(userId)) {
+		    if (item.getGradebookId() != null)
+			allExternals.get(userId).add(item.getGradebookId());
+		    if (item.getAltGradebook() != null)
+			allExternals.get(userId).add(item.getAltGradebook());
+		}
+
 	}
 
 	List<SimplePage> externalPages = dao.findGradebookPages(gradebookUid);
 	for (SimplePage page: externalPages) {
 
-	    Set<String> groupIds = getPageGroups(page.getPageId(),new HashSet<Long>());
-	    if (groupIds == null) {
-		// no restriction add to all users
-		for (String userId : studentIds)
-		    if (allExternals.containsKey(userId)) {
-			if (page.getGradebookPoints() != null)
-			    allExternals.get(userId).add("lesson-builder:" + page.getPageId());
-		    }
-	    } else {
-		// restricted to group
-		Set<String> groups = new HashSet<String>();
-		for (String groupId: groupIds)
-		    groups.add("/site/" + gradebookUid + "/group/" + groupId);
+	    Set<Path> paths = lessonsAccess.getPagePaths(page.getPageId(), false);
+	    Set<String> users = usersInPath(studentIds, paths, gradebookUid);
 
-		// see if anyone on our list is in one of the groups
-		// this call is new, but this code is only needed for 2.9.1 and later
-		Set<String> okUsers = new HashSet<String>(authzGroupService.getAuthzUsersInGroups(groups));
-		okUsers.retainAll(studentIds);
-		for (String userId : okUsers)
-		    if (allExternals.containsKey(userId)) {
-			if (page.getGradebookPoints() != null)
-			    allExternals.get(userId).add("lesson-builder:" + page.getPageId());
-		    }
-	    }
+	    // add this assignment to all users that are in the groups
+	    for (String userId : users)
+		if (allExternals.containsKey(userId)) {
+		    if (page.getGradebookPoints() != null)
+			allExternals.get(userId).add("lesson-builder:" + page.getPageId());
+		}
 	}
-
 
 	// now handle other tools. If we modified their groups, we need to find the original groups
 	// and return the users that match those groups
@@ -521,6 +402,8 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 		    }
 	    }
 	}
+	//System.out.println("getAllExternalAssignments " + studentIds + " " + allExternals);
+
 	return allExternals;
     }
 
@@ -535,12 +418,17 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
 	    if (item.getAltGradebook() != null)
 		ret.add(item.getAltGradebook());
 	}	    
+	List<SimplePage> externalPages = dao.findGradebookPages(gradebookUid);
+	for (SimplePage page: externalPages) {
+	    if (page.getGradebookPoints() != null)
+		ret.add("lesson-builder:" + page.getPageId());
+	}
 
 	return ret;
     }
 
     // return list of items where we've replaced the group with our own
-    // returns map externalId -> group list
+        // returns map externalId -> group list
     public Map<String,ArrayList<String>> getExternalAssigns(String gradebookUid) {
 	Map<String,ArrayList<String>> ret = new HashMap<String,ArrayList<String>>();
 	
@@ -634,7 +522,10 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     public void setMemoryService(MemoryService m) {
 	memoryService = m;
     }
-
+    
+    public void setLessonsAccess(LessonsAccess l) {
+	lessonsAccess = l;
+    }
 
 }
 

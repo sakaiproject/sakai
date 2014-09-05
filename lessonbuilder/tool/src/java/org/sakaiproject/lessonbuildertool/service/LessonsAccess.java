@@ -161,10 +161,21 @@ public class LessonsAccess {
 
 
     public Set<Path> getPagePaths (long pageId) {
-	return getPagePaths(pageId, new HashSet<Long>());
+	return getPagePaths(pageId, new HashSet<Long>(), true);
     }
 
-    Set<Path> getPagePaths(long pageId, Set<Long>seen) {
+    public Set<Path> getPagePaths (long pageId, Set<Long>seen) {
+	return getPagePaths(pageId, seen, true);
+    }
+
+    public Set<Path> getPagePaths(long pageId, boolean usePrerequisites) {
+	return getPagePaths(pageId, new HashSet<Long>(), usePrerequisites);
+    }
+
+    // usePrerequisites is normally used. However for GradebookInfo, we just
+    // use group restrictions. We count an item for the student even if 
+    // they can't get there yet because of prerequisites
+    Set<Path> getPagePaths(long pageId, Set<Long>seen, boolean usePrerequisites) {
 	/// System.out.println("page " + pageId + " getgroups");
 	// if pageid is 0 this is a top level page. No further constraints
 	Set<Path> ret = new HashSet<Path>();
@@ -186,7 +197,8 @@ public class LessonsAccess {
 	if (seen.contains(pageId))
 	    return ret;
 
-	if (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))) {
+	if (usePrerequisites && 
+	    (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())))) {
 	    // not released. Say inaccessible. The assumption is that this is being used only
 	    // for students. Obviously the instructor can bypass release control.
 	    return ret;
@@ -196,6 +208,7 @@ public class LessonsAccess {
 	List<SimplePageItem> items = null;
 
 	// if it's a student page, have to handle specially. Find item that has the student content section
+	// if usePrerequistes false, this can't happen, since no graded items will occur there
 	if (page.getOwner() != null) {
 	    SimpleStudentPage student = dao.findStudentPage(page.getTopParent());
 	    SimplePageItem item = dao.findItem(student.getItemId());
@@ -214,7 +227,7 @@ public class LessonsAccess {
 	    if (itemGroupString != null && itemGroupString.length() > 0)
 		itemGroups = new HashSet<String>(Arrays.asList(itemGroupString.split(",")));
 
-	    if (item.isPrerequisite()) {
+	    if (usePrerequisites && item.isPrerequisite()) {
 		// we don't do a recursive call for groups. because of the restriction on prerequisites,
 		// we will only allow access to this page if there is a log entry. But in that case
 		// we don't need further tests because the user had at some point gotten to the containing
@@ -251,6 +264,31 @@ public class LessonsAccess {
 	seen.remove(pageId);
 
 	return ret;
+    }
+
+    public Set<Path> getItemPaths(long itemId) {
+
+	SimplePageItem item = dao.findItem(itemId);
+
+	String itemGroupString = item.getGroups();
+	Set<String>itemGroups = null;
+	if (itemGroupString != null && itemGroupString.length() > 0)
+	    itemGroups = new HashSet<String>(Arrays.asList(itemGroupString.split(",")));
+	
+	long pageId = item.getPageId();
+	
+	Set<Path> paths = getPagePaths(pageId, false);
+
+	for (Path path: paths) {
+	    if (path.groups == null) 
+		path.groups = itemGroups;
+	    else if (itemGroups == null)
+		; // nothing needed
+	    else
+		path.groups.addAll(itemGroups);
+	}
+
+	return paths;
     }
 
     // in testing this code, not that ispageaccessible will sometimes return true
