@@ -487,6 +487,9 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    }
 
 		    // debug code for development. this will be removed at some point
+		    //UIOutput.make(row, "page1", lessonsAccess.printPath(lessonsAccess.getPagePaths(entry.pageId)));
+		    //UIOutput.make(row, "page2", Boolean.toString(lessonsAccess.isPageAccessible(entry.pageId, simplePageBean.getCurrentSiteId(), "c08d3ac9-c717-472a-ad91-7ce0b434f42f", simplePageBean)));
+
 		    if (ServerConfigurationService.getBoolean("lessonbuilder.accessibilitydebug", false)) {
 			if (entry != null && entry.pageId != null && lessonsAccess.isPageAccessible(entry.pageId,simplePageBean.getCurrentSiteId(),"c08d3ac9-c717-472a-ad91-7ce0b434f42f", null)) {
 			    UIOutput.make(row, "page1");

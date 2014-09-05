@@ -130,6 +130,22 @@ public class LessonsAccess {
 	}
     }
 
+    public String printPath(Set<Path> paths) {
+	String ret = "";
+	if (paths == null)
+	    return "null";
+	for (Path path: paths) {
+	    if (ret.length() > 0) {
+		ret = ret + ",";
+	    }
+	    if (path.groups == null)
+		ret = ret + "null";
+	    else
+		ret = ret + path.groups.toString();
+	}
+	return ret;
+    }
+
     // the code for access is broken into 3 parts:
     //
     // 1) getPagePaths returns accessibility data that is the same for all users.
@@ -144,7 +160,7 @@ public class LessonsAccess {
     // the right way to check items.
 
 
-    Set<Path> getPagePaths (long pageId) {
+    public Set<Path> getPagePaths (long pageId) {
 	return getPagePaths(pageId, new HashSet<Long>());
     }
 
@@ -163,6 +179,11 @@ public class LessonsAccess {
 
 	SimplePage page = dao.getPage(pageId);
 	if (page == null) // should be impossible
+	    return ret;
+
+	// if we've seen it already, we're pursuing a path that goes back through the same page.
+	// this can't affect the outcome, but will cause infinite recursion
+	if (seen.contains(pageId))
 	    return ret;
 
 	if (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))) {
@@ -219,7 +240,7 @@ public class LessonsAccess {
 		    else {
 			// note: we can't modify that set in path.groups, because it coudl be shared
 			// with other copies of this Path
-			itemGroups.retainAll(path.groups);  // intersect
+			itemGroups.addAll(path.groups);  // add to list or constraints, i.e. you have to be in all the groups
 			path.groups = itemGroups;
 		    }
 		    ret.add(path);
@@ -310,7 +331,8 @@ public class LessonsAccess {
 		    groups.add("/site/" + siteId + "/group/" + groupId);
 		
 		List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, currentUserId);
-		if (matched.size() > 0)
+		// have to match all
+		if (matched.size() == groups.size())
 		    return true;
 	    }
 
