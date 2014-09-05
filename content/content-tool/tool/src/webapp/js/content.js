@@ -345,7 +345,9 @@ $(document).ready(function(){
             return $(this).data('closable');
         }
     });
-    setupColumnToggle();
+    if ($('.resourcesList').length === 1) {
+      setupColumnToggle();
+    }
 });
 
 var setupColumnToggle = function(){
