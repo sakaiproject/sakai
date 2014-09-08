@@ -179,13 +179,24 @@ public class AnnouncementSupport{
 			updatingExistingLinks = false;
 		}
 		
+		if (!anncReference.contains(dashboardLogic.MOTD_CONTEXT))
+		{
+			// no need to add links to MOTD items
+			// where channel reference like '/announcement/channel/!site/motd'
 		if(dashboardLogic.isAvailable(newsItem.getEntityReference(), IDENTIFIER)) {
 			// available now -- check whether it has a retract date
 			Date retractDate = getRetractDate(annc);
 			if(retractDate != null && retractDate.after(new Date())) {
 				dashboardLogic.scheduleAvailabilityCheck(newsItem.getEntityReference(), IDENTIFIER, retractDate);
 			}
+				
+				// add links
+				if(updatingExistingLinks) {
+					dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
 		} else {
+					dashboardLogic.createNewsLinks(newsItem);
+				}
+			} else {
 			// not available now -- check whether it has a release date
 			Date releaseDate = getReleaseDate(annc);
 			if(releaseDate != null && releaseDate.after(new Date())) {
@@ -193,11 +204,6 @@ public class AnnouncementSupport{
 			}
 		}
 		
-		// add links
-		if(updatingExistingLinks) {
-			dashboardLogic.updateNewsLinks(newsItem.getEntityReference());
-		} else {
-			dashboardLogic.createNewsLinks(newsItem);
 		}
 	}
 
@@ -344,8 +350,9 @@ public class AnnouncementSupport{
 				String channelId = getChannelIdFromReference(entityReference);
 				AnnouncementChannel channel = (AnnouncementChannel) announcementService.getChannel(channelId);
 				String siteId = channel.getContext();
-				if (!sakaiProxy.isSitePublished(siteId))
+				if (!dashboardLogic.MOTD_CONTEXT.equals(siteId) && !sakaiProxy.isSitePublished(siteId))
 				{
+					// exclude "!site" MOTD site id
 					// return false if site is unpublished
 					return false;
 				}

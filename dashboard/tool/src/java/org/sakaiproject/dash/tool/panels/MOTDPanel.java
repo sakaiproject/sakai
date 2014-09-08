@@ -57,6 +57,7 @@ import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
+import org.sakaiproject.dash.model.SourceType;
 import org.sakaiproject.dash.tool.util.JsonHelper;
 import org.sakaiproject.dash.util.DateUtil;
 import org.sakaiproject.util.FormattedText;
@@ -87,6 +88,9 @@ public class MOTDPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.dash.app.DashboardConfig")
 	protected DashboardConfig dashboardConfig;
 
+	@SpringBean(name="org.sakaiproject.dash.logic.DashboardLogic")
+	protected DashboardLogic dashboardLogic;
+	
 	protected NewsLinksDataProvider motdProvider = null;
 	protected String motdDivId = null;
 	protected String motdCountId = null;
@@ -111,17 +115,22 @@ public class MOTDPanel extends Panel {
 		motdDiv.add(new Label("motdPanelTitle", rl.getString("dash.motd.title")));
 		
 		List<NewsItem> motdList = dashboardCommonLogic.getMOTD();
-		if(motdList == null || motdList.isEmpty()) {
-			motdDiv.add(new Label("motdId", "0@0"));
-			motdDiv.add(new Label("motdText", "No new messages"));
-			RepeatingView attachments = new RepeatingView("attachments");
-			motdDiv.add(attachments);
-			WebMarkupContainer attItem = new WebMarkupContainer(attachments.newChildId());
-			attachments.add(attItem);
-			attItem.add(new ExternalLink("attachment-link", "#", "---"));
-			attachments.setVisible(false);
-		} else {
-			NewsItem motd = motdList.get(0);
+		boolean showMOTD = false;
+		if(motdList != null && !motdList.isEmpty()) {
+			for(NewsItem motd : motdList)
+			{
+				// exist when we've showed a MOTD item;
+				// otherwise, loop till showing the first MOTD item
+				if (showMOTD)
+					break;
+				
+				SourceType sType = motd.getSourceType();
+				if(dashboardLogic.isAvailable(motd.getEntityReference(), sType!=null ? sType.getIdentifier():null)) 
+				{
+					// show MOTD
+					showMOTD = true;
+					
+					// only show MOTD when it is available
 			motdDiv.add(new Label("motdId", motd.getId() + "@" + motd.getNewsTime().getTime()));
 			Map<String, Object> info = dashboardCommonLogic.getEntityMapping(motd.getSourceType().getIdentifier(), motd.getEntityReference(), getLocale());
 			motdDiv.add(new Label("motdTitle", (String) info.get(DashboardEntityInfo.VALUE_TITLE)));
@@ -146,7 +155,9 @@ public class MOTDPanel extends Panel {
 				attachments.setVisible(false);
 			}
 		}
-		if(motdMode != MOTD_MODE_TEXT || motdList == null || motdList.isEmpty()) {
+			}
+		}
+		if (!showMOTD || motdMode != MOTD_MODE_TEXT || motdList == null || motdList.isEmpty()) {
 			motdDiv.setVisibilityAllowed(false);
 			motdDiv.setVisible(false);
 		}
