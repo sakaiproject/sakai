@@ -33,10 +33,10 @@
 				</sakai:group_box>
 
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processUploadConfirm}"
 						value="#{msgs.attach_action}" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processUploadCancel}"
 						value="#{msgs.cancel}" />
 				</sakai:button_bar>

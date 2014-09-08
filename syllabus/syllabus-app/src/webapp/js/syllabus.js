@@ -11,7 +11,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		//only one to expand, might as well hide the expand all link:
 		$("#expandLink").closest("li").hide();
 	}
-	$( "#accordion > div" ).accordion({ 
+	$( "#accordion > span > div" ).accordion({ 
 		header: "> div > h3",
 		active: activeVar,
 		autoHeight: false,
@@ -31,7 +31,7 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 		}
 	});
 	if(isInstructor){
-		$( "#accordion" ).sortable({
+		$( "#accordion span" ).sortable({
 			axis: "y",
 			handle: "h3",
 			start: function(event, ui){
@@ -129,7 +129,7 @@ function mySetMainFrameHeight(id, minHeight)
 }
 
 function expandAccordion(iframId){
-	$('#accordion > div.ui-accordion').each(function(){
+	$('#accordion > span > div.ui-accordion').each(function(){
 		if(!$(this).find(".ui-accordion-content:first").is(":visible")){
 			$(this).find(".ui-accordion-header:first").click();
 		}
@@ -140,7 +140,7 @@ function expandAccordion(iframId){
 }
 
 function collapseAccordion(iframId){
-	$('#accordion > div.ui-accordion').each(function(){
+	$('#accordion > span > div.ui-accordion').each(function(){
 		if($(this).find(".ui-accordion-content:first").is(":visible")){
 			$(this).find(".ui-accordion-header:first").click();
 		}

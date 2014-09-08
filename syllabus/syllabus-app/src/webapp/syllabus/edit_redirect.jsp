@@ -26,13 +26,13 @@
                     </h:panelGroup>
 				</h:panelGrid>
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						styleClass="active"
 						action="#{SyllabusTool.processEditSaveRedirect}"
 						value="#{msgs.save}" 
 						accesskey="s" />
 						
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditCancelRedirect}"
 						value="#{msgs.cancel}" 
 						accesskey="x" />

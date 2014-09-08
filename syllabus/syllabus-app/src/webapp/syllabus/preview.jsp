@@ -31,7 +31,7 @@
 						</h:column>
 					</h:dataTable>
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditPreviewBack}"
 						value="#{msgs.revise}" 
 						accesskey="x" />

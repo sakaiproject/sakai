@@ -221,33 +221,47 @@
         </script>
 
 		<h:form>
-		  <sakai:tool_bar>
+		<h:panelGroup>
+		  <f:verbatim><ul class="navIntraTool actionToolbar" role="menu"></f:verbatim> 
 		  <%-- (gsilver) cannot pass a needed title attribute to these next items --%>
-		  	<h:commandLink action="#{SyllabusTool.processListNew}" 
-		  		styleClass="actionLink" 
-		  		onmousedown="assignWarningClick(this);"
-			    rendered="#{SyllabusTool.editAble == 'true'}">
-			    	<h:outputText value="#{msgs.bar_new}"/>
-			</h:commandLink>
-		   	<h:commandLink
-					action="#{SyllabusTool.processListNewBulkMainEdit}"
-					onmousedown="assignWarningClick(this);"
-		   			rendered="#{SyllabusTool.editAble == 'true'}">
-						<h:outputText value="#{msgs.bar_new_bulk}"/>
-		   	</h:commandLink>
-		   	<h:commandLink
-					action="#{SyllabusTool.processStudentView}"
-					onmousedown="assignWarningClick(this);"
-		   			rendered="#{SyllabusTool.editAble == 'true'}">
-			    		<h:outputText value="#{msgs.bar_student_view}"/>
-			</h:commandLink>
-		   			
-   	      </sakai:tool_bar>
+		  <h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+			   <f:verbatim><li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
+				  	<h:commandLink action="#{SyllabusTool.processListNew}" 
+				  		styleClass="actionLink" 
+				  		onmousedown="assignWarningClick(this);"
+					    rendered="#{SyllabusTool.editAble == 'true'}">
+					    	<h:outputText value="#{msgs.bar_new}"/>
+					</h:commandLink>
+				<f:verbatim></span></li></f:verbatim>
+			</h:panelGroup>
+			<h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+				<f:verbatim><li role="menuitem" ><span></f:verbatim>
+				   	<h:commandLink
+							action="#{SyllabusTool.processListNewBulkMainEdit}"
+							onmousedown="assignWarningClick(this);"
+				   			rendered="#{SyllabusTool.editAble == 'true'}">
+								<h:outputText value="#{msgs.bar_new_bulk}"/>
+				   	</h:commandLink>
+			   	<f:verbatim></span></li></f:verbatim>
+		   	</h:panelGroup>
+		   	<h:panelGroup rendered="#{SyllabusTool.editAble == 'true'}">
+			   	<f:verbatim><li role="menuitem" ><span></f:verbatim>
+				   	<h:commandLink
+							action="#{SyllabusTool.processStudentView}"
+							onmousedown="assignWarningClick(this);"
+				   			rendered="#{SyllabusTool.editAble == 'true'}">
+					    		<h:outputText value="#{msgs.bar_student_view}"/>
+					</h:commandLink>
+				<f:verbatim></span></li></f:verbatim>
+			</h:panelGroup>
+		   	<f:verbatim></ul></f:verbatim>		
+   	      </h:panelGroup>
+   	      
    	      <h:messages globalOnly="true" styleClass="alertMessage" rendered="#{!empty facesContext.maximumSeverity}" />
 	      <syllabus:syllabus_if test="#{SyllabusTool.syllabusItem.redirectURL}">
 		     <sakai:tool_bar_message value="#{msgs.mainEditNotice}" />
-		     <syllabus:syllabus_table value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines">
-<%--						<h:column rendered="#{!empty SyllabusTool.entries}">--%>
+		     <h:dataTable value="#{SyllabusTool.entries}" var="eachEntry" summary="#{msgs.mainEditListSummary}" styleClass="listHier lines nolines"
+		     				columnClasses="item,move,move,status,status" >
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.mainEditHeaderItem}" />
@@ -326,7 +340,7 @@
 							</f:facet>
 							<h:selectBooleanCheckbox styleClass="deleteBox" value="#{eachEntry.selected}" title="#{msgs.selectThisCheckBox}"/>
 						</h:column>
-			 </syllabus:syllabus_table>
+			 </h:dataTable>
 			 <f:verbatim><p class="act"></f:verbatim>	
 				<h:commandButton 
 				     value="#{msgs.update}" 

@@ -268,19 +268,19 @@
 					</h:panelGrid>
 				</h:panelGrid>
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditBulkPost}"
 						styleClass="active"
 						value="#{msgs.bar_post}" 
 						accesskey="s"
 						title="#{msgs.button_post}" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditBulkDraft}"
 						styleClass="active"
 						value="#{msgs.bar_save_draft}" 
 						accesskey="s"
 						title="#{msgs.button_save}" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditBulkCancel}"
 						value="#{msgs.cancel}" 
 						accesskey="x"

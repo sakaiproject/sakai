@@ -24,7 +24,7 @@
 			<div class="alertMessage">
 				<h:outputText  value="#{msgs.delConfAlert}" />
 			</div>
-				<sakai:flat_list value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="listHier lines nolines">
+				<h:dataTable value="#{SyllabusTool.selectedEntries}" var="eachEntry"  summary="#{msgs.del_conf_listsummary}" styleClass="listHier lines nolines">
 					<h:column>
 						<f:facet name="header">                                   
 							<h:outputText  value="#{msgs.delConfHeaderItem}" />
@@ -84,14 +84,14 @@
 							<f:verbatim><img src="/library/image/silk/cancel.png" onclick="$('.datInputStart').focus();"/></f:verbatim>
 						</f:subview>
 					</h:column>
-				</sakai:flat_list>
+				</h:dataTable>
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processDelete}"
 						styleClass="active"
 						value="#{msgs.update} "
 						accesskey="s" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processDeleteCancel}"
 						value="#{msgs.cancel}"
 						accesskey="x" />

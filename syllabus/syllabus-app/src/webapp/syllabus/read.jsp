@@ -116,12 +116,12 @@
 					
 					<sakai:button_bar>
 <%-- (gsilver) cannot pass a needed title atribute to this next item --%>					
-						<sakai:button_bar_item
+						<h:commandButton
 							action="#{SyllabusTool.processAddAttachRedirect}" 
 							value="#{msgs.add_attach}"/>
 					</sakai:button_bar>							
 	
-					<syllabus:syllabus_table value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
+					<h:dataTable value="#{SyllabusTool.allAttachments}" var="eachAttach" summary="#{msgs.edit_att_list_summary}" styleClass="listHier lines nolines">
 					  <h:column rendered="#{!empty SyllabusTool.allAttachments}">
 							<f:facet name="header">
 								<h:outputText value="#{msgs.attachmentTitle}" />
@@ -164,7 +164,7 @@
 							</f:facet>
 							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
 						</h:column>
-					</syllabus:syllabus_table>
+					</h:dataTable>
 					
 					<!-- Date -->
 					<h4>
@@ -210,20 +210,20 @@
 						</h:panelGrid>
 
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processReadPost}"
 						styleClass="active"
 						value="#{msgs.bar_post}"
 						accesskey="s" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processReadPreview}"
 						value="#{msgs.bar_preview}" 
 						accesskey="v"	/>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processReadSave}"
 						value="#{msgs.bar_save_draft}" 
 						accesskey="d" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processReadCancel}"
 						value="#{msgs.cancel}" 
 						accesskey="x" />

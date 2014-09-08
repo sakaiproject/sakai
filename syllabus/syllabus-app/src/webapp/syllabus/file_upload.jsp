@@ -22,10 +22,10 @@
 <%--		  	<sakai:fileInput value="#{SyllabusTool.fileName}" />--%>
 		  	
 				<sakai:button_bar>					
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processFileupload}"
 						value="#{msgs.upload}" />
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processUploadCancel}"
 						value="#{msgs.cancel}" />
 				</sakai:button_bar>		  	

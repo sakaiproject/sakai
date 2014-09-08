@@ -18,7 +18,7 @@
 				<div class="alertMessage">
 					<h:outputText value="#{msgs.delAttConfAlert}" />
 				</div>	
-				<syllabus:syllabus_table value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
+				<h:dataTable value="#{SyllabusTool.prepareRemoveAttach}" var="eachAttach" summary="#{msgs.del_conf_listsummary}">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText value="#{msgs.title}" />
@@ -51,7 +51,7 @@
 						</f:facet>
 							<h:outputText value="#{eachAttach.lastModifiedBy}"/>
 					</h:column>
-				</syllabus:syllabus_table>
+				</h:dataTable>
 				<div class="act">
 					<h:commandButton 
 					  value="#{msgs.bar_delete}" 

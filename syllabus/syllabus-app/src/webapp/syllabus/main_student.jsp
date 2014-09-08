@@ -15,7 +15,7 @@
 			<h:outputText value="main_student.jsp" />
 				<br/>
 	
-				<sakai:flat_list value="#{SyllabusTool.entries}" var="eachEntry">
+				<h:dataTable value="#{SyllabusTool.entries}" var="eachEntry">
 					<h:column>
 						<f:facet name="header">
 							<h:outputText style="height: 16px; width=72px" value="#{msgs.mainEditHeaderItem}" />
@@ -49,10 +49,10 @@
 						  <h:outputText value="#{eachEntry.entry.redirectUrl}" />
 						</h:outputLink>
 					</h:column>
-				</sakai:flat_list>
+				</h:dataTable>
 				
 				<sakai:button_bar>
-					<sakai:button_bar_item
+					<h:commandButton
 						action="#{SyllabusTool.processEditCancel}"
 						value="#{msgs.back}" 
 						accesskey="x" />
