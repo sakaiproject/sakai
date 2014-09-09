@@ -230,6 +230,9 @@ public class LessonsAccess {
     // usePrerequisites is normally used. However for GradebookInfo, we just
     // use group restrictions. We count an item for the student even if 
     // they can't get there yet because of prerequisites
+    //   Cache only if usePrerequisites = false. We can't cache both or the cache
+    // can have more than one value for a given page, and it's really the case
+    // without we care about because of the gradebook
     Set<Path> getPagePaths(long pageId, Set<Long>seen, boolean usePrerequisites) {
 	// if pageid is 0 this is a top level page. No further constraints
 	Set<Path> ret = new HashSet<Path>();
@@ -243,26 +246,29 @@ public class LessonsAccess {
 	}
 
 	SimplePage page = dao.getPage(pageId);
-	if (page == null) // should be impossible
+	if (page == null) {// should be impossible
 	    return ret;
+	}
 
 	// if we've seen it already, we're pursuing a path that goes back through the same page.
 	// this can't affect the outcome, but will cause infinite recursion
-	if (seen.contains(pageId)) 
+	if (seen.contains(pageId)) {
 	    return ret;
+	}
 
-	Set<Path> cached = (Set<Path>)cache.get(Long.toString(pageId));
-	// need to copy the cached object because some of the code changes it
-	// unfortunately clone of a hashset is shallow, so have to do this ourselves
-	if (cached != null) {
-	    return clonePath(cached);
+	if (!usePrerequisites) {
+	    Set<Path> cached = (Set<Path>)cache.get(Long.toString(pageId));
+	    // need to copy the cached object because some of the code changes it
+	    // unfortunately clone of a hashset is shallow, so have to do this ourselves
+	    if (cached != null) {
+		return clonePath(cached);
+	    }
 	}
 
 	if (usePrerequisites && 
 	    (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())))) {
 	    // not released. Say inaccessible. The assumption is that this is being used only
 	    // for students. Obviously the instructor can bypass release control.
-	    cache.put(Long.toString(pageId), clonePath(ret));
 	    return ret;
 	}	    
 
@@ -283,7 +289,6 @@ public class LessonsAccess {
 
 	for (SimplePageItem item: items) {
 	    // union all their groups
-
 	    String itemGroupString = item.getGroups();
 	    Set<String>itemGroups = null;
 	    if (itemGroupString != null && itemGroupString.length() > 0)
@@ -328,7 +333,10 @@ public class LessonsAccess {
 
 	seen.remove(pageId);
 
-	cache.put(Long.toString(pageId), clonePath(ret));
+	// only cache final results, not intermediate computations
+	// in some situations with loops the intermediate calculations can be wrong
+	if (!usePrerequisites && seen.size() == 0)
+	    cache.put(Long.toString(pageId), clonePath(ret));
 	return ret;
     }
 
@@ -424,25 +432,28 @@ public class LessonsAccess {
 				break;
 			    }
 			}
-			if (!ok)
+			if (!ok) {
 			    continue;
+			}
 		    }
-		} else if (dao.getLogEntry(currentUserId, path.itemId, -1L) == null)
+		} else if (dao.getLogEntry(currentUserId, path.itemId, -1L) == null) {
 		    continue;
+		}
 
 	    }
 
-	    if (path.groups == null) 
+	    if (path.groups == null) {
 		return true;
-	    else {
+	    } else {
 		for (Set<String>groupIds: path.groups) {
 		    ArrayList<String> groups = new ArrayList<String>();
 		    for (String groupId: groupIds)
 			groups.add("/site/" + siteId + "/group/" + groupId);
 		    List<AuthzGroup> matched = authzGroupService.getAuthzUserGroupIds(groups, currentUserId);
 		    // must match at least one
-		    if (matched.size() < 1)
+		    if (matched.size() < 1) {
 			continue nextpath;
+		    }
 		}
 		// matched all of the items o the path
 		return true;
