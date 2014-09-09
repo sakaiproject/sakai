@@ -85,6 +85,10 @@ public class LessonsAccess {
     // care about it during a single transaction. But I'm using the normal
     // default of 10 min
     protected static final int DEFAULT_EXPIRATION = 60 * 10;
+    // I have tested with useCache = true. I believe it works.
+    // But there's been such a long history of problems caused by it that I
+    // it's safest to leave it off for 2.10
+    static final boolean useCache = true;
 
     // Sakai Service Beans
     private SimplePageToolDao dao;
@@ -93,15 +97,19 @@ public class LessonsAccess {
     private MemoryService memoryService;
 
     public void init() {
+	if (useCache) {
 	cache = memoryService
 	    .newCache("org.sakaiproject.lessonbuildertool.service.LessonsAccess.cache");
+	}
         log.info("init()");
     }
 
     public void destroy() {
         log.info("destroy()");
+	if (useCache) {
 	cache.destroy();
 	cache = null;
+	}
     }
 
     // my best estimate is about 100 bytes / call. The maximum likely chain is 
@@ -256,7 +264,7 @@ public class LessonsAccess {
 	    return ret;
 	}
 
-	if (!usePrerequisites) {
+	if (useCache && !usePrerequisites) {
 	    Set<Path> cached = (Set<Path>)cache.get(Long.toString(pageId));
 	    // need to copy the cached object because some of the code changes it
 	    // unfortunately clone of a hashset is shallow, so have to do this ourselves
@@ -335,7 +343,7 @@ public class LessonsAccess {
 
 	// only cache final results, not intermediate computations
 	// in some situations with loops the intermediate calculations can be wrong
-	if (!usePrerequisites && seen.size() == 0)
+	if (useCache && !usePrerequisites && seen.size() == 0)
 	    cache.put(Long.toString(pageId), clonePath(ret));
 	return ret;
     }
