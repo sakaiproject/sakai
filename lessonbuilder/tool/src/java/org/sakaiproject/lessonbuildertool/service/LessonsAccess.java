@@ -116,19 +116,74 @@ public class LessonsAccess {
       pageId == null if path has no prerequisites
     */
     
+    /*
+
+      A path represents all the group constraints on getting to an item.
+      Generally there's more than one way you can get to a page. Each way represents
+      a path through pages and subpages. To get to the item you have to pass the
+      group restrictions for every page in the path. However if there's more than
+      one path, any path will work. 
+
+      There are two sets of methods to apply a path set. The one here has to check
+      not just group constraints but prerequisites. The one in LessonsGradeInfoProvider 
+      is purely group constraints.
+
+      itemId is used only when prerequisites are being checked. In tracing the path,
+      if we find a page has prerequesites, we put its item Id is this field and stop
+      tracing the path. isPageAccessible will check whether the user has actually
+      accessed that page. If so, we assume it is accessible. That's a lot cheaper than
+      doing the actual prerequisiet checking, and good enough for the places we're 
+      using this code. We prefer to let users explore the site, so if there aren't any
+      prerequsites, we can afford a full check of accessibility. But if there are prerequisites, we simplify
+      our job. That won't let them look ahead, unfortunately, but that's inherent in using
+      prerequisites.
+
+      Note that the path is independent of user, so we can usefully cache the values.
+
+    */
 
     public class Path implements Cloneable{
 	Long itemId;
 	boolean topLevel;
-	List<Set<String>>groups;
-	public Path clone() {
-	    Path ret = new Path();
-	    ret.itemId = this.itemId;
-	    ret.topLevel = this.topLevel;
-	    ret.groups = this.groups;
-	    return ret;
-	}
+	ArrayList<Set<String>>groups;
     }
+
+    /* 
+     * clone a set of paths.
+     * The code in getPagePaths and getItemPaths modifies paths.
+     * For that reason when we pull something from the cache we have to clone it,
+     *   so changes aren't made to the cached copy
+     * Similarly, we have to clone the copy we put in the cache, since other code
+     *   is going to modify the copy we return
+     */
+
+    public Set<Path>clonePath(Set<Path> paths) {
+	if (paths == null)
+	    return null;
+
+	Set<Path> ret = new HashSet<Path>();
+
+	for (Path path:paths) {
+	    Path newPath = new Path();
+	    newPath.itemId = path.itemId;
+	    newPath.topLevel = path.topLevel;
+	    if (path.groups == null)
+		newPath.groups = null;
+	    else {
+		newPath.groups = new ArrayList<Set<String>>();
+		for (Set<String>groupIds: path.groups) {
+		    Set<String>newGroups = new HashSet<String>();
+		    for (String group: groupIds)
+			newGroups.add(group);
+		    newPath.groups.add(newGroups);
+		}
+	    }
+	    ret.add(newPath);
+	}
+	
+	return ret;
+    }
+
 
     public String printPath(Set<Path> paths) {
 	String ret = "";
@@ -176,7 +231,6 @@ public class LessonsAccess {
     // use group restrictions. We count an item for the student even if 
     // they can't get there yet because of prerequisites
     Set<Path> getPagePaths(long pageId, Set<Long>seen, boolean usePrerequisites) {
-	/// System.out.println("page " + pageId + " getgroups");
 	// if pageid is 0 this is a top level page. No further constraints
 	Set<Path> ret = new HashSet<Path>();
 	if (pageId == 0) {
@@ -194,13 +248,21 @@ public class LessonsAccess {
 
 	// if we've seen it already, we're pursuing a path that goes back through the same page.
 	// this can't affect the outcome, but will cause infinite recursion
-	if (seen.contains(pageId))
+	if (seen.contains(pageId)) 
 	    return ret;
+
+	Set<Path> cached = (Set<Path>)cache.get(Long.toString(pageId));
+	// need to copy the cached object because some of the code changes it
+	// unfortunately clone of a hashset is shallow, so have to do this ourselves
+	if (cached != null) {
+	    return clonePath(cached);
+	}
 
 	if (usePrerequisites && 
 	    (page.isHidden() || (page.getReleaseDate() != null && page.getReleaseDate().after(new Date())))) {
 	    // not released. Say inaccessible. The assumption is that this is being used only
 	    // for students. Obviously the instructor can bypass release control.
+	    cache.put(Long.toString(pageId), clonePath(ret));
 	    return ret;
 	}	    
 
@@ -248,7 +310,7 @@ public class LessonsAccess {
 		for (Path path: paths) {
 		    // the values will end up cached. That means we can't
 		    // modify the values in place, but have to copy them first
-		    path = path.clone();
+		    path = path;
 		    if (itemGroups == null)
 			; // use path.groups as is
 		    else if (path.groups == null) {
@@ -266,8 +328,11 @@ public class LessonsAccess {
 
 	seen.remove(pageId);
 
+	cache.put(Long.toString(pageId), clonePath(ret));
 	return ret;
     }
+
+    /* for the moment, no one calling this needs prerequsite checking */
 
     public Set<Path> getItemPaths(long itemId) {
 
@@ -310,6 +375,8 @@ public class LessonsAccess {
     // check at all. lb.read needs to be true or this test is irrelevant.
     // I assume this method will mostly be used by code that wants to do item
     // checks on its own, so most likely it's already doign the permissions checks
+
+    /* this always needs prerequisite checking */
 
     public boolean isPageAccessible(long pageId, String siteId, String currentUserId, SimplePageBean simplePageBean) {
 
