@@ -1579,6 +1579,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	while (matcher.find()) {
 	    String url = matcher.group(3);
 
+	    // processUrl does a parse of the URL. It will fail if there is a space
+	    // in it. But spaces are often used by humans, since they actually work.
+	    // And a CKEditor bug inserts them. So handle them correctly.
+	    url = url.replace(" ", "%20");
 	    url = processUrl(context, url, contentUrl, itemMap);
 	    // Content up to the match.
 	    int copyTo = matcher.start(3);
