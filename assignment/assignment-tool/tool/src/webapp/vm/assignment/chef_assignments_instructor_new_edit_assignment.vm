@@ -1107,7 +1107,7 @@ $(document).ready(function() {
                                  #if ($group_submissions_enabled)
                                     <p class="checkbox  indnt2">
                             <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1"
-                            #if ($!value_CheckIsGroupSubmission.equals("1") && !$!groupsList)
+                            #if ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
                                 checked="checked"
                                         #end
                             #if( !$!groupsList )
