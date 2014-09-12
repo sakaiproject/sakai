@@ -3664,7 +3664,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	}
 
 	private void createEditTitleDialog(UIContainer tofill, SimplePage page, SimplePageItem pageItem) {
-		UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle")));
+		if (pageItem.getType() == SimplePageItem.STUDENT_CONTENT)
+			UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.editTitle")));
+		else
+			UIOutput.make(tofill, "edit-title-dialog").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.title")));
 
 		UIForm form = UIForm.make(tofill, "title-form");
 		makeCsrf(form, "csrf14");
