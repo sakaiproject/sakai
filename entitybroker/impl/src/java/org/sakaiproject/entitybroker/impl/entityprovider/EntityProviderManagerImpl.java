@@ -29,13 +29,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.Map.Entry;
 
 import org.azeckoski.reflectutils.ReflectUtils;
 import org.azeckoski.reflectutils.refmap.ReferenceMap;
 import org.azeckoski.reflectutils.refmap.ReferenceType;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
@@ -70,6 +71,29 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
     public void init() {
         System.out.println("EntityProviderManagerImpl init");
+        
+        //SAK-27902 list of allowed services (prefixes) (default: all services registered. Only set this property if you want to filter the allowed services)
+        allowedServices = new HashSet<String>();
+        String allowedServicesConfig = serverConfigurationService.getString("entitybroker.allowed.services");
+        if(allowedServicesConfig != null && allowedServicesConfig.length()>0) {
+        	filterServices = true;
+        	
+        	//clean the list
+        	String[] prefixes = allowedServicesConfig.split(",");
+        	for(int i=0; i< prefixes.length; i++) {
+        		String cleanedPrefix = prefixes[i].trim();
+        		if(cleanedPrefix.length() > 0){
+        			allowedServices.add(cleanedPrefix);
+        		}
+        	}
+        	
+        	//must have describe in the list
+        	allowedServices.add(EntityRequestHandler.DESCRIBE);
+        	
+        	System.out.println("INFO Allowed services: " + allowedServices);
+
+        }
+        
         // register the describe prefix to reserve them
         registerEntityProvider(
                 new EntityProvider() {
@@ -106,6 +130,9 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
     private RequestGetterWrite requestGetter;
     private EntityPropertiesService entityProperties;
     private EntityProviderMethodStore entityProviderMethodStore;
+    private ServerConfigurationService serverConfigurationService;
+    private boolean filterServices = false;
+    private Set<String> allowedServices;
 
     protected ReferenceMap<String, EntityProvider> prefixMap = new ReferenceMap<String, EntityProvider>(ReferenceType.STRONG, ReferenceType.SOFT);
 
@@ -248,10 +275,20 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         //         throw new IllegalArgumentException(EntityRequestHandler.DESCRIBE + " is a reserved prefix, it cannot be used");
         //      }
         List<Class<? extends EntityProvider>> superclasses = extractCapabilities(entityProvider);
+        
         int count = 0;
         for (Class<? extends EntityProvider> superclazz : superclasses) {
-            registerPrefixCapability(prefix, superclazz, entityProvider);
-            count++;
+        	
+        	//if filtering and prefix not in list, skip registration
+        	if(filterServices) {
+        		if(!allowedServices.contains(prefix)) {
+        			continue;
+        		}
+        	}
+        	
+        	registerPrefixCapability(prefix, superclazz, entityProvider);
+        	count++;
+        	
             // special handling for certain EPs if needed
             if (superclazz.equals(RequestAware.class)) {
                 // need to shove in the requestGetter on registration
@@ -637,6 +674,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
 
     public void setEntityProviderMethodStore(EntityProviderMethodStore entityProviderMethodStore) {
         this.entityProviderMethodStore = entityProviderMethodStore;
+    }
+    
+    //setter only, don't want to expose this here
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
 }

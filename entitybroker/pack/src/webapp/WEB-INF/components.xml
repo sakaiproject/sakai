@@ -31,6 +31,8 @@
             ref="org.sakaiproject.entitybroker.util.request.RequestStorage" />
         <property name="entityProviderMethodStore"
             ref="org.sakaiproject.entitybroker.entityprovider.EntityProviderMethodStore" />
+      	<property name="serverConfigurationService"
+            ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
 
     <!-- beans meant for EntityProvider developers -->
