@@ -21,6 +21,7 @@
 		min-height:325px;
 	}
 	html>body #outer{height:auto}
+	.siteTitle{display:none !important;}
 	.pageTitle{width:auto !important;}
 </style>
 <script type="text/javascript" rsf:id="iframeJavascript">
@@ -100,7 +101,7 @@ function resizeiframe(id) {
                              <a href="#" rsf:id="resetbutton2" class="reload">
                                  <img rsf:id="resetimage2" src="/library/image/transparent.gif"/>
                              </a>
-                              <h2><span rsf:id="crumb:"><a href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></h2>
+                              <h2><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></h2>
                             </div>
                             <a href="#" rsf:id="resetbutton" class="reload">
                                 <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
@@ -110,12 +111,13 @@ function resizeiframe(id) {
                           </h2>
                       </div>
             <div class="action">
-                <a class="portalmenu usebutton" href="#" rsf:id="print-view" id="print-view" onclick="window.open(window.location.href);return false"  role="note"></a>
-                <a class="portalmenu usebutton" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+                <a style="background:none" href="#" rsf:id="print-view" id="print-view" onclick="window.open(window.location.href);return false"  role="note"></a> |
+                <a style="background:none" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+
                 <span rsf:id="gradingSpan" class="gradingarea">
-                    <a href="#" rsf:id="gradingBack" style="margin-right:2px;" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="*vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
+                    <a href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
                 </span>
-                <span class="nextprev buttonset"> <a href="#" rsf:id="prev" class="nextprev">next</a> <a href="#" rsf:id="next" class="nextprev">next</a> </span>
+                <span class="nextprev buttonset" style="width:auto !important"> <a style="background:none; width:auto !important" href="#" rsf:id="prev" class="nextprev">next</a> <a style="background:none; width:auto !important"  href="#" rsf:id="next" class="nextprev">next</a> </span>
                   <a href="#" rsf:id="helpbutton" target="_blank" class="help">
                       <img rsf:id="helpimage" src="/library/image/transparent.gif"/>
                       <span rsf:id="helpnewwindow" class="offscreen"></span>
