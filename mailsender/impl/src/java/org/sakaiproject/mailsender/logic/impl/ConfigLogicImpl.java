@@ -67,6 +67,9 @@ public class ConfigLogicImpl implements ConfigLogic
 		// send me a copy
 		boolean sendMeACopy = isSendMeACopy(props);
 
+		//append recipient list
+		boolean appendRecipientList = isAppendRecipientList(props);
+
 		// add to email archive
 		boolean addToArchive = isAddToArchive(props);
 
@@ -79,7 +82,7 @@ public class ConfigLogicImpl implements ConfigLogic
 		// display empty groups;
 		boolean displayEmptyGroups = isDisplayEmptyGroups(props);
 
-		ConfigEntry config = new ConfigEntry(prefixType, sendMeACopy, addToArchive, replyTo,
+		ConfigEntry config = new ConfigEntry(prefixType, sendMeACopy, appendRecipientList, addToArchive, replyTo,
 				displayInvalidEmails, subjectPrefix, displayEmptyGroups);
 		return config;
 	}
@@ -110,6 +113,9 @@ public class ConfigLogicImpl implements ConfigLogic
 
 		String sendMeACopy = Boolean.toString(ce.isSendMeACopy());
 		props.setProperty(ConfigParams.sendmecopy.name(), sendMeACopy);
+
+		String appendRecipientList = Boolean.toString(ce.isAppendRecipientList());
+		props.setProperty(ConfigParams.appendrecipientlist.name(), appendRecipientList);
 
 		if (allowSubjectPrefixChange())
 		{
@@ -299,6 +305,20 @@ public class ConfigLogicImpl implements ConfigLogic
 		String sendmecopy = props.getProperty(ConfigParams.sendmecopy.name());
 		boolean sendMeACopy = parseConfigBoolean(sendmecopy);
 		return sendMeACopy;
+	}
+
+	/**
+	 * Retrieve the append recipient list option from the tool configuration
+	 *
+	 * @param props
+	 *            The tool config properties
+	 * @return
+	 */
+	private boolean isAppendRecipientList(Properties props)
+	{
+		String appendrecipientlist = props.getProperty(ConfigParams.appendrecipientlist.name());
+		boolean appendRecipientList = parseConfigBoolean(appendrecipientlist);
+		return appendRecipientList;
 	}
 
 	/**

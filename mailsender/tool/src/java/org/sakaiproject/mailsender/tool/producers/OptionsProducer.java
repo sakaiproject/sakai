@@ -93,6 +93,9 @@ public class OptionsProducer implements ViewComponentProducer, NavigationCaseRep
 		// Send Me A Copy
 		UIBoundBoolean.make(optionsForm, "sendMeACopy", "configBean.config.sendMeACopy");
 
+		// Append recipient list
+		UIBoundBoolean.make(optionsForm, "appendRecipientList", "configBean.config.appendRecipientList");
+
 		// Add to email archive
 		if (externalLogic.isEmailArchiveAddedToSite())
 		{

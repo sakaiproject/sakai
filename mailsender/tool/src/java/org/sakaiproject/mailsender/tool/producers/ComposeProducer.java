@@ -166,6 +166,7 @@ public class ComposeProducer implements ViewComponentProducer, NavigationCaseRep
 
 		// create 'send me a copy' checkbox
 		UIBoundBoolean.make(mainForm, "sendMeCopy", emailBean + ".config.sendMeACopy");
+		UIBoundBoolean.make(mainForm, "appendRecipientList", emailBean + ".config.appendRecipientList");
 
 		if (externalLogic.isEmailArchiveAddedToSite())
 		{

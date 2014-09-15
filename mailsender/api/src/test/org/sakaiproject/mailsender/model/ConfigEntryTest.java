@@ -35,6 +35,7 @@ public class ConfigEntryTest {
 
 	String subjectPrefixType = SubjectPrefixType.system.toString();
 	boolean sendMeACopy = false;
+	boolean appendRecipientList = false;
 	boolean addToArchive = false;
 	String replyTo = ReplyTo.no_reply_to.toString();
 	boolean displayInvalidEmails = false;
@@ -43,7 +44,7 @@ public class ConfigEntryTest {
 
 	@Before
 	public void setUp() {
-		entry = new ConfigEntry(subjectPrefixType, sendMeACopy, addToArchive,
+		entry = new ConfigEntry(subjectPrefixType, sendMeACopy, appendRecipientList, addToArchive,
 				replyTo, displayInvalidEmails, subjectPrefix, displayEmptyGroups);
 	}
 
@@ -51,6 +52,7 @@ public class ConfigEntryTest {
 	public void getDefaults() {
 		assertEquals(subjectPrefixType, entry.getSubjectPrefixType());
 		assertEquals(sendMeACopy, entry.isSendMeACopy());
+		assertEquals(appendRecipientList, entry.isAppendRecipientList());
 		assertEquals(addToArchive, entry.isAddToArchive());
 		assertEquals(replyTo, entry.getReplyTo());
 		assertEquals(displayInvalidEmails, entry.isDisplayInvalidEmails());

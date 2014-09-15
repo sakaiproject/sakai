@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -150,7 +151,7 @@ public class EmailBean
 			return EMAIL_FAILED;
 		}
 
-		String content = emailEntry.getContent();
+		
 
 		HashMap<String, String> emailusers = new HashMap<String, String>();
 
@@ -184,6 +185,12 @@ public class EmailBean
 			{
 				emailusers.put(email, null);
 			}
+		}
+
+		String content = emailEntry.getContent();
+
+		if (emailEntry.getConfig().isAppendRecipientList()) {
+		    content = content + compileRecipientList(emailusers);
 		}
 
 		String subjectContent = emailEntry.getSubject();
@@ -424,5 +431,30 @@ public class EmailBean
 		{
 			emailusers.put(user.getEmail(), user.getDisplayName());
 		}
+	}
+
+	private String compileRecipientList(Map<String, String> recipients)
+	{
+		StringBuilder recipientList = new StringBuilder();
+		recipientList.append("<br>");
+		recipientList.append(messageLocator.getMessage("message.sent.to") + " ");
+		Iterator iter = recipients.entrySet().iterator();
+		while (iter.hasNext())
+		{
+			Map.Entry<String, String> entry = (Map.Entry)iter.next();
+			String email = entry.getKey();
+			String name = entry.getValue();
+			if (name != null)
+			{
+				recipientList.append(name);
+			}
+			else
+			{
+				recipientList.append(email);
+			}
+			if (iter.hasNext()) recipientList.append(", "); 
+		}
+		
+		return recipientList.toString();
 	}
 }

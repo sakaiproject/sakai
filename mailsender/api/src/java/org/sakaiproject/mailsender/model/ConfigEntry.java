@@ -22,7 +22,7 @@ package org.sakaiproject.mailsender.model;
 public class ConfigEntry
 {
 	public static final ConfigEntry DEFAULT_CONFIG = new ConfigEntry(
-			SubjectPrefixType.system.name(), false, false,
+			SubjectPrefixType.system.name(), false, false, false,
 			ReplyTo.no_reply_to.name(), false, null, true);
 
 	public enum ReplyTo
@@ -37,24 +37,26 @@ public class ConfigEntry
 
 	public enum ConfigParams
 	{
-		replyto, sendmecopy, emailarchive, subjectprefix, displayinvalidemailaddrs, displayemptygroups
+		replyto, sendmecopy, appendrecipientlist, emailarchive, subjectprefix, displayinvalidemailaddrs, displayemptygroups
 	}
 
 	private String replyTo;
 	private boolean displayInvalidEmails;
 	private boolean sendMeACopy;
+	private boolean appendRecipientList;
 	private boolean addToArchive;
 	private String subjectPrefixType;
 	private String subjectPrefix;
 	private boolean displayEmptyGroups = true;
 
-	public ConfigEntry(String subjectPrefixType, boolean sendMeACopy,
+	public ConfigEntry(String subjectPrefixType, boolean sendMeACopy, boolean appendRecipientList,
 			boolean addToArchive, String replyTo, boolean displayInvalidEmails,
 			String subjectPrefix, boolean displayEmptyGroups)
 	{
 		setSubjectPrefixType(subjectPrefixType);
 		setSubjectPrefix(subjectPrefix);
 		setSendMeACopy(sendMeACopy);
+		setAppendRecipientList(appendRecipientList);
 		setAddToArchive(addToArchive);
 		setReplyTo(replyTo);
 		setDisplayInvalidEmails(displayInvalidEmails);
@@ -102,6 +104,16 @@ public class ConfigEntry
 		this.sendMeACopy = sendMeACopy;
 	}
 
+	public boolean isAppendRecipientList()
+	{
+		return appendRecipientList;
+	}
+        
+	public void setAppendRecipientList(boolean appendRecipientList)
+	{
+		this.appendRecipientList = appendRecipientList;
+	}
+        
 	public boolean isAddToArchive()
 	{
 		return addToArchive;
