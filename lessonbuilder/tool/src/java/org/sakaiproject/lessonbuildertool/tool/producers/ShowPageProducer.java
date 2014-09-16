@@ -926,6 +926,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (pageItem.getPageId() != 0) {
 			// Not top-level, so we have to show breadcrumbs
 
+		    System.out.println("nottop");
 			List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 
 			int index = 0;
@@ -955,9 +956,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UIOutput.make(crumb, "crumb-follow", currentPage.getTitle()).decorate(new UIStyleDecorator("bold"));
 				}
 			} else {
+			    System.out.println("title 1");
 			    UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			}
 		} else {
+			    System.out.println("title 2");
 		    UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 		}
 
@@ -2648,8 +2651,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					TimeZone tz = timeService.getLocalTimeZone();
 					df.setTimeZone(tz);
 					String releaseDate = df.format(currentPage.getReleaseDate());
-					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
-					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
+					UIOutput.make(tofill, "refreshAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
+					UIVerbatim.make(tofill, "refresh-message", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
 					showBreak = true;
 				}
 			}
