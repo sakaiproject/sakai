@@ -78,3 +78,6 @@ delegatedaccess https://source.sakaiproject.org/svn/delegatedaccess/trunk/
 external-calendaring-service https://source.sakaiproject.org/svn/external-calendaring-service/trunk/ 
 signup https://source.sakaiproject.org/svn/signup/trunk/
 #rss https://github.com/steveswinsburg/simple-rss-portlet/branches/sakai-10
+
+#Sakai 10 additions
+dashboard https://source.sakaiproject.org/svn/dashboard/trunk/
