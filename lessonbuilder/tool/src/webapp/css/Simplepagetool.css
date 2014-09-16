@@ -1,4 +1,9 @@
 /* override for jquery ui */
+.ui-state-highlight{
+   border: 1px solid #2e83ff;
+   background: #f8fcff;
+   color: #184993;
+}
 .ui-front {
 	z-index: 100001;
 }

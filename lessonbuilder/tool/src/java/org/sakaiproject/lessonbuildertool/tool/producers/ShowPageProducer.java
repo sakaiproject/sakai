@@ -544,6 +544,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
+		// the only thing not already tested (or tested in release check below) in isItemVisible is groups. In theory
+		// no one should have a URL to a page for which they aren't in the group,
+		// so I'm not trying to give a better message than just hidden
+		if (!canSeeAll && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
+			UIOutput.make(tofill, "error-div");
+			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
+			return;
+		}
+
 		// check two parts of isitemvisible where we want to give specific errors
 		// potentially need time zone for setting release date
 		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
@@ -556,14 +565,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIOutput.make(tofill, "error-div");
 			UIOutput.make(tofill, "error", releaseMessage);
 
-			return;
-		}
-		// the only thing not already tested in isItemVisible is groups. In theory
-		// no one should have a URL to a page for which they aren't in the group,
-		// so I'm not trying to give a better message than just hidden
-		if (!canSeeAll && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
-			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
 			return;
 		}
 		
@@ -2651,8 +2652,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					TimeZone tz = timeService.getLocalTimeZone();
 					df.setTimeZone(tz);
 					String releaseDate = df.format(currentPage.getReleaseDate());
-					UIOutput.make(tofill, "refreshAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
-					UIVerbatim.make(tofill, "refresh-message", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
+					UIOutput.make(tofill, "hiddenAlert").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.notreleased")));
+					UIVerbatim.make(tofill, "hidden-text", messageLocator.getMessage("simplepage.notreleased.text").replace("{}", releaseDate));
 					showBreak = true;
 				}
 			}
