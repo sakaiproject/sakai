@@ -544,18 +544,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
-		// the only thing not already tested (or tested in release check below) in isItemVisible is groups. In theory
-		// no one should have a URL to a page for which they aren't in the group,
-		// so I'm not trying to give a better message than just hidden
-		if (!canSeeAll && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
-			UIOutput.make(tofill, "error-div");
-			UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
-			return;
-		}
+		// the reason for a seaprate release date test is so we can show the date.
+		// there are currently some issues. If the page is not released and the user doesn't have
+		// access because of groups, this will show the not released data. That's misleading because
+		// when the release date comes the user still won't be able to see it. Not sure if it's worth
+		// creating a separate function that just checks the groups. It's easy to test hidden, so I do that. The idea is that
+		// if it's both hidden and not released it makes sense to show hidden.
 
 		// check two parts of isitemvisible where we want to give specific errors
 		// potentially need time zone for setting release date
-		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date())) {
+		if (!canSeeAll && currentPage.getReleaseDate() != null && currentPage.getReleaseDate().after(new Date()) && !currentPage.isHidden()) {
 			DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
 			TimeZone tz = timeService.getLocalTimeZone();
 			df.setTimeZone(tz);
@@ -568,6 +566,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 		
+		// the only thing not already tested (or tested in release check below) in isItemVisible is groups. In theory
+		// no one should have a URL to a page for which they aren't in the group,
+		// so I'm not trying to give a better message than just hidden
+		if (!canSeeAll && currentPage.isHidden() || !simplePageBean.isItemVisible(pageItem)) {
+		    UIOutput.make(tofill, "error-div");
+		    UIOutput.make(tofill, "error", messageLocator.getMessage("simplepage.not_available_hidden"));
+		    return;
+		}
+
+
 
 		// I believe we've now checked all the args for permissions issues. All
 		// other item and
