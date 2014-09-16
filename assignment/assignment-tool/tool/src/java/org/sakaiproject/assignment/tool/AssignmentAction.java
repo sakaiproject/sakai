@@ -7573,7 +7573,7 @@ public class AssignmentAction extends PagedResourceActionII
 				state.setAttribute("contentReviewSuccess", Boolean.TRUE);
 
 				// commit the changes to AssignmentContent object
-				commitAssignmentContentEdit(state, ac, title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
+				commitAssignmentContentEdit(state, ac, a.getReference(), title, submissionType,useReviewService,allowStudentViewReport, gradeType, gradePoints, description, checkAddHonorPledge, attachments, submitReviewRepo, generateOriginalityReport, checkTurnitin, checkInternet, checkPublications, checkInstitution, excludeBibliographic, excludeQuoted, excludeType, excludeValue, openTime, dueTime, closeTime, hideDueDate);
 				
 				// set the Assignment Properties object
 				ResourcePropertiesEdit aPropertiesEdit = a.getPropertiesEdit();
@@ -8654,7 +8654,7 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 	}
 
-	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate) 
+	private void commitAssignmentContentEdit(SessionState state, AssignmentContentEdit ac, String assignmentRef, String title, int submissionType,boolean useReviewService, boolean allowStudentViewReport, int gradeType, String gradePoints, String description, String checkAddHonorPledge, List attachments, String submitReviewRepo, String generateOriginalityReport, boolean checkTurnitin, boolean checkInternet, boolean checkPublications, boolean checkInstitution, boolean excludeBibliographic, boolean excludeQuoted, int excludeType, int excludeValue, Time openTime, Time dueTime, Time closeTime, boolean hideDueDate) 
 	{
 		ac.setTitle(title);
 		ac.setInstructions(description);
@@ -8717,7 +8717,7 @@ public class AssignmentAction extends PagedResourceActionII
 		AssignmentService.commitEdit(ac);
 		
 		if(ac.getAllowReviewService()){
-			if (!createTIIAssignment(ac, openTime, dueTime, closeTime, state))
+			if (!createTIIAssignment(ac, assignmentRef, openTime, dueTime, closeTime, state))
 			{
 				state.setAttribute("contentReviewSuccess", Boolean.FALSE);
 			}
@@ -8725,7 +8725,7 @@ public class AssignmentAction extends PagedResourceActionII
 		
 	}
 	
-	public boolean createTIIAssignment(AssignmentContentEdit assign, Time openTime, Time dueTime, Time closeTime, SessionState state) {
+	public boolean createTIIAssignment(AssignmentContentEdit assign, String assignmentRef, Time openTime, Time dueTime, Time closeTime, SessionState state) {
         Map opts = new HashMap();
         
         opts.put("submit_papers_to", assign.getSubmitReviewRepo());
@@ -8766,7 +8766,7 @@ public class AssignmentAction extends PagedResourceActionII
         	opts.put("attachments", attachments);
         }
         try {
-            contentReviewService.createAssignment(assign.getContext(), assign.getReference(), opts);
+            contentReviewService.createAssignment(assign.getContext(), assignmentRef, opts);
 			return true;
         } catch (Exception e) {
             M_log.error(e);
