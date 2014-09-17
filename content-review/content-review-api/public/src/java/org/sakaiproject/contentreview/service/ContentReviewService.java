@@ -68,23 +68,25 @@ public interface ContentReviewService {
 	 *  Get the URL of the report
 	 * @param contentId
 	 * @param assignmentRef
+	 * @param userId
 	 * @return the url
 	 * @throws QueueException
 	 * @throws ReportException
 	 * * * @deprecated since Nov 2007, use {@link getReviewReportInstructor(String contentId)} or {@link getReviewReportInstructor(String contentId)}
 	 */
-	public String getReviewReport(String contentId, String assignmentRef)
+	public String getReviewReport(String contentId, String assignmentRef, String userId)
 	throws QueueException, ReportException;
 	
 	/**
 	 * Get the URL of a report constructed for a student
 	 * @param contentId
-	 # @param assignmentRef
+	 * @param assignmentRef
+	 * @param userId
 	 * @return
 	 * @throws QueueException
 	 * @throws ReportException
 	 * */
-	public String getReviewReportStudent(String contentId, String assignmentRef)
+	public String getReviewReportStudent(String contentId, String assignmentRef, String userId)
 	throws QueueException, ReportException;
 	
 	/**
@@ -92,11 +94,12 @@ public interface ContentReviewService {
 	 * 
 	 * @param contentId
 	 * @param assignmentRef
+	 * @param userId
 	 * @return
 	 * @throws QueueException
 	 * @throws ReportException
 	 */
-	public String getReviewReportInstructor(String contentId, String assignmentRef)
+	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId)
 	throws QueueException, ReportException;
 	
 	

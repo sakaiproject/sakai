@@ -214,27 +214,27 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return null;
 	}
 
-	public String getReviewReport(String contentId, String assignmentRef) throws QueueException,
+	public String getReviewReport(String contentId, String assignmentRef, String userId) throws QueueException,
 			ReportException {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
-			return provider.getReviewReport(contentId, assignmentRef);
+			return provider.getReviewReport(contentId, assignmentRef, userId);
 		return null;
 	}
 
-	public String getReviewReportInstructor(String contentId, String assignmentRef) throws QueueException,
+	public String getReviewReportInstructor(String contentId, String assignmentRef, String userId) throws QueueException,
 			ReportException {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
-			return provider.getReviewReportInstructor(contentId, assignmentRef);
+			return provider.getReviewReportInstructor(contentId, assignmentRef, userId);
 		return null;
 	}
 
-	public String getReviewReportStudent(String contentId, String assignmentRef) throws QueueException,
+	public String getReviewReportStudent(String contentId, String assignmentRef, String userId) throws QueueException,
 			ReportException {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
-			return provider.getReviewReportStudent(contentId, assignmentRef);
+			return provider.getReviewReportStudent(contentId, assignmentRef, userId);
 		return null;
 	}
 	
