@@ -308,6 +308,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     display:inline;
     font-size:100%;
 }
+
 .ui-button-text {
 	font-weight: bold;
 	padding: 0px 4px !important;
@@ -555,6 +556,9 @@ vertical-align:top;
 a.peer-eval-stats {
         font-size:75% !important
 }
+.peer-eval-title-student {
+        font-size:110%;			 
+}
 .noDisplay {
 	display: none
 }
@@ -574,11 +578,13 @@ a.peer-eval-stats {
 .studentContentTitle, .mainList li.question .questionText, h3.author {
 /*	margin:0 2px 5px 3px; 
     display:inline;*/
+    font-size:110%;
 }
 .studentContentTitle {
     display:block;
     margin-bottom: 0.25em;
     margin-top: 15px;
+    font-size: 110%;
 }
 .studentContentTable {
 	border: none;
