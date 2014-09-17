@@ -10403,9 +10403,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					String contentId = cr.getId();
 					
 					if (allowGradeSubmission(getReference()))
-						return contentReviewService.getReviewReportInstructor(contentId, getAssignment().getReference());
+						return contentReviewService.getReviewReportInstructor(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
 					else
-						return contentReviewService.getReviewReportStudent(contentId, getAssignment().getReference());
+						return contentReviewService.getReviewReportStudent(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
 					
 				} catch (Exception e) {
 					M_log.warn(":getReviewReport() " + e.getMessage());
@@ -10434,11 +10434,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String contentId = cr.getId();
 				if (allowGradeSubmission(getReference()))
 				{
-					return contentReviewService.getReviewReportInstructor(contentId, getAssignment().getReference());
+					return contentReviewService.getReviewReportInstructor(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
 				}
 				else
 				{
-					return contentReviewService.getReviewReportStudent(contentId, getAssignment().getReference());
+					return contentReviewService.getReviewReportStudent(contentId, getAssignment().getReference(), UserDirectoryService.getCurrentUser().getId());
 				}
 			}
 			catch (Exception e)
