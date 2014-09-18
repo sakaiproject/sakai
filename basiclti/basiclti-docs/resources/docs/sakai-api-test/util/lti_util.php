@@ -496,7 +496,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
     } else {
         $r = "<form action=\"".$endpoint."\" name=\"ltiLaunchForm\" id=\"ltiLaunchForm\" method=\"post\" encType=\"application/x-www-form-urlencoded\">\n" ;
     }
-    $submit_text = $newparms['ext_submit'];
+    $submit_text = isset($newparms['ext_submit']) ? $newparms['ext_submit'] : 'Submit';
     foreach($newparms as $key => $value ) {
         $key = htmlspec_utf8($key);
         $value = htmlspec_utf8($value);

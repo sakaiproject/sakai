@@ -16,6 +16,8 @@ require_once("util/lti_util.php");
 
     $cur_url = curPageURL();
 
+    $consumer_key = isset($_REQUEST['consumer_key']) ? $_REQUEST['consumer_key'] : '106fab23';
+
     $lmsdata = array(
       "lti_message_type" => "ToolProxyRegistrationRequest",
       "lti_version" => "LTI-2p0",
@@ -26,13 +28,13 @@ require_once("util/lti_util.php");
       );
 
   foreach ($lmsdata as $k => $val ) {
-      if ( $_POST[$k] && strlen($_POST[$k]) > 0 ) {
+      if ( isset($_POST[$k]) && strlen($_POST[$k]) > 0 ) {
           $lmsdata[$k] = $_POST[$k];
       }
   }
 
-  $endpoint = trim($_REQUEST["endpoint"]);
-  if ( ! $endpoint ) $endpoint = str_replace("tc.php","tp.php",$cur_url);
+  $endpoint = str_replace("tc.php","tp.php",$cur_url);
+  if ( isset($_REQUEST["endpoint"]) ) $endpoint = trim($_REQUEST["endpoint"]);
 
 ?>
 <script language="javascript"> 
@@ -59,13 +61,14 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   } else {
     echo("<div id=\"lmsDataForm\" style=\"display:block\">\n");
   }
-  echo("<fieldset id=\"lmsDataForm\"><legend>LTI I</legend>\n");
+  echo("<fieldset id=\"lmsDataForm\"><legend>LTI 2</legend>\n");
   $disabled = '';
-  echo("Launch URL: <input size=\"60\" type=\"text\" $disabled size=\"60\" name=\"endpoint\" value=\"$endpoint\">\n");
+  echo("Launch URL: <input size=\"60\" type=\"text\" size=\"60\" name=\"endpoint\" value=\"$endpoint\"><br/>\n");
+  echo("Consumer Key: <input size=\"60\" type=\"text\" size=\"60\" name=\"consumer_key\" value=\"$consumer_key\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
-      echo($k.": <input type=\"text\" name=\"".$k."\" value=\"");
+      echo($k.": <input type=\"text\" size=\"60\" name=\"".$k."\" value=\"");
       echo(htmlspecialchars($val));
       echo("\"><br/>\n");
   }
@@ -89,14 +92,13 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
 
   if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
 
-  /* $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
-"Finish Launch", "", "");
-*/
-
-  $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
-    "_blank");
-     // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
-  print($content);
+  if ( isset($parms['tc_profile_url']) ) {
+        $parms['tc_profile_url'] .= '?key=' . $consumer_key;
+    }
+    $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
+        "_blank");
+        // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
+    print($content);
 }
 
 ?>

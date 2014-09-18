@@ -6,6 +6,10 @@ session_start();
 require_once("util/lti_util.php");
 
 $cur_url = str_replace("/tc_profile.php","",curPageURL());
+$pos = strpos('?',$cur_url);
+if ( $pos !== false ) $cur_url = substr($cur_url,0,$pos-1);
+
+$consumer_key = isset($_GET['key']) ? $_GET['key'] : '106aff6';
 
 // Is guid, the oauth_consumer_key ???
 
@@ -14,13 +18,13 @@ echo <<< EOF
   "@context": [
     "http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile",
     {
-      "tcp": "$cur_url/106aff6"
+      "tcp": "$cur_url/$consumer_key"
     }
   ],
   "@type": "ToolConsumerProfile",
-  "@id": "$cur_url/106aff6",
+  "@id": "$cur_url/$consumer_key",
   "lti_version": "LTI-2p0",
-  "guid": "106aff6",
+  "guid": "$consumer_key",
   "product_instance": {
     "guid": "dcddf9808107-81ea-eaa4-1edf-5d24568c",
     "product_info": {
