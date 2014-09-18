@@ -16,6 +16,7 @@
 	  	<h:commandButton
 	  		action="#{courseGradeDetailsBean.processCalculateCourseGrades}"
 	  		value="#{msgs.calculate_course_grade_continue}"
+	  		styleClass="active"
 	  	/>
 	  	<h:commandButton
 	  		action="courseGradeDetails"
