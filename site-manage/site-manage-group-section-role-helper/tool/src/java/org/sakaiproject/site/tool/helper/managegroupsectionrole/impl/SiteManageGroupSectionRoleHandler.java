@@ -40,6 +40,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.util.Participant;
 import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.site.util.SiteParticipantHelper;
+import org.sakaiproject.site.util.GroupHelper;
 import org.sakaiproject.sitemanage.api.SiteHelper;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
@@ -568,10 +569,8 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * Adds a new group to the current site
-     * @param toolId
-     * @param title
-     * @return the newly added Group
+     * Adds a new group to the current site, or edits an existing group
+     * @return "success" if group was added/edited, null if something went wrong
      */
     public String processAddGroup () {
 
@@ -596,32 +595,20 @@ public class SiteManageGroupSectionRoleHandler {
     		messages.addMessage(new TargettedMessage("editgroup.titlemissing",new Object[]{}, TargettedMessage.SEVERITY_ERROR));
     		return null;
     	}
-    	else if (title != null && title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
+    	else if (title.length() > SiteConstants.SITE_GROUP_TITLE_LIMIT)
     	{
     		messages.addMessage(new TargettedMessage("site_group_title_length_limit",new Object[] { String.valueOf(SiteConstants.SITE_GROUP_TITLE_LIMIT) }, TargettedMessage.SEVERITY_ERROR));
     		return null;
     	}
-    	else if (id == null)
+    	else
     	{
-    		Collection siteGroups = site.getGroups();
-    		if (siteGroups != null && siteGroups.size() > 0)
-    		{
-	    		// when adding a group, check whether the group title has
-				// been used already
-				boolean titleExist = false;
-				for (Iterator iGroups = siteGroups.iterator(); !titleExist
-						&& iGroups.hasNext();) {
-					Group iGroup = (Group) iGroups.next();
-					if (title.equals(iGroup.getTitle())) {
-						// found same title
-						titleExist = true;
-					}
-				}
-				if (titleExist) {
-					messages.addMessage(new TargettedMessage("group.title.same", null, TargettedMessage.SEVERITY_ERROR));
-					return null;
-				}
-    		}
+            String sameTitleGroupId = GroupHelper.getSiteGroupByTitle(site, title);
+            // "id" will be null if adding a new group, otherwise it will be the id of the group being edited
+            if (!sameTitleGroupId.isEmpty() && (id == null || !sameTitleGroupId.equals(id)))
+            {
+                messages.addMessage(new TargettedMessage("group.title.same", null, TargettedMessage.SEVERITY_ERROR));
+                return null;
+            }
     	}
     	
     	int joinableSetNumOfMembersInt = -1;
