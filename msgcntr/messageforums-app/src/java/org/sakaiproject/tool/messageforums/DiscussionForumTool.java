@@ -6428,7 +6428,7 @@ public class DiscussionForumTool
     	try {
     		lrss.registerStatement(getStatementForGrade(studentUid, lrss.getEventActor(event), selectedTopic.getTopic().getTitle(), 
     				gradeAsDouble), "msgcntr");
-    	} catch (UserNotDefinedException e) {
+    	} catch (Exception e) {
     		if (LOG.isDebugEnabled()) {
     			LOG.debug(e);
     		}
