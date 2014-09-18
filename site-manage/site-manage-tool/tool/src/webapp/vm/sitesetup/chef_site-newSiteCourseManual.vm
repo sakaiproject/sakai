@@ -253,6 +253,7 @@
 				onclick="document.requestCourseForm.option.value='back'; document.requestCourseForm.submit(); return false;" />
 			<input type="button" name="Cancel" value="$tlang.getString('gen.cancel')" accesskey="x"
 				onclick="document.requestCourseForm.option.value='cancel'; document.requestCourseForm.submit(); return false;" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end
 	</div>

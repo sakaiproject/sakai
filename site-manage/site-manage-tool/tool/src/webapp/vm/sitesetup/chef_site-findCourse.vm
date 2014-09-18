@@ -276,6 +276,8 @@
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')"
 					onclick="resetOption('cancel');" />
  			</p>
+
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
 	#end
 </div>
