@@ -137,7 +137,7 @@
   <class name="org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAttachmentData" table="SAM_PUBLISHEDATTACHMENT_T">
     <id name="attachmentId" column="ATTACHMENTID" type="java.lang.Long" unsaved-value="0">
       <generator class="native">
-        <param name="sequence">SAM_PUBATTACHMENT_ID_S</param>
+        <param name="sequence">SAM_PUBLISHEDATTACHMENT_ID_S</param>
       </generator>
     </id>
 
