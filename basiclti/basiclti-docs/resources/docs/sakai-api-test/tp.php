@@ -105,13 +105,14 @@ if ( count($tc_services) < 1 ) die("At a minimum, we need the service to registe
 $register_url = false;
 $result_url = false;
 foreach ($tc_services as $tc_service) {
+    // var_dump($tc_service);
     $formats = $tc_service->{'format'};
     $type = $tc_service->{'@type'};
     $id = $tc_service->{'@id'};
-    echo("Service: ".$format." id=".$id."\n");
+    echo("Service id=".$id."\n");
     foreach($formats as $format) {
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
-        // var_dump($tc_service);
+        if ( $id != "tcp:ToolProxy.collection") continue;
         $register_url = $tc_service->endpoint;
     }
 }

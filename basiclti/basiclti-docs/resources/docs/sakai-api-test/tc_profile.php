@@ -117,7 +117,7 @@ echo <<< EOF
       "@type": "RestService",
       "@id": "tcp:ToolProxy.collection",
       "endpoint": "$cur_url/tc_register.php",
-      "format": ["application/vnd.ims.lti.v2.toolproxy+json"],
+      "format" : ["application/vnd.ims.lti.v2.toolproxy+json"],
       "action": [ "POST" ]
     },
     {
