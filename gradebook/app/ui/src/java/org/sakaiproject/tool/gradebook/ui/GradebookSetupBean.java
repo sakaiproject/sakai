@@ -29,6 +29,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
+import java.math.BigDecimal;
 
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ValueChangeEvent;
@@ -979,8 +980,8 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 	 */
 	private void calculateRunningTotal()
 	{
-		double total = 0;
-		double extraCredit = 0;
+		BigDecimal total = new BigDecimal(0);
+		BigDecimal extraCredit = new BigDecimal(0);
 
 		if (categories != null && categories.size() > 0)
 		{
@@ -997,30 +998,30 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 				{
 					if (cat.getWeight() != null && !cat.isExtraCredit())
 					{
-						double weight = cat.getWeight().doubleValue();
-						total += weight;
+						BigDecimal weight = new BigDecimal(cat.getWeight().doubleValue());
+						total=total.add(weight);
 					}
 					else if (cat.getWeight() != null && cat.isExtraCredit())
 					{
-						double weight = cat.getWeight().doubleValue();
-						extraCredit += weight;
+						BigDecimal weight = new BigDecimal(cat.getWeight().doubleValue());
+						extraCredit = extraCredit.add(weight);
 					}
 				}
 				else
 				{
 					if (cat.getWeight() != null)
 					{
-						double weight = cat.getWeight().doubleValue();
-						total += weight;
+						BigDecimal weight = new BigDecimal(cat.getWeight().doubleValue());
+						total=total.add(weight);
 					}
 				}
 			}
 		}
 
-		regularTotal = total; // this will probably change later, but make it function to spec for now
-		grandTotal = total + extraCredit;
-		adjustmentTotal = extraCredit;
-		neededTotal = 100 - total;
+		regularTotal = total.doubleValue(); // this will probably change later, but make it function to spec for now
+		grandTotal = (total.add(extraCredit)).doubleValue();
+		adjustmentTotal = extraCredit.doubleValue();
+		neededTotal = 100 - total.doubleValue();
 	}
 	
 	/**
