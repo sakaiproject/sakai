@@ -157,7 +157,7 @@ echo <<< EOF
     },
     {
       "@type": "RestService",
-      "@id": "$cur_url/common/tool_consumer_outcome.php",
+      "@id": "tcp:LTI_1_1_ResultService",
       "endpoint": "$cur_url/common/tool_consumer_outcome.php",
       "format": ["application/vnd.ims.lti.v1.outcome+xml"],
       "action": [ "POST" ]
