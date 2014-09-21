@@ -2496,7 +2496,10 @@ public class SimplePageBean {
 			return;
 		}
 
-		if (i.getSakaiId().equals(SimplePageItem.DUMMY))
+		String sakaiId = i.getSakaiId();
+		// /sam_core/nnn isn't published. It can't have groups. When it is published
+		// we do a fixup which will call this again to create the real groups
+		if (sakaiId.equals(SimplePageItem.DUMMY) || sakaiId.startsWith("/sam_core/"))
 		    return;
 
 		SimplePageGroup group = simplePageToolDao.findGroup(i.getSakaiId());
@@ -3035,6 +3038,14 @@ public class SimplePageBean {
 	   // are set with prerequisite and some are not, that things
 	   // could get out of kilter. So I'm going to use the
 	   // SimplePageGroup if it exists, and the tool if not.
+
+	   // this can be needed if the call to getEntity causes us to recognize
+	   // a recently published test and replace the /sam_core with a /sam_pub
+	   // in that case the entity is up to date but the sakaiid is not
+	   if (i.getSakaiId().startsWith("/sam_core") && entity != null) {
+	       i.setSakaiId(entity.getReference());
+	   }
+
 
 	   SimplePageGroup simplePageGroup = simplePageToolDao.findGroup(i.getSakaiId());
 	   if (simplePageGroup != null) {
@@ -4779,32 +4790,37 @@ public class SimplePageBean {
     // site and needs an update
     // only works if you have lessons write permission. Caller shold check
 	public void maybeUpdateLinks() {
+
 	    String needsFixup = getCurrentSite().getProperties().getProperty("lessonbuilder-needsfixup");
-	    if (needsFixup == null || !needsFixup.equals("true"))
-	    	return;
+	    if (needsFixup != null && needsFixup.length() != 0) {
 
-	    // it's important for only one process to do the update. So instead of depending upon something
-	    // that can be cached and is not synced across sites, do this directly in the DB with somehting
-	    // atomic. Also site save is veyr heavy weight, and not well interlocked. Much better just
-	    // to remove the property. This should only be needed for 10 min (cache lifetime), after which
-	    // the test above will show that it's not needed
-	    //   Permission note: this should work for a student. A full site save won't. However this
-	    // code only gets called for people with lessons.write. Normally lessons.write is also people
-	    // with site.upd, but maybe not always. It should be OK for anyone to clear this flag in this code
-
-	    int updated = 0;
-	    try {
-		updated = simplePageToolDao.clearNeedsFixup(getCurrentSiteId());
-	    } catch (Exception e) {
-		// should get here if the flag has been removed already by another process
-		log.warn("clearneedsfixup " + e);
+		// it's important for only one process to do the update. So instead of depending upon something
+		// that can be cached and is not synced across sites, do this directly in the DB with somehting
+		// atomic. Also site save is veyr heavy weight, and not well interlocked. Much better just
+		// to remove the property. This should only be needed for 10 min (cache lifetime), after which
+		// the test above will show that it's not needed
+		//   Permission note: this should work for a student. A full site save won't. However this
+		// code only gets called for people with lessons.write. Normally lessons.write is also people
+		// with site.upd, but maybe not always. It should be OK for anyone to clear this flag in this code
+		
+		int updated = 0;
+		try {
+		    updated = simplePageToolDao.clearNeedsFixup(getCurrentSiteId());
+		} catch (Exception e) {
+		    // should get here if the flag has been removed already by another process
+		    log.warn("clearneedsfixup " + e);
+		}
+		// only do this if there was a flag to delete
+		if (updated != 0) {
+		    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
+		    currentSite = null;  // force refetch next time
+		}
 	    }
-	    // only do this if there was a flag to delete
-	    if (updated == 0)
-		return;
 
-	    lessonBuilderEntityProducer.updateEntityReferences(getCurrentSiteId());
-	    currentSite = null;  // force refetch next time
+	    int fixupType = simplePageToolDao.clearNeedsGroupFixup(getCurrentSiteId());
+	    if (fixupType != 0)
+		lessonBuilderEntityProducer.fixupGroupRefs(getCurrentSiteId(), this, fixupType);
+
 	}
 
 	public boolean isItemAvailable(SimplePageItem item) {

@@ -79,6 +79,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
 import org.sakaiproject.lessonbuildertool.SimplePageItemImpl;
 import org.sakaiproject.lessonbuildertool.SimplePageItemAttributeImpl;
@@ -1033,8 +1034,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	     if (needFix) {
 		 Site site = siteService.getSite(siteId);
 		 ResourcePropertiesEdit rp = site.getPropertiesEdit();
-		 rp.addProperty("lessonbuilder-needsfixup", "true");
+		 rp.addProperty("lessonbuilder-needsfixup", "2");
 		 siteService.save(site);
+		// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
+		// site-manage will stomp on it. However it does work for the other import operations, which is where
+		// we need it, since site manage will call the fixup itself for duplicate
+
 	     }
 
 	     for (int p = 0; p < numPages; p++) {
@@ -1334,15 +1339,26 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		}
 
-		// clear the flag in the site. we've done our best
+		// We've done the fixups but still need to do group adjustments
 		Site site = siteService.getSite(toContext);
 		ResourcePropertiesEdit rp = site.getPropertiesEdit();
 		rp.removeProperty("lessonbuilder-needsfixup");
 		siteService.save(site);
+		// unfortunately in duplicate site, site-admin has the site open, so this doesn't actually do anything
+		// site-manage will stomp on it. So we need a different way to say that group fixup is needed
 
 	    } catch (Exception e) {
 		logger.error(e.getMessage(), e);
 	    }
+
+	    try {
+		Site toSite = siteService.getSite(toContext);
+	    } catch (Exception e) {
+		logger.error(e.getMessage(), e);
+	    }		
+
+	    // set this flag for the group update, which we really do need in duplicate
+	    simplePageToolDao.setNeedsGroupFixup(toContext, 2);
 
 	    return entityMap;
 
@@ -1355,8 +1371,11 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     // this is mapping from LB item id to underlying object in old site.
     // find the object in the new site and fix up the item id
     public void updateEntityReferences(String toContext, Map<String, String> transversalMap) {
+
 	if (migrateAllLinks != null)
 	    migrateEmbeddedLinks(toContext, transversalMap);
+	// update lessonbuilder_ref property of groups and kill bogus groups
+	Map<String,String> mapGroups = new HashMap<String,String>();
 	for (Map.Entry<String,String> entry: transversalMap.entrySet()) {
 	    String entityid = entry.getKey();
 	    String objectid = entry.getValue();
@@ -1392,11 +1411,20 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		} catch (Exception ignore) {}
 		SimplePageItem item = simplePageToolDao.findItem(itemid);
 		if (item != null) {
+		    String oldSakaiId = item.getSakaiId();
+		    if (oldSakaiId.equals(SimplePageItem.DUMMY)) {
+			mapGroups.put(item.getAlt(), sakaiid);
+		    } else if (!oldSakaiId.equals(sakaiid)) {
+			mapGroups.put(oldSakaiId, sakaiid);
+		    }
 		    item.setSakaiId(sakaiid);
 		    simplePageToolDao.quickUpdate(item);
 		}
 	    }
 	}
+
+	simplePageToolDao.setNeedsGroupFixup(toContext, 1);
+
     }
 
     private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
@@ -1427,13 +1455,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	Map<String, String> entityMap = new HashMap<String, String>();
 
 	// find list of dummy items and and objects, for fixup
-
+	
 	for (SimplePageItem item: dummyItems) {
-	    String entityid = null;
-	    int type = item.getType();
-
-	    if (type == SimplePageItem.ASSIGNMENT)
-		entityid = REF_LB_ASSIGNMENT + item.getId();
+	  String entityid = null;
+	  int type = item.getType();
+	  
+	  if (type == SimplePageItem.ASSIGNMENT)
+	      entityid = REF_LB_ASSIGNMENT + item.getId();
 	    else if (type == SimplePageItem.ASSESSMENT)
 		entityid = REF_LB_ASSESSMENT + item.getId();
 	    else
@@ -1443,6 +1471,117 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
 	// now do the fixups
 	updateEntityReferences(toContext, entityMap);
+
+    }
+
+
+    // fixup access control groups. They have a group property pointing to the
+    // object that they control. That needs to be updated to the object in
+    // the new site or we'll get duplicate groups. Remove any groups with that
+    // property where there's no object in the new site. Presumably those are
+    // some kind of leftover from confusion. Since there's no matching object
+    // they can't be useful for anything.
+
+    // it should be OK to call this more than once, though we try not to
+
+    public void fixupGroupRefs (String toContext, SimplePageBean simplePageBean, int fixupType) {
+      // fixup groups
+
+      Map<String, String> objectMap = simplePageToolDao.getObjectMap(toContext);
+
+      Site site = null;
+      if (fixupType == 2) {
+	  try {
+	      site = siteService.getSite(toContext);
+	  } catch (Exception e) {
+	      logger.error("can't get site " + toContext + " " + e);
+	      return;
+	  }
+
+	  List<Group>delGroups = new ArrayList<Group>();
+	  Collection<Group> allGroups = site.getGroups();
+	  for (Group group: allGroups) {
+	      String groupRef = group.getProperties().getProperty("lessonbuilder_ref");
+	      if (groupRef != null) {
+		  String newGroupRef = objectMap.get(groupRef);
+		  if (newGroupRef != null && newGroupRef.length() > 1) {
+		      group.getPropertiesEdit().addProperty("lessonbuilder_ref", newGroupRef);
+		  } else if (newGroupRef == null) {
+		      delGroups.add(group);
+		  } else {
+		  }
+		  
+		  // newGroupRef "" is if the group is already a new one. leave it alone
+	      }
+	  }
+
+	  for (Group group: delGroups) {
+	      site.removeGroup(group);      
+	  }
+	  try {
+	      siteService.save(site);
+	  } catch (Exception e) {
+	      logger.warn("unable to save set to upgrade groups", e);
+	  }
+
+      }
+
+      // now make sure none of the tools are resstricted to any of our groups
+      // and then add back a clean restriction
+      
+      Set<String> sakaiIds = new HashSet<String>();
+      for (Map.Entry<String,String> entry: objectMap.entrySet()) {
+	  if ("".equals(entry.getValue()))
+	      sakaiIds.add(entry.getKey());
+      }
+	      
+
+      for (String sakaiId: sakaiIds) {
+
+	  if (fixupType == 2) {
+
+	      LessonEntity lessonEntity = null;
+	      lessonEntity = assignmentEntity.getEntity(sakaiId);
+	      if (lessonEntity == null)
+		  lessonEntity = quizEntity.getEntity(sakaiId);
+	      if (lessonEntity == null)
+		  lessonEntity = forumEntity.getEntity(sakaiId);
+	      // remove any of our access control groups.
+	      if (lessonEntity != null) {
+		  Collection<String> groupIds = lessonEntity.getGroups(true);
+		  List<String> okIds = new ArrayList<String>();
+		  if (groupIds != null && groupIds.size() > 0) {
+		      boolean changed = false;
+		      for (String groupId: groupIds) {
+			  Group group = site.getGroup(groupId);
+			  if (group.getProperties().getProperty("lessonbuilder_ref") != null ||
+			      group.getTitle().startsWith("Access: ")) {
+			      changed = true;
+			      continue;
+			  }
+			  okIds.add(groupId);
+		      }
+		      if (changed)
+			  lessonEntity.setGroups(okIds);
+		  }
+		  SimplePageGroup group = simplePageToolDao.findGroup(sakaiId);
+		  if (group != null)
+		      simplePageToolDao.deleteItem(group);
+	      }
+	      // we've now removed anything that checkControlGroup would have done
+	  } // end fixuptype == 2
+
+	  // if items using this group are controlled, put control group back
+	  List<SimplePageItem> items = simplePageToolDao.findItemsBySakaiId(sakaiId);
+	  for (SimplePageItem item: items) {
+	      if (item.isPrerequisite()) {
+		  String sid = item.getSakaiId();
+		  if (!sid.equals(SimplePageItem.DUMMY) && !sid.startsWith("/sam_core/"))
+		      simplePageBean.checkControlGroup(item, true);
+	      }
+	  }
+
+      }
 
     }
 

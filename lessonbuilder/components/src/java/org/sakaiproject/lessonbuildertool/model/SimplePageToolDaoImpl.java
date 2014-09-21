@@ -40,6 +40,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.HibernateException;
+import org.hibernate.Transaction;
+import org.springframework.orm.hibernate3.HibernateCallback;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.db.api.SqlReader;
@@ -104,6 +109,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	// someone with update privs, except that add or update to the log is done on
 	// behalf of normal people. I've checked all the code that does save or update for
 	// log entries and it looks OK.
+
+    public HibernateTemplate getDaoHibernateTemplate() {
+	return getHibernateTemplate();
+    }
 
 	public boolean canEditPage() {
 		String ref = null;
@@ -1289,9 +1298,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    List<String> needsList = sqlService.dbRead("select VALUE from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields, null);
 	    
 	    // normal case -- no flag
-	    if (needsList == null || needsList.size() == 0)
+	    if (needsList == null || needsList.size() == 0) {
 		return 0;
-	    
+	    }	    
 
 	    // there is a flag, do something more carefully avoiding race conditions
 	    //   There is a possible timing issue if someone copies data into the site after the
@@ -1311,6 +1320,9 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 		if (needsList != null && needsList.size() > 0) {
 		    retval = 1;
+		    try {
+			retval = Integer.parseInt(needsList.get(0));
+		    } catch (Exception ignore) {}
 		    sqlService.dbWrite(conn, "delete from SAKAI_SITE_PROPERTY where SITE_ID=? and NAME='lessonbuilder-needsfixup'", fields);
 		}
 		
@@ -1336,6 +1348,134 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	    return retval;
 
+	}
+
+	public void setNeedsGroupFixup(String siteId, final int value) {
+	    // I'm doing this in hibernate because the table is cached and I don't want
+	    // hibernate's caceh to be out of date
+	    final String property = "groupfixup " + siteId;
+	    getHibernateTemplate().flush();
+
+	    Session session = getSessionFactory().openSession();
+	    Transaction tx = session.getTransaction();
+	    try {
+		tx = session.beginTransaction();
+
+		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
+		query.setString("attr", property);
+
+		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
+
+		if (prop != null) {
+		    int oldValue = 0;
+		    try {
+			oldValue = Integer.parseInt(prop.getValue());
+		    } catch (Exception e) {};
+		    if (value > oldValue)
+			prop.setValue(Integer.toString(value));
+		} else {
+		    prop = makeProperty(property, Integer.toString(value));
+		}
+	    
+		session.saveOrUpdate(prop);
+
+		tx.commit();
+
+	    } catch (Exception e) {
+		if (tx != null)
+		    tx.rollback();
+	    } finally {
+		session.close();
+	    }
+
+	}
+
+    // for efficiency, we first check a cached reference. On multiple systems
+    // this may be out of date, but the most common case is that the instructor copies the site and
+    // then tries it on the same server. If not, the fixup can be delayed 10 min. I thikn that's OK
+    // really don't want to add one db query per page display for this stupid thing
+
+	public int clearNeedsGroupFixup(String siteId) {
+	    String property = "groupfixup " + siteId;
+
+	    DetachedCriteria d = DetachedCriteria.forClass(SimplePageProperty.class).add(Restrictions.eq("attribute", property));
+	    List<SimplePageProperty> list = getHibernateTemplate().findByCriteria(d);
+
+	    if (list == null || list.size() == 0)
+		return 0;
+
+	    // there is a flag, do something more carefully avoiding race conditions
+	    //   There is a possible timing issue if someone copies data into the site after the
+	    // last test. If so, we'll get it next time someone uses the site.
+	    // we need to be provably sure that if the flag is set, this code returns 1 exactly once.
+	    // I believe that is the case.
+
+	    getHibernateTemplate().flush();
+
+	    int retval = 0;
+
+	    Session session = getSessionFactory().openSession();
+	    Transaction tx = session.getTransaction();
+	    try {
+		tx = session.beginTransaction();
+
+		Query query = session.createQuery("from SimplePagePropertyImpl as prop where prop.attribute = :attr");
+		query.setString("attr", property);
+
+		SimplePageProperty prop = (SimplePageProperty)query.uniqueResult();
+
+		// if it's there, remember current value and delete
+		if (prop != null) {
+		    try {
+			retval = Integer.parseInt(prop.getValue());
+		    } catch (Exception e) {};
+		    session.delete(prop);
+		}
+	    
+		tx.commit();
+
+	    } catch (Exception e) {
+		if (tx != null)
+		    tx.rollback();
+	    } finally {
+		session.close();
+	    }
+
+	    return retval;
+
+	}
+
+	public Map<String,String> getObjectMap(String siteId) {
+    
+	    Object [] fields = new Object[1];
+	    fields[0] = siteId;
+	    final Map<String,String> objectMap = new HashMap<String, String>();
+	    sqlService.dbRead("select a.sakaiId,a.alt from lesson_builder_items a, lesson_builder_pages b where a.pageId=b.pageId and b.siteId=? and a.type in (3,4,8)", fields, new SqlReader() {
+		    public Object readSqlResultRecord(ResultSet result) {
+    			try {
+			    String newObject = result.getString(1);
+			    String oldObject = result.getString(2);
+			    if (oldObject != null && oldObject.length()> 0 && !oldObject.startsWith("sam_core")) {
+				int i = oldObject.indexOf("/");
+				if (i >= 0)
+				    i = oldObject.indexOf("/", i+1);
+				if (i >= 0)
+				    oldObject = oldObject.substring(0, i);
+				oldObject = "/" + oldObject;
+				objectMap.put(oldObject, newObject);
+			    }
+			    // also put new object in map
+			    if (!newObject.startsWith("/sam_core"))
+				objectMap.put(newObject, "");
+			    return null;
+    			} catch (SQLException e) {
+			    log.warn("findTextItemsInSite: " + e);
+			    return null;
+    			}
+		    }
+		});
+
+	    return objectMap;
 	}
 
 }

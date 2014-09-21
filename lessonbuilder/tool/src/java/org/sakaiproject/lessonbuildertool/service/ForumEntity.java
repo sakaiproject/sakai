@@ -81,6 +81,7 @@ import java.net.URLEncoder;
 
 import uk.org.ponder.messageutil.MessageLocator;
 
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.HibernateCallback;
@@ -155,6 +156,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	memoryService = m;
     }
 
+    private static SimplePageToolDao simplePageToolDao;
+    public void setSimplePageToolDao(Object dao) {
+	//	System.out.println("set dao " + dao);
+	simplePageToolDao = (SimplePageToolDao) dao;
+    }
+
+    private static HibernateTemplate hibernateTemplate = null;
+
     public void init () {	
 	//	topicCache = memoryService
 	//	    .newCache("org.sakaiproject.lessonbuildertool.service.ForumEntity.cache");
@@ -164,6 +173,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     protected void initDao() throws Exception {
 	super.initDao();
 	log.info("initDao template " + getHibernateTemplate());
+	hibernateTemplate = getHibernateTemplate();
     }
 
     public void destroy()
@@ -934,45 +944,29 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	setMasks();
 
 	//System.out.println("topic 1 " + topic + " " + groups);
-	if (topic == null)
+	//	if (topic == null)
 	    topic = getTopicById(true, id);
 	//System.out.println("topic 2 " + topic);
 	if (topic == null)
 	    return;
+
+	Site site = null;
+	try {
+	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	} catch (Exception e) {
+	    System.out.println("Unable to get site info for AddEntityControl " + e);
+	    return;
+	}
 
 	// topicCache.remove(id);
 
 	// old entries
 	Set<DBMembershipItem> oldMembershipItemSet = uiPermissionsManager.getTopicItemsSet((DiscussionTopic)topic);
 
-	// which old entires to delete
-	Set<DBMembershipItem> deleteItemSet = new HashSet<DBMembershipItem>();
-
-	// all entries we will keep
-	Set membershipItemSet = new HashSet();
-
-	Site site = null;
-	String maintainRole = null;
-
-	// used so we can give an access level to each role. Remove roles from this as we see
-	// them, so at the we just do the ones remaining
-	List<String> roles = new ArrayList<String>();
-
-
-	try {
-	    site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
-	    maintainRole = AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
-	    Set<Role>roleObjs =  AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getRoles();
-	    for (Role roleObj: roleObjs)
-		roles.add(roleObj.getId());
-	} catch (Exception e) {
-	    System.out.println("Unable to get site info for AddEntityControl " + e);
-	    return;
-	}
-
 	DBMembershipItem membershipItem = null;
 
 	boolean haveOwner = false;
+	boolean changed = false;
 
 	if (groups != null && groups.size() > 0) {
 
@@ -980,8 +974,14 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    // remove groups form this as we see them if they already have access
 	    // so at the end we just add the ones remaining
 	    List<String>groupNames = new ArrayList<String>();
-	    for (String groupId: groups)
+	    Set<String>addGroupNames = new HashSet<String>();
+	    for (String groupId: groups) {
 		groupNames.add(site.getGroup(groupId).getTitle());
+		addGroupNames.add(site.getGroup(groupId).getTitle());
+	    }
+	    //	    System.out.println("groups " + groups + " " + groupNames + " " + addGroupNames);
+	    //	    System.out.println("oldMembership " + oldMembershipItemSet.size());
+
 	    // delete groups from here as they are done.
 
 	    // if we've seen an owner. Otherwise set the maintain role as owner
@@ -994,195 +994,99 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	    //    don't recommend that.
 
 	    for (DBMembershipItem item: oldMembershipItemSet) {
-		//System.out.println("old item " + item.getPermissionLevelName() + " " + item.getType() + " " + item.getName());
-		if (item.getPermissionLevelName().equals("Owner"))
-		    haveOwner = true;
-		if (item.getType().equals(MembershipItem.TYPE_ROLE) && roles.contains(item.getName()))
-		    roles.remove(item.getName());   // we've seen it, don't need to add
+		// kill everything except our own groups
+		// this will leave the owner but remove all other roles
+		//System.out.println("item " + item.getType() + " " + item.getName() + " " + item.getPermissionLevelName());
 		if (item.getType().equals(MembershipItem.TYPE_GROUP) && groupNames.contains(item.getName())) {
+		    //		    System.out.println("found group " + item.getName());
+		    addGroupNames.remove(item.getName()); // we've seen it
 		    // if it's one of our groups make it a contributor if it's not already an owner
 		    if (!item.getPermissionLevelName().equals("Contributor") && 
 			!item.getPermissionLevelName().equals("Owner")) {
 
-			//System.out.println("make contributor");
 			PermissionLevel contributorLevel = permissionLevelManager.
 			    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
 			permissionLevelManager.savePermissionLevel(contributorLevel);
 
-			membershipItem = permissionLevelManager.
-			    createDBMembershipItem(item.getName(), "Contributor", MembershipItem.TYPE_GROUP);
-			membershipItem.setPermissionLevel(contributorLevel);
-			permissionLevelManager.saveDBMembershipItem(membershipItem);	
-			membershipItemSet.add(membershipItem);
-			deleteItemSet.add(item);
-		    } else {  // if it was contributor or owner, keep it
-			//System.out.println("keep");
-			membershipItemSet.add(item);
+			item.setPermissionLevel(contributorLevel);
+			item.setPermissionLevelName("Contributor");
+			permissionLevelManager.saveDBMembershipItem(item);
 		    }
-		    groupNames.remove(item.getName());   // it's done
-		} else if (item.getPermissionLevelName().equals("Contributor")) {  // only group members are contributors
+		} else if (!item.getPermissionLevelName().equals("Owner")) {  // only group members are contributors
 		    // remove contributor from anything else, both groups and roles
 		    //System.out.println("set none");
+		    //		    System.out.println("setgroups make none " + item.getName());
 		    PermissionLevel noneLevel = permissionLevelManager.
 			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
 		    permissionLevelManager.savePermissionLevel(noneLevel);
 
-		    membershipItem = permissionLevelManager.
-			createDBMembershipItem(item.getName(), "None", item.getType());
-		    membershipItem.setPermissionLevel(noneLevel);
-		    permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		    membershipItemSet.add(membershipItem);
-		    deleteItemSet.add(item);
-		} else {   // for other permission types, leave as is
-		    //System.out.println("leave alone");
-		    membershipItemSet.add(item);
+		    item.setPermissionLevel(noneLevel);
+		    item.setPermissionLevelName("None");
+		    permissionLevelManager.saveDBMembershipItem(item);
 		}			
 	    }
-	    // do any left
-	    for (String name: groupNames) {
-		//System.out.println("make contributor: " + name);
+	    for (String newGroupName: addGroupNames) {
+		//System.out.println("addgroup " + newGroupName);
+		changed = true;
 		PermissionLevel contributorLevel = permissionLevelManager.
 		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
 		permissionLevelManager.savePermissionLevel(contributorLevel);
-
 		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(name, "Contributor", MembershipItem.TYPE_GROUP);
+		    createDBMembershipItem(newGroupName, "Contributor", MembershipItem.TYPE_GROUP);
 		membershipItem.setPermissionLevel(contributorLevel);
 		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
+		oldMembershipItemSet.add(membershipItem);
 	    }
-	    if (!haveOwner) {
-		//System.out.println("add owner");
-		PermissionLevel ownerLevel = permissionLevelManager.
-		    createPermissionLevel("Owner",  IdManager.createUuid(), ownerMask);
-		permissionLevelManager.savePermissionLevel(ownerLevel);
 
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(maintainRole, "Owner", MembershipItem.TYPE_ROLE);
-		membershipItem.setPermissionLevel(ownerLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-		roles.remove(maintainRole);  // we've processed this, so don't make it None
-	    }
-	    for (String name: roles) {
-		//System.out.println("make none " + name);
-		PermissionLevel noneLevel = permissionLevelManager.
-		    createPermissionLevel("None",  IdManager.createUuid(), noneMask);
-		permissionLevelManager.savePermissionLevel(noneLevel);
-
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(name, "None", MembershipItem.TYPE_ROLE);
-		membershipItem.setPermissionLevel(noneLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-	    }
 	} else {
 	    // Setgroups with a null list: we set all contributor entries to none, and then set all roles
 	    //    to contributor.  However we don't touch Owners.
 
 	    for (DBMembershipItem item: oldMembershipItemSet) {
-		if (item.getPermissionLevelName().equals("Owner"))
+		if (item.getPermissionLevelName().equals("Owner")) {
 		    haveOwner = true;
-		if (item.getType().equals(MembershipItem.TYPE_ROLE) && roles.contains(item.getName()))
-		    roles.remove(item.getName());   // we've seen it, don't need to add
-		if (item.getType().equals(MembershipItem.TYPE_ROLE) && !item.getPermissionLevelName().equals("Owner")) {
-		    // turn all roles into contributor, unless already owner
-		    PermissionLevel contributorLevel = permissionLevelManager.
-			createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
-		    permissionLevelManager.savePermissionLevel(contributorLevel);
-
-		    membershipItem = permissionLevelManager.
-			createDBMembershipItem(item.getName(), "Contributor", item.getType());
-		    membershipItem.setPermissionLevel(contributorLevel);
-		    permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		    membershipItemSet.add(membershipItem);
-		    deleteItemSet.add(item);
-		} else if (item.getPermissionLevelName().equals("Contributor")) {
+		} else if (item.getType().equals(MembershipItem.TYPE_ROLE)) {
+		    // default state has all roles except owner as contributor
+		    if (!item.getPermissionLevelName().equals("Contributor")) {
+			PermissionLevel contributorLevel = permissionLevelManager.
+			    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
+			permissionLevelManager.savePermissionLevel(contributorLevel);
+			
+			item.setPermissionLevel(contributorLevel);
+			item.setPermissionLevelName("Contributor");
+			permissionLevelManager.saveDBMembershipItem(item);
+		    }
+		} else if (!item.getPermissionLevelName().equals("None")) {
 		    // kill other contributors
 		    PermissionLevel noneLevel = permissionLevelManager.
 			createPermissionLevel("None",  IdManager.createUuid(), noneMask);
 		    permissionLevelManager.savePermissionLevel(noneLevel);
 
-		    membershipItem = permissionLevelManager.
-			createDBMembershipItem(item.getName(), "None", item.getType());
-		    membershipItem.setPermissionLevel(noneLevel);
-		    permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		    membershipItemSet.add(membershipItem);
-		    deleteItemSet.add(item);
-		} else {   // for other permission types, leave as is
-		    membershipItemSet.add(item);
+		    item.setPermissionLevel(noneLevel);
+		    item.setPermissionLevelName("None");
+		    permissionLevelManager.saveDBMembershipItem(item);
 		}			
 	    }
-	    if (!haveOwner) {
-		//System.out.println("make owner " +maintainRole);
-		PermissionLevel ownerLevel = permissionLevelManager.
-		    createPermissionLevel("Owner",  IdManager.createUuid(), ownerMask);
-		permissionLevelManager.savePermissionLevel(ownerLevel);
-
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(maintainRole, "Owner", MembershipItem.TYPE_ROLE);
-		membershipItem.setPermissionLevel(ownerLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-		roles.remove(maintainRole);  // we've processed this, so don't make it None
-	    }
-	    for (String name: roles) {
-		//System.out.println("make contributor: " + name);
-		PermissionLevel contributorLevel = permissionLevelManager.
-		    createPermissionLevel("Contributor",  IdManager.createUuid(), contributorMask);
-		permissionLevelManager.savePermissionLevel(contributorLevel);
-
-		membershipItem = permissionLevelManager.
-		    createDBMembershipItem(name, "Contributor", MembershipItem.TYPE_ROLE);
-		membershipItem.setPermissionLevel(contributorLevel);
-		permissionLevelManager.saveDBMembershipItem(membershipItem);	
-		membershipItemSet.add(membershipItem);
-	    }
 	}
 
-	//System.out.println("delete " + deleteItemSet);
-        permissionLevelManager.deleteMembershipItems(deleteItemSet);
+	if (changed) {
+	    //System.out.println("changed");
+	    // have to refresh the topic or the save won't work
+	    topic = getTopicById(true, id);
+	    topic.setMembershipItemSet(oldMembershipItemSet);
+	    forumManager.saveDiscussionForumTopic((DiscussionTopic)topic);
 
-	//System.out.println("new membership list ");
-	//for (DBMembershipItem item: (Set<DBMembershipItem>)membershipItemSet) {
-	//    System.out.println(item.getPermissionLevelName() + " " + item.getType() + " " + item.getName());
-	//}
-	
-	topic.setMembershipItemSet(membershipItemSet);
+	    //	    topic.setVersion(null);
+	    //	    try {
+	    //		System.out.println("simplepagetool dao " + simplePageToolDao);
+	    //		hibernateTemplate.merge(topic);
+	    //	    } catch (Exception e){
+	    //		System.out.println("Unable to save forum topic " + e);
+	    //	    }
 
-	// should do
-	//discussionForumManager.saveTopic((DiscussionTopic) topic);
-	// but that uses saveOrUpdate, which gives an error because
-	// we typically have more than one copy of the topic in the session.
-	// The only fix that works without modifying code I can't touch
-	// is to do merge rather than saveOrUpdate. But that means I
-	// have to do my own hibernate save rather than using the
-	// API's savetopic.  I checked the code for saveTopic, and
-	// when you're dealing with an existing topic, all you need
-	// is the save. The real saveTopic code just sets up fields
-	// that would be null if it's a new topic. Of course the changed
-	// object won't be visible in other sesssions. So if you try
-	// getGroups after doing the save, and you're in the same session,
-	// which is typically the same request, you'll get the old value.
-	// Sorry about that.
-
-	Session session = sessionFactory.openSession();
-	Transaction tx = null;
-
-	try {
-	    tx = session.beginTransaction();
-
-	    session.merge(topic);
-	    tx.commit();	    
-
-	} catch (Exception e) {
-	    if (tx != null)
-		tx.rollback();
-	} finally {
-	    if (session != null)
-		session.close();
 	}
-	
+
+
     }
 
     // only used for topics

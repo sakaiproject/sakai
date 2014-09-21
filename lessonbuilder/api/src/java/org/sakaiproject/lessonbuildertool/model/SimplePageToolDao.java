@@ -41,6 +41,8 @@ import org.sakaiproject.lessonbuildertool.SimplePagePeerEval;
 import org.sakaiproject.lessonbuildertool.SimplePagePeerEvalResult;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 
+import org.springframework.orm.hibernate3.HibernateTemplate;
+
 public interface SimplePageToolDao {
 
 	public class PageData {
@@ -53,6 +55,8 @@ public interface SimplePageToolDao {
     // edit is actually part of the current site.
 	public boolean canEditPage();
 	public boolean canEditPage(long pageid);
+
+    public HibernateTemplate getDaoHibernateTemplate();
 
     // session flush
 	public void flush();
@@ -271,5 +275,13 @@ public interface SimplePageToolDao {
     public Map<String,String> getExternalAssigns(String siteId);
 
     public int clearNeedsFixup(String siteId);
+
+    public void setNeedsGroupFixup(String siteId, int value);
+
+    public int clearNeedsGroupFixup(String siteId);
+
+    // returns map of old to new sakaiid's after a site copy or import
+    public Map<String,String> getObjectMap(String siteId);
+
 
 }
