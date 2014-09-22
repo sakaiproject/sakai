@@ -70,11 +70,11 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
         if (!isIgnoreInitConfiguration()) {
             super.initInternal(filterConfig);
             setCasServerLoginUrl(getPropertyFromInitParams(filterConfig, "casServerLoginUrl", null));
-            log.trace("Loaded CasServerLoginUrl parameter: " + this.casServerLoginUrl);
+            logger.trace("Loaded CasServerLoginUrl parameter: " + this.casServerLoginUrl);
             setRenew(parseBoolean(getPropertyFromInitParams(filterConfig, "renew", "false")));
-            log.trace("Loaded renew parameter: " + this.renew);
+            logger.trace("Loaded renew parameter: " + this.renew);
             setGateway(parseBoolean(getPropertyFromInitParams(filterConfig, "gateway", "false")));
-            log.trace("Loaded gateway parameter: " + this.gateway);
+            logger.trace("Loaded gateway parameter: " + this.gateway);
 
             final String gatewayStorageClass = getPropertyFromInitParams(filterConfig, "gatewayStorageClass", null);
 
@@ -82,7 +82,7 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
                 try {
                     this.gatewayStorage = (GatewayResolver) Class.forName(gatewayStorageClass).newInstance();
                 } catch (final Exception e) {
-                    log.error(e,e);
+                    logger.error("Could not retrieve gatewayStorageClass", e);
                     throw new ServletException(e);
                 }
             }
@@ -102,7 +102,7 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
         final Assertion assertion = session != null ? (Assertion) session.getAttribute(CONST_CAS_ASSERTION) : null;
 
         if (assertion != null && loggedOutOfSakai()) {
-            log.debug("found a CAS assertion and we are logged out of Sakai. Invalidating the session so we don't get logged back on by an old assertion.");
+            logger.debug("found a CAS assertion and we are logged out of Sakai. Invalidating the session so we don't get logged back on by an old assertion.");
             session.invalidate();
         }  else if (assertion != null) {
             filterChain.doFilter(request, response);
@@ -119,22 +119,22 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
 
         final String modifiedServiceUrl;
 
-        log.debug("no ticket and no assertion found");
+        logger.debug("no ticket and no assertion found");
         if (this.gateway) {
-            log.debug("setting gateway attribute in session");
+            logger.debug("setting gateway attribute in session");
             modifiedServiceUrl = this.gatewayStorage.storeGatewayInformation(request, serviceUrl);
         } else {
             modifiedServiceUrl = serviceUrl;
         }
 
-        if (log.isDebugEnabled()) {
-            log.debug("Constructed service url: " + modifiedServiceUrl);
+        if (logger.isDebugEnabled()) {
+            logger.debug("Constructed service url: " + modifiedServiceUrl);
         }
 
         final String urlToRedirectTo = CommonUtils.constructRedirectUrl(this.casServerLoginUrl, getServiceParameterName(), modifiedServiceUrl, this.renew, this.gateway);
 
-        if (log.isDebugEnabled()) {
-            log.debug("redirecting to \"" + urlToRedirectTo + "\"");
+        if (logger.isDebugEnabled()) {
+            logger.debug("redirecting to \"" + urlToRedirectTo + "\"");
         }
 
         response.sendRedirect(urlToRedirectTo);
@@ -143,10 +143,10 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
     private boolean loggedOutOfSakai() {
         Session session = SessionManager.getCurrentSession();
         if (session != null && session.getUserEid() != null) {
-            log.debug("currently logged into Sakai");
+            logger.debug("currently logged into Sakai");
             return false;
         }
-        log.debug("currently logged into Sakai");
+        logger.debug("currently logged into Sakai");
         return true;
     }
 
