@@ -26,6 +26,7 @@
             id="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter"
             class="org.jasig.cas.client.validation.Cas20ProxyReceivingTicketValidationFilter">
         <property name="service" value="https://smartsite-stage.tappakegga.edu/sakai-login-tool/container"/>
+        <property name="redirectAfterValidation" value="false"/>
         <property name="ticketValidator">
             <bean class="org.jasig.cas.client.validation.Cas20ServiceTicketValidator">
                 <constructor-arg ref="org.jasig.cas.client.validation.Cas20ServiceTicketValidator.serverUrl"/>

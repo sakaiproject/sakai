@@ -146,7 +146,7 @@ public class SakaiCasAuthenticationFilter extends AbstractCasFilter {
             logger.debug("currently logged into Sakai");
             return false;
         }
-        logger.debug("currently logged into Sakai");
+        logger.debug("currently not logged into Sakai");
         return true;
     }
 
