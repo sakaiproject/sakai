@@ -2786,9 +2786,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (i.getSakaiId().equals(SimplePageItem.DUMMY)) {
 		    fake = true; // dummy is fake, but still available
 		} else if (i.getType() == SimplePageItem.RESOURCE || i.getType() == SimplePageItem.URL) {
-
-			if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
-				if (available) {
+			if (available) {
+				if (i.getType() == SimplePageItem.RESOURCE && i.isSameWindow()) {
 					GeneralViewParameters params = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 					params.setSendingPage(currentPage.getPageId());
 					if (lessonBuilderAccessService.needsCopyright(i.getSakaiId()))
@@ -2798,15 +2797,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					params.setItemId(i.getId());
 					UILink link = UIInternalLink.make(container, "link", params);
 					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-				} 
-			} else {
-				if (available) {
-					URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
-					UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
-					link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
-					link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
-				};
+					
+				}
+				else {
+				    URL = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
+				    UILink link = UILink.make(container, ID, URL);
+				    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+				    if (notDone)
+					link.decorate(new UIFreeAttributeDecorator("onclick", 
+										   "setTimeout(function(){window.location.reload(true)},3000); return true"));
+				}
 			}
+
 		} else if (i.getType() == SimplePageItem.PAGE) {
 			SimplePage p = simplePageToolDao.getPage(Long.valueOf(i.getSakaiId()));
 
@@ -2975,9 +2977,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    } else {
 			if (available && lessonEntity != null) {
 			    URL = lessonEntity.getUrl();
-			    UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+			    // UIInternalLink link = LinkTrackerProducer.make(container, ID, i.getName(), URL, i.getId(), notDone);
+			    UILink link = UILink.make(container, ID, i.getName(), URL);
 			    link.decorate(new UIFreeAttributeDecorator("lessonbuilderitem", itemString));
 			    link.decorate(new UIFreeAttributeDecorator("target", "_blank"));
+			    if (notDone)
+				link.decorate(new UIFreeAttributeDecorator("onclick", 
+					 "setTimeout(function(){window.location.reload(true)},3000); return true"));
+
 			} else
 			    fake = true; // need to set this in case it's available for missing entity
 		    }

@@ -77,6 +77,7 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
+import org.sakaiproject.lessonbuildertool.SimplePageLogEntry;
 import org.sakaiproject.lessonbuildertool.SimplePageProperty;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
@@ -381,6 +382,10 @@ public class LessonBuilderAccessService {
 						throw new EntityNotDefinedException(ref.getReference());
 					}
 					
+					// say we've read this
+					if (itemId != 0L)
+					    track(itemId.longValue(), sessionManager.getCurrentSessionUserId());
+
 	// code here is also in simplePageBean.isItemVisible. change it there
 	// too if you change this logic
 
@@ -1186,6 +1191,21 @@ public class LessonBuilderAccessService {
         }
     }
 
+
+    // similar to SimplePageBean.track, but doesn't need bean;
+    public void track(long itemId, String userId) {
+	if (userId == null)
+	    userId = ".anon";
+	SimplePageLogEntry entry = simplePageToolDao.getLogEntry(userId, itemId, -1L);
+	// don't need a toolid for this entry. it's only used for pages
+	if (entry == null) {
+	    entry = simplePageToolDao.makeLogEntry(userId, itemId, null);
+	    simplePageToolDao.quickSaveItem(entry);
+	} else {
+	    // with path == null it doesn't seem like this would actually do anything
+	    //	    simplePageToolDao.quickUpdate(entry);
+	}
+    }    
 
 	// simplified versions of stuff from BaseContentService
 
