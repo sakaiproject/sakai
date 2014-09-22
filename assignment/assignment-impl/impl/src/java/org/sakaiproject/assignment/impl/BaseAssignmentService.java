@@ -10808,14 +10808,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submissionLog = new ArrayList();
 			m_grades = new ArrayList();
 			intString = el.getAttribute("numberoflogs");
-                        try
-			{
-				numAttributes = Integer.parseInt(intString);
-				for (int x = 0; x < numAttributes; x++)
-				{
-					attributeString = "log" + x;
-					tempString = el.getAttribute(attributeString);
-					if (tempString != null) m_submissionLog.add(tempString);
+			try {
+				if (intString != null) {
+					numAttributes = Integer.parseInt(intString);
+					for (int x = 0; x < numAttributes; x++) {
+						attributeString = "log" + x;
+						tempString = el.getAttribute(attributeString);
+						if (tempString != null) m_submissionLog.add(tempString);
+					}
 				}
 			}
 			catch (Exception e)
