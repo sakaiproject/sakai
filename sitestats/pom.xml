@@ -34,7 +34,6 @@
     <poi.version>3.10-FINAL</poi.version>
     <jfreechart.version>1.0.5</jfreechart.version>
     <sst.wicket.version>1.4.23</sst.wicket.version>
-    <sst.slf4j.version>1.4.3</sst.slf4j.version>
   </properties>
 
   <!-- Project modules -->
@@ -174,16 +173,6 @@
         <groupId>org.apache.wicket</groupId>
         <artifactId>wicket-datetime</artifactId>
         <version>${sst.wicket.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>${sst.slf4j.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-log4j12</artifactId>
-        <version>${sst.slf4j.version}</version>
       </dependency>
       <!-- JFreeChart -->
       <dependency>
