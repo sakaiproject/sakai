@@ -8455,7 +8455,7 @@ public class AssignmentAction extends PagedResourceActionII
 						/* location */"",
 						/* access */ eAccess,
 						/* groups */ eGroups,
-						/* attachments */aEdit.getContent().getAttachments());
+						/* attachments */null /*SAK-27919 do not include assignment attachments.*/);
 
 				aEdit.getProperties().addProperty(NEW_ASSIGNMENT_DUE_DATE_SCHEDULED, Boolean.TRUE.toString());
 				if (e != null)
