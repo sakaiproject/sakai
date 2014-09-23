@@ -1531,7 +1531,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	private boolean isUserLoginEvent(Event e) {
-		return StringUtils.equals(StatsManager.LOGIN_EVENTID, e.getEvent());
+		return StringUtils.equals(StatsManager.LOGIN_EVENTID, e.getEvent()) || StringUtils.equals(StatsManager.CONTAINER_LOGIN_EVENTID, e.getEvent());
 	}
 	
 	private boolean isMyWorkspaceEvent(Event e) {

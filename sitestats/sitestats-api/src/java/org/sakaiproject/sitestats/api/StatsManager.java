@@ -39,6 +39,7 @@ public interface StatsManager {
 	public final static String			SITEVISIT_EVENTID			= "pres.begin";
 	public final static String			SITEVISITEND_EVENTID		= "pres.end";
 	public final static String			LOGIN_EVENTID				= "user.login";
+	public final static String			CONTAINER_LOGIN_EVENTID		= "user.login.container";
 	public final static String			LOGOUT_EVENTID				= "user.logout";
 	public final static String			RESOURCE_EVENTID_PREFIX		= "content.";
 	public final static String			SITESTATS_TOOLID			= "sakai.sitestats";
