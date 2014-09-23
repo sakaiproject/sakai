@@ -15,6 +15,8 @@ import net.oauth.signature.OAuthSignatureMethod;
 
 import org.sakaiproject.basiclti.util.ShaUtil;
 
+import org.sakaiproject.authz.api.SecurityAdvisor;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
@@ -62,6 +64,21 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
+
+	private void pushAdvisor() {
+
+		// setup a security advisor
+		SecurityService.pushAdvisor(new SecurityAdvisor() {
+			public SecurityAdvice isAllowed(String userId, String function,
+					String reference) {
+				return SecurityAdvice.ALLOWED;
+			}
+		});
+	}
+
+	private void popAdvisor() {
+		SecurityService.popAdvisor();
+	}
 
     public void synchroniseSiteMemberships(final String siteId, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, final String callbackType) throws LTIException {
 
@@ -278,11 +295,14 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
                 sakaiGroup.addMember(consumerGroupMember.userId,consumerGroupMember.role,true,false);
             }
 
+            pushAdvisor();
             try {
                 siteService.save(site);
                 M_log.info("Updated  site=" + site.getId() + " group=" + consumerGroupTitle);
             } catch (Exception e) {
                 M_log.error("Failed to add group '" + consumerGroupTitle + "' to site", e);
+            } finally {
+                popAdvisor();
             }
         }
     }
