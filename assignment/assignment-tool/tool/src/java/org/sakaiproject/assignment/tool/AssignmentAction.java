@@ -1469,9 +1469,6 @@ public class AssignmentAction extends PagedResourceActionII
 				    }
 				}
 
-				// put the resubmit information into context
-				assignment_resubmission_option_into_context(context, state);
-
 				// figure out if attachments have been modified
 
 				// the attachments from the previous submission
@@ -1483,6 +1480,9 @@ public class AssignmentAction extends PagedResourceActionII
 				// There is no previous submission, attachments are modified if anything has been uploaded
 				newAttachments = currentAttachments != null && !currentAttachments.isEmpty();
 			}
+			
+			// put the resubmit information into context
+			assignment_resubmission_option_into_context(context, state);
 
 			if (assignment.isGroup()) {
 			    context.put("assignmentService", AssignmentService.getInstance());
