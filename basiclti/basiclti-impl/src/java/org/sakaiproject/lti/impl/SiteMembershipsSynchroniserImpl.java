@@ -282,7 +282,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
                 siteService.save(site);
                 M_log.info("Updated  site=" + site.getId() + " group=" + consumerGroupTitle);
             } catch (Exception e) {
-                M_log.warn("Failed to add group '" + consumerGroupTitle + "' to site");
+                M_log.error("Failed to add group '" + consumerGroupTitle + "' to site", e);
             }
         }
     }
