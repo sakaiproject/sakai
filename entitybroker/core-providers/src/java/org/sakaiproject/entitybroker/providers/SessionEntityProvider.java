@@ -23,9 +23,12 @@ package org.sakaiproject.entitybroker.providers;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
@@ -44,8 +47,13 @@ import org.sakaiproject.entitybroker.entityprovider.extension.TemplateMap;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
 import org.sakaiproject.entitybroker.providers.model.EntitySession;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -61,6 +69,9 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
    public static String AUTH_USERNAME = "_username";
    public static String AUTH_PASSWORD = "_password";
 
+   private static Log log = LogFactory.getLog(SessionEntityProvider.class);
+   protected static final String SU_WS_BECOME_USER = "su.ws.become";
+
    public SessionManager sessionManager;
    public void setSessionManager(SessionManager sessionManager) {
       this.sessionManager = sessionManager;
@@ -71,6 +82,34 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
       this.userDirectoryService = userDirectoryService;
    }
 
+   public SecurityService securityService;
+   public SecurityService getSecurityService() {
+	  return securityService;
+   }
+
+   public void setSecurityService(SecurityService securityService) {
+	  this.securityService = securityService;
+   }
+
+   public AuthzGroupService authzGroupService;
+
+   public AuthzGroupService getAuthzGroupService() {
+	  return authzGroupService;
+   }
+
+   public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+      this.authzGroupService = authzGroupService;
+   }
+
+   public EventTrackingService eventTrackingService;
+
+   public EventTrackingService getEventTrackingService() {
+	  return eventTrackingService;
+   }
+
+   public void setEventTrackingService(EventTrackingService eventTrackingService) {
+	  this.eventTrackingService = eventTrackingService;
+   }
 
    public static String PREFIX = "session";
    public String getEntityPrefix() {
@@ -79,16 +118,11 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
 
 
    public TemplateMap[] defineURLMappings() {
-      // see javadoc for this method for notes on special mappings
-      return new TemplateMap[] {
-            new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{dot-extension}?auto=true"),
-            new TemplateMap("/{prefix}/current/norefresh", "/{prefix}/current{dot-extension}?auto=true"),
-            // below for testing only
-//          new TemplateMap("/{prefix}/xml/{id}", "/{prefix}/{id}.xml"),
-//          new TemplateMap("/{prefix}/test1", "/{prefix}/test2"),
-//          new TemplateMap("/{prefix}/test2", "/{prefix}/test3"),
-//          new TemplateMap("/{prefix}/test3", "/{prefix}/test1"),
-      };
+	   // see javadoc for this method for notes on special mappings
+	   return new TemplateMap[] {
+			   new TemplateMap("/{prefix}/{id}/norefresh", "/{prefix}/{id}{dot-extension}?auto=true"),
+			   new TemplateMap("/{prefix}/current/norefresh", "/{prefix}/current{dot-extension}?auto=true"),
+	   };
    }
 
    @EntityCustomAction(action="current",viewKey=EntityView.VIEW_LIST)
@@ -273,6 +307,124 @@ public class SessionEntityProvider extends AbstractEntityProvider implements Cor
          }
       }
       throw new SecurityException("Current user ("+currentUser+") cannot modify this session: " + s.getId() + ", they are not the owner or not an admin");
+   }
+
+   /**
+    * Allows user to become another user assuming requesting user is a Sakai admin
+    * 
+    * url syntax: serverUrl/direct/session/becomeuser/:USERID:
+    * 
+    * Where :USERID is either a userId or a userEid
+    * 
+    * @param view
+    * @param params
+    * @return
+    */
+   @EntityCustomAction(action="becomeuser",viewKey=EntityView.VIEW_LIST)
+   public Object getBecomeUser(EntityView view, Map<String, Object> params) {
+	  /* This code (and the method after called getAllowed()) is based upon the suTool
+	   * 
+	   */
+	   
+      String result = "Failure";
+
+      boolean allowed = getAllowed();
+      Session sakaiSession = sessionManager.getCurrentSession();
+
+      log.info(sakaiSession.getUserEid() + " is attempting to change user via webservices");
+      
+      if (!allowed) {
+          log.info(sakaiSession.getUserEid() + " is denied permission to change user via webservices. The User don't have the Admin role to this!!!");
+    	  return result;
+      }
+	   
+      
+      String requestedUserId = view.getPathSegment(2);
+      
+      if (requestedUserId == null) {
+    	  log.info("The BecomeUser id is not provided in the URL, try to give a valid UserID when making the become user API call" );
+    	  return result;
+      }
+      
+      requestedUserId = requestedUserId.trim();
+      
+      if (requestedUserId.length() == 0) {
+    	  return result;
+      }
+
+      User userinfo = null;
+      String validatedUserId = null;
+      String validatedUserEid = null;
+
+      try
+      {
+    	  // try with the user eid
+    	  userinfo = userDirectoryService.getUserByEid(requestedUserId);
+
+    	  validatedUserId = userinfo.getId();
+    	  validatedUserEid = userinfo.getEid();
+      }
+      catch (UserNotDefinedException e)
+      {
+    	  try
+    	  {
+    		  // try with the user id
+    		  userinfo = userDirectoryService.getUser(requestedUserId);
+
+    		  validatedUserId = userinfo.getId();
+    		  validatedUserEid = userinfo.getEid();
+    	  }
+    	  catch (UserNotDefinedException ee)
+    	  {
+    		  log.info("Their is no user assosiated with the provided userID \""+requestedUserId+"\" while become user via webservice");
+    		  return result;
+    		  
+    	  }
+      }
+
+      // don't try to become yourself
+      if (sakaiSession.getUserEid().equals(validatedUserEid)) {
+    	  log.info(sakaiSession.getUserEid() + " tried to change into themselves via webservice. Denied!");
+    	  return result;
+      }
+
+      // Post an event
+      Event event = eventTrackingService.newEvent(SU_WS_BECOME_USER, userDirectoryService.userReference(validatedUserId), false);
+      eventTrackingService.post(event);
+
+      // logout - clear, but do not invalidate, preserve the usage session's current session
+      Vector saveAttributes = new Vector();
+      saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+      saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+      sakaiSession.clearExcept(saveAttributes);
+
+      String originalUserEid = sakaiSession.getUserEid();
+      
+      // login - set the user id and eid into session, and refresh this user's authz information
+      sakaiSession.setUserId(validatedUserId);
+      sakaiSession.setUserEid(validatedUserEid);
+      authzGroupService.refreshUser(validatedUserId);
+
+      result = originalUserEid + " sucessfully became user " + validatedUserEid;
+      
+      log.info(result);
+
+      return result;
+   }
+   
+   private boolean getAllowed()
+   {
+	   boolean allowed=true;
+	   
+	   Session sakaiSession = sessionManager.getCurrentSession();
+
+	   if (sakaiSession == null || !securityService.isSuperUser(sakaiSession.getUserId()))
+	   {
+		   allowed = false;
+	   }
+	   
+
+	   return allowed;
    }
 
 }
