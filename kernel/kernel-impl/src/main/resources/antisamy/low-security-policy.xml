@@ -26,11 +26,15 @@
   </directives>
 
   <common-regexps>
+    <!-- Specific names of common fonts -->
+    <regexp name="fontFamily" value="(cambria|trebuchet ms|serif|arial|lucida console|sans-serif|cursive|verdana|tahoma|fantasy|monospace|,)+"/>
+
     <!-- The 16 colors defined by the HTML Spec (also used by the CSS Spec) -->
     <regexp name="colorName" value="(aqua|black|blue|fuchsia|gray|grey|green|lime|maroon|navy|olive|purple|red|silver|teal|white|yellow)" />
 
     <!-- HTML/CSS Spec allows 3 or 6 digit hex to specify color -->
     <regexp name="colorCode" value="(#([0-9a-fA-F]{6}|[0-9a-fA-F]{3}))" />
+
 
     <regexp name="anything" value=".*" />
     <regexp name="numberOrPercent" value="(\d)+(%{0,1})" />
@@ -1321,7 +1325,18 @@
         <tag name="blockquote" action="validate"/>
         
         <tag name="hr" action="validate"/>
-        <tag name="br" action="validate"/>
+        <tag name="br" action="validate">
+          <attribute name="clear">
+            <literal-list>
+                <literal value="none"/>
+                <literal value="all"/>
+                <literal value="left"/>
+                <literal value="right"/>
+                <literal value="both"/>
+                <literal value="inherit"/>
+            </literal-list>
+          </attribute>
+        </tag>
         
         <tag name="col" action="validate"/>
         
@@ -2849,6 +2864,7 @@
             </category-list>
             <literal-list>
                 <literal value="none"/>
+                <literal value="all"/>
                 <literal value="left"/>
                 <literal value="right"/>
                 <literal value="both"/>
@@ -3496,6 +3512,18 @@
                 <regexp name="percentage"/>
             </regexp-list>
         </property>
+        <property name="text-fit" default="0" description="">
+            <category-list>
+                <category value="visual"/>
+            </category-list>
+            <literal-list>
+                <literal value="inherit"/>
+            </literal-list>
+            <regexp-list>
+                <regexp name="length"/>
+                <regexp name="percentage"/>
+            </regexp-list>
+        </property>
         <property name="text-transform" default="none" description="">
             <category-list>
                 <category value="visual"/>
@@ -3760,6 +3788,7 @@
             </literal-list>
             <regexp-list>
                 <regexp name="positiveLength"/>
+                <regexp name="length"/>
                 <regexp name="positivePercentage"/>             
             </regexp-list>
         </property>
@@ -4183,20 +4212,9 @@
             <category-list>
                 <category value="visual"/>
             </category-list>
-            <!-- allowing only generic font families -->
-            <literal-list>
-                <literal value="serif"/>
-                <literal value="arial"/>
-                <literal value="lucida console"/>
-                <literal value="sans-serif"/>
-                <literal value="cursive"/>
-                <literal value="verdana"/>
-                <literal value="fantasy"/>
-                <literal value="monospace"/>                                            
-            </literal-list>
-            
-                        
+            <!-- allowing only generic font families, but combinations -->
             <regexp-list>
+                <regexp name="fontFamily"/>
                 <regexp value="[\w,\-&apos;&quot; ]+"/>
             </regexp-list>
             
