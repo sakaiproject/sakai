@@ -587,15 +587,13 @@ public abstract class BasicMemoryService implements MemoryService, Observer
 			cache = cacheManager.getEhcache(name);		
 		}
 
-		//KNL-532 - Upgraded Ehcache 2.5.1 (2.1.0+) defaults to no stats collection.
-		//We may choose to allow configuration per-cache for performance tuning.
-		//For now, we default everything to on, while this property allows a system-wide override.
-		boolean override = false;
-		if (serverConfigurationService() != null) {
-			override = serverConfigurationService().getBoolean(
-					"memory.cache.statistics.force.disabled", false);
+		// KNL-1292: do not set if the cache is not yet init'ed
+		if (cache != null && cache.getStatus().equals(Status.STATUS_ALIVE)) {
+			//KNL-532 - Upgraded Ehcache 2.5.1 (2.1.0+) defaults to no stats collection.
+			//We may choose to allow configuration per-cache for performance tuning.
+			//For now, we default everything to on, while this property allows a system-wide override.
+			cache.setStatisticsEnabled(!(serverConfigurationService().getBoolean("memory.cache.statistics.force.disabled", false)));
 		}
-		cache.setStatisticsEnabled(!override);
 		
 		return cache;
 		
