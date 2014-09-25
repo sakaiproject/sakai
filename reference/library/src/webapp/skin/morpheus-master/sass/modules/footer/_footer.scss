@@ -14,19 +14,34 @@
 
   ul {
     list-style-type: none;
-    margin: 0;
+    margin: .5em 0;
     padding: 0;
 
     li {
       display: inline;
-      margin: 0;
+      margin: 0 1em 0 0;
       padding: 0;
+    }
+  }
+  
+  a {
+    color: $footer-link-color;
+
+    &:hover {
+      color: $footer-link-color-hover;
+      border-color: $footer-link-color-hover;
     }
   }
 
   small {
     margin: 0.5em;
     display: block;
+  }
+  
+  // hide for now Add a Toggle later
+  .build-info,
+  .server-time-container {
+    display: none;
   }
 
   .footer--nav {
@@ -55,6 +70,8 @@
     content:" -";
   }
 }
+
+
 
 @include respond-to('narrow navigation') {
 

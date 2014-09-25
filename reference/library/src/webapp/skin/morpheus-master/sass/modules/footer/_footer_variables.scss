@@ -2,5 +2,7 @@
 // VARIABLES: For Modules specific styles 
 //////////////////////////////
 
-$footer-background: nth($dark-grey,2);
-$footer-color: nth($light-grey,3);
+$footer-background: lighten(nth($dark-grey, 4), 15%);
+$footer-color: nth($light-grey,4);
+$footer-link-color: nth($secondary,1);
+$footer-link-color-hover: lighten(nth($secondary,1), 10%);
