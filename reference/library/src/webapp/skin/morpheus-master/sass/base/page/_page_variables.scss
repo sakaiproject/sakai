@@ -14,7 +14,7 @@ $body-font-size: 16px;
 $body-line-height: 1.5em; 
 
 /// body
-$body-background-color: lighten(nth($light-grey , 6), 15%);
+$body-background-color: nth($dark-grey , 3);
 $body-background-rgba: rgba($body-background-color, 1);
 $body-border-width: false;
 

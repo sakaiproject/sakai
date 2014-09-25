@@ -9,14 +9,19 @@ html {
   background-color: $html-background-color;
 }
 body {
-  background-color: $body-background-color;
-  background: $body-background-rgba;
   @include margin-padding(margin, $body-margin);
   @include margin-padding(padding, $body-padding);
   @include type-size($body-font-size, $body-line-height);
   color: $body-color;
   @include border-outline(border, $body-border-width, $body-border-style, $body-border-color);
   border-color: $body-border-color-rgba;
+
+  &.portalBody { // increase specificity to combat bootstrap!
+    background-color: $body-background-color;
+    background: $body-background-rgba;
+    @include type-size($body-font-size, $body-line-height);
+    color: $body-color;
+  }
 }
 
 // use the border-box for responsive design http://paulirish.com/2012/box-sizing-border-box-ftw/
@@ -55,6 +60,7 @@ html {
   @include respond-to('full navigation') {
     @include type-size($body-font-size); // 16px
   }
+
   @include respond-to('narrow navigation') {
     @include type-size($body-font-size - 3); // 13px
   }
@@ -64,8 +70,12 @@ body {
   @include respond-to('full navigation') {
     @include type-size( 1rem, $body-line-height); // 16px/1.5em 
   }
+
   @include respond-to('narrow navigation') { 
-    @include type-size( 1rem, $body-line-height - .1); // 13px/1.4em
+
+    &.portalBody {
+      @include type-size( 1rem, $body-line-height - .1); // 13px/1.4em
+    }
   }
 }
 
