@@ -5,7 +5,7 @@
 @import "_skipnav_variables";
 
 .nav-skip {
-  background: nth($primary, 1);
+  background: nth($dark-grey, 5);
   display: block;
   z-index: 10;
   position: relative;
@@ -31,7 +31,7 @@
         display: inline-block;
         float: left;
         font-size: 2em;
-        color: nth($light-grey, 5);
+        color: nth($secondary, 1);
         
         &:hover {
           text-decoration: none;
@@ -44,9 +44,13 @@
         
         &.jump--worksite {
           float: right;
+          
+          .is-logged-out & {
+            display: none;
+          }
         }
       }
-
+      
       span {
         display: none;
       }
