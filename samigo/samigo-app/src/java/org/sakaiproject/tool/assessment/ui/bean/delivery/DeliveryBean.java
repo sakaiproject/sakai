@@ -990,9 +990,17 @@ public class DeliveryBean
         sb.append("         - Assessment Title       : ").append(publishedAssessment.getTitle()).append("\n");
         sb.append("         - Assessment Site ID     : ").append(publishedAssessment.getOwnerSiteId());
         BeginDeliveryActionListener listener = new BeginDeliveryActionListener();
+        //settings variable may be populated by populateBeanFromPub
         listener.populateBeanFromPub(this, publishedAssessment);
       }
       log.warn(sb.toString());
+    }
+
+    //If the settings is still null, need to return something
+    if (settings == null) { 
+      log.warn("SAM-2410 - Delivery settings bean is still null, returning an empty bean");
+      SettingsDeliveryBean tempSettings = new SettingsDeliveryBean();
+      return tempSettings;
     }
 	
     return settings;
