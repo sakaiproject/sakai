@@ -4,75 +4,96 @@
 
 @import "_mainnav_variables";
 
-//.siteNavWrap {
-//  position: relative;
-//  clear: both;
-//  z-index: 2000;
-//  width: 100%;
-//}
 
-
-ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
+[role="menubar"] li .subnav, 
+#mastLogin .subnav, 
+#otherSiteTools {
   list-style: none;
-  position: absolute;
-  top: 31px;
-  background: #fff;
-  font-size: .9em;
-  margin: 0;
-  padding: 10px 0 !important;
-  float: left;
-  width: 210px;
-  border: 1px solid #ccc;
-  border-width: 1px 1px 0 1px;
-  z-index: 100;
-  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
+
+  @include respond-to('full navigation') {
+    position: absolute;
+    top: 2.4em;
+    margin: 0;
+    padding:0;
+    z-index: 1001;
+  }
+  
+  @include respond-to('narrow navigation') {
+    margin: 0;
+    padding: 0;
+    text-indent: 1em;
+  }
+  
 }
 
+
+
 /* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
-ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
-  background: #fff;
+[role="menubar"] li .subnav li, 
+#mastLogin .subnav li, 
+.otherSiteTool {
   width: 100%;
   position: relative;
 }
 
 /* some overrides for the menu in #mastLogin */
-#mastLogin ul.subnav li {
+#mastLogin .subnav li {
   border: none;
 }
 
-ul.topnav li span.drop {
-  margin: 0 0 0 5px;
-  padding: 2px 2px 2px 8px;
-  width: 10px;
+[role="menubar"] .drop {
+  margin: 0;
+  padding: 2px 8px;
+  width: 16px;
+  
+  &:hover {
+    color: #fff;
+  }
 }
 
-ul.topnav li span.drop:before {
-  content:"v"
+// Use down arrow for full nav and plus sign for narrow nav
+
+[role="menubar"] .drop { 
+  
+  @include respond-to('full navigation') {
+
+    &:before {
+      content: '\25bc';
+    }
+  }
+  
+  @include respond-to('narrow navigation') {
+    float: right;
+    
+    &:before {
+      content: '+';
+    }
+    
+    &.subclicked:before {
+      content: '-';
+    }
+    
+  }
 }
-ul.topnav li span.drop:hover {
-  color:#fff;
-}
-ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li a {
+
+.nav-submenu .submenuitem a, 
+#mastLogin .submenuitem a, 
+#otherSiteTools li a {
   color: #444;
-  font-size: 1em !important;
-  padding:0;
+  font-size: 1em;
+  padding: 0 1em;
   font-weight: normal;
   position: relative;
   text-decoration: none;
-  display:block;
-  width: 100% !important;
-  background:#fff;
+  display: block;
+  width: 100%;
 }
 
-[aria-labelledby="sitetabs"] {
+[role="menubar"] {
   font-size: $mainmenu-font-size;
   line-height: $mainmenu-line-height;
   
-  li {
+  > li {
     position: relative;
     
     a {
@@ -93,7 +114,6 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
 
   @include respond-to('full navigation') {
 
-    @include horizontal-list;
     
     @if $old-ie-8 {
       background-image: url(data:image/gif;base64,R0lGODlhCgAmAIAAAO3t7dTU1CH5BAAAAAAALAAAAAAKACYAAAIXhI+py+0Po5y02ouz3hyHD4biSJbmKRYAOw==);
@@ -108,6 +128,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
       &:before {
         float: left;
         font-size: 2.2em;
+        color: #f2f2f2;
       }
     }
 
@@ -132,7 +153,8 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
       
       li {
         margin: 0;
-        padding: 0;   
+        padding: 0;
+
         a {
           display: block;
         }
@@ -166,10 +188,10 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
   }
 }
 
-[aria-labelledby="sitetabs"] li a:hover,
-[aria-labelledby="sitetabs"] li a:focus,
-[aria-labelledby="sitetabs"] li.nav-selected a,
-[aria-labelledby="sitetabs"] li.nav-selected.tab-dim a:hover {
+[aria-labelledby="sitetabs"] li > a:hover,
+[aria-labelledby="sitetabs"] li > a:focus,
+[aria-labelledby="sitetabs"] li.nav-selected > a,
+[aria-labelledby="sitetabs"] li.nav-selected.tab-dim > a:hover {
 
   @include respond-to('full navigation') {
     color: $mainmenu-active-link-color;

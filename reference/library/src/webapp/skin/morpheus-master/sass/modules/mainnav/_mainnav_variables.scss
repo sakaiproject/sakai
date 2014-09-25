@@ -10,12 +10,14 @@ $mainmenu-line-height: 2.5em;
 $mainmenu-color: #fff;
 $mainmenu-nav-background: nth($light-grey, 4);
 
-$mainmenu-link-color: $link-color;
+$mainmenu-link-color: nth($secondary-color, 1);
 $mainmenu-visited-link-color: darken($mainmenu-link-color, 2.2%);
-$mainmenu-background: tint(nth($light-grey, 6), 2%);
+$mainmenu-background: tint(nth($dark-grey, 3), 5%);
 
-$mainmenu-active-link-color: nth($light-grey, 6);
-$mainmenu-active-background: shade(nth($primary, 1), 4%);
+$mainmenu-hover-link-color: lighten(nth($secondary-color, 1), 2%);
+
+$mainmenu-active-link-color: nth($dark-grey, 3);
+$mainmenu-active-background: shade(nth($secondary-color, 1), 4%);
 
 $mainmenu-border-bottom: 0px $mainmenu-active-background solid;
 
