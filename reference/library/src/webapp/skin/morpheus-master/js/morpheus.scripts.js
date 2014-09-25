@@ -569,6 +569,7 @@ var setupSiteNav = function(){
          *  if no menu sibling
          *       retrieve data, construct the menu, append
          */
+        jQuery(this).toggleClass("subclicked"); //On click toggle class "subclicked"
         e.preventDefault()
         var jqObjDrop = $(e.target);
         if (jqObjDrop.parent('li').find('ul').length) {
