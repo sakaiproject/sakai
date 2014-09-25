@@ -25,7 +25,7 @@
     display: inline-block;
     margin: 1em auto;
     padding: .5em 1em;
-    background: nth($light-grey, 1); 
+    background: nth($dark-grey, 3); 
     text-align: left;
     
     label {
@@ -44,7 +44,7 @@
 @include respond-to('full navigation') {
   
   nav.header-login {
-    background: nth($light-grey, 1);
+    background: nth($dark-grey, 3);
     text-align: right;
   }
   
