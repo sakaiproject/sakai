@@ -91,7 +91,7 @@ morpheus-rtl/
 	tool-ie.css  
 ```   
 
-The big difference is that these example style files are compiled using `sakai_compass_compile.rb`
+The big difference is that these example style files are compiled using `Sakai-Compass-Compile.rb`
  
 ```   
 morpheus-master/
@@ -99,13 +99,13 @@ morpheus-master/
 	images/
 	sass/
 	styleguide/
-	sakai_compass_compile.rb     
+	Sakai-Compass-Compile.rb     
 ```   
 
-Make sure the `sakai_compass_compile.rb` is has the correct permissions to be executable and run. 
+Make sure the `Sakai-Compass-Compile.rb` is has the correct permissions to be executable and run. 
 
 ```
-./sakai_compass_compile.rb
+./Sakai-Compass-Compile.rb
 ```
 
 In the Sass directory there is a corresponding `.scss` file for each processed `.css` file. __Note:__ any `scss` beginning with a `_` is consider a 'partial' and is not processed into a corresponding CSS file. 
@@ -128,7 +128,7 @@ morpheus-master/
 		tool.scss
 		tool-ie.scss
 	styleguide/
-	sakai_compass_compile.rb
+	Sakai-Compass-Compile.rb
 ```
 
 The compile script generates the css for the various example skins. Skin specific values will be controlled in the `morpheus-master/sass/_configurations.scss` and this will pull in variations from the `morpheus-master/sass/theme` directory.
@@ -148,7 +148,7 @@ morpheus-master/
 ```
 
 You can add your own file to the `morpheus-master/sass/theme` i.e. `_morpheus-my-university.scss`.  You can add your custom variables to your `_morpheus-my-university.scss` to override the default variables in `morpheus-master/`.
-When you run `./sakai_compass_compile.rb` it  will create a `morpheus-my-university` directory and compile and copy the css to that directory.
+When you run `./Sakai-Compass-Compile.rb` it  will create a `morpheus-my-university` directory and compile and copy the css to that directory.
 
 ## Advanced: Using Grunt for active development of Morpheus.
 
