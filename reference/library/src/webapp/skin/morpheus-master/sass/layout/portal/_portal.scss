@@ -10,8 +10,13 @@
   display: table;
   width: 100%;
   border-collapse: collapse;
+  
+  &.outer {
+    //background: $portal-background;
+  }
 }
-// Responsive Menus
+// Responsive Menus 
+
 
 //// Jump/Skip Menu
 .nav-skip {
@@ -47,7 +52,8 @@
 
 //// Tools Menu
 .nav-tools {
-
+    
+    background: $nav-tools-background;
   @include respond-to('narrow navigation') {
     margin-left: -100%;
     float: left;
@@ -158,3 +164,9 @@ main {
   }
 }
 
+
+// Footer app tray
+//// hide for now 2014-09-25 
+.box.extras {
+  display: none;
+}
