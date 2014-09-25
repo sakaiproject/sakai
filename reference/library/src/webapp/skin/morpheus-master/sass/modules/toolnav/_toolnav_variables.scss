@@ -2,7 +2,7 @@
 // VARIABLES: For Modules specific styles 
 //////////////////////////////
 
-$toolnav-color: $link-color;
+$toolnav-color: nth($primary, 1);
 $toolnav-gradient-pos: top;
 $toolnav-gradient-stop-1: shade(nth($light-grey, 5), 5%);
 $toolnav-gradient-stop-2: shade(nth($light-grey, 5), 7%);
@@ -11,7 +11,7 @@ $toolnav-gradient-stop-2: shade(nth($light-grey, 5), 7%);
 $toolnav-text-shadow: none;
 
 $toolnav-letter-spacing: .015em;
-$toolnav-selected-color: nth($light-grey, 6);
+$toolnav-selected-color: nth($dark-grey, 6);
 $toolnav-selected-background-color: rgba(nth($primary, 1), 1);
 $toolnav-selected-background-gradient-stop-1: shade(nth($primary, 1), 5%);
 $toolnav-selected-background-gradient-stop-2: tint(nth($primary, 1), 5%);

@@ -8,6 +8,11 @@
   @extend %element-invisible;
 }
 
+// Override !important statement in sitemanage.css TODO file Jira about this.
+[class*="icon-"] {
+  background-image: none !important;
+}
+
 .nav-tools {
   
   ul {
@@ -58,6 +63,7 @@
             background: $toolnav-hover-background-color;
             color: $toolnav-hover-color;
             text-shadow: $toolnav-hover-text-shadow;
+            display: inline-block;
           }
         }
       }
