@@ -4,4 +4,4 @@
 
 @import "_colorguide_mixins";
 
-@include generate-colour-guide($light-grey, $primary, $secondary, $tertiary, $quadrary, $dark-grey);
+@include generate-colour-guide($primary, $secondary, $tertiary, $quadrary, $light-grey, $dark-grey);
