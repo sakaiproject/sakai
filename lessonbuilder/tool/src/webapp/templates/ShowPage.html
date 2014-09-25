@@ -95,19 +95,19 @@ function resizeiframe(id) {
 		<br rsf:id="breakAfterWarnings" />
 		
                 <div rsf:id="titlediv" class="neoPortletTitleWrap">
-                    <div class="portletTitle">
+                    <div class="portletTitle title-tools">
                         <div class="title">
                             <div rsf:id="crumbdiv" class="fullwidth breadcrumbs" role="navigation">
                              <a href="#" rsf:id="resetbutton2" class="reload">
                                  <img rsf:id="resetimage2" src="/library/image/transparent.gif"/>
                              </a>
-                              <h2><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></h2>
+                              <h2 ><span rsf:id="crumb:"><a style="background:none"  href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span></h2>
                             </div>
                             <a href="#" rsf:id="resetbutton" class="reload">
                                 <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
                             </a>
                 		  <h2>
-                		      <span rsf:id="pagetitle"></span>
+                		      <span rsf:id="pagetitle"></span><a class="portlet title-tools title reset" rsf:id="pagetitlelink"></a>
                           </h2>
                       </div>
             <div class="action">
@@ -126,11 +126,12 @@ function resizeiframe(id) {
                         <img rsf:id="helpimage2" src="/library/image/transparent.gif"/>
                         <span rsf:id="helpnewwindow2" class="offscreen"></span> </a>
               </div>
+            <div style="clear:both"> </div>
     		</div>
         </div>
 		
 	
-		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="z-index:100000" aria-labelledby="tool-bar::toolbar-label">
+		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="clear:both;z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
 			<ul id="toolbar" style="padding:2px; margin:0px">
 				

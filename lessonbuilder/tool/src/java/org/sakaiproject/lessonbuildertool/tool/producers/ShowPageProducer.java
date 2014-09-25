@@ -809,6 +809,21 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 		String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+		System.out.println("reseturl " + reseturl);
+		System.out.println("helpurl " + helpurl);
+
+		Placement placement = toolManager.getCurrentPlacement();
+		String toolId = placement.getToolId();
+		boolean inline = false;
+
+                String tidAllow = ServerConfigurationService
+		    .getString("portal.experimental.iframesuppress");
+                if (tidAllow != null) {
+		    if (tidAllow.indexOf(":all:") >= 0)
+			inline = true;
+		    else if (tidAllow.indexOf(toolId) >= 0)
+			inline = true;
+		}
 
 		String skinName = null;
 		String skinRepo = null;
@@ -935,7 +950,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (pageItem.getPageId() != 0) {
 			// Not top-level, so we have to show breadcrumbs
 
-		    System.out.println("nottop");
 			List<SimplePageBean.PathEntry> breadcrumbs = simplePageBean.getHierarchy();
 
 			int index = 0;
@@ -955,6 +969,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						UIInternalLink.make(crumb, "crumb-link", e.title, view);
 						UIOutput.make(crumb, "crumb-follow", " > ");
 					} else {
+					    if (inline)
+						UILink.make(crumb, "crumb-link", e.title, reseturl).
+						    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reset-button"))).
+						    decorate(new UIFreeAttributeDecorator("class", "title-tools reset"));
+					    else
 						UIOutput.make(crumb, "crumb-follow", e.title).decorate(new UIStyleDecorator("bold"));
 					}
 
@@ -962,15 +981,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    }
 				else {
 				    UIBranchContainer crumb = UIBranchContainer.make(tofill, "crumb:");
-				    UIOutput.make(crumb, "crumb-follow", currentPage.getTitle()).decorate(new UIStyleDecorator("bold"));
+				    UILink.make(crumb, "crum-link", currentPage.getTitle(), reseturl);
 				}
 			} else {
-			    System.out.println("title 1");
-			    UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
+			    if (inline && reseturl != null)
+				UILink.make(tofill, "pagetitlelink", currentPage.getTitle(), reseturl);
+			    else
+				UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			}
 		} else {
-			    System.out.println("title 2");
-		    UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
+		    if (inline && reseturl != null)
+			UILink.make(tofill, "pagetitlelink", currentPage.getTitle(), reseturl);
+		    else
+			UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 		}
 
 		// see if there's a next item in sequence.
@@ -1996,7 +2019,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					    UIOutput.make(tableRow, "missing-prereqs", messageLocator.getMessage("simplepage.missing-prereqs"));
 					}else {
 						UIOutput.make(tableRow, "commentsDiv");
-						Placement placement = toolManager.getCurrentPlacement();
 						UIOutput.make(tableRow, "placementId", placement.getId());
 
 					        // note: the URL will be rewritten in comments.js to look like
