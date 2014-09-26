@@ -603,7 +603,6 @@
 					#set($submission = $userSubmission.Submission)
 					#set($siteUser=false)
 					#set($submittedBy=false)
-					#set($submitterId = $!siteUser.getId())
 					#set($submittedBy=$userSubmission.SubmittedBy)
 					#if ($assignment.isGroup())
 					   #set($siteUser = $userSubmission.Group)
@@ -614,6 +613,7 @@
 					   #set($submitterName=$!siteUser.sortName)
 					   #set($submitterDisplayId=$!siteUser.getDisplayId())
 					#end
+					#set($submitterId = $!siteUser.getId())
 					#if ($!submitterDisplayId)
 						##attach the displayId
 						#set($submitterName=$submitterName.concat(" (").concat($submitterDisplayId).concat(")"))
