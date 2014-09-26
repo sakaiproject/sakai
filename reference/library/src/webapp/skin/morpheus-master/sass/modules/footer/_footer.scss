@@ -75,23 +75,28 @@
 
 @include respond-to('narrow navigation') {
 
-  .footer--nav {
-    margin: 0 auto;
-    text-align: center;
+  .footer {
+    padding: .5em;
 
-    li {
-      border: 1px #555 solid;
-      background: #444;
-      @include border-radius(3px);
-      margin: .25em;
+    #footer-links {
+      margin: 0 auto ;
+      text-align: center;
+      
+      li {
+        border: 1px #555 solid;
+        background: #444;
+        @include border-radius(3px);
+        margin: .25em;
+        padding: .375em .5em;
 
-      a {
-        padding: .375em .25em;
-        margin: 0;
-        line-height: 2em;
+        a {
+          
+          margin: 0;
+          line-height: 2em;
 
-        &:hover {
-          border: none;
+          &:hover {
+            border: none;
+          }
         }
       }
     }
