@@ -50,8 +50,8 @@
 			  <h:outputText id="cumPoints" value="#{studentViewBean.pointsEarned}" rendered="#{studentViewBean.showCoursePoints}">
 			    <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 			  </h:outputText>
-			  <h:outputText rendered="#{studentViewBean.showCoursePoints}"><f:verbatim>/</f:verbatim></h:outputText>
-			  <h:outputText id="totalPoints" value="#{studentViewBean.totalPoints}" rendered="#{studentViewBean.showCoursePoints}">
+			  <h:outputText rendered="#{studentViewBean.showCoursePoints && studentViewBean.totalPoints != -1}"><f:verbatim>/</f:verbatim></h:outputText>
+			  <h:outputText id="totalPoints" value="#{studentViewBean.totalPoints}" rendered="#{studentViewBean.showCoursePoints && studentViewBean.totalPoints != -1}">
 		      <f:converter converterId="org.sakaiproject.gradebook.jsf.converter.POINTS" />
 		    </h:outputText>
 		  </h:panelGroup>
