@@ -106,7 +106,8 @@
 @include respond-to('full navigation') {
 
   .footer {
-
+    padding: .75em 0;
+    
     ul, 
     small {
       margin-left: 20%;
