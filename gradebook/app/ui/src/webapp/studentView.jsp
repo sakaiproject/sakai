@@ -44,6 +44,7 @@
 			</h:panelGroup>
 			<h:panelGroup>	
 				<h:outputText rendered="#{studentViewBean.showCoursePoints}" value="#{msgs.course_points_name}" />
+				<h:outputText value="#{msgs.student_view_footnote_symbol2}" />
 			</h:panelGroup>
 			<h:panelGroup>
 			  <h:outputText id="cumPoints" value="#{studentViewBean.pointsEarned}" rendered="#{studentViewBean.showCoursePoints}">
@@ -168,8 +169,10 @@
 		  <h:panelGrid styleClass="instruction gbSection" cellpadding="0" cellspacing="0" columns="1">
 				<h:outputText value="#{msgs.student_view_legend_title}" />
 				<h:panelGroup>
-					<h:outputText value="#{msgs.student_view_footnote_symbol1}" />
-					<h:outputText value="#{msgs.student_view_footnote_legend1}" />
+					<h:outputText value="#{msgs.student_view_footnote_symbol1}" /> <h:outputText value="#{msgs.student_view_footnote_legend1}" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{studentViewBean.showCoursePoints}">
+					<h:outputText value="#{msgs.student_view_footnote_symbol2}" /> <h:outputText value="#{msgs.student_view_footnote_legend2}" />
 				</h:panelGroup>
 			</h:panelGrid>
 
