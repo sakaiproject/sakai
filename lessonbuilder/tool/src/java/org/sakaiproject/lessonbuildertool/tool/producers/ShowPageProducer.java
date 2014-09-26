@@ -104,6 +104,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
@@ -809,8 +810,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
 		String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
-		System.out.println("reseturl " + reseturl);
-		System.out.println("helpurl " + helpurl);
 
 		Placement placement = toolManager.getCurrentPlacement();
 		String toolId = placement.getToolId();
@@ -823,6 +822,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			inline = true;
 		    else if (tidAllow.indexOf(toolId) >= 0)
 			inline = true;
+		}
+
+		if (inline) {
+		    if (reseturl == null)
+			reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
+		    if (helpurl == null)
+			helpurl = "/portal/help/main?help=" + toolId;
 		}
 
 		String skinName = null;
@@ -854,6 +860,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			         "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
 			decorate(new UIFreeAttributeDecorator("title",
 				 messageLocator.getMessage("simplepage.help-button")));
+		    if (!inline)
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpimage" : "helpimage2")).
 			decorate(new UIFreeAttributeDecorator("alt",
 			         messageLocator.getMessage("simplepage.help-button")));
@@ -964,18 +971,23 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					view.setSendingPage(e.pageId);
 					view.setItemId(e.pageItemId);
 					view.setPath(Integer.toString(index));
+					UIComponent link = null;
 					if (index < breadcrumbs.size() - 1) {
 						// Not the last item
-						UIInternalLink.make(crumb, "crumb-link", e.title, view);
+						link = UIInternalLink.make(crumb, "crumb-link", e.title, view);
 						UIOutput.make(crumb, "crumb-follow", " > ");
 					} else {
 					    if (inline)
-						UILink.make(crumb, "crumb-link", e.title, reseturl).
+						link = UILink.make(crumb, "crumb-link", e.title, reseturl).
 						    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reset-button"))).
 						    decorate(new UIFreeAttributeDecorator("class", "title-tools reset"));
+
+					    
 					    else
 						UIOutput.make(crumb, "crumb-follow", e.title).decorate(new UIStyleDecorator("bold"));
 					}
+					if (index > 0 && inline)
+					    link.decorate(new UIFreeAttributeDecorator("style", "font-size:1ex; font-weight:600; vertical-align:text-top"));
 
 					index++;
 				    }
