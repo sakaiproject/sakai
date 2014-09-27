@@ -1,3 +1,10 @@
+-- SAK-27890
+alter table mfr_message_t add (RECIPIENTS_AS_TEXT_BCC_B CLOB);
+update mfr_message_t set RECIPIENTS_AS_TEXT_BCC_B=RECIPIENTS_AS_TEXT_BCC, RECIPIENTS_AS_TEXT_BCC=null;
+alter table mfr_message_t drop column RECIPIENTS_AS_TEXT_BCC;
+alter table mfr_message_t rename column RECIPIENTS_AS_TEXT_BCC_B to RECIPIENTS_AS_TEXT_BCC;
+-- end SAK-27890
+
 -- SAM-2408 Restoring sequence if missing 
 declare 
 init_value number; 
