@@ -458,9 +458,18 @@ public class LTI2Service extends HttpServlet {
 				JSONObject requestData = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
 				String comment = (String) requestData.get(LTI2Constants.COMMENT);
 				JSONObject resultScore = (JSONObject) requestData.get(LTI2Constants.RESULTSCORE);
-				String sGrade = (String) resultScore.get(LTI2Constants.VALUE);
-				Double dGrade = new Double(sGrade);
-				retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, comment);
+				Object oGrade = resultScore.get(LTI2Constants.VALUE);
+				Double dGrade = null;
+				if ( oGrade instanceof String ) {
+					dGrade = new Double((String) oGrade);
+				} else if ( oGrade instanceof Number ) {
+					dGrade = (Double) oGrade;
+				}
+				if ( dGrade != null ) {
+					retval = SakaiBLTIUtil.setGrade(sourcedid, request, ltiService, dGrade, comment);
+				} else { 
+					retval = "Unable to parse grade="+oGrade;
+				}
 			} catch (Exception e) {
 				retval = "Error: "+ e.getMessage();
 			}
@@ -501,7 +510,7 @@ public class LTI2Service extends HttpServlet {
 		String bubbleStr = request.getParameter("bubble");
 		String acceptHdr = request.getHeader("Accept");
 		String contentHdr = request.getContentType();
-System.out.println("accept="+acceptHdr+" bubble="+bubbleStr);
+		M_log.debug("accept="+acceptHdr+" bubble="+bubbleStr);
 
 		if ( bubbleStr != null && bubbleStr.equals("all") &&
 			acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) < 0 ) {
@@ -519,7 +528,7 @@ System.out.println("accept="+acceptHdr+" bubble="+bubbleStr);
 		boolean acceptComplex = acceptHdr == null || acceptHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
 		boolean inputSimple = contentHdr == null || contentHdr.indexOf(StandardServices.TOOLSETTINGS_SIMPLE_FORMAT) >= 0 ;
 		boolean inputComplex = contentHdr != null && contentHdr.indexOf(StandardServices.TOOLSETTINGS_FORMAT) >= 0 ;
-System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" ic="+inputComplex);
+		M_log.debug("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" ic="+inputComplex);
 
 		// Check the JSON on PUT and check the oauth_body_hash
 		IMSJSONRequest jsonRequest = null;
@@ -550,7 +559,7 @@ System.out.println("as="+acceptSimple+" ac="+acceptComplex+" is="+inputSimple+" 
 
 		if ( LTI2Util.SCOPE_LtiLink.equals(scope) || LTI2Util.SCOPE_ToolProxyBinding.equals(scope) ) {
 			placement_id = parts[5];
-System.out.println("placement_id="+placement_id);
+			M_log.debug("placement_id="+placement_id);
 			String contentStr = placement_id.substring(8);
 			contentKey = SakaiBLTIUtil.getLongKey(contentStr);
 			if ( contentKey  >= 0 ) {
@@ -730,7 +739,7 @@ System.out.println("placement_id="+placement_id);
 			JSONObject jsonResponse = (JSONObject) obj;
 			response.setStatus(HttpServletResponse.SC_OK); 
 			PrintWriter out = response.getWriter();
-System.out.println("jsonResponse="+jsonResponse);
+			M_log.debug("jsonResponse="+jsonResponse);
 			out.println(jsonResponse.toString());
 			return;
 		} else if ( "PUT".equals(request.getMethod()) ) {
@@ -796,7 +805,7 @@ System.out.println("jsonResponse="+jsonResponse);
 			M_log.info(message);
 
 			String jsonText = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
-System.out.println(jsonText);
+			M_log.debug(jsonText);
 		}
 
 	public void destroy() {
