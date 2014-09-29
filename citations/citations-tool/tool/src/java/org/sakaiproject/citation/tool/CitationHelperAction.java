@@ -494,6 +494,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 	
 	protected CitationService citationService;
 	protected ConfigurationService configurationService;
+	protected ServerConfigurationService scs;
 	protected SearchManager searchManager;
 
 	protected ContentHostingService contentService;
@@ -645,7 +646,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 
 
 	public void init() throws ServletException {
-		ServerConfigurationService scs
+		scs
 			= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
 		
 		String resourceClass = scs.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
@@ -1559,7 +1560,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if( getConfigurationService().isGoogleScholarEnabled() )
 		{
 			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
-			String sakaiInstance = ServerConfigurationService.getString("ui.service", "Sakai");
+			String sakaiInstance = scs.getString("ui.service", "Sakai");
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
@@ -2233,7 +2234,7 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// determine which features to display
 		if( getConfigurationService().isGoogleScholarEnabled() ) {
 			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
-			String sakaiInstance = ServerConfigurationService.getString("ui.service", "Sakai");
+			String sakaiInstance = scs.getString("ui.service", "Sakai");
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
