@@ -1559,10 +1559,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		if( getConfigurationService().isGoogleScholarEnabled() )
 		{
 			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
+			String sakaiInstance = ServerConfigurationService.getString("ui.service", "Sakai");
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
-			Object[] googleArgs = { rb.getString( "linkLabel.google" ) };
+			Object[] googleArgs = { rb.getFormattedMessage( "linkLabel.google.sakai", sakaiInstance ) };
 			context.put( "googleArgs", googleArgs );
 		}
 
@@ -2232,10 +2233,11 @@ public class CitationHelperAction extends VelocityPortletPaneledAction
 		// determine which features to display
 		if( getConfigurationService().isGoogleScholarEnabled() ) {
 			String googleUrl = getSearchManager().getGoogleScholarUrl(getContentService().getUuid(resourceId));
+			String sakaiInstance = ServerConfigurationService.getString("ui.service", "Sakai");
 			context.put( "googleUrl", googleUrl );
 
 			// object array for formatted messages
-			Object[] googleArgs = { rb.getString( "linkLabel.google" ) };
+			Object[] googleArgs = { rb.getFormattedMessage( "linkLabel.google.sakai", sakaiInstance ) };
 			context.put( "googleArgs", googleArgs );
 		}
 
