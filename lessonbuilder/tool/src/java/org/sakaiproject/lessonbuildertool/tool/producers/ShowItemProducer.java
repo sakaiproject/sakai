@@ -35,9 +35,10 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.portal.util.CSSUtils;
-
+import org.sakaiproject.tool.cover.ToolManager;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -194,6 +195,19 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    String skinRepo = null;
 	    String iconBase = null;
 
+	    Placement placement = ToolManager.getCurrentPlacement();
+	    String toolId = placement.getToolId();
+	    boolean inline = false;
+
+	    String tidAllow = ServerConfigurationService
+		.getString("portal.experimental.iframesuppress");
+	    if (tidAllow != null) {
+		if (tidAllow.indexOf(":all:") >= 0)
+		    inline = true;
+		else if (tidAllow.indexOf(toolId) >= 0)
+		    inline = true;
+	    }
+
 	    if (helpurl != null || reseturl != null) {
 
 		skinRepo = ServerConfigurationService.getString("skin.repo", "/library/skin");
@@ -208,6 +222,7 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 					  "openWindow('" + helpurl + "', 'Help', 'resizeable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=800,height=600'); return false")).
 		    decorate(new UIFreeAttributeDecorator("title",
 				 messageLocator.getMessage("simplepage.help-button")));
+		if (!inline)
 		UIOutput.make(tofill, "helpimage2").
 		    decorate(new UIFreeAttributeDecorator("alt",
 				 messageLocator.getMessage("simplepage.help-button")));
@@ -216,11 +231,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    }
 	    
 	    if (reseturl != null) {
-		UILink.make(tofill, "resetbutton2", reseturl).
-		    decorate(new UIFreeAttributeDecorator("onclick",
-					  "location.href='" + reseturl + "'; return false")).
+		UIComponent link = UILink.make(tofill, "resetbutton2", reseturl).
 		    decorate(new UIFreeAttributeDecorator("title",
 			        messageLocator.getMessage("simplepage.reset-button")));
+		if (!inline)
+		    link.decorate(new UIFreeAttributeDecorator("onclick",
+							       "location.href='" + reseturl + "'; return false"));
+
+		if (!inline)
 		UIOutput.make(tofill, "resetimage2").
 		    decorate(new UIFreeAttributeDecorator("alt",
 			        messageLocator.getMessage("simplepage.reset-button")));
