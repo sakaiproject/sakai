@@ -12,6 +12,11 @@
 		<property name="height" value="400" />
 	</bean>
 
+	<bean id="sakai-BaseURLProvider"
+	      class="org.sakaiproject.lessonbuildertool.util.SakaiBaseURLProviderFactory">
+	  <property name="httpServletRequest" ref="httpServletRequest" />
+	</bean>
+
 	<!-- rich text evolver bean def -->
 	<bean id="richTextEvolver" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
 		<property name="targetBeanName" value="sakaiFCKTextEvolver" />

@@ -25,6 +25,9 @@
     <property name="cacheSeconds" value="10" /> 
   </bean> 
 
+  <bean id="viewIDInferrer"
+    class="org.sakaiproject.lessonbuildertool.util.SakaiViewIDInferrer" />
+
 	<!-- Control the location of the html templates (default: content/templates/) -->
 	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
 		<property name="baseDirectory" value="templates/" />
