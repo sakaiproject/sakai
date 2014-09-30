@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -600,10 +601,12 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
     			// we will also have to determine the student's category avg - the category stats
     			// are for class avg
     			List categoryListWithCG = new ArrayList();
+    			Set studentUids = new HashSet<String>();
+    			studentUids.add(studentUid);
     			if (sortColumn.equals(Category.SORT_BY_WEIGHT))
-    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, sortColumn, sortAscending, false, studentUids);
     			else
-    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true);
+    				categoryListWithCG = getGradebookManager().getCategoriesWithStats(getGradebookId(), Assignment.DEFAULT_SORT, true, Category.SORT_BY_NAME, true, false, studentUids);
   
     			List categoryList = new ArrayList();
     			
