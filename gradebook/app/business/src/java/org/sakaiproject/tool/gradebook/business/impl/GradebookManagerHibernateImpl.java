@@ -2667,14 +2667,13 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     public List getCategoriesWithStats(Long gradebookId, String assignmentSort,
 			boolean assignAscending, String categorySort,
 			boolean categoryAscending, boolean includeDroppedScores, Set studentUids){
-    	Set allStudentUids = getAllStudentUids(getGradebookUid(gradebookId));
     	List allAssignments;
     	
     	if (assignmentSort == null) {
     	    assignmentSort = Assignment.DEFAULT_SORT;
     	}
     	
-        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, allStudentUids);
+        List gradeRecords = getAllAssignmentGradeRecords(gradebookId, studentUids);
         if(!includeDroppedScores) {
             applyDropScores(gradeRecords);
         }
