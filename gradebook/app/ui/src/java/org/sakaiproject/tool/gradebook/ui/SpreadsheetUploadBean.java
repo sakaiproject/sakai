@@ -688,6 +688,7 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
         long maxFileSizeInBytes = 1024L * 1024L * maxFileSizeInMB;
 
         boolean isXlsImport = false;
+        boolean isOOXMLimport = false;
 
         if (upFile != null) {
 	        if (upFile != null && logger.isDebugEnabled()) {
@@ -700,6 +701,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	            isXlsImport = false;
 	        } else if (upFile.getName().endsWith("xls")) {
 	            isXlsImport = true;
+	        } else if (upFile.getName().endsWith("xlsx")) {
+	            isOOXMLimport = true;
 	        } else {
 	            FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {upFile.getName()}));
 	            return null;
@@ -730,6 +733,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 	                isXlsImport = false;
 	            } else if (pickedFileDesc.endsWith("xls")) {
 	                isXlsImport = true;
+	            } else if (pickedFileDesc.endsWith("xlsx")) {
+	                isOOXMLimport = true;
 	            } else {
 	                FacesUtil.addErrorMessage(getLocalizedString("import_entire_filetype_error",new String[] {pickedFileDesc}));
 	                return null;
@@ -765,6 +770,8 @@ public class SpreadsheetUploadBean extends GradebookDependentBean implements Ser
 		try {
 		    if (isXlsImport) {
 		        contents = excelToArray(inputStream);
+		    } else if (isOOXMLimport) {
+		        contents = excelOOXMLToArray(inputStream);
 		    } else {
 		        contents = csvtoArray(inputStream);
 		    }
