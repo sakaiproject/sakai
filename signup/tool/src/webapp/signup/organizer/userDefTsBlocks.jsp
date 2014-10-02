@@ -11,9 +11,121 @@
 			<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 			</style>
-			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>	
-			<script>jQuery.noConflict();</script>
+			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
+			<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>	
+			
+		<script TYPE="text/javascript" LANGUAGE="JavaScript">
+			jQuery.noConflict();
+			jQuery(document).ready(function() {				
+				replaceCalendarImageIcon();				
+				});
+					
+			var prefix="meeting:userDefinedTS:";
+			
+			function setCustomEndtimeMonthDateYear(pos){
+				var yearTag = document.getElementById(prefix + pos + ":startTime.year");
+				if(!yearTag)
+					return;
+				
+				var year = yearTag.value;
+				var month = document.getElementById(prefix + pos + ":startTime.month").value;
+				var day = document.getElementById(prefix+ pos + ":startTime.day").value;			
+				var endyear = document.getElementById(prefix + pos + ":endTime.year").value;
+				var endmonth = document.getElementById(prefix + pos + ":endTime.month").value;
+				var endday = document.getElementById(prefix + pos + ":endTime.day").value;
+						
+				if (endyear > year 
+						||(endyear == year) && ( endmonth > month) 
+						||(endyear == year) && ( endmonth == month)&&( endday >= day) )
+						return;//don't modify
+					
+				document.getElementById(prefix + pos + ":endTime.year").value=year;	
+				document.getElementById(prefix + pos + ":endTime.month").value=month;
+				document.getElementById(prefix + pos + ":endTime.day").value=day;
+			}
+		
+			var wait=false;
+			function delayedRecalcDate(){
+				if (!wait){
+						wait = true;
+						for(i=0; i<30; i++){//control 30 ts
+						 setCustomEndtimeMonthDateYear(i);
+						}
+					  	setTimeout("wait=false;", 1500);//1.5 sec
+					}			
+			}
+			
+			//JSF issue for onclick, this goes around 
+			function confirmTsCancel(link,msg){
+				if (link.onclick == confirmDelete) {
+				    return;
+				  }
+				                
+				  deleteClick = link.onclick;
+				  deleteMsg = msg;
+				  link.onclick = confirmDelete;
+			}
+			function confirmDelete() {
+				  var ans = confirm(deleteMsg);
+				  if (ans) {
+				    return deleteClick();
+				  } else {
+				    return false;
+				  }
+			}	
+				
+		</script>
+		<script type="text/javascript">			
+			jQuery(document).ready(function(){
+				var MIN_ATTENDEES = 1;
+				var MAX_ATTENDEES = 500;
+			    
+				/**
+				* check input is only numeric
+				*/
+				jQuery(".numericOnly").keydown(function(event) {
+			        // Allow only backspace and delete
+			        if ( event.keyCode == 46 || event.keyCode == 8 ) {
+			            // let it happen, don't do anything
+			        }
+			        else {
+			            // Ensure that it is a number and stop the keypress
+			            if (event.keyCode < 48 || event.keyCode > 57 ) {
+			                event.preventDefault(); 
+			            }   
+			        }
+			    });
+				
+				/*
+				* check the range of a field after it has been input, and set it to default if out of range
+				* Don't do it if it's blank though as that is handled separately.
+				*/
+				jQuery(".ranged").keyup(function(event) {
+					
+					var n = jQuery(this).val();
+					
+					if(n.length>0 && (n < MIN_ATTENDEES || n > MAX_ATTENDEES)) {
+						alert("The number of attendees must be between " + MIN_ATTENDEES + " and " + MAX_ATTENDEES + ".");
+						jQuery(this).val(MIN_ATTENDEES);
+					}
+					
+				});
+				
+				/*
+				* check if a form field is blank. if it is, set to default
+				*/
+				
+				jQuery(".notblank").blur(function(event) {
+					
+					var n = jQuery(this).val();
+					
+					if(n == '') {
+						jQuery(this).val(MIN_ATTENDEES);
+					}
+					
+				});
+        	});									
+    	</script>
 				
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
@@ -115,117 +227,5 @@
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>
-	<f:verbatim>
-		<script>
-			replaceCalendarImageIcon();
-			var prefix="meeting:userDefinedTS:";
-			
-			function setCustomEndtimeMonthDateYear(pos){
-				var yearTag = document.getElementById(prefix + pos + ":startTime.year");
-				if(!yearTag)
-					return;
-				
-				var year = yearTag.value;
-				var month = document.getElementById(prefix + pos + ":startTime.month").value;
-				var day = document.getElementById(prefix+ pos + ":startTime.day").value;			
-				var endyear = document.getElementById(prefix + pos + ":endTime.year").value;
-				var endmonth = document.getElementById(prefix + pos + ":endTime.month").value;
-				var endday = document.getElementById(prefix + pos + ":endTime.day").value;
-						
-				if (endyear > year 
-						||(endyear == year) && ( endmonth > month) 
-						||(endyear == year) && ( endmonth == month)&&( endday >= day) )
-						return;//don't modify
-					
-				document.getElementById(prefix + pos + ":endTime.year").value=year;	
-				document.getElementById(prefix + pos + ":endTime.month").value=month;
-				document.getElementById(prefix + pos + ":endTime.day").value=day;
-			}
-		
-			var wait=false;
-			function delayedRecalcDate(){
-				if (!wait){
-						wait = true;
-						for(i=0; i<30; i++){//control 30 ts
-						 setCustomEndtimeMonthDateYear(i);
-						}
-					  	setTimeout("wait=false;", 1500);//1.5 sec
-					}			
-			}
-			
-			//JSF issue for onclick, this goes around 
-			function confirmTsCancel(link,msg){
-				if (link.onclick == confirmDelete) {
-				    return;
-				  }
-				                
-				  deleteClick = link.onclick;
-				  deleteMsg = msg;
-				  link.onclick = confirmDelete;
-			}
-			function confirmDelete() {
-				  var ans = confirm(deleteMsg);
-				  if (ans) {
-				    return deleteClick();
-				  } else {
-				    return false;
-				  }
-			}	
-			
-			jQuery(document).ready(function() {
-				
-				var MIN_ATTENDEES = 1;
-				var MAX_ATTENDEES = 500;
-			    
-				/**
-				* check input is only numeric
-				*/
-				jQuery(".numericOnly").keydown(function(event) {
-			        // Allow only backspace and delete
-			        if ( event.keyCode == 46 || event.keyCode == 8 ) {
-			            // let it happen, don't do anything
-			        }
-			        else {
-			            // Ensure that it is a number and stop the keypress
-			            if (event.keyCode < 48 || event.keyCode > 57 ) {
-			                event.preventDefault(); 
-			            }   
-			        }
-			    });
-				
-				/*
-				* check the range of a field after it has been input, and set it to default if out of range
-				* Don't do it if it's blank though as that is handled separately.
-				*/
-				jQuery(".ranged").keyup(function(event) {
-					
-					var n = jQuery(this).val();
-					
-					if(n.length>0 && (n < MIN_ATTENDEES || n > MAX_ATTENDEES)) {
-						alert("The number of attendees must be between " + MIN_ATTENDEES + " and " + MAX_ATTENDEES + ".");
-						jQuery(this).val(MIN_ATTENDEES);
-					}
-					
-				});
-				
-				/*
-				* check if a form field is blank. if it is, set to default
-				*/
-				
-				jQuery(".notblank").blur(function(event) {
-					
-					var n = jQuery(this).val();
-					
-					if(n == '') {
-						jQuery(this).val(MIN_ATTENDEES);
-					}
-					
-				});
-				
-				
-			});
-	
-		</script>
-	</f:verbatim>
 		
 </f:view> 

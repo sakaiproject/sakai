@@ -10,11 +10,162 @@
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		<script type="text/javascript">
-			jQuery.noConflict();			
-    	</script>
+				jQuery.noConflict();
+									
+				var origClassNames=new Array();
+				var lastActiveId;
+				var previousBgColor; 
+				var recurRowClass="recurRow";//defined in css
+				var evenRowClass = "evenRow";
+				var oddRowClass = "oddRow";
+				//IE browser will not show the disabled option item
+				var orignSelectorTag;
+				var origSelectorIndex;
+				
+				jQuery(document).ready(function() {
+					//IE browser will not show the disabled option item
+					orignSelectorTag=document.getElementById('items:viewByRange');
+					origSelectorIndex = orignSelectorTag? orignSelectorTag.selectedIndex : 2;//default
+					
+					//due to recuring meetings, make sure even/odd Rows display correctly
+					reprocessEvenOddRowClasses();
+					
+					});
+				
+
+				function reprocessEvenOddRowClasses(){
+					var trRowTags = document.getElementsByTagName("tr");
+					rowNum=0;
+					if (!trRowTags)
+						return;
+						
+					for(i=0; i<trRowTags.length;i++){
+						if(trRowTags[i].style.display !="none"
+							&& (trRowTags[i].className == evenRowClass || trRowTags[i].className == oddRowClass) ){
+							if(rowNum % 2 == 0)
+								trRowTags[i].className = oddRowClass;
+							else
+								trRowTags[i].className = evenRowClass;
+							
+							rowNum++;
+						}
+
+					}
+
+				}
+				
+				function showAllRelatedRecurMeetings(id,iFrameId) {
+					var activeOne = document.getElementById(id);
+					if (!activeOne)
+						return;
+
+					if ( activeOne.className != recurRowClass)
+						updateOrigClassNames(id,activeOne.className)					
+						
+
+					if (activeOne.className!=recurRowClass) 
+						activeOne.className=recurRowClass;
+					else
+						activeOne.className=origClassNames[id];
+					
+					//hide last active one
+					if (lastActiveId && lastActiveId !=id){
+						resetRecurRows(lastActiveId);
+					}
+					lastActiveId = id;
+										
+					var i=0
+					//alert("id:" +id);
+					while (document.getElementById(id+"_" + i)!=null){					
+						var row = document.getElementById(id+"_" +i)
+						if (row !=null){					
+							if (row.style.display == "none"){
+								row.className=recurRowClass;
+								row.style.display = "";
+							}else
+								row.style.display = "none";
+						}
+						i++;
+					}
+					//reSize the iFrame
+					//signup_resetIFrameHeight(iFrameId);			
+				}
+				
+				function resetRecurRows(recurRowId){
+					row = document.getElementById(recurRowId);
+					if (row)
+						row.className=origClassNames[recurRowId];
+
+					var i=0;
+					while (document.getElementById(recurRowId+"_" + i)!=null){					
+						var row = document.getElementById(recurRowId+"_" +i)
+						if (row !=null){					
+							if (row.style.display == "")
+								row.style.display = "none";
+						}
+						i++;
+					}
+					
+					document.getElementById('imageOpen_RM_'+ recurRowId).style.display="none";
+					document.getElementById('imageClose_RM_'+ recurRowId).style.display="";				
+				}
+
+
+				function updateOrigClassNames(id, className){
+					if (!origClassNames[id])				
+						origClassNames[id]=className;
+				}
+				
+				
+				function validateIEDisabledItem(selector){
+					if(!orignSelectorTag)
+						return true;
+
+					if (selector.value !="none"){
+						origSelectorIndex = orignSelectorTag.selectedIndex;
+						return true;
+					}else{
+						selector.selectedIndex = origSelectorIndex;//restore				
+					}
+					
+					return false;
+				}
+				
+				function signup_SetAllCheckBoxes(){
+					var inputTags = document.getElementsByTagName("input");	
+					var checkBoxAllTag = document.getElementById("items:eventlist:selectAll");
+					if (!inputTags || !checkBoxAllTag)
+						return;
+					var checkValue = checkBoxAllTag.checked;	
+					signup_setAllChkBoxes(checkValue);
+				}
+				
+				function signup_setAllChkBoxes(value){
+					var inputTags = document.getElementsByTagName("input");					
+					if (!inputTags)
+						return;
+					//ignore the first expanding events chkBox
+					for(i=1; i<inputTags.length;i++){
+						if(inputTags[i].type=='checkbox')
+							inputTags[i].checked = value;					
+					}
+
+				}
+				
+				// find all of the sub meetings and check each one
+				// no uncheck here as wel want to allow the individual check of the parent meeting
+				function checkAllRecurring(recurRowId, total) {
+					var i=0;
+					while (i<total){					
+						jQuery('.'+recurRowId+'_' +i).attr('checked', true);
+						i++;
+					}
+				}
+
+		</script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
@@ -237,150 +388,4 @@
   		</sakai:view_content>	
 	</sakai:view_container>
 	
-	<f:verbatim>
-		<script>
-					
-			var origClassNames=new Array();
-			var lastActiveId;
-			var previousBgColor; 
-			var recurRowClass="recurRow";//defined in css
-			var evenRowClass = "evenRow";
-			var oddRowClass = "oddRow";
-			//due to recuring meetings, make sure even/odd Rows display correctly
-			reprocessEvenOddRowClasses();
-
-			function reprocessEvenOddRowClasses(){
-				var trRowTags = document.getElementsByTagName("tr");
-				rowNum=0;
-				if (!trRowTags)
-					return;
-					
-				for(i=0; i<trRowTags.length;i++){
-					if(trRowTags[i].style.display !="none"
-						&& (trRowTags[i].className == evenRowClass || trRowTags[i].className == oddRowClass) ){
-						if(rowNum % 2 == 0)
-							trRowTags[i].className = oddRowClass;
-						else
-							trRowTags[i].className = evenRowClass;
-						
-						rowNum++;
-					}
-
-				}
-
-			}
-			
-			function showAllRelatedRecurMeetings(id,iFrameId) {
-				var activeOne = document.getElementById(id);
-				if (!activeOne)
-					return;
-
-				if ( activeOne.className != recurRowClass)
-					updateOrigClassNames(id,activeOne.className)					
-					
-
-				if (activeOne.className!=recurRowClass) 
-					activeOne.className=recurRowClass;
-				else
-					activeOne.className=origClassNames[id];
-				
-				//hide last active one
-				if (lastActiveId && lastActiveId !=id){
-					resetRecurRows(lastActiveId);
-				}
-				lastActiveId = id;
-									
-				var i=0
-				//alert("id:" +id);
-				while (document.getElementById(id+"_" + i)!=null){					
-					var row = document.getElementById(id+"_" +i)
-					if (row !=null){					
-						if (row.style.display == "none"){
-							row.className=recurRowClass;
-							row.style.display = "";
-						}else
-							row.style.display = "none";
-					}
-					i++;
-				}
-				//reSize the iFrame
-				//signup_resetIFrameHeight(iFrameId);			
-			}
-			
-			function resetRecurRows(recurRowId){
-				row = document.getElementById(recurRowId);
-				if (row)
-					row.className=origClassNames[recurRowId];
-
-				var i=0;
-				while (document.getElementById(recurRowId+"_" + i)!=null){					
-					var row = document.getElementById(recurRowId+"_" +i)
-					if (row !=null){					
-						if (row.style.display == "")
-							row.style.display = "none";
-					}
-					i++;
-				}
-				
-				document.getElementById('imageOpen_RM_'+ recurRowId).style.display="none";
-				document.getElementById('imageClose_RM_'+ recurRowId).style.display="";				
-			}
-
-
-			function updateOrigClassNames(id, className){
-				if (!origClassNames[id])				
-					origClassNames[id]=className;
-			}
-			
-			
-			//IE browser will not show the disabled option item
-			var orignSelectorTag=document.getElementById('items:viewByRange');
-			var origSelectorIndex = orignSelectorTag? orignSelectorTag.selectedIndex : 2;//default
-			function validateIEDisabledItem(selector){
-				if(!orignSelectorTag)
-					return true;
-
-				if (selector.value !="none"){
-					origSelectorIndex = orignSelectorTag.selectedIndex;
-					return true;
-				}else{
-					selector.selectedIndex = origSelectorIndex;//restore				
-				}
-				
-				return false;
-			}
-			
-			function signup_SetAllCheckBoxes(){
-				var inputTags = document.getElementsByTagName("input");	
-				var checkBoxAllTag = document.getElementById("items:eventlist:selectAll");
-				if (!inputTags || !checkBoxAllTag)
-					return;
-				var checkValue = checkBoxAllTag.checked;	
-				signup_setAllChkBoxes(checkValue);
-			}
-			
-			function signup_setAllChkBoxes(value){
-				var inputTags = document.getElementsByTagName("input");					
-				if (!inputTags)
-					return;
-				//ignore the first expanding events chkBox
-				for(i=1; i<inputTags.length;i++){
-					if(inputTags[i].type=='checkbox')
-						inputTags[i].checked = value;					
-				}
-
-			}
-			
-			// find all of the sub meetings and check each one
-			// no uncheck here as wel want to allow the individual check of the parent meeting
-			function checkAllRecurring(recurRowId, total) {
-				var i=0;
-				while (i<total){					
-					jQuery('.'+recurRowId+'_' +i).attr('checked', true);
-					i++;
-				}
-			}
-
-		</script>
-	</f:verbatim>
 </f:view> 

@@ -13,17 +13,39 @@
             @import url("/sakai-signup-tool/css/signupStyle.css");
         </style>
         
-        <script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
         <script type="text/javascript" src="/sakai-signup-tool/js/newMeetingStep1.js"></script>  
         
-		<script type="text/javascript">
-			jQuery.noConflict();
-			jQuery(document).ready(function(){
-        		sakai.toggleExactDateVisibility();
-        		sakai.initSignupBeginAndEndsExact();
-        	});
-    	</script>
+    	<script type="text/javascript">
+	         //initialization of the page
+	         jQuery.noConflict();
+	         jQuery(document).ready(function() {
+	        	 initialLayoutsSetup();
+		         otherUserSitesSelection();
+		         replaceCalendarImageIcon(); 
+		         userDefinedTsChoice();
+		         //setIframeHeight_DueTo_Ckeditor();
+		         
+		         initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
+		         initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
+				
+		         sakai.toggleExactDateVisibility();
+	        		sakai.initSignupBeginAndEndsExact();
+	         });
+	         
+	         //void enter Key on inputField to cause refresh the page
+	         jQuery(function(){
+	        	 jQuery('form').on('keypress', function(event){
+	        	    if(event.which === 13 && jQuery(event.target).is(':input')){
+	        	        event.preventDefault();
+	        	        jQuery('#save').trigger('click');
+	        	    }
+	        	  });
+	        	});
+			 
+		</script>
+
     	
         <sakai:view_content>
      		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>
@@ -410,18 +432,6 @@
 			</h:form>
 		</sakai:view_content> 
 	</sakai:view_container>
-	<f:verbatim>
-		<script>
-	         //initialization of the page
-			 initialLayoutsSetup();
-	         otherUserSitesSelection();
-	         replaceCalendarImageIcon(); 
-	         userDefinedTsChoice();
-	         setIframeHeight_DueTo_Ckeditor();
-	         
-	         initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
-	         initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
-		</script>
-    </f:verbatim>
+
 </f:view>
 

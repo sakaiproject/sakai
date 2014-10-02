@@ -11,14 +11,123 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>	
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>	
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript">
-			jQuery.noConflict();
-			jQuery(document).ready(function(){
-        		sakai.initSignupBeginAndEndsExact();
-        	});
-    	</script>
+		
+    	<script type="text/javascript">
+    		 jQuery.noConflict();
+    		 
+		     var timeslotTag; 
+		     var maxAttendeeTag;
+		     var originalTsVal; 
+		   	 var originalMaxAttendees;
+		   	 var keepAttendeesTag;
+		   	 var groupMaxAttendeeTag;
+		   	 var origGroupMaxAttendees;
+		   	 var untilCalendarTag;
+		   	 
+		   	 //init signupBegin
+			 var signupBeginTag;
+    	 	//initialization of the page
+    	 	jQuery(document).ready(function() {
+    	 		timeslotTag = document.getElementById("meeting:numberOfSlot");
+   	         	maxAttendeeTag = document.getElementById("meeting:numberOfAttendees");
+   	         	originalTsVal = timeslotTag? timeslotTag.value : 0;
+   	    	 	originalMaxAttendees = maxAttendeeTag? maxAttendeeTag.value : 0;
+   	    	 	keepAttendeesTag = document.getElementById('meeting:keepAttendees');
+   	    	 	groupMaxAttendeeTag = document.getElementById('meeting:maxAttendee');
+   	    	 	origGroupMaxAttendees = groupMaxAttendeeTag? groupMaxAttendeeTag.value : 0;
+   	    	 	untilCalendarTag = document.getElementById('meeting:utilCalendar');
+    	    	 
+	   	    	 //init signupBegin
+	   			 signupBeginTag = document.getElementById("meeting:signupBeginsType");
+	   			 if(signupBeginTag)
+	   			 	isSignUpBeginStartNow(signupBeginTag.value);
+   	 		
+				 currentSiteSelection();
+	   	         otherUserSitesSelection();	         
+	   	         replaceCalendarImageIcon();
+	   	         initGroupTypeRadioButton();
+	   	         userDefinedTsChoice();
+	   	         isShowEmailChoice();
+		         //setIframeHeight_DueTo_Ckeditor();
+		         
+	   	      	 initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
+			     initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
+				
+			     initRepeatCalendar();
+		    	 isShowAssignToAllChoice();
+		    	 
+		    	 sakai.initSignupBeginAndEndsExact();
+    	 	});
+    	 				 	         	         	    	 
+	         function alertTruncatedAttendees(alertMsg,hasTruncated){         	
+	         	if(!keepAttendeesTag || keepAttendeesTag && !keepAttendeesTag.checked)
+	         		return true;
+	         	
+	         	
+				var groupRadiosTag = getElementsByName_iefix("input","meeting:groupSubradio");
+				if(groupRadiosTag){
+					if(groupRadiosTag[0] && !groupRadiosTag[0].checked)//unlimited
+						return true;												
+				}
+	
+	         	if (!timeslotTag && !maxAttendeeTag && !groupRadiosTag)
+	         		return true;
+	         	
+	         	if (hasTruncated=='true' || timeslotTag && (timeslotTag.value < originalTsVal) || maxAttendeeTag && (maxAttendeeTag.value < originalMaxAttendees) 
+	         			|| groupMaxAttendeeTag && (groupMaxAttendeeTag.value < origGroupMaxAttendees) ){
+	         		return confirm(alertMsg);
+	         		}
+	         	
+	         	return true;
+	         } 
+	         
+	         function isShowAssignToAllChoice(){
+	        	var assignToAllTag = document.getElementById('meeting:assignToAllRecurrences');
+				var keepAttendeeCheckBoxTag = document.getElementById('meeting:keepAttendees');
+				var assignToAllChkBoxTag = document.getElementById('meeting:assignToAllChkBox');	
+
+
+        		if(!assignToAllTag || !keepAttendeeCheckBoxTag || !assignToAllChkBoxTag || !untilCalendarTag)
+        			return;
+			
+        		if(!keepAttendeeCheckBoxTag.checked || 
+					keepAttendeeCheckBoxTag.checked && untilCalendarTag.style.display =="none"){
+        			assignToAllTag.style.display = "none";
+        				
+        			if(!keepAttendeeCheckBoxTag.checked)				
+						assignToAllChkBoxTag.checked = false;
+						
+				}else if(untilCalendarTag.style.display !="none"){
+        				assignToAllTag.style.display = "";
+        		}
+	        }
+	        
+	        function isCopyRecurEvents(value){
+	        	var recurWarnTag1 = document.getElementById('meeting:recurWarnLabel_1');
+	        	var recurWarnTag2 = document.getElementById('meeting:recurWarnLabel_2');
+	        	if(recurWarnTag1 && recurWarnTag2){
+		        	if(value == 'no_repeat'){
+		        		recurWarnTag1.style.display="none";
+		        		recurWarnTag2.style.display="none";
+	        		}
+	        		else{
+	        			recurWarnTag1.style.display="";
+		        		recurWarnTag2.style.display="";
+	        		}
+        		}
+	        }
+	        
+	        function initRepeatCalendar(){
+				var recurSelectorTag = document.getElementById("meeting:recurSelector");
+				if( recurSelectorTag && recurSelectorTag.value !='no_repeat')
+					document.getElementById('meeting:utilCalendar').style.display="";
+				else
+					document.getElementById('meeting:utilCalendar').style.display="none";
+			}
+			
+		</script>
 		
 		<sakai:view_content>
 			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
@@ -514,103 +623,4 @@
   		</sakai:view_content>	
 	</sakai:view_container>
 	
-	<f:verbatim>
-    	<script>
-    	 	//initialization of the page
-			 currentSiteSelection();
-	         otherUserSitesSelection();	         
-	         replaceCalendarImageIcon();
-	         initGroupTypeRadioButton();
-	         userDefinedTsChoice();
-	         isShowEmailChoice();
-	         setIframeHeight_DueTo_Ckeditor();
-			 initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
-		     initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
-
-	         	         
-	         var timeslotTag = document.getElementById("meeting:numberOfSlot");
-	         var maxAttendeeTag = document.getElementById("meeting:numberOfAttendees");
-	         var originalTsVal = timeslotTag? timeslotTag.value : 0;
-	    	 var originalMaxAttendees = maxAttendeeTag? maxAttendeeTag.value : 0;
-	    	 var keepAttendeesTag = document.getElementById('meeting:keepAttendees');
-	    	 var groupMaxAttendeeTag = document.getElementById('meeting:maxAttendee');
-	    	 var origGroupMaxAttendees = groupMaxAttendeeTag? groupMaxAttendeeTag.value : 0;
-	    	 var untilCalendarTag = document.getElementById('meeting:utilCalendar');
-	    	 
-	    	 //init signupBegin
-			 var signupBeginTag = document.getElementById("meeting:signupBeginsType");
-			 if(signupBeginTag)
-			 	isSignUpBeginStartNow(signupBeginTag.value);
-	    	 
-	    	 initRepeatCalendar();
-	    	 isShowAssignToAllChoice();
-	    	 
-	         function alertTruncatedAttendees(alertMsg,hasTruncated){         	
-	         	if(!keepAttendeesTag || keepAttendeesTag && !keepAttendeesTag.checked)
-	         		return true;
-	         	
-	         	
-				var groupRadiosTag = getElementsByName_iefix("input","meeting:groupSubradio");
-				if(groupRadiosTag){
-					if(groupRadiosTag[0] && !groupRadiosTag[0].checked)//unlimited
-						return true;												
-				}
-	
-	         	if (!timeslotTag && !maxAttendeeTag && !groupRadiosTag)
-	         		return true;
-	         	
-	         	if (hasTruncated=='true' || timeslotTag && (timeslotTag.value < originalTsVal) || maxAttendeeTag && (maxAttendeeTag.value < originalMaxAttendees) 
-	         			|| groupMaxAttendeeTag && (groupMaxAttendeeTag.value < origGroupMaxAttendees) ){
-	         		return confirm(alertMsg);
-	         		}
-	         	
-	         	return true;
-	         } 
-	         
-	         function isShowAssignToAllChoice(){
-	        	var assignToAllTag = document.getElementById('meeting:assignToAllRecurrences');
-				var keepAttendeeCheckBoxTag = document.getElementById('meeting:keepAttendees');
-				var assignToAllChkBoxTag = document.getElementById('meeting:assignToAllChkBox');	
-
-
-        		if(!assignToAllTag || !keepAttendeeCheckBoxTag || !assignToAllChkBoxTag || !untilCalendarTag)
-        			return;
-			
-        		if(!keepAttendeeCheckBoxTag.checked || 
-					keepAttendeeCheckBoxTag.checked && untilCalendarTag.style.display =="none"){
-        			assignToAllTag.style.display = "none";
-        				
-        			if(!keepAttendeeCheckBoxTag.checked)				
-						assignToAllChkBoxTag.checked = false;
-						
-				}else if(untilCalendarTag.style.display !="none"){
-        				assignToAllTag.style.display = "";
-        		}
-	        }
-	        
-	        function isCopyRecurEvents(value){
-	        	var recurWarnTag1 = document.getElementById('meeting:recurWarnLabel_1');
-	        	var recurWarnTag2 = document.getElementById('meeting:recurWarnLabel_2');
-	        	if(recurWarnTag1 && recurWarnTag2){
-		        	if(value == 'no_repeat'){
-		        		recurWarnTag1.style.display="none";
-		        		recurWarnTag2.style.display="none";
-	        		}
-	        		else{
-	        			recurWarnTag1.style.display="";
-		        		recurWarnTag2.style.display="";
-	        		}
-        		}
-	        }
-	        
-	        function initRepeatCalendar(){
-				var recurSelectorTag = document.getElementById("meeting:recurSelector");
-				if( recurSelectorTag && recurSelectorTag.value !='no_repeat')
-					document.getElementById('meeting:utilCalendar').style.display="";
-				else
-					document.getElementById('meeting:utilCalendar').style.display="none";
-			}
-			
-		</script>
-    </f:verbatim>
 </f:view> 

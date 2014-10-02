@@ -12,7 +12,7 @@
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>	
 		
-		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
         <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
         
 		<script type="text/javascript">
@@ -21,6 +21,61 @@
         		sakai.initSignupBeginAndEndsExact();
         	});
     	</script>
+ 
+		<script type="text/javascript">
+			jQuery.noConflict();
+			
+			var recurWarnTag1;
+	        var recurWarnTag2;
+
+			
+	        jQuery(document).ready(function(){
+				recurWarnTag1 = document.getElementById('meeting:rescheduleWarnLabel_1');
+		        recurWarnTag2 = document.getElementById('meeting:rescheduleWarnLabel_2');
+
+        		sakai.initSignupBeginAndEndsExact();
+        		//for IE browser, it does nothing.
+        		initGroupTypeRadioButton();
+    			replaceCalendarImageIcon(); 
+    			userDefinedTsChoice();
+    			isShowEmailChoice();
+    			setIframeHeight_DueTo_Ckeditor();
+    			initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
+    	        initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
+
+        	});
+	        
+			var wait=false; 
+			var originalTsNumVal = 4;//default
+			var warningMsgs="You may not decrease the number of time slots below the original value:";
+			function delayedValidMimimunTs(originalTsNum,warningMsg){
+				originalTsNumVal = parseInt(originalTsNum);
+				warningMsgs=warningMsg;
+				if (!wait){
+					wait = true;
+				  	setTimeout("validateMimTs();wait=false;", 3000);//3 sec
+				}	
+			}
+			
+			function validateMimTs(){
+				var slotNumTag = document.getElementById("meeting:numberOfSlot");
+				if (!slotNumTag || slotNumTag.value.length == 0)
+ 						return;	 						
+ 						
+				if(slotNumTag.value < originalTsNumVal){
+					alert(warningMsgs +" " + originalTsNumVal);
+					slotNumTag.value = originalTsNumVal;
+					}			
+			}
+			
+			function showRescheduleWarning(){
+	        	if(recurWarnTag1 && recurWarnTag2){	        	
+		        	recurWarnTag1.style.display="";
+		        	recurWarnTag2.style.display="";     		
+        		}
+	        }			
+		</script>
+
 		
 		
 		<sakai:view_content>
@@ -449,50 +504,5 @@
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>
-	
-	<f:verbatim>
-		<script>
-			//for IE browser, it does nothing.
-			initGroupTypeRadioButton();
-			replaceCalendarImageIcon(); 
-			userDefinedTsChoice();
-			isShowEmailChoice();
-			setIframeHeight_DueTo_Ckeditor();
-			initDropDownAndInput('meeting:customLocationLabel','meeting:customLocationLabel_undo','meeting:customLocation','meeting:selectedLocation');
-	        initDropDownAndInput('meeting:customCategoryLabel','meeting:customCategoryLabel_undo','meeting:customCategory','meeting:selectedCategory');
-
-			var wait=false; 
-			var originalTsNumVal = 4;//default
-			var warningMsgs="You may not decrease the number of time slots below the original value:";
-			function delayedValidMimimunTs(originalTsNum,warningMsg){
-				originalTsNumVal = parseInt(originalTsNum);
-				warningMsgs=warningMsg;
-				if (!wait){
-					wait = true;
-				  	setTimeout("validateMimTs();wait=false;", 3000);//3 sec
-				}	
-			}
-			
-			function validateMimTs(){
-				var slotNumTag = document.getElementById("meeting:numberOfSlot");
-				if (!slotNumTag || slotNumTag.value.length == 0)
- 						return;	 						
- 						
-				if(slotNumTag.value < originalTsNumVal){
-					alert(warningMsgs +" " + originalTsNumVal);
-					slotNumTag.value = originalTsNumVal;
-					}			
-			}
-			
-			var recurWarnTag1 = document.getElementById('meeting:rescheduleWarnLabel_1');
-	        var recurWarnTag2 = document.getElementById('meeting:rescheduleWarnLabel_2');
-			function showRescheduleWarning(){
-	        	if(recurWarnTag1 && recurWarnTag2){	        	
-		        	recurWarnTag1.style.display="";
-		        	recurWarnTag2.style.display="";     		
-        		}
-	        }			
-		</script>
-	</f:verbatim>
 	
 </f:view> 

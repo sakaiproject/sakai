@@ -14,18 +14,21 @@
 		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript" src="/library/js/jquery.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript">
-        $(document).ready(function(){
-            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
-            sakai.setupPrintPreview();
-						sakai.setupWaitListed();
-            $('a.print-window').click(function(){
-								javascript:window.print();
-                return false;
-            });
-        });
-    </script>
+			jQuery.noConflict();
+			
+			jQuery(document).ready(function(){
+	            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
+	            sakai.setupPrintPreview();
+				sakai.setupWaitListed();
+				jQuery('a.print-window').click(function(){
+					javascript:window.print();
+	                return false;
+	            });
+	        });
+	    </script>
+	    
 		<ul class="navIntraTool actionToolbar">
 			<li class="firstToolBarItem" role="menuitem"><span>
 				<a

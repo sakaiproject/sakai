@@ -16,7 +16,52 @@
 				@import url("/sakai-signup-tool/css/print.css");
 		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		
+		<script type="text/javascript">
+			var hiddenInputCollapeMInfo;
+			var showMInfoTitleTag;
+			
+			jQuery.noConflict();
+			jQuery(document).ready(function() {
+				hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
+				showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
+				//initialize
+				initMeetingInfoDetail();			
+				});
+			
+			
+			function initMeetingInfoDetail(){
+				var collapseMInfoTag =document.getElementById("meeting:meetingInfoDetails");				
+				if(collapseMInfoTag && hiddenInputCollapeMInfo && hiddenInputCollapeMInfo.value == 'true'){
+					collapseMInfoTag.style.display="none";
+					showMInfoTitleTag.style.display="";
+					//reverse the default:show when page refreshed
+					showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail');
+				}else{
+					collapseMInfoTag.style.display="";
+					showMInfoTitleTag.style.display="none";
+				}	
+			}
+			
+			function setMeetingCollapseInfo(val){				
+				hiddenInputCollapeMInfo.value=val;
+				if(val)				  
+				  	showMInfoTitleTag.style.display="";
+				 else
+				  	showMInfoTitleTag.style.display="none";				  
+			}
+			
+			//just introduce jquery slideUp/Down visual effect to overwrite top function
+			function switchShowOrHide(tag){
+				if(tag){
+					if(tag.style.display=="none")
+						jQuery(tag).slideDown("fast");
+					else
+						jQuery(tag).slideUp("fast");
+				}
+			}								
+		</script>
 			
 		<h:form id="signupMeeting">
 		   <h:panelGroup>
@@ -371,44 +416,5 @@
 			</h:form>
 		</sakai:view_content>
 	</sakai:view_container>
-	
-	<f:verbatim>
-		<script>
-			var hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
-			var showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
-			//initialize
-			initMeetingInfoDetail();
-			
-			function initMeetingInfoDetail(){
-				var collapseMInfoTag =document.getElementById("meeting:meetingInfoDetails");				
-				if(collapseMInfoTag && hiddenInputCollapeMInfo && hiddenInputCollapeMInfo.value == 'true'){
-					collapseMInfoTag.style.display="none";
-					showMInfoTitleTag.style.display="";
-					//reverse the default:show when page refreshed
-					showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail');
-				}else{
-					collapseMInfoTag.style.display="";
-					showMInfoTitleTag.style.display="none";
-				}	
-			}
-			
-			function setMeetingCollapseInfo(val){				
-				hiddenInputCollapeMInfo.value=val;
-				if(val)				  
-				  	showMInfoTitleTag.style.display="";
-				 else
-				  	showMInfoTitleTag.style.display="none";				  
-			}
-			
-			//just introduce jquery slideUp/Down visual effect to overwrite top function
-			function switchShowOrHide(tag){
-				if(tag){
-					if(tag.style.display=="none")
-						$(tag).slideDown("fast");
-					else
-						$(tag).slideUp("fast");
-				}
-			}								
-		</script>
-	</f:verbatim>
+
 </f:view>

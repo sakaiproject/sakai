@@ -15,6 +15,24 @@
 	
 	  <script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 	  <script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
+	  <script TYPE="text/javascript">
+	  		jQuery.noConflict();
+			//init
+			jQuery(document).ready(function() {
+				isShowEmailChoice();
+	         });
+
+			//just introduce jquery slideUp/Down visual effect to overwrite top function
+			function switchShowOrHide(tag){
+				if(tag){
+					if(tag.style.display=="none")
+						jQuery(tag).slideDown("fast");
+					else
+						jQuery(tag).slideUp("fast");
+				}
+			}			
+						
+		</script>
 	  
 		
 		<sakai:view_content>
@@ -369,20 +387,4 @@
   		</sakai:view_content>	
 	</sakai:view_container>
 	
-	<f:verbatim>
-	<script>
-			//init
-			isShowEmailChoice();
-			//just introduce jquery slideUp/Down visual effect to overwrite top function
-			function switchShowOrHide(tag){
-				if(tag){
-					if(tag.style.display=="none")
-						$(tag).slideDown("fast");
-					else
-						$(tag).slideUp("fast");
-				}
-			}			
-						
-		</script>
-	</f:verbatim>
 </f:view> 

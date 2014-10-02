@@ -605,10 +605,12 @@ sakai.updateSignupBeginsExact = function() {
 	
 	//get offset
 	//need special selector syntax because of the :
-	var signupBeginsOffset = jQuery('[id=meeting:signupBegins]').val();
+	var signBeginTag = document.getElementById('meeting:signupBegins');
+	var signupBeginsOffset = jQuery(signBeginTag).val();
 	
 	//get offset type
-	var signupBeginsOffsetType = jQuery('[id=meeting:signupBeginsType]').val();
+	var signBeginTypeTag = document.getElementById('meeting:signupBeginsType');
+	var signupBeginsOffsetType = jQuery(signBeginTypeTag).val();
 	
 	//calculate actual signupBegin time
 	var signupBeginsExact = '';
@@ -626,7 +628,8 @@ sakai.updateSignupBeginsExact = function() {
 	}	
 	
 	//set the new date into the fields
-	jQuery('[id=meeting:signupBeginsExact]').text(displayDateTime(signupBeginsExact));
+	var signBExtTag = document.getElementById('meeting:signupBeginsExact');
+	jQuery(signBExtTag).text(displayDateTime(signupBeginsExact));
 }
 
 sakai.updateSignupEndsExact = function() {
@@ -635,10 +638,12 @@ sakai.updateSignupEndsExact = function() {
 	var endTime = new Date(getSignupDateTime('endTime'));
 	
 	//get offset
-	var signupEndsOffset = jQuery('[id=meeting:signupDeadline]').val();
+	var signDdLineTag = document.getElementById('meeting:signupDeadline');
+	var signupEndsOffset = jQuery(signDdLineTag).val();
 	
 	//get offset type
-	var signupEndsOffsetType = jQuery('[id=meeting:signupDeadlineType]').val();
+	var signDdLineTypeTag = document.getElementById('meeting:signupDeadlineType');
+	var signupEndsOffsetType = jQuery(signDdLineTypeTag).val();
 	
 	//calculate actual signupEnd time
 	var signupEndsExact = '';
@@ -659,19 +664,23 @@ sakai.updateSignupEndsExact = function() {
 	 */
 	
 	//set the new date into the fields
-	jQuery('[id=meeting:signupEndsExact]').text(displayDateTime(signupEndsExact));
+	var signEndExtTag = document.getElementById('meeting:signupEndsExact');
+	jQuery(signEndExtTag).text(displayDateTime(signupEndsExact));
 }
 
 sakai.toggleExactDateVisibility = function() {
 	
 	//only visible when the meeting is once only, so check for that.
-	var recurrence = jQuery('[id=meeting:recurSelector]').val();
+	var recurSelTag = document.getElementById('meeting:recurSelector');
+	var signBExtTag = document.getElementById('meeting:signupBeginsExact');
+	var signEndExtTag = document.getElementById('meeting:signupEndsExact');
+	var recurrence = jQuery(recurSelTag).val();
 	if(recurrence == 'no_repeat') {
-		jQuery('[id=meeting:signupBeginsExact]').show();
-		jQuery('[id=meeting:signupEndsExact]').show();
+		jQuery(signBExtTag).show();
+		jQuery(signEndExtTag).show();
 	} else {
-		jQuery('[id=meeting:signupBeginsExact]').hide();
-		jQuery('[id=meeting:signupEndsExact]').hide();
+		jQuery(signBExtTag).hide();
+		jQuery(signEndExtTag).hide();
 	}
 	
 	

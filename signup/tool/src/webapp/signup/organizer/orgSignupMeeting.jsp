@@ -14,7 +14,207 @@
 			@import url("/sakai-signup-tool/css/print.css");
 		</style>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/jquery.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript">
+			jQuery.noConflict();
+			
+			var firstAttendee; 
+			var userActionType;
+			var lastActivePanel;
+			var lastActionEditPl;
+			var lastTsEditPanel;
+			var lastActiveUserCursor;
+			var lastClickedAddImage;
+			var lastUserInputEid;
+			var defaultColor='black';
+			var predefinedByJSF = "meeting:timeslots:";//tag prefix-id form.name + datatable name
+			var predefMidPartByJSF=":availableSpots:";//tag id for datatable
+			var defaultUserAction ="replaceAction";			
+			var hiddenInputCollapeMInfo;
+			var showMInfoTitleTag;
+			//initialization of the page
+	        jQuery(document).ready(function() {
+	        	initMeetingInfoDetail();
+	        	
+				});
+						
+			function initMeetingInfoDetail(){
+				//initialize here now
+				firstAttendee= document.getElementById("meeting:selectedFirstUser");
+				userActionType=document.getElementById("meeting:userActionType");
+				hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
+				showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
+				
+				var collapseMInfoTag =document.getElementById("meeting:meetingInfoDetails");				
+				if(collapseMInfoTag && hiddenInputCollapeMInfo && hiddenInputCollapeMInfo.value == 'true'){
+					collapseMInfoTag.style.display="none";
+					showMInfoTitleTag.style.display="";
+					//reverse the default:show when page refreshed
+					showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail');
+				}else{
+					collapseMInfoTag.style.display="";
+					showMInfoTitleTag.style.display="none";
+				}	
+			}
+			
+			function setMeetingCollapseInfo(val){				
+				hiddenInputCollapeMInfo.value=val;
+				if(val)				  
+				  	showMInfoTitleTag.style.display="";
+				 else
+				  	showMInfoTitleTag.style.display="none";				  
+			}
+			
+			function showHideEditPanel(timeslotId, attendeeIndex, attendee){
+				if(lastActivePanel)
+					lastActivePanel.style.display="none";
+					
+				var editPanel = document.getElementById(predefinedByJSF + timeslotId + predefMidPartByJSF +attendeeIndex + ":editPanel");
+    			editPanel.style.display = "block";
+    			firstAttendee.value = attendee;
+    			//alert("firstUser:" +firstAttendee.value);
+    			lastActivePanel=editPanel;
+    			
+    			if (lastClickedAddImage)
+					lastClickedAddImage.style.display = "block";
+				//pass current AddImageTag
+				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
+				lastClickedAddImage.style.display = "none";
+    			
+    			
+    			showHideActionTypePanel(timeslotId, attendeeIndex, defaultUserAction);
+    			
+    			//change color to highlight selected attendee
+    			if(lastActiveUserCursor)
+					lastActiveUserCursor.style.color=defaultColor;
+
+    			var activeUserCursor = document.getElementById(predefinedByJSF + timeslotId + predefMidPartByJSF +attendeeIndex + ":editLink");
+				defaultColor=activeUserCursor.style.color;
+				activeUserCursor.style.color="blue";
+				lastActiveUserCursor=activeUserCursor;
+				
+				if (lastUserInputEid)
+					lastUserInputEid.value="";
+				lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +predefMidPartByJSF +attendeeIndex + ":replaceEidInput");
+			}
+			
+			function showHideAddPanel(timeslotId, attendeeIndex){				
+				clearPanels();
+				if (activeUserCursor)
+					activeUserCursor.style.color=defaultColor;
+				
+				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
+				lastClickedAddImage.style.display = "none";
+						
+				var addPanel = document.getElementById(predefinedByJSF + timeslotId +":addPanel");
+    			addPanel.style.display = "block";
+    			var activeUserCursor = document.getElementById(predefinedByJSF + timeslotId +":addAttendee");
+				activeUserCursor.style.color="blue";    			
+    			lastActivePanel=addPanel;
+    			lastActiveUserCursor=activeUserCursor;
+    			lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +":addAttendeeEidInput");
+			}
+			
+			function showHideActionTypePanel(timeslotId,attendeeIndex,actType){
+				if(lastActionEditPl)
+					lastActionEditPl.style.display="none";
+				if (lastTsEditPanel)
+					lastTsEditPanel.style.display="none";
+					
+				var actTypePanel = document.getElementById(predefinedByJSF + timeslotId +predefMidPartByJSF +attendeeIndex + ":" + actType);
+				actTypePanel.style.display = "block";
+    			userActionType.value=actType;
+    			lastActionEditPl=actTypePanel;
+			}
+			
+			function showHideAddWaiterPanel(timeslotPosIndex){
+				clearPanels();
+				
+				var radiobxns = document.getElementsByName(predefinedByJSF + timeslotPosIndex +":selcetAddWaiterType");
+				if(radiobxns)   
+					radiobxns[0].checked=true;//set radioBxn to bottom
+				
+				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiter");	
+				lastClickedAddImage.style.display = "none";
+				
+							
+				var waiterPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiterPanel");
+				waiterPanel.style.display = "block";
+				var activeUserCursor = document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiter");
+				activeUserCursor.style.color="blue"; 
+				lastActionEditPl=waiterPanel;
+				lastActiveUserCursor=activeUserCursor;
+				lastUserInputEid=document.getElementById(predefinedByJSF + timeslotPosIndex + ":addWaiterEidInput");
+			}
+			
+			function showEditTimeslot(timeslotPosIndex){
+				clearTimeslotPanel();			
+				var tsEditPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":editTimeSlot");
+				tsEditPanel.style.display == 'none' ? tsEditPanel.style.display = 'block' : tsEditPanel.style.display = 'none';
+				lastTsEditPanel=tsEditPanel;
+			
+			}
+			function clearPanels(){
+				if (lastTsEditPanel)
+					lastTsEditPanel.style.display="none";
+				clearTimeslotPanel();
+			}
+			function clearTimeslotPanel(){
+				if(lastActivePanel)
+					lastActivePanel.style.display = "none";
+				if(lastActionEditPl)
+					lastActionEditPl.style.display="none";
+				if(lastActiveUserCursor)
+					lastActiveUserCursor.style.color=defaultColor;
+				if (lastUserInputEid)		
+					lastUserInputEid.value="";
+				if (lastClickedAddImage)
+					lastClickedAddImage.style.display = "block";
+			}
+			
+			//Due to JSF commandLink don't have onclick() method and this is a way to go around
+			var deleteClick;
+			var deleteMsg='Are you sure to do this?'; //default          
+			function assignDeleteClick(link,msg) {
+			  if (link.onclick == confirmDelete) {
+			    return;
+			  }
+			                
+			  deleteClick = link.onclick;
+			  deleteMsg = msg;
+			  link.onclick = confirmDelete;
+			}
+			            
+			function confirmDelete() {
+			  var ans = confirm(deleteMsg);
+			  if (ans) {
+			    return deleteClick();
+			  } else {
+			    return false;
+			  }
+			}
+			
+			function confirmTsCancel(link,msg){
+			if (link.onclick == confirmDelete) {
+			    return;
+			  }
+			                
+			  deleteClick = link.onclick;
+			  deleteMsg = msg;
+			  link.onclick = confirmDelete;
+			}
+			
+			//just introduce jquery slideUp/Down visual effect to overwrite top function
+			function switchShowOrHide(tag){
+				if(tag){
+					if(tag.style.display=="none")
+						jQuery(tag).slideDown("fast");
+					else
+						jQuery(tag).slideUp("fast");
+				}
+			}			
+						
+		</script>
 		
 		<h:form id="modifyMeeting">
 			<h:panelGroup>
@@ -669,194 +869,6 @@
   		</sakai:view_content>	
 	</sakai:view_container>
 	<f:verbatim>
-		<script>
-			var firstAttendee = document.getElementById("meeting:selectedFirstUser");
-			var userActionType =document.getElementById("meeting:userActionType");
-			var lastActivePanel;
-			var lastActionEditPl;
-			var lastTsEditPanel;
-			var lastActiveUserCursor;
-			var lastClickedAddImage;
-			var lastUserInputEid;
-			var defaultColor='black';
-			var predefinedByJSF = "meeting:timeslots:";//tag prefix-id form.name + datatable name
-			var predefMidPartByJSF=":availableSpots:";//tag id for datatable
-			var defaultUserAction ="replaceAction";			
-			var hiddenInputCollapeMInfo =document.getElementById("meeting:meetingInfoCollapseExpand");
-			var showMInfoTitleTag =document.getElementById("meeting:showMeetingTitleOnly");
-			//initialize
-			initMeetingInfoDetail();
-			
-			function initMeetingInfoDetail(){
-				var collapseMInfoTag =document.getElementById("meeting:meetingInfoDetails");				
-				if(collapseMInfoTag && hiddenInputCollapeMInfo && hiddenInputCollapeMInfo.value == 'true'){
-					collapseMInfoTag.style.display="none";
-					showMInfoTitleTag.style.display="";
-					//reverse the default:show when page refreshed
-					showDetails('meeting:imageOpen_meetingInfoDetail','meeting:imageClose_meetingInfoDetail');
-				}else{
-					collapseMInfoTag.style.display="";
-					showMInfoTitleTag.style.display="none";
-				}	
-			}
-			
-			function setMeetingCollapseInfo(val){				
-				hiddenInputCollapeMInfo.value=val;
-				if(val)				  
-				  	showMInfoTitleTag.style.display="";
-				 else
-				  	showMInfoTitleTag.style.display="none";				  
-			}
-			
-			function showHideEditPanel(timeslotId, attendeeIndex, attendee){
-				if(lastActivePanel)
-					lastActivePanel.style.display="none";
-					
-				var editPanel = document.getElementById(predefinedByJSF + timeslotId + predefMidPartByJSF +attendeeIndex + ":editPanel");
-    			editPanel.style.display = "block";
-    			firstAttendee.value = attendee;
-    			//alert("firstUser:" +firstAttendee.value);
-    			lastActivePanel=editPanel;
-    			
-    			if (lastClickedAddImage)
-					lastClickedAddImage.style.display = "block";
-				//pass current AddImageTag
-				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
-				lastClickedAddImage.style.display = "none";
-    			
-    			
-    			showHideActionTypePanel(timeslotId, attendeeIndex, defaultUserAction);
-    			
-    			//change color to highlight selected attendee
-    			if(lastActiveUserCursor)
-					lastActiveUserCursor.style.color=defaultColor;
 
-    			var activeUserCursor = document.getElementById(predefinedByJSF + timeslotId + predefMidPartByJSF +attendeeIndex + ":editLink");
-				defaultColor=activeUserCursor.style.color;
-				activeUserCursor.style.color="blue";
-				lastActiveUserCursor=activeUserCursor;
-				
-				if (lastUserInputEid)
-					lastUserInputEid.value="";
-				lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +predefMidPartByJSF +attendeeIndex + ":replaceEidInput");
-			}
-			
-			function showHideAddPanel(timeslotId, attendeeIndex){				
-				clearPanels();
-				if (activeUserCursor)
-					activeUserCursor.style.color=defaultColor;
-				
-				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
-				lastClickedAddImage.style.display = "none";
-						
-				var addPanel = document.getElementById(predefinedByJSF + timeslotId +":addPanel");
-    			addPanel.style.display = "block";
-    			var activeUserCursor = document.getElementById(predefinedByJSF + timeslotId +":addAttendee");
-				activeUserCursor.style.color="blue";    			
-    			lastActivePanel=addPanel;
-    			lastActiveUserCursor=activeUserCursor;
-    			lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +":addAttendeeEidInput");
-			}
-			
-			function showHideActionTypePanel(timeslotId,attendeeIndex,actType){
-				if(lastActionEditPl)
-					lastActionEditPl.style.display="none";
-				if (lastTsEditPanel)
-					lastTsEditPanel.style.display="none";
-					
-				var actTypePanel = document.getElementById(predefinedByJSF + timeslotId +predefMidPartByJSF +attendeeIndex + ":" + actType);
-				actTypePanel.style.display = "block";
-    			userActionType.value=actType;
-    			lastActionEditPl=actTypePanel;
-			}
-			
-			function showHideAddWaiterPanel(timeslotPosIndex){
-				clearPanels();
-				
-				var radiobxns = document.getElementsByName(predefinedByJSF + timeslotPosIndex +":selcetAddWaiterType");
-				if(radiobxns)   
-					radiobxns[0].checked=true;//set radioBxn to bottom
-				
-				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiter");	
-				lastClickedAddImage.style.display = "none";
-				
-							
-				var waiterPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiterPanel");
-				waiterPanel.style.display = "block";
-				var activeUserCursor = document.getElementById(predefinedByJSF + timeslotPosIndex +":addWaiter");
-				activeUserCursor.style.color="blue"; 
-				lastActionEditPl=waiterPanel;
-				lastActiveUserCursor=activeUserCursor;
-				lastUserInputEid=document.getElementById(predefinedByJSF + timeslotPosIndex + ":addWaiterEidInput");
-			}
-			
-			function showEditTimeslot(timeslotPosIndex){
-				clearTimeslotPanel();			
-				var tsEditPanel = document.getElementById(predefinedByJSF + timeslotPosIndex +":editTimeSlot");
-				tsEditPanel.style.display == 'none' ? tsEditPanel.style.display = 'block' : tsEditPanel.style.display = 'none';
-				lastTsEditPanel=tsEditPanel;
-			
-			}
-			function clearPanels(){
-				if (lastTsEditPanel)
-					lastTsEditPanel.style.display="none";
-				clearTimeslotPanel();
-			}
-			function clearTimeslotPanel(){
-				if(lastActivePanel)
-					lastActivePanel.style.display = "none";
-				if(lastActionEditPl)
-					lastActionEditPl.style.display="none";
-				if(lastActiveUserCursor)
-					lastActiveUserCursor.style.color=defaultColor;
-				if (lastUserInputEid)		
-					lastUserInputEid.value="";
-				if (lastClickedAddImage)
-					lastClickedAddImage.style.display = "block";
-			}
-			
-			//Due to JSF commandLink don't have onclick() method and this is a way to go around
-			var deleteClick;
-			var deleteMsg='Are you sure to do this?'; //default          
-			function assignDeleteClick(link,msg) {
-			  if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			            
-			function confirmDelete() {
-			  var ans = confirm(deleteMsg);
-			  if (ans) {
-			    return deleteClick();
-			  } else {
-			    return false;
-			  }
-			}
-			
-			function confirmTsCancel(link,msg){
-			if (link.onclick == confirmDelete) {
-			    return;
-			  }
-			                
-			  deleteClick = link.onclick;
-			  deleteMsg = msg;
-			  link.onclick = confirmDelete;
-			}
-			
-			//just introduce jquery slideUp/Down visual effect to overwrite top function
-			function switchShowOrHide(tag){
-				if(tag){
-					if(tag.style.display=="none")
-						$(tag).slideDown("fast");
-					else
-						$(tag).slideUp("fast");
-				}
-			}			
-						
-		</script>
 	</f:verbatim>
 </f:view> 

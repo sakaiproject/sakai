@@ -12,7 +12,45 @@
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
 		<script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
+		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>		
+		<script TYPE="text/javascript">			
+			jQuery.noConflict();
+			
+			var lastActivePanel;
+			var lastClickedAddImage;
+			var lastUserInputEid;
+			var defaultColor='black';
+			var predefinedByJSF = "meeting:preSignup:";//tag prefix-id form.name + datatable name
+						
+			
+			
+			function showHideAddPanel(timeslotId, attendeeIndex){				
+				clearPanel();
+				//hide addImage block
+				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
+				lastClickedAddImage.style.display = "none";
+				
+				var addPanel = document.getElementById(predefinedByJSF + timeslotId +":addPanel");
+    			addPanel.style.display = "block";   			   			
+    			lastActivePanel=addPanel;    			
+    			lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +":addAttendeeEidInput");
+			}
+															
+			function clearPanel(){
+				if(lastActivePanel)
+					lastActivePanel.style.display = "none";				
+				if (lastUserInputEid)		
+					lastUserInputEid.value="";
+				if (lastClickedAddImage)
+					lastClickedAddImage.style.display = "block";
+			}
+			
+			//Remove any "white space" (spaces, form feeds, line feeds, carriage returns, tabs, vertical tabs) before and trailing a string
+			function trim(s){
+				if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
+				}
+
+		</script>
 		
 		<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
 						
@@ -166,44 +204,5 @@
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>
-	<f:verbatim>
-		<script>			
-						
-			var lastActivePanel;
-			var lastClickedAddImage;
-			var lastUserInputEid;
-			var defaultColor='black';
-			var predefinedByJSF = "meeting:preSignup:";//tag prefix-id form.name + datatable name
-						
-			
-			
-			function showHideAddPanel(timeslotId, attendeeIndex){				
-				clearPanel();
-				//hide addImage block
-				lastClickedAddImage= document.getElementById(predefinedByJSF + timeslotId +":addAttendee");	
-				lastClickedAddImage.style.display = "none";
-				
-				var addPanel = document.getElementById(predefinedByJSF + timeslotId +":addPanel");
-    			addPanel.style.display = "block";   			   			
-    			lastActivePanel=addPanel;    			
-    			lastUserInputEid=document.getElementById(predefinedByJSF + timeslotId +":addAttendeeEidInput");
-			}
-															
-			function clearPanel(){
-				if(lastActivePanel)
-					lastActivePanel.style.display = "none";				
-				if (lastUserInputEid)		
-					lastUserInputEid.value="";
-				if (lastClickedAddImage)
-					lastClickedAddImage.style.display = "block";
-			}
-			
-			//Remove any "white space" (spaces, form feeds, line feeds, carriage returns, tabs, vertical tabs) before and trailing a string
-			function trim(s){
-				if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
-				}
-
-		</script>
-	</f:verbatim>
 
 </f:view> 
