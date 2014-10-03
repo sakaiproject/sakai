@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
@@ -1474,6 +1476,44 @@ public class ItemContentsBean implements Serializable {
   public void setSaCharCount(String saCharCount)
   {
 	  this.saCharCount = saCharCount;
+  }
+  
+  // SAM-2368
+  // This class allows jsp to call a method with the current EL expression version
+  // #{itemContents.htmlStripped[question.text]} is using the Map Trick.
+  // http://www.theserverside.com/news/1363683/JSF-Anti-Patterns-and-Pitfalls
+  // Please remove this if Samigo change to use EL 2.2
+  // http://stackoverflow.com/questions/8325298/invoking-methods-with-parameters-by-el-in-jsf-1-2
+  
+  Map htmlStripped = new Map<String,String>() {
+	@Override
+	public int size() { return 0; }
+	@Override
+	public boolean isEmpty() { return false; }
+	@Override
+	public boolean containsKey(Object key) { return true; }
+	@Override
+	public boolean containsValue(Object value) { return false; }
+	@Override
+	public String get(Object key) { return strip((String)key); }
+	@Override
+	public String put(String key, String value) { return null; }
+	@Override
+	public String remove(Object key) { return null;	}
+	@Override
+	public void putAll(Map<? extends String, ? extends String> m) {}
+	@Override
+	public void clear() {}
+	@Override
+	public Set<String> keySet() { return null; }
+	@Override
+	public Collection<String> values() { return null; }
+	@Override
+	public Set<java.util.Map.Entry<String, String>> entrySet() { return null; }
+  };
+  
+  public Map<String,String> getHtmlStripped() {
+	return htmlStripped;  
   }
   
 }

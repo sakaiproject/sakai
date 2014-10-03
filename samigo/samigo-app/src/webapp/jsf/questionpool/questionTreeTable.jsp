@@ -69,7 +69,7 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 <h:commandLink title="#{questionPoolMessages.t_editQuestion}" id="modify" action="#{itemauthor.doit}">
 
     <h:outputText escape="false" value="#{question.themeText}" rendered="#{question.typeId == 14}"/>
-    <h:outputText escape="false" value="#{question.textHtmlStripped}" rendered="#{question.typeId ne 14}"/>
+	<h:outputText escape="false" value="#{itemContents.htmlStripped[question.text]}" rendered="#{question.typeId ne 14}"/>
     <f:actionListener
       type="org.sakaiproject.tool.assessment.ui.listener.author.ItemModifyListener" />
     <f:param name="itemid" value="#{question.itemId}"/>

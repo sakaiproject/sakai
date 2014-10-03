@@ -338,7 +338,7 @@ public class QuestionPoolFacadeQueries
 	    	facadeVector.add(itemFacade);
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getItemId = " + itemData.getItemId());
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getText = " + itemData.getText());
-	    	text = itemFacade.getTextHtmlStrippedAll();
+	    	text = itemFacade.getText();
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getTextHtmlStrippedAll = '" + text + "'");
 	    	
 	    	origValueV = (Vector) hp.get(text);
