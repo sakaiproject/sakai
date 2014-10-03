@@ -33,16 +33,6 @@
 		         sakai.toggleExactDateVisibility();
 	        		sakai.initSignupBeginAndEndsExact();
 	         });
-	         
-	         //void enter Key on inputField to cause refresh the page
-	         jQuery(function(){
-	        	 jQuery('form').on('keypress', function(event){
-	        	    if(event.which === 13 && jQuery(event.target).is(':input')){
-	        	        event.preventDefault();
-	        	        jQuery('#save').trigger('click');
-	        	    }
-	        	  });
-	        	});
 			 
 		</script>
 

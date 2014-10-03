@@ -778,3 +778,13 @@ function displayProcessingIndicator(el){
     });
     $buttonContainer.find('.messageProgress').fadeIn('slow');
 };
+
+//void enter Key on inputField to cause refresh the page
+jQuery(function(){
+	 jQuery('form').on('keypress', function(event){
+	    if(event.which === 13 && jQuery(event.target).is(':input')){
+	        event.preventDefault();
+	        return false;
+	    }
+	  });
+	});
