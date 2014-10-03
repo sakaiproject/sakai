@@ -750,26 +750,26 @@ function displayDateTime(d){
 // Display processing message to user for operations that may take some time to process
 function displayProcessingIndicator(el){
 	
-    var clickedElement = $(document.getElementById(el.name));
+    var clickedElement = document.getElementById(el.name);
 	
-    var $buttonContainer = $(clickedElement).parents('.act');
-    var pos = $(clickedElement).position();
-    var blockerWidth = $(clickedElement).width();
-    var blockerHeight = $(clickedElement).height();
+    var $buttonContainer = jQuery(clickedElement).parents('.act');
+    var pos = jQuery(clickedElement).position();
+    var blockerWidth = jQuery(clickedElement).width();
+    var blockerHeight = jQuery(clickedElement).height();
 
-    $(clickedElement).blur();
+    jQuery(clickedElement).blur();
     $buttonContainer.find('#buttonBlocker').remove();
     $buttonContainer.find('input').css({
         'opacity': '1',
         'filter': 'alpha(opacity = 100)'
     });
-    $(clickedElement).css({
+    jQuery(clickedElement).css({
         'opacity': '.5',
         'filter': 'alpha(opacity = 50)',
         'zoom':'1'
     });
     $buttonContainer.append('<div id=\"buttonBlocker\"></div>');
-    $('#buttonBlocker').css({
+    jQuery('#buttonBlocker').css({
         'width': blockerWidth,
         'height': blockerHeight,
         'top': pos.top,
