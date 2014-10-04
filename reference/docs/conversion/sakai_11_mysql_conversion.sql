@@ -255,4 +255,7 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 --  END permission backfill -----
 -- ------------------------------
 
+-- SAK 27937 - Course grade to disable course points
+ALTER TABLE GB_GRADEBOOK_T ADD COLUMN COURSE_POINTS_DISPLAYED bit not null
+-- End SAK-27937
 
