@@ -37,6 +37,7 @@ import javax.faces.context.FacesContext;
 
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.jsf.util.LocaleUtil;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
@@ -815,4 +816,11 @@ public abstract class GradebookDependentBean extends InitializableBean {
 		
 		return data;
 	}
+	
+	/* Get a property that many beans need relating to whether or not to showCoursePoints feature */ 
+    public boolean getShowCoursePoints() {
+        String showCoursePoints = ServerConfigurationService.getString("gradebook.showCoursePoints", "false");
+        return Boolean.parseBoolean(showCoursePoints);
+    }
+    
 }

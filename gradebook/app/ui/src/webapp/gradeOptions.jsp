@@ -20,10 +20,16 @@
 			<h:selectBooleanCheckbox id="displayAssignmentGrades" value="#{feedbackOptionsBean.localGradebook.assignmentsDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayAssignmentGrades" value="#{msgs.feedback_options_grade_display_assignment_grades}" />*/%>
-
+		</h:panelGrid>
+		<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
 			<h:selectBooleanCheckbox id="displayCourseGrades" value="#{feedbackOptionsBean.localGradebook.courseGradeDisplayed}"
 				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 			<h:outputLabel for="displayCourseGrades" value="#{msgs.feedback_options_grade_display_course_grades}" />
+		</h:panelGrid>
+		<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{feedbackOptionsBean.showCoursePoints}">
+			<h:selectBooleanCheckbox id="displayCoursePoints" value="#{feedbackOptionsBean.localGradebook.coursePointsDisplayed}"
+				onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
+			<h:outputLabel for="displayCoursePoints" value="#{msgs.feedback_options_grade_display_course_points}" />
 		</h:panelGrid>
 
 <!-- Grade Conversion -->
