@@ -27,7 +27,7 @@
 		<property name="assignmentsDisplayed" column="ASSIGNMENTS_DISPLAYED" type="boolean" not-null="true"/>
 
 		<property name="courseGradeDisplayed" column="COURSE_GRADE_DISPLAYED" type="boolean" not-null="true"/>
-
+		<property name="coursePointsDisplayed" column="COURSE_POINTS_DISPLAYED" type="boolean" not-null="true"/>
 		<property name="totalPointsDisplayed" column="TOTAL_POINTS_DISPLAYED" type="boolean" not-null="true" />
 
 		<property name="courseAverageDisplayed" column="COURSE_AVERAGE_DISPLAYED" type="boolean" not-null="true" />

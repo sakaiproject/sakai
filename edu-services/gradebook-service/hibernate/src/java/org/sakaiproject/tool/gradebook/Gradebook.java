@@ -45,6 +45,7 @@ public class Gradebook implements Serializable {
     private Set<GradeMapping> gradeMappings;
     private boolean assignmentsDisplayed;
     private boolean courseGradeDisplayed;
+    private boolean coursePointsDisplayed;
     private boolean totalPointsDisplayed;
     private boolean courseAverageDisplayed;
     private boolean allAssignmentsEntered;
@@ -230,7 +231,15 @@ public class Gradebook implements Serializable {
       this.totalPointsDisplayed = totalPointsDisplayed;
     }
 
-    public boolean isCourseAverageDisplayed() {
+    public boolean isCoursePointsDisplayed() {
+		return coursePointsDisplayed;
+	}
+
+	public void setCoursePointsDisplayed(boolean coursePointsDisplayed) {
+		this.coursePointsDisplayed = coursePointsDisplayed;
+	}
+
+	public boolean isCourseAverageDisplayed() {
       return courseAverageDisplayed;
     }
 
