@@ -920,6 +920,42 @@ public interface SiteService extends EntityProducer
 	List<Site> getUserSites(boolean requireDescription);
 
 	/**
+	 * Access a list of sites that the specified user can visit, sorted by title, optionally requiring descriptions.
+	 *
+	 * This is a convenience and performance wrapper for getSites.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition, boolean, String) getSites}.
+	 *
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @param userId the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @return A List<Site> of those sites the current user can access.
+	 */
+	List<Site> getUserSites(boolean requireDescription, String userId);
+
+	/**
+	 * Access a list of Site objects that meet specified criteria.
+	 * NOTE: The sites returned may not have child objects loaded. If these sites need to be saved
+	 * a completely populated site should be retrieved from {@link #getSite(String)}
+	 * @param type
+	 *        The SelectionType specifying what sort of selection is intended.
+	 * @param ofType
+	 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+	 * @param criteria
+	 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+	 * @param propertyCriteria
+	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+	 * @param sort
+	 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+	 * @param page
+	 *        The PagePosition subset of items to return.
+	 * @param userId 
+	 *        The returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @return The List (Site) of Site objets that meet specified criteria.
+	 */
+	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId);
+
+	/**
 	 * Access a list of Site objects that meet specified criteria.
 	 * NOTE: The sites returned may not have child objects loaded. If these sites need to be saved
 	 * a completely populated site should be retrieved from {@link #getSite(String)}
@@ -968,6 +1004,30 @@ public interface SiteService extends EntityProducer
 	 * @return The List of Site objects that meet specified criteria, with potentially empty descriptions based on requireDescription and caching.
 	 */
 	List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription);
+
+	/**
+	 * Get the Site IDs for all sites matching criteria.
+	 * This is useful when you only need the listing of site ids (for other operations) and do not need the actual Site objects.
+	 *
+	 * All parameters are the same as {@link #getSites(org.sakaiproject.site.api.SiteService.SelectionType, Object, String, Map, org.sakaiproject.site.api.SiteService.SortType, PagingPosition, String)}
+	 * 
+	 * @param type
+	 *        The SelectionType specifying what sort of selection is intended.
+	 * @param ofType
+	 *        Site type criteria: null for any type; a String to match a single type; A String[], List or Set to match any type in the collection.
+	 * @param criteria
+	 *        Additional selection criteria: sites returned will match this string somewhere in their id, title, description, or skin.
+	 * @param propertyCriteria
+	 *        Additional selection criteria: sites returned will have a property named to match each key in the map, whose values match (somewhere in their value) the value in the map (may be null or empty).
+	 * @param sort
+	 *        A SortType indicating the desired sort. For no sort, set to SortType.NONE.
+	 * @param page
+	 *        The PagePosition subset of items to return.
+	 * @param userId
+	 *        The returns sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @return a List of the Site IDs for the sites matching the criteria.
+	 */
+	List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId);
 
 	/**
 	 * Get the Site IDs for all sites matching criteria.

@@ -169,4 +169,10 @@ public class SiteServiceTest extends DbSiteService
 	        PagingPosition page) {
 	    return new ArrayList<String>(0);
 	}
+
+	@Override
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+	{
+		return new ArrayList<String>(0);
+	}
 }

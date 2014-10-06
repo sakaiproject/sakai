@@ -701,8 +701,9 @@ public abstract class DbSiteService extends BaseSiteService
 			
 			return order;
 		}
+
 		
-		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria, String userId)
 		{
 			int fieldCount = 0;
 			if (ofType != null)
@@ -736,7 +737,7 @@ public abstract class DbSiteService extends BaseSiteService
 				int pos = 0;
 				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.DELETED))
 				{
-					fields[pos++] = sessionManager().getCurrentSessionUserId();
+					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 				if (ofType != null)
 				{
@@ -787,11 +788,25 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 				if (type == SelectionType.JOINABLE)
 				{
-					fields[pos++] = sessionManager().getCurrentSessionUserId();
+					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 			}
 
 			return fields;
+		}
+
+		/**
+		 * KNL-1259: convenience method - if the userID is null, return the current user's userID	
+		 */
+		private String getCurrentUserIdIfNull(String userId)
+		{
+			return userId == null ? sessionManager().getCurrentSessionUserId() : userId;
+		}
+		
+		private Object[] getSitesFields(SelectionType type, Object ofType, String criteria, Map propertyCriteria)
+		{
+			// getSitesFields with null userId returns the current user's site fields
+			return getSitesFields(type, ofType, criteria, propertyCriteria, null);
 		}
 		
 		private String getSitesJoin(SelectionType type, SortType sort )
@@ -953,11 +968,13 @@ public abstract class DbSiteService extends BaseSiteService
 		/**
 		 * {@inheritDoc}
 		 */
-		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page)
+		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, String userId)
 		{
+			userId = getCurrentUserIdIfNull(userId);
+
 			String join = getSitesJoin( type, sort );
 			String order = getSitesOrder( sort );
-			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria );
+			Object[] values = getSitesFields( type, ofType, criteria, propertyCriteria, userId );
 			String where = getSitesWhere(type, ofType, criteria, propertyCriteria, sort);
 
 			String sql;
@@ -976,6 +993,15 @@ public abstract class DbSiteService extends BaseSiteService
 			@SuppressWarnings("unchecked")
 			List<String> siteIds = (List<String>) sqlService().dbRead(sql, values, siteIdReader);
 			return siteIds;
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page)
+		{
+			// getSiteIds with userId returns the current user's site Ids
+			return getSiteIds(type, ofType, criteria, propertyCriteria, sort, page, null);
 		}
 
 		/**
@@ -1030,9 +1056,10 @@ public abstract class DbSiteService extends BaseSiteService
 		 * @inheritDoc
 		 */
 		@SuppressWarnings("unchecked")
-		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription)
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 		{
-			List<String> siteIds = getSiteIds(type, ofType, criteria, propertyCriteria, sort, page);
+			userId = getCurrentUserIdIfNull(userId);
+			List<String> siteIds = getSiteIds(type, ofType, criteria, propertyCriteria, sort, page, userId);
 			LinkedHashMap<String, Site> siteMap = getOrderedSiteMap(siteIds, requireDescription);
 
 			SqlReader reader = requireDescription ? fullSiteReader : lightSiteReader;
@@ -1074,6 +1101,16 @@ public abstract class DbSiteService extends BaseSiteService
 			}
 
 			return new ArrayList<Site>(siteMap.values());
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		@SuppressWarnings("unchecked")
+		public List getSites(SelectionType type, Object ofType, String criteria, Map propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription)
+		{
+			// getSites with null userId returns the current user's sites
+			return getSites(type, ofType, criteria, propertyCriteria, sort, page, requireDescription, null);
 		}
 		
 		/**
