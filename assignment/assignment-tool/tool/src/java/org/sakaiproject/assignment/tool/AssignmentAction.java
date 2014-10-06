@@ -3572,6 +3572,13 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("value_CheckAnonymousGrading", state.getAttribute(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 			
 			List<SubmitterSubmission> userSubmissions = prepPage(state);
+			
+			// attach the assignment to these submissions now to avoid costly lookup for each submission later in the velocity template
+			for (SubmitterSubmission s : userSubmissions)
+			{
+				s.getSubmission().setAssignment(assignment);
+			}
+			
 			state.setAttribute(USER_SUBMISSIONS, userSubmissions);
 			context.put("userSubmissions", state.getAttribute(USER_SUBMISSIONS));
 

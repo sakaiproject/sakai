@@ -59,6 +59,12 @@ public interface AssignmentSubmission extends Entity
 	 * @return the Assignment
 	 */
 	public Assignment getAssignment();
+	
+	/**
+	 * call this method to store the assignment object to avoid costly lookup by assignment id later
+	 * will do nothing if assignment ids don't match
+	 */
+	public void setAssignment(Assignment value);
 
 	/**
 	 * Access the ID for the Assignment for this Submission

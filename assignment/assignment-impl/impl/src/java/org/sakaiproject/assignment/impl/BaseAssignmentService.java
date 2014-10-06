@@ -10235,6 +10235,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
         protected String m_reviewError;
 		
+		protected Assignment m_asn;
+		
 		// return the variables
 		// Get new values from review service if defaults
 		public int getReviewScore() {
@@ -11459,16 +11461,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public Assignment getAssignment()
 		{
-			Assignment retVal = null;
-			if (m_assignment != null)
+			if (m_asn == null && m_assignment != null) // lazy load assignment as needed, store for future
 			{
-				retVal = m_assignmentStorage.get(m_assignment);
+				m_asn = m_assignmentStorage.get(m_assignment);
 			}
 			
 			// track event
 			//EventTrackingService.post(EventTrackingService.newEvent(AssignmentConstants.EVENT_ACCESS_ASSIGNMENT, retVal.getReference(), false));
 
-			return retVal;
+			return m_asn;
+		}
+		
+		/**
+		 * call this method to store the assignment object to avoid costly lookup by assignment id later
+		 * will do nothing if assignment ids don't match
+		 */
+		public void setAssignment(Assignment value)
+		{
+			if (m_assignment != null && value != null && m_assignment.equals(value.getId()))
+			{
+				m_asn = value;
+			}
 		}
 
 		/**
