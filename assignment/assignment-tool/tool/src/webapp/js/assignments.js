@@ -449,3 +449,19 @@ function highlightSelectedAttachment()
         }
     }
 }
+
+function enableLinks()
+{
+    var downloadAll = document.getElementById( "downloadAll" );
+    var uploadAll = document.getElementById( "uploadAll" );
+    var releaseGrades = document.getElementById( "releaseGrades" );
+    var helpItems = document.getElementById( "helpItems" );
+    var links = [downloadAll, uploadAll, releaseGrades, helpItems];
+    for( i = 0; i < links.length; i++ )
+    {
+        if( links[i] !== null )
+        {
+            links[i].className = "";
+        }
+    }
+}

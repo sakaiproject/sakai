@@ -179,3 +179,6 @@ label.disabled {
     color: #aaa;
 }
 
+a.noPointers {
+    pointer-events: none;
+}
