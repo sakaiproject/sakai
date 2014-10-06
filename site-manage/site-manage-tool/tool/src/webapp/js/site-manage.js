@@ -906,7 +906,7 @@ var setupCategTools = function(){
         }
         
         // SAK-22384
-        document.getElementById(MATHJAX.checkBoxIdPrefix + selectedId.replace("_", ".")).checked = false;
+        $('#' + MATHJAX.checkBoxIdPrefix + selectedId.replace("_", ".")).prop('checked',false);
         
         //$(this).closest('li').addClass('highlightTool').fadeOut('fast', function(){
         //    $(this).closest('li').remove();
