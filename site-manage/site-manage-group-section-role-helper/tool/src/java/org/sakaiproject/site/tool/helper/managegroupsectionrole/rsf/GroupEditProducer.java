@@ -161,8 +161,9 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
     	 
     	 // action button name: Add for adding new group, Update for editing exist group
     	 String addUpdateButtonName = id != null?messageLocator.getMessage("editgroup.update"):messageLocator.getMessage("editgroup.new");
+    	 String headerText = id == null ? messageLocator.getMessage("group.newgroup") : messageLocator.getMessage("group.editgroup");
     	 
-         UIOutput.make(groupForm, "prompt", messageLocator.getMessage("group.newgroup"));
+         UIOutput.make(groupForm, "prompt", headerText);
          UIOutput.make(groupForm, "emptyGroupTitleAlert", messageLocator.getMessage("editgroup.titlemissing"));
          UIOutput.make(groupForm, "instructions", messageLocator.getMessage("editgroup.instruction", new Object[]{addUpdateButtonName}));
          
