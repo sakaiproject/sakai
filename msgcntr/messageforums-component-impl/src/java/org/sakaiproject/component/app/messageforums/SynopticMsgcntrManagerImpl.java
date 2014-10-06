@@ -170,7 +170,9 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 					try {
 						clConnection = SqlService.borrowConnection();
 						updateStatement = clConnection.prepareStatement(query);
-						updateStatement.execute();						
+						updateStatement.execute();
+						//in case autosubmit isn't true, commit this right away
+						clConnection.commit();
 					}catch(Exception e){
 						LOG.error(e.getMessage(), e);
 					}finally{
