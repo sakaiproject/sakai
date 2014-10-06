@@ -12156,6 +12156,9 @@ public class AssignmentAction extends PagedResourceActionII
 		 * the user
 		 */
 		User m_user = null;
+		
+		// true if users should be compared by anonymous submitter id rather than other identifiers
+		boolean m_anon = false;
 
 		/**
 		 * constructor
@@ -12238,6 +12241,11 @@ public class AssignmentAction extends PagedResourceActionII
 			return rv;
 
 		} // getAssignmentRange
+		
+		public void setAnon(boolean value)
+		{
+			m_anon = value;
+		}
 
 		/**
 		 * implementing the compare function
@@ -12551,41 +12559,19 @@ public class AssignmentAction extends PagedResourceActionII
 				{
 					result = 1;
 				}
-				else
+				else if (m_anon)
 				{
-					// SAK-17606
-					boolean anonymousGrading = false;
-					try {
-							// if anonymous grading is set we sort this differently
-							Assignment assignment = AssignmentService.getAssignment(u1.getSubmission().getAssignmentId());
-							ResourceProperties properties = assignment.getProperties();
-							anonymousGrading = properties.getBooleanProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING);
-					}
-					catch (IdUnusedException e) {
-							M_log.warn(this + ":comparator " + e.getMessage());
-					}
-					catch (PermissionException e) {
-							M_log.warn(this + ":comparator " + e.getMessage());
-					}
-					catch (EntityPropertyNotDefinedException e) {
-							anonymousGrading = false;
-							M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " not defined " + e.getMessage());
-					}
-					catch (EntityPropertyTypeException e) {
-							anonymousGrading = false;
-							M_log.warn("Entity Property " + NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING + " type not defined " + e.getMessage());
-					}
-					if (anonymousGrading) {
 							String anon1 = u1.getSubmission().getAnonymousSubmissionId();
 							String anon2 = u2.getSubmission().getAnonymousSubmissionId();
 							result = compareString(anon1, anon2);
-					} else {
+				}
+				else
+				{
 					String lName1 = u1.getUser() == null ? u1.getGroup().getTitle(): u1.getUser().getSortName();
 					String lName2 = u2.getUser() == null ? u2.getGroup().getTitle(): u2.getUser().getSortName();
 					result = compareString(lName1, lName2);
 				}
 			}
-                        }
 			else if (m_criteria.equals(SORTED_GRADE_SUBMISSION_BY_SUBMIT_TIME))
 			{
 				// sorted by submission time
@@ -13455,9 +13441,46 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		if ((returnResources.size() > 1) && !MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT.equals(mode))
 		{
+			AssignmentComparator ac = new AssignmentComparator(state, sort, ascending);
+			
+			// figure out if we have to sort by anonymous id
+			if (SORTED_GRADE_SUBMISSION_BY_LASTNAME.equals(sort) &&
+					(MODE_INSTRUCTOR_GRADE_ASSIGNMENT.equals(mode) || MODE_INSTRUCTOR_GRADE_SUBMISSION.equals(mode)))
+			{
+				String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 			try
 			{
-				Collections.sort(returnResources, new AssignmentComparator(state, sort, ascending));
+					Assignment assignment = AssignmentService.getAssignment(aRef);
+					if (assignment != null)
+					{
+						ResourceProperties props = assignment.getProperties();
+						if (props != null)
+						{
+							ac.setAnon(props.getBooleanProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
+			}
+					}
+				}
+				catch (IdUnusedException iue)
+				{
+					// ignore, continue with default sort
+				}
+				catch (PermissionException pe)
+				{
+					// ignore, continue with default sort
+				}
+				catch (EntityPropertyNotDefinedException epnde)
+				{
+					// ignore, continue with default sort
+				}
+				catch (EntityPropertyTypeException epte)
+				{
+					// ignore, continue with default sort
+				}
+			}
+			
+			try
+			{
+				Collections.sort(returnResources, ac);
 			}
 			catch (Exception e)
 			{
