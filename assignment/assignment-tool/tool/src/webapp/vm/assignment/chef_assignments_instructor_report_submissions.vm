@@ -234,6 +234,7 @@
 						#set ($assignmentContent = $assignment.getContent())
 						#set ($submissionType = $assignmentContent.TypeOfSubmission)
 						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
+						#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
 						<tr>
 							<td headers="studentname">
 							#set ($submitterNames = "")
@@ -309,15 +310,19 @@
 								#else
 									#if ($submission.getSubmission())
 										#if ($submission.getSubmission().submitted)
-											#set($timeSubmitted=false)
-											#set($timeSubmitted=$submission.getSubmission().TimeSubmitted)
-											#if($!timeSubmitted)
-												$!timeSubmitted.toStringLocalFull()
-											#end
-											#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
-												<span class="highlight">
-													$tlang.getString("gen.late2")
-												</span>
+											#if (!$isAnon)
+												#set($timeSubmitted=false)
+												#set($timeSubmitted=$submission.getSubmission().TimeSubmitted)
+												#if($!timeSubmitted)
+													$!timeSubmitted.toStringLocalFull()
+												#end
+												#if ($!timeSubmitted && $timeSubmitted.after($assignment.DueTime))
+													<span class="highlight">
+														$tlang.getString("gen.late2")
+													</span>
+												#end
+											#elseif ($!submission.getSubmission().TimeSubmitted.toStringLocalFull())
+												$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 											#end
 										#end
 									#end

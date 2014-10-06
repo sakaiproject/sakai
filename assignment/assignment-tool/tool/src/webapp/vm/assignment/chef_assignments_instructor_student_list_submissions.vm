@@ -151,6 +151,7 @@
 							#set($assignments=false)
 							#set($assignments=$!studentAssignmentsTable.get($member))
 							#foreach ($assignment in $!assignments)
+								#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
 								#set ($deleted = false)
 								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
 								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
@@ -163,7 +164,7 @@
 										</td>
 										<td headers="assignment">
 											## SAK-27824
-											#if ($assignmentService.assignmentUsesAnonymousGrading($assignment) != true)
+											#if (!$isAnon)
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
@@ -180,14 +181,18 @@
 										</td>
 										<td headers="submitted">
 											#if ($!submission.submitted)
-												$!submission.TimeSubmitted.toStringLocalFull()
-												#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
+												#if (!$isAnon)
+													$!submission.TimeSubmitted.toStringLocalFull()
+													#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
+													#end
+													#set ($submitterId = false)
+													#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
+													#if ($!submitterId)
+														<br />by $userService.getUser($submitterId).getDisplayName()
+													#end
+												#elseif ($!submission.TimeSubmitted.toStringLocalFull())
+													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
 												#end
-												#set ($submitterId = false)
-												#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
-												#if ($!submitterId)
-													<br />by $userService.getUser($submitterId).getDisplayName()
-											#end
 											#end
 											&nbsp;
 										</td>

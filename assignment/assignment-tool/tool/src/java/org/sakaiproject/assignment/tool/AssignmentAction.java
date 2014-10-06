@@ -4307,6 +4307,8 @@ public class AssignmentAction extends PagedResourceActionII
 
 		pagingInfoToContext(state, context);
 
+		context.put("assignmentService", AssignmentService.getInstance());
+
 		String template = (String) getContext(data).get("template");
 		return template + TEMPLATE_INSTRUCTOR_REPORT_SUBMISSIONS;
 
