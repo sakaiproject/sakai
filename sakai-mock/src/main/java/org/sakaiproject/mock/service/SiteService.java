@@ -193,6 +193,16 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		return null;
 	}
 
+	public List<Site> getUserSites(boolean requireDescription, String userId)
+	{
+		return null;
+	}
+
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+	{
+		return null;
+	}
+
 	public List getUserSites(boolean requireDescription) {
 		// TODO Auto-generated method stub
 		return null;
@@ -441,6 +451,11 @@ public class SiteService implements org.sakaiproject.site.api.SiteService {
 		return null;
 	}
 
+
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+	{
+		return null;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.site.api.SiteService#getSiteIds(org.sakaiproject.site.api.SiteService.SelectionType, java.lang.Object, java.lang.String, java.util.Map, org.sakaiproject.site.api.SiteService.SortType, org.sakaiproject.javax.PagingPosition)
