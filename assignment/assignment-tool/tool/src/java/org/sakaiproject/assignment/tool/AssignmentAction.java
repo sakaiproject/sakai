@@ -13368,48 +13368,26 @@ public class AssignmentAction extends PagedResourceActionII
 
 			    } else {
 
-			        List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+			        //List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+					Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
 
 			        // construct the user-submission list
-			        if (submitterIds != null && !submitterIds.isEmpty())
-			        {
-			            for (Iterator<String> iSubmitterIdsIterator = submitterIds.iterator(); iSubmitterIdsIterator.hasNext();)
-			            {
-			                String uId = iSubmitterIdsIterator.next();
-			                try
-			                {
-			                    User u = UserDirectoryService.getUser(uId);
+					for (User u : submitters.keySet())
+					{
+						String uId = u.getId();
 
-			                    try
-			                    {
-			                        AssignmentSubmission sub = AssignmentService.getSubmission(aRef, u);
-			                        SubmitterSubmission us = new SubmitterSubmission(u, sub);
-			                        String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
-			                        if ( submittedById != null) {
-			                            try {
-			                                us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
-			                            } catch (UserNotDefinedException ex1) {
-			                                M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
-			                            }
-			                        }
-			                        returnResources.add(us);
-			                    }
-			                    catch (IdUnusedException subIdException)
-			                    {
-			                        M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
-			                    }
-			                    catch (PermissionException subPerException)
-			                    {
-			                        M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of user " + u.getId());
-			                    }
-			                }
-			                catch (UserNotDefinedException e)
-			                {
-			                    M_log.warn(this + ":sizeResources cannot find user id=" + uId + e.getMessage() + "");
-			                }
-			            }
-			        }
-
+						AssignmentSubmission sub = submitters.get(u);
+						SubmitterSubmission us = new SubmitterSubmission(u, sub);
+						String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
+						if ( submittedById != null) {
+							try {
+								us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
+							} catch (UserNotDefinedException ex1) {
+								M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+							}
+						}
+						returnResources.add(us);
+					}
 			    }
 
 			} catch (PermissionException aPerException) {
@@ -14208,37 +14186,13 @@ public class AssignmentAction extends PagedResourceActionII
 		String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 		Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
 		
-		List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-
+		//List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+		Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+		
 		// construct the user-submission list
-		if (submitterIds != null && !submitterIds.isEmpty())
+		for (AssignmentSubmission sub : submitters.values())
 		{
-			for (Iterator<String> iSubmitterIdsIterator = submitterIds.iterator(); iSubmitterIdsIterator.hasNext();)
-			{
-				String uId = iSubmitterIdsIterator.next();
-				try
-				{
-					User u = UserDirectoryService.getUser(uId);
-
-					try
-					{
-						AssignmentSubmission sub = AssignmentService.getSubmission(aRef, u);
-						if (!rv.contains(sub)) rv.add(sub);  
-					}
-					catch (IdUnusedException subIdException)
-					{
-						M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
-					}
-					catch (PermissionException subPerException)
-					{
-						M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of user " + u.getId());
-					}
-				}
-				catch (UserNotDefinedException e)
-				{
-					M_log.warn(this + ":sizeResources cannot find user id=" + uId + e.getMessage() + "");
-				}
-			}
+			if (!rv.contains(sub)) rv.add(sub);
 		}
 		
 		return rv;

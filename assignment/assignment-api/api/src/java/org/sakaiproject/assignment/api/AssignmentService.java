@@ -890,6 +890,17 @@ public interface AssignmentService extends EntityProducer
 	 * @return
 	 */
 	public List<String> getSubmitterIdList(String searchFilterOnly, String allOrOneGroup, String search, String aRef, String contextString);	
+	
+	/**
+	 * Alternative to getSubmittedIdList which returns full user and submissions, since submitterIdList retrieves them anyway
+	 * @param searchFilterOnly If true, return only those ids that matches the group filter and search criteria
+	 * @param allOrOneGroup "all" or specific group reference
+	 * @param aRef Assignment Reference
+	 * @param search The search string
+	 * @param contextString Site id
+	 * @return
+	 */
+	public Map<User, AssignmentSubmission> getSubmitterMap(String searchFilterOnly, String allOrOneGroup, String search, String aRef, String contextString);
 
 	public String escapeInvalidCharsEntry(String accentedString);
 	
