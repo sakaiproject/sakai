@@ -166,13 +166,13 @@
 											#if ($assignmentService.assignmentUsesAnonymousGrading($assignment) != true)
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
-                                                #if ($allowAddAssignment && $allowSubmitByInstructor)
-                                                <div class="itemAction">
-                                                    <a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
-                                                    $tlang.getString("subasstudent")
-                                                    </a>
-                                                </div>
-                                                #end
+												#if ($allowAddAssignment && $allowSubmitByInstructor)
+												<div class="itemAction">
+													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+														$tlang.getString("subasstudent")
+													</a>
+												</div>
+												#end
 											#else
 												$validator.limit($validator.escapeHtml($assignment.Title), 40) ($tlang.getString("grading.anonymous.title"))
 											#end
@@ -186,7 +186,7 @@
 												#set ($submitterId = false)
 												#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
 												#if ($!submitterId)
-												   <br />by $userService.getUser($submitterId).getDisplayName()
+													<br />by $userService.getUser($submitterId).getDisplayName()
 											#end
 											#end
 											&nbsp;

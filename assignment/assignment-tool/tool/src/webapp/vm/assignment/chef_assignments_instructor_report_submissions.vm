@@ -231,8 +231,8 @@
 					</tr>
 					#foreach ($submission in $submissions)
 						#set ($assignment = $submission.getSubmission().getAssignment())
-                        #set ($assignmentContent = $assignment.getContent())
-                        #set ($submissionType = $assignmentContent.TypeOfSubmission)
+						#set ($assignmentContent = $assignment.getContent())
+						#set ($submissionType = $assignmentContent.TypeOfSubmission)
 						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
 						<tr>
 							<td headers="studentname">
@@ -241,24 +241,24 @@
 							<span class="error alertMessage">
 							#end
 							#if ($submission.user)
-							    #set($submitterName = $submission.getUser().getSortName())
-                                #set($submitterId=$submission.getUser().getDisplayId())
-                                #if ($!submitterId)
-                                    #set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
-                                #end    
-                                #if ($assignment.isGroup())
-                                    #if ($submission.group)
-                                        #set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
-                                    #end
-                                #end
-                                $validator.escapeHtml($!submitterName)
-                            #end
-                            #if ($submission.getIsMultiGroup())
-                            </span>
-                            #end
+								#set($submitterName = $submission.getUser().getSortName())
+								#set($submitterId=$submission.getUser().getDisplayId())
+								#if ($!submitterId)
+									#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+								#end
+								#if ($assignment.isGroup())
+									#if ($submission.group)
+										#set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
+									#end
+								#end
+								$validator.escapeHtml($!submitterName)
+							#end
+							#if ($submission.getIsMultiGroup())
+							</span>
+							#end
 							</td>
 							<td headers="assignment">
-							    #assignmentTitleIcon($assignment)
+								#assignmentTitleIcon($assignment)
 								$validator.escapeHtml($validator.limit($assignment.Title, 40))
 							</td>
 							<td headers="grade">
@@ -267,15 +267,15 @@
 										#if ($typeOfGrade == 1)
 											$tlang.getString("gen.nograd")
 										#else
-                                            #if ($submission.group)
-                                                #if ($submission.getGradeForUser($submission.user.id))
-                                                    $submission.getGradeForUser($submission.user.id) <abbr title="Group Grade">($submission.getSubmission().gradeDisplay)</abbr>
-                                                #else
-                                                    $submission.getSubmission().gradeDisplay
-                                                #end
-                                            #else
+											#if ($submission.group)
+												#if ($submission.getGradeForUser($submission.user.id))
+													$submission.getGradeForUser($submission.user.id) <abbr title="Group Grade">($submission.getSubmission().gradeDisplay)</abbr>
+												#else
+													$submission.getSubmission().gradeDisplay
+												#end
+											#else
 											$submission.getSubmission().gradeDisplay
-										    #end
+											#end
 										#end
 									#end
 								#end
