@@ -126,6 +126,43 @@
         	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
             <div class="dz-default dz-message">$tlang.getString("label.dragZoneMessage")</div>
         </form>
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			#if($model.isDropbox())
+			 	## SAK-18932 show email checkbox only when possible to use it
+				#if($dropboxNotificationAllowed)
+					<p class="act">
+						<input type="checkbox" name="notify_dropbox_DnD" id="notify_dropbox_DnD" value="true" /> 
+						<label for="notify_dropbox_DnD">
+							#if($model.isCourseSite())
+								#if($model.userIsMaintainer())
+									$tlang.getString("notify.student")
+								#else
+									$tlang.getString("notify.instructor")
+								#end
+							#else
+								#if($model.userIsMaintainer())
+									$tlang.getString("notify.access")
+								#else
+									$tlang.getString("notify.maintain")
+								#end
+							#end
+						</label>
+					</p>
+				#end
+			#elseif($model.isUserSite())
+			#else
+				<p class="shorttext">
+					<label for="notify_DnD">
+						$tlang.getString("gen.email1")
+					</label>	
+					<select name="notify_DnD" id="notify_DnD">
+						<option value="r">$tlang.getString("gen.email2")</option>
+						<option value="o">$tlang.getString("gen.email3")</option>
+						<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+					</select>
+				</p>	
+			#end
+		#end
 		<p class="act">
 			<input type="button" name="finish" id="finish" disabled=true
 			onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doFinishUpload")';" 
@@ -242,5 +279,19 @@ Dropzone.options.fileUploader = {
 
     })
     
+</script>
+<script type="text/javascript">
+	$('#notify_DnD').change(function(){
+		$('#notify').val($('#notify_DnD').val());
+	});
+	$('#notify').change(function(){
+		$('#notify_DnD').val($('#notify').val());
+	});
+	$('#notify_dropbox_DnD').change(function(){
+		$('#notify_dropbox').prop('checked',($('#notify_dropbox_DnD').prop('checked')));
+	});
+	$('#notify_dropbox').change(function(){
+		$('#notify_dropbox_DnD').prop('checked',($('#notify_dropbox').prop('checked')));
+	});
 </script>
 #end

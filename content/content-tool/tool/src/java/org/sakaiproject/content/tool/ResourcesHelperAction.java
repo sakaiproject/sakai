@@ -88,6 +88,10 @@ import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.content.tool.ResourcesAction;
+import org.sakaiproject.event.api.Event;
+import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.NotificationEdit;
+import org.sakaiproject.entity.api.Reference;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
@@ -169,6 +173,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 	
 	/** Tool property to enable Drag and Drop uploads in a per-tool basis */
 	private static final String TOOL_PROP_DRAGNDROP_ENABLED = "content.upload.dragndrop";
+	
+	/** We need to send a single email with every D&D upload reported in it */
+	
+	private static final String DRAGNDROP_FILENAME_REFERENCE_LIST = "dragndrop_filename_reference_list";	
+	private NotificationService notificationService = (NotificationService) ComponentManager.get(NotificationService.class);	
+	private EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
 
 	public String buildAccessContext(VelocityPortlet portlet,
 			Context context,
@@ -1944,6 +1954,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			if (action!=null)
 			{
+				if (action.equals("doFinishUpload"))
+				{
+					notifyDragAndDropCompleted(request);
+				}
 				super.doPost(request, response);
 			}
 			else
@@ -1986,7 +2000,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			//Received a file that is inside an uploaded folder 
 			//Try to create a collection with this folder and to add the file inside it after
 			File myfile = new File(fullPath);
-			String fileName = myfile.getName();			
+			String fileName = myfile.getName();
 			collectionName=resourceGroup+myfile.getParent();
 
 			//AFAIK it is not possible to check undoubtedly if a collection exists
@@ -2006,10 +2020,10 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			//Now upload the received file
 			//Test that file has been sent in request 
 			DiskFileItem uploadFile = (DiskFileItem) request.getAttribute("file");
-			String contentType = uploadFile.getContentType();
 			
 			if(uploadFile != null)
 			{
+				String contentType = uploadFile.getContentType();
 				uploadFileName=uploadFile.getName();
 				
 				String extension = "";
@@ -2063,6 +2077,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 					return;
 				}
 			}
+			else
+			{
+				addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.upload.error",new Object[]{uploadFileName}));
+				return;
+			}
 		}
 		catch (IdUniquenessException e)
 		{
@@ -2072,14 +2091,17 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		catch (OverQuotaException e) {
 			addAlert(state, rb.getString("alert.over-site-upload-quota"));
 			logger.warn("Drag and drop upload exceeded site quota: " + e, e);
+			return;
 		}
 		catch (ServerOverloadException e) {
 			addAlert(state,contentResourceBundle.getFormattedMessage("dragndrop.overload.error",new Object[]{uploadFileName}));
 			logger.warn("Drag and drop upload overloaded the server: " + e, e);
+			return;
 		}
 		catch (Exception e) {
 			addAlert(state, contentResourceBundle.getFormattedMessage("dragndrop.upload.error",new Object[]{uploadFileName}));
 			logger.warn("Drag and drop upload failed: " + e, e);
+			return;
 		}
 		
 		try
@@ -2097,7 +2119,8 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			logger.error("Exception writing response in ResourcesHelperAction");
 			return;
 		}
-
+		
+		addFilenameReferenceToList(state, resource.getReference());
 		toolSession.setAttribute(ResourceToolAction.DONE, Boolean.TRUE);
 	}
 
@@ -2162,7 +2185,70 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		logger.debug("Returning collection: "+cc.getId());
 		return cc;
 	}
+	
+	
+	public void notifyDragAndDropCompleted(HttpServletRequest request)
+	{
+		/*
+		 * This method uses a new class SiteEmailNotificationDragAndDrop which extends SiteEmailNotification 
+		 * and uses some modified code of SiteEmailNotificationContent and DropboxNotification classes.
+		 * Current Content notifications are managed with information of every uploaded content entity. However, this does not work with a group of entities uploaded through D&D.
+		 * Resources D&D notifications can be decided using containing folder as reference instead each uploaded file.
+		 * Dropbox D&D notifications are trickier. When a maintain/Instructor sends one notification to access/student, dropbox containing folder can be used as well.
+		 * But when a student/access sends one notification to maintains/Instructors, the folder owner is compared with the user who last modificated the uploaded item.
+		 * This is not valid in D&D, so I have changed it and folder owner is compared with current user in order to send notifications.
+		 */
+		JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+		ParameterParser params = rundata.getParameters();
+		
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ResourceToolActionPipe pipe = (ResourceToolActionPipe) toolSession.getAttribute(ResourceToolAction.ACTION_PIPE);
+		ListItem item = new ListItem(pipe.getContentEntity());
+		
+		int notificationPriority = determineNotificationPriority(params, item.isDropbox(), item.userIsMaintainer());
+		
+		SessionState state = getState(request);
+		
+		try
+		{
+			Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			
+			NotificationEdit ne = notificationService.addTransientNotification();
+			
+			String eventResource;
+			if (item.isDropbox)
+			{
+				eventResource=org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_AVAILABLE;
+				ne.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_DROPBOX);
+			}
+			else
+			{
+				eventResource=org.sakaiproject.content.api.ContentHostingService.EVENT_RESOURCE_ADD;
+				ne.setResourceFilter(ContentHostingService.REFERENCE_ROOT+org.sakaiproject.content.api.ContentHostingService.COLLECTION_SITE);
+			}
+			
+			ne.setFunction(eventResource);
+			SiteEmailNotificationDragAndDrop sendnd = new SiteEmailNotificationDragAndDrop(site.getId());
+			sendnd.setDropboxFolder(item.isDropbox());
+			sendnd.setFileList((ArrayList<String>)(state.getAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST)));
+			ne.setAction(sendnd);
+			sendnd.notify(ne,eventTrackingService.newEvent(eventResource, ContentHostingService.REFERENCE_ROOT+item.getId(), true, notificationPriority));
+			
+			state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, null);
+		} catch (IdUnusedException e) {
+			logger.warn("Somehow we couldn't find the site.", e);
+		}
+	}
 
+	private void addFilenameReferenceToList(SessionState state, String ref)
+	{
+		ArrayList<String> soFar = (ArrayList<String>) state.getAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST);
+		if (soFar == null) soFar = new ArrayList<String>();			
+		soFar.add(ref);
+		state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, soFar);
+
+	} // addAlert
+	
 /*
 	private String getUniqueFileName(String uploadFileName, String resourceGroup) throws org.sakaiproject.exception.PermissionException, org.sakaiproject.exception.TypeException
 	{
