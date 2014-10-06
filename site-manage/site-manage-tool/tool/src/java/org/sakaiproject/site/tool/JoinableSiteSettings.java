@@ -46,10 +46,10 @@ public class JoinableSiteSettings
 	private static final Log log = LogFactory.getLog( JoinableSiteSettings.class );
 	
 	// API's
-	private static final UserDirectoryService 	userDirectoryService 	= (UserDirectoryService) 	ComponentManager.get( UserDirectoryService.class );
-	private static final SiteService 		siteService 		= (SiteService) 		ComponentManager.get( SiteService.class );
-	private static final DeveloperHelperService 	developerHelperService	= (DeveloperHelperService) 	ComponentManager.get( DeveloperHelperService.class );
-        private static final ServerConfigurationService serverConfigService     = (ServerConfigurationService)  ComponentManager.get( ServerConfigurationService.class );
+	private static final UserDirectoryService 		userDirectoryService 	= (UserDirectoryService) 		ComponentManager.get( UserDirectoryService.class );
+	private static final SiteService 				siteService 			= (SiteService) 				ComponentManager.get( SiteService.class );
+	private static final DeveloperHelperService 	developerHelperService	= (DeveloperHelperService) 		ComponentManager.get( DeveloperHelperService.class );
+	private static final ServerConfigurationService serverConfigService		= (ServerConfigurationService) 	ComponentManager.get( ServerConfigurationService.class );
 	
 	// State variable names
 	private static final String STATE_JOIN_SITE_GROUP_ID				= "state_join_site_group";
@@ -61,7 +61,7 @@ public class JoinableSiteSettings
 	
 	// Site property names
 	private static final String SITE_PROP_JOIN_SITE_GROUP_ID 				= "joinerGroup";
-	private static final String SITE_PROP_JOIN_SITE_GROUP_NO_SEL			= "noSelection";
+	private static final String SITE_PROP_JOIN_SITE_GROUP_NO_SEL				= "noSelection";
 	private static final String SITE_PROP_JOIN_SITE_EXCLUDE_PUBLIC_LIST		= "joinExcludeFromPublicList";
 	private static final String SITE_PROP_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE 	= "joinLimitByAccountType";
 	private static final String SITE_PROP_JOIN_SITE_ACCOUNT_TYPES 			= "joinLimitedAccountTypes";
@@ -90,14 +90,14 @@ public class JoinableSiteSettings
 	private static final String CONTEXT_JOIN_SITE_LINK											= "link";
 	private static final String CONTEXT_JOIN_SITE_SITE_BROWSER_JOIN_ENABLED						= "siteBrowserJoinEnabled";
 	private static final String CONTEXT_JOIN_SITE_GROUP_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinGroupEnabledLocalDisabledGlobal";
-	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 		= "joinExcludeEnabledLocalDisabledGlobal";
+	private static final String CONTEXT_JOIN_SITE_EXCLUDE_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinExcludeEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_JOIN_SITE_LIMIT_ENABLED_LOCAL_DISABLED_GLOBAL 			= "joinLimitEnabledLocalDisabledGlobal";
 	private static final String CONTEXT_UI_SERVICE = "uiService";
 	
 	// Message keys
 	private static final String MSG_KEY_UNJOINABLE 			= "join.unjoinable";
 	private static final String MSG_KEY_LOGIN				= "join.login";
-	private static final String MSG_KEY_ALREADY_MEMBER_1	= "join.alreadyMember1";
+	private static final String MSG_KEY_ALREADY_MEMBER_1		= "join.alreadyMember1";
 	private static final String MSG_KEY_ALREADY_MEMBER_2	= "join.alreadyMember2";
 	private static final String MSG_KEY_NOT_ALLOWED_TO_JOIN	= "join.notAllowed";
 	private static final String MSG_KEY_JOIN_SUCCESS		= "join.success";
@@ -108,12 +108,12 @@ public class JoinableSiteSettings
 	// Random other things
 	private static final String CSV_DELIMITER 			= ",";
 	private static final String TRUE_STRING				= "true";
-	private static final String FALSE_STRING			= "false";
+	private static final String FALSE_STRING				= "false";
 	private static final String ON_STRING				= "on";
 	private static final String FORM_PREFIX				= "form_";
 	private static final String SITE_REF_PREFIX			= "/site/";
 	private static final String SITE_BROWSER_MODE		= "sitebrowser.mode";
-	private static final String DEFAULT_UI_SERVICE          = "Sakai";
+	private static final String DEFAULT_UI_SERVICE 		= "Sakai";
 	public  static final String SITE_BROWSER_JOIN_MODE 	= "join";
 	
 	// sakai.properties
@@ -429,8 +429,8 @@ public class JoinableSiteSettings
 	 * with the allowed account types set for the current site. The joiner group is also checked, and
 	 * joined if necessary. It will also send email notifications on join only if it is enabled both
 	 * globally and for the site.
-     * 
-     * Update: (Dec 2013 - sfoster9@uwo.ca) these checks are now in kernel's join method, so just call join
+	 * 
+	 * Update: (Dec 2013 - sfoster9@uwo.ca) these checks are now in kernel's join method, so just call join
 	 * 
 	 * @param siteID
 	 * 				the ID of the site in question

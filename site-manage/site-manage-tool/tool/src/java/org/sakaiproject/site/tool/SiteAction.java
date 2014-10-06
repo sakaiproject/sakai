@@ -359,11 +359,11 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String STATE_TOOL_REGISTRATION_OLD_SELECTED_LIST = "toolRegistrationOldSelectedList";
 
 	private static final String STATE_TOOL_REGISTRATION_OLD_SELECTED_HOME = "toolRegistrationOldSelectedHome";
-    
+
 	private static final String STATE_EXTRA_SELECTED_TOOL_LIST = "extraSelectedToolList";
 
 	private static final String STATE_TOOL_HOME_SELECTED = "toolHomeSelected";
-   
+
 	private static final String UNGROUPED_TOOL_TITLE = "systoolgroups.ungrouped";
 	private static final String LTI_TOOL_TITLE		 = "systoolgroups.lti";
 
@@ -1161,8 +1161,8 @@ public class SiteAction extends PagedResourceActionII {
 		// lti tools
 		state.removeAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST);
 		state.removeAttribute(STATE_LTITOOL_SELECTED_LIST);
-                
-        // bjones86 - SAK-24423 - remove joinable site settings from the state
+
+		// bjones86 - SAK-24423 - remove joinable site settings from the state
 		JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 
 	} // cleanState
@@ -1609,7 +1609,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("allowAddSite",allowAddSite);
 
 			//SAK-23468 put create variables into context
-            		addSiteCreationValuesIntoContext(context,state);
+			addSiteCreationValuesIntoContext(context,state);
 
 			
 			return (String) getContext(data).get("template") + TEMPLATE[0];
@@ -1625,7 +1625,7 @@ public class SiteAction extends PagedResourceActionII {
 				types.addAll(mTypes);
 			}
 			context.put("siteTypes", types);
-            context.put("templateControls", ServerConfigurationService.getString("templateControls", ""));
+			context.put("templateControls", ServerConfigurationService.getString("templateControls", ""));
 			// put selected/default site type into context
 			String typeSelected = (String) state.getAttribute(STATE_TYPE_SELECTED);
 			context.put("typeSelected", state.getAttribute(STATE_TYPE_SELECTED) != null?state.getAttribute(STATE_TYPE_SELECTED):types.get(0));
@@ -1633,11 +1633,11 @@ public class SiteAction extends PagedResourceActionII {
 			// bjones86 - SAK-23256
 			Boolean hasTerms = Boolean.FALSE;
 			List<AcademicSession> termList = setTermListForContext( context, state, true, true ); // true => only
-            if( termList != null && termList.size() > 0 )
-            {
-            	hasTerms = Boolean.TRUE;
-            }
-            context.put( CONTEXT_HAS_TERMS, hasTerms );
+			if( termList != null && termList.size() > 0 )
+			{
+				hasTerms = Boolean.TRUE;
+			}
+			context.put( CONTEXT_HAS_TERMS, hasTerms );
 			
 			// upcoming terms
 			setSelectedTermForContext(context, state, STATE_TERM_SELECTED);
@@ -1684,7 +1684,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("importSites", state.getAttribute(STATE_IMPORT_SITES));
 			if (site != null)
 			{
-                MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
+				MathJaxEnabler.addMathJaxSettingsToEditToolsContext(context, site, state);  // SAK-22384
 				context.put("SiteTitle", site.getTitle());
 				context.put("existSite", Boolean.TRUE);
 				context.put("backIndex", "12");	// back to site info list page
@@ -1834,8 +1834,8 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("published", Boolean.valueOf(siteInfo.published));
 			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
-                        
-            // bjones86 - SAK-24423 - add joinable site settings to context
+
+			// bjones86 - SAK-24423 - add joinable site settings to context
 			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
 
 			context.put("importSiteTools", state
@@ -2281,52 +2281,52 @@ public class SiteAction extends PagedResourceActionII {
 							boolean preview = Boolean.valueOf(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW));
 							String groupMembers = "";
 							int size = 0;
-			    			try
-			    			{
-			    				AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
-			    				Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
-			    				size = gMembers.size();
-			    				if (size > 0)
-			    				{
-			    					Set<String> hiddenUsers = new HashSet<String>();
-			    					boolean viewHidden = viewHidden = SecurityService.unlock("roster.viewHidden", site.getReference()) || SecurityService.unlock("roster.viewHidden", g.getReference());
-			    					if(!SiteService.allowViewRoster(siteId) && !viewHidden){
-			    						//find hidden users in this group:
-			    						//add hidden users to set so we can filter them out
-			    			        	Set<String> memberIds = new HashSet<String>();
-			    			        	for(Member member : gMembers){
-			    			        		memberIds.add(member.getUserId());
-			    			        	}
-			    			        	hiddenUsers = privacyManager.findHidden(site.getReference(), memberIds);
-			    					}
-				    				for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
-				    		        	Member p = (Member) gItr.next();
-				    		        	
-				    		        	// exclude those user with provided roles and rosters
-				    		        	String userId = p.getUserId();
-				    		        	if(!hiddenUsers.contains(userId)){
-				    		        		try
-				    		        		{
-				    		        			User u = UserDirectoryService.getUser(userId);
-				    		        			if(!"".equals(groupMembers)){
-				    		        				groupMembers += ", ";
-				    		        			}
-				    		        			groupMembers += u.getDisplayName();
-				    		        		}
-				    		        		catch (Exception e)
-				    		        		{
-				    		        			M_log.debug(this + "joinablegroups: cannot find user with id " + userId);
-				    		        			// need to remove the group member
-				    		        			size--;
-				    		        		}
-				    		        	}
-				    				}
-			    				}
-			    			}
-			    			catch (GroupNotDefinedException e)
-			    			{
-			    				M_log.debug(this + "joinablegroups: cannot find group " + group.getReference());
-			    			}
+							try
+							{
+								AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
+								Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
+								size = gMembers.size();
+								if (size > 0)
+								{
+									Set<String> hiddenUsers = new HashSet<String>();
+									boolean viewHidden = viewHidden = SecurityService.unlock("roster.viewHidden", site.getReference()) || SecurityService.unlock("roster.viewHidden", g.getReference());
+									if(!SiteService.allowViewRoster(siteId) && !viewHidden){
+										//find hidden users in this group:
+										//add hidden users to set so we can filter them out
+										Set<String> memberIds = new HashSet<String>();
+										for(Member member : gMembers){
+											memberIds.add(member.getUserId());
+										}
+										hiddenUsers = privacyManager.findHidden(site.getReference(), memberIds);
+									}
+									for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
+										Member p = (Member) gItr.next();
+										
+										// exclude those user with provided roles and rosters
+										String userId = p.getUserId();
+										if(!hiddenUsers.contains(userId)){
+											try
+											{
+												User u = UserDirectoryService.getUser(userId);
+												if(!"".equals(groupMembers)){
+													groupMembers += ", ";
+												}
+												groupMembers += u.getDisplayName();
+											}
+											catch (Exception e)
+											{
+												M_log.debug(this + "joinablegroups: cannot find user with id " + userId);
+												// need to remove the group member
+												size--;
+											}
+									}
+									}
+								}
+							}
+							catch (GroupNotDefinedException e)
+							{
+								M_log.debug(this + "joinablegroups: cannot find group " + group.getReference());
+							}
 							joinableGroups.add(new JoinableGroup(reference, title, joinableSet, size, max, groupMembers, preview));
 						}
 					}
@@ -2360,17 +2360,17 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			
 			// UVa add realm object to context so we can provide last modified time
-            realmId = SiteService.siteReference(site.getId());
-            try {
-                    AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-                    context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
-            } catch (GroupNotDefinedException e) {
-                    M_log.warn(this + "  IdUnusedException " + realmId);
-            }
-            
-            // SAK-22384 mathjax support
-            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-                        
+			realmId = SiteService.siteReference(site.getId());
+			try {
+				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
+			} catch (GroupNotDefinedException e) {
+				M_log.warn(this + "  IdUnusedException " + realmId);
+			}
+
+			// SAK-22384 mathjax support
+			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+
 			return (String) getContext(data).get("template") + TEMPLATE[12];
 
 		case 13:
@@ -2516,9 +2516,9 @@ public class SiteAction extends PagedResourceActionII {
 			// available languages in sakai.properties
 			List locales = getPrefLocales();	
 			context.put("locales",locales);
-            
-            // SAK-22384 mathjax support
-            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+
+			// SAK-22384 mathjax support
+			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
 						
 			return (String) getContext(data).get("template") + TEMPLATE[13];
 		case 14:
@@ -2580,10 +2580,10 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("oEmail", siteProperties.getProperty(Site.PROP_SITE_CONTACT_EMAIL));
 			context.put("siteUrls",  getSiteUrlsForAliasIds(siteInfo.siteRefAliases));
 			context.put("oSiteUrls", getSiteUrlsForSite(site));
-            
-            // SAK-22384 mathjax support
-            MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
-            
+
+			// SAK-22384 mathjax support
+			MathJaxEnabler.addMathJaxSettingsToSiteInfoContext(context, site, state);
+
 			return (String) getContext(data).get("template") + TEMPLATE[14];
 		case 15:
 			/*
@@ -2605,8 +2605,8 @@ public class SiteAction extends PagedResourceActionII {
 			String overridePageOrderSiteTypes = site.getProperties().getProperty(SiteConstants.SITE_PROPERTY_OVERRIDE_HIDE_PAGEORDER_SITE_TYPES);
 			// put tool selection into context
 			toolSelectionIntoContext(context, state, site_type, site.getId(), overridePageOrderSiteTypes);
-            MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
-            
+			MathJaxEnabler.addMathJaxSettingsToEditToolsConfirmationContext(context, site, state, STATE_TOOL_REGISTRATION_TITLE_LIST);  // SAK-22384            
+
 			return (String) getContext(data).get("template") + TEMPLATE[15];
 		case 18:
 			/*
@@ -2634,10 +2634,10 @@ public class SiteAction extends PagedResourceActionII {
 
 				context.put("shoppingPeriodInstructorEditable", ServerConfigurationService.getBoolean("delegatedaccess.shopping.instructorEditable", false));
 				context.put("viewDelegatedAccessUsers", ServerConfigurationService.getBoolean("delegatedaccess.siteaccess.instructorViewable", false));
-                                
-                // bjones86 - SAK-24423 - add joinable site settings to context
+
+				// bjones86 - SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNotNull( context, state, site, !unJoinableSiteTypes.contains( siteType ) );
-                                
+
 				if (siteType != null && !unJoinableSiteTypes.contains(siteType)) {
 					// site can be set as joinable
 					context.put("disableJoinable", Boolean.FALSE);
@@ -2686,7 +2686,7 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("disableJoinable", Boolean.TRUE);
 				}
 				
-                // bjones86 - SAK-24423 - add joinable site settings to context
+				// bjones86 - SAK-24423 - add joinable site settings to context
 				JoinableSiteSettings.addJoinableSiteSettingsToEditAccessContextWhenSiteIsNull( context, siteInfo, true );
 				
 				// the template site, if using one
@@ -2776,22 +2776,22 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("toolManager", ToolManager.getInstance());
 
-      AcademicSession thisAcademicSession = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
-      String emailId = null;
+			AcademicSession thisAcademicSession = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
+			String emailId = null;
 
-	    boolean prePopulateEmail = ServerConfigurationService.getBoolean("wsetup.mailarchive.prepopulate.email",true);
-      if(prePopulateEmail == true && state.getAttribute(STATE_TOOL_EMAIL_ADDRESS)==null){
-          if(thisAcademicSession!=null){
-              String siteTitle1 = siteInfo.title.replaceAll("[(].*[)]", "");
-              siteTitle1 = siteTitle1.trim();
-              siteTitle1 = siteTitle1.replaceAll(" ", "-");
-              emailId = siteTitle1;
-          }else{
-              emailId = StringUtils.deleteWhitespace(siteInfo.title);
-          }
-      }else{
-          emailId = (String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
-      }
+			boolean prePopulateEmail = ServerConfigurationService.getBoolean("wsetup.mailarchive.prepopulate.email",true);
+			if(prePopulateEmail == true && state.getAttribute(STATE_TOOL_EMAIL_ADDRESS)==null){
+				if(thisAcademicSession!=null){
+					String siteTitle1 = siteInfo.title.replaceAll("[(].*[)]", "");
+					siteTitle1 = siteTitle1.trim();
+					siteTitle1 = siteTitle1.replaceAll(" ", "-");
+					emailId = siteTitle1;
+				}else{
+					emailId = StringUtils.deleteWhitespace(siteInfo.title);
+				}
+			}else{
+				emailId = (String) state.getAttribute(STATE_TOOL_EMAIL_ADDRESS);
+			}
 
 			if (emailId != null) {
 				context.put("emailId", emailId);
@@ -3850,7 +3850,7 @@ public class SiteAction extends PagedResourceActionII {
 	}	
 
 	// SAK-23468 
-        private void clearNewSiteStateParameters(SessionState state) {
+	private void clearNewSiteStateParameters(SessionState state) {
 		state.removeAttribute(STATE_NEW_SITE_STATUS_ISPUBLISHED);
 		state.removeAttribute(STATE_NEW_SITE_STATUS_ID);
 		state.removeAttribute(STATE_NEW_SITE_STATUS_TITLE);
@@ -3875,7 +3875,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("skins", state.getAttribute(STATE_ICONS));
 		}
 		else
-	        {
+		{
 			context.put("allowSkinChoice", Boolean.FALSE);
 		}
 			
@@ -4066,21 +4066,21 @@ public class SiteAction extends PagedResourceActionII {
 			ResetOnCloseInputStream fileInput = null; 
 			long fileSize=0;
 			try { 
-			    // Write to temp file, this should probably be in the velocity util?
+				// Write to temp file, this should probably be in the velocity util?
 				File tempFile = null;
-			    tempFile = File.createTempFile("importFile", ".tmp");
-			    // Delete temp file when program exits.
-			    tempFile.deleteOnExit();
+				tempFile = File.createTempFile("importFile", ".tmp");
+				// Delete temp file when program exits.
+				tempFile.deleteOnExit();
 	
-			    InputStream fileInputStream = fileFromUpload.getInputStream();
-			    
-			    FileOutputStream outBuf = new FileOutputStream(tempFile);
-			    byte[] bytes = new byte[102400];
-			    int read = 0;
+				InputStream fileInputStream = fileFromUpload.getInputStream();
+				
+				FileOutputStream outBuf = new FileOutputStream(tempFile);
+				byte[] bytes = new byte[102400];
+				int read = 0;
 				while ((read = fileInputStream.read(bytes)) != -1) {
 					outBuf.write(bytes, 0, read);
 				}
-			 
+			
 				fileInputStream.close();
 				outBuf.flush();
 				outBuf.close();
@@ -4097,7 +4097,7 @@ public class SiteAction extends PagedResourceActionII {
 			if (fileSize >= max_bytes) {
 				addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
 			}
-		    else if (fileSize > 0) {
+			else if (fileSize > 0) {
 
 				if (fileInput != null && importService.isValidArchive(fileInput)) {
 					ImportDataSource importDataSource = importService
@@ -4979,7 +4979,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 		}
 		if ( site == null && autoContext ) {
-                        String siteId = ToolManager.getCurrentPlacement().getContext();
+			String siteId = ToolManager.getCurrentPlacement().getContext();
 			try {
 				site = SiteService.getSite(siteId);
 				state.setAttribute(STATE_SITE_INSTANCE_ID, siteId);
@@ -5212,7 +5212,7 @@ public class SiteAction extends PagedResourceActionII {
 			siteInfo.joinerRole = templateSite.getJoinerRole();
 			//siteInfo.include = false;
 			
-            // bjones86 - SAK-24423 - update site info for joinable site settings
+			// bjones86 - SAK-24423 - update site info for joinable site settings
 			JoinableSiteSettings.updateSiteInfoFromSitePropertiesOnSelectTemplate( templateSite.getProperties(), siteInfo );
 			
 			List<String> toolIdsSelected = new Vector<String>();
@@ -5628,7 +5628,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				toolGroup.put(groupName, toolList);
 			}
 		}
-      
+
 		// add ungroups tools to end of toolGroup list
 		String ungroupedName = getGroupName(UNGROUPED_TOOL_TITLE);
 		List ungroupedList = getUngroupedTools(ungroupedName,	 toolGroup, state, moreInfoDir, site);
@@ -6855,13 +6855,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// SAK-18976:Site Requests Generated by entering instructor's User ID fail to add term properties and fail to send site request approval email
 
 			List<String> authorizerList = (List) state
-                            .getAttribute(STATE_CM_AUTHORIZER_LIST);
+							.getAttribute(STATE_CM_AUTHORIZER_LIST);
 			
 			
-            if (authorizerList == null) {
-                    authorizerList = new ArrayList();
-            }
-            if (requestId != null) {
+			if (authorizerList == null) {
+				authorizerList = new ArrayList();
+			}
+			if (requestId != null) {
 				// in case of multiple instructors
 				List instructors = new ArrayList(Arrays.asList(requestId.split(",")));
 				
@@ -6869,11 +6869,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				{
 					String instructorId = (String) iInstructors.next();
 
-                    authorizerList.add(instructorId);
+					authorizerList.add(instructorId);
 				}
-            }
-            
-            String requestSectionInfo = "";
+			}
+
+			String requestSectionInfo = "";
 			// requested sections
 			if ("manual".equals(fromContext))
 			{
@@ -7036,8 +7036,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.removeAttribute(STATE_MESSAGE);
 			removeEditToolState(state);
 		} else if (getStateSite(state) != null && ("13".equals(currentIndex) || "14".equals(currentIndex)))
-        {
-            MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
+		{
+			MathJaxEnabler.removeMathJaxAllowedAttributeFromState(state);  // SAK-22384
 			state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 		} else if ("15".equals(currentIndex)) {
 			params = data.getParameters();
@@ -7376,12 +7376,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site site = getStateSite(state);
 		
 		saveFeatures(params, state, site);
-        
-        // SAK-22384
-        if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
-        {
-            commitSite(site);
-        }
+
+		// SAK-22384
+		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
+		{
+			commitSite(site);
+		}
 		
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
@@ -7590,7 +7590,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// Clean up state on our first entry from a shortcut
-                String panel = data.getParameters().getString("panel");
+		String panel = data.getParameters().getString("panel");
 		if ( "Shortcut".equals(panel) ) cleanState(state);
 
 		// get the tools
@@ -7645,8 +7645,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 			state.setAttribute(STATE_JOINERROLE, joinerRole); 
-                        
-            // bjones86 - SAK-24423 - update state for joinable site settings
+
+			// bjones86 - SAK-24423 - update state for joinable site settings
 			JoinableSiteSettings.updateStateFromSitePropertiesOnEditAccessOrNewSite( site.getProperties(), state );
 		}
 		catch (Exception e)
@@ -7725,9 +7725,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				
 		siteProperties.removeProperty(PROP_SITE_LANGUAGE);		
 		siteProperties.addProperty(PROP_SITE_LANGUAGE, locale_string);
-        
-        // SAK-22384 mathjax support
-        MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
+
+		// SAK-22384 mathjax support
+		MathJaxEnabler.prepareMathJaxAllowedSettingsForSave(Site, state);
 				
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			try {
@@ -8140,10 +8140,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// create list of all partcipants that have been 'Charles Bronson-ed'
 		Set<String> removedParticipantIds = new HashSet();
 		Set<String> deactivatedParticipants = new HashSet();
-                if (params.getStrings("selectedUser") != null) {
-                	List removals = new ArrayList(Arrays.asList(params.getStrings("selectedUser")));
-                      	for (int i = 0; i < removals.size(); i++) {
-                        	String rId = (String) removals.get(i);
+		if (params.getStrings("selectedUser") != null) {
+			List removals = new ArrayList(Arrays.asList(params.getStrings("selectedUser")));
+			for (int i = 0; i < removals.size(); i++) {
+				String rId = (String) removals.get(i);
 				removedParticipantIds.add(rId);
 			}
 		}
@@ -8153,12 +8153,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String activeGrantId = statusParticipant.getUniqname();
 			String activeGrantField = "activeGrant" + activeGrantId;
 		
-     			if (params.getString(activeGrantField) != null) { 
-      				boolean activeStatus = params.getString(activeGrantField).equalsIgnoreCase("true") ? true : false;
+			if (params.getString(activeGrantField) != null) { 
+				boolean activeStatus = params.getString(activeGrantField).equalsIgnoreCase("true") ? true : false;
 				if (activeStatus == false) {
 					deactivatedParticipants.add(activeGrantId);
 				}
-			} 	
+			}
 		}
 
 
@@ -8201,11 +8201,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// list of all removed user
 		List<String> usersDeleted = new Vector<String>();
 	
-                if (AuthzGroupService.allowUpdate(realmId)
-                                || SiteService.allowUpdateSiteMembership(s.getId())) {
+		if (AuthzGroupService.allowUpdate(realmId)
+						|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
-                                AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 
@@ -8220,11 +8220,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				// SAK23029 - proposed changes do not leave site w/o maintainers; proceed with any allowed updates
 			
-                                // list of roles being added or removed
-                                HashSet<String>roles = new HashSet<String>();
-                                
-                                // List used for user auditing
-                                List<String[]> userAuditList = new ArrayList<String[]>();
+				// list of roles being added or removed
+				HashSet<String>roles = new HashSet<String>();
+
+				// List used for user auditing
+				List<String[]> userAuditList = new ArrayList<String[]>();
 
 				// remove all roles and then add back those that were checked
 				for (int i = 0; i < participants.size(); i++) {
@@ -8308,10 +8308,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 						}
 					}
-				  }
+				}
 
-				  // remove selected users
-				  if (params.getStrings("selectedUser") != null) {
+				 // remove selected users
+				 if (params.getStrings("selectedUser") != null) {
 					List removals = new ArrayList(Arrays.asList(params
 							.getStrings("selectedUser")));
 					state.setAttribute(STATE_SELECTED_USER_LIST, removals);
@@ -8350,40 +8350,40 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						}
 					}
-				  }
+				}
 
-				  // if user doesn't have update, don't let them add or remove any role with site.upd in it.
+				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
 
-				  if (!AuthzGroupService.allowUpdate(realmId)) {
-				    // see if any changed have site.upd
-				    for (String rolename: roles) {
+				if (!AuthzGroupService.allowUpdate(realmId)) {
+					// see if any changed have site.upd
+					for (String rolename: roles) {
 						Role role = realmEdit.getRole(rolename);
 						if (role != null && role.isAllowed("site.upd")) {
-						    addAlert(state, rb.getFormattedMessage("java.roleperm", new Object[]{rolename}));
-						    return;
+							addAlert(state, rb.getFormattedMessage("java.roleperm", new Object[]{rolename}));
+							return;
 							}
-					    }
-				  }
-				  AuthzGroupService.save(realmEdit);
-				  
-				  // do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
-				  // but seems to be a better solution than call this multiple time for every update
-				  if (!userAuditList.isEmpty())
-				  {
-				  	userAuditRegistration.addToUserAuditing(userAuditList);
-				  }
+						}
+				}
+				AuthzGroupService.save(realmEdit);
+				
+				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
+				// but seems to be a better solution than call this multiple time for every update
+				if (!userAuditList.isEmpty())
+				{
+					userAuditRegistration.addToUserAuditing(userAuditList);
+				}
 
-				  // then update all related group realms for the role
-				  doUpdate_related_group_participants(s, realmId);
+				// then update all related group realms for the role
+				doUpdate_related_group_participants(s, realmId);
 
-				  // post event about the participant update
-				  EventTrackingService.post(EventTrackingService.newEvent(
+				// post event about the participant update
+				EventTrackingService.post(EventTrackingService.newEvent(
 						SiteService.SECURE_UPDATE_SITE_MEMBERSHIP,
 						realmEdit.getId(), false));
 
-				  // check the configuration setting, whether logging membership
-				  // change at individual level is allowed
-				  if (ServerConfigurationService.getBoolean(
+				// check the configuration setting, whether logging membership
+				// change at individual level is allowed
+				if (ServerConfigurationService.getBoolean(
 						SiteHelper.WSETUP_TRACK_USER_MEMBERSHIP_CHANGE, false)) {
 					// event for each individual update
 					for (String userChangedRole : userUpdated) {
@@ -8401,7 +8401,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 												org.sakaiproject.site.api.SiteService.EVENT_USER_SITE_MEMBERSHIP_REMOVE,
 												userDeleted, true));
 					}
-				 }
+				}
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
 				M_log.warn(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
@@ -8545,8 +8545,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				state.removeAttribute(STATE_JOINABLE);
 				state.removeAttribute(STATE_JOINERROLE);
-                                
-                // bjones86 - SAK-24423 - remove joinable site settings from the state
+
+				// bjones86 - SAK-24423 - remove joinable site settings from the state
 				JoinableSiteSettings.removeJoinableSiteSettingsFromState( state );
 			}
 		} else {
@@ -8562,10 +8562,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				// joinable site or not
 				boolean joinable = state.getAttribute(STATE_JOINABLE) != null ? ((Boolean) state.getAttribute(STATE_JOINABLE)).booleanValue() : null;
-                                
-                // bjones86 - SAK-24423 - update site info for joinable site settings
+
+				// bjones86 - SAK-24423 - update site info for joinable site settings
 				JoinableSiteSettings.updateSiteInfoFromStateOnSiteUpdate( state, siteInfo, joinable );
-                                
+
 				if (joinable) {
 					siteInfo.joinable = true;
 					String joinerRole = state.getAttribute(STATE_JOINERROLE) != null ? (String) state.getAttribute(STATE_JOINERROLE) : null;
@@ -8652,10 +8652,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			} else {
 				addAlert(state, rb.getString("java.joinsite") + " ");
 			}
-                        
-            // bjones86 - SAK-24423 - update site properties for joinable site settings
+
+			// bjones86 - SAK-24423 - update site properties for joinable site settings
 			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteUpdate( sEdit.getPropertiesEdit(), state );
-                        
+
 		} else if ( !joinable || 
 				(!joinable && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
 			sEdit.setJoinable(false);
@@ -9009,7 +9009,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							
 							// An event for starting the "duplicate site" action
 							EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_DUPLICATE_START, sourceSiteRef, site.getId(), false, NotificationService.NOTI_OPTIONAL));
-                        
+
 							// get the new site icon url
 							if (site.getIconUrl() != null)
 							{
@@ -9484,13 +9484,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			// importing from template, bypass the permission checking:
 			// temporarily allow the user to read and write from assignments (asn.revise permission)
-	        SecurityService.pushAdvisor(new SecurityAdvisor()
-	            {
-	                public SecurityAdvice isAllowed(String userId, String function, String reference)
-	                {
-	                    return SecurityAdvice.ALLOWED;
-	                }
-	            });
+			SecurityService.pushAdvisor(new SecurityAdvisor()
+			{
+				public SecurityAdvice isAllowed(String userId, String function, String reference)
+				{
+					return SecurityAdvice.ALLOWED;
+				}
+			});
 		}
 				
 		List pageList = site.getPages();
@@ -9531,15 +9531,15 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					else {
 						// other
 						// tools
-                        // SAK-19686 - added if statement and toolsCopied.add
-                        if (!toolsCopied.contains(toolId)) {
-                        	Map<String,String> entityMap = transferCopyEntities(toolId,
-                                         oSiteId, nSiteId);
-                        	if(entityMap != null){							 
-    							transversalMap.putAll(entityMap);
-    						}
-                            toolsCopied.add(toolId);
-                        }
+						// SAK-19686 - added if statement and toolsCopied.add
+						if (!toolsCopied.contains(toolId)) {
+							Map<String,String> entityMap = transferCopyEntities(toolId,
+										oSiteId, nSiteId);
+							if(entityMap != null){							 
+								transversalMap.putAll(entityMap);
+							}
+							toolsCopied.add(toolId);
+						}
 					}
 				}
 			}
@@ -9565,7 +9565,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		{
 			SecurityService.popAdvisor();
 		}
-      
+
 	}
 	/**
 	 * get user answers to setup questions
@@ -9724,8 +9724,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		}
 
-                //reload the site object after changes group realms have been removed from the site.
-                site = getStateSite(state); 
+		//reload the site object after changes group realms have been removed from the site.
+		site = getStateSite(state); 
 
 		// the manual request course into properties
 		setSiteSectionProperty(manualCourseSectionList, site, PROP_SITE_REQUEST_COURSE);
@@ -9929,8 +9929,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			// set the joiner role
 			String joinerRole = (String) state.getAttribute("form_joinerRole");
 			s.setJoinerRole(joinerRole);
-                        
-            // bjones86 - SAK-24423 - update site properties for joinable site settings
+
+			// bjones86 - SAK-24423 - update site properties for joinable site settings
 			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteInfoSaveGlobalAccess( s.getPropertiesEdit(), state );
 		}
 
@@ -9976,8 +9976,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 			// Make changes and then put changed site back in state
 			String id = site.getId();
-                        
-            // bjones86 - SAK-24423 - update site properties for joinable site settings
+
+			// bjones86 - SAK-24423 - update site properties for joinable site settings
 			JoinableSiteSettings.updateSitePropertiesFromStateOnUpdateSiteAttributes( site, state );
 
 			try {
@@ -10019,13 +10019,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		siteInfo.site_type = (String) state.getAttribute(STATE_SITE_TYPE);
 		// title
 		boolean hasRosterAttached = params.getString("hasRosterAttached") != null ? Boolean.getBoolean(params.getString("hasRosterAttached")) : false;
-        if ((siteTitleEditable(state, siteInfo.site_type) || !hasRosterAttached) && params.getString("title") != null) 	 
-        { 	 
+		if ((siteTitleEditable(state, siteInfo.site_type) || !hasRosterAttached) && params.getString("title") != null) 	 
+		{ 	 
 			// site titel is editable and could not be null
-        	String title = StringUtils.trimToNull(params.getString("title"));
-        	siteInfo.title = title;
+			String title = StringUtils.trimToNull(params.getString("title"));
+			siteInfo.title = title;
 			
-        	if (title == null) { 	 
+			if (title == null) { 	 
 				addAlert(state, rb.getString("java.specify") + " "); 	 
 			} 	 
 			// check for site title length 	 
@@ -10033,7 +10033,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			{ 	 
 				addAlert(state, rb.getFormattedMessage("site_group_title_length_limit", new Object[]{SiteConstants.SITE_GROUP_TITLE_LIMIT})); 	 
 			}
-        }
+		}
 				
 		if (params.getString("description") != null) {
 			StringBuilder alertMsg = new StringBuilder();
@@ -10043,23 +10043,23 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (params.getString("short_description") != null) {
 			siteInfo.short_description = params.getString("short_description");
 		}
-        String skin = params.getString("skin"); 	 
-        if (skin != null) { 	 
-                // if there is a skin input for course site 	 
-                skin = StringUtils.trimToNull(skin);
-                siteInfo.iconUrl = skin; 	 
-        } else { 	 
-                // if ther is a icon input for non-course site 	 
-                String icon = StringUtils.trimToNull(params.getString("icon")); 	 
-                if (icon != null) { 	 
-                        if (icon.endsWith(PROTOCOL_STRING)) { 	 
-                                addAlert(state, rb.getString("alert.protocol")); 	 
-                        } 	 
-                        siteInfo.iconUrl = icon; 	 
-                } else { 	 
-                	siteInfo.iconUrl = "";
-                } 	 
-        } 	 
+		String skin = params.getString("skin"); 	 
+		if (skin != null) { 	 
+			// if there is a skin input for course site 	 
+			skin = StringUtils.trimToNull(skin);
+			siteInfo.iconUrl = skin; 	 
+		} else { 	 
+			// if ther is a icon input for non-course site 	 
+			String icon = StringUtils.trimToNull(params.getString("icon")); 	 
+			if (icon != null) { 	 
+				if (icon.endsWith(PROTOCOL_STRING)) { 	 
+					addAlert(state, rb.getString("alert.protocol")); 	 
+				} 	 
+				siteInfo.iconUrl = icon; 	 
+			} else { 	 
+				siteInfo.iconUrl = "";
+			} 	 
+		} 	 
 		if (params.getString("additional") != null) {
 			siteInfo.additional = params.getString("additional");
 		}
@@ -10081,8 +10081,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.published = Boolean
 					.valueOf(params.getString("itemStatus")).booleanValue();
 		}
-                
-        // bjones86 - SAK-24423 - update site info for joinable site settings
+
+		// bjones86 - SAK-24423 - update site info for joinable site settings
 		JoinableSiteSettings.updateSiteInfoFromParams( params, siteInfo );
 
 		// site contact information
@@ -10686,11 +10686,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// commit
 		commitSite(site);
 		
-        site = refreshSiteObject(site);
-        
-        // check the status of external lti tools
-        // 1. any lti tool to remove?
-        HashMap<String, Map<String, Object>> ltiTools = state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null?(HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST):null;
+		site = refreshSiteObject(site);
+
+		// check the status of external lti tools
+		// 1. any lti tool to remove?
+		HashMap<String, Map<String, Object>> ltiTools = state.getAttribute(STATE_LTITOOL_SELECTED_LIST) != null?(HashMap<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_SELECTED_LIST):null;
 		Map<String, Map<String, Object>> oldLtiTools = state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) != null? (Map<String, Map<String, Object>>) state.getAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST) : null;;
 		if (oldLtiTools != null)
 		{
@@ -10708,44 +10708,44 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			}
 		}
-        
-        // 2. any lti tool to add?
-        if (ltiTools != null)
-        {
-            // then looking for any lti tool to add
-            for (Map.Entry<String, Map<String, Object>> ltiTool : ltiTools.entrySet()) {
-                String ltiToolId = ltiTool.getKey();
-                if (!oldLtiTools.containsKey(ltiToolId))
-                {
-	                Map<String, Object> toolValues = ltiTool.getValue();
-	                Properties reqProperties = (Properties) toolValues.get("reqProperties");
-	                if (reqProperties==null) {
-	                	reqProperties = new Properties();
-	                }
-	                Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
-	                if (retval instanceof String)
-	                {
-	                	// error inserting tool content
-	                	addAlert(state, (String) retval);
-	                	break;
-	                }
-	                else
-	                {
-	                	// success inserting tool content
-	                	String pageTitle = reqProperties.getProperty("pagetitle");
-	                	retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
-	                	if (retval instanceof String)
-	                	{
-		        			addAlert(state, ((String) retval).substring(2));
-		        			break;
-	                	}
-	                }
-                }
-                // refresh the site object
-                site = refreshSiteObject(site);
-            }
+
+		// 2. any lti tool to add?
+		if (ltiTools != null)
+		{
+			// then looking for any lti tool to add
+			for (Map.Entry<String, Map<String, Object>> ltiTool : ltiTools.entrySet()) {
+				String ltiToolId = ltiTool.getKey();
+				if (!oldLtiTools.containsKey(ltiToolId))
+				{
+					Map<String, Object> toolValues = ltiTool.getValue();
+					Properties reqProperties = (Properties) toolValues.get("reqProperties");
+					if (reqProperties==null) {
+						reqProperties = new Properties();
+					}
+					Object retval = m_ltiService.insertToolContent(null, ltiToolId, reqProperties, site.getId());
+					if (retval instanceof String)
+					{
+						// error inserting tool content
+						addAlert(state, (String) retval);
+						break;
+					}
+					else
+					{
+						// success inserting tool content
+						String pageTitle = reqProperties.getProperty("pagetitle");
+						retval = m_ltiService.insertToolSiteLink(((Long) retval).toString(), pageTitle, site.getId());
+						if (retval instanceof String)
+						{
+							addAlert(state, ((String) retval).substring(2));
+							break;
+						}
+					}
+				}
+				// refresh the site object
+				site = refreshSiteObject(site);
+			}
 		} // if
-        
+
 
 		// reorder Home and Site Info only if the site has not been customized order before
 		if (!site.isCustomPageOrdered())
@@ -10810,7 +10810,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// commit
 		commitSite(site);
 		
-        site = refreshSiteObject(site);
+		site = refreshSiteObject(site);
 
 		// import
 		importToolIntoSite(chosenList, importTools, site);
@@ -10902,13 +10902,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Set<Tool> tools = ToolManager.findTools(Collections.emptySet(), null);
 		Set<String> categories = tool.getCategories();
 		Iterator<String> iterator = categories.iterator();
-	    while(iterator.hasNext()) {
-	        String nextCat = iterator.next();
-	        if(nextCat.equals(siteType)) {
-	            return true;
-	        }
-	    }
-	    return false;	        
+		while(iterator.hasNext()) {
+			String nextCat = iterator.next();
+			if(nextCat.equals(siteType)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 
@@ -11365,8 +11365,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// if the site was created from template
 					rp.addProperty(TEMPLATE_USED, templateSite.getId());
 				}
-                                
-                // bjones86 - SAK-24423 - update site properties for joinable site settings
+
+				// bjones86 - SAK-24423 - update site properties for joinable site settings
 				JoinableSiteSettings.updateSitePropertiesFromSiteInfoOnAddNewSite( siteInfo, rp );
 
 				state.setAttribute(STATE_SITE_INSTANCE_ID, site.getId());
@@ -11399,7 +11399,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 * @param state
 	 */
 	private void setTemplateListForContext(Context context, SessionState state)
-	{   
+	{
 		List<Site> templateSites = new ArrayList<Site>();
 	
 		boolean allowedForTemplateSites = true;
@@ -11473,7 +11473,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					siteInfo.term = term;
 				}
 				
-                // bjones86 - SAK-24423 - update site info for joinable site settings
+				// bjones86 - SAK-24423 - update site info for joinable site settings
 				JoinableSiteSettings.updateSiteInfoFromSiteProperties( siteProperties, siteInfo );
 				
 				// site contact information
@@ -11800,7 +11800,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		state.removeAttribute(STATE_TOOL_REGISTRATION_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_TITLE_LIST);
 		state.removeAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
-        MathJaxEnabler.removeMathJaxToolsAttributeFromState(state);  // SAK-22384
+		MathJaxEnabler.removeMathJaxToolsAttributeFromState(state);  // SAK-22384
 	}
 
 	private List orderToolIds(SessionState state, String type, List<String> toolIdList, boolean synoptic) {
@@ -12007,9 +12007,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("continue")) {
 			// continue
-            
-            MathJaxEnabler.applyToolSettingsToState(state, site, params);  // SAK-22384
-            
+			MathJaxEnabler.applyToolSettingsToState(state, site, params);  // SAK-22384
+
 			doContinue(data);
 		} else if (option.equalsIgnoreCase("back")) {
 			// back
@@ -12394,16 +12393,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		public boolean selected = false;
 		
-        public boolean multiple = false;
+		public boolean multiple = false;
 
-        public String group = NULL_STRING;
+		public String group = NULL_STRING;
 
-        public String moreInfo = NULL_STRING;
-        
-        public HashMap<String,MyTool> multiples = new HashMap<String,MyTool>();
+		public String moreInfo = NULL_STRING;
 
-        public boolean required = false;
-        
+		public HashMap<String,MyTool> multiples = new HashMap<String,MyTool>();
+
+		public boolean required = false;
+
 		public String getId() {
 			return id;
 		}
@@ -12552,8 +12551,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		public String term = NULL_STRING; // academic term
 		
 		public ResourceProperties properties = new BaseResourcePropertiesEdit();
-                
-        // bjones86 - SAK-24423 - joinable site settings
+
+		// bjones86 - SAK-24423 - joinable site settings
 		public String joinerGroup = NULL_STRING;
 		public String getJoinerGroup()
 		{ 
@@ -13013,12 +13012,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Collection iframeTools = new ArrayList<Tool>();
 			iframeTools = site.getTools(new String[] {WEB_CONTENT_TOOL_ID});
 			if (iframeTools != null && iframeTools.size() > 0) {
-			    for (Iterator i = iframeTools.iterator(); i.hasNext();) {
-			       ToolConfiguration tool = (ToolConfiguration) i.next();
-			       if (!tool.getPlacementConfig().containsKey("special")) {
-			           displayWebContent = true;
-			       }
-			    }
+				for (Iterator i = iframeTools.iterator(); i.hasNext();) {
+					ToolConfiguration tool = (ToolConfiguration) i.next();
+					if (!tool.getPlacementConfig().containsKey("special")) {
+						displayWebContent = true;
+					}
+				}
 			}
 
 			if (site.getToolForCommonId(NEWS_TOOL_ID) != null)
@@ -13320,14 +13319,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return resultedList;
 	} // prepareCourseAndSectionListing
 
-        /* SAK-25400 template site types duplicated in list
+	/* SAK-25400 template site types duplicated in list
 	 * Sort template sites by type   
- 	 **/
-        private Collection sortTemplateSitesByType(Collection<Site> templates) {
-                String[] sortKey = {"type"};
-                String[] sortOrder = {"asc"};
-                return sortCmObject(templates, sortKey, sortOrder);
-        }
+	 **/
+	private Collection sortTemplateSitesByType(Collection<Site> templates) {
+		String[] sortKey = {"type"};
+		String[] sortOrder = {"asc"};
+		return sortCmObject(templates, sortKey, sortOrder);
+	}
 
 	/**
 	 * Helper method for sortCmObject 
@@ -13474,12 +13473,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			this.category = section.getCategory();
 			List<String> authorizers = new ArrayList<String>();
 			if (section.getEnrollmentSet() != null){
-			        Set<String> instructorset = section.getEnrollmentSet().getOfficialInstructors();
-			        if (instructorset != null) {
-		                for (String instructor:instructorset) {
-		                	authorizers.add(instructor);
-		                }
-			        }
+				Set<String> instructorset = section.getEnrollmentSet().getOfficialInstructors();
+				if (instructorset != null) {
+					for (String instructor:instructorset) {
+						authorizers.add(instructor);
+					}
+				}
 			}
 			this.authorizer = authorizers;
 			this.categoryDescription = cms
@@ -14541,7 +14540,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.joinerRole = templateSite.getJoinerRole();
 			state.setAttribute(STATE_SITE_INFO, siteInfo);
 			
-            // bjones86 - SAK-24423 - update site info for joinable site settings
+			// bjones86 - SAK-24423 - update site info for joinable site settings
 			JoinableSiteSettings.updateSiteInfoFromParams( params, siteInfo );
 			
 			// whether to copy users or site content over?
@@ -14632,9 +14631,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		else if ("continue".equals(option))
 		{
 			// continue with site information edit
-            
-            MathJaxEnabler.applyAllowedSettingsToState(state, params);  // SAK-22384
-            
+
+			MathJaxEnabler.applyAllowedSettingsToState(state, params);  // SAK-22384
+
 			doContinue(data);
 		}
 		else if ("back".equals(option))
@@ -14667,8 +14666,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	{
 		// Initialize list of supported locales, if necessary
 		if (prefLocales.size() == 0) {
-		    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
-		    Locale[] localeArray = scs.getSakaiLocales();
+			org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
+			Locale[] localeArray = scs.getSakaiLocales();
 			// Add to prefLocales list
 			for (int i = 0; i < localeArray.length; i++) {
 				prefLocales.add(localeArray[i]);
@@ -14835,36 +14834,36 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		//get uploaded file into a location we can process
 		String archiveUnzipBase = ServerConfigurationService.getString("archive.storage.path", FileUtils.getTempDirectoryPath());
 	
-	    //convert inputstream into actual file so we can unzip it
-	    String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
-	    
-	    //rudimentary check that the file is a zip file
-	    if(!StringUtils.endsWith(fi.getFileName(), ".zip")){
-	    	addAlert(state, rb.getString("archive.createsite.failedupload"));
-	    	return;
-	    }
-	    
-	    
-	    
-	    File tempZipFile = new File(zipFilePath);
-	    if(tempZipFile.exists()) {
-	    	tempZipFile.delete();
-	    }
-	    
-	    try {
-		    //copy contents into this file
-		    IOUtils.copyLarge(fi.getInputStream(), new FileOutputStream(tempZipFile));
-		    
-		    //set path into state so we can process it later
-		    state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
-		    state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, tempZipFile.getName());
-		    
-		} catch (Exception e) {
-	    	M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
+		//convert inputstream into actual file so we can unzip it
+		String zipFilePath = archiveUnzipBase + File.separator + fi.getFileName();
+		
+		//rudimentary check that the file is a zip file
+		if(!StringUtils.endsWith(fi.getFileName(), ".zip")){
 			addAlert(state, rb.getString("archive.createsite.failedupload"));
-	    }   
-	    	
-	    //go to confirm screen
+			return;
+		}
+		
+		
+		
+		File tempZipFile = new File(zipFilePath);
+		if(tempZipFile.exists()) {
+			tempZipFile.delete();
+		}
+		
+		try {
+			//copy contents into this file
+			IOUtils.copyLarge(fi.getInputStream(), new FileOutputStream(tempZipFile));
+			
+			//set path into state so we can process it later
+			state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
+			state.setAttribute(STATE_UPLOADED_ARCHIVE_NAME, tempZipFile.getName());
+			
+		} catch (Exception e) {
+			M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
+			addAlert(state, rb.getString("archive.createsite.failedupload"));
+		}
+		
+		//go to confirm screen
 		state.setAttribute(STATE_TEMPLATE_INDEX, "10");
 	}
 	
@@ -14877,20 +14876,20 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private void doMergeArchiveIntoNewSite(String siteId, SessionState state) {	
 		
-		 String currentUserId = userDirectoryService.getCurrentUser().getId();
+		String currentUserId = userDirectoryService.getCurrentUser().getId();
 		
-		 try {
-		   
-	    	String archivePath = (String)state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
-		    
-		    //merge the zip into our new site
-		    //we ignore the return because its not very useful. See ArchiveService for more details
-		    archiveService.mergeFromZip(archivePath, siteId, currentUserId);
-		    
+		try {
+		
+			String archivePath = (String)state.getAttribute(STATE_UPLOADED_ARCHIVE_PATH);
+			
+			//merge the zip into our new site
+			//we ignore the return because its not very useful. See ArchiveService for more details
+			archiveService.mergeFromZip(archivePath, siteId, currentUserId);
+			
 		} catch (Exception e) {
-	    	M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
+			M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
 			addAlert(state, rb.getString("archive.createsite.failedmerge"));
-	    }   
+		}
 		
 	}
 	
@@ -14916,4 +14915,3 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	}	
 
 }
-

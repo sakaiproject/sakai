@@ -6,7 +6,7 @@ toggler needs
     background: #cef !important;
     padding: 5px !important;
     cursor: pointer;
-	outline:none;
+    outline:none;
 }
  .toggleAnchor:hover{
     border: 1px solid #9cf;
@@ -18,25 +18,25 @@ toggler needs
     padding: .5em
 }
 #templateSettings, #siteTypeList, #archiveSettings{
-	padding:.5em;
-	background:#eee;
-	width:50em;
-	-webkit-border-radius:5px;
+    padding:.5em;
+    background:#eee;
+    width:50em;
+    -webkit-border-radius:5px;
    -moz-border-radius:5px; 
 }
 #siteTypeList p {
-	border:none;
-	padding:.1em 0;
-	margin:5px !important
+    border:none;
+    padding:.1em 0;
+    margin:5px !important
 }
 dl.defList{
 	margin:0;padding:0;
 }
 dl.defList dt, dl.defList dd{
-	padding:5px 0
+    padding:5px 0
 }
 dl.defList dd{
-	padding:5px 1em
+    padding:5px 1em
 }
 .getSiteDesc {
     margin-right: 20px;
@@ -44,7 +44,7 @@ dl.defList dd{
 }
 
 .ui-widget-content{
-	min-width: 30em;
+    min-width: 30em;
 }
 
 #templateSettings, #siteTypeList, #archiveSettings{
@@ -76,7 +76,7 @@ dl.defList dd{
     border-bottom: 1px solid #ccc;
 }
 #templateList li.siteTypeRow {
-        padding: 2px 5px;
+    padding: 2px 5px;
 }
 #allTemplateSettings {
     margin: 15px 5px 0;
@@ -89,8 +89,8 @@ dl.defList dd{
     border:1px solid #aaa !important
 }
 #templateSettingsTitleTermContainer {
-     padding:5px 8px;
-     float:left;
+    padding:5px 8px;
+    float:left;
 }
 #fromTemplateSettingsContainer {
     padding:5px 8px;
@@ -98,15 +98,15 @@ dl.defList dd{
 }
 
  #templateList li .templateName {
-     float: left;
-     width:25%;
-     overflow: hidden;
+    float: left;
+    width:25%;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 #templateList li .templateDescription {
-     float: right;
-     width:68%;
-     overflow: hidden;
+    float: right;
+    width:68%;
+    overflow: hidden;
     text-overflow: ellipsis;
 }
 #templateList li .templateDescription p:first-child {
@@ -159,12 +159,12 @@ dl.defList dd{
     text-transform: none;
 }
 #templateList li.siteTypeRow h4 a .siteType {
-        text-transform: capitalize;
-        padding:2px 8px;
-        background: #fff;
-        -webkit-border-radius: 3px;
-        -moz-border-radius: 3px;
-        border-radius: 3px;
+    text-transform: capitalize;
+    padding:2px 8px;
+    background: #fff;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
 }
 #templateList li.siteTypeRow h4 a:hover {
     border: 1px solid #cccdd1;
@@ -196,8 +196,8 @@ dl.defList dd{
     border: 1px solid #9d9d9d;
     padding:3px;
     -webkit-box-shadow:  2px 2px 2px 2px #CECECE;
-     box-shadow:  2px 2px 2px 2px #CECECE;
-     font-size: 90%;
+    box-shadow:  2px 2px 2px 2px #CECECE;
+    font-size: 90%;
 }
 #fromTemplateSettingsContainer_instruction_body:hover {
     cursor: pointer;
@@ -321,14 +321,14 @@ dl.defList dd{
     display: block
 }
  #toolHolder ul li div.toolListDesc, #toolHolder ul li div.toolListControl {
-     padding:5px
+    padding:5px
  }
  
  #toolHolder ul li div.toolListControl label {
-     color:#555;
+    color:#555;
  }
 #toolHolder ul li div.toolListDesc {
-     padding:0px 30px 5px 30px;
+    padding:0px 30px 5px 30px;
  }
 
 #toolHolder .checkedCount {
@@ -544,7 +544,7 @@ dl.defList dd{
 }
 
 .icon-sakai-sitestats-admin {
-        background-image: url(/library/image/silk/chart_line.png) !important;
+    background-image: url(/library/image/silk/chart_line.png) !important;
 }
 
 .icon-sakai-presentation {
@@ -596,7 +596,7 @@ dl.defList dd{
 }
 
 .icon-sakai-synoptic-messagecenter{
-background-image: url(/library/image/silk/comment.png) !important;
+    background-image: url(/library/image/silk/comment.png) !important;
 }
 
 .icon-sakai-conferencing {
@@ -721,45 +721,44 @@ background-image: url(/library/image/silk/comment.png) !important;
 #toolHolder h4.assessment a {
     color:#fff;
     border: 1px solid #a89e37;
-background: #bbb03d;
-background: -moz-linear-gradient(top, #bbb03d 0%, #928b36 100%);
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bbb03d), color-stop(100%,#928b36));
-background: -webkit-linear-gradient(top, #bbb03d 0%,#928b36 100%);
-background: -o-linear-gradient(top, #bbb03d 0%,#928b36 100%);
-background: -ms-linear-gradient(top, #bbb03d 0%,#928b36 100%);
-background: linear-gradient(to bottom, #bbb03d 0%,#928b36 100%);
+    background: #bbb03d;
+    background: -moz-linear-gradient(top, #bbb03d 0%, #928b36 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bbb03d), color-stop(100%,#928b36));
+    background: -webkit-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+    background: -o-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+    background: -ms-linear-gradient(top, #bbb03d 0%,#928b36 100%);
+    background: linear-gradient(to bottom, #bbb03d 0%,#928b36 100%);
 
 }
 #toolHolder h4.content a {
-color: #fff;
-border:1px solid #b80324;
-background: #d10329;
-background: -moz-linear-gradient(top, #d10329 0%, #bc0224 44%, #9e001d 100%);
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d10329), color-stop(44%,#bc0224), color-stop(100%,#9e001d));
-background: -webkit-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
-background: -o-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
-background: -ms-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
-background: linear-gradient(to bottom, #d10329 0%,#bc0224 44%,#9e001d 100%);
-
+    color: #fff;
+    border:1px solid #b80324;
+    background: #d10329;
+    background: -moz-linear-gradient(top, #d10329 0%, #bc0224 44%, #9e001d 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d10329), color-stop(44%,#bc0224), color-stop(100%,#9e001d));
+    background: -webkit-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+    background: -o-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+    background: -ms-linear-gradient(top, #d10329 0%,#bc0224 44%,#9e001d 100%);
+    background: linear-gradient(to bottom, #d10329 0%,#bc0224 44%,#9e001d 100%);
 
 }
 #toolHolder h4.site_management a {
-color: #fff;
-border: 1px solid #754326;
-background: #884e2c;
-background: -moz-linear-gradient(top, #884e2c 0%, #6b3d21 100%);
-background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#884e2c), color-stop(100%,#6b3d21));
-background: -webkit-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
-background: -o-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
-background: -ms-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
-background: linear-gradient(to bottom, #884e2c 0%,#6b3d21 100%);
+    color: #fff;
+    border: 1px solid #754326;
+    background: #884e2c;
+    background: -moz-linear-gradient(top, #884e2c 0%, #6b3d21 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#884e2c), color-stop(100%,#6b3d21));
+    background: -webkit-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+    background: -o-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+    background: -ms-linear-gradient(top, #884e2c 0%,#6b3d21 100%);
+    background: linear-gradient(to bottom, #884e2c 0%,#6b3d21 100%);
 }
 
 #toolHolder h4.miscellaneous a {
 }
 
 .multitool {
- padding-left :30px !important
+    padding-left :30px !important
 }
 
 #newSiteAlert {
