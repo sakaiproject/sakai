@@ -678,7 +678,7 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 		@Getter @Setter private String siteId;
 		@Getter @Setter private String announcementId;
 		@Getter @Setter private String siteTitle;
-		private String channel;
+		@Getter @Setter private String channel;
 
 		/**
 		 * As we are packing these fields into the ID, we need all of them.
@@ -690,6 +690,10 @@ public class AnnouncementEntityProviderImpl extends AbstractEntityProvider imple
 			this.siteId = siteId;
 			this.channel = channel;
 			this.announcementId = announcementId;
+		}
+
+		public String getId() {
+			return String.format("%s:%s:%s", siteId, channel, announcementId);
 		}
 
 		//default sort by date ascending
