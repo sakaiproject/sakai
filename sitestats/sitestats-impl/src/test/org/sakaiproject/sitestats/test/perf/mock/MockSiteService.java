@@ -394,6 +394,17 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public List<Site> getUserSites(boolean requireDescription, String userId)
+	{
+		return null;
+	}
+
+	public List<Site> getSites(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+	{
+		return null;
+	}
+
+	@Override
 	public List<Site> getSites(SelectionType type, Object ofType,
 			String criteria, Map<String, String> propertyCriteria,
 			SortType sort, PagingPosition page) {
@@ -406,6 +417,11 @@ public class MockSiteService implements SiteService {
 			String criteria, Map<String, String> propertyCriteria,
 			SortType sort, PagingPosition page, boolean requireDescription) {
 		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
+	{
 		return null;
 	}
 
