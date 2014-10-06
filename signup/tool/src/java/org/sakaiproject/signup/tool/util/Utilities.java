@@ -44,6 +44,7 @@ import org.sakaiproject.signup.tool.jsf.MessageUIBean;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingsBean;
 import org.sakaiproject.signup.tool.jsf.organizer.UserDefineTimeslotBean;
 import org.sakaiproject.util.ResourceLoader;
+import javax.faces.event.ActionEvent;
 
 /**
  * <p>
@@ -137,6 +138,19 @@ public final class Utilities implements SignupBeanConstants, MeetingTypes {
 		return value;
 	}
 
+	/**
+	 * This method will retrieve the value from UI CommandButton
+	 * parameter/attribute name
+	 * 
+	 * @param attrName
+	 *            a string value
+	 * @return a string value
+	 */
+	public static String getActionAttribute(ActionEvent event, String name) {
+        return (String) event.getComponent().getAttributes().get(name);
+    }
+	
+	
 	/**
 	 * Reset the meetings in the SignupMeetingsBean to null so we will fetch all
 	 * the up-to-date meeting data again

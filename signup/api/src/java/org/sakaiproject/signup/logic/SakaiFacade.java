@@ -437,7 +437,7 @@ public interface SakaiFacade {
 	 * @param groupId		id of the group
 	 * @return	true if users added, false if not
 	 */
-	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId);
+	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId, String timeslottoGroup);
 	
 	/**
 	 * Remove the user from the given group in the given site

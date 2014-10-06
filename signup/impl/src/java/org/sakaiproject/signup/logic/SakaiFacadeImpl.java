@@ -1202,7 +1202,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId) {
+	public boolean addUsersToGroup(Collection<String> userIds, String siteId, String groupId, String timeslottoGroup) {
 		
 		log.debug("addUsersToGroup(userIds=" + Arrays.asList(userIds).toString() + ", siteId=" + siteId + ", groupId=" + groupId);
 		
@@ -1221,28 +1221,46 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		};
 		enableSecurityAdvisor(securityAdvisor);
 		
-		Group group = site.getGroup(groupId);
+		Group group = site.getGroup(groupId);		
 		
 		if(group == null) {
         	log.error("No group for id: " + groupId);
 			return false;
 		}
+			
+			try {
 		
-		try {
+				for(String userId: userIds) {
+					group = addUserToGroup(userId, group);
+				}
+				
+				//the synchronise is from the time slot to Site group membership
+				if(timeslottoGroup.equals("toGroup")) {
+					
+					List<String> updateusers = getGroupMembers(siteId, groupId);
+				
+					//first clone a new group member
+					Set<String> tmpUsers = new HashSet<String>();
+					tmpUsers.addAll(updateusers);
+			    
+					//retrieve only the difference members from TimeSlot and SiteGroup
+					tmpUsers.removeAll(userIds);
+				
+					//remove the differences from group members
+					for (String mem: tmpUsers){
+						group.removeMember(mem);
+						}			 
+				}
+
+				siteService.save(site);
 			
-			for(String userId: userIds) {
-				group = addUserToGroup(userId, group);
-			}
-			siteService.save(site);
+				return true;
 			
-			return true;
-			
-		} catch (Exception e) {
-        	log.error("addUsersToGroup failed for users: " + Arrays.asList(userIds).toString() + " and group: " + groupId, e);
-        } finally {
-        	disableSecurityAdvisor(securityAdvisor);
-        }
-		
+			} catch (Exception e) {
+				log.error("addUsersToGroup failed for users: " + Arrays.asList(userIds).toString() + " and group: " + groupId, e);
+			} finally {
+				disableSecurityAdvisor(securityAdvisor);
+				}
 		return false;
 	}
 	
@@ -1363,7 +1381,7 @@ public class SakaiFacadeImpl implements SakaiFacade {
 		
 			for(Member m: members) {
 				users.add(m.getUserId());
-				log.error("Added user: " + m.getUserId() + " to group: " + groupId);
+				log.warn("Added user: " + m.getUserId() + " to group: " + groupId);
 			}
 			return users;
 		} catch (Exception e) {

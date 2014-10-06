@@ -720,7 +720,12 @@
 								<f:facet name="header">
 									<h:outputText value="#{msgs.group_synchronise_heading}"/>
 								</f:facet>
-						   		<h:commandButton id="syncGroup_btn" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}"/>
+								<h:commandButton id="synctogroup" value="#{msgs.group_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"   onmousedown="assignDeleteClick(this,'#{msgs.synchronisetogroup_confirmation}');" title="#{msgs.event_tool_tips_syncTogroup}" style="margin-top:5px;width:150px">									
+        								<f:attribute name="timeslottoGroup" value="toGroup" />
+                                </h:commandButton>
+								<h:commandButton id="syncfromgroup" value="#{msgs.fromgroup_synchronise_button}" action="#{OrganizerSignupMBean.synchroniseGroupMembership}" actionListener="#{OrganizerSignupMBean.attrListener}"  onmousedown="assignDeleteClick(this,'#{msgs.synchronisefromgroup_confirmation}');" title="#{msgs.event_tool_tips_syncFromgroup}" style="margin-top:5px;width:150px">
+									<f:attribute name="timeslottoGroup" value="" />
+								</h:commandButton>
 					   		</h:column>
 					   		
 					   		<h:column rendered="#{!OrganizerSignupMBean.meetingWrapper.meeting.allowWaitList}">		   

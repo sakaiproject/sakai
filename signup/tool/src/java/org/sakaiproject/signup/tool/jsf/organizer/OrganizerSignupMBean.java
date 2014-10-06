@@ -27,6 +27,7 @@ import javax.faces.component.UIData;
 import javax.faces.component.UIInput;
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
+import javax.faces.event.ActionEvent;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -121,6 +122,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	private boolean collapsedMeetingInfo;
 
 	private boolean eidInputMode = false;
+	public String timeslottoGroup;
 
 	/**
 	 * This will initialize all the wrapper objects such as
@@ -1259,19 +1261,48 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		this.collapsedMeetingInfo = collapsedMeetingInfo;
 	}
 	
+	/**
+	 * This is to retrieve attr from UI Commandbutton
+	 * 
+	 * @param timeslottoGroup
+	 *            a String value
+	 */
+	public void attrListener(ActionEvent event){
+		 
+		timeslottoGroup = (String) Utilities.getActionAttribute(event, "timeslottoGroup");
+		 
+		} 
+	
+	/**
+	 * It's a getter method for UI
+	 * denotes the direction of the synchronize process
+	 * @return a String value timeslottoGroup
+	 */
+	public String gettimeslottoGroup() {
+		return timeslottoGroup;
+		}
+	
+	/**
+	 * This is a setter
+	 *  @return a String value
+	 */	 
+		public void setNickname(String timeslottoGroup) {
+		this.timeslottoGroup = timeslottoGroup;
+		} 
 	
 	/**
 	 * Synchronise the users in a timeslot with the users in a group.
-	 * <p>Ensures that both lists have the same users in each, but does NOT remove any users from the group.
+	 * VT customized to allow the user choose the synchronize direction
 	 
 	 * @return url to the same page which will trigger a reload
 	 */
 	public String synchroniseGroupMembership() {
-		
+
 		TimeslotWrapper timeslotWrapper = (TimeslotWrapper) timeslotWrapperTable.getRowData();
-	
+		
 		//get groupId for timeslot
 		String groupId = timeslotWrapper.getGroupId();
+		SignupMeeting meeting = null;
 		
 		if(StringUtils.isBlank(groupId)){
 			//TODO. 
@@ -1284,22 +1315,60 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		} else {
 			List<String> attendeeUserIds = convertAttendeeWrappersToUuids(timeslotWrapper.getAttendeeWrappers());
 			
-			//add timeslot attendees to the group and save
-			if(!sakaiFacade.addUsersToGroup(attendeeUserIds, currentSiteId(), groupId)) {
-				Utilities.addErrorMessage(Utilities.rb.getString("error.group_sync_failed"));
-				return ORGANIZER_MEETING_PAGE_URL;
-			}
+				//process to synchronize the time slot attendees to group
 			
-			//add group members to the timeslot and save
-			List<String> groupMembers = sakaiFacade.getGroupMembers(currentSiteId(), groupId);
+				if(timeslottoGroup != null && !timeslottoGroup.trim().isEmpty() && !sakaiFacade.addUsersToGroup(attendeeUserIds, currentSiteId(), groupId, timeslottoGroup)) {
+					Utilities.addErrorMessage(Utilities.rb.getString("error.group_sync_failed"));
+					return ORGANIZER_MEETING_PAGE_URL;
+				}
 			
-			//remove all of the existing attendees from this list to remove duplicates
-			groupMembers.removeAll(attendeeUserIds);
-	
+				//retrieve all members in group
+				List<String> groupMembers = sakaiFacade.getGroupMembers(currentSiteId(), groupId);
+			
+				//process to synchronize from site group members to time slot
+				if (timeslottoGroup == null ||  timeslottoGroup.isEmpty()){
+					
+					//1. first to keep the common members of timeslot and group
+					
+					List<String> commonmem = new ArrayList<String>(attendeeUserIds);
+					commonmem.retainAll(groupMembers); 
+					
+					//2. only add the group members not existed in timeslot
+					groupMembers.removeAll(attendeeUserIds); 
+					
+					//3. remove the time slot attendees that existed only in timeslot
+						try {
+							for (String mem: attendeeUserIds){
+								if(!commonmem.contains(mem)){
+									CancelAttendee remove = new CancelAttendee(signupMeetingService, currentUserId(), currentSiteId(), true);
+									SignupAttendee removedAttendee = new SignupAttendee(mem, currentSiteId());
+									meeting = remove.cancelSignup(getMeetingWrapper().getMeeting(), timeslotWrapper.getTimeSlot(),removedAttendee);
+									if (sendEmail) {
+										try {
+											signupMeetingService.sendEmailToParticipantsByOrganizerAction(remove.getSignupEventTrackingInfo());
+											} catch (Exception e) {
+												logger.error(Utilities.rb.getString("email.exception") + " - " + e.getMessage(), e);
+												Utilities.addErrorMessage(Utilities.rb.getString("email.exception"));
+											}
+									}
+								}
+							}
+						}catch (SignupUserActionException ue) {
+								Utilities.addErrorMessage(ue.getMessage());
+						} catch (Exception e) {
+							logger.error(Utilities.rb.getString("error.occurred_try_again") + " - " + e.getMessage());
+							Utilities.addErrorMessage(Utilities.rb.getString("error.occurred_try_again"));
+						} 
+				} else{
+						//remove all of the existing attendees from this list to remove duplicates
+						groupMembers.removeAll(attendeeUserIds);
+					}
+				
 			//add members and go to return page
 			return addAttendeesToTimeslot(currentSiteId(),timeslotWrapper, groupMembers);
 		}
 	}
+	
 	
 	/**
 	 * Helper to add users to a timeslot and get the return URL
