@@ -2100,13 +2100,21 @@ isRTL:false
 		cfg.changeMonth = true;
 		cfg.changeYear = true;
 
-		// disable the input field on show as to not display a tablet keyboard
-		cfg.onClose = function(dateText, inst) {
-			$(this).removeAttr("disabled");
-		};
-		// re-enables input field
+		// add blur event to allow edit input field
 		cfg.beforeShow = function(input, inst) {
-			$(this).attr("disabled","disabled");
+			$(input).unbind('blur');
+			$(input).on('blur', function(){
+				var momentDateFormat = $(this).datepicker("option","dateFormat").replace('yy','yyyy').toUpperCase();
+				var momentTimeFormat = $(this).datepicker("option","timeFormat").replace('tt','a');
+				var mc = moment($(input).val(),momentDateFormat+' '+momentTimeFormat);
+				if (mc!=null && mc.isValid() && !mc.diff(moment($(this).datepicker("getDate")))) {
+					setHiddenFields($(this).datepicker("getDate"), options, input);
+				}
+				var mh = moment(getHiddenFields());
+				var stringDay = $.datepicker.formatDate($(this).datepicker("option","dateFormat"),mh.toDate());
+				var stringTime = $.datepicker.formatTime($(this).datepicker("option","timeFormat"),{hour:mh.format("HH"),minute:mh.format("mm")});
+				$(input).val(stringDay + ' ' + stringTime);
+			});
 		};
 		// on select, runs our custom method for setting dates
 		cfg.onSelect = function(dtObj, dpInst) {
@@ -2167,6 +2175,43 @@ isRTL:false
 			return date;
 		}
 
+		/**
+		* Get the date, from hidden fields.
+		* Handles many conditions do to the variety of tool implimentations 
+		*/
+		var getHiddenFields = function () {
+			var o = options;
+			var date = {month:'',day:'',year:'',hour:'',minute:'',ampm:''};
+			// If we have hidden fields, set them.
+			if(o.ashidden !== undefined) {
+				jQuery.each(o.ashidden, function(i, h) {
+					switch(i) {
+						case "month":
+						  date.month = jQuery('#' + h).val();
+						  break;
+						case "day":
+						  date.day = jQuery('#' + h).val();
+						  break;
+						case "year":
+						  date.year = jQuery('#' + h).val();
+						  break;
+						case "hour":
+						  date.hour = jQuery('#' + h).val();
+						  break;
+						case "minute":
+						  date.minute = jQuery('#' + h).val();
+						  break;
+						case "ampm":
+						  date.ampm = (o.ampm)?jQuery('#' + h).val():'';
+						  break;
+						case "iso8601":
+						  date.iso = jQuery('#' + h).val();
+						  break;
+					}
+				});
+			}
+			return date.iso?date.iso:(date.year+' '+date.month+' '+date.day+' '+date.hour+':'+date.minute+' '+date.ampm).trim();
+		}
 
 		/**
 		* Sets the date, both on init and datetimepicker selection.
