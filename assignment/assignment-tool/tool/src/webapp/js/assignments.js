@@ -116,13 +116,13 @@ function setupAssignNew(){
             $('#' + 'no' + nodeType).show('');
             $('#' + 'has' + nodeType).hide('');
             $('.extraNode').hide();
-		        $('#extraNodeLinkList').show();
+            $('#extraNodeLinkList').show();
             resizeFrame('grow');
         }
         if (linkType === "add" || linkType === "edit") {
             $('.extraNode').hide();
             $('#' + this.id.substring(0, this.id.indexOf('_')) + '-node').fadeIn('slow');
-		        $('#extraNodeLinkList').hide();
+            $('#extraNodeLinkList').hide();
             resizeFrame('grow');
         }
         location.href = '#extraNodesTop';
@@ -139,7 +139,7 @@ function setupAssignNew(){
         defTo = $('#' + nodeType + '_to_holder').val();
         
         if (inputType === "cancel") {
-		        $('#extraNodeLinkList').show();		
+                $('#extraNodeLinkList').show();
             if (nodeType === "allPurpose") {
                 $('#' + nodeType + '_title').val(defTitle);
             }
@@ -173,12 +173,12 @@ function setupAssignNew(){
                 	allPurposeReleaseHour=parseInt(allPurposeReleaseHour) + 12;
                 }
                 var allPurposeReleaseDate = new Date($('#' + nodeType + '_releaseYear').val(), 
-                								$('#' + nodeType + '_releaseMonth').val()-1,// month in Javascript date starts with 0
-                								$('#' + nodeType + '_releaseDay').val(),
-                								allPurposeReleaseHour,
-                								$('#' + nodeType + '_releaseMin').val(),
-                								0, // seconds
-                								0); // milliseconds
+                                                $('#' + nodeType + '_releaseMonth').val()-1,// month in Javascript date starts with 0
+                                                $('#' + nodeType + '_releaseDay').val(),
+                                                allPurposeReleaseHour,
+                                                $('#' + nodeType + '_releaseMin').val(),
+                                                0, // seconds
+                                                0); // milliseconds
                 // retract date
                 var allPurposeRetractHour = $('#' + nodeType + '_retractHour').val();
                 if ($('#' + nodeType + '_retractAMPM').val()==="PM")
@@ -186,17 +186,17 @@ function setupAssignNew(){
                 	allPurposeRetractHour= parseInt(allPurposeRetractHour) + 12;
                 }
                 var allPurposeRetractDate = new Date($('#' + nodeType + '_retractYear').val(), 
-                								$('#' + nodeType + '_retractMonth').val()-1,// month in Javascript date starts with 0
-                								$('#' + nodeType + '_retractDay').val(),
-                								allPurposeRetractHour,
-                								$('#' + nodeType + '_retractMin').val(),
-                								0, // seconds
-                								0); // milliseconds
+                                                $('#' + nodeType + '_retractMonth').val()-1,// month in Javascript date starts with 0
+                                                $('#' + nodeType + '_retractDay').val(),
+                                                allPurposeRetractHour,
+                                                $('#' + nodeType + '_retractMin').val(),
+                                                0, // seconds
+                                                0); // milliseconds
                 if (allPurposeReleaseDate >= allPurposeRetractDate)
                 {
-                	// show alert if release date is after retract date
-                	validation = 'failed';
-                	$('#' + nodeType + '_release_after_retract_message').show();
+                    // show alert if release date is after retract date
+                    validation = 'failed';
+                    $('#' + nodeType + '_release_after_retract_message').show();
                 }
             }
             else {
@@ -280,42 +280,42 @@ function setupAssignNew(){
     
 }
 
-	function resizeFrame(updown) 
-	{
-		if (top.location !== self.location) 	 {
-			var frame = parent.document.getElementById(window.name);
-		}	
-			if( frame ) 
-		{
-			if(updown==='shrink')
-			{
-				var clientH = document.body.clientHeight;
-			}
-			else
-			{
-				var clientH = document.body.clientHeight + 30;
-			}
-			$( frame ).height( clientH );
-		} 
-		else 
-		{
+function resizeFrame(updown) 
+{
+    if (top.location !== self.location) 	 {
+        var frame = parent.document.getElementById(window.name);
+    }	
+        if( frame ) 
+    {
+        if(updown==='shrink')
+        {
+            var clientH = document.body.clientHeight;
+        }
+        else
+        {
+            var clientH = document.body.clientHeight + 30;
+        }
+        $( frame ).height( clientH );
+    } 
+    else 
+    {
 //			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-		}
-	}
-	
-	 	// toggle a fade
- 	jQuery.fn.fadeToggle = function(speed, easing, callback) {
-   return this.animate({opacity: 'toggle'}, speed, easing, callback);
+    }
+}
+
+// toggle a fade
+jQuery.fn.fadeToggle = function(speed, easing, callback) {
+    return this.animate({opacity: 'toggle'}, speed, easing, callback);
 }; 
 
 
 function setupToggleAreas(toggler, togglee, openInit, speed){
-		// toggler=class of click target
-		// togglee=class of container to expand
-		// openInit=true - all togglee open on enter
-		// speed=speed of expand/collapse animation
-	  if (openInit === true && openInit !== null) {
-				$('.expand').hide();
+    // toggler=class of click target
+    // togglee=class of container to expand
+    // openInit=true - all togglee open on enter
+    // speed=speed of expand/collapse animation
+    if (openInit === true && openInit !== null) {
+            $('.expand').hide();
     }
     else {
         $('.' + togglee).hide();
@@ -420,32 +420,32 @@ function toggleGroups(clickedElement) {
 
 function highlightSelectedAttachment()
 {
-	endsWith = function(str, suffix)
-	{
-		return str.indexOf(suffix, str.length - suffix.length) !== -1;
-	}
+    endsWith = function(str, suffix)
+    {
+        return str.indexOf(suffix, str.length - suffix.length) !== -1;
+    }
 
-	var classSuffix = " assignmentAttachmentHighlight";
-	var radioButtons = document.getElementsByName("attachmentSelection");
-	for (i = 0; i < radioButtons.length; i++)
-	{
-		var parentDiv = radioButtons[i].parentNode;
-		if (radioButtons[i].checked)
-		{
-			if (!endsWith(parentDiv.className, classSuffix))
-			{
-				//add the highlight css class
-				parentDiv.className+=classSuffix;
-			}
-		}
-		else
-		{
-			if (endsWith(parentDiv.className, classSuffix))
-			{
-				//remove the highlight css class
-				var cn = parentDiv.className;
-				parentDiv.className=cn.substring(0, cn.length - classSuffix.length);
-			}
-		}
-	}
+    var classSuffix = " assignmentAttachmentHighlight";
+    var radioButtons = document.getElementsByName("attachmentSelection");
+    for (i = 0; i < radioButtons.length; i++)
+    {
+        var parentDiv = radioButtons[i].parentNode;
+        if (radioButtons[i].checked)
+        {
+            if (!endsWith(parentDiv.className, classSuffix))
+            {
+                //add the highlight css class
+                parentDiv.className+=classSuffix;
+            }
+        }
+        else
+        {
+            if (endsWith(parentDiv.className, classSuffix))
+            {
+                //remove the highlight css class
+                var cn = parentDiv.className;
+                parentDiv.className=cn.substring(0, cn.length - classSuffix.length);
+            }
+        }
+    }
 }

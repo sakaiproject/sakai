@@ -2,42 +2,42 @@
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_list_submissions.vm,v 1.10 2005/06/14 16:07:00 zqian.umich.edu Exp $ -->
 <script type="text/javascript">
-    $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+	$(document).ready(function(){
+		setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
 
 		$('#submissionList input:checkbox').click(function(){
-			  if ( $("#submissionList input:checked").length ===0){
+			if ( $("#submissionList input:checked").length ===0){
 				hideAllowResubmission()
 				}
 			else{
 				showAllowResubmission()
 			}
-		});    
+		});
 	});
-    
-    function showAllowResubmission()
-    {
+
+	function showAllowResubmission()
+	{
 		document.getElementById('allowResubmission_shown').style.display="inline";
-    	document.getElementById('allowResubmission_hidden').style.display="none";
+		document.getElementById('allowResubmission_hidden').style.display="none";
 		$('#allowResubmission_shownInner').addClass('highLightBlock').fadeIn(2000,function(){
 			$(this).removeClass('highLightBlock')
 		});
-    	document.getElementById('allowResToggle').value="checked";
-    	resizeFrame('grow');
-    }
-    
-    function hideAllowResubmission()
-    {
+		document.getElementById('allowResToggle').value="checked";
+		resizeFrame('grow');
+	}
+	
+	function hideAllowResubmission()
+	{
 		$('#allowResubmission_shownInner').fadeOut('fast', function() {
 			document.getElementById('allowResubmission_shown').style.display="none";
-    		document.getElementById('allowResubmission_hidden').style.display="inline";
-    		document.getElementById('allowResToggle').value="";
-		  });
+			document.getElementById('allowResubmission_hidden').style.display="inline";
+			document.getElementById('allowResToggle').value="";
+		});
 
-    }
-    
-    function toggleSelectAll(caller, elementName)
-    {
+	}
+ 	
+	function toggleSelectAll(caller, elementName)
+	{
 					var newValue = caller.checked;
 					var elements = document.getElementsByName(elementName);
 			
@@ -48,7 +48,7 @@
 							elements[i].checked = newValue;
 						}
 					}
-   	}
+	}
 
 	function handleReportsTriangleDisclosure(header, content)
 	{
@@ -115,11 +115,11 @@
 	</ul>
 	<h3>
 		$validator.escapeHtml($assignment.getTitle()) 
-        #if ($!assignment.isGroup() )
-             <span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
-        #else
-             <span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
-        #end <span class="highlight">  - $!tlang.getString('gen.subm2') </span>
+		#if ($!assignment.isGroup() )
+			<span class="group_icon" title="$tlang.getString('gen.groupassignment')" alt="$tlang.getString('gen.groupassignment')"></span>
+		#else
+			<span class="user_icon" title="$tlang.getString('gen.userassignment')" alt="$tlang.getString('gen.userassignment')"></span>
+		#end <span class="highlight">  - $!tlang.getString('gen.subm2') </span>
 	</h3>
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div><div class="clear"></div>#end
 	## reminder of submission download url
@@ -137,41 +137,41 @@
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.isGroup())
-    			#if ($!groups.hasNext())
-        			<div class="navPanel">
-        				<div class="viewNav">
-    						<label for="view">
-    							$tlang.getString("gen.view2")
-    						</label>
-    						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-    						<select id="view" name="view" size="1" tabindex="3" onchange="document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
-    							#if (!$showSubmissionByFilterSearchOnly)
-    								<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
-    							#else
-    								<option value="" >$tlang.getString('please_select_group')</option>
-    							#end
-    							#foreach($aGroup in $groups)
-    								<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
-    							#end
-    						</select>
-    					</div>
-    				</div>
-    			#end
+				#if ($!groups.hasNext())
+					<div class="navPanel">
+						<div class="viewNav">
+							<label for="view">
+								$tlang.getString("gen.view2")
+							</label>
+							<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+							<select id="view" name="view" size="1" tabindex="3" onchange="document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+								#if (!$showSubmissionByFilterSearchOnly)
+									<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+								#else
+									<option value="" >$tlang.getString('please_select_group')</option>
+								#end
+								#foreach($aGroup in $groups)
+									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+								#end
+							</select>
+						</div>
+					</div>
+				#end
 
 			## SAK-17606
 			#if (!$value_CheckAnonymousGrading.equals("true"))
-    			<p>
-        			<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
-        			<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
-        			<input type="button" value="$tlang.getString('search')" 
-        				onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
-            			#if (($!searchString) && (!$searchString.equals("")))
-            				<input type="button" class="button" value="$tlang.getString("search_clear")" 
-            					onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
-            			#end
-                </p>
-            #end
-            #end
+				<p>
+					<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
+					<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
+					<input type="button" value="$tlang.getString('search')" 
+						onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+						#if (($!searchString) && (!$searchString.equals("")))
+							<input type="button" class="button" value="$tlang.getString("search_clear")" 
+								onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+						#end
+				</p>
+			#end
+			#end
 		#set($disableGrade=false)
 		#if($assignment.getAllowPeerAssessment() == true && $assignment.isPeerAssessmentClosed() == false)
 			#set($disableGrade=true)
@@ -334,12 +334,12 @@
 							#end
 							#if ($size == 0)
 								<p class="instruction">
-                                                                    #if ($submissionType == 5)
-                                                                        $tlang.getString("gen.noatt.single")
-                                                                    #else
-                                                                        $tlang.getString("gen.noatt")
-                                                                    #end
-                                                                </p>
+								#if ($submissionType == 5)
+									$tlang.getString("gen.noatt.single")
+								#else
+									$tlang.getString("gen.noatt")
+								#end
+								</p>
 							#else
 								#foreach ($attachment in $mAttachments)
 									#set ($props = false)
@@ -384,12 +384,12 @@
 							#end
 							#if ($size == 0)
 								<p class="instruction">
-                                                                    #if ($submissionType == 5)
-                                                                        $tlang.getString("gen.noatt.single")
-                                                                    #else
-                                                                        $tlang.getString("gen.noatt")
-                                                                    #end
-                                                                </p>
+								#if ($submissionType == 5)
+									$tlang.getString("gen.noatt.single")
+								#else
+									$tlang.getString("gen.noatt")
+								#end
+								</p>
 							#else
 								#foreach ($attachment in $aAttachments)
 									#set ($props = false)
@@ -420,29 +420,29 @@
 						#else
 						$tlang.getString("allowResubmission.label")
 						#end
-                 	</a>
+					</a>
 				</p>
 			</div>
 			<div id="allowResubmission_shown" #if ($!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
 				<p class="discTria">
 					<a href="#" onclick="javascript:hideAllowResubmission();">
-					<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" />
-					        #if ($assignment.isGroup())
-                                                        $tlang.getString("allowResubmission.groups.label")
-                                                #else
-						$tlang.getString("allowResubmission.label")
-                                                #end
-                 	</a>
+						<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("allowResubmission.hide")" border="0" width="13" height="13" align="top" />
+						#if ($assignment.isGroup())
+							$tlang.getString("allowResubmission.groups.label")
+						#else
+							$tlang.getString("allowResubmission.label")
+						#end
+					</a>
 				</p>
 				<div id="allowResubmission_shownInner" style="display:none">
-				 <p class="instruction">
-                #if ($assignment.isGroup())
-                    $tlang.getString("allowResubmission.groups.instruction")
-                #else
-				  $tlang.getString("allowResubmission.instruction")
-                #end
-				 </p>
-				 ##show it only for those assignments not of type non-electronic submission
+				<p class="instruction">
+				#if ($assignment.isGroup())
+					$tlang.getString("allowResubmission.groups.instruction")
+				#else
+					$tlang.getString("allowResubmission.instruction")
+				#end
+				</p>
+				##show it only for those assignments not of type non-electronic submission
 							<p class="shorttext" id="allowResubmitNumber">
 								<label for="allowResubmitNumber">
 									$tlang.getString("allow.resubmit.number")
@@ -463,7 +463,7 @@
 								</label>
 								#chef_dateselectionwidget($name_ResubmitYear $name_ResubmitMonth $name_ResubmitDay $!value_year_from $!value_year_to $value_ResubmitYear $value_ResubmitMonth $value_ResubmitDay $dateFormat "")
 								&nbsp;$tlang.getString("gen.at")&nbsp;
-                                <label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
+								<label class="skip" for="$name_ResubmitHour">$tlang.getString("dateselectionwidget.hour")</label>
 								<select name="$name_ResubmitHour" id="$name_ResubmitHour">
 									#foreach ($i in [1..12])
 										#if ($i == $value_ResubmitHour)
@@ -473,13 +473,13 @@
 										#end
 									#end
 								</select>
-                                <label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
+								<label class="skip" for="$name_ResubmitMin">$tlang.getString("dateselectionwidget.minute")</label>
 								<select name="$name_ResubmitMin" id="$name_ResubmitMin">
 									#foreach ($i in [0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
 										<option value="$i" #if($i == $value_ResubmitMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
 									#end
 								</select>
-                                <label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
+								<label class="skip" for="$name_ResubmitAMPM">$tlang.getString("dateselectionwidget.ampm")</label>
 								<select name="$name_ResubmitAMPM" id="$name_ResubmitAMPM">
 									#foreach ($i in ["AM", "PM"])
 										#if ($i == $value_ResubmitAMPM)
@@ -504,18 +504,18 @@
 				<tr>
 					<th id="selectResubmit" class="smallCol">
 						<input type="checkbox" name="toggleAllSelectAllowResubmit" value="" id="toggleAllSelectAllowResubmit" onclick="javascript:toggleSelectAll(this, 'selectedAllowResubmit')" />
-                        <label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
+						<label for="toggleAllSelectAllowResubmit" class="skip">$tlang.getString("allowResubmission.toggleall")</label>
 					</th> 
 					<th id="attachment" class="attach">
 						<img src="#imageLink("sakai/attachments.gif")" border="0" alt="$tlang.getString("gen.att")" width="15" height="15" />
 					</th>
 					<th id="studentname">
 						<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doSort_grade_submission" "criteria=$!sort_lastName")'; return false;"   title="$tlang.getString("gen.sorbylas")">
-                                                        #if ($assignment.isGroup())
-                                                                $tlang.getString("gen.group")
-                                                        #else
-							$tlang.getString("gen.student")
-                                                        #end
+							#if ($assignment.isGroup())
+								$tlang.getString("gen.group")
+							#else
+								$tlang.getString("gen.student")
+							#end
 							#if ($sortedBy.equals($!sort_lastName)) 
 								#if ($sortedAsc.equals("true")) 
 									<img id="sortascendinglastname" src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("gen.sorasc")" /> 
@@ -605,13 +605,13 @@
 					#set($submittedBy=false)
 					#set($submittedBy=$userSubmission.SubmittedBy)
 					#if ($assignment.isGroup())
-					   #set($siteUser = $userSubmission.Group)
-					   #set($submitterName=$!siteUser.title)
-					   #set($gusers = $submission.getSubmitters())
+						#set($siteUser = $userSubmission.Group)
+						#set($submitterName=$!siteUser.title)
+						#set($gusers = $submission.getSubmitters())
 					#else
-					   #set($siteUser = $userSubmission.User)
-					   #set($submitterName=$!siteUser.sortName)
-					   #set($submitterDisplayId=$!siteUser.getDisplayId())
+						#set($siteUser = $userSubmission.User)
+						#set($submitterName=$!siteUser.sortName)
+						#set($submitterDisplayId=$!siteUser.getDisplayId())
 					#end
 					#set($submitterId = $!siteUser.getId())
 					#if ($!submitterDisplayId)
@@ -664,24 +664,24 @@
 									#end
 
 									#if ($gusers)
-									   <div style="font-size: smaller; color: blue;">
-									   #foreach ($user in $gusers)
-									       #if($velocityCount > 1), #end
-									       #set($is_user_duplicate=false)
-									       #if($usersinmultiplegroups)
-									       #foreach ($userin in $usersinmultiplegroups)
-									           #if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
-								           #end
-								       #end
-								       #if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
-								           #set ($group_value_grade = "")
-								           #set ($group_value_grade = $value_grades.get($user.getId()))
-								           #if ($!group_value_grade.length() > 0)
-								           <abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
-								           #end
-								       #end
-								       </div>
-								    #end
+										<div style="font-size: smaller; color: blue;">
+										#foreach ($user in $gusers)
+											#if($velocityCount > 1), #end
+											#set($is_user_duplicate=false)
+											#if($usersinmultiplegroups)
+												#foreach ($userin in $usersinmultiplegroups)
+													#if ($userin.indexOf($user.getDisplayName()) > -1)#set($is_user_duplicate=true)#end
+												#end
+											#end
+											#if($is_user_duplicate)<em class="error alertMessage"><abbr title="$tlang.getString("group.user.duplicate.error")">#end$user.getDisplayName()#if($is_user_duplicate)</abbr></em>#end
+												#set ($group_value_grade = "")
+												#set ($group_value_grade = $value_grades.get($user.getId()))
+												#if ($!group_value_grade.length() > 0)
+													<abbr title="$tlang.getFormattedMessage("group.user.grade.override", $user.getDisplayName())">($!group_value_grade)</abbr>
+												#end
+										#end
+										</div>
+									#end
 									#if(!$disableGrade)
 										<div class="itemAction">
 											<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)")" title="$tlang.getString("listsub.grasub")">$!tlang.getString("gen.assign.gra")<span class="skip">:#if($value_CheckAnonymousGrading.equals("true"))$anonymousSubmissionId#else$validator.escapeHtml($submitterName)#end</span></a>
@@ -716,9 +716,9 @@
 										</a>
 									#else
 										## SAK-17606
-                                                                                #if ($value_CheckAnonymousGrading.equals("true"))
-                                                                                    $anonymousSubmissionId
-                                                                                #else
+										#if ($value_CheckAnonymousGrading.equals("true"))
+											$anonymousSubmissionId
+										#else
 										$validator.escapeHtml($submitterName)
 									#end
 								#end
@@ -875,7 +875,7 @@
 				$tlang.getString("gen.asstit")
 			</th>
 			<td>
-                                        #assignmentTitleIcon($assignment)
+					#assignmentTitleIcon($assignment)
 					$validator.escapeHtml($!assignment_title)
 			</td>
 		</tr>
