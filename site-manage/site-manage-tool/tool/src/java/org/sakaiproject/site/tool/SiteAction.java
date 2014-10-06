@@ -8653,8 +8653,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				addAlert(state, rb.getString("java.joinsite") + " ");
 			}
 
-			// bjones86 - SAK-24423 - update site properties for joinable site settings
-			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteUpdate( sEdit.getPropertiesEdit(), state );
+			// Handle invalid joinable site settings
+			try
+			{
+				// Update site properties for joinable site settings
+				JoinableSiteSettings.updateSitePropertiesFromStateOnSiteUpdate( sEdit.getPropertiesEdit(), state );
+			}
+			catch (InvalidJoinableSiteSettingsException invalidSettingsException)
+			{
+				addAlert(state, invalidSettingsException.getFormattedMessage(rb));
+			}
 
 		} else if ( !joinable || 
 				(!joinable && ServerConfigurationService.getBoolean(CONVERT_NULL_JOINABLE_TO_UNJOINABLE, true))) {
@@ -9930,8 +9938,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String joinerRole = (String) state.getAttribute("form_joinerRole");
 			s.setJoinerRole(joinerRole);
 
-			// bjones86 - SAK-24423 - update site properties for joinable site settings
-			JoinableSiteSettings.updateSitePropertiesFromStateOnSiteInfoSaveGlobalAccess( s.getPropertiesEdit(), state );
+			// Handle invalid joinable site settings
+			try
+			{
+				// Update site properties for joinable site settings
+				JoinableSiteSettings.updateSitePropertiesFromStateOnSiteInfoSaveGlobalAccess( s.getPropertiesEdit(), state );
+			}
+			catch (InvalidJoinableSiteSettingsException invalidSettingsException)
+			{
+				addAlert(state, invalidSettingsException.getFormattedMessage(rb));
+			}
 		}
 
 		if (state.getAttribute(STATE_MESSAGE) == null) {

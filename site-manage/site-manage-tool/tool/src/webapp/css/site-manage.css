@@ -791,9 +791,9 @@ dl.defList dd{
     background: linear-gradient(to bottom, #e3e4e5 0%,#d9d9d9 100%);
     text-decoration: none !important;
     margin:0px 0px 0 5px;
-    font-size:12px
+    font-size:12px;
     
-      background: -moz-linear-gradient(center top , #F6F6F5 0%, #E0E0E0 93%, #E0E0E0 97%, #E9E9E9 100%) repeat scroll 0 0 transparent !important;
+    background: -moz-linear-gradient(center top , #F6F6F5 0%, #E0E0E0 93%, #E0E0E0 97%, #E9E9E9 100%) repeat scroll 0 0 transparent !important;
     border: 1px solid #E0E3E5 !important;
     border-radius: 3px 3px 3px 3px;
     box-shadow: 0 1px 1px 0 #999999 !important;
@@ -864,3 +864,8 @@ dl.defList dd{
     border-top: none;
 }
 /* SAK-22384 End */
+
+#joinLimitByAccountType
+{
+    margin-bottom: 1em;
+}

@@ -654,9 +654,13 @@ public class JoinableSiteSettings
 	 * @param state
 	 * 				the object to get the settings from
 	 * @return status (true/false)
+	 * @throws InvalidJoinableSiteSettingsException when the settings in the state are invalid
 	 */
 	public static boolean updateSitePropertiesFromStateOnSiteInfoSaveGlobalAccess( ResourcePropertiesEdit props, SessionState state )
 	{
+		// validate the state, throw an InvalidJoinableSiteSettingsException if the state's settings are invalid
+		validateJoinableSiteSettings(state);
+
 		if( props == null || state == null )
 		{
 			return false;
@@ -689,9 +693,13 @@ public class JoinableSiteSettings
 	 * @param state
 	 * 				the object to get the settings from
 	 * @return status (true/false)
+	 * @throws InvalidJoinableSiteSettingsException when the settings in the state are invalid
 	 */
 	public static boolean updateSitePropertiesFromStateOnSiteUpdate( ResourcePropertiesEdit props, SessionState state )
 	{
+		// validate the state, throw an InvalidJoinableSiteSettingsException if the state's settings are invalid
+		validateJoinableSiteSettings(state);
+
 		if( props == null || state == null )
 		{
 			return false;
@@ -1280,6 +1288,38 @@ public class JoinableSiteSettings
 		// Add the csv list to the site properties
 		propertyList = sb.toString();
 		props.addProperty( SITE_PROP_JOIN_SITE_ACCOUNT_TYPES, propertyList );
+	}
+
+	/**
+	 * Validates the joinable site settings in the state
+	 * @param state object containing the joinable site settings to validate
+	 * @throws InvalidJoinableSiteSettingsException when the settings in the state are invalid
+	 */
+	public static void validateJoinableSiteSettings(SessionState state)
+	{
+		String attribute = "";
+		if (siteService.isGlobalJoinLimitByAccountTypeEnabled())
+		{
+			attribute = state.getAttribute(STATE_JOIN_SITE_LIMIT_BY_ACCOUNT_TYPE).toString();
+			if (TRUE_STRING.equalsIgnoreCase(attribute))
+			{
+				boolean accountTypeSelected = false;
+				for (String account : siteService.getAllowedJoinableAccountTypes())
+				{
+					attribute = state.getAttribute(STATE_JOIN_SITE_ACCOUNT_TYPE_PREFIX + account).toString();
+					if (TRUE_STRING.equalsIgnoreCase(attribute))
+					{
+						accountTypeSelected = true;
+						break;
+					}
+				}
+				
+				if (!accountTypeSelected)
+				{
+					throw new InvalidJoinableSiteSettingsException("Limit join to specific accounts selected, but no accounts specified", "ediacc.noAccountTypesSelected");
+				}
+			}
+		}
 	}
 	
 	/**

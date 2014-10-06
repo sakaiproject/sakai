@@ -61,7 +61,85 @@
 		}
 	}
 	
-	
+	## A mechanism to validate this page; it will enable or disable the continue/update button
+	function validatePage()
+	{
+		var valid = true;
+
+		#if ($!site)
+			#set($submitButtonId="updateButton")
+		#else
+			#set($submitButtonId="continueButton")
+		#end
+		var submitButton = document.getElementById("$submitButtonId");
+
+		if (!limitByAccountTypesValidation())
+		{
+			valid = false;
+		}
+
+		if (valid)
+		{
+			submitButton.removeAttribute("disabled");
+		}
+		else
+		{
+			submitButton.setAttribute("disabled", "disabled");
+		}
+
+		## limitByAccountTypesValidation can cause an info message to display. Avoid double scroll bars:
+		utils.resizeFrame();
+	}
+
+	## Returns true iff the limitByAccountType checkboxes are in a valid state.
+	## Also responsible for the visibility of the "You must select at least one account type below" message
+	function limitByAccountTypesValidation()
+	{
+		## assume the checkboxes are in a valid state, and that we don't need to alert the user to select an account
+		var valid = true;
+		var displayJoinLimitInfo = false;
+
+		## the 'Limit join to specific accounts' checkbox
+		var chkJoinLimitByAccountType = document.getElementById("chkJoinLimitByAccountType");
+		if (chkJoinLimitByAccountType && chkJoinLimitByAccountType.checked)
+		{
+			## get the account type checkboxes
+			var joinAccountTypesDiv = document.getElementById("joinerAccountTypes");
+			var chkAccountTypes = joinAccountTypesDiv.getElementsByTagName('input');
+
+			## determine if at least one is checked
+			var atLeastOneChecked = false;
+			for (var i = 0; i < chkAccountTypes.length; i++)
+			{
+				if (chkAccountTypes[i].checked)
+				{
+					atLeastOneChecked = true;
+					break;
+				}
+			}
+
+			if (!atLeastOneChecked)
+			{
+				## 'Limit join to specific accounts' is checked, but no accounts are checked; the page is invalid
+				displayJoinLimitInfo = true;
+				valid = false;
+			}
+		}
+
+		## Control the visibility of the "You must select at least one account type below" message
+		var joinLimitInfoDiv = document.getElementById("joinLimitInfoDiv");
+		if (displayJoinLimitInfo)
+		{
+			joinLimitInfoDiv.removeAttribute("style");
+		}
+		else
+		{
+			joinLimitInfoDiv.setAttribute("style", "display:none;");
+		}
+
+		return valid;
+	}
+
 // -->	
 </script>
 <div class ="portletBody">
@@ -281,15 +359,18 @@
 				
 				## bjones86 - SAK-24423 - joinable site settings - limit by account types
 				#if( $joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal )
-					<p class="checkbox indnt4">
+					<p id="joinLimitByAccountType" class="checkbox indnt4">
 						<input name="chkJoinLimitByAccountType" id="chkJoinLimitByAccountType" type="checkbox" 
 							onclick="this.checked ? document.getElementById( 'joinerAccountTypes' ).style.display='block' 
-							: document.getElementById('joinerAccountTypes').style.display='none'; utils.resizeFrame();"
+							: document.getElementById('joinerAccountTypes').style.display='none'; utils.resizeFrame(); validatePage();"
 							#if( $joinLimitByAccountType ) checked="checked" #end
 							#if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) disabled #end />
 						<label for="chkJoinLimitByAccountType" #if( !$joinLimitAccountTypesEnabled || $joinLimitEnabledLocalDisabledGlobal ) class="instruction" #end>
 							$tlang.getString( "ediacc.joinLimitByAccountType" )
 						</label>
+					</p>
+					<p id="joinLimitInfoDiv" class="messageInformation indnt6" style="display:none">
+						$tlang.getString("ediacc.selectAtLeastOneAccountType")
 					</p>
 					
 					#if( $joinLimitEnabledLocalDisabledGlobal )
@@ -301,7 +382,7 @@
 							#if( !$category )
 								#foreach( $accType in $joinableAccountTypes )
 									<p class="checkbox">
-										<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$accType.type"
+										<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$accType.type" onchange="validatePage();"
 											#foreach( $accountType in $joinLimitedAccountTypes )
 												#if( $accountType == $accType.type )
 													checked="checked"
@@ -324,7 +405,7 @@
 									#if( $accType.category == $category )
 										#set( $checkboxName = "$accType.category$accType.type" )
 										<p class="checkbox">
-											<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$checkboxName" onclick="doCategoryCheck( this )"
+											<input type="checkbox" name="chkJoin-$accType.type" id="chkJoin-$checkboxName" onclick="doCategoryCheck( this ); validatePage();"
 												#foreach( $accountType in $joinLimitedAccountTypes )
 													#if( $accountType == $accType.type )
 														checked="checked"
@@ -474,7 +555,7 @@
 					class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.upd")" />
 				<input type="submit" accesskey="x"  name="eventSubmit_doCancel" value="$tlang.getString("ediacc.bac")" />
 #else
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
+				<input type="submit" accesskey="s" id="continueButton" class="active" name="eventSubmit_doUpdate_site_access" value="$tlang.getString("ediacc.con")" />
 				<input type="submit" accesskey="b" name="eventSubmit_doBack" value="$tlang.getString("ediacc.bac")" />
 				<input type="submit" accesskey="x" name="eventSubmit_doCancel_create" value="$tlang.getString("ediacc.can")" />
 			#end
