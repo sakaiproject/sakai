@@ -349,8 +349,8 @@ function showOrHideAccessMessages(groupRadioSelected) {
     var children = container.getElementsByTagName("div");
     
     // Show/hide the messages
+    showOrHideSelectGroupsMessage();
     if (groupRadioSelected) {
-        showOrHideSelectGroupsMessage();
         for (i = 0; i < children.length; i++) {
             if (children[i].id !== groupMsg.id) {
                 children[i].style.display = "none";
@@ -358,7 +358,6 @@ function showOrHideAccessMessages(groupRadioSelected) {
         }
     } 
     else {
-        showOrHideSelectGroupsMessage();
         for (i = 0; i < children.length; i++) {
             if (children[i].id !== groupMsg.id) {
                 children[i].style.display = "block";
@@ -381,13 +380,32 @@ function showOrHideSelectGroupsMessage() {
             groupsSelected = true;
         }
     }
+    
+    // Get the form submission buttons
+    var btnPost = document.getElementById("post");
+    var btnSave = document.getElementById("save");
+    var btnPreview = document.getElementById("preview");
+    var buttons = [btnPost, btnPreview];
+    if (btnSave !== null) {
+        buttons.push(btnSave);
+    }
         
     // Show/hide the groups message
     if (groupsRadio.checked && !groupsSelected) {
         groupMsg.style.display = "block";
+        
+        // Disable the post, save and preview buttons
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].disabled = true;
+        }
     } 
     else {
         groupMsg.style.display = "none";
+        
+        // Enable the post, save and preview buttons
+        for (i = 0; i < buttons.length; i++) {
+            buttons[i].disabled = false;
+        }
     }
 }
 
