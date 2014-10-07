@@ -61,7 +61,11 @@ public abstract class AttributeMappingConstants {
 	 * name of a user entry's group membership attribute
 	 */
 	public static final String GROUP_MEMBERSHIP_ATTR_MAPPING_KEY = "groupMembership";
-		
+	
+	public static final String DISPLAY_ID_ATTR_MAPPING_KEY = "displayId";
+	
+	public static final String DISPLAY_NAME_ATTR_MAPPING_KEY = "displayName";
+	
 	/** Default value in {@link #DEFAULT_ATTR_MAPPINGS} representing
 	 * the physical name of a user entry's login (aka Sakai "EID") attribute
 	 */

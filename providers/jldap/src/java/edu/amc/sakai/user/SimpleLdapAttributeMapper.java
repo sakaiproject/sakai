@@ -337,6 +337,22 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
         				"][value = " + attrValue + "]");
         	}
             userData.setEmail(attrValue);
+        } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_ID_ATTR_MAPPING_KEY) ) {
+        	if ( M_log.isDebugEnabled() ) {
+        		M_log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display Id: " +
+        				"[logical attr name = " + logicalAttrName + 
+        				"][physical attr name = " + attribute.getName() + 
+        				"][value = " + attrValue + "]");
+        	}
+            userData.setProperty(JLDAPDirectoryProvider.DISPLAY_ID_PROPERTY, attrValue);
+        } else if ( logicalAttrName.equals(AttributeMappingConstants.DISPLAY_NAME_ATTR_MAPPING_KEY) ) {
+        	if ( M_log.isDebugEnabled() ) {
+        		M_log.debug("mapLdapAttributeOntoUserData() mapping attribute to User display name: " +
+        				"[logical attr name = " + logicalAttrName + 
+        				"][physical attr name = " + attribute.getName() + 
+        				"][value = " + attrValue + "]");
+        	}
+        	userData.setProperty(JLDAPDirectoryProvider.DISPLAY_NAME_PROPERTY, attrValue);
         } else {
         	if ( M_log.isDebugEnabled() ) {
         		M_log.debug("mapLdapAttributeOntoUserData() mapping attribute to a User property: " +
