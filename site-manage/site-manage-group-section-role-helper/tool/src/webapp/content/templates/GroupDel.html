@@ -10,6 +10,7 @@
 	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 	<link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url"></script>
 </head>
 
 <body rsf:id="scr=sakai-body">
@@ -46,8 +47,9 @@
 </table>
 
 <p class="act">
-<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" />
-<input type="submit" rsf:id="cancel" id="cancel" value="Cancel"  accesskey="x" />
+<input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" onclick="disableButtonsActivateSpinner( 'delete-groups', 'cancel', 'deleteGroupsSpinner');" />
+<input type="submit" rsf:id="cancel" id="cancel" value="Cancel"  accesskey="x" onclick="disableButtonsActivateSpinner( 'delete-groups', 'cancel', 'deleteGroupsSpinner');" />
+<img id="deleteGroupsSpinner" class="spinner" src="/library/image/indicator.gif" />
 </p>
 </form>
 </div>

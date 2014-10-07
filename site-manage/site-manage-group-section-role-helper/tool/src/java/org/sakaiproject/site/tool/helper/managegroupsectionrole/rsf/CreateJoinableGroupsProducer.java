@@ -159,12 +159,15 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 		}
 		//Save/Cancel
 		String saveMethodBinding = null;
+		String buttonTitle;
 		if(edit){
 			saveMethodBinding = "#{SiteManageGroupSectionRoleHandler.processChangeJoinableSetName}";
+			buttonTitle = messageLocator.getMessage("editgroup.update");
 		}else{
 			saveMethodBinding = "#{SiteManageGroupSectionRoleHandler.processCreateJoinableSet}";
+			buttonTitle = messageLocator.getMessage( "editgroup.new" );
 		}
-		UICommand.make(groupForm, "save", messageLocator.getMessage("update"), saveMethodBinding);
+		UICommand.make(groupForm, "save", buttonTitle, saveMethodBinding);
         UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
         cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
         

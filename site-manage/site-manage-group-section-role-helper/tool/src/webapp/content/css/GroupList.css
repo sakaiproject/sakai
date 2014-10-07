@@ -144,3 +144,13 @@ span.validFMess{
     display:inline;
     color:red
 }
+
+.spinner {
+	display: inline;
+	vertical-align: middle;
+	visibility: hidden;
+}
+
+div.act .spinner {
+	padding-top: 5px;
+}

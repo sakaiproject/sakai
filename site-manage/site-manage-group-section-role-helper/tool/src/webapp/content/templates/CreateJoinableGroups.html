@@ -75,15 +75,24 @@
             			</tr>
             			<tr rsf:id="generate-row:">
                 			<td colspan="2">
-                				<p><input accesskey ="g" rsf:id="gererate" class="active" value="Generate" type="submit" id="gererate"/></p>
+                				<p>
+                                    <input accesskey ="g" rsf:id="generate" class="active" value="Generate" type="submit" id="generate" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'generateAdditionalSpinner');"/>
+                                    <img id="generateAdditionalSpinner" class="spinner" src="/library/image/indicator.gif" />
+                                </p>
                 			</td>
                 		</tr>
             		</table>
         		</div>
-        		<p class="act">
-                    <div style="float:left"><input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save"/><input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/></div>
-                    <div style="float:right"><input accesskey ="d" rsf:id="delete" class="active" value="Delete Set" type="submit" id="delete"/></div>
-                </p>
+                <div class="act">
+                    <div style="float:left">
+                        <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                        <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                    </div>
+                    <div style="float:right">
+                        <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                    </div>
+                    <img id="editJoinableGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
+                </div>
                 <input type="hidden" rsf:id="groupTitle-group-orig"/>
             </form>
             
