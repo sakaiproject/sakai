@@ -126,11 +126,6 @@
     text-align: right;
 }
 
-.act .active
-{
-    float: right;
-}
-
 #userViewForm fieldset
 {
     border: 2px solid rgb(200, 200, 200);
@@ -186,4 +181,14 @@ input[type="submit"].active[disabled]:hover,input[type="submit"].active[disabled
     border: 1px solid #E0E3E5 !important;
     text-shadow: 0 2px 3px #FFFFFF !important;
     cursor: default;
+}
+
+.spinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+#eventSubmit_doSave {
+    float: right;
 }
