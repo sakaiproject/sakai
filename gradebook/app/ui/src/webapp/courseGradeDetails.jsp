@@ -13,8 +13,9 @@
 		
 		<h2><h:outputText value="#{msgs.course_grade_details_title}"/></h2>
 		<p class="instruction">
-			<h:outputText value="#{msgs.course_grade_details_null_msg}  " rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"/>
-			<h:outputText value="#{msgs.course_grade_details_null_msg_ta_view} " rendered="#{!courseGradeDetailsBean.userAbleToGradeAll}"/>
+			<h:outputText value="#{msgs.course_grade_details_null_msg}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}"/>
+			<h:commandLink value="#{msgs.calculate_course_grade_name}" rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" action="calculateCourseGrades" /><h:outputText value="." rendered="#{courseGradeDetailsBean.userAbleToGradeAll}" />
+			<h:outputText value="#{msgs.course_grade_details_null_msg_ta_view}" rendered="#{!courseGradeDetailsBean.userAbleToGradeAll}"/>
 		</p>
 
 		<h4><h:outputText value="#{msgs.course_grade_details_page_title}"/></h4>
