@@ -152,9 +152,6 @@ function toPoint(id)
     <h:column>
       <f:verbatim><h4 class="tier1"></f:verbatim>
       <h:outputText value="#{deliveryMessages.p} #{part.number} #{deliveryMessages.of} #{part.numParts}" />
-      <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
-      <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
-      <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{deliveryMessages.pt}" / -->
       <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.text}" escape="false" rendered="#{part.numParts ne '1'}" />
       <f:verbatim></div></f:verbatim>
