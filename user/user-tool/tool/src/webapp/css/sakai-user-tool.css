@@ -88,19 +88,19 @@
 
 #user-create_edit #strengthBar, #useredit #strengthBar
 {
-	background-color: #ccc;
-	width: 188px;
-	height: 5px;
-	margin: 5px 0px 0px 13.5em;
-	text-align: left;
+    background-color: #ccc;
+    width: 188px;
+    height: 5px;
+    margin: 5px 0px 0px 13.5em;
+    text-align: left;
 }
 
 #user-create_edit #strengthBarMeter, #useredit #strengthBarMeter
 {
-	display: inline-block;
-	width: 0%;
-	height: 100%;
-	background-color: #900;
+    display: inline-block;
+    width: 0%;
+    height: 100%;
+    background-color: #900;
 }
 
 #user-create_edit .act input[type="submit"], #useredit .act input[type="submit"],
@@ -187,4 +187,3 @@ input[type="submit"].active[disabled]:hover,input[type="submit"].active[disabled
     text-shadow: 0 2px 3px #FFFFFF !important;
     cursor: default;
 }
-
