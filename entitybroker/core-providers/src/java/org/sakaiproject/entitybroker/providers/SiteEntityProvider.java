@@ -142,6 +142,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
     /** Property to set the maximum page size for lists of entities. */
     public static final String PROP_SITE_PROVIDER_PAGESIZE_MAXIMUM = "site.entity.pagesize.maximum";
+
+	private static final String PERMISSION_QUERY_PROPERTY_NAME = "permission";
     
     /**
      * The default page size for lists of entities. May be overridden with
@@ -588,6 +590,46 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
 
         return new ActionReturn(data);
     }
+    
+    /**
+     * this API call returns data of all the sites the user has permission say "site.visit"
+     * for example, /direct/site/withPerm/.json?permission=site.visit
+     * @param ref
+     * @param search
+     * @return
+     */
+    
+    @EntityCustomAction(action = "withPerm", viewKey = "")
+        public List<EntitySite> getMySitesWithPermission(EntityReference ref, Search search) {
+    
+           Restriction restriction = (search.getRestrictionByProperty(PERMISSION_QUERY_PROPERTY_NAME));
+           String permission = null;
+           List<EntitySite> sites = new ArrayList<EntitySite>();
+    
+           if (restriction == null) {
+        	   log.info("Their is no restriction found for Property: "+PERMISSION_QUERY_PROPERTY_NAME);
+              return sites;
+          }
+           else {
+              permission = (String) restriction.getValue();
+           }
+    
+    
+           //Get all sites user can access
+          List<EntitySite> possibleSites = (List<EntitySite>)getEntities(ref, search);
+           String userId = developerHelperService.getCurrentUserId();
+    
+          for(EntitySite site: possibleSites) {
+              String siteId = site.getId();
+    
+              if (securityService.unlock(userId, permission, siteService.siteReference(siteId))) {
+                  sites.add(site);
+              }
+          }
+    
+           return sites;
+        }
+
 
     /**
      * @param site
