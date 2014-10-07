@@ -17,12 +17,12 @@
 	  		action="#{courseGradeDetailsBean.processCalculateCourseGrades}"
 	  		value="#{msgs.calculate_course_grade_continue}"
 	  		styleClass="active"
-	  	/>
+	  		onclick="setUngradedItems_disableButtonsActivateSpinner( 'gbForm:setUngradedItemsSpinner' );" />
 	  	<h:commandButton
 	  		action="courseGradeDetails"
 	  		value="#{msgs.calculate_course_grade_cancel}"
-	  	/>
-	  	
+	  		onclick="setUngradedItems_disableButtonsActivateSpinner( 'gbForm:setUngradedItemsSpinner' );" />
+	  	<h:graphicImage id="setUngradedItemsSpinner" value="/../library/image/indicator.gif" styleClass="setUngradedItemsSpinner" />
 	  </p>
 
 	  </h:form>

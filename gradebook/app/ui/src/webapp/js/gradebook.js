@@ -672,21 +672,41 @@ function initCategoryDisplay() {
 	});
 }
 
-function disableButton(divId, button) {                       
-  // first set the button to be invisible  
-  button.style.display='none';
- 
-  // now create a new disabled button with the same attributes as the existing button               
-  var newButton = document.createElement('input');
-    
-  newButton.setAttribute('type', 'button');
-  newButton.setAttribute('id', button.getAttribute('id') + 'Disabled');
-  newButton.setAttribute('name', button.getAttribute('name') + 'Disabled');
-  newButton.setAttribute('value', button.getAttribute('value'));
-  newButton.setAttribute('className', button.getAttribute('className'));
-  newButton.setAttribute('disabled', 'true');   
- 
-  var div = document.getElementById(divId); 
-  div.insertBefore(newButton, button);      
+function disableButton(divId, button) {
+    // first set the button to be invisible  
+    button.style.display='none';
+
+    // now create a new disabled button with the same attributes as the existing button
+    var newButton = document.createElement('input');
+
+    newButton.setAttribute('type', 'button');
+    newButton.setAttribute('id', button.getAttribute('id') + 'Disabled');
+    newButton.setAttribute('name', button.getAttribute('name') + 'Disabled');
+    newButton.setAttribute('value', button.getAttribute('value'));
+    newButton.setAttribute('className', button.getAttribute('className'));
+    newButton.setAttribute('disabled', 'true');   
+
+    if ("" !== divId)
+    {
+        var div = document.getElementById(divId);
+        div.insertBefore(newButton, button);
+    }
+    else
+    {
+        var parent = button.parentNode;
+        parent.insertBefore(newButton, button);
+    }
 }
 
+function setUngradedItems_disableButtonsActivateSpinner( spinnerID )
+{
+    // Activate the spinner
+    document.getElementById( spinnerID ).style.visibility = "visible";
+    
+    // "Disable" the buttons
+    var elements = $( ":submit" );
+    for( i = 0; i < elements.length; i++ )
+    {
+        disableButton( elements[i].parentNode.id, elements[i] );
+    } 
+}

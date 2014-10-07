@@ -230,3 +230,9 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
     font-size:90%;
     font-weight: bold;
 }
+
+.setUngradedItemsSpinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}
