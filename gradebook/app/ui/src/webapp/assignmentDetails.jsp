@@ -339,11 +339,11 @@ $(document).ready(function(){
 check_change = function(){
 	changed = false;
 	$("table#gbForm\\:gradingTable :text").each(function(i){
-		if(org_vals[i] != this.value){changed=true;}
+		if(org_vals[i] !== this.value){changed=true;}
 	});
 	if(changed){return confirm("<h:outputText value="#{msgs.assignment_details_page_confirm_unsaved}"/>");}
 	return true;
-}
+};
 </script>
 		
 	</h:form>

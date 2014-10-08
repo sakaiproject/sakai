@@ -239,12 +239,33 @@
                  'top': -120,
                  'right':-100
                 }).toggle();
-            })
+            });
             $('#exportPrefsValsClose').click(function(e){
                 e.preventDefault();
                 $(this).parent('div.highlightPanel').hide();
-            })
+            });
+            
+            org_vals = new Array($("table#gbForm\\:gradingTable :text").length);
+            $("table#gbForm\\:gradingTable :text").each(function(i)
+            {
+                org_vals[i] = this.value;
+            });
+            $(".shorttext .listNav input,select").click(check_change);
         });
+        
+        check_change = function()
+        {
+            changed = false;
+            $("table#gbForm\\:gradingTable :text").each(function(i)
+            {
+                if(org_vals[i] !== this.value){changed=true;}
+            });
+            if(changed)
+            {
+                return confirm("<h:outputText value="#{msgs.assignment_details_page_confirm_unsaved}"/>");
+            }
+            return true;
+        };
     </script>
 
 	  </h:form>
