@@ -331,7 +331,7 @@ public class AssessmentBean  implements Serializable {
     return showPrintAssessment;
   }
 
-  public void setShowPrintAssessment(boolean showPrintAssessment) {
+  public void setShowPrintAssessment(Boolean showPrintAssessment) {
 	  this.showPrintAssessment= showPrintAssessment;
   }
 }
