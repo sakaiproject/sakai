@@ -25,6 +25,7 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
+import java.math.BigDecimal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
@@ -4565,7 +4566,8 @@ public class SimplePageBean {
 				return true;
 			} else {
 				Double grade = submission.getGrade();
-			    if (grade >= Double.valueOf(item.getRequirementText())) {
+			    // 1.99999 should match 2, so do a bit of rounding up
+			    if ((grade + 0.0001d) >= Double.valueOf(item.getRequirementText())) {
 			    	completeCache.put(itemId, true);
 			    	return true;
 			    } else {
@@ -4674,10 +4676,11 @@ public class SimplePageBean {
 			}
 		} else if (type == SimplePageItem.ASSIGNMENT) {
 			// assignment 2 uses gradebook, so we have a float value
+		        // use some fuzz so 1.9999 is the same as 2
 			if (submission.getGrade() != null)
-				return submission.getGrade() >= Float.valueOf(requirementString);
-			// otherwise use the String
-			if (Float.valueOf(Integer.valueOf(grade) / 10) >= Float.valueOf(requirementString)) {
+				return (submission.getGrade() + 0.0001d) >= Double.valueOf(requirementString);
+			// otherwise use the String. With two strings we can use exact decimal arithmetic
+			if (new BigDecimal(grade).compareTo(new BigDecimal(requirementString).multiply(new BigDecimal(10))) >= 0) {
 				return true;
 			} else {
 				return false;
