@@ -75,7 +75,7 @@ public class AssessmentBean  implements Serializable {
   private boolean showPrintLink;
   private boolean hasGradingData = false;
   private boolean hasSubmission = false;
-  private boolean showPrintAssessment;
+  private Boolean showPrintAssessment = null;
 
   /*
    * Creates a new AssessmentBean object.
@@ -323,8 +323,12 @@ public class AssessmentBean  implements Serializable {
   }
   
   public boolean getShowPrintAssessment() {
-	  String printAssessment = ServerConfigurationService.getString("samigo.printAssessment");
-	  return Boolean.parseBoolean(printAssessment);
+    //Should this override the setter?
+    if (showPrintAssessment == null) {
+      String printAssessment = ServerConfigurationService.getString("samigo.printAssessment", "true");
+      return Boolean.parseBoolean(printAssessment);
+    }
+    return showPrintAssessment;
   }
 
   public void setShowPrintAssessment(boolean showPrintAssessment) {
