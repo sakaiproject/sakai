@@ -417,8 +417,8 @@ $(document).ready(function() {
       <h:outputText value="#{authorFrontDoorMessages.anonymous_users}" rendered="#{publishedAssessment.releaseTo eq 'Anonymous Users'}" />
       <h:outputText value="#{authorFrontDoorMessages.entire_site}" rendered="#{publishedAssessment.releaseTo ne 'Anonymous Users' && publishedAssessment.releaseTo ne 'Selected Groups'}" />
       
-        <t:div>
-            <t:div id="groupsHeader" onclick="#{publishedAssessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{publishedAssessment.groupCount gt 0 ? 'collapse' : ''}">
+        <t:div rendered="#{publishedAssessment.releaseTo eq 'Selected Groups'}">
+            <t:div id="groupsHeader" onclick="#{publishedAssessment.groupCount gt 0 ? 'toggleGroups( this );' : ''}" styleClass="#{publishedAssessment.groupCount ge 1 ? 'collapse' : 'alertMessage'}">
                 <h:outputText value="#{publishedAssessment.groupCount} " rendered ="#{publishedAssessment.releaseTo eq 'Selected Groups'}" />
                 <h:outputText value="#{authorFrontDoorMessages.selected_groups} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and (publishedAssessment.groupCount gt 1 or publishedAssessment.groupCount eq 0)}"/>
                 <h:outputText value="#{authorFrontDoorMessages.selected_group} " rendered="#{publishedAssessment.releaseTo eq 'Selected Groups' and publishedAssessment.groupCount eq 1}"/>

@@ -1,4 +1,6 @@
-<%@ page contentType="text/html;charset=UTF-8" pageEncoding="utf-8" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="utf-8" 
+	import="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener,
+		org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
@@ -10,10 +12,18 @@
      
    <f:view>      
 		<h:panelGroup rendered="#{authorization.adminPrivilege}">
+			<%
+				AuthorActionListener authorListener = new AuthorActionListener();
+				authorListener.processAction(null);
+			%>
 			<%@ include file="../author/authorIndex_noHeader.jsp"%>
 		</h:panelGroup>
 		
 		<h:panelGroup rendered="#{!authorization.adminPrivilege}">
+			<%
+				SelectActionListener listener = new SelectActionListener();
+				listener.processAction(null);
+			%>
 			<%@ include file="../select/selectIndex_noHeader.jsp"%>
 		</h:panelGroup>
   </f:view>

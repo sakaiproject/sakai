@@ -918,3 +918,7 @@ div.expand {
 div.collapse {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
+
+td.releaseTo div.alertMessage {
+    width: auto;
+}
