@@ -84,6 +84,7 @@ import java.text.DateFormat;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 /**
  * Backing bean for Simple pages
  * 
@@ -1149,26 +1150,72 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i;
-		if (itemId != null && itemId != -1) {
+		if (itemId != null && itemId != -1) {  // updating existing item
 			i = findItem(itemId);
+			
+			// editing an existing item which might have customized properties
+			// retrieve the original resource and check for customizations
+			ResourceHelper resHelp = new ResourceHelper(getContentResource(i.getSakaiId()));
+			boolean hasCustomName = !isWebsite && resHelp.isNameCustom(i.getName());  // ignore website names for now
+			boolean hasCustomDesc = resHelp.isDescCustom(i.getDescription());
+			
 			i.setSakaiId(id);
 			if (mimeType != null)
 				i.setHtml(mimeType);
-			i.setName(name != null ? name : split[split.length - 1]);
+			if (!hasCustomName)
+			{
+				i.setName(name != null ? name : split[split.length - 1]);
+			}
+			if (!hasCustomDesc)
+			{
+				i.setDescription(description);
+			}
 			clearImageSize(i);
-		} else {
+		} else {  // adding new item
 			i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
 			if (mimeType != null) {
 				i.setHtml(mimeType);
 			}
+			i.setDescription(description);
+			i.setSameWindow(false);
 		}
 		
-		i.setDescription(description);
-		i.setSameWindow(false);
 		i.setAttribute("addedby", getCurrentUserId());
 		update(i);
 
 		return "importing";
+	}
+	
+	private ContentResource getContentResource(String id)
+	{
+		ContentResource res = null;
+		boolean pushed = false;
+		try
+		{
+			pushed = pushAdvisor();
+			res = contentHostingService.getResource(id);
+		}
+		catch (PermissionException pe)
+		{
+			// ignore
+		}
+		catch (IdUnusedException iue)
+		{
+			// ignore
+		}
+		catch (TypeException te)
+		{
+			// ignore
+		}
+		finally
+		{
+			if (pushed)
+			{
+				popAdvisor();
+			}
+		}
+		
+		return res;
 	}
 
     // set default for image size for new objects
@@ -5424,8 +5471,17 @@ public class SimplePageBean {
 				item = findItem(itemId);
 				if (item == null)
 					return;
+				
+				// editing an existing item which might have customized properties
+				// retrieve original resource and check for customizations
+				ResourceHelper resHelp = new ResourceHelper(getContentResource(item.getSakaiId()));
+				boolean hasCustomName = resHelp.isNameCustom(item.getName());
+				
 				item.setSakaiId(sakaiId);
-				item.setName(name);
+				if (!hasCustomName)
+				{
+					item.setName(name);
+				}
 			}
 			
 			// remember who added it, for permission checks
