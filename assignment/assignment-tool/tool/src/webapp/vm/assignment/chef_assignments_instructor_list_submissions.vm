@@ -8,9 +8,11 @@
 		$('#submissionList input:checkbox').click(function(){
 			if ( $("#submissionList input:checked").length ===0){
 				hideAllowResubmission()
+				hideSendFeedback()
 				}
 			else{
 				showAllowResubmission()
+				showSendFeedback()
 			}
 		});
 
@@ -38,6 +40,24 @@
 
 	}
  	
+	function showSendFeedback()
+	{
+	    document.getElementById('sendFeedback_shown').style.display="inline";
+	    document.getElementById('sendFeedback_hidden').style.display="none";
+		$('#sendFeedback_shownInner').addClass('highLightBlock').fadeIn(2000,function(){
+			$(this).removeClass('highLightBlock')
+		});
+	   resizeFrame('grow');
+	}
+
+	function  hideSendFeedback()
+	{
+		$('#sendFeedback_shownInner').fadeOut('fast', function() {
+		    document.getElementById('sendFeedback_shown').style.display="none";
+		    document.getElementById('sendFeedback_hidden').style.display="inline";
+		});
+	}
+
 	function toggleSelectAll(caller, elementName)
 	{
 					var newValue = caller.checked;
@@ -412,6 +432,52 @@
 					</ul>
 				</div>
 			#end
+			<div id="sendFeedback_hidden" #if (!$!showSendFeedback && $!value_SubmissionType != 4) style="display:block" #else style="display:none" #end>
+				<p class="discTria">
+					<a href="#" onclick="javascript:showSendFeedback();">
+						<img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("sendFeedback.show")" border="0" width="13" height="13" align="top" />
+						$tlang.getString("sendFeedback.show")
+					</a>
+				</p>
+			</div>
+			<div id="sendFeedback_shown" #if ($!showSendFeedback && $!value_SubmissionType != 4) style="display:block" #else style="display:none"#end>
+				<p class="discTria">
+					<a href="#" onclick="javascript:hideSendFeedback();">
+						<img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("sendFeedback.hide")" border="0" width="13" height="13" align="top" />
+						$tlang.getString("sendFeedback.hide")
+					</a>
+				</p>
+				#if ($!savedFeedback)
+					#if ($!overwriteFeedback)
+						<div class="success">
+							$!tlang.getString("sendFeedback.savedow")
+						</div>
+					#else
+						<div class="success">
+							$!tlang.getString("sendFeedback.saved")
+						</div>
+					#end
+				#end
+				#if ($!returnedFeedback)
+					<div class="success">
+						$!tlang.getString("sendFeedback.returned")
+					</div>
+				#end
+				<div id="sendFeedback_shownInner" style="display:none">
+					<p class="instruction">
+						$tlang.getString("sendFeedback.instruction"):
+					</p>
+					<textarea cols=40 rows=5 name="commentFeedback"></textarea>
+					<p class="instruction">
+						$tlang.getString("sendFeedback.options"):<br/>
+						<input type="checkbox" name="overWrite"/> $tlang.getString("sendFeedback.overwrite")<br/>
+						<input type="checkbox" name="returnToStudents"/> $tlang.getString("sendFeedback.returnToStudents")<br/>
+					</p>
+					<div class="act">
+						<input type="submit" class="active" name="eventSubmit_doSave_send_feedback" value="$tlang.getString("update")" accesskey="s" />
+					</div>
+				</div>
+			</div>
 			<div id="allowResubmission_hidden" #if (!$!showAllowResubmission && $!value_SubmissionType != 4)style="display:block"#else style="display:none"#end>
 				<input type="hidden" name = "allowResToggle" id = "allowResToggle" value="checked" />
 				<p class="discTria">

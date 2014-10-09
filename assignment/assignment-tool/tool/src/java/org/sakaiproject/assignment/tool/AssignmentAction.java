@@ -860,6 +860,14 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	private static final String SHOW_ALLOW_RESUBMISSION = "show_allow_resubmission";
 	
+	private static final String SHOW_SEND_FEEDBACK = "show_send_feedback";
+	
+	private static final String RETURNED_FEEDBACK = "feedback_returned_to_selected_users";
+	
+	private static final String OW_FEEDBACK = "feedback_overwritten";
+	
+	private static final String SAVED_FEEDBACK = "feedback_saved";
+	
 	private static final int INPUT_BUFFER_SIZE = 102400;
 	
 	private static final String INVOKE = "invoke_via";
@@ -1930,6 +1938,28 @@ public class AssignmentAction extends PagedResourceActionII
 			
 			// put the resubmit information into context
 			assignment_resubmission_option_into_context(context, state);
+			
+			if(state.getAttribute(SHOW_SEND_FEEDBACK) != null)
+			{
+				context.put("showSendFeedback", Boolean.TRUE);
+				state.removeAttribute(SHOW_SEND_FEEDBACK);
+			}
+			if (state.getAttribute(SAVED_FEEDBACK) != null)
+			{
+				context.put("savedFeedback", Boolean.TRUE);
+				state.removeAttribute(SAVED_FEEDBACK);
+			}
+			if (state.getAttribute(OW_FEEDBACK) != null)
+			{
+				context.put("overwriteFeedback", Boolean.TRUE);
+				state.removeAttribute(OW_FEEDBACK);
+			}
+			if (state.getAttribute(RETURNED_FEEDBACK) != null)
+			{
+				context.put("returnedFeedback", Boolean.TRUE);
+				state.removeAttribute(RETURNED_FEEDBACK);
+			}
+
 		}
 
 		context.put("text", state.getAttribute(PREVIEW_SUBMISSION_TEXT));
@@ -10035,6 +10065,10 @@ public class AssignmentAction extends PagedResourceActionII
 		// clean state attribute
 		state.removeAttribute(USER_SUBMISSIONS);
 		state.removeAttribute(SHOW_ALLOW_RESUBMISSION);
+		state.removeAttribute(SHOW_SEND_FEEDBACK);
+		state.removeAttribute(SAVED_FEEDBACK);
+		state.removeAttribute(OW_FEEDBACK);
+		state.removeAttribute(RETURNED_FEEDBACK);
 
 		String assignmentId = params.getString("assignmentId");
 		state.setAttribute(EXPORT_ASSIGNMENT_REF, assignmentId);
@@ -15905,6 +15939,65 @@ public class AssignmentAction extends PagedResourceActionII
 		// make sure the options are exposed in UI 
 		state.setAttribute(SHOW_ALLOW_RESUBMISSION, Boolean.TRUE);
 	}
+	
+	public void doSave_send_feedback(RunData data) {
+		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		ParameterParser params = data.getParameters();
+
+		String[] userIds = params.getStrings("selectedAllowResubmit");
+		boolean checkForFormattingErrors = true;
+		String comment = processFormattedTextFromBrowser(state, params.getCleanString("commentFeedback"),checkForFormattingErrors);
+		String overwrite = params.getString("overWrite");
+		String returnToStudents = params.getString("returnToStudents");
+
+		if (userIds == null || userIds.length == 0) {
+			addAlert(state, rb.getString("sendFeedback.nouser"));
+		} else {
+			if (comment.equals("")) {
+				addAlert(state, rb.getString("sendFeedback.nocomment"));
+			} else {
+				int errorUsers = 0;
+				for (int i = 0; i < userIds.length; i++) {
+					String userId = userIds[i];
+					try {
+						User u = UserDirectoryService.getUser(userId);
+						String assignmentRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
+						AssignmentSubmission submission = AssignmentService.getSubmission(assignmentRef, u);
+						if (submission != null) {
+							AssignmentSubmissionEdit submissionEdit = AssignmentService.editSubmission(submission.getReference());
+							if (submissionEdit != null) {
+								String newFeedbackComment = "";
+								if (overwrite != null) {
+									newFeedbackComment = comment + "<br/>";
+									state.setAttribute(OW_FEEDBACK,	Boolean.TRUE);
+								} else {
+									newFeedbackComment = submissionEdit.getFeedbackComment() + comment + "<br/>";
+								}
+								submissionEdit.setFeedbackComment(newFeedbackComment);
+								if (returnToStudents != null) {
+									submissionEdit.setReturned(true);
+									submissionEdit.setTimeReturned(TimeService.newTime());
+									state.setAttribute(RETURNED_FEEDBACK, Boolean.TRUE);
+								}
+								AssignmentService.commitEdit(submissionEdit);
+								state.setAttribute(SAVED_FEEDBACK, Boolean.TRUE);
+							}
+						}
+					} catch (Exception userException) {
+						M_log.warn(this	+ ":doSave_send_feedback error getting user with id " + userId + " " + userException.getMessage());
+						errorUsers++;
+					}
+				}
+				if (errorUsers>0) {
+					addAlert(state, rb.getFormattedMessage("sendFeedback.error", new Object[]{errorUsers}));
+				}
+			}
+		}
+
+		// make sure the options are exposed in UI
+		state.setAttribute(SHOW_SEND_FEEDBACK, Boolean.TRUE);
+	}
+
 	
 	/**
 	 * multiple file upload

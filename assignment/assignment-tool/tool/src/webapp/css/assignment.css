@@ -40,8 +40,8 @@ a.toggleAnchor > h3 {
 .smallCol{
     width:25px
 }
-#allowResubmission_shownInner{padding:1em}
-#allowResubmission_shownInner p {border:none}
+#allowResubmission_shownInner,#sendFeedback_shownInner {padding:1em}
+#allowResubmission_shownInner,#sendFeedback_shownInner p {border:none}
 .highLightBlock{
     background:#eee;
 }
