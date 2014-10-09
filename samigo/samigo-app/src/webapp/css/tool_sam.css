@@ -520,8 +520,9 @@ a.hideDivision {
 }
 
 .mcAnswerText {
-	display:inline-table;
+	/*display:inline-table;*/
 	width: 80%;
+	float:unset;
 }
 
 .mcColumn1 {
@@ -569,10 +570,6 @@ table.listHierEventLog {
 	height: 100%;
 }
 
-.mcAnswerText {
-	display:inline-table;
-	width: 80%;
-}
 
 #timer-expired-warning{
 	text-align: center;	

@@ -85,7 +85,17 @@ should be included in file importing DeliveryMessages
   </h:dataTable>
 
   <f:verbatim></div></f:verbatim>
-  <f:verbatim><script>$('div.mcscFixUp').each(function(index1,elBlockToFix){$(elBlockToFix).find('div.mcscFixUpSource label').each(function(index,elLabelAndInputToMove){$(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove));$(elLabelAndInputToMove).parent('td').next('td').contents().appendTo(elLabelAndInputToMove);$(elLabelAndInputToMove).parent('td').next('td').remove();});$(elBlockToFix).find('div.mcscFixUpSource').remove();});</script></f:verbatim>
+  <f:verbatim><script>$('div.mcscFixUp').each(
+		  function(index1,elBlockToFix){
+			   $(elBlockToFix).find('div.mcscFixUpSource td').each(
+					   function(index,elLabelAndInputToMove){
+						   var tdTag= $(elBlockToFix).find('div.mcscFixUpTarget:first').parent('td').next('td');
+						   tdTag.contents().appendTo($(elLabelAndInputToMove).parent().find('label'));
+						   tdTag.remove();
+						   $(elBlockToFix).find('div.mcscFixUpTarget:first').replaceWith($(elLabelAndInputToMove).contents());						  
+						});
+			   $(elBlockToFix).find('div.mcscFixUpSource').remove();
+	});</script></f:verbatim>
 
   <h:panelGroup
     rendered="#{question.itemData.hasRationale && question.itemData.typeId != 3}" >
