@@ -4,12 +4,14 @@
     <div class="navIntraTool">
 	    <!-- Home Link -->
 	    <a href="../index">${rlb.searchadmin_index_search}</a>
-	    #foreach( $option in ${adminModel.optons} )
+	    #if ( ${adminModel.enabled} )
+	    	#foreach( $option in ${adminModel.optons} )
 	    			<a href="${option.url}" ${option.attributes} >${option.name}</a>
+	    	#end
 	    #end
     </div>
     
-
+#if ( ${adminModel.enabled} )
     <p>
  #set( $searchStatus = ${adminModel.getSearchStatus()} )
 	${rlb.vm_searchadmin_last_loaded} ${adminModel.searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime} <br /> 
@@ -86,4 +88,9 @@
 #end
 	</table>
     </div>
+#else
+    <p>
+    ${rlb.jsp_search_off_msg}
+    </p>
+#end
 #footer()

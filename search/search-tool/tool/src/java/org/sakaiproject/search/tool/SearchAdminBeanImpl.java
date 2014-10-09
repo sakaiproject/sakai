@@ -101,7 +101,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 
 	
 	
-
+	private ServerConfigurationService serverConfigurationService;
 	
 	private SearchService searchService = null;
 
@@ -134,6 +134,7 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 			ToolManager toolManager, SessionManager sessionManager, SecurityService securityService, ServerConfigurationService serverConfigurationService)
 			throws IdUnusedException, PermissionException
 	{
+		this.serverConfigurationService = serverConfigurationService;
 		siteId = toolManager.getCurrentPlacement().getContext();
 		Site currentSite = siteService.getSite(siteId);
 		siteCheck = currentSite.getReference();
@@ -673,4 +674,10 @@ public class SearchAdminBeanImpl implements SearchAdminBean
 		return redirect;
 	}
 
+	public boolean isEnabled()
+	{
+		return ("true".equals(serverConfigurationService.getString("search.enable",
+				"false")));
+
+	}
 }

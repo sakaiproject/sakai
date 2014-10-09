@@ -162,4 +162,9 @@ public interface SearchAdminBean
 	 */
 	boolean isRedirectRequired();
 
+	/**
+	 * returns true if search isEnabled
+	 * @return
+	 */
+	boolean isEnabled();
 }
