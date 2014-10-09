@@ -45,6 +45,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.Event;
@@ -1193,6 +1194,12 @@ public class DeliveryActionListener
       }
       //itemBean.setItemGradingAttachmentList(data.getItemGradingAttachmentList());
     }
+    
+    //If the value close enough to the maximum value just set it to the maximum value (precision issue)
+    if (MathUtils.equalsIncludingNaN(itemBean.getExactPoints(),itemBean.getMaxPoints(),0.001d)) {
+      itemBean.setPoints(itemBean.getMaxPoints());
+    }
+    
     itemBean.setItemGradingAttachmentList(itemGradingAttachmentList);
 
     // set question feedback.
