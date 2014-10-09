@@ -85,10 +85,9 @@ ${server_url}${dav_user}$user_id
 ${server_url}${dav_group_user}$site_id
 #elseif("$!dropboxMode" == "true")
 ${server_url}${dav_group_user}$site_id/$user_id
-#else
-#if("${site_alias}" != "")
+#elseif("${site_alias}" != "")
 ${server_url}${dav_group}${site_alias}
-#end
+#else
 ${server_url}${dav_group}$site_id
 #end
 " readonly />
