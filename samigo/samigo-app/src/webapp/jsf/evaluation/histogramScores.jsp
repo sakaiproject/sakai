@@ -216,9 +216,10 @@ $Id$
 </h:panelGrid>
 </p>
 
-<div class="objectives" rendered="#{histogramScores.showObjectivesColumn=='true'}">
+<h:panelGroup rendered="#{histogramScores.showObjectivesColumn=='true'}">
+<div class="objectives" >
 
-<h:dataTable value="#{histogramScores.objectives}" var="obj">
+<h:dataTable value="#{histogramScores.objectives}" var="obj" >
        <h:column>
                <f:facet name="header">
                        <h:outputText escape="false" value="#{evaluationMessages.obj}" /> 
@@ -234,25 +235,28 @@ $Id$
 </h:dataTable>
 
 </div>
+</h:panelGroup>
 
-<div class="keywords" rendered="#{histogramScores.showObjectivesColumn=='true'}">
+<h:panelGroup rendered="#{histogramScores.showObjectivesColumn=='true'}">
+<div class="keywords" >
 
-<h:dataTable value="#{histogramScores.keywords}" var="keyword">
+<h:dataTable value="#{histogramScores.keywords}" var="keyword_s">
        <h:column>
                <f:facet name="header">
                        <h:outputText escape="false" value="#{evaluationMessages.keywords}" /> 
                </f:facet>
-               <h:outputText value="#{keyword.key}" escape="false" />
+               <h:outputText value="#{keyword_s.key}" escape="false" />
        </h:column>
        <h:column>
                <f:facet name="header">
                        <h:outputText escape="false" value="#{evaluationMessages.objPercent}" />
                 </f:facet>
-                <h:outputText value="#{keyword.value}%" escape="false" />
+                <h:outputText value="#{keyword_s.value}%" escape="false" />
        </h:column>
 </h:dataTable>
 
 </div>
+</h:panelGroup>
 
 <h:panelGroup>
     <f:verbatim><h4></f:verbatim>
@@ -298,11 +302,11 @@ $Id$
           <h:outputText value="#{bar.title}" escape="false" rendered="#{bar.title ne ''}"/>
         <f:verbatim></h4></f:verbatim>
 
-       <h:graphicImage id="image8" rendered="#{bar.isCorrect}" width="12" height="12"
+       <h:graphicImage id="image8_b" rendered="#{bar.isCorrect}" width="12" height="12"
         alt="#{evaluationMessages.alt_correct}" url="/images/delivery/checkmark.gif" >
        </h:graphicImage>
 
-       <h:graphicImage id="image9" rendered="#{!bar.isCorrect}" width="12" height="12"
+       <h:graphicImage id="image9_b" rendered="#{!bar.isCorrect}" width="12" height="12"
         alt="#{evaluationMessages.alt_incorrect}" url="/images/delivery/spacer.gif" >
        </h:graphicImage>
 
@@ -370,7 +374,7 @@ $Id$
 
 
 
-<h:commandButton value="#{evaluationMessages.return}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
+<h:commandButton value="#{evaluationMessages.return_s}" action="select" type="submit" rendered="#{histogramScores.hasNav=='false'}"/>
 </div>
 </h:form>
 </div>
