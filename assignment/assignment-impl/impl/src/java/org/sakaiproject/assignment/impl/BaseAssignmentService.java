@@ -999,7 +999,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			// show not deleted, not draft, opened assignments
 			Time openTime = assignment.getOpenTime();
-			if (openTime != null && TimeService.newTime().after(openTime) && !assignment.getDraft())
+			Time visibleTime = assignment.getVisibleTime();
+			if (
+				(
+				(openTime != null && TimeService.newTime().after(openTime))||
+				(visibleTime != null && TimeService.newTime().after(visibleTime))
+				)
+				&& !assignment.getDraft())
 			{
 				accessible = true;
 			}
