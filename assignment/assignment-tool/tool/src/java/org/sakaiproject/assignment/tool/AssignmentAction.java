@@ -9966,7 +9966,7 @@ public class AssignmentAction extends PagedResourceActionII
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
-				if (s.getGraded())
+				if (s.getGraded() || (s.getGrade()!=null && !"".equals(s.getGrade())))
 				{
 					String sRef = s.getReference();
 					AssignmentSubmissionEdit sEdit = editSubmission(sRef, "doRelease_grades", state);
@@ -9982,6 +9982,10 @@ public class AssignmentAction extends PagedResourceActionII
 							if (grade != null && !"".equals(grade))
 							{
 								sEdit.setGradeReleased(true);
+								if(!s.getGraded())
+								{
+									sEdit.setGraded(true);
+								}
 							}
 						}
 						else
