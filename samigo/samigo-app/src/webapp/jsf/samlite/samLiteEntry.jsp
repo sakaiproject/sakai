@@ -70,6 +70,7 @@
   		 <h3>
    	 		<h:outputText value="#{samLiteMessages.samlite_title}"/>
   	     </h3>
+  	     <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 	     <p/>
 	     <h4><h:outputText value="#{samLiteMessages.samlite_step_1_of_2}"/></h4>
 	     <p/>
@@ -104,7 +105,7 @@
 				   	<h:commandButton value="#{samLiteMessages.samlite_cancel}" type="submit" action="author" immediate="true"/>
 					     	
 				   	<%-- activates the valueChangeListener --%>
-				   	<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="samLiteValidation">
+				   	<h:commandButton value="#{samLiteMessages.samlite_validate}" type="submit" styleClass="active" action="#{samLiteBean.getOutcome}">
 				   		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.samlite.ParserListener" />
 					</h:commandButton>	     
 				</div>

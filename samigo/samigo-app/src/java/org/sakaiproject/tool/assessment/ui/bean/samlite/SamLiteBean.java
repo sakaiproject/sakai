@@ -31,6 +31,7 @@ public class SamLiteBean implements Serializable {
 	private String description;
 	private String data;
 	private String assessmentTemplateId;
+	private String outcome;
 	
 	private boolean isVisible = true;
 	
@@ -158,4 +159,11 @@ public class SamLiteBean implements Serializable {
 		return "Unrecognized Type";
 	}
 
+	public void setOutcome(String outcome) {
+		this.outcome = outcome;
+	}
+
+	public String getOutcome() {
+		return outcome;
+	}
 }
