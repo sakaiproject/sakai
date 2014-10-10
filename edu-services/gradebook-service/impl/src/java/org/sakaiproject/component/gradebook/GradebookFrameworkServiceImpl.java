@@ -56,6 +56,10 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 	private static final Log log = LogFactory.getLog(GradebookFrameworkServiceImpl.class);
 
 	public static final String UID_OF_DEFAULT_GRADING_SCALE_PROPERTY = "uidOfDefaultGradingScale";
+	
+	public static final String PROP_COURSE_POINTS_DISPLAYED = "gradebook.coursepoints.displayed";
+	public static final String PROP_COURSE_GRADE_DISPLAYED = "gradebook.coursegrade.displayed";
+	public static final String PROP_ASSIGNMENTS_DISPLAYED = "gradebook.assignments.displayed";
 
 	public void addGradebook(final String uid, final String name) {
         if(isGradebookDefined(uid)) {
@@ -90,9 +94,17 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 				session.save(cg);
 
 				// According to the specification, Display Assignment Grades is
-				// on by default, and Display course grade is off.
-				gradebook.setAssignmentsDisplayed(true);
-				gradebook.setCourseGradeDisplayed(false);
+				// on by default, and Display course grade is off. But can be overridden via properties
+
+
+			  	Boolean propAssignmentsDisplayed = serverConfigurationService.getBoolean(PROP_ASSIGNMENTS_DISPLAYED,true);
+		  		gradebook.setAssignmentsDisplayed(propAssignmentsDisplayed);
+
+			  	Boolean propCourseGradeDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_GRADE_DISPLAYED,false);
+			  	gradebook.setCourseGradeDisplayed(propCourseGradeDisplayed);
+
+			   	Boolean propCoursePointsDisplayed = serverConfigurationService.getBoolean(PROP_COURSE_POINTS_DISPLAYED,false);
+		   		gradebook.setCoursePointsDisplayed(propCoursePointsDisplayed);
 
 				String defaultScaleUid = GradebookFrameworkServiceImpl.this.getPropertyValue(UID_OF_DEFAULT_GRADING_SCALE_PROPERTY);
 

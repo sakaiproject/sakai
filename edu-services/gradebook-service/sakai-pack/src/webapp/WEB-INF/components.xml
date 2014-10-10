@@ -52,6 +52,7 @@
 		<property name="authn">
 			<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
 		</property>
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
 	</bean>
 
 	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"
