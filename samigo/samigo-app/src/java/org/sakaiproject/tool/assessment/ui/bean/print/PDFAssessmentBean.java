@@ -253,6 +253,7 @@ public class PDFAssessmentBean implements Serializable {
 		DeliveryBean deliveryBean = (DeliveryBean) ContextUtil.lookupBean("delivery");
 
 		PrintSettingsBean printSetting = (PrintSettingsBean) ContextUtil.lookupBean("printSettings");
+		setBaseFontSize(printSetting.getFontSize());
 
 		if (printSetting.getShowPartIntros().booleanValue()) {
 			StringBuffer assessmentIntros = new StringBuffer();
@@ -768,6 +769,9 @@ public class PDFAssessmentBean implements Serializable {
 		input = input.replaceAll("<h6", text5.toString());
 
 		input = input.replaceAll("</h.>", "</font></div>");
+		if(!input.startsWith("<div><font")){
+			input = "<div><font size='"+baseFontSize+"'>#</font></div>".replaceAll("#", input);
+		}
 
 		return input;
 	}
