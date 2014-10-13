@@ -1,6 +1,6 @@
 ##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
     #parse("/vm/morpheus/includeStandardHead.vm")
-    <body class="portalBody" $pageSiteType>
+    <body #if( !${loggedIn} ) class="portalBody is-logged-out" #else class="portalBody" #end  $pageSiteType>
         #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
         <noscript>
             <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
