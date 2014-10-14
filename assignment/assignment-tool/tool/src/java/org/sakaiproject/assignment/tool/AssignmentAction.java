@@ -9804,6 +9804,9 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doDuplicate_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// we are changing the view, so start with first page again.
