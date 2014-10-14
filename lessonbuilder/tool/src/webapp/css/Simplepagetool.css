@@ -306,7 +306,9 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 #    left:2px;
 #    z-index:2;
 }
-
+.contentCol {
+    width:95%;
+}
 .link-div h3.link-div-head {
     display:inline;
     font-size:100%;
