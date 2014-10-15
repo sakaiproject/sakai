@@ -67,7 +67,10 @@
 	margin: 20px;
 }
 .neoPortletTitleWrap {
-	padding-bottom: 6px
+	padding-bottom: 4px;
+}
+.portletTitle .title, .portletTitle .action {
+	padding-bottom: 0px !important;
 }
 .breadcrumbs a[title="Reset"] {
 
