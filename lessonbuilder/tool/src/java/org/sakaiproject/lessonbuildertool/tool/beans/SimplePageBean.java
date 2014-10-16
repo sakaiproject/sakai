@@ -5185,11 +5185,17 @@ public class SimplePageBean {
 // for group-owned student pages, put it in the worksite of the current user
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
+		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
 	    
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
+			if (baseDir != null) {
+			    if (!baseDir.endsWith("/"))
+				baseDir = baseDir + "/";
+			    collectionId = collectionId + baseDir;
+			}
 		}else {
 			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
 		}
