@@ -138,7 +138,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 			return rb.getFormattedMessage((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function) ? "db.subj.new.dnd" : "db.subj.upd-dnd"), args);
 		}
 		else return "[ " + title + " - "
-		+ ((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))||(contentHostingService.EVENT_RESOURCE_ADD.equals(function)) ? rb.getString("new") : rb.getString("chan")) + " "
+		+ ((contentHostingService.EVENT_RESOURCE_AVAILABLE.equals(function))||(contentHostingService.EVENT_RESOURCE_ADD.equals(function)) ? rb.getString("newDnD") : rb.getString("chan")) + " "
 		+ rb.getString("reso") + " ] " + rb.getString("folder") + " " + folderName;
 	}
 
@@ -446,7 +446,7 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 			buf.append(rb.getString("anewres2DnD"));
 		}
 		buf.append(" ");
-		buf.append(rb.getString("the"));
+		buf.append(rb.getString("tothe"));
 		buf.append(" \"");
 		buf.append(title);
 		buf.append("\" ");
