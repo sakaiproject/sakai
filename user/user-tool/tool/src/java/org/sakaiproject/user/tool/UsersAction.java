@@ -38,6 +38,8 @@ import net.tanesha.recaptcha.ReCaptchaResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
@@ -50,6 +52,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
@@ -59,6 +62,8 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolSession;
@@ -110,6 +115,8 @@ public class UsersAction extends PagedResourceActionII
 	private static final PasswordPolicyHelper pwHelper = new PasswordPolicyHelper();
 	private static final String MSG_KEY_PASSWORD_WEAK = "pw.weak";
 	private static final String MSG_KEY_PW_STRENGTH_INFO = "pw.strengthInfo";
+
+	private static final String SAK_PROP_UNENROLL_BEFORE_DELETE = "user.unenroll.before.delete";
 
 	/**
 	 * {@inheritDoc}
@@ -578,6 +585,15 @@ public class UsersAction extends PagedResourceActionII
 	} // buildViewContext
 
 	/**
+	 * @author bbailla2
+	 * @return the sakai property "user.unenroll.before.delete" (default is true)
+	 */
+	private boolean isUnenrollBeforeDeleteEnabled()
+	{
+		return ServerConfigurationService.getBoolean(SAK_PROP_UNENROLL_BEFORE_DELETE, true);
+	}
+
+	/**
 	 * Build the context for the new user mode.
 	 */
 	private String buildConfirmRemoveContext(SessionState state, Context context)
@@ -585,6 +601,36 @@ public class UsersAction extends PagedResourceActionII
 		// get the user to edit
 		UserEdit user = (UserEdit) state.getAttribute("user");
 		context.put("user", user);
+
+		// get list of memberships; populate the UI
+		// determines whether we need to unenroll the user from sites before we delete them
+		boolean unenrollFirst = isUnenrollBeforeDeleteEnabled();
+
+		String permDelWarning = "";
+		if (unenrollFirst)
+		{
+			SiteService siteService = (SiteService)ComponentManager.get(SiteService.class);
+			List<Site> sites = siteService.getUserSites(false, user.getId());
+			if (sites != null && !sites.isEmpty())
+			{
+				// there are sites to unenroll from, present this to the user
+				int siteLen = sites.size();
+				String siteMsg = siteLen == 1 ? rb.getString("useconrem.site") : rb.getFormattedMessage("useconrem.sites", Integer.valueOf(siteLen));
+				permDelWarning = rb.getFormattedMessage("useconrem.unenrol", user.getEid(), siteMsg);
+			}
+			else
+			{
+				// nothing to unenroll from
+				unenrollFirst = false;
+			}
+		}
+
+		if (!unenrollFirst)
+		{
+			// we don't need to unenroll the user from anything, so just indicate that this user will be permanently deleted
+			permDelWarning = rb.getFormattedMessage("useconrem.permdel", user.getEid());
+		}
+		context.put("permDelWarning", permDelWarning);
 
 		return "_confirm_remove";
 
@@ -980,10 +1026,36 @@ public class UsersAction extends PagedResourceActionII
 		// get the user
 		UserEdit user = (UserEdit) state.getAttribute("user");
 
-		// remove
+		// unenroll the user from all AuthzGroups (if enabled)
+		String userId = user.getId();
+		String userEid = user.getEid();
+		if (isUnenrollBeforeDeleteEnabled())
+		{
+			Map<String, String> userRoles = AuthzGroupService.getUserRoles(userId, null);
+			for (String realm : userRoles.keySet())
+			{
+				try
+				{
+					AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+					realmEdit.removeMember(userId);
+					AuthzGroupService.save(realmEdit);
+					Log.info("chef", "User " + userEid + " removed from realm " + realm);
+				}
+				catch (Exception e)
+				{
+					Log.error("chef", "Could not remove user " + user.getEid() + " from realm " + realm);
+					addAlert(state, rb.getFormattedMessage("useact.couldnot", user.getEid(), realm));
+				}
+			}
+		}
+
+		// remove the user
 		try
 		{
 			UserDirectoryService.removeUser(user);
+
+			// tracking information
+			Log.info("chef", "User " + userEid + " has been deleted by " + UserDirectoryService.getCurrentUser().getEid() + ". The internal ID was " + userId);
 		}
 		catch (UserPermissionException e)
 		{

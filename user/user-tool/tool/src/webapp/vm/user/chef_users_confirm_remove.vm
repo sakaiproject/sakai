@@ -10,7 +10,7 @@
 
 		#if ($alertMessage)<div class="alertMessage">$tlang.getString("useconrem.alert") $validator.escapeHtml($alertMessage)</div>#end
 		<div class="alertMessage">
-			$tlang.getString("useconrem.areyousur")
+			$permDelWarning
 		</div>
 		<table class="listHier" cellspacing="0" summary ="$tlang.getString("useact.remuse.list.summary")">
 			<tr>
