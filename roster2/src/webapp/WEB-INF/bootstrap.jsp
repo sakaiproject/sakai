@@ -42,7 +42,7 @@
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {
-                    <c:forEach items="${i18n}" var="i">${i.key}: "${i.value}",</c:forEach>
+                    <c:forEach items="${i18n}" var="i">${i.key}: '${i.value}',</c:forEach>
                 }
             };
     
