@@ -10537,6 +10537,13 @@ public class AssignmentAction extends PagedResourceActionII
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
+		// determines if the file picker can only add a single attachment
+		boolean singleAttachment = false;
+
+		// when content-review is enabled, the inline text will have an associated attachment. It should be omitted from the file picker
+		Assignment assignment = null;
+		boolean omitInlineAttachments = false;
+
 		String mode = (String) state.getAttribute(STATE_MODE);
 		if (MODE_STUDENT_VIEW_SUBMISSION.equals(mode))
 		{
@@ -10547,11 +10554,16 @@ public class AssignmentAction extends PagedResourceActionII
 			String assignmentRef = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
 			try
 			{
-				Assignment assignment = AssignmentService.getAssignment(assignmentRef);
+				assignment = AssignmentService.getAssignment(assignmentRef);
 				if (assignment.getContent().getAllowReviewService())
 				{
-					state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+					state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
 					state.setAttribute(FilePickerHelper.FILE_PICKER_SHOW_URL, Boolean.FALSE);
+				}
+
+				if (assignment.getContent().getTypeOfSubmission() == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+				{
+					singleAttachment = true;
 				}
 			}
 			catch ( IdUnusedException e )
@@ -10569,6 +10581,11 @@ public class AssignmentAction extends PagedResourceActionII
 			// TODO: file picker to save in dropbox? -ggolden
 			// User[] users = { UserDirectoryService.getCurrentUser() };
 			// state.setAttribute(ResourcesAction.STATE_SAVE_ATTACHMENT_IN_DROPBOX, users);
+
+			// Always omit inline attachments. Even if content-review is not enabled, 
+			// this could be a resubmission to an assignment that was previously content-review enabled, 
+			// in which case the file will be present and should be omitted.
+			omitInlineAttachments = true;
 		}
 		else if (MODE_INSTRUCTOR_NEW_EDIT_ASSIGNMENT.equals(mode))
 		{
@@ -10584,11 +10601,27 @@ public class AssignmentAction extends PagedResourceActionII
 			// get into helper mode with this helper tool
 			startHelper(data.getRequest(), "sakai.filepicker");
 
-			state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatttoassig"));
+			if (singleAttachment)
+			{
+				// SAK-27595 - added a resources file picker for single uploaded file only assignments; we limit it here to accept a maximum of 1 file	--bbailla2
+				state.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, Integer.valueOf(1));
+				state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatttoassig.singular"));
+			}
+			else
+			{
+				state.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, rb.getString("gen.addatttoassig"));
+			}
 			state.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, rb.getString("gen.addatttoassiginstr"));
 
 			// use the real attachment list
-			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, state.getAttribute(ATTACHMENTS));
+			// but omit the inlie submission under conditions determined in the logic above
+			List attachments = (List) state.getAttribute(ATTACHMENTS);
+			if (omitInlineAttachments && assignment != null)
+			{
+				attachments = getNonInlineAttachments(state, assignment);
+				state.setAttribute(ATTACHMENTS, attachments);
+			}
+			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
 		}
 	}
 

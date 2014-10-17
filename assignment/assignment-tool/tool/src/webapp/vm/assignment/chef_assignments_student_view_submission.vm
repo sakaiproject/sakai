@@ -887,12 +887,33 @@ function enableSubmitUnlessNoFile(checkForFile)
 					## for single file upload case
 					#if ($submissionType==5 && $attachments && $attachments.size() == 0)
 						<div class="highlightPanel">
-							<p class="shorttext">
-								<label for="upload">$tlang.getString("att.upl")</label>
-								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
-								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
-								<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
-							</p>	
+							<table border="0" cellpadding="0" cellspacing="0" class="listHier centerLines" style="width:auto;margin:0;">
+								<tbody>
+									<tr>
+										<td>
+											<label for="upload">$tlang.getString("att.upl")</label>
+										</td>
+										<td>
+											<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
+											<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
+										</td>
+										<td>
+											## add browse resources button here	--bbailla2
+											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
+											<input
+												class="disableme enabled"
+												type="button"
+												value="$howManySubAttsLinks"
+												name="attach"
+												id="attach"
+												accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+												onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+											/>
+										</td>
+									</tr>
+								</tbody>
+							</table>
 				 		</div>
 					#end
 				#elseif ($submissionType == 5)
