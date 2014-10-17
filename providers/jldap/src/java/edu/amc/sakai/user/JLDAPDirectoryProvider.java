@@ -772,7 +772,11 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 		}
 
 		if ( !(isSearchableEid(eid)) ) {
-			if ( M_log.isInfoEnabled() ) {
+			if (eid == null)
+			{
+				M_log.debug("User EID not searchable (eid is null)");
+			}
+			else if ( M_log.isInfoEnabled() ) {
 				M_log.info("User EID not searchable (possibly blacklisted or otherwise syntactically invalid) [" + eid + "]");
 			}
 			return null;
