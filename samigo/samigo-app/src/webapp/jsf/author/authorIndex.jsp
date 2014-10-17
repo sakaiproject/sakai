@@ -37,11 +37,8 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
       <div class="portletBody">
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/samigo-app/js/info.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
-<link type="text/css" href="/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css" rel="stylesheet" media="all"/>
 <link type="text/css" href="/samigo-app/css/tool_sam.css" rel="stylesheet" media="all"/>
 <script type="text/JavaScript">
 

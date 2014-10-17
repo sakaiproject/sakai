@@ -12,7 +12,6 @@
 <head><%=request.getAttribute("html.head")%>
 <title><h:outputText
 		value="#{authorMessages.example_emi_question}" escape="false" /></title>
-<script type="text/javascript" src="/library/js/jquery/1.7.1/jquery-1.7.1.min.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('#closeBut').click(function() {

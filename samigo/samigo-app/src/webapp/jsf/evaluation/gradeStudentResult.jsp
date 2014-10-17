@@ -44,8 +44,6 @@ $Id$
         }
       </style>
       <title><h:outputText value="#{commonMessages.total_scores}" /></title>
-      <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-      <script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
 
       </head>

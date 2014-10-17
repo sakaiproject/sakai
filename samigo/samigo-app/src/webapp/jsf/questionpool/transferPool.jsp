@@ -18,7 +18,6 @@
                 <%@ include file="/js/samigotree.js" %>
             </script>
 
-            <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
         </head>
     <body onload="checkSaveButton(); disableCheckboxes();<%= request.getAttribute("html.body.onload") %>">
 

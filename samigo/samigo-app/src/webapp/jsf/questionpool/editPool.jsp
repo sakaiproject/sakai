@@ -32,9 +32,6 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{questionPoolMessages.edit_p}"/></title>
 
-      <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-	  <script type="text/javascript" src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
-      <link type="text/css" href="/library/js/jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" rel="Stylesheet" media="all" />
 <%@ include file="/js/delivery.js" %>
 
 <script type="text/JavaScript">

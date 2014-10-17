@@ -42,7 +42,6 @@ confirmation dialog
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
 	<title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 	<!-- HTMLAREA -->
 	<samigo:stylesheet path="/htmlarea/htmlarea.css"/>
 	<samigo:script path="/htmlarea/htmlarea.js"/>

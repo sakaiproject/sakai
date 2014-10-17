@@ -16,7 +16,6 @@
                 <%@ include file="/js/samigotree.js" %>
             </script>
 
-            <samigo:script path="/js/jquery-1.3.2.min.js" />
 
             <samigo:stylesheet path="/css/tool_sam.css" />
         </head>

@@ -16,7 +16,6 @@
                 <%@ include file="/js/samigotree.js" %>
             </script>
 
-            <samigo:script path="/js/jquery-1.3.2.min.js" />
         </head>
         <body onload="<%= request.getAttribute("html.body.onload") %>">
             <div class="portletBody">

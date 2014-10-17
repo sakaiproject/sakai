@@ -20,9 +20,6 @@
 --%>
 -->
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.css" rel="stylesheet" media="all"/>
 <script type="text/javascript" src="/library/js/jquery/blockUI/2.66/jquery.blockUI.js"></script>
 
 <script type="text/javascript">
