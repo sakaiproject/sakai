@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -34,15 +35,14 @@ import javax.faces.event.ValueChangeListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
-import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
+import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.questionpool.QuestionPoolBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -232,10 +232,23 @@ log.debug("after getting item.getItemType() ");
                     nextpage = "calculatedQuestionVariableItem";
                     break;
                 case 10:
-    			QuestionPoolBean qpoolBean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
-			qpoolBean.setImportToAuthoring(true);
-                        nextpage = "poolList";
-                        break;
+                    QuestionPoolBean qpoolBean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
+                    qpoolBean.setImportToAuthoring(true);
+                    nextpage = "poolList";
+
+                    // set the current part for question copying
+                    String partNo = itemauthorbean.getInsertToSection();
+                    List<SectionContentsBean> sections = assessmentBean.getSections();
+                    for (SectionContentsBean content : sections)
+                    {
+                        if (partNo != null && partNo.equals(content.getNumber()))
+                        {
+                            qpoolBean.setSelectedSection(content.getSectionId());
+                            break;
+                        }
+                    }
+
+                    break;
                 case 100:
 				ToolSession currentToolSession = SessionManager.getCurrentToolSession();
 				currentToolSession.setAttribute("QB_insert_possition", itemauthorbean.getInsertPosition());
