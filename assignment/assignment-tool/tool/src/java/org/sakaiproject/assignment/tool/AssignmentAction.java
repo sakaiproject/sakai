@@ -8603,9 +8603,6 @@ public class AssignmentAction extends PagedResourceActionII
 		a.setPeerAssessmentStudentViewReviews(peerAssessmentStudentViewReviews);
 		a.setPeerAssessmentNumReviews(peerAssessmentNumReviews);
 		a.setPeerAssessmentInstructions(peerAssessmentInstructions);
-		
-		// post the assignment
-		a.setDraft(!post);
 
 		try
 		{
