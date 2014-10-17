@@ -25,7 +25,7 @@
 <!-- content... -->
  <div align="center">
    <h3>
-      <h:outputText value="#{eventLog.siteTitle}"/>
+      <h:outputText value="#{eventLog.siteTitle} "/>
       <h:outputText value="#{eventLogMessages.log}"/>
    </h3>
  </div>
