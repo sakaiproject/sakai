@@ -344,15 +344,15 @@ function setupMessageNav(messageType){
 					// if "Pending" just link directly to next one
 					else{
                         //new method to avoid FF4 internal linking behaviours MSGCNTR-544
-                        var targetPos = $('a[name=' +  messageType + "newMess" + (intIndex + 1) + ']').position();
+                        var targetPos = $("a[name='" +  messageType + "newMess" + (intIndex + 1) + "']").position();
 						window.parent.scrollTo(0, targetPos.top);
 					}
                 });
                 $('#messNavHolder a').click(function(e){
                     //new method to avoid FF4 internal linking behaviours MSGCNTR-544
                     e.preventDefault();
-                    var targetPosPrep=$(this).prop('href').replace('#','');
-                    var targetPos = $('a[name=' + targetPosPrep + ']').position();
+                    var targetPosPrep=$(this).attr('href').replace('#','');
+                    var targetPos = $("a[name='" + targetPosPrep + "']").position();
                     window.parent.scrollTo(0, targetPos.top);        
                 })
             }
