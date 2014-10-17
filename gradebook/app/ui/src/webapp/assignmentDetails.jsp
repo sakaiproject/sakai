@@ -6,7 +6,7 @@
 
 <f:view>
   <div class="portletBody">
-	<h:form id="gbForm">
+	<h:form id="gbForm" onsubmit="return blockDoubleSubmit();">
 	
 
 		<sakai:flowState bean="#{assignmentDetailsBean}" />

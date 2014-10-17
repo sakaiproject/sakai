@@ -6,7 +6,7 @@
 
 <f:view>
 	<div class="portletBody">
-	  <h:form id="gbForm">
+	  <h:form id="gbForm" onsubmit="return blockDoubleSubmit();">
 
 		<sakai:flowState bean="#{instructorViewBean}" />
 		
@@ -241,14 +241,14 @@
 							<h:panelGroup rendered="#{!row.associatedAssignment.externallyMaintained && row.userCanGrade}">
 								<h:inputText id="Score" value="#{row.score}" size="4" 
 									 rendered="#{(instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent)  && !row.gradeRecord.droppedFromGrade}"
-									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 									<f:validateDoubleRange minimum="0"/>
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
 								</h:inputText>
 								<h:inputText id="Score2" value="#{row.score}" size="4" 
 									 rendered="#{(instructorViewBean.gradeEntryByPoints || instructorViewBean.gradeEntryByPercent)  && row.gradeRecord.droppedFromGrade}"
-									 style="text-align:right;text-decoration:line-through" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									 style="text-align:right;text-decoration:line-through" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE" />
 									<f:validateDoubleRange minimum="0"/>
 									<f:validator validatorId="org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE"/>
@@ -259,7 +259,7 @@
 								
 								<h:inputText id="LetterScore" value="#{row.letterScore}" size="4" 
 									 rendered="#{instructorViewBean.gradeEntryByLetter}"
-									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');">
+									 style="text-align:right;" onkeypress="return submitOnEnter(event, 'gbForm:saveButton1');">
 									<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.LETTER_GRADE_CONVERTER" />
 								</h:inputText>
 							</h:panelGroup>

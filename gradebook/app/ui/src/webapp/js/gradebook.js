@@ -36,6 +36,17 @@ function submitOnEnter(event, defaultButtonId) {
 }
 
 
+//Seeting a form's onsubmit='return blockDoubleSubmit(this);' will fix any issues where the form submits multiple times when the user hammers the enter key or such.
+var allowSubmit = true;
+function blockDoubleSubmit()
+{
+	if (allowSubmit)
+	{
+		allowSubmit = false;
+		return true;
+	}
+	return false;
+}
 
 /* DHTML windows for grading event display */
 

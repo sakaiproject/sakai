@@ -2,7 +2,7 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <f:view>
 	<div class="portletBody">
-	  <h:form id="gbForm">
+	  <h:form id="gbForm" onsubmit="blockDoubleSubmit();">
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@ include file="/inc/appMenu.jspf"%>
