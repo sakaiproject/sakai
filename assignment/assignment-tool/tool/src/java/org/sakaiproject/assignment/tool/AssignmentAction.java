@@ -12365,7 +12365,7 @@ public class AssignmentAction extends PagedResourceActionII
 							t1 = ((Assignment) o1).getTimeCreated();
 							t2 = ((Assignment) o2).getTimeCreated();
 						}
-						else if (t1.before(t2))
+						if (t1.before(t2))
 						{
 							result = 1;
 						}
