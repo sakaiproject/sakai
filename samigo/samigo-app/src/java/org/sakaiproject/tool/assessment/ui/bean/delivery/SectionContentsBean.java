@@ -433,32 +433,58 @@ public class SectionContentsBean
           String randomDrawDate = section.getSectionMetaDataByLabel(SectionDataIfc.QUESTIONS_RANDOM_DRAW_DATE);
           if(randomDrawDate != null && !"".equals(randomDrawDate)){
 
-        	  try{
+              try{
 
-        		// bjones86 - SAM-1604
-				DateTime drawDate;
-				DateTimeFormatter fmt = ISODateTimeFormat.dateTime();	//The Date Time is in ISO format
-				try {
-					drawDate = fmt.parseDateTime(randomDrawDate);
-				} catch(Exception ex) {
-					DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
-					Date date = df.parse(randomDrawDate);
-					if(date == null) {
-						throw new IllegalArgumentException();
-					}
-					drawDate = new DateTime(date);
-				}
-        		  
-        		  //We need the locale to localize the output string
-        		  Locale loc = new ResourceLoader().getLocale();
-        		  String drawDateString = DateTimeFormat.fullDate().withLocale(loc).print(drawDate);
-        		  String drawTimeString = DateTimeFormat.fullTime().withLocale(loc).print(drawDate);
-        		  setRandomQuestionsDrawDate(drawDateString);
-        		  setRandomQuestionsDrawTime(drawTimeString);
+                // bjones86 - SAM-1604
+                DateTime drawDate;
+                DateTimeFormatter fmt = ISODateTimeFormat.dateTime();	//The Date Time is in ISO format
+                try {
+                    drawDate = fmt.parseDateTime(randomDrawDate);
+                } catch(Exception ex) {
+                    Date date = null;
+                    try
+                    {
+                        // Old code produced dates that appeard like java.util.Date.toString() in the database
+                        // This means it's possible that the database contains dates in multiple formats
+                        // We'll try parsing Date.toString()'s format first.
+                        // Date.toString is locale independent. So this SimpleDateFormat using Locale.US should guarantee that this works on all machines:
+                        DateFormat df = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.US);
+                        // parse can either throw an exception or return null
+                        date = df.parse(randomDrawDate);
+                    }
+                    catch (Exception e)
+                    {
+                        // failed to parse. Not worth logging yet because we will try again with another format
+                    }
 
-        	  }catch(Exception e){
-        		  log.error("Unable to parse date text: " + randomDrawDate, e);
-        	  }         
+                    if (date == null)
+                    {
+                        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZZ");
+                        // If this throws an exception, it's caught below. This is appropriate.
+                        date = df.parse(randomDrawDate);
+                    }
+
+                    if(date == null) 
+                    {
+                        // Nothing has worked
+                        throw new IllegalArgumentException("Unable to parse date " + randomDrawDate);
+                    }
+                    else
+                    {
+                        drawDate = new DateTime(date);
+                    }
+                }
+
+                    //We need the locale to localize the output string
+                    Locale loc = new ResourceLoader().getLocale();
+                    String drawDateString = DateTimeFormat.fullDate().withLocale(loc).print(drawDate);
+                    String drawTimeString = DateTimeFormat.fullTime().withLocale(loc).print(drawDate);
+                    setRandomQuestionsDrawDate(drawDateString);
+                    setRandomQuestionsDrawTime(drawTimeString);
+
+                }catch(Exception e){
+                    log.error("Unable to parse date text: " + randomDrawDate, e);
+                }
           }
         }
       }
