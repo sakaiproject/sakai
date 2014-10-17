@@ -754,6 +754,12 @@
       </qtimetadatafield>
       <!--Possible Values -->
       <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>honorpledge_isInstructorEditable</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
     </qtimetadata>
     <assessmentcontrol feedbackswitch="Yes" solutionswitch="Yes"/>
     <rubric>

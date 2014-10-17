@@ -126,6 +126,8 @@ public class BeginDeliveryActionListener implements ActionListener
     	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
     	// set the outcome to isRetractedForEdit2 error page.
     	delivery.setAssessmentTitle(pub.getTitle());
+    	delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
+    			pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     	delivery.setOutcome("isRetractedForEdit2");
     	return;
     }
@@ -267,6 +269,8 @@ public class BeginDeliveryActionListener implements ActionListener
     // #0 - global information
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
+    delivery.setHonorPledge(pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
+    						pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     String instructorMessage = pubAssessment.getDescription();
     delivery.setInstructorMessage(instructorMessage);
 

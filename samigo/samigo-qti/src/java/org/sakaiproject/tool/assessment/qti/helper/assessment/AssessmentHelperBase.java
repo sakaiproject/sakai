@@ -513,6 +513,7 @@ public abstract class AssessmentHelperBase
       "metadataAssess_isInstructorEditable",
       "metadataParts_isInstructorEditable",
       "metadataQuestions_isInstructorEditable",
+      "honorpledge_isInstructorEditable"
     };
 
     String key;

@@ -78,6 +78,7 @@ public class MetaDataList
     "metadataAssess_isInstructorEditable",
     "metadataParts_isInstructorEditable",
     "metadataQuestions_isInstructorEditable",
+    "honorpledge_isInstructorEditable"
   };
 
   private List metadataList;

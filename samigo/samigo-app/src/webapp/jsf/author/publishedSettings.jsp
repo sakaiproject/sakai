@@ -120,6 +120,14 @@
            <%@ include file="/jsf/author/publishedSettings_attachment.jsp" %>
          </h:panelGrid>
        </h:panelGroup>
+       <h:outputText value=""/>
+       
+       <!-- Honor Pledge -->
+		<h:outputLabel value="#{assessmentSettingsMessages.honor_pledge}"/>
+		<h:panelGroup>
+			<h:selectBooleanCheckbox id="honor_pledge" value="#{publishedSettings.valueMap.honorpledge_isInstructorEditable}"/>
+			<h:outputText value="#{assessmentSettingsMessages.honor_pledge_add}"/>
+		</h:panelGroup>
 
     </h:panelGrid>
   </div>

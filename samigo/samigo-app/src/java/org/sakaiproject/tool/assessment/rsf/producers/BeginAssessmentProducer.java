@@ -139,6 +139,8 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
 
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());
+    delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
+    		pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     delivery.setPublishedAssessment(pub);
 
     String path = null;

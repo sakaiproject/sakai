@@ -113,7 +113,18 @@
       <h:outputLabel value="#{templateMessages.description_intro_opt}"/>
      <samigo:wysiwyg rows="140" value="#{template.templateDescription}" hasToggle="yes" >
        <f:validateLength maximum="4000"/>
-     </samigo:wysiwyg>
+      </samigo:wysiwyg>
+      
+      <h:outputText value=""/>
+      <h:outputText value=""/>
+       <!-- Honor Pledge -->
+	  <h:outputLabel value="#{templateMessages.honor_pledge}"/>
+      <h:panelGroup>
+		<h:selectBooleanCheckbox id="honor_pledge" value="#{template.valueMap.honorpledge_isInstructorEditable}"/>
+		<h:outputLabel for="honor_pledge" value="#{templateMessages.honor_pledge_add}"/>
+      </h:panelGroup> 
+	</div>
+     
     </h:panelGrid>
     </div></div>
   </samigo:hideDivision>

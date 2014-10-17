@@ -149,6 +149,8 @@ public class FakeBeginDeliveryActionListener implements ActionListener
     log.info("** 4. FakeBeginDeliveryActionListener, pubId= "+pubAssessment.getPublishedAssessmentId());
     delivery.setAssessmentId((pubAssessment.getPublishedAssessmentId()).toString());
     delivery.setAssessmentTitle(pubAssessment.getTitle());
+    delivery.setHonorPledge(pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
+    		pubAssessment.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
     delivery.setInstructorMessage(pubAssessment.getDescription());
     delivery.setCreatorName(pubAssessment.getCreatedBy());
     delivery.setSubmitted(false);

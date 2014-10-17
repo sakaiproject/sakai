@@ -36,7 +36,7 @@
 
       </title>
       </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>; isMacintosh_Netscape();">
+      <body onload="<%= request.getAttribute("html.body.onload") %>; isMacintosh_Netscape(); initOkToSubmit();">
  
 <!--div class="portletBody"-->
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
@@ -46,6 +46,22 @@
 <!--JAVASCRIPT -->
 <script type="text/JavaScript">
 <%@ include file="/js/browser.js" %>
+
+var okToSubmit = true;
+function initOkToSubmit(){
+	if(document.getElementById('takeAssessmentForm:honor_pledge') != null){
+		okToSubmit = false;
+	}
+}
+
+function checkSubmit(){
+	if(!okToSubmit){
+		alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
+		document.getElementById('takeAssessmentForm:honorPledgeRequired').style.display="";
+		return false;
+	}
+	return true;
+}
 </script>
 
  <!-- content... -->
@@ -193,6 +209,12 @@
 </h:panelGrid>
 
  </div></div>
+ 
+ <h:panelGrid columns="3" rendered="#{delivery.honorPledge}">
+	<h:selectBooleanCheckbox id="honor_pledge" onclick="okToSubmit=this.checked"/>
+	<h:outputLabel for="honor_pledge" value="#{deliveryMessages.honor_pledge_detail}"/>
+	<h:outputText id="honorPledgeRequired" value="#{deliveryMessages.honor_required}" styleClass="alertMessage" style="display:none"/>
+</h:panelGrid>
 
 
 <p class="act">
@@ -204,7 +226,7 @@
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation != 1 && delivery.firstTimeTaking}"
-	onclick="disableBeginAssessment1();">
+	onclick="if(checkSubmit()){disableBeginAssessment1();}else{return false}">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
   
@@ -213,7 +235,7 @@
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation == 1 && delivery.firstTimeTaking}"
-	onclick="disableBeginAssessment2();">
+	onclick="if(checkSubmit()){disableBeginAssessment2();}else{return false}">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
   
@@ -237,7 +259,7 @@
   </h:commandButton>
   
 
- <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="disableBeginAssessment3();">
+ <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="if(checkSubmit()){disableBeginAssessment3();}else{return false}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
