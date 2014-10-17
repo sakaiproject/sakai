@@ -210,13 +210,18 @@ public class ZipContentUtil {
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 			while (entries.hasMoreElements()) {
-				ZipEntry nextElement = entries.nextElement();						
-				if (nextElement.isDirectory()) {					
-					createContentCollection(rootCollectionId, nextElement);
-				} 
-				else { 
-					createContentResource(rootCollectionId, nextElement, zipFile);				
-				}
+				ZipEntry nextElement = entries.nextElement();
+                if(!nextElement.getName().contains("__MACOSX")){
+                    if (nextElement.isDirectory()) {
+                        createContentCollection(rootCollectionId, nextElement);
+                    }
+                    else {
+                        if(!nextElement.getName().contains(".DS_Store")){
+                            createContentResource(rootCollectionId, nextElement, zipFile);
+                        }
+                    }
+                }
+
 			}
 			zipFile.close();
 		} catch (Exception e) {
