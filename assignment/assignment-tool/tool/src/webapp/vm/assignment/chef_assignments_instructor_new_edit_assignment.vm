@@ -30,7 +30,7 @@ $(document).ready(function() {
 	 		});
 	 	});
  	#end
-
+	SetMaxPoint(document.getElementById('$name_GradeType'), document.getElementById('$name_GradePoints'));
 });
 </script>
 
@@ -76,6 +76,11 @@ $(document).ready(function() {
 <script type="text/javascript">
     function SetMaxPoint(obj_option, obj_textfield)
     {
+		if (obj_option === null || obj_textfield === null)
+		{
+			return;
+		}
+
 		if(obj_option.value==3)
 		{ 
 			obj_textfield.disabled = false;
