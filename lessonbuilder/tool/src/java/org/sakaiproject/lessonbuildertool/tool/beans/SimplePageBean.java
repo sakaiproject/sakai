@@ -450,10 +450,14 @@ public class SimplePageBean {
 	}
 
 	public BltiTool getBltiTool(int i) {
+	    if (bltiTools == null)
+		return null;
 	    return bltiTools.get(i);
 	}
 
 	public Collection<BltiTool> getBltiTools() {
+	    if (bltiTools == null)
+		return null;
 	    return bltiTools.values();
 	}
 
