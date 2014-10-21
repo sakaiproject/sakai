@@ -25,6 +25,7 @@
 package org.sakaiproject.lessonbuildertool.tool.beans;
 
 import java.text.SimpleDateFormat;
+import java.text.Format;
 import java.math.BigDecimal;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -5484,16 +5485,26 @@ public class SimplePageBean {
 				}
 				
 				name = url;
-				String base = url;
-				String extension = "";
-				int i = url.lastIndexOf("/");
-				if (i < 0) i = 0;
-				i = url.lastIndexOf(".", i);
-				if (i > 0) {
-					extension = url.substring(i);
-					base = url.substring(0,i);
+				String basename = url;
+				// SAK-11816 method for creating resource ID
+				String extension = ".url";
+				if (basename != null && basename.length() > 32) {
+				    // lose the http first                              
+				    if (basename.startsWith("http:")) {
+					basename = basename.substring(7);
+				    } else if (basename.startsWith("https:")) {
+					basename = basename.substring(8);
+				    }
+				    if (basename.length() > 32) {
+					// max of 18 chars from the URL itself                      
+					basename = basename.substring(0, 18);
+					// add a timestamp to differentiate it (+14 chars)          
+					Format f= new SimpleDateFormat("yyyyMMddHHmmss");
+					basename += f.format(new Date());
+					// total new length of 32 chars                             
+				    }
 				}
-				
+
 				String collectionId;
 				SimplePage page = getCurrentPage();
 				
@@ -5502,7 +5513,7 @@ public class SimplePageBean {
 				try {
 					// 	urls aren't something people normally think of as resources. Let's hide them
 					ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-							Validator.escapeResourceName(base),
+							Validator.escapeResourceName(basename),
 							Validator.escapeResourceName(extension),
 							MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					res.setContentType("text/url");
