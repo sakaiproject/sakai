@@ -35,24 +35,24 @@
 					<sakai:separatedList id="channelActionList" separator=" | " styleClass="itemAction">
 					<f:subview id="editLink" rendered="#{channel.canEdit}">
 						<h:commandLink action="#{channel.processActionEditRoom}">
-							<h:outputText value="#{msgs['gen.edit']}" />
+							<h:outputText styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs['gen.edit']} " />
 						</h:commandLink>
 					</f:subview>
 					<f:subview id="deleteLink" rendered="#{channel.canDelete}">
 						<h:commandLink action="#{channel.processActionDeleteRoom}">
-							<h:outputText value="#{msgs['gen.delete']}" />
+							<h:outputText  styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs['gen.delete']}" />
 						</h:commandLink>
 					</f:subview>
 					<f:subview id="clearMessages" rendered="#{channel.canDeleteMessages && channel.numberChannelMessages > 0}">
 						<h:commandLink action="#{channel.processActionDeleteRoomMessages}" 
 							title="#{msgs.delete_room_messages}">
-							<h:outputText value="#{msgs.delete_room_messages}" />
+							<h:outputText  styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs.delete_room_messages}" />
 						</h:commandLink>
 					</f:subview>
 					<f:subview id="defaultLink" rendered="#{(!channel.chatChannel.placementDefaultChannel || ChatTool.toolString != channel.chatChannel.placement) && ChatTool.maintainer}">
 						<h:commandLink action="#{channel.processActionSetAsDefaultRoom}" 
 							title="#{channel.setAsDefaultText}">
-							<h:outputText value="#{msgs.set_default}" />
+							<h:outputText  styleClass="skip" value=" #{channel.chatChannel.title}: " /> <h:outputText value="#{msgs.set_default}" />
 						</h:commandLink>
 					</f:subview>
 					</sakai:separatedList>
