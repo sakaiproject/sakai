@@ -37,7 +37,7 @@ var num_id = (re_id.exec(String(window.location))
         ? new Number(RegExp.$1) : 0);
 var obj_caller = (window.opener ? window.opener.calendars[num_id] : null);
 var root_url = new RegExp('root=(\\S+)');
-var root = (root_url.exec(String(window.location)) ? new String(RegExp.$1) : "")
+var root = (root_url.exec(String(window.location)) ? new String(RegExp.$1) : "");
 
 // AM/PM -> 24 hour clock conversion
 
@@ -45,13 +45,11 @@ if (obj_caller)
 { 
  var inputDateString = ""+obj_caller.target.value; 
  var tmpH = this.dt_current.getHours(); 
- if (inputDateString.indexOf("PM") == -1 && tmpH == 12){ 
-   hours = tmpH - 12; 
-   this.dt_current.setHours(hours); 
+ if (inputDateString.indexOf("AM") > -1 && tmpH === 12){ // 12AM => 0
+   this.dt_current.setHours(0); 
  } 
- else if (inputDateString.indexOf("PM") != -1 && tmpH > 0 && tmpH < 12){ 
-   hours = tmpH + 12; 
-   this.dt_current.setHours(hours); 
+ else if (inputDateString.indexOf("PM") > -1 && tmpH > 0 && tmpH < 12){ // 1PM - 11PM => 13 - 23 
+   this.dt_current.setHours(tmpH + 12); 
  } 
  else ;// no modification needed 
 } 
@@ -60,26 +58,26 @@ if (obj_caller && obj_caller.year_scroll) {
         // get same date in the previous year
         var dt_prev_year = new Date(dt_current);
         dt_prev_year.setFullYear(dt_prev_year.getFullYear() - 1);
-        if (dt_prev_year.getDate() != dt_current.getDate())
+        if (dt_prev_year.getDate() !== dt_current.getDate())
                 dt_prev_year.setDate(0);
 
         // get same date in the next year
         var dt_next_year = new Date(dt_current);
         dt_next_year.setFullYear(dt_next_year.getFullYear() + 1);
-        if (dt_next_year.getDate() != dt_current.getDate())
+        if (dt_next_year.getDate() !== dt_current.getDate())
                 dt_next_year.setDate(0);
 }
 
 // get same date in the previous month
 var dt_prev_month = new Date(dt_current);
 dt_prev_month.setMonth(dt_prev_month.getMonth() - 1);
-if (dt_prev_month.getDate() != dt_current.getDate())
+if (dt_prev_month.getDate() !== dt_current.getDate())
         dt_prev_month.setDate(0);
 
 // get same date in the next month
 var dt_next_month = new Date(dt_current);
 dt_next_month.setMonth(dt_next_month.getMonth() + 1);
-if (dt_next_month.getDate() != dt_current.getDate())
+if (dt_next_month.getDate() !== dt_current.getDate())
         dt_next_month.setDate(0);
 
 // get first day to display in the grid for current month
@@ -145,16 +143,16 @@ document.write('</tr>');
 
 // print calendar table
 var dt_current_day = new Date(dt_firstday);
-while (dt_current_day.getMonth() == dt_current.getMonth() ||
-        dt_current_day.getMonth() == dt_firstday.getMonth()) {
+while (dt_current_day.getMonth() === dt_current.getMonth() ||
+        dt_current_day.getMonth() === dt_firstday.getMonth()) {
         // print row heder
         document.write('<tr>');
         for (var n_current_wday=0; n_current_wday<7; n_current_wday++) {
-                if (dt_current_day.getDate() == dt_current.getDate() &&
-                        dt_current_day.getMonth() == dt_current.getMonth())
+                if (dt_current_day.getDate() === dt_current.getDate() &&
+                        dt_current_day.getMonth() === dt_current.getMonth())
                         // print current date
                         document.write('<td bgcolor="#ffb6c1" align="center" width="14%">');
-                else if (dt_current_day.getDay() == 0 || dt_current_day.getDay() == 6)
+                else if (dt_current_day.getDay() === 0 || dt_current_day.getDay() === 6)
                         // weekend days
                         document.write('<td bgcolor="#dbeaf5" align="center" width="14%">');
                 else
@@ -163,7 +161,7 @@ while (dt_current_day.getMonth() == dt_current.getMonth() ||
 
                 document.write('<a href="javascript:set_datetime('+dt_current_day.valueOf() +', true);">');
 
-                if (dt_current_day.getMonth() == this.dt_current.getMonth())
+                if (dt_current_day.getMonth() === this.dt_current.getMonth())
                         // print days of current month
                         document.write('<font color="#000000">');
                 else
