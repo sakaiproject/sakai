@@ -225,15 +225,22 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     }
 
     public List<LessonEntity> getEntitiesInSite() {
-	return getEntitiesInSite(null);
+	return getEntitiesInSite(null, null);
+    }
+
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {    
+	return getEntitiesInSite(bean, null);
     }
 
     // find topics in site, but organized by forum
-    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean) {    
+    public List<LessonEntity> getEntitiesInSite(SimplePageBean bean, Integer bltiToolId) {    
 	List<LessonEntity> ret = new ArrayList<LessonEntity>();
 	if (ltiService == null)
 	    return ret;
-	List<Map<String,Object>> contents = ltiService.getContents(null,null,0,0);
+	String search = null;
+	if (bltiToolId != null)
+	    search = "tool_id=" + bltiToolId;
+	List<Map<String,Object>> contents = ltiService.getContents(search,null,0,0);
 	for (Map<String, Object> content : contents ) {
 	    Long id = getLong(content.get(LTIService.LTI_ID));
 	    if ( id == -1 ) continue;
@@ -352,12 +359,19 @@ public class BltiEntity implements LessonEntity, BltiInterface {
     // URL to create a new item. Normally called from the generic entity, not a specific one                                                 
     // can't be null                                                                                                                         
     public List<UrlItem> createNewUrls(SimplePageBean bean) {
+	return createNewUrls(bean, null);
+    }
+
+    public List<UrlItem> createNewUrls(SimplePageBean bean, Integer bltiToolId) {
 	ArrayList<UrlItem> list = new ArrayList<UrlItem>();
 	String toolId = bean.getCurrentTool("sakai.siteinfo");
 	if ( ltiService == null || toolId == null || returnUrl == null ) return list;
 
         // Retrieve all tools
-	List<Map<String,Object>> tools = ltiService.getTools(null,null,0,0);
+	String search = null;
+	if (bltiToolId != null)
+	    search = "lti_tools.id=" + bltiToolId;
+	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0);
 	for ( Map<String,Object> tool : tools ) {
 	    String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);

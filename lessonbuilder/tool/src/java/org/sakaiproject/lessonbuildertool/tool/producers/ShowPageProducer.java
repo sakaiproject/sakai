@@ -89,6 +89,7 @@ import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.GroupEntry;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.Status;
+import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.BltiTool;
 import org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsGradingPaneViewParameters;
 import org.sakaiproject.lessonbuildertool.tool.view.CommentsViewParameters;
@@ -3233,6 +3234,22 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 		    // in case we're on an old system without current BLTI
 		    if (bltiEntity != null && ((BltiInterface)bltiEntity).servicePresent()) {
+			Collection<BltiTool> bltiTools = simplePageBean.getBltiTools();
+			if (bltiTools != null) {
+			    int i = 0;
+			    for (BltiTool bltiTool: bltiTools) {
+				UIBranchContainer toolItems = UIBranchContainer.make(tofill, "blti-tool:", String.valueOf(i));
+				i++;
+				GeneralViewParameters params = new GeneralViewParameters();
+				params.setSendingPage(currentPage.getPageId());
+				params.addTool = bltiTool.id;
+				params.viewID = BltiPickerProducer.VIEW_ID;
+				UILink link = UIInternalLink.make(toolItems, "add-blti-tool", bltiTool.title, params);
+				link.decorate(new UITooltipDecorator(bltiTool.description));
+				if (bltiTool.description != null)
+				    UIOutput.make(toolItems, "add-blti-description", bltiTool.description);
+			    }
+			}
 			UIOutput.make(tofill, "blti-li");
 			createToolBarLink(BltiPickerProducer.VIEW_ID, tofill, "add-blti", "simplepage.blti", currentPage, "simplepage.blti.tooltip");
 		    }

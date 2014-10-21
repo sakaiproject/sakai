@@ -86,6 +86,8 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
+import au.com.bytecode.opencsv.CSVParser;
+
 /**
  * Backing bean for Simple pages
  * 
@@ -381,6 +383,77 @@ public class SimplePageBean {
 	public static class GroupEntry {
 	    public String name;
 	    public String id;
+	}
+
+	public static class BltiTool {
+	    public int id;
+	    public String title;
+	    public String description; // can be null
+	    public String addText;
+	    public String addInstructions; // can be null
+	}
+
+	public static Map<Integer,BltiTool> bltiTools = initBltiTools();
+
+	public static Map<Integer,BltiTool> initBltiTools() {
+	    String[] bltiToolLines = ServerConfigurationService.getStrings("lessonbuilder.blti_tools");
+	    if (bltiToolLines == null || bltiToolLines.length == 0)
+		return null;
+	    CSVParser csvParser = new CSVParser();
+	    Map<Integer,BltiTool> ret = new HashMap<Integer,BltiTool>();
+	    for (int i = 0; i < bltiToolLines.length; i++) {
+		String[] items = null;
+		try {
+		    items = csvParser.parseLine(bltiToolLines[i]);
+		} catch (Exception e) {
+		    System.out.println("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    continue;
+		}
+		if (items.length < 5) {
+		    System.out.println("bad blti tool spec in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);
+		    continue;
+		}
+		BltiTool bltiTool = new BltiTool();
+		try {
+		    bltiTool.id = Integer.parseInt(items[0]);
+		} catch (Exception e) {
+		    System.out.println("first item in line not integer in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    continue;
+		}
+		if (items[1] == null || items[1].length() == 0) {
+		    System.out.println("second item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    continue;
+		}
+		bltiTool.title = items[1];
+		// allow null but not zero length
+		if (items[2] == null || items[2].length() == 0)
+		    bltiTool.description = null;
+		else
+		    bltiTool.description = items[2];
+		if (items[3] == null || items[3].length() == 0) {
+		    System.out.println("third item in line missing in lessonbuilder.blti_tools " + i + " " + bltiToolLines[i]);		    
+		    continue;
+		}
+		bltiTool.addText = items[3];
+		// allow null but not zero length
+		if (items[4] == null || items[4].length() == 0)
+		    bltiTool.addInstructions = null;
+		else
+		    bltiTool.addInstructions = items[4];
+		ret.put(bltiTool.id, bltiTool);
+	    }
+	    for (BltiTool tool: ret.values()) {
+		System.out.println(tool.id + " " + tool.title + " " + tool.description + " " + tool.addText);
+	    }
+	    return ret;
+	}
+
+	public BltiTool getBltiTool(int i) {
+	    return bltiTools.get(i);
+	}
+
+	public Collection<BltiTool> getBltiTools() {
+	    return bltiTools.values();
 	}
 
     // Image types
