@@ -36,6 +36,7 @@
 		  	}
 			else
 			{
+				disableButtonsActivateSpinner('save', 'cancel', 'editGroupSpinner');
 				return true;
 			}
 		});
@@ -105,7 +106,7 @@
 		<input rsf:id="groupId" id="groupId" type="hidden"/>
 		<p class="act">
 
-			<input accesskey ="s" id="save" rsf:id="save" class="active" value="Save" type="submit" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editGroupSpinner');" />
+			<input accesskey ="s" id="save" rsf:id="save" class="active" value="Save" type="submit" />
 			<input accesskey ="x" id="cancel" rsf:id="cancel" value="Cancel" type="submit" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editGroupSpinner');" />
 			<img id="editGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</p>			
