@@ -5578,10 +5578,10 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 	
 			String honorPledgeYes = params.getString(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
-			if (honorPledgeYes == null)
+			/*if (honorPledgeYes == null)
 			{
 				honorPledgeYes = (String) state.getAttribute(VIEW_SUBMISSION_HONOR_PLEDGE_YES);
-			}
+			}*/
 	
 			if (honorPledgeYes == null)
 			{
