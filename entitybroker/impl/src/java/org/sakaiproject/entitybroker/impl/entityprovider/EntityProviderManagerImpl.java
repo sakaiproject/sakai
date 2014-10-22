@@ -74,7 +74,11 @@ public class EntityProviderManagerImpl implements EntityProviderManager {
         
         //SAK-27902 list of allowed services (prefixes) (default: all services registered. Only set this property if you want to filter the allowed services)
         allowedServices = new HashSet<String>();
-        String allowedServicesConfig = serverConfigurationService.getString("entitybroker.allowed.services");
+        String allowedServicesConfig = null;
+        if (serverConfigurationService != null) {
+          allowedServicesConfig = serverConfigurationService.getString("entitybroker.allowed.services");
+        }
+
         if(allowedServicesConfig != null && allowedServicesConfig.length()>0) {
         	filterServices = true;
         	
