@@ -60,6 +60,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
@@ -496,6 +497,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Depedency: SessionManager */
 	protected SessionManager m_sessionManager = null;
 
+	/** Dependency: ThreadLocalManager */
+	protected ThreadLocalManager m_threadLocalManager = null;
+
 	/** Dependency: TimeService */
 	protected TimeService m_timeService = null;
 
@@ -588,6 +592,16 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	public void setSessionManager(SessionManager sessionManager)
 	{
 		this.m_sessionManager = sessionManager;
+	}
+
+	/**
+	 * Dependency: ThreadLocalManager.
+	 * @param threadLocalManager
+	 *        The ThreadLocalManager.
+	 */
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
+	{
+		this.m_threadLocalManager = threadLocalManager;
 	}
 
 	/**
@@ -753,7 +767,19 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected Calendar findCalendar(String ref)
 	{
-		Calendar calendar = m_storage.getCalendar(ref);
+        // TODO: do we really want to do this? -ggolden
+        // if we have done this already in this thread, use that
+        Calendar calendar = (Calendar) m_threadLocalManager.get(ref);
+        if (calendar == null)
+        {
+            calendar = m_storage.getCalendar(ref);
+
+            // "cache" the calendar in the current service in case they are needed again in this thread...
+            if (calendar != null)
+            {
+                m_threadLocalManager.set(ref, calendar);
+            }
+        }
 		return calendar;
 	} // findCalendar
 
