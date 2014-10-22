@@ -23,6 +23,7 @@ package org.sakaiproject.entitybroker.util.core;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -231,6 +232,7 @@ public class EntityProviderMethodStoreImpl implements EntityProviderMethodStore 
                 redirects.add(redirect);
             }
         }
+        Collections.sort(redirects);
         return redirects.toArray(new URLRedirect[redirects.size()]);
     }
 

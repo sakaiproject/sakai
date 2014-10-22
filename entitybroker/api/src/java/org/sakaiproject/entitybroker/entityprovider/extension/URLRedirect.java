@@ -33,7 +33,7 @@ import org.sakaiproject.entitybroker.util.TemplateParseUtil.PreProcessedTemplate
  * 
  * @author Aaron Zeckoski (azeckoski @ gmail.com)
  */
-public class URLRedirect {
+public class URLRedirect implements Comparable <URLRedirect> {
 
    /**
     * The incoming url template
@@ -181,6 +181,11 @@ public class URLRedirect {
    @Override
    public String toString() {
       return "URLRedirect: template=" + this.template + ": outgoing=" + this.outgoingTemplate + ": method=" + this.methodName + ": control=" + this.controllable;
+   }
+
+   @Override 
+   public int compareTo(URLRedirect other) {
+      return this.template.compareTo(other.template);
    }
 
 }
