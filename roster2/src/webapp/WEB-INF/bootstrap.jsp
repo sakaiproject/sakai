@@ -84,13 +84,14 @@
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="/library/js/jquery/jquery-migrate-1.2.1.min.js"></script>
 <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/lib/handlebars.runtime-v1.3.0.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/handlebars.runtime-v2.0.0.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/templates/templates.handlebars"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/templates/partials.handlebars"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/lib/sakai_utils.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.tablesorter.min.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.cluetip.min.js"></script>
-<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.hoverIntent.min.js"></script>
+<script type="text/javascript" src="/sakai-roster2-tool/lib/jquery.tablesorter.pager.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/cluetip/1.2.10/jquery.cluetip.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/hoverIntent/r7/jquery.hoverIntent.minified.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/js/roster_permissions.js"></script>
 <script type="text/javascript" src="/sakai-roster2-tool/js/roster.js"></script>
 

@@ -1,8 +1,8 @@
 /*!
 
- handlebars v1.3.0
+ handlebars v2.0.0
 
-Copyright (C) 2011 by Yehuda Katz
+Copyright (C) 2011-2014 by Yehuda Katz
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,15 @@ THE SOFTWARE.
 @license
 */
 /* exported Handlebars */
-var Handlebars = (function() {
+(function (root, factory) {
+  if (typeof define === 'function' && define.amd) {
+    define([], factory);
+  } else if (typeof exports === 'object') {
+    module.exports = factory();
+  } else {
+    root.Handlebars = root.Handlebars || factory();
+  }
+}(this, function () {
 // handlebars/safe-string.js
 var __module3__ = (function() {
   "use strict";
@@ -63,15 +71,19 @@ var __module2__ = (function(__dependency1__) {
   var possible = /[&<>"'`]/;
 
   function escapeChar(chr) {
-    return escape[chr] || "&amp;";
+    return escape[chr];
   }
 
-  function extend(obj, value) {
-    for(var key in value) {
-      if(Object.prototype.hasOwnProperty.call(value, key)) {
-        obj[key] = value[key];
+  function extend(obj /* , ...source */) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        if (Object.prototype.hasOwnProperty.call(arguments[i], key)) {
+          obj[key] = arguments[i][key];
+        }
       }
     }
+
+    return obj;
   }
 
   __exports__.extend = extend;var toString = Object.prototype.toString;
@@ -82,6 +94,7 @@ var __module2__ = (function(__dependency1__) {
     return typeof value === 'function';
   };
   // fallback for older versions of Chrome and Safari
+  /* istanbul ignore next */
   if (isFunction(/x/)) {
     isFunction = function(value) {
       return typeof value === 'function' && toString.call(value) === '[object Function]';
@@ -89,6 +102,7 @@ var __module2__ = (function(__dependency1__) {
   }
   var isFunction;
   __exports__.isFunction = isFunction;
+  /* istanbul ignore next */
   var isArray = Array.isArray || function(value) {
     return (value && typeof value === 'object') ? toString.call(value) === '[object Array]' : false;
   };
@@ -98,8 +112,10 @@ var __module2__ = (function(__dependency1__) {
     // don't escape SafeStrings, since they're already safe
     if (string instanceof SafeString) {
       return string.toString();
-    } else if (!string && string !== 0) {
+    } else if (string == null) {
       return "";
+    } else if (!string) {
+      return string + '';
     }
 
     // Force a string conversion as this will be done by the append regardless and
@@ -121,7 +137,11 @@ var __module2__ = (function(__dependency1__) {
     }
   }
 
-  __exports__.isEmpty = isEmpty;
+  __exports__.isEmpty = isEmpty;function appendContextPath(contextPath, id) {
+    return (contextPath ? contextPath + '.' : '') + id;
+  }
+
+  __exports__.appendContextPath = appendContextPath;
   return __exports__;
 })(__module3__);
 
@@ -166,14 +186,16 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
   var Utils = __dependency1__;
   var Exception = __dependency2__;
 
-  var VERSION = "1.3.0";
-  __exports__.VERSION = VERSION;var COMPILER_REVISION = 4;
+  var VERSION = "2.0.0";
+  __exports__.VERSION = VERSION;var COMPILER_REVISION = 6;
   __exports__.COMPILER_REVISION = COMPILER_REVISION;
   var REVISION_CHANGES = {
     1: '<= 1.0.rc.2', // 1.0.rc.2 is actually rev2 but doesn't report it
     2: '== 1.0.0-rc.3',
     3: '== 1.0.0-rc.4',
-    4: '>= 1.0.0'
+    4: '== 1.x.x',
+    5: '== 2.0.0-alpha.x',
+    6: '>= 2.0.0-beta.1'
   };
   __exports__.REVISION_CHANGES = REVISION_CHANGES;
   var isArray = Utils.isArray,
@@ -194,38 +216,44 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
     logger: logger,
     log: log,
 
-    registerHelper: function(name, fn, inverse) {
+    registerHelper: function(name, fn) {
       if (toString.call(name) === objectType) {
-        if (inverse || fn) { throw new Exception('Arg not supported with multiple helpers'); }
+        if (fn) { throw new Exception('Arg not supported with multiple helpers'); }
         Utils.extend(this.helpers, name);
       } else {
-        if (inverse) { fn.not = inverse; }
         this.helpers[name] = fn;
       }
     },
+    unregisterHelper: function(name) {
+      delete this.helpers[name];
+    },
 
-    registerPartial: function(name, str) {
+    registerPartial: function(name, partial) {
       if (toString.call(name) === objectType) {
         Utils.extend(this.partials,  name);
       } else {
-        this.partials[name] = str;
+        this.partials[name] = partial;
       }
+    },
+    unregisterPartial: function(name) {
+      delete this.partials[name];
     }
   };
 
   function registerDefaultHelpers(instance) {
-    instance.registerHelper('helperMissing', function(arg) {
-      if(arguments.length === 2) {
+    instance.registerHelper('helperMissing', function(/* [args, ]options */) {
+      if(arguments.length === 1) {
+        // A missing field in a {{foo}} constuct.
         return undefined;
       } else {
-        throw new Exception("Missing helper: '" + arg + "'");
+        // Someone is actually trying to call something, blow up.
+        throw new Exception("Missing helper: '" + arguments[arguments.length-1].name + "'");
       }
     });
 
     instance.registerHelper('blockHelperMissing', function(context, options) {
-      var inverse = options.inverse || function() {}, fn = options.fn;
-
-      if (isFunction(context)) { context = context.call(this); }
+      var inverse = options.inverse,
+          fn = options.fn;
 
       if(context === true) {
         return fn(this);
@@ -233,18 +261,37 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
         return inverse(this);
       } else if (isArray(context)) {
         if(context.length > 0) {
+          if (options.ids) {
+            options.ids = [options.name];
+          }
+
           return instance.helpers.each(context, options);
         } else {
           return inverse(this);
         }
       } else {
-        return fn(context);
+        if (options.data && options.ids) {
+          var data = createFrame(options.data);
+          data.contextPath = Utils.appendContextPath(options.data.contextPath, options.name);
+          options = {data: data};
+        }
+
+        return fn(context, options);
       }
     });
 
     instance.registerHelper('each', function(context, options) {
+      if (!options) {
+        throw new Exception('Must pass iterator to #each');
+      }
+
       var fn = options.fn, inverse = options.inverse;
       var i = 0, ret = "", data;
+
+      var contextPath;
+      if (options.data && options.ids) {
+        contextPath = Utils.appendContextPath(options.data.contextPath, options.ids[0]) + '.';
+      }
 
       if (isFunction(context)) { context = context.call(this); }
 
@@ -259,16 +306,24 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
               data.index = i;
               data.first = (i === 0);
               data.last  = (i === (context.length-1));
+
+              if (contextPath) {
+                data.contextPath = contextPath + i;
+              }
             }
             ret = ret + fn(context[i], { data: data });
           }
         } else {
           for(var key in context) {
             if(context.hasOwnProperty(key)) {
-              if(data) { 
-                data.key = key; 
+              if(data) {
+                data.key = key;
                 data.index = i;
                 data.first = (i === 0);
+
+                if (contextPath) {
+                  data.contextPath = contextPath + key;
+                }
               }
               ret = ret + fn(context[key], {data: data});
               i++;
@@ -304,12 +359,28 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
     instance.registerHelper('with', function(context, options) {
       if (isFunction(context)) { context = context.call(this); }
 
-      if (!Utils.isEmpty(context)) return options.fn(context);
+      var fn = options.fn;
+
+      if (!Utils.isEmpty(context)) {
+        if (options.data && options.ids) {
+          var data = createFrame(options.data);
+          data.contextPath = Utils.appendContextPath(options.data.contextPath, options.ids[0]);
+          options = {data:data};
+        }
+
+        return fn(context, options);
+      } else {
+        return options.inverse(this);
+      }
     });
 
-    instance.registerHelper('log', function(context, options) {
+    instance.registerHelper('log', function(message, options) {
       var level = options.data && options.data.level != null ? parseInt(options.data.level, 10) : 1;
-      instance.log(level, context);
+      instance.log(level, message);
+    });
+
+    instance.registerHelper('lookup', function(obj, field) {
+      return obj && obj[field];
     });
   }
 
@@ -324,22 +395,22 @@ var __module1__ = (function(__dependency1__, __dependency2__) {
     level: 3,
 
     // can be overridden in the host environment
-    log: function(level, obj) {
+    log: function(level, message) {
       if (logger.level <= level) {
         var method = logger.methodMap[level];
         if (typeof console !== 'undefined' && console[method]) {
-          console[method].call(console, obj);
+          console[method].call(console, message);
         }
       }
     }
   };
   __exports__.logger = logger;
-  function log(level, obj) { logger.log(level, obj); }
-
-  __exports__.log = log;var createFrame = function(object) {
-    var obj = {};
-    Utils.extend(obj, object);
-    return obj;
+  var log = logger.log;
+  __exports__.log = log;
+  var createFrame = function(object) {
+    var frame = Utils.extend({}, object);
+    frame._parent = object;
+    return frame;
   };
   __exports__.createFrame = createFrame;
   return __exports__;
@@ -353,6 +424,7 @@ var __module5__ = (function(__dependency1__, __dependency2__, __dependency3__) {
   var Exception = __dependency2__;
   var COMPILER_REVISION = __dependency3__.COMPILER_REVISION;
   var REVISION_CHANGES = __dependency3__.REVISION_CHANGES;
+  var createFrame = __dependency3__.createFrame;
 
   function checkRevision(compilerInfo) {
     var compilerRevision = compilerInfo && compilerInfo[0] || 1,
@@ -375,20 +447,43 @@ var __module5__ = (function(__dependency1__, __dependency2__, __dependency3__) {
   __exports__.checkRevision = checkRevision;// TODO: Remove this line and break up compilePartial
 
   function template(templateSpec, env) {
+    /* istanbul ignore next */
     if (!env) {
       throw new Exception("No environment passed to template");
+    }
+    if (!templateSpec || !templateSpec.main) {
+      throw new Exception('Unknown template object: ' + typeof templateSpec);
     }
 
     // Note: Using env.VM references rather than local var references throughout this section to allow
     // for external users to override these as psuedo-supported APIs.
-    var invokePartialWrapper = function(partial, name, context, helpers, partials, data) {
-      var result = env.VM.invokePartial.apply(this, arguments);
-      if (result != null) { return result; }
+    env.VM.checkRevision(templateSpec.compiler);
 
-      if (env.compile) {
-        var options = { helpers: helpers, partials: partials, data: data };
-        partials[name] = env.compile(partial, { data: data !== undefined }, env);
-        return partials[name](context, options);
+    var invokePartialWrapper = function(partial, indent, name, context, hash, helpers, partials, data, depths) {
+      if (hash) {
+        context = Utils.extend({}, context, hash);
+      }
+
+      var result = env.VM.invokePartial.call(this, partial, name, context, helpers, partials, data, depths);
+
+      if (result == null && env.compile) {
+        var options = { helpers: helpers, partials: partials, data: data, depths: depths };
+        partials[name] = env.compile(partial, { data: data !== undefined, compat: templateSpec.compat }, env);
+        result = partials[name](context, options);
+      }
+      if (result != null) {
+        if (indent) {
+          var lines = result.split('\n');
+          for (var i = 0, l = lines.length; i < l; i++) {
+            if (!lines[i] && i + 1 === l) {
+              break;
+            }
+
+            lines[i] = indent + lines[i];
+          }
+          result = lines.join('\n');
+        }
+        return result;
       } else {
         throw new Exception("The partial " + name + " could not be compiled when running in runtime-only mode");
       }
@@ -396,84 +491,110 @@ var __module5__ = (function(__dependency1__, __dependency2__, __dependency3__) {
 
     // Just add water
     var container = {
+      lookup: function(depths, name) {
+        var len = depths.length;
+        for (var i = 0; i < len; i++) {
+          if (depths[i] && depths[i][name] != null) {
+            return depths[i][name];
+          }
+        }
+      },
+      lambda: function(current, context) {
+        return typeof current === 'function' ? current.call(context) : current;
+      },
+
       escapeExpression: Utils.escapeExpression,
       invokePartial: invokePartialWrapper,
+
+      fn: function(i) {
+        return templateSpec[i];
+      },
+
       programs: [],
-      program: function(i, fn, data) {
-        var programWrapper = this.programs[i];
-        if(data) {
-          programWrapper = program(i, fn, data);
+      program: function(i, data, depths) {
+        var programWrapper = this.programs[i],
+            fn = this.fn(i);
+        if (data || depths) {
+          programWrapper = program(this, i, fn, data, depths);
         } else if (!programWrapper) {
-          programWrapper = this.programs[i] = program(i, fn);
+          programWrapper = this.programs[i] = program(this, i, fn);
         }
         return programWrapper;
+      },
+
+      data: function(data, depth) {
+        while (data && depth--) {
+          data = data._parent;
+        }
+        return data;
       },
       merge: function(param, common) {
         var ret = param || common;
 
         if (param && common && (param !== common)) {
-          ret = {};
-          Utils.extend(ret, common);
-          Utils.extend(ret, param);
+          ret = Utils.extend({}, common, param);
         }
+
         return ret;
       },
-      programWithDepth: env.VM.programWithDepth,
+
       noop: env.VM.noop,
-      compilerInfo: null
+      compilerInfo: templateSpec.compiler
     };
 
-    return function(context, options) {
+    var ret = function(context, options) {
       options = options || {};
-      var namespace = options.partial ? options : env,
-          helpers,
-          partials;
+      var data = options.data;
 
-      if (!options.partial) {
-        helpers = options.helpers;
-        partials = options.partials;
+      ret._setup(options);
+      if (!options.partial && templateSpec.useData) {
+        data = initData(context, data);
       }
-      var result = templateSpec.call(
-            container,
-            namespace, context,
-            helpers,
-            partials,
-            options.data);
-
-      if (!options.partial) {
-        env.VM.checkRevision(container.compilerInfo);
+      var depths;
+      if (templateSpec.useDepths) {
+        depths = options.depths ? [context].concat(options.depths) : [context];
       }
 
-      return result;
+      return templateSpec.main.call(container, context, container.helpers, container.partials, data, depths);
     };
+    ret.isTop = true;
+
+    ret._setup = function(options) {
+      if (!options.partial) {
+        container.helpers = container.merge(options.helpers, env.helpers);
+
+        if (templateSpec.usePartial) {
+          container.partials = container.merge(options.partials, env.partials);
+        }
+      } else {
+        container.helpers = options.helpers;
+        container.partials = options.partials;
+      }
+    };
+
+    ret._child = function(i, data, depths) {
+      if (templateSpec.useDepths && !depths) {
+        throw new Exception('must pass parent depths');
+      }
+
+      return program(container, i, templateSpec[i], data, depths);
+    };
+    return ret;
   }
 
-  __exports__.template = template;function programWithDepth(i, fn, data /*, $depth */) {
-    var args = Array.prototype.slice.call(arguments, 3);
-
+  __exports__.template = template;function program(container, i, fn, data, depths) {
     var prog = function(context, options) {
       options = options || {};
 
-      return fn.apply(this, [context, options.data || data].concat(args));
+      return fn.call(container, context, container.helpers, container.partials, options.data || data, depths && [context].concat(depths));
     };
     prog.program = i;
-    prog.depth = args.length;
+    prog.depth = depths ? depths.length : 0;
     return prog;
   }
 
-  __exports__.programWithDepth = programWithDepth;function program(i, fn, data) {
-    var prog = function(context, options) {
-      options = options || {};
-
-      return fn(context, options.data || data);
-    };
-    prog.program = i;
-    prog.depth = 0;
-    return prog;
-  }
-
-  __exports__.program = program;function invokePartial(partial, name, context, helpers, partials, data) {
-    var options = { partial: true, helpers: helpers, partials: partials, data: data };
+  __exports__.program = program;function invokePartial(partial, name, context, helpers, partials, data, depths) {
+    var options = { partial: true, helpers: helpers, partials: partials, data: data, depths: depths };
 
     if(partial === undefined) {
       throw new Exception("The partial " + name + " could not be found");
@@ -484,7 +605,13 @@ var __module5__ = (function(__dependency1__, __dependency2__, __dependency3__) {
 
   __exports__.invokePartial = invokePartial;function noop() { return ""; }
 
-  __exports__.noop = noop;
+  __exports__.noop = noop;function initData(context, data) {
+    if (!data || !('root' in data)) {
+      data = data ? createFrame(data) : {};
+      data.root = context;
+    }
+    return data;
+  }
   return __exports__;
 })(__module2__, __module4__, __module1__);
 
@@ -510,6 +637,7 @@ var __module0__ = (function(__dependency1__, __dependency2__, __dependency3__, _
     hb.SafeString = SafeString;
     hb.Exception = Exception;
     hb.Utils = Utils;
+    hb.escapeExpression = Utils.escapeExpression;
 
     hb.VM = runtime;
     hb.template = function(spec) {
@@ -522,9 +650,11 @@ var __module0__ = (function(__dependency1__, __dependency2__, __dependency3__, _
   var Handlebars = create();
   Handlebars.create = create;
 
+  Handlebars['default'] = Handlebars;
+
   __exports__ = Handlebars;
   return __exports__;
 })(__module1__, __module3__, __module4__, __module2__, __module5__);
 
   return __module0__;
-})();
+}));
