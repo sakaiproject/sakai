@@ -30,6 +30,12 @@
 		//From elementpath
 		var emptyHtml = '<span class="cke_empty">&nbsp;</span>';
     
+		function isModifier(key) {
+		  //In Chrome CKEditor is returning the non adjusted keycode
+			if (key == CKEDITOR.SHIFT || key == CKEDITOR.SHIFT + 16 || key == CKEDITOR.CTRL || key == CKEDITOR.CTRL + 17  || key == CKEDITOR.ALT || key == CKEDITOR.ALT+18 )
+				return true
+			return false 
+		}
     /**
 	  * Counts the words, from forum.js 
     * @param string htmlData data from form 
@@ -69,10 +75,16 @@
 						* Shows word count
 						*/
 						var ShowWordCount = function (evt) {
-								if (evt) {
+								if (evt && evt.data) {
+								//var key = evt.data.getKeystroke();
+								var key = evt.data.keyCode;
+									if (!isModifier(key)) {
 										var editor = evt.editor;
 										space = getSpaceElement(editor);
-										space.setHtml( editor.lang.wordcount.WordCountTxt + " : " + getWordCount(editor.getData()) );
+										//use getSnapshot because WIRIS is listening for getData. It looks like getData(true) actually doesn't return anything! Hmm!
+										editordata = editor.getSnapshot();
+										space.setHtml( editor.lang.wordcount.WordCountTxt + " : " + getWordCount(editordata) );
+									}
 								}
 						}
 
@@ -81,6 +93,7 @@
 										//Show initial count
 										ShowWordCount(evt)
 								});
+
 
             editor.on('key', ShowWordCount);
             editor.on('paste', ShowWordCount);
