@@ -208,6 +208,7 @@ public class SimplePageBean {
     public String questionResponse;
 	
 	public boolean isWebsite = false;
+	public boolean isCaption = false;
 
 	private String linkUrl;
 
@@ -848,6 +849,10 @@ public class SimplePageBean {
 	    this.isWebsite = isWebsite;
 	}
 
+	public void setCaption(boolean isCaption) {
+	    this.isCaption = isCaption;
+	}
+
     // hibernate interposes something between us and saveItem, and that proxy gets an
     // error after saveItem does. Thus we never see any value that saveItem might 
     // return. Hence we pass saveItem a list to which it adds the error message. If
@@ -1064,15 +1069,19 @@ public class SimplePageBean {
 	}
 
 	public String processMultimedia() {
-	    return processResource(SimplePageItem.MULTIMEDIA, false);
+	    return processResource(SimplePageItem.MULTIMEDIA, false, false);
 	}
 
 	public String processResource() {
-	    return processResource(SimplePageItem.RESOURCE, false);
+	    return processResource(SimplePageItem.RESOURCE, false, false);
 	}
 
         public String processWebSite() {
-	    return processResource(SimplePageItem.RESOURCE, true);
+	    return processResource(SimplePageItem.RESOURCE, true, false);
+	}
+
+        public String processCaption() {
+	    return processResource(SimplePageItem.RESOURCE, false, true);
 	}
 
     // get mime type for a URL. connect to the server hosting
@@ -1121,7 +1130,7 @@ public class SimplePageBean {
 
     // return call from the file picker, used by add resource
     // the picker communicates with us by session variables
-	public String processResource(int type, boolean isWebSite) {
+	public String processResource(int type, boolean isWebSite, boolean isCaption) {
 		if (!canEditPage())
 		    return "permission-failed";
 
@@ -1174,8 +1183,21 @@ public class SimplePageBean {
 				// part 2, find the actual data type.
 				if (url != null)
 				    mimeType = getTypeOfUrl(url);
+			} else if (isCaption) {
+			    // sakai probably sees it as a normal text file.
+			    // some browsers require the mime type to be right
+				boolean pushed = false;
+				try {
+					pushed = pushAdvisor();
+					ContentResourceEdit res = contentHostingService.editResource(id);
+					res.setContentType("text/vtt");
+					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+				} catch (Exception ignore) {
+					return "no-reference";
+				}finally {
+					if(pushed) popAdvisor();
+				}
 			}
-
 		} else {
 			return "cancel";
 		}
@@ -1229,7 +1251,12 @@ public class SimplePageBean {
 		}
 
 		SimplePageItem i;
-		if (itemId != null && itemId != -1) {  // updating existing item
+		if (itemId != null && itemId != -1 && isCaption) {
+			// existing item, add or change caption
+			i = findItem(itemId);
+			i.setAttribute("captionfile", id);
+
+		} else if (itemId != null && itemId != -1) {  // updating existing item
 			i = findItem(itemId);
 			
 			// editing an existing item which might have customized properties
@@ -1250,6 +1277,9 @@ public class SimplePageBean {
 				i.setDescription(description);
 			}
 			clearImageSize(i);
+			// with a new underlying file, it's hard to see how an old caption file
+			// could still be valid
+			i.removeAttribute("captionfile");
 		} else {  // adding new item
 			i = appendItem(id, (name != null ? name : split[split.length - 1]), type);
 			if (mimeType != null) {
@@ -5435,7 +5465,10 @@ public class SimplePageBean {
 							  	Validator.escapeResourceName(base),
 							  	Validator.escapeResourceName(extension),
 							  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
-					res.setContentType(mimeType);
+					if (isCaption)
+					    res.setContentType("text/vtt");
+					else
+					    res.setContentType(mimeType);
 					res.setContent(file.getInputStream());
 					try {
 						contentHostingService.commitResource(res,  NotificationService.NOTI_NONE);
@@ -5564,6 +5597,13 @@ public class SimplePageBean {
 			} else if (itemId == -1) {
 				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
 				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);
+			} else if (isCaption) {
+				item = findItem(itemId);
+				if (item == null)
+					return;
+				item.setAttribute("captionfile", sakaiId);
+				update(item);
+				return;
 			} else {
 				item = findItem(itemId);
 				if (item == null)
@@ -5581,6 +5621,8 @@ public class SimplePageBean {
 				}
 			}
 			
+			// for new file, old captions don't make sense
+			item.removeAttribute("captionfile");
 			// remember who added it, for permission checks
 			item.setAttribute("addedby", getCurrentUserId());
 

@@ -543,6 +543,10 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	    attributes.put(attr, value);
 	}
 
+	public void removeAttribute(String attr) {
+	    attributes.remove(attr);
+	}
+
 	public Object getJsonAttribute(String attr) {
 		return attributes.get(attr);
 	}

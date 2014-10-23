@@ -141,6 +141,8 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 
 		if (((FilePickerViewParameters) viewparams).getWebsite())
 		    process = "#{simplePageBean.processWebSite}";
+		if (((FilePickerViewParameters) viewparams).getCaption())
+		    process = "#{simplePageBean.processCaption}";
 		else if (((FilePickerViewParameters) viewparams).getResourceType())
 		    process = "#{simplePageBean.processMultimedia}";
 		else

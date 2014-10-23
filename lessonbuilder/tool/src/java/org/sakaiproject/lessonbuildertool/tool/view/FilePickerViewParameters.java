@@ -40,6 +40,7 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	 */
 	private boolean resourceType = false;
         private boolean website = false;
+        private boolean caption = false;
 
 	public FilePickerViewParameters() {
 		super();
@@ -79,6 +80,14 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	}
 
 	public boolean getWebsite() {
+		return website;
+	}
+
+	public void setCaption(boolean b) {
+		website = b;
+	}
+
+	public boolean getCaption() {
 		return website;
 	}
 

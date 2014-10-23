@@ -1824,6 +1824,18 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 h5video.decorate(new UIFreeAttributeDecorator("width", width.getOld()));
                                 h5source.decorate(new UIFreeAttributeDecorator("src", movieUrl)).
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
+				String caption = i.getAttribute("captionfile");
+				if (!isAudio && caption != null && caption.length() > 0) {
+				    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
+				    sessionParameter = getSessionParameter(captionUrl);
+				    // sessionParameter should always be non-null
+				    // because this overrides all other checks in /access/lessonbuilder,
+				    // we haven't adjusted it to handle these files otherwise
+				    if (sessionParameter != null)
+					captionUrl = captionUrl + "?lb.session=" + sessionParameter;
+				    UIOutput.make(tableRow, "h5track").
+					decorate(new UIFreeAttributeDecorator("src", captionUrl));
+				}
                             }
 
                             // FLV is special. There's no player for flash video in
@@ -3489,6 +3501,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
 		UIInput.make(form, "mm-display-type", "#{simplePageBean.multimediaDisplayType}");
 		UIInput.make(form, "mm-is-website", "#{simplePageBean.isWebsite}");
+		UIInput.make(form, "mm-is-caption", "#{simplePageBean.isCaption}");
 		UICommand.make(form, "mm-cancel", messageLocator.getMessage("simplepage.cancel"), null);
 	}
 
@@ -3725,6 +3738,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.setResourceType(true);
 		fileparams.viewID = ResourcePickerProducer.VIEW_ID;
 		UIInternalLink.make(form, "change-resource-movie", messageLocator.getMessage("simplepage.change_resource"), fileparams);
+
+		fileparams.setCaption(true);
+		UIInternalLink.make(form, "change-caption-movie", messageLocator.getMessage("simplepage.change_caption"), fileparams);
 
 		UIBoundBoolean.make(form, "movie-prerequisite", "#{simplePageBean.prerequisite}",false);
 

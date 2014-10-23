@@ -559,6 +559,16 @@ $(function() {
 			row.find(".path-url").attr("href", findObject.attr("data"));
 			$("#movie-path").html(row.find(".item-path").html());
 
+			// only show caption option for HTML5 video
+			if (row.find("video").size() > 0) {
+			    $("#change-caption-movie-p").show();
+			    if (row.find("video").find("track").size() > 0)
+				$("#change-caption-movie").text(msg("simplepage.change_caption"));
+			    else
+				$("#change-caption-movie").text(msg("simplepage.add_caption"));
+			} else
+			    $("#change-caption-movie-p").hide();
+
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
 			if ($('#grouplist input').size() > 0) {
@@ -1160,14 +1170,16 @@ $(function() {
 			$("#grouplist").show();
 		    });
 
-		$('#change-resource-movie').click(function(){
+		$('.change-resource-movie').click(function(){
 			closeMovieDialog();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add_or"));
 
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
-			var href=$("#mm-choose").attr("href");
+			var href=$(this).attr("href");
+			var editingCaption = (href.indexOf("&caption=true&")>0);
+			$("#mm-is-caption").val(editingCaption ? "true" : "false");
 			href=fixhref(href, $("#movieEditId").val(), "true", "false");
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
@@ -1176,9 +1188,15 @@ $(function() {
 			$("#add-multimedia-dialog").dialog("option", "position", position);
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
-			$(".mm-url-section").show();
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
+			if (editingCaption) {
+			    $(".mm-url-section").hide();
+			    $(".mm-prerequisite-section").hide();
+			} else {
+			    $(".mm-prerequisite-section").show();
+			    $(".mm-url-section").show();
+			}
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
@@ -1502,6 +1520,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$(".mm-prerequisite-section").show();
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;
@@ -1523,6 +1542,7 @@ $(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('true');
 			$("#mm-is-website").val('false');
+			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
 			href=fixhref(href, "-1", "true", "false");
 			$("#mm-choose").attr("href",href);
@@ -1533,6 +1553,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$(".mm-prerequisite-section").show();
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;
@@ -1554,6 +1575,7 @@ $(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('false');
+			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
 			href=fixhref(href,"-1","false","false");
 			$("#mm-choose").attr("href",href);
@@ -1563,6 +1585,7 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$(".mm-prerequisite-section").show();
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;
@@ -1583,6 +1606,7 @@ $(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('true');
+			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
 			href=fixhref(href, "-1","false","true");
 			$("#mm-choose").attr("href",href);
@@ -1592,6 +1616,7 @@ $(function() {
 			$(".mm-additional").hide();
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
+			$(".mm-prerequisite-section").show();
 			oldloc = $(".dropdown a");
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
@@ -1710,6 +1735,7 @@ $(function() {
 			$(".mm-additional").show();
 			$(".mm-additional-website").hide();
 			$(".mm-url-section").show();
+			$(".mm-prerequisite-section").show();
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;

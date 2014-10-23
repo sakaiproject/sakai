@@ -410,6 +410,7 @@ function resizeiframe(id) {
 			</div>
 			<video rsf:id="h5video" controls="controls" class="html5video" style="display:none">
 			  <source rsf:id="h5source" />
+			  <track rsf:id="h5track" kind="captions" />
 			</video>
 			<audio rsf:id="h5audio" controls="controls" class="html5video" style="display:none">
 			  <source rsf:id="h5asource" />
@@ -746,6 +747,8 @@ function resizeiframe(id) {
 			  <p rsf:id="msg=simplepage.deletestudentsubmissionexist" id="simplepage.deletestudentsubmissionexist"></p>
 			  <p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
 			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
+			  <p rsf:id="msg=simplepage.add_caption" id="simplepage.add_caption"></p>
+			  <p rsf:id="msg=simplepage.change_caption" id="simplepage.change_caption"></p>
 			  <p rsf:id="siteid" id="siteid"></p>
 			  <p rsf:id="locale" id="locale"></p>
 			</div>
@@ -957,7 +960,7 @@ function resizeiframe(id) {
                             <label id="addLink_label" rsf:id="msg=simplepage.addLink_label_add_or" for="mm-url">URL</label>
                             <input type="text" name="mm-url" rsf:id="mm-url" id="mm-url" style="width:99%" class="edit-multimedia-input" />
                         </p>
-                        <p class="checkbox">
+                        <p class="checkbox mm-prerequisite-section">
                             <input type="checkbox" name="mm-prerequisite" id="mm-prerequisite" rsf:id="mm-prerequisite" />
                             <label for="mm-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
                         </p>
@@ -992,6 +995,7 @@ function resizeiframe(id) {
                         <input type="hidden" rsf:id="mm-display-type" id="mm-display-type" />
                         <input type="hidden" rsf:id="mm-mime-type" id="mm-mime-type" />
                         <input type="hidden" rsf:id="mm-is-website" id="mm-is-website" />
+                        <input type="hidden" rsf:id="mm-is-caption" id="mm-is-caption" />
 		        <p id="checkingwithhost" rsf:id="msg=simplepage.checkingwithhost"></p>
 			<p id="mm-loading" rsf:id="msg=simplepage.loading"></p>
                     </div>
@@ -1361,7 +1365,10 @@ function resizeiframe(id) {
 						  <textarea name="description3" rsf:id="description3" id="description3" rows="5" class="edit-multimedia-input" ></textarea>
 						</p>
 						<p class="shorttext required" id="change-resource-movie-p">
-						  <a href="#" rsf:id="change-resource-movie" id="change-resource-movie"><span rsf:id="msg.simplepage.change_resource"></span></a>
+						  <a href="#" class="change-resource-movie" rsf:id="change-resource-movie" id="change-resource-movie"><span rsf:id="msg.simplepage.change_resource"></span></a>
+					        </p>
+						<p class="shorttext required" id="change-caption-movie-p">
+						  <a href="#" class="change-resource-movie" rsf:id="change-caption-movie" id="change-caption-movie"></a>
 					        </p>
 						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
