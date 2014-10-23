@@ -229,7 +229,7 @@ public class ElasticSearchService implements SearchService {
 
         node = nodeBuilder()
                 .settings(settings)
-                .data(true).local(localNode).node();
+                .local(localNode).node();
 
         client = node.client();
 
