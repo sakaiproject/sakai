@@ -50,6 +50,7 @@ import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
+import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIOutput;
@@ -179,7 +180,7 @@ public class BltiPickerProducer implements ViewComponentProducer, NavigationCase
 			    if (bltiTool.description != null)
 				UIOutput.make(tofill, "blti-tools-text", bltiTool.description);
 			    if (bltiTool.addInstructions != null)
-				UIOutput.make(tofill, "blti-add-instructions", bltiTool.addInstructions);
+				UIVerbatim.make(tofill, "blti-add-instructions", bltiTool.addInstructions);
 			} else if (bltiTool == null && toolcount > 0) 
 			    UIOutput.make(tofill, "blti-tools-text", messageLocator.getMessage("simplepage.blti.tools.text"));
 
