@@ -121,20 +121,30 @@ $(document).ready(function() {
 		}
 	);
 	
+	
+	$.tablesorter.addParser({
+		id: 'dlt',
+		is: function (s){ return false },
+		format: function(value, table, cell){
+			return cell.innerHTML.split('<br>')[0];
+		},
+		type: 'text'
+		});
+	
 	$("#authorIndexForm\\:coreAssessments").tablesorter( {
-		sortList: [[1,0]],
+		sortList: [[1,0],[2,0]],
 		headers: { 
             0: { 
                 sorter: false 
             }, 
             2: { 
-                sorter: false 
+                sorter: 'dlt' 
             }        
 		}
 	});
 	
 	$("#authorIndexForm\\:published-assessments").tablesorter( {
-		sortList: [[2,0], [1,0]],
+		sortList: [[2,0], [1,0], [8,0]],
 		headers: { 
             0: { 
                 sorter: false 
@@ -146,7 +156,7 @@ $(document).ready(function() {
                 sorter: false 
             }, 
             8: { 
-                sorter: false 
+                sorter: 'dlt' 
             }            
 		}
 	}); 
