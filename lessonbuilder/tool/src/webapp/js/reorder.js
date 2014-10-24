@@ -57,6 +57,11 @@ $(document).ready(function(){
     jQuery('input[id=order]').val(ids);
 
 */    
+    $('#save').click(function(e){
+	    recalculate();
+	    return true;
+	});
+
     $('.deleteAnswerLink').click(function(e){
         e.preventDefault();
         $(this).closest('.layoutReorderer-module').addClass('highlightEl').hide().appendTo('#reorderCol2').fadeIn(2000, function(){
