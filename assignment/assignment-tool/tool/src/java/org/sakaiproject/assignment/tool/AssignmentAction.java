@@ -2799,7 +2799,7 @@ public class AssignmentAction extends PagedResourceActionII
 					gradebookAssignmentsExceptSamigo.add(gAssignment);
 				
 					// gradebook item has been associated or not
-					String gaId = gAssignment.isExternallyMaintained() ? Validator.escapeHtml(gAssignment.getExternalId()) : Validator.escapeHtml(gAssignment.getName());
+					String gaId = gAssignment.isExternallyMaintained() ? gAssignment.getExternalId() : gAssignment.getName();
 					String status = "";
 					if (gAssignmentIdTitles.containsKey(gaId))
 					{
@@ -2821,7 +2821,7 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 					
-					gradebookAssignmentsSelectedDisabled.put(gaId, status);
+					gradebookAssignmentsSelectedDisabled.put(Validator.escapeHtml(gaId), status);
 					
 					
 					// gradebook assignment label
@@ -2830,7 +2830,7 @@ public class AssignmentAction extends PagedResourceActionII
 					{
 						label += " ( " + rb.getFormattedMessage("usedGradebookAssignment", new Object[]{gAssignmentIdTitles.get(gaId)}) + " )";
 					}
-					gradebookAssignmentsLabel.put(gaId, label);
+					gradebookAssignmentsLabel.put(Validator.escapeHtml(gaId), label);
 				}
 			}
 		}
