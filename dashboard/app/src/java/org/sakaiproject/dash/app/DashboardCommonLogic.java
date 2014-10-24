@@ -112,4 +112,9 @@ public interface DashboardCommonLogic extends DashboardLogic, DashboardUserLogic
 	 * Check for admin dashboard configuration changes
 	 */
 	public void checkForAdminChanges();
+	
+	/**
+	 * Synchronize the dashboard links table users with current site users
+	 */
+	public void syncDashboardUsersWithSiteUsers();
 }

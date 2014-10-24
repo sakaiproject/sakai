@@ -915,4 +915,16 @@ public class DashboardDaoMock implements DashboardDao {
 		// TODO Auto-generated method stub
 		return Boolean.FALSE;
 	}
+	
+	public HashMap<String, Set<String>> getDashboardNewsContextUserMap()
+	{
+		// TODO Auto-generated method stub
+		return new HashMap<String, Set<String>>();
+	}
+	
+	public HashMap<String, Set<String>> getDashboardCalendarContextUserMap()
+	{
+		// TODO Auto-generated method stub
+		return new HashMap<String, Set<String>>();
+	}
 }

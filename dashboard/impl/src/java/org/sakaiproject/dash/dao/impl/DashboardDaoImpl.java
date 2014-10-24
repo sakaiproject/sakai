@@ -34,6 +34,9 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Collection;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -51,7 +54,9 @@ import org.sakaiproject.dash.dao.mapper.PersonMapper;
 import org.sakaiproject.dash.dao.mapper.RepeatingCalendarItemMapper;
 import org.sakaiproject.dash.dao.mapper.SourceTypeMapper;
 import org.sakaiproject.dash.dao.mapper.TaskLockMapper;
+import org.sakaiproject.dash.dao.mapper.ContextUserMapper;
 import org.sakaiproject.dash.logic.TaskLock;
+import org.sakaiproject.dash.logic.DashboardLogic;
 import org.sakaiproject.dash.model.AvailabilityCheck;
 import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
@@ -2280,5 +2285,76 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
            log.warn("deleteRepeatingEvent: Error executing query: " + ex.getClass() + ":" + ex.getMessage());
            return false;
 		}		
+	}
+
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getDashboardCalendarContextUserMap()
+	 */
+	public HashMap<String, Set<String>> getDashboardCalendarContextUserMap()
+	{
+		return getDashboardContextUserMap("select.context.user.from.calendar.link");
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.dao.DashboardDao#getDashboardNewsContextUserMap()
+	 */
+	public HashMap<String, Set<String>> getDashboardNewsContextUserMap()
+	{
+		return getDashboardContextUserMap("select.context.user.from.news.link");
+	}
+	
+	/**
+	 * construct HashMap, 
+	 * keyed with context id, 
+	 * value is set of user ids that has links(calendarlink, newslink) in dashboard
+	 * @param the sql name
+	 * @return HashMap object
+	 */
+	private HashMap<String, Set<String>> getDashboardContextUserMap(String sqlName)
+	{
+		HashMap<String, Set<String>> dashboardUserMap = new HashMap<String, Set<String>>();
+		String sql = getStatement(sqlName);
+		try {
+			List<String> contextUsersList = (List<String>) getJdbcTemplate().query(sql,
+				new ContextUserMapper()
+			);
+			
+			if (contextUsersList != null)
+			{
+				for(String contextUser : contextUsersList)
+				{
+					// the string returned from db query is of format context id + " " + user id
+					// need to parse it out and form HashMap
+					String[] parts = contextUser.split(" ");
+					if (parts.length == 2)
+					{
+						// parts: context id (site id) and user id
+						String context_id = parts[0];
+						String user_id = parts[1];
+						if (dashboardUserMap.containsKey(context_id))
+						{
+							// get the current set and add user id into it
+							Set<String> current = dashboardUserMap.get(context_id);
+							current.add(user_id);
+							dashboardUserMap.put(context_id, current);
+						}
+						else
+						{
+							// add the new key
+							Set<String> current = new HashSet<String>();
+							current.add(user_id);
+							dashboardUserMap.put(context_id, current);
+						}
+							
+					}
+				}
+			}
+		} catch (EmptyResultDataAccessException ex) {
+			log.debug("getDashboardContextUserMap: Empty result executing query: " + sqlName + " " + ex.getClass() + ":" + ex.getMessage());
+		} catch (DataAccessException ex) {
+           log.warn("getDashboardContextUserMap: Error executing query: " + sqlName + " " + ex.getClass() + ":" + ex.getMessage());
+		}
+		
+		return dashboardUserMap;
 	}
 }

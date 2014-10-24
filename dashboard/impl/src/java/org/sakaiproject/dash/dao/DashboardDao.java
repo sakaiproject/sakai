@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.HashMap;
 
 import org.sakaiproject.dash.logic.TaskLock;
 import org.sakaiproject.dash.model.AvailabilityCheck;
@@ -584,4 +585,19 @@ public interface DashboardDao {
 	 */
 	public boolean deleteRepeatingEvent(Long id);
 
+	/**
+	 * construct HashMap
+	 * keyed with context id
+	 * and value is set of user ids that has rows in DASHBOARD_CALENDAR_LINK table
+	 * @return HashMap object
+	 */
+	public HashMap<String, Set<String>> getDashboardCalendarContextUserMap();
+	
+	/**
+	 * construct HashMap 
+	 * keyed with context id
+	 * and value is set of user ids that has rows in DASHBOARD_NEWS_LINK table
+	 * @return HashMap object
+	 */
+	public HashMap<String, Set<String>> getDashboardNewsContextUserMap();
 }

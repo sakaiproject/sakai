@@ -36,6 +36,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Collection;
 
 import net.sf.ehcache.Cache;
 
@@ -63,6 +64,8 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
+
+import org.sakaiproject.authz.api.AuthzGroupService;
 
 /**
  * 
@@ -162,6 +165,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		this.dashboardUserLogic = dashboardUserLogic;
 	}
 
+	protected AuthzGroupService authzGroupService;
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+	
 	protected Cache cache;
 
 	public void setCache(Cache cache) {
@@ -1664,5 +1672,114 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 				}
 			}
 		};
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void syncDashboardUsersWithSiteUsers()
+	{
+		logger.info(this + ".syncDashboardUsersWithSiteUsers start " + serverId);
+		
+		HashMap<String, Set<String>> calendarLinksUserMap = dao.getDashboardCalendarContextUserMap();
+		HashMap<String, Set<String>> newsLinksUserMap =  dao.getDashboardNewsContextUserMap();
+
+		// combine the context id from keyset of both maps
+		// so thate we just need to call AuthzGroupService once to find out site members
+		Set<String> combinedContextIdSet = new HashSet<String>();
+		combinedContextIdSet.addAll(calendarLinksUserMap.keySet());
+		combinedContextIdSet.addAll(newsLinksUserMap.keySet());
+		
+		logger.info(this + ".syncDashboardUsersWithSiteUsers total site set size " + combinedContextIdSet.size());
+
+		// now that we have a hashmap, we will check the current site member list
+		for(String context_id: combinedContextIdSet)
+		{
+			HashSet<String> siteUserSet = new HashSet<String>();
+			Collection<String> siteMembersCollection = getSiteUserIdList(context_id);
+			if (siteMembersCollection != null)
+			{
+				siteUserSet = new HashSet<String>(siteMembersCollection);
+			}
+			
+			// remove or add user DashboardCalendarlinks if needed
+			if (calendarLinksUserMap.containsKey(context_id))
+			{
+				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, calendarLinksUserMap.get(context_id), siteUserSet, true);
+			}
+			
+			// remove or add user DashboardNewslinks if needed
+			if (newsLinksUserMap.containsKey(context_id))
+			{
+				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, newsLinksUserMap.get(context_id), siteUserSet, false);
+			}
+		}
+		logger.info(this + ".syncDashboardUsersWithSiteUsers end " + serverId);
+	}
+	
+	
+	/**
+	 * Returns the site user id list
+	 *   
+	 * @param siteId
+	 * @return Collection of site user ids
+	 */
+	private Collection<String> getSiteUserIdList(String siteId)
+	{
+		HashSet<String> set = new HashSet<String>();
+		set.add(sakaiProxy.getSiteReference(siteId));
+		return this.authzGroupService.getAuthzUsersInGroups(set);
+	}
+	
+	/**
+	 * Compare two user sets (one from dashboard calendar/news links table, and the other from site membership)
+	 * add or remove calendar/news links
+	 * @context_id the site id
+	 * @dashboardUserSet
+	 * @siteUserSet
+	 * @forCalendarLinks when true, add/remove in DASH_CALENDAR_LINK table; otherwise, add/remove in DASH_NEWS_LINK table
+	 */
+	private void addOrRemoveDashboardLinksBasedOnUsersSetComp(String context_id, Set<String> dashboardUserSet, Set<String> siteUserSet, boolean forCalendarLinks)
+	{
+		// construct two base set, one for remove user links, one for add user links
+		Set<String> removeSet = new HashSet<String>();
+		removeSet.addAll(dashboardUserSet);
+		Set<String> addSet = new HashSet<String>();
+		addSet.addAll(siteUserSet);
+		
+		// now we have two user sets: 
+		// one is from the current dashboard user record
+		// the other is from the current site member list
+		// need to do the comparison between those two sets: 
+		// 1. add dashboard links if the user is added to site; 
+		addSet.removeAll(dashboardUserSet);
+		for(String userId: addSet)
+		{	
+			if (forCalendarLinks)
+			{
+				addCalendarLinks(userId, context_id);
+				logger.debug(this + ".syncDashboardUsersWithSiteUsers ADD calendar links for user= " + userId + " context_id=" + context_id);
+			}
+			else
+			{
+				addNewsLinks(userId, context_id);
+				logger.debug(this + ".syncDashboardUsersWithSiteUsers ADD news links for user= " + userId + " context_id=" + context_id);
+			}
+		}
+		// 2. remove dashboard links if the user is removed from the site
+		removeSet.removeAll(siteUserSet);
+		for(String userId: removeSet)
+		{
+			if (forCalendarLinks)
+			{
+				removeCalendarLinks(userId, context_id);
+				logger.debug(this + ".syncDashboardUsersWithSiteUsers REMOVE calendar links for user= " + userId + " context_id=" + context_id);
+			}
+			else
+			{
+				removeNewsLinks(userId, context_id);
+				logger.debug(this + ".syncDashboardUsersWithSiteUsers REMOVE news links for user= " + userId + " context_id=" + context_id);
+			}
+		}
 	}
 }
