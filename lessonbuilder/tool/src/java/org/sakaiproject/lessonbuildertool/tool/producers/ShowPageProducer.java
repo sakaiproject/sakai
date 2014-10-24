@@ -1798,7 +1798,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             if (sessionParameter != null)
                                 movieUrl = movieUrl + "?lb.session=" + sessionParameter;
 
-			    UIOutput.make(tableRow, "movie-link-div");
+			    UIComponent movieLink = UIOutput.make(tableRow, "movie-link-div");
 			    if (showDownloads)
 				UILink.make(tableRow, "movie-link-link", messageLocator.getMessage("simplepage.download_file"), movieUrl);
 
@@ -1815,6 +1815,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                             // wrap whatever stuff we decide to put out in HTML5 if appropriate
                             // javascript is used to do the wrapping, because RSF can't really handle this
                             if (isHtml5) {
+				// flag for javascript
                                 boolean isAudio = mimeType.startsWith("audio/");
                                 UIComponent h5video = UIOutput.make(tableRow, (isAudio? "h5audio" : "h5video"));
                                 UIComponent h5source = UIOutput.make(tableRow, (isAudio? "h5asource" : "h5source"));
@@ -1826,6 +1827,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
                                 decorate(new UIFreeAttributeDecorator("type", mimeType));
 				String caption = i.getAttribute("captionfile");
 				if (!isAudio && caption != null && caption.length() > 0) {
+				    movieLink.decorate(new UIFreeAttributeDecorator("class", "has-caption allow-caption"));
 				    String captionUrl = "/access/lessonbuilder/item/" + i.getId() + caption;
 				    sessionParameter = getSessionParameter(captionUrl);
 				    // sessionParameter should always be non-null
@@ -1835,6 +1837,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					captionUrl = captionUrl + "?lb.session=" + sessionParameter;
 				    UIOutput.make(tableRow, "h5track").
 					decorate(new UIFreeAttributeDecorator("src", captionUrl));
+				} else if (!isAudio) {
+				    movieLink.decorate(new UIFreeAttributeDecorator("class", "allow-caption"));
 				}
                             }
 

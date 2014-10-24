@@ -560,9 +560,9 @@ $(function() {
 			$("#movie-path").html(row.find(".item-path").html());
 
 			// only show caption option for HTML5 video
-			if (row.find("video").size() > 0) {
+			if (row.find(".allow-caption").size() > 0) {
 			    $("#change-caption-movie-p").show();
-			    if (row.find("video").find("track").size() > 0)
+			    if (row.find(".has-caption").size() > 0)
 				$("#change-caption-movie").text(msg("simplepage.change_caption"));
 			    else
 				$("#change-caption-movie").text(msg("simplepage.add_caption"));
