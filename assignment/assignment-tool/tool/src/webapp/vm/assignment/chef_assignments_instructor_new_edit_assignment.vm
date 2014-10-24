@@ -302,6 +302,7 @@ $(document).ready(function() {
 					</span>
 				</p>	
 			*#
+		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
                 #if ($visible_date_enabled) 
                <p class="shorttext">
                 <p class="checkbox" id="tempVisibleDate" >
@@ -313,40 +314,28 @@ $(document).ready(function() {
 			<label>
 				$tlang.getString("gen.visible.date")
 			</label>
-			#chef_dateselectionwidgetwithtitles($name_VisibleYear $name_VisibleMonth $name_VisibleDay $!value_year_from $!value_year_to $value_VisibleYear $value_VisibleMonth $value_VisibleDay $dateFormat $tlang.getString("dateselectionwidget.month") $tlang.getString("dateselectionwidget.day") $tlang.getString("dateselectionwidget.year") "")
-				 &nbsp;$tlang.getString("gen.at")&nbsp;
-            <label class="skip" for="$name_VisibleHour">$tlang.getString("dateselectionwidget.hour")</label>
-			<select name="$name_VisibleHour" id="$name_VisibleHour" title="$tlang.getString("dateselectionwidget.hour")">
-				#foreach ($i in [1..12])
-					#if ($i == $value_VisibleHour)
-						<option value="$i" selected="selected">$i</option>
-					#else
-						<option value="$i">$i</option>
-					#end
-				#end
-			</select>
-            <label class="skip" for="$name_VisibleMin">$tlang.getString("dateselectionwidget.minute")</label>
-			<select name="$name_VisibleMin" id="$name_VisibleMin" title="$tlang.getString("dateselectionwidget.minute")">
-				#foreach ($i in [00, 05, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55])
-					<option value="$i" #if($i == $value_VisibleMin)selected="selected"#end>#if($i ==0)00#elseif($i == 5)05#else$i#end</option>
-				#end
-			</select>
-            <label class="skip" for="$name_VisibleMin">$tlang.getString("dateselectionwidget.ampm")</label>
-			<select name="$name_VisibleAMPM" id="$name_VisibleAMPM" title="$tlang.getString("dateselectionwidget.ampm")">
-				#foreach ($i in ["AM", "PM"])
-					#if ($i == $value_VisibleAMPM)
-						<option value="$i" selected="selected">$i</option>
-					#else
-						<option value="$i">$i</option>
-					#end
-				#end
-			</select>
+			<input type="text" id="visibledate" name="visibledate" class="datepicker" value="">
+	
+			<script type="text/javascript">
+				localDatePicker({
+					input:'#visibledate', 
+					useTime:1, 
+					val:"$value_VisibleYear$H$value_VisibleMonth$H$value_VisibleDay $value_VisibleHour:$value_VisibleMin",
+					parseFormat: 'YYYY-MM-DD HH:mm',
+					ashidden:{
+						month:"new_assignment_visiblemonth",
+						day:"new_assignment_visibleday",
+						year:"new_assignment_visibleyear",
+						hour:"new_assignment_visiblehour",
+						minute:"new_assignment_visiblemin"
+					}
+				});
+			</script>
                     </p>
                <p class="instruction labelindnt visibleDatePanel" #if(!$!assignment.getVisibleTime())style="display:none;"#end>
 			$tlang.getString("gen.stuwonsee")
 		</p>
 		#end
-		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 		<p class="shorttext">
 			<span class="reqStar">*</span>
 			<label>
