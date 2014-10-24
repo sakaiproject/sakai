@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
+import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemMetaData;
 import org.sakaiproject.tool.assessment.data.dao.questionpool.QuestionPoolItemData;
@@ -718,6 +719,17 @@ public class AuthoringHelper
       {
         //log.info("NOT NULL: " + allowIp);
         exHelper.makeSecuredIPAddressSet(assessment, allowIp);
+		//Clean unnecesary ip metadata that fail when an assessment  
+		//with more than 256 charts in the field ALLOWED IPS is imported
+		Set assessmentSet = assessment.getAssessmentMetaDataSet();
+		Iterator assessmentSetIterator = assessmentSet.iterator();
+		while(assessmentSetIterator.hasNext()){
+			AssessmentMetaData assessmentMetaData = (AssessmentMetaData)assessmentSetIterator.next();
+			if("ALLOW_IP".equals(assessmentMetaData.getLabel())) {
+				assessmentSetIterator.remove();
+				break;
+			}
+		}
       }
       
       // Assessment Attachment
