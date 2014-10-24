@@ -3404,7 +3404,7 @@ public class DeliveryBean
   private boolean checkDataIntegrity(AssessmentGradingData assessmentGrading){
     // get assessmentGrading from DB, this is to avoid same assessment being
     // opened in the differnt browser
-    if (assessmentGrading !=null){
+    if (assessmentGrading != null && isBrowserDataDiscrepancyEnabled()) {
       long DBdate = 0;
       if (assessmentGrading.getSubmittedDate()!=null){
          DBdate = assessmentGrading.getSubmittedDate().getTime();
@@ -3980,5 +3980,9 @@ public class DeliveryBean
 		  return firstTimeTaking;
 	  }
 	  
+	  public boolean isBrowserDataDiscrepancyEnabled() {
+	      return ServerConfigurationService.getBoolean("samigo.browserDataDiscrepancy", true);
+	  }
+
 }
 
