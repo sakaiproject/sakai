@@ -782,7 +782,9 @@ public class ListItem
 		ArrayList<Group> site_groups = new ArrayList<Group>();
 		
 		String context = getSiteContext(refstr);
-		site = getSiteObject(context);
+		if(context != null) {
+			site = getSiteObject(context);
+		}
 		if(site != null)
 		{
 			for(Group gr : (Collection<Group>) site.getGroups())
