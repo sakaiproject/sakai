@@ -2210,9 +2210,13 @@ isRTL:false
 					}
 				});
 			}
-			return date.iso?date.iso:(date.year+' '+date.month+' '+date.day+' '+date.hour+':'+date.minute+' '+date.ampm).trim();
+			return date.iso?date.iso:(date.year+'-'+toDigit(date.month)+'-'+toDigit(date.day)+' '+date.hour+':'+date.minute+' '+date.ampm).trim();
 		}
 
+		function toDigit(s) {
+			return (s-0)<10?'0'+s:s;
+		}
+		
 		/**
 		* Sets the date, both on init and datetimepicker selection.
 		* Handles many conditions do to the variety of tool implimentations 
