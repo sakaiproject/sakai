@@ -120,7 +120,7 @@
     <sakai.msgcntr.version>11-SNAPSHOT</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>1.6</sakai.jdk.version>
+    <sakai.jdk.version>1.7</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
   </properties>
   <distributionManagement>
@@ -194,6 +194,16 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <configuration>
+                <source>${sakai.jdk.version}</source>
+                <target>${sakai.jdk.version}</target>
+                <optimize>true</optimize>
+                <debug>true</debug>
+            </configuration>
           </plugin>
         </plugins>
       </build>
