@@ -27,12 +27,18 @@ should be included in file importing DeliveryMessages
 <!-- ATTACHMENTS -->
 <%@ include file="/jsf/delivery/item/attachment.jsp" %>
 
-<h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
-<f:verbatim><br /></f:verbatim>
-<h:outputText value="#{deliveryMessages.fin_complex_note} " escape="false" />
-<f:verbatim><br /></f:verbatim>
-<h:outputText value="#{deliveryMessages.fin_complex_example} " escape="false" />
-<f:verbatim><br /></f:verbatim>
+<h:outputLink value="#" styleClass="hasTooltip">
+	<h:outputText value="#{deliveryMessages.additional_instructions_label}" />
+</h:outputLink>
+<h:panelGroup layout="block" id="div_accepted_instruction" style="display:none;">
+	<h:outputText value="#{deliveryMessages.fin_accepted_instruction} " escape="false" />
+	<f:verbatim><br /></f:verbatim>
+	<h:outputText value="#{deliveryMessages.fin_complex_note} " escape="false" />
+	<f:verbatim><br /></f:verbatim>
+	<h:outputText value="#{deliveryMessages.fin_complex_example} " escape="false" />
+	<f:verbatim><br /></f:verbatim>
+</h:panelGroup>
+
 <h:outputText value="#{deliveryMessages.fin_invalid_characters_error} " escape="false" rendered="#{question.isInvalidFinInput}" styleClass="messageSamigo3"/>
 <f:verbatim><br /></f:verbatim>
 
@@ -122,3 +128,27 @@ should be included in file importing DeliveryMessages
     </h:panelGroup>
   </h:panelGrid>
 </h:panelGroup>
+
+<f:verbatim>
+<script>
+//Setup qtips
+$('.hasTooltip').each(function() { // Notice the .each() loop, discussed below
+    $(this).qtip({
+        content: {
+            text: $(this).next('div') // Use the "div" element after this for the content
+        },
+        position: {
+          target: 'mouse', 
+          adjust: {
+            mouse: false
+          }
+       },
+       style: {
+         classes: 'qtip-tipped qtip-shadow qtipBodyContent',
+       },
+       show: 'click',
+       hide: 'unfocus click'
+      });
+});
+</script>
+</f:verbatim>

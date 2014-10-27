@@ -10,6 +10,9 @@
       head += "<script type=\"text/javascript\" src=\"/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js\"></script>\n";
       head += "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
+      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/qtip/jquery.qtip-latest.min.js\"></script>\n";
+      head += "<link rel=\"stylesheet\" type=\"text/css\" href=\"/library/js/jquery/qtip/jquery.qtip-latest.min.css\"/>\n";
+
       request.setAttribute("html.head", head);
       request.setAttribute("html.body.onload", request.getAttribute("sakai.html.body.onload"));
       request.setAttribute("html.head.sakai", request.getAttribute("sakai.html.head"));
