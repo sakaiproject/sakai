@@ -171,7 +171,7 @@ function updateRunningTotal(thisForm) {
   	var weightInput = getTheElement(thisForm.name + ":categoriesTable:" + row + ":weightInput");
   	//just threw 10000 in there just in case as an out
   	while(weightInput && row < 10000){
-  		weight = parseFloat(weightInput.value);
+		weight = parseFloat(weightInput.value.replace(/,/, '.'));
   		var extraCreditCheckbox = getTheElement(thisForm.name + ":categoriesTable:" + row + ":catExtraCredit");
 		if (weight >= 0 && extraCreditCheckbox != null && !extraCreditCheckbox.checked) {
             runningTotal += weight;
