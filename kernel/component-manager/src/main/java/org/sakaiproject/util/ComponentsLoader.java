@@ -30,7 +30,6 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Vector;
 
@@ -81,23 +80,15 @@ public class ComponentsLoader
 				M_log.warn("load: empty directory: " + componentsRoot);
 				return;
 			}
-			
-			List<File> packages = new ArrayList<File>(Arrays.asList(packageArray));
+ 			List<File> packages = Arrays.asList(packageArray);
+
+ 			// assure a consistent order - sort these files
+ 			Collections.sort(packages);
 
 			// for testing, we might reverse load order
-			final int reverse = System.getProperty("sakai.components.reverse.load") != null ? -1 : 1;
-
-			// assure a consistent order - sort these files
-			Collections.sort(packages, new Comparator<Object>() {
-				public int compare(Object o1, Object o2)
-				{
-					File f1 = (File) o1;
-					File f2 = (File) o2;
-					int sort = f1.compareTo(f2);
-					return sort * reverse;
-				}
-			});
-			
+ 			if (System.getProperty("sakai.components.reverse.load") != null) {
+ 				Collections.reverse(packages);
+ 			}
 			M_log.info("load: loading components from: " + componentsRoot);
 
 			// process the packages
@@ -254,6 +245,10 @@ public class ComponentsLoader
 
 			if (jars != null)
 			{
+				// We sort them so that we get predictable results when loading classes.
+				// Otherwise sometimes you can end up with one class and other times you can end up with another
+				// depending on the order the listing is stored on the filesystem.
+				Arrays.sort(jars);
 				for (int j = 0; j < jars.length; j++)
 				{
 				    if (jars[j] != null) {

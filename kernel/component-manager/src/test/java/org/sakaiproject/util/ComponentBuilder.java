@@ -32,15 +32,20 @@ public class ComponentBuilder {
 	}
 
 	public Component buildComponent() {
+		return buildComponent(nextComponentId());
+	}
+
+	public Component buildComponent(String id, String... jars) {
 		if ( !(isUseable()) ) {
 			throw new IllegalStateException("ComponentBuilder not currently useable, probably because the JDK compiler is unavailable.");
 		}
 		initComponentsRootDir();
-		Component component = new Component(nextComponentId(), 
-				componentsRootDir.getAbsolutePath(), compiler);
+		Component component = new Component(id,
+				componentsRootDir.getAbsolutePath(), compiler, jars);
 		component.generate();
 		return component;
 	}
+
 
 	protected String nextComponentId() {
 		return Long.toString((long)(Math.random() * 2821109907456L), 36);

@@ -1,17 +1,14 @@
 package org.sakaiproject.util;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.*;
 
 import junit.framework.TestCase;
 
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.context.support.GenericApplicationContext;
-
-import org.sakaiproject.component.api.ComponentManager;
-import org.sakaiproject.util.SakaiApplicationContext;
 
 /**
  * Verifies behaviors of {@link ComponentsLoader}.
@@ -86,7 +83,23 @@ public class ComponentsLoaderTest extends TestCase {
 		// (also for reasons outlined in the javadoc)
 		assertNotNull(componentMgr.getApplicationContext().getBean(component.getBeanId()));
 	}
-	
+
+	/**
+	 * This us very similar to the previous test except that now we check that we can also load components
+	 * from JAR files within the lib folder.
+	 */
+	public void testLoadRegisterJarComponentWithManager() {
+		if ( !(builder.isUseable()) ) {
+			sayUnusableBuilder("testLoadRegistersComponentWithComponentManager()");
+			return;
+		}
+		Component component = builder.buildComponent("test", "Jar1");
+		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
+		for (Component.Jar jar : component.getJars()) {
+			assertNotNull(componentMgr.getApplicationContext().getBean(jar.getBeanId()));
+		}
+	}
+
 	/**
 	 * Same as {@link #testLoadRegistersComponentWithComponentManager()} but for
 	 * several components. The intent here is to (hopefully) distinguish clearly
@@ -138,7 +151,7 @@ public class ComponentsLoaderTest extends TestCase {
 	}
 	
 	/**
-	 * Verifies that {@link ComponentsLoader#load(ComponentManager, String)}
+	 * Verifies that {@link ComponentsLoader#load(org.springframework.context.ConfigurableApplicationContext, String)}
 	 * dispatches internally in the expected fashion. This enables more
 	 * direct testing of special implementations of those delegated-to
 	 * methods because it guarantees that the internal "protected" 
@@ -218,7 +231,78 @@ public class ComponentsLoaderTest extends TestCase {
 		assertEquals("Did not invoke newPackageClassLoader()", 
 				expectedJournal, journal);
 	}
-	
+
+	/**
+	 * This test verifies that when the components folder is loaded the components are processed
+	 * in an alphabetical order rather than the order in which they are returned from the filesystem.
+	 * We want this so that we get repeatable loads of the component manager.
+	 * This test depends on the filesystem order. If the filesystem always returns the files
+	 * alphabetically it won't fail.
+	 */
+	public void testComponentLoadOrder() {
+		if ( !(builder.isUseable()) ) {
+			sayUnusableBuilder("testLoadComponentPackageDispatch()");
+			return;
+		}
+		// Reverse alphabetical
+		List<String> expectedJournal = new ArrayList<String>() {{
+			add("sakai-z-pack"); add("sakai-b-pack"); add("sakai-a-pack");
+		}};
+		final Component componentA = builder.buildComponent("a");
+		final Component componentZ = builder.buildComponent("z");
+		final Component componentB = builder.buildComponent("b");
+		final List<String> journal = new ArrayList<String>();
+		loader = new ComponentsLoader() {
+			protected ClassLoader newPackageClassLoader(File dir) {
+				journal.add(dir.getName());
+				return super.newPackageClassLoader(dir);
+			}
+		};
+		try {
+			// We reverse it so that we are more sure the correct code is getting run.
+			System.setProperty("sakai.components.reverse.load", "true");
+			loader.load(componentMgr.getApplicationContext(),
+					builder.getComponentsRootDir().getAbsolutePath());
+		} finally {
+			System.clearProperty("sakai.components.reverse.load");
+		}
+		assertEquals("The components didn't get sorted.", expectedJournal, journal);
+	}
+
+	/**
+	 * This test verifies that when there are multiple JARs within a components folder the JARs are
+	 * processed in a alphabetical order. This test may not break as we might get the correct order back
+	 * from the filesystem.
+	 */
+	public void testJarLoadOrder() {
+		if ( !(builder.isUseable()) ) {
+			sayUnusableBuilder("testLoadComponentPackageDispatch()");
+			return;
+		}
+		Component component = builder.buildComponent("jarloadorder", "Jar1", "Jar2", "Jar3");
+		final List<String> expectedJournal = new ArrayList<String>() {{
+			add("Jar1.jar"); add("Jar2.jar"); add("Jar3.jar");
+		}};
+		final Queue<String> journal = new LinkedList<String>();
+		loader = new ComponentsLoader() {
+			@Override
+			protected ClassLoader newPackageClassLoader(File dir) {
+				URLClassLoader classLoader = (URLClassLoader)super.newPackageClassLoader(dir);
+				for (URL url : classLoader.getURLs()) {
+					// When we have test components without classes folder this test can be simpler.
+					if (url.getFile().endsWith(".jar")) {
+						journal.add(url.getFile());
+					}
+				}
+				return classLoader;
+			}
+		};
+		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
+		for(String jar : expectedJournal) {
+			assertTrue("Didn't find the expected jar at the correct position.", journal.poll().endsWith(jar));
+		}
+	}
+
 	
 	private void sayUnusableBuilder(String invokingMethod) {
 		System.out.println("Unable to execute " + invokingMethod +", probably b/c necessary code generation tools are not available. Please see http://maven.apache.org/general.html#tools-jar-dependency for information on making tools.jar visible in the Maven classpaths.");
