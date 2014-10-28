@@ -14127,8 +14127,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
     private LRS_Result getLRS_Result(Assignment a, AssignmentSubmission s, boolean completed) {
         LRS_Result result = null;
         AssignmentContent content = a.getContent();
-        if (3 == content.getTypeOfGrade() && NumberUtils.isNumber(s.getGradeDisplay())) { // Points
-            result = new LRS_Result(new Float(s.getGradeDisplay()), new Float(0.0), new Float(content.getMaxGradePointDisplay()), null);
+		String decSeparator = FormattedText.getDecimalSeparator();
+		// gradeDisplay ready to conversion to Float
+		String gradeDisplay = StringUtils.replace(s.getGradeDisplay(), decSeparator, ".");
+        if (3 == content.getTypeOfGrade() && NumberUtils.isNumber(gradeDisplay)) { // Points
+    		String maxGradePointDisplay = StringUtils.replace(content.getMaxGradePointDisplay(), decSeparator, ".");
+            result = new LRS_Result(new Float(gradeDisplay), new Float(0.0), new Float(maxGradePointDisplay), null);
             result.setCompletion(completed);
         } else {
             result = new LRS_Result(completed);
