@@ -24,7 +24,6 @@
         <poi.version>3.10-FINAL</poi.version>
         <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <escaped.i18n.dir>${project.build.directory}/escaped-i18n</escaped.i18n.dir>
     </properties>
 
     <developers>
@@ -163,12 +162,6 @@
 	<build>
 		<resources>
 			<resource>
-				<directory>${escaped.i18n.dir}</directory>
-				<includes>
-					<include>**/*.properties</include>
-				</includes>
-			</resource>
-			<resource>
 				<directory>${basedir}/src/java</directory>
 				<includes>
 					<include>**/*.xml</include>
@@ -206,27 +199,31 @@
 						<exclude>**/*-min.js</exclude>
 					</excludes>
 				</configuration>
-            </plugin>
-            
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-		                <phase>process-sources</phase>
-                        <goals>
-		                    <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <tasks>
-                                <copydir src="${basedir}/src/i18n/org" dest="${escaped.i18n.dir}/org" />
-                                <replace summary="true" token= "\u" value="\\u" dir="${escaped.i18n.dir}/org/sakaiproject/roster/i18n">
-                                    <include name="**/*.properties"/>
-                                </replace>
-                            </tasks>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			</plugin>
+			<plugin>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>2.6</version>
+				<executions>
+					<execution>
+						<id>copy-resources</id>
+						<phase>process-resources</phase>
+						<goals>
+							<goal>copy-resources</goal>
+						</goals>
+						<configuration>
+							<outputDirectory>${project.build.directory}/${project.build.finalName}</outputDirectory>
+							<resources>          
+								<resource>
+									<directory>${basedir}/src/i18n/org/sakaiproject/roster</directory>
+									<includes>
+										<include>**/*.properties</include>
+									</includes>
+								</resource>
+							</resources>              
+						</configuration>            
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
             
 	</build>
