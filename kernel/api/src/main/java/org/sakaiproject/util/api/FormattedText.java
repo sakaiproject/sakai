@@ -22,6 +22,7 @@
 package org.sakaiproject.util.api;
 
 import org.w3c.dom.Element;
+import java.text.NumberFormat;
 
 /**
  * These Utils provide support for user entry of formatted text (typically HTML). This
@@ -426,5 +427,29 @@ public interface FormattedText {
       * @return the shortened string
       */
      public String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod);
+
+     /**
+      * General utility to get current decimal separator
+      *
+      * @return the decimal separator string
+      */
+     public String getDecimalSeparator();
+
+     /**
+      * General utility to get current number format
+      *
+      * @param maxFractionDigits maximum fraction digits
+      * @param maxFractionDigits minimum fraction digits
+      * @param groupingUsed grouping used
+      * @return the number format
+      */
+     public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed);
+
+     /**
+      * General utility to get current number format
+      *
+      * @return the number format
+      */
+     public NumberFormat getNumberFormat();
 
 }

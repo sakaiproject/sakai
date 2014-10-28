@@ -28,7 +28,8 @@ import java.net.URI;
 import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
+import java.text.NumberFormat;
+import java.text.DecimalFormat;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1211,6 +1212,28 @@ public class FormattedTextImpl implements FormattedText
         return text.replaceAll("\\s+", " ").trim();
     }
 
+    public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed) {
+		NumberFormat nbFormat = NumberFormat.getInstance();				
+		try {
+			nbFormat = NumberFormat.getNumberInstance(new ResourceLoader().getLocale());
+		} catch (Exception e) {
+			M_log.warn("Error while retrieving local number format, using default ", e);
+		}
+		if (maxFractionDigits!=null) nbFormat.setMaximumFractionDigits(maxFractionDigits);
+		if (minFractionDigits!=null) nbFormat.setMinimumFractionDigits(minFractionDigits);
+		if (groupingUsed!=null) nbFormat.setGroupingUsed(groupingUsed);
+		return nbFormat;
+    }
+
+    public NumberFormat getNumberFormat() {
+    	return getNumberFormat(null,null,null);
+    }
+    
+    public String getDecimalSeparator() {
+		return ((DecimalFormat)getNumberFormat()).getDecimalFormatSymbols().getDecimalSeparator()+"";
+    }
+    
+    
     /**
      * SAK-23567 Gets the shortened version of the title
      *

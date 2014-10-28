@@ -24,7 +24,7 @@ package org.sakaiproject.util.api;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.w3c.dom.Element;
-
+import java.text.NumberFormat;
 /**
  * This is a special Mock which will allow unit testing using FormattedText to generally still work,
  * This is necessary because of all the places where it is used
@@ -201,4 +201,20 @@ public class MockFormattedText implements FormattedText {
         return text;
     }
 
+    @Override
+    public String getDecimalSeparator() {
+        log.warn(WARNING);
+        return null;
+}
+
+    @Override
+    public NumberFormat getNumberFormat(Integer maxFractionDigits, Integer minFractionDigits, Boolean groupingUsed) {
+    	return null;
+    }
+
+    @Override
+    public NumberFormat getNumberFormat() {
+    	return getNumberFormat(null,null,null);
+    }
+    
 }
