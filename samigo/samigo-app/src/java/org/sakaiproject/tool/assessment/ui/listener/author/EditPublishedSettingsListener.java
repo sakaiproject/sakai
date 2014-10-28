@@ -138,14 +138,25 @@ public class EditPublishedSettingsListener
 
   public boolean passAuthz(FacesContext context, String ownerId){
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
+    boolean hasPublishPrivilege_any = authzBean.getPublishAnyAssessment();
+    boolean hasPublishPrivilege_own0 = authzBean.getPublishOwnAssessment();
+    boolean hasPublishPrivilege_own = (hasPublishPrivilege_own0 && isOwner(ownerId));
+    boolean hasPrivilege = (hasPublishPrivilege_any || hasPublishPrivilege_own);
     if (!hasPrivilege){
       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
                                                "denied_edit_publish_assessment_settings_error");
       context.addMessage(null,new FacesMessage(err));
+    }else{
+    	boolean hasEditPrivilege_any = authzBean.getEditAnyAssessment();
+        boolean hasEditPrivilege_own0 = authzBean.getEditOwnAssessment();
+        boolean hasEditPrivilege_own = (hasEditPrivilege_own0 && isOwner(ownerId));
+        hasPrivilege = (hasEditPrivilege_any || hasEditPrivilege_own);
+        if (!hasPrivilege){
+            String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
+     						 "denied_edit_assessment_error");
+            context.addMessage(null,new FacesMessage(err));
+    }
+        
     }
     return hasPrivilege;
   }
