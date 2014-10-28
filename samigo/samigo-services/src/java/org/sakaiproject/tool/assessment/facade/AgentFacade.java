@@ -50,7 +50,7 @@ public class AgentFacade implements Serializable, AgentDataIfc
 	 */
 	private static final long serialVersionUID = 1L;
 
-private static Log log = LogFactory.getLog(AgentFacade.class);
+private Log log = LogFactory.getLog(AgentFacade.class);
 
   private static final AgentHelper helper =
     IntegrationContextFactory.getInstance().getAgentHelper();
