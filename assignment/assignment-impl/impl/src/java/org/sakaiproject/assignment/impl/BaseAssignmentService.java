@@ -4438,9 +4438,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
                                                                                     submission.getGradeForUser(userId);
 
 										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = NumberFormat.getNumberInstance(rb.getLocale());
-										nbFormat.setMaximumFractionDigits(1);
-										nbFormat.setMinimumFractionDigits(1);
+										NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,null);
 										float f = nbFormat.parse(grade).floatValue();
 
 										// remove the String-based cell first
@@ -4502,9 +4500,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										String grade = submission.getGradeDisplay();
 			
 										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = NumberFormat.getNumberInstance(rb.getLocale());
-										nbFormat.setMaximumFractionDigits(1);
-										nbFormat.setMinimumFractionDigits(1);
+										NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,null);
 										float f = nbFormat.parse(grade).floatValue();
 										
 										// remove the String-based cell first
@@ -9507,19 +9503,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// formated to show one decimal place, for example, 1000 to 100.0
 			String one_decimal_maxGradePoint = m_maxGradePoint / 10 + "." + (m_maxGradePoint % 10);
 			// get localized number format
-			NumberFormat nbFormat = NumberFormat.getInstance();				
-			try {
-				Locale locale = null;
-				ResourceLoader rb = new ResourceLoader();
-	            		locale = rb.getLocale();
-	            		nbFormat = NumberFormat.getNumberInstance(locale);
-			}				
-			catch (Exception e) {
-				M_log.warn("Error while retrieving local number format, using default ", e);
-			}
-			nbFormat.setMaximumFractionDigits(1);
-			nbFormat.setMinimumFractionDigits(1);
-			nbFormat.setGroupingUsed(false);
+			NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);				
 			// show grade in localized number format
 			Double dblGrade = new Double(one_decimal_maxGradePoint);
 			one_decimal_maxGradePoint = nbFormat.format(dblGrade);
@@ -11711,7 +11695,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							String gString = StringUtils.trimToNull(g.getAssignmentScoreString(gradebookUid, gAssignmentName, userId));
 							if (gString != null)
 							{
-								rv = gString;
+								// return grade with locale decimal separator
+								String decSeparator = FormattedText.getDecimalSeparator();
+								rv = StringUtils.replace(gString, (",".equals(decSeparator)?".":","), decSeparator);
 							}
 						}
 					}
@@ -11764,19 +11750,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						}
 					}
 					// get localized number format
-					NumberFormat nbFormat = NumberFormat.getInstance();				
-					try {
-						Locale locale = null;
-						ResourceLoader rb = new ResourceLoader();
-			            		locale = rb.getLocale();
-			            		nbFormat = NumberFormat.getNumberInstance(locale);
-					}				
-					catch (Exception e) {
-						M_log.warn("Error while retrieving local number format, using default ", e);
-					}
-					nbFormat.setMaximumFractionDigits(1);
-					nbFormat.setMinimumFractionDigits(1);
-					nbFormat.setGroupingUsed(false);
+					NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);				
 					// show grade in localized number format
 					try {
 						Double dblGrade = new Double(one_decimal_gradePoint);
