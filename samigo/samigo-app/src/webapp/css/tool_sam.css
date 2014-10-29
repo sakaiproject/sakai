@@ -923,7 +923,7 @@ td.releaseTo div.alertMessage {
 .qtipBodyContent{
    font-family: 'Helvetica Neue', Arial,sans-serif !important;
    font-size: 1.3em !important;
-   min-width: 400px !important;
+   min-width: 800px !important;
 }
 
 .qtip{
