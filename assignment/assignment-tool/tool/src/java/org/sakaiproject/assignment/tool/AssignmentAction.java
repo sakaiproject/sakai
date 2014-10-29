@@ -15384,6 +15384,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if (rv != null)
 		{
+			//Escape the html from malicious tags.
+			rv = FormattedText.processEscapedHtml(rv);
+			
 			int start = rv.indexOf("<body>");
 			int end = rv.indexOf("</body>");
 			if (start != -1 && end != -1)
