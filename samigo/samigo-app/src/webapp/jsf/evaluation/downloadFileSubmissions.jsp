@@ -43,8 +43,6 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
  <div class="portletBody">
 
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
-
 <script>
 	$(document).ready(function(){
 		$(".allSections").hide();
