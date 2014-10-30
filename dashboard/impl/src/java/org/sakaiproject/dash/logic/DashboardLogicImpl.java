@@ -268,7 +268,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 				for(CalendarItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
-					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isAvailable(item.getEntityReference()) && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId())) {
 						CalendarLink calendarLink = new CalendarLink(person, item, item.getContext(), false, false);
 						calendarLinks.add(calendarLink);
 					}
@@ -328,7 +328,7 @@ public class DashboardLogicImpl implements DashboardLogic {
 				for(NewsItem item: items) {
 					SourceType sourceType = item.getSourceType();
 					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
-					if(dashboardEntityInfo != null && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isAvailable(item.getEntityReference()) && dashboardEntityInfo.isUserPermitted(sakaiUserId, item.getEntityReference(), item.getContext().getContextId()) ) {
 						NewsLink newsLink = new NewsLink(person, item, item.getContext(), false, false);
 						newsLinks.add(newsLink);
 					}
