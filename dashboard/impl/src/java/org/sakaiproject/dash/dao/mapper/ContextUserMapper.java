@@ -27,19 +27,22 @@ import java.sql.SQLException;
 import org.sakaiproject.dash.model.Context;
 import org.springframework.jdbc.core.RowMapper;
 
+import org.apache.log4j.Logger;
+
 /**
  * Mapper for the "context_users" string returned
  */
 public class ContextUserMapper implements RowMapper
 {
 
+	private static final Logger log = Logger.getLogger(ContextUserMapper.class);
+	
 	public String mapRow(ResultSet rs, int rowNum) throws SQLException {
 		String rv = "";
 		try {
 			rv = rs.getString("context_users");
 		} catch (Exception e) {
-			System.out.println(this + " =============== " + e + " ===============");
-			e.printStackTrace(System.out);
+			log.warn(this + " mapRow: " + e);
 			if(e instanceof SQLException) {
 				throw (SQLException) e;
 			}

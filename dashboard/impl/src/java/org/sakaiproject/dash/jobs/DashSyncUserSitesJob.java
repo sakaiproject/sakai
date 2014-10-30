@@ -28,11 +28,13 @@ import org.quartz.JobExecutionException;
  * this job is to find out the up-to-date user enrolled sites
  * remove site dashboard items if the user no longer belongs to the site
  * or add site dashboard items if the user is added to the site
+ * Admin user can schedule the job inside Admin Job Scheduler tool, 
+ * and create trigger with desired frequency
  * @author zqian
  *
  */
 public class DashSyncUserSitesJob extends DashQuartzJob {
-	private Log	logger = LogFactory.getLog(DashSyncUserSitesJob.class);
+	private Log logger = LogFactory.getLog(DashSyncUserSitesJob.class);
 	
 	//Matches the bean id
 	final static String beanId = "dashSyncUserSitesJob";
@@ -55,7 +57,7 @@ public class DashSyncUserSitesJob extends DashQuartzJob {
     		try {
     			dashboardCommonLogic.syncDashboardUsersWithSiteUsers();
 			} catch (Exception e) {
-				logger.warn(this + "execute error: " , e);
+				logger.warn(this + " execute error: " , e);
 			}
     	}
     }

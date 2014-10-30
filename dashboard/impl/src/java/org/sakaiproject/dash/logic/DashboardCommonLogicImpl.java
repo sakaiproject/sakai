@@ -136,6 +136,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	
 	protected String propLoopTimerEnabledLocally = null;
 	
+	// strings to indicate dashboard link type
+	private static final String CALENDAR_LINK_TYPE = "calendar_link_type";
+	private static final String NEWS_LINK_TYPE = "news_link_type";
+	
+	
 	/************************************************************************
 	 * Spring-injected classes
 	 ************************************************************************/
@@ -1685,7 +1690,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		HashMap<String, Set<String>> newsLinksUserMap =  dao.getDashboardNewsContextUserMap();
 
 		// combine the context id from keyset of both maps
-		// so thate we just need to call AuthzGroupService once to find out site members
+		// so that we just need to call AuthzGroupService once to find out site members
 		Set<String> combinedContextIdSet = new HashSet<String>();
 		combinedContextIdSet.addAll(calendarLinksUserMap.keySet());
 		combinedContextIdSet.addAll(newsLinksUserMap.keySet());
@@ -1705,13 +1710,13 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 			// remove or add user DashboardCalendarlinks if needed
 			if (calendarLinksUserMap.containsKey(context_id))
 			{
-				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, calendarLinksUserMap.get(context_id), siteUserSet, true);
+				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, calendarLinksUserMap.get(context_id), siteUserSet, CALENDAR_LINK_TYPE);
 			}
 			
 			// remove or add user DashboardNewslinks if needed
 			if (newsLinksUserMap.containsKey(context_id))
 			{
-				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, newsLinksUserMap.get(context_id), siteUserSet, false);
+				addOrRemoveDashboardLinksBasedOnUsersSetComp(context_id, newsLinksUserMap.get(context_id), siteUserSet, NEWS_LINK_TYPE);
 			}
 		}
 		logger.info(this + ".syncDashboardUsersWithSiteUsers end " + serverId);
@@ -1739,7 +1744,7 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	 * @siteUserSet
 	 * @forCalendarLinks when true, add/remove in DASH_CALENDAR_LINK table; otherwise, add/remove in DASH_NEWS_LINK table
 	 */
-	private void addOrRemoveDashboardLinksBasedOnUsersSetComp(String context_id, Set<String> dashboardUserSet, Set<String> siteUserSet, boolean forCalendarLinks)
+	private void addOrRemoveDashboardLinksBasedOnUsersSetComp(String context_id, Set<String> dashboardUserSet, Set<String> siteUserSet, String linkType)
 	{
 		// construct two base set, one for remove user links, one for add user links
 		Set<String> removeSet = new HashSet<String>();
@@ -1753,14 +1758,16 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		// need to do the comparison between those two sets: 
 		// 1. add dashboard links if the user is added to site; 
 		addSet.removeAll(dashboardUserSet);
+		if (!addSet.isEmpty())
+			logger.info(this + " addOrRemoveDashboardLinksBasedOnUsersSetComp add dash link user set size=" + addSet.size() + " for context " + context_id);
 		for(String userId: addSet)
 		{	
-			if (forCalendarLinks)
+			if (CALENDAR_LINK_TYPE.equals(linkType))
 			{
 				addCalendarLinks(userId, context_id);
 				logger.debug(this + ".syncDashboardUsersWithSiteUsers ADD calendar links for user= " + userId + " context_id=" + context_id);
 			}
-			else
+			else if (NEWS_LINK_TYPE.equals(linkType))
 			{
 				addNewsLinks(userId, context_id);
 				logger.debug(this + ".syncDashboardUsersWithSiteUsers ADD news links for user= " + userId + " context_id=" + context_id);
@@ -1768,14 +1775,16 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		}
 		// 2. remove dashboard links if the user is removed from the site
 		removeSet.removeAll(siteUserSet);
+		if (!removeSet.isEmpty())
+			logger.info(this + " addOrRemoveDashboardLinksBasedOnUsersSetComp remove dash link user set size=" + removeSet.size()+ " for context " + context_id);
 		for(String userId: removeSet)
 		{
-			if (forCalendarLinks)
+			if (CALENDAR_LINK_TYPE.equals(linkType))
 			{
 				removeCalendarLinks(userId, context_id);
 				logger.debug(this + ".syncDashboardUsersWithSiteUsers REMOVE calendar links for user= " + userId + " context_id=" + context_id);
 			}
-			else
+			else if (NEWS_LINK_TYPE.equals(linkType))
 			{
 				removeNewsLinks(userId, context_id);
 				logger.debug(this + ".syncDashboardUsersWithSiteUsers REMOVE news links for user= " + userId + " context_id=" + context_id);
