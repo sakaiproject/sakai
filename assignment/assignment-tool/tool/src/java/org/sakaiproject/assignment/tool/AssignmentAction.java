@@ -3398,18 +3398,15 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void putTimePropertiesInState(SessionState state, Time timeValue,
 											String month, String day, String year, String hour, String min) {
-		TimeBreakdown bTime = null;
+
 		try {
-			bTime = timeValue.breakdownLocal();
-		} catch (NullPointerException _npe) { 
-			bTime = TimeService.newTime().breakdownLocal();
-			bTime.setHour(12); bTime.setMin(0);
-		}
+		TimeBreakdown bTime = timeValue.breakdownLocal();
 		state.setAttribute(month, Integer.valueOf(bTime.getMonth()));
 		state.setAttribute(day, Integer.valueOf(bTime.getDay()));
 		state.setAttribute(year, Integer.valueOf(bTime.getYear()));
 		state.setAttribute(hour, Integer.valueOf(bTime.getHour()));
 		state.setAttribute(min, Integer.valueOf(bTime.getMin()));
+		} catch (NullPointerException _npe) { /* TODO empty exception block */ }
 	}
 
 	/**
