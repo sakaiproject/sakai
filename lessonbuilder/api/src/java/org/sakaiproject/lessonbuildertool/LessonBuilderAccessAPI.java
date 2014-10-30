@@ -24,12 +24,16 @@
 package org.sakaiproject.lessonbuildertool;
 
 import org.sakaiproject.entity.api.HttpAccess;
+import java.io.File;
+import java.io.InputStream;
 
 public interface LessonBuilderAccessAPI {
 
     public void setHttpAccess(HttpAccess h);
     public HttpAccess getHttpAccess();
-
+    public void setToolApi(ToolApi t);
+    public String loadCartridge(File f, String d, String siteId);
+    
 }
 
 

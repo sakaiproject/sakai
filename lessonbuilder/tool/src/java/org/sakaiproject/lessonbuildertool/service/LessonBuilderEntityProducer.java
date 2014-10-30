@@ -44,6 +44,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Vector;
 import java.io.InputStream;
+import java.io.FileInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.regex.Matcher;
@@ -78,6 +79,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.ToolApi;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageGroup;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -125,7 +127,7 @@ import org.springframework.context.MessageSource;
  */
 public class LessonBuilderEntityProducer extends AbstractEntityProvider
     implements EntityProducer, EntityTransferrer, EntityTransferrerRefMigrator, Serializable, 
-	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable  {
+	       CoreEntityProvider, AutoRegisterEntityProvider, Statisticable, InputTranslatable, Createable, ToolApi  {
 
    protected final Log logger = LogFactory.getLog(getClass());
 
@@ -224,6 +226,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       catch (Exception e) {
          logger.warn("Error registering Link Tool Entity Producer", e);
       }
+
+      lessonBuilderAccessAPI.setToolApi(this);
 
       // LinkMigrationHelper is not present before 2.10. So this code can compile on older systems,
       // find it via introspection.
@@ -1873,8 +1877,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     MyMessageLocator messageLocator = new MyMessageLocator();
 
-    // curl -F"cartridge=@/users/sakai/IMS_tests_v1.1/cc1p1vtd15v1p0.imscc;type=application/zip" 
-    //     "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=2da97547-7031-4bca-8f18-c6f9517016b9&sakai.session=09431422-2c06-40bc-9642-752e5d331920"
+    // sakai.session is the JSESSIONID up to the period.
+    // curl -F"cartridge=@/users/sakai/IMS-tests-v1.1/cc1p1vtd01v1p0.imscc;type=application/zip" "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=b51a66b4-a574-489c-8e88-81024d32436e&sakai.session=510667cc-1df2-41d1-98b1-491f57f22c46"
 
     // the challenge here is that we're not in a request context, but a lot of the support code assumes we are
     // we have to fake up a fair amount of context
@@ -1883,6 +1887,14 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 	DiskFileItem cartridge = (DiskFileItem)params.get("cartridge");
 	String siteId = (String)params.get("site");
+	
+	return loadCartridge(cartridge.getStoreLocation(), null, siteId);
+    }
+
+    public String loadCartridge(File cartFile, String unzippedDir, String siteId) {
+	System.out.println("loadcart in entityproducer " + cartFile + " " + unzippedDir + " " + siteId);
+	if ((cartFile == null && unzippedDir == null) || siteId == null)
+	    return "missing arguments " + cartFile + " " + siteId;
 
 	String siteref = "/site/" + siteId;
 	if (! securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, siteref))
@@ -1898,6 +1910,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	    return "bad site ID";
 	}
 
+	boolean found = false;
+	String dummyPageId = null;
+
 	// find a lesson builder tool to use for the tool session.
 	// So there must be one entity already.
 	Collection<ToolConfiguration> toolConfs = site.getTools(myToolIds());
@@ -1911,13 +1926,32 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    sessionManager.setCurrentToolSession(toolSession);
 		    ThreadLocalManager.set("sakai:ToolComponent:current.placement", config);
 		    ThreadLocalManager.set("sakai:ToolComponent:current.tool", config.getTool());
+		    found = true;
 		    break;
 		}
 	    }
 	}
 
+	if (!found) {
+	    SitePage page = site.addPage();
+	    ToolConfiguration tool = page.addTool(LESSONBUILDER_ID);
+	    tool.setTitle("dummy lesson");
+	    page.setTitle("dummy lesson");
+	    try {
+		siteService.save(site);
+		// don't set until we know the save worked
+		dummyPageId = page.getId();
+	    } catch (Exception e) {
+		System.out.println("can't add dummy page to site " + e);
+	    }
+	    toolSession = ses.getToolSession(tool.getId());
+	    sessionManager.setCurrentToolSession(toolSession);
+	    ThreadLocalManager.set("sakai:ToolComponent:current.placement", tool);
+	    ThreadLocalManager.set("sakai:ToolComponent:current.tool", tool.getTool());
+	}
+
 	// this is loosely based on SimplePageBean.importcc
-	if (cartridge != null && siteId != null) {
+
 	    File root = null;
 	    try {
 		root = File.createTempFile("ccloader", "root");
@@ -1928,7 +1962,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		if (!root.mkdir())
 		    return "unable to make temp directory for load";
 
-		CartridgeLoader cartridgeLoader = ZipLoader.getUtilities(cartridge.getStoreLocation(), root.getCanonicalPath());
+		CartridgeLoader cartridgeLoader = null;
+		if (unzippedDir != null)
+		    cartridgeLoader = ZipLoader.getUtilities(unzippedDir);
+		else
+		    cartridgeLoader = ZipLoader.getUtilities(cartFile, root.getCanonicalPath());
+
 		Parser parser = Parser.createCartridgeParser(cartridgeLoader);
 
 		// fake up a SimplePageBean. Set up just enough state to let it do the import
@@ -1958,11 +1997,24 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		} catch (Exception e){
 		    return "unable to delete temp file " + root;
 		}
+		// if we had to create a dummy lesson, remove it
+		if (dummyPageId != null) {
+		    try {
+			// safest to get fresh copy of site
+			site = siteService.getSite(siteId);
+			List<SitePage> pages = site.getPages();
+			for (SitePage page: pages) {
+			    if (dummyPageId.equals(page.getId())) {
+				site.removePage(page);
+				siteService.save(site);				
+				break;
+			    }
+			}
+		    } catch (Exception e){
+			return "unable to delete dummy lesson " + e;
+		    }
+		}
 	    }
-
-	}
-
-	return "missing arguments";
 
     }
 

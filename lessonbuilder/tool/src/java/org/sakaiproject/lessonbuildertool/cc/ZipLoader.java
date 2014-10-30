@@ -77,6 +77,7 @@ public class ZipLoader implements CartridgeLoader {
   private String rootPath;
   private File cc;
   private boolean unzipped;
+  private InputStream cc_inputStream = null;
   private final int BUFFER=4096;
   
   private
@@ -87,17 +88,30 @@ public class ZipLoader implements CartridgeLoader {
     rootPath = root.getCanonicalPath();
   }
   
+  ZipLoader(File dir) throws IOException {
+    root=dir;
+    // this is for site archive. 
+    // the stream resets on close. We get it at EOF, so need to reset it
+    unzipped=true;
+    rootPath = root.getCanonicalPath();
+  }
+
   private void
   unzip() throws FileNotFoundException, IOException {
     if (!unzipped) {
       BufferedOutputStream dest=null;
-      FileInputStream fis = null;
+      InputStream fis = null;
       ZipInputStream zis = null;
       try {
-	  fis = new FileInputStream(cc);
+	  if (cc_inputStream != null)
+	      fis = cc_inputStream;
+	  else
+	      fis = new FileInputStream(cc);
+	  System.out.println("unzip fis " + fis);
 	  zis = new ZipInputStream(new BufferedInputStream(fis));
 	  ZipEntry entry;
 	  while ((entry = zis.getNextEntry())!=null) {
+	      System.out.println("zip name " + entry.getName());
 	      File target=new File(root, entry.getName());
 	      // not sure if you can put things like .. into a zip file, but be careful
 	      if (!target.getCanonicalPath().startsWith(rootPath))
@@ -119,9 +133,11 @@ public class ZipLoader implements CartridgeLoader {
 		  dest.flush();
 		  dest.close();
 		  dest = null;
-		  // System.out.println("wrote file " + target);
+		  System.out.println("wrote file " + target);
 	      }
 	  }
+      } catch (Exception x) {
+	  System.out.println("exception " + x);
       } finally {
 	  if (zis != null) {
 	      try {zis.close();} catch (Exception ignore) {}
@@ -161,6 +177,16 @@ public class ZipLoader implements CartridgeLoader {
     return new ZipLoader(the_cc, unzip);
   }
   
+    // for site archive, where the file is already unzipped
+  public static CartridgeLoader
+    getUtilities(String unzip_dir) throws FileNotFoundException, IOException {
+    File unzip=new File(unzip_dir);
+    if (!unzip.exists()) {
+	throw new IOException("unzipped directory doesn't exist");
+    }
+    return new ZipLoader(unzip);
+  }
+
   public static CartridgeLoader
     getUtilities(File the_cc) throws FileNotFoundException, IOException {
     return getUtilities(the_cc, System.getProperty("java.io.tmpdir"));

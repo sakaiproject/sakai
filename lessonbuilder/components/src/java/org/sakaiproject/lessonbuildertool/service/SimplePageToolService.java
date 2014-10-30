@@ -24,6 +24,8 @@
 package org.sakaiproject.lessonbuildertool.service;
 
 import java.util.List;
+import java.io.File;
+import java.io.InputStream;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +39,7 @@ import org.springframework.core.io.ResourceLoader;
 
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI;
+import org.sakaiproject.lessonbuildertool.ToolApi;
 
 /**
  * Currently, the sole purpose of this service is to register our edit permission, and create table
@@ -66,6 +69,11 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 	    httpAccess = h;
 	}
 
+	private ToolApi toolApi = null;
+	public void setToolApi(ToolApi t) {
+	    toolApi = t;
+	}
+
 	public HttpAccess getHttpAccess() {
 	    return httpAccess;
 	}
@@ -76,6 +84,11 @@ public class SimplePageToolService implements ResourceLoaderAware, LessonBuilder
 
 	public void setAutoDdl(boolean autoDdl) {
 		this.autoDdl = autoDdl;
+	}
+
+	public String loadCartridge(File f, String d, String siteId) {
+	    System.out.println("loadcart in simplepagetoolservice " + f + " " + d + " " + siteId);
+	    return toolApi.loadCartridge(f, d, siteId);
 	}
 
 	public SimplePageToolService() {}
