@@ -2,9 +2,9 @@
 /* many of the definitions below exist also in tool_base.css - the duplication allows for one instalation with many different looks sharing some common elements
  */
 /* SECTION 1 GENERIC SELECTORS */
-body {
+.portletBody {
     font-family: 'Helvetica Neue', Arial,sans-serif;
-    font-size: 80%;
+    font-size: 90%;
 }
 /* stub in tool_base.css - skinned here */
 hr.itemSeparator {

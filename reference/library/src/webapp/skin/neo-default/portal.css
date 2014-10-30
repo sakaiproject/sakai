@@ -4,8 +4,9 @@ body.portalBody {
     width: 100%;
     padding: 0;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: .8em;
+    font-size: 14px;
     margin: 0;
+    line-height:1.42857;
     background-repeat: repeat-x;
 }
  /* outer wrapper for portal content (decorative - child is #portalContainer )  */
@@ -26,12 +27,13 @@ body.portalBody {
 /* wrapper for #toolMenu - children are #worsiteLogo,#toolMenu  */
 #toolMenuWrap {
     float: left;
-    width: 12em;
+    width: auto;
     color: #000;
     text-align: right;
     padding: 0;
     border: 1px solid #ccc;
     border-width: 0 1px 1px 0;
+    font-size:12px;
     -moz-border-radius: 0 0 5px 0;
     -webkit-border-radius: 0 0 5px 0;
     border-radius: 0 0 5px 0;
@@ -348,7 +350,7 @@ ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li
     background:#fff;
     width: 100%;
     font-size: 100%;
-    line-height: normal;
+    
     padding: 0;
 }
 /* wrapper for the site links, link to the 'more sites' tray, logout controls - children are #mastLogin and #linkNav*/
@@ -437,7 +439,7 @@ ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
     padding: 10px 0 !important;
     display: none;
     float: left;
-    width: 210px;
+    width: auto;
     border: 1px solid #ccc;
     border-width: 1px 1px 0 1px;
     z-index: 100;
@@ -489,12 +491,16 @@ li.submenuitem span.hidden, #toolMenu li a.hidden {
 }
 /* "More sites" link container, link and image background container */
 li.more-tab {
-    padding-right: 7px !important
+    padding-right: 7px !important;
+    height:33px;
+    overflow:hidden;
+    box-sizing:unset;
 }
 li.more-tab a {
-    background: transparent url(images/subnav_btn_more.png)  right -0px no-repeat;
-    display: block;
-    height: 16px;
+    background: transparent url(images/subnav_btn_more.png)  right top no-repeat;
+    display: block !important;
+    height: 33px;
+    width:auto;
     padding: 0;
     margin: 0;
 }
@@ -549,6 +555,7 @@ ul#otherSitesMenu {
     border-bottom: 1px solid #aaa;
     font-size: .9em;
     text-align: right;
+    margin-top:3px;
 }
 /* style the menu for the tray - since the publish site link is the same, doubled up here */ 
 #siteStatus a {color:#555}
@@ -615,7 +622,6 @@ ul#otherSiteList li, ul.otherSitesCategorList li {
     -webkit-border-radius: 5px;
     overflow: hidden;
     margin: 6px 6px 0 0;; /*Note: check uncategorized */
-    line-height: 1.1em;
     width: 18em;
     float: left;
     display: block;
@@ -639,7 +645,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* search elements for flat other sites tray search */
 #otherSiteSearch {
-    margin: 15px;
+    margin: 5px;
     float: left;
 }
 #otherSiteSearch span#noSearchResults {
@@ -686,15 +692,17 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 }
 /* trigger that retrieves from entity broker the tool menu for a site in the "More sites" tray*/
 .toolMenus {
-    width: 17px;
-    height: 17px;
+    width: 14px;
+    height: 27px;
     padding: 0px;
     background: url(images/subnav_btn.png) no-repeat 10px -3px;
     position: absolute;
-    right: 1px;
-    top: 2px;
-    height: 11px;
-    border-left: thin solid #FFFFFF;
+    right: 2px;
+    top: 7px;
+    box-sizing:unset;
+}
+.toolMenus:focus {
+    background-color: transparent !important
 }
 .toolMenus:hover {
     background: url(images/subnav_btn.png) no-repeat  10px -38px;
@@ -924,6 +932,7 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
 #col2of2 {
     width: 49%;
     float: right;
+    line-height: 1.1
 }
 .portletTitle {
     width: 100%;
@@ -965,8 +974,6 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     background: url(images/help_h.gif) center right no-repeat
 }
 .portletTitle .title {
-    padding: 2px 4px 6px 0;
-    height: 1em;
     float: left;
     color: #000;
 }
@@ -984,7 +991,8 @@ ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
     color: #444;
     font-weight: bold;
     font-family: 'Helvetica Neue', Arial, sans-serif;
-    font-size: 1.2em !important;
+    font-size: 16px !important;
+    line-height: 1.2
 }
 .portletTitle .title h2 .siteTitle {
     color: #333
