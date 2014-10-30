@@ -85,10 +85,14 @@ public class SynopticMsgcntrManagerImpl extends HibernateDaoSupport implements S
 		}
 		HibernateCallback hcb = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				List rtn = new ArrayList();
 				Query q = session.getNamedQuery(QUERY_SITE_SYNOPTIC_ITEMS);
-				q.setParameterList("userIds", userIds);
 				q.setParameter("siteId", siteId, Hibernate.STRING);
-				return q.list();
+				for (int initIndex = 0; initIndex < userIds.size(); initIndex+=ORACLE_IN_CLAUSE_SIZE_LIMIT) {
+					q.setParameterList("userIds", userIds.subList(initIndex, Math.min(initIndex+ORACLE_IN_CLAUSE_SIZE_LIMIT, userIds.size())));
+					rtn.addAll(q.list());
+				}
+				return rtn;
 			}
 		};
 
