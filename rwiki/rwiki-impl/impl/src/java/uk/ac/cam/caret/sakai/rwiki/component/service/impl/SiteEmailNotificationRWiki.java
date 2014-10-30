@@ -332,7 +332,8 @@ public class SiteEmailNotificationRWiki extends SiteEmailNotification {
 		String localName = NameHelper.localizeName(pageName, realm);
 
 		StringBuilder subjectHeader = new StringBuilder();
-		subjectHeader.append(rl.getString("SiteEmailNotificationRWiki.37", "Subject: "))
+		// This string "Subject: " should not be translated is processed by smtp 
+		subjectHeader.append("Subject: ")
 			.append(rl.getString("SiteEmailNotificationRWiki.27"))
 			.append(localName)
 			.append(rl.getString("SiteEmailNotificationRWiki.28"));
