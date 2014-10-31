@@ -82,7 +82,7 @@ public abstract class ZipFileParser implements ImportFileParser {
 		categories.addAll(getCategoriesFromArchive(pathToData));
 		items.addAll(getImportableItemsFromArchive(pathToData));
 		
-		ImportDataSource dataSource = new BasicImportDataSource();
+		ZipImportDataSource dataSource = new ZipImportDataSource();
 	    dataSource.setItemCategories(categories);
 	    dataSource.setItems(items);
 		return dataSource;

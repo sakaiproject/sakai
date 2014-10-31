@@ -48,6 +48,11 @@
       <groupId>org.sakaiproject.common</groupId>
       <artifactId>import-impl</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.lessonbuilder</groupId>
+      <artifactId>lessonbuilder-api</artifactId>
+    </dependency>
+
   </dependencies>
   <build>
     <resources>

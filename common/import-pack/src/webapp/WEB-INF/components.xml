@@ -9,8 +9,8 @@
 			singleton="false">
 	</bean>
 	
-    <bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
-			class="org.sakaiproject.importer.impl.CommonCartridgeFileParser"
+	<bean id="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"
+			class="org.sakaiproject.importer.impl.LBCommonCartridgeFileParser"
 			singleton="false">
 	</bean>
 	
@@ -30,6 +30,11 @@
 	</bean>
 	
 	
+	<bean id="org.sakaiproject.importer.impl.handlers.LBCCHandler"
+	      class="org.sakaiproject.importer.impl.handlers.LBCCHandler"
+	      singleton="true">
+	</bean>
+
 	<!-- Import service -->
 	<!-- Add your handlers to the property list -->
 	<bean id="org.sakaiproject.importer.api.ImportService"
@@ -45,6 +50,7 @@
 		<property name="resourceHandlers">
 			<list>
 				<ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/>
+				<ref bean="org.sakaiproject.importer.impl.handlers.LBCCHandler"/>
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"/> -->
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"/> -->
 				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"/> -->
