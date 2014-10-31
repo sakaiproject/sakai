@@ -37,11 +37,11 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
-import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.Image;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
@@ -86,6 +86,21 @@ public class ShoppingEditPage extends BaseTreePage{
 		final String formFeedback2Id = formFeedback2.getMarkupId();
 		add(formFeedback2);
 
+		//bulk add, edit, delete link:
+		add(new Link("bulkEditLink"){
+
+			@Override
+			public void onClick() {
+				setResponsePage(new ShoppingEditBulkPage());
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return sakaiProxy.isSuperUser();
+			}
+			
+		});
+		
 		//FORM:
 		Form form = new Form("form");
 		add(form);

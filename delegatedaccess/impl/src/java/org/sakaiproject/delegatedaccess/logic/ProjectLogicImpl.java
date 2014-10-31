@@ -123,7 +123,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 		updateNodePermissionsForUser((NodeModel) node.getUserObject(), userId);
 	}
 	
-	private void updateNodePermissionsForUser(NodeModel nodeModel, String userId){
+	public void updateNodePermissionsForUser(NodeModel nodeModel, String userId){
 		
 		//first step, remove all permissions so you can have a clear palet
 		removeAllUserPermissions(nodeModel.getNodeId(), userId);

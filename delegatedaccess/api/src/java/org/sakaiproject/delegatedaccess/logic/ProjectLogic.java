@@ -72,7 +72,8 @@ public interface ProjectLogic {
 	 * @param userId
 	 */
 	public void updateNodePermissionsForUser(DefaultMutableTreeNode node, String userId);
-
+	public void updateNodePermissionsForUser(NodeModel nodeModel, String userId);
+	
 	/**
 	 * updates the user's Session adding all of the user's site and role access to the delegatedaccess.accessmap Session attribute.  This controls the user's 
 	 * permissions for that site.  If the nodeId doesn't have an access role specified, it will grant the inherited access role.
