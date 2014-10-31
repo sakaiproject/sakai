@@ -14,6 +14,7 @@
  * limitations under the License.
  */
  
+/*
 table.rosterPageHeader {
 	width:95%;
 }
@@ -27,6 +28,7 @@ table.rosterPageHeader {
 	vertical-align:top;
     text-align:right;
 }
+*/
 
 .filterLabel {
 	vertical-align:top;
@@ -70,10 +72,7 @@ table.rosterPageHeader {
 	padding-right:10px;
 }
 
-table.searchFilter {
-	/*margin-top:1em;*/
-}
-
+/*
 table.rosterPicturesFilter {
 	width:20em;
 }
@@ -102,6 +101,7 @@ table.rosterPicturesSingleColumn td {
 	word-break:break-all;
 	word-wrap:break-word;
 }
+*/
 
 .rosterPicture {
 	border:1px solid #bbb;
@@ -124,6 +124,7 @@ table.rosterPicturesSingleColumn td {
 
 /* mouse-over actions on tables */
 
+/*
 .rosterTableRow {
 	background-color:#FFFFFF;
 }
@@ -131,6 +132,7 @@ table.rosterPicturesSingleColumn td {
 .rosterTableRowHighlight {
 	background-color:#FFFFC0;
 }
+*/
 
 @media print  { .noprint  { display: none; } }
 
@@ -172,4 +174,36 @@ table.rosterPicturesSingleColumn td {
     text-align: right;
     margin: 0 5px 5px;
     color: #900;
+}
+
+.roster-member {
+    overflow: hidden;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-width: 1px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+.roster-picture {
+    float: left;
+    width: 160px;
+}
+
+.roster-info {
+    float: left;
+    padding-left: 10px;
+}
+
+.roster-group-link {
+    text-decoration: none;
+    border: 1px solid #ccc;
+    border-width: 1px;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+    padding: 2px;
+    margin-right: 2px;
 }
