@@ -181,7 +181,7 @@ public class FCKConnectorServlet extends HttpServlet {
           }
 
           //Default providers to exclude, add addition with the property textarea.hiddenProviders if needed 
-//          hiddenProviders = Array.asList("");
+//          hiddenProviders = Arrays.asList("");
           hiddenProviders = Arrays.asList("assignment","sam_pub","forum","forum_topic","topic");
      }
 
@@ -979,35 +979,27 @@ public class FCKConnectorServlet extends HttpServlet {
         		  otherEntities.appendChild(entityProvider);
         		  //Does this need the children recursion of the ListProducer?
         		  for (String entity: entities) {
-        			  M_log.info(provider);
-        			  title = entityBroker.getPropertyValue(entity, "title");
-        			  Element element=doc.createElement("EntityItem");
-        			  element.setAttribute("url", entityBroker.getEntityURL(entity));
-        			  element.setAttribute("name",title);
-        			  element.setAttribute("size","0");
-        			  entityProvider.appendChild(element);
+        			  Element entityItem = appendEntity(entity,doc);
+        			  //This could go multiple levels but the original EBrowser only did 1 level
+        			  List<String> childEntities = findChildren(entity, user);
+        			  for (String childEntity: childEntities) {
+        				  Element entityChild = appendEntity(childEntity,doc); 
+        				  entityItem.appendChild(entityChild);
+        			  }
+        			  entityProvider.appendChild(entityItem);
         		  }
         	  }
           }
         }
-
-        /*
-        myTests = ch.getPublishedAssements(siteId);
-        Iterator assessmentIterator = myTests.iterator();
-        while(assessmentIterator.hasNext()){
-      	  String[] thisAssessmentReference = (String[]) assessmentIterator.next();
-       	   	Element element=doc.createElement("Assessment");
-         	   	element.setAttribute("name",thisAssessmentReference[0]);
-         	   	element.setAttribute("url",serverUrlPrefix + thisAssessmentReference[1]);
-         	   	element.setAttribute("size", "0");
-         	   	sortedItems.add(element);           	  
-        }
-
-	for (Element item: sortedItems) {
-		assessments.appendChild(item);
-	}
-	*/
-
+    }
+        
+    private Element appendEntity(String entity, Document doc) {
+    	Element element=doc.createElement("EntityItem");
+    	String title = entityBroker.getPropertyValue(entity, "title");
+    	element.setAttribute("url", entityBroker.getEntityURL(entity));
+    	element.setAttribute("name",title);
+    	element.setAttribute("size","0");
+    	return element;
     }
 
     /**
