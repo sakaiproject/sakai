@@ -1145,9 +1145,12 @@ public class DashboardLogicImpl implements DashboardLogic {
 		Person person = dao.getPersonBySakaiId(sakaiId);
 		if(person == null) {
 			User userObj = this.sakaiProxy.getUser(sakaiId);
-			person = new Person(sakaiId, userObj.getEid());
-			dao.addPerson(person);
-			person = dao.getPersonBySakaiId(sakaiId);
+			if (userObj != null)
+			{
+				person = new Person(sakaiId, userObj.getEid());
+				dao.addPerson(person);
+				person = dao.getPersonBySakaiId(sakaiId);
+			}
 		}
 		return person;
 	}

@@ -283,6 +283,10 @@ public class AssignmentSupport {
 		
 		public boolean isAvailable(String entityReference) {
 			Assignment assn = (Assignment) sakaiProxy.getEntity(entityReference);
+			
+			// return false if the assignment is no longer available
+			if (assn == null) return false;
+			
 			String siteId = assn.getContext();
 			if (!sakaiProxy.isSitePublished(siteId))
 			{

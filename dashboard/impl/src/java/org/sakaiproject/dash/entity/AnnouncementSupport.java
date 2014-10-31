@@ -349,6 +349,10 @@ public class AnnouncementSupport{
 			{
 				String channelId = getChannelIdFromReference(entityReference);
 				AnnouncementChannel channel = (AnnouncementChannel) announcementService.getChannel(channelId);
+				
+				// return false if channel does not exist
+				if (channel == null) return false;
+				
 				String siteId = channel.getContext();
 				if (!dashboardLogic.MOTD_CONTEXT.equals(siteId) && !sakaiProxy.isSitePublished(siteId))
 				{
