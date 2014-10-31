@@ -26,10 +26,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
@@ -53,10 +56,11 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.codec.binary.Base64;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentHostingService;
@@ -64,6 +68,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.entitybroker.EntityBroker;
 import org.sakaiproject.entitybroker.entityprovider.extension.EntityData;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUsedException;
@@ -119,6 +124,10 @@ public class FCKConnectorServlet extends HttpServlet {
      private static final String CK_ADVISOR_BASE = "ck.security.advisor.";
      private static final String FCK_EXTRA_COLLECTIONS_BASE = "fck.extra.collections.";
 
+//   private String[] hiddenProviders = {"forum_message", "forum_topic"};
+     //Default hidden providers
+     private List <String> hiddenProviders;
+     
      private String serverUrlPrefix = "";
 
      private ContentHostingService contentHostingService = null;
@@ -127,8 +136,9 @@ public class FCKConnectorServlet extends HttpServlet {
      private NotificationService notificationService = null;
      private SiteService siteService = null;
      private SecurityAdvisor contentNewAdvisor = null;
-
-	 private ResourceLoader resourceBundle;
+     private EntityBroker entityBroker;
+     private ServerConfigurationService serverConfigurationService = null;
+     private ResourceLoader resourceLoader = null;
 
      /**
       * Injects dependencies using the ComponentManager cover.
@@ -163,10 +173,20 @@ public class FCKConnectorServlet extends HttpServlet {
           }
           if (siteService == null) {
               siteService = (SiteService) inject("org.sakaiproject.site.api.SiteService");
+          if (entityBroker == null) {
+        	   entityBroker = (EntityBroker) inject("org.sakaiproject.entitybroker.EntityBroker");
+          }
+          if (serverConfigurationService == null) {
+        	  serverConfigurationService = (ServerConfigurationService) inject("org.sakaiproject.component.api.ServerConfigurationService");
+          }
+
+          //Default providers to exclude, add addition with the property textarea.hiddenProviders if needed 
+//          hiddenProviders = Array.asList("");
+          hiddenProviders = Arrays.asList("assignment","sam_pub","forum","forum_topic","topic");
      }
 
-          if (resourceBundle == null) {
-        	  resourceBundle = new ResourceLoader("org.sakaiproject.connector.fck.Messages");
+          if (resourceLoader == null) {
+        	  resourceLoader = new ResourceLoader("org.sakaiproject.connector.fck.Messages");
           }
           if (contentNewAdvisor == null) {
         	  contentNewAdvisor = new SecurityAdvisor(){
@@ -245,7 +265,7 @@ public class FCKConnectorServlet extends HttpServlet {
           String type = request.getParameter("Type");
           String currentFolder = request.getParameter("CurrentFolder");
 
-          serverUrlPrefix = ServerConfigurationService.getServerUrl();
+          serverUrlPrefix = serverConfigurationService.getServerUrl();
 
           String collectionBase = request.getPathInfo();
 
@@ -285,7 +305,8 @@ public class FCKConnectorServlet extends HttpServlet {
              popPrivateAdvisor(currentFolder,collectionBase);
              getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
              getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
-
+             getOtherEntitiesOnly(currentFolder, root, document, type, thisConnectorHelper);
+             
              getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
           }
           else if ("GetResourcesAssignsTestsTopics".equals(commandStr)) {
@@ -296,7 +317,8 @@ public class FCKConnectorServlet extends HttpServlet {
              popPrivateAdvisor(currentFolder,collectionBase);
              getAssignmentsOnly(currentFolder, root, document, type, thisConnectorHelper);
              getTestsOnly(currentFolder, root, document, type, thisConnectorHelper);
-
+             getOtherEntitiesOnly(currentFolder, root, document, type, thisConnectorHelper);
+             
              getForumsAndThreads(currentFolder, root, document, type, thisConnectorHelper);
           }
           else if ("GetResources".equals(commandStr)) {
@@ -614,8 +636,8 @@ public class FCKConnectorServlet extends HttpServlet {
         				  element.setAttribute("url", current);
         				  String collectionName =  myCollection.getProperties().getProperty(myCollection.getProperties().getNamePropDisplayName());
         				  if (current.contains("/meleteDocs/")) {
-        					  if (resourceBundle != null)
-        						  collectionName =  resourceBundle.getString("melete_collectionname");
+        					  if (resourceLoader != null)
+        						  collectionName =  resourceLoader.getString("melete_collectionname");
         					  else
         						  collectionName = "Melete Files";
         				  }
@@ -904,7 +926,104 @@ public class FCKConnectorServlet extends HttpServlet {
 	}
 
     }
+    
+    private void getOtherEntitiesOnly(String dir, Node root, Document doc, String type, ConnectorHelper ch) {
+    	
+        List myTests = null;
+        String siteId = null;
+        String user = sessionManager.getCurrentSessionUserId();
+     	String[] f = dir.split("/");
+       	siteId = f[2];
 
+       	SortedSet<Element> sortedItems = new TreeSet<Element>(new SortElementsForDisplay());
+
+        Element otherEntities=doc.createElement("OtherEntities");
+        
+        root.appendChild(otherEntities);
+        //Discover other entities available that this class doesn't already know about.
+        
+        //Get registered provider prefixes
+        Set<String> providers = entityBroker.getRegisteredPrefixes();
+        
+        //Read the additional hidden providers, provide backward compatibily with that old property
+        String[] txhiddenProviders = serverConfigurationService.getStrings("textarea.hiddenProviders");
+        String[] ebhiddenProviders = serverConfigurationService.getStrings("entity-browser.hiddenProviders");
+        //Combine txhiddenProviders, ebhiddenProviders and hiddenProviders
+        if (txhiddenProviders != null)
+        	Collections.addAll(hiddenProviders,txhiddenProviders);
+        if (ebhiddenProviders != null)
+        	Collections.addAll(hiddenProviders,ebhiddenProviders);
+        
+        for (String provider : providers) {
+          // Check if this provider is hidden or not
+          boolean skip = false;
+
+          for (int i = 0; i < hiddenProviders.size(); i++) {
+            if (provider.equals(hiddenProviders.get(i)))
+              skip = true;
+          }
+          if (!skip) {
+        	  //Find entities in the provider
+        	  List<String> entities =
+        			  entityBroker.findEntityRefs(new String[] { provider },
+        					  new String[] { "context", "userId" }, new String[] { siteId, user }, true);
+        	  if (entities != null && entities.size() > 0) {
+        		  Element entityProvider=doc.createElement("EntityProvider");
+        		  //Get the title from the local properties file
+        		  String title = resourceLoader.getString("entitybrowser." + provider);
+        		  if (title == null) {
+        			  title = provider;
+        		  }
+        		  entityProvider.setAttribute("name", title);
+        		  entityProvider.setAttribute("provider", provider);
+        		  otherEntities.appendChild(entityProvider);
+        		  //Does this need the children recursion of the ListProducer?
+        		  for (String entity: entities) {
+        			  M_log.info(provider);
+        			  title = entityBroker.getPropertyValue(entity, "title");
+        			  Element element=doc.createElement("EntityItem");
+        			  element.setAttribute("url", entityBroker.getEntityURL(entity));
+        			  element.setAttribute("name",title);
+        			  element.setAttribute("size","0");
+        			  entityProvider.appendChild(element);
+        		  }
+        	  }
+          }
+        }
+
+        /*
+        myTests = ch.getPublishedAssements(siteId);
+        Iterator assessmentIterator = myTests.iterator();
+        while(assessmentIterator.hasNext()){
+      	  String[] thisAssessmentReference = (String[]) assessmentIterator.next();
+       	   	Element element=doc.createElement("Assessment");
+         	   	element.setAttribute("name",thisAssessmentReference[0]);
+         	   	element.setAttribute("url",serverUrlPrefix + thisAssessmentReference[1]);
+         	   	element.setAttribute("size", "0");
+         	   	sortedItems.add(element);           	  
+        }
+
+	for (Element item: sortedItems) {
+		assessments.appendChild(item);
+	}
+	*/
+
+    }
+
+    /**
+     * Find the next level of decendent Entities for a given reference and user
+     * 
+     * @param reference
+     * @param user
+     * @return List of Entity References
+     */
+    private List<String> findChildren(String reference, String user) {
+      return entityBroker
+        .findEntityRefs(new String[] {entityBroker.getPropertyValue(reference, "child_provider")},
+                        new String[] {"parentReference", "userId"}, 
+                        new String[] {reference, user},
+                        true);
+    }
     
     private void getForumsAndThreads(String dir, Node root, Document doc, String type, ConnectorHelper ch) {
 
