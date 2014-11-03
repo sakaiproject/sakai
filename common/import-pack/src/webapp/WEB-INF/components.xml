@@ -14,10 +14,16 @@
 			singleton="false">
 	</bean>
 	
-	<!-- <bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6" -->
-	<!-- 		class="org.sakaiproject.importer.impl.Blackboard6FileParser" -->
-	<!-- 		singleton="false"> -->
-	<!-- </bean> -->
+	<bean id="org.sakaiproject.importer.api.ImportFileParser-Bb6"
+	      class="org.sakaiproject.importer.impl.Blackboard6FileParser" 
+	      singleton="false"> 
+	</bean> 
+
+	<bean id="org.sakaiproject.importer.api.ImportFileParser-Bb55"
+	      class="org.sakaiproject.importer.impl.Blackboard55FileParser" 
+	      singleton="false"> 
+	</bean> 
+
 	<!-- Handlers -->
 
 	<bean id="org.sakaiproject.importer.impl.handlers.ResourcesHandler"
@@ -35,6 +41,21 @@
 	      singleton="true">
 	</bean>
 
+	<bean id="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"
+                        class="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"
+                        singleton="true">
+        </bean>
+
+	<bean id="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"
+                        class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"
+                         singleton="true">    
+	</bean>
+
+	<bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
+              class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"
+              singleton="true">    
+	</bean>
+
 	<!-- Import service -->
 	<!-- Add your handlers to the property list -->
 	<bean id="org.sakaiproject.importer.api.ImportService"
@@ -44,16 +65,17 @@
 			<list>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Sakai"/>
 				<ref bean="org.sakaiproject.importer.api.ImportFileParser-CommonCartridge"/>
-				<!-- <ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb6"/> -->
+				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb6"/>
+				<ref bean="org.sakaiproject.importer.api.ImportFileParser-Bb55"/>
 			</list>
 		</property>
 		<property name="resourceHandlers">
 			<list>
 				<ref bean="org.sakaiproject.importer.impl.handlers.ResourcesHandler"/>
 				<ref bean="org.sakaiproject.importer.impl.handlers.LBCCHandler"/>
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"/> -->
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"/> -->
-				<!-- <ref bean="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"/> -->
+				<ref bean="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler"/> 
+				<ref bean="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler"/> 
+				<ref bean="org.sakaiproject.importer.impl.handlers.AnnouncementHandler"/>
 			</list>
 		</property>
 	</bean>

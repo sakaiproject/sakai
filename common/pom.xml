@@ -35,6 +35,9 @@
     <module>import-util</module>
     <module>import-parsers/common-cartridge</module>
     <module>import-parsers/sakai-archive</module>
+    <module>import-parsers/blackboard_5-5</module>
+    <module>import-parsers/blackboard_6/api</module>
+    <module>import-parsers/blackboard_6/impl</module>
   </modules>
 
   <scm>
@@ -127,7 +130,32 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
-        <artifactId>sakai-archive-import</artifactId>
+        <artifactId>common-cartridge</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+	<artifactId>sakai-import-bb55</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+	<artifactId>sakai-import-bb6</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-import</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+	<groupId>org.sakaiproject</groupId>
+	<artifactId>sakai-import-announcement</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+	<artifactId>sakai-archive-import</artifactId>
         <version>${project.version}</version>
       </dependency>
       <!-- external dependencies -->
