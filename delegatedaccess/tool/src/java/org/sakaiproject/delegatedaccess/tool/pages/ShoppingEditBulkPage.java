@@ -185,7 +185,7 @@ public class ShoppingEditBulkPage extends BasePage{
 					target.addComponent(addSitesInputField);
 				}
 
-				if(errorMessage != null){
+				if(errorMessage != null && !"".equals(errorMessage.getObject().toString())){
 					formFeedback.setDefaultModel(errorMessage);
 					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
 					target.addComponent(formFeedback);
