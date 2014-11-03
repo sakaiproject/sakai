@@ -15030,7 +15030,7 @@ public class AssignmentAction extends PagedResourceActionII
 								if (hasComment && entryName.indexOf("comments") != -1)
 								{
 									// read the comments file
-									String comment = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+									String comment = getBodyTextFromZipHtml(zipFile.getInputStream(entry),true);
 							        if (comment != null)
 							        {
 							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
@@ -15041,7 +15041,7 @@ public class AssignmentAction extends PagedResourceActionII
 								if (hasFeedbackText && entryName.indexOf("feedbackText") != -1)
 								{
 									// upload the feedback text
-									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry),false);
 									if (text != null)
 							        {
 							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
@@ -15052,7 +15052,7 @@ public class AssignmentAction extends PagedResourceActionII
 								if (hasSubmissionText && entryName.indexOf("_submissionText") != -1)
 								{
 									// upload the student submission text
-									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry));
+									String text = getBodyTextFromZipHtml(zipFile.getInputStream(entry),false);
 									if (text != null)
 							        {
 							        		UploadGradeWrapper r = (UploadGradeWrapper) submissionTable.get(userEid);
@@ -15371,7 +15371,7 @@ public class AssignmentAction extends PagedResourceActionII
 		return submissionTable;
 	}
 
-	private String getBodyTextFromZipHtml(InputStream zin)
+	private String getBodyTextFromZipHtml(InputStream zin, boolean convertNewLines)
 	{
 		String rv = "";
 		try
@@ -15384,6 +15384,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if (rv != null)
 		{
+			//SAK-28045 - Pre-process newlines
+			if (convertNewLines == true) {
+				rv=rv.replaceAll("\\r\\n|\\r|\\n", "<br>");
+			}
 			//Escape the html from malicious tags.
 			rv = FormattedText.processEscapedHtml(rv);
 			
