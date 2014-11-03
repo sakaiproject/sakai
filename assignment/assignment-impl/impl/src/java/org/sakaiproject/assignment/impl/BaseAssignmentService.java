@@ -5559,14 +5559,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									// SAK-17606
 									if (!assignmentUsesAnonymousGrading(s)) 
 									{
-										values = new String [] {submitters[i].getDisplayId(), submitters[i].getEid(), submitters[i].getLastName(), submitters[i].getFirstName(), s.getStatus(), s.getGradeDisplay()};
+										values = new String [] {submitters[i].getDisplayId(), submitters[i].getEid(), submitters[i].getLastName(), submitters[i].getFirstName(), s.getGradeDisplay()};
 										gradesBuffer.writeNext(values);
 									} 
 									else 
 									{ // anonymous grading is true so we need to print different stuff in the csv
 										String fullAnonId = s.getAnonymousSubmissionId();
 										String anonTitle = rb.getString("grading.anonymous.title");                                    
-										values = new String[] {fullAnonId, fullAnonId, anonTitle, anonTitle, s.getStatus(), s.getGradeDisplay()};
+										values = new String[] {fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay()};
 										gradesBuffer.writeNext(values);
 									}
 								}
