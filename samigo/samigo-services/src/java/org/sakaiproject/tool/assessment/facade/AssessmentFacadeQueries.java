@@ -397,68 +397,35 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return set;
 	}
 
-	public void removeAssessment(Long assessmentId) {
-		AssessmentData assessment = (AssessmentData) getHibernateTemplate()
-				.load(AssessmentData.class, assessmentId);
-		// if pubAssessment exist, simply set assessment to inactive
-		// else delete assessment
+	public void removeAssessment(final Long assessmentId) {
+		// if pubAssessment exist, simply set assessment to inactive else delete assessment
 		List count = getHibernateTemplate()
-				.find(
-						"select count(p) from PublishedAssessmentData p where p.assessmentId=?",
-						assessmentId);
-		// log.debug("no. of pub Assessment =" + count.size());
+				.find("select count(p) from PublishedAssessmentData p where p.assessmentId=?",assessmentId);
+
+		if (log.isDebugEnabled()) log.debug("removeAssesment: no. of pub Assessment =" + count.size());
 		Iterator iter = count.iterator();
 		int i = ((Integer) iter.next()).intValue();
-		if (i > 0) {
-			assessment.setStatus(AssessmentIfc.DEAD_STATUS);
-			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().update(assessment);
-					retryCount = 0;
-				} catch (Exception e) {
-					log.warn("problem updating assessment: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().getPersistenceHelper()
-							.retryDeadlock(e, retryCount);
-				}
-			}
-		} else {
-			// need to check if item in sections belongs to any QuestionPool
-			QuestionPoolService qpService = new QuestionPoolService();
-			HashMap h = qpService.getQuestionPoolItemMap();
-			checkForQuestionPoolItem(assessment, h);
-			Set sectionSet = getSectionSetForAssessment(assessment);
-			assessment.setSectionSet(sectionSet);
+		if (i < 1) {
+			AssessmentData assessment = (AssessmentData) getHibernateTemplate().load(AssessmentData.class, assessmentId);
 
-			// removal of resource should be done here but for some reason it
-			// doesn't work.
-			// Debugging log in Content doesn't show anything.
-			// So I am doing it in RemoveAssessmentListener
-			// #2 - remove any resources attachment
 			AssessmentService s = new AssessmentService();
 			List resourceIdList = s.getAssessmentResourceIdList(assessment);
-			log.debug("*** we have no. of resource in assessment="
-					+ resourceIdList.size());
+			if (log.isDebugEnabled()) log.debug("*** we have no. of resource in assessment=" + resourceIdList.size());
 			s.deleteResources(resourceIdList);
-
-			int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount()
-					.intValue();
-			while (retryCount > 0) {
-				try {
-					getHibernateTemplate().delete(assessment);
-					retryCount = 0;
-				} catch (Exception e) {
-					log.warn("problem deleting assessment: " + e.getMessage());
-					retryCount = PersistenceService.getInstance().getPersistenceHelper()
-							.retryDeadlock(e, retryCount);
-				}
-			}
-			// true below => regular assessment (not published assessment)
-			PersistenceService.getInstance().getAuthzQueriesFacade()
-					.removeAuthorizationByQualifier(
-							assessment.getAssessmentId().toString(), false);
 		}
+		
+		final String softDeleteQuery = "update AssessmentData set status=? WHERE assessmentBaseId=?";
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(softDeleteQuery);
+				q.setInteger(0, AssessmentIfc.DEAD_STATUS);
+				q.setLong(1, assessmentId);
+				return q.executeUpdate();
+			};
+		};
+		
+		getHibernateTemplate().execute(hcb);
 	}
 
 	/* this assessment comes with a default section */

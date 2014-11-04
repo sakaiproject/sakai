@@ -29,6 +29,8 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
@@ -55,22 +57,19 @@ public class RemoveAssessmentListener implements ActionListener
   {
     AssessmentService s = new AssessmentService();
 
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-                                                           "assessmentBean");
+    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 
-    // #1 - remove selected assessment on a separate thread
-    String assessmentId = (String) assessmentBean.getAssessmentId();
-    //SAM-2004 we need the current placement -DH
-    String context = s.getAssessmentSiteId(assessmentId);
-    RemoveAssessmentThread thread = new RemoveAssessmentThread(assessmentId, SessionManager.getCurrentSessionUserId(), context);
-    thread.start();
+    final String assessmentId = (String) assessmentBean.getAssessmentId();
+    s.removeAssessment(assessmentId);
 
+    final String context = s.getAssessmentSiteId(assessmentId);
+    EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.remove", "assessmentId=" + assessmentId, context, true, NotificationService.NOTI_NONE));
+    
     // This should have been done inside AssessmentFacadeQueries.removeAssessment()
     // but it didn't work there nor inside RemoveAssessmentThread. 
     // Debugging log in Conntent Hosting doesn't show anything.
     // So I have to do it here
     // #2 - even if assessment is set to dead, we intend to remove any resources
-    //    List resourceIdList = s.getAssessmentResourceIdList(assessment);
     // s.deleteResources(resourceIdList);
 
     //#3 - goto authorIndex.jsp so fix the assessment List in author bean by
