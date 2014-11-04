@@ -306,10 +306,10 @@ $(document).ready(function() {
                 #if ($visible_date_enabled) 
                <p class="shorttext">
                 <p class="checkbox" id="tempVisibleDate" >
-                    <input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!assignment.getVisibleTime())checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
+                    <input type="checkbox" id="allowVisibleDateToggle" name="allowVisibleDateToggle" #if($!new_assignment_visibletoggle)checked="checked"#end onclick="if(checked){jQuery('.visibleDatePanel').show();resizeFrame();}else{jQuery('.visibleDatePanel').hide();}" />
                     <label for="allowVisibleDateToggle">$tlang.getString("allowVisibleDate")</label>
                 </p>
-               <p class="shorttext visibleDatePanel" #if(!$!assignment.getVisibleTime())style="display:none;"#end>
+               <p class="shorttext visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
 			<span class="reqStar">*</span>
 			<label>
 				$tlang.getString("gen.visible.date")
@@ -332,7 +332,7 @@ $(document).ready(function() {
 				});
 			</script>
                     </p>
-               <p class="instruction labelindnt visibleDatePanel" #if(!$!assignment.getVisibleTime())style="display:none;"#end>
+               <p class="instruction labelindnt visibleDatePanel" #if(!$!new_assignment_visibletoggle)style="display:none;"#end>
 			$tlang.getString("gen.stuwonsee")
 		</p>
 		#end
