@@ -375,6 +375,10 @@ public class AttachmentAction
 	 */
 	static public void doSave(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		// end up in done mode
 		state.setAttribute(STATE_MODE, MODE_DONE);
@@ -389,6 +393,10 @@ public class AttachmentAction
 	 */
 	static public void doCancel(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// end up in done mode
@@ -407,6 +415,10 @@ public class AttachmentAction
 	 */
 	static public void doBrowse(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// end up in browse mode
@@ -419,6 +431,10 @@ public class AttachmentAction
 	 */
 	static public void doUpload(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// end up in upload mode
@@ -431,6 +447,10 @@ public class AttachmentAction
 	 */
 	static public void doUrl(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// end up in url mode
@@ -443,6 +463,10 @@ public class AttachmentAction
 	 */
 	static public void doAdd(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// add to the attachments vector
@@ -532,6 +556,10 @@ public class AttachmentAction
 	 */
 	static public void doRemove(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// modify the attachments vector
@@ -582,6 +610,10 @@ public class AttachmentAction
 	 */
 	static public void doRemove_all(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// modify the attachments vector
@@ -598,6 +630,10 @@ public class AttachmentAction
 	 */
 	static public void doProperties(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// modify the attachments vector
@@ -616,6 +652,10 @@ public class AttachmentAction
 	 */
 	static public void doCancel_browse(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// clean up any browse state
@@ -632,6 +672,10 @@ public class AttachmentAction
 	 */
 	static public void doCancel_add(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// end up in main mode
@@ -644,6 +688,10 @@ public class AttachmentAction
 	 */
 	static public void doBrowse_option(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// which option was choosen?
@@ -782,6 +830,10 @@ public class AttachmentAction
 	 */
 	static public void doCancel_properties(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// clean up any properties state %%%
@@ -797,6 +849,9 @@ public class AttachmentAction
 	 */
 	static public void doUpdate_properties(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// modify the attachment Reference
@@ -817,6 +872,10 @@ public class AttachmentAction
 	 */
 	static public void doDispatch_attachment_upload(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		String option = data.getParameters().getString("option");
 		if (option.equalsIgnoreCase("cancel"))
 		{
