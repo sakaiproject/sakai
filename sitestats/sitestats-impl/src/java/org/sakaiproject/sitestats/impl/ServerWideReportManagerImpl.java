@@ -191,12 +191,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(date_format(LOGIN_DATE, '%Y-%m-01'),'%Y-%m-%d') as period," +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" group by 1";
 		
 		String oracle = "select TO_DATE(TO_CHAR(LOGIN_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD') as period," +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" group by TO_DATE(TO_CHAR(LOGIN_DATE, 'YYYY-MM-\"01\"'),'YYYY-MM-DD')";
 			 	
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
@@ -270,12 +270,12 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select STR_TO_DATE(concat(date_format(LOGIN_DATE, '%x-%v'), ' Monday'),'%x-%v %W') as week_start," +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" group by 1";
 		
 		String oracle = "select next_day(LOGIN_DATE - 7, 2) as week_start," +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" group by next_day(LOGIN_DATE - 7, 2)";
 		
 		List result = sqlService.dbRead (getSqlForVendor(mysql, oracle), null, new SqlReader () {
@@ -350,13 +350,13 @@ public class ServerWideReportManagerImpl implements ServerWideReportManager
 		
 		String mysql = "select date(LOGIN_DATE) as session_date, " +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" where LOGIN_DATE > DATE_SUB(CURDATE(), INTERVAL 90 DAY)" +
 				" group by 1";
 		
 		String oracle = "select trunc(LOGIN_DATE, 'DDD') as session_date, " +
 				" count(distinct user_id) as unique_users" +
-				" from " + getExternalDbNameAsPrefix() + "sst_userstats" +
+				" from " + getExternalDbNameAsPrefix() + "SST_USERSTATS" +
 				" where LOGIN_DATE > (SYSDATE - 90)" +
 				" group by trunc(LOGIN_DATE, 'DDD')";
 		
