@@ -3290,6 +3290,10 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	public void doPrev_back_next_submission_review(RunData rundata, String option, boolean submit)
 	{
+		if (!"POST".equals(rundata.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
 		boolean hasChange = saveReviewGradeForm(rundata, state, submit ? "submit" : "save");
@@ -3342,6 +3346,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doPrev_back_next_submission(RunData rundata, String option)
 	{
+		if (!"POST".equals(rundata.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) rundata).getPortletSessionState(((JetspeedRunData) rundata).getJs_peid());
 		// save the instructor input
 		boolean hasChange = readGradeForm(rundata, state, "save");
@@ -5193,6 +5201,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_grade_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "save");
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5204,6 +5216,10 @@ public class AssignmentAction extends PagedResourceActionII
 
 	public void doSave_grade_submission_review(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		saveReviewGradeForm(data, state, "save");
 	}
@@ -5273,6 +5289,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doRelease_grade_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "release");
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5287,6 +5307,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doReturn_grade_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		readGradeForm(data, state, "return");
 		if (state.getAttribute(STATE_MESSAGE) == null)
@@ -5301,6 +5325,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doReturn_preview_grade_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		grade_submission_option(data, "return");
 
 	} // doReturn_grade_preview_submission
@@ -5310,6 +5338,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_preview_grade_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		grade_submission_option(data, "save");
 
 	} // doSave_grade_preview_submission
@@ -5525,6 +5557,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		// save submission
 		post_save_submission(data, false);
 	} // doSave_submission
@@ -5554,6 +5590,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doPost_submission(RunData data)
 	{
+		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
 		// post submission
 		post_save_submission(data, true);
 		
@@ -6326,6 +6366,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doConfirm_assignment_submission(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		// SAK-23817 if the instructor submitted on behalf of the student, go back to Assignment List by Student
 		String fromView = (String) state.getAttribute(FROM_VIEW);
@@ -7190,6 +7234,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doHide_submission_assignment_instruction_review(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.valueOf(false));
 
@@ -7200,6 +7248,11 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	public void doShow_submission_assignment_instruction_review(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(GRADE_SUBMISSION_ASSIGNMENT_EXPAND_FLAG, Boolean.valueOf(true));
 
@@ -7305,6 +7358,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doPost_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		// post assignment
 		post_save_assignment(data, "post");
 
@@ -8956,6 +9013,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		post_save_assignment(data, "save");
 
 	} // doSave_assignment
@@ -8965,6 +9026,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doReorder_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		reorderAssignments(data);
 	} // doReorder_assignments
 
@@ -8973,6 +9038,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doPreview_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		setNewAssignmentParameters(data, true);
@@ -9496,6 +9565,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doDelete_confirm_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 
@@ -9533,6 +9606,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doDelete_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// get the delete assignment ids
@@ -9763,6 +9840,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doDeep_delete_assignment(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		// get the delete assignment ids
@@ -9959,6 +10040,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doRelease_grades(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 
 		ParameterParser params = data.getParameters();
@@ -14269,6 +14354,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSet_defaultNotGradedNonElectronicScore(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
 		ParameterParser params = data.getParameters();
 		
@@ -14358,6 +14447,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSet_defaultNoSubmissionScore(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ()); 
 		ParameterParser params = data.getParameters();
 		
@@ -14642,7 +14735,11 @@ public class AssignmentAction extends PagedResourceActionII
 	}
 	
 	public void doUpload_all(RunData data)
-	{ 
+	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		// see if the user uploaded a file
@@ -15774,6 +15871,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doModel_answer(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		
@@ -15894,6 +15995,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doSave_resubmission_option(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		ParameterParser params = data.getParameters();
 		
@@ -16058,6 +16163,10 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	public void doAttachUpload(RunData data, boolean singleFileUpload)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();
@@ -16304,6 +16413,10 @@ public class AssignmentAction extends PagedResourceActionII
      */
 	public void doUpdate_options(RunData data)
 	{
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		String siteId = ToolManager.getCurrentPlacement().getContext();
 		ParameterParser params = data.getParameters();
