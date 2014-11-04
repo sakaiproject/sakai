@@ -2484,7 +2484,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			M_log.debug("refreshAuthzGroup()");
 			if ((realm == null) || (m_provider == null)) return;
 
-			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", false);
+			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
 			// check to see whether this is of group realm or not
 			// if of Group Realm, get the containing Site Realm
@@ -2572,9 +2572,26 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					String userEid = userDirectoryService().getUserEid(userId);
 					String targetRole = (String) target.get(userEid);
-					if ((targetRole == null) || (!targetRole.equals(role)))
+					
+					Member cMember = null;
+					if (containingRealm != null)
 					{
-						toDelete.add(userId);
+						cMember = containingRealm.getMember(userId);
+					}
+					
+					// KNL-1273 - special case - sync role and active status with containing realm grants for this provided user
+					if (synchWithContainingRealm && cMember != null && targetRole != null)
+					{
+						// the sync code in the next loop performs the delete if necessary,
+						// so we do nothing here except prevent the delete code in this loop
+						// from running
+					}
+					else
+					{
+						if ((targetRole == null) || (!targetRole.equals(role)))
+						{
+							toDelete.add(userId);
+						}
 					}
 				}
 				catch (UserNotDefinedException e)
@@ -2598,46 +2615,61 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					String existingRole = (String) existing.get(userId);
 					String nonProviderRole = (String) nonProvider.get(userId);
 
-					if (!synchWithContainingRealm)
+					Member cMember = null;
+					if (containingRealm != null)
+					{
+						cMember = containingRealm.getMember(userId);
+					}
+					
+					// KNL-1273 - special case - sync role and active status with containing realm grants for this provided user
+					if (synchWithContainingRealm && cMember != null && nonProviderRole == null)
+					{
+						// determines if realm update is required because role or active status differs from containing realm grants
+						boolean insertRequired = true;
+						
+						String cMemberRoleId = cMember.getRole() != null ? cMember.getRole().getId() : null;
+						boolean cMemberActive = cMember.isActive();
+						
+						// the user has a provided realm entry already, so delete it before inserting if needed
+						if (existingRole != null)
+						{
+							boolean roleEqual = existingRole.equals(cMemberRoleId);
+							
+							// user is currently active if not in the providedInactive map
+							boolean currentlyActive = providedInactive.get(userId) == null;
+							boolean activeEqual = currentlyActive == cMemberActive;
+							
+							insertRequired = !roleEqual || !activeEqual;
+							
+							if (insertRequired)
+							{
+								toDelete.add(userId);
+							}
+						}
+						
+						if (insertRequired)
+						{
+							// Add or update user's role and active status to match containg realm grants
+							toInsert.add(new UserAndRole(userId, cMemberRoleId, cMemberActive, true));
+							
+							if ((existingRole != null && !existingRole.equals(cMemberRoleId)) // overriding existing authz group role
+									||!role.equals(cMemberRoleId))	// overriding provided role
+							{
+								M_log.info("refreshAuthzGroup: realm id=" + realm.getId() + ", overrides group role of user eid=" + userEid + ": provided role=" + role + ", with site-level role=" + cMemberRoleId + " and site-level active status=" + cMemberActive);
+							}
+						}
+					}
+					else
 					{
 						if ((nonProviderRole == null) && ((existingRole == null) || (!existingRole.equals(role))))
 						{
 							// Check whether this user was inactive in the site previously, if so preserve status
-							if (providedInactive.get(userId) != null) {
+							if (providedInactive.get(userId) != null)
+							{
 								active = false;
-						}
+							}
 
 							// this is either at site level or at the group level but no need to synchronize
-						toInsert.add(new UserAndRole(userId, role, active, true));
-					}
-				}
-					else
-					{
-						if (containingRealm != null)
-						{
-							Member cMember = containingRealm.getMember(userId);
-							if (cMember != null)
-							{
-								String cMemberRoleId = cMember.getRole() != null ? cMember.getRole().getId() : null;
-								boolean cMemberActive = cMember.isActive();
-								// synchronize with parent realm role definition and active status
-								toInsert.add(new UserAndRole(userId, cMemberRoleId, cMemberActive, cMember.isProvided()));
-
-								if ((existingRole != null && !existingRole.equals(cMemberRoleId)) // overriding existing authz group role
-									||!role.equals(cMemberRoleId))	// overriding provided role
-								{
-									M_log.info("refreshAuthzGroup: realm id=" + realm.getId() + ", overrides group role of user eid=" + userEid + ": provided role=" + role + ", with site-level role=" + cMemberRoleId + " and site-level active status=" + cMemberActive);
-								}
-							}
-							else
-							{
-								// user not defined in parent realm
-								toInsert.add(new UserAndRole(userId, role, active, true));
-							}
-						}
-						else
-						{
-							// this is either at site level
 							toInsert.add(new UserAndRole(userId, role, active, true));
 						}
 					}
