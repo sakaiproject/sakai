@@ -50,9 +50,18 @@ public class ComponentsLoader
 {
 	/** Our logger */
 	private static Log M_log = LogFactory.getLog(ComponentsLoader.class);
+
+	/** Folder containing override definitions for beans */
+	private File overridesFolder;
 	
 	public ComponentsLoader()
 	{
+		this(null);
+	}
+
+	public ComponentsLoader(File overridesFolder)
+	{
+		this.overridesFolder = overridesFolder;
 	}
 
 	/**
@@ -113,7 +122,7 @@ public class ComponentsLoader
 	/**
 	 * Load one component package into the AC
 	 * 
-	 * @param packageRoot
+	 * @param dir
 	 *        The file path to the component package
 	 * @param ac
 	 *        The ApplicationContext to load into
@@ -165,7 +174,13 @@ public class ComponentsLoader
 					if(M_log.isInfoEnabled()) M_log.info("Skipping demo components from " + dir);
 				}
 			}
-						
+			if (overridesFolder != null) {
+				File override = new File(overridesFolder, dir.getName()+ ".xml");
+				if (override.isFile()) {
+					beanDefList.add(new FileSystemResource(override.getCanonicalPath()));
+					if(M_log.isInfoEnabled()) M_log.info("Overriding component definitions with "+ override);
+				}
+			}
 			reader.loadBeanDefinitions(beanDefList.toArray(new Resource[0]));
 		}
 		catch (Exception e)

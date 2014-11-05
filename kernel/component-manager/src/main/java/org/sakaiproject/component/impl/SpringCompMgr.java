@@ -326,7 +326,8 @@ public class SpringCompMgr implements ComponentManager {
 	 * Locate the component loader, and load any available components.
 	 */
 	protected void loadComponents() {
-		ComponentsLoader loader = new ComponentsLoader();
+		File overrideFolder = new File(System.getProperty("sakai.home"), "override");
+		ComponentsLoader loader = new ComponentsLoader(overrideFolder);
 
 		// locate the components root
 		// if we have our system property set, use it
@@ -342,8 +343,7 @@ public class SpringCompMgr implements ComponentManager {
 		}
 
 		if (componentsRoot == null) {
-			M_log
-					.warn("loadComponents: cannot estabish a root directory for the components packages");
+			M_log.warn("loadComponents: cannot establish a root directory for the components packages");
 			return;
 		}
 
