@@ -596,19 +596,25 @@ function getTierDigit(tierString) {
     return classNameDigit;
 }
 
-function checkAllCheckboxes(item) {
-	var selectAllCheckboxItem = jQuery(item);
-	var checkBoxChecked = selectAllCheckboxItem.is(':checked');	
+function checkAllCheckboxes( selectAllCheckbox )
+{
 	var allCheckboxes = jQuery(':checkbox');
-
-	for (var index = 1; index < allCheckboxes.length; index++) {
-		var checkboxItem = jQuery(allCheckboxes.get(index));
-		if (checkBoxChecked) {
-			checkboxItem.attr("checked", "checked");
-			checkboxItem.attr("disabled", "disabled");
-		} else {
-			checkboxItem.removeAttr("checked");
-			checkboxItem.removeAttr("disabled");
+	var isSelectAllChecked = selectAllCheckbox.checked;
+	for( i = 0; i < allCheckboxes.length; i++ )
+	{
+		var checkbox = allCheckboxes[i];
+		if( selectAllCheckbox.id !== checkbox.id )
+		{
+			if( isSelectAllChecked )
+			{
+				checkbox.checked = true;
+				checkbox.disabled = true;
+			}
+			else
+			{
+				checkbox.checked = false;
+				checkbox.disabled = false;
+			}
 		}
 	}
 }
