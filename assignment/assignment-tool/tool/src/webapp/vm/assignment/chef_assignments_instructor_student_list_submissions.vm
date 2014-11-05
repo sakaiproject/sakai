@@ -64,10 +64,11 @@
 					
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
-					#if ($!groups.hasNext())
+					#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
 					<form name="viewFormGroup" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
 						<input type="hidden" name="option" id="option" value="x" />
 						<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
+						#if( $!groups.hasNext() )
 						<div class="instruction">
 							$tlang.getString("view_instruction") 
 						</div>
@@ -84,7 +85,10 @@
  								<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
  							#end
  						</select>
+						#end
  						<p />
+
+					#if( !$hasAtLeastOneAnonAssignment )
 					<label for="$form_search" class="skip">$tlang.getString("search")</label>
 					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
 					<input type="button" value="$tlang.getString('search')" 
@@ -93,6 +97,8 @@
 						<input type="button" class="button" value="$tlang.getString("search_clear")" 
 							onclick="blur();document.getElementById('option').value='clearSearch';document.viewFormGroup.submit();return false;" />
 					#end
+					#end
+
 					#end
 
 									
