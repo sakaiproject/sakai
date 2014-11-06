@@ -65,9 +65,7 @@ public class DownloadServlet extends HttpServlet {
 		}
 		
 		String archiveName = (String)request.getParameter("archive");
-		String archiveBaseDir = serverConfigurationService.getString("archive.storage.path");
-		//System.out.println("archiveName: " + archiveName);
-		//System.out.println("archiveBaseDir: " + archiveBaseDir);
+		String archiveBaseDir = serverConfigurationService.getString("archive.storage.path", "sakai/archive");
 		
 		//add in some basic protection
 		if(StringUtils.contains(archiveName, "..")) {

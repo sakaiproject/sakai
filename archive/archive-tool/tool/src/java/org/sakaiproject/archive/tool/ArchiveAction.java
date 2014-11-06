@@ -28,6 +28,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -236,9 +237,13 @@ public class ArchiveAction
 		context.put("tlang",rb);
 		buildMenu(context);
 		
-		//get list of archives
-		String archiveBaseDir = serverConfigurationService.getString("archive.storage.path"); // this probably needs a default or shouldn't it use storagePath@org.sakaiproject.archive.api.ArchiveService ?
-		Collection<File> files = FileUtils.listFiles(new File(archiveBaseDir), new SuffixFileFilter(".zip"), null);
+		//get list of existing archives
+		Collection<File> files = Collections.<File>emptySet();
+		File archiveBaseDir = new File(serverConfigurationService.getString("archive.storage.path", "sakai/archive"));
+
+		if (archiveBaseDir.exists() && archiveBaseDir.isDirectory()) {
+			files = FileUtils.listFiles(archiveBaseDir, new SuffixFileFilter(".zip"), null);
+		}
 		
 		List<SparseFile> zips = new ArrayList<SparseFile>();
 		
