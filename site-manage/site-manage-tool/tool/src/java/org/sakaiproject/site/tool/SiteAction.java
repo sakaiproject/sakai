@@ -756,6 +756,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String SAK_PROP_FILTER_TERMS = "worksitesetup.filtertermdropdowns";
 	private static final String CONTEXT_HAS_TERMS = "hasTerms";
 	
+	private static final String SAK_PROP_AUTO_FILTER_TERM = "site.setup.autoFilterTerm";
+	
 	// state variable for whether any multiple instance tool has been selected
 	private String STATE_MULTIPLE_TOOL_INSTANCE_SELECTED = "state_multiple_tool_instance_selected";
 	// state variable for lti tools
@@ -1516,18 +1518,34 @@ public class SiteAction extends PagedResourceActionII {
 					termViews.put(s.getTitle(), s.getTitle());
 				}
 			}
-			// default term view
-			if (state.getAttribute(STATE_TERM_VIEW_SELECTED) == null) {
-				state.setAttribute(STATE_TERM_VIEW_SELECTED, TERM_OPTION_ALL);
-			}else {
-				context.put("viewTermSelected", (String) state
-						.getAttribute(STATE_TERM_VIEW_SELECTED));
-			}
+			
 			// sort the keys in the termViews lookup
 			List<String> termViewKeys = Collections.list(termViews.keys());
 			Collections.sort(termViewKeys);
 			context.put("termViewKeys", termViewKeys);
 			context.put("termViews", termViews);
+						
+			// default term view
+			if (state.getAttribute(STATE_TERM_VIEW_SELECTED) == null) {
+				state.setAttribute(STATE_TERM_VIEW_SELECTED, TERM_OPTION_ALL);
+				
+				if ( ServerConfigurationService.getBoolean(SAK_PROP_AUTO_FILTER_TERM, Boolean.FALSE)) {
+					// SAK-28059 auto filter term to use the most current term
+					List<AcademicSession> currentTerms = cms.getCurrentAcademicSessions();
+					// current terms are sorted by start date we will just take the first
+					if (!currentTerms.isEmpty()) {
+						int termIndex = termViewKeys.indexOf(currentTerms.get(0).getTitle());
+						if (termIndex > -1) {
+							state.setAttribute(STATE_TERM_VIEW_SELECTED, termViewKeys.get(termIndex));
+							context.put("viewTermSelected", termViewKeys.get(termIndex));
+						}
+					}
+				}
+			}else {
+				context.put("viewTermSelected", (String) state
+						.getAttribute(STATE_TERM_VIEW_SELECTED));
+			}
+			
 			if(termViews.size() == 1){
 				//this means the terms are empty, only the default option exist
 				context.put("hideTermFilter", true);
