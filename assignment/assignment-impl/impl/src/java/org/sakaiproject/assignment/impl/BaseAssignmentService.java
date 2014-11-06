@@ -24,6 +24,7 @@ package org.sakaiproject.assignment.impl;
 import au.com.bytecode.opencsv.CSVWriter;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
@@ -5839,7 +5840,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					    realName = candidateName;
 					    done.put(candidateName, 1);
 					} else {
-					    realName = candidateName + "+" + already;
+						String fileName = FilenameUtils.removeExtension(candidateName);
+						String fileExt = FilenameUtils.getExtension(candidateName);
+						if(!"".equals(fileExt.trim())){
+							fileExt = "." + fileExt;
+						}
+					    realName = fileName + "+" + already + fileExt;
 					    done.put(candidateName, already + 1);
 					}
 
