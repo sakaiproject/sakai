@@ -14,6 +14,9 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.sakaiproject.assignment.cover.AssignmentService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
@@ -39,6 +42,7 @@ import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.portal.util.CSSUtils;
 import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.util.Web;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
 import uk.org.ponder.rsf.components.UIBoundBoolean;
@@ -80,8 +84,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	private SimplePageToolDao simplePageToolDao;
 	public MessageLocator messageLocator;
 	public LocaleGetter localeGetter;
+	private HttpServletRequest httpServletRequest;
 
-	static final String ICONSTYLE = "\n.portletTitle .action img {\n        background: url({}/help.gif) center right no-repeat;\n}\n.portletTitle .action img:hover, .portletTitle .action img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
+	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public static final String VIEW_ID = "ShowItem";
 
@@ -89,6 +94,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		return VIEW_ID;
 	}
     
+	public String myUrl() {
+	    // previously we computed something, but this will give us the official one
+	        return ServerConfigurationService.getServerUrl();
+	}
+
 	public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker checker) {
 
 	    // to do assignment/quiz, etc arguments are
@@ -199,13 +209,15 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    String toolId = placement.getToolId();
 	    boolean inline = false;
 
-	    String tidAllow = ServerConfigurationService
-		.getString("portal.experimental.iframesuppress");
-	    if (tidAllow != null) {
-		if (tidAllow.indexOf(":all:") >= 0)
-		    inline = true;
-		else if (tidAllow.indexOf(toolId) >= 0)
-		    inline = true;
+	    if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
+		inline = true;
+		if (reseturl == null)
+		    reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
+		if (helpurl == null)
+		    helpurl = "/portal/help/main?help=" + toolId;
+	    } else if (httpServletRequest.getRequestURI().startsWith("/portal/pda/")) {
+		reseturl = null;
+		helpurl = null;
 	    }
 
 	    if (helpurl != null || reseturl != null) {
@@ -228,6 +240,21 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 				 messageLocator.getMessage("simplepage.help-button")));
 		UIOutput.make(tofill, "helpnewwindow2",
 		    messageLocator.getMessage("simplepage.opens-in-new"));
+
+		UILink.make(tofill, "directurl").
+		    decorate(new UIFreeAttributeDecorator("rel", "#Main" + Web.escapeJavascript(placement.getId()) + "_directurl")).
+		    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.direct-link")));
+		if (inline) {
+		    UIOutput.make(tofill, "directurl-div").
+			decorate(new UIFreeAttributeDecorator("id", "Main" + Web.escapeJavascript(placement.getId()) + "_directurl"));
+		    UIOutput.make(tofill, "directurl-input").
+			decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
+		    UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
+			decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + Web.escapeJavascript(placement.getId()) + "_urlholder"));
+		} else
+		    UIOutput.make(tofill, "directimage").decorate(new UIFreeAttributeDecorator("alt",
+			messageLocator.getMessage("simplepage.direct-link")));
+
 	    }
 	    
 	    if (reseturl != null) {
@@ -315,6 +342,10 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 
 	public void setSimplePageToolDao(SimplePageToolDao s) {
 		simplePageToolDao = s;
+	}
+
+	public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
+		this.httpServletRequest = httpServletRequest;
 	}
 
 	public List reportNavigationCases() {

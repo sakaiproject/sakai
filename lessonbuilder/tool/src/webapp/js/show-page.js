@@ -1848,6 +1848,9 @@ $(function() {
 			return false;
 		});
 		
+		// can't get RSF to generate a simple #... URL, so output it as rel attribute and fix up
+		$("#directurl").attr('href', $("#directurl").attr('rel'));
+
 	} // Closes admin if statement
 
 	$(".showPollGraph").click(function(e) {

@@ -881,6 +881,7 @@ div[role="dialog"] {
     .portletTitle .title a.reload:hover, .portletTitle .title a.reload:focus {
         background: url(images/reload_h.png) center left no-repeat !important
     }
+    
 */
 .neoPortletTitleWrap {
     border-radius:0
@@ -909,7 +910,7 @@ div[role="dialog"] {
     border: none;
     height: 18px;
 }
-.portletTitle .action a.help {
+.portletTitle .action a.help img{
     background: url(../images/help.gif) center right no-repeat;
     text-align: left;
     padding: 0;
@@ -921,14 +922,17 @@ div[role="dialog"] {
 .portletTitle .title a:focus, .portletTitle .action a:focus {
     outline: black dotted thin
 }
-.portletTitle .action a.help:hover, .portletTitle .action a.help:focus {
+.portletTitle .action a.help:hover, .portletTitle .action a.help:focus img {
     background: url(../images/help_h.gif) center right no-repeat
 }
 .portletTitle .action a.tool-directurl{
+    text-decoration:none;
+}
+.portletTitle .action a.tool-directurl img{
     padding:2px;
     background: url(/library/image/silk/link.png) center right no-repeat;
 }
-.portletTitle .action a.tool-directurl:hover{
+.portletTitle .action a.tool-directurl:hover img{
     background: url(/library/image/silk/link_go.png) center right no-repeat;
 }
 .direct-url-wrap {

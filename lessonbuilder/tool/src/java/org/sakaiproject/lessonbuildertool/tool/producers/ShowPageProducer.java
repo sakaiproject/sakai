@@ -112,6 +112,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
 
 import uk.org.ponder.localeutil.LocaleGetter;
@@ -241,7 +242,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	}
 
-	static final String ICONSTYLE = "\n.portletTitle .action img {\n        background: url({}/help.gif) center right no-repeat;\n}\n.portletTitle .action img:hover, .portletTitle .action img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
+	static final String ICONSTYLE = "\n.portletTitle .action .help img {\n        background: url({}/help.gif) center right no-repeat !important;\n}\n.portletTitle .action .help img:hover, .portletTitle .action .help img:focus {\n        background: url({}/help_h.gif) center right no-repeat\n}\n.portletTitle .title img {\n        background: url({}/reload.gif) center left no-repeat;\n}\n.portletTitle .title img:hover, .portletTitle .title img:focus {\n        background: url({}/reload_h.gif) center left no-repeat\n}\n";
 
 	public String getViewID() {
 		return VIEW_ID;
@@ -816,20 +817,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		String toolId = placement.getToolId();
 		boolean inline = false;
 
-                String tidAllow = ServerConfigurationService
-		    .getString("portal.experimental.iframesuppress");
-                if (tidAllow != null) {
-		    if (tidAllow.indexOf(":all:") >= 0)
-			inline = true;
-		    else if (tidAllow.indexOf(toolId) >= 0)
-			inline = true;
-		}
-
-		if (inline) {
+		// this section shouldn't be needed, but the portal in trunk
+		// isn't going this right
+		if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
+		    inline = true;
 		    if (reseturl == null)
 			reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
 		    if (helpurl == null)
 			helpurl = "/portal/help/main?help=" + toolId;
+		} else if (httpServletRequest.getRequestURI().startsWith("/portal/pda/")) {
+		    reseturl = null;
+		    helpurl = null;
 		}
 
 		String skinName = null;
@@ -867,6 +865,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			         messageLocator.getMessage("simplepage.help-button")));
 		    UIOutput.make(tofill, (pageItem.getPageId() == 0 ? "helpnewwindow" : "helpnewwindow2"), 
 				  messageLocator.getMessage("simplepage.opens-in-new"));
+		    UILink.make(tofill, "directurl").
+			decorate(new UIFreeAttributeDecorator("rel", "#Main" + Web.escapeJavascript(placement.getId()) + "_directurl")).
+			decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.direct-link")));
+		    if (inline) {
+			UIOutput.make(tofill, "directurl-div").
+			    decorate(new UIFreeAttributeDecorator("id", "Main" + Web.escapeJavascript(placement.getId()) + "_directurl"));
+			UIOutput.make(tofill, "directurl-input").
+			    decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
+			UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
+			    decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + Web.escapeJavascript(placement.getId()) + "_urlholder"));
+		    } else
+			UIOutput.make(tofill, "directimage").decorate(new UIFreeAttributeDecorator("alt",
+				messageLocator.getMessage("simplepage.direct-link")));
 		}
 
 		if (reseturl != null) {
