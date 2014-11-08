@@ -1,3 +1,16 @@
+/**
+ * For Footer toggles in Morpheus
+ */
+
+$(".js-footer-toggle__panel").addClass("is-hidden");
+$(".js-footer-toggle__control").addClass("plus");
+
+$('.js-footer-toggle__control').click(function() {
+event.preventDefault();
+$(this).next('.js-footer-toggle__panel').toggleClass("is-hidden is-visible");
+//$(this).next('pre').next(".source__link").slideToggle("fast");
+$(this).toggleClass("plus minus");
+});
 /* dhtml_view_sites
  * displays the More Sites div
  * note the technique of recasting the function after initalization
@@ -250,11 +263,11 @@ function sakaiMinimizeNavigation(){
         $('#portalContainer').addClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#toolMenuWrap').addClass('minimize-tool-nav');
+        $('.nav-tools').addClass('is-minimized');
     }
-    $('#toggleToolMax').addClass('hidden').removeClass('show');
+    $('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
-    $('#toggleNormal').addClass('show').removeClass('hidden');
+    $('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
 }
 
 function sakaiRestoreNavigation(){
@@ -266,9 +279,10 @@ function sakaiRestoreNavigation(){
     if (portal.toggle.tools) {
         $('#toolMenuWrap').removeClass('minimize-tool-nav');
     }
-    $('#toggleToolMax').addClass('show').removeClass('hidden');
-    $('#toggleToolMenu').attr('title',$('#toggleToolMax em').text());
-    $('#toggleNormal').addClass('hidden').removeClass('show');
+    $('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
+    
+    
+    $('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
 }
 
 function updatePresence(){
@@ -337,7 +351,7 @@ function showToolMenu(e, xOffset){
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
     $('.toolMenus').removeClass('toolMenusActive');
     if ($('.' + id).length) {
-        $('#otherSiteTools').toggle();
+        $('#otherSiteTools').remove();
     }
     else {
         $('#otherSiteTools').remove();
@@ -363,7 +377,7 @@ function showToolMenu(e, xOffset){
                 subsubmenu = subsubmenu + goToSite
             }
             subsubmenu = subsubmenu + "</ul>"
-            $('#otherSiteList').append(subsubmenu);
+            $('#portalOuterContainer').append(subsubmenu);
             $('#otherSiteTools').css({
                 'top': pos.top + 28,
                 'left': pos.left - xOffset
@@ -414,9 +428,9 @@ jQuery(document).ready(function(){
     //var siteTitle = ($('.nav-selected span:first').text())
     var siteTitle = portal.siteTitle;
     if (siteTitle) {
-    if (portal.shortDescription) {
-        siteTitle = siteTitle + " ("+portal.shortDescription+")"
-    }
+	if (portal.shortDescription) {
+	    siteTitle = siteTitle + " ("+portal.shortDescription+")"
+	}
         $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
     }
     
@@ -472,19 +486,19 @@ jQuery(document).ready(function(){
     
     //bind directurl checkboxes
     if ( jQuery('a.tool-directurl').length ) jQuery('a.tool-directurl').cluetip({
-        local: true,
-        arrows: true,
-        cluetipClass: 'jtip',
-        sticky: true,
-        cursor: 'pointer',
-        activation: 'click',
-        closePosition: 'title',
-        closeText: '<img src="/library/image/silk/cross.png" alt="close">'
+    	local: true,
+    	arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close">'
     });
 
-    // Shows or hides the subsites in a popout div. This isn't used unless
-    // portal.showSubsitesAsFlyout is set to true in sakai.properties.
-    jQuery("#toggleSubsitesLink").click(function (e) {
+	// Shows or hides the subsites in a popout div. This isn't used unless
+	// portal.showSubsitesAsFlyout is set to true in sakai.properties.
+	jQuery("#toggleSubsitesLink").click(function (e) {
         var subsitesLink = $(this);
         if($('#subSites').css('display') == 'block') {
             $('#subSites').hide();
@@ -520,7 +534,7 @@ var setupSiteNav = function(){
         $(this).prev('ul').slideDown('fast')
      });
 
-    fixTopNav = function(e){
+	fixTopNav = function(e){
         if (e.keyCode == 40) { // downarrow
             e.preventDefault();
             jQuery('#selectSite').hide();
@@ -534,14 +548,14 @@ var setupSiteNav = function(){
         }
     }
 
-    // SAK-25505 - Switch from live() to on()
-    // $( "a.offsite" ).live( "click", function() {
-    // $('.topnav > li.nav-menu > a').live('keydown', function(e){
-    if ( $(document).on ) {
-        $(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
-    } else {
-        $('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
-    }
+	// SAK-25505 - Switch from live() to on()
+	// $( "a.offsite" ).live( "click", function() {
+	// $('.topnav > li.nav-menu > a').live('keydown', function(e){
+	if ( $(document).on ) {
+		$(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
+	} else {
+		$('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
+	}
     
     jQuery("ul.topnav > li").mouseleave(function(){
         $(this).find('ul').slideUp('fast')
@@ -555,12 +569,13 @@ var setupSiteNav = function(){
          *  if no menu sibling
          *       retrieve data, construct the menu, append
          */
+        jQuery(this).toggleClass("subclicked"); //On click toggle class "subclicked"
         e.preventDefault()
         var jqObjDrop = $(e.target);
-        if (jqObjDrop.closest('li').find('ul').length) {
-            jqObjDrop.closest('li').find('ul').slideDown('fast')
+        if (jqObjDrop.parent('li').find('ul').length) {
+            jqObjDrop.parent('li').find('ul').slideDown('fast')
             if(focusFirstLink) {
-                jqObjDrop.closest('li').find("ul.subnav a:first").focus();
+                jqObjDrop.parent().find("ul.subnav a:first").focus();
             }
         }
         else {
@@ -613,9 +628,9 @@ var setupToolToggle = function(toggleClass){
     });
     $('#toggler').addClass(toggleClass)
     
-    $('#toggleToolMenu').hover(function () {
+	$('#toggleToolMenu').hover(function () {
          $(this).find('span').addClass('toggleToolMenuHover')
-    }, 
+	}, 
       function () {
          $(this).find('span').removeClass('toggleToolMenuHover')
       }
@@ -652,19 +667,19 @@ var setupSkipNav = function(){
 
 //handles showing either the short url or the full url, depending on the state of the checkbox 
 //(if configured, otherwise returns url as-is as according to the url shortening entity provder)
-function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {      
-    
-    if($(checkbox).is(':checked')) {
-        
-        $.ajax({
-            url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
-            success: function(shortUrl) {
-                $('.'+textbox).val(shortUrl);
-            }
-        }); 
-    } else {
-        $('.'+textbox).val(defaultUrl);
-    }
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
+	
+	if($(checkbox).is(':checked')) {
+		
+		$.ajax({
+			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			success: function(shortUrl) {
+				$('.'+textbox).val(shortUrl);
+			}
+		}); 
+	} else {
+		$('.'+textbox).val(defaultUrl);
+	}
 }
 
 /* Callback is a function and is called after sliding up ul */
@@ -703,3 +718,34 @@ function addArrowNavAndDisableTabNav(ul,callback) {
         }
     });
 }
+/**
+ * For Responsive Menus in Morpheus: Adds classes to the <body>
+ */
+
+function toggleToolsNav(){
+  event.preventDefault();
+  $('body').toggleClass('nav-tools-displayed');
+}
+
+function toggleSitesNav(){
+  event.preventDefault();
+  $('body').toggleClass('nav-sites-displayed');
+}
+
+$(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
+$(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
+// Google Webfont
+WebFontConfig = {
+  google: { families: [ 'Open+Sans:300italic,400italic,600italic,700italic,400,600,300,700:latin' ] }
+};
+(function() {
+  var wf = document.createElement('script');
+  wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+    '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+  wf.type = 'text/javascript';
+  wf.async = 'true';
+  var s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(wf, s);
+})();
+
+// note here is useless but triggers compilation tasks
