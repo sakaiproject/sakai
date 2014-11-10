@@ -20,8 +20,11 @@
 --%>
 -->
 <!-- 2a ATTACHMENTS -->
- <div class="longtext"><h:outputLabel value="#{authorMessages.attachments}" />
-  <br/>
+<div class="attachmentEditor">
+<fieldset>
+    <legend>
+        <h:outputText value="#{authorMessages.attachments}" />
+    </legend>
   <h:panelGroup rendered="#{sectionBean.hasAttachment}">
     <h:dataTable value="#{sectionBean.attachmentList}" var="attach">
       <h:column>
@@ -58,5 +61,6 @@
     </sakai:button_bar>
   </h:panelGroup>
 
+</fieldset>
 </div>
 

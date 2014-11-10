@@ -903,6 +903,109 @@ background-color:#DBDBDB;
     margin-left: 150px;
 }
 
+label.inactive
+{
+    color: #999999 !important;
+}
+
+#modifyPartForm
+{
+    margin-top: 1em;
+}
+
+#modifyPartForm fieldset.roundedBorder
+{
+    border: 2px solid #c8c8c8;
+    border-radius: 5px;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+#modifyPartForm fieldset.roundedBorder legend
+{
+    padding-left: 6px;
+    padding-right: 6px;
+    background: rgba(255, 255, 255, 0);
+    color: #444444;
+}
+
+#modifyPartForm fieldset.roundedBorder input[type="text"]
+{
+    width: 30px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption
+{
+    margin-bottom: 0.5em;
+}
+
+#modifyPartForm select
+{
+    margin-left: 5px;
+}
+
+.titleEditor label, .infoEditor label, .titleEditor input, .infoEditor input
+{
+    display: block;
+}
+
+.infoEditor textarea
+{
+    width: 100%;
+    min-width: 200px;
+}
+
+.infoEditor
+{
+    width: 50%;
+}
+
+.titleEditor label
+{
+    width: 100%;
+}
+
+.titleEditor label, .infoEditor label
+{
+    font-weight: bold;
+    color: #000;
+    font-size: 100%;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+#modifyPartForm fieldset
+{
+    padding: 1em 0 1em 0;
+    margin: 0;
+}
+
+#modifyPartForm fieldset.addEditPartOptions
+{
+    padding: 1em 0 0 0;
+    margin: 0;
+}
+
+.titleEditor, .infoEditor
+{
+    margin: 0.4em 1em 1em 0;
+}
+
+.titleEditor input
+{
+    margin: 0.4em 0 0.4em 0;
+    width: 50%;
+    min-width: 200px;
+}
+
+.attachmentEditor .act
+{
+    margin-bottom: 0;
+    padding: 0;
+}
+
 div.expand, div.collapse {
     cursor: pointer !important;
     padding-left: 1em !important;

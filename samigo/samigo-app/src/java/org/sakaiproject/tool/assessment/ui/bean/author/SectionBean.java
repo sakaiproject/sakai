@@ -268,29 +268,38 @@ private List attachmentList;
   }
 
 
-  public ArrayList getAuthorTypeList(){
+  public List<SelectItem> getAuthorTypeList()
+  {
 
-    ArrayList list = new ArrayList();
+    List<SelectItem> list = new ArrayList<SelectItem>();
     // cannot disable only one radio button in a list, so am generating the list again
 
     ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
 
-    if (hideRandom){
-        SelectItem selection = new SelectItem();
-        selection.setLabel(rb.getString("type_onebyone"));
-        selection.setValue("1");
-        list.add(selection);
+    SelectItem selection = new SelectItem();
+    selection.setLabel(rb.getString("type_onebyone"));
+    selection.setValue("1");
+    list.add(selection);
+    
+    SelectItem selection1 = new SelectItem();
+    boolean disabled = false;
+    String label = rb.getString("random_draw_from_que");
+    
+    if (hideRandom)
+    {
+        label += " " + rb.getString("random_draw_from_que_edit_disabled");
+        disabled = true;
     }
-    else {
-        SelectItem selection = new SelectItem();
-        selection.setLabel(rb.getString("type_onebyone"));
-        selection.setValue("1");
-        list.add(selection);
-        SelectItem selection1 = new SelectItem();
-        selection1.setLabel(rb.getString("random_draw_from_que"));
-        selection1.setValue("2");
-        list.add(selection1);
+    else if (getPoolsAvailable().isEmpty())
+    {
+        label += " " + rb.getString("randow_draw_from_que_no_pools_available");
+        disabled = true;
     }
+    
+    selection1.setDisabled(disabled);
+    selection1.setLabel(label);
+    selection1.setValue("2");
+    list.add(selection1);
 
     return list;
   }
@@ -317,11 +326,11 @@ private List attachmentList;
   public ArrayList getPoolsAvailable()
   {
     ArrayList resultPoolList= new ArrayList();  
-	if (this.getType() != null && this.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
-		this.setSelectedPool("");
-		this.setNumberSelected("");
-		return resultPoolList;
-	}
+    /*if (this.getType() != null && this.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
+        this.setSelectedPool("");
+        this.setNumberSelected("");
+        return resultPoolList;
+    }*/
 
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     //ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
@@ -370,7 +379,7 @@ private List attachmentList;
       //Huong's new
       int items = delegate.getCountItems(pool.getQuestionPoolId() );	
       if(items>0){
-    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist)));
+    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist, delegate)));
       }
     }
     //  add pool which is currently used in current Part for modify part
@@ -384,7 +393,7 @@ private List attachmentList;
           // if the pool still exists, it's possible that the pool has been deleted  
           int currItems = delegate.getCountItems(currPool.getQuestionPoolId());
           if(currItems>0){
-              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist)));  
+              resultPoolList.add(new SelectItem((currPool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(currPool, currItems, allpoollist, delegate)));  
           }
         }
         else {
@@ -398,7 +407,7 @@ private List attachmentList;
   
   /**
    * Determine the correct string to display in the drop down for 'Random draw from question pool' option.
-   * Format is:  [parent pool name]: pool name (# of questions)
+   * Format is:  [parent pool name (# of questions)]: pool name (# of questions)
    * Where the parent pool name part is only displayed if the pool is a sub-pool.
    * 
    * This is important because subpool names are not unique across parent pools, which can result in 
@@ -415,23 +424,43 @@ private List attachmentList;
    * @return a string to display in the UI's drop down for the given question pool
    */
   @SuppressWarnings("deprecation")
-  private String getPoolTitleValueForRandomDrawDropDown(QuestionPoolFacade pool, int items, List<QuestionPoolFacade> allPools) {
+  private String getPoolTitleValueForRandomDrawDropDown(QuestionPoolFacade pool, int items, List<QuestionPoolFacade> allPools, QuestionPoolService qps) {
  
         // Build the string in the original format
-        String original = FormattedText.convertFormattedTextToPlaintext(pool.getDisplayName()) + " (" + items + ")";
+        String original = formatPoolDisplayName( pool.getDisplayName(), items );
 
         // If the parent pool ID is greater than 0 (question pool IDs start at 1), return the string with the parent pool name prefixed
         Long parentPoolID = pool.getParentPoolId();
         if(parentPoolID > 0) {
             for(QuestionPoolFacade qp : allPools) {
                 if(parentPoolID.equals(qp.getQuestionPoolId())) {
-                    return FormattedText.convertFormattedTextToPlaintext(qp.getDisplayName()) + ": " + original;
+                    return formatPoolDisplayName( qp.getDisplayName(), qps.getCountItems( qp.getQuestionPoolId() ) ) + ": " + original;
                 }
             }
         }
 
         // Otherwise, it has no parent or the parent wasn't found, return the original string
         return original;
+  }
+  
+  private String formatPoolDisplayName(String poolName, int poolCount)
+  {
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+      String qs = (poolCount == 1) ? rb.getString("q") : rb.getString("qs");
+      return FormattedText.convertFormattedTextToPlaintext(poolName) + " (" + poolCount + " " + qs.toLowerCase() + ")";
+  }
+  
+  public String getRandomDrawMsg()
+  {
+      ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
+      String msg = rb.getString("random_draw_from_que");
+      
+      if (hideRandom)
+      {
+          msg += " " + rb.getString("random_draw_from_que_edit_disabled");
+      }
+      
+      return msg;
   }
 
   class ItemComparator implements Comparator {
