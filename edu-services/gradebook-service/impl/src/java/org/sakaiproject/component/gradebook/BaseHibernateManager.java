@@ -32,6 +32,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -258,44 +259,90 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 			uniqueResult();
 	}
 
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException {
-        HibernateCallback hc = new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
+    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
+           final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+        return createNewAssignment(gradebookId, null, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+    }
+    
+    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
+    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    {
+    	if(gradebookId == null || categoryId == null)
+    	{
+    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
+    	}
+
+    	return createNewAssignment(gradebookId, categoryId, name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+    }
+    
+    private Long createNewAssignment(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted,
+            final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException
+    {
+        Assignment asn = prepareNewAssignment(name, points, dueDate, isNotCounted, isReleased, isExtraCredit);
+        
+        return saveNewAssignment(gradebookId, categoryId, asn);
+    }
+    
+    private Assignment prepareNewAssignment(String name, Double points, Date dueDate, Boolean isNotCounted, Boolean isReleased, Boolean isExtraCredit)
+    {
+        String validatedName = StringUtils.trimToNull(name);
+        if (validatedName == null)
+        {
+            throw new ConflictingAssignmentNameException("You cannot save an assignment without a name");
+        }
+        
+        Assignment asn = new Assignment();
+        asn.setName(validatedName);
+        asn.setPointsPossible(points);
+        asn.setDueDate(dueDate);
+        asn.setUngraded(false);
+        if (isNotCounted != null)
+        {
+            asn.setNotCounted(isNotCounted.booleanValue());
+        }
+        if (isExtraCredit != null)
+        {
+            asn.setExtraCredit(isExtraCredit.booleanValue());
+        }
+        if (isReleased != null)
+        {
+            asn.setReleased(isReleased.booleanValue());
+        }
+        
+        return asn;
+    }
+    
+    private void loadAssignmentGradebookAndCategory(Session session, Assignment asn, Long gradebookId, Long categoryId)
+    {
+        Gradebook gb = (Gradebook) session.load(Gradebook.class, gradebookId);
+        asn.setGradebook(gb);
+        if (categoryId != null)
+        {
+            Category cat = (Category) session.load(Category.class, categoryId);
+            asn.setCategory(cat);
+        }
+    }
+    
+    protected Long saveNewAssignment(final Long gradebookId, final Long categoryId, final Assignment asn) throws ConflictingAssignmentNameException
+    {
+        HibernateCallback hc = new HibernateCallback()
+        {
+            @Override
+            public Object doInHibernate(Session session) throws HibernateException
+            {                
+                loadAssignmentGradebookAndCategory(session, asn, gradebookId, categoryId);
                 
-                // trim the name before checking validation
-                String trimmedName = name;
-                if (name != null) {
-                    trimmedName = name.trim();
-                }
-                
-                if (assignmentNameExists(session, trimmedName, gb)) {
+                if (assignmentNameExists(session, asn.getName(), asn.getGradebook()))
+                {
                     throw new ConflictingAssignmentNameException("You cannot save multiple assignments in a gradebook with the same name");
                 }
-
-                   Assignment asn = new Assignment();
-                   asn.setGradebook(gb);
-                   asn.setName(trimmedName);
-                   asn.setPointsPossible(points);
-                   asn.setDueDate(dueDate);
-                   asn.setIsExtraCredit(isExtraCredit);
-             			 asn.setUngraded(false);
-                   if (isNotCounted != null) {
-                       asn.setNotCounted(isNotCounted.booleanValue());
-                   }
-
-                   if(isReleased!=null){
-                       asn.setReleased(isReleased.booleanValue());
-                   }
-
-                   // Save the new assignment
-                   Long id = (Long)session.save(asn);
-
-                   return id;
-               }
-           };
-
-           return (Long)getHibernateTemplate().execute(hc);
+                
+                return (Long) session.save(asn);
+            }
+        };
+        
+        return (Long) getHibernateTemplate().execute(hc);
     }
 
     public void updateGradebook(final Gradebook gradebook) throws StaleObjectModificationException {
@@ -492,56 +539,6 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     	
     	return categoriesWithAssignments;
-    }
-    
-    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException 
-    {
-    	if(gradebookId == null || categoryId == null)
-    	{
-    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
-    	}
-    	
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			Category cat = (Category)session.load(Category.class, categoryId);
-    			
-    			// trim the assignment name before we validate
-    			String trimmedName = name;
-    			if (name != null) {
-    			    trimmedName = name.trim();
-    			}
-
-    			if(assignmentNameExists(session, trimmedName, gb)) {
-    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-    			}
-
-    			Assignment asn = new Assignment();
-    			asn.setGradebook(gb);
-    			asn.setCategory(cat);
-    			asn.setName(trimmedName);
-    			asn.setPointsPossible(points);
-    			asn.setDueDate(dueDate);
-    			asn.setUngraded(false);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
-
-    			if(isReleased!=null){
-    				asn.setReleased(isReleased.booleanValue());
-    			}
-
-                if (isExtraCredit != null) {
-                    asn.setExtraCredit(isExtraCredit.booleanValue());
-                }
-
-    			Long id = (Long)session.save(asn);
-
-    			return id;
-    		}
-    	};
-
-    	return (Long)getHibernateTemplate().execute(hc);
     }
     
     public List getAssignmentsForCategory(final Long categoryId) throws HibernateException{
@@ -1511,29 +1508,21 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     
     /**
      * 
-     * @param session
-     * @param name
-     * @param gradebook
-     * @return true if an assignment with the given name already exists in this gradebook. Does
-     * not trim the name
+     * @param session an active Hibernate session
+     * @param name the assignment name (will not be trimmed)
+     * @param gradebook the gradebook to check
+     * @return true if an assignment with the given name already exists in this gradebook.
      */
-    private boolean assignmentNameExists(Session session, String name, Gradebook gradebook) {
-        boolean nameExists;
+    protected boolean assignmentNameExists(Session session, String name, Gradebook gradebook)
+    {
+        final String HQL_ASSIGNMENTS_BY_NAME = "select go from GradableObject as go where go.name = :name and go.gradebook = :gb and go.removed=false";
+        Query q = session.createQuery(HQL_ASSIGNMENTS_BY_NAME);
+        q.setString("name", name);
+        q.setEntity("gb", gradebook);
         
-        List conflictList = ((List)session.createQuery(
-            "select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-            setString(0, name).
-            setEntity(1, gradebook).list());
-        
-        int numNameConflicts = conflictList.size();
-        if(numNameConflicts == 0) {
-            nameExists = false; 
-        } else {
-            nameExists = true;
-        }
-        
-        return nameExists;
+        return !q.list().isEmpty();
     }
+    
 	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
 		Query q = session.createQuery(
 		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName and gradableObject.removed=false");
