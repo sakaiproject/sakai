@@ -2930,122 +2930,25 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     		updateAssignmentGradeRecords(assignment, records);
     	}
     }
-    
-    /** synchronize from external application - override createAssignment method in BaseHibernateManager.*/
-    public Long createAssignment(final Long gradebookId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit) throws ConflictingAssignmentNameException, StaleObjectModificationException {
 
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			
-    			// check for an existing gb item with this name. trim off trailing whitespace
-    			String trimmedName = name;
-    			if (name != null) {
-    			    trimmedName = name.trim();
-    			}
-    			List conflictList = ((List)session.createQuery(
-    					"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    					setString(0, trimmedName).
-    					setEntity(1, gb).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
-    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-    			}
-
-    			Assignment asn = new Assignment();
-    			asn.setGradebook(gb);
-    			asn.setName(trimmedName);
-    			asn.setPointsPossible(points);
-    			asn.setDueDate(dueDate);
-    			asn.setUngraded(false);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
-    			if(isExtraCredit != null){
-    				asn.setExtraCredit(isExtraCredit.booleanValue());
-    			}
-
-    			if(isReleased!=null){
-    				asn.setReleased(isReleased.booleanValue());
-    			}
-
-    			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
-    			{
-    				synchronizer.addLegacyAssignment(trimmedName);
-    			}
-    			
-    			// Save the new assignment
-    			Long id = (Long)session.save(asn);
-
-    			return id;
-    		}
-    	};
-    	return (Long)getHibernateTemplate().execute(hc);
-    }
-
-    /** synchronize from external application - override createAssignmentForCategory method in BaseHibernateManager.*/
-    public Long createAssignmentForCategory(final Long gradebookId, final Long categoryId, final String name, final Double points, final Date dueDate, final Boolean isNotCounted, final Boolean isReleased, final Boolean isExtraCredit)
-    throws ConflictingAssignmentNameException, StaleObjectModificationException, IllegalArgumentException
+    @Override
+    protected Long saveNewAssignment(final Long gradebookId, final Long categoryId, final Assignment asn) throws ConflictingAssignmentNameException
     {
-    	if(gradebookId == null || categoryId == null)
-    	{
-    		throw new IllegalArgumentException("gradebookId or categoryId is null in BaseHibernateManager.createAssignmentForCategory");
-    	}
-
-    	HibernateCallback hc = new HibernateCallback() {
-    		public Object doInHibernate(Session session) throws HibernateException {
-    			Gradebook gb = (Gradebook)session.load(Gradebook.class, gradebookId);
-    			Category cat = (Category)session.load(Category.class, categoryId);
-    			
-    			// check for an existing gb item with the same name
-    			String trimmedName = name;
-    			if (name != null) {
-    			    trimmedName = name.trim();
-    			}
-    			
-    			List conflictList = ((List)session.createQuery(
-    			"select go from GradableObject as go where go.name = ? and go.gradebook = ? and go.removed=false").
-    			setString(0, trimmedName).
-    			setEntity(1, gb).list());
-    			int numNameConflicts = conflictList.size();
-    			if(numNameConflicts > 0) {
-    				throw new ConflictingAssignmentNameException("You can not save multiple assignments in a gradebook with the same name");
-    			}
-
-    			Assignment asn = new Assignment();
-    			asn.setGradebook(gb);
-    			asn.setCategory(cat);
-    			asn.setName(trimmedName);
-    			asn.setPointsPossible(points);
-    			asn.setDueDate(dueDate);
-    			asn.setUngraded(false);
-    			if (isNotCounted != null) {
-    				asn.setNotCounted(isNotCounted.booleanValue());
-    			}
-
-    			if(isReleased!=null){
-    				asn.setReleased(isReleased.booleanValue());
-    			}
-    			
-    			if(isExtraCredit != null){
-    				asn.setExtraCredit(isExtraCredit.booleanValue());
-    			}
-
-    			/** synchronize from external application */
-    			if (synchronizer != null && !synchronizer.isProjectSite())
-    			{
-    				synchronizer.addLegacyAssignment(trimmedName);
-    			}  
-
-    			Long id = (Long)session.save(asn);
-
-    			return id;
-    		}
-    	};
-
-    	return (Long)getHibernateTemplate().execute(hc);
-    }
+        Long result = super.saveNewAssignment(gradebookId, categoryId, asn);
+        
+        syncAssignment(asn.getName());
+        
+        return result;
+    }    
+    
+    private void syncAssignment(String asnName)
+    {
+        /** synchronize from external application */
+        if (synchronizer != null && !synchronizer.isProjectSite())
+        {
+                synchronizer.addLegacyAssignment(asnName);
+        }
+     }
 
     /** synchronize from external application */
     public void setSynchronizer(GbSynchronizer synchronizer) 
