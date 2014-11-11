@@ -889,6 +889,9 @@ public class AssignmentAction extends PagedResourceActionII
 	
 	/** SAK-17606 - Property for whether an assignment user anonymous grading (user settable). */
 	private static final String NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING = "new_assignment_check_anonymous_grading";
+
+	/** Sakai.property for enable/disable anonymous grading */
+	private static final String SAK_PROP_ENABLE_ANON_GRADING = "assignment.anon.grading.enabled";
 	
 	private AssignmentPeerAssessmentService assignmentPeerAssessmentService;
 	public void setAssignmentPeerAssessmentService(AssignmentPeerAssessmentService assignmentPeerAssessmentService){
@@ -2315,6 +2318,9 @@ public class AssignmentAction extends PagedResourceActionII
 		state.removeAttribute(CALENDAR_TOOL_EXIST);
 		state.removeAttribute(ADDITIONAL_CALENDAR_TOOL_READY);
 		initState(state, portlet, (JetspeedRunData)data);
+
+		// Anon grading enabled/disabled
+		context.put( "enableAnonGrading", ServerConfigurationService.getBoolean( SAK_PROP_ENABLE_ANON_GRADING, false ) );
 		
 		// is the assignment an new assignment
 		String assignmentId = (String) state.getAttribute(EDIT_ASSIGNMENT_ID);
