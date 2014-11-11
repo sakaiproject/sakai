@@ -92,13 +92,7 @@ public class ShoppingEditPage extends BaseTreePage{
 			@Override
 			public void onClick() {
 				setResponsePage(new ShoppingEditBulkPage());
-			}
-			
-			@Override
-			public boolean isVisible() {
-				return sakaiProxy.isSuperUser();
-			}
-			
+			}			
 		});
 		
 		//FORM:

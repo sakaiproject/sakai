@@ -378,4 +378,19 @@ public interface ProjectLogic {
 	public void removeAllPermsForUser(String userId);
 	
 	public Map<String, Set<String>> getHierarchySearchOptions(Map<String, String> hierarchySearchMap);
+	
+	/**
+	 * filters out any node id that the user doesn't have permission to modify shopping period settings
+	 * @param nodeIds
+	 * @return
+	 */
+	public Set<String> filterShoppingPeriodEditNodes(Set<String> nodeIds);
+	
+	/**
+	 * filters out any node id that the user doesn't have permission to modify shopping period settings
+	 * @param nodeIds
+	 * @param userId
+	 * @return
+	 */
+	public Set<String> filterShoppingPeriodEditNodes(Set<String> nodeIds, String userId);
 }

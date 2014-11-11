@@ -2749,4 +2749,25 @@ public class ProjectLogicImpl implements ProjectLogic {
 			return results;
 		}
 	}
+
+	@Override
+	public Set<String> filterShoppingPeriodEditNodes(Set<String> nodeIds) {
+		return filterShoppingPeriodEditNodes(nodeIds, sakaiProxy.getCurrentUserId());
+	}
+
+	@Override
+	public Set<String> filterShoppingPeriodEditNodes(Set<String> nodeIds, String userId) {
+		Set<String> returnNodes = new HashSet<String>();
+		Set<HierarchyNode> nodes = hierarchyService.getNodesForUserPerm(userId, DelegatedAccessConstants.NODE_PERM_SHOPPING_ADMIN);
+		for(String nodeId : nodeIds){
+			for(HierarchyNode node : nodes){
+				if(nodeId.equals(node.id) || node.childNodeIds.contains(nodeId)){
+					returnNodes.add(nodeId);
+					break;
+				}
+			}
+		}
+		
+		return returnNodes;
+	}
 }

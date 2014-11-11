@@ -8,10 +8,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -612,21 +614,39 @@ public class ShoppingEditBulkPage extends BasePage{
 			}
 			//filter out any sites that do not have nodes
 			Map<String, List<String>> nodes = projectLogic.getNodesBySiteRef(lookupSiteRefs.toArray(new String[lookupSiteRefs.size()]), DelegatedAccessConstants.HIERARCHY_ID);
+			Set<String> shoppingEditableNodes = new HashSet<String>();
+			//get list of node ids to check whether the user can modify the settings
+			for(Entry<String, List<String>> entry : nodes.entrySet()){
+				shoppingEditableNodes.addAll(entry.getValue());
+			}
+			if(!sakaiProxy.isSuperUser()){
+				//Admin users can always edit any site, so only filter for non admins
+				shoppingEditableNodes = projectLogic.filterShoppingPeriodEditNodes(shoppingEditableNodes);
+			}
 			String notFound = "";
+			String noAccess = "";
 			for(String siteId : lookupSiteIds){
 				siteId = siteId.trim();
 				//check that this site id doesn't already exist:
 				boolean exist = nodes.containsKey("/site/" + siteId) && nodes.get("/site/" + siteId) != null && nodes.get("/site/" + siteId).size() > 0;
 				if(exist){
-					Site site = sakaiProxy.getSiteById(siteId);
-					if(site != null){
-						returnList.add(new DecoratedSiteModel(site.getId(), site.getTitle(), nodes.get("/site/" + siteId).get(0)));
-						anyAdded = true;
-					}else{
-						if(!"".equals(notFound)){
-							notFound += ", ";
+					boolean hasAccess = shoppingEditableNodes.contains(nodes.get("/site/" + siteId).get(0));
+					if(hasAccess){
+						Site site = sakaiProxy.getSiteById(siteId);
+						if(site != null){
+							returnList.add(new DecoratedSiteModel(site.getId(), site.getTitle(), nodes.get("/site/" + siteId).get(0)));
+							anyAdded = true;
+						}else{
+							if(!"".equals(notFound)){
+								notFound += ", ";
+							}
+							notFound += siteId;
 						}
-						notFound += siteId;
+					}else{
+						if(!"".equals(noAccess)){
+							noAccess += ", ";
+						}
+						noAccess += siteId;
 					}
 				}else{
 					if(!"".equals(notFound)){
@@ -635,8 +655,18 @@ public class ShoppingEditBulkPage extends BasePage{
 					notFound += siteId;
 				}
 			}
+			String errorMessageStr = "";
 			if(!"".equals(notFound)){
-				errorMessage.setObject(new StringResourceModel("sitesNotFound", null, new String[]{notFound}).getObject());
+				errorMessageStr += new StringResourceModel("sitesNotFound", null, new String[]{notFound}).getObject();
+			}
+			if(!"".equals(noAccess)){
+				if(!"".equals(errorMessageStr)){
+					errorMessageStr += " ";
+				}
+				errorMessageStr += new StringResourceModel("sitesNoAccess", null, new String[]{noAccess}).getObject();
+			}
+			if(!"".equals(errorMessageStr)){
+				errorMessage.setObject(errorMessageStr);
 			}
 		}else{
 			errorMessage.setObject(new ResourceModel("noSitesInInput").getObject());
