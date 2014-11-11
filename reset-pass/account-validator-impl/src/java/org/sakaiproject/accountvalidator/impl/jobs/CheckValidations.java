@@ -240,7 +240,9 @@ public class CheckValidations implements Job {
 				replacementValues.put("creatorName", creator.getDisplayName());
 				replacementValues.put("deleteDays", Integer.valueOf(maxDays).toString());
 				//now we send an email
-				emailTemplateService.sendRenderedMessages("validation.deleted", userReferences, replacementValues, "help@vula.uct.ac.za", "Vula Help");
+				String fromEmail = serverConfigurationService.getString("accountValidator.checkValidations.fromEmailAddress", serverConfigurationService.getString("mail.support"));
+				String fromName = serverConfigurationService.getString("accountValidator.checkValidations.fromEmailName", serverConfigurationService.getString("mail.support"));
+				emailTemplateService.sendRenderedMessages("validation.deleted", userReferences, replacementValues, fromEmail, fromName);
 				
 				
 			} catch (UserNotDefinedException e) {
