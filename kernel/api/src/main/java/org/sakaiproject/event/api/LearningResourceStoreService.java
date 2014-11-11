@@ -848,9 +848,6 @@ public interface LearningResourceStoreService {
                 if (this.min != null && raw.floatValue() < min.floatValue()) {
                     throw new IllegalArgumentException("score raw ("+raw+") must not be less than min ("+this.min+")");
                 }
-                if (this.max != null && raw.floatValue() > max.floatValue()) {
-                    throw new IllegalArgumentException("score raw ("+raw+") must not be greater than max ("+this.max+") inclusive");
-                }
             }
             this.raw = raw;
         }
