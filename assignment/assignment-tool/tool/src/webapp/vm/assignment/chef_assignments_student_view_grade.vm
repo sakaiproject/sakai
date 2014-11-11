@@ -179,7 +179,10 @@ function handleReportsTriangleDisclosure(btn)
 						</tr>
 					#end
 				#end
-				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport)
+
+				## Display content-review results when appropriate. If the assignment is non-electronic, we show content-review results if they exist 
+				## (happens when accepted submission type switched from something else)
+				#if($allowReviewService && $assignment.getContent().AllowReviewService && $assignment.getContent().AllowStudentViewReport && ($assignment.getContent().getTypeOfSubmission() != 4 || $submission.getContentReviewResults().size() > 0))
 					<tr>
 						<th>
 							$reviewServiceName&nbsp;$tlang.getString("review.report")

@@ -7621,6 +7621,14 @@ public class AssignmentAction extends PagedResourceActionII
 			boolean useReviewService = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
 			
 			boolean allowStudentViewReport = "true".equalsIgnoreCase((String) state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
+
+			// If the assignment switched to non-electronic, we need to use some of the assignment's previous content-review settings.
+			// This way, students will maintain access to their originality reports when appropriate.
+			if (submissionType == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
+			{
+				useReviewService = ac.getAllowReviewService();
+				allowStudentViewReport = ac.getAllowStudentViewReport();
+			}
 			
 			String submitReviewRepo = (String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_SUBMIT_RADIO);
 			String generateOriginalityReport = (String) state.getAttribute(NEW_ASSIGNMENT_REVIEW_SERVICE_REPORT_RADIO);
