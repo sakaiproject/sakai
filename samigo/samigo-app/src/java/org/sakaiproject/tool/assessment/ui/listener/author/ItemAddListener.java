@@ -698,7 +698,9 @@ public class ItemAddListener
         update = true;
         // if modify ,itemid shouldn't be null , or 0.
         Long oldId = Long.valueOf(bean.getItemId());
+        if (isPendingOrPool) {
         	delegate.deleteItemContent(oldId, AgentFacade.getAgentString());
+        }
     	item = delegate.getItem(oldId,AgentFacade.getAgentString());
       }
       else{
@@ -2392,32 +2394,81 @@ public class ItemAddListener
 	  return itemMetaDataSet;
 	}
   
-  private void preparePublishedTextForMatrixSurvey(ItemFacade item,
-		  ItemBean bean, ItemService delegate){
+  private void preparePublishedTextForMatrixSurvey(ItemFacade item, ItemBean bean, ItemService delegate){
+	  item.getData().setInstruction(bean.getItemText());
+	  Set textSet = item.getItemTextSet();
+	  Iterator textIter = textSet.iterator();
+	  HashMap itemTextMap = new HashMap();
+	  while (textIter.hasNext()) {
+			ItemTextIfc itemText = (ItemTextIfc) textIter.next();
+			itemTextMap.put(itemText.getSequence(), itemText);
+	  }
 	  String[] rowChoices = returnMatrixChoices(bean,"row");
 	  String[] columnChoices = returnMatrixChoices(bean,"column");
-
-	  bean.setInstruction(bean.getItemText());
-	  item.getData().setInstruction(bean.getItemText());
-	  HashSet publishedTextSet = new HashSet();
-	  
+	  ItemTextIfc publishedItemText = null;
+	  Long rowChoiceSequence = null, columnChoiceSequence = null;
+	  Set answerSet = null;
+	  AnswerIfc publishedAnswer = null;
 	  for(int i = 0; i<rowChoices.length;i++)
 	  {
-		  PublishedItemText publishedItemText = new PublishedItemText();
-		  publishedItemText.setItem(item.getData());
-		  publishedItemText.setSequence(Long.valueOf(i+1));
-		  publishedItemText.setText(rowChoices[i]);
-		  HashSet publishedAnswerSet = new HashSet();
-		  PublishedAnswer publishedAnswer = null;
-		  for(int j=0; j< columnChoices.length;j++){
-			  publishedAnswer = new PublishedAnswer(publishedItemText,columnChoices[j],Long.valueOf(j+1),null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
-			  publishedAnswerSet.add(publishedAnswer);
-	  }  
-		  publishedItemText.setAnswerSet(publishedAnswerSet);
-		  publishedTextSet.add(publishedItemText);
+		  rowChoiceSequence = Long.valueOf(i+1);
+		  if(!itemTextMap.containsKey(rowChoiceSequence)){
+			  publishedItemText = new PublishedItemText();
+			  publishedItemText.setItem(item.getData());
+			  publishedItemText.setSequence(rowChoiceSequence);
+			  publishedItemText.setText(rowChoices[i]);
+		  }	else {
+			    publishedItemText = (ItemTextIfc) itemTextMap.get(rowChoiceSequence);
+			    publishedItemText.setText(rowChoices[i]);
+		  }
+		  HashMap answerMap = new HashMap();
+		  answerSet = publishedItemText.getAnswerSet();
+		  if (answerSet != null) {
+			    Iterator answerIter = answerSet.iterator();
+				while (answerIter.hasNext()) {
+					publishedAnswer = (AnswerIfc) answerIter.next();
+					answerMap.put(publishedAnswer.getSequence(), publishedAnswer);
+				}
+		  } else {
+				answerSet = new HashSet();
+				publishedItemText.setAnswerSet(answerSet);
+			    textSet.add(publishedItemText);
+		  }
+		  for(int j = 0; j<columnChoices.length;j++){
+			  columnChoiceSequence = Long.valueOf(j+1);
+			  if (!answerMap.containsKey(columnChoiceSequence)) {
+				publishedAnswer = new PublishedAnswer(publishedItemText,columnChoices[j],columnChoiceSequence,null, null, null, Double.valueOf(bean.getItemScore()), Double.valueOf(0d), Double.valueOf(bean.getItemDiscount()));
+			  	answerSet.add(publishedAnswer);
+			  }	else {
+				  publishedAnswer = (AnswerIfc) answerMap.get(columnChoiceSequence);
+				  publishedAnswer.setText(columnChoices[j]);
+			  }	
+		  }
+		  int oldAnswerSetSize = publishedItemText.getAnswerSet().size();
+		  int newAnswerSetSize = columnChoices.length;
+		  if(oldAnswerSetSize > newAnswerSetSize){
+			  HashSet toBeRemovedAnswerSet = new HashSet();
+			  
+			  for (int j = newAnswerSetSize + 1; j < oldAnswerSetSize + 1; j++) {
+				  publishedAnswer = (AnswerIfc) answerMap.get(Long.valueOf(j));	
+				  toBeRemovedAnswerSet.add(publishedAnswer);
+			  }
+			  answerSet.removeAll(toBeRemovedAnswerSet);
+			  delegate.deleteSet(toBeRemovedAnswerSet);
+		  }
+	  }
+	  int oldTextSetSize = textSet.size();
+	  int newTextSetSize = rowChoices.length;
+	  if (oldTextSetSize > newTextSetSize) {
+			HashSet toBeRemovedTextSet = new HashSet();
+			for (int i = newTextSetSize + 1; i < oldTextSetSize + 1; i++) {
+				ItemTextIfc text = (ItemTextIfc) itemTextMap.get(Long.valueOf(i));
+				toBeRemovedTextSet.add(text);
+			}
+			textSet.removeAll(toBeRemovedTextSet);
+			delegate.deleteSet(toBeRemovedTextSet);
+	  }
   }
-	  item.setItemTextSet(publishedTextSet);
-	}
 
   private static ArrayList getFIBanswers(String entiretext) {
 	  String fixedText = entiretext.replaceAll("&nbsp;", " "); // replace &nbsp to " " (instead of "") just want to reserve the original input
