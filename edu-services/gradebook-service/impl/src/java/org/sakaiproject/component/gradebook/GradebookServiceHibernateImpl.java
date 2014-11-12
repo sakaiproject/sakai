@@ -2994,7 +2994,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 */
 	private Double convertStringToDouble(String doubleAsString) {
 	    Double scoreAsDouble = null;
-	    if (doubleAsString != null) {
+	    if (doubleAsString != null && !"".equals(doubleAsString)) {
 	        try {
 	        	NumberFormat numberFormat = NumberFormat.getInstance(new ResourceLoader().getLocale());
 				Number numericScore = numberFormat.parse(doubleAsString.trim());
