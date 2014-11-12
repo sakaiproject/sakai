@@ -12,6 +12,7 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
+import org.sakaiproject.api.app.messageforums.Attachment;
 import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.DiscussionTopic;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
@@ -19,6 +20,7 @@ import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
 import org.sakaiproject.api.app.messageforums.PrivateForum;
 import org.sakaiproject.api.app.messageforums.PrivateTopic;
 import org.sakaiproject.api.app.messageforums.Topic;
+import org.sakaiproject.api.app.messageforums.entity.DecoratedAttachment;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
 import org.sakaiproject.api.app.messageforums.entity.ForumMessageEntityProvider;
@@ -28,8 +30,11 @@ import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
+import org.sakaiproject.entitybroker.EntityBrokerManager;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
@@ -58,6 +63,12 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	private static final Log LOG = LogFactory.getLog(TopicEntityProviderImpl.class);
 	public static final String PVTMSG_MODE_DRAFT = "Drafts";
 
+	private EntityBrokerManager entityBrokerManager;
+
+	public void setEntityBrokerManager(EntityBrokerManager entityBrokerManager) {
+		this.entityBrokerManager = entityBrokerManager;
+	}
+	
 	private RequestStorage requestStorage;
 	public void setRequestStorage(RequestStorage requestStorage) {
 		this.requestStorage = requestStorage;
@@ -225,8 +236,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 			if(privateMessages && siteId != null){
 				
-				DecoratedForumInfo dForum = new DecoratedForumInfo(0L, "Messages");
-
+				DecoratedForumInfo dForum = new DecoratedForumInfo(0L, "Messages", new ArrayList<DecoratedAttachment>(), "", "");
 				Area area = getPrivateMessageManager().getPrivateMessageArea(siteId);
 
 				if (area != null){    
@@ -291,7 +301,12 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 							int totalUnreadMessages = getPrivateMessageManager().findUnreadMessageCount(typeUuid, aggregateList);
 
-							DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(),totalUnreadMessages, totalNoMessages, typeUuid);
+                            // in this context, the topics are the folders in the Messages tool
+                            // they will never have attachments
+                            List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
+
+                            DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(), totalUnreadMessages, totalNoMessages, typeUuid, attachments, topic.getShortDescription(), topic.getExtendedDescription());
+							
 							dForum.addTopic(dTopicInfo);
 						}
 
@@ -316,7 +331,11 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 							int totalNoMessages = getPrivateMessageManager().findMessageCount(typeUuid, aggregateList);
 							int totalUnreadMessages = getPrivateMessageManager().findUnreadMessageCount(typeUuid,aggregateList);
 
-							DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(),totalUnreadMessages, totalNoMessages, typeUuid);
+                            // in this context, the topics are the folders in the Messages tool
+                            // they will never have attachments
+                            List<DecoratedAttachment> attachments = new ArrayList<DecoratedAttachment>();
+
+                            DecoratedTopicInfo dTopicInfo = new DecoratedTopicInfo(topic.getId(), topic.getTitle(), totalUnreadMessages, totalNoMessages, typeUuid, attachments, topic.getShortDescription(), topic.getExtendedDescription());							
 							dForum.addTopic(dTopicInfo);
 						}          
 
@@ -328,15 +347,16 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 
 				List<DiscussionForum> forums = new ArrayList<DiscussionForum>();
 				if(forumId != null && !"".equals(forumId)){
-					DiscussionForum forum = forumManager.getForumByIdWithTopics(new Long(forumId));
+					DiscussionForum forum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(new Long(forumId));					
 					siteId = forumManager.getContextForForumById(forum.getId());
 					forums.add(forum);
 				}else{
-					forums = forumManager.getDiscussionForumsByContextId(siteId);
+					forums = forumManager.getDiscussionForumsWithTopics(siteId);
 				}
 
 				for (DiscussionForum forum : forums) {
 					if(forum.getDraft().equals(Boolean.FALSE)){
+						List<DecoratedAttachment> forumAttachments = decorateAttachments(forum.getAttachments());
 					        Long forumOpenDate = null;
 					        Long forumCloseDate = null;
 					        if (forum.getAvailabilityRestricted()) {
@@ -344,9 +364,8 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					            forumCloseDate = forum.getCloseDate() != null ? forum.getCloseDate().getTime()/1000 : null;
 					        }
 					             
-						DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forum.getLocked(), 
-						        forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName());
-
+					        DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forumAttachments, forum.getShortDescription(), forum.getExtendedDescription(), forum.getLocked(), 
+                                    forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName());
 						List<DiscussionTopic> topics = forum.getTopics();
 						int viewableTopics = 0;
 
@@ -372,6 +391,7 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 									}
 									totalMessages = getMessageManager().findViewableMessageCountByTopicIdByUserId(topic.getId(), userId);
 									
+									List<DecoratedAttachment> attachments = decorateAttachments(topic.getAttachments());									
 									Long topicOpenDate = null;
 									Long topicCloseDate = null;
 									if (topic.getAvailabilityRestricted()) {
@@ -379,8 +399,8 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 									    topicCloseDate = topic.getCloseDate() != null ? topic.getCloseDate().getTime()/1000 : null;
 									}
 									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, 
-									        totalMessages, "", topic.getLocked(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
-									        topicOpenDate, topicCloseDate, topic.getDefaultAssignName()));
+											totalMessages, "", attachments, topic.getShortDescription(), topic.getExtendedDescription(), topic.getLocked(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
+                                            topicOpenDate, topicCloseDate, topic.getDefaultAssignName()));
 									viewableTopics++;
 								}						  
 							}
@@ -589,4 +609,31 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 	public void setTypeManager(MessageForumsTypeManager typeManager) {
 		this.typeManager = typeManager;
 	}
+	
+    /**
+     * Return a list of DecoratedAttachment objects
+     * @param attachments List of Attachment objects
+     * @return
+     */
+    private List<DecoratedAttachment> decorateAttachments(List<Attachment> attachments) {
+        List<DecoratedAttachment> decoAttachments = new ArrayList<DecoratedAttachment>();
+        for(Attachment attachment : attachments){
+            DecoratedAttachment da = new DecoratedAttachment();
+            da.setName(attachment.getAttachmentName());
+            da.setId(attachment.getAttachmentId());
+            da.setType(attachment.getAttachmentType());
+
+            Reference ref = EntityManager.newReference("/content" + attachment.getAttachmentId());
+            String context = entityBrokerManager.getServletContext();
+            String url = ServerConfigurationService.getServerUrl() + "/access/" +  ref.getEntity().getReference();
+            da.setUrl(url);
+
+            da.setRef(ref.getEntity().getReference());
+
+            decoAttachments.add(da);
+        }
+        return decoAttachments;
+    }
+
+
 }

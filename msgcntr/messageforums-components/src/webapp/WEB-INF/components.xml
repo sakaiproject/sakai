@@ -469,6 +469,9 @@
       	<property name="typeManager">
             <ref bean="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"/>
         </property>
+        <property name="entityBrokerManager">
+            <ref bean="org.sakaiproject.entitybroker.EntityBrokerManager"/>
+        </property>
     </bean>
     
     <bean id="org.sakaiproject.api.app.messageforums.ForumEntityProvider" class="org.sakaiproject.component.app.messageforums.entity.ForumEntityProviderImpl">
