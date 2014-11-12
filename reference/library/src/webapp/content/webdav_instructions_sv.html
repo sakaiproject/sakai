@@ -5,6 +5,10 @@
 		<title>Upload-Download Multiple Resources</title>
 		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
 	</script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/jquery/jquery-1.9.1.min.js">
+    </script>
+    <script type="text/javascript" language="JavaScript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js">
+    </script>	
 		<script language="JavaScript" type="text/JavaScript">
 		<!--
 			var i, a, href
@@ -36,11 +40,7 @@
 		if((s==null)||(typeof(s)!='string')||!s.length)return'';return s.replace(/^\s+/,'').replace(/\s+$/,'')
 		}
 	function splitedWebDavLink() {
-		for(i=0; (p = parent.document.getElementsByTagName("p")[i]); i++) {
-			if (p.className=='indnt3') {
-				return p.getElementsByTagName("strong")[0].innerHTML.split('/');
-			}
-		}
+		return $(parent.document.getElementById("webDavUrl")).val().split('/');
 	}
 	var swdl = splitedWebDavLink();
 	function localizeData() {
