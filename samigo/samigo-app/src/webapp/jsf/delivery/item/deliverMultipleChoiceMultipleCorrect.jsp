@@ -45,9 +45,11 @@ should be included in file importing DeliveryMessages
      <h:selectBooleanCheckbox value="#{selection.response}"
         disabled="#{delivery.actionString=='reviewAssessment'
                  || delivery.actionString=='gradeAssessment'}" />
+     <f:verbatim><div class="mcAnswerText"></f:verbatim>
      <h:outputText value=" #{selection.answer.label}" escape="false" />
      <h:outputText value="#{deliveryMessages.dot}" rendered="#{selection.answer.label ne ''}" />
-     <h:outputText value=" #{selection.answer.text}" styleClass="mcAnswerText" escape="false" />
+     <h:outputText value=" #{selection.answer.text}" escape="false" />
+     <f:verbatim></div></f:verbatim>
      <f:verbatim></label></f:verbatim>
     </h:column>
     <h:column>

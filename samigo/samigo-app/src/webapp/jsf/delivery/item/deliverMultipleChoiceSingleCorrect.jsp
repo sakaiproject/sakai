@@ -66,11 +66,13 @@ should be included in file importing DeliveryMessages
       <f:verbatim><div class="mcscFixUpTarget"></div></f:verbatim>	  	 
 	</h:column> 	 
 	<h:column> 	 
+      <f:verbatim><div class="mcAnswerText"></f:verbatim>
 	  <h:outputText value=" #{selection.answer.label}" escape="false" /> 	 
 	  <h:outputText value=". " rendered="#{selection.answer.label ne ''}" /> 	 
 	  <h:outputText value="#{selection.answer.text}" styleClass="mcAnswerText" escape="false" >
      	<f:converter converterId="org.sakaiproject.tool.assessment.jsf.convert.AnswerSurveyConverter" />
       </h:outputText>
+      <f:verbatim></div></f:verbatim>
     </h:column>
     <h:column>
       <h:panelGroup rendered="#{delivery.feedback eq 'true' &&
