@@ -2099,7 +2099,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
   }
   
   
-  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap) {
+  public List getExportResponsesData(String publishedAssessmentId, boolean anonymous, String audioMessage, String fileUploadMessage, String noSubmissionMessage, boolean showPartAndTotalScoreSpreadsheetColumns, String poolString, String partString, String questionString, String textString, String rationaleString, String itemGradingCommentsString, Map useridMap, String responseCommentString) {
 	  ArrayList dataList = new ArrayList();
 	  ArrayList headerList = new ArrayList();
 	  ArrayList finalList = new ArrayList(2);
@@ -2246,7 +2246,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 
 				  String maintext = "";
 				  String rationale = "";
+				  String responseComment= "";
+					  
 				  boolean addRationale = false;
+				  boolean addResponseComment = false;
 
 				  // loop over answers per question
 				  int count = 0;
@@ -2426,6 +2429,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 							  }
 						  }
 					  }
+					  
+					  //Survey - Matrix of Choices - Add Comment Field
+					  if (typeId.equals(TypeIfc.MATRIX_CHOICES_SURVEY)) {
+						  PublishedItemData pid = (PublishedItemData) publishedItemData;
+						  if (pid.getAddCommentFlag()) {
+							  addResponseComment = true;
+							  if (responseComment.equals("") && grade.getAnswerText() != null) {
+								  responseComment = grade.getAnswerText();
+							  }
+						  }
+					  }
 				  } // inner for - answers
 
 
@@ -2462,6 +2476,10 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					  responseList.add(rationale);
 				  }
 				  
+				  if (addResponseComment) {
+					  responseList.add(responseComment);
+				  }
+				  
 				  String itemGradingComments = "";
 				  if (grade.getComments() != null) {
 				  	itemGradingComments = grade.getComments().replaceAll("<br\\s*/>", "");
@@ -2481,6 +2499,9 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 					headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, textString, questionNumber, poolString, poolName));
 					  if (addRationale) {
 						  headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, rationaleString, questionNumber, poolString, poolName));
+					  }
+					  if (addResponseComment) {
+						  headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, responseCommentString, questionNumber, poolString, poolName));
 					  }
 					  headerList.add(makeHeader(partString, sectionSequenceNumber, questionString, itemGradingCommentsString, questionNumber, poolString, poolName));
 				  }	    		   

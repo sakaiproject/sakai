@@ -193,8 +193,10 @@ public class ExportResponsesBean implements Serializable, PhaseAware {
         String responseString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","response");
         String rationaleString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","rationale");
         String itemGradingCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","grader_comments");
+        String responseCommentsString = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.EvaluationMessages","student_comments");
+        
         List exportResponsesDataList = gradingService.getExportResponsesData(assessmentId, anonymous, audioMessage, fileUploadMessage, noSubmissionMessage, 
-        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap);
+        		showPartAndTotalScoreSpreadsheetColumns, poolString, partString, questionString, responseString, rationaleString, itemGradingCommentsString, useridMap, responseCommentsString);
         //SAM-1693 the returned list could be null -DH
         List<List<Object>> list = new ArrayList<List<Object>>();
         if (exportResponsesDataList != null) {
