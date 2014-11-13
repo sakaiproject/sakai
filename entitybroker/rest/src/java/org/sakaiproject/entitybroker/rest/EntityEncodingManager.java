@@ -891,7 +891,8 @@ public class EntityEncodingManager {
         if (param == null || !(param instanceof String))
             return JSON_DEFAULT_CALLBACK;
         else
-            return param.toString();
+            // CVE-2014-4671 -- Mitigate 'Rosetta Flash' exploit by ensuring Flash embedded in callback will break
+            return "/**/" + param.toString();
     }
 
     /**
