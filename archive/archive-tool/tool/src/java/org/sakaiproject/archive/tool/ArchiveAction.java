@@ -103,8 +103,9 @@ public class ArchiveAction
 	
 	// for batch archive
     private long batchArchiveStarted = 0;
+    private long maxJobTime;
     private static int PAUSE_TIME_MS = 1000*10; // 5 seconds
-    private static long MAX_JOB_TIME = 1000*60*30; // 30 minutes
+    private static int MAX_JOB_TIME_DEFAULT = 1000*60*30; // 30 minutes
     private static int NUM_SITES_PER_BATCH = 10;
     private static final String STATUS_COMPLETE = "COMPLETE";
     private String batchArchiveStatus = null;
@@ -138,6 +139,9 @@ public class ArchiveAction
 		if(archiveService == null) {
 			archiveService = (ArchiveService) ComponentManager.get(ArchiveService.class.getName());
 		}
+
+		// SAK-28087 configurable value for max job time. A large term at a large institution may take 24 hours
+		maxJobTime = Long.valueOf(serverConfigurationService.getInt("archive.max.job.time", MAX_JOB_TIME_DEFAULT));
 		
 		state.setAttribute(STATE_MODE, SINGLE_MODE);
 	}
@@ -661,7 +665,7 @@ public class ArchiveAction
 	public synchronized boolean isLocked() {
         boolean locked = false;
         if (batchArchiveStarted > 0) {
-            if (System.currentTimeMillis() > (batchArchiveStarted + MAX_JOB_TIME)) {
+            if (System.currentTimeMillis() > (batchArchiveStarted + maxJobTime)) {
                 // max time reached for this update so reset
             	batchArchiveStarted = 0;
             	batchArchiveStatus = STATUS_COMPLETE;
