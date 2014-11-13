@@ -122,6 +122,8 @@ alter table signup_ts_waitinglist add constraint FK_SIGNUP_TIMESLOT_WAITINGLIST 
 alter table signup_ts add constraint FK_SIGNUP_MEETING_TIMESLOTS foreign key (meeting_id) references signup_meetings;
 alter table signup_attachments add constraint FK_SIGNUP_MEETING_ATTACHMENT foreign key (meeting_id) references signup_meetings;
 
+create index IDX_SITE_ID on signup_sites (site_id);
+
 create sequence signup_meeting_ID_SEQ;
 create sequence signup_sites_ID_SEQ;
 create sequence signup_ts_ID_SEQ;

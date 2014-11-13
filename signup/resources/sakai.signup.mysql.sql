@@ -156,3 +156,5 @@ alter table signup_attachments
 	foreign key (meeting_id) 
 	references signup_meetings (id);
 
+create index IDX_SITE_ID on signup_sites (site_id);
+
