@@ -6779,6 +6779,10 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	{
 		logger.debug(this + ".doFinalizeDelete()");
 		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 
 		String oldCollectionId = (String) state.getAttribute(STATE_COLLECTION_ID);
