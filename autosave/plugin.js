@@ -26,18 +26,20 @@
                 }
             }, editor, null, 100);
 
-            if (typeof (jQuery) === 'undefined') {
-                CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
-                    jQuery.noConflict();
+            editor.on('instanceReady', function(){
+                if (typeof (jQuery) === 'undefined') {
+                    CKEDITOR.scriptLoader.load('//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js', function() {
+                        jQuery.noConflict();
 
-                    loadPlugin(editor);
-                });
+                        loadPlugin(editor);
+                    });
 
-            } else {
-                CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
-                    loadPlugin(editor);
-                });
-            }
+                } else {
+                    CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
+                        loadPlugin(editor);
+                    });
+                }
+            }, editor, null, 100);
         }
     });
 
