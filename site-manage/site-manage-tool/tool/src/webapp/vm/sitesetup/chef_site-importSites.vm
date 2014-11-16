@@ -40,6 +40,12 @@
 	<p class="instruction">
 	$tlang.getString("import.choose")
 	</p>
+	
+	##from here
+	
+	
+	
+	
 	<form name="importSitesForm" action="#toolForm("$action")" method="post">
 		<table class ="listHier lines nolines" cellspacing="0" summary="$tlang.getString("import.choose.list.summary")" border="0">
 			<tr>
@@ -68,7 +74,16 @@
 								#if($toolId == "sakai.iframe.site")
 									#set($toolTitle = $siteInfoToolTitle)
 								#end
-								<h4>$toolTitle</h4>
+								<h4>$toolTitle
+								
+    								#if ($addMissingTools)
+    									## if the tool doesnt exist in the selected site, output icon
+    									#if(!$toolsInDestinationSite.contains($toolId))
+											<sup>+</sup>
+    									#end
+    								#end
+								
+								</h4>
 							</td>
 							#set ($siteCount=0)
 							#foreach($site in $importSites.keys())
@@ -96,6 +111,11 @@
 					#end
 			#end
 		</table>
+		
+		#if ($addMissingTools)
+			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+		#end
+		
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />
 		<input type="hidden" name="continue" value="$continue" />

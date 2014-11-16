@@ -26,13 +26,29 @@
 				#end
 			</tr>
 			#set ($toolCount=0)
-			#foreach($toolId in $!selectedTools.keys())
+			#foreach($toolId in $selectedTools)
 			#set($selectedSites = $!importSitesTools.get($toolId))
 			#set ($toolCount=$toolCount + 1)
 				#if ($importSupportedTools.contains($toolId))
 					<tr>
 						<td>
-							<h4>$!selectedTools.get($toolId)</h4>
+							#set($toolTitle = "")
+							#foreach($t in $toolRegistrationList)
+								#if ($t.getId() == $toolId)
+									#set($toolTitle = $t.getTitle())
+								#end
+							#end
+							#if($toolId == "sakai.iframe.site")
+								#set($toolTitle = $siteInfoToolTitle)
+							#end
+							<h4>$toolTitle
+								#if ($addMissingTools)
+									## if the tool doesnt exist in the selected site, output icon
+									#if(!$toolsInDestinationSite.contains($toolId))
+										<sup>+</sup>
+									#end
+								#end
+							</h4>
 						</td>
 						#set ($siteCount=0)
 						#foreach($site in $importSites.keys())
@@ -61,6 +77,11 @@
 				#end
 			#end
 		</table>
+		
+		#if ($addMissingTools)
+			<p class="messageConfirmation">$tlang.getString("import.newtool")</p>
+		#end
+		
 		<input type="hidden" name="back" value="59" />
 		<input type="hidden" name="templateIndex" value="60" />
 		<input type="hidden" name="continue" value="$continue" />
