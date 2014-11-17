@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<emailTemplates>
+    <emailTemplate>
+        <subject>${localSakaiName}: Deleted accounts</subject>
+        <message>
+Dear ${creatorName},
+
+The following accounts that you have invited to join ${localSakaiName} have not been validated after ${deleteDays} days.
+
+${userList}
+
+The expired accounts have been removed from ${localSakaiName}. If you still wish for these individuals to access ${localSakaiName}, please invite them again. 
+
+Regards,
+
+The ${localSakaiName} Administrators
+${institution}
+        </message>
+        <locale></locale>
+    </emailTemplate>
+    </emailTemplates>
