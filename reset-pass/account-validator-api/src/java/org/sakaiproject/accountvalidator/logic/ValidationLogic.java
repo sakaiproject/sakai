@@ -59,6 +59,18 @@ public interface ValidationLogic {
 	public boolean isAccountValidated(String userId);
 	
 	/**
+	 * Determines whether a validation token is expired. 
+	 * Side effects: 
+	 * If the ValidationAccount is from reset-pass and the time specified by accountValidator.maxPasswordResetMinutes has elapsed, 
+	 * this method will set the ValidationAccount's status to expired and the validationRecived time will be set to the current time.
+	 * @param va the ValidationAcount whose expired status is to be determined
+	 * @return true when
+	 * -The ValidationAccount's status is set to expired
+	 * -The ValidationAccount is coming from reset-pass and it was emailed longer than x minutes ago where x is configurable by the accountValidator.maxPasswordResetMinutes sakai property.
+	 **/
+	public boolean isTokenExpired(ValidationAccount va);
+	
+	/**
 	 * Create a new validation request for a user
 	 * @param UserId
 	 * @return

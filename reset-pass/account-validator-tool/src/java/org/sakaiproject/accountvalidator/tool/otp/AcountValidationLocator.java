@@ -233,34 +233,10 @@ public class AcountValidationLocator implements BeanLocator  {
 		            }
 		          });
 
-			//don't let the user through if they've taken longer than accountValidator.maxPasswordResetMinutes
-			String strMinutes = developerHelperService.getConfigurationSetting("accountValidator.maxPasswordResetMinutes", (String) null);
-			if (strMinutes != null && !"".equals(strMinutes))
+			if (validationLogic.isTokenExpired(item))
 			{
-				if (item.getAccountStatus() != null && item.getAccountStatus().equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
-				{
-					try
-					{
-						//get the time limit and convert to millis
-						int minutes = Integer.parseInt(strMinutes);
-						long maxMillis = minutes*60*1000;
-
-						//the time when the validation token was sent to the email server
-						long sentTime = item.getValidationSent().getTime();
-
-						if (System.currentTimeMillis() - sentTime > maxMillis)
-						{
-							//it's been too long, so invalidate the token and stop the user
-							item.setStatus(ValidationAccount.STATUS_EXPIRED);
-							//a TargettedMessage will be displayed by ValidationProducer
-							return "error!";
-						}
-					}
-					catch (NumberFormatException nfe)
-					{
-						log.warn("acountValidator.maxPasswordResetMinutes is not configured correctly");
-					}
-				}
+				// A TargettedMessage will be displayed by ValidationProducer
+				return "error!";
 			}
 				
 	        	UserEdit u = userDirectoryService.editUser(userId);

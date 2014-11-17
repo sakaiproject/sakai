@@ -129,7 +129,19 @@ public class CheckValidations implements Job {
 		
 		
 		Calendar cal = new GregorianCalendar();
-		String maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxDays", "" + maxDays);
+		// check the old property first
+		String maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxDays", null);
+		if (maxDaysLocalStr == null)
+		{
+			log.warn("accountValidator.maxDays was found. The new property is accountValidator.maxReminderDays");
+		}
+		// overwrite it with the new property if it exists, default to the old one
+		maxDaysLocalStr = serverConfigurationService.getString("accountValidator.maxReminderDays", maxDaysLocalStr);
+		if (maxDaysLocalStr == null)
+		{
+			// neither of the two properties are set, use the default
+			maxDaysLocalStr = "" + maxDays;
+		}
 		try{
 			maxDays = Integer.parseInt(maxDaysLocalStr);
 		}catch (Exception e) {}
@@ -177,6 +189,10 @@ public class CheckValidations implements Job {
 					cal = new GregorianCalendar();
 					account.setvalidationReceived(cal.getTime());
 					validationLogic.save(account);
+				} 
+				else if (validationLogic.isTokenExpired(account))
+				{
+					// Note: ^ isTokenExpired has the side effect of expiring tokens. We are doing this intentionally, so please do not remove this empty 'else if' block.
 				} else {
 					//TODO What do we do in this case?
 				}

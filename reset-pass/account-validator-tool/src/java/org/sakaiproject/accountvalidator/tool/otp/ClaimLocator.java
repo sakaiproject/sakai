@@ -146,6 +146,13 @@ public class ClaimLocator implements BeanLocator {
 		}
 
 		String oldUserRef = userDirectoryService.userReference(va.getUserId());
+
+		// don't let them claim the account if their validation token is expired
+		if (validationLogic.isTokenExpired(va))
+		{
+			// a TargettedMessage will be displayed by ValidationProducer
+			return "error";
+		}
 		
 		//Try set up the ussersession
 		authenticateUser(vc, oldUserRef);
