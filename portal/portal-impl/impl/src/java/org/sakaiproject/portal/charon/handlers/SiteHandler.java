@@ -802,6 +802,12 @@ public class SiteHandler extends WorksiteHandler
 				try
 				{
 					tabsToDisplay = (int) props.getLongProperty("tabs");					 
+				}
+				catch (Exception any)
+				{
+				}
+				try
+				{
 					tabDisplayLabel = (int) props.getLongProperty("tab:label");
 				}
 				catch (Exception any)
