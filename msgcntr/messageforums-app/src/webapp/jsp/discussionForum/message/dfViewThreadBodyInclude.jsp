@@ -184,20 +184,18 @@
 
                                         <%-- End of div for messageMetadata --%>
 
-
-                                        <%-- Rank IMAGE --%>
-                    <h:panelGroup rendered="#{message.authorRank != null}">
-                        <h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.attachmentId}" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" alt=\"\" height=\"35\" width=\"35\" />" />
-                    </h:panelGroup>
-
-                                        <%-- Rank NAME--%>
-                        <f:verbatim><div></f:verbatim>
-                        <h:outputText value="#{message.authorRank.title}" styleClass="forumsRankName"/>
-                        <f:verbatim></div></f:verbatim>
-                                        <%-- Number of Post --%>
-                        <f:verbatim><div></f:verbatim>
-			<h:outputText value="#{msgs.num_of_posts} #{message.authorPostCount}" styleClass="forumsRankName" rendered="#{message.authorRank.type == 2}"/>
-                        <f:verbatim></div></f:verbatim>
+					<%-- Rank --%>
+					<h:panelGroup rendered="#{message.authorRank != null}">
+					<f:verbatim><div class="forumsRank"></f:verbatim>
+						<h:outputText escape="false" rendered="#{not empty message.authorRank.rankImage.attachmentId}" value="<img src=\"#{message.authorRank.rankImage.attachmentUrl}\" class=\"rankImage\" alt=\"Rank Image\" height=\"35\" width=\"35\" />" />
+											
+						<f:verbatim><div class="forumsRankNameContainer"></f:verbatim>
+							<h:outputText value="#{message.authorRank.title}" styleClass="forumsRankName"/>
+							<h:outputText value="#{msgs.num_of_posts} #{message.authorPostCount}" styleClass="forumsRankName" rendered="#{message.authorRank.type == 2}"/>
+						<f:verbatim></div></f:verbatim>
+					<f:verbatim></div></f:verbatim>
+					</h:panelGroup>
+					<%-- End Rank --%>
 
 			<!-- close the div with class of specialLink -->
 	<%--<f:verbatim></div></f:verbatim>-->

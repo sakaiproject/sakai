@@ -618,3 +618,32 @@ div.msgcntr-profile-qtip {
 #buttonBlocker:hover, .buttonBlocker:hover {
     cursor:progress;
 }
+
+.forumsRank {
+    min-height: 35px;
+    display: block;
+    position: relative;
+    margin: 0;
+    padding: 0;
+    }
+
+.forumsRank .rankImage {
+    width: 35px;
+    height: 35px;
+    display: block;
+    float: left;
+    margin:0 5px 0 0;
+    }
+
+.forumsRank .forumsRankNameContainer {
+    display: inline-block;
+}
+
+.forumsRank .forumsRankNameContainer .forumsRankName {
+    color: #000000;
+    font-size: 0.95em;
+    padding: 0 !important;
+    text-align: left;
+    margin: 0;
+    display: block;
+}
