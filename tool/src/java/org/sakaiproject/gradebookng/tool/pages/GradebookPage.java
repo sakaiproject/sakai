@@ -62,9 +62,6 @@ public class GradebookPage extends BasePage {
 		grid.setSelectToEdit(false);
 		grid.setClickRowToSelect(true);
 		grid.setClickRowToDeselect(true);
-
-
-		
 	}
 	
 	private List<StudentGrades> getGradebookItems(){

@@ -19,6 +19,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
 
 /**
@@ -31,11 +32,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 	private static final Logger log = Logger.getLogger(BasePage.class); 
 	
-	//@SpringBean(name="com.steve.logic.SakaiProxy")
-	//protected SakaiProxy sakaiProxy;
-	
-	//@SpringBean(name="com.steve.logic.ProjectLogic")
-	//protected ProjectLogic projectLogic;
+	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	protected GradebookNgBusinessService businessService;
 	
 	Link<Void> gradebookPageLink;
 	
