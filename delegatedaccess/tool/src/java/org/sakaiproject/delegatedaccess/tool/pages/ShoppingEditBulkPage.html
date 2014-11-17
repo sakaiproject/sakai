@@ -148,14 +148,16 @@
 							<input type="text" wicket:id="shoppingVisibilityEnd"/>
 						</td>
 					</tr>
-					<tr>
-						<td align="right">
-							<span style="font-weight: bold"><wicket:message key="shoppersBecome"/></span>
-						</td>
-						<td>
-							<select name="shoppingRole" wicket:id="shoppingRole"></select>
-						</td>
-					</tr>
+					<wicket:enclosure child="shoppingRole">
+						<tr>
+							<td align="right">
+								<span style="font-weight: bold"><wicket:message key="shoppersBecome"/></span>
+							</td>
+							<td>
+								<select name="shoppingRole" wicket:id="shoppingRole"></select>
+							</td>
+						</tr>
+					</wicket:enclosure>
 					<tr>
 						<td align="right" valign="top">
 							<span style="font-weight: bold"><wicket:message key="showToolsHeader"/></span>
