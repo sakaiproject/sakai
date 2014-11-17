@@ -2680,15 +2680,6 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		ResourceProperties oldProps = null;
-		Collection oldGroups = null;
-		boolean oldPubView = false;
-		boolean oldHidden = false;
-		Time releaseDate = null;
-		Time retractDate = null;
-		
-		boolean newfile = true;
-
 		if (isLocked(req))
 		{
 			resp.sendError(SakaidavStatus.SC_LOCKED);
@@ -2725,83 +2716,9 @@ public class DavServlet extends HttpServlet
 			return;
 		}
 
-		// Try to delete the resource
-		try
-		{
-			// The existing document may be a collection or a file.
-			boolean isCollection = contentHostingService.getProperties(adjustId(path)).getBooleanProperty(
-					ResourceProperties.PROP_IS_COLLECTION);
+		// Don't delete the resource and add it again
 
-			if (isCollection)
-			{
-				contentHostingService.removeCollection(adjustId(path));
-			}
-			else
-			{
-			    	String id = adjustId(path);
-				// save original properties; we're just updating the file
-				oldProps = contentHostingService.getProperties(id);
-				newfile = false;
-
-				try {
-				    ContentResource resource = contentHostingService.getResource(id);
-				    oldGroups = resource.getGroups();
-				    oldHidden = resource.isHidden();
-				    releaseDate = resource.getReleaseDate();
-				    retractDate = resource.getRetractDate();
-				} catch (Exception e) {M_log.info("doPut fail 1" + e);} ;
-
-				try {
-				    if (!contentHostingService.isInheritingPubView(id))
-					if (contentHostingService.isPubView(id)) 
-					    oldPubView = true;
-				} catch (Exception e) {M_log.info("doPut fail 2" + e);};
-				
-				contentHostingService.removeResource(adjustId(path));
-			}
-		}
-		catch (PermissionException e)
-		{
-			// Normal situation
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (InUseException e)
-		{
-			// Normal situation
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN); // %%%
-			return;
-		}
-		catch (IdUnusedException e)
-		{
-			// Normal situation - nothing to do
-		}
-		catch (EntityPropertyNotDefinedException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - EntityPropertyNotDefinedException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (TypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - TypeException " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (EntityPropertyTypeException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - EntityPropertyType " + path);
-			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
-			return;
-		}
-		catch (ServerOverloadException e)
-		{
-			M_log.warn("SAKAIDavServlet.doMkcol() - ServerOverloadException " + path);
-			resp.sendError(SakaidavStatus.SC_SERVICE_UNAVAILABLE);
-			return;
-		}
-
-		// Add the resource
+		// Update the resource
 
 		String contentType = "";
 		InputStream inputStream = req.getInputStream();
@@ -2837,58 +2754,42 @@ public class DavServlet extends HttpServlet
 
 		try
 		{
-			User user = UserDirectoryService.getCurrentUser();
 
-			TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
-			String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
-					+ ". All Rights Reserved. ";
+			ContentResourceEdit edit;
 
-			// use this code rather than the long form of addResource
-			// because it doesn't add an extension. Delete doesn't, so we have
-			// to match, and I'd just as soon be able to create items with no extension anyway
-			
-			ContentResourceEdit edit = contentHostingService.addResource(adjustId(path));
-			edit.setContentType(contentType);
-			edit.setContent(inputStream);
-			ResourcePropertiesEdit p = edit.getPropertiesEdit();
+			boolean newfile = false;
+			String resourcePath = adjustId(path);
 
-			try {
-			    if (oldGroups != null && !oldGroups.isEmpty())
-				edit.setGroupAccess(oldGroups);
-			} catch (Exception e) {M_log.info("doPut fail 3 " + e + " " + oldGroups);};
-
-			try {
-			    edit.setAvailability(oldHidden, releaseDate, retractDate);
-			} catch (Exception e) {M_log.info("doPut fail 4 " + e);};
-
-
-			// copy old props, if any
-			if (oldProps != null)
+			// Since editResource doesn't throw IdUnusedException correctly, try first with getResource
+			try
 			{
-				Iterator it = oldProps.getPropertyNames();
-
-				while (it.hasNext())
-				{
-					String pname = (String) it.next();
-
-					// skip any live properties
-					if (!oldProps.isLiveProperty(pname))
-					{
-						p.addProperty(pname, oldProps.getProperty(pname));
-					}
-				}
+				contentHostingService.getResource(resourcePath);
+			}
+			catch (IdUnusedException e)
+			{
+				newfile = true;
 			}
 
 			if (newfile)
 			{
-				p.addProperty(ResourceProperties.PROP_COPYRIGHT, mycopyright);
+				edit = contentHostingService.addResource(resourcePath);
+				final ResourcePropertiesEdit p = edit.getPropertiesEdit();
 				p.addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+
+				User user = UserDirectoryService.getCurrentUser();
+				final TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
+				p.addProperty(ResourceProperties.PROP_COPYRIGHT, "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName() + ". All Rights Reserved. ");
 			}
+			else
+			{
+				edit = contentHostingService.editResource(resourcePath);
+			}
+
+			edit.setContentType(contentType);
+			edit.setContent(inputStream);
 
 			// commit the change
 			contentHostingService.commitResource(edit, NotificationService.NOTI_NONE);
-			if (oldPubView)
-			    contentHostingService.setPubView(adjustId(path), true);
 
 		}
 		catch (IdUsedException e)
@@ -2928,7 +2829,19 @@ public class DavServlet extends HttpServlet
 			M_log.warn("SAKAIDavServlet.doPut() ServerOverloadException:" + e.getMessage());
 			resp.setStatus(SakaidavStatus.SC_SERVICE_UNAVAILABLE);
 			return;
+		} catch (InUseException e) {
+			resp.sendError(SakaidavStatus.SC_FORBIDDEN);
+			return;
+		} catch (TypeException e) {
+			M_log.warn("SAKAIDavServlet.doPut() TypeException:" + e.getMessage());
+			resp.sendError(HttpServletResponse.SC_CONFLICT);
+			return;
+		} catch (IdUnusedException inconsistent) {
+			M_log.error("SAKAIDavServlet.doPut() Inconsistently got IdUnusedException after checking resource exists: " + inconsistent.getMessage());
+			resp.sendError(HttpServletResponse.SC_FORBIDDEN);
+			return;
 		}
+
 		resp.setStatus(HttpServletResponse.SC_CREATED);
 
 		// Removing any lock-null resource which would be present
