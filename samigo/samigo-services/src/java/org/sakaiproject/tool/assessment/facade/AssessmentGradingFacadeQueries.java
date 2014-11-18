@@ -28,6 +28,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -3379,7 +3380,13 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 				  cumulativeScore+=agd.getFinalScore();	
 			  }
 			  averageScore= cumulativeScore/assessmentGradings.size();
-			  averageScore= new Double((new DecimalFormat("0.##").format((double)averageScore)));
+			  
+			  DecimalFormat df = new DecimalFormat("0.##");
+			  DecimalFormatSymbols dfs = new DecimalFormatSymbols();
+			  dfs.setDecimalSeparator('.');
+			  df.setDecimalFormatSymbols(dfs);
+			  
+			  averageScore= new Double(df.format((double)averageScore));
 		  }  
 		  return averageScore;
 	  }
