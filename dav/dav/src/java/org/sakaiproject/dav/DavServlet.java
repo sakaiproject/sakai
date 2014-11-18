@@ -2783,6 +2783,7 @@ public class DavServlet extends HttpServlet
 			else
 			{
 				edit = contentHostingService.editResource(resourcePath);
+				contentType = edit.getContentType();
 			}
 
 			edit.setContentType(contentType);
