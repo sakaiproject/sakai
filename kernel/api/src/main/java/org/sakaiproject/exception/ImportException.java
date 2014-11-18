@@ -60,5 +60,9 @@ public class ImportException extends SakaiException
 	{
 		super(message, cause);
 	}
+	
+	public String getMessage() {
+		return getId();
+	}
 
 }
