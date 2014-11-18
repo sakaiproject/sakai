@@ -1,6 +1,7 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
 session_start();
+require_once 'cert.php';
 ?>
 <html>
 <head>
@@ -24,7 +25,9 @@ require_once("util/lti_util.php");
       "reg_key" => "98765",
       "reg_password" => "dontpanic",
       "tc_profile_url" => str_replace("tc.php", "tc_profile.php", $cur_url),
-      "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url)
+      "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url),
+      "oauth_consumer_key" => "98765",
+      "secret" => "secret"
       );
 
   foreach ($lmsdata as $k => $val ) {
@@ -67,7 +70,20 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   echo("Consumer Key: <input size=\"60\" type=\"text\" size=\"60\" name=\"consumer_key\" value=\"$consumer_key\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
+  $re_register = isset($lmsdata) && $lmsdata['lti_message_type'] == 'ToolProxyReregistrationRequest';
+?>
+Message Type: 
+<select name="lti_message_type">
+<option value="ToolProxyRegistrationRequest">Registration</option>
+<option value="ToolProxyReregistrationRequest"<?php if($re_register) echo(' selected');?>>Re-Registration</option>
+</select>
+<br/>
+<?php
   foreach ($lmsdata as $k => $val ) {
+      if ( $k == "lti_message_type" ) continue;
+      if ( $k == "oauth_consumer_key" ) {
+        echo("<br/>Used for Re-Registration only:<br/>");
+      }
       echo($k.": <input type=\"text\" size=\"60\" name=\"".$k."\" value=\"");
       echo(htmlspecialchars($val));
       echo("\"><br/>\n");
@@ -85,18 +101,32 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
     }
   }
 
-  // Add oauth_callback to be compliant with the 1.0A spec
-  $parms["oauth_callback"] = "about:blank";
-    
-  // $parms['launch_presentation_css_url'] = $cssurl;
-
-  if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
-
-  if ( isset($parms['tc_profile_url']) ) {
+    // Add oauth_callback to be compliant with the 1.0A spec
+    // $parms['launch_presentation_css_url'] = $cssurl;
+    if ( isset($parms['tc_profile_url']) ) {
         $parms['tc_profile_url'] .= '?key=' . $consumer_key;
     }
-    $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), 
-        "_blank");
+
+    if ( $re_register ) {
+        $parms["oauth_callback"] = "about:blank";
+        $key = $parms['oauth_consumer_key'];
+        $secret = $parms['secret'];
+        unset($parms['oauth_consumer_key']);
+        unset($parms['consumer_key']);
+        unset($parms['key']);
+        unset($parms['secret']);
+        $tool_consumer_instance_guid = $lmsdata_common['tool_consumer_instance_guid'];
+        $tool_consumer_instance_description = $lmsdata_common['tool_consumer_instance_description'];
+        $parms = signParameters($parms, $endpoint, "POST", $key, $secret,
+            "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
+    } else {
+        unset($parms['oauth_consumer_key']);
+        unset($parms['secret']);
+    }
+
+    if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
+
+    $content = postLaunchHTML($parms, $endpoint, isset($_POST['debug']), "_blank");
         // "width=\"100%\" height=\"900\" scrolling=\"auto\" frameborder=\"1\" transparency");
     print($content);
 }

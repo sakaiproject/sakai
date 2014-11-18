@@ -22,7 +22,7 @@ $json_response->tool_proxy_guid = uniqid();
 
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);
-    $json = json_decode($body);
+    $json_data = json_decode($body);
     $json = json_encode($json_response);
 } catch (Exception $e) {
     header('HTTP/1.1 400 Unauthorized', true, 400);
@@ -30,11 +30,37 @@ try {
     exit();
 }
 
+try{
+    $commit_endpoint = $json_data->tool_profile->service_offered[0]->endpoint;
+} catch(Exception $e) {
+    $commit_endpoint = false;
+}
+
+ob_start();
+var_dump(getallheaders());
+$result = ob_get_clean();
+error_log("tc_register.php");
+error_log($result);
+
 $header_key = getOAuthKeyFromHeaders();
 if ( $header_key != $oauth_consumer_key ) {
     header('HTTP/1.1 400 Unauthorized', true, 400);
     echo(json_encode(array("ext_status" => "failure", "ext_detail" => "KEY=$oauth_consumer_key HDR=$header_key")));
    exit();
+}
+
+// Lets fire up a thread to send the commit message
+$headers = getallheaders();
+$VND = isset($headers['VND-IMS-CORRELATION-ID']) ? $headers['VND-IMS-CORRELATION-ID'] : false;
+
+if ( $commit_endpoint != false && $VND !== false ) {
+    $ch = curl_init();
+    error_log("Launching ".$cur_base."tc_commit.php?VND=".$VND);
+    curl_setopt($ch, CURLOPT_URL, $cur_base.'tc_commit.php?VND='.$VND.'&url='.$commit_endpoint);
+    curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
+    curl_setopt($ch, CURLOPT_TIMEOUT, 1);
+    curl_exec($ch);
+    curl_close($ch);
 }
 
 header('HTTP/1.1 201 Created', true, 201);

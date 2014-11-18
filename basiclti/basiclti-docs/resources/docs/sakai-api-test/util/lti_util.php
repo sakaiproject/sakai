@@ -718,7 +718,7 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     return $postdata;
 }
 
-function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $accept_type)
+function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $accept_type, $more_headers=false)
 {
     $test_token = '';
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
@@ -734,6 +734,10 @@ function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $a
 
     $header = $acc_req->to_header();
     $header = $header . "\r\nAccept: " . $accept_type . "\r\n";
+    if ( $more_headers === false ) $more_headers = array();
+    foreach ($more_headers as $more ) {
+        $header = $header . $more . "\r\n";
+    }
 
     global $LastGETHeader;
     $LastGETHeader = $header;
@@ -821,7 +825,7 @@ function get_curl($url, $header) {
   return $body;
 }
 
-function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body)
+function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false)
 {
     $hash = base64_encode(sha1($body, TRUE));
 
@@ -840,6 +844,10 @@ function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_
 
     $header = $acc_req->to_header();
     $header = $header . "\r\nContent-Type: " . $content_type . "\r\n";
+    if ( $more_headers === false ) $more_headers = array();
+    foreach ($more_headers as $more ) {
+        $header = $header . $more . "\r\n";
+    }
 
     return do_body($endpoint, $method, $body,$header);
 }

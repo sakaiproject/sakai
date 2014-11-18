@@ -167,7 +167,22 @@ $tool_proxy = <<< EOF
         "secure_base_url": "http://localhost:5000",
         "default_base_url": "http://localhost:5000"
       }
+    ],
+
+    "service_offered": [
+      {
+        "@id": "$cur_base/tp_commit.php",
+        "@type": "RestService",
+        "action": [
+          "POST"
+        ],
+        "endpoint": "$cur_base/tp_commit.php",
+        "format": [
+          "application/vnd.ims.lti.v2.toolproxy.id+json"
+        ]
+      }
     ]
+
   },
   "custom" : {
      "id" : "xkcd123"

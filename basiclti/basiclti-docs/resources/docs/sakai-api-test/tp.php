@@ -5,6 +5,8 @@ ini_set("display_errors", 1);
 // Load up the LTI Support code
 require_once 'util/lti_util.php';
 require_once 'util/json_indent.php';  // Until all PHP's are > 5.4
+$cur_url = curPageURL();
+$cur_base = str_replace("tp.php","",$cur_url);
 require_once 'tp_messages.php';
 
 session_start();
@@ -66,9 +68,27 @@ if ( strlen($output) > 0 ) togglePre("Raw GET Parameters", $output);
 
 echo("<pre>\n");
 
+$re_register = false;
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 	$reg_key = $_POST['oauth_consumer_key'];
+    // TODO: Which secret do we use?
 	$reg_password = "secret";
+	$reg_password = $_POST['reg_password'];
+    $re_register = false;
+    $context = new BLTI("secret", false, false);
+    if ( $context->valid ) {
+        print "<p style=\"color:green\">Launch Validated.<p>\n";
+    } else {
+        print "<p style=\"color:red\">Could not establish context: ".$context->message."<p>\n";
+        print "<p>Base String:<br/>\n";
+        print htmlent_utf8($context->basestring);
+        print "<br/></p>\n";
+
+        echo('<a href="basecheck.php?b='.urlencode($context->basestring).'" target="_blank">Compare This Base String</a><br/>');
+        print "<br/></p>\n";
+
+        die();
+    }
 } else if ( $lti_message_type == "ToolProxyRegistrationRequest" ) {
 	$reg_key = $_POST['reg_key'];
 	$reg_password = $_POST['reg_password'];
@@ -131,9 +151,6 @@ if ( count($tc_capabilities) < 1 ) die("No capabilities found!\n");
 echo("Optional money collection phase complete...\n");
 echo("<hr/>");
 
-$cur_url = curPageURL();
-$cur_base = str_replace("tp.php","",$cur_url);
-
 $tp_profile = json_decode($tool_proxy);
 if ( $tp_profile == null ) {
 	togglePre("Tool Proxy Raw",htmlent_utf8($tool_proxy));
@@ -195,8 +212,8 @@ $body = json_indent($body);
 echo("Registering....\n");
 echo("Register Endpoint=".$register_url."\n");
 echo("Result Endpoint=".$result_url."\n");
-echo("Key=".$reg_key."\n");
-echo("Secret=".$reg_password."\n");
+echo("reg_key=".$reg_key."\n");
+echo("reg_password=".$reg_password."\n");
 echo("</pre>\n");
 
 if ( strlen($register_url) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 ) die("Cannot call register_url - insufficient data...\n");
@@ -204,11 +221,16 @@ if ( strlen($register_url) < 1 || strlen($reg_key) < 1 || strlen($reg_password) 
 unset($_SESSION['reg_key']);
 unset($_SESSION['reg_password']);
 $_SESSION['reg_key'] = $reg_key;
-$_SESSION['reg_password'] = 'secret';
+$_SESSION['reg_password'] = $reg_password;
 
 togglePre("Registration Request",htmlent_utf8($body));
 
-$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body);
+$more_headers = array();
+if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
+    $more_headers[] = 'VND-IMS-CORRELATION-ID: 49201-48842';
+}
+
+$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_body_sent_debug()));
 
