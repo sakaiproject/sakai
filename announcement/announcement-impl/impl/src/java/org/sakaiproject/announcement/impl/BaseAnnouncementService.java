@@ -84,6 +84,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.message.api.Message;
 import org.sakaiproject.message.api.MessageChannel;
+import org.sakaiproject.message.api.MessageEdit;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.message.api.MessageHeaderEdit;
 import org.sakaiproject.message.util.BaseMessage;
@@ -1616,6 +1617,25 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 			return edit;
 
 		} // addAnnouncementMessage
+		
+		public void commitMessage(MessageEdit edit, int priority, String invokee) {
+			setMessageOrderMax(edit);
+			super.commitMessage(edit, priority, invokee);
+		}
+		
+		private void setMessageOrderMax(MessageEdit msg) {
+			try {
+				List<MessageEdit> msglist = (List<MessageEdit>) this.getMessages(null, false);
+				int currentMax = 0;
+				for (MessageEdit me:msglist) {
+					if (me.getHeaderEdit().getMessage_order()>currentMax)
+						currentMax = me.getHeaderEdit().getMessage_order();
+				}
+				msg.getHeaderEdit().setMessage_order(currentMax+1);
+			} catch (PermissionException ex) {
+				M_log.error(ex);
+			}
+		}
 
 	} // class BaseAnnouncementChannelEdit
 

@@ -3025,53 +3025,6 @@ public class AnnouncementAction extends PagedResourceActionII
 					// announcement title changed
 					titleChanged = true;
 				}
-				
-				//set the order of the announcement messages
-				// for example, if this was MESSAGE_ORDER=5 and now becomes MESSAGE_ORDER=12, 
-				// we should be modifying the database records for 5-12 and decrementing their message order
-				int oldMessageOrder = header.getMessage_order();
-				List<Message> channelMessages = channel.getMessages(null, true); // ascending order
-				//need to clear the message cache otherwise channel.getMessages stores the old (unsaved) message in cache
-				AnnouncementService.clearMessagesCache(channel.getReference());
-				
-				
-				// sort the messages by current sort order
-				SortedIterator messSorted = new SortedIterator(channelMessages.iterator(), new AnnouncementComparator(getCurrentOrder(), true));
-				
-				int runningCount = 1;
-				while (messSorted.hasNext()) {	
-					AnnouncementMessageEdit ame = (AnnouncementMessageEdit) messSorted.next();
-					AnnouncementMessageHeaderEdit amhe = ame.getAnnouncementHeaderEdit();
-					int currentOrder = amhe.getMessage_order();
-					
-					// do not attempt to double modify our existing message
-					// skipping will also make sure our runningCount does *not* increment
-					if (ame.getId().equals(msg.getId())) {
-						continue;
-					}
-					
-					// only edit the message if we need to modify the order
-					if (currentOrder != runningCount) {
-						amhe.setMessage_order(runningCount);
-						channel.commitMessage_order(ame);
-						
-						if (M_log.isDebugEnabled()) {
-							M_log.debug("postOrSaveDraft modifying order: " + ame.getId() + ":" 
-									+ currentOrder + ":" + runningCount + ":" + oldMessageOrder);
-						}
-					}	
-
-					// this max should be correct because we just went through all messages in channel in ascending order
-					runningCount++;
-				}
-				
-				// set the message order for our current message to be max
-				header.setMessage_order(runningCount);
-				
-				if (M_log.isDebugEnabled()) {
-					M_log.debug("postOrSaveDraft set message order for " + msg.getId() + " to running count " + runningCount);
-				}
-				
 //				header.setDraft(!post);
 				// v2.4: Hidden in UI becomes Draft 'behind the scenes'
 				boolean oDraft = header.getDraft();
