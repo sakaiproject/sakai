@@ -52,6 +52,27 @@ function dataToggle(divName) {
 ';
 }
 
+function validateOAuth($oauth_consumer_key, $secret)
+{
+    // Verify the message signature
+    $store = new TrivialOAuthDataStore();
+    $store->add_consumer($oauth_consumer_key, $secret);
+
+    $server = new OAuthServer($store);
+
+    $method = new OAuthSignatureMethod_HMAC_SHA1();
+    $server->add_signature_method($method);
+    $request = OAuthRequest::from_request();
+
+    try {
+        $server->verify_request($request);
+        return true;
+    } catch (Exception $e) {
+        return $e->getMessage() . "\n" . $request->get_signature_base_string();
+        return;
+    }
+}
+
 // Basic LTI Class that does the setup and provides utility
 // functions
 class BLTI {

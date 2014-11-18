@@ -17,8 +17,15 @@
     error_log($VND);
     error_log($url);
 
-    $header = "VND-IMS-CORRELATION-ID: ".$_GET['VND']."\r\n".
-              "VND-IMS-DISPOSITION: commit"."\r\n";
+    $more_headers = array(
+        "VND-IMS-CORRELATION-ID: ".$_GET['VND'],
+        "VND-IMS-DISPOSITION: commit"
+    );
 
-    do_get($url,$header);
+    // TODO: Sign this with OAUTH
+
+    $oauth_consumer_key = '98765';
+    $oauth_consumer_secret = 'secret';
+    $accept_type = "application/json";
+    sendOAuthGET($url, $oauth_consumer_key, $oauth_consumer_secret, $accept_type,$more_headers);
 

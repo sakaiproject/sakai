@@ -1,5 +1,16 @@
 <?php
 
+require_once "util/lti_util.php";
+
+$retval = validateOAuth("98765","secret");
+if ( $retval === true ) {
+    error_log("tp_commit.php Validated");
+} else {
+    error_log("tp_commit.php Failed validation: ".$retval);
+    echo("tp_commit.php Failed validation: ".$retval."\n");
+    die();
+}
+
 header("Content-type: application/vnd.ims.lti.v2.toolproxy.id+json; charset=utf-8");
 
 $headers = getallheaders();
