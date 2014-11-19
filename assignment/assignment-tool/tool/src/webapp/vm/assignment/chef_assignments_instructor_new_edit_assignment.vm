@@ -829,7 +829,9 @@ $(document).ready(function() {
 				#end
 			</div>
 		#end
-                <h4>$!tlang.getString('grading')</h4>
+		#if( ($!withGrade && $!withGradebook) || ($enableAnonGrading || $value_CheckAnonymousGrading.equals("true")) )
+			<h4>$!tlang.getString('grading')</h4>
+		#end
 		#if ($!withGrade && $!withGradebook)
 			## show the "Add to Gradebook" choices or not
 			#if(!$!allowGroupAssignmentsInGradebook)

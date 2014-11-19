@@ -5517,6 +5517,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
+				boolean isAnon = assignmentUsesAnonymousGrading( s );
 				if (s.getSubmitted())
 				{
 					// get the submission user id and see if the user is still in site
@@ -5554,28 +5555,38 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									submittersString = submittersString + "(" + submitters[i].getId() + ")";
 								}
 								submittersString = escapeInvalidCharsEntry(submittersString);
+
+								String fullAnonId = s.getAnonymousSubmissionId();
+								String anonTitle = rb.getString("grading.anonymous.title");
+
 								// in grades file, Eid is used
 								if ("csv".equals(gradeFileFormat)) {
 								
 									// SAK-17606
-									if (!assignmentUsesAnonymousGrading(s)) 
+									if (!isAnon) 
 									{
 										values = new String [] {submitters[i].getDisplayId(), submitters[i].getEid(), submitters[i].getLastName(), submitters[i].getFirstName(), s.getGradeDisplay()};
 										gradesBuffer.writeNext(values);
-									} 
+									}
 									else 
-									{ // anonymous grading is true so we need to print different stuff in the csv
-										String fullAnonId = s.getAnonymousSubmissionId();
-										String anonTitle = rb.getString("grading.anonymous.title");                                    
+									{
+										// anonymous grading is true so we need to print different stuff in the csv
 										values = new String[] {fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay()};
 										gradesBuffer.writeNext(values);
 									}
 								}
 
-			                    //Adding the row to the excel file
+								//Adding the row to the excel file
 								if ("excel".equals(gradeFileFormat)) {
-									addExcelRowInfo(dataSheet,xlsRowCount,false,submitters[i].getDisplayId(),submitters[i].getEid(),submitters[i].getLastName(),submitters[i].getFirstName(),s.getGradeDisplay());							
-				                    xlsRowCount++;
+									if( !isAnon )
+									{
+										addExcelRowInfo(dataSheet,xlsRowCount,false,submitters[i].getDisplayId(),submitters[i].getEid(),submitters[i].getLastName(),submitters[i].getFirstName(),s.getGradeDisplay());
+									}
+									else
+									{
+										addExcelRowInfo( dataSheet, xlsRowCount, false, fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay() );
+									}
+									xlsRowCount++;
 								}
 							}
 							
@@ -5584,11 +5595,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								submittersName = submittersName.concat(StringUtils.trimToNull(submittersString));
 								submittedText = s.getSubmittedText();
 		
-                                                                // SAK-17606
-                                                                if (assignmentUsesAnonymousGrading(s)) {
-                                                                    submittersName = root + s.getAnonymousSubmissionId();
-                                                                    submittersString = s.getAnonymousSubmissionId();
-                                                                }
+								// SAK-17606
+								if (isAnon) {
+									submittersName = root + s.getAnonymousSubmissionId();
+									submittersString = s.getAnonymousSubmissionId();
+								}
 		
 								if (!withoutFolders)
 								{
