@@ -10,6 +10,8 @@ $pos = strpos('?',$cur_url);
 if ( $pos !== false ) $cur_url = substr($cur_url,0,$pos-1);
 
 $consumer_key = isset($_GET['key']) ? $_GET['key'] : '106aff6';
+$r_key = isset($_GET['r_key']) ? $_GET['r_key'] : 'regkey';
+$r_secret = isset($_GET['r_secret']) ? $_GET['r_secret'] : 'regsecret';
 
 // Is guid, the oauth_consumer_key ???
 
@@ -116,7 +118,7 @@ echo <<< EOF
     {
       "@type": "RestService",
       "@id": "tcp:ToolProxy.collection",
-      "endpoint": "$cur_url/tc_register.php",
+      "endpoint": "$cur_url/tc_register.php?r_key=$r_key&r_secret=$r_secret",
       "format" : ["application/vnd.ims.lti.v2.toolproxy+json"],
       "action": [ "POST" ]
     },

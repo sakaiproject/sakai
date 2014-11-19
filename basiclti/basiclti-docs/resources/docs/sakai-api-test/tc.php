@@ -26,7 +26,6 @@ require_once("util/lti_util.php");
       "reg_password" => "dontpanic",
       "tc_profile_url" => str_replace("tc.php", "tc_profile.php", $cur_url),
       "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url),
-      "oauth_consumer_key" => "98765",
       "secret" => "secret"
       );
 
@@ -58,7 +57,7 @@ function lmsdataToggle() {
   echo("<form method=\"post\">\n");
   echo("<input type=\"submit\" name=\"launch\" value=\"Launch\">\n");
   echo("<input type=\"submit\" name=\"debug\" value=\"Debug Launch\">\n");
-echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" value="Toggle Input Data">');
+  echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" value="Toggle Input Data">');
   if ( isset($_POST['launch']) || isset($_POST['debug']) ) {
     echo("<div id=\"lmsDataForm\" style=\"display:none\">\n");
   } else {
@@ -81,7 +80,7 @@ Message Type:
 <?php
   foreach ($lmsdata as $k => $val ) {
       if ( $k == "lti_message_type" ) continue;
-      if ( $k == "oauth_consumer_key" ) {
+      if ( $k == "secret" ) {
         echo("<br/>Used for Re-Registration only:<br/>");
       }
       echo($k.": <input type=\"text\" size=\"60\" name=\"".$k."\" value=\"");
@@ -105,22 +104,28 @@ Message Type:
     // $parms['launch_presentation_css_url'] = $cssurl;
     if ( isset($parms['tc_profile_url']) ) {
         $parms['tc_profile_url'] .= '?key=' . $consumer_key;
+        if ( $re_register ) {
+            $parms['tc_profile_url'] .= '&r_key=' . $_POST['consumer_key'] . '&r_secret='. $parms['secret'];
+        } else {
+            $parms['tc_profile_url'] .= '&r_key=' . $_POST['reg_key'] . '&r_secret='. $parms['reg_password'];
+        }
     }
 
     if ( $re_register ) {
         $parms["oauth_callback"] = "about:blank";
-        $key = $parms['oauth_consumer_key'];
+        $key = $_POST['consumer_key'];
         $secret = $parms['secret'];
-        unset($parms['oauth_consumer_key']);
         unset($parms['consumer_key']);
         unset($parms['key']);
         unset($parms['secret']);
+        unset($parms['reg_key']);
+        unset($parms['reg_password']);
         $tool_consumer_instance_guid = $lmsdata_common['tool_consumer_instance_guid'];
         $tool_consumer_instance_description = $lmsdata_common['tool_consumer_instance_description'];
         $parms = signParameters($parms, $endpoint, "POST", $key, $secret,
             "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
     } else {
-        unset($parms['oauth_consumer_key']);
+        unset($parms['consumer_key']);
         unset($parms['secret']);
     }
 

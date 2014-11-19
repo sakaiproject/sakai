@@ -6,8 +6,9 @@ $cur_base = str_replace("tc_register.php","",$cur_url);
 
 header('Content-Type: application/vnd.ims.lti.v2.toolproxy.id+json; charset=utf-8;');
 
-$oauth_consumer_key = '98765';
-$oauth_consumer_secret = 'dontpanic';
+if ( ! isset($_GET['r_secret']) || ! isset($_GET['r_key']) ) die ("missing r_key or r_secret parameter");
+$oauth_consumer_key  = $_GET['r_key'];
+$oauth_consumer_secret = $_GET['r_secret'];
 
 $response = '{
   "@context": "http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId",
@@ -55,8 +56,9 @@ $VND = isset($headers['VND-IMS-CORRELATION-ID']) ? $headers['VND-IMS-CORRELATION
 
 if ( $commit_endpoint != false && $VND !== false ) {
     $ch = curl_init();
-    error_log("Launching ".$cur_base."tc_commit.php?VND=".$VND);
-    curl_setopt($ch, CURLOPT_URL, $cur_base.'tc_commit.php?VND='.$VND.'&url='.$commit_endpoint);
+    $launch = $cur_base."tc_commit.php?VND=".$VND."&r_key=".$oauth_consumer_key."&r_secret=".$oauth_consumer_secret.'&url='.urlencode($commit_endpoint);
+    error_log("Launching ".$launch);
+    curl_setopt($ch, CURLOPT_URL, $launch);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);
     curl_setopt($ch, CURLOPT_TIMEOUT, 1);
     curl_exec($ch);

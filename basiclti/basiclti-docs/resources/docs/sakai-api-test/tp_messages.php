@@ -171,12 +171,12 @@ $tool_proxy = <<< EOF
 
     "service_offered": [
       {
-        "@id": "$cur_base/tp_commit.php",
+        "@id": "$cur_base/tp_commit.php?r_key=$reg_key&r_secret=$reg_password",
         "@type": "RestService",
         "action": [
           "POST"
         ],
-        "endpoint": "$cur_base/tp_commit.php",
+        "endpoint": "$cur_base/tp_commit.php?r_key=$reg_key&r_secret=$reg_password",
         "format": [
           "application/vnd.ims.lti.v2.toolproxy.id+json"
         ]

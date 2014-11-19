@@ -5,9 +5,6 @@ ini_set("display_errors", 1);
 // Load up the LTI Support code
 require_once 'util/lti_util.php';
 require_once 'util/json_indent.php';  // Until all PHP's are > 5.4
-$cur_url = curPageURL();
-$cur_base = str_replace("tp.php","",$cur_url);
-require_once 'tp_messages.php';
 
 session_start();
 header('Content-Type: text/html; charset=utf-8'); 
@@ -71,9 +68,7 @@ echo("<pre>\n");
 $re_register = false;
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 	$reg_key = $_POST['oauth_consumer_key'];
-    // TODO: Which secret do we use?
 	$reg_password = "secret";
-	$reg_password = $_POST['reg_password'];
     $re_register = false;
     $context = new BLTI("secret", false, false);
     if ( $context->valid ) {
@@ -97,6 +92,10 @@ if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 	die("lti_message_type not supported ".$lti_message_type);
 }
 
+$cur_url = curPageURL();
+$cur_base = str_replace("tp.php","",$cur_url);
+require_once 'tp_messages.php';
+
 $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
 
 $tc_profile_url = $_POST['tc_profile_url'];
@@ -117,6 +116,8 @@ if ( strlen($tc_profile_url) > 1 ) {
 // Find the registration URL
 
 echo("<pre>\n");
+$tc_guid = $tc_profile->guid;
+echo("Tool Consumer guid: ".$tc_guid."\n");
 $tc_services = $tc_profile->service_offered;
 echo("Found ".count($tc_services)." services profile..\n");
 if ( count($tc_services) < 1 ) die("At a minimum, we need the service to register ourself - doh!\n");
