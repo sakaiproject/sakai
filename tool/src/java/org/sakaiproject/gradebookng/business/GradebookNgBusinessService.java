@@ -7,18 +7,21 @@ import java.util.Map;
 import java.util.Set;
 
 import lombok.Setter;
+import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 
 
 /**
@@ -28,6 +31,7 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  *
  */
 
+@CommonsLog
 public class GradebookNgBusinessService {
 
 	@Setter
@@ -57,11 +61,6 @@ public class GradebookNgBusinessService {
 		}
 	}
 	
-	public void test() {
-		
-	//Gradebook g = gradebookService.getGradesForStudentsForItem(arg0, arg1, arg2)
-	
-	}
 	
 	/**
 	 * Helper to get a reference to the gradebook for the current site
@@ -74,6 +73,7 @@ public class GradebookNgBusinessService {
 			Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
 			return gradebook;
 		} catch (GradebookNotFoundException e) {
+			log.error("No gradebook in site: " + siteId);
 			return null;
 		}
 	}
@@ -87,11 +87,23 @@ public class GradebookNgBusinessService {
 		Gradebook gradebook = getGradebook();
 		if(gradebook != null) {
 			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
+			assignments = sortAssignments(assignments);			
 			return assignments;
 		}
 		return null;
 	}
 	
+	/**
+	 * Sort the assignment list according to some criteria
+	 * 
+	 * @param assignments
+	 * @return sorted list of assignments
+	 */
+	private List<Assignment> sortAssignments(List<Assignment> assignments) {
+		//this is a placeholder for when we eventually implement custom sorting of assignment columns
+		return assignments;
+	}
+
 	/**
 	 * Get a list of grades for the supplied gradebook assignment, for the supplied list of users
 	 * 
@@ -109,9 +121,7 @@ public class GradebookNgBusinessService {
 		}
 		return null;
 	}
-	
-	//possibly create a helper method here that gets all grades for all assignments for a given list of users, so we dont need to interate in the front end.
-	
+		
 	/**
 	 * Get a map of course grades for the users in the site, using a grade override preferentially over a calculated one
 	 * key = uuid
@@ -144,6 +154,59 @@ public class GradebookNgBusinessService {
 		}
 		
 		return Collections.emptyMap();
+	}
+	
+	/**
+	 * Save the grade and comment for a student's assignment
+	 * 
+	 * @param assignmentId	id of the gradebook assignment
+	 * @param studentUuid	uuid of the user
+	 * @param grade			grade for the user
+	 * @param comment		optional comment for the grade
+	 * 
+	 * @return
+	 */
+	public boolean saveGrade(final Long assignmentId, final String studentUuid, final String grade, final String comment) {
 		
+		Gradebook gradebook = this.getGradebook();
+		if(gradebook == null) {
+			return false;
+		}
+		
+		try {
+			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, grade, comment);
+		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
+			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
+			return false;
+		}
+		return true;
+	}
+	
+	public Map<Long,GradeDefinition> getGradeMatrix(final List<String> userUuids){
+		
+		//gets all grades for the specified users, to allow for paging, or could be all users.
+		
+		//call this from the front end then we can build the gradelist for each student, see below
+		return null;
+	}
+	
+	
+	public void buildGradeListForStudent(final String studentUuid, List<String> assignments){
+		
+		//maybe the front end can do the iteration of the assignments to get all grades for the students,
+		//and this can be just a helper to put it all together.
+		//so it will need to pass in the grade map 
+		
+		
+	
+		//the list of assignments will already be ordered
+				
+		//then build the list of grades for the student, they will be in the correct order.
+		
+		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
+		
+		
+		
+	
 	}
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
@@ -13,7 +14,6 @@ import com.inmethod.grid.DataProviderAdapter;
 import com.inmethod.grid.IGridColumn;
 import com.inmethod.grid.column.PropertyColumn;
 import com.inmethod.grid.column.editable.EditablePropertyColumn;
-import com.inmethod.grid.column.editable.SubmitCancelColumn;
 import com.inmethod.grid.datagrid.DataGrid;
 import com.inmethod.grid.datagrid.DefaultDataGrid;
 
@@ -37,7 +37,7 @@ public class GradebookPage extends BasePage {
         
         List<IGridColumn> cols = new ArrayList<IGridColumn>();
         
-        cols.add(new PropertyColumn(new Model("Student Name"), "studentName").setReorderable(false));
+        cols.add(new PropertyColumn(new Model("Student Name"), "studentName", SortOrder.ASCENDING).setReorderable(false));
         cols.add(new PropertyColumn(new Model("Student ID"), "studentEid").setReorderable(false));
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
         
