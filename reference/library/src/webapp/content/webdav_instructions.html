@@ -154,7 +154,7 @@
                 <p><img src="win8img1.png" alt ="Picture of Windows 8 desktop"/></p></li> 
                 <li>From the Desktop, click File Explorer.
                 <p><img src="win8img2.png" alt ="Picture of Windows 8 file explorer" /></p></li>
-                <li>At the top of the File Explorer window, click Computer > Map Network Drive > Map network drive.
+                <li>At the top of the File Explorer window, click Computer &gt; Map Network Drive &gt; Map network drive.
                 <p><img src="win8img3.png" alt ="Picture of Windows 8 Mapping Netword Drive Interface" /></p></li>
                 <li>Select a vacant drive letter (e.g., Y) from the Drive drop down menu.
                 <p><img src="win8img4.png" alt ="picture of Windows 8 drive selection dialog" /></p></li>
@@ -241,7 +241,7 @@
         <div id="instr-mac">
             <h4>Setting up WebDAV for Mac (OS 10.4 - 10.6)</h4>
             <p>
-                <strong>Note 1</strong>. Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a href="#osx">Cyberduck</a>.
+                <strong>Note 1</strong>. Depending upon the exact update of OS X, The Webdav support in the Macintosh Finder may well be too buggy to use. If you have problems with this approach, consider using <a class="activateTab" href="#instr-other">Cyberduck</a>.
             </p>
             <p>
                 <strong>Note 2</strong>: There must be at least one object (file, folder etc.) in the course or project resource area before you begin the setup procedure. This procedure needs to be done once for each site before you can use WebDAV to transfer files to and from any one site.
@@ -475,6 +475,7 @@
                 You will now see a window on your Mac screen that represents the resources that are in your site.  Simply drag and drop between this window and other Finder windows on your Mac to transfer files to and from your site's resources folder.
             </p>
         </div>
+	</div>
         
         
         <!--// onload="(window.frameElement) ? setMainFrameHeight(trim(window.frameElement.id)):'';localizeData()" //-->
@@ -489,6 +490,9 @@
                 $( "#tabs" ).on( "tabsselect", function( event, ui ) {
                     resizeFrame('grow')
                 } );
+                $('.activateTab').click(function(){
+                    $( '#tabs ul li a[href="'+$(this).attr('href')+'"]' ).trigger( "click" ); 
+                });                
             })
         </script>
 	</body>
