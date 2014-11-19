@@ -718,3 +718,72 @@ function disableButtons() {
 	}
 }
 
+/*
+  Toggle JSF checkboxes that match a controller checkbox  
+*/
+function toggleCheckboxes(checkbox,checkboxtargetname) {
+    // Render the transfer button if one or more checkboxes are selected
+    // Basically this needs to split out the ID from checkbox which will be named 
+    // editform:_id142:chk
+    //
+    // And either check or uncheck all boxes named depending on whether or not it (itself) is checked
+    // editform:_id142:#:*
+		// Add your controller checkbox with the name: 
+		// <h:selectBooleanCheckbox id="importCheckbox_chk" onclick="toggleCheckboxes(this);" value="" />
+		
+		//debugger;
+    if (checkboxtargetname) {
+				params = checkbox.name.split(":")
+		}
+		if (params && params.length == 3) {
+				params.pop();
+				params.push(checkboxtargetname);
+		}
+    else 
+			return; 
+
+		for (i = 0;; i++) {
+        id = params[0] + ":" + params[1] + ":" + i + ":" + params[2];
+        elem = null;
+        if (document.getElementsByName)
+            elem = document.getElementsByName(id);
+        if (elem == null || elem.length == 0) {
+            break;
+        } else {
+            if (elem.length == 1)
+                elem[0].checked = checkbox.checked;
+            //Not sure if it finds multiple elements with the same name, since this is a special JSF case
+            //It shouldn't happen
+        }
+    }
+}
+
+function toggleSelectAllCheck(checkbox,checkboxtargetname) {
+	if (checkboxtargetname) 
+		params = checkbox.name.split(":");
+	
+	if (params && params.length == 4) {
+		params.pop();
+		params.pop();
+		params.push(checkboxtargetname);
+	}
+	else
+		 return;
+
+	id = params[0] + ":" + params[1] + ":" + params[2];
+	elem = document.getElementsByName(id);
+	
+	if(elem == null || elem.length == 0)
+		return;
+	else{
+		
+		if(elem.length == 1){
+			if(elem[0].checked&&!checkbox.checked)
+				elem[0].checked = checkbox.checked;
+			else
+				return;
+		}
+		else 
+			return;
+	}
+}

@@ -141,9 +141,13 @@ table.checkall td {padding-top:0px;padding-bottom:0px;margin-top:0px;margin-bott
 
     <h:column id="colimport" rendered="#{questionpool.importToAuthoring == 'true'}" >
       <f:facet name="header">
-        <h:outputText value="#{questionPoolMessages.impToAuthor}"/>
+        <h:panelGroup>
+        	<h:outputText value="#{questionPoolMessages.impToAuthor} "/>
+			<h:outputText value="#{questionPoolMessages.select_all}"/>
+        	<h:selectBooleanCheckbox id="importSelectAllCheck" onclick="toggleCheckboxes(this,'importCheckbox');" value="" />
+      	</h:panelGroup>
       </f:facet>
- 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}">
+ 	  <h:selectManyCheckbox immediate="true" id="importCheckbox" value="#{questionpool.destItems}" onclick="toggleSelectAllCheck(this,'importSelectAllCheck');">
         <f:selectItem itemValue="#{question.itemIdString}" itemLabel=""/>
  	  </h:selectManyCheckbox>
      </h:column>
