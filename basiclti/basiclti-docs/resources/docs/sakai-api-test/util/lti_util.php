@@ -665,7 +665,7 @@ function getLastOAuthBodyHashInfo() {
 }
 
 
-function getOAuthKeyFromHeaders()
+function getOAuthKeyFromHeaders($key_name=false)
 {
     $request_headers = OAuthUtil::get_headers();
     // print_r($request_headers);
@@ -675,7 +675,8 @@ function getOAuthKeyFromHeaders()
 
         // echo("HEADER PARMS=\n");
         // print_r($header_parameters);
-        return $header_parameters['oauth_consumer_key'];
+        if ( $key_name === false ) $key_name = 'oauth_consumer_key';
+        if ( isset($header_parameters[$key_name]) ) return $header_parameters[$key_name];
     }
     return false;
 }
@@ -846,11 +847,13 @@ function get_curl($url, $header) {
   return $body;
 }
 
-function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false)
+function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false, $more_oauth=false)
 {
     $hash = base64_encode(sha1($body, TRUE));
-
     $parms = array('oauth_body_hash' => $hash);
+    if ( $more_oauth !== false ) {
+        $parms = array_merge($more_oauth, $parms);
+    }
 
     $test_token = '';
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();

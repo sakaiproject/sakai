@@ -227,11 +227,9 @@ $_SESSION['reg_password'] = $reg_password;
 togglePre("Registration Request",htmlent_utf8($body));
 
 $more_headers = array();
-if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
-    $more_headers[] = 'VND-IMS-CORRELATION-ID: 49201-48842';
-}
+$more_oauth = array("oauth_ims_correlation_id" => "49201-48842");
 
-$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers);
+$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers, $more_oauth);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_body_sent_debug()));
 

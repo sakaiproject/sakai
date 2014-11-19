@@ -19,13 +19,10 @@
     error_log($VND);
     error_log($url);
 
-    $more_headers = array(
-        "VND-IMS-CORRELATION-ID: ".$_GET['VND'],
-        "VND-IMS-DISPOSITION: commit"
-    );
-
-    // TODO: Sign this with OAUTH
+    $more_headers = array();
+    $more_oauth = array("oauth_ims_correlation_id" => $VND, "oauth_ims_disposition" => "commit");
 
     $accept_type = "application/json";
-    sendOAuthGET($url, $reg_key, $reg_secret, $accept_type,$more_headers);
+    $body = '{}';
+    $response = sendOAuthBody("PUT", $url, $reg_key, $reg_secret, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers, $more_oauth);
 

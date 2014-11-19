@@ -52,7 +52,7 @@ if ( $header_key != $oauth_consumer_key ) {
 
 // Lets fire up a thread to send the commit message
 $headers = getallheaders();
-$VND = isset($headers['VND-IMS-CORRELATION-ID']) ? $headers['VND-IMS-CORRELATION-ID'] : false;
+$VND  = getOAuthKeyFromHeaders('oauth_ims_correlation_id');
 
 if ( $commit_endpoint != false && $VND !== false ) {
     $ch = curl_init();
