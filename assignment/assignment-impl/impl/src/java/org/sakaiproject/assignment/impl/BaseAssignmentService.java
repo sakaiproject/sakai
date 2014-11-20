@@ -11715,6 +11715,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								// return grade with locale decimal separator
 								String decSeparator = FormattedText.getDecimalSeparator();
 								rv = StringUtils.replace(gString, (",".equals(decSeparator)?".":","), decSeparator);
+								NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);
+								DecimalFormat dcformat = (DecimalFormat) nbFormat;
+								Double dblGrade = dcformat.parse(rv).doubleValue();
+								rv = nbFormat.format(dblGrade);
 							}
 						}
 					}
