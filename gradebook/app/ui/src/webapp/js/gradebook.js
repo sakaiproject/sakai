@@ -185,8 +185,8 @@ function updateRunningTotal(thisForm) {
   var runningTotalValEl = getTheElement(thisForm.name + ":runningTotalVal");
   var runningTotalEl = getTheElement(thisForm.name + ":runningTotal");
   var neededTotalEl = getTheElement(thisForm.name + ":neededTotalVal");
-  runningTotalValEl.innerHTML = runningTotal;
-  neededTotalEl.innerHTML = neededTotal;
+  runningTotalValEl.innerHTML = (Math.round(runningTotal*100)/100).toFixed(2);
+  neededTotalEl.innerHTML = (Math.round(neededTotal*100)/100).toFixed(2);
   if (neededTotal == 0)
   	runningTotalEl.className="courseGrade";
   else
