@@ -25,7 +25,7 @@ $tool_proxy = <<< EOF
           "vendor": {
             "website": "__REPLACE__",
             "code": "sakaiproject.org",
-            "name": {
+            "vendor_name": {
               "default_value": "Sakai",
               "key": "tool.vendor.name"
             },
@@ -142,7 +142,7 @@ $tool_proxy = <<< EOF
             "enabled_capability" : [ "User.id" ]
           }
         ],
-        "name": {
+        "resource_name": {
           "default_value": "Sakai PHP Unit Test",
           "key": "resource.name"
         },
