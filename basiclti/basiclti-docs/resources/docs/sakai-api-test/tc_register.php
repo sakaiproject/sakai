@@ -14,12 +14,12 @@ $response = '{
   "@context": "http://purl.imsglobal.org/ctx/lti/v2/ToolProxyId",
   "@type": "ToolProxy",
   "@id": "http://localhost:4000/toolproxies/0df4b410-9e38-0130-4f3c-406c8f217861",
-  "tool_proxy_guid": "0df4b410-9e38-0130-4f3c-406c8f217861"
+  "tool_proxy_guid": "__replace me__"
 }';
 
 $json_response = json_decode($response);
 $json_response->{'@id'} = $cur_base . uniqid();
-$json_response->tool_proxy_guid = uniqid();
+$json_response->tool_proxy_guid = $oauth_consumer_key;
 
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);

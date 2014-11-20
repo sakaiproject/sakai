@@ -17,8 +17,6 @@ require_once("util/lti_util.php");
 
     $cur_url = curPageURL();
 
-    $consumer_key = isset($_REQUEST['consumer_key']) ? $_REQUEST['consumer_key'] : '106fab23';
-
     $lmsdata = array(
       "lti_message_type" => "ToolProxyRegistrationRequest",
       "lti_version" => "LTI-2p0",
@@ -66,7 +64,6 @@ function lmsdataToggle() {
   echo("<fieldset id=\"lmsDataForm\"><legend>LTI 2</legend>\n");
   $disabled = '';
   echo("Launch URL: <input size=\"60\" type=\"text\" size=\"60\" name=\"endpoint\" value=\"$endpoint\"><br/>\n");
-  echo("Consumer Key: <input size=\"60\" type=\"text\" size=\"60\" name=\"consumer_key\" value=\"$consumer_key\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   $re_register = isset($lmsdata) && $lmsdata['lti_message_type'] == 'ToolProxyReregistrationRequest';
@@ -87,10 +84,13 @@ Message Type:
       echo(htmlspecialchars($val));
       echo("\"><br/>\n");
   }
+  echo("<p>Note that reg_key will become the oauth_consumer_key</p>\n");
   echo("</fieldset>\n");
   echo("</form>\n");
   echo("</div>\n");
   echo("<hr>");
+
+  if ( ! isset($_POST['reg_key']) ) exit();
 
   $parms = $lmsdata;
   // Cleanup parms before we sign
@@ -100,22 +100,23 @@ Message Type:
     }
   }
 
+    $reg_key = isset($_POST['reg_key']) ? $_POST['reg_key'] : false;
+
     // Add oauth_callback to be compliant with the 1.0A spec
     // $parms['launch_presentation_css_url'] = $cssurl;
     if ( isset($parms['tc_profile_url']) ) {
-        $parms['tc_profile_url'] .= '?key=' . $consumer_key;
+        $parms['tc_profile_url'] .= '?key=' . $reg_key;
         if ( $re_register ) {
-            $parms['tc_profile_url'] .= '&r_key=' . $_POST['consumer_key'] . '&r_secret='. $parms['secret'];
+            $parms['tc_profile_url'] .= '&r_key=' . $reg_key . '&r_secret='. $parms['secret'];
         } else {
-            $parms['tc_profile_url'] .= '&r_key=' . $_POST['reg_key'] . '&r_secret='. $parms['reg_password'];
+            $parms['tc_profile_url'] .= '&r_key=' . $reg_key . '&r_secret='. $parms['reg_password'];
         }
     }
 
     if ( $re_register ) {
         $parms["oauth_callback"] = "about:blank";
-        $key = $_POST['consumer_key'];
+        $key = $_POST['reg_key'];
         $secret = $parms['secret'];
-        unset($parms['consumer_key']);
         unset($parms['key']);
         unset($parms['secret']);
         unset($parms['reg_key']);
@@ -125,7 +126,6 @@ Message Type:
         $parms = signParameters($parms, $endpoint, "POST", $key, $secret,
             "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);
     } else {
-        unset($parms['consumer_key']);
         unset($parms['secret']);
     }
 
