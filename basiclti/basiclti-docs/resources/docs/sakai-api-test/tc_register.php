@@ -31,12 +31,6 @@ try {
     exit();
 }
 
-try{
-    $commit_endpoint = $json_data->tool_profile->service_offered[0]->endpoint;
-} catch(Exception $e) {
-    $commit_endpoint = false;
-}
-
 ob_start();
 var_dump(getallheaders());
 $result = ob_get_clean();
@@ -52,11 +46,11 @@ if ( $header_key != $oauth_consumer_key ) {
 
 // Lets fire up a thread to send the commit message
 $headers = getallheaders();
-$VND  = getOAuthKeyFromHeaders('oauth_ims_correlation_id');
+$commit_endpoint = isset($headers['VND-IMS-ACKNOWLEDGE-URL']) ? $headers['VND-IMS-ACKNOWLEDGE-URL'] : false;
 
-if ( $commit_endpoint != false && $VND !== false ) {
+if ( $commit_endpoint != false ) {
     $ch = curl_init();
-    $launch = $cur_base."tc_commit.php?VND=".$VND."&r_key=".$oauth_consumer_key."&r_secret=".$oauth_consumer_secret.'&url='.urlencode($commit_endpoint);
+    $launch = $cur_base."tc_commit.php?r_key=".$oauth_consumer_key."&r_secret=".$oauth_consumer_secret.'&url='.urlencode($commit_endpoint);
     error_log("Launching ".$launch);
     curl_setopt($ch, CURLOPT_URL, $launch);
     curl_setopt($ch, CURLOPT_FRESH_CONNECT, true);

@@ -25,7 +25,7 @@ var_dump($_POST);
 $result = ob_get_clean();
 error_log($result);
 
-$VND = getOAuthKeyFromHeaders('oauth_ims_correlation_id');
+$VND = isset($_GET['correlation']) ? $_GET['correlation'] : '** MISSING **';
 error_log("tp_commit saw correlation_id of ".$VND);
 
 echo "\n";
