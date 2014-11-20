@@ -74,7 +74,7 @@
 					                // load new content
 					                $(this).parent().find('UL:first').remove(); // cleanup
 					                //showTree( $(this).parent(), escape($(this).attr('rel').match( /.*\// )) );
-					                showTree( $(this).parent(), $(this).attr('rel').match( /.*\// ) );
+					                showTree( $(this).parent(), $(this).attr('rel').match( /.*\// )[0] );
 								}else{
 									// show existing content
 					                $(this).parent().find('UL:first').slideDown({ duration: o.expandSpeed, easing: o.expandEasing });
