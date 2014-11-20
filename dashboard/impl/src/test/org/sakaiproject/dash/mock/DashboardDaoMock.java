@@ -745,6 +745,11 @@ public class DashboardDaoMock implements DashboardDao {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public boolean deleteCalendarLinksByContext(String context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 
 	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden) {
@@ -757,6 +762,11 @@ public class DashboardDaoMock implements DashboardDao {
 		return false;
 	}
 
+	public boolean deleteNewsLinksByContext(String context) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+	
 	@Override
 	public List<TaskLock> getTaskLocks(String task) {
 		List<TaskLock> rv = new ArrayList<TaskLock>();

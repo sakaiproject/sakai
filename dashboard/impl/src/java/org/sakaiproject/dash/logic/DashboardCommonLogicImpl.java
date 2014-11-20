@@ -841,6 +841,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public void addCalendarLinks(String sakaiUserId, String contextId) {
 		this.dashboardLogic.addCalendarLinks(sakaiUserId, contextId);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinksByContext( java.lang.String)
+	 */
+	@Override
+	public void addCalendarLinksByContext(String contextId) {
+		this.dashboardLogic.addCalendarLinksByContext(contextId);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
@@ -849,6 +857,14 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public void addNewsLinks(String sakaiUserId, String contextId) {
 		
 		this.dashboardLogic.addNewsLinks(sakaiUserId, contextId);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinksByContext( java.lang.String)
+	 */
+	@Override
+	public void addNewsLinksByContext(String contextId) {
+		this.dashboardLogic.addNewsLinksByContext(contextId);
 	}
 	
 	/*
@@ -1123,6 +1139,15 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		this.dashboardLogic.removeCalendarLinks(entityReference, calendarTimeLabelKey, sequenceNumber);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinksByContext(java.lang.String)
+	 */
+	@Override
+	public void removeCalendarLinksByContext(String context) {
+		
+		this.dashboardLogic.removeCalendarLinksByContext(context);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsItem(java.lang.String)
@@ -1149,6 +1174,15 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public void removeNewsLinks(String sakaiUserId, String contextId) {
 		
 		this.dashboardLogic.removeNewsLinks(sakaiUserId, contextId);
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinksByContext(java.lang.String)
+	 */
+	@Override
+	public void removeNewsLinksByContext(String contextId) {
+		
+		this.dashboardLogic.removeNewsLinksByContext(contextId);
 	}
 
 	/* (non-Javadoc)

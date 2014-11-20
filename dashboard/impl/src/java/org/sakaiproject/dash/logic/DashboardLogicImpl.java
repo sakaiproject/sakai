@@ -301,6 +301,34 @@ public class DashboardLogicImpl implements DashboardLogic {
 	}
 	
 	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addCalendarLinksForContext(java.lang.String)
+	 */
+	@Override
+	public void addCalendarLinksByContext(String contextId) {
+		logger.info(this + " addCalendarLinksByContext: (" + contextId + ") ");
+		int count = 0;
+		if(contextId == null) {
+			logger.warn(this + " addCalendarLinksByContext: Attempting to add calendar links for null context.");
+		} else {
+			List<CalendarItem> items = dao.getCalendarItemsByContext(contextId);
+			if(items == null || items.isEmpty()) {
+				logger.info(this + " addCalendarLinksByContext: There is no calendar events in context (" + contextId + ")");
+			} else {
+				logger.info(this + " addCalendarLinksByContext: start adding calendar links for context  (" + contextId + ") and calendar item list size=" + items.size());
+				for(CalendarItem item: items) {
+					SourceType sourceType = item.getSourceType();
+					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isAvailable(item.getEntityReference()) ) {
+						// add links to the calendar item
+						createCalendarLinks(item);
+					}
+				}
+				logger.info(this + " addCalendarLinksByContext: end adding calendar links for context  (" + contextId + ")");
+			}
+		}
+	}
+	
+	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinks(java.lang.String, java.lang.String)
 	 */
 	@Override
@@ -354,6 +382,34 @@ public class DashboardLogicImpl implements DashboardLogic {
 			buf.append(count);
 			buf.append(" newsLinks");
 			logger.debug(buf);
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#addNewsLinksForContext(java.lang.String)
+	 */
+	@Override
+	public void addNewsLinksByContext(String contextId) {
+		logger.info(this + " addNewsLinksByContext: addNewsLinksForContext(" + contextId + ") ");
+		int count = 0;
+		if(contextId == null) {
+			logger.warn(this + " addNewsLinksByContext: Attempting to add news links for null context.");
+		} else {
+			List<NewsItem> items = dao.getNewsItemsByContext(contextId);
+			if(items == null || items.isEmpty()) {
+				logger.info(this + " addNewsLinksByContext: There is no news events in context (" + contextId + ")");
+			} else {
+				logger.info(this + " addNewsLinksByContext: start adding news links for context  (" + contextId + ") and news item list size=" + items.size());
+				for(NewsItem item: items) {
+					SourceType sourceType = item.getSourceType();
+					DashboardEntityInfo dashboardEntityInfo = this.dashboardEntityInfoMap.get(sourceType.getIdentifier());
+					if(dashboardEntityInfo != null && dashboardEntityInfo.isAvailable(item.getEntityReference()) ) {
+						// add links to the news item
+						createNewsLinks(item);
+					}
+				}
+				logger.info(this + " addNewsLinksByContext: end adding news links for context  (" + contextId + ")");
+			}
 		}
 	}
 	
@@ -839,6 +895,14 @@ public class DashboardLogicImpl implements DashboardLogic {
 			}
 		}
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeCalendarLinksByContext(java.lang.String)
+	 */
+	@Override
+	public void removeCalendarLinksByContext(String context) {
+		dao.deleteCalendarLinksByContext(context);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsItem(java.lang.String)
@@ -896,6 +960,14 @@ public class DashboardLogicImpl implements DashboardLogic {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see org.sakaiproject.dash.logic.DashboardLogic#removeNewsLinksByContext(java.lang.String)
+	 */
+	@Override
+	public void removeNewsLinksByContext(String context) {
+		dao.deleteNewsLinksByContext(context);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.logic.DashboardLogic#reviseCalendarItemsLabelKey(java.lang.String, java.lang.String, java.lang.String)
 	 */

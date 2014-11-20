@@ -346,6 +346,13 @@ public interface DashboardDao {
 	 */
 	public boolean deleteCalendarLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden);
+	
+	/**
+	 * Delete calendar links associated with given context 
+	 * @param context
+	 * @return
+	 */
+	public boolean deleteCalendarLinksByContext(String context);
 
 	/**
 	 * Removes the NewsItem with the id indicated, if it exists. 
@@ -392,6 +399,13 @@ public interface DashboardDao {
 	 */
 	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden);
+	
+	/**
+	 * Delete news links associated with given context
+	 * @param context
+	 * @return
+	 */
+	public boolean deleteNewsLinksByContext(String context);
 
 	/**
 	 * 
