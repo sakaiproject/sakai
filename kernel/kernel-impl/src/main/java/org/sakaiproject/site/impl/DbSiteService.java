@@ -771,6 +771,10 @@ public abstract class DbSiteService extends BaseSiteService
 						}
 					}
 				}
+				if (type == SelectionType.JOINABLE)
+				{
+					fields[pos++] = getCurrentUserIdIfNull(userId);
+				}
 				if (criteria != null)
 				{
 					fields[pos++] =  "%" + criteria + "%";
@@ -785,10 +789,6 @@ public abstract class DbSiteService extends BaseSiteService
 						fields[pos++] = name;
 						fields[pos++] = "%" + value + "%";
 					}
-				}
-				if (type == SelectionType.JOINABLE)
-				{
-					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
 			}
 
