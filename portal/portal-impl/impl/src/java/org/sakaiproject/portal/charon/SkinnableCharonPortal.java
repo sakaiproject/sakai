@@ -1561,6 +1561,44 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
 
+    /* 
+     * In the new inline version of Sakai, tools are often called from a difference context
+     * than the used to be. Instead of a separate window with /portal/tool/.../URL, they are
+     * called from portal directly, with a base URL of /portal/site/../tool.../URL. Normally
+     * the /tool, /site../tool, etc are part of the context, with URL as the pathinfo.
+     * but the mechanisms that would normally do that don't work in the inline context. Rather
+     * than trying to find all of these things, for the moment we're fixing up the path, by
+     * moving /site/... /tool/..., and /page/... from the pathinfo to the context. This seems
+     * to work.
+     *   The hackery with NATIVE_URL is because the way we fix up the context and path is
+     * by wrapping the request with a Sakai wrapper. But the wrapper doesn't actually work
+     * unless the NATIVE_URL attribute is set. To avoid messing up anything else, we save
+     * the original value and then restore it. Some code elsewhere sets or clears it without
+     * restoring the original value. I believe that's why NATIVE_URL is sometimes off in the
+     * first place.
+     */
+
+	String fixPath1(String s, String c, StringBuilder ctx) {
+	    if (s != null && s.startsWith(c)) {
+		int i = s.indexOf("/", 6);
+		if (i >= 0) {
+		    ctx.append(s.substring(0,i));
+		    s = s.substring(i);
+		} else {
+		    ctx.append(s);
+		    s = null;
+		}
+	    }
+	    return s;
+	}
+
+	String fixPath(String s, StringBuilder ctx) {
+	    s = fixPath1(s, "/site/", ctx);
+	    s = fixPath1(s, "/tool/", ctx);
+	    s = fixPath1(s, "/page/", ctx);
+	    return s;
+	}
+
 	/**
 	 * Forward to the tool - but first setup JavaScript/CSS etc that the tool
 	 * will render
@@ -1573,6 +1611,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
 
+
+			    StringBuilder ctx = new StringBuilder(toolContextPath);
+			    toolPathInfo = fixPath(toolPathInfo, ctx);
+			    toolContextPath = ctx.toString();
+			    boolean needNative = false;
+
 		// let the tool do the the work (forward)
 		if (enableDirect)
 		{
@@ -1581,20 +1625,32 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				setupForward(req, res, p, skin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+				needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
+				if (needNative)
+				    req.removeAttribute(Tool.NATIVE_URL);
 				tool.forward(req, res, p, toolContextPath, toolPathInfo);
+				if (needNative)
+				    req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 			}
 			else
 			{
 				M_log.debug("Restoring StoredState [" + ss + "]");
 				HttpServletRequest sreq = ss.getRequest(req);
 				Placement splacement = ss.getPlacement();
-				String stoolContext = ss.getToolContextPath();
-				String stoolPathInfo = ss.getToolPathInfo();
+				StringBuilder sctx = new StringBuilder(ss.getToolContextPath());
+				String stoolPathInfo = fixPath(ss.getToolPathInfo(), sctx);
+				String stoolContext = sctx.toString();
+
 				ActiveTool stool = ActiveToolManager.getActiveTool(p.getToolId());
 				String sskin = ss.getSkin();
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+				needNative = (sreq.getAttribute(Tool.NATIVE_URL) != null);
+				if (needNative)
+				    sreq.removeAttribute(Tool.NATIVE_URL);
 				stool.forward(sreq, res, splacement, stoolContext, stoolPathInfo);
+				if (needNative)
+				    sreq.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 				// this is correct as we have checked the context path of the
 				// tool
 				portalService.setStoredState(null);
@@ -1604,7 +1660,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			setupForward(req, res, p, skin);
 			req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+			needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
+			if (needNative)
+			    req.removeAttribute(Tool.NATIVE_URL);
 			tool.forward(req, res, p, toolContextPath, toolPathInfo);
+			if (needNative)
+			    req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		}
 
 			}
