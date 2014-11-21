@@ -4,7 +4,10 @@
     width: 80%;
 }
 .chat-block,.chat-select-date {
-    display: block;
+
+}
+.chatList {
+    width:93%
 }
 LABEL.chat-date-label {
     width: 10em;
@@ -12,3 +15,62 @@ LABEL.chat-date-label {
     display: inline-block;
     padding-right: 1em;
 }
+
+#chatList, .chatList, .presenceList {
+    list-style: none;
+}
+#chatList li, .chatList li{
+    text-indent: -3em;
+    line-height: 1.2em;
+}
+.chat-block label {
+    display: inline;
+}
+.chat-block select {
+    display: inline-block;
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+}
+h3 {
+   padding-top: 0px;
+}
+/* for presence list. I'm using .information to get color and
+   style consistent with overall design, but have to undo some
+   padding and margin */
+.chatListHeadWrapper {
+    padding:0px !important;
+    margin:0px !important;
+    margin-bottom:0.25em !important;
+    margin-left:0.5em !important;
+}
+#chatPresenceWrapper{
+   background-image:none;
+   display:inline-block;
+   clear: none;
+   float:right;
+   width:16%;
+   padding:0px !important;
+   margin:0px !important;
+   padding-top:0.5em !important;
+}
+#chatPresenceWrapper:before {
+   content:none;
+}
+#chatListWrapper {
+   display:inline-block;
+   float:left;
+   clear:none;
+}
+iframe {
+   height: calc(20em);
+}
+h3.chatListHeadWrapper{
+   font-size: 100% !important;
+}
+@media screen and (max-width: 1000px) {
+  #chatPresenceWrapper {
+     display:none;
+  }
+}
+
+

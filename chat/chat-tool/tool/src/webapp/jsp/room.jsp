@@ -1,7 +1,7 @@
 <f:view>
-   <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
 
    <sakai:view title="#{msgs['custom.chatroom']}">
+     <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
      <script type="text/javascript">
 	focus_path = ["controlPanel:message"];
     doubleDeep = true;
@@ -67,7 +67,7 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 					<%@ include file="roomMonitor.jspf" %>
 				</div>
 			</div>	
-			<div id="chatPresenceWrapper">			
+			<div id="chatPresenceWrapper" class="information">			
 				<h3 class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_user}" />
 				</h3>
@@ -79,13 +79,11 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 					frameborder="0"
 					marginwidth="0"
 					marginheight="0"
-					scrolling="no"
 					align="right"
 					class="wcwmenu"
 					src="roomUsers?channel=<h:outputText value="#{ChatTool.currentChatChannelId}" />">
 				</iframe>
 			</div>
-		</h:form>
 		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
 		<div>
 		    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
@@ -102,6 +100,7 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 	     	</p>
 	    </div>
 		</f:subview>
+		</h:form>
         <t:div styleClass="messageInformation chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
             <h:outputText value="#{msgs.custom_date_restricted}" />
             <h:outputText value="#{ChatTool.datesMessage}" />

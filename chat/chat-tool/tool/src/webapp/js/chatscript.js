@@ -95,20 +95,48 @@ function updateShownText() {
 
 //Library to ajaxify the Chatroom message submit action
 	$(document).ready(function() {
+
 		updateShownText();
 
-		//resize horizontal chat area to get rid of horizontal scrollbar in IE
-        if($.browser.msie){
-           $(".chatList").width('93%');
-        }
+                // the iframe has a src of roomUsers.
+                // in frameless situation that will be added to /portal/site ...
+                // but the tool will only recognize /portal/tool. Do the mapping
+                var iframesrc = $('#Presence').attr('src');
+                var urlpath = location.pathname;
+		var frameless = false;
+                if (urlpath.indexOf('/portal/site') == 0) {
+                    var i = urlpath.indexOf('/tool/');
+                    if (i >= 0) {
+                        var j = urlpath.indexOf('/', i+6);
+                        if (j >= 0) {
+			    frameless = true;
+			    urlpath = '/portal' + urlpath.substring(i, j+1) + iframesrc;
+                            $('#Presence').attr('src', urlpath);
+                        }
+                    }
+                }
+
+		// fix up the delete links. They use /sakai.chat ... That won't work. without the leading /
+		// it works. 
+		if (frameless) {
+		    $('.chatList a').each(function(index) {
+			    $(this).attr('onclick', $(this).attr('onclick').replace("'/sakai.chat.deleteMessage.helper","'sakai.chat.deleteMessage.helper"));
+			});
+		    
+		    if (deleteUrl.indexOf('/sakai.chat.deleteMessage.helper') == 0)
+			deleteUrl = deleteUrl.substring(1);
+		}
+
+ 		//resize horizontal chat area to get rid of horizontal scrollbar in IE
+
 	    var options = {
 	        //RESTful submit URL
 	        url_submit: '/direct/chat-message/new',
 	        control_key: 13,
-            dom_button_submit_raw: document.getElementById("controlPanel:submit"),
-            dom_button_submit: $(document.getElementById("controlPanel:submit")),
-	        dom_button_reset: $(document.getElementById("controlPanel:reset")),
-	        dom_textarea: $(document.getElementById("controlPanel:message")),
+            dom_button_submit_raw: document.getElementById("topForm:controlPanel:submit"),
+            dom_button_submit: $(document.getElementById("topForm:controlPanel:submit")),
+	        dom_button_reset: $(document.getElementById("topForm:controlPanel:reset")),
+	        dom_textarea: $(document.getElementById("topForm:controlPanel:message")),
 	        channelId: document.getElementById("topForm:chatidhidden").value,
 	        enterKeyCheck:''
 	    };
