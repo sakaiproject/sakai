@@ -665,10 +665,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// If we are inserting, fill in the blanks
 		if ( id == null ) {
-			reqProps.setProperty(LTIService.LTI_REG_KEY, UUID.randomUUID().toString());
+			String oauth_consumer_key = UUID.randomUUID().toString();
+			reqProps.setProperty(LTIService.LTI_REG_KEY, oauth_consumer_key);
 			// TODO: We should show off and encrypt the REG_PASSWORD too..
 			reqProps.setProperty(LTIService.LTI_REG_PASSWORD, UUID.randomUUID().toString());
-			reqProps.setProperty(LTIService.LTI_CONSUMERKEY, UUID.randomUUID().toString());
+			reqProps.setProperty(LTIService.LTI_CONSUMERKEY, oauth_consumer_key);
 		}
 
 		String success = null;

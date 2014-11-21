@@ -305,6 +305,7 @@ public class LTI2Service extends HttpServlet {
 		} else {
 			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 			secret = (String) deploy.get(LTIService.LTI_SECRET);
+			secret = SakaiBLTIUtil.decryptSecret(secret);
 		}
 
 		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
@@ -491,7 +492,7 @@ public class LTI2Service extends HttpServlet {
 
 	// If this code looks like a hack - it is because the spec is a hack.
 	// There are five possible scenarios for GET and two possible scenarios
-    // for PUT.  I begged to simplify the business logic but was overrulled.
+	// for PUT.  I begged to simplify the business logic but was overrulled.
 	// So we write obtuse code.
 	public void handleSettingsRequest(HttpServletRequest request,HttpServletResponse response, 
 			String[] parts) throws java.io.IOException
@@ -803,6 +804,7 @@ public class LTI2Service extends HttpServlet {
 				M_log.error(e.getLocalizedMessage(), e);
 			}
 			M_log.info(message);
+			M_log.info(json.postBody);
 
 			String jsonText = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
 			M_log.debug(jsonText);

@@ -271,6 +271,16 @@ public class LTI2Util {
 	}
 
 	// Parse a provider profile with lots of error checking...
+	public static JSONArray forceArray(Object obj) 
+	{
+		if ( obj == null ) return null;
+		if ( obj instanceof JSONArray ) return (JSONArray) obj;
+		JSONArray retval = new JSONArray();
+		retval.add(obj);
+		return retval;
+	}
+
+	// Parse a provider profile with lots of error checking...
 	@SuppressWarnings("unused")
 	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
@@ -322,7 +332,7 @@ public class LTI2Util {
 		info.put("vendor_code", vendorCode);
 		info.put("vendor_description", vendorDescription);
 
-		o = tool_profile.get("base_url_choice");
+		o = forceArray(tool_profile.get("base_url_choice"));
 		if ( ! (o instanceof JSONArray)|| o == null  ) {
 			return "JSON missing base_url_choices";
 		}
@@ -356,16 +366,16 @@ public class LTI2Util {
 			if ( resource_type_code == null ) {
 				return "JSON missing resource_type code";
 			}
-			o = (JSONArray) resource_handler.get("message");
+			o = forceArray(resource_handler.get("message"));
 			if ( ! (o instanceof JSONArray)|| o == null ) {
 				return "JSON missing resource_handler / message";
 			}
 			JSONArray messages = (JSONArray) o;
 
-			JSONObject titleObject = (JSONObject) resource_handler.get("name");
+			JSONObject titleObject = (JSONObject) resource_handler.get("resource_name");
 			String title = titleObject == null ? null : (String) titleObject.get("default_value");
 			if ( title == null || titleObject == null ) {
-				return "JSON missing resource_handler / name / default_value";
+				return "JSON missing resource_handler / resource_name / default_value";
 			}
 
 			JSONObject buttonObject = (JSONObject) resource_handler.get("short_name");
@@ -406,7 +416,6 @@ public class LTI2Util {
 
 			// Check the URI
 			String thisLaunch = launch_url;
-			if ( ! thisLaunch.endsWith("/") && ! path.startsWith("/") ) thisLaunch = thisLaunch + "/";
 			thisLaunch = thisLaunch + path;
 			try {
 				URL url = new URL(thisLaunch);
