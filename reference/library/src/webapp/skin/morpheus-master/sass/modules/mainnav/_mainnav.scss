@@ -4,159 +4,70 @@
 
 @import "_mainnav_variables";
 
-
-[role="menubar"] li .subnav, 
-#mastLogin .subnav, 
-#otherSiteTools {
-  list-style: none;
-
-  @include respond-to('full navigation') {
-    position: absolute;
-    top: 2.4em;
-    margin: 0;
-    padding:0;
-    z-index: 1001;
-  }
-  
-  @include respond-to('narrow navigation') {
-    margin: 0;
-    padding: 0;
-    text-indent: 1em;
-  }
-  
-}
-
-
-
-/* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
-[role="menubar"] li .subnav li, 
-#mastLogin .subnav li, 
-.otherSiteTool {
-  width: 100%;
-  position: relative;
-}
-
-/* some overrides for the menu in #mastLogin */
-#mastLogin .subnav li {
-  border: none;
-}
-
-[role="menubar"] .drop {
-  margin: 0;
-  padding: 2px 8px;
-  width: 16px;
-  
-  &:hover {
-    color: #fff;
-  }
-}
-
-// Use down arrow for full nav and plus sign for narrow nav
-
-[role="menubar"] .drop { 
-  
-  @include respond-to('full navigation') {
-
-    &:before {
-      content: '\25bc';
-    }
-  }
-  
-  @include respond-to('narrow navigation') {
-    float: right;
-    
-    &:before {
-      content: '+';
-    }
-    
-    &.subclicked:before {
-      content: '-';
-    }
-    
-  }
-}
-
-.nav-submenu .submenuitem a, 
-#mastLogin .submenuitem a, 
-#otherSiteTools li a {
-  color: #444;
-  font-size: 1em;
-  padding: 0 1em;
-  font-weight: normal;
-  position: relative;
-  text-decoration: none;
-  display: block;
-  width: 100%;
-}
-
-[role="menubar"] {
-  font-size: $mainmenu-font-size;
-  line-height: $mainmenu-line-height;
-  
-  > li {
-    position: relative;
-    
-    a {
-      text-decoration: none;
-      border: none;
-      font-weight: bold;
-      color: $mainmenu-link-color;
-
-      &:visited {
-        color: $mainmenu-visited-link-color;
-      }
-    }
-  }
-}
-
-
 [aria-labelledby="sitetabs"] {
 
   @include respond-to('full navigation') {
-
     
     @if $old-ie-8 {
       background-image: url(data:image/gif;base64,R0lGODlhCgAmAIAAAO3t7dTU1CH5BAAAAAAALAAAAAAKACYAAAIXhI+py+0Po5y02ouz3hyHD4biSJbmKRYAOw==);
       background-repeat: repeat;
     }
+    
     @include experimental-value(background-image, $repeating-linear-gradient, false, true, false, false);
 
     [role="menubar"] {
       margin: 0;
       padding: 0 0 0 .25em;
+      font-size: $mainmenu-font-size;
+      line-height: $mainmenu-line-height;
 
       &:before {
         float: left;
         font-size: 2.2em;
         color: #f2f2f2;
       }
-    }
+     
+      > li {
+        position: relative;
+    
+        a {
+          text-decoration: none;
+          border: none;
+          font-weight: bold;
+          color: $mainmenu-link-color;
 
-    .nav-menu {
-      @include horizontal-list-item;
-      padding-top: 5px;
-      padding-bottom: 5px;
-    }
-  }
-
-  @include respond-to('narrow navigation') {
-
-    [role="menubar"] {
-      margin: 0;
-      padding: 0;
-      list-style-type: none;
-      
-      // hide Sakai logo
-      &:before {
-        display: none;
+          &:visited {
+            color: $mainmenu-visited-link-color;
+          }
+        }
       }
-      
-      li {
+    
+      .nav-menu {
+        @include horizontal-list-item;
+        padding-top: 5px;
+        padding-bottom: 5px;
+      }
+    }
+
+    @include respond-to('narrow navigation') {
+
+      [role="menubar"] {
         margin: 0;
         padding: 0;
+        list-style-type: none;
+      
+        // hide Sakai logo
+        &:before {
+          display: none;
+        }
+      
+        li {
+          margin: 0;
+          padding: 0;
 
-        a {
-          display: block;
+          a {
+            display: block;
+          }
         }
       }
     }
@@ -204,6 +115,71 @@
     background: $mainmenu-active-background;
     border: none;
   }
+}
+
+
+[role="menubar"] .nav-subnav {
+  list-style: none;
+
+  @include respond-to('full navigation') {
+    position: absolute;
+    top: 2.4em;
+    margin: 0;
+    padding:0;
+    z-index: 1001;
+  }
+  
+  @include respond-to('narrow navigation') {
+    margin: 0;
+    padding: 0;
+    text-indent: 1em;
+  }
+}
+
+[role="menubar"] .nav-subnav li {
+  width: 100%;
+  position: relative;
+}
+
+[role="menubar"] .drop {
+  margin: 0;
+  padding: 2px 8px;
+  width: 16px;
+  
+  &:hover {
+    color: #fff;
+  }
+  
+  @include respond-to('full navigation') {
+
+    &:before {
+      content: '\25bc';
+    }
+  }
+  
+  @include respond-to('narrow navigation') {
+    float: right;
+    
+    &:before {
+      content: '+';
+    }
+    
+    &.subclicked:before {
+      content: '-';
+    }
+  }
+}
+
+.nav-submenu .submenuitem a {
+  color: #444;
+  font-size: 1em;
+  padding: 0 1em;
+  font-weight: normal;
+  position: relative;
+  text-decoration: none;
+  display: block;
+  width: 100%;
+  border: none;
 }
 
 
