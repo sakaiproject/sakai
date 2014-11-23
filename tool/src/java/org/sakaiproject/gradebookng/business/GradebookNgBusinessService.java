@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -11,6 +12,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.gradebookng.tool.model.StudentGrades;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -182,30 +184,49 @@ public class GradebookNgBusinessService {
 		return true;
 	}
 	
-	public Map<Long,GradeDefinition> getGradeMatrix(final List<String> userUuids){
-		
-		//gets all grades for the specified users, to allow for paging, or could be all users.
-		
-		//call this from the front end then we can build the gradelist for each student, see below
-		return null;
+	
+	public List<StudentGrades> buildGradeMatrix() {
+		List<User> students = this.getGradeableUsers();
+		List<Assignment> assignments = this.getGradebookAssignments();
+		List<StudentGrades> grades = new ArrayList<StudentGrades>();
+		for(User u: students) {
+			StudentGrades sg = this.getGradeListForStudent(u, assignments);
+			grades.add(sg);
+		}
+		return grades;
 	}
-	
-	
-	public void buildGradeListForStudent(final String studentUuid, List<String> assignments){
+
+	/**
+	 * Get the list of grades for the given assignments for each user
+	 * 
+	 * This may need to be reworked for performance and use the method to get the grades for all students per item.
+	 * 
+	 * @param studentUuid
+	 * @param assignments
+	 */
+	public StudentGrades getGradeListForStudent(final User student, List<Assignment> assignments){
 		
-		//maybe the front end can do the iteration of the assignments to get all grades for the students,
-		//and this can be just a helper to put it all together.
-		//so it will need to pass in the grade map 
+		Gradebook gradebook = this.getGradebook();
+		if(gradebook == null) {
+			return null;
+		}
 		
+		List<String> scores = new ArrayList<String>();
 		
-	
-		//the list of assignments will already be ordered
-				
-		//then build the list of grades for the student, they will be in the correct order.
+		//the list of assignments will already be ordered so no need to maintain a map
+		for(Assignment assignment: assignments) {
+			scores.add(gradebookService.getAssignmentScoreString(gradebook.getUid(), assignment.getId(), student.getId()));
+		}
 		
+		StudentGrades sg = new StudentGrades(student);
+		sg.setAssignments(scores);
+		
+		//TODO get course grade
+		
+		//NOTES:
 		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
 		
-		
+		return sg;
 		
 	
 	}

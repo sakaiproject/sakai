@@ -9,6 +9,8 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.gradebookng.tool.model.StudentGrades;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.user.api.User;
 
 import com.inmethod.grid.DataProviderAdapter;
 import com.inmethod.grid.IGridColumn;
@@ -31,8 +33,8 @@ public class GradebookPage extends BasePage {
 		Form<Void> form = new Form<Void>("form");
 		add(form);
 		
-		final List<StudentGrades> personList = getGradebookItems();
-        final ListDataProvider listDataProvider = new ListDataProvider(personList);
+		final List<StudentGrades> grades = businessService.buildGradeMatrix();
+        final ListDataProvider listDataProvider = new ListDataProvider(grades);
 
         
         List<IGridColumn> cols = new ArrayList<IGridColumn>();
@@ -64,14 +66,4 @@ public class GradebookPage extends BasePage {
 		grid.setClickRowToDeselect(true);
 	}
 	
-	private List<StudentGrades> getGradebookItems(){
-		List<StudentGrades> items = new ArrayList<StudentGrades>();
-		items.add(new StudentGrades(1, "Student 1","stdnt1","85", Arrays.asList("67", "", "", "")));
-		items.add(new StudentGrades(2, "Student 2","stdnt2","78", Arrays.asList("56", "67", "", "")));
-		items.add(new StudentGrades(3, "Student 3","stdnt3","56", Arrays.asList("73", "", "", "")));
-		items.add(new StudentGrades(4, "Student 4","stdnt4","42", Arrays.asList("49", "", "", "")));
-		items.add(new StudentGrades(5, "Student 5","stdnt5","93", Arrays.asList("44", "", "", "")));
-		items.add(new StudentGrades(6, "Student 6","stdnt6","87", Arrays.asList("76", "", "", "")));
-		return items;
-	}
 }

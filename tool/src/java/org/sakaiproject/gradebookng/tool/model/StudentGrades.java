@@ -3,62 +3,39 @@ package org.sakaiproject.gradebookng.tool.model;
 import java.io.Serializable;
 import java.util.List;
 
+import lombok.Getter;
+import lombok.Setter;
+
+import org.sakaiproject.user.api.User;
+
 public class StudentGrades implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
-	private long id;
+	@Getter
+	private String studentUuid;
+	
+	@Getter
 	private String studentName;
+	
+	@Getter
 	private String studentEid;
+	
+	@Getter @Setter
 	private String courseGrade;
 	
+	@Getter @Setter
 	private List<String> assignments;
 	
 	public StudentGrades(){
 	}
 	
-	public StudentGrades(long id, String studentName, String studentEid, String courseGrade, List<String> assignments)
-	{
-		this.id = id;
-		this.studentName = studentName;
-		this.studentEid = studentEid;
-		this.courseGrade = courseGrade;
-		this.assignments = assignments;
-		
-	}
-
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-
-	public String getFirstName() {
-		return studentName;
-	}
-
-	public void setFirstName(String firstName) {
-		this.studentName = firstName;
+	public StudentGrades(User u) {
+		this.studentUuid = u.getId();
+		this.studentEid = u.getEid();
+		this.studentName = u.getDisplayName();
 	}
 	
-	public String getStudentEid() {
-		return studentEid;
-	}
-
-	public void setgetStudentEid(String studentEid) {
-		this.studentEid = studentEid;
-	}
-
-	public String getCourseGrade() {
-		return courseGrade;
-	}
-
-	public void setCourseGrade(String courseGrade) {
-		this.courseGrade = courseGrade;
-	}
-
 	
 	
 }
