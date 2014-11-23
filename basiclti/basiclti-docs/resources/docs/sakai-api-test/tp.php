@@ -196,9 +196,9 @@ $tp_services = array();
 foreach($tc_services as $tc_service) {
 	// var_dump($tc_service);
 	$tp_service = new stdClass;
-    $tp_service->{'@type'} = 'RestServiceProfile';
-    $tp_service->action = $tc_service->action;
-    $tp_service->service = $tc_service->{'@id'};
+	$tp_service->{'@type'} = 'RestServiceProfile';
+	$tp_service->action = $tc_service->action;
+	$tp_service->service = $tc_service->{'@id'};
 	$tp_services[] = $tp_service;
 }
 // var_dump($tp_services);
