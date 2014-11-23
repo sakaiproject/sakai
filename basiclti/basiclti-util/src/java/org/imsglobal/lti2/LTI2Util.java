@@ -67,8 +67,8 @@ public class LTI2Util {
 
 				boolean found = false;
 				for (Service_offered service : services_offered ) {
-					String service_endpoint = service.getEndpoint();
-					if ( service_endpoint.equals(json_service) ) {
+					String service_id = service.get_id();
+					if ( service_id.equals(json_service) ) {
 						found = true;
 						break;
 					}

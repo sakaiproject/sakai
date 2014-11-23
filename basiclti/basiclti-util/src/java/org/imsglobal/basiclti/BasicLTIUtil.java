@@ -32,16 +32,19 @@ import static org.imsglobal.basiclti.BasicLTIConstants.TOOL_CONSUMER_INSTANCE_UR
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Date;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.TreeMap;
+import java.util.UUID;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 
+import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
@@ -49,6 +52,14 @@ import net.oauth.OAuthValidator;
 import net.oauth.SimpleOAuthValidator;
 import net.oauth.server.OAuthServlet;
 import net.oauth.signature.OAuthSignatureMethod;
+
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 
 /* Leave out until we have JTidy 0.8 in the repository 
  import org.w3c.tidy.Tidy;
@@ -619,6 +630,81 @@ public class BasicLTIUtil {
 
 		String htmltext = text.toString();
 		return htmltext;
+	}
+
+	/** 
+         * getOAuthURL - Form a GET request signed by OAuth
+	 * @param url
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 */
+	public static String getOAuthURL(String url, String oauth_consumer_key, String oauth_secret)
+	{
+		OAuthMessage om = new OAuthMessage("GET", url, null);
+		om.addParameter(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
+		om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
+		om.addParameter(OAuth.OAUTH_VERSION, "1.0");
+		om.addParameter(OAuth.OAUTH_TIMESTAMP, new Long((new Date().getTime()) / 1000).toString());
+		om.addParameter(OAuth.OAUTH_NONCE, UUID.randomUUID().toString());
+
+		OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
+		try {
+		    OAuthSignatureMethod osm = OAuthSignatureMethod.newMethod(OAuth.HMAC_SHA1, new OAuthAccessor(oc));
+		    osm.sign(om);
+		    url = OAuth.addParameters(url, om.getParameters());
+		    return url;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/** 
+         * getOAuthURL - Form a GET request signed by OAuth
+	 * @param url
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 * HttpURLConnection connection = sendOAuthURL('GET', url, oauth_consumer_key, oauth_secret)
+	 * int responseCode = connection.getResponseCode();
+	 * String data = readHttpResponse(connection)
+	 */
+	public static HttpURLConnection sendOAuthURL(String method, String url, String oauth_consumer_key, String oauth_secret)
+	{
+		String oauthURL = getOAuthURL(url, oauth_consumer_key, oauth_secret);
+
+		try {
+			URL urlConn = new URL(oauthURL);
+			HttpURLConnection connection = (HttpURLConnection) urlConn.openConnection();
+			connection.setRequestMethod(method);
+			int responseCode = connection.getResponseCode();
+			return connection;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	/** 
+         * readHttpResponse - Read the HTTP Response
+	 * @param connection
+	 */
+	public static String readHttpResponse(HttpURLConnection connection)
+	{
+		try {
+			BufferedReader in = new BufferedReader(
+			new InputStreamReader(connection.getInputStream()));
+			String inputLine;
+			StringBuffer response = new StringBuffer();
+ 
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+			return response.toString();
+		} catch(Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	/**

@@ -856,6 +856,9 @@ public class SakaiBLTIUtil {
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 		String secret = (String) deploy.get(LTIService.LTI_SECRET);
 
+		// If secret is encrypted, decrypt it
+		secret = decryptSecret(secret);
+
 		if ( secret == null || consumerkey == null) {
 			return postError("<p>" + getRB(rb, "error.deploy.partial" ,"Deployment is incomplete, missing a key and secret.")+"</p>" ); 
 		}

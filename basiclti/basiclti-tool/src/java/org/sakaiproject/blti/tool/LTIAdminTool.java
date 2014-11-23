@@ -834,6 +834,18 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return;
 		}
 
+		// If we are re-registering, use the new secret for tools that we activate
+		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
+		String old_secret = (String) deploy.get(LTIService.LTI_SECRET);
+		String ack = (String) deploy.get(LTIService.LTI_REG_ACK);
+		if ( ack != null && ack.length() < 1 ) ack = null;
+
+		String new_secret = (String) deploy.get(LTIService.LTI_NEW_SECRET);
+		if ( new_secret != null && new_secret.length() < 1 ) new_secret = null;
+		if ( new_secret != null ) {
+			deploy.put(LTIService.LTI_SECRET,new_secret);
+		}
+
 		List<Map<String,Object>> theTools = new ArrayList<Map<String,Object>> ();
 		Properties info = new Properties();
 
@@ -872,11 +884,27 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		// Update reg_state to indicate we are activated...
-        Map<String, Object> deployUpdate = new HashMap<String, Object> ();
-        deployUpdate.put(LTIService.LTI_REG_STATE, "2");
-        Object obj = ltiService.updateDeployDao(key, deployUpdate);
-        boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
-		if ( !updated ) {
+		Map<String, Object> deployUpdate = new HashMap<String, Object> ();
+		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
+		deployUpdate.put(LTIService.LTI_REG_ACK, "");
+		if ( new_secret != null ) {
+			deployUpdate.put(LTIService.LTI_SECRET, new_secret);
+			deployUpdate.put(LTIService.LTI_NEW_SECRET, "");
+		}
+
+		// Almost a transaction - at this point update is unlikely to fail
+		Object obj = ltiService.updateDeployDao(key, deployUpdate);
+		boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+		if ( updated ) {
+			if ( ack != null && ack.length() > 0 ) {
+			    M_log.info("Sending Re-Registration notification to "+ack);
+			    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+			    String oauth_secret = old_secret;
+			    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+			    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
+			    BasicLTIUtil.sendOAuthURL("GET", ack, oauth_consumer_key, oauth_secret);
+			}
+		} else {
 			String oops = "Unable to update deployment key="+key;
 			M_log.error(oops);
 			failures += "\n" + oops;

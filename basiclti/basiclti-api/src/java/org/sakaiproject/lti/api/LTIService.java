@@ -587,8 +587,10 @@ public interface LTIService {
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
 		"reg_key:text:label=bl_reg_key:maxlength=1024:hide=insert:role=admin",
 		"reg_password:text:label=bl_reg_password:maxlength=1024:hide=insert:role=admin",
+		"reg_ack:text:label=bl_reg_ack:maxlength=4096:hide=insert:role=admin",
 		"consumerkey:text:label=bl_consumerkey:maxlength=1024:hide=insert",
 		"secret:text:label=bl_secret:maxlength=1024:hide=insert",
+		"new_secret:text:label=bl_secret:maxlength=1024:hide=insert",
 		"reg_profile:textarea:label=bl_reg_profile:maxlength=10000:hide=insert:role=admin",
 		"settings:text:hidden=true:maxlength=8096",   // This is "custom" in the JSON
 		"created_at:autodate", 
@@ -628,6 +630,7 @@ public interface LTIService {
 	static final String LTI_CONSUMERKEY= 	"consumerkey";
 	static final String LTI_ALLOWCONSUMERKEY= 	"allowconsumerkey";
 	static final String LTI_SECRET =   	"secret";
+	static final String LTI_NEW_SECRET =   	"new_secret";
 	static final String LTI_ALLOWSECRET =   	"allowsecret";
 	static final String LTI_SECRET_INCOMPLETE = "-----";
 	static final String LTI_FRAMEHEIGHT = "frameheight";
@@ -662,6 +665,7 @@ public interface LTIService {
 	static final String LTI_REG_STATE_REGISTERED = "1";
 	static final String LTI_REG_LAUNCH = "reg_launch";
 	static final String LTI_REG_KEY = "reg_key";
+	static final String LTI_REG_ACK = "reg_ack";
 	static final String LTI_REG_PASSWORD = "reg_password";
 	static final String LTI_PARAMETER = "parameter";
 	static final String LTI_REG_PROFILE = "reg_profile";

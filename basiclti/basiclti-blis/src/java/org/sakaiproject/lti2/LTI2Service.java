@@ -288,6 +288,16 @@ public class LTI2Service extends HttpServlet {
 	public void registerToolProviderProfile(HttpServletRequest request,HttpServletResponse response, 
 			String profile_id) throws java.io.IOException
 	{
+		// Parse the JSON
+		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
+
+		if ( ! jsonRequest.valid ) {
+			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format", null);
+			return;
+		}
+		// System.out.println(jsonRequest.getPostBody());
+
 		Map<String,Object> deploy = ltiService.getDeployForConsumerKeyDao(profile_id);
 		if ( deploy == null ) {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND); 
@@ -299,6 +309,8 @@ public class LTI2Service extends HttpServlet {
 		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		String key = null;
 		String secret = null;
+		String new_secret = null;
+		String ack = null;
 		if ( reg_state == 0 ) {
 			key = (String) deploy.get(LTIService.LTI_REG_KEY);
 			secret = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
@@ -306,16 +318,13 @@ public class LTI2Service extends HttpServlet {
 			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 			secret = (String) deploy.get(LTIService.LTI_SECRET);
 			secret = SakaiBLTIUtil.decryptSecret(secret);
+			ack = request.getHeader("VND-IMS-ACKNOWLEDGE-URL");
+			if ( ack == null || ack.length() < 1 ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request, response, jsonRequest, "Re-registration requires VND-IMS-ACKNOWLEDGE-URL header", null);
+				return;
+			}
 		}
-
-		IMSJSONRequest jsonRequest = new IMSJSONRequest(request);
-
-		if ( ! jsonRequest.valid ) {
-			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format", null);
-			return;
-		}
-		// System.out.println(jsonRequest.getPostBody());
 
 		// Lets check the signature
 		if ( key == null || secret == null ) {
@@ -380,11 +389,17 @@ public class LTI2Service extends HttpServlet {
 		// Passed all the tests, lets commit this...
 		Map<String, Object> deployUpdate = new TreeMap<String, Object> ();
 		shared_secret = SakaiBLTIUtil.encryptSecret(shared_secret);
-		deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
+		if ( reg_state == 0 ) {
+			deployUpdate.put(LTIService.LTI_SECRET, shared_secret);
+		} else {
+			// In Re-Registration, the new secret is not committed until Activation
+			deployUpdate.put(LTIService.LTI_NEW_SECRET, shared_secret);
+		}
 
 		// Indicate ready to validate and kill the interim info
 		deployUpdate.put(LTIService.LTI_REG_STATE, LTIService.LTI_REG_STATE_REGISTERED);
 		deployUpdate.put(LTIService.LTI_REG_KEY, "");
+		deployUpdate.put(LTIService.LTI_REG_ACK, ack);
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
 		if ( default_custom != null ) deployUpdate.put(LTIService.LTI_SETTINGS, default_custom.toString());
 		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
