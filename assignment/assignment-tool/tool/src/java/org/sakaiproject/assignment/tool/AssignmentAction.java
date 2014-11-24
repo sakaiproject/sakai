@@ -4805,7 +4805,7 @@ public class AssignmentAction extends PagedResourceActionII
 		User u = (User) state.getAttribute(STATE_USER);
 
 		String submitterId = params.get("submitterId");
-		if (submitterId != null) {
+		if (submitterId != null && (AssignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
 		        u = UserDirectoryService.getUser(submitterId);
 		        state.setAttribute("student", u);
