@@ -78,13 +78,13 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.util.Validator;
+import org.sakaiproject.util.FormattedText;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 
 import org.sakaiproject.api.app.messageforums.entity.DecoratedForumInfo;
 import org.sakaiproject.api.app.messageforums.entity.DecoratedTopicInfo;
-
 
 
 
@@ -553,7 +553,7 @@ public class FCKConnectorServlet extends HttpServlet {
 
                        out.println("window.parent.OnUploadCompleted(" + status + ",'"
                                + (attachment!=null?attachment.getUrl():"")
-                               + "','" + fileName + "','" + errorMessage + "');");
+                               + "','" + FormattedText.escapeJsQuoted(fileName) + "','" + errorMessage + "');");
 
                    out.println("</script>");
                }
