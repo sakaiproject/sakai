@@ -195,7 +195,15 @@ public class FormattedText {
      */
     public static String makeShortenedText(String text, Integer maxLength, String separator, String cutMethod) {
         return getFormattedText().makeShortenedText(text, maxLength, separator, cutMethod);
-}
+    }
+
+    /**
+     * @see org.sakaiproject.util.api.FormattedText#escapeJsQuoted(String)
+     */
+    public static String escapeJsQuoted(String text) {
+        return getFormattedText().escapeJsQuoted(text);
+    }
+
     
     /**
      * @see org.sakaiproject.util.api.FormattedText#getDecimalSeparator()
