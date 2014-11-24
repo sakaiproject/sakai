@@ -252,6 +252,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * Supplement items: all purpose item text
 		 */
 		private String allPurposeItemText;
+		private String gradebookItemId;
 		
 		public SimpleAssignment() {
 		}
@@ -284,6 +285,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			this.position_order = a.getPosition_order();
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
+			this.gradebookItemId=a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
 			
 			if (a.getContent() != null){
 				this.instructions = a.getContent().getInstructions();
