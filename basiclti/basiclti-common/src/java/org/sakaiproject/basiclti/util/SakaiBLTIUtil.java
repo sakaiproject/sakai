@@ -611,7 +611,7 @@ public class SakaiBLTIUtil {
         proxyBinding = ltiService.getProxyBindingDao(toolKey,context);
 
 		Long toolVersion = getLongNull(tool.get(LTIService.LTI_VERSION));
-		boolean isLTI1 = ! toolVersion.equals(LTIService.LTI_VERSION_2);
+		boolean isLTI1 = toolVersion == null || (!toolVersion.equals(LTIService.LTI_VERSION_2));
 		M_log.debug("toolVersion="+toolVersion+" isLTI1="+isLTI1);
 
 		// Start building up the properties
