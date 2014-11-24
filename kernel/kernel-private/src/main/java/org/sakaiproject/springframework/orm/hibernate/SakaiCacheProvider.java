@@ -113,7 +113,6 @@ public class SakaiCacheProvider implements CacheProvider, ApplicationContextAwar
 	public void stop()
 	{
 		LOG.info("Stopping Hibernate Cache "+defaultCacheName+" ------------------------------- ");
-        defaultCache.close();
 	}
 
 }
