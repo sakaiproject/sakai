@@ -521,52 +521,6 @@ public class Validator
 	} // escapeZipEntry
 
 	/**
-	 * Return a string based on value that is safe to place into a javascript value that is in single quiotes.
-	 * 
-	 * @param value
-	 *        The string to escape.
-	 * @return value escaped.
-	 */
-	public static String escapeJsQuoted(String value)
-	{
-		if (value == null) return "";
-		try
-		{
-			StringBuilder buf = new StringBuilder();
-			for (int i = 0; i < value.length(); i++)
-			{
-				char c = value.charAt(i);
-
-				// a single quote must be escaped with a leading backslash
-				if (c == '\'')
-				{
-					buf.append("\\'");
-				}
-
-				// a backslash must be escaped with another backslash
-				else if (c == '\\')
-				{
-					buf.append("\\\\");
-				}
-
-				else
-				{
-					buf.append(c);
-				}
-			}
-
-			String rv = buf.toString();
-			return rv;
-		}
-		catch (Exception e)
-		{
-			M_log.warn("Validator.escapeJsQuoted: ", e);
-			return "";
-		}
-
-	} // escapeJsQuoted
-
-	/**
 	 * Check for a valid user id.
 	 * 
 	 * @exception IdInvalidException

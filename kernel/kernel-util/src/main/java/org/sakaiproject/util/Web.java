@@ -100,13 +100,11 @@ public class Web
      * @param value
      *        The string to escape.
      * @return value escaped.
-     * @deprecated 
-     *        Use http://commons.apache.org/lang/api/org/apache/commons/lang/StringEscapeUtils.html instead (see KNL-69).
-     * @deprecated just a passthrough for {@link Validator#escapeJsQuoted(String)} so use that instead
+     * @deprecated just a passthrough for {@link FormattedText#escapeJsQuoted(String)} so use that instead
      */
     public static String escapeJsQuoted(String value)
     {
-        return Validator.escapeJsQuoted(value);
+        return FormattedText.escapeJsQuoted(value);
     }
 
     /**
