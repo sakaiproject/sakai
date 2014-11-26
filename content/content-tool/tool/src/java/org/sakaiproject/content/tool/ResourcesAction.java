@@ -7284,11 +7284,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	public void doPermissions(RunData data, Context context)
 	{
 		logger.debug(this + ".doPermissions()");
-		
-		if (!"POST".equals(data.getRequest().getMethod())) {
-			return;
-		}
-		
+	
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
 		// cancel copy if there is one in progress
