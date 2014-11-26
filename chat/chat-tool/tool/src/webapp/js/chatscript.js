@@ -93,31 +93,36 @@ function updateShownText() {
     $("#chat2_messages_shown_total").html(countText);
 }
 
+function updateUsers() {
+    var url = "roomUsers?channel=" + currentChatChannelId;
+    $.ajax({
+    	    url: url,
+	    type: "GET"})
+    	.done(function(data) {
+		$("#presence").html(data);		
+    	    });
+}
+
 //Library to ajaxify the Chatroom message submit action
 	$(document).ready(function() {
-
 		updateShownText();
+		updateUsers();
 
                 // the iframe has a src of roomUsers.
                 // in frameless situation that will be added to /portal/site ...
                 // but the tool will only recognize /portal/tool. Do the mapping
-                var iframesrc = $('#Presence').attr('src');
-                var urlpath = location.pathname;
-		var frameless = false;
-                if (urlpath.indexOf('/portal/site') == 0) {
-                    var i = urlpath.indexOf('/tool/');
-                    if (i >= 0) {
-                        var j = urlpath.indexOf('/', i+6);
-                        if (j >= 0) {
-			    frameless = true;
-			    urlpath = '/portal' + urlpath.substring(i, j+1) + iframesrc;
-                            $('#Presence').attr('src', urlpath);
-                        }
-                    }
-                }
 
 		// fix up the delete links. They use /sakai.chat ... That won't work. without the leading /
 		// it works. 
+		var urlpath = location.pathname;
+		var frameless = false;
+		if (urlpath.indexOf('/portal/site') == 0) {
+		    var i = urlpath.indexOf('/tool/');
+		    if (i >= 0) {
+			frameless = true;
+		    }
+		}
+ 
 		if (frameless) {
 		    $('.chatList a').each(function(index) {
 			    $(this).attr('onclick', $(this).attr('onclick').replace("'/sakai.chat.deleteMessage.helper","'sakai.chat.deleteMessage.helper"));

@@ -4,6 +4,7 @@
      <sakai:stylesheet contextBase="/sakai-chat-tool" path="/css/chat.css" />
      <script type="text/javascript">
 	focus_path = ["controlPanel:message"];
+        var currentChatChannelId = "<h:outputText value="#{ChatTool.currentChatChannelId}" />";
     doubleDeep = true;
 </script>
 <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
@@ -71,18 +72,8 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 				<h3 class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_user}" />
 				</h3>
-				<iframe
-					name="Presence"
-					id="Presence"
-					title="<h:outputText value="#{msgs.presence_panel}" />"
-					width="100%"
-					frameborder="0"
-					marginwidth="0"
-					marginheight="0"
-					align="right"
-					class="wcwmenu"
-					src="roomUsers?channel=<h:outputText value="#{ChatTool.currentChatChannelId}" />">
-				</iframe>
+				<div name="presence" id="presence" class="wcwmenu presenceList">
+				</div>
 			</div>
 		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
 		<div>

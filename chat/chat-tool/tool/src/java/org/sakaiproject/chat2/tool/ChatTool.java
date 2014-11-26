@@ -413,12 +413,21 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
    }
 
+    public class MyDelivery extends DirectRefreshDelivery {
+	public MyDelivery(String address, String elementId) {
+	    super(address, elementId);
+	}
+	public String compose() {
+	    return "updateUsers()";
+	}
+    }
+
    /**
     * {@inheritDoc}
     */
    public void userJoined(String location, String user)
    {
-      m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, IFRAME_ROOM_USERS));
+      m_courierService.deliver(new MyDelivery(sessionId+location, IFRAME_ROOM_USERS));
    }
 
    /**
@@ -444,7 +453,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 		   m_courierService.clear(sessionId+location);
        }
        else
-    	   m_courierService.deliver(new DirectRefreshDelivery(sessionId+location, IFRAME_ROOM_USERS));
+    	   m_courierService.deliver(new MyDelivery(sessionId+location, IFRAME_ROOM_USERS));
    }
    
    //********************************************************************

@@ -61,11 +61,24 @@ h3 {
    float:left;
    clear:none;
 }
-iframe {
+.presence {
    height: calc(20em);
 }
 h3.chatListHeadWrapper{
    font-size: 100% !important;
+}
+.presenceList {
+    list-style: none;
+    padding:0px;
+    margin:0px;
+    padding-left: 1em;
+    padding-bottom: 1em;
+}
+.presenceList li {
+    line-height: 1.2em;
+    font-size: 75%;
+    width:100%;
+    text-indent:0em;
 }
 @media screen and (max-width: 1000px) {
   #chatPresenceWrapper {
