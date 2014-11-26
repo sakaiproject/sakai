@@ -1,32 +1,29 @@
 {{#if displayTitleMsg}}
 	<span class="instruction rosterTitleMessage">{{translate 'title_msg'}}</span>
 {{/if}}
-
-<div class="roster-table">
-    <div class="roster-table-row">
-        <div class="roster-table-cell">{{translate 'groups'}}</div>
-        <div class="roster-table-cell">
-            <select id="roster-groups-selector-top">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
-                {{#each siteGroups}}
-                <option id="roster-group-option-{{id}}" value="{{id}}">{{title}}</option>
-                {{/each}}
-            </select>
+    <div class="roster-table">
+        <div class="roster-table-row">
+            <div class="roster-table-cell">{{translate 'enrollment_set_filter_label'}}</div>
+            <div class="roster-table-cell">
+                <select id="roster-enrollmentset-selector">
+                    {{#each enrollmentSets}}
+                        <option value="{{id}}">{{title}}</option>
+                    {{/each}}
+                </select>
+            </div>
+        </div>
+        <div class="roster-table-row">
+            <div class="roster-table-cell">{{translate 'enrollment_status_filter_label'}}</div>
+            <div class="roster-table-cell">
+                <select id="roster-status-selector">
+                    <option selected="selected" value="">{{translate 'roster_enrollment_status_all'}}</option>
+                    {{#each enrollmentStatusCodes}}
+                        <option value="{{@key}}">{{this}}</option>
+                    {{/each}}
+                </select>
+            </div>
         </div>
     </div>
-    <div class="roster-table-row">
-        <div class="roster-table-cell">{{translate 'roles_label'}}</div>
-        <div class="roster-table-cell">
-            <select id="roster-roles-selector">
-                <option value="all">{{translate 'roster_sections_all'}}</option>
-                {{#each roles}}
-                <option id="roster-role-option-{{this}}" value="{{this}}">{{this}}</option>
-                {{/each}}
-            </select>
-        </div>
-    </div>
-</div>
-
 <table id="roster_form:search_group" class="searchFilter">
 	<tbody>
 		<tr>
@@ -37,12 +34,6 @@
 					<input id="roster_form_clear_button" type="button" value="{{translate 'roster_clear_button'}}" name="roster_form:clear_button" />
 				</div>
 			</td>
-            <td>
-                <span class="instruction">
-                    <div id="roster-members-total" class="rosterRoleTopLine">{{membersTotal}}</div>
-                    <div id="roster-role-totals" class="rosterRoleBottomLine">({{roleFragments}})</div>
-                </span>
-            </td>
 		</tr>
 	</tbody>
 </table>

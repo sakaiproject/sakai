@@ -20,8 +20,11 @@
 package org.sakaiproject.roster.api;
 
 import java.util.List;
+import java.util.Map;
 
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.user.api.User;
 
 /**
  * Roster interface to Sakai functionality.
@@ -32,6 +35,10 @@ public interface SakaiProxy {
 
 	public final static String[] ROSTER_STATES = new String[] { "overview",
 			"pics", "group_membership", "status" };
+
+    public final static String MEMBERSHIPS_CACHE = "org.sakaiproject.roster.sortedMembershipsCache";
+    public final static String ENROLLMENTS_CACHE = "org.sakaiproject.roster.sortedEnrollmentsCache";
+    public final static String SEARCH_INDEX_CACHE = "org.sakaiproject.roster.searchIndexCache";
 
 	public final static String DEFAULT_SORT_COLUMN = "sortName";
 	public final static Boolean DEFAULT_FIRST_NAME_LAST_NAME = false;
@@ -129,26 +136,11 @@ public interface SakaiProxy {
 
 	public Site getSite(String siteId);
 		
-	/**
-	 * Returns the list of viewable members from the specified site.
-	 * 
-	 * @param siteId the ID of the site.
-	 * @param includeConnectionStatus specify <code>true</code> if
-	 *            <code>RosterMember</code> objects should be populated with the
-	 *            Profile2 connection statuses to the current user, else specify
-	 *            <code>false</code>.
-	 * @return the list of viewable members from the specified site.
-	 */
-	public List<RosterMember> getSiteMembership(String siteId, boolean includeConnectionStatus);
-	
-	/**
-	 * Returns the list of viewable members from the specified group.
-	 * 
-	 * @param siteId the ID of the site the group belongs to.
-	 * @param groupId the ID of the group.
-	 * @return the list of viewable members from the specified group.
-	 */
-	public List<RosterMember> getGroupMembership(String siteId, String groupId);
+	public List<RosterMember> getMembership(String currentUserId, String siteId, String groupId, String roleId, String enrollmentSetId, String enrollmentStatus);
+
+	public RosterMember getMember(String siteId, String userId, String enrollmentSetId);
+
+	public List<User> getSiteUsers(String siteId);
 	
 	/**
 	 * Returns site information for the specified site.
@@ -167,7 +159,7 @@ public interface SakaiProxy {
 	 * @return the enrollment set members for the specified site and enrollment
 	 *         set.
 	 */
-	public List<RosterMember> getEnrollmentMembership(String siteId, String enrollmentSetId);
+	//public List<RosterMember> getEnrollmentMembership(String siteId, String enrollmentSetId);
 	
 	/**
 	 * Returns whether or not the specified user is allowed the specified
@@ -214,4 +206,9 @@ public interface SakaiProxy {
 	 * Checks if the user has site.upd in the given site
 	 */
 	public boolean isSiteMaintainer(String siteId);
+
+	/**
+	 * Attempts to retrieve the search index for the specified site.
+	 */
+    public Map<String, String> getSearchIndex(String siteId);
 }

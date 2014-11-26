@@ -52,7 +52,9 @@ public class RosterMember {
 	@Getter @Setter
 	private String role;
 	@Getter @Setter
-	private String enrollmentStatus;
+	private String enrollmentStatusId;
+	@Getter @Setter
+	private String enrollmentStatusText;
 	@Getter @Setter
 	private String credits;	
 	@Getter

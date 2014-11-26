@@ -36,19 +36,6 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 
 	private static final Log log = LogFactory.getLog(RosterMemberComparator.class);
 	
-	// sort fields
-	public final static String SORT_NAME		= "sortName";
-	public final static String SORT_DISPLAY_ID	= "displayId";
-	public final static String SORT_EMAIL		= "email";
-	public final static String SORT_ROLE		= "role";
-	public final static String SORT_STATUS		= "status";
-	public final static String SORT_CREDITS		= "credits";
-	// sort directions
-	public final static int SORT_ASCENDING		= 0;
-	public final static int SORT_DESCENDING		= 1;
-
-	private final String sortField;
-	private final int sortDirection;
 	private final boolean firstNameLastName;
 	
 	/**
@@ -57,48 +44,12 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 	 * 
 	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 	 */
-	public int compare(RosterMember a, RosterMember b) {
+	public int compare(RosterMember member1, RosterMember member2) {
 
-		RosterMember member1;
-		RosterMember member2;
-
-		if (SORT_DESCENDING == sortDirection) {
-			member1 = b;
-			member2 = a;
-		}
-		// just sort ascending by default
-		else {
-			member1 = a;
-			member2 = b;
-		}
-
-		if (SORT_NAME.equals(sortField)) {
-			if (firstNameLastName) {
-				return member1.getDisplayName().compareToIgnoreCase(
-						member2.getDisplayName());
-			} else {
-				return member1.getSortName().compareToIgnoreCase(
-						member2.getSortName());
-			}
-		} else if (SORT_DISPLAY_ID.equals(sortField)) {
-			return member1.getDisplayId().compareToIgnoreCase(
-					member2.getDisplayId());
-		} else if (SORT_EMAIL.equals(sortField)) {
-			return member1.getEmail().compareToIgnoreCase(
-					member2.getEmail());
-		} else if (SORT_ROLE.equals(sortField)) {
-			return member1.getRole().compareToIgnoreCase(member2.getRole());
-		} else if (SORT_STATUS.equals(sortField)) {
-			return member1.getEnrollmentStatus().compareToIgnoreCase(
-					member2.getEnrollmentStatus());
-		} else if (SORT_CREDITS.equals(sortField)) {
-			return member1.getCredits().compareToIgnoreCase(
-					member2.getCredits());
-		}
-
-		log.warn("members not sorted");
-
-		return 0;
+        if (firstNameLastName) {
+            return member1.getDisplayName().compareToIgnoreCase(member2.getDisplayName());
+        } else {
+            return member1.getSortName().compareToIgnoreCase(member2.getSortName());
+        }
 	}
-	
 }
