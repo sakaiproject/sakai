@@ -46,6 +46,7 @@
                   <f:selectItems value="#{ChatTool.messageOptionsList}" />
               </h:selectOneMenu>
            </h:panelGroup>
+	   <div id="chatLeft">
 			<div id="chatListWrapper" class="chatListWrapper">
 				<div  class="chatListHeadWrapper">
 					<h:outputText value="#{msgs.lay_note}" rendered="#{ChatTool.canRenderAllMessages}" />
@@ -68,13 +69,6 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 					<%@ include file="roomMonitor.jspf" %>
 				</div>
 			</div>	
-			<div id="chatPresenceWrapper" class="information">			
-				<h3 class="chatListHeadWrapper">
-					<h:outputText value="#{msgs.lay_user}" />
-				</h3>
-				<div name="presence" id="presence" class="wcwmenu presenceList">
-				</div>
-			</div>
 		<f:subview id="controlPanel" rendered="#{ChatTool.canPost}">
 		<div>
 		    <h:outputLabel for="message" value="#{msgs['control.lab']}" style="clear:both;display:block;" />
@@ -90,8 +84,16 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
 	              value="#{msgs['control.clear']}" />
 	     	</p>
 	    </div>
+           </div>
 		</f:subview>
 		</h:form>
+			<div id="chatPresenceWrapper" class="information">			
+				<h3 class="chatListHeadWrapper">
+					<h:outputText value="#{msgs.lay_user}" />
+				</h3>
+				<div name="presence" id="presence" class="wcwmenu presenceList">
+				</div>
+			</div>
         <t:div styleClass="messageInformation chat-post-warning" rendered="#{!ChatTool.canPost && ChatTool.datesRestricted}">
             <h:outputText value="#{msgs.custom_date_restricted}" />
             <h:outputText value="#{ChatTool.datesMessage}" />

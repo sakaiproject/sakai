@@ -1,4 +1,9 @@
 /* sakai chat tool CSS */
+#chatLeft {
+    float:left;
+    width:82%;
+    clear:none;
+}
 .chat-post-warning {
     max-height: 2em;
     width: 80%;
@@ -52,6 +57,9 @@ h3 {
    padding:0px !important;
    margin:0px !important;
    padding-top:0.5em !important;
+   max-height: 40em; 
+   overflow-y: auto;
+   overflow-x: hidden;
 }
 #chatPresenceWrapper:before {
    content:none;
@@ -84,6 +92,7 @@ h3.chatListHeadWrapper{
   #chatPresenceWrapper {
      display:none;
   }
+  #chatLeft {
+     width:auto;
+  }
 }
-
-
