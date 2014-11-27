@@ -107,7 +107,7 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
 	public static final String BASICLTI_CONTENTLINK_ENABLED_DEFAULT = null; // i.e. false
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
-    public static final String INCOMING_ROSTER_ENABLED = "basiclti.incoming.roster.enabled";
+	public static final String INCOMING_ROSTER_ENABLED = "basiclti.incoming.roster.enabled";
 	public static final String BASICLTI_ENCRYPTION_KEY = "basiclti.encryption.key";
 	public static final String BASICLTI_LAUNCH_SESSION_TIMEOUT = "basiclti.launch.session.timeout";
 
@@ -443,6 +443,7 @@ public class SakaiBLTIUtil {
 			if ( ! "on".equals(allowLori) ) allowLori = null;
 
 			String result_sourcedid = getSourceDID(user, placement, config);
+
 			if ( result_sourcedid != null ) {
 
 				if ( "true".equals(allowOutcomes) && assignment != null ) {
@@ -485,24 +486,43 @@ public class SakaiBLTIUtil {
 					setProperty(props,"ext_lori_api_url_xml", lori_url_xml);  
 				}
 			}
+
+			// Send along the deprecated LinkTool encrypted session if requested
+			String sendsession = toNull(getCorrectProperty(config,"ext_sakai_session", placement));
+			if ( "true".equals(sendsession) ) {
+				Session s = SessionManager.getCurrentSession();
+				if (s != null) {
+					String sessionid = s.getId();
+					if (sessionid != null) {
+						sessionid = LinkToolUtil.encrypt(sessionid);
+						setProperty(props,"ext_sakai_session",sessionid);
+					}
+				}
+			}
+
+			// Send along the SAK-28125 encrypted session if requested
+			String encryptsession = toNull(getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
+			String secret = toNull(getCorrectProperty(config,LTIService.LTI_SECRET, placement));
+			String key = toNull(getCorrectProperty(config,"key", placement));
+			if ( secret != null && key != null && "true".equals(encryptsession) ) {
+				String longerSecret = decryptSecret(secret);
+				// Extend the secret to the maximum Blowfish length
+				String hash = PortableShaUtil.sha256Hash(key);
+				longerSecret = BlowFish.strengthenKey(longerSecret,hash);
+				Session s = SessionManager.getCurrentSession();
+				if (s != null) {
+					String sessionid = s.getId();
+					if (sessionid != null) {
+						sessionid = BlowFish.encrypt(longerSecret,sessionid);
+						setProperty(props,"ext_sakai_encrypted_session",sessionid);
+					}
+				}
+			}
 		}
 
 		// Send along the content link
 		String contentlink = toNull(getCorrectProperty(config,"contentlink", placement));
 		if ( contentlink != null ) setProperty(props,"ext_resource_link_content",contentlink);
-
-		// Send along the signed session if requested
-		String sendsession = toNull(getCorrectProperty(config,"ext_sakai_session", placement));
-		if ( "true".equals(sendsession) ) {
-			Session s = SessionManager.getCurrentSession();
-			if (s != null) {
-				String sessionid = s.getId();
-				if (sessionid != null) {
-					sessionid = LinkToolUtil.encrypt(sessionid);
-					setProperty(props,"ext_sakai_session",sessionid);
-				}
-			}
-		}
 	} 
 
 	public static void addGlobalData(Site site, Properties props, Properties custom, ResourceLoader rb)
