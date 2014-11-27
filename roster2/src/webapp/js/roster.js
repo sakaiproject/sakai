@@ -110,6 +110,7 @@
 
             roster.enrollmentSetToView = null;
             roster.groupToView = null;
+            roster.nextPage = 0;
 
             $('#navbar_overview_link > span').addClass('current');
 
