@@ -834,21 +834,6 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		if (log.isDebugEnabled()) log.debug("site: " + site.getId());
 		
-		if (log.isDebugEnabled()) log.debug("Checking permissions for site: " +  site.getReference());
-		// for DelegatedAccess to work, you must use the SecurityService.unlock method of checking permissions.
-		if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWALL, site.getReference())) {
-			log.debug("roster.viewallmembers = false");
-
-			if (!isAllowed(currentUserId, RosterFunctions.ROSTER_FUNCTION_VIEWGROUP, site.getReference())) {
-				log.debug("roster.viewgroup = false");
-				return null;
-			} else {
-				log.debug("roster.viewgroup = true. Access ok.");
-			}
-		} else {
-			log.debug("roster.viewallmembers = true. Access ok.");
-		}
-		
 		RosterSite rosterSite = new RosterSite(siteId);
 
 		rosterSite.setTitle(site.getTitle());
