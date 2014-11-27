@@ -9146,6 +9146,10 @@ public class DiscussionForumTool
 			return gotoMain();
 		} else {
 			desttopicIdstr = (String) destTopicList.get(0);
+			if ("0".equals(desttopicIdstr)){
+				setErrorMessage(getResourceBundleString(NOT_SELECTED_TOPIC));
+				return gotoMain();
+			}
 		}
 		if (LOG.isDebugEnabled()) LOG.debug("Calling processMoveThread dest topic is " + desttopicIdstr);
 
@@ -9401,6 +9405,7 @@ public class DiscussionForumTool
 	private static final String ADD_RANK = "dfAddRank";
 	private static final String EDIT_RANK = "dfEditRank";
 	private static final String CONFIRM_REMOVE_RANK = "dfConfirmRemoveRanks";
+	private static final String NOT_SELECTED_TOPIC = "cdfm_not_selected_topic";
 
 	private boolean just_created = false;
 	private boolean imageDeletePending = false;
