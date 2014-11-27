@@ -48,7 +48,6 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 
 				<h:outputText value="#{authorMessages.mcsc_whats_this_text}" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled==true}"/>
 				<h:outputText value=" #{authorMessages.mcsc_whats_this_text_no_partial_credit}" escape="false"  rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
-				<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
 				<h:outputText value="&nbsp;" escape="false" rendered="#{itemauthor.currentItem.partialCreditEnabled!=true}"/>
 
 				<h:panelGroup rendered="#{itemauthor.currentItem.partialCreditEnabled==true}" >
@@ -59,8 +58,6 @@ $Id: fullShortAnswer.jsp 6643 2006-03-13 19:38:07Z hquinn@stanford.edu $
 					<h:outputText value="#{authorMessages.enable_nagative_marking}: " escape="false"/>
 					<f:verbatim></b></f:verbatim>	
 					<h:outputText value="#{authorMessages.enable_negative_makrinkg_text}" escape="false"/>
-					<f:verbatim><br/></f:verbatim>
-					<h:outputText value="#{authorMessages.mcms_whats_this_note}" escape="false"/>
 					<f:verbatim></li></f:verbatim>
 					</h:panelGroup>
 					<h:panelGroup>
