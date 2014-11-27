@@ -2431,7 +2431,7 @@ public class AssignmentAction extends PagedResourceActionII
 		if (assignmentRef != null)
 		{
 			a = getAssignment(assignmentRef, "setAssignmentFormContext", state);
-                        gs = a != null && a.isGroup() ? "1": "0";                        
+                        
 		}
                 context.put("value_CheckIsGroupSubmission", gs);
 		
