@@ -125,7 +125,7 @@
                 onOk: function() {
                     var jsonSavedContent = LoadData(autoSaveKey);
 
-                    editorInstance.setData(jsonSavedContent.data);
+                    editorInstance.loadSnapshot(jsonSavedContent.data);
 
                     RemoveStorage(autoSaveKey);
                 },
