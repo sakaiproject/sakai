@@ -161,10 +161,12 @@ public class ItemBean
   private boolean newAddToFavorite = false;
   private String favoriteName="30 character limit";
   private boolean fromFavoriteSelectOneMenu = false;
-  private String commentField=(new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages")).getString("character_limit");
+  private String commentField=RB_AUTHOR_MESSAGES.getString("character_limit");
   private String currentFavorite="1";
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
+  
+  private static final ResourceLoader RB_AUTHOR_MESSAGES = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");  
   
   /**
    * Creates a new ItemBean object.
@@ -1104,8 +1106,7 @@ public class ItemBean
 	       {
 		   //print error
                FacesContext context=FacesContext.getCurrentInstance();
-               ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-               context.addMessage(null,new FacesMessage(rb.getString("MCanswer_outofbound_error")));
+               context.addMessage(null,new FacesMessage(RB_AUTHOR_MESSAGES.getString("MCanswer_outofbound_error")));
 	       }
     
        }
@@ -1213,8 +1214,7 @@ public class ItemBean
 	if(choice==null ||choice.equals("")|| 
 			((match==null || match.equals("")) && MatchItemBean.CONTROLLING_SEQUENCE_DEFAULT.equals(currentMatchPair.getControllingSequence()))) {
 	    FacesContext context=FacesContext.getCurrentInstance();
-	    ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages");
-	    context.addMessage(null,new FacesMessage(rb.getString("match_error")));
+	    context.addMessage(null,new FacesMessage(RB_AUTHOR_MESSAGES.getString("match_error")));
 	    return true;
 	}
 	return false;
