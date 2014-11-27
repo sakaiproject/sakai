@@ -190,7 +190,7 @@
             var autoSavedContent = jsonSavedContent.data;
             var autoSavedContentDate = jsonSavedContent.saveTime;
 
-            var editorLoadedContent = editorInstance.getData();
+            var editorLoadedContent = editorInstance.getSnapshot();
 
             // check if the loaded editor content is the same as the autosaved content
             if (editorLoadedContent == autoSavedContent) {
@@ -221,7 +221,7 @@
     }
 
     function SaveData(autoSaveKey, editorInstance) {
-        var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getData(), saveTime: new Date() }));
+        var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getSnapshot(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
 
         var autoSaveMessage = document.getElementById(autoSaveMessageId(editorInstance));
@@ -246,7 +246,7 @@
     function RenderDiff(dialog, editorInstance, autoSaveKey) {
         var jsonSavedContent = LoadData(autoSaveKey);
 
-        var base = difflib.stringAsLines(editorInstance.getData());
+        var base = difflib.stringAsLines(editorInstance.getSnapshot());
         var newtxt = difflib.stringAsLines(jsonSavedContent.data);
         var sm = new difflib.SequenceMatcher(base, newtxt);
         var opcodes = sm.get_opcodes();
