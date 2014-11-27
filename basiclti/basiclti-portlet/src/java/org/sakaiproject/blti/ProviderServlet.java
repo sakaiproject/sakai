@@ -54,7 +54,7 @@ import org.sakaiproject.lti.api.UserPictureSetter;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-import org.sakaiproject.basiclti.util.ShaUtil;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -659,7 +659,7 @@ public class ProviderServlet extends HttpServlet {
         if (trustedConsumer) {
             siteId = context_id;
         } else {
-            siteId = ShaUtil.sha1Hash(oauth_consumer_key + ":" + context_id);
+            siteId = LegacyShaUtil.sha1Hash(oauth_consumer_key + ":" + context_id);
         }
         if (M_log.isDebugEnabled()) {
             M_log.debug("siteId=" + siteId);

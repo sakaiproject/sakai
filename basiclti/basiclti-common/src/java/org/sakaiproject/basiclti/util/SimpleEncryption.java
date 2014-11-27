@@ -50,11 +50,11 @@ public class SimpleEncryption {
 			
 			// Pack the byte arrays into a string hex encoded. 
 			StringBuffer out = new StringBuffer();
-			out.append(ShaUtil.byteToHex(salt));
+			out.append(LegacyShaUtil.byteToHex(salt));
 			out.append(":");
-			out.append(ShaUtil.byteToHex(iv));
+			out.append(LegacyShaUtil.byteToHex(iv));
 			out.append(":");
-			out.append(ShaUtil.byteToHex(ciphertext));
+			out.append(LegacyShaUtil.byteToHex(ciphertext));
 			out.append(":");
 			out.append(CIPHER);
 			return out.toString();
@@ -77,9 +77,9 @@ public class SimpleEncryption {
 		} else {
 			throw new RuntimeException("Corrupt encrypted source. Can't split source.");
 		}
-		byte[] salt = ShaUtil.hexToByte(parts[0]);
-		byte[] iv = ShaUtil.hexToByte(parts[1]);
-		byte[] ciphertext = ShaUtil.hexToByte(parts[2]);
+		byte[] salt = LegacyShaUtil.hexToByte(parts[0]);
+		byte[] iv = LegacyShaUtil.hexToByte(parts[1]);
+		byte[] ciphertext = LegacyShaUtil.hexToByte(parts[2]);
 
 		try {
 			SecretKey secret = generateSecret(password, salt);

@@ -21,8 +21,9 @@ package org.sakaiproject.basiclti.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import org.imsglobal.basiclti.Base64;
 
-public class ShaUtil {
+public class PortableShaUtil {
 	private static final char[] TOHEX = "0123456789abcdef".toCharArray();
 	public static final String UTF8 = "UTF8";
 
@@ -49,7 +50,7 @@ public class ShaUtil {
 		} catch (NoSuchAlgorithmException e) {
 			throw new Error(e);
 		}
-		return byteToHex(b);
+		return bin2hex(b);
 	}
 
 	public static String sha256Hash(final String tohash) {
@@ -63,17 +64,19 @@ public class ShaUtil {
 		} catch (NoSuchAlgorithmException e) {
 			throw new Error(e);
 		}
-		return byteToHex(b);
+		// for (byte x : b) { System.out.println(Integer.toHexString(x&0xff)); }
+		return bin2hex(b);
 	}
 
-	public static String byteToHex(final byte[] base) {
+	public static String bin2hex(final byte[] base) {
 		if (base != null) {
 			char[] c = new char[base.length * 2];
 			int i = 0;
 
 			for (byte b : base) {
 				int j = b;
-				j = j + 128;
+				// j = j + 128;  // Wrong - not portable
+				j = j & 0xff; // Right - portable
 				c[i++] = TOHEX[j / 0x10];
 				c[i++] = TOHEX[j % 0x10];
 			}
@@ -82,16 +85,16 @@ public class ShaUtil {
 			return null;
 		}
 	}
-	
 
-	public static byte[] hexToByte(String hex) {
+	public static byte[] hex2bin(String hex) {
 		if (hex == null) {
 			return null;
 		}
 		byte[] base = new byte[hex.length() / 2];
 		int i = 0;
 		for (int j = 0; j < base.length; j++) {
-			int digit = -128;
+			// int digit = -128; // Wrong - not portable
+			int digit = 0; // Right - portable
 			digit += Character.digit(hex.charAt(i++), 16) * 0x10;
 			digit += Character.digit(hex.charAt(i++), 16) % 0x10;
 			base[j] = (byte) digit;
@@ -99,24 +102,4 @@ public class ShaUtil {
 		return base;
 	}
 
-	public static void main(String[] args) {
-		final String sample1 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
-		final String sample2 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅ½";
-		final String sample3 = "12345:/sites/foo/bar !@#$%^&*()_+|}{\":?><[]\';/.,'Áª£¢°¤¦¥»¼Ð­ÇÔÒ¹¿ö¬ ¨«Ï¶Ä©úÆûÂÉ¾Ö³²µ÷ÃÅÅ";
-		final String sample1Hash = sha1Hash(sample1);
-		final String sample2Hash = sha1Hash(sample2);
-		final String sample3Hash = sha1Hash(sample3);
-		System.out.println(sample1Hash);
-		System.out.println(sample2Hash);
-		System.out.println(sample3Hash);
-		assert (sample1Hash.equals(sample2Hash));
-		System.out.println(sample1Hash.equals(sample2Hash)
-				+ "=(sample1Hash.equals(sample2Hash))");
-		assert (!sample3Hash.equals(sample1Hash));
-		System.out.println(!sample3Hash.equals(sample1Hash)
-				+ "=(!sample3Hash.equals(sample1Hash))");
-		assert (null == byteToHex(null));
-		final boolean testNull = (null == byteToHex(null));
-		System.out.println(testNull + "=(null == byteToHex(null))");
-	}
 }

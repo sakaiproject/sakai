@@ -3,7 +3,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.sakaiproject.basiclti.util.ShaUtil;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
 
 
 public class ByteToHexAndBack {
@@ -14,16 +14,16 @@ public class ByteToHexAndBack {
 
 	@Test
 	public void testHexToBytes() {
-		assertEquals("80", ShaUtil.byteToHex(new byte[]{0}));
-		assertEquals("81", ShaUtil.byteToHex(new byte[]{1}));
-		assertEquals("7f", ShaUtil.byteToHex(new byte[]{-1}));
+		assertEquals("80", LegacyShaUtil.byteToHex(new byte[]{0}));
+		assertEquals("81", LegacyShaUtil.byteToHex(new byte[]{1}));
+		assertEquals("7f", LegacyShaUtil.byteToHex(new byte[]{-1}));
 	}
 	
 	@Test
 	public void testByteToHex() {
-		assertArrayEquals(new byte[]{0}, ShaUtil.hexToByte("80"));
-		assertArrayEquals(new byte[]{1}, ShaUtil.hexToByte("81"));
-		assertArrayEquals(new byte[]{-1}, ShaUtil.hexToByte("7f"));
+		assertArrayEquals(new byte[]{0}, LegacyShaUtil.hexToByte("80"));
+		assertArrayEquals(new byte[]{1}, LegacyShaUtil.hexToByte("81"));
+		assertArrayEquals(new byte[]{-1}, LegacyShaUtil.hexToByte("7f"));
 	}
 	
 	@Test
@@ -32,7 +32,7 @@ public class ByteToHexAndBack {
 		for (int i = 0; i < allBytes.length; i++) {
 			allBytes[i] = (byte) (i+Byte.MIN_VALUE);
 		}
-		assertArrayEquals(allBytes, ShaUtil.hexToByte(ShaUtil.byteToHex(allBytes)));
+		assertArrayEquals(allBytes, LegacyShaUtil.hexToByte(LegacyShaUtil.byteToHex(allBytes)));
 	}
 
 }

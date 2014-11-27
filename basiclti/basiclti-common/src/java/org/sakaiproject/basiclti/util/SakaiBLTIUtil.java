@@ -994,7 +994,7 @@ public class SakaiBLTIUtil {
 		if ( placementSecret == null ) return null;
 		String suffix = ":::" +  user.getId() + ":::" + placeStr;
 		String base_string = placementSecret + suffix;
-		String signature = ShaUtil.sha256Hash(base_string);
+		String signature = LegacyShaUtil.sha256Hash(base_string);
 		return signature + suffix;
 	}
 
@@ -1164,14 +1164,14 @@ public class SakaiBLTIUtil {
 		}
 
 		String pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-		String received_signature = ShaUtil.sha256Hash(pre_hash);
+		String received_signature = LegacyShaUtil.sha256Hash(pre_hash);
 		M_log.debug("Received signature="+signature+" received="+received_signature);
 		boolean matched = signature.equals(received_signature);
 
 		String old_placement_secret  = pitch.getProperty(LTIService.LTI_OLDPLACEMENTSECRET);
 		if ( old_placement_secret != null && ! matched ) {
 			pre_hash = placement_secret + ":::" + user_id + ":::" + placement_id;
-			received_signature = ShaUtil.sha256Hash(pre_hash);
+			received_signature = LegacyShaUtil.sha256Hash(pre_hash);
 			M_log.debug("Received signature II="+signature+" received="+received_signature);
 			matched = signature.equals(received_signature);
 		}

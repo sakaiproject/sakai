@@ -13,7 +13,7 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import net.oauth.*;
 import net.oauth.signature.OAuthSignatureMethod;
 
-import org.sakaiproject.basiclti.util.ShaUtil;
+import org.sakaiproject.basiclti.util.LegacyShaUtil;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -176,7 +176,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 
         if(M_log.isDebugEnabled()) M_log.debug("callXml: " + callXml);
 
-        String bodyHash = OAuthSignatureMethod.base64Encode(ShaUtil.sha1(callXml));
+        String bodyHash = OAuthSignatureMethod.base64Encode(LegacyShaUtil.sha1(callXml));
         M_log.debug(bodyHash);
 
         OAuthMessage om = new OAuthMessage("POST", membershipsUrl, null);
