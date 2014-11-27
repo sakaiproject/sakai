@@ -504,7 +504,9 @@ public class SakaiBLTIUtil {
 			String encryptsession = toNull(getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
 			String secret = toNull(getCorrectProperty(config,LTIService.LTI_SECRET, placement));
 			String key = toNull(getCorrectProperty(config,"key", placement));
-			if ( secret != null && key != null && "true".equals(encryptsession) ) {
+			if ( secret != null && key != null && "true".equals(encryptsession) 
+				&& ! SecurityService.isSuperUser() ) {
+
 				String longerSecret = decryptSecret(secret);
 				// Extend the secret to the maximum Blowfish length
 				String hash = PortableShaUtil.sha256Hash(key);

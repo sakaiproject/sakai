@@ -366,6 +366,11 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 									{
 										// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
 										String splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"overridesplash", placement));
+										String send_session = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
+										if ( splash == null && send_session.equals("true") && ! SecurityService.isSuperUser() )
+										{
+											splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
+										}
 										if ( splash == null ) 
 										{
 											// This may be user-set so no HTML
