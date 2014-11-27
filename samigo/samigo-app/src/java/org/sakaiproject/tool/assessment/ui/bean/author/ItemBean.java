@@ -1866,6 +1866,10 @@ public class ItemBean
 		this.commentField = param;
 	}
 	
+	public int getCommentFieldLenght() {
+		return commentField==null ? 0 : commentField.length();
+	}
+	
 	public void toggleAddToFavorite(ValueChangeEvent event) {
 		this.addToFavorite = ((Boolean)event.getNewValue()).booleanValue(); 
 	}

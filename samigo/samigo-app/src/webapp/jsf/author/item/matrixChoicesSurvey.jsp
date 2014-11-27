@@ -158,7 +158,7 @@
  							onclick="javascript:if(this.value=='#{authorMessages.character_limit}') this.value='';"/>
  				<h:panelGroup>
  					<h:outputText  value="#{authorMessages.character_count}" style="font-weight:bold;color:red;"/>
- 					<h:inputText readonly="true" id="remLen2" size="2" maxlength="3" value="200"/>
+ 					<h:inputText readonly="true" id="remLen2" size="2" maxlength="3" value="#{200 - itemauthor.currentItem.commentFieldLenght}"/>
  				</h:panelGroup>
  			</h:panelGrid>
 		</h:panelGrid>
