@@ -161,7 +161,7 @@ public class ItemBean
   private boolean newAddToFavorite = false;
   private String favoriteName="30 character limit";
   private boolean fromFavoriteSelectOneMenu = false;
-  private String commentField="200 character limit";
+  private String commentField=(new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AuthorMessages")).getString("character_limit");
   private String currentFavorite="1";
   private boolean hasFavoriteList=false;
   private ArrayList currentFavoriteList;
