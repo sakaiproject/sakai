@@ -1867,7 +1867,31 @@ public class DbContentService extends BaseContentService
                out();
            }
        }
-       
+
+       public void cancelDeletedResource(ContentResourceEdit edit)
+       {
+           boolean goin = in();
+           try
+           {
+               if (resolver != null && goin)
+               {
+                   // We don't support deleted resources in resolver at the moment.
+                   return;
+               }
+               else
+               {
+                   // clear the memory image of the body
+                   ((BaseResourceEdit) edit).m_body = null;
+                   m_resourceDeleteStore.cancelResource(edit);
+
+               }
+           }
+           finally
+           {
+               out();
+           }
+       }
+
        /** return deleted resource for the given  id */ 
        public void removeDeletedResource(ContentResourceEdit edit)
        {

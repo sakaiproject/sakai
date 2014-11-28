@@ -8,6 +8,7 @@ import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
 import org.sakaiproject.content.impl.BaseContentService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
@@ -114,6 +115,41 @@ public class ContentHostingServiceRecycleTest  extends SakaiKernelTestBase {
             }
         }
         assertEquals("There should only be one copy of the file in the recycle bin.", 1, found);
+    }
+
+    /**
+     * This is to check check that when a restore is attempted and the file already exists
+     * we correctly unlock the file we are attempting to restore ontop of.
+     * @throws Exception
+     */
+    public void testDeleteResourceRestoreOnTop() throws Exception {
+        ContentHostingService ch = getService(ContentHostingService.class);
+        SessionManager sm = getService(SessionManager.class);
+        ThreadLocalManager tl = getService(ThreadLocalManager.class);
+        reset(tl, sm);
+
+        String filename = "/"+ UUID.randomUUID().toString();
+        ContentResourceEdit resource = ch.addResource(filename);
+        resource.setContent("First".getBytes());
+        ch.commitResource(resource);
+
+        // Delete the file (into the recycle bin)
+        ch.removeResource(filename);
+
+        // Upload another copy to same ID
+        ContentResourceEdit resource2 = ch.addResource(filename);
+        resource2.setContent("Second".getBytes());
+        ch.commitResource(resource2);
+
+        // Attempt to restore ontop of existing file.
+        try {
+            ch.restoreResource(filename);
+            fail("We should have thrown an exception as the file has been re-created.");
+        } catch (IdUsedException iue) {
+            // Expected
+        }
+        // The file in resources shouldn't be locked.
+        ch.removeResource(filename);
     }
 
     /**
