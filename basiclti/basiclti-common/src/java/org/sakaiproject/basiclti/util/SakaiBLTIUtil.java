@@ -715,7 +715,8 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
 				setProperty(lti2subst,"Person.email.primary",user.getEmail());
 				// Only send the display ID if it's different to the EID.
-				if (!user.getEid().equals(user.getDisplayId())) {
+				// the anonymous user has a null EID.
+				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
 					setProperty(ltiProps,BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID,user.getDisplayId());
 				}
 			}
