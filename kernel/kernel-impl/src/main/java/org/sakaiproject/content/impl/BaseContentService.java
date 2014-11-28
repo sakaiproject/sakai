@@ -4718,6 +4718,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// check security-unlock to add record
 		unlock(AUTH_RESOURCE_ADD, id);
 
+		// In the future we may wish to allow multiple copies of the file in the recycle bin.
+		// Remove Deleted Resource prevents id collision as #restoreResource(String) doesn't allow you to
+		// specify which version of a file you want to restore.
+		try {
+			removeDeletedResource(id);
+		} catch (Exception ex) {
+			// There is no collision
+		}
+		
 		// reserve the resource in storage - it will fail if the id is in use
 		BaseResourceEdit edit = (BaseResourceEdit) m_storage.putDeleteResource(id, uuid, userId);
 		// added for NPE static code review -AZ

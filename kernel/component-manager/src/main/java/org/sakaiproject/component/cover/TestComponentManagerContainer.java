@@ -21,21 +21,23 @@
 
 package org.sakaiproject.component.cover;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.impl.SpringCompMgr;
+import org.springframework.beans.factory.config.PropertyOverrideConfigurer;
+import org.springframework.beans.factory.support.BeanDefinitionRegistry;
+import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.component.impl.SpringCompMgr;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
+import java.util.Properties;
 
 /**
  * A container for a Test Component Manager that can be configured with one of more components.
@@ -53,12 +55,17 @@ public class TestComponentManagerContainer {
 	 */
 	private SpringCompMgr componentManager;
 
+
+	public TestComponentManagerContainer(String configPaths) throws IOException {
+		this(configPaths, null);
+	}
+
 	/**
 	 * create a component manager based on a list of component.xml
 	 * @param configPaths a ';' seperated list of xml bean config files
 	 * @throws IOException
 	 */
-	public TestComponentManagerContainer(String configPaths)  throws IOException {
+	public TestComponentManagerContainer(String configPaths, Properties props)  throws IOException {
 		// we assume that all the jars are in the same classloader, so this will
 		// not check for
 		// incorrect bindings and will not fully replicate the tomcat
@@ -88,6 +95,13 @@ public class TestComponentManagerContainer {
 				.getApplicationContext();
 		ClassLoader classLoader = Thread.currentThread()
 				.getContextClassLoader();
+		// Supply any additional configuration.
+		if (props != null) {
+			PropertyOverrideConfigurer beanFactoryPostProcessor = new PropertyOverrideConfigurer();
+			beanFactoryPostProcessor.setBeanNameSeparator("@");
+			beanFactoryPostProcessor.setProperties(props);
+			ac.addBeanFactoryPostProcessor(beanFactoryPostProcessor);
+		}
 
 		// we could take the kernel bootstrap from from the classpath in future
 		// rather than from
@@ -100,7 +114,6 @@ public class TestComponentManagerContainer {
 			config.add(new FileSystemResource(xml.getCanonicalPath()));
 		}
 		loadComponent(ac, config, classLoader);
-		
 		
 		ac.refresh();
 
