@@ -30,6 +30,7 @@ import java.util.Observer;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.presence.cover.PresenceService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -143,11 +144,21 @@ public class PresenceObserverHelper implements Observer
 		if (!check(arg)) return;
 
       Event event = (Event) arg;
+
+      String userId = event.getUserId();
+      String username = "";
+      User user = null;
+      if (userId != null)
+	  try {
+	      user = UserDirectoryService.getUser(userId);
+	  } catch (Exception e) {}
+      if (user != null)
+	  username = user.getDisplayName();
       
       if(event.getEvent().equals(PresenceService.EVENT_PRESENCE))
-         presenceObserver.userJoined(location, "");
+         presenceObserver.userJoined(location, username);
       else
-         presenceObserver.userLeft(location, "");
+         presenceObserver.userLeft(location, username);
          
 	}
 }

@@ -413,12 +413,30 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       }
    }
 
-    public class MyDelivery extends DirectRefreshDelivery {
-	public MyDelivery(String address, String elementId) {
+    public class MyAddDelivery extends DirectRefreshDelivery {
+	private String m_username;
+	public void setUsername(String username) {
+	    m_username = username;
+	}
+
+	public MyAddDelivery(String address, String elementId, String username) {
 	    super(address, elementId);
+	    m_username = username;
 	}
 	public String compose() {
-	    return "updateUsers()";
+	    return "addUser('" + m_username + "')";
+	}
+    }
+
+    public class MyDelDelivery extends DirectRefreshDelivery {
+	private String m_username;
+
+	public MyDelDelivery(String address, String elementId, String username) {
+	    super(address, elementId);
+	    m_username = username;
+	}
+	public String compose() {
+	    return "delUser('" + m_username + "')";
 	}
     }
 
@@ -427,7 +445,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
     */
    public void userJoined(String location, String user)
    {
-      m_courierService.deliver(new MyDelivery(sessionId+location, IFRAME_ROOM_USERS));
+       MyAddDelivery delivery = new MyAddDelivery(sessionId+location, IFRAME_ROOM_USERS, user);
+       m_courierService.deliver(delivery);
    }
 
    /**
@@ -453,7 +472,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
 		   m_courierService.clear(sessionId+location);
        }
        else
-    	   m_courierService.deliver(new MyDelivery(sessionId+location, IFRAME_ROOM_USERS));
+    	   m_courierService.deliver(new MyDelDelivery(sessionId+location, IFRAME_ROOM_USERS, user));
    }
    
    //********************************************************************

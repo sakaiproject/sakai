@@ -93,13 +93,71 @@ function updateShownText() {
     $("#chat2_messages_shown_total").html(countText);
 }
 
+// can't just pass a list of <li>'s, because $(string) will only parse a single object
+function sortChildren(list) {
+    var children = list.children('li');
+
+    // sort uses last name if present, and is case-insensitive.
+    children = children.sort(function(a,b){
+	    var an = a.innerHTML.toLowerCase();
+	    var i = an.indexOf(' ');
+	    if (i >= 0)
+		an = an.substring(i);
+	    var bn = b.innerHTML.toLowerCase();
+	    var j = bn.indexOf(' ');
+	    if (j >= 0)
+		bn = bn.substring(j);
+
+	    if(an > bn) {
+		return 1;
+	    }
+	    if(an < bn) {
+		return -1;
+	    }
+	    // equal, take full name first
+	    if (i <= 0 && j >= 0)
+		return 1;
+	    if (j <= 0 && i >= 0)
+		return -1;
+	    // equal, now do it on original so uppercase comes first
+	    an = a.innerHTML;
+	    bn = b.innerHTML;
+	    if(an > bn) {
+		return 1;
+	    }
+	    if(an < bn) {
+		return -1;
+	    }
+	    return 0;
+	});
+    list.empty();
+    list.append(children);
+    return list;
+}
+
+function addUser(user) {
+    var existing = $("#presence").find("li:contains('" + user + "')");
+    if (existing.size() == 0) {
+	$("#presence").append($('<li>' + user + '</li>'));
+	var newChildren = sortChildren($("#presence")).children();
+	$("#presence").empty();
+	$("#presence").append(newChildren);
+    }
+}
+
+function delUser(user) {
+    $("#presence").find("li:contains('" + user + "')").remove();
+}
+
 function updateUsers() {
     var url = "roomUsers?channel=" + currentChatChannelId;
     $.ajax({
     	    url: url,
 	    type: "GET"})
     	.done(function(data) {
-		$("#presence").html(data);		
+		var newChildren = sortChildren($('<ul>' + data + '</ul>')).children();
+		$("#presence").empty();
+		$("#presence").append(newChildren);
     	    });
 }
 
