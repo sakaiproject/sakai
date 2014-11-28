@@ -80,11 +80,10 @@ if ( $context->valid ) {
 
     if ( isset($_POST['ext_sakai_encrypted_session']) && isset($_POST['ext_sakai_serverid']) &&
 	  isset($_POST['ext_sakai_server']) ) {
-	$hkey = hash('sha256',$key);
-	$longSecret = $secret;
-	if ( strlen($longSecret) < 16 ) $longSecret = substr($secret.$hkey,0,16);
+	$sha1Secret = hash('sha1',$secret, true);
+	if ( strlen($sha1Secret) > 16 ) $sha1Secret = substr($sha1Secret,0,16);
 	$encrypted_session=hex2bin($_POST['ext_sakai_encrypted_session']);
-	$session = mcrypt_decrypt(MCRYPT_BLOWFISH, $longSecret, $encrypted_session, MCRYPT_MODE_ECB);
+	$session = mcrypt_decrypt(MCRYPT_BLOWFISH, $sha1Secret, $encrypted_session, MCRYPT_MODE_ECB);
 
 	// The encryption pads out the input string to a full block with non-printing characters
 	// so we must remove them here.  Since the pre-encrypted sesison only includes non-printing
