@@ -9,7 +9,9 @@ session_start();
 header('Content-Type: text/html; charset=utf-8'); 
 
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
-$context = new BLTI("secret", false, false);
+$key = isset($_POST['oauth_consumer_key']) ? $_POST['oauth_consumer_key'] : false;
+$secret = "secret";
+$context = new BLTI($secret, false, false);
 ?>
 <html>
 <head>
@@ -76,6 +78,30 @@ if ( $context->valid ) {
 		$found = true;
     }
 
+    if ( isset($_POST['ext_sakai_encrypted_session']) && isset($_POST['ext_sakai_serverid']) &&
+	  isset($_POST['ext_sakai_server']) ) {
+	$hkey = hash('sha256',$key);
+	$longSecret = $secret;
+	if ( strlen($longSecret) < 16 ) $longSecret = substr($secret.$hkey,0,16);
+	$encrypted_session=hex2bin($_POST['ext_sakai_encrypted_session']);
+	$session = mcrypt_decrypt(MCRYPT_BLOWFISH, $longSecret, $encrypted_session, MCRYPT_MODE_ECB);
+
+	// The encryption pads out the input string to a full block with non-printing characters
+	// so we must remove them here.  Since the pre-encrypted sesison only includes non-printing
+	// characters it is fafe to rtrim the non-printing characters up to \32 - initial testing
+	// of Sakai indicates that the padding used by this versio of Java is 0x04 - but that could change
+	// so we are playing it safe and right-trimming all non-printing characters.
+
+	// http://stackoverflow.com/questions/1061765/should-i-trim-the-decrypted-string-after-mcrypt-decrypt
+	$session = rtrim($session,"\0..\32");
+
+	$session .= '.' . $_POST['ext_sakai_serverid'];
+        print "<p>\n";
+        print '<a href="retrieve.php?session='.urlencode($session);
+	print '&server='.urlencode($_POST['ext_sakai_server']).'">';
+        print 'Test Encrypted Session Extension</a>.</p>'."\n";
+	$found = true;
+    }
 
     if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
         print "<p>\n";
