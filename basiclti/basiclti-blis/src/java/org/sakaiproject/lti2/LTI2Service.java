@@ -819,7 +819,7 @@ public class LTI2Service extends HttpServlet {
 				M_log.error(e.getLocalizedMessage(), e);
 			}
 			M_log.info(message);
-			M_log.info(json.postBody);
+			if ( json != null ) M_log.info(json.postBody);
 
 			String jsonText = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
 			M_log.debug(jsonText);
