@@ -30,7 +30,7 @@
 			<br /><div id="messageSuccessHolder" class="messageSuccess" style="display:block">$tlang.getFormattedMessage("remove.success", $removedResources)</div>
 		#end
 		#if ($alertMessage)
-			<br /><div class="messageValidation">$alertMessage</div><div class="clear"></div>
+			<br /><div class="messageValidation">$validator.escapeHtml($alertMessage)</div><div class="clear"></div>
 		#end
 			<div class="navPanel">
 				<div class="navIntraToolLink viewNav">
@@ -85,7 +85,7 @@
 						</td>
 						<td style="text-indent:$width">
 							<h4><img src = "#imageLink("sakai/dir_openroot.gif")" border="0" alt="$tlang.getString('gen.folder1')" />
-							$folderName</h4>
+							$validator.escapeHtml($folderName)</h4>
 						</td>
 						<td colspan="2"></td>
 					</tr>
@@ -97,7 +97,7 @@
 					<tr>
 						<td headers="checkboxes">
 						#set($collectionId=$contentService.getContainingCollectionId($member.id))
-							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $member.name</label>
+							<input type="checkbox" name="selectedMembers" id="root.members$num" value="$member.id" onclick="adjustCount(this)"/><label for="root.members$num" class="skip">$tlang.getString('att.select') $validator.escapeHtml($member.name)</label>
 						</td>
 						<td headers="title" style="text-indent: $width" class="specialLink">
 							<h5>
@@ -106,11 +106,11 @@
 								#else
 									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0" alt="">
 								#end
-								$member.name
+								$validator.escapeHtml($member.name)
 							</h5>	
 						</td>
 						<td headers="creator">
-							$member.modifiedBy
+							$validator.escapeHtml($member.modifiedBy)
 						</td>
 						<td headers="modified">
 							$member.ModifiedTime
