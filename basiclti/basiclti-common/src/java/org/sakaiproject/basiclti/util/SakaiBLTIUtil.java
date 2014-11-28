@@ -507,15 +507,13 @@ public class SakaiBLTIUtil {
 			if ( secret != null && key != null && "true".equals(encryptsession) 
 				&& ! SecurityService.isSuperUser() ) {
 
-				String longerSecret = decryptSecret(secret);
-				// Extend the secret to the maximum Blowfish length
-				String hash = PortableShaUtil.sha256Hash(key);
-				longerSecret = BlowFish.strengthenKey(longerSecret,hash);
+				secret = decryptSecret(secret);
+				String sha1Secret = PortableShaUtil.sha1Hash(secret);
 				Session s = SessionManager.getCurrentSession();
 				if (s != null) {
 					String sessionid = s.getId();
 					if (sessionid != null) {
-						sessionid = BlowFish.encrypt(longerSecret,sessionid);
+						sessionid = BlowFish.encrypt(sha1Secret,sessionid);
 						setProperty(props,"ext_sakai_encrypted_session",sessionid);
 					}
 				}

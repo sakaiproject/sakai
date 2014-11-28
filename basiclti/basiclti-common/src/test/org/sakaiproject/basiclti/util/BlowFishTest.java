@@ -9,6 +9,7 @@ import java.util.Random;
 import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.basiclti.util.BlowFish;
+import org.sakaiproject.basiclti.util.PortableShaUtil;
 
 
 public class BlowFishTest {
@@ -25,23 +26,29 @@ public class BlowFishTest {
 	public void setUp() throws Exception {
 	}
 
+	private String str2hex(String str) { return PortableShaUtil.str2hex(str); }
 	
 	@Test	
 	public void testNullDecrypt() {
 		String plain = "I am plain text";
-		String enc = BlowFish.encrypt("this is the key", plain);
+		String enc = BlowFish.encrypt(str2hex("this is the key"), plain);
 		assertTrue(enc.equals(encode1));
 		// System.out.println("Blowfish encoded: "+enc);
-		String dec = BlowFish.decrypt("this is the key", enc);
+		String dec = BlowFish.decrypt(str2hex("this is the key"), enc);
 		// System.out.println("Blowfish decoded: "+dec);
 		assertTrue(dec.equals(plain));
+	}
+
+	@Test(expected=Exception.class)
+	public void testNonHexKey() {
+		String zzz = BlowFish.encrypt("this is not a hex key", "some text");
 	}
 
 	@Test
 	public void testRoundTrip() {
 		for ( String x : strings ) {
-			String enc = BlowFish.encrypt("this is the key", x);
-			String dec = BlowFish.decrypt("this is the key", enc);
+			String enc = BlowFish.encrypt(str2hex("this is the key"), x);
+			String dec = BlowFish.decrypt(str2hex("this is the key"), enc);
 			assertTrue(x.equals(dec));
 		}
 	}
@@ -54,8 +61,8 @@ public class BlowFishTest {
 		for ( int i = 0; i < 200; i++ ) {
 			int n = r.nextInt() % 10;
 			plain = plain + n;
-			String enc = BlowFish.encrypt(key, plain);
-			String dec = BlowFish.decrypt(key, enc);
+			String enc = BlowFish.encrypt(str2hex(key), plain);
+			String dec = BlowFish.decrypt(str2hex(key), enc);
 			assertTrue(plain.equals(dec));
 			key = plain;
 		}

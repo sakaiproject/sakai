@@ -24,20 +24,19 @@ import java.security.NoSuchAlgorithmException;
 import org.imsglobal.basiclti.Base64;
 
 public class PortableShaUtil {
-	private static final char[] TOHEX = "0123456789abcdef".toCharArray();
 	public static final String UTF8 = "UTF8";
 
-    public static byte[] sha1(final String todigest) {
-        try {
-            byte[] b = todigest.getBytes("UTF-8");
-            MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
-            return sha1.digest(b);
-        } catch (UnsupportedEncodingException e) {
-            throw new Error(e);
-        } catch (NoSuchAlgorithmException e) {
-            throw new Error(e);
-        }
-    }
+	public static byte[] sha1(final String todigest) {
+		try {
+			byte[] b = todigest.getBytes("UTF-8");
+			MessageDigest sha1 = MessageDigest.getInstance("SHA-1");
+			return sha1.digest(b);
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new Error(e);
+		}
+	}
 
 	public static String sha1Hash(final String tohash) {
 		byte[] b = null;
@@ -64,10 +63,41 @@ public class PortableShaUtil {
 		} catch (NoSuchAlgorithmException e) {
 			throw new Error(e);
 		}
-		// for (byte x : b) { System.out.println(Integer.toHexString(x&0xff)); }
 		return bin2hex(b);
 	}
 
+	public static String sha512Hash(final String tohash) {
+		byte[] b = null;
+		try {
+			b = tohash.getBytes("UTF-8");
+			MessageDigest sha512 = MessageDigest.getInstance("SHA-512");
+			b = sha512.digest(b);
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		} catch (NoSuchAlgorithmException e) {
+			throw new Error(e);
+		}
+		return bin2hex(b);
+	}
+
+	private static final char[] TOHEX = "0123456789abcdef".toCharArray();
+
+	/**
+	 * Checks to see if a string is legitimate hex data
+         */
+	public static boolean isHex(String str)
+	{
+		for(int i = 0; i < str.length(); i++)
+		{
+			int digit = Character.digit(str.charAt(i), 16);
+			if ( digit == -1 ) return false;
+		}
+		return true;
+	}
+
+	// Support bin2hex as per 
+	// http://csrc.nist.gov/groups/ST/toolkit/documents/Examples/SHA256.pdf
+	// Using lower case as convention
 	public static String bin2hex(final byte[] base) {
 		if (base != null) {
 			char[] c = new char[base.length * 2];
@@ -86,6 +116,19 @@ public class PortableShaUtil {
 		}
 	}
 
+	/**
+	 * Hex-encode a string of characters - convienence class
+         */
+	public static String str2hex(String str) {
+		byte[] b = null;
+		try {
+			b = str.getBytes("UTF-8");
+			return bin2hex(b);
+		} catch (UnsupportedEncodingException e) {
+			throw new Error(e);
+		}
+	}
+
 	public static byte[] hex2bin(String hex) {
 		if (hex == null) {
 			return null;
@@ -93,10 +136,20 @@ public class PortableShaUtil {
 		byte[] base = new byte[hex.length() / 2];
 		int i = 0;
 		for (int j = 0; j < base.length; j++) {
-			// int digit = -128; // Wrong - not portable
-			int digit = 0; // Right - portable
-			digit += Character.digit(hex.charAt(i++), 16) * 0x10;
-			digit += Character.digit(hex.charAt(i++), 16) % 0x10;
+			int digit = 0; 
+
+			int ch = Character.digit(hex.charAt(i++), 16);
+			if ( ch < 0 ) {
+				throw new RuntimeException("Illegal character in hex string");
+			}
+			digit += ch * 0x10;
+
+			ch = Character.digit(hex.charAt(i++), 16);
+			if ( ch < 0 ) {
+				throw new RuntimeException("Illegal character in hex string");
+			}
+			digit += ch % 0x10;
+
 			base[j] = (byte) digit;
 		}
 		return base;

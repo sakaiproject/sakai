@@ -33,6 +33,8 @@ import java.security.*;
 import javax.crypto.*;
 import javax.crypto.spec.*;
 
+import org.sakaiproject.basiclti.util.PortableShaUtil;
+
 /**
  * Support Blowfish Encryption and Decryption
  */
@@ -44,23 +46,6 @@ public class BlowFish {
 	private static char[] hexChars = {
 		'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'
 	};
-
-	/**
-	 * Convert byte array to hex string
-	 * 
-	 * @param ba
-	 *        array of bytes
-	 * @throws Exception.
-	 */
-	private static String byteArray2Hex(byte[] ba){
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < ba.length; i++){
-			int hbits = (ba[i] & 0x000000f0) >> 4;
-			int lbits = ba[i] & 0x0000000f;
-			sb.append("" + hexChars[hbits] + hexChars[lbits]);
-		}
-		return sb.toString();
-	}
 
 	/**
 	 * Strengthen a key which might be too short by extending with a salt text
@@ -81,14 +66,23 @@ public class BlowFish {
 	}
 
 
+	/**
+	 * Decrypt a string using Blowfish
+	 *
+	 * @param secret
+	 *	A hex-encoded secret - secrets longer than the maximum key length will be truncated
+	 * @param str	
+         *      The plain text to be encoded
+	 */
 	public static String encrypt(String secret, String str) {
 		if ( secret == null ) return null;
-		if ( secret.length() > MAX_KEY_LENGTH ) {
-			secret = secret.substring(0,MAX_KEY_LENGTH);
+		if ( secret.length() > MAX_KEY_LENGTH*2 ) {
+			secret = secret.substring(0,MAX_KEY_LENGTH*2);
 		}
 		try {
 
-			SecretKey secretKey = new SecretKeySpec(secret.getBytes(), "Blowfish");
+			byte[] secretBytes = PortableShaUtil.hex2bin(secret);
+			SecretKey secretKey = new SecretKeySpec(secretBytes, "Blowfish");
 			Cipher ecipher = Cipher.getInstance("Blowfish");
 			ecipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
@@ -99,54 +93,49 @@ public class BlowFish {
 			byte[] enc = ecipher.doFinal(utf8);
 
 			// Encode bytes to base64 to get a string
-			return byteArray2Hex(enc);
+			return PortableShaUtil.bin2hex(enc);
 		} catch (javax.crypto.BadPaddingException e) {
-			System.out.println("Blowfish encrypt bad padding");
+			throw new Error(e);
 		} catch (javax.crypto.IllegalBlockSizeException e) {
-			System.out.println("Blowfish encrypt illegal block size");
+			throw new Error(e);
 		} catch (java.security.NoSuchAlgorithmException e) {
-			System.out.println("Blowfish encrypt no such algorithm");
+			throw new Error(e);
 		} catch (java.security.InvalidKeyException e) {
-			System.out.println("Blowfish encrypt invalid key");
+			throw new Error(e);
 		} catch (javax.crypto.NoSuchPaddingException e) {
-			System.out.println("Blowfish encrypt no such padding");
+			throw new Error(e);
 		} catch (java.io.UnsupportedEncodingException e) {
-			System.out.println("Blowfish encrypt unsupported encoding");
+			throw new Error(e);
 		}
-		return null;
 	}
 
+	/**
+	 * Decrypt a string using Blowfish
+	 *
+	 * @param secret
+	 *	A hex-encoded secret - secrets longer than the maximum key length will be truncated
+	 * @param enc	
+         *      A hex-encoded ciphertext
+	 */
 	public static String decrypt (String secret, String enc) {
 		if ( secret == null ) return null;
-		if ( secret.length() > MAX_KEY_LENGTH ) {
-			secret = secret.substring(0,MAX_KEY_LENGTH);
+		if ( secret.length() > MAX_KEY_LENGTH*2 ) {
+			secret = secret.substring(0,MAX_KEY_LENGTH*2);
 		}
 		try {
-			SecretKey secretKey = new SecretKeySpec(secret.getBytes(), "Blowfish");
+			byte [] secretBytes = PortableShaUtil.hex2bin(secret);
+			SecretKey secretKey = new SecretKeySpec(secretBytes, "Blowfish");
 			Cipher dcipher = Cipher.getInstance("Blowfish");
 			dcipher.init(Cipher.DECRYPT_MODE, secretKey);
-			byte[] dec = hex2byte(enc);
+			byte[] dec = PortableShaUtil.hex2bin(enc);
 			// Decrypt
 			byte[] utf8 = dcipher.doFinal(dec);
 			// Decode using utf-8
 			return new String(utf8, "UTF8");
-		} catch (Exception ignore) {
-			System.out.println("Blowfish decrypt failed");
+		} catch (Exception e) {
+			throw new Error(e);
 		}
-		return null;
 	}
 
-
-	public static byte[] hex2byte(String strhex) {
-		if(strhex==null) return null;
-		int l = strhex.length();
-
-		if(l %2 ==1) return null;
-		byte[] b = new byte[l/2];
-		for(int i = 0 ; i < l/2 ;i++){
-			b[i] = (byte)Integer.parseInt(strhex.substring(i *2,i*2 +2),16);
-		}
-		return b;
-	}
 }
 

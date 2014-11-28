@@ -13,6 +13,9 @@ public class PortableShaUtilTest {
 	// ba7816bf 8f01cfea 414140de 5dae2223 b00361a3 96177a9c b410ff61 f20015aD
 	final String nist_sha256_of_abc = "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad";
 
+	// Also output of echo(hash("sha512","abc")."\n"); in PHP
+	final String nist_sha512_of_abc = "ddaf35a193617abacc417349ae20413112e6fa4e89a97ea20a9eeee64b55d39a2192992a274fc1a836ba3c23a3feebbd454d4423643ce80e2a9ac94fa54ca49f";
+
 	// As per echo(hash('sha1',"abc"););
 	final String php_sha1_of_abc = "a9993e364706816aba3e25717850c26c9cd0d89d";
 
@@ -51,6 +54,13 @@ public class PortableShaUtilTest {
 		String abc_hash = PortableShaUtil.sha256Hash("abc");
 		assertEquals(abc_hash, nist_sha256_of_abc);
 	}
+
+	@Test
+	public void testNist512() {
+		String abc_hash = PortableShaUtil.sha512Hash("abc");
+		assertEquals(abc_hash, nist_sha512_of_abc);
+	}
+
 
 	@Test
 	public void testPHP1() {
