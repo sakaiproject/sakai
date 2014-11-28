@@ -515,6 +515,9 @@ public class SakaiBLTIUtil {
 					if (sessionid != null) {
 						sessionid = BlowFish.encrypt(sha1Secret,sessionid);
 						setProperty(props,"ext_sakai_encrypted_session",sessionid);
+						// Don't just change this as it will break existing connections
+						// Especially to LTI tools written in Java with the default JCE
+						setProperty(props,"ext_sakai_blowfish_length","128");
 					}
 				}
 			}
