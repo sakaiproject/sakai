@@ -83,7 +83,7 @@ public class IMSJSONRequest {
 	public void loadFromRequest(HttpServletRequest request) 
 	{
 		header = request.getHeader("Authorization");
-		System.out.println("Header: "+header);
+		// System.out.println("Header: "+header);
 		oauth_body_hash = null;
 		if ( header != null ) {
 			if (header.startsWith("OAuth ")) header = header.substring(5);
@@ -107,7 +107,7 @@ public class IMSJSONRequest {
 			return;
 		}
 
-		System.out.println("OBH="+oauth_body_hash);
+		// System.out.println("OBH="+oauth_body_hash);
         byte[] buf = new byte[1024];
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
 		int chars = 0;
@@ -139,10 +139,10 @@ public class IMSJSONRequest {
 			md.update(bytes); 
 			byte[] output = Base64.encode(md.digest());
 			String hash = new String(output);
-			System.out.println("HASH="+hash+" bytes="+bytes.length);
+			// System.out.println("HASH="+hash+" bytes="+bytes.length);
 			if ( ! hash.equals(oauth_body_hash) ) {
 				errorMessage = "Body hash does not match. bytes="+bytes.length;
-				System.out.println(postBody);
+				// System.out.println(postBody);
 				return;
 			}
 		} catch (Exception e) {

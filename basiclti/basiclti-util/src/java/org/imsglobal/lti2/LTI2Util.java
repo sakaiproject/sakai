@@ -450,17 +450,19 @@ public class LTI2Util {
 	}
 
 	/* Two possible formats:
-
-		key=val;key2=val2;
 		
 		key=val
 		key2=val2
+
+		key=val;key2=val2;
 	*/
 	public static boolean mergeLTI1Custom(Properties custom, String customstr) 
 	{
 		if ( customstr == null || customstr.length() < 1 ) return true;
 
-		String [] params = customstr.split("[\n;]");
+		String splitChar = "\n";
+		if ( customstr.trim().indexOf("\n") == -1 ) splitChar = ";";
+		String [] params = customstr.split(splitChar);
 		for (int i = 0 ; i < params.length; i++ ) {
 			String param = params[i];
 			if ( param == null ) continue;

@@ -201,7 +201,9 @@ public class SakaiBLTIUtil {
 	public static void parseCustom(Properties info, String customstr)
 	{
 		if ( customstr != null ) {
-			String [] params = customstr.split("[\n;]");
+			String splitChar = "\n";
+			if ( customstr.trim().indexOf("\n") == -1 ) splitChar = ";";
+			String [] params = customstr.split(splitChar);
 			for (int i = 0 ; i < params.length; i++ ) {
 				String param = params[i];
 				if ( param == null ) continue;
@@ -212,7 +214,7 @@ public class SakaiBLTIUtil {
 				String key = BasicLTIUtil.mapKeyName(param.substring(0,pos));
 				if ( key == null ) continue;
 				String value = param.substring(pos+1);
-                if ( value == null ) continue;
+				if ( value == null ) continue;
 				value = value.trim();
 				if ( value.length() < 1 ) continue;
 				setProperty(info, "custom_"+key, value);
