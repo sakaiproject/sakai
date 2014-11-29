@@ -9461,10 +9461,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param runData
 	 */
 	public void doDropboxMultipleFoldersUpload(RunData data) {
-	    
-		if (!"POST".equals(data.getRequest().getMethod())) {
-			return;
-		}
 		
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 	    // go into upload file in multiple folders
