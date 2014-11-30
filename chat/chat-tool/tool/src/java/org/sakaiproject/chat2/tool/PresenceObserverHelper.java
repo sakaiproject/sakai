@@ -31,7 +31,9 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.presence.cover.PresenceService;
 import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.User;
+import org.sakaiproject.event.api.UsageSession;
 
 /**
  * <p>
@@ -144,9 +146,19 @@ public class PresenceObserverHelper implements Observer
 		if (!check(arg)) return;
 
       Event event = (Event) arg;
+      String username = "";
 
       String userId = event.getUserId();
-      String username = "";
+      if (userId == null) {
+	  String sessionId = event.getSessionId();
+	  if (sessionId != null) {
+	      UsageSession session = UsageSessionService.getSession(sessionId);
+	      if (session != null) {
+		  userId = session.getUserId();
+	      }
+	  }
+      }
+
       User user = null;
       if (userId != null)
 	  try {
@@ -154,7 +166,7 @@ public class PresenceObserverHelper implements Observer
 	  } catch (Exception e) {}
       if (user != null)
 	  username = user.getDisplayName();
-      
+
       if(event.getEvent().equals(PresenceService.EVENT_PRESENCE))
          presenceObserver.userJoined(location, username);
       else
