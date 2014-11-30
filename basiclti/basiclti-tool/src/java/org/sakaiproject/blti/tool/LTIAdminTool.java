@@ -34,6 +34,8 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.UUID;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.lang.StringUtils;
@@ -67,6 +69,9 @@ import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.portal.util.ToolUtils;
+
+import org.sakaiproject.portal.util.URLUtils; // REMOVE AFTER TESTING
 
 // TODO: FIX THIS
 import org.sakaiproject.tool.cover.SessionManager;
@@ -361,7 +366,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Extract the version to make it view only
 		String fieldInfo = foorm.getFormField(mappingForm, "version");
 		fieldInfo = fieldInfo.replace(":hidden=true","");
-        String formStatus = ltiService.formOutput(tool, fieldInfo);
+		String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
 
 		// If we are not admin, hide url, key, and secret
@@ -1004,7 +1009,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
 			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
 
-System.out.println("newTool="+newTool);
+			M_log.info("newTool="+newTool);
 			theTools.add(newTool); 
 		}
 		return null; // Success
@@ -1270,7 +1275,8 @@ System.out.println("newTool="+newTool);
 		return "lti_content_insert";
 	}
 
-	// Insert or edit
+	// This has three use cases: (1) This Tool, (2) Lessons, and (3) site-manage
+	// Insert or edit depending on whether an id is present or not
 	public void doContentPut(RunData data, Context context)
 	{
 		String peid = ((JetspeedRunData) data).getJs_peid();
@@ -1280,6 +1286,8 @@ System.out.println("newTool="+newTool);
 		Properties reqProps = data.getParameters().getProperties();
 		String id = data.getParameters().getString(LTIService.LTI_ID);
 		String toolId = data.getParameters().getString(LTIService.LTI_TOOL_ID);
+
+		// Does an insert when id is null and update when is is not null
 		Object retval = ltiService.insertToolContent(id, toolId, reqProps);
 		
 		Long contentKey = null;
@@ -1370,13 +1378,17 @@ System.out.println("newTool="+newTool);
 			// this is to add site link:
 			retval = ltiService.insertToolSiteLink(id, title);
 			if ( retval instanceof String ) {
-				String prefix = ((String) retval).substring(0,2);
-				addAlert(state, ((String) retval).substring(2));
-				if ("0-".equals(prefix))
+				String prefix = ((String) retval).substring(0,1);
+				addAlert(state, ((String) retval).substring(1));
+				if ("0".equals(prefix))
 				{
-					switchPanel(state, "Refresh");
+					if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
+						switchPanel(state, "ToolSite"); 
+					} else {
+						switchPanel(state, "Refresh");
+					}
 				}
-				else if ("1-".equals(prefix))
+				else if ("1".equals(prefix))
 				{
 					switchPanel(state, "Error");
 				}
@@ -1385,7 +1397,11 @@ System.out.println("newTool="+newTool);
 			else if ( retval instanceof Boolean ) {
 				if (((Boolean) retval).booleanValue())
 				{
-					switchPanel(state, "Refresh");
+					if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
+						switchPanel(state, "ToolSite"); 
+					} else {
+						switchPanel(state, "Refresh");
+					}
 				}
 				else
 				{
@@ -1396,7 +1412,6 @@ System.out.println("newTool="+newTool);
 			
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
 		}
-
 
 		switchPanel(state, "ToolSite");
 	}
@@ -1570,7 +1585,7 @@ System.out.println("newTool="+newTool);
 		Object retval = null;
 		if ( id == null ) {
 			addAlert(state,rb.getString("error.id.not.found"));
-			switchPanel(state, "DeploySystem");
+			switchPanel(state, "ToolSite");
 			return;
 		}
 		Long key = new Long(id);
@@ -1580,8 +1595,13 @@ System.out.println("newTool="+newTool);
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.deleted"));
 		} else {
 			addAlert(state,rb.getString("error.delete.fail"));
+		}	
+
+		if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
+			switchPanel(state, "ToolSite"); 
+		} else {
+			switchPanel(state, "Refresh");
 		}
-		switchPanel(state, "Refresh");
 	}
 
 	public String buildLinkAddPanelContext(VelocityPortlet portlet, Context context, 
@@ -1634,7 +1654,12 @@ System.out.println("newTool="+newTool);
 		}
 		
 		state.setAttribute(STATE_SUCCESS,rb.getString("success.link.add"));
-		switchPanel(state, "Refresh");
+
+		if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
+			switchPanel(state, "ToolSite"); 
+		} else {
+			switchPanel(state, "Refresh");
+		}
 	}
 
 	public String buildLinkRemovePanelContext(VelocityPortlet portlet, Context context, 
@@ -1683,7 +1708,11 @@ System.out.println("newTool="+newTool);
 		{
 			// external tool site link removed successfully
 			state.setAttribute(STATE_SUCCESS,rb.getString("success.link.remove"));
-			switchPanel(state, "Refresh");
+			if ( ToolUtils.isInlineRequest(data.getRequest()) ) {
+				switchPanel(state, "ToolSite");
+			} else {
+				switchPanel(state, "Refresh");
+			}
 		}
 	}
 
