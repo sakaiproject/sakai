@@ -733,7 +733,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
 		}
 
-        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
 		String reg_key = (String) deploy.get(LTIService.LTI_REG_KEY);
 		String reg_password = (String) deploy.get(LTIService.LTI_REG_PASSWORD);
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
@@ -751,7 +751,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Extract the reg_state to make it view only
 		String fieldInfo = foorm.getFormField(mappingForm, "reg_state");
 		fieldInfo = fieldInfo.replace(":hidden=true","");
-        String formStatus = ltiService.formOutput(deploy, fieldInfo);
+		String formStatus = ltiService.formOutput(deploy, fieldInfo);
 		context.put("formStatus", formStatus);
 
 		String formOutput = ltiService.formOutput(deploy, mappingForm);
@@ -760,9 +760,19 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String registerURL = "/access/basiclti/site/~admin/deploy:" + key + "?placement=" + placement.getId();
 
 		context.put("registerURL",registerURL);
+		context.put("isInlineRequest",new Boolean(ToolUtils.isInlineRequest(data.getRequest())));
+		context.put("id",key);
 		
 		state.removeAttribute(STATE_SUCCESS);
 		return "lti_deploy_register";
+	}
+
+	public String buildPostRegisterPanelContext(VelocityPortlet portlet, Context context, 
+			RunData data, SessionState state)
+	{
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		return "lti_deploy_post_register";
 	}
 
 	public String buildActivatePanelContext(VelocityPortlet portlet, Context context, 

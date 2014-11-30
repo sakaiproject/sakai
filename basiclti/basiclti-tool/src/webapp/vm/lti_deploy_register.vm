@@ -7,9 +7,19 @@
 	<form action="#toolForm("")" method="post" name="customizeForm" >
 		$!formStatus
 		$formOutput
+		<p id="pre_launch">$tlang.getString('register.external.pre.launch')</p>
+		<p id="post_launch" style="display:none">$tlang.getString('register.external.post.launch')</p>
+		<p>
+		<a href="$registerURL" target="_blank" onclick="
+			document.getElementById('activate_button').style.display='inline';
+			document.getElementById('pre_launch').style.display='none';
+			document.getElementById('post_launch').style.display='inline';
+		">$tlang.getString('register.popup.text')</a>
+		</p>
 		<p class="act">
- 			<input type="submit" accesskey ="r" class="active" name="$tlang.getString('gen.register')" 
-				value="$tlang.getString('gen.register')" onclick="location = '$registerURL';return false;"/>
+			<input type="submit" accesskey ="x" id="activate_button" style="display: none" 
+				name="$tlang.getString('gen.activate')" value="$tlang.getString('gen.activate')" 
+ 				onclick="location = '$sakai_ActionURL.setPanel("Activate")&id=$id';return false;">
 			<input type="submit" accesskey ="x" name="$tlang.getString('gen.cancel')" value="$tlang.getString('gen.cancel')" 
  				onclick="location = '$sakai_ActionURL.setPanel("DeploySystem")';return false;">
 		</p>
