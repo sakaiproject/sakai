@@ -171,7 +171,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	private PortalService portalService;
 	
 	private SecurityService securityService = null;
-        
+
 	/**
 	 * Keyword to look for in sakai.properties copyright message to replace
 	 * for the server's time's year for auto-update of Copyright end date
@@ -587,7 +587,15 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
 			ToolConfiguration placement) throws IOException
 	{
+		boolean toolInline = "true".equals(ThreadLocalManager.get("sakai:inline-tool"));
+		return includeTool(res, req, placement, toolInline);
+	}
 
+	// This will be called twice in the buffered scenario since we need to set
+	// the session for neo tools with the sessio reset, helpurl and reseturl
+	public Map includeTool(HttpServletResponse res, HttpServletRequest req,
+			ToolConfiguration placement, boolean toolInline) throws IOException
+	{
 		// find the tool registered for this
 		ActiveTool tool = ActiveToolManager.getActiveTool(placement.getToolId());
 		if (tool == null)
@@ -621,29 +629,29 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		// for the reset button
 		String toolUrl = ServerConfigurationService.getToolUrl() + "/"
 		   + Web.escapeUrl(placement.getId()) + "/";
+		M_log.debug("includeTool toolInline="+toolInline+" toolUrl="+toolUrl);
 
 		// Reset is different (and awesome) when inlining
-		boolean toolInline = ToolUtils.isInlineRequest(req);
 		if ( toolInline ) {
 			String newUrl = ToolUtils.getPageUrlForTool(req, site, placement);
 			if ( newUrl != null ) toolUrl = newUrl;
 		}
 
 		// Reset the tool state if requested
-		// Resets of inline tools have already been handled earlier in the request
-		// (See PDAHandler.java and SiteJHandler.java)
-		if (!toolInline && portalService.isResetRequested(req))
+		if (portalService.isResetRequested(req))
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placement.getId());
 			ts.clearAttributes();
+			portalService.setResetState(null);
+			M_log.debug("includeTool state reset");
 		}
-
 
 		boolean showResetButton = !"false".equals(placement.getConfig().getProperty(
 				Portal.TOOLCONFIG_SHOW_RESET_BUTTON));
 
 		String resetActionUrl = PortalStringUtil.replaceFirst(toolUrl, "/tool/", "/tool-reset/");
+		M_log.debug("includeTool resetActionUrl="+resetActionUrl);
 
 		String sakaiPanel = req.getParameter("panel");
 		if ( sakaiPanel != null && sakaiPanel.matches(".*[\"'<>].*" ) ) sakaiPanel=null;
@@ -695,7 +703,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		Map<String, Object> toolMap = new HashMap<String, Object>();
-		RenderResult result = ToolRenderService.render(this,placement, req, res,
+		toolMap.put("toolInline", Boolean.valueOf(toolInline));
+
+		// For JSR-168 portlets - this gets the content
+		// For legacy tools, this returns the "<iframe" bit
+		// For buffered legacy tools - the buffering is done outside of this
+		RenderResult result = ToolRenderService.render(this, placement, req, res,
 				getServletContext());
 
 		if (result.getJSR168HelpUrl() != null)
@@ -719,16 +732,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		toolMap.put("hasRenderResult", Boolean.valueOf(true));
 		toolMap.put("toolUrl", toolUrl);
 
-		boolean allowNeo = ServerConfigurationService.getBoolean("portal.allow.neo.portlet", true);
 		Session s = SessionManager.getCurrentSession();
 		ToolSession ts = s.getToolSession(placement.getId());
-		ts.removeAttribute(SAKAI_PORTAL_BREADCRUMBS);
-		ts.removeAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
-		if ( allowNeo ) {
-			ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
-			ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-			ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-		}
 
 		if (isPortletPlacement(placement))
 		{
@@ -743,12 +748,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					String str = err.reportFragment(req, res, t);
 					result.setContent(str);
 				}
-				if ( allowNeo ) {
-					Object bread = ts.getAttribute(SAKAI_PORTAL_BREADCRUMBS);
-					if ( bread != null ) toolMap.put("breadcrumbs", bread);
-					Object suppressTitle = ts.getAttribute(SAKAI_PORTAL_SUPPRESSTITLE);
-					if ( "true".equals(suppressTitle) ) toolMap.put("suppressTitle", Boolean.TRUE);
-				}
 			}
 
 			toolMap.put("toolPlacementIDJS", "_self");
@@ -757,7 +756,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		else
 		{
 			String suppressTitleLegacy  = placement.getConfig().getProperty(SAKAI_PORTAL_SUPPRESSTITLE);
-			if ( "true".equals(suppressTitleLegacy) ) toolMap.put("suppressTitle", Boolean.TRUE);
+			if ( "true".equals(suppressTitleLegacy) ) {
+				toolMap.put("suppressTitle", Boolean.TRUE);
+				ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
+				ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
+				ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
+			}
 
 			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 					+ placement.getId()));
@@ -1561,42 +1565,26 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		portalService.getRenderEngine(portalContext, req).setupForward(req, res, p, skin);
 	}
 
-    /* 
-     * In the new inline version of Sakai, tools are often called from a difference context
-     * than the used to be. Instead of a separate window with /portal/tool/.../URL, they are
-     * called from portal directly, with a base URL of /portal/site/../tool.../URL. Normally
-     * the /tool, /site../tool, etc are part of the context, with URL as the pathinfo.
-     * but the mechanisms that would normally do that don't work in the inline context. Rather
-     * than trying to find all of these things, for the moment we're fixing up the path, by
-     * moving /site/... /tool/..., and /page/... from the pathinfo to the context. This seems
-     * to work.
-     *   The hackery with NATIVE_URL is because the way we fix up the context and path is
-     * by wrapping the request with a Sakai wrapper. But the wrapper doesn't actually work
-     * unless the NATIVE_URL attribute is set. To avoid messing up anything else, we save
-     * the original value and then restore it. Some code elsewhere sets or clears it without
-     * restoring the original value. I believe that's why NATIVE_URL is sometimes off in the
-     * first place.
-     */
-
+	// SAK-28086 - Wrapped Requests have issues with NATIVE_URL
 	String fixPath1(String s, String c, StringBuilder ctx) {
-	    if (s != null && s.startsWith(c)) {
-		int i = s.indexOf("/", 6);
-		if (i >= 0) {
-		    ctx.append(s.substring(0,i));
-		    s = s.substring(i);
-		} else {
-		    ctx.append(s);
-		    s = null;
+		if (s != null && s.startsWith(c)) {
+			int i = s.indexOf("/", 6);
+			if (i >= 0) {
+				ctx.append(s.substring(0,i));
+				s = s.substring(i);
+			} else {
+				ctx.append(s);
+				s = null;
+			}
 		}
-	    }
-	    return s;
+		return s;
 	}
 
 	String fixPath(String s, StringBuilder ctx) {
-	    s = fixPath1(s, "/site/", ctx);
-	    s = fixPath1(s, "/tool/", ctx);
-	    s = fixPath1(s, "/page/", ctx);
-	    return s;
+		s = fixPath1(s, "/site/", ctx);
+		s = fixPath1(s, "/tool/", ctx);
+		s = fixPath1(s, "/page/", ctx);
+		return s;
 	}
 
 	/**
@@ -1604,18 +1592,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * will render
 	 */
 	public void forwardTool(ActiveTool tool, HttpServletRequest req,
-			HttpServletResponse res, Placement p, String skin, String toolContextPath,
-			String toolPathInfo) throws ToolException
-			{
+		HttpServletResponse res, Placement p, String skin, String toolContextPath,
+		String toolPathInfo) throws ToolException
+	{
+
+		M_log.debug("forwardtool call " + req.getRequestURL().toString() + " toolPathInfo " + toolPathInfo + " ctx " + toolContextPath);
 
 		// if there is a stored request state, and path, extract that from the
 		// session and reinstance it
 
-
-			    StringBuilder ctx = new StringBuilder(toolContextPath);
-			    toolPathInfo = fixPath(toolPathInfo, ctx);
-			    toolContextPath = ctx.toString();
-			    boolean needNative = false;
+		StringBuilder ctx = new StringBuilder(toolContextPath);
+		toolPathInfo = fixPath(toolPathInfo, ctx);
+		toolContextPath = ctx.toString();
+		boolean needNative = false;
 
 		// let the tool do the the work (forward)
 		if (enableDirect)
@@ -1625,12 +1614,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 				setupForward(req, res, p, skin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+				M_log.debug("tool forward 1 " + toolPathInfo + " context " + toolContextPath);
 				needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
-				    req.removeAttribute(Tool.NATIVE_URL);
+					req.removeAttribute(Tool.NATIVE_URL);
 				tool.forward(req, res, p, toolContextPath, toolPathInfo);
 				if (needNative)
-				    req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+					req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 			}
 			else
 			{
@@ -1645,12 +1635,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				String sskin = ss.getSkin();
 				setupForward(sreq, res, splacement, sskin);
 				req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+				M_log.debug("tool forward 2 " + stoolPathInfo + " context " + stoolContext);
 				needNative = (sreq.getAttribute(Tool.NATIVE_URL) != null);
 				if (needNative)
-				    sreq.removeAttribute(Tool.NATIVE_URL);
+					sreq.removeAttribute(Tool.NATIVE_URL);
 				stool.forward(sreq, res, splacement, stoolContext, stoolPathInfo);
 				if (needNative)
-				    sreq.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+					sreq.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 				// this is correct as we have checked the context path of the
 				// tool
 				portalService.setStoredState(null);
@@ -1660,15 +1651,16 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			setupForward(req, res, p, skin);
 			req.setAttribute(ToolURL.MANAGER, new ToolURLManagerImpl(res));
+			M_log.debug("tool forward 3 " + toolPathInfo + " context " + toolContextPath);
 			needNative = (req.getAttribute(Tool.NATIVE_URL) != null);
 			if (needNative)
-			    req.removeAttribute(Tool.NATIVE_URL);
+				req.removeAttribute(Tool.NATIVE_URL);
 			tool.forward(req, res, p, toolContextPath, toolPathInfo);
 			if (needNative)
-			    req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
+				req.setAttribute(Tool.NATIVE_URL, Tool.NATIVE_URL);
 		}
 
-			}
+	}
 
 	public void forwardPortal(ActiveTool tool, HttpServletRequest req,
 			HttpServletResponse res, ToolConfiguration p, String skin,

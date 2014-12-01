@@ -371,6 +371,19 @@ public interface Portal
 			ToolConfiguration placement) throws IOException;
 
 	/**
+	 * include the tool part of the view tree
+	 * 
+	 * @param res
+	 * @param req
+	 * @param placement
+	 * @param inlineTool
+	 * @return
+	 * @throws IOException
+	 */
+	Map includeTool(HttpServletResponse res, HttpServletRequest req,
+			ToolConfiguration placement, boolean inlineTool) throws IOException;
+
+	/**
 	 * Get the context name of the portal. This is the name used to identify the
 	 * portal implimentation in the portal service and to other parts of the
 	 * system. Typically portals will be registered with the portal service

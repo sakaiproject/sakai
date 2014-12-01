@@ -199,6 +199,8 @@ public class FragmentToolRenderService implements ToolRenderService
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
+			portal.setResetState(null);
+			log.debug("Tool state reset");
 		}
 
 		// find the tool registered for this

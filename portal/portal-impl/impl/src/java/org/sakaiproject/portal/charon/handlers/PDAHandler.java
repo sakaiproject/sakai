@@ -39,6 +39,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -56,6 +58,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.util.Validator;
@@ -292,7 +295,7 @@ public class PDAHandler extends SiteHandler
 					commonToolId = siteTool.getToolId();
 
 					// Does the tool allow us to buffer?
-					allowBuffer = allowBufferContent(req, siteTool);
+					allowBuffer = allowBufferContent(req, site, siteTool);
 
 					if ( allowBuffer ) {
 
@@ -305,6 +308,8 @@ public class PDAHandler extends SiteHandler
 								siteTool.getSkin(), toolContextPath, toolPathInfo);
 							return END;
 						}
+						// Inform includeTool called by portal.includePortal below
+						ThreadLocalManager.set("sakai:inline-tool","true");
 					}
 				}
 
@@ -432,7 +437,7 @@ public class PDAHandler extends SiteHandler
 	/*
 	 * Check to see if this tool allows the buffering of content
 	 */
-	public boolean allowBufferContent(HttpServletRequest req, ToolConfiguration siteTool)
+	public boolean allowBufferContent(HttpServletRequest req, Site site, ToolConfiguration siteTool)
 	{
 		String tidAllow = ServerConfigurationService.getString(IFRAME_SUPPRESS_PROP, IFRAME_SUPPRESS_DEFAULT);
 
@@ -455,6 +460,11 @@ public class PDAHandler extends SiteHandler
 			if (tidAllow.indexOf(siteTool.getToolId()) >= 0) return false;
 		}
 
+		// Need to make sure the user is allowed to visit this tool
+		ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+		boolean allowedUser = toolManager.allowTool(site, siteTool);
+		if ( ! allowedUser ) return false;
+
 		return true;
 	}
 
@@ -463,18 +473,33 @@ public class PDAHandler extends SiteHandler
 	 * frame.  Return value is a bit complex. 
 	 * Boolean.FALSE - Some kind of failure
 	 * ByteArrayServletResponse - Something that needs to be simply sent out (i.e. not bufferable)
-     * Map - Buffering is a success and map contains buffer pieces
+	 * Map - Buffering is a success and map contains buffer pieces
 	 */
 	public Object bufferContent(HttpServletRequest req, HttpServletResponse res,
 			Session session, String placementId, String toolContextPath, String toolPathInfo, 
 			ToolConfiguration siteTool)
 	{
+		log.debug("bufferContent starting");
 		// Produce the buffered response
 		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
 
 		try {
+			// Prepare the session for the tools.  Handles session reset, reseturl
+			// and helpurl for neo tools - we don't need the returned map
+			Map discard = portal.includeTool(res, req, siteTool, true);
+
 			boolean retval = doToolBuffer(req, bufferedResponse, session, placementId,
 					toolContextPath, toolPathInfo);
+			log.debug("bufferContent retval="+retval);
+
+			// Cleanup transient session bits - SAK-25857
+			ToolSession ts = session.getToolSession(siteTool.getId());
+			if ( ts != null ) {
+                                ts.removeAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
+                                ts.removeAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
+                                ts.removeAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
+			}
+
 
 			if ( ! retval ) return Boolean.FALSE;
 
@@ -493,8 +518,10 @@ public class PDAHandler extends SiteHandler
 				if ( mc.find() ) return bufferedResponse;
 			}
 		} catch (ToolException e) {
+			e.printStackTrace();
 			return Boolean.FALSE;
 		} catch (IOException e) {
+			e.printStackTrace();
 			return Boolean.FALSE;
 		}
 
@@ -537,8 +564,12 @@ public class PDAHandler extends SiteHandler
 			}
 			m.put("responseHead", headString);
 			m.put("responseBody", bodyString);
+			log.debug("responseHead "+headString.length()+
+				" bytes, responseBody "+bodyString.length()+" bytes");
 			return m;
 		}
+		log.debug("bufferContent could not find head/body content");
+		// log.debug(responseStr);
 		return bufferedResponse;
 	}
 
@@ -564,15 +595,6 @@ public class PDAHandler extends SiteHandler
 		if (siteTool == null)
 		{
 			return false;
-		}
-
-		// Reset the tool state if requested
-		if (portalService.isResetRequested(req))
-		{
-			Session s = SessionManager.getCurrentSession();
-			ToolSession ts = s.getToolSession(placementId);
-			ts.clearAttributes();
-			portalService.setResetState(null);
 		}
 
 		// find the tool registered for this

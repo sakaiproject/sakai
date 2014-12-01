@@ -40,6 +40,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
@@ -370,8 +371,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-
-
 		// Create and initialize a copy of the PDA Handler
 		PDAHandler pdah = new PDAHandler();
 		pdah.register(portal,portalService,servletContext);
@@ -389,7 +388,8 @@ public class SiteHandler extends WorksiteHandler
 				commonToolId = siteTool.getToolId();
 
 				// Does the tool allow us to buffer?
-				allowBuffer = pdah.allowBufferContent(req, siteTool);
+				allowBuffer = pdah.allowBufferContent(req, site, siteTool);
+				log.debug("allowBuffer="+allowBuffer+" url="+req.getRequestURL());
 
 				if ( allowBuffer ) {
 					TCP = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5);
@@ -399,21 +399,29 @@ public class SiteHandler extends WorksiteHandler
 					boolean matched = pdah.checkBufferBypass(req, siteTool);
 
 					if ( matched ) {
+						log.debug("Bypassing buffer to forwardTool per configuration");
 						ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
 						portal.forwardTool(tool, req, res, siteTool,
 							siteTool.getSkin(), TCP, toolPathInfo);
 						return;
 					}
+					// Inform calls to includeTool() that the default is 
+					// this thread is inlining a tool.
+					ThreadLocalManager.set("sakai:inline-tool","true");
 				}
 			}
 		}
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);
+
+		// Note that this does not call includeTool()
 		PortalRenderContext rcontext = portal.startPageContext(siteType, title, site
 				.getSkin(), req);
 
 		if ( allowBuffer ) {
+			log.debug("Starting the buffer process...");
+
 			BC = pdah.bufferContent(req, res, session, toolId,
 					TCP, toolPathInfo, siteTool);
 
@@ -447,6 +455,7 @@ public class SiteHandler extends WorksiteHandler
 				if ( queryString != null ) queryUrl.append('?').append(queryString);
 				log.warn("It is tacky to return markup on a POST CTI="+commonToolId+" URL="+queryUrl);
 			}
+			log.debug("BufferedResponse success");
 			rcontext.put("bufferedResponse", Boolean.TRUE);
 			Map<String,String> bufferMap = (Map<String,String>) BC;
 			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
@@ -513,8 +522,7 @@ public class SiteHandler extends WorksiteHandler
 			// This request is the destination of the request
 			portalService.setStoredState(null);
 		}
-		
-		
+
 	}
 
 	/*

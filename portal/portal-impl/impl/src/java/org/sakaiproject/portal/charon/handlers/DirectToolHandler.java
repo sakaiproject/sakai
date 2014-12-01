@@ -27,6 +27,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -56,6 +59,8 @@ import org.sakaiproject.util.Web;
  */
 public class DirectToolHandler extends BasePortalHandler
 {
+	private static Log M_log = LogFactory.getLog(DirectToolHandler.class);
+
 	public static final String URL_FRAGMENT = "directtool";
 
 	public DirectToolHandler()
@@ -139,6 +144,8 @@ public class DirectToolHandler extends BasePortalHandler
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
 			ts.clearAttributes();
+			portalService.setResetState(null);
+			M_log.debug("Tool state reset");
 		}
 
 		// find the tool registered for this

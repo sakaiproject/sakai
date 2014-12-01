@@ -29,6 +29,9 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,6 +64,8 @@ import org.sakaiproject.portal.util.URLUtils;
  */
 public class ToolHandler extends BasePortalHandler
 {
+	private static Log M_log = LogFactory.getLog(ToolHandler.class);
+
 	private static final String URL_FRAGMENT = "tool";
 
 	public ToolHandler()
@@ -142,9 +147,12 @@ public class ToolHandler extends BasePortalHandler
 				ts.setAttribute(Portal.SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
 				ts.setAttribute(Portal.SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
 			}
+			portalService.setResetState(null);
+			M_log.debug("Tool state reset");
 		}
 
 		// find the tool registered for this
+
 		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
 		if (tool == null)
 		{
@@ -212,6 +220,7 @@ public class ToolHandler extends BasePortalHandler
 			portal.sendResponse(rcontext, res, "tool", null);
 
 		} else {
+			M_log.debug("forwardtool in ToolHandler");
 			portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
 				toolPathInfo);
 		}
