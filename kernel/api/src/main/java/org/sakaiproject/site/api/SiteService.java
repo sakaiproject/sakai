@@ -213,8 +213,11 @@ public interface SiteService extends EntityProducer
 	 */
 	static final String EVENT_SITE_ROSTER_REMOVE = "site.roster.remove";
 
-
-
+	/** An event for publishing a site. */
+	static final String EVENT_SITE_PUBLISH = "site.publish";
+	
+	/** An event for unpublishing a site. */
+	static final String EVENT_SITE_UNPUBLISH = "site.unpublish";
 	
 	/**
 	 * <p>

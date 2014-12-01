@@ -120,6 +120,10 @@ public class SiteService
 	public static java.lang.String EVENT_SITE_DUPLICATE_START = org.sakaiproject.site.api.SiteService.EVENT_SITE_DUPLICATE_START;
 	
 	public static java.lang.String EVENT_SITE_DUPLICATE_END = org.sakaiproject.site.api.SiteService.EVENT_SITE_DUPLICATE_END;
+	
+	public static java.lang.String EVENT_SITE_PUBLISH = org.sakaiproject.site.api.SiteService.EVENT_SITE_PUBLISH;
+	
+	public static java.lang.String EVENT_SITE_UNPUBLISH = org.sakaiproject.site.api.SiteService.EVENT_SITE_UNPUBLISH;
 
 	public static boolean allowAccessSite(java.lang.String param0)
 	{
