@@ -148,9 +148,7 @@ public interface Portal
         public static final String SAKAI_PORTAL_ALLOW_NEO = "sakai-portal:allow-neo";
         public static final String SAKAI_PORTAL_HELP_ACTION = "sakai-portal:help-action";
         public static final String SAKAI_PORTAL_RESET_ACTION = "sakai-portal:reset-action";
-        public static final String SAKAI_PORTAL_BREADCRUMBS = "sakai-portal:breadcrumbs";
         public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
-	
 
 	/**
 	 * Tool property to allow the enabling/disabling of the direct url linking UI
