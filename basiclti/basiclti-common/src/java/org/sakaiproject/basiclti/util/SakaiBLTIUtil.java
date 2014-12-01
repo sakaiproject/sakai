@@ -898,7 +898,7 @@ public class SakaiBLTIUtil {
 
 		String serverUrl = getOurServerUrl();
 		setProperty(ltiProps, LTI2Constants.TC_PROFILE_URL,serverUrl + LTI2_PATH + SVC_tc_profile + "/" + consumerkey);
-		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=Activate&id="+deployKey);
+		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostRegister&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
 		debug = 1;
