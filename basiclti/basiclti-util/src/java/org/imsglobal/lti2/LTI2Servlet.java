@@ -23,7 +23,6 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Properties;
 import java.util.TreeMap;
 
@@ -205,7 +204,7 @@ public class LTI2Servlet extends HttpServlet {
 			System.out.println("ltiProps="+ltiProps);
 
 			boolean dodebug = true;
-			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, null);
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug);
 		} else {
 			output = "<form>Register URL:<br/><input type=\"text\" name=\"launch_url\" size=\"80\"\n" + 
 				"value=\"http://localhost:8888/sakai-api-test/tp.php\"><input type=\"submit\">\n";
@@ -273,12 +272,11 @@ public class LTI2Servlet extends HttpServlet {
 			// Place the custom values into the launch
 			LTI2Util.addCustomToLaunch(ltiProps, custom);
 
-			Map<String,String> extra = new HashMap<String,String> ();
 			ltiProps = BasicLTIUtil.signProperties(ltiProps, launch, "POST",
-				TEST_KEY, shared_secret, null, null, null, extra);
+                TEST_KEY, shared_secret, null, null, null);
 
 			boolean dodebug = true;
-			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, dodebug, extra);
+			output = BasicLTIUtil.postLaunchHTML(ltiProps, launch, dodebug);
 		}
 
 		try {
