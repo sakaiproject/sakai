@@ -177,10 +177,7 @@
                 roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: false });
             });
 
-            $(window).off('scroll.roster').on('scroll.roster', function (e) {
-
-                roster.scrollFunction(showOfficialPictures);
-            });
+            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(showOfficialPictures));
         } else if (roster.STATE_VIEW_PROFILE === state) {
             
             roster.sakai.getProfileMarkup(arg.userId, function (profileMarkup) {
@@ -310,11 +307,10 @@
             $('#roster-members').empty();
             roster.nextPage = 0;
 
-            $(window).off('scroll.roster').on('scroll.roster', function (e) {
-
-                roster.scrollFunction(options.forceOfficialPicture, options.enrollmentStatus);
-            });
+            $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture, options.enrollmentStatus));
         }
+
+        console.log("NEXT: " + roster.nextPage);
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
@@ -350,7 +346,6 @@
             success: function (data) {
 
                 if (data.status && data.status === 'END') {
-                    $(window).off('scroll.roster');
                     loadImage.hide();
 
                     if (roster.nextPage === 0) {
@@ -415,6 +410,8 @@
                 });
 
                 roster.nextPage += 1;
+
+                $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture));
 
                 loadImage.hide();
             },
@@ -486,17 +483,23 @@
         target.append(t(templateData));
     };
 
-    roster.scrollFunction = function (showOfficialPictures, enrollmentStatus) {
+    roster.getScrollFunction = function (showOfficialPictures, enrollmentStatus) {
 
-        var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
- 
-        if  ((wintop/(docheight-winheight)) > 0.95) {
-            if (showOfficialPictures) {
-                roster.renderMembership({ forceOfficialPicture: true, replace: false, enrollmentStatus: enrollmentStatus });
-            } else {
-                roster.renderMembership({ forceOfficialPicture: false, replace: false, enrollmentStatus: enrollmentStatus });
+        var scroller = function () {
+
+            var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
+     
+            if  ((wintop/(docheight-winheight)) > 0.95) {
+                $(window).off('scroll.roster');
+                if (showOfficialPictures) {
+                    roster.renderMembership({ forceOfficialPicture: true, replace: false, enrollmentStatus: enrollmentStatus });
+                } else {
+                    roster.renderMembership({ forceOfficialPicture: false, replace: false, enrollmentStatus: enrollmentStatus });
+                }
             }
-        }
+        };
+
+        return scroller;
     };
 
     roster.getRoleFragments = function (roleCounts) {

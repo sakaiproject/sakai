@@ -512,10 +512,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 				String memberRoleId = member.getRole();
 				if (ArrayUtils.contains(visibleRoles, memberRoleId)){
 					filtered.add(member);
-					if (log.isDebugEnabled()) log.debug("Filter added: " + member.getEid());
 				}
 			} else {
-				if (log.isDebugEnabled()) log.debug("Added: " + member.getEid());
 				filtered.add(member);
 			}
 		}
