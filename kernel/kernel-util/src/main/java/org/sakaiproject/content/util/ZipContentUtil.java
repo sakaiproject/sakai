@@ -36,6 +36,8 @@ import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 
 @SuppressWarnings({ "deprecation", "restriction" })
 public class ZipContentUtil {
@@ -55,6 +57,12 @@ public class ZipContentUtil {
     public static final int MAX_ZIP_EXTRACT_FILES_DEFAULT = 1000;
 	private static Integer MAX_ZIP_EXTRACT_FILES;
     
+    private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.ContentProperties";
+    private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.content.content";
+    private static final String RESOURCECLASS = "resource.class.content";
+    private static final String RESOURCEBUNDLE = "resource.bundle.content";
+	private static ResourceLoader rb = new Resource().getLoader(ServerConfigurationService.getString(RESOURCECLASS, DEFAULT_RESOURCECLASS), ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE));
+	
     public static int getMaxZipExtractFiles() {
         if(MAX_ZIP_EXTRACT_FILES == null){
             MAX_ZIP_EXTRACT_FILES = ServerConfigurationService.getInt(org.sakaiproject.content.api.ContentHostingService.RESOURCES_ZIP_EXPAND_MAX,MAX_ZIP_EXTRACT_FILES_DEFAULT);
@@ -140,11 +148,11 @@ public class ZipContentUtil {
 			ContentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);								
 		}
 		catch (PermissionException pE){
-			addAlert(toolSession, "You do not have the proper permissions for compressing to zip archive");
+			addAlert(toolSession, rb.getString("permission_error_zip"));
 			LOG.warn(pE);
 		}
 		catch (Exception e) {
-			addAlert(toolSession, "An error has occurred while compressing to zip archive");
+			addAlert(toolSession, rb.getString("generic_error_zip"));
 			LOG.error(e);
 		} 
 		finally {
