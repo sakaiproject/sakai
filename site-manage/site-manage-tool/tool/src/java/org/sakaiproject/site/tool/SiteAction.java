@@ -8586,6 +8586,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
 		
+		// the site publish status before update
+		boolean currentSitePublished = sEdit.isPublished();
+		
 		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
 
 		if (sEdit != null) {
@@ -8610,6 +8613,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				commitSite(sEdit);
+				if (currentSitePublished && !publishUnpublish)
+				{
+					// unpublishing a published site
+					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_UNPUBLISH, sEdit.getReference(), true));
+				}
+				else if (!currentSitePublished && publishUnpublish)
+				{
+					// publishing a published site
+					EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH, sEdit.getReference(), true));
+				}
 				state.setAttribute(STATE_TEMPLATE_INDEX, "12");
 
 				// TODO: hard coding this frame id is fragile, portal dependent,
