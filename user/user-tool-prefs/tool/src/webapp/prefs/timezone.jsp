@@ -69,11 +69,10 @@
 
 				
 				<p class="instruction">
-				<h:outputFormat value="#{msgs.time_inst_1}">
+				<h:outputFormat value="#{msgs.time_inst}">
 					<f:param value="#{UserPrefsTool.serviceName}"/>
+					<f:param value="#{UserPrefsTool.selectedTimeZone}"/>
 				</h:outputFormat>
-				<h:outputText value="#{UserPrefsTool.selectedTimeZone}" styleClass="highlight" style="font-weight:bold !important;"/>
-				<h:outputText value="#{msgs.time_inst_2}"/>
 				</p>
 					
     			 <h:selectOneListbox 
