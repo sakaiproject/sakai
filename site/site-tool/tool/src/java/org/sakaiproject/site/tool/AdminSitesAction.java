@@ -57,6 +57,7 @@ import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -995,11 +996,37 @@ public class AdminSitesAction extends PagedResourceActionII
 		if (!"POST".equals(data.getRequest().getMethod())) {
 			return;
 		}
+		
+		// get the current site published status
+		boolean currentSitePublished = false;
+		Site site = (Site) state.getAttribute("site");
+		if (site != null)
+		{
+			currentSitePublished = site.isPublished();
+		}
+		// the input form setting for site publish status
+		boolean afterSitePublished = data.getParameters().getBoolean("published");
 
 		// read the form - if rejected, leave things as they are
 		if (!readSiteForm(data, state)) return;
 
 		doSave_edit(data, context);
+		
+		// throw events
+		if (currentSitePublished && !afterSitePublished)
+		{
+			// site unpublished
+			EventTrackingService.post(EventTrackingService.newEvent(
+					SiteService.EVENT_SITE_UNPUBLISH,
+					site.getId(), true));
+		}
+		else if (!currentSitePublished && afterSitePublished)
+		{
+			// site published
+			EventTrackingService.post(EventTrackingService.newEvent(
+					SiteService.EVENT_SITE_PUBLISH,
+					site.getId(), true));
+		}
 
 	} // doSave
 
