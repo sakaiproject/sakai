@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.TreeSet;
+import java.util.Collections;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -91,12 +91,8 @@ public class ImportQuestionsToAuthoring implements ActionListener
       boolean newSectionCreated = false;
 
         // SAM-2395 - sort based on question text
-        TreeSet<ItemFacade> sortedQuestions = new TreeSet<ItemFacade>( new Comparator<ItemFacade>() {
-          @Override
-          public int compare(ItemFacade obj1, ItemFacade obj2) {
-              return obj1.getText().compareTo(obj2.getText());
-          }
-      });
+      	// SAM-2437 - use an arrayList instead of treeset to allow duplicated title questions
+	      ArrayList<ItemFacade> sortedQuestions = new ArrayList<ItemFacade>();
 
         // SAM-2395 - copy the questions into a sorted list
         for (Object itemID : destItems) {
@@ -107,6 +103,13 @@ public class ImportQuestionsToAuthoring implements ActionListener
         itemfacade = new ItemFacade(clonedItem);
           sortedQuestions.add(itemfacade);
         }
+
+        Collections.sort(sortedQuestions, new Comparator<ItemFacade>() {
+	        @Override
+	        public int compare(ItemFacade obj1, ItemFacade obj2) {
+	            return obj1.getText().compareTo(obj2.getText());
+	        }
+	    });
 
         // SAM-2395 - iterate over the sorted list
         Iterator iter = sortedQuestions.iterator();
