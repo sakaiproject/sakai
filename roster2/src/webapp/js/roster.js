@@ -379,13 +379,30 @@
                         m.profileImageUrl += "/official";
                     }
                     m.profileImageUrl += "?siteId=" + roster.siteId;
-                    m.hasGroups = Object.keys(m.groups).length > 0;
+                    var groupIds = Object.keys(m.groups);
+                    m.hasGroups = groupIds.length > 0;
+
+                    m.singleGroup = null;
+                    if (groupIds.length == 1) {
+                        var singleGroupId = groupIds[0];
+                        m.singleGroup = { id: groupIds[0], title: m.groups[groupIds[0]] };
+                    }
+
                     m.enrollmentStatusText = roster.site.enrollmentStatusCodes[m.enrollmentStatusId];
                 });
 
                 roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
 
                 $(document).ready(function () {
+
+                    $('.roster-single-group-link').click(function (e) {
+
+                        var value = $(this).attr('data-groupid');
+
+                        roster.renderGroupMembership(value, options.forceOfficialPicture);
+
+                        $('#roster-group-option-' + value).prop('selected', true);
+                    });
 
                     $('.roster-groups-selector').off('change').on('change', function (e) {
 
