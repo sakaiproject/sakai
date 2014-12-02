@@ -348,11 +348,12 @@ public interface DashboardDao {
 			boolean hidden);
 	
 	/**
-	 * Delete calendar links associated with given context 
+	 * Delete calendar or news links associated with given context 
 	 * @param context
+	 * @param type TYPE_NEWS or TYPE_CALENDAR
 	 * @return
 	 */
-	public boolean deleteCalendarLinksByContext(String context);
+	public boolean deleteLinksByContext(String context, String type);
 
 	/**
 	 * Removes the NewsItem with the id indicated, if it exists. 
@@ -399,13 +400,6 @@ public interface DashboardDao {
 	 */
 	public boolean deleteNewsLinksBefore(Date expireBefore, boolean starred,
 			boolean hidden);
-	
-	/**
-	 * Delete news links associated with given context
-	 * @param context
-	 * @return
-	 */
-	public boolean deleteNewsLinksByContext(String context);
 
 	/**
 	 * 

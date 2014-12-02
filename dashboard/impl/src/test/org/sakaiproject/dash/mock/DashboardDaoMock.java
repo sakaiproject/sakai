@@ -746,7 +746,7 @@ public class DashboardDaoMock implements DashboardDao {
 		return false;
 	}
 	
-	public boolean deleteCalendarLinksByContext(String context) {
+	public boolean deleteLinksByContext(String context, String type) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -758,11 +758,6 @@ public class DashboardDaoMock implements DashboardDao {
 	}
 
 	public boolean deleteNewsItemsWithoutLinks() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	public boolean deleteNewsLinksByContext(String context) {
 		// TODO Auto-generated method stub
 		return false;
 	}

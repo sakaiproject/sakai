@@ -119,11 +119,18 @@
     	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
 	</bean>
 
-	<bean id="org.sakaiproject.dash.listener.SiteUpdateEventProcessor" 
-		class="org.sakaiproject.dash.listener.SiteUpdateEventProcessor" 
+	<bean id="org.sakaiproject.dash.listener.SitePublishEventProcessor" 
+		class="org.sakaiproject.dash.listener.SitePublishEventProcessor" 
 		init-method="init">
 		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
-    	<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+		<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
+	</bean>
+	
+	<bean id="org.sakaiproject.dash.listener.SiteUnpublishEventProcessor" 
+		class="org.sakaiproject.dash.listener.SiteUnpublishEventProcessor" 
+		init-method="init">
+		<property name="dashboardLogic" ref="org.sakaiproject.dash.logic.DashboardLogic"></property>
+		<property name="sakaiProxy" ref="org.sakaiproject.dash.app.SakaiProxy"></property>
 	</bean>
 	
 	<!-- EntityType beans go here: -->

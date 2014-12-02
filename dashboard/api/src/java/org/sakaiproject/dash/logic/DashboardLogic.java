@@ -49,6 +49,10 @@ public interface DashboardLogic {
 	
 	public static final Integer DEFAULT_WEEKS_TO_HORIZON = new Integer(4);
 	
+	// strings to indicate which dashboard item type
+	public static final String TYPE_NEWS = "news";
+	public static final String TYPE_CALENDAR = "calendar";
+	
 	/**
 	 * @param repeatingEvent
 	 * @param oldHorizon
@@ -69,13 +73,15 @@ public interface DashboardLogic {
 	public void addCalendarLinks(String sakaiUserId, String contextId);
 	
 	/**
-	 * Add links to calendar items in a context for all users in the context. Links
+	 * Add or remove links to calendar or news items in a context for all users in the context. Links
 	 * will be limited to items referencing entities for which the user has 
 	 * access permission. This action may be limited by time or number, depending 
 	 * on system settings defining policies for removal of calendar links. 
 	 * @param contextId
+	 * @param type
+	 * @param true for adding; false for removing
 	 */
-	public void addCalendarLinksByContext(String contextId);
+	public void modifyLinksByContext(String contextId, String type, boolean addOrRemove);
 
 	/**
 	 * Add links to news items in a context for a particular user. Links
@@ -86,15 +92,6 @@ public interface DashboardLogic {
 	 * @param contextId
 	 */
 	public void addNewsLinks(String sakaiUserId, String contextId);
-	
-	/**
-	 * Add links to news items in a context for all users in the context. Links
-	 * will be limited to items referencing entities for which the user has 
-	 * access permission. This action may be limited by time or number, depending 
-	 * on system settings defining policies for removal of news links. 
-	 * @param contextId
-	 */
-	public void addNewsLinksByContext(String contextId);
 
 	/**
 	 * Creates and persists a CalendarItem with specified attributes. Returns the complete CalendarItem object.
@@ -325,12 +322,6 @@ public interface DashboardLogic {
 	 */
 	public void removeCalendarLinks(String entityReference,
 			String calendarTimeLabelKey, int sequenceNumber);
-	
-	/**
-	 * remove all calendar links for context
-	 * @param context
-	 */
-	public void removeCalendarLinksByContext(String context);
 
 	/**
 	 * Remove all news links and the news item referencing a particular entity.
@@ -350,12 +341,6 @@ public interface DashboardLogic {
 	 * @param contextId
 	 */
 	public void removeNewsLinks(String sakaiUserId, String contextId);
-	
-	/**
-	 * remove all news links for context
-	 * @param context
-	 */
-	public void removeNewsLinksByContext(String context);
 
 	/**
 	 * Change the value of the label key to newLabelKey for all calendar items with specified

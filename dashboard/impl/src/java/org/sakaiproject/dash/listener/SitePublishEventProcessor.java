@@ -28,13 +28,12 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.site.api.SiteService;
 
 /**
- * This is the event handler for site.upd event
- * if the site becomes unpublished, it will remove all news/calendar links associated with the site
- * if the site becomes published, it will add links for all existing NewsItem/CalendarItem for all eligible users within the site 
+ * This is the event handler for site.publish event
+ * it will add links for all existing NewsItem/CalendarItem for all eligible users within the site 
  */
-public class SiteUpdateEventProcessor implements EventProcessor {
+public class SitePublishEventProcessor implements EventProcessor {
 
-	private static Logger logger = Logger.getLogger(SiteUpdateEventProcessor.class);
+	private static Logger logger = Logger.getLogger(SitePublishEventProcessor.class);
 	
 	protected DashboardLogic dashboardLogic;
 	public void setDashboardLogic(DashboardLogic dashboardLogic) {
@@ -51,7 +50,7 @@ public class SiteUpdateEventProcessor implements EventProcessor {
 	 */
 	public String getEventIdentifer() {
 
-		return SiteService.SECURE_UPDATE_SITE;
+		return SiteService.EVENT_SITE_PUBLISH;
 	}
 
 	/* (non-Javadoc)
@@ -67,29 +66,13 @@ public class SiteUpdateEventProcessor implements EventProcessor {
 		// get site id
 		String context = event.getContext();
 		
-		// check whether the site is publish or not
-		if (!sakaiProxy.isSitePublished(context))
-		{
-			logger.info(this + " process Event start removing News links and Calendar links for site " + context);
-			
-			// if not published, remove all news links and calendar links
-			dashboardLogic.removeNewsLinksByContext(context);
-			dashboardLogic.removeCalendarLinksByContext(context);
-
-			logger.info(this + " process Event end removing News links and Calendar links for site " + context);
-		}
-		else
-		{
-			logger.info(this + " process Event start adding News links and Calendar links for site " + context);
-			
-			// if published, add all news links and calendar links
-			dashboardLogic.addNewsLinksByContext(context);
-			dashboardLogic.addCalendarLinksByContext(context);
-
-			logger.info(this + " process Event end adding News links and Calendar links for site " + context);
-			
-		}
+		logger.info(this + " process Event start adding News links and Calendar links for site " + context);
 		
+		// if published, add all news links and calendar links
+		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_NEWS, true/*adding*/);
+		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_CALENDAR, true/*adding*/);
+
+		logger.info(this + " process Event end adding News links and Calendar links for site " + context);
 	}
 
 	public void init() {
