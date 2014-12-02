@@ -174,7 +174,10 @@
                 roster.readySearchField();
                 roster.readyClearButton(state);
 
-                roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: false });
+                // We don't want parallel membership requests
+	            $('#navbar_overview_link > span > a').off('click');
+
+                roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
             });
 
             $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(showOfficialPictures));
@@ -248,6 +251,9 @@
                 roster.readySearchField();
                 roster.readyClearButton(state);
 
+                // We don't want parallel membership requests
+                $('#navbar_enrollment_status_link').off('click');
+
                 roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
             });
         } else if (roster.STATE_PERMISSIONS === state) {
@@ -309,8 +315,6 @@
 
             $(window).off('scroll.roster').on('scroll.roster', roster.getScrollFunction(options.forceOfficialPicture, options.enrollmentStatus));
         }
-
-        console.log("NEXT: " + roster.nextPage);
 
         var url = "/direct/roster-membership/" + roster.siteId;
         
@@ -408,6 +412,21 @@
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
                 });
+
+                if (roster.nextPage === 0) {
+                    // We've just pulled the first page ...
+                    if (roster.currentState === roster.STATE_OVERVIEW) {
+                        // ... and are in OVERVIEW mode, so switch the link back on
+                        $('#navbar_overview_link > span > a').click(function (e) {
+                            return roster.switchState(roster.STATE_OVERVIEW);
+                        });
+                    } else if (roster.currentState === roster.STATE_ENROLLMENT_STATUS) {
+                        // ... and are in ENROLLMENT_STATUS mode, so switch the link back on
+                        $('#navbar_enrollment_status_link > span > a').click(function (e) {
+                            return roster.switchState(roster.STATE_ENROLLMENT_STATUS);
+                        });
+                    }
+                }
 
                 roster.nextPage += 1;
 
