@@ -3,7 +3,7 @@
 <div id="roleSwitch">
 
     #if ($roleSwitchState)
-        <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+        <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
     #else
     
         #if ($roleswapdropdown)
@@ -16,7 +16,7 @@
         
         #else
         
-            <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+            <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
         #end ##if ($roleswapdropdown)
         
     #end ##if ($roleSwitchState)

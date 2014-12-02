@@ -26,7 +26,7 @@
 					#if ($viewAsStudentLink)
 						<div id="roleSwitch">
 						#if ($roleSwitchState)
-							<a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>${rloader.rs_exitRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+							<a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
 						#else
 							#if ($roleswapdropdown)
 								<select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
@@ -36,7 +36,7 @@
 								#end     
 								</select>
 							#else
-								<a href="$switchRoleUrl" id="roleSwitchAnchor"><span>${rloader.rs_enterRoleSwap} $roleUrlValue ${rloader.rs_view}</span></a>
+								<a href="$switchRoleUrl" id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
 							#end
 						#end
 						</div>
