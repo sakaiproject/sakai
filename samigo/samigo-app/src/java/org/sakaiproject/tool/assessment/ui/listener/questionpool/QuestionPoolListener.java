@@ -26,6 +26,8 @@ public class QuestionPoolListener implements ActionListener {
 		if (ae != null && ae.getComponent().getId().equals("questionPoolsLink")) {
 			qpoolbean.buildTree();
 		}
+		//Reset the currentpool in root
+		qpoolbean.setCurrentPool(null);
 		qpoolbean.setQpDataModelByLevel();
 	}
 }

@@ -72,6 +72,7 @@
 <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="addlink" immediate="true" action="#{questionpool.addPool}">	
   <h:outputText id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
@@ -80,6 +81,7 @@
 <h:commandLink title="#{questionPoolMessages.t_copyPool}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copylink" immediate="true" action="#{questionpool.startCopyPool}">
   <h:outputText id="copy" value="#{questionPoolMessages.copy}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}" value=" | " />
 
@@ -87,6 +89,7 @@
 <h:commandLink title="#{questionPoolMessages.t_movePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="movelink" immediate="true" action="#{questionpool.startMovePool}">
   <h:outputText id="move" value="#{questionPoolMessages.move}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 <%--
 <h:outputText  rendered="#{questionpool.importToAuthoring != 'true'}" value=" | " />
@@ -101,6 +104,7 @@
 <h:commandLink title="#{questionPoolMessages.t_removePool}" rendered="#{questionpool.importToAuthoring != 'true' && pool.ownerId==questionpool.agentId}"  id="removelink" immediate="true" action="#{questionpool.confirmRemovePool}">
   <h:outputText id="remove" value="#{commonMessages.remove_action}"/>
   <f:param name="qpid" value="#{pool.questionPoolId}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
  <f:verbatim></span></f:verbatim>
 

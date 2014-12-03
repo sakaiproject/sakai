@@ -61,8 +61,7 @@
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandButton>
 
-  <h:commandButton type="button" id="Cancel" value="#{commonMessages.cancel_action}" immediate="true"
-    onclick="document.location='editPool.faces'" onkeypress="document.location='editPool.faces'"/>
+  <h:commandButton type="button" id="Cancel" value="#{commonMessages.cancel_action}" immediate="true" action="#{questionpool.cancelPool}"/>
 </p>
 
 </h:form>

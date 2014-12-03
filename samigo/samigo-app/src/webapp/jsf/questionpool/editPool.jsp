@@ -112,6 +112,7 @@ function textCounter(field, maxlimit) {
 <div style="margin-top:1em;margin-bottom:2.5em">
   <h:commandButton id="Update" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.getOutcomeEdit}" value="#{questionPoolMessages.update}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
+    <f:attribute name="addsource" value="editpoolattr"/>
   </h:commandButton>
 </div>
 
@@ -131,7 +132,7 @@ function textCounter(field, maxlimit) {
 <h:commandLink title="#{questionPoolMessages.t_addSubpool}" rendered="#{questionpool.importToAuthoring != 'true' && questionpool.owner==questionpool.currentPool.owner}" id="addlink" immediate="true" action="#{questionpool.addPool}">
   <h:outputText  id="add" value="#{questionPoolMessages.t_addSubpool}"/>
   <f:param name="qpid" value="#{questionpool.currentPool.id}"/>
-  <f:param name="addsource" value="editpool"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 </h:panelGrid>
 </h4>
@@ -159,6 +160,7 @@ function textCounter(field, maxlimit) {
 <h:commandLink title="#{questionPoolMessages.t_addQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="addQlink" immediate="true" action="#{questionpool.selectQuestionType}">
   <h:outputText id="addq" value="#{questionPoolMessages.t_addQuestion}"/>
   <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
+  <f:param name="outCome" value="editPool"/>
 </h:commandLink>
 </h:panelGrid>
 </h4>
@@ -166,6 +168,7 @@ function textCounter(field, maxlimit) {
 <div class="navIntraToolLink">
   <h:commandButton id="removeSubmit" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
+    <f:param name="outCome" value="editPool"/>
   </h:commandButton>
  
  <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />

@@ -57,8 +57,7 @@
       <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}"
     action="#{questionpool.removePool}" styleClass="active">
       </h:commandButton>
-     <h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="poolList">
-	    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+     <h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}">
       </h:commandButton>
 
 

@@ -85,6 +85,7 @@
 <p class="act">
   <h:commandButton type="submit" immediate="true" id="poolSubmit" value="#{questionPoolMessages.move}"
     action="#{questionpool.movePool}" rendered="#{questionpool.actionType == 'pool'}" styleClass="active">
+    <f:param name="qpid" value="#{questionpool.currentPool.parentPoolId}"/>
   </h:commandButton>
 
   <h:commandButton type="submit" immediate="true" id="itemSubmit" value="#{questionPoolMessages.move}"

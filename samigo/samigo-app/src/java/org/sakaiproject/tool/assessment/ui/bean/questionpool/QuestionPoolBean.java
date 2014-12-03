@@ -83,6 +83,7 @@ public class QuestionPoolBean implements Serializable
 	
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
+  public final static String ORIGIN_TOP = "poolList";
 
   private String name;
   private Collection pools;
@@ -168,6 +169,7 @@ public class QuestionPoolBean implements Serializable
  private String addOrEdit;
   private String outcome;
   private String outcomeEdit;
+  private long	 outcomePool;
   private String unsharePoolSource; 
   private String deletePoolSource;  // either from poolList.jsp , or from editPool.jsp
   private String addPoolSource;  // either from poolList.jsp , or from editPool.jsp
@@ -1083,6 +1085,20 @@ public String getAddOrEdit()
     this.outcomeEdit= param;
   }
 
+  public long getOutcomePool()
+  {
+    return outcomePool;
+  }
+
+  /**
+   * set the outcome for doit()
+   * @param param
+   */
+  public void setOutcomePool(long param)
+  {
+    this.outcomePool= param;
+  }
+
   public String getDeletePoolSource()
   {
     return deletePoolSource;
@@ -1200,6 +1216,7 @@ public String getAddOrEdit()
 // Item level actions
   public String startCopyQuestion()
   {
+	  	setOutComeParams();
 	    this.sourcePart = null;
         getCheckedQuestion();
         return "copyPool";
@@ -1207,17 +1224,20 @@ public String getAddOrEdit()
 
   public String startMoveQuestion()
   {
+	  	setOutComeParams();
         getCheckedQuestion();
         return "movePool";
   }
 
 	public String startCopyQuestions() {
+		setOutComeParams("editPool");
 		this.sourcePart = null;
 		getCheckedQuestions();
 		return "copyPool";
 	}
 
 	public String startMoveQuestions() {
+		setOutComeParams("editPool");
 		getCheckedQuestions();
 		return "movePool";
 	}
@@ -1227,6 +1247,7 @@ public String getAddOrEdit()
 		String destId = "";
 		sourceId = this.getCurrentPool().getId().toString();
 		ArrayList sourceItemIds = this.getCurrentItemIds();
+		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 
 		destId = ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
@@ -1257,10 +1278,9 @@ public String getAddOrEdit()
 		EventTrackingService.post(EventTrackingService.newEvent("sam.questionpool.questionmoved", "/sam/" +AgentFacade.getCurrentSiteId() + "/sourceId=" + sourceId + " destId=" + destId, true));
 
 
-		buildTree();
-		setQpDataModelByLevel();
+		setOutComeTree(originId);
 		
-		return "poolList";
+	return getOutcome();
 	}
 
     // This is the link in edit assessment to copy all questions to a pool
@@ -1321,7 +1341,7 @@ public String getAddOrEdit()
 
 		ArrayList destpools = ContextUtil.paramArrayValueLike("checkboxes");
 		// sourceId = this.getCurrentPool().getId();
-
+		String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 		Iterator iter = destpools.iterator();
 		while (iter.hasNext()) {
 
@@ -1357,9 +1377,9 @@ public String getAddOrEdit()
 			}
 		}
 
-		buildTree();
-		setQpDataModelByLevel();
-		return "poolList";
+	setOutComeTree(originId);
+	
+	return getOutcome();
 	}
 
   public String copyQuestionsFromPart() {
@@ -1500,6 +1520,7 @@ public String getAddOrEdit()
   public String startCopyPool()
   {
 	log.debug("inside startCopyPool()");
+	setOutComeParams();
 	getCheckedPool();
 	buildTreeCopy();
 	setActionType("pool");
@@ -1510,6 +1531,7 @@ public String getAddOrEdit()
   public String startMovePool()
   {
 	log.debug("inside startMovePool()");  
+	setOutComeParams();
 	getCheckedPool();
 	buildTreeCopy();
 	setActionType("pool");
@@ -1577,6 +1599,7 @@ public String getAddOrEdit()
 	ArrayList destpools= ContextUtil.paramArrayValueLike("checkboxes");
  	sourceId = this.getCurrentPool().getId();
         String currentName=this.getCurrentPool().getDisplayName();
+    String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
 	Iterator iter = destpools.iterator();
      
       while(iter.hasNext())
@@ -1593,7 +1616,7 @@ public String getAddOrEdit()
                QuestionPoolFacade oldPool =delegate.getPool(sourceId, AgentFacade.getAgentString());
 	      //if dest != source's parent, then throw error if dest has a duplicate pool name 
 		if(!destId.equals((oldPool.getParentPoolId()).toString())){
-		    isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
+		    isUnique=delegate.poolIsUnique(originId,currentName,destId, AgentFacade.getAgentString());
 		    if(!isUnique){
 		    	String err1=rb.getString("copy_duplicateName_error");
 		    	FacesContext context=FacesContext.getCurrentInstance();
@@ -1619,9 +1642,9 @@ public String getAddOrEdit()
 	  }
       }
 
-      buildTree();
-      setQpDataModelByLevel();
-      return "poolList";
+      setOutComeTree(originId);
+
+	return getOutcome();
 
   }
 
@@ -1631,6 +1654,7 @@ public String getAddOrEdit()
       String destId = "";
       sourceId = this.getCurrentPool().getId().toString();
       String currentName=this.getCurrentPool().getDisplayName();
+      String originId = Long.toString(ORIGIN_TOP.equals(getOutcome())?0:getOutcomePool());
       boolean isUnique=true;
 	destId= ContextUtil.lookupParam("movePool:selectedRadioBtn");
 
@@ -1640,7 +1664,7 @@ public String getAddOrEdit()
           try
           {
             QuestionPoolService delegate = new QuestionPoolService();
- isUnique=delegate.poolIsUnique("0",currentName,destId, AgentFacade.getAgentString());
+ isUnique=delegate.poolIsUnique(originId,currentName,destId, AgentFacade.getAgentString());
               if(!isUnique){
             	  String err1=rb.getString("move_duplicateName_error");
             	  FacesContext context = FacesContext.getCurrentInstance();
@@ -1660,16 +1684,15 @@ public String getAddOrEdit()
           }
         }
 
-      buildTree();
-      setQpDataModelByLevel();
+        setOutComeTree(originId);
       
-	return "poolList";
+	return getOutcome();
   }
 
   public String addPool() {
 		String addsource = "poollist";
-		addsource = (String) FacesContext.getCurrentInstance()
-				.getExternalContext().getRequestParameterMap().get("addsource");
+		setOutComeParams();
+		addsource = getOutcome();
 		this.setAddPoolSource(addsource);
 		startCreatePool();
 		this.setAddOrEdit("add");	
@@ -1741,6 +1764,7 @@ public String getAddOrEdit()
 
 
   public String confirmRemovePool(){
+	  setOutComeParams();
 // used by the editpool.jsp to remove one subpool at a time
 	this.setDeletePoolSource("editpool");
 
@@ -1822,9 +1846,18 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String cancelPool() {
+	  if(ORIGIN_TOP.equals(getOutcome())){
+		  setCurrentPool(null);
+		  setOutcomePool(0);
 	  buildTree();
 	  setQpDataModelByLevel();
-	  return "poolList";
+	  }else{
+		  startEditPoolAgain(Long.toString(getOutcomePool()));
+	      buildTree();
+	      setSubQpDataModelByLevel(); 
+  }
+
+	  return getOutcome();
   }
 
   public String importPool(){
@@ -1954,6 +1987,7 @@ String poolId = ContextUtil.lookupParam("qpid");
 		ItemAuthorBean itemauthorbean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 		String poolid = ContextUtil.lookupParam("poolId");
 		if (poolid != null) {
+			setOutComeParams();
 			itemauthorbean.setQpoolId(poolid);
 			itemauthorbean.setTarget(ItemAuthorBean.FROM_QUESTIONPOOL);
 
@@ -2157,12 +2191,16 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
   
   	public void setQpDataModelByLevel() {
-		Collection objects = tree.getSortedObjects();
-
 		// construct the sortedList, pools need to be sorted one level at a time
 		// so the hierachical structure can be maintained. Here, we start from root = 0,
+		setQpDataModelByLevel(new Long("0"));
+	}
+  	
+  	public void setQpDataModelByLevel(Long poolId) {
+		Collection objects = tree.getSortedObjects();
+
 		if (objects != null) {
-			ArrayList sortedList = sortPoolByLevel(new Long("0"), objects,
+			ArrayList sortedList = sortPoolByLevel(poolId, objects,
 					getSortProperty(), getSortAscending());
 			ListDataModel model = new ListDataModel((List) sortedList);
 			QuestionPoolDataModel qpDataModel = new QuestionPoolDataModel(tree,
@@ -2498,5 +2536,29 @@ String poolId = ContextUtil.lookupParam("qpid");
 			e.printStackTrace();
 			return "";
 		}
+	}
+	
+	public void setOutComeTree(String originId){
+		if(ORIGIN_TOP.equals(getOutcome())){
+	    	  buildTree();
+	    	  setQpDataModelByLevel();
+	      }else{
+	    	  startEditPoolAgain(originId);
+		      buildTree();
+		      setSubQpDataModelByLevel();
+}
+	}
+	
+	public void setOutComeParams(){
+		setOutComeParams(null);
+	}
+	
+	public void setOutComeParams(String outcome){
+		if(outcome==null){
+			setOutcome((String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("outCome"));
+		}else{
+			setOutcome(outcome);
+		}
+		setOutcomePool((getCurrentPool()!=null)?getCurrentPool().getId():0);
 	}
 }

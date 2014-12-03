@@ -69,6 +69,9 @@ public class PoolSaveListener implements ActionListener
     QuestionPoolBean  qpoolbean= (QuestionPoolBean) ContextUtil.lookupBean("questionpool");
     String currentName= TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, qpoolbean.getCurrentPool().getDisplayName());
    
+    String addsource = (String)ae.getComponent().getAttributes().get("addsource");
+    qpoolbean.setAddPoolSource(addsource);
+    
     boolean isUnique=true;
     QuestionPoolService service = new QuestionPoolService();
     QuestionPoolDataBean bean = qpoolbean.getCurrentPool();
@@ -177,11 +180,11 @@ public class PoolSaveListener implements ActionListener
 
       //  System.out.println( "SAVE - POOLSOURCE= "+qpbean.getAddPoolSource());
       //where do you get value from addPoolSource?  It always return null though.
-      if ("editpool".equals(qpbean.getAddPoolSource())) {
+      if ("editpool".equals(qpbean.getAddPoolSource()) && !qpbean.ORIGIN_TOP.equals(qpbean.getOutcome())) {
     // so reset subpools tree
 //    QuestionPoolFacade thepool= delegate.getPool(parentid, AgentFacade.getAgentString());
 //    qpbean.getCurrentPool().setNumberOfSubpools(thepool.getSubPoolSize().toString());
-      qpbean.startEditPoolAgain(parentid.toString());  // return to edit poolwith the current pool set to the parentpoo
+      qpbean.startEditPoolAgain(Long.toString(qpbean.getOutcomePool()));  // return to edit pool with the pool where the action was performed
       
       // Reset the properties for current pool to reflect the early changes (before click on "Add") in edit pool
       QuestionPoolDataBean currentPool = qpbean.getCurrentPool();
@@ -200,9 +203,19 @@ public class PoolSaveListener implements ActionListener
 	  qpbean.setAddPoolSource("");
 	  qpbean.setSubQpDataModelByLevel();
       }
+      else if("editpoolattr".equals(qpbean.getAddPoolSource())){
+    	  //when change the pool's field
+    	  qpbean.startEditPoolAgain(bean.getId().toString());
+    	  qpbean.setOutcomeEdit("editPool");
+    	  qpbean.setOutcome("editPool");
+          qpbean.setSubQpDataModelByLevel();
+      }
       else {
 	  qpbean.setOutcomeEdit("poolList");
 	  qpbean.setOutcome("poolList");
+	  qpbean.setCurrentPool(null);
+	  qpbean.setOutcomePool(0);
+		
       qpbean.setQpDataModelByLevel();
       }
 	// set outcome for action
