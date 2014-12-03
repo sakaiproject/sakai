@@ -100,6 +100,12 @@ public class AssessmentGradingData implements java.io.Serializable
 	 */
 	public static final Integer ASSESSMENT_UPDATED = Integer.valueOf(6);
 
+	/**
+	 * status = 7: the student has other(s) submission(s) and autosubmit detects 
+	 * this submission will keep in progress forever
+	 */
+	public static final Integer AUTOSUBMIT_UPDATED = Integer.valueOf(7);
+		
 	public AssessmentGradingData() {
 	}
 

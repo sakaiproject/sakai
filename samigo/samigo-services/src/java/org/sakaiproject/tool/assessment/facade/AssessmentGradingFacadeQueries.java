@@ -67,6 +67,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentServ
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedItemData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
@@ -3017,6 +3018,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    EventLogService eventService = new EventLogService();
 	    EventLogFacade eventLogFacade = new EventLogFacade();
+	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 	    
 		GradebookExternalAssessmentService g = null;
 		boolean updateGrades = false;
@@ -3027,7 +3029,6 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 			if (integrated) {
 				g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
 			}
-		    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
 			toGradebookPublishedAssessmentSiteIdMap = publishedAssessmentService.getToGradebookPublishedAssessmentSiteIdMap();
 			gbsHelper = IntegrationContextFactory.getInstance().getGradebookServiceHelper();
 			updateGrades = true;
@@ -3038,52 +3039,70 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    	try{
 	    		adata = (AssessmentGradingData) iter.next();
 	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
-	    		if(!lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId())
-	    						|| !lastAgentId.equals(adata.getAgentId())) {
-	    			lastPublishedAssessmentId = adata.getPublishedAssessmentId();
-	    			lastAgentId = adata.getAgentId();
-	    			if (Boolean.FALSE.equals(adata.getForGrade())){
+	    		
+	    		if (Boolean.FALSE.equals(adata.getForGrade())){
 
-	    				adata.setForGrade(Boolean.TRUE);
-	    				if (adata.getTotalAutoScore() == null) {
-	    					adata.setTotalAutoScore(0d);
-	    				}
-	    				if (adata.getFinalScore() == null) {
-	    					adata.setFinalScore(0d);
-	    				}
-	    				// SAM-1088
-	    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
-	    						adata.getSubmittedDate().after(assessment.getDueDate())) {
-	    					adata.setIsLate(true);
-	    				}
+    				adata.setForGrade(Boolean.TRUE);
+    				if (adata.getTotalAutoScore() == null) {
+    					adata.setTotalAutoScore(0d);
+    				}
+    				if (adata.getFinalScore() == null) {
+    					adata.setFinalScore(0d);
+    				}
+    				// SAM-1088
+    				if (adata.getSubmittedDate() != null && assessment != null && assessment.getDueDate() != null &&
+    						adata.getSubmittedDate().after(assessment.getDueDate())) {
+    					adata.setIsLate(true);
+    				}
 
-	    				adata.setIsAutoSubmitted(Boolean.TRUE);
-	    				adata.setStatus(Integer.valueOf(1));
-	    				completeItemGradingData(adata, sectionSetMap);
-	    				updateCurrentGrade = true;
+    				updateCurrentGrade = true;
+    				adata.setIsAutoSubmitted(Boolean.TRUE);
+    				if (lastPublishedAssessmentId.equals(adata.getPublishedAssessmentId()) 
+    						&& lastAgentId.equals(adata.getAgentId())) {
+    					adata.setStatus(AssessmentGradingData.AUTOSUBMIT_UPDATED);
 
-	    				List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
-	    				EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-	    				//will do the i18n issue later.
-	    				eventLogData.setErrorMsg("No Errors (Auto submit)");
-	    				Date endDate = new Date();
-	    				eventLogData.setEndDate(endDate);
-	    				if(endDate != null && eventLogData.getStartDate() != null) {
-	    					double minute= 1000*60;
-	    					int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-	    					eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
-	    				} else {
-	    					eventLogData.setEclipseTime(null); 
-	    					eventLogData.setErrorMsg("Error during auto submit");
-	    				}
-	    				eventLogFacade.setData(eventLogData);
-	    				eventService.saveOrUpdateEventLog(eventLogFacade);
+        				// Check: needed updating gradebook
+        				// If the assessment is configured with highest score and exists a previous submission with higher score 
+        				// this submission doesn't have to be sent to gradebook
+        				assessment = (PublishedAssessmentFacade)publishedAssessmentService.getAssessment(adata.getPublishedAssessmentId());
+        				
+        				if (assessment.getEvaluationModel().getScoringType().equals(EvaluationModel.HIGHEST_SCORE)) {
+        					AssessmentGradingData assessmentGrading = 
+        							getHighestSubmittedAssessmentGrading(adata.getPublishedAssessmentId(), adata.getAgentId(), null);
+        					if (assessmentGrading.getTotalAutoScore() > adata.getTotalAutoScore()) {
+        						updateCurrentGrade = false;
+        					}
+        				}
+    				}
+    				else {
+    					adata.setStatus(AssessmentGradingData.SUBMITTED);
+    				}
+    				completeItemGradingData(adata, sectionSetMap);
 
-	    				EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
-	    						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
-	    								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));		
-	    			}
-	    		}
+    				List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
+    				EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+    				//will do the i18n issue later.
+    				eventLogData.setErrorMsg("No Errors (Auto submit)");
+    				Date endDate = new Date();
+    				eventLogData.setEndDate(endDate);
+    				if(endDate != null && eventLogData.getStartDate() != null) {
+    					double minute= 1000*60;
+    					int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+    					eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+    				} else {
+    					eventLogData.setEclipseTime(null); 
+    					eventLogData.setErrorMsg("Error during auto submit");
+    				}
+    				eventLogFacade.setData(eventLogData);
+    				eventService.saveOrUpdateEventLog(eventLogFacade);
+
+    				EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
+    						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
+    								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));
+    				
+    			}
+	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
+    			lastAgentId = adata.getAgentId();
 
 	    		//we only want to save one at a time to help the job continue when there's an error 
     			getHibernateTemplate().saveOrUpdate(adata);
