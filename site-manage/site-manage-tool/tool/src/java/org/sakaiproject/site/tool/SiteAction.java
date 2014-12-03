@@ -8587,7 +8587,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		boolean publishUnpublish = state.getAttribute(STATE_SITE_ACCESS_PUBLISH) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_PUBLISH)).booleanValue() : false;
 		
 		// the site publish status before update
-		boolean currentSitePublished = sEdit.isPublished();
+		boolean currentSitePublished = sEdit != null ? sEdit.isPublished():false;
 		
 		boolean include = state.getAttribute(STATE_SITE_ACCESS_INCLUDE) != null ? ((Boolean) state.getAttribute(STATE_SITE_ACCESS_INCLUDE)).booleanValue() : false;
 
