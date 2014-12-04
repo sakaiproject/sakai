@@ -5294,7 +5294,7 @@ public class SimplePageBean {
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
 		String baseDir = ServerConfigurationService.getString("lessonbuilder.basefolder", null);
-	    
+		boolean hiddenDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden",false);
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
 		if (pageOwner == null) {
@@ -5303,6 +5303,24 @@ public class SimplePageBean {
 			    if (!baseDir.endsWith("/"))
 				baseDir = baseDir + "/";
 			    collectionId = collectionId + baseDir;
+			    // basedir which is hidden; have to create it if it doesn't exist, so we can make hidden
+			    if (hiddenDir) {
+				hiddenDir = false; // hiding base, done hide actual folder
+				try {
+				    try {
+					contentHostingService.checkCollection(collectionId);
+				    } catch (IdUnusedException idex) {
+					ContentCollectionEdit edit = contentHostingService.addCollection(collectionId);
+					edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME,  Validator.escapeResourceName(baseDir.substring(0,baseDir.length()-1)));
+					edit.setHidden();
+					contentHostingService.commitCollection(edit);
+				    }
+				} catch (Exception ignore) {
+				    // I've been ignoring errors.
+				    // that will cause failure at a later stage where we can
+				    // return an error message. This may not be optimal.
+				}
+			    }
 			}
 		}else {
 			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
@@ -5330,12 +5348,14 @@ public class SimplePageBean {
 			try {
 				ContentCollectionEdit edit = contentHostingService.addCollection(root);
 				edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME,  Validator.escapeResourceName(getPageTitle()));
+				if (hiddenDir)
+				    edit.setHidden();
 				contentHostingService.commitCollection(edit);
+				
 				// well, we got that far anyway
 				collectionId = root;
 			} catch (Exception ignore) {
 			}
-
 		}
 
 	    // now try creating what we want
@@ -5343,9 +5363,11 @@ public class SimplePageBean {
 	    	ContentCollectionEdit edit = contentHostingService.addCollection(folder);
 	    	if (urls)
 	    		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "urls");
-	    	else
+	    	else {
 	    		edit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, Validator.escapeResourceName(getPageTitle()));
-		
+			if (hiddenDir)
+			    edit.setHidden();
+		}		
 	    	contentHostingService.commitCollection(edit);
 	    	return folder; // worked. use it
 		} catch (Exception ignore) {};
