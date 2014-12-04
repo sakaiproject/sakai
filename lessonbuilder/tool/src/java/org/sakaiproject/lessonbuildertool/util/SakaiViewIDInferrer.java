@@ -30,7 +30,6 @@ public class SakaiViewIDInferrer implements StaticViewIDInferrer {
     }
 
   public String inferViewID(String[] paths, Map requestmap) {
-      System.out.println("start of Lessons RSF request");
       if (paths.length == 0)
 	  return "";
       else if (paths.length > 1 && paths[paths.length-2].equals("tool"))
