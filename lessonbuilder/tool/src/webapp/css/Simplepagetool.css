@@ -1,3 +1,9 @@
+/* portal.css currently sets label to display:block. reverse it but only for our content. have to
+   do iframe and inline separately, and for some reason popups  */
+#content label,.ui-dialog label,body[onload] label{
+  display: inline;
+}
+
 /* override for jquery ui */
 .ui-state-highlight{
    border: 1px solid #2e83ff;
