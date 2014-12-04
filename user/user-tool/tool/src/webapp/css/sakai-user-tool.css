@@ -126,26 +126,26 @@
     text-align: right;
 }
 
-#userViewForm fieldset
+#user-create_edit fieldset, #useredit fieldset, #userViewForm fieldset
 {
     border: 2px solid rgb(200, 200, 200);
-    width: 25em;
-    padding: 1em;
-}
-
-#user-create_edit fieldset
-{
-    border: 2px solid rgb(200, 200, 200);
-    width: 33em;
     padding: 1em;
     position: relative;
 }
 
+#userViewForm fieldset
+{
+    width: 25em;
+}
+
+#user-create_edit fieldset
+{
+    width: 33em;
+}
+
 #useredit fieldset
 {
-    border: 2px solid rgb(200, 200, 200);
     width: 36em;
-    padding: 1em;
 }
 
 #userViewForm fieldset legend, #user-create_edit fieldset legend, #useredit fieldset legend
