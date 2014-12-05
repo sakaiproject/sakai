@@ -15003,12 +15003,12 @@ public class AssignmentAction extends PagedResourceActionII
                                                                                 // SAK-17606
                                                                                 User u = null;
 						        			// check for anonymous grading
-						        			if (!items[IDX_GRADES_CSV_EID].contains(anonTitle)) {
+						        			if (!AssignmentService.getInstance().assignmentUsesAnonymousGrading(assignment)) {
                                                                                     u = UserDirectoryService.getUserByEid(items[IDX_GRADES_CSV_EID]);
 						        			} else { // anonymous so pull the real eid out of our hash table
                                                                                     String anonId = items[IDX_GRADES_CSV_EID];
-                                                                                    String eid = (String) anonymousSubmissionAndEidTable.get(anonId);
-                                                                                    u = UserDirectoryService.getUserByEid(eid);
+                                                                                    String id = (String) anonymousSubmissionAndEidTable.get(anonId);
+                                                                                    u = UserDirectoryService.getUser(id);
 						        			}
                                                                                 
                                                                                 if (u ==  null) throw new Exception("User not found!");
@@ -15072,9 +15072,16 @@ public class AssignmentAction extends PagedResourceActionII
 									try {
 										String _the_eid = hssfRow.getCell(1).getStringCellValue();
 										if (!assignment.isGroup()) {
-											User u = UserDirectoryService.getUserByEid(hssfRow.getCell(1).getStringCellValue()/*user eid*/);
-											if (u == null) throw new Exception("User not found!");
-											_the_eid = u.getId();
+											if (!AssignmentService.getInstance().assignmentUsesAnonymousGrading(assignment))
+											{
+												User u = UserDirectoryService.getUserByEid(hssfRow.getCell(1).getStringCellValue()/*user eid*/);
+												if (u == null) throw new Exception("User not found!");
+												_the_eid = u.getId();
+											}
+											else
+											{
+												_the_eid = (String) anonymousSubmissionAndEidTable.get(_the_eid);
+											}
 										}
 										UploadGradeWrapper w = (UploadGradeWrapper) submissionTable.get(_the_eid);
 										if (w != null) {
