@@ -260,6 +260,7 @@
 				<f:verbatim><div class="post_move_links"></f:verbatim>
                     <%-- hidden link to call ForumTool.processMoveThread  --%>
                     <h:commandLink value="" action="#{ForumTool.processMoveThread}" id="hidden_move_message_commandLink" ></h:commandLink>
+					<h:commandLink value="" action="$('.topic-picker').dialog('close');" id="hidden_close_move_thread" ></h:commandLink>
 
                     <%-- link for Move Thread(s)  --%>
 					<f:verbatim>

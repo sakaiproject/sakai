@@ -260,7 +260,10 @@ Licenses.
 	});
 
         $(".topic-btn-cancel").click(function () {
-            $(".topic-picker").dialog("close");
+			var linkid = "msgForum:hidden_close_move_thread";
+			var hiddenmovelink = document.getElementById(linkid);
+			hiddenmovelink.onclick();
+			//$(".topic-picker").dialog("close");
         });
         
 	$('input:radio',sourceList).click(function () {
