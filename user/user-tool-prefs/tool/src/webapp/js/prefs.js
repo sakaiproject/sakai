@@ -327,7 +327,7 @@ resizeFrame = function (updown) {
 	  }
 		$( frame ).height( clientH );
 	  } else {
-		throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		window.console && console.log("no frame to resize");
 	  }
 	};
 
