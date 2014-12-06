@@ -19,7 +19,7 @@
            type="application/opensearchdescription+xml" 
            href="${searchModel.openSearchUrl}"
            title="${rlb.jsp_worksite_search}" />
-    <script src="/library/js/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+    ${includeLatestJQuery}
     <script src="/library/js/jquery/ui/1.8.4/jquery-ui-1.8.4.full.min.js"></script>
 
     <script type="text/javascript" >

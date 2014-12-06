@@ -49,6 +49,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+import org.sakaiproject.portal.util.PortalUtils;
 
 /**
  * @author ieb
@@ -188,6 +189,7 @@ public class ControllerServlet2 extends HttpServlet
 
 		vc.put("skin", skin);
 		vc.put("sakaiheader", sakaiHeader);
+		vc.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Search"));
 		vc.put("rlb",rlb);
         vc.put("currentSiteId",ToolManager.getCurrentPlacement().getContext());
 		vc.put("sakai_tool_placement_id", toolPlacement);
