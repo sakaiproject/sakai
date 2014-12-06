@@ -2,14 +2,14 @@
  * For Footer toggles in Morpheus
  */
 
-$(".js-footer-toggle__panel").addClass("is-hidden");
-$(".js-footer-toggle__control").addClass("plus");
+$PBJQ(".js-footer-toggle__panel").addClass("is-hidden");
+$PBJQ(".js-footer-toggle__control").addClass("plus");
 
-$('.js-footer-toggle__control').click(function() {
+$PBJQ('.js-footer-toggle__control').click(function() {
 event.preventDefault();
-$(this).next('.js-footer-toggle__panel').toggleClass("is-hidden is-visible");
-//$(this).next('pre').next(".source__link").slideToggle("fast");
-$(this).toggleClass("plus minus");
+$PBJQ(this).next('.js-footer-toggle__panel').toggleClass("is-hidden is-visible");
+//$PBJQ(this).next('pre').next(".source__link").slideToggle("fast");
+$PBJQ(this).toggleClass("plus minus");
 });
 /* dhtml_view_sites
  * displays the More Sites div
@@ -17,34 +17,34 @@ $(this).toggleClass("plus minus");
  */
 var dhtml_view_sites = function(){
     // first time through set up the DOM
-    jQuery('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
-    jQuery('.more-tab').position();
+    $PBJQ('#selectSite').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectSite in the DOM
+    $PBJQ('.more-tab').position();
     
     // then recast the function to the post initialized state which will run from then on
     dhtml_view_sites = function(){
-        if (jQuery('#selectSite').css('display') == 'none') {
-            jQuery('#selectSite div').show();
-            jQuery('#selectSite').slideDown('fast', function(){
-                // check if $('#otherSiteList li').length > some number, then show search
+        if ($PBJQ('#selectSite').css('display') == 'none') {
+            $PBJQ('#selectSite div').show();
+            $PBJQ('#selectSite').slideDown('fast', function(){
+                // check if $PBJQ('#otherSiteList li').length > some number, then show search
                 // otherwise not
-                   if(jQuery('#otherSitesCategorWrap').height() > 300){
-                    $('#otherSitesCategorWrap').height(300).css({overflow:"auto"});
+                   if($PBJQ('#otherSitesCategorWrap').height() > 300){
+                    $PBJQ('#otherSitesCategorWrap').height(300).css({overflow:"auto"});
                 }
 
 
-                jQuery('#txtSearch').focus();
+                $PBJQ('#txtSearch').focus();
             });
             createDHTMLMask(dhtml_view_sites);
-            jQuery('.selectedTab').bind('click', function(e){
+            $PBJQ('.selectedTab').bind('click', function(e){
                 dhtml_view_sites();
                 return false;
             });
 
-            jQuery('#selectSite a:first').focus();
+            $PBJQ('#selectSite a:first').focus();
 
             // If we hit escape or the up arrow on any of the links in the drawer, slide it
             // up and focus on the more tab.
-            jQuery('#selectSite a').keydown(function (e) {
+            $PBJQ('#selectSite a').keydown(function (e) {
                 if(e.keyCode == 38 || e.keyCode == 27) {
                     e.preventDefault();
                     closeDrawer();
@@ -52,7 +52,7 @@ var dhtml_view_sites = function(){
             });
 
             // Show the tool popup on the down arrow, or slide up the drawer on escape.
-            $('.moreSitesLink').keydown(function (e){
+            $PBJQ('.moreSitesLink').keydown(function (e){
                 if (e.keyCode == 40) {
                     showToolMenu(e,0);
                 }
@@ -62,15 +62,15 @@ var dhtml_view_sites = function(){
             // search box or the all sites list, stop tabbing. This is a hack as we are
             // currently attaching keydown handlers to the list item text rather that the link
             // and you can only explicitly set focus to links and form elements.
-            var txtSearch = $('#txtSearch');
+            var txtSearch = $PBJQ('#txtSearch');
             if(txtSearch.length) {
-                $(txtSearch[0]).keydown(function (e) {
+                $PBJQ(txtSearch[0]).keydown(function (e) {
                     if (e.keyCode == 9 && e.shiftKey) {
                         e.preventDefault();
                     }
                 });
             } else {
-                $('#allSites').keydown(function (e) {
+                $PBJQ('#allSites').keydown(function (e) {
                     if (e.keyCode == 9 && e.shiftKey) {
                         e.preventDefault();
                     }
@@ -78,24 +78,24 @@ var dhtml_view_sites = function(){
             }
 
             // If we tab off the right of the sites list, cycle the focus.
-            $('#otherSiteList > li:last').keydown(function (e) {
+            $PBJQ('#otherSiteList > li:last').keydown(function (e) {
                 if (e.keyCode == 9 && !e.shiftKey) {
                     e.preventDefault();
                     if(txtSearch.length) {
                         txtSearch[0].focus();
                     } else {
-                        $('#allSites').focus();
+                        $PBJQ('#allSites').focus();
                     }
                 }
             });
         }
         else {
             // hide the dropdown
-            jQuery('#selectSite div').hide();
-            jQuery('#selectSite').slideUp('fast'); // hide the box
+            $PBJQ('#selectSite div').hide();
+            $PBJQ('#selectSite').slideUp('fast'); // hide the box
             removeDHTMLMask()
-            jQuery('#otherSiteTools').remove();
-            jQuery('.selectedTab').unbind('click');
+            $PBJQ('#otherSiteTools').remove();
+            $PBJQ('.selectedTab').unbind('click');
         }
     }
     // finally run the inner function, first time through
@@ -103,19 +103,19 @@ var dhtml_view_sites = function(){
 }
 
 function closeDrawer() {
-    jQuery('#selectSite div').hide();
-    jQuery('#selectSite').slideUp('fast'); // hide the box
+    $PBJQ('#selectSite div').hide();
+    $PBJQ('#selectSite').slideUp('fast'); // hide the box
     removeDHTMLMask()
-    jQuery('#otherSiteTools').remove();
-    jQuery('.selectedTab').unbind('click');
-    jQuery('.moreSitesLink').unbind('keydown');
-    jQuery('.more-tab a').focus();
+    $PBJQ('#otherSiteTools').remove();
+    $PBJQ('.selectedTab').unbind('click');
+    $PBJQ('.moreSitesLink').unbind('keydown');
+    $PBJQ('.more-tab a').focus();
 }
 
 function createDHTMLMask(callback){
 
-    jQuery('body').append('<div id="portalMask">&nbsp;</div>');
-    jQuery('#portalMask').css('height', browserSafeDocHeight()).css({
+    $PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
+    $PBJQ('#portalMask').css('height', browserSafeDocHeight()).css({
         'width': '100%',
         'z-index': 1000,
         'top': 0,
@@ -124,11 +124,11 @@ function createDHTMLMask(callback){
         callback();
         return false;
     });
-    jQuery('#portalMask').bgiframe();
+    $PBJQ('#portalMask').bgiframe();
 }
 
 function removeDHTMLMask(){
-    jQuery('#portalMask').remove();
+    $PBJQ('#portalMask').remove();
 }
 
 //For SAK-13987
@@ -140,7 +140,7 @@ var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
 var timeoutPortalPath;
-jQuery(document).ready(function(){
+$PBJQ(document).ready(function(){
     // note a session exists whether the user is logged in or no
     if (portal.loggedIn && portal.timeoutDialog) {
         setTimeout('setup_timeout_config();', 60000);
@@ -160,7 +160,7 @@ var setup_timeout_config = function(){
 
 var poll_session_data = function(){
     //Need to append Date.getTime as sakai still uses jquery pre 1.2.1 which doesn't support the cache: false parameter.
-    jQuery.ajax({
+    $PBJQ.ajax({
         url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(), //auto=true makes it not refresh the session lastaccessedtime
         dataType: "json",
         success: function(data){
@@ -204,17 +204,17 @@ var poll_session_data = function(){
 
 function keep_session_alive(){
     dismiss_session_alert();
-    jQuery.get(timeoutPortalPath);
+    $PBJQ.get(timeoutPortalPath);
 }
 
 var dismiss_session_alert = function(){
     removeDHTMLMask();
-    jQuery("#timeout_alert_body").remove();
+    $PBJQ("#timeout_alert_body").remove();
 }
 
 var timeoutDialogFragment;
 function fetch_timeout_dialog(){
-    jQuery.ajax({
+    $PBJQ.ajax({
         url: "/portal/timeout?auto=true",
         cache: true,
         dataType: "text",
@@ -232,18 +232,18 @@ function show_timeout_alert(min){
         return;
     }
     
-    if (!jQuery("#portalMask").get(0)) {
+    if (!$PBJQ("#portalMask").get(0)) {
         createDHTMLMask(dismiss_session_alert);
-        jQuery("#portalMask").css("z-index", 10000);
+        $PBJQ("#portalMask").css("z-index", 10000);
     }
-    if (jQuery("#timeout_alert_body").get(0)) {
+    if ($PBJQ("#timeout_alert_body").get(0)) {
         //its there, just update the min
-        jQuery("#timeout_alert_body span").html(min);
-        jQuery("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
+        $PBJQ("#timeout_alert_body span").html(min);
+        $PBJQ("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
     }
     else {
         var dialog = timeoutDialogFragment.replace("{0}", min);
-        jQuery("body").append(dialog);
+        $PBJQ("body").append(dialog);
     }
 }
 
@@ -260,40 +260,40 @@ function sakaiMinimizeNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').addClass('minimize-site-nav')
+        $PBJQ('#portalContainer').addClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('.nav-tools').addClass('is-minimized');
+        $PBJQ('.nav-tools').addClass('is-minimized');
     }
-    $('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
-    $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
-    $('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
+    $PBJQ('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
+    $PBJQ('#toggleToolMenu').attr('title',$PBJQ('#toggleNormal em').text());
+    $PBJQ('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
 }
 
 function sakaiRestoreNavigation(){
     if (!(portal.toggle.sitenav || portal.toggle.tools)) 
         return;
     if (portal.toggle.sitenav) {
-        $('#portalContainer').removeClass('minimize-site-nav')
+        $PBJQ('#portalContainer').removeClass('minimize-site-nav')
     }
     if (portal.toggle.tools) {
-        $('#toolMenuWrap').removeClass('minimize-tool-nav');
+        $PBJQ('#toolMenuWrap').removeClass('minimize-tool-nav');
     }
-    $('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
+    $PBJQ('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
     
     
-    $('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
+    $PBJQ('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
 }
 
 function updatePresence(){
-    jQuery.ajax({
+    $PBJQ.ajax({
         url: sakaiPresenceFragment,
         cache: false,
         success: function(frag){
             var whereul = frag.indexOf('<ul');
             if (whereul < 1) {
-                $("#presenceCount").html(' ');
-                $('#presenceCount').removeClass('present').addClass('empty');
+                $PBJQ("#presenceCount").html(' ');
+                $PBJQ('#presenceCount').removeClass('present').addClass('empty');
                 location.reload();
                 return;
             }
@@ -307,21 +307,21 @@ function updatePresence(){
             }
             // No need to attrct attention you are alone
             if (_c > 1) {
-                $("#presenceCount").html(_c + '');
-                $('#presenceCount').removeClass('empty').addClass('present');
+                $PBJQ("#presenceCount").html(_c + '');
+                $PBJQ('#presenceCount').removeClass('empty').addClass('present');
             }
             else 
                 if (_c == 1) {
-                    $("#presenceCount").html(_c + '');
-                    $('#presenceCount').removeClass('present').addClass('empty');
+                    $PBJQ("#presenceCount").html(_c + '');
+                    $PBJQ('#presenceCount').removeClass('present').addClass('empty');
                 }
                 else {
-                    $("#presenceCount").html(' ');
-                    $('#presenceCount').removeClass('present').addClass('empty');
+                    $PBJQ("#presenceCount").html(' ');
+                    $PBJQ('#presenceCount').removeClass('present').addClass('empty');
                 }
-            $("#presenceIframe").html(frag);
-            var chatUrl = $('.nav-selected .icon-sakai-chat').attr('href');
-            $('#presenceIframe .presenceList li.inChat span').wrap('<a href="' + chatUrl + '"></a>')
+            $PBJQ("#presenceIframe").html(frag);
+            var chatUrl = $PBJQ('.nav-selected .icon-sakai-chat').attr('href');
+            $PBJQ('#presenceIframe .presenceList li.inChat span').wrap('<a href="' + chatUrl + '"></a>')
             sakaiLastPresenceTimeOut = setTimeout('updatePresence()', 30000);
         },
         // If we get an error, wait 60 seconds before retry
@@ -345,25 +345,25 @@ function f_filterResults(n_win, n_docel, n_body){
 /** Shows a drawer site tool dropdown **/
 function showToolMenu(e, xOffset){
     e.preventDefault();
-    var jqObj = $(e.target);
+    var jqObj = $PBJQ(e.target);
     var classId = jqObj.attr('id');
     // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
-    $('.toolMenus').removeClass('toolMenusActive');
-    if ($('.' + id).length) {
-        $('#otherSiteTools').remove();
+    $PBJQ('.toolMenus').removeClass('toolMenusActive');
+    if ($PBJQ('.' + id).length) {
+        $PBJQ('#otherSiteTools').remove();
     }
     else {
-        $('#otherSiteTools').remove();
+        $PBJQ('#otherSiteTools').remove();
         var subsubmenu = "<ul id=\"otherSiteTools\" class=\"" + classId + "\" role=\"menu\">";
         var siteURL = '/direct/site/' + classId + '/pages.json';
         scroll(0, 0)
         var pos = jqObj.offset();
-        var maxToolsInt = parseInt($('#maxToolsInt').text());
-        var maxToolsText = $('#maxToolsAnchor').text();
+        var maxToolsInt = parseInt($PBJQ('#maxToolsInt').text());
+        var maxToolsText = $PBJQ('#maxToolsAnchor').text();
         var goToSite = '<li class=\"otherSiteTool\"><span><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + classId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"> </span>' + maxToolsText + '</a></span></li>';
-        jQuery.getJSON(siteURL, function(data){
-            $.each(data, function(i, item){
+        $PBJQ.getJSON(siteURL, function(data){
+            $PBJQ.each(data, function(i, item){
                 if (i <= maxToolsInt) {
                     if (item.toolpopup) {
                         subsubmenu = subsubmenu + '<li class=\"otherSiteTool\"><span><a role=\"menuitem\"  href=\"' + item.tools[0].url + "?sakai.popup=yes\" title=\"" + item.title + "\" onclick=\"window.open('" + item.toolpopupurl + "');\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"> </span>" + item.title + "</a></span></li>";
@@ -377,27 +377,27 @@ function showToolMenu(e, xOffset){
                 subsubmenu = subsubmenu + goToSite
             }
             subsubmenu = subsubmenu + "</ul>"
-            $('#portalOuterContainer').append(subsubmenu);
-            $('#otherSiteTools').css({
+            $PBJQ('#portalOuterContainer').append(subsubmenu);
+            $PBJQ('#otherSiteTools').css({
                 'top': pos.top + 28,
                 'left': pos.left - xOffset
             });
-            $('#otherSiteTools li a:first').focus();
+            $PBJQ('#otherSiteTools li a:first').focus();
             jqObj.parent().find('.toolMenus').addClass("toolMenusActive");
             // On up arrow or escape, hide the popup
-            $('#otherSiteTools').keydown(function(e){
+            $PBJQ('#otherSiteTools').keydown(function(e){
                 if (e.keyCode == 27) {
                     e.preventDefault();
                     jqObj.focus();
-                    $(this).remove();
-                    $('.' + id).remove();
+                    $PBJQ(this).remove();
+                    $PBJQ('.' + id).remove();
                     jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
                 }
             });
             
-            addArrowNavAndDisableTabNav($('#otherSiteTools'), function () {
+            addArrowNavAndDisableTabNav($PBJQ('#otherSiteTools'), function () {
                 jqObj.focus();
-                $('.' + id).remove();
+                $PBJQ('.' + id).remove();
                 // Switch the arrows
                 jqObj.parent().find('.toolMenus').removeClass("toolMenusActive");
             });
@@ -405,13 +405,13 @@ function showToolMenu(e, xOffset){
     }
 }
 
-jQuery(document).ready(function(){
-    if ($('#eid').length === 1) {
-        $('#eid').focus()
+$PBJQ(document).ready(function(){
+    if ($PBJQ('#eid').length === 1) {
+        $PBJQ('#eid').focus()
     }
 
     // SAK-22026. Attach down and up arrow handlers to the more sites tab.
-    $('.more-tab a').keydown(function (e) {
+    $PBJQ('.more-tab a').keydown(function (e) {
         if (e.keyCode == 40 || e.keyCode == 38 || e.keyCode == 27) {
             e.preventDefault();
             return dhtml_view_sites();
@@ -419,73 +419,73 @@ jQuery(document).ready(function(){
     });
     
     // open tool menus in "other sites" panel
-    $('.toolMenus').click(function(e){
+    $PBJQ('.toolMenus').click(function(e){
         showToolMenu(e,173);
     });
     
     // prepend site title to tool title
     // here as reminder to work on an actual breadcrumb integrated with neo style tool updates
-    //var siteTitle = ($('.nav-selected span:first').text())
+    //var siteTitle = ($PBJQ('.nav-selected span:first').text())
     var siteTitle = portal.siteTitle;
     if (siteTitle) {
 	if (portal.shortDescription) {
 	    siteTitle = siteTitle + " ("+portal.shortDescription+")"
 	}
-        $('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
+        $PBJQ('.portletTitle h2').prepend('<span class=\"siteTitle\">' + siteTitle + ':</span> ')
     }
     
     // other site search handlers
-    jQuery('#imgSearch').click(function(){
+    $PBJQ('#imgSearch').click(function(){
         resetSearch();
     });
     
-    jQuery('#txtSearch').keyup(function(event){
+    $PBJQ('#txtSearch').keyup(function(event){
         if (event.keyCode == 27) {
             resetSearch();
         }
-        if (jQuery('#txtSearch').val().length > 0) {
-            jQuery('#otherSiteList li, .otherSitesCategorList li').hide();
-            jQuery('#otherSitesCategorWrap h4').hide();
-            jQuery('#otherSiteList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show();
-            jQuery('.otherSitesCategorList li a span.fullTitle:Contains(\'' + jQuery('#txtSearch').val() + '\')').parent('a').parent('li').show().closest('ul').prev('h4').show();
-            jQuery('#imgSearch').fadeIn('slow');
+        if ($PBJQ('#txtSearch').val().length > 0) {
+            $PBJQ('#otherSiteList li, .otherSitesCategorList li').hide();
+            $PBJQ('#otherSitesCategorWrap h4').hide();
+            $PBJQ('#otherSiteList li a span.fullTitle:Contains(\'' + $PBJQ('#txtSearch').val() + '\')').parent('a').parent('li').show();
+            $PBJQ('.otherSitesCategorList li a span.fullTitle:Contains(\'' + $PBJQ('#txtSearch').val() + '\')').parent('a').parent('li').show().closest('ul').prev('h4').show();
+            $PBJQ('#imgSearch').fadeIn('slow');
         }
-        if (jQuery('#txtSearch').val().length == 0) {
+        if ($PBJQ('#txtSearch').val().length == 0) {
             resetSearch();
         }
         // Should be <=1 if there is a header line
-        if (jQuery('#otherSiteList li:visible').length < 1 && jQuery('.otherSitesCategorList li:visible').length < 1) {
-            jQuery('.norecords').remove();
-            jQuery('#otherSiteSearch #noSearchResults').fadeIn('slow');
+        if ($PBJQ('#otherSiteList li:visible').length < 1 && $PBJQ('.otherSitesCategorList li:visible').length < 1) {
+            $PBJQ('.norecords').remove();
+            $PBJQ('#otherSiteSearch #noSearchResults').fadeIn('slow');
         }
     });
     // case insensitive version of :contains
-    jQuery.expr[':'].Contains = function(a, i, m){
-        return jQuery(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
+    $PBJQ.expr[':'].Contains = function(a, i, m){
+        return $PBJQ(a).text().toUpperCase().indexOf(m[3].toUpperCase()) >= 0;
     };
     function resetSearch(){
-        jQuery('#txtSearch').val('');
-        jQuery('#otherSiteList li').show();
-        jQuery('.otherSitesCategorList li').show();
-        jQuery('#otherSitesCategorWrap h4').show();
-        jQuery('#noSearchResults').fadeOut();
-        jQuery('#imgSearch').fadeOut();
-        jQuery('#txtSearch').focus();
+        $PBJQ('#txtSearch').val('');
+        $PBJQ('#otherSiteList li').show();
+        $PBJQ('.otherSitesCategorList li').show();
+        $PBJQ('#otherSitesCategorWrap h4').show();
+        $PBJQ('#noSearchResults').fadeOut();
+        $PBJQ('#imgSearch').fadeOut();
+        $PBJQ('#txtSearch').focus();
     }
     
     //toggle presence panel
-    $("#presenceToggle").click(function(e){
+    $PBJQ("#presenceToggle").click(function(e){
         e.preventDefault();
-        $('#presenceArea').toggle();
+        $PBJQ('#presenceArea').toggle();
     });
     //explicitly close presence panel
-    $('.trayPopupClose').click(function(e){
+    $PBJQ('.trayPopupClose').click(function(e){
         e.preventDefault();
-        $(this).closest('.trayPopup').hide();
+        $PBJQ(this).closest('.trayPopup').hide();
     });
     
     //bind directurl checkboxes
-    if ( jQuery('a.tool-directurl').length ) jQuery('a.tool-directurl').cluetip({
+    if ( $PBJQ('a.tool-directurl').length ) $PBJQ('a.tool-directurl').cluetip({
     	local: true,
     	arrows: true,
 		cluetipClass: 'jtip',
@@ -498,80 +498,80 @@ jQuery(document).ready(function(){
 
 	// Shows or hides the subsites in a popout div. This isn't used unless
 	// portal.showSubsitesAsFlyout is set to true in sakai.properties.
-	jQuery("#toggleSubsitesLink").click(function (e) {
-        var subsitesLink = $(this);
-        if($('#subSites').css('display') == 'block') {
-            $('#subSites').hide();
+	$PBJQ("#toggleSubsitesLink").click(function (e) {
+        var subsitesLink = $PBJQ(this);
+        if($PBJQ('#subSites').css('display') == 'block') {
+            $PBJQ('#subSites').hide();
         } else {
             var position = subsitesLink.position();
-            $('#subSites').css({'position': 'absolute','display': 'block','left': position.left + subsitesLink.width() + 14 + 'px','top': position.top + 'px'});
+            $PBJQ('#subSites').css({'position': 'absolute','display': 'block','left': position.left + subsitesLink.width() + 14 + 'px','top': position.top + 'px'});
         }
     });
 
 });
 
 var setupSiteNav = function(){
-    $("ul.subnav").each(function(){
+    $PBJQ("ul.subnav").each(function(){
         // Add an escape key handler to slide the page menu up
-        $(this).keydown(function(e) {
+        $PBJQ(this).keydown(function(e) {
             if (e.keyCode == 27) {
-                $(this).parent().children('a').focus();
-                $(this).slideUp('fast');
+                $PBJQ(this).parent().children('a').focus();
+                $PBJQ(this).slideUp('fast');
             }
         });
-        $(this).children('li:last').addClass('lastMenuItem')
+        $PBJQ(this).children('li:last').addClass('lastMenuItem')
     });
     
-    jQuery("ul.topnav > li").mouseleave(function(){
-        $(this).find('ul').slideUp('fast')
+    $PBJQ("ul.topnav > li").mouseleave(function(){
+        $PBJQ(this).find('ul').slideUp('fast')
     });
 
-    jQuery("#loginLinks ul.nav-submenu").mouseleave(function(){
-        $(this).slideUp('fast')
+    $PBJQ("#loginLinks ul.nav-submenu").mouseleave(function(){
+        $PBJQ(this).slideUp('fast')
     });
 
-    jQuery("#loginLinks span.drop").click(function(e){
-        $(this).prev('ul').slideDown('fast')
+    $PBJQ("#loginLinks span.drop").click(function(e){
+        $PBJQ(this).prev('ul').slideDown('fast')
      });
 
 	fixTopNav = function(e){
         if (e.keyCode == 40) { // downarrow
             e.preventDefault();
-            jQuery('#selectSite').hide();
-            $('.nav-submenu').hide();
+            $PBJQ('#selectSite').hide();
+            $PBJQ('.nav-submenu').hide();
             // Trigger click on the drop <span>, passing true to set focus on
             // the first tool in the dropdown.
-            jQuery(this).parent().find(".drop").trigger('click',[true]);
+            $PBJQ(this).parent().find(".drop").trigger('click',[true]);
         } else if (e.keyCode == 27) { // uparrow
-            $(this).parent().children('a').focus();
-            $(this).slideUp('fast');
+            $PBJQ(this).parent().children('a').focus();
+            $PBJQ(this).slideUp('fast');
         }
     }
 
 	// SAK-25505 - Switch from live() to on()
-	// $( "a.offsite" ).live( "click", function() {
-	// $('.topnav > li.nav-menu > a').live('keydown', function(e){
-	if ( $(document).on ) {
-		$(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
+	// $PBJQ( "a.offsite" ).live( "click", function() {
+	// $PBJQ('.topnav > li.nav-menu > a').live('keydown', function(e){
+	if ( $PBJQ(document).on ) {
+		$PBJQ(document).on('keydown', '.topnav > li.nav-menu > a', fixTopNav);
 	} else {
-		$('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
+		$PBJQ('.topnav > li.nav-menu > a').live('keydown', fixTopNav);
 	}
     
-    jQuery("ul.topnav > li").mouseleave(function(){
-        $(this).find('ul').slideUp('fast')
+    $PBJQ("ul.topnav > li").mouseleave(function(){
+        $PBJQ(this).find('ul').slideUp('fast')
     });
     // focusFirstLink is only ever passed from the keydown handler. We
     // don't want to focus on click; it looks odd.
-    jQuery("ul.topnav li span.drop").click(function(e, focusFirstLink){
+    $PBJQ("ul.topnav li span.drop").click(function(e, focusFirstLink){
         /*
          * see if there is a menu sibling
          *      if there is a child, display it
          *  if no menu sibling
          *       retrieve data, construct the menu, append
          */
-        jQuery(this).toggleClass("subclicked"); //On click toggle class "subclicked"
+        $PBJQ(this).toggleClass("subclicked"); //On click toggle class "subclicked"
         e.preventDefault()
-        var jqObjDrop = $(e.target);
+        var jqObjDrop = $PBJQ(e.target);
         if (jqObjDrop.parent('li').find('ul').length) {
             jqObjDrop.parent('li').find('ul').slideDown('fast')
             if(focusFirstLink) {
@@ -581,15 +581,15 @@ var setupSiteNav = function(){
         else {
             var navsubmenu = "<ul class=\"nav-submenu subnav\" role=\"menu\" class=\"show\">";
             var siteId = jqObjDrop.attr('data');
-            var maxToolsInt = parseInt($('#maxToolsInt').text());
-            var maxToolsText = $('#maxToolsAnchor').text();
+            var maxToolsInt = parseInt($PBJQ('#maxToolsInt').text());
+            var maxToolsText = $PBJQ('#maxToolsAnchor').text();
             var goToSite = '<li class=\"submenuitem\"><a role=\"menuitem\" href=\"' + portal.portalPath + '/site/' + siteId + '\" title=\"' + maxToolsText + '\"><span class=\"toolMenuIcon icon-sakai-see-all-tools\"></span>' + maxToolsText + '</a></li>';
             var siteURL = '/direct/site/' + jqObjDrop.attr('data') + '/pages.json';
-            jQuery.ajax({
+            $PBJQ.ajax({
                 url: siteURL,
                 dataType: "json",
                 success: function(data){
-                    $.each(data, function(i, item){
+                    $PBJQ.each(data, function(i, item){
                         if (i <= maxToolsInt) {
                             if (item.toolpopup) {
                                 navsubmenu = navsubmenu + '<li class=\"submenuitem\" ><span><a role=\"menuitem\" href=\"' + item.tools[0].url + "?sakai.popup=yes\" title=\"" + item.title + "\" onclick=\"window.open('" + item.toolpopupurl + "');\"><span class=\"toolMenuIcon icon-" + item.tools[0].toolId.replace(/\./gi, '-') + "\"></span>" + item.title + "</a></span></li>";
@@ -606,7 +606,7 @@ var setupSiteNav = function(){
                     if(focusFirstLink) {
                         jqObjDrop.parent().find("ul.subnav a:first").focus();
                     }
-                    addArrowNavAndDisableTabNav($("ul.subnav"));
+                    addArrowNavAndDisableTabNav($PBJQ("ul.subnav"));
                 },
                 error: function(XMLHttpRequest, status, error){
                     // Something happened getting the tool list. 
@@ -614,29 +614,29 @@ var setupSiteNav = function(){
             });
         }
     }).hover(function(){
-        jQuery(this).addClass("subhover"); //On hover over, add class "subhover"
+        $PBJQ(this).addClass("subhover"); //On hover over, add class "subhover"
     }, function(){ //On Hover Out
-        jQuery(this).removeClass("subhover"); //On hover out, remove class "subhover"
+        $PBJQ(this).removeClass("subhover"); //On hover out, remove class "subhover"
     });
     
 }
 
 var setupToolToggle = function(toggleClass){
-    $('#toggler').prependTo('#toolMenuWrap');
-    $('#toggler').css({
+    $PBJQ('#toggler').prependTo('#toolMenuWrap');
+    $PBJQ('#toggler').css({
         'display': 'inline'
     });
-    $('#toggler').addClass(toggleClass)
+    $PBJQ('#toggler').addClass(toggleClass)
     
-	$('#toggleToolMenu').hover(function () {
-         $(this).find('span').addClass('toggleToolMenuHover')
+	$PBJQ('#toggleToolMenu').hover(function () {
+         $PBJQ(this).find('span').addClass('toggleToolMenuHover')
 	}, 
       function () {
-         $(this).find('span').removeClass('toggleToolMenuHover')
+         $PBJQ(this).find('span').removeClass('toggleToolMenuHover')
       }
   );
-    $('#toggleToolMenu').click(function(){
-        if ($('#toggleNormal').is(':visible')) {
+    $PBJQ('#toggleToolMenu').click(function(){
+        if ($PBJQ('#toggleNormal').is(':visible')) {
             sakaiRestoreNavigation();
             document.cookie = "sakai_nav_minimized=false; path=/";
         }
@@ -649,7 +649,7 @@ var setupToolToggle = function(toggleClass){
 
 function publishSite(siteId) { 
     var reqUrl = '/direct/site/'+siteId+"/edit"; 
-    var resp = $.ajax({ 
+    var resp = $PBJQ.ajax({ 
       type: 'POST', 
       data: 'published=true', 
       url: reqUrl, 
@@ -659,9 +659,9 @@ function publishSite(siteId) {
 
 var setupSkipNav = function(){
     // function called from site.vm to enable skip links for all browsers
-     $('#skipNav a.internalSkip').click(function(){
-         var target = $(this).attr('href');
-        $(target).attr('tabindex','-1').focus();
+     $PBJQ('#skipNav a.internalSkip').click(function(){
+         var target = $PBJQ(this).attr('href');
+        $PBJQ(target).attr('tabindex','-1').focus();
      });
 };
 
@@ -669,23 +669,23 @@ var setupSkipNav = function(){
 //(if configured, otherwise returns url as-is as according to the url shortening entity provder)
 function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
 	
-	if($(checkbox).is(':checked')) {
+	if($PBJQ(checkbox).is(':checked')) {
 		
-		$.ajax({
+		$PBJQ.ajax({
 			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
 			success: function(shortUrl) {
-				$('.'+textbox).val(shortUrl);
+				$PBJQ('.'+textbox).val(shortUrl);
 			}
 		}); 
 	} else {
-		$('.'+textbox).val(defaultUrl);
+		$PBJQ('.'+textbox).val(defaultUrl);
 	}
 }
 
 /* Callback is a function and is called after sliding up ul */
 function addArrowNavAndDisableTabNav(ul,callback) {
     ul.find('li a').attr('tabindex','-1').keydown(function (e) {
-        var obj = $(e.target);
+        var obj = $PBJQ(e.target);
         if(e.keyCode == 40) {
             e.preventDefault();
             var next = obj.parent().parent().next();
@@ -724,16 +724,16 @@ function addArrowNavAndDisableTabNav(ul,callback) {
 
 function toggleToolsNav(){
   event.preventDefault();
-  $('body').toggleClass('nav-tools-displayed');
+  $PBJQ('body').toggleClass('nav-tools-displayed');
 }
 
 function toggleSitesNav(){
   event.preventDefault();
-  $('body').toggleClass('nav-sites-displayed');
+  $PBJQ('body').toggleClass('nav-sites-displayed');
 }
 
-$(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
-$(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
+$PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
+$PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
 // Google Webfont
 WebFontConfig = {
   google: { families: [ 'Open+Sans:300italic,400italic,600italic,700italic,400,600,300,700:latin' ] }
