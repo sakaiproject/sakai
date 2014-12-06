@@ -542,4 +542,4 @@
     });
 
     portal.chat.video.webrtc.init();
-}) (jQuery);
+}) ($PBJQ);

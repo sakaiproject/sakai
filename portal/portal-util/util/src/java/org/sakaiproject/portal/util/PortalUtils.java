@@ -88,9 +88,8 @@ public class PortalUtils
              "               window.console && console.log('"+where+" detected jQuery '+tver);\n" +
              "               needJQuery = false;\n" +
              "       } else {\n" +
-             "               toggleJQuery = true;\n" +
-             "               window.console && console.log('Warning: "+where+" unloading jQuery '+tver);\n" +
-             "               jQuery.noConflict();\n" +
+             "               var overrideJQuery = true;\n" +
+             "               window.console && console.log('"+where+" found jQuery '+tver);\n" +
              "       }\n" +
              "}\n" +
              "if ( needJQuery ) {\n" +
@@ -104,8 +103,9 @@ public class PortalUtils
              "</script>\n" +
              "<script type=\"text/javascript\">\n" +
              "if ( needJQuery ) {\n" +
-             "       window.console && console.log('"+where+" loaded jQuery '+jQuery.fn.jquery);\n" +
+             "       window.console && console.log('"+where+" loaded jQuery '+$.fn.jquery);\n" +
              "}\n" +
+	     "$PBJQ = jQuery;\n" +
              "</script>\n";
 
 		return retval;

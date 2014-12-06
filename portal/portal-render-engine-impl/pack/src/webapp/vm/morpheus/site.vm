@@ -51,7 +51,10 @@
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
             var portal = { 
                 "chat": {
-                    "enabled": $!{neoChat}
+                    "enabled": $!{neoChat},
+		    "video" : {
+			"enabled": $!{neoChatVideo}
+		    }
                 },
                 "loggedIn": $!{loggedIn},
                 "portalPath": "$!{portalPath}",
@@ -77,33 +80,33 @@
         </script>
         
         #if ( ${bufferedResponse} && ${responseHead} ) 
+        #else 
+            ${sakai_html_head_js}
+        #end
+
         ## Make sure we at least have a jQuery 1.9 or higher, log messages
+#set ( $d = "$")
         <script>
             var needJQuery = true;
+            var secondJQuery = false;
             if ( window.jQuery ) {
                 tver = jQuery.fn.jquery;
                 if ( tver.indexOf('1.9.') == 0 ) {
-                    window.console && console.log('Tool loaded jQuery '+tver);
+                    window.console && console.log('Using tool jQuery '+tver);
                     needJQuery = false;
                 } else {
-                    toggleJQuery = true;
-                    window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
-                    jQuery.noConflict();
-                }
+		    secondJQuery = true;
+		}
             }
             if ( needJQuery ) {
                 document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             }
+	</script>
+	<script>
+            ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+            window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
         </script>
-        <script>
-            if ( needJQuery ) {
-                window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
-            }
-        </script>
-        #else 
-            ${sakai_html_head_js}
-            <script src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
-        #end
         
         #if ( $loggedIn )
             <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
@@ -129,6 +132,34 @@
                 var portalChatPollInterval = ${portalChatPollInterval};
             </script>
             <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
+#if ( $neoChatVideo )
+<script type="text/javascript">
+
+    portal.chat.video.enabled = true;
+    portal.chat.video.timeout = ${portalVideoChatTimeout};
+    portal.chat.video.messages = {
+        "pc_video_status_setup": "${rloader.pc_video_status_setup}",
+        "pc_video_status_user_hung": "${rloader.pc_video_status_user_hung}",
+        "pc_video_status_hangup": "${rloader.pc_video_status_hangup}",
+        "pc_video_status_user_refused": "${rloader.pc_video_status_user_refused}",
+        "pc_video_status_incoming_call": "${rloader.pc_video_status_incoming_call}",
+        "pc_video_status_call_timeout": "${rloader.pc_video_status_call_timeout}",
+        "pc_video_status_waiting_peer": "${rloader.pc_video_status_waiting_peer}",
+        "pc_video_status_call_accepted": "${rloader.pc_video_status_call_accepted}",
+        "pc_video_status_call_not_accepted": "${rloader.pc_video_status_call_not_accepted}",
+        "pc_video_status_call_in_progress": "${rloader.pc_video_status_call_in_progress}",
+        "pc_video_status_answer_timeout": "${rloader.pc_video_status_answer_timeout}",
+        "pc_video_status_connecting": "${rloader.pc_video_status_connecting}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}",
+        "pc_video_status_call_failed": "${rloader.pc_video_status_call_failed}",
+        "pc_video_status_you_ignored": "${rloader.pc_video_status_you_ignored}",
+        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}"
+    };
+</script>
+<script type="text/javascript" src="/portal/scripts/webrtc-adapter.js"></script>
+<script type="text/javascript" src="/portal/scripts/videocall.js"></script>
+#end
+
         #end
         
         #if ( ${styleable} )
@@ -175,22 +206,26 @@
             
         #end
         <script>
-            jQuery(document).ready(function() {
+	    // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+            if ( secondJQuery ) {
+                ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+		jQuery = ${d};  // Return jQuery to point at the tool jQuery
+            }
+            window.console && console.log('Portal scripts loaded PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+
+            ${d}PBJQ(document).ready(function() {
                 setupSiteNav();
                 // sakai_portal_ie_detected should have been set above
                 if (sakai_portal_ie_detected) {
                     // SAK-22308
-                    //if (jQuery.browser.msie && jQuery('ul#topnav[role="navigation"]') && jQuery('h1#sitetabs')) {
-                    var $ul_topnav = jQuery('ul#topnav');
+                    //if (${d}PBJQ.browser.msie && ${d}PBJQ('ul#topnav[role="navigation"]') && ${d}PBJQ('h1#sitetabs')) {
+                    var $ul_topnav = ${d}PBJQ('ul#topnav');
                     var aria_label_val = $ul_topnav.attr('aria-label');
-                    jQuery('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
-                    jQuery('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
+                    ${d}PBJQ('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
+                    ${d}PBJQ('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
                     $ul_topnav.removeAttr('aria-label');
                 }
             });
-        </script>
-        <script>
-            document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
         </script>
         <!-- END VM site.vm -->
     </body>

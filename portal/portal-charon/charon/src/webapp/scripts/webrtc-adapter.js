@@ -672,4 +672,4 @@
     	this.remoteVideoAgentType = null;
     	this.startTime = new Date().getTime();
     };
-}) (jQuery);
+}) ($PBJQ);

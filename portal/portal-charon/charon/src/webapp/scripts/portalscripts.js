@@ -1,5 +1,5 @@
 /* Script for pop-up dhtml more tabs implementation 
- * uses jQuery library
+ * uses jQueryPBJQ library
  */
 
 // SAK-20576 - the following wae pulled from includeStandardHead.vm so the declaration of 'portal' is available to OSP Portal
@@ -66,43 +66,43 @@ function setUIToggleState (portal_allow_auto_minimize, portal_allow_minimize_too
 
 var dhtml_more_tabs = function() {
 	// first time through set up the DOM
-	jQuery('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
-	jQuery('#selectNav').css('top',jQuery('#linkNav').height() - 3);       // set its top position
+	$PBJQ('#selectNav').appendTo('#linkNav').addClass('dhtml_more_tabs'); // move the selectNav in the DOM
+	$PBJQ('#selectNav').css('top',$PBJQ('#linkNav').height() - 3);       // set its top position
 
-	var width = jQuery('#linkNav').width()*0.75;
+	var width = $PBJQ('#linkNav').width()*0.75;
 	if (width < 400) width = 400;
-	jQuery('div#selectNav').width(width);          // set its width to fix an IE6 bug
-	jQuery('#selectNav').css('z-index',9899);      // explicitely set the z-index
-	jQuery('.more-tab').css('z-index',9900);       //  " for the More Tabs div element
+	$PBJQ('div#selectNav').width(width);          // set its width to fix an IE6 bug
+	$PBJQ('#selectNav').css('z-index',9899);      // explicitely set the z-index
+	$PBJQ('.more-tab').css('z-index',9900);       //  " for the More Tabs div element
 
 	//reset the left offset to avoid "more tabs" dropdown going off the left of the screen
-	jQuery('div#selectNav').show();
-	var left = $("#selectNav").get(0).offsetLeft;
-	if (left <= 0) { jQuery('#selectNav').css('left', 1); }
+	$PBJQ('div#selectNav').show();
+	var left = $PBJQ("#selectNav").get(0).offsetLeft;
+	if (left <= 0) { $PBJQ('#selectNav').css('left', 1); }
 	
-	jQuery('#selectNav').hide();
+	$PBJQ('#selectNav').hide();
 		
 	// then recast the function to the post initialized state which will run from then on
 	dhtml_more_tabs = function() {
-		if (jQuery('#selectNav').css('display') == 'none' ) {
-			jQuery('div#selectNav').show();
+		if ($PBJQ('#selectNav').css('display') == 'none' ) {
+			$PBJQ('div#selectNav').show();
 			// highlight the more tab
-			jQuery('.more-tab').addClass('more-active');
+			$PBJQ('.more-tab').addClass('more-active');
 			// dim the current tab
-			jQuery('.selectedTab').addClass('tab-dim');
+			$PBJQ('.selectedTab').addClass('tab-dim');
 			// mask the rest of the page
 			createDHTMLMask(dhtml_more_tabs) ;
 			// bind this function to the More Tabs tab to close More Tabs on click
-			jQuery('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
+			$PBJQ('.selectedTab').bind('click',function(){dhtml_more_tabs();return false;});
 		} else {
 			// unhighlight the more tab
-			jQuery('.more-tab').removeClass('more-active');
+			$PBJQ('.more-tab').removeClass('more-active');
 			// hide the dropdown
-			jQuery('div#selectNav').hide(); // hide the box
+			$PBJQ('div#selectNav').hide(); // hide the box
 			//undim the currently selected tab
-			jQuery('.selectedTab').removeClass('tab-dim');
+			$PBJQ('.selectedTab').removeClass('tab-dim');
 			removeDHTMLMask()
-			jQuery('.selectedTab').unbind('click');
+			$PBJQ('.selectedTab').unbind('click');
 		}
 	}
 	// finally run the inner function, first time through
@@ -110,16 +110,16 @@ var dhtml_more_tabs = function() {
 }
 
 function createDHTMLMask(callback) {
-	jQuery('body').append('<div id="portalMask">&nbsp;</div>');
-	jQuery('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
+	$PBJQ('body').append('<div id="portalMask">&nbsp;</div>');
+	$PBJQ('#portalMask').css('height',browserSafeDocHeight()).css('width','100%').css('z-index',1000).bind("click",function(event){
 		callback();
 		return false;
 	});
-	jQuery('#portalMask').bgiframe();
+	$PBJQ('#portalMask').bgiframe();
 }
 
 function removeDHTMLMask() {
-	jQuery('#portalMask').remove();
+	$PBJQ('#portalMask').remove();
 }
 
 /* Copyright (c) 2010 Brandon Aaron (http://brandonaaron.net)
@@ -127,7 +127,7 @@ function removeDHTMLMask() {
  *
  * Version 2.1.2
  */
-(function(a){a.fn.bgiframe=(a.browser.msie&&/msie 6\.0/i.test(navigator.userAgent)?function(d){d=a.extend({top:"auto",left:"auto",width:"auto",height:"auto",opacity:true,src:"javascript:false;"},d);var c='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+d.src+'"style="display:block;position:absolute;z-index:-1;'+(d.opacity!==false?"filter:Alpha(Opacity='0');":"")+"top:"+(d.top=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+'px')":b(d.top))+";left:"+(d.left=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+'px')":b(d.left))+";width:"+(d.width=="auto"?"expression(this.parentNode.offsetWidth+'px')":b(d.width))+";height:"+(d.height=="auto"?"expression(this.parentNode.offsetHeight+'px')":b(d.height))+';"/>';return this.each(function(){if(a(this).children("iframe.bgiframe").length===0){this.insertBefore(document.createElement(c),this.firstChild)}})}:function(){return this});a.fn.bgIframe=a.fn.bgiframe;function b(c){return c&&c.constructor===Number?c+"px":c}})(jQuery);
+(function(a){a.fn.bgiframe=(a.browser.msie&&/msie 6\.0/i.test(navigator.userAgent)?function(d){d=a.extend({top:"auto",left:"auto",width:"auto",height:"auto",opacity:true,src:"javascript:false;"},d);var c='<iframe class="bgiframe"frameborder="0"tabindex="-1"src="'+d.src+'"style="display:block;position:absolute;z-index:-1;'+(d.opacity!==false?"filter:Alpha(Opacity='0');":"")+"top:"+(d.top=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderTopWidth)||0)*-1)+'px')":b(d.top))+";left:"+(d.left=="auto"?"expression(((parseInt(this.parentNode.currentStyle.borderLeftWidth)||0)*-1)+'px')":b(d.left))+";width:"+(d.width=="auto"?"expression(this.parentNode.offsetWidth+'px')":b(d.width))+";height:"+(d.height=="auto"?"expression(this.parentNode.offsetHeight+'px')":b(d.height))+';"/>';return this.each(function(){if(a(this).children("iframe.bgiframe").length===0){this.insertBefore(document.createElement(c),this.firstChild)}})}:function(){return this});a.fn.bgIframe=a.fn.bgiframe;function b(c){return c&&c.constructor===Number?c+"px":c}})($PBJQ);
 
 
 //For SAK-13987
@@ -139,14 +139,14 @@ var timeoutDialogEnabled = false;
 var timeoutDialogWarningTime;
 var timeoutLoggedoutUrl;
 var timeoutPortalPath;
-jQuery(document).ready(function(){
+$PBJQ(document).ready(function(){
 	// note a session exists whether the user is logged in or no
 	if (portal.loggedIn && portal.timeoutDialog ) {
 		setTimeout('setup_timeout_config();', 60000);
 	}
 	
 	//bind directurl checkboxes
-    jQuery('a.tool-directurl').cluetip({
+    $PBJQ('a.tool-directurl').cluetip({
     	local: true,
     	arrows: true,
 		cluetipClass: 'jtip',
@@ -171,7 +171,7 @@ var setup_timeout_config = function() {
 
 var poll_session_data = function() {
     //Need to append Date.getTime as sakai still uses jquery pre 1.2.1 which doesn't support the cache: false parameter.
-	jQuery.ajax({
+	$PBJQ.ajax({
 		url: "/direct/session/" + sessionId + ".json?auto=true&_=" + (new Date()).getTime(),    //auto=true makes it not refresh the session lastaccessedtime
 		dataType: "json",
 		success: function(data){
@@ -210,17 +210,17 @@ var poll_session_data = function() {
 
 function keep_session_alive(){
 	dismiss_session_alert();
-	jQuery.get(timeoutPortalPath);
+	$PBJQ.get(timeoutPortalPath);
 }
 
 var dismiss_session_alert = function(){
 	removeDHTMLMask();
-	jQuery("#timeout_alert_body").remove();
+	$PBJQ("#timeout_alert_body").remove();
 }
 
 var timeoutDialogFragment;
 function fetch_timeout_dialog() {
-	jQuery.ajax({
+	$PBJQ.ajax({
 		url: "/portal/timeout?auto=true",
 		cache: true,
 		dataType: "text",
@@ -238,18 +238,18 @@ function show_timeout_alert(min) {
 		return;
 	}
 
-	if (!jQuery("#portalMask").get(0)){
+	if (!$PBJQ("#portalMask").get(0)){
 		createDHTMLMask(dismiss_session_alert);
-		jQuery("#portalMask").css("z-index", 10000);
+		$PBJQ("#portalMask").css("z-index", 10000);
 	}
-	if (jQuery("#timeout_alert_body").get(0)) {
+	if ($PBJQ("#timeout_alert_body").get(0)) {
 		//its there, just update the min
-		jQuery("#timeout_alert_body span").html(min);
-		jQuery("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
+		$PBJQ("#timeout_alert_body span").html(min);
+		$PBJQ("#timeout_alert_body span").css('top', (f_scrollTop() + 100) + "px");
 	} else {
 		var dialog = timeoutDialogFragment.replace("{0}", min);
-		jQuery("body").append(dialog);
-		jQuery('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
+		$PBJQ("body").append(dialog);
+		$PBJQ('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
 	}
 }
 
@@ -263,29 +263,29 @@ function portalMaximizeTool() {
 function sakaiMinimizeNavigation() {
         if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
 	if (portal.toggle.sitenav) {
-		$('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
+		$PBJQ('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
 	}
 	if (portal.toggle.tools){
-		$('#container').addClass('sakaiMinimizePageNavigation');	
+		$PBJQ('#container').addClass('sakaiMinimizePageNavigation');	
 	}
-	$('#toggleToolMax').hide();
-	$('#toggleNormal').css({'display':'block'});
+	$PBJQ('#toggleToolMax').hide();
+	$PBJQ('#toggleNormal').css({'display':'block'});
 }
 
 function sakaiRestoreNavigation() {
         if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
 	if (portal.toggle.sitenav) {
-		$('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
+		$PBJQ('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
 	}
 	if (portal.toggle.tools){
-		$('#container').removeClass('sakaiMinimizePageNavigation');	
+		$PBJQ('#container').removeClass('sakaiMinimizePageNavigation');	
 	}
-	$('#toggleToolMax').show();
-	$('#toggleNormal').css({'display':'none'});
+	$PBJQ('#toggleToolMax').show();
+	$PBJQ('#toggleNormal').css({'display':'none'});
 }
 
 function updatePresence() {
-	jQuery.ajax( {
+	$PBJQ.ajax( {
 		url: sakaiPresenceFragment,
 		cache: false,
 		success: function(frag){
@@ -293,7 +293,7 @@ function updatePresence() {
 			if ( whereHead > 0 ) {
 			 	location.reload();
 			} else {
-				$("#presenceIframe").html(frag);
+				$PBJQ("#presenceIframe").html(frag);
 			}
 		},
 		// If we get an error, wait 60 seconds before retry
@@ -332,24 +332,24 @@ function postGlobalAlert(data){
     var messageArray = "";
     var dismissLink = "";
     if (data.messages.length > 0) {
-        if ($("#portalMessageContainer1_2").length === 0) {
-            $("#portalOuterContainer").append('<div id=\"portalMessageContainer1_2\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
+        if ($PBJQ("#portalMessageContainer1_2").length === 0) {
+            $PBJQ("#portalOuterContainer").append('<div id=\"portalMessageContainer1_2\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
         }
-        if ($("#portalMessageContainer3").length === 0) {
-            $("#portalOuterContainer").append('<div id=\"portalMessageContainer3\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
+        if ($PBJQ("#portalMessageContainer3").length === 0) {
+            $PBJQ("#portalOuterContainer").append('<div id=\"portalMessageContainer3\" role=\"application\" aria-live\"assertive\" aria-relevant=\"additions\"></div>');
         }
-        $.each(data.messages, function(i, item){
+        $PBJQ.each(data.messages, function(i, item){
             dismissLink = '';
             // create a safe ID
             var itemId = encodeURIComponent(item.id).replace(/[^a-zA-Z 0-9]+/g,'-');
             // need to check if displayed already - is it in the DOM?
             // TODO: need to check if "was" in the DOM and has been dismissed
-            if ($('#' + itemId).length > 0) {
+            if ($PBJQ('#' + itemId).length > 0) {
                 //elem there already, compare timestamps
-                if ($('#' + itemId).attr('ts') !== item.timestamp) {
+                if ($PBJQ('#' + itemId).attr('ts') !== item.timestamp) {
                     // message has changed, update it, animate it (and update the ts attribute)
-                    flashMessage($('#' + itemId), 'Update: ' + item.message);
-                    $('#' + itemId).attr('ts', item.timestamp);
+                    flashMessage($PBJQ('#' + itemId), 'Update: ' + item.message);
+                    $PBJQ('#' + itemId).attr('ts', item.timestamp);
                 }
             }
             else {
@@ -361,10 +361,10 @@ function postGlobalAlert(data){
                 if (!utils_readCookie('messageId' + itemId)) {
                     //no cookie - so new message, add to DOM
                     if (item.priority === 3) {
-                        $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
+                        $PBJQ('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
                     }
                     else {
-                        $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
+                        $PBJQ('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">' + item.message + '</div>' + dismissLink + '</div>');
                     }
                 }
                 else {
@@ -372,10 +372,10 @@ function postGlobalAlert(data){
                      //  console.log(utils_readCookie('messageId' + itemId) +  "="  + item.timestamp);
                     if (utils_readCookie('messageId' + itemId) !== item.timestamp) {
                         if (item.priority === 3) {
-                            $('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
+                            $PBJQ('#portalMessageContainer3').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
                         }
                         else {
-                            $('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
+                            $PBJQ('#portalMessageContainer1_2').append('<div role=\"alert\" aria-live\"assertive\" aria-relevant=\"text\" id=\"' + itemId + '\" ts=\"' + item.timestamp + '\" class=\"portalMessage portalMessageShadow portalMessagePriority' + item.priority + '\"><div class=\"messageHolder\">Update:&nbsp;&nbsp;' + item.message + '</div>' + dismissLink + '</div>');
                         }
                     }
                 }
@@ -386,29 +386,29 @@ function postGlobalAlert(data){
         });
     }
     else {
-        $("#portalMessageContainer1_2").remove();
-        $("#portalMessageContainer3").remove();
+        $PBJQ("#portalMessageContainer1_2").remove();
+        $PBJQ("#portalMessageContainer3").remove();
     }
     
-    $(".portalMessage").each(function(i){
+    $PBJQ(".portalMessage").each(function(i){
         //if the id of this elem is not in the message bundle just processed, remove it from the DOM 
-        if (messageArray.indexOf($(this).attr('id')) === -1) {
-            $(this).fadeOut(2000, function(){
-                $(this).remove();
+        if (messageArray.indexOf($PBJQ(this).attr('id')) === -1) {
+            $PBJQ(this).fadeOut(2000, function(){
+                $PBJQ(this).remove();
             });
         }
     });
-    $(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
-    $("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
-    $("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
+    $PBJQ(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
+    $PBJQ("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
+    $PBJQ("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
     
     function flashMessage(elem, message){
-        $(elem).removeClass('portalMessageShadow');
-        $(elem).fadeOut(2000, function(){
-            $(this).children('.messageHolder').empty();
-            $(this).children('.messageHolder').append('<div>' + message + '</div>');
-            $(this).fadeIn(2000, function(){
-                $(this).addClass('portalMessageShadow');
+        $PBJQ(elem).removeClass('portalMessageShadow');
+        $PBJQ(elem).fadeOut(2000, function(){
+            $PBJQ(this).children('.messageHolder').empty();
+            $PBJQ(this).children('.messageHolder').append('<div>' + message + '</div>');
+            $PBJQ(this).fadeIn(2000, function(){
+                $PBJQ(this).addClass('portalMessageShadow');
             });
         });
     }
@@ -416,11 +416,11 @@ function postGlobalAlert(data){
 
 function dismissMessage(target, timestamp){
     utils_createCookie('messageId' + target, timestamp);
-    $('#' + target).fadeOut('slow');
-    $('#' + target).remove();
-    $(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
-    $("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
-    $("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
+    $PBJQ('#' + target).fadeOut('slow');
+    $PBJQ('#' + target).remove();
+    $PBJQ(".portalMessage").removeClass('lastPortalMessage').removeClass('firstPortalMessage');
+    $PBJQ("#portalMessageContainer1_2 .portalMessage:last").addClass('lastPortalMessage');
+    $PBJQ("#portalMessageContainer3 .portalMessage:first").addClass('firstPortalMessage');
 }
 
 /**
@@ -475,9 +475,9 @@ utils_trim = function(stringToTrim){
 
 var setupSkipNav = function(){
     //function called from site.vm to enable skip links for all browsers
-     $('#skipNav a.internalSkip').click(function(){
-        var target = $(this).attr('href');
-        $(target).attr('tabindex','-1').focus();
+     $PBJQ('#skipNav a.internalSkip').click(function(){
+        var target = $PBJQ(this).attr('href');
+        $PBJQ(target).attr('tabindex','-1').focus();
      });
 };
 
@@ -485,15 +485,15 @@ var setupSkipNav = function(){
 //(if configured, otherwise returns url as-is as according to the url shortening entity provder)
 function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {		
 	
-	if($(checkbox).is(':checked')) {
+	if($PBJQ(checkbox).is(':checked')) {
 		
-		$.ajax({
+		$PBJQ.ajax({
 			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
 			success: function(shortUrl) {
-				$('.'+textbox).val(shortUrl);
+				$PBJQ('.'+textbox).val(shortUrl);
 			}
 		}); 
 	} else {
-		$('.'+textbox).val(defaultUrl);
+		$PBJQ('.'+textbox).val(defaultUrl);
 	}
 }

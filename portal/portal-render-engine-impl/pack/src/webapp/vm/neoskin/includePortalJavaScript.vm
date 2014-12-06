@@ -2,7 +2,12 @@
 
 ## Make sure we at least have a jQuery 1.9 or higher, log messages
 ## This one won't trigger unless the tool markup messed up our version
+#set ( $d = "$")
 ${includeLatestJQuery}
+<script> 
+$PBJQ = jQuery; 
+window.console && console.log('Loading portal JavaScript - $PBJQ='+$PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+</script>
 
 <script type="text/javascript" src="${pageScriptPath}/trimpath-template-latest.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
@@ -12,7 +17,7 @@ ${includeLatestJQuery}
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
 <script type="text/javascript" src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 #if ( $tutorial && $loggedIn )
-	<script type="text/javascript">$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
+	<script type="text/javascript">$PBJQ(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 #if ($portal_use_global_alert_message)
     <script type="text/javascript" language="JavaScript" src="/globalalerts/js/gam.js"></script>
@@ -54,7 +59,7 @@ ${includeLatestJQuery}
     	src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}" >
     </script>
     <script type="text/javascript">
-    $(document).ready(function() {
+    $PBJQ(document).ready(function() {
             insertStyleAbleStyles();
     }
     </script>
@@ -65,6 +70,12 @@ ${includeLatestJQuery}
     #end
 #end
 <script type="text/javascript">
-document.write('<!-- jquery version '+jQuery.fn.jquery+' -->\n');
+    ## If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+    ## overrideJQuery is set in PortalUtils.includeLatestJQuery()
+    if ( typeof(overrideJQuery) != 'undefined' && overrideJQuery ) {
+        ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the first jQuery
+        jQuery = ${d};  // Return jQuery to point at the tool jQuery
+    }
+    window.console && console.log('Portal JavaScript loaded ${d}PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
 </script>
 

@@ -1040,8 +1040,8 @@
         portal.chat.setGetLatestDataInterval();
     });
 
-}) (jQuery);
+}) ($PBJQ);
 
-$(document).ready(function () {
-    jQuery('#footerAppChat').show();
+$PBJQ(document).ready(function () {
+    $PBJQ('#footerAppChat').show();
 });

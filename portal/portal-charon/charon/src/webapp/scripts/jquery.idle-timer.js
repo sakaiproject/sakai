@@ -259,4 +259,4 @@ $.fn.idleTimer = function(newTimeout,opts){
 };
 
 
-})(jQuery);
+})($PBJQ);
