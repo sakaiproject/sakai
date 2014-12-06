@@ -7,8 +7,7 @@
         var currentChatChannelId = "<h:outputText value="#{ChatTool.currentChatChannelId}" />";
     doubleDeep = true;
 </script>
-<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
-<sakai:script contextBase="/library" path="/js/jquery.js" />
+<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 <sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 <script type="text/javascript">
 	if ( window.frameElement) window.frameElement.className='wcwmenu';
