@@ -654,60 +654,74 @@
     <navigation-case>
       <from-outcome>takeAssessment</from-outcome>
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmsubmit</from-outcome>
       <to-view-id>/jsf/delivery/confirmSubmit.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>assessmentHasBeenSubmitted</from-outcome>
       <to-view-id>/jsf/delivery/assessmentHasBeenSubmitted.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>noSubmissionLeft</from-outcome>
       <to-view-id>/jsf/delivery/noSubmissionLeft.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>noLateSubmission</from-outcome>
       <to-view-id>/jsf/delivery/noLateSubmission.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>notSubmitted</from-outcome>
       <to-view-id>/jsf/delivery/notSubmitted.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRemoved</from-outcome>
       <to-view-id>/jsf/delivery/isRemoved.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRetracted</from-outcome>
       <to-view-id>/jsf/delivery/isRetracted.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <!-- isRetractedForEdit is the error page during taking assessment
          isRetractedForEdit2 is the error page during review submitted assessment -->
     <navigation-case>
       <from-outcome>isRetractedForEdit</from-outcome>
       <to-view-id>/jsf/delivery/isRetractedForEdit.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>isRetractedForEdit2</from-outcome>
       <to-view-id>/jsf/delivery/isRetractedForEdit2.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>
       <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>discrepancyInData</from-outcome>
       <to-view-id>/jsf/delivery/discrepancyInData.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>assessmentNotAvailable</from-outcome>
       <to-view-id>/jsf/delivery/assessmentNotAvailable.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveForLaterWarning</from-outcome>
       <to-view-id>/jsf/delivery/saveForLaterWarning.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 
@@ -717,80 +731,99 @@
     <navigation-case>
       <from-outcome>select</from-outcome>
       <to-view-id>/jsf/select/selectIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>view</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>author</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>sortCore</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 	<navigation-case>
       <from-outcome>poolUpdateError</from-outcome>
       <to-view-id>/jsf/delivery/poolUpdateError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- DELIVERY -->
     <navigation-case>
       <from-outcome>beginAssessment</from-outcome>
       <to-view-id>/jsf/delivery/beginTakingAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>takeAssessment</from-outcome>
       <to-view-id>/jsf/delivery/deliverAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeExpired</from-outcome>
       <to-view-id>/jsf/delivery/timeExpired.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>tableOfContents</from-outcome>
       <to-view-id>/jsf/delivery/tableOfContents.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>accessError</from-outcome>
       <to-view-id>/jsf/delivery/accessError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>ipAccessError</from-outcome>
       <to-view-id>/jsf/delivery/ipAccessError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
      <from-outcome>secureDeliveryError</from-outcome>
 	 <to-view-id>/jsf/delivery/secureDeliveryError.jsp</to-view-id>
+      <redirect/>
 	</navigation-case>
     <navigation-case>
       <from-outcome>passwordAccessError</from-outcome>
       <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeout</from-outcome>
       <to-view-id>/jsf/delivery/timeout.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>submitAssessment</from-outcome>
       <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>reviewAssessment</from-outcome>
       <to-view-id>/jsf/delivery/reviewAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>reviewAssessmentError</from-outcome>
       <to-view-id>/jsf/delivery/reviewAssessmentError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>anonymousThankYou</from-outcome>
       <to-view-id>/jsf/delivery/submitted.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>anonymousQuit</from-outcome>
       <to-view-id>/jsf/delivery/anonymousQuitMessage.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
 
@@ -798,417 +831,516 @@
     <navigation-case>
       <from-outcome>createAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>importAssessment</from-outcome>
       <to-view-id>/jsf/qti/importAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 	<navigation-case>
       <from-outcome>importAssessmentFromRespondus</from-outcome>
       <to-view-id>/jsf/qti/importAssessmentFromRespondus.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>samLiteEntry</from-outcome>
       <to-view-id>/jsf/samlite/samLiteEntry.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>samLiteValidation</from-outcome>
       <to-view-id>/jsf/samlite/samLiteValidation.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>chooseExportType</from-outcome>
       <to-view-id>/jsf/qti/chooseExportType.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportDenied</from-outcome>
       <to-view-id>/jsf/qti/exportDenied.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessmentSettings</from-outcome>
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>timeError</from-outcome>
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPublishedAssessmentSettings</from-outcome>
       <to-view-id>/jsf/author/publishedSettings.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editAssessment</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>previewAssessment</from-outcome>
       <to-view-id>/jsf/author/previewAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>printAssessment</from-outcome>
       <to-view-id>/sakai.questionbank.printout.helper/printAssessment</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
     <from-outcome>print</from-outcome>
       <to-view-id>/jsf/print/printAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>addPart</from-outcome>
       <to-view-id>/jsf/author/editPart.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPart</from-outcome>
       <to-view-id>/jsf/author/editPart.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>authorQuestions</from-outcome>
       <to-view-id>/jsf/author/authorQuestions.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>authorSettings</from-outcome>
       <to-view-id>/jsf/author/authorSettings.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPublishedAssessmentError</from-outcome>
       <to-view-id>/jsf/author/editPublishedAssessmentError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmEditPublishedAssessment</from-outcome>
       <to-view-id>/jsf/author/confirmEditPublishedAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveAssessment</from-outcome>
       <to-view-id>/jsf/author/removeAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmCopyAssessment</from-outcome>
       <to-view-id>/jsf/author/confirmCopyAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePublishedAssessment</from-outcome>
       <to-view-id>/jsf/author/removePublishedAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePart</from-outcome>
       <to-view-id>/jsf/author/removePart.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removePart</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestion</from-outcome>
       <to-view-id>/jsf/author/removeQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveMedia</from-outcome>
       <to-view-id>/jsf/shared/removeMedia.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>addMatchItem</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>addMatchItemMatch</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>moveQuestionRemovePart</from-outcome>
       <to-view-id>/jsf/assessment/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>myQuestions</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeAnswer</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeMatchItem</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeMatchItemMatch</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestionConfirm</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettings</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>saveSettingsAndConfirmPublish</from-outcome>
       <to-view-id>/jsf/author/publishAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>publishAssessment</from-outcome>
       <to-view-id>/jsf/author/authorIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveItemAttachment</from-outcome>
       <to-view-id>/jsf/author/removeItemAttachment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemovePartAttachment</from-outcome>
       <to-view-id>/jsf/author/removePartAttachment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmRemoveAssessmentAttachment</from-outcome>
       <to-view-id>/jsf/author/removeAssessmentAttachment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmAssessmentRetract</from-outcome>
       <to-view-id>/jsf/author/confirmAssessmentRetract.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>variableItem</from-outcome>
       <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>calculatedQuestionVariableItem</from-outcome>
       <to-view-id>/jsf/author/item/calculatedQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- ITEM AUTHORING -->
     <navigation-case>
       <from-outcome>trueFalseItem</from-outcome>
       <to-view-id>/jsf/author/item/trueFalse.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>fillInBlackItem</from-outcome>
       <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
    <from-outcome>fillInNumericItem</from-outcome>
       <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>shortAnswerItem</from-outcome>
       <to-view-id>/jsf/author/item/shortAnswer.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>surveyItem</from-outcome>
       <to-view-id>/jsf/author/item/multipleChoiceSurvey.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>multipleChoiceItem</from-outcome>
       <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>fileUploadItem</from-outcome>
       <to-view-id>/jsf/author/item/fileUpload.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>audioRecItem</from-outcome>
       <to-view-id>/jsf/author/item/audioRecording.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>matchingItem</from-outcome>
       <to-view-id>/jsf/author/item/matching.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>emiItem</from-outcome>
       <to-view-id>/jsf/author/item/extendedMatchingItems.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>matrixChoicesSurveyItem</from-outcome>
       <to-view-id>/jsf/author/item/matrixChoicesSurvey.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- QUESTION POOL	 -->
     <navigation-case>
       <from-outcome>poolList</from-outcome>
       <to-view-id>/jsf/questionpool/poolList.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>addPool</from-outcome>
       <to-view-id>/jsf/questionpool/addPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editPool</from-outcome>
       <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>copyPool</from-outcome>
       <to-view-id>/jsf/questionpool/copyPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <!-- SAM-2049 -->
      <navigation-case>
       <from-outcome>transferPoolInputUser</from-outcome>
       <to-view-id>/jsf/questionpool/transferPoolInputUser.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
      <navigation-case>
       <from-outcome>transferPool</from-outcome>
       <to-view-id>/jsf/questionpool/transferPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
       <navigation-case>
       <from-outcome>transferPoolConfirm</from-outcome>
       <to-view-id>/jsf/questionpool/transferPoolConfirm.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>movePool</from-outcome>
       <to-view-id>/jsf/questionpool/movePool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removePool</from-outcome>
       <to-view-id>/jsf/questionpool/removePool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>unsharePool</from-outcome>
       <to-view-id>/jsf/questionpool/unsharePool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>sharePool</from-outcome>
       <to-view-id>/jsf/questionpool/sharePool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>importPool</from-outcome>
       <to-view-id>/jsf/qti/importPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportPool</from-outcome>
       <to-view-id>/jsf/questionpool/exportPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>importQuestion</from-outcome>
       <to-view-id>/jsf/questionpool/importQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>exportQuestion</from-outcome>
       <to-view-id>/jsf/questionpool/exportQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>selectQuestionType</from-outcome>
       <to-view-id>/jsf/questionpool/selectQuestionType.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>removeQuestionFromPool</from-outcome>
       <to-view-id>/jsf/questionpool/removeQuestion.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>debug</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>exit</from-outcome>
       <to-view-id>/jsf/index/exit.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>index</from-outcome>
       <to-view-id>/jsf/index/index.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- TEMPLATE -->
     <navigation-case>
       <from-outcome>template</from-outcome>
       <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>template1</from-outcome>
       <to-view-id>/jsf/template/templateIndex1.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>editTemplate</from-outcome>
       <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>newTemplate</from-outcome>
       <to-view-id>/jsf/template/templateEditor.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>confirmDeleteTemplate</from-outcome>
       <to-view-id>/jsf/template/confirmTempRemove.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>deleteTemplate</from-outcome>
       <to-view-id>/jsf/template/templateIndex.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <!-- EVENT LOG -->
     <navigation-case>
       <from-outcome>eventLog</from-outcome>
       <to-view-id>/jsf/event/eventLog.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- EVALUATION -->
     <navigation-case>
       <from-outcome>studentScores</from-outcome>
       <to-view-id>/jsf/evaluation/gradeStudentResult.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>totalScores</from-outcome>
       <to-view-id>/jsf/evaluation/totalScores.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>questionScores</from-outcome>
       <to-view-id>/jsf/evaluation/questionScore.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>submissionStatus</from-outcome>
       <to-view-id>/jsf/evaluation/submissionStatus.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>histogramScores</from-outcome>
       <to-view-id>/jsf/evaluation/histogramScores.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>detailedStatistics</from-outcome>
       <to-view-id>/jsf/evaluation/detailedStatistics.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
      
     <navigation-case>
       <from-outcome>exportResponses</from-outcome>
       <to-view-id>/jsf/evaluation/exportResponses.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>downloadFileSubmissions</from-outcome>
       <to-view-id>/jsf/evaluation/downloadFileSubmissions.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     
     <navigation-case>
       <from-outcome>exportZip</from-outcome>
       <to-view-id>/jsf/test/stub.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>createNewEmail</from-outcome>
       <to-view-id>/jsf/evaluation/createNewEmail.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 	  <navigation-case>
       <from-outcome>confirmEmailSent</from-outcome>
       <to-view-id>/jsf/evaluation/confirmEmailSent.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   	<navigation-case>
       <from-outcome>confirmRetake</from-outcome>
       <to-view-id>/jsf/evaluation/confirmRetake.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 	<navigation-case>
       <from-outcome>emailError</from-outcome>
       <to-view-id>/jsf/evaluation/emailError.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
 
   <!-- XML -->
     <navigation-case>
       <from-outcome>xmlDisplay</from-outcome>
       <to-view-id>/jsf/qti/xmlDisplay.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>xmlPublished</from-outcome>
       <to-view-id>/jsf/qti/xmlPublished.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>xmlTemplates</from-outcome>
       <to-view-id>/jsf/qti/xmlTemplates.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 
@@ -1217,18 +1349,22 @@
     <navigation-case>
       <from-outcome>MCAddSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>MCAddFailure</from-outcome>
       <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
      <navigation-case>
       <from-outcome>MCPoolAddSuccess</from-outcome>
       <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>MCPoolAddFailure</from-outcome>
       <to-view-id>/jsf/author/item/multipleChoice.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 
@@ -1237,18 +1373,22 @@
     <navigation-case>
       <from-outcome>FIBSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBFailure</from-outcome>
       <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
      <navigation-case>
       <from-outcome>FIBPoolSuccess</from-outcome>
       <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>FIBPoolFailure</from-outcome>
       <to-view-id>/jsf/author/item/fillInTheBlank.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 
@@ -1258,18 +1398,22 @@
     <navigation-case>
       <from-outcome>FINSuccess</from-outcome>
       <to-view-id>/jsf/author/editAssessment.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>FINFailure</from-outcome>
       <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
      <navigation-case>
       <from-outcome>FINPoolSuccess</from-outcome>
       <to-view-id>/jsf/questionpool/editPool.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
     <navigation-case>
       <from-outcome>FINPoolFailure</from-outcome>
       <to-view-id>/jsf/author/item/fillInNumeric.jsp</to-view-id>
+      <redirect/>
     </navigation-case>
   </navigation-rule>
 
