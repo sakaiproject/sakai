@@ -10,11 +10,10 @@
 		<style type="text/css">
 				@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
-		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
 		<script type="text/javascript">
-			jQuery.noConflict();
 	         //initialization of the page
 	         jQuery(document).ready(function() {
 		         //due to recuring meetings, make sure even/odd Rows display correctly

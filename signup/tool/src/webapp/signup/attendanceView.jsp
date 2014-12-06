@@ -12,12 +12,10 @@
 		<style type="text/css">
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>
+<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 		<script TYPE="text/javascript" LANGUAGE="JavaScript"
 			src="/sakai-signup-tool/js/signupScript.js"></script>
-		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript">
-			jQuery.noConflict();
-			
 			jQuery(document).ready(function(){
 	            sakai.setupSelectListMultiple('availableSpots', 'selectAllThese', 'selectedSelected');
 	            sakai.setupPrintPreview();

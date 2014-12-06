@@ -52,6 +52,10 @@
             <groupId>org.sakaiproject.jsf</groupId>
             <artifactId>jsf-app</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.portal</groupId>
+            <artifactId>sakai-portal-util</artifactId>
+        </dependency>
         <!-- remove the default api/imp 1.1_02 version from JSF prject with new 1.2 version  -->
         <dependency>
             <groupId>org.sakaiproject.jsf</groupId>

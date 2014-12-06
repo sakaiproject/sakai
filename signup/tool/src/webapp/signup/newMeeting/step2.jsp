@@ -12,12 +12,9 @@
 			@import url("/sakai-signup-tool/css/signupStyle.css");
 		</style>	
 	
-	
-	  <script TYPE="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<h:outputText value="#{Portal.latestJQuery}" escape="false"/>
 	  <script TYPE="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
 	  <script TYPE="text/javascript">
-	  		jQuery.noConflict();
-			//init
 			jQuery(document).ready(function() {
 				isShowEmailChoice();
 	         });
