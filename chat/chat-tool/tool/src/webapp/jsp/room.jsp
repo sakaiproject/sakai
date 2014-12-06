@@ -11,7 +11,7 @@
 <sakai:script contextBase="/library" path="/js/jquery.js" />
 <sakai:script contextBase="/sakai-chat-tool" path="/js/chatscript.js"/>
 <script type="text/javascript">
-	window.frameElement.className='wcwmenu';
+	if ( window.frameElement) window.frameElement.className='wcwmenu';
 </script>
 <h:form id="topForm">
       <h:inputHidden id="chatidhidden" value="#{ChatTool.currentChatChannelId}" />
