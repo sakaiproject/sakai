@@ -6,7 +6,7 @@
       String head = (String) request.getAttribute("sakai.html.head");
       head += "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += "<link href=\"/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
-      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/jquery-1.9.1.min.js\"></script>\n";
+      head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
       head += "<script type=\"text/javascript\" src=\"/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js\"></script>\n";
       head += "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 

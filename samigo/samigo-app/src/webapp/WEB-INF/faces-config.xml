@@ -648,6 +648,19 @@
     <managed-bean-class>org.sakaiproject.tool.assessment.ui.bean.shared.MediaBean</managed-bean-class>
     <managed-bean-scope>session</managed-bean-scope>
   </managed-bean>
+    <managed-bean>
+        <description>
+            JSF Portal Object
+        </description>
+        <managed-bean-name>Portal</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.portal.util.PortalBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <description>Caller</description>
+            <property-name>caller</property-name>
+            <value>Samigo</value>
+        </managed-property>
+    </managed-bean>
   <!-- Navigation Rules -->
   <navigation-rule>
     <from-view-id>*</from-view-id>
