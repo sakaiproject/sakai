@@ -687,7 +687,7 @@ public class DashboardDaoImpl extends JdbcDaoSupport implements DashboardDao {
 	 */
 	public boolean deleteLinksByContext(String context, String type) {
 		log.info("deleteLinksByContext(" + context + ", " + type + ")");
-		if (type != null)
+		if (type == null)
 		{
 			log.error(this + " deleteLinksByContext: null type string");
 			return false;
