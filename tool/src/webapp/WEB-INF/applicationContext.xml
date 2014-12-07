@@ -3,11 +3,15 @@
 
 <beans>
 
+	<!--  <bean id="org.sakaiproject.gradebookng.business.XmlMarshaller" class="org.sakaiproject.gradebookng.business.XmlMarshaller" />-->
+
+
 	<bean id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService" class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="gradebookService" ref="org_sakaiproject_service_gradebook_GradebookService" />
+		<!--  <property name="xmlMarshaller" ref="org.sakaiproject.gradebookng.business.XmlMarshaller" />-->
 	</bean>
 	
 </beans>

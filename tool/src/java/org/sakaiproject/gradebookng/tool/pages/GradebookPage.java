@@ -8,6 +8,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
+import org.sakaiproject.gradebookng.business.XmlMarshaller;
+import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.StudentGrades;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.user.api.User;
@@ -27,18 +29,24 @@ import com.inmethod.grid.datagrid.DefaultDataGrid;
  */
 public class GradebookPage extends BasePage {
 	
+	private static final long serialVersionUID = 1L;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
+		
+		String currentUserUuid = this.businessService.getCurrentUserUuid();
 		
 		Form<Void> form = new Form<Void>("form");
 		add(form);
 		
 		final List<StudentGrades> grades = businessService.buildGradeMatrix();
-        final ListDataProvider listDataProvider = new ListDataProvider(grades);
+        final ListDataProvider<StudentGrades> listDataProvider = new ListDataProvider<StudentGrades>(grades);
 
         
         List<IGridColumn> cols = new ArrayList<IGridColumn>();
         
+        //these properties need to match the studentgrades model
         cols.add(new PropertyColumn(new Model("Student Name"), "studentName", SortOrder.ASCENDING).setReorderable(false));
         cols.add(new PropertyColumn(new Model("Student ID"), "studentEid").setReorderable(false));
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
@@ -51,7 +59,6 @@ public class GradebookPage extends BasePage {
         
         
         EditablePropertyColumn test1 = new EditablePropertyColumn(new Model("Assignment 4"), "assignments.3");
-        
         cols.add(test1);
 
         //cols.add(new SubmitCancelColumn("form", Model.of("")));
@@ -64,6 +71,15 @@ public class GradebookPage extends BasePage {
 		grid.setSelectToEdit(false);
 		grid.setClickRowToSelect(true);
 		grid.setClickRowToDeselect(true);
+	
+		//testing the save and load
+		GradebookUserPreferences prefs = new GradebookUserPreferences(currentUserUuid);
+		prefs.setSortOrder(3);
+		
+		this.businessService.saveUserPrefs(prefs);
+		
+		GradebookUserPreferences crap = businessService.getUserPrefs();
+		
 	}
 	
 }

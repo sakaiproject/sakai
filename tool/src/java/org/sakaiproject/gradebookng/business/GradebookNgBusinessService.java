@@ -7,11 +7,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.JAXBException;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.StudentGrades;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -19,6 +25,7 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -48,6 +55,9 @@ public class GradebookNgBusinessService {
 	@Setter
 	private GradebookService gradebookService;
 	
+	//@Setter
+	//private XmlMarshaller xmlMarshaller;
+	
 	/**
 	 * Get a list of users in the current site that can have grades
 	 * 
@@ -55,7 +65,7 @@ public class GradebookNgBusinessService {
 	 */
 	public List<User> getGradeableUsers() {
 		try {
-			String siteId = toolManager.getCurrentPlacement().getContext();
+			String siteId = this.getCurrentSiteId();
 			Set<String> userIds = siteService.getSite(siteId).getUsersIsAllowed("gradebook.viewOwnGrades");			
 			return userDirectoryService.getUsers(userIds);
 		} catch (IdUnusedException e) {
@@ -70,7 +80,7 @@ public class GradebookNgBusinessService {
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook() {
-		String siteId = toolManager.getCurrentPlacement().getContext();
+		String siteId = this.getCurrentSiteId();
 		try {
 			Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
 			return gradebook;
@@ -199,7 +209,7 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get the list of grades for the given assignments for each user
 	 * 
-	 * This may need to be reworked for performance and use the method to get the grades for all students per item.
+	 * This may need to be reworked for performance and use the method to get the grades for all students per item so it can include GradeDenitiion items
 	 * 
 	 * @param studentUuid
 	 * @param assignments
@@ -227,7 +237,72 @@ public class GradebookNgBusinessService {
 		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
 		
 		return sg;
-		
-	
 	}
+	
+	/**
+	 * Get the user prefs for this gradebook instance
+	 * @param userUuid
+	 * @return
+	 */
+	public GradebookUserPreferences getUserPrefs() {
+		String siteId = this.getCurrentSiteId();
+		String userUuid = this.getCurrentUserUuid();
+		
+		try {
+			Site site = siteService.getSite(siteId);
+			
+			ResourceProperties props = site.getProperties();
+			String xml = (String) props.get(GradebookUserPreferences.getPropKey(userUuid));
+			
+			GradebookUserPreferences prefs = (GradebookUserPreferences) XmlMarshaller.unmarshall(xml);
+			return prefs;
+			
+		} catch (IdUnusedException | JAXBException e) {
+			e.printStackTrace();
+		}
+		
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Helper to save user prefs
+	 * 
+	 * @param prefs
+	 */
+	public void saveUserPrefs (GradebookUserPreferences prefs) {
+		String siteId = this.getCurrentSiteId();
+		
+		try {
+			Site site = siteService.getSite(siteId);
+			
+			ResourcePropertiesEdit props = site.getPropertiesEdit();
+			props.addProperty(GradebookUserPreferences.getPropKey(prefs.getUserUuid()), XmlMarshaller.marshal(prefs));
+			siteService.save(site);
+			
+		} catch (IdUnusedException | JAXBException | PermissionException e) {
+			e.printStackTrace();
+		}
+		 
+	}
+	
+	
+	/**
+	 * Helper to get siteid
+	 * @return
+	 */
+	private String getCurrentSiteId() {
+		return this.toolManager.getCurrentPlacement().getContext();
+	}
+	
+	/**
+	 * Helper to get user uuid
+	 * @return
+	 */
+	public String getCurrentUserUuid() {
+		return this.userDirectoryService.getCurrentUser().getId();
+	}
+	
+	
 }
