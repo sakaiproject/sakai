@@ -20,7 +20,7 @@ window.console && console.log('Loading portal JavaScript - $PBJQ='+$PBJQ.fn.jque
 	<script type="text/javascript">$PBJQ(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 #if ($portal_use_global_alert_message)
-    <script type="text/javascript" language="JavaScript" src="/globalalerts/js/gam.js"></script>
+    <script type="text/javascript" language="JavaScript" src="$!{portalCDNPath}/globalalerts/js/gam.js$!{portalCDNQuery}"></script>
 #end
 
 #if ( $neoChat && $loggedIn )
@@ -50,8 +50,8 @@ window.console && console.log('Loading portal JavaScript - $PBJQ='+$PBJQ.fn.jque
         "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}"
     };
 </script>
-<script type="text/javascript" src="/portal/scripts/webrtc-adapter.js"></script>
-<script type="text/javascript" src="/portal/scripts/videocall.js"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/webrtc-adapter.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/videocall.js$!{portalCDNQuery}"></script>
 #end
 #end
 #if ( ${styleable} )

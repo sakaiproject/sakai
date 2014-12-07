@@ -40,18 +40,18 @@
         #end
         
         <!--[if (lt IE 9)]>
-          <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css" rel="stylesheet">
+          <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css$!{portalCDNQuery}" rel="stylesheet">
         <![endif]-->
         ## downlevel revealed conditional comment - only loads for IE9+, IEMobile and Non IE browsers
         <!--[if (gte IE 9)|(IEMobile)|(!IE)]><!--> 
-          <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
+          <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" rel="stylesheet">
         <!--<![endif]-->
         
         #if ( $neoChat && $loggedIn )
-            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css" rel="stylesheet">
+            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css$!{portalCDNQuery}" rel="stylesheet">
         #end
         
-        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" rel="stylesheet">
+        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
 

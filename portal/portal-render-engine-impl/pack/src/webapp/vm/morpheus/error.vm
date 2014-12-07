@@ -4,8 +4,8 @@
         <!-- START VM error.vm -->
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link href="/portal/styles/portalstyles.css" rel="stylesheet">
-        <link href="${pageSkinRepo}/${pageSkin}/portal.css" rel="stylesheet">
+        <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" rel="stylesheet">
         #if ( ${bufferedResponse} && ${responseHead} ) 
             <!-- Head material from Tool (will include title and headscripts) -->
             ${responseHead}

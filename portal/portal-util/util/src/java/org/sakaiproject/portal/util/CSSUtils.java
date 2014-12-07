@@ -21,6 +21,7 @@
 
 package org.sakaiproject.portal.util;
 
+import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 
@@ -81,6 +82,23 @@ public class CSSUtils
 		return cssToolSkin;
 	}
 
+
+	/**
+	 * Returns a URL for the tool.css suitable for putting in an href= field.
+	 *
+	 * @param <code>skinFolder</code>
+	 *		where the tool.css skin lives for this site.
+	 * @return <code>cssToolSkin</code> URL for the tool.css
+	 */
+	public static String getCssToolSkinCDN(String skinFolder)
+	{
+		String cssToolSkin = getCssToolSkin(skinFolder);
+		if ( cssToolSkin.startsWith("/") ) {
+			cssToolSkin = PortalUtils.getCDNPath() + cssToolSkin + PortalUtils.getCDNQuery();
+		}
+		return cssToolSkin;
+	}
+
 	/**
 	 * Returns a URL for the tool.css suitable for putting in an href= field.
 	 *
@@ -93,6 +111,20 @@ public class CSSUtils
 		String skinFolder = site.getSkin();
 		return getCssToolSkin(skinFolder);
 	}
+
+	/**
+	 * Returns a URL for the tool.css suitable for putting in an href= field.
+	 *
+	 * @param <code>site</code>
+	 *		The site for this tool.
+	 * @return <code>cssToolSkin</code> URL for the tool.css
+	 */
+	public static String getCssToolSkinCDN(Site site)
+	{
+		String skinFolder = site.getSkin();
+		return getCssToolSkinCDN(skinFolder);
+	}
+
 
 }
 

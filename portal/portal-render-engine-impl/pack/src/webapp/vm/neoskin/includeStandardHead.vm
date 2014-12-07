@@ -57,11 +57,11 @@
 <!--[if gte IE 5]><![if lt IE 7]>
     <link href="$!{portalCDNPath}/portal/styles/portalstyles-ie5.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 <![endif]><![endif]-->
-<link href="${pageSkinRepo}/${pageSkin}/portal.css" type="text/css" rel="stylesheet" media="all" />
+<link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 #if ( $neoChat && $loggedIn )
-<link href="${pageSkinRepo}/${pageSkin}/portalchat.css" type="text/css" rel="stylesheet" media="all" />
+<link href="${pageSkinRepo}/${pageSkin}/portalchat.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 #end
-<link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css" type="text/css" rel="stylesheet" media="all" />
+<link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 
 
 #if (! $currentPlacement && $isPDA )
@@ -103,7 +103,7 @@ ${includeLatestJQuery}
 #end
 
 <link type="text/css" rel="stylesheet" href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}">
-<link href="${pageSkinRepo}/${pageSkin}/portalvideo.css" type="text/css" rel="stylesheet" media="all" />
+<link href="${pageSkinRepo}/${pageSkin}/portalvideo.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
 
 #if ( ${styleable} )
     #if ( ${styleableStyleSheet} )
