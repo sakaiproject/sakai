@@ -4,10 +4,7 @@
 <head>
 <title>Reload Page</title>
     <script type="text/javascript" language="JavaScript">
-       if(location.pathname.indexOf("/portal/site")==0)
-          parent.location.replace(parent.location.replace("ReloadPage",""));
-       else
-          parent.location.replace(parent.location);
+       parent.location.pathname = parent.location.pathname.replace(/ReloadPage$/,"");
     </script>
 </head>
 <body>
