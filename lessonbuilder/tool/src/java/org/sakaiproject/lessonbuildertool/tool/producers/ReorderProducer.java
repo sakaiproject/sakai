@@ -238,7 +238,7 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 	public List reportNavigationCases() {
 		List<NavigationCase> togo = new ArrayList<NavigationCase>();
 		togo.add(new NavigationCase(null, new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
-		togo.add(new NavigationCase("success", new SimpleViewParameters(ReloadPageProducer.VIEW_ID)));
+		togo.add(new NavigationCase("success", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 		togo.add(new NavigationCase("cancel", new SimpleViewParameters(ShowPageProducer.VIEW_ID)));
 
 		return togo;
