@@ -1169,14 +1169,19 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));
 
-        String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
+		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
+		if ( universalAnalyticsId != null ) {
+			rcontext.put("googleUniversalAnalyticsId", universalAnalyticsId);
+		}
+
+		String analyticsId =  ServerConfigurationService.getString("portal.google.analytics_id", null);
 		if ( analyticsId != null ) {
-            rcontext.put("googleAnalyticsId", analyticsId);
-		    rcontext.put("googleAnalyticsDomain", 
-		        ServerConfigurationService.getString("portal.google.analytics_domain"));
-		    rcontext.put("googleAnalyticsDetail", 
-		        ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
-        }
+			rcontext.put("googleAnalyticsId", analyticsId);
+			rcontext.put("googleAnalyticsDomain", 
+				ServerConfigurationService.getString("portal.google.analytics_domain"));
+			rcontext.put("googleAnalyticsDetail", 
+				ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
+		}
 
 		Session s = SessionManager.getCurrentSession();
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
