@@ -3,21 +3,12 @@
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>Reload Page</title>
-    <script type="text/javascript" language="JavaScript">//<![CDATA[
-        if(self == top) {
-            var gourl = self.location.href;
-            var pos = gourl.indexOf('/ReloadPage');
-	    if ( pos < 0 ) {
-                console.log('Cannot reload url '+gourl);
-            } else {
-                gourl = gourl.substring(0,pos);
-                console.log('Switching to '+gourl);
-                self.location.replace(gourl);
-            }
-	} else {
-	    parent.location.replace(parent.location);
-	}
-    //]]></script>
+    <script type="text/javascript" language="JavaScript">
+       if(location.pathname.indexOf("/portal/site")==0)
+          parent.location.replace(parent.location.replace("ReloadPage",""));
+       else
+          parent.location.replace(parent.location);
+    </script>
 </head>
 <body>
 </body>
