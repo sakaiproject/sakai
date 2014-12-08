@@ -23,6 +23,7 @@
                 #parse("/vm/morpheus/includePage.vm")
             </div>
         </div>
+        #parse("/vm/morpheus/includeAnalytics.vm")
         <!-- END VM page.vm -->
     </body>
 </html>

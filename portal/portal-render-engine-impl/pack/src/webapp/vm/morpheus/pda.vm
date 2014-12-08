@@ -274,6 +274,7 @@
             </div>
         </footer>
     </div>
+        #parse("/vm/morpheus/includeAnalytics.vm")
         <!-- END VM pda.vm -->
     </body>
 </html>

@@ -227,6 +227,7 @@
                 }
             });
         </script>
+        #parse("/vm/morpheus/includeAnalytics.vm")
         <!-- END VM site.vm -->
     </body>
 </html>
