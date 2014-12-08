@@ -3,7 +3,7 @@
 //////////////////////////////
 
 $container-background: $body-background-color;
-$portal-background: nth($dark-grey, 3);
+$portal-background: lighten(nth($light-grey,6),1%);
 
 $portal-max-width: 80em;
 $portal-tool-menu-max-width: 15em;

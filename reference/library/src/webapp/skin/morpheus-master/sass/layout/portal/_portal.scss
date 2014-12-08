@@ -17,7 +17,6 @@
 }
 // Responsive Menus 
 
-
 //// Jump/Skip Menu
 .nav-skip {
   
@@ -124,11 +123,11 @@ main {
 #mastLogin {
   
   @include respond-to('narrow navigation') {
-    display: none;
+    //display: none;
   }
   
   @include respond-to('full navigation') {
-    display: none;
+    //display: none;
   }
 }
 
@@ -168,7 +167,7 @@ main {
 // Footer app tray
 //// hide for now 2014-09-25 
 .box.extras {
-  display: none;
+  //display: none;
 }
 
 ul.navIntraTool.actionToolBar {
