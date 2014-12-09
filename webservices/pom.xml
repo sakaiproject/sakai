@@ -44,9 +44,7 @@
     </developers>
     
     <modules>
-        <module>axis</module>
         <module>cxf</module>
-        <module>util</module>
     </modules>
     
     <scm>
@@ -63,13 +61,4 @@
         </site>
     </distributionManagement>
     
-  	<dependencyManagement>
-    	<dependencies>
-      		<dependency>
-        		<groupId>org.sakaiproject.webservices</groupId>
-        		<artifactId>sakai-util-axis</artifactId>
-        		<version>${project.version}</version>
-      		</dependency>
-    	</dependencies>
-  	</dependencyManagement>
 </project>
